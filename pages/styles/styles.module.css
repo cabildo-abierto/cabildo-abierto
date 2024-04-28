@@ -1,0 +1,5 @@
+.rectangle-container {
+    border: 2px solid #000; /* Black border */
+    padding: 10px; /* Add padding to create space between the content and the border */
+    border-radius: 5px; /* Add rounded corners to the rectangle */
+}
