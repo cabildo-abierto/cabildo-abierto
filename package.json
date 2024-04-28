@@ -1,5 +1,5 @@
 {
-  "name": "hello-next",
+  "name": "red-social",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -12,18 +12,16 @@
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^5.13.0",
-    "next": "12.0.10",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-markdown": "8.0.0"
+    "autoprefixer": "^10.4.19",
+    "next": "14.2.3",
+    "prisma": "^5.13.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^8.0.0",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^4.5.5"
   },
   "devDependencies": {
-    "@types/node": "17.0.14",
-    "@types/react": "17.0.38",
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "prisma": "^5.13.0",
-    "tailwindcss": "^3.4.3",
-    "typescript": "4.5.5"
+    "@types/node": "20.12.7"
   }
 }
