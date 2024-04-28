@@ -1,7 +1,7 @@
 'use client';
 
 import React, {useState} from "react"
-import { GetStaticProps } from "next"
+import {GetServerSideProps, GetStaticProps} from "next"
 import Feed from "../components/feed"
 import { PostProps } from "../components/post"
 import prisma from '../lib/prisma'
@@ -18,8 +18,7 @@ export const getStaticProps: GetStaticProps = async () => {
     },
   });
   return {
-    props: { feed },
-    revalidate: 10,
+    props: { feed }
   };
 };
 
@@ -27,16 +26,31 @@ type Props = {
   feed: PostProps[]
 }
 
+const addDiscussion = async (postData) => {
+    try {
+        const response = await fetch('/api/addDiscussion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(postData),
+        });
+        const result = await response.json();
+        console.log('Discussion added:', result);
+    } catch (error) {
+        console.error('Error adding discussion in request:', error);
+    }
+};
+
 const Home: React.FC<Props> = (props) => {
     const [showInput, setShowInput] = useState(false);
     const toggleInput = () => {
         setShowInput(prevState => !prevState);
     };
 
-    const createDiscussion = (title, content) => {
-        console.log("New discussion")
-        console.log(title)
-        console.log(content)
+    const createDiscussion = async (title, content) => {
+        await addDiscussion({title: title, content: content, authorId: "1"})
+
         toggleInput()
     }
 
