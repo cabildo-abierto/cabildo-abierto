@@ -26,14 +26,14 @@ type Props = {
   feed: PostProps[]
 }
 
-const addDiscussion = async (postData) => {
+const addDiscussion = async (discussionData) => {
     try {
         const response = await fetch('/api/addDiscussion', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(postData),
+            body: JSON.stringify(discussionData),
         });
         const result = await response.json();
         console.log('Discussion added:', result);
