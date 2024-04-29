@@ -9,7 +9,8 @@ export default async function handler(req, res) {
             const newUser = await prisma.user.create({
                 data: {
                     name,
-                    email
+                    email,
+                    password
                 },
             });
             res.writeHead(302, { Location: '/' });

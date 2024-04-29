@@ -9,7 +9,7 @@ import WriteButton from "../components/write_button";
 import NewDiscussion from "../components/new_discussion";
 
 export const getStaticProps: GetStaticProps = async () => {
-  const feed = await prisma.post.findMany({
+  const feed = await prisma.discussion.findMany({
     where: { published: true },
     include: {
       author: {

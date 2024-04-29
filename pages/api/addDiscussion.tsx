@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
         try {
             const { title, content, authorId } = req.body;
-            const newPost = await prisma.post.create({
+            const newPost = await prisma.discussion.create({
                 data: {
                     title,
                     content,

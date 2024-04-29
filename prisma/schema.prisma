@@ -8,7 +8,7 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-model Post {
+model Discussion {
   id        String     @default(cuid()) @id
   title     String
   content   String?
@@ -18,11 +18,12 @@ model Post {
 }
 
 model User {
-  id            String       @default(cuid()) @id
-  name          String?
-  email         String?   @unique
+  id            String    @default(cuid()) @id
+  name          String
+  email         String    @unique
+  password      String
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
-  posts         Post[]
+  posts         Discussion[]
   @@map(name: "users")
 }
