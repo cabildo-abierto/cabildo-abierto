@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Discussion {
+  id        String  @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean @default(false)
+  author    User?   @relation(fields: [authorId], references: [id])
+  authorId  String?
+}
+
+model User {
+  id              String       @id @default(cuid())
+  name            String       @db.VarChar(255)
+  email           String       @unique @db.VarChar(255)
+  password        String       @db.VarChar(255)
+  emailVerifiedAt DateTime? // optional DateTime
+  emailVerifToken String?      @db.VarChar(255)
+  createdAt       DateTime     @default(now()) @map(name: "created_at")
+  updatedAt       DateTime     @updatedAt @map(name: "updated_at")
+  posts           Discussion[]
+
+  @@map(name: "users")
+}
