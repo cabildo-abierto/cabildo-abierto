@@ -1,7 +1,9 @@
 
 ## Para hacer
 
+## Cambiar esquema de la base de datos
 
+npx prisma db push
 
 ## Setup
 
