@@ -109,9 +109,10 @@ export async function signUp(
       }
     }
   }
-
+  console.log("Sending verification email!!!!!")
   await sendVerificationEmail(result.data.email, verificationToken)
-
+  console.log("Result data email")
+  console.log(result.data.email)
   redirect(`/email/verify/send?email=${result.data.email}&verification_sent=1`)
 }
 

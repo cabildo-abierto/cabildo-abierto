@@ -18,12 +18,12 @@ export default function Form() {
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                     <h1 className='mb-3 text-2xl'>
-                        Please log in to continue.
+                        Inicio de sesión
                     </h1>
                     <div className="w-full mb-4">
                         <div>
                             <label
-                                className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
                                 htmlFor="email"
                             >
                                 Email
@@ -33,23 +33,23 @@ export default function Form() {
                                 id="email"
                                 type="email"
                                 name="email"
-                                placeholder="Enter your email address"
+                                placeholder=""
                                 required
                             />
                         </div>
                         <div>
                             <label
-                                className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
                                 htmlFor="password"
                             >
-                                Password
+                                Contraseña
                             </label>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
                                 id="password"
                                 type="password"
                                 name="password"
-                                placeholder="Enter password"
+                                placeholder=""
                                 required
                                 minLength={6}
                             />
@@ -62,8 +62,7 @@ export default function Form() {
                     </div>
                     <LoginButton />
                     <div className='mt-4 text-center'>
-                        Don&apos;t have an account?&nbsp;
-                        <Link className='underline' href='/signup'>Sign Up</Link>
+                        No tenés una cuenta? <Link className='underline' href='/signup'>Registrate</Link>
                     </div>
                 </div>
             </form>

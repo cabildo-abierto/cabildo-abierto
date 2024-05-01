@@ -15,7 +15,7 @@ export default function Form() {
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                     <h1 className='mb-3 text-2xl'>
-                        Sign Up Now!
+                        Registro
                     </h1>
                     <div className="w-full mb-4">
                         <div>
@@ -27,7 +27,7 @@ export default function Form() {
                             </label>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
-                                placeholder="Enter your email"
+                                placeholder=""
                                 type="email"
                                 id="email"
                                 name="email"
@@ -42,14 +42,14 @@ export default function Form() {
                         </div>
                         <div>
                             <label
-                                className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
                                 htmlFor="password"
                             >
-                                Password
+                                Contraseña
                             </label>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
-                                placeholder="Enter your password"
+                                placeholder=""
                                 type="password"
                                 id="password"
                                 name="password"
@@ -64,14 +64,14 @@ export default function Form() {
                         </div>
                         <div>
                             <label
-                                className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
                                 htmlFor="name"
                             >
-                                Name
+                                Nombre (el nombre que van a ver otros usuarios)
                             </label>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
-                                placeholder="Enter your name"
+                                placeholder=""
                                 type="text"
                                 id="name"
                                 name="name"
@@ -87,8 +87,7 @@ export default function Form() {
                     </div>
                     <SignupButton />
                     <div className='mt-4 text-center'>
-                        Already have an account?&nbsp;
-                        <Link className='underline' href='/login'>Login</Link>
+                        Ya tenés una cuenta? <Link className='underline' href='/login'>Iniciar sesión</Link>
                     </div>
                 </div>
             </form>
