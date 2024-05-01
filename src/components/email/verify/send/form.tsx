@@ -19,7 +19,7 @@ export default function Form() {
                 <div className="text-blue-500 mb-4">{formState}</div>
             )}
             {!!verificationSent && (
-                <div className="text-green-500 mb-4">A verification link has been sent to your email.</div>
+                <div className="text-blue-800 text-lg mb-4">Mandamos un link de verificación a tu casilla de mail. Por favor, revisá tu casilla.</div>
             )}
             <div>
                 <form action={action}>

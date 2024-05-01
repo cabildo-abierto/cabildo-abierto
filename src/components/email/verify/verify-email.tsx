@@ -12,7 +12,7 @@ export default function VerifyEmail() {
     const token = searchParams.get('token')
 
     const [isLoading, setIsLoading] = useState(true)
-    const [result, setResult] = useState('Error verifying your email')
+    const [result, setResult] = useState('Ups.. Hubo un error verificando tu mail.')
 
     useEffect(() => {
         const emailVerification = async () => {
@@ -33,7 +33,7 @@ export default function VerifyEmail() {
                 // Update user verification status in database
                 await verifyEmail(user.email)
 
-                setResult('Email verified successfully. Please relogin.')
+                setResult('Correo verificado! Ya podés iniciar sesión.')
                 setIsLoading(false)
             } catch (error) {
                 console.error('Error verifying email:', error);
@@ -45,9 +45,9 @@ export default function VerifyEmail() {
 
     return (
         <>
-            <div className='mb-4'>{isLoading ? 'Please wait ...' : result}</div>
+            <div className='mb-4'>{isLoading ? 'Esperanos un momento...' : result}</div>
             <div className='my-3'>
-                <Link href='/login' className='bg-white py-3 px-2 rounded'>Back to Login</Link>
+                <Link href='/login' className='bg-white py-3 px-2 rounded'>Ir al inicio de sesión</Link>
             </div>
         </>
     )

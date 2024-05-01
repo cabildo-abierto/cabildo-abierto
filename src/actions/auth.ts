@@ -148,12 +148,12 @@ const sendVerificationEmail = async (email: string, token: string) => {
   });
 
   const emailData = {
-    from: '"Blog Nextjs Auth" <verification@test.com>',
+    from: '"Demos Aut." <verificacion@demos.com>',
     to: email,
-    subject: 'Email Verification',
+    subject: 'Verificación de correo',
     html: `
-      <p>Click the link below to verify your email:</p>
-      <a href="http://localhost:3000/email/verify?email=${email}&token=${token}">Verify Email</a>
+      <p>Si creaste una cuenta en Demos recientemente, clickeá en el siguiente link para verificar tu correo:</p>
+      <a href="http://localhost:3000/email/verify?email=${email}&token=${token}">Verificar correo</a>
     `,
   };
 

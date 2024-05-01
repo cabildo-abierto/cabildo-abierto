@@ -22,14 +22,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${lusitana.className} antialiased`}>
-        <Header/>
-        <main className="flex min-h-screen flex-col items-center justify-between p-24">
-          <div className="z-10 items-center text-sm lg:flex">
-            <Providers>
-              {children}
-            </Providers>
-          </div>
-        </main>
+        <Providers>
+          <>
+          <Header/>
+          {children}
+          </>
+        </Providers>
       </body>
     </html>
   );
