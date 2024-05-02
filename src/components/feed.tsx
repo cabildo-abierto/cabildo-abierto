@@ -3,12 +3,12 @@ import Post from "./post"
 
 
 const Feed: React.FC<{ feed }> = ({ feed }) => {
-    return <> {feed.map((post) => (
+    return <div> {feed.map((post) => (
             <div key={post.id} className="post">
                 <Post post={post}/>
             </div>
         ))}
-    </>
+    </div>
 };
 
 export default Feed

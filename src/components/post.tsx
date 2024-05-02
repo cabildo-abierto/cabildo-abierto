@@ -1,5 +1,6 @@
 import React from "react";
 import {permanentRedirect, redirect} from "next/navigation";
+import Link from "next/link";
 
 export type PostProps = {
   id: string;

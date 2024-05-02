@@ -2,30 +2,15 @@
 
 import React, {useState} from "react";
 import AutoExpandingTextarea from "@/components/autoexpanding_textarea"
+import { createDiscussion } from '@/actions/createDiscussion'
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/navigation";
 
-const addDiscussion = async (discussionData) => {
-    try {
-        const response = await fetch('/api/addDiscussion', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(discussionData),
-        });
-        const result = await response.json();
-        console.log('Discussion added:', result);
-    } catch (error) {
-        console.error('Error adding discussion in request:', error);
-    }
-};
-
-interface NewDiscussionProps {
-    createDiscussion: (title: string, content: string) => void
-}
-
-const NewDiscussion: React.FC<NewDiscussionProps> = ({ createDiscussion }) => {
-    const [title, setTitle] = useState(''); // State for title
-    const [content, setContent] = useState(''); // State for content
+const NewDiscussion: React.FC = () => {
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+    const { data: session, status } = useSession()
+    const router = useRouter();
 
     const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(event.target.value); // Update title state
@@ -35,9 +20,13 @@ const NewDiscussion: React.FC<NewDiscussionProps> = ({ createDiscussion }) => {
         setContent(value); // Update content state
     };
 
+    const email = session?.user?.email
+
     const handleCreateDiscussion = () => {
-        createDiscussion(title, content); // Call createDiscussion with title and content
-    };
+        createDiscussion({title, content, email: email})
+        router.push("/")
+    }
+
     return (
         <div className="flex justify-center mt-8">
             <div className="flex flex-col w-1/3">
@@ -68,3 +57,4 @@ const NewDiscussion: React.FC<NewDiscussionProps> = ({ createDiscussion }) => {
 };
 
 export default NewDiscussion;
+
