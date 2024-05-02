@@ -17,8 +17,8 @@ const Discussion: React.FC<{ discussion: DiscussionProps }> = ({ discussion }) =
       return (
           <Link href={`/discussion/${discussion.id}`}>
               <div className="bg-white shadow-md rounded-lg p-4 mb-4 cursor-pointer">
-                  <h2 className="text-xl font-bold mb-2">{discussion.title}</h2>
-                  <p className="text-gray-600 mb-2">Iniciada por: {authorName}</p>
+                  <h2 className="text-xl font-bold mb-1">{discussion.title}</h2>
+                  <p className="text-gray-600 mb-2">{authorName}</p>
                   <div className="text-gray-800">{discussion.content}</div>
               </div>
           </Link>
