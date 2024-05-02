@@ -20,7 +20,7 @@ export default function Form() {
                     <div className="w-full mb-4">
                         <div>
                             <label
-                                className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
                                 htmlFor="email"
                             >
                                 Email

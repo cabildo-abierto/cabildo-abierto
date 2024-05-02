@@ -1,6 +1,5 @@
 import React from "react";
 import Image from 'next/image';
-import {permanentRedirect, redirect} from "next/navigation";
 import Link from "next/link";
 
 const WriteButton: React.FC = () => {

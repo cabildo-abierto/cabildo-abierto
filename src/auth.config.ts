@@ -15,7 +15,7 @@ export const authConfig = {
         return false; // Redirect unauthenticated users to login page
       } else if (isLoggedIn) {
         const isOnAuth = nextUrl.pathname === '/login' || nextUrl.pathname === '/signup';
-        if (isOnAuth) return Response.redirect(new URL('/member', nextUrl));
+        if (isOnAuth) return Response.redirect(new URL('/', nextUrl));
 
         return true;
       }

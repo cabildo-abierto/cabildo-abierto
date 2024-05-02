@@ -1,11 +1,11 @@
 import React from "react";
-import Post from "./post"
+import Discussion from "./discussion"
 
 
 const Feed: React.FC<{ feed }> = ({ feed }) => {
-    return <div> {feed.map((post) => (
-            <div key={post.id} className="post">
-                <Post post={post}/>
+    return <div> {feed.map((discussion) => (
+            <div key={discussion.id} className="post">
+                <Discussion discussion={discussion}/>
             </div>
         ))}
     </div>
