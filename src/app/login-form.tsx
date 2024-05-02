@@ -1,12 +1,11 @@
 'use client'
 
-import Link from "next/link";
 import { useFormState } from "react-dom";
 import { authenticate } from '@/actions/auth';
 import LoginButton from "./login-button";
 import { redirect, useSearchParams } from "next/navigation";
 
-export default function Form() {
+export default function LoginForm({onNoAccount}) {
     const [formState, action] = useFormState(authenticate, undefined);
 
     if (formState?.startsWith('EMAIL_NOT_VERIFIED')) {
@@ -18,7 +17,7 @@ export default function Form() {
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                     <h1 className='mb-3 text-2xl'>
-                        Inicio de sesión
+                        Ingresá
                     </h1>
                     <div className="w-full mb-4">
                         <div>
@@ -62,7 +61,7 @@ export default function Form() {
                     </div>
                     <LoginButton />
                     <div className='mt-4 text-center'>
-                        No tenés una cuenta? <Link className='underline' href='/signup'>Registrate</Link>
+                        No tenés una cuenta? <button className='underline' onClick={onNoAccount}>Registrate</button>
                     </div>
                 </div>
             </form>

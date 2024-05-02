@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useState} from "react";
-import AutoExpandingTextarea from "@/components/autoexpanding_textarea"
+import AutoExpandingTextarea from "./autoexpanding_textarea"
 import { createDiscussion } from '@/actions/createDiscussion'
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";

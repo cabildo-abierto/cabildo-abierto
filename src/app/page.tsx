@@ -1,34 +1,43 @@
-import React from "react"
-import Feed from "@/components/feed"
+"use client"
 
-import { db } from '@/db'
-import WriteButton from "../components/write_button";
+import SignupForm from "./signup-form";
+import LoginForm from "./login-form"
+import { Typewriter } from 'nextjs-simple-typewriter'
+import Image from 'next/image'
+import {useState} from "react";
 
-export const getDiscussions = async () => {
-  const feed = await db.discussion.findMany({
-    where: { published: true },
-    include: {
-      author: {
-        select: { name: true },
-      },
-    },
-  })
-  return feed
-};
-
-
-
-const Home: React.FC = async () => {
-    const discussions = await getDiscussions()
-
+export default function Home() {
+    const [state, setState] = useState("signup");
     return (
-        <>
-            <div className="flex justify-center items-center mt-4">
-                <Feed feed={discussions}/>
+        <div className="flex">
+            <div className="w-3/4 px-16 py-16">
+                <h1 className="text-4xl font-bold text-gray-900">Demos</h1>
+                <div className="mt-4 text-2xl text-gray-700">
+                    <Typewriter
+                        words={["Informate", "Informá", "Discutí"]}
+                        loop={0}
+                        cursor
+                        typeSpeed={70}
+                        deleteSpeed={50}
+                        delaySpeed={1000}
+                    />
+                </div>
+                <div className="absolute left-0 top-0 -z-10">
+                    <Image
+                        src="/parthenon1.png"
+                        width={800}
+                        height={800}
+                    />
+                </div>
             </div>
-            <WriteButton/>
-        </>
-    )
+            <div className="w-1/2 flex justify-center">
+                {state == "signup" && <div className="w-1/2 mr-8 py-32">
+                    <SignupForm title="Creá tu cuenta" onHasAccount={() => setState("login")}/>
+                </div>}
+                {state == "login" && <div className="w-1/2 mr-8 py-32">
+                    <LoginForm onNoAccount={() => setState("signup")} />
+                </div>}
+            </div>
+        </div>
+    );
 }
-
-export default Home

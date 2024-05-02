@@ -5,7 +5,7 @@ import { signUp } from "@/actions/auth";
 import { useFormState } from "react-dom";
 import SignupButton from "./signup-button";
 
-export default function Form() {
+export default function SignupForm({title, onHasAccount}) {
     const [formState, action] = useFormState(signUp, {
         errors: {},
     })
@@ -15,7 +15,7 @@ export default function Form() {
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                     <h1 className='mb-3 text-2xl'>
-                        Registro
+                        {title}
                     </h1>
                     <div className="w-full mb-4">
                         <div>
@@ -67,7 +67,7 @@ export default function Form() {
                                 className="mb-3 mt-5 block text-s font-medium text-gray-900"
                                 htmlFor="name"
                             >
-                                Nombre (el nombre que van a ver otros usuarios)
+                                Nombre para tu perfil público
                             </label>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
@@ -87,7 +87,10 @@ export default function Form() {
                     </div>
                     <SignupButton />
                     <div className='mt-4 text-center'>
-                        Ya tenés una cuenta? <Link className='underline' href='/login'>Iniciar sesión</Link>
+                        Ya tenés una cuenta?{' '}
+                        <button onClick={onHasAccount} className='underline transition duration-300 ease-in-out hover:text-blue-500 hover:underline'>
+                            Iniciar sesión
+                        </button>
                     </div>
                 </div>
             </form>
