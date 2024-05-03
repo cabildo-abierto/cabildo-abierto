@@ -4,14 +4,14 @@ import {lusitana} from "@/app/layout";
 
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
+                                       children,
+                                   }: Readonly<{
+    children: React.ReactNode;
 }>) {
-  return (
-      <div className={`${lusitana.className} antialiased`}>
-          <Header/>
-          {children}
-      </div>
-  );
+    return (
+        <div className={`${lusitana.className} antialiased`}>
+            <Header enableNewDiscussion={false}/>
+            {children}
+        </div>
+    );
 }

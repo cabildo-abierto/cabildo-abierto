@@ -8,47 +8,38 @@ import {useRouter} from "next/navigation";
 
 const NewDiscussion: React.FC = () => {
     const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
     const { data: session, status } = useSession()
     const router = useRouter();
 
-    const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setTitle(event.target.value); // Update title state
-    };
-
     const handleContentChange = (value: string) => {
-        setContent(value); // Update content state
+        setTitle(value);
     };
 
     const email = session?.user?.email
 
     const handleCreateDiscussion = () => {
-        createDiscussion({title, content, email: email})
+        createDiscussion({title, email: email})
         router.push("/")
     }
 
     return (
         <div className="flex justify-center mt-8">
             <div className="flex flex-col w-1/3">
-                <h3 className="text-lg mb-2">Nueva discusión</h3>
-                <p className="text-sm text-gray-700">Título</p>
-                <input
-                    type="text"
-                    placeholder=""
-                    value={title}
-                    onChange={handleTitleChange}
-                    className="flex w-full justify-center bg-white border border-gray-300 rounded mb-4 pl-4 pr-4"
-                />
+                <h3 className="text-lg mb-2 font-bold">Empezá una discusión</h3>
 
-                <p className="text-sm text-gray-700">Contenido</p>
                 <AutoExpandingTextarea
-                    placeholder=""
+                    placeholder="Podés arrancar con una pregunta..."
                     onChange={handleContentChange}
+                    minHeight="80px"
                 />
-                <div className="flex justify-end mt-3">
+                <div className="flex justify-between mt-3">
+                    <button onClick={() => router.push("/feed")}
+                            className="bg-gray-200 hover:bg-gray-300 transition duration-200 font-bold py-2 px-4 rounded">
+                        Volver
+                    </button>
                     <button onClick={handleCreateDiscussion}
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        Start
+                            className="bg-gray-200 hover:bg-gray-300 transition duration-200 font-bold py-2 px-4 rounded">
+                        Enviar
                     </button>
                 </div>
             </div>

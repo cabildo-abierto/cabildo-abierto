@@ -10,7 +10,7 @@ export default function RootLayout({
 }>) {
   return (
       <div className={`${lusitana.className} antialiased`}>
-          <Header/>
+          <Header enableNewDiscussion={true}/>
           {children}
       </div>
   );

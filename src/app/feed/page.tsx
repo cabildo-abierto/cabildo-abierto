@@ -2,7 +2,6 @@ import React from "react"
 import Feed from "./feed"
 
 import { db } from '@/db'
-import WriteButton from "./write_button";
 
 export const getDiscussions = async () => {
   const feed = await db.discussion.findMany({
@@ -26,7 +25,6 @@ const Home: React.FC = async () => {
             <div className="flex justify-center items-center mt-4">
                 <Feed feed={discussions}/>
             </div>
-            <WriteButton/>
         </>
     )
 }
