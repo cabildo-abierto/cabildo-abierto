@@ -38,7 +38,7 @@ const Header = ({enableNewDiscussion}) => {
     return (
         <header className="bg-gray-50 border flex justify-between">
             <div className="flex px-2 py-2">
-                <h1 className="text-3xl font-bold text-gray-900" onClick={() => router.push("/feed")}>Demos</h1>
+                <h1 className="text-3xl font-bold text-gray-900 cursor-pointer" onClick={() => router.push("/feed")}>Demos</h1>
             </div>
             <div className="flex items-center">
                 {enableNewDiscussion && <div className="mr-4 rounded bg-gray-200 hover:bg-gray-400 transition duration-300">

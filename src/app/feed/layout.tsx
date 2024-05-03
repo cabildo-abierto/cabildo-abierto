@@ -1,17 +1,7 @@
 import "@/app/globals.css";
-import Header from "@/components/header";
-import {lusitana} from "@/app/layout";
+import FeedLayout from "@/components/feed-layout";
 
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-      <div className={`${lusitana.className} antialiased`}>
-          <Header enableNewDiscussion={true}/>
-          {children}
-      </div>
-  );
+export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
+  return <FeedLayout children={children} enableNewDiscussion={true}/>
 }
