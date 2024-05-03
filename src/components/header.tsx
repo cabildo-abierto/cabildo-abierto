@@ -1,6 +1,7 @@
 import { logout } from "@/actions/auth";
 import Link from 'next/link';
 import {redirect} from "next/navigation";
+import {getUser} from "@/actions/get-user";
 
 const HeaderText = ({content}) => {
     return <h1 className="text-lg">{content ? content : "..."}</h1>
@@ -26,6 +27,9 @@ const SessionElements = ({userName}) => {
 }
 
 const Header = async ({enableNewDiscussion}) => {
+
+    const user = await getUser()
+
     return (
         <header className="bg-gray-50 border flex justify-between">
             <div className="flex px-2 py-2">
@@ -43,7 +47,7 @@ const Header = async ({enableNewDiscussion}) => {
                 </div>
                 }
                 <div>
-                    <SessionElements userName={"Tu usuario"}/>
+                    <SessionElements userName={user?.name}/>
                 </div>
             </div>
         </header>
