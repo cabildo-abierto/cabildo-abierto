@@ -1,13 +1,9 @@
 "use client"
 
 import AutoExpandingTextarea from "@/components/autoexpanding_textarea"
-import {db} from "@/db"
-import Discussion from "@/components/discussion";
 import React, {useState} from "react";
 import {useRouter} from "next/navigation";
-import {createDiscussion} from "@/actions/create-discussion";
 import {useSession} from "next-auth/react";
-import discussion from "@/components/discussion";
 
 interface NewCommentProps {
     handleAddComment: (comment: any, email: any) => Promise<void>

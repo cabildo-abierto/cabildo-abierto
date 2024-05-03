@@ -1,23 +1,24 @@
 'use client'
 
 import { useFormState } from "react-dom";
-import { authenticate } from '@/actions/auth';
+import {authenticate, signup} from '@/actions/auth';
 import LoginButton from "./login-button";
 import { redirect, useSearchParams } from "next/navigation";
+import {SignupButton} from "@/app/signup-button";
 
-export default function LoginForm({onNoAccount}) {
-    const [formState, action] = useFormState(authenticate, '');
+export default function LoginForm() {
+    const [state, action] = useFormState(authenticate, undefined)
 
-    if (formState?.startsWith('EMAIL_NOT_VERIFIED')) {
+    /*if (formState?.errors? === 'EMAIL_NOT_VERIFIED') {
         redirect(`/email/verify/send?email=${formState.split(':')[1]}`)
-    }
+    }*/
 
     return (
         <div className="space-y-3 items-center">
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                     <h1 className='mb-3 text-2xl'>
-                        Ingresá
+                        Creá tu cuenta
                     </h1>
                     <div className="w-full mb-4">
                         <div>
@@ -29,12 +30,18 @@ export default function LoginForm({onNoAccount}) {
                             </label>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
-                                id="email"
-                                type="email"
-                                name="email"
                                 placeholder=""
-                                required
+                                type="email"
+                                id="email"
+                                name="email"
+                                defaultValue=''
                             />
+                            {
+                                state?.errors?.email
+                                && <div className="text-sm text-red-500">
+                                    {state?.errors?.email.join(', ')}
+                                </div>
+                            }
                         </div>
                         <div>
                             <label
@@ -45,26 +52,24 @@ export default function LoginForm({onNoAccount}) {
                             </label>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
-                                id="password"
-                                type="password"
-                                name="password"
                                 placeholder=""
-                                required
-                                minLength={6}
+                                type="password"
+                                id="password"
+                                name="password"
+                                defaultValue=''
                             />
+                            {
+                                state?.errors?.password
+                                && <div className="text-sm text-red-500">
+                                    {state?.errors?.password.join(', ')}
+                                </div>
+                            }
                         </div>
-                        {formState && (
-                            <div className="text-sm text-red-500">
-                                {formState}
-                            </div>
-                        )}
                     </div>
+
                     <LoginButton/>
                 </div>
             </form>
-            <div className='mt-4 text-center'>
-                No tenés una cuenta? <button className='underline' onClick={onNoAccount}>Registrate</button>
-            </div>
         </div>
     )
 }

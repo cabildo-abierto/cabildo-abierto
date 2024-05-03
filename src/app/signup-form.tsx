@@ -1,21 +1,20 @@
 'use client'
 
-import Link from "next/link";
-import { signUp } from "@/actions/auth";
+import {signup} from "@/actions/auth";
 import { useFormState } from "react-dom";
-import SignupButton from "./signup-button";
+import {SignupButton} from "@/app/signup-button";
 
-export default function SignupForm({title, onHasAccount}) {
-    const [formState, action] = useFormState(signUp, {
-        errors: {},
-    })
+export default function SignupForm() {
+    const [state, action] = useFormState(signup, undefined)
+
+    console.log("State", state)
 
     return (
         <div className="space-y-3 items-center">
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                     <h1 className='mb-3 text-2xl'>
-                        {title}
+                        Creá tu cuenta
                     </h1>
                     <div className="w-full mb-4">
                         <div>
@@ -34,9 +33,9 @@ export default function SignupForm({title, onHasAccount}) {
                                 defaultValue=''
                             />
                             {
-                                formState?.errors.email
+                                state?.errors?.email
                                 && <div className="text-sm text-red-500">
-                                    {formState.errors.email.join(', ')}
+                                    {state?.errors?.email.join(', ')}
                                 </div>
                             }
                         </div>
@@ -56,9 +55,9 @@ export default function SignupForm({title, onHasAccount}) {
                                 defaultValue=''
                             />
                             {
-                                formState?.errors.password
+                                state?.errors?.password
                                 && <div className="text-sm text-red-500">
-                                    {formState.errors.password.join(', ')}
+                                    {state?.errors?.password.join(', ')}
                                 </div>
                             }
                         </div>
@@ -79,19 +78,14 @@ export default function SignupForm({title, onHasAccount}) {
                             />
                         </div>
                         {
-                            formState?.errors.name
+                            state?.errors?.name
                             && <div className="text-sm text-red-500">
-                                {formState.errors.name.join(', ')}
+                                {state?.errors?.name.join(', ')}
                             </div>
                         }
                     </div>
-                    <SignupButton />
-                    <div className='mt-4 text-center'>
-                        Ya tenés una cuenta?{' '}
-                        <button onClick={onHasAccount} className='underline transition duration-300 ease-in-out hover:text-blue-500 hover:underline'>
-                            Iniciar sesión
-                        </button>
-                    </div>
+
+                    <SignupButton/>
                 </div>
             </form>
         </div>

@@ -9,8 +9,6 @@ import {useState} from "react";
 export default function Home() {
     const [state, setState] = useState("signup");
 
-
-
     return (
         <div className="flex">
             <div className="w-3/4 px-16 py-16">
@@ -36,10 +34,20 @@ export default function Home() {
             </div>
             <div className="w-1/2 flex justify-center">
                 {state == "signup" && <div className="w-1/2 mr-8 py-32">
-                    <SignupForm title="Creá tu cuenta" onHasAccount={() => setState("login")}/>
+                    <SignupForm/>
+                    <div className='mt-4 text-center'>
+                        Ya tenés una cuenta?{' '}
+                        <button onClick={() => setState("login")}
+                                className='underline transition duration-300 ease-in-out hover:text-blue-500 hover:underline'>
+                            Iniciar sesión
+                        </button>
+                    </div>
                 </div>}
                 {state == "login" && <div className="w-1/2 mr-8 py-32">
-                    <LoginForm onNoAccount={() => setState("signup")} />
+                    <LoginForm/>
+                    <div className='mt-4 text-center'>
+                        No tenés una cuenta? <button className='underline' onClick={() => setState("signup")}>Registrate</button>
+                    </div>
                 </div>}
             </div>
         </div>

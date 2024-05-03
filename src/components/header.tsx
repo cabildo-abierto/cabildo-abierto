@@ -1,11 +1,6 @@
-'use client'
-
-import { useRouter } from 'next/navigation'
-import {getSession, useSession} from "next-auth/react";
 import { logout } from "@/actions/auth";
-
 import Link from 'next/link';
-import {useEffect} from "react";
+import {redirect} from "next/navigation";
 
 const HeaderText = ({content}) => {
     return <h1 className="text-lg">{content ? content : "..."}</h1>
@@ -30,16 +25,13 @@ const SessionElements = ({userName}) => {
     </div>
 }
 
-const Header = ({enableNewDiscussion}) => {
-    const router = useRouter();
-    const { data: session } = useSession()
-
-    const userName = session?.user?.name
-
+const Header = async ({enableNewDiscussion}) => {
     return (
         <header className="bg-gray-50 border flex justify-between">
             <div className="flex px-2 py-2">
-                <h1 className="text-3xl font-bold text-gray-900 cursor-pointer" onClick={() => router.push("/feed")}>Demos</h1>
+                <Link href={"/feed"}>
+                    <h1 className="text-3xl font-bold text-gray-900 cursor-pointer">Demos</h1>
+                </Link>
             </div>
             <div className="flex items-center">
                 {enableNewDiscussion && <div className="mr-4 rounded bg-gray-200 hover:bg-gray-400 transition duration-300">
@@ -51,7 +43,7 @@ const Header = ({enableNewDiscussion}) => {
                 </div>
                 }
                 <div>
-                    <SessionElements userName={userName}/>
+                    <SessionElements userName={"Tu usuario"}/>
                 </div>
             </div>
         </header>

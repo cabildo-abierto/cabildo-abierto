@@ -1,121 +1,107 @@
 'use server';
 
-import { signIn, signOut } from '@/auth';
 import { db } from '@/db';
-import type { User } from '@prisma/client';
-import { AuthError } from 'next-auth';
-import { z } from 'zod';
 import bcryptjs from 'bcryptjs'
-import nodemailer from 'nodemailer'
 import { randomBytes } from 'crypto';
 import { redirect } from 'next/navigation';
-import { EmailNotVerifiedError } from '@/errors';
+import {
+  LoginFormState,
+  LoginFormSchema,
+  SignupFormState,
+  SignupFormSchema,
+  SessionPayload
+} from "@/app/lib/definitions";
+import {createSession, decrypt} from "@/app/lib/session";
+import bcrypt from "bcryptjs";
+import {cookies} from "next/headers";
 
-export async function authenticate(
-  prevState: string | undefined,
-  formData: FormData,
-) {
-  console.log("Authentication called")
-  try {
-    await isUsersEmailVerified(formData.get('email') as string);
-    await signIn('credentials', formData);
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return 'Invalid credentials.';
-        default:
-          return 'Something went wrong.';
+
+export const verifySession = async () : Promise<SessionPayload|undefined> => {
+  const cookie = cookies().get('session')?.value
+  return await decrypt(cookie)
+}
+
+
+export async function authenticate(state: LoginFormState, formData){
+  console.log("Authenticating")
+
+  const validatedFields = LoginFormSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  })
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    }
+  }
+
+  const { email, password } = validatedFields.data
+  console.log("User data", email, password)
+
+  console.log("State", state)
+
+  const user = await db.user.findUnique({ where: { email: email } })
+
+  bcrypt.compare(password, user.password, function(err, res) {
+    if (err){
+      // handle error
+      console.log("Some error")
+    }
+    if (res) {
+      console.log("Password ok")
+    } else {
+      console.log("Incorrect password")
+      return {
+        errors: "Incorrect password."
       }
     }
+  });
 
-    if (error instanceof EmailNotVerifiedError) {
-      return error?.message;
-    }
-
-    throw error;
-  }
+  console.log("Creating session")
+  await createSession(user.id)
+  console.log("Redirecting")
+  redirect('/feed')
 }
 
-const signUpSchema = z.object({
-  name: z.string().min(3).max(255),
-  email: z.string().email(),
-  password: z.string().min(3).max(255),
-})
-
-interface SignUpFormState {
-  errors: {
-    name?: string[],
-    email?: string[],
-    password?: string[],
-    _form?: string[],
-  }
-}
-
-export async function signUp(
-  formState: SignUpFormState,
-  formData: FormData
-): Promise<SignUpFormState> {
-  const result = signUpSchema.safeParse({
+export async function signup(state: SignupFormState, formData) {
+  // Validate form fields
+  const validatedFields = SignupFormSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
   })
 
-  if (!result.success) {
+  // If any form fields are invalid, return early
+  if (!validatedFields.success) {
     return {
-      errors: result.error.flatten().fieldErrors
+      errors: validatedFields.error.flatten().fieldErrors,
     }
   }
 
-  const isEmailExists = await findUserByEmail(result.data.email)
+  const { name, email, password } = validatedFields.data
+  console.log("Creating accout with data", name, email, password)
 
-  if (isEmailExists) {
-    return {
-      errors: {
-        email: [
-          'Email already exists',
-        ],
-      },
-    }
-  }
-
-  const hashed = await generatePasswordHash(result.data.password);
+  const hashedPassword = await generatePasswordHash(password)
+  console.log("Hashed password")
+  console.log(hashedPassword)
 
   const verificationToken = generateEmailVerificationToken();
 
-  let user: User
-  try {
-    user = await db.user.create({
-      data: {
-        name: result.data.name,
-        email: result.data.email,
-        password: hashed,
-        emailVerifToken: verificationToken,
-      }
-    })
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return {
-        errors: {
-          _form: [error.message],
-        },
-      }
+  await db.user.create({
+    data: {
+      name: name,
+      email: email,
+      password: hashedPassword,
+      emailVerifToken: verificationToken,
     }
-    else {
-      return {
-        errors: {
-          _form: ['Something went wrong'],
-        },
-      }
-    }
-  }
-  await sendVerificationEmail(result.data.email, verificationToken)
-  redirect(`/email/verify/send?email=${result.data.email}&verification_sent=1`)
+  })
+  redirect(`/login`)
 }
 
 export async function logout() {
-  await signOut()
+    cookies().delete("session")
+    redirect("/")
 }
 
 export const findUserByEmail = async (email: string) => {
@@ -133,71 +119,4 @@ const generatePasswordHash = async (password: string) => {
 
 const generateEmailVerificationToken = () => {
   return randomBytes(32).toString('hex')
-}
-
-const sendVerificationEmail = async (email: string, token: string) => {
-  const transporter: nodemailer.Transporter = nodemailer.createTransport({
-    host: process.env.MAIL_HOST,
-    port: Number(process.env.EMAIL_PORT) || 0,
-    auth: {
-      user: process.env.MAIL_USERNAME,
-      pass: process.env.MAIL_PASSWORD,
-    },
-  });
-
-  const emailData = {
-    from: '"Demos Aut." <verificacion@demos.com>',
-    to: email,
-    subject: 'Verificación de correo',
-    html: `
-      <p>Si creaste una cuenta en Demos recientemente, clickeá en el siguiente link para verificar tu correo:</p>
-      <a href="http://localhost:3000/email/verify?email=${email}&token=${token}">Verificar correo</a>
-    `,
-  };
-
-  try {
-    await transporter.sendMail(emailData);
-  } catch (error) {
-    console.error('Failed to send email:', error);
-    throw error
-  }
-};
-
-export const resendVerificationEmail = async (email: string) => {
-  const emailVerificationToken = generateEmailVerificationToken()
-
-  try {
-    await db.user.update({
-      where: { email },
-      data: { emailVerifToken: emailVerificationToken },
-    });
-
-    await sendVerificationEmail(email, emailVerificationToken)
-  } catch (error) {
-    return 'Something went wrong.'
-  }
-
-  return 'Email verification sent.'
-};
-
-export const verifyEmail = (email: string) => {
-  return db.user.update({
-    where: { email },
-    data: {
-      emailVerifiedAt: new Date(),
-      emailVerifToken: null,
-    },
-  });
-}
-
-export const isUsersEmailVerified = async (email: string) => {
-  const user = await db.user.findFirst({
-    where: { email },
-  });
-
-  if (!user) return true
-
-  if (!user?.emailVerifiedAt) throw new EmailNotVerifiedError(`EMAIL_NOT_VERIFIED:${email}`)
-
-  return true
 }
