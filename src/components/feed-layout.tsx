@@ -12,6 +12,7 @@ export default function FeedLayout({children, enableNewDiscussion}) {
                 className="grayscale opacity-25"
                 width={500}
                 height={500}
+                priority
             />
         </div>
 

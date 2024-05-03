@@ -1,18 +1,16 @@
-import SignupForm from "./signup-form";
+import LoginForm from "./login-form"
 import Link from "next/link";
 import Home from "@/app/home";
 
-export default function HomePage() {
+export default function LoginPage() {
     return (
         <div className="flex">
             <Home/>
             <div className="w-1/2 flex justify-center">
                 <div className="w-1/2 mr-8 py-32">
-                    <SignupForm/>
+                    <LoginForm/>
                     <div className='mt-4 text-center'>
-                        Ya tenés una cuenta?{' '} <Link href="/login" className='underline transition duration-300 ease-in-out hover:text-blue-500 hover:underline'>
-                            Iniciar sesión
-                        </Link>
+                        No tenés una cuenta? <Link className='underline transition duration-300 ease-in-out hover:text-blue-500 hover:underline' href="/">Registrate</Link>
                     </div>
                 </div>
             </div>

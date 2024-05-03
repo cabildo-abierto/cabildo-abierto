@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import {verifySession} from "@/actions/auth";
 
 const protectedRoutes = ['/feed', '/profile']
-const publicRoutes = ['/']
+const publicRoutes = ['/', '/login']
 
 export default async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname
