@@ -1,5 +1,5 @@
 import React from "react";
-import Discussion from "./discussion"
+import Discussion from "@/components/discussion"
 
 
 const Feed: React.FC<{ feed }> = ({ feed }) => {

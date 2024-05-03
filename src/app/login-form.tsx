@@ -6,7 +6,7 @@ import LoginButton from "./login-button";
 import { redirect, useSearchParams } from "next/navigation";
 
 export default function LoginForm({onNoAccount}) {
-    const [formState, action] = useFormState(authenticate, undefined);
+    const [formState, action] = useFormState(authenticate, '');
 
     if (formState?.startsWith('EMAIL_NOT_VERIFIED')) {
         redirect(`/email/verify/send?email=${formState.split(':')[1]}`)
@@ -59,12 +59,12 @@ export default function LoginForm({onNoAccount}) {
                             </div>
                         )}
                     </div>
-                    <LoginButton />
-                    <div className='mt-4 text-center'>
-                        No tenés una cuenta? <button className='underline' onClick={onNoAccount}>Registrate</button>
-                    </div>
+                    <LoginButton/>
                 </div>
             </form>
+            <div className='mt-4 text-center'>
+                No tenés una cuenta? <button className='underline' onClick={onNoAccount}>Registrate</button>
+            </div>
         </div>
     )
 }

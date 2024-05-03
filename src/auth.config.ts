@@ -12,7 +12,9 @@ export const authConfig = {
       const isOnAuth = nextUrl.pathname === '/' ;
 
       if (isOnAuth) {
-        if(isLoggedIn) return Response.redirect(new URL('/feed', nextUrl));
+        if(isLoggedIn) {
+          return Response.redirect(new URL('/feed', nextUrl));
+        }
         return true
       } else {
         if (!isLoggedIn) return Response.redirect(new URL('/', nextUrl));

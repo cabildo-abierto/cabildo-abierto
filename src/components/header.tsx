@@ -1,10 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import {useSession} from "next-auth/react";
+import {getSession, useSession} from "next-auth/react";
 import { logout } from "@/actions/auth";
 
 import Link from 'next/link';
+import {useEffect} from "react";
 
 const HeaderText = ({content}) => {
     return <h1 className="text-lg">{content ? content : "..."}</h1>
@@ -31,7 +32,7 @@ const SessionElements = ({userName}) => {
 
 const Header = ({enableNewDiscussion}) => {
     const router = useRouter();
-    const { data: session, status } = useSession()
+    const { data: session } = useSession()
 
     const userName = session?.user?.name
 

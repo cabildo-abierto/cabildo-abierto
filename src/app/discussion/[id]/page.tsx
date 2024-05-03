@@ -1,40 +1,38 @@
-import React from "react"
-import { db } from '@/db'
+import {db} from "@/db"
+import Discussion from "@/components/discussion";
+import React, {useState} from "react";
+import NewComment from "@/app/discussion/[id]/new-comment";
+import {createComment} from "@/actions/create-comment";
 
 const getDiscussion = async ({ params }) => {
-  return await db.discussion.findUnique({
-    where: {
-      id: String(params?.id),
-    },
-    include: {
-      author: {
-        select: { name: true },
-      },
-    },
-  });
+    return await db.discussion.findUnique({
+        where: {
+            id: String(params?.id),
+        },
+        include: {
+            author: {
+                select: { name: true },
+            },
+        },
+    });
 };
 
 const DiscussionPage: React.FC = async ({params}) => {
-  const discussion = await getDiscussion({params})
-  let title = discussion.title
-  if (!discussion.published) {
-    title = `${title} (Draft)`
-  }
+    const discussion = await getDiscussion({params})
 
-  return (
-      <>
-        <div className="flex justify-center items-center mt-4">
-          <div>
-          <div className="bg-white shadow-md rounded-lg p-4 mb-4">
-            <h2 className="text-xl font-bold mb-2">{title}</h2>
-            <p className="text-gray-600 mb-2">{discussion?.author?.name || "Unknown author"}</p>
-            <div className="text-gray-800">{discussion.content}</div>
-          </div>
-          <p className="text-gray-600 mb-2 ml-4">Comentarios</p>
-          </div>
+    const handleAddComment = async ({comment, email}) => {
+        "use server"
+        createComment({comment, email, discussionId: discussion.id})
+    }
+
+    return (
+        <div className="flex justify-center mt-8">
+            <div className="flex flex-col w-1/3">
+                <Discussion discussion={discussion}/>
+                <NewComment handleAddComment={handleAddComment}/>
+            </div>
         </div>
-      </>
-  )
+    )
 }
 
 export default DiscussionPage

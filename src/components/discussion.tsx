@@ -9,7 +9,6 @@ export type DiscussionProps = {
         email: string;
     } | null;
     content: string;
-    published: boolean;
 };
 
 const Discussion: React.FC<{ discussion: DiscussionProps }> = ({ discussion }) => {

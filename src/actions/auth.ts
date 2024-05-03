@@ -15,6 +15,7 @@ export async function authenticate(
   prevState: string | undefined,
   formData: FormData,
 ) {
+  console.log("Authentication called")
   try {
     await isUsersEmailVerified(formData.get('email') as string);
     await signIn('credentials', formData);

@@ -10,7 +10,6 @@ export async function createDiscussion({title, email}) {
     await db.discussion.create({
         data: {
             title,
-            published: true,
             authorId: author.id,
         },
     })

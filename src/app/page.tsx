@@ -8,6 +8,9 @@ import {useState} from "react";
 
 export default function Home() {
     const [state, setState] = useState("signup");
+
+
+
     return (
         <div className="flex">
             <div className="w-3/4 px-16 py-16">
@@ -25,6 +28,7 @@ export default function Home() {
                 <div className="absolute left-0 top-0 -z-10">
                     <Image
                         src="/parthenon1.png"
+                        alt="parthenon"
                         width={800}
                         height={800}
                     />

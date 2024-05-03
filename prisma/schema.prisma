@@ -9,18 +9,16 @@ datasource db {
 }
 
 model Discussion {
-  id        String    @id @default(cuid())
-  title     String
-  published Boolean   @default(false)
-  author    User?     @relation(fields: [authorId], references: [id])
-  authorId  String?
-  comments  Comment[]
+  id       String    @id @default(cuid())
+  title    String
+  author   User?     @relation(fields: [authorId], references: [id])
+  authorId String?
+  comments Comment[]
 }
 
 model Comment {
   id           String      @id @default(cuid())
   content      String
-  published    Boolean     @default(false)
   author       User?       @relation(fields: [authorId], references: [id])
   authorId     String?
   discussion   Discussion? @relation(fields: [discussionId], references: [id])
