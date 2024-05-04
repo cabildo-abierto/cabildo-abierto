@@ -2,20 +2,19 @@
 
 import React, {useState} from "react";
 import AutoExpandingTextarea from "@/components/autoexpanding_textarea"
-import { createDiscussion } from '@/actions/create-discussion'
-import {useSession} from "next-auth/react";
+import { createComment } from '@/actions/create-comment'
 import {useRouter} from "next/navigation";
 
 const NewDiscussion: React.FC = () => {
-    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
     const router = useRouter();
 
     const handleContentChange = (value: string) => {
-        setTitle(value);
+        setContent(value);
     };
 
     const handleCreateDiscussion = async () => {
-        const success = await createDiscussion(title)
+        const success = await createComment(content, undefined)
         if(success) {
             router.push("/")
         }
@@ -24,10 +23,10 @@ const NewDiscussion: React.FC = () => {
     return (
         <div className="flex justify-center mt-8">
             <div className="flex flex-col w-1/3">
-                <h3 className="text-lg mb-2 font-bold">Empezá una discusión</h3>
+                <h3 className="text-lg mb-2 font-bold">Nueva discusión</h3>
 
                 <AutoExpandingTextarea
-                    placeholder="Podés arrancar con una pregunta..."
+                    placeholder="..."
                     onChange={handleContentChange}
                     minHeight="80px"
                 />
@@ -38,9 +37,9 @@ const NewDiscussion: React.FC = () => {
                     </button>
                     <button
                         onClick={handleCreateDiscussion}
-                        disabled={title.length === 0}
+                        disabled={content.length === 0}
                         className={`py-2 px-4 rounded font-bold transition duration-200 ${
-                            title.length === 0 ? "bg-gray-200 text-gray-500" : "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+                            content.length === 0 ? "bg-gray-200 text-gray-500" : "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
                         }`}
                     >
                         Enviar

@@ -1,10 +1,10 @@
 import React from "react"
 import Feed from "./feed"
-import {getAllDiscussionsWithAuthors} from "@/actions/get-discussion";
+import {getAllDiscussions} from "@/actions/get-comment";
 
 
 const Home: React.FC = async () => {
-    const discussions = await getAllDiscussionsWithAuthors()
+    const discussions = await getAllDiscussions()
 
     return (
         <>

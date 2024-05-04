@@ -8,35 +8,25 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-model Discussion {
-  id        String    @id @default(cuid())
-  title     String
-  createdAt DateTime  @default(now()) @map(name: "created_at")
-  author    User?     @relation(fields: [authorId], references: [id])
-  authorId  String?
-  comments  Comment[]
-}
-
 model Comment {
-  id           String      @id @default(cuid())
-  content      String
-  createdAt    DateTime    @default(now()) @map(name: "created_at")
-  author       User?       @relation(fields: [authorId], references: [id])
-  authorId     String?
-  discussion   Discussion? @relation(fields: [discussionId], references: [id])
-  discussionId String?
+  id               String      @id @default(cuid())
+  content          String
+  createdAt        DateTime    @default(now()) @map(name: "created_at")
+  author           User?       @relation(fields: [authorId], references: [id])
+  authorId         String?
+  parentComment    Comment?    @relation("CommentToComment", fields: [parentCommentId], references: [id])
+  parentCommentId  String?
+  childrenComments Comment[]   @relation("CommentToComment")
 }
 
 model User {
   id              String       @id @default(cuid())
   name            String       @db.VarChar(255)
+  username        String       @unique @db.VarChar(255)
   email           String       @unique @db.VarChar(255)
   password        String       @db.VarChar(255)
-  emailVerifiedAt DateTime? // optional DateTime
-  emailVerifToken String?      @db.VarChar(255)
   createdAt       DateTime     @default(now()) @map(name: "created_at")
   updatedAt       DateTime     @updatedAt @map(name: "updated_at")
-  discussions     Discussion[]
   comments        Comment[]
 
   @@map(name: "users")

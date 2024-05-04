@@ -1,7 +1,7 @@
 import { logout } from "@/actions/auth";
 import Link from 'next/link';
-import {redirect} from "next/navigation";
 import {getUser} from "@/actions/get-user";
+import {inter, lusitana} from "@/app/layout";
 
 const HeaderText = ({content}) => {
     return <h1 className="text-lg">{content ? content : "..."}</h1>
@@ -35,15 +35,15 @@ const Header = async ({enableNewDiscussion}) => {
             <div className="bg-gray-50 border flex justify-between">
             <div className="flex px-2 py-2">
                 <Link href={"/feed"}>
-                    <h1 className="text-3xl font-bold text-gray-900 cursor-pointer">Demos</h1>
+                    <h1 className={`${lusitana.className} text-3xl font-bold text-gray-900 cursor-pointer`}>Demos</h1>
                 </Link>
             </div>
             <div className="flex items-center">
                 {enableNewDiscussion && <div className="mr-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-300">
                     <div className="px-1 py-2">
-                    <Link href="/new-discussion" className="text-lg">
-                        Nueva discusión
-                    </Link>
+                        <Link href="/write" className="text-semibold">
+                            Nueva discusión
+                        </Link>
                     </div>
                 </div>
                 }

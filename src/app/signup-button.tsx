@@ -1,6 +1,6 @@
 'use client'
 
-import { useFormStatus, useFormState } from 'react-dom'
+import { useFormStatus } from 'react-dom'
 
 export function SignupButton() {
     const {pending} = useFormStatus()

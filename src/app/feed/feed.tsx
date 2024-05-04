@@ -1,11 +1,11 @@
 import React from "react";
-import Discussion from "@/components/discussion"
+import Comment from "@/components/comment"
 
 
 const Feed: React.FC<{ feed }> = ({ feed }) => {
     return <div className="border-l border-r h-screen w-1/3"> {feed.map((discussion) => (
             <div key={discussion.id} className="post">
-                <Discussion discussion={discussion}/>
+                <Comment comment={discussion}/>
             </div>
         ))}
     </div>

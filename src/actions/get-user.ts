@@ -31,18 +31,13 @@ export async function getUserActivityById(userId){
                 comments: {
                     select: {
                         content: true,
-                    }
-                },
-                discussions: {
-                    select: {
-                        title: true,
                         author: true,
                         createdAt: true,
                         id: true,
                         _count: {
-                            select: { comments: true },
-                        }
-                    },
+                            select: { childrenComments: true },
+                        },
+                    }
                 }
             }
         }

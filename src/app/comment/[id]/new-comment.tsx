@@ -53,7 +53,7 @@ const NewComment: React.FC<NewCommentProps> = ({handleAddComment: handleAddComme
                 <button onClick={() => {
                     handleAddComment(comment)
                 }}
-                        className="bg-gray-200 hover:bg-gray-300 transition duration-200 font-bold py-2 px-4 rounded">
+                        className="bg-gray-200 hover:bg-gray-300 transition duration-200 font-semibold py-2 px-4 rounded">
                     Enviar
                 </button>
             </div>}

@@ -3,6 +3,7 @@
 import {signup} from "@/actions/auth";
 import { useFormState } from "react-dom";
 import {SignupButton} from "@/app/signup-button";
+import {useState} from "react";
 
 export default function SignupForm() {
     const [state, action] = useFormState(signup, undefined)
@@ -64,7 +65,7 @@ export default function SignupForm() {
                                 className="mb-3 mt-5 block text-s font-medium text-gray-900"
                                 htmlFor="name"
                             >
-                                Nombre para tu perfil público
+                                Tu nombre
                             </label>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
@@ -73,6 +74,27 @@ export default function SignupForm() {
                                 id="name"
                                 name="name"
                                 defaultValue=''
+                            />
+                        </div>
+                        {
+                            state?.errors?.name
+                            && <div className="text-sm text-red-500">
+                                {state?.errors?.name.join(', ')}
+                            </div>
+                        }
+                        <div>
+                            <label
+                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
+                                htmlFor="username"
+                            >
+                                Nombre de usuario (sin espacios y en minuscula)
+                            </label>
+                            <input
+                                className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder=""
                             />
                         </div>
                         {

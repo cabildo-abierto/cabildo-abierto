@@ -4,7 +4,7 @@ import { Lusitana } from 'next/font/google';
 import "./globals.css";
 import {AuthProvider} from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+export const inter = Inter({ subsets: ["latin"] });
 export const lusitana = Lusitana({ subsets: ['latin'], weight: ["400", "700"] });
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" spellCheck="false">
-      <body className={`${lusitana.className} antialiased`}>
+      <body className={`${inter.className} antialiased text-gray-900`}>
         <AuthProvider>
           {children}
         </AuthProvider>

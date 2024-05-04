@@ -52,6 +52,7 @@ export async function signup(state: SignupFormState, formData) {
   const validatedFields = SignupFormSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
+    username: formData.get('username'),
     password: formData.get('password'),
   })
 
@@ -62,21 +63,16 @@ export async function signup(state: SignupFormState, formData) {
     }
   }
 
-  const { name, email, password } = validatedFields.data
-  console.log("Creating accout with data", name, email, password)
+  const { name, email, username, password} = validatedFields.data
 
   const hashedPassword = await generatePasswordHash(password)
-  console.log("Hashed password")
-  console.log(hashedPassword)
-
-  const verificationToken = generateEmailVerificationToken();
 
   await db.user.create({
     data: {
       name: name,
+      username: username,
       email: email,
       password: hashedPassword,
-      emailVerifToken: verificationToken,
     }
   })
   redirect(`/login`)
