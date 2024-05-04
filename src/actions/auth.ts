@@ -23,45 +23,28 @@ export const verifySession = async () : Promise<SessionPayload|undefined> => {
 
 
 export async function authenticate(state: LoginFormState, formData){
-  console.log("Authenticating")
-
   const validatedFields = LoginFormSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
   })
 
   if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-    }
+    return false
   }
 
   const { email, password } = validatedFields.data
-  console.log("User data", email, password)
-
-  console.log("State", state)
 
   const user = await db.user.findUnique({ where: { email: email } })
 
-  bcrypt.compare(password, user.password, function(err, res) {
-    if (err){
-      // handle error
-      console.log("Some error")
-    }
-    if (res) {
-      console.log("Password ok")
-    } else {
-      console.log("Incorrect password")
-      return {
-        errors: "Incorrect password."
-      }
-    }
-  });
+  const comp = await bcrypt.compare(password, user.password)
 
-  console.log("Creating session")
+  if(!comp){
+    return false
+  }
+
   await createSession(user.id)
-  console.log("Redirecting")
   redirect('/feed')
+  return true
 }
 
 export async function signup(state: SignupFormState, formData) {

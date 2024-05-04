@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {verifySession} from "@/actions/auth";
 
-const protectedRoutes = ['/feed', '/profile']
 const publicRoutes = ['/', '/login']
 
 export default async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname
-    const isProtectedRoute = protectedRoutes.includes(path)
     const isPublicRoute = publicRoutes.includes(path)
 
     const session = await verifySession()
 
     // If protected and not logged in we redirect to home page
-    if (isProtectedRoute && !session?.userId) {
+    if (!isPublicRoute && !session?.userId) {
       return NextResponse.redirect(new URL('/', req.nextUrl))
     }
 

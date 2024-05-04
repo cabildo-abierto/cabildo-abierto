@@ -16,11 +16,11 @@ const SignOutButton = () => {
 }
 
 const SessionElements = ({userName}) => {
-    return <div className="">
-        <div className="mr-4">
+    return <div className="flex flex-col items-center mr-2">
+        <div>
             <HeaderText content={userName}/>
         </div>
-        <div className="text-center">
+        <div>
             <SignOutButton/>
         </div>
     </div>
@@ -38,7 +38,7 @@ const Header = async ({enableNewDiscussion}) => {
                 </Link>
             </div>
             <div className="flex items-center">
-                {enableNewDiscussion && <div className="mr-4 rounded bg-gray-200 hover:bg-gray-400 transition duration-300">
+                {enableNewDiscussion && <div className="mr-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-300">
                     <div className="px-1 py-2">
                     <Link href="/new-discussion" className="text-lg">
                         Nueva discusión

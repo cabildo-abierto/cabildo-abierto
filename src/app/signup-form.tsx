@@ -7,8 +7,6 @@ import {SignupButton} from "@/app/signup-button";
 export default function SignupForm() {
     const [state, action] = useFormState(signup, undefined)
 
-    console.log("State", state)
-
     return (
         <div className="space-y-3 items-center">
             <form action={action}>

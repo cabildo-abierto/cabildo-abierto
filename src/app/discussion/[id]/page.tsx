@@ -1,6 +1,6 @@
 import {db} from "@/db"
 import Discussion from "@/components/discussion";
-import React, {useState} from "react";
+import React from "react";
 import NewComment from "@/app/discussion/[id]/new-comment";
 import {createComment} from "@/actions/create-comment";
 

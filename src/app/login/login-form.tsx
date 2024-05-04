@@ -7,7 +7,7 @@ import { redirect, useSearchParams } from "next/navigation";
 import {SignupButton} from "@/app/signup-button";
 
 export default function LoginForm() {
-    const [state, action] = useFormState(authenticate, undefined)
+    const [success, action] = useFormState(authenticate, true)
 
     /*if (formState?.errors? === 'EMAIL_NOT_VERIFIED') {
         redirect(`/email/verify/send?email=${formState.split(':')[1]}`)
@@ -20,7 +20,7 @@ export default function LoginForm() {
                     <h1 className='mb-3 text-2xl'>
                         Creá tu cuenta
                     </h1>
-                    <div className="w-full mb-4">
+                    <div className="w-full">
                         <div>
                             <label
                                 className="mb-3 mt-5 block text-s font-medium text-gray-900"
@@ -36,12 +36,6 @@ export default function LoginForm() {
                                 name="email"
                                 defaultValue=''
                             />
-                            {
-                                state?.errors?.email
-                                && <div className="text-sm text-red-500">
-                                    {state?.errors?.email.join(', ')}
-                                </div>
-                            }
                         </div>
                         <div>
                             <label
@@ -58,15 +52,9 @@ export default function LoginForm() {
                                 name="password"
                                 defaultValue=''
                             />
-                            {
-                                state?.errors?.password
-                                && <div className="text-sm text-red-500">
-                                    {state?.errors?.password.join(', ')}
-                                </div>
-                            }
                         </div>
                     </div>
-
+                    <div className={"mb-1 mt-3 text-red-600"}>Usuario o contraseña incorrectos.</div>
                     <LoginButton/>
                 </div>
             </form>
