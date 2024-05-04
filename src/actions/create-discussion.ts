@@ -3,7 +3,8 @@
 import {db} from "@/db";
 
 export async function createDiscussion({title, email}) {
-    console.log("A request for adding a discussion")
+    if(title.length == 0)
+        return false
 
     const author = await db.user.findUnique({ where: { email: email} })
 
@@ -13,4 +14,5 @@ export async function createDiscussion({title, email}) {
             authorId: author.id,
         },
     })
+    return true
 }

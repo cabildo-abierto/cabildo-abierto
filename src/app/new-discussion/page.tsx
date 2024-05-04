@@ -17,9 +17,11 @@ const NewDiscussion: React.FC = () => {
 
     const email = session?.user?.email
 
-    const handleCreateDiscussion = () => {
-        createDiscussion({title, email: email})
-        router.push("/")
+    const handleCreateDiscussion = async () => {
+        const success = await createDiscussion({title, email: email})
+        if(success) {
+            router.push("/")
+        }
     }
 
     return (
@@ -37,8 +39,13 @@ const NewDiscussion: React.FC = () => {
                             className="bg-gray-200 hover:bg-gray-300 transition duration-200 font-bold py-2 px-4 rounded">
                         Volver
                     </button>
-                    <button onClick={handleCreateDiscussion}
-                            className="bg-gray-200 hover:bg-gray-300 transition duration-200 font-bold py-2 px-4 rounded">
+                    <button
+                        onClick={handleCreateDiscussion}
+                        disabled={title.length === 0}
+                        className={`py-2 px-4 rounded font-bold transition duration-200 ${
+                            title.length === 0 ? "bg-gray-200 text-gray-500" : "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+                        }`}
+                    >
                         Enviar
                     </button>
                 </div>

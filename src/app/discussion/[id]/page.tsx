@@ -3,6 +3,7 @@ import Discussion from "@/components/discussion";
 import React from "react";
 import NewComment from "@/app/discussion/[id]/new-comment";
 import {createComment} from "@/actions/create-comment";
+import CommentSection from "@/app/discussion/[id]/comment-section";
 
 const getDiscussion = async ({ params }) => {
     return await db.discussion.findUnique({
@@ -20,9 +21,13 @@ const getDiscussion = async ({ params }) => {
 const DiscussionPage: React.FC = async ({params}) => {
     const discussion = await getDiscussion({params})
 
-    const handleAddComment = async ({comment, email}) => {
+    const comments = await db.comment.findMany({
+        where: {discussionId: discussion.id},
+    })
+
+    const handleAddComment = async (comment) => {
         "use server"
-        createComment({comment, email, discussionId: discussion.id})
+        createComment({comment, discussionId: discussion.id})
     }
 
     return (
@@ -30,6 +35,7 @@ const DiscussionPage: React.FC = async ({params}) => {
             <div className="flex flex-col w-1/3">
                 <Discussion discussion={discussion}/>
                 <NewComment handleAddComment={handleAddComment}/>
+                <CommentSection comments={comments}/>
             </div>
         </div>
     )

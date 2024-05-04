@@ -1,13 +1,14 @@
 'use server'
 
 import {db} from "@/db";
+import {getUser} from "@/actions/get-user";
 
-export async function createComment({comment, email, discussionId}) {
-    const author = await db.user.findUnique({ where: { email: email} })
+export async function createComment({comment, discussionId}) {
+    const author = await getUser()
 
-    await db.discussion.create({
+    await db.comment.create({
         data: {
-            comment,
+            content: comment,
             authorId: author.id,
             discussionId
         },

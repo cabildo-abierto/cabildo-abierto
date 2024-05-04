@@ -4,16 +4,17 @@ interface AutoExpandingTextareaProps {
     placeholder: string;
     onChange: (value: string) => void;
     minHeight: string;
+    onFocus: () => void;
 }
 
-const AutoExpandingTextarea: React.FC<AutoExpandingTextareaProps> = ({ placeholder, onChange, minHeight }) => {
+const AutoExpandingTextarea = ({ placeholder, onChange, minHeight, onFocus = () => {}, onBlur = () => {}}) => {
     const [value, setValue] = useState('');
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setValue(event.target.value);
-        event.target.style.height = 'auto'; // Reset height
-        event.target.style.height = `${event.target.scrollHeight}px`; // Set new height
-        onChange(event.target.value); // Call onChange prop
+        event.target.style.height = 'auto';
+        event.target.style.height = `${event.target.scrollHeight}px`;
+        onChange(event.target.value);
     };
 
     return (
@@ -27,6 +28,8 @@ const AutoExpandingTextarea: React.FC<AutoExpandingTextareaProps> = ({ placehold
                 overflowY: 'hidden',
                 outline: 'none'
             }}
+            onFocus={onFocus}
+            onBlur={onBlur}
         />
     );
 };

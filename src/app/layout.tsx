@@ -5,6 +5,7 @@ import "./globals.css";
 import {AuthProvider} from "./providers";
 import Header from "@/components/header";
 import {SessionProvider} from "next-auth/react";
+import {Html} from "next/document";
 
 const inter = Inter({ subsets: ["latin"] });
 export const lusitana = Lusitana({ subsets: ['latin'], weight: ["400", "700"] });
@@ -21,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es" spellCheck="false">
       <body className={`${lusitana.className} antialiased`}>
         <AuthProvider>
           {children}

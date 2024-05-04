@@ -7,9 +7,11 @@ export async function getUser() {
     const session = await verifySession()
     if(!session) return undefined
 
-    const user = await db.user.findUnique(
-        {where: {id:session?.userId}}
-    )
+    return getUserById(session?.userId)
+}
 
-    return user
+export async function getUserById(userId){
+    return await db.user.findUnique(
+        {where: {id:userId}}
+    )
 }

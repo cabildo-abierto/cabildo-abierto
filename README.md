@@ -34,4 +34,4 @@ npx prisma migrate dev --name init
 
 Generar cliente de Prisma para el modelo actual
 npx prisma generate
-
+npx prisma db push
