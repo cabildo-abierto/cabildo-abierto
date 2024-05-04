@@ -8,7 +8,7 @@ const Home: React.FC = async () => {
 
     return (
         <>
-            <div className="flex justify-center items-center mt-4">
+            <div className="flex justify-center items-center">
                 <Feed feed={discussions}/>
             </div>
         </>

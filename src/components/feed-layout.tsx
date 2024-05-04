@@ -4,7 +4,7 @@ import Image from "next/image";
 
 
 export default function FeedLayout({children, enableNewDiscussion}) {
-    return <div className={`${lusitana.className} antialiased`}>
+    return <div>
         <div className="absolute bottom-0 right-0">
             <Image
                 src="/parthenon1.png"
@@ -16,9 +16,11 @@ export default function FeedLayout({children, enableNewDiscussion}) {
             />
         </div>
 
-        <div className="lusitana antialiased relative z-[1]">
+        <div>
             <Header enableNewDiscussion={enableNewDiscussion}/>
-            {children}
+            <div className="pt-20">
+                {children}
+            </div>
         </div>
     </div>
 }

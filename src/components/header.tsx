@@ -31,7 +31,8 @@ const Header = async ({enableNewDiscussion}) => {
     const user = await getUser()
 
     return (
-        <header className="bg-gray-50 border flex justify-between">
+        <header className="fixed top-0 left-0 w-full z-10">
+            <div className="bg-gray-50 border flex justify-between">
             <div className="flex px-2 py-2">
                 <Link href={"/feed"}>
                     <h1 className="text-3xl font-bold text-gray-900 cursor-pointer">Demos</h1>
@@ -49,6 +50,7 @@ const Header = async ({enableNewDiscussion}) => {
                 <div>
                     <SessionElements userName={user?.name}/>
                 </div>
+            </div>
             </div>
         </header>
 

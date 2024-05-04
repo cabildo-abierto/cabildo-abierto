@@ -9,9 +9,7 @@ import {SignupButton} from "@/app/signup-button";
 export default function LoginForm() {
     const [success, action] = useFormState(authenticate, true)
 
-    /*if (formState?.errors? === 'EMAIL_NOT_VERIFIED') {
-        redirect(`/email/verify/send?email=${formState.split(':')[1]}`)
-    }*/
+    console.log("Success", success)
 
     return (
         <div className="space-y-3 items-center">
@@ -20,7 +18,7 @@ export default function LoginForm() {
                     <h1 className='mb-3 text-2xl'>
                         Creá tu cuenta
                     </h1>
-                    <div className="w-full">
+                    <div className="w-full pb-4">
                         <div>
                             <label
                                 className="mb-3 mt-5 block text-s font-medium text-gray-900"
@@ -54,7 +52,7 @@ export default function LoginForm() {
                             />
                         </div>
                     </div>
-                    <div className={"mb-1 mt-3 text-red-600"}>Usuario o contraseña incorrectos.</div>
+                    {!success && <div className={"mb-1 mt-3 text-red-600"}>Usuario o contraseña incorrectos.</div>}
                     <LoginButton/>
                 </div>
             </form>

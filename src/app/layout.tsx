@@ -3,9 +3,6 @@ import { Inter } from "next/font/google";
 import { Lusitana } from 'next/font/google';
 import "./globals.css";
 import {AuthProvider} from "./providers";
-import Header from "@/components/header";
-import {SessionProvider} from "next-auth/react";
-import {Html} from "next/document";
 
 const inter = Inter({ subsets: ["latin"] });
 export const lusitana = Lusitana({ subsets: ['latin'], weight: ["400", "700"] });
