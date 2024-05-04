@@ -8,17 +8,14 @@ import {useRouter} from "next/navigation";
 
 const NewDiscussion: React.FC = () => {
     const [title, setTitle] = useState('');
-    const { data: session, status } = useSession()
     const router = useRouter();
 
     const handleContentChange = (value: string) => {
         setTitle(value);
     };
 
-    const email = session?.user?.email
-
     const handleCreateDiscussion = async () => {
-        const success = await createDiscussion({title, email: email})
+        const success = await createDiscussion(title)
         if(success) {
             router.push("/")
         }

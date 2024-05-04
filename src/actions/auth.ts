@@ -88,11 +88,11 @@ export async function logout() {
 }
 
 export const findUserByEmail = async (email: string) => {
-  return await db.user.findFirst({
-    where: {
-      email,
-    }
-  })
+    return await db.user.findFirst({
+        where: {
+          email,
+        }
+    })
 }
 
 const generatePasswordHash = async (password: string) => {

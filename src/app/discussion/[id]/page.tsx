@@ -7,12 +7,8 @@ import {getDiscussionById, getDiscussionComments} from "@/actions/get-discussion
 
 const DiscussionPage: React.FC = async ({params}) => {
     const discussion = await getDiscussionById(params?.id)
-    console.log(params?.id)
-    console.log(discussion)
-    console.log(discussion.id)
 
     const comments = await getDiscussionComments(discussion.id)
-    console.log(comments)
 
     const handleAddComment = async (comment) => {
         "use server"

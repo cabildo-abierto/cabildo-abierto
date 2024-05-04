@@ -1,17 +1,18 @@
 'use server'
 
 import {db} from "@/db";
+import {getUserId} from "@/actions/get-user";
 
-export async function createDiscussion({title, email}) {
+export async function createDiscussion(title) {
     if(title.length == 0)
         return false
 
-    const author = await db.user.findUnique({ where: { email: email} })
-
+    const id = await getUserId()
+    console.log("Author id", id)
     await db.discussion.create({
         data: {
             title,
-            authorId: author.id,
+            authorId: id,
         },
     })
     return true

@@ -7,8 +7,12 @@ export async function getDiscussionById(discussionId) {
         {select: {
                 id: true,
                 title: true,
+                createdAt: true,
                 author: {
-                    select: { name: true },
+                    select: {
+                        name: true,
+                        id: true
+                    },
                 },
                 _count: {
                     select: { comments: true },
@@ -30,8 +34,12 @@ export async function getAllDiscussionsWithAuthors() {
         select: {
             id: true,
             title: true,
+            createdAt: true,
             author: {
-                select: { name: true },
+                select: {
+                    name: true,
+                    id: true
+                },
             },
             _count: {
                 select: { comments: true },
