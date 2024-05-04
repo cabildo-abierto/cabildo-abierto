@@ -1,23 +1,10 @@
 import React from "react"
 import Feed from "./feed"
-
-import { db } from '@/db'
-
-export const getDiscussions = async () => {
-  const feed = await db.discussion.findMany({
-    include: {
-      author: {
-        select: { name: true },
-      },
-    },
-  })
-  return feed
-};
-
+import {getAllDiscussionsWithAuthors} from "@/actions/get-discussion";
 
 
 const Home: React.FC = async () => {
-    const discussions = await getDiscussions()
+    const discussions = await getAllDiscussionsWithAuthors()
 
     return (
         <>

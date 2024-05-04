@@ -1,29 +1,18 @@
-import {db} from "@/db"
 import Discussion from "@/components/discussion";
 import React from "react";
 import NewComment from "@/app/discussion/[id]/new-comment";
 import {createComment} from "@/actions/create-comment";
 import CommentSection from "@/app/discussion/[id]/comment-section";
-
-const getDiscussion = async ({ params }) => {
-    return await db.discussion.findUnique({
-        where: {
-            id: String(params?.id),
-        },
-        include: {
-            author: {
-                select: { name: true },
-            },
-        },
-    });
-};
+import {getDiscussionById, getDiscussionComments} from "@/actions/get-discussion";
 
 const DiscussionPage: React.FC = async ({params}) => {
-    const discussion = await getDiscussion({params})
+    const discussion = await getDiscussionById(params?.id)
+    console.log(params?.id)
+    console.log(discussion)
+    console.log(discussion.id)
 
-    const comments = await db.comment.findMany({
-        where: {discussionId: discussion.id},
-    })
+    const comments = await getDiscussionComments(discussion.id)
+    console.log(comments)
 
     const handleAddComment = async (comment) => {
         "use server"

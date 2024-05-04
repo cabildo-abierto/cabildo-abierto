@@ -22,7 +22,7 @@ const AutoExpandingTextarea = ({ placeholder, onChange, minHeight, onFocus = () 
             value={value}
             onChange={handleChange}
             placeholder={placeholder}
-            className="w-full bg-white border rounded p-2 resize-none focus:border-gray-500 transition duration-200"
+            className="w-full bg-white border rounded-lg p-2 resize-none focus:border-gray-500 transition duration-200"
             style={{
                 minHeight: minHeight,
                 overflowY: 'hidden',

@@ -43,7 +43,7 @@ const NewComment: React.FC<NewCommentProps> = ({handleAddComment: handleAddComme
         <>
             <div>
             <AutoExpandingTextarea placeholder={"Agregá un comentario..."}
-                                   minHeight="80px"
+                                   minHeight="40px"
                                    onChange={handleContentChange}
                                    onFocus={handleTextAreaOnFocus}
                                    onBlur={handleTextAreaOnBlur}
