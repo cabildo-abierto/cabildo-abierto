@@ -14,6 +14,15 @@ export async function getUser() {
     return getUserById(await getUserId())
 }
 
+export async function getUserIdByUsername(username){
+    return await db.user.findUnique(
+        {
+            where: {username:username},
+            select: {id: true}
+        }
+    )
+}
+
 export async function getUserById(userId){
     return await db.user.findUnique(
         {
@@ -23,21 +32,27 @@ export async function getUserById(userId){
 }
 
 export async function getUserActivityById(userId){
-    return await db.user.findUnique(
+    return await db.comment.findMany(
         {
-            where: {id:userId},
-            select: {
-                name: true,
-                comments: {
-                    select: {
-                        content: true,
-                        author: true,
-                        createdAt: true,
-                        id: true,
-                        _count: {
-                            select: { childrenComments: true },
-                        },
+            where: {
+                OR: [
+                    {authorId:userId},
+                    {mentions:
+                            {
+                                some: {
+                                    id: userId
+                                }
+                            }
                     }
+                ]
+            },
+            select: {
+                content: true,
+                author: true,
+                createdAt: true,
+                id: true,
+                _count: {
+                    select: { childrenComments: true },
                 }
             }
         }

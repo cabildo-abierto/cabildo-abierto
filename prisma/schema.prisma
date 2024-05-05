@@ -17,17 +17,18 @@ model Comment {
   parentComment    Comment?    @relation("CommentToComment", fields: [parentCommentId], references: [id])
   parentCommentId  String?
   childrenComments Comment[]   @relation("CommentToComment")
+  mentions         User[]      @relation("mention")
 }
 
 model User {
   id              String       @id @default(cuid())
-  name            String       @db.VarChar(255)
+  name            String?      @db.VarChar(255)
   username        String       @unique @db.VarChar(255)
-  email           String       @unique @db.VarChar(255)
-  password        String       @db.VarChar(255)
+  email           String?      @unique @db.VarChar(255)
+  password        String?      @db.VarChar(255)
   createdAt       DateTime     @default(now()) @map(name: "created_at")
-  updatedAt       DateTime     @updatedAt @map(name: "updated_at")
   comments        Comment[]
+  mentionedBy     Comment[]    @relation("mention")
 
   @@map(name: "users")
 }

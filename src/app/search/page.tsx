@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useState} from "react";
-import {search} from "@/actions/search";
+import {searchUsers} from "@/actions/search";
 import Link from "next/link";
 
 function SearchResult({result}){
@@ -9,7 +9,7 @@ function SearchResult({result}){
         <Link
             href={"/profile/" + result.id}
             className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-base px-1`}>
-            {result.name}
+            {result.name ? result.name : "@"+result.username}
         </Link>
     </div>
 }
@@ -20,7 +20,7 @@ const Search: React.FC = () => {
 
     const handleContentChange = async (e) => {
         setValue(e.target.value)
-        setResults(await search(value))
+        setResults(await searchUsers(value))
     };
 
     return (
