@@ -21,7 +21,7 @@ const NewDiscussion: React.FC = () => {
     }
 
     return (
-        <div className="flex justify-center border-l border-r h-screen">
+        <div className="flex justify-center h-screen">
             <div className="flex flex-col w-3/4">
                 <h3 className="text-lg mb-2 font-bold mt-8">Nueva discusión</h3>
 

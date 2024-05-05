@@ -16,7 +16,7 @@ function SearchResult({result}){
 
 function SearchBar({onChange}) {
     return <input
-        className="rounded-lg w-64 w-full px-4 text-lg border-2 border-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 hover:shadow-lg transition duration-300"
+        className="rounded-lg w-1/2 px-4 text-lg border-2 border-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 hover:shadow-lg transition duration-300"
         placeholder="búsqueda"
         onChange={onChange}
     />
@@ -33,7 +33,7 @@ const Search: React.FC = () => {
 
     return (
         <div className="w-full">
-        <div className="flex flex-col border-l border-r h-screen w-full">
+        <div className="flex flex-col h-screen w-full">
                 <div className="flex justify-center py-16">
                     <SearchBar onChange={handleContentChange} />
                 </div>

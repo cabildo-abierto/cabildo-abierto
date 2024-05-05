@@ -5,40 +5,45 @@ import {lusitana} from "@/app/layout";
 import {getUser} from "@/actions/get-user";
 import {logout} from "@/actions/auth";
 
+function FeedButton() {
+    return <li
+        className="mb-8 mt-4 flex justify-center text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-300 rounded-lg px-1">
+        <Link href={"/feed"}
+              className="">
+            Demos
+        </Link>
+    </li>
+}
+
+function SidebarButton({text, href}) {
+    return <Link href={href} className="text-semibold">
+        <li
+        className="flex justify-center mb-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
+            <div className="px-1 py-2">
+                    {text}
+            </div>
+    </li>
+    </Link>
+}
+
 
 async function Sidebar() {
     const user = await getUser()
 
     return <div className="h-screen flex flex-col mr-4">
         <ul className="flex-1">
-            <li className="mb-8 mt-4 flex justify-center text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-300 rounded-lg px-1">
-                <Link href={"/feed"}
-                      className="">
-                    Demos
-                </Link>
-            </li>
-            <li className="flex justify-center mb-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
-                <div className="px-1 py-2">
-                    <Link href="/search" className="text-semibold">
-                        Buscar
-                    </Link>
-                </div>
-            </li>
-            <li className="flex justify-center mb-8 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
-                <div className="px-1 py-2">
-                    <Link href="/write" className="text-semibold">
-                        Nueva discusión
-                    </Link>
-                </div>
-            </li>
+            <FeedButton/>
+            <SidebarButton text="Buscar" href="/search"/>
+            <SidebarButton text="Nueva discusión" href="/write"/>
+            <SidebarButton text="Leyes" href="/ley"/>
         </ul>
         <div className="mt-auto">
             <ul>
                 <li className="mb-2">
-                    <a href={`/profile/${user?.id}`}
+                    <Link href={`/profile/${user?.id}`}
                        className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-lg px-1`}>
                         {user?.name}
-                    </a>
+                    </Link>
                 </li>
                 <li className="mb-2">
                     <form action={logout}>
@@ -55,22 +60,21 @@ async function Sidebar() {
 
 
 export default function FeedLayout({children}) {
-    return <div>
-        <div className="flex h-screen justify-center">
-            <Sidebar/>
-            <div className="w-1/3">
+    const centerWidth = 800; // Width of the center feed
+    const sidebarWidth = `calc((100% - ${centerWidth}px) / 2)`;
+
+    return (
+        <div className="flex justify-center">
+            <div className="fixed left-0 top-0 h-screen" style={{ width: sidebarWidth }}>
+                <div className="flex justify-end">
+                    <Sidebar/>
+                </div>
+            </div>
+            <div className="border-l border-r" id="center" style={{ width: `${centerWidth}px` }}>
                 {children}
             </div>
+            <div className="fixed top-0 right-0 h-screen" style={{ width: sidebarWidth }}>
+            </div>
         </div>
-        <div className="absolute bottom-0 right-0">
-        <Image
-                src="/parthenon1.png"
-                alt="Parthenon"
-                className="grayscale opacity-25"
-                width={500}
-                height={500}
-                priority
-            />
-        </div>
-    </div>
-}
+    );
+};
