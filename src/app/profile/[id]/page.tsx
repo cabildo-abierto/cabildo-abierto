@@ -8,15 +8,15 @@ export default async function UserProfile({params}) {
 
     return <div className="bg-white">
         <div className="mx-auto max-w-4xl bg-white border-l border-r h-screen">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4 py-2 px-2 border-b">{user.name}</h1>
-        <div>
-            <div> {user.comments.map((discussion) => (
-                <div key={discussion.id} className="post">
+            <h1 className="text-2xl ml-2 mt-4 font-semibold mb-8">
+                {user.name}
+            </h1>
+            <div>
+                <div> {user.comments.map((discussion) => (
                     <Comment comment={discussion}/>
+                ))}
                 </div>
-            ))}
             </div>
-        </div>
         </div>
     </div>
 

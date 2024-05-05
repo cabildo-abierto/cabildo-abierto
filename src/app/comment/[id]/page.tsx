@@ -16,9 +16,12 @@ const CommentPage: React.FC = async ({params}) => {
     }
 
     return (
-        <div className="flex justify-center mt-8">
-            <div className="flex flex-col w-1/3 border-l border-r h-screen">
-                <div className="">
+        <div className="">
+            <div className="flex flex-col border-l border-r h-screen">
+                <h1 className="text-2xl ml-2 mt-4 font-semibold">
+                    Discusión
+                </h1>
+                <div className="mt-8">
                     <Comment comment={parentComment}/>
                 </div>
                 <div className="px-2 py-2">

@@ -22,7 +22,7 @@ const NewDiscussion: React.FC = () => {
 
     return (
         <div className="flex justify-center mt-8">
-            <div className="flex flex-col w-1/3">
+            <div className="flex flex-col w-3/4">
                 <h3 className="text-lg mb-2 font-bold">Nueva discusión</h3>
 
                 <AutoExpandingTextarea
