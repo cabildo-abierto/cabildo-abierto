@@ -9,22 +9,22 @@ import {logout} from "@/actions/auth";
 async function Sidebar() {
     const user = await getUser()
 
-    return <div className={`${lusitana.className} h-screen flex flex-col`}>
+    return <div className="h-screen flex flex-col mr-4">
         <ul className="flex-1">
-            <li className="mb-8 mt-4">
+            <li className="mb-8 mt-4 flex justify-center text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-300 rounded-lg px-1">
                 <Link href={"/feed"}
-                      className={`text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-300 rounded-lg px-1`}>
+                      className="">
                     Demos
                 </Link>
             </li>
-            <li className="flex justify-center mb-4 mr-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
+            <li className="flex justify-center mb-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
                 <div className="px-1 py-2">
                     <Link href="/search" className="text-semibold">
                         Buscar
                     </Link>
                 </div>
             </li>
-            <li className="flex justify-center mb-8 mr-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
+            <li className="flex justify-center mb-8 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
                 <div className="px-1 py-2">
                     <Link href="/write" className="text-semibold">
                         Nueva discusión
