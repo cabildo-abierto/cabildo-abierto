@@ -3,6 +3,7 @@
 import React, {useState} from "react";
 import {searchUsers} from "@/actions/search";
 import Link from "next/link";
+import {debounce} from "next/dist/server/utils";
 
 function SearchResult({result}){
     return <div className="border mb-2">
@@ -23,18 +24,22 @@ function SearchBar({onChange}) {
 }
 
 const Search: React.FC = () => {
-    const [value, setValue] = useState('');
-    const [results, setResults] = useState([])
+    const [results, setResults] = useState([]);
 
-    const handleContentChange = async (e) => {
-        setValue(e.target.value)
-        setResults(await searchUsers(value))
+    const debouncedSearch = debounce(async (searchValue) => {
+        const searchResults = await searchUsers(searchValue);
+        setResults(searchResults);
+    }, 300);
+
+    const handleContentChange = (e) => {
+        const searchValue = e.target.value;
+        debouncedSearch(searchValue);
     };
 
     return (
         <div className="w-full">
-        <div className="flex flex-col h-screen w-full">
-                <div className="flex justify-center py-16">
+            <div className="flex flex-col h-screen w-full">
+                <div className="flex justify-center py-24">
                     <SearchBar onChange={handleContentChange} />
                 </div>
                 <div className="px-8">
@@ -45,10 +50,8 @@ const Search: React.FC = () => {
                     ))}
                 </div>
             </div>
-
         </div>
-    )
-        ;
+    );
 };
 
 export default Search;
