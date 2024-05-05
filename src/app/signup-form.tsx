@@ -15,10 +15,10 @@ export default function SignupForm() {
                     <h1 className='mb-3 text-2xl'>
                         Creá tu cuenta
                     </h1>
-                    <div className="w-full mb-4">
+                    <div className="w-full mb-3">
                         <div>
                             <label
-                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
+                                className="mb-1 mt-5 block text-s font-medium text-gray-900"
                                 htmlFor="email"
                             >
                                 Email
@@ -40,7 +40,7 @@ export default function SignupForm() {
                         </div>
                         <div>
                             <label
-                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
+                                className="mb-2 mt-3 block text-s font-medium text-gray-900"
                                 htmlFor="password"
                             >
                                 Contraseña
@@ -62,7 +62,7 @@ export default function SignupForm() {
                         </div>
                         <div>
                             <label
-                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
+                                className="mb-2 mt-3 block text-s font-medium text-gray-900"
                                 htmlFor="name"
                             >
                                 Tu nombre
@@ -84,7 +84,7 @@ export default function SignupForm() {
                         }
                         <div>
                             <label
-                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
+                                className="mb-2 mt-3 block text-s font-medium text-gray-900"
                                 htmlFor="username"
                             >
                                 Nombre de usuario (sin espacios y en minuscula)

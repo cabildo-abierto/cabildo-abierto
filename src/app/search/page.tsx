@@ -1,15 +1,26 @@
 "use client"
 
 import React, {useState} from "react";
-import AutoExpandingTextarea from "@/components/autoexpanding_textarea"
-import { createComment } from '@/actions/create-comment'
-import {useRouter} from "next/navigation";
+import {search} from "@/actions/search";
+import Link from "next/link";
+
+function SearchResult({result}){
+    return <div className="border mb-2">
+        <Link
+            href={"/profile/" + result.id}
+            className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-base px-1`}>
+            {result.name}
+        </Link>
+    </div>
+}
 
 const Search: React.FC = () => {
     const [value, setValue] = useState('');
+    const [results, setResults] = useState([])
 
-    const handleContentChange = (e) => {
+    const handleContentChange = async (e) => {
         setValue(e.target.value)
+        setResults(await search(value))
     };
 
     return (
@@ -23,6 +34,13 @@ const Search: React.FC = () => {
                         placeholder=""
                         onChange={handleContentChange}
                     />
+                </div>
+                <div className="px-8">
+                    {results.map((result) => (
+                        <div key={result.id}>
+                        <SearchResult result={result}/>
+                        </div>
+                    ))}
                 </div>
             </div>
     </div>
