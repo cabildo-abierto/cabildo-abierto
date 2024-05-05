@@ -9,27 +9,34 @@ import {logout} from "@/actions/auth";
 async function Sidebar() {
     const user = await getUser()
 
-    return <div className={`p-4 ${lusitana.className} h-screen flex flex-col`}>
-            <ul className="flex-1">
-                <li className="mb-8">
-                    <Link href={"/feed"}
-                          className={`text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-300 rounded-lg px-1`}>
-                        Demos
+    return <div className={`${lusitana.className} h-screen flex flex-col`}>
+        <ul className="flex-1">
+            <li className="mb-8 mt-4">
+                <Link href={"/feed"}
+                      className={`text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-300 rounded-lg px-1`}>
+                    Demos
+                </Link>
+            </li>
+            <li className="flex justify-center mb-4 mr-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
+                <div className="px-1 py-2">
+                    <Link href="/search" className="text-semibold">
+                        Buscar
                     </Link>
-                </li>
-                <li className="mb-8 mr-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
-                    <div className="px-1 py-2">
-                        <Link href="/write" className="text-semibold">
-                            Nueva discusión
-                        </Link>
-                    </div>
-                </li>
-            </ul>
-            <div className="mt-auto">
-                <ul>
+                </div>
+            </li>
+            <li className="flex justify-center mb-8 mr-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
+                <div className="px-1 py-2">
+                    <Link href="/write" className="text-semibold">
+                        Nueva discusión
+                    </Link>
+                </div>
+            </li>
+        </ul>
+        <div className="mt-auto">
+            <ul>
                 <li className="mb-2">
-                    <a href={"/profile"}
-                          className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-lg px-1`}>
+                    <a href={`/profile/${user?.id}`}
+                       className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-lg px-1`}>
                         {user?.name}
                     </a>
                 </li>

@@ -9,7 +9,9 @@ const Home: React.FC = async () => {
     return <div className="border-r border-l h-screen w-full">
         <div className="py-8">
         {feed.map((discussion) => (
+            <div key={discussion.id}>
             <Comment comment={discussion}/>
+            </div>
         ))}
         </div>
     </div>

@@ -35,6 +35,9 @@ export async function authenticate(state: LoginFormState, formData){
   const { email, password } = validatedFields.data
 
   const user = await db.user.findUnique({ where: { email: email } })
+  if(!user) {
+    return false
+  }
 
   const comp = await bcrypt.compare(password, user.password)
 
