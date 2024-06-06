@@ -26,7 +26,9 @@ async function replaceAsync(text: string, regexp: RegExp,
     return text.replace(regexp, () => replacements[i++]);
 }
 
-async function getContentWithLinks(comment: CommentProps) {
+type ContentWithLinks = React.JSX.Element | string | React.JSX.Element[]
+
+async function getContentWithLinks(comment: CommentProps): Promise<ContentWithLinks> {
     async function replaceMention(match: string, username: string): Promise<string> {
         const user = await getUserIdByUsername(username)
         if (user) {
@@ -41,7 +43,7 @@ async function getContentWithLinks(comment: CommentProps) {
     return parse(withLinks)
 }
 
-const ContentText: React.FC<{text: string}> = ({text}) => {
+const ContentText: React.FC<{text: ContentWithLinks}> = ({text}) => {
     return <div className="px-3">
     <div className={`${inter.className} antialiased text-gray-900`}>
         {text}
@@ -58,7 +60,7 @@ const CommentComponent: React.FC<{comment: CommentProps}> = async ({comment}) =>
 
     const date = comment.createdAt.toLocaleDateString('es-AR', options)
 
-    const textWithLinks = await getContentWithLinks(comment)
+    const textWithLinks: ContentWithLinks = await getContentWithLinks(comment)
 
     return (
         <div className="bg-white border-b">
@@ -71,7 +73,7 @@ const CommentComponent: React.FC<{comment: CommentProps}> = async ({comment}) =>
             </div>
 
             <ContentText text={textWithLinks}/>
-            <Link className="flex justify-end text-gray-600 text-sm mr-1" href={"/comment/" + comment.id}>
+            <Link className="flex justify-end text-gray-600 text-sm mr-1" href={"/content/" + comment.id}>
                 {comment._count.childrenComments} comentarios
             </Link>
         </div>

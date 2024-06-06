@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useState} from "react";
-import AutoExpandingTextarea from "@/components/autoexpanding_textarea"
+import TextareaAutosize from 'react-textarea-autosize';
 import { createPost, createDiscussion } from '@/actions/create-comment'
 import {useRouter} from "next/navigation";
 
@@ -76,10 +76,11 @@ const Escribir: React.FC = () => {
                 <div className="mb-4">
                 <SelectionComponent selectionHandler={handleSelection}/>
                 </div>
-                <AutoExpandingTextarea
-                    placeholder={placeholder}
-                    onChange={handleContentChange}
-                    minHeight="80px"
+                <TextareaAutosize
+                  className="w-full bg-white border rounded-lg p-2 resize-none focus:border-gray-500 transition duration-200"
+                  placeholder={placeholder}
+                  onChange={(event) => {setContent(event.target.value)}}
+                  minRows={4}
                 />
                 <div className="flex justify-between mt-3">
                     <button onClick={() => router.push("/feed")}

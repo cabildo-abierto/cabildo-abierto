@@ -18,11 +18,13 @@ const CommentPage: React.FC = async ({params}) => {
         createComment(comment, parentContent.id)
     }
 
+    const title: string = {"Comment": "Comentario", "Discussion": "Discusión", "Post": "Publicación", "Opinion": "Opinion"}[parentContent.type]
+
     return (
         <div className="">
             <div className="flex flex-col border-l border-r h-screen">
                 <h1 className="text-2xl ml-2 py-8 font-semibold">
-                    Discusión
+                    {title}
                 </h1>
                 <div className="mt-8">
                     <Comment comment={parentContent}/>

@@ -33,7 +33,7 @@ async function Sidebar() {
         <FeedButton/>
         <SidebarButton text="Buscar" href="/buscar"/>
         <SidebarButton text="Escribir" href="/escribir"/>
-        <SidebarButton text="Sobre esta plataforma" href="/cabildo-abierto"/>
+        <SidebarButton text="Sobre esta plataforma" href="/about"/>
     </ul>
     <div className="mt-auto">
         <ul>
