@@ -1,6 +1,7 @@
 "use client"
 
-import AutoExpandingTextarea from "@/components/autoexpanding_textarea"
+import TextareaAutosize from 'react-textarea-autosize';
+import { useRouter } from "next/navigation";
 import React, {useEffect, useState} from "react";
 
 interface NewCommentProps {
@@ -8,13 +9,10 @@ interface NewCommentProps {
 }
 
 const NewComment: React.FC<NewCommentProps> = ({handleAddComment: handleAddComment}) => {
-    const [comment, setComment] = useState('');
-    const [textAreaOnFocus, setTextAreaOnFocus] = useState(false);
-    const [buttonVisible, setButtonVisible] = useState(false);
-
-    const handleContentChange = (value: string) => {
-        setComment(value);
-    };
+    const [comment, setComment] = useState('')
+    const [textAreaOnFocus, setTextAreaOnFocus] = useState(false)
+    const [buttonVisible, setButtonVisible] = useState(false)
+    const router = useRouter()
 
     const handleTextAreaOnFocus = () => {
         setTextAreaOnFocus(true)
@@ -24,8 +22,9 @@ const NewComment: React.FC<NewCommentProps> = ({handleAddComment: handleAddComme
     }
 
     // Hack para que el boton no desaparezca antes de que se llame a onClick
+    // Seguramente haya una mejor forma de hacer esto
     useEffect(() => {
-        let timeoutId;
+        let timeoutId: NodeJS.Timeout
         if (textAreaOnFocus) {
             setButtonVisible(true);
         } else {
@@ -42,16 +41,21 @@ const NewComment: React.FC<NewCommentProps> = ({handleAddComment: handleAddComme
     return (
         <>
             <div>
-            <AutoExpandingTextarea placeholder={"Agregá un comentario..."}
-                                   minHeight="40px"
-                                   onChange={handleContentChange}
-                                   onFocus={handleTextAreaOnFocus}
-                                   onBlur={handleTextAreaOnBlur}
+            <TextareaAutosize className="w-full bg-white border rounded-lg p-2 resize-none focus:border-gray-500 transition duration-200"
+                placeholder={"Agregá un comentario..."}
+                minRows={2}
+                onChange={(event) => {setComment(event.target.value)}}
+                onFocus={handleTextAreaOnFocus}
+                onBlur={handleTextAreaOnBlur}
+                value={comment}
             />
 
             {buttonVisible && <div className="flex justify-end mt-2">
-                <button onClick={() => {
-                    handleAddComment(comment)
+                <button onClick={async () => {
+                    let sentComment: string = comment
+                    setComment('')
+                    await handleAddComment(sentComment)
+                    router.refresh()
                 }}
                         className="bg-gray-200 hover:bg-gray-300 transition duration-200 font-semibold py-2 px-4 rounded">
                     Enviar

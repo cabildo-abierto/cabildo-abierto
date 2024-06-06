@@ -2,12 +2,11 @@
 
 import {db} from "@/db";
 
-// Una discusion es un comentario sin parentComment
-export async function getCommentById(commentId) {
-    return await db.comment.findUnique(
+export async function getContentById(contentId: string) {
+    return await db.content.findUnique(
         {select: {
                 id: true,
-                content: true,
+                text: true,
                 createdAt: true,
                 author: {
                     select: {
@@ -21,17 +20,17 @@ export async function getCommentById(commentId) {
                 },
         },
         where: {
-            id:commentId,
+            id: contentId,
         }
         }
     )
 }
 
-export async function getCommentComments(commentId){
-    return await db.comment.findMany({
+export async function getContentComments(contentId: string){
+    return await db.content.findMany({
         select: {
             id: true,
-            content: true,
+            text: true,
             createdAt: true,
             author: {
                 select: {
@@ -44,7 +43,7 @@ export async function getCommentComments(commentId){
                 select: { childrenComments: true },
             },
         },
-        where: {parentCommentId: commentId},
+        where: {parentContentId: contentId},
     })
 }
 

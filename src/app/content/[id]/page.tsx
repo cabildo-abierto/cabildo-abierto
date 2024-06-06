@@ -1,18 +1,21 @@
 import Comment from "@/components/comment";
 import React from "react";
-import NewComment from "@/app/comment/[id]/new-comment";
+import NewComment from "@/app/content/[id]/new-comment";
 import {createComment} from "@/actions/create-comment";
-import CommentSection from "@/app/comment/[id]/comment-section";
-import {getCommentById, getCommentComments} from "@/actions/get-comment";
+import CommentSection from "@/app/content/[id]/comment-section";
+import {getContentById, getContentComments} from "@/actions/get-comment";
 
 const CommentPage: React.FC = async ({params}) => {
-    const parentComment = await getCommentById(params?.id)
+    const parentContent = await getContentById(params?.id)
+    if(!parentContent){
+        return false
+    }
 
-    const comments = await getCommentComments(parentComment.id)
+    const comments = await getContentComments(parentContent.id)
 
     const handleAddComment = async (comment) => {
         "use server"
-        createComment(comment, parentComment.id)
+        createComment(comment, parentContent.id)
     }
 
     return (
@@ -22,7 +25,7 @@ const CommentPage: React.FC = async ({params}) => {
                     Discusión
                 </h1>
                 <div className="mt-8">
-                    <Comment comment={parentComment}/>
+                    <Comment comment={parentContent}/>
                 </div>
                 <div className="px-2 py-2">
                 <NewComment handleAddComment={handleAddComment}/>
