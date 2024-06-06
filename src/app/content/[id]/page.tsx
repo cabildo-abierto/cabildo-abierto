@@ -22,7 +22,7 @@ const CommentPage: React.FC = async ({params}) => {
 
     return (
         <div className="">
-            <div className="flex flex-col border-l border-r h-screen">
+            <div className="flex flex-col border-l border-r h-full">
                 <h1 className="text-2xl ml-2 py-8 font-semibold">
                     {title}
                 </h1>

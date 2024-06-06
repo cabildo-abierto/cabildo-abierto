@@ -3,8 +3,11 @@ import React from "react";
 import Comment from "@/components/comment";
 
 
-export default async function UserProfile({params}) {
+const UserProfile: React.FC<{params: {id: string}}> = async ({params}) => {
     const user = await getUserById(params?.id)
+    if(!user){
+        return <>El usuario no existe</>
+    }
     const activity = await getUserActivityById(params?.id);
     return <div className="bg-white">
         <div className="mx-auto max-w-4xl bg-white border-l border-r h-screen">
@@ -12,14 +15,15 @@ export default async function UserProfile({params}) {
                 {user.name ? user.name : '@'+user.username}
             </h1>
             <div>
-                <div> {activity.map((discussion) => (
-                    <div key={discussion.id}>
-                    <Comment comment={discussion}/>
+                <div> {activity.map((content) => (
+                    <div key={content.id}>
+                    <Comment comment={content}/>
                     </div>
                 ))}
                 </div>
             </div>
         </div>
     </div>
-
 }
+
+export default UserProfile

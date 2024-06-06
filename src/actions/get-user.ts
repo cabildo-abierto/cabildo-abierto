@@ -11,10 +11,13 @@ export async function getUserId(){
 }
 
 export async function getUser() {
-    return getUserById(await getUserId())
+    const userId = await getUserId()
+    if(!userId)
+        return false
+    return getUserById(userId)
 }
 
-export async function getUserIdByUsername(username){
+export async function getUserIdByUsername(username: string){
     return await db.user.findUnique(
         {
             where: {username:username},
@@ -23,7 +26,7 @@ export async function getUserIdByUsername(username){
     )
 }
 
-export async function getUserById(userId){
+export async function getUserById(userId: string){
     return await db.user.findUnique(
         {
             where: {id:userId}
@@ -31,29 +34,40 @@ export async function getUserById(userId){
     )
 }
 
-export async function getUserActivityById(userId){
-    return await db.comment.findMany(
+export async function getUserActivityById(userId: string){
+    return await db.content.findMany(
         {
             where: {
-                OR: [
-                    {authorId:userId},
-                    {mentions:
-                            {
-                                some: {
-                                    id: userId
+                AND: [
+                    {
+                        OR: [
+                        {authorId:userId},
+                        {mentionedUsers:
+                                {
+                                    some: {
+                                        id: userId
+                                    }
                                 }
-                            }
+                        }
+                        ]
+                    },
+                    {
+                        OR: [
+                            {type: "Discussion"},
+                            {type: "Post"}
+                        ]
                     }
                 ]
             },
             select: {
-                content: true,
+                text: true,
                 author: true,
                 createdAt: true,
                 id: true,
                 _count: {
                     select: { childrenComments: true },
-                }
+                },
+                type: true
             }
         }
     )
