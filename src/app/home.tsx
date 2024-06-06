@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function Home() {
     return <div className="w-3/4 px-16 py-16">
-        <h1 className="text-4xl font-bold text-gray-900">Demos</h1>
+        <h1 className="text-4xl font-bold text-gray-900">Cabildo Abierto</h1>
         <div className="mt-4 text-2xl text-gray-700">
             <Typewriter
                 words={["Informate", "Informá", "Discutí"]}

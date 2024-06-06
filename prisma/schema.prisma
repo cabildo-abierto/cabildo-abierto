@@ -3,21 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-}
-
-model Comment {
-  id               String      @id @default(cuid())
-  content          String
-  createdAt        DateTime    @default(now()) @map(name: "created_at")
-  author           User?       @relation(fields: [authorId], references: [id])
-  authorId         String?
-  parentComment    Comment?    @relation("CommentToComment", fields: [parentCommentId], references: [id])
-  parentCommentId  String?
-  childrenComments Comment[]   @relation("CommentToComment")
-  mentions         User[]      @relation("mention")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
 }
 
 model User {
@@ -27,8 +15,32 @@ model User {
   email           String?      @unique @db.VarChar(255)
   password        String?      @db.VarChar(255)
   createdAt       DateTime     @default(now()) @map(name: "created_at")
-  comments        Comment[]
-  mentionedBy     Comment[]    @relation("mention")
+  contents        Content[]
+  mentionedBy     Content[]    @relation("mention")
 
   @@map(name: "users")
+}
+
+enum ContentType {
+  Comment
+  Post
+  Opinion
+  Discussion
+}
+
+model Content {
+  id               String      @id @default(cuid())
+  text             String
+  createdAt        DateTime    @default(now()) @map(name: "created_at")
+  type             ContentType
+
+  author           User?       @relation(fields: [authorId], references: [id])
+  authorId         String?
+  
+  mentionedUsers   User[]      @relation("mention")
+
+  childrenComments Content[]   @relation("ContentToContent")
+
+  parentContent    Content?    @relation("ContentToContent", fields: [parentContentId], references: [id])
+  parentContentId  String?
 }

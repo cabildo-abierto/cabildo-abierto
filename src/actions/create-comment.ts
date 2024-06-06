@@ -3,21 +3,29 @@
 import {db} from "@/db";
 import {getUser} from "@/actions/get-user";
 
-async function createUnclaimedUser({username}){
+async function createUnclaimedUser(username: string){
     await db.user.create({
-    data: {
-      username: username
-    }
-  })
+        data: {
+        username: username
+        }
+    })
 }
 
-export async function createComment(content, parentCommentId) {
-    const author = await getUser()
-    if(!author) return false
 
-    const words = content.split(" ")
+interface Connection {
+    where: {
+      username: string;
+    };
+    create: {
+      username: string;
+    };
+}
 
-    let connections = []
+
+function findReferences(text: string): Connection[]{
+    const words = text.split(" ")
+
+    let connections: Connection[] = []
     words.forEach(function(w){
         if(w.startsWith("@")){
             const relation = {
@@ -29,15 +37,67 @@ export async function createComment(content, parentCommentId) {
             })
         }
     })
+    return connections
+}
 
-    await db.comment.create({
+
+export async function createComment(text: string, parentContentId: string) {
+    const author = await getUser()
+    if(!author) return false
+
+    let connections = findReferences(text)
+
+    await db.content.create({
         data: {
-            content: content,
+            text: text,
             authorId: author.id,
-            parentCommentId: parentCommentId,
-            mentions: {
+            parentContentId: parentContentId,
+            mentionedUsers: {
                 connectOrCreate: connections
-            }
+            },
+            type: "Comment"
+        },
+    })
+
+    return true
+}
+
+
+export async function createPost(text: string) {
+    const author = await getUser()
+    if(!author) return false
+
+    let connections = findReferences(text)
+
+    await db.content.create({
+        data: {
+            text: text,
+            authorId: author.id,
+            mentionedUsers: {
+                connectOrCreate: connections
+            },
+            type: "Post"
+        },
+    })
+
+    return true
+}
+
+
+export async function createDiscussion(text: string) {
+    const author = await getUser()
+    if(!author) return false
+
+    let connections = findReferences(text)
+
+    await db.content.create({
+        data: {
+            text: text,
+            authorId: author.id,
+            mentionedUsers: {
+                connectOrCreate: connections
+            },
+            type: "Discussion"
         },
     })
 

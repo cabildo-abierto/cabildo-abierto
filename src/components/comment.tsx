@@ -6,30 +6,28 @@ import parse from 'html-react-parser'
 
 export type CommentProps = {
     id: string;
-    title: string;
     createdAt: Date
     author: {
         id: string
         name: string
         username: string
-    } | null;
-    content: string;
+    };
+    text: string;
     _count: {
         childrenComments: number
     }
 };
 
-async function replaceAsync(string, regexp, replacerFunction) {
+async function replaceAsync(text: string, regexp: RegExp, 
+    replacerFunction: (match: string, replace: string) => Promise<string>) {
     const replacements = await Promise.all(
-        Array.from(string.matchAll(regexp),
-            match => replacerFunction(...match)));
+        Array.from(text.matchAll(regexp), ([match, replace]) => replacerFunction(match, replace)));
     let i = 0;
-    return string.replace(regexp, () => replacements[i++]);
+    return text.replace(regexp, () => replacements[i++]);
 }
 
-const CommentContent = async ({comment}) => {
-
-    async function replaceMention(match, username) {
+async function getContentWithLinks(comment: CommentProps) {
+    async function replaceMention(match: string, username: string): Promise<string> {
         const user = await getUserIdByUsername(username)
         if (user) {
             return `<a href="/profile/${user.id}" style="color: skyblue;">@${username}</a>`;
@@ -37,23 +35,30 @@ const CommentContent = async ({comment}) => {
             return match
         }
     }
-    const withLinks = await replaceAsync(comment.content, /@(\w+)/g, replaceMention);
+
+    const withLinks = await replaceAsync(comment.text, /@(\w+)/g, replaceMention);
+
+    return parse(withLinks)
+}
+
+const ContentText: React.FC<{text: string}> = ({text}) => {
     return <div className="px-3">
-        <div className={`${inter.className} antialiased text-gray-900`}>
-            {parse(withLinks)}
-        </div>
+    <div className={`${inter.className} antialiased text-gray-900`}>
+        {text}
+    </div>
     </div>
 }
 
-const Comment: React.FC<{ comment: CommentProps }> = ({comment}) => {
+const CommentComponent: React.FC<{comment: CommentProps}> = async ({comment}) => {
     const options = {
         day: 'numeric',
         month: 'long',
         year: comment.createdAt.getFullYear() == (new Date()).getFullYear() ? undefined : 'numeric'
     };
 
-
     const date = comment.createdAt.toLocaleDateString('es-AR', options)
+
+    const textWithLinks = await getContentWithLinks(comment)
 
     return (
         <div className="bg-white border-b">
@@ -65,7 +70,7 @@ const Comment: React.FC<{ comment: CommentProps }> = ({comment}) => {
                 <p className="text-gray-600 text-sm mr-1">{date}</p>
             </div>
 
-            <CommentContent comment={comment}/>
+            <ContentText text={textWithLinks}/>
             <Link className="flex justify-end text-gray-600 text-sm mr-1" href={"/comment/" + comment.id}>
                 {comment._count.childrenComments} comentarios
             </Link>
@@ -73,4 +78,4 @@ const Comment: React.FC<{ comment: CommentProps }> = ({comment}) => {
     );
 };
 
-export default Comment;
+export default CommentComponent;

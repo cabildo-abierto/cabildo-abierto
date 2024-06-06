@@ -48,11 +48,11 @@ export async function getCommentComments(commentId){
     })
 }
 
-export async function getAllDiscussions() {
-    return await db.comment.findMany({
+export async function getPostsAndDiscussions() {
+    return await db.content.findMany({
         select: {
             id: true,
-            content: true,
+            text: true,
             createdAt: true,
             author: {
                 select: {
@@ -66,7 +66,7 @@ export async function getAllDiscussions() {
             },
         },
         where: {
-            parentCommentId:null
+            parentContentId: null
         }
     })
 }

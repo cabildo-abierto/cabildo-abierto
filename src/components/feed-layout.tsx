@@ -1,28 +1,26 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import {lusitana} from "@/app/layout";
 import {getUser} from "@/actions/get-user";
 import {logout} from "@/actions/auth";
 
+
 function FeedButton() {
-    return <li
-        className="mb-8 mt-4 flex justify-center text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-300 rounded-lg px-1">
-        <Link href={"/feed"}
-              className="">
-            Demos
+    return <li className="mb-8 mt-4 flex justify-center text-l font-bold text-gray-900 cursor-pointer hover:bg-gray-300 rounded-lg px-1">
+        <Link href={"/feed"} className="">
+            Cabildo Abierto
         </Link>
     </li>
 }
 
-function SidebarButton({text, href}) {
+
+const SidebarButton: React.FC<{text: string, href: string}> = ({text, href}) => {
     return <Link href={href} className="text-semibold">
-        <li
-        className="flex justify-center mb-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
+        <li className="flex justify-center mb-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
             <div className="px-1 py-2">
-                    {text}
+                {text}
             </div>
-    </li>
+        </li>
     </Link>
 }
 
@@ -31,35 +29,35 @@ async function Sidebar() {
     const user = await getUser()
 
     return <div className="h-screen flex flex-col mr-4">
-        <ul className="flex-1">
-            <FeedButton/>
-            <SidebarButton text="Buscar" href="/search"/>
-            <SidebarButton text="Nueva discusión" href="/write"/>
-            <SidebarButton text="Leyes" href="/ley"/>
-        </ul>
-        <div className="mt-auto">
-            <ul>
-                <li className="mb-2">
-                    <Link href={`/profile/${user?.id}`}
-                       className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-lg px-1`}>
-                        {user?.name}
-                    </Link>
-                </li>
-                <li className="mb-2">
-                    <form action={logout}>
-                        <button
-                            className="cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-gray-400 px-1">
-                            Cerrar sesión
-                        </button>
-                    </form>
-                </li>
-                </ul>
-            </div>
+    <ul className="flex-1">
+        <FeedButton/>
+        <SidebarButton text="Buscar" href="/buscar"/>
+        <SidebarButton text="Escribir" href="/escribir"/>
+        <SidebarButton text="Sobre esta plataforma" href="/cabildo-abierto"/>
+    </ul>
+    <div className="mt-auto">
+        <ul>
+            <li className="mb-2">
+                <Link href={`/profile/${user?.id}`}
+                    className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-lg px-1`}>
+                    {user?.name}
+                </Link>
+            </li>
+            <li className="mb-2">
+                <form action={logout}>
+                    <button
+                        className="cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-gray-400 px-1">
+                        Cerrar sesión
+                    </button>
+                </form>
+            </li>
+            </ul>
         </div>
+    </div>
 }
 
 
-export default function FeedLayout({children}) {
+const FeedLayout: React.FC<{children: React.ReactNode}> = ({children}) => {
     const centerWidth = 800; // Width of the center feed
     const sidebarWidth = `calc((100% - ${centerWidth}px) / 2)`;
 
@@ -78,3 +76,5 @@ export default function FeedLayout({children}) {
         </div>
     );
 };
+
+export default FeedLayout;

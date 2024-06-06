@@ -16,7 +16,7 @@ export default function LoginForm() {
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                     <h1 className='mb-3 text-2xl'>
-                        Creá tu cuenta
+                        Iniciá sesión
                     </h1>
                     <div className="w-full pb-4">
                         <div>

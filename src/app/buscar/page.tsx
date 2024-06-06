@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useState} from "react";
-import {searchUsers} from "@/actions/search";
+import {searchUsers, searchLaws} from "@/actions/search";
 import Link from "next/link";
 import {debounce} from "next/dist/server/utils";
 
@@ -18,16 +18,21 @@ function SearchResult({result}){
 function SearchBar({onChange}) {
     return <input
         className="rounded-lg w-1/2 px-4 text-lg border-2 border-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 hover:shadow-lg transition duration-300"
-        placeholder="búsqueda"
+        placeholder="buscar"
         onChange={onChange}
     />
 }
 
 const Search: React.FC = () => {
     const [results, setResults] = useState([]);
+    const [searchType, setSearchType] = useState("personas");
 
     const debouncedSearch = debounce(async (searchValue) => {
-        const searchResults = await searchUsers(searchValue);
+        if(searchType == "personas"){
+            const searchResults = await searchUsers(searchValue);
+        } else {
+            const searchResults = await searchLaws(searchValue);
+        }
         setResults(searchResults);
     }, 300);
 
