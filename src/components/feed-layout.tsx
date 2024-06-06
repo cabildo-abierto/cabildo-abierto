@@ -27,6 +27,9 @@ const SidebarButton: React.FC<{text: string, href: string}> = ({text, href}) => 
 
 async function Sidebar() {
     const user = await getUser()
+    if(!user) return false
+
+    const perfil_href: string = "/profile/" + user?.id
 
     return <div className="h-screen flex flex-col mr-4">
     <ul className="flex-1">
@@ -34,6 +37,7 @@ async function Sidebar() {
         <SidebarButton text="Buscar" href="/buscar"/>
         <SidebarButton text="Escribir" href="/escribir"/>
         <SidebarButton text="Sobre esta plataforma" href="/about"/>
+        <SidebarButton text="Mi perfil" href={perfil_href}/>
     </ul>
     <div className="mt-auto">
         <ul>

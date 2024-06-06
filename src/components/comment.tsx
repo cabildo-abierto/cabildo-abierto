@@ -3,6 +3,7 @@ import Link from "next/link";
 import {inter, lusitana} from "@/app/layout"
 import {getUserIdByUsername} from "@/actions/get-user";
 import parse from 'html-react-parser'
+import Image from "next/image";
 
 export type CommentProps = {
     id: string;
@@ -16,6 +17,7 @@ export type CommentProps = {
     _count: {
         childrenComments: number
     }
+    type: string
 };
 
 async function replaceAsync(text: string, regexp: RegExp, 
@@ -61,23 +63,23 @@ const CommentComponent: React.FC<{comment: CommentProps}> = async ({comment}) =>
     const date = comment.createdAt.toLocaleDateString('es-AR', options)
 
     const textWithLinks: ContentWithLinks = await getContentWithLinks(comment)
-
-    return (
-        <div className="bg-white border-b">
-            <div className="flex justify-between mb-2">
-                <p className="text-gray-600 ml-2 text-sm">
-                    <Link className="hover:text-gray-900"
-                          href={"/profile/" + comment.author?.id}>{comment.author?.name} @{comment.author?.username}</Link>
-                </p>
-                <p className="text-gray-600 text-sm mr-1">{date}</p>
-            </div>
-
-            <ContentText text={textWithLinks}/>
-            <Link className="flex justify-end text-gray-600 text-sm mr-1" href={"/content/" + comment.id}>
-                {comment._count.childrenComments} comentarios
-            </Link>
+    const symbol: string = {"Discussion": "👥", "Post": "💬", "Opinion": "", "Comment": ""}[comment.type]
+    
+    return <div className="bg-white border-b border-t">
+        <div className="flex justify-between mb-2">
+            <p className="text-gray-600 ml-2 text-sm">
+                <Link className="hover:text-gray-900"
+                        href={"/profile/" + comment.author?.id}>{comment.author?.name} @{comment.author?.username}</Link>
+            </p>
+            <p>{symbol}</p>
+            <p className="text-gray-600 text-sm mr-1">{date}</p>
         </div>
-    );
+
+        <ContentText text={textWithLinks}/>
+        <Link className="flex justify-end text-gray-600 text-sm mr-1" href={"/content/" + comment.id}>
+            {comment._count.childrenComments} comentarios
+        </Link>
+    </div>
 };
 
 export default CommentComponent;

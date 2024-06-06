@@ -43,6 +43,7 @@ export async function getContentComments(contentId: string){
             _count: {
                 select: { childrenComments: true },
             },
+            type: true
         },
         where: {parentContentId: contentId},
     })
