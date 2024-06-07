@@ -5,7 +5,7 @@ import {getUserIdByUsername} from "@/actions/get-user";
 import parse from 'html-react-parser'
 import Image from "next/image";
 
-export type CommentProps = {
+export type ContentProps = {
     id: string;
     createdAt: Date
     author: {
@@ -20,7 +20,7 @@ export type CommentProps = {
     type: string
 };
 
-async function replaceAsync(text: string, regexp: RegExp, 
+export async function replaceAsync(text: string, regexp: RegExp, 
     replacerFunction: (match: string, replace: string) => Promise<string>) {
     const replacements = await Promise.all(
         Array.from(text.matchAll(regexp), ([match, replace]) => replacerFunction(match, replace)));
@@ -28,9 +28,9 @@ async function replaceAsync(text: string, regexp: RegExp,
     return text.replace(regexp, () => replacements[i++]);
 }
 
-type ContentWithLinks = React.JSX.Element | string | React.JSX.Element[]
+export type ContentWithLinks = React.JSX.Element | string | React.JSX.Element[]
 
-async function getContentWithLinks(comment: CommentProps): Promise<ContentWithLinks> {
+export async function getContentWithLinks(comment: ContentProps): Promise<ContentWithLinks> {
     async function replaceMention(match: string, username: string): Promise<string> {
         const user = await getUserIdByUsername(username)
         if (user) {
@@ -45,7 +45,7 @@ async function getContentWithLinks(comment: CommentProps): Promise<ContentWithLi
     return parse(withLinks)
 }
 
-const ContentText: React.FC<{text: ContentWithLinks}> = ({text}) => {
+export const ContentText: React.FC<{text: ContentWithLinks}> = ({text}) => {
     return <div className="px-3">
     <div className={`${inter.className} antialiased text-gray-900`}>
         {text}
@@ -53,32 +53,46 @@ const ContentText: React.FC<{text: ContentWithLinks}> = ({text}) => {
     </div>
 }
 
-const CommentComponent: React.FC<{comment: CommentProps}> = async ({comment}) => {
+export function getDate(content: ContentProps): string {
     const options = {
         day: 'numeric',
         month: 'long',
-        year: comment.createdAt.getFullYear() == (new Date()).getFullYear() ? undefined : 'numeric'
+        year: content.createdAt.getFullYear() == (new Date()).getFullYear() ? undefined : 'numeric'
     };
 
-    const date = comment.createdAt.toLocaleDateString('es-AR', options)
+    return content.createdAt.toLocaleDateString('es-AR', options)
+}
 
-    const textWithLinks: ContentWithLinks = await getContentWithLinks(comment)
-    const symbol: string = {"Discussion": "👥", "Post": "💬", "Opinion": "", "Comment": ""}[comment.type]
+export const AddCommentButton: React.FC<{text: string}> = ({text}) => {
+    return <button className="text-gray-600 text-sm mr-2 hover:text-gray-800">
+        <div className="px-1">
+            {text}
+        </div>
+    </button>
+}
+
+const CommentComponent: React.FC<{content: ContentProps}> = async ({content}) => {
+    const date = getDate(content)
+    const textWithLinks: ContentWithLinks = await getContentWithLinks(content)
     
     return <div className="bg-white border-b border-t">
         <div className="flex justify-between mb-2">
             <p className="text-gray-600 ml-2 text-sm">
                 <Link className="hover:text-gray-900"
-                        href={"/profile/" + comment.author?.id}>{comment.author?.name} @{comment.author?.username}</Link>
+                        href={"/profile/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
             </p>
-            <p>{symbol}</p>
             <p className="text-gray-600 text-sm mr-1">{date}</p>
         </div>
 
         <ContentText text={textWithLinks}/>
-        <Link className="flex justify-end text-gray-600 text-sm mr-1" href={"/content/" + comment.id}>
-            {comment._count.childrenComments} comentarios
-        </Link>
+        <div className="flex justify-between px-1">
+            <div>
+                <AddCommentButton text="Agregar comentario"/>
+            </div>
+            <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
+                {content._count.childrenComments} comentarios
+            </Link>
+        </div>
     </div>
 };
 

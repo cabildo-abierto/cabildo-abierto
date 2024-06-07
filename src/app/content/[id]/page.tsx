@@ -1,4 +1,7 @@
-import Comment from "@/components/comment";
+import CommentComponent from "@/components/comment";
+import DiscussionComponent from "@/components/discussion";
+import PostComponent from "@/components/post";
+import OpinionComponent from "@/components/opinion";
 import React from "react";
 import NewComment from "@/app/content/[id]/new-comment";
 import {createComment} from "@/actions/create-comment";
@@ -13,12 +16,23 @@ const CommentPage: React.FC = async ({params}) => {
 
     const comments = await getContentComments(parentContent.id)
 
-    const handleAddComment = async (comment) => {
+    const handleAddComment = async (content) => {
         "use server"
-        createComment(comment, parentContent.id)
+        createComment(content, parentContent.id)
     }
 
     const title: string = {"Comment": "Comentario", "Discussion": "Discusión", "Post": "Publicación", "Opinion": "Opinion"}[parentContent.type]
+
+    let mainContentElement: React.JSX.Element
+    if(parentContent.type == "Discussion"){
+        mainContentElement = <DiscussionComponent content={parentContent}/>
+    } else if(parentContent.type == "Post"){
+        mainContentElement = <PostComponent content={parentContent}/>
+    } else if(parentContent.type == "Comment"){
+        mainContentElement = <CommentComponent content={parentContent}/>
+    } else {
+        mainContentElement = <OpinionComponent content={parentContent}/>
+    }
 
     return (
         <div className="">
@@ -27,10 +41,7 @@ const CommentPage: React.FC = async ({params}) => {
                     {title}
                 </h1>
                 <div className="mt-8">
-                    <Comment comment={parentContent}/>
-                </div>
-                <div className="px-2 py-2">
-                <NewComment handleAddComment={handleAddComment}/>
+                    {mainContentElement}
                 </div>
                 <div className="">
                     <CommentSection comments={comments}/>

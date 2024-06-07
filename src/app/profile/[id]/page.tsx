@@ -1,27 +1,21 @@
-import {getUserActivityById, getUserById} from "@/actions/get-user";
+import { getUserActivityById, getUserById } from "@/actions/get-user";
 import React from "react";
 import Comment from "@/components/comment";
+import Feed from "@/components/feed";
 
 
-const UserProfile: React.FC<{params: {id: string}}> = async ({params}) => {
+const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
     const user = await getUserById(params?.id)
-    if(!user){
+    if (!user) {
         return <>El usuario no existe</>
     }
     const activity = await getUserActivityById(params?.id);
     return <div className="bg-white">
         <div className="mx-auto max-w-4xl bg-white border-l border-r h-screen">
             <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
-                {user.name ? user.name : '@'+user.username}
+                {user.name ? user.name : '@' + user.username}
             </h1>
-            <div>
-                <div> {activity.map((content) => (
-                    <div key={content.id}>
-                    <Comment comment={content}/>
-                    </div>
-                ))}
-                </div>
-            </div>
+            <Feed contents={activity}/>
         </div>
     </div>
 }

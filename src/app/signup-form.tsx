@@ -5,6 +5,15 @@ import { useFormState } from "react-dom";
 import {SignupButton} from "@/app/signup-button";
 import {useState} from "react";
 
+export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
+    return <label
+        className="mb-1 mt-2 block text-s font-medium text-gray-900"
+        htmlFor={label}
+    > 
+        {text}
+    </label>
+}
+
 export default function SignupForm() {
     const [state, action] = useFormState(signup, undefined)
 
@@ -17,12 +26,7 @@ export default function SignupForm() {
                     </h1>
                     <div className="w-full mb-3">
                         <div>
-                            <label
-                                className="mb-1 mt-5 block text-s font-medium text-gray-900"
-                                htmlFor="email"
-                            >
-                                Email
-                            </label>
+                            <AuthenticationFormLabel text="Email" label="email"/>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
                                 placeholder=""
@@ -39,12 +43,7 @@ export default function SignupForm() {
                             }
                         </div>
                         <div>
-                            <label
-                                className="mb-2 mt-3 block text-s font-medium text-gray-900"
-                                htmlFor="password"
-                            >
-                                Contraseña
-                            </label>
+                            <AuthenticationFormLabel text="Contraseña" label="password"/>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
                                 placeholder=""
@@ -61,12 +60,7 @@ export default function SignupForm() {
                             }
                         </div>
                         <div>
-                            <label
-                                className="mb-2 mt-3 block text-s font-medium text-gray-900"
-                                htmlFor="name"
-                            >
-                                Tu nombre
-                            </label>
+                            <AuthenticationFormLabel text="Tu nombre" label="name"/>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
                                 placeholder=""
@@ -83,12 +77,7 @@ export default function SignupForm() {
                             </div>
                         }
                         <div>
-                            <label
-                                className="mb-2 mt-3 block text-s font-medium text-gray-900"
-                                htmlFor="username"
-                            >
-                                Nombre de usuario (sin espacios y en minuscula)
-                            </label>
+                            <AuthenticationFormLabel text="Nombre de usuario" label="username"/>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
                                 type="text"

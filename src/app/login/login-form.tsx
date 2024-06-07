@@ -5,6 +5,7 @@ import {authenticate, signup} from '@/actions/auth';
 import LoginButton from "./login-button";
 import { redirect, useSearchParams } from "next/navigation";
 import {SignupButton} from "@/app/signup-button";
+import { AuthenticationFormLabel } from "../signup-form";
 
 export default function LoginForm() {
     const [success, action] = useFormState(authenticate, true)
@@ -20,12 +21,7 @@ export default function LoginForm() {
                     </h1>
                     <div className="w-full pb-4">
                         <div>
-                            <label
-                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
-                                htmlFor="email"
-                            >
-                                Email
-                            </label>
+                            <AuthenticationFormLabel text="Email" label="email"/>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
                                 placeholder=""
@@ -36,12 +32,7 @@ export default function LoginForm() {
                             />
                         </div>
                         <div>
-                            <label
-                                className="mb-3 mt-5 block text-s font-medium text-gray-900"
-                                htmlFor="password"
-                            >
-                                Contraseña
-                            </label>
+                            <AuthenticationFormLabel text="Contraseña" label="password"/>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
                                 placeholder=""

@@ -1,11 +1,11 @@
-import Comment from "@/components/comment"
+import CommentComponent from "@/components/comment"
 
 
 export default function CommentSection({comments}) {
     return <div className="border-t">
-        {comments.map((comment) => (
-            <div className="" key={comment.id}>
-                <Comment comment={comment}/>
+        {comments.map((content) => (
+            <div className="" key={content.id}>
+                <CommentComponent content={content}/>
             </div>
         ))}
     </div>
