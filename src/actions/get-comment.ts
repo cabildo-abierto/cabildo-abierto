@@ -3,6 +3,7 @@
 import {db} from "@/db";
 import {getUserIdByUsername} from "@/actions/get-user";
 import parse from 'html-react-parser'
+import { getLikeState } from "./likes";
 
 export type ContentProps = {
     id: string;
@@ -15,9 +16,12 @@ export type ContentProps = {
     text: string;
     _count: {
         childrenComments: number
+        likedBy: number
+        dislikedBy: number
     }
     type: string
     textWithLinks?: ContentWithLinks | null
+    likeState?: string
 };
 
 export async function getContentById(contentId: string): Promise<ContentProps | null> {
@@ -34,7 +38,11 @@ export async function getContentById(contentId: string): Promise<ContentProps | 
                     },
                 },
                 _count: {
-                    select: { childrenComments: true },
+                    select: { 
+                        childrenComments: true,
+                        likedBy: true,
+                        dislikedBy: true,
+                    },
                 },
                 type: true
         },
@@ -45,6 +53,7 @@ export async function getContentById(contentId: string): Promise<ContentProps | 
     )
     if(!content) return null
     content.textWithLinks = await getContentWithLinks(content)
+    content.likeState = await getLikeState(content.id)
     return content
 }
 
@@ -87,7 +96,11 @@ export async function getContentComments(contentId: string){
                 },
             },
             _count: {
-                select: { childrenComments: true },
+                select: { 
+                    childrenComments: true,
+                    likedBy: true,
+                    dislikedBy: true,
+                },
             },
             type: true
         },
@@ -95,6 +108,7 @@ export async function getContentComments(contentId: string){
     })
     comments.forEach(async function(comment){
         comment.textWithLinks = await getContentWithLinks(comment)
+        comment.likeState = await getLikeState(comment.id)
     })
     return comments
 }
@@ -113,7 +127,11 @@ export async function getPostsAndDiscussions() {
                 },
             },
             _count: {
-                select: { childrenComments: true },
+                select: { 
+                    childrenComments: true,
+                    likedBy: true,
+                    dislikedBy: true,
+                },
             },
             type: true
         },
@@ -123,6 +141,7 @@ export async function getPostsAndDiscussions() {
     })
     contents.forEach(async function(content){
         content.textWithLinks = await getContentWithLinks(content)
+        content.likeState = await getLikeState(content.id)
     })
     return contents
 }

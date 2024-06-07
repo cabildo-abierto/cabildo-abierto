@@ -6,6 +6,8 @@ import TextareaAutosize from "react-textarea-autosize";
 import { ContentProps } from "@/actions/get-comment";
 import { createComment, createOpinion } from "@/actions/create-comment";
 import { useRouter } from "next/navigation";
+import { addDislike, addLike, getLikeState, removeDislike, removeLike } from "@/actions/likes";
+import Image from 'next/image';
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
     return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
@@ -20,7 +22,7 @@ export const ContentTopRow: React.FC<{type: string, content: ContentProps}> = ({
             <Link className="hover:text-gray-900"
                   href={"/profile/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
         </p>
-        <p>{type}</p>
+        <p className="text-gray-600 text-sm">{type}</p>
         <p className="text-gray-600 text-sm mr-1">{date}</p>
     </div>
 }
@@ -56,8 +58,10 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
     const [writingOpinion, setWritingOpinion] = useState(false)
     const [comment, setComment] = useState('')
     const router = useRouter()
+    let like_count: Number = content._count.likedBy
+    let dislike_count: Number = content._count.dislikedBy
 
-    const type_name = {"Comment": "", "Discussion": "👥", "Post": "💬", "Opinion": ""}[content.type]
+    const type_name = {"Comment": "", "Discussion": "Discusión", "Post": "Publicación", "Opinion": "Opinión"}[content.type]
 
     const handleAddCommentClick = () => {
         setWritingOpinion(false)
@@ -85,6 +89,16 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
         setWritingOpinion(false)
     }
 
+    const handleLike = async () => {
+        if(content.likeState == "liked") return
+        await addLike(content.id)
+    }
+
+    const handleDislike = async () => {
+        if(content.likeState == "disliked") return
+        await addDislike(content.id)
+    }
+
     return <>
         <div className={isMainContent ? "border-4 border-gray-300 rounded" : "border-b border-t"}>
             <ContentTopRow type={type_name} content={content}/>
@@ -95,9 +109,24 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
                     <AddCommentButton text="Agregar comentario" onClick={handleAddCommentClick}/>
                     {content.type == "Discussion" ? <AddCommentButton text="Agregar opinión" onClick={handleAddOpinionClick}/> : <></>}
                 </div>
-                <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
-                    {content._count.childrenComments} comentarios
-                </Link>
+
+                <div className="flex justify-between">
+                    <div className="flex justify-between px-3">
+                        <button onClick={handleLike} className="text-sm mr-1">
+                            <Image src="/thumbs-up.png" width={16} height={16} alt={"thumbs up"}/>
+                        </button>
+                        <div className="text-gray-600 text-sm">{like_count}</div>
+                    </div>
+                    <div className="flex justify-between px-3">
+                        <button onClick={handleDislike} className="text-sm mr-1">
+                            <Image src="/thumbs-down.png" width={16} height={16} alt={"thumbs down"}/>
+                        </button>
+                        <div className="text-gray-600 text-sm">{dislike_count}</div>
+                    </div>
+                    <Link className="text-gray-600 text-sm hover:text-gray-800 ml-2" href={"/content/" + content.id}>
+                        {content._count.childrenComments} comentarios
+                    </Link>
+                </div>
             </div>
         </div>
         {(writingComment || writingOpinion) ? <div>
