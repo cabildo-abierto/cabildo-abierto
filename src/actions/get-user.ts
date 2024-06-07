@@ -2,6 +2,7 @@
 
 import {db} from "@/db";
 import {verifySession} from "@/actions/auth";
+import { ContentProps, getContentWithLinks } from "./get-comment";
 
 export async function getUserId(){
     const session = await verifySession()
@@ -35,7 +36,7 @@ export async function getUserById(userId: string){
 }
 
 export async function getUserActivityById(userId: string){
-    return await db.content.findMany(
+    let contents: ContentProps[] = await db.content.findMany(
         {
             where: {
                 AND: [
@@ -71,4 +72,8 @@ export async function getUserActivityById(userId: string){
             }
         }
     )
+    contents.forEach(async function(content){
+        content.textWithLinks = await getContentWithLinks(content)
+    })
+    return contents
 }

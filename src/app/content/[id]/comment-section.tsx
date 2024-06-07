@@ -6,7 +6,7 @@ const CommentSection: React.FC<{comments: ContentProps[]}> = ({comments}) => {
     return <div className="border-t">
         {comments.map((content) => (
             <div className="" key={content.id}>
-                <ContentComponent content={content}/>
+                <ContentComponent content={content} isMainContent={false}/>
             </div>
         ))}
     </div>

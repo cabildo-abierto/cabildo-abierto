@@ -21,7 +21,7 @@ const ContentPage: React.FC<{params: any}> = async ({params}) => {
                 {title}
             </h1>
             <div className="mt-8">
-                <ContentComponent content={parentContent}/>
+                <ContentComponent content={parentContent} isMainContent={true}/>
             </div>
             <div className="">
                 <CommentSection comments={comments}/>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import {inter, lusitana} from "@/app/layout"
 import TextareaAutosize from "react-textarea-autosize";
 import { ContentProps } from "@/actions/get-comment";
-import { createComment } from "@/actions/create-comment";
+import { createComment, createOpinion } from "@/actions/create-comment";
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
     return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
@@ -50,45 +50,57 @@ export const AddCommentButton: React.FC<{text: string, onClick: () => void}> = (
     </button>
 }
 
-const ContentComponent: React.FC<{content: ContentProps}> = ({content}) => {
+const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}> = ({content, isMainContent}) => {
     const [writingComment, setWritingComment] = useState(false)
+    const [writingOpinion, setWritingOpinion] = useState(false)
     const [comment, setComment] = useState('')
 
     const type_name = {"Comment": "", "Discussion": "👥", "Post": "💬", "Opinion": ""}[content.type]
 
-
     const handleAddCommentClick = () => {
+        setWritingOpinion(false)
         setWritingComment(true)
     }
 
-    const handleAddComment = async () => {
-        await createComment(comment, content.id)
+    const handleAddOpinionClick = () => {
         setWritingComment(false)
+        setWritingOpinion(true)
+    }
+
+    const handleAddComment = async () => {
+        if(writingComment){
+            await createComment(comment, content.id)
+        } else {
+            await createOpinion(comment, content.id)
+        }
+        setWritingComment(false)
+        setWritingOpinion(false)
     }
 
     const handleCancelComment = () => {
         setWritingComment(false)
+        setWritingOpinion(false)
     }
 
     return <>
-        <div className="bg-white border-b border-t">
+        <div className={isMainContent ? "border-4 border-gray-300 rounded" : "border-b border-t"}>
             <ContentTopRow type={type_name} content={content}/>
             <ContentText content={content}/>
 
             <div className="flex justify-between px-1">
                 <div>
                     <AddCommentButton text="Agregar comentario" onClick={handleAddCommentClick}/>
-                    {content.type == "Discussion" ? <AddCommentButton text="Agregar opinión" onClick={() => {}}/> : <></>}
+                    {content.type == "Discussion" ? <AddCommentButton text="Agregar opinión" onClick={handleAddOpinionClick}/> : <></>}
                 </div>
                 <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
                     {content._count.childrenComments} comentarios
                 </Link>
             </div>
         </div>
-        {writingComment ? <div>
+        {(writingComment || writingOpinion) ? <div>
             <div className="px-1 mt-1">
             <TextareaAutosize className="w-full text-sm bg-white border rounded-lg p-2 resize-none focus:border-gray-500 transition duration-200"
-                placeholder={"Agregá un comentario..."}
+                placeholder={writingComment ? "Agregá un comentario..." : "Agregá una opinión..."}
                 minRows={2}
                 onChange={(event) => {setComment(event.target.value)}}
                 value={comment}
@@ -97,7 +109,7 @@ const ContentComponent: React.FC<{content: ContentProps}> = ({content}) => {
             <div className="flex justify-end">
                 <div>
                     <button onClick={handleCancelComment} className="mr-2 text-gray-600 text-sm hover:text-gray-800">Cancelar</button>
-                    <button onClick={handleAddComment} className="mr-2 text-gray-600 text-sm hover:text-gray-800">Enviar</button>
+                    <button onClick={handleAddComment} className="mr-2 text-gray-600 text-sm hover:text-gray-800">{writingComment ? "Enviar comentario" : "Enviar opinión"}</button>
                 </div>
             </div>
         </div> : <></>}

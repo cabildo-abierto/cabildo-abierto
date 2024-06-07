@@ -63,6 +63,29 @@ export async function createComment(text: string, parentContentId: string) {
 }
 
 
+export async function createOpinion(text: string, parentContentId: string) {
+    const author = await getUser()
+    if(!author) return false
+
+    let connections = findReferences(text)
+
+    await db.content.create({
+        data: {
+            text: text,
+            authorId: author.id,
+            parentContentId: parentContentId,
+            mentionedUsers: {
+                connectOrCreate: connections
+            },
+            type: "Opinion"
+        },
+    })
+
+    return true
+}
+
+
+
 export async function createPost(text: string) {
     const author = await getUser()
     if(!author) return false

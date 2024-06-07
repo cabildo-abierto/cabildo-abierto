@@ -1,6 +1,5 @@
 import { getUserActivityById, getUserById } from "@/actions/get-user";
 import React from "react";
-import Comment from "@/components/comment";
 import Feed from "@/components/feed";
 
 
