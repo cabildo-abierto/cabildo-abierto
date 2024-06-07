@@ -5,6 +5,7 @@ import {inter, lusitana} from "@/app/layout"
 import TextareaAutosize from "react-textarea-autosize";
 import { ContentProps } from "@/actions/get-comment";
 import { createComment, createOpinion } from "@/actions/create-comment";
+import { useRouter } from "next/navigation";
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
     return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
@@ -17,7 +18,7 @@ export const ContentTopRow: React.FC<{type: string, content: ContentProps}> = ({
     return <div className="flex justify-between mb-2">
         <p className="text-gray-600 ml-2 text-sm">
             <Link className="hover:text-gray-900"
-                    href={"/profile/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
+                  href={"/profile/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
         </p>
         <p>{type}</p>
         <p className="text-gray-600 text-sm mr-1">{date}</p>
@@ -26,9 +27,9 @@ export const ContentTopRow: React.FC<{type: string, content: ContentProps}> = ({
 
 export const ContentText: React.FC<{content: ContentProps}> = ({content}) => {
     return <div className="px-3">
-        <div className={`${inter.className} antialiased text-gray-900`}>
+        <pre className={`${inter.className} antialiased text-gray-900 whitespace-pre-line`}>
             {content.textWithLinks}
-        </div>
+        </pre>
     </div>
 }
 
@@ -54,6 +55,7 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
     const [writingComment, setWritingComment] = useState(false)
     const [writingOpinion, setWritingOpinion] = useState(false)
     const [comment, setComment] = useState('')
+    const router = useRouter()
 
     const type_name = {"Comment": "", "Discussion": "👥", "Post": "💬", "Opinion": ""}[content.type]
 
@@ -75,6 +77,7 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
         }
         setWritingComment(false)
         setWritingOpinion(false)
+        router.refresh()
     }
 
     const handleCancelComment = () => {

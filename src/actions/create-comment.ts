@@ -90,8 +90,9 @@ export async function createPost(text: string) {
     const author = await getUser()
     if(!author) return false
 
+    console.log(text)
     let connections = findReferences(text)
-
+    console.log(text)
     await db.content.create({
         data: {
             text: text,
