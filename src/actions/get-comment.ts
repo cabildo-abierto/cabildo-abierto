@@ -1,9 +1,27 @@
 'use server'
 
 import {db} from "@/db";
+import {getUserIdByUsername} from "@/actions/get-user";
+import parse from 'html-react-parser'
 
-export async function getContentById(contentId: string) {
-    return await db.content.findUnique(
+export type ContentProps = {
+    id: string;
+    createdAt: Date
+    author: {
+        id: string
+        name: string
+        username: string
+    } | null;
+    text: string;
+    _count: {
+        childrenComments: number
+    }
+    type: string
+    textWithLinks?: ContentWithLinks | null
+};
+
+export async function getContentById(contentId: string): Promise<ContentProps | null> {
+    let content: ContentProps | null = await db.content.findUnique(
         {select: {
                 id: true,
                 text: true,
@@ -20,15 +38,43 @@ export async function getContentById(contentId: string) {
                 },
                 type: true
         },
-        where: {
-            id: contentId,
-        }
+            where: {
+                id: contentId,
+            }
         }
     )
+    if(!content) return null
+    content.textWithLinks = await getContentWithLinks(content)
+    return content
+}
+
+export async function replaceAsync(text: string, regexp: RegExp, 
+    replacerFunction: (match: string, replace: string) => Promise<string>) {
+    const replacements = await Promise.all(
+        Array.from(text.matchAll(regexp), ([match, replace]) => replacerFunction(match, replace)));
+    let i = 0;
+    return text.replace(regexp, () => replacements[i++]);
+}
+
+export type ContentWithLinks = React.JSX.Element | string | React.JSX.Element[]
+
+export async function getContentWithLinks(content: ContentProps): Promise<ContentWithLinks> {
+    async function replaceMention(match: string, username: string): Promise<string> {
+        const user = await getUserIdByUsername(username)
+        if (user) {
+            return `<a href="/profile/${user.id}" style="color: skyblue;">@${username}</a>`;
+        } else {
+            return match
+        }
+    }
+
+    const withLinks = await replaceAsync(content.text, /@(\w+)/g, replaceMention);
+
+    return parse(withLinks)
 }
 
 export async function getContentComments(contentId: string){
-    return await db.content.findMany({
+    let comments: ContentProps[] = await db.content.findMany({
         select: {
             id: true,
             text: true,
@@ -47,10 +93,14 @@ export async function getContentComments(contentId: string){
         },
         where: {parentContentId: contentId},
     })
+    comments.forEach(async function(comment){
+        comment.textWithLinks = await getContentWithLinks(comment)
+    })
+    return comments
 }
 
 export async function getPostsAndDiscussions() {
-    return await db.content.findMany({
+    let contents: ContentProps[] = await db.content.findMany({
         select: {
             id: true,
             text: true,
@@ -71,4 +121,8 @@ export async function getPostsAndDiscussions() {
             parentContentId: null
         }
     })
+    contents.forEach(async function(content){
+        content.textWithLinks = await getContentWithLinks(content)
+    })
+    return contents
 }

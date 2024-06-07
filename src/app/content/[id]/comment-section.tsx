@@ -1,12 +1,15 @@
-import CommentComponent from "@/components/comment"
+import { ContentProps } from "@/actions/get-comment"
+import ContentComponent from "@/components/content"
 
 
-export default function CommentSection({comments}) {
+const CommentSection: React.FC<{comments: ContentProps[]}> = ({comments}) => {
     return <div className="border-t">
         {comments.map((content) => (
             <div className="" key={content.id}>
-                <CommentComponent content={content}/>
+                <ContentComponent content={content}/>
             </div>
         ))}
     </div>
 }
+
+export default CommentSection

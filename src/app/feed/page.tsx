@@ -1,7 +1,5 @@
 import React from "react"
 import {getPostsAndDiscussions} from "@/actions/get-comment";
-import DiscussionComponent from "@/components/discussion";
-import PostComponent from "@/components/post";
 import Feed from "@/components/feed";
 
 
