@@ -3,7 +3,6 @@ import Link from "next/link";
 import {inter, lusitana} from "@/app/layout"
 import {getUserIdByUsername} from "@/actions/get-user";
 import parse from 'html-react-parser'
-import Image from "next/image";
 
 export type ContentProps = {
     id: string;
@@ -19,6 +18,24 @@ export type ContentProps = {
     }
     type: string
 };
+
+export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
+    return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
+    {content._count.childrenComments} comentarios
+    </Link>
+}
+
+export const ContentTopRow: React.FC<{type: string, content: ContentProps}> = ({type, content}) => {
+    const date = getDate(content)
+    return <div className="flex justify-between mb-2">
+        <p className="text-gray-600 ml-2 text-sm">
+            <Link className="hover:text-gray-900"
+                    href={"/profile/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
+        </p>
+        <p>{type}</p>
+        <p className="text-gray-600 text-sm mr-1">{date}</p>
+    </div>
+}
 
 export async function replaceAsync(text: string, regexp: RegExp, 
     replacerFunction: (match: string, replace: string) => Promise<string>) {
@@ -45,10 +62,11 @@ export async function getContentWithLinks(comment: ContentProps): Promise<Conten
     return parse(withLinks)
 }
 
-export const ContentText: React.FC<{text: ContentWithLinks}> = ({text}) => {
+export const ContentText: React.FC<{content: ContentProps}> = async ({content}) => {
+    const textWithLinks: ContentWithLinks = await getContentWithLinks(content)
     return <div className="px-3">
     <div className={`${inter.className} antialiased text-gray-900`}>
-        {text}
+        {textWithLinks}
     </div>
     </div>
 }
@@ -63,8 +81,8 @@ export function getDate(content: ContentProps): string {
     return content.createdAt.toLocaleDateString('es-AR', options)
 }
 
-export const AddCommentButton: React.FC<{text: string}> = ({text}) => {
-    return <button className="text-gray-600 text-sm mr-2 hover:text-gray-800">
+export const AddCommentButton: React.FC<{text: string, onClick: () => void}> = ({text, onClick}) => {
+    return <button className="text-gray-600 text-sm mr-2 hover:text-gray-800" onClick={onClick}>
         <div className="px-1">
             {text}
         </div>
@@ -72,22 +90,13 @@ export const AddCommentButton: React.FC<{text: string}> = ({text}) => {
 }
 
 const CommentComponent: React.FC<{content: ContentProps}> = async ({content}) => {
-    const date = getDate(content)
-    const textWithLinks: ContentWithLinks = await getContentWithLinks(content)
-    
     return <div className="bg-white border-b border-t">
-        <div className="flex justify-between mb-2">
-            <p className="text-gray-600 ml-2 text-sm">
-                <Link className="hover:text-gray-900"
-                        href={"/profile/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
-            </p>
-            <p className="text-gray-600 text-sm mr-1">{date}</p>
-        </div>
+        <ContentTopRow type="" content={content}/>
+        <ContentText content={content}/>
 
-        <ContentText text={textWithLinks}/>
         <div className="flex justify-between px-1">
             <div>
-                <AddCommentButton text="Agregar comentario"/>
+                <AddCommentButton text="Agregar comentario" onClick={() => {}}/>
             </div>
             <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
                 {content._count.childrenComments} comentarios

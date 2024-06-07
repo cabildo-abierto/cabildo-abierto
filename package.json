@@ -14,7 +14,7 @@
     "@types/nodemailer": "^6.4.14",
     "bcryptjs": "^2.4.3",
     "html-react-parser": "^5.1.10",
-    "next": "14.2.3",
+    "next": "^14.2.3",
     "next-auth": "^5.0.0-beta.17",
     "next-client-cookies": "^1.1.1",
     "nextjs-simple-typewriter": "^5.2.2",
@@ -24,6 +24,7 @@
     "react-dom": "^18",
     "react-markdown": "^9.0.1",
     "react-pdf": "^8.0.0",
+    "react-textarea-autosize": "^8.5.3",
     "zod": "^3.23.5"
   },
   "devDependencies": {
@@ -33,7 +34,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",
-    "prisma": "^5.13.0",
+    "prisma": "^5.14.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

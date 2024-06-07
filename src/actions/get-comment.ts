@@ -65,6 +65,7 @@ export async function getPostsAndDiscussions() {
             _count: {
                 select: { childrenComments: true },
             },
+            type: true
         },
         where: {
             parentContentId: null
