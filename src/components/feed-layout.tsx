@@ -32,12 +32,12 @@ async function Sidebar() {
     const perfil_href: string = "/profile/" + user?.id
 
     return <div className="h-screen flex flex-col mr-4">
-    <ul className="flex-1">
+    <ul className="flex-1 mt-4">
         <FeedButton/>
-        <SidebarButton text="Buscar" href="/buscar"/>
+        <SidebarButton text="Inicio" href="/feed"/>
         <SidebarButton text="Escribir" href="/escribir"/>
-        <SidebarButton text="Mi perfil" href={perfil_href}/>
-        <SidebarButton text="Sobre Cabildo Abierto" href="/about"/>
+        <SidebarButton text="Buscar" href="/buscar"/>
+        <SidebarButton text="Sobre Cabildo Abierto" href="/profile/cabildoabierto"/>
     </ul>
     <div className="mt-auto">
         <ul>

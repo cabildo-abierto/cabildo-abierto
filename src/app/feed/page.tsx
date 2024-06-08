@@ -6,7 +6,9 @@ import Feed from "@/components/feed";
 const FeedPage: React.FC = async () => {
     const feed = await getPostsAndDiscussions()
 
-    return <Feed contents={feed}/>
+    return <div className="mt-8">
+        <Feed contents={feed}/>
+    </div>
 }
 
 export default FeedPage

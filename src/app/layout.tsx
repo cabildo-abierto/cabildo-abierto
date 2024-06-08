@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" spellCheck="false">
-      <body className={`${roboto_mono.className} antialiased text-gray-900`}>
+      <body className={`${roboto.className} antialiased text-gray-900`}>
         <AuthProvider>
           {children}
         </AuthProvider>

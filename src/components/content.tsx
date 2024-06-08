@@ -8,6 +8,9 @@ import { createComment, createOpinion } from "@/actions/create-comment";
 import { useRouter } from "next/navigation";
 import { addDislike, addLike, getLikeState, removeDislike, removeLike } from "@/actions/likes";
 import Image from 'next/image';
+import 'react-quill/dist/quill.snow.css';
+import 'react-quill/dist/quill.bubble.css'
+
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
     return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
@@ -27,12 +30,9 @@ export const ContentTopRow: React.FC<{type: string, content: ContentProps}> = ({
     </div>
 }
 
+
 export const ContentText: React.FC<{content: ContentProps}> = ({content}) => {
-    return <div className="px-3">
-        <pre className={`${inter.className} antialiased text-gray-900 whitespace-pre-line`}>
-            {content.textWithLinks}
-        </pre>
-    </div>
+    return <div className="ql-editor" dangerouslySetInnerHTML={{__html: content.text}}></div>
 }
 
 export function getDate(content: ContentProps): string {
@@ -106,8 +106,8 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
 
             <div className="flex justify-between px-1">
                 <div>
-                    <AddCommentButton text="Agregar comentario" onClick={handleAddCommentClick}/>
-                    {content.type == "Discussion" ? <AddCommentButton text="Agregar opinión" onClick={handleAddOpinionClick}/> : <></>}
+                    <AddCommentButton text="Responder" onClick={handleAddCommentClick}/>
+                    {content.type == "Discussion" ? <AddCommentButton text="Opinar" onClick={handleAddOpinionClick}/> : <></>}
                 </div>
 
                 <div className="flex justify-between">
@@ -123,9 +123,11 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
                         </button>
                         <div className="text-gray-600 text-sm">{dislike_count}</div>
                     </div>
-                    <Link className="text-gray-600 text-sm hover:text-gray-800 ml-2" href={"/content/" + content.id}>
-                        {content._count.childrenComments} comentarios
-                    </Link>
+                    <div className="flex justify-between px-3">
+                        <Link className="text-gray-600 text-sm hover:text-gray-800 ml-2" href={"/content/" + content.id}>
+                            💬 {content._count.childrenComments}
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

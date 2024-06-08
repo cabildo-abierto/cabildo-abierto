@@ -1,6 +1,6 @@
+import { Home } from "../home";
 import LoginForm from "./login-form"
 import Link from "next/link";
-import Home from "@/app/home";
 
 export default function LoginPage() {
     return (

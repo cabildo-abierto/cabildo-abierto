@@ -4,6 +4,27 @@ import React, {useState} from "react";
 import TextareaAutosize from 'react-textarea-autosize';
 import { createPost, createDiscussion } from '@/actions/create-comment'
 import {useRouter} from "next/navigation";
+import dynamic from "next/dynamic";
+import 'react-quill/dist/quill.snow.css';
+
+export const QuillEditor = dynamic(() => import('react-quill'), { ssr: false });
+
+export const modules = {
+  toolbar: [
+    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+    [
+      { list: 'ordered' },
+      { list: 'bullet' },
+      { indent: '-1' },
+      { indent: '+1' },
+    ],
+    ['link', 'image'],
+    ['clean'],
+  ],
+  clipboard: {
+    matchVisual: false,
+  },
+};
 
 const SelectionComponent: React.FC<{ selectionHandler: (arg: string) => void }> = ({ selectionHandler }) => {
     const [selectedButton, setSelectedButton] = useState("publicacion");
@@ -41,12 +62,13 @@ const Escribir: React.FC = () => {
     const [selectedButton, setSelectedButton] = useState("publicacion");
     const router = useRouter();
 
-
     const handleContentChange = (value: string) => {
         setContent(value);
     };
 
     const handleCreate = async () => {
+        console.log("Creando publicacion con contenido")
+        console.log(content)
         if(selectedButton == "publicacion"){
           const success = await createPost(content)
           if(success) {
@@ -69,19 +91,16 @@ const Escribir: React.FC = () => {
             setPlaceholder("Publicá lo que quieras.")
         }
     }
-
+      
     return (
         <div className="flex justify-center h-screen">
             <div className="flex flex-col w-full px-5">
                 <div className="mb-4">
                 <SelectionComponent selectionHandler={handleSelection}/>
                 </div>
-                <TextareaAutosize
-                  className="w-full bg-white border rounded-lg p-2 resize-none focus:border-gray-500 transition duration-200"
-                  placeholder={placeholder}
-                  onChange={(event) => {setContent(event.target.value)}}
-                  minRows={4}
-                />
+                <div>
+                <QuillEditor modules={modules} onChange={(value) => {setContent(value)}} theme="snow"/>
+                </div>
                 <div className="flex justify-between mt-3">
                     <button onClick={() => router.push("/feed")}
                             className="bg-gray-200 hover:bg-gray-300 transition duration-200 font-bold py-2 px-4 rounded">
