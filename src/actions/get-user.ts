@@ -3,6 +3,7 @@
 import {db} from "@/db";
 import {verifySession} from "@/actions/auth";
 import { ContentProps, getContentWithLinks } from "./get-comment";
+import { getLikeState } from "./likes";
 
 export async function getUserId(){
     const session = await verifySession()
@@ -66,7 +67,11 @@ export async function getUserActivityById(userId: string){
                 createdAt: true,
                 id: true,
                 _count: {
-                    select: { childrenComments: true },
+                    select: { 
+                        childrenComments: true,
+                        likedBy: true,
+                        dislikedBy: true,
+                    },
                 },
                 type: true
             }
@@ -74,6 +79,7 @@ export async function getUserActivityById(userId: string){
     )
     contents.forEach(async function(content){
         content.textWithLinks = await getContentWithLinks(content)
+        content.likeState = await getLikeState(content.id)
     })
     return contents
 }

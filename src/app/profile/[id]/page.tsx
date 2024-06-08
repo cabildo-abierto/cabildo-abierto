@@ -10,7 +10,7 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
     }
     const activity = await getUserActivityById(params?.id);
     return <div className="bg-white">
-        <div className="mx-auto max-w-4xl bg-white border-l border-r h-screen">
+        <div className="mx-auto max-w-4xl bg-white border-l border-r h-full">
             <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
                 {user.name ? user.name : '@' + user.username}
             </h1>
