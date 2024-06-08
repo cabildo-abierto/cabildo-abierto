@@ -31,8 +31,12 @@ export const ContentTopRow: React.FC<{type: string, content: ContentProps}> = ({
 }
 
 
-export const ContentText: React.FC<{content: ContentProps}> = ({content}) => {
-    return <div className="ql-editor" dangerouslySetInnerHTML={{__html: content.text}}></div>
+export const ContentText: React.FC<{content: ContentProps, isMainContent: boolean}> = ({content, isMainContent}) => {
+    return <div className={isMainContent ? "overflow-y-scroll max-h-64" : "overflow-y-scroll max-h-screen"}>
+        <div className="ql-editor" dangerouslySetInnerHTML={{__html: content.text}}>
+
+        </div>
+    </div>
 }
 
 export function getDate(content: ContentProps): string {

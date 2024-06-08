@@ -6,8 +6,8 @@ import {logout} from "@/actions/auth";
 
 
 function FeedButton() {
-    return <li className="mb-8 mt-4 flex justify-center text-l font-bold text-gray-900 cursor-pointer hover:bg-gray-300 rounded-lg px-1">
-        <Link href={"/feed"} className="">
+    return <li className="mb-8 mt-4 flex justify-center text-l font-bold text-gray-900 px-1">
+        <Link href={"/feed"} className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
             Cabildo Abierto
         </Link>
     </li>
