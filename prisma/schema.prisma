@@ -17,6 +17,8 @@ model User {
   createdAt       DateTime     @default(now()) @map(name: "created_at")
   contents        Content[]
   mentionedBy     Content[]    @relation("mention")
+  likes           Content[]    @relation("likes")
+  dislikes        Content[]    @relation("dislikes")
 
   @@map(name: "users")
 }
@@ -43,4 +45,7 @@ model Content {
 
   parentContent    Content?    @relation("ContentToContent", fields: [parentContentId], references: [id])
   parentContentId  String?
+
+  likedBy          User[]      @relation("likes")
+  dislikedBy       User[]      @relation("dislikes")
 }
