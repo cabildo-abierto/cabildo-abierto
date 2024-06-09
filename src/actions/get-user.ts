@@ -5,6 +5,14 @@ import {verifySession} from "@/actions/auth";
 import { ContentProps, getContentWithLinks } from "./get-comment";
 import { getLikeState } from "./likes";
 
+
+export type UserProps = {
+    id: string
+    name: string
+    username: string
+};
+
+
 export async function getUserId(){
     const session = await verifySession()
     if(!session) return undefined

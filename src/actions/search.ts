@@ -2,16 +2,51 @@
 
 import {db} from "@/db";
 import diceCoefficientDistance from "@/actions/dice-coefficient";
+import { UserProps } from "./get-user";
+import { ContentProps, ContentWithLinks, getPostsAndDiscussions } from "./get-comment";
+
+export type UserSearchResult = {
+    id: string
+    name: string
+    username: string
+    dist?: number
+}
 
 
+export type ContentSearchResult = {
+    id: string;
+    createdAt: Date
+    author: {
+        id: string
+        name: string
+        username: string
+    } | null;
+    text: string;
+    _count: {
+        childrenComments: number
+        likedBy: number
+        dislikedBy: number
+    }
+    type: string
+    textWithLinks?: ContentWithLinks | null
+    likeState?: string
+    dist?: number
+};
 
-export async function searchUsers(value){
+
+export async function searchUsers(value: string): Promise<UserProps[]>{
     if(value.length == 0)
         return []
 
     const dist = diceCoefficientDistance
 
-    const users = await db.user.findMany({select: {name: true, id: true, username: true}})
+    const users: UserSearchResult[] = await db.user.findMany({
+        select: {
+            name: true, 
+            id: true, 
+            username: true
+        }
+    })
 
     const maxDist = dist(value, '')
     // console.log("Dist", value, 'empty string', dist(value, ''))
@@ -20,10 +55,8 @@ export async function searchUsers(value){
         item.dist = 1e10
         if(item.name) {
             item.dist = dist(value, item.name)
-            // console.log("Dist", value, item.name, dist(value, item.name))
         }
         item.dist = Math.min(item.dist, dist(value, item.username))
-        // console.log("Dist", value, item.username, dist(value, item.username))
     })
 
     users.sort((a, b) => {return a.dist - b.dist })
@@ -32,28 +65,20 @@ export async function searchUsers(value){
 }
 
 
-export async function searchLaws(value){
+export async function searchContents(value: string): Promise<ContentProps[]>{
     if(value.length == 0)
         return []
 
     const dist = diceCoefficientDistance
 
-    const users = await db.user.findMany({select: {name: true, id: true, username: true}})
+    const contents: ContentSearchResult[] = await getPostsAndDiscussions()
 
     const maxDist = dist(value, '')
-    // console.log("Dist", value, 'empty string', dist(value, ''))
-
-    users.forEach(function(item){
-        item.dist = 1e10
-        if(item.name) {
-            item.dist = dist(value, item.name)
-            // console.log("Dist", value, item.name, dist(value, item.name))
-        }
-        item.dist = Math.min(item.dist, dist(value, item.username))
-        // console.log("Dist", value, item.username, dist(value, item.username))
+    contents.forEach(function(item){
+        item.dist = dist(value, item.text)
     })
 
-    users.sort((a, b) => {return a.dist - b.dist })
-    users.filter((a) => {return a.dist < maxDist})
-    return users
+    contents.sort((a, b) => {return a.dist - b.dist })
+    contents.filter((a) => {return a.dist < maxDist})
+    return contents
 }

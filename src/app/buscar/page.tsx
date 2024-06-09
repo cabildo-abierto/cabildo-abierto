@@ -1,11 +1,15 @@
 "use client"
 
 import React, {useState} from "react";
-import {searchUsers, searchLaws} from "@/actions/search";
+import {searchUsers, searchContents} from "@/actions/search";
+import {UserProps} from "@/actions/get-user";
 import Link from "next/link";
 import {debounce} from "next/dist/server/utils";
+import { ContentProps } from "@/actions/get-comment";
+import ContentComponent from "@/components/content";
 
-function SearchResult({result}){
+
+const UserSearchResult: React.FC<{result: UserProps}> = ({result}) => {
     return <div className="border mb-2">
         <Link
             href={"/profile/" + result.id}
@@ -15,7 +19,8 @@ function SearchResult({result}){
     </div>
 }
 
-function SearchBar({onChange}) {
+
+const SearchBar: React.FC<{onChange: (e: any) => void}> = ({onChange}) => {
     return <input
         className="rounded-lg w-1/2 px-4 text-lg border-2 border-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 hover:shadow-lg transition duration-300"
         placeholder="buscar"
@@ -23,20 +28,49 @@ function SearchBar({onChange}) {
     />
 }
 
+const SelectionComponent: React.FC<{ selectionHandler: (arg: string) => void }> = ({ selectionHandler }) => {
+    const [selectedButton, setSelectedButton] = useState("users");
+  
+    const handleButtonClick = (button: string) => {
+      setSelectedButton(button);
+      selectionHandler(button);
+    };
+  
+    return (
+      <div className="flex justify-center mt-8">
+        <button
+          className={`${selectedButton === 'users' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+            } py-2 px-4 rounded-l flex-grow focus:outline-none`}
+          onClick={() => handleButtonClick('users')}
+        >
+          Usuarios
+        </button>
+        <button
+          className={`${selectedButton === 'contents' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+            } py-2 px-4 rounded-r flex-grow focus:outline-none`}
+          onClick={() => handleButtonClick('contents')}
+        >
+          Publicaciones
+        </button>
+      </div>
+    );
+  };
+
 const Search: React.FC = () => {
-    const [results, setResults] = useState([]);
-    const [searchType, setSearchType] = useState("personas");
+    const [results, setResults] = useState<UserProps[] | ContentProps[]>([]);
+    const [searchType, setSearchType] = useState("users");
 
     const debouncedSearch = debounce(async (searchValue) => {
-        if(searchType == "personas"){
-            const searchResults = await searchUsers(searchValue);
+        let searchResults: UserProps[] | ContentProps[]
+        if(searchType == "users"){
+            searchResults = await searchUsers(searchValue);
         } else {
-            const searchResults = await searchLaws(searchValue);
+            searchResults = await searchContents(searchValue);
         }
         setResults(searchResults);
     }, 300);
 
-    const handleContentChange = (e) => {
+    const handleContentChange: (e:any) => void = (e) => {
         const searchValue = e.target.value;
         debouncedSearch(searchValue);
     };
@@ -44,15 +78,22 @@ const Search: React.FC = () => {
     return (
         <div className="w-full">
             <div className="flex flex-col h-screen w-full">
-                <div className="flex justify-center py-24">
+                <div className="flex justify-center mt-24">
                     <SearchBar onChange={handleContentChange} />
                 </div>
-                <div className="px-8">
-                    {results.map((result) => (
-                        <div key={result.id}>
-                            <SearchResult result={result}/>
-                        </div>
-                    ))}
+                <SelectionComponent selectionHandler={setSearchType}/>
+                <div className="px-8 mt-4">
+                    {searchType == "users" ? 
+                        results.map((result) => (
+                            <div key={result.id}>
+                                <UserSearchResult result={result}/>
+                            </div>
+                        )) : results.map((result) => (
+                            <div key={result.id}>
+                                <ContentComponent content={result} isMainContent={false}/>
+                            </div>
+                        ))
+                    }
                 </div>
             </div>
         </div>
