@@ -1,32 +1,11 @@
 "use client"
 
 import React, { useState } from "react";
-import TextareaAutosize from 'react-textarea-autosize';
 import { createPost, createDiscussion } from '@/actions/create-comment'
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import styles from './styles.module.css';
+import MyEditor from "./editor"
 
-// export const QuillEditor = dynamic(() => import('react-quill'), { ssr: false });
 
-export const modules = {
-  toolbar: [
-    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-    [
-      { list: 'ordered' },
-      { list: 'bullet' },
-      { indent: '-1' },
-      { indent: '+1' },
-    ],
-    ['link', 'image'],
-    ['clean'],
-  ],
-  clipboard: {
-    matchVisual: false,
-  },
-};
 
 const SelectionComponent: React.FC<{ selectionHandler: (arg: string) => void }> = ({ selectionHandler }) => {
   const [selectedButton, setSelectedButton] = useState("publicacion");
@@ -61,10 +40,6 @@ const Escribir: React.FC = () => {
   const [selectedButton, setSelectedButton] = useState("publicacion");
   const router = useRouter();
 
-  const handleContentChange = (value: string) => {
-    setContent(value);
-  };
-
   const handleCreate = async () => {
     console.log("Creando publicacion con contenido")
     console.log(content)
@@ -89,28 +64,27 @@ const Escribir: React.FC = () => {
       setSelectedButton("publicacion")
     }
   }
+
+  const isEmpty = (value) => {
+      return value.length == 1 && value[0].children.length == 1 && value[0].children[0].text.length == 0
+  }
+
   return (
     <div className="flex justify-center h-screen">
       <div className="flex flex-col w-full px-5">
         <div className="mb-4">
           <SelectionComponent selectionHandler={handleSelection} />
         </div>
-        <div className={styles.editor}>
+        <div className="">
           {selectedButton == "publicacion" ?
-            <ReactQuill
-              modules={modules}
-              className={styles.editor}
-              theme="snow"
-              onChange={(value) => {setContent(value)}}
+            <MyEditor
               placeholder={"Publicá lo que quieras."}
+              onChange={setContent}
             /> : <></>}
           {selectedButton == "discusion" ? 
-            <ReactQuill
-              modules={modules}
-              className={styles.editor}
-              theme="snow"
-              onChange={(value) => {setContent(value)}}
+            <MyEditor
               placeholder={"Preguntá lo que quieras."}
+              onChange={setContent}
             /> : <></>
           }
         </div>
@@ -121,8 +95,8 @@ const Escribir: React.FC = () => {
           </button>
           <button
             onClick={handleCreate}
-            disabled={content.length === 0}
-            className={`py-2 px-4 rounded font-bold transition duration-200 ${content.length === 0 ? "bg-gray-200 text-gray-500" : "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+            disabled={isEmpty(content)}
+            className={`py-2 px-4 rounded font-bold transition duration-200 ${isEmpty(content) ? "bg-gray-200 text-gray-500" : "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
               }`}
           >
             Enviar

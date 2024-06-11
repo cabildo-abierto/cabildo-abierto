@@ -35,6 +35,7 @@ async function Sidebar() {
     <ul className="flex-1 mt-4">
         <FeedButton/>
         <SidebarButton text="Inicio" href="/feed"/>
+        <SidebarButton text="Temas" href="/temas"/>
         <SidebarButton text="Escribir" href="/escribir"/>
         <SidebarButton text="Buscar" href="/buscar"/>
         <SidebarButton text="Sobre Cabildo Abierto" href="/profile/cabildoabierto"/>

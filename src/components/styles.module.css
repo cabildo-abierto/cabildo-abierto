@@ -1,0 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+.editor * {
+    font-size: 17px;
+    font-family: 'Roboto';
+}
