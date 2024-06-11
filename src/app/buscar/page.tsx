@@ -23,7 +23,7 @@ const UserSearchResult: React.FC<{result: UserProps}> = ({result}) => {
 const SearchBar: React.FC<{onChange: (e: any) => void}> = ({onChange}) => {
     return <input
         className="rounded-lg w-1/2 px-4 text-lg border-2 border-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 hover:shadow-lg transition duration-300"
-        placeholder="buscar"
+        placeholder="..."
         onChange={onChange}
     />
 }
@@ -57,38 +57,47 @@ const SelectionComponent: React.FC<{ selectionHandler: (arg: string) => void }> 
   };
 
 const Search: React.FC = () => {
-    const [results, setResults] = useState<UserProps[] | ContentProps[]>([]);
+    const [searchValue, setSearchValue] = useState('')
+    const [resultsUsers, setResultsUsers] = useState<UserProps[]>([]);
+    const [resultsContents, setResultsContents] = useState<ContentProps[]>([]);
     const [searchType, setSearchType] = useState("users");
 
-    const debouncedSearch = debounce(async (searchValue) => {
-        let searchResults: UserProps[] | ContentProps[]
-        if(searchType == "users"){
-            searchResults = await searchUsers(searchValue);
-        } else {
-            searchResults = await searchContents(searchValue);
-        }
-        setResults(searchResults);
-    }, 300);
+    const search = async () => {
+        setResultsUsers(await searchUsers(searchValue))
+        setResultsContents(await searchContents(searchValue))
+    }
 
     const handleContentChange: (e:any) => void = (e) => {
-        const searchValue = e.target.value;
-        debouncedSearch(searchValue);
+        setSearchValue(e.target.value)
     };
+
+    const handleTypeChange = (t) => {
+        search()
+        setSearchType(t)
+    }
 
     return (
         <div className="w-full">
             <div className="flex flex-col h-screen w-full">
                 <div className="flex justify-center mt-24">
                     <SearchBar onChange={handleContentChange} />
+                    <button
+                        onClick={search}
+                        disabled={searchValue.length == 0}
+                        className={`ml-3 py-2 px-4 rounded font-bold transition duration-200 ${searchValue.length == 0 ? "bg-gray-200 text-gray-500" : "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+                        }`}
+                    >
+                        Buscar
+                    </button>
                 </div>
-                <SelectionComponent selectionHandler={setSearchType}/>
+                <SelectionComponent selectionHandler={handleTypeChange}/>
                 <div className="px-8 mt-4">
                     {searchType == "users" ? 
-                        results.map((result) => (
+                        resultsUsers.map((result) => (
                             <div key={result.id}>
                                 <UserSearchResult result={result}/>
                             </div>
-                        )) : results.map((result) => (
+                        )) : resultsContents.map((result) => (
                             <div key={result.id}>
                                 <ContentComponent content={result} isMainContent={false}/>
                             </div>
