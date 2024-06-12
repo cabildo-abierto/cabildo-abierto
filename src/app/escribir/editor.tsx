@@ -55,7 +55,6 @@ const MyEditor: React.FC<{placeholder: string, onChange: any, minHeight: any, in
 
 export const toggleMark = (editor, format) => {
   const isActive = isMarkActive(editor, format)
-
   if (isActive) {
     Editor.removeMark(editor, format)
   } else {
@@ -81,6 +80,10 @@ export const Leaf = ({ attributes, children, leaf }) => {
 
   if (leaf.underlined) {
     children = <u>{children}</u>
+  }
+
+  if (leaf.highlighted) {
+    children = <span className="bg-yellow-300">{children}</span>
   }
 
   return <span {...attributes}>{children}</span>
@@ -154,25 +157,6 @@ export const HoveringToolbar = () => {
     </Menu>
     </Portal>
 }
-
-
-export const isBlockActive = (editor, format, blockType = 'type') => {
-  const { selection } = editor
-  if (!selection) return false
-
-  const [match] = Array.from(
-    Editor.nodes(editor, {
-      at: Editor.unhangRange(editor, selection),
-      match: n =>
-        !Editor.isEditor(n) &&
-        SlateElement.isElement(n) &&
-        n[blockType] === format,
-    })
-  )
-
-  return !!match
-}
-
 
 export const FormatButton = ({ format, icon }) => {
   const editor = useSlate()

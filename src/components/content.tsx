@@ -70,11 +70,17 @@ export const AddCommentButton: React.FC<{text: string, onClick: () => void}> = (
     </button>
 }
 
+type SelectionCitation = {
+    text: string
+    start: number
+    end: number
+} | null
+
 const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}> = ({content, isMainContent}) => {
     const [writingComment, setWritingComment] = useState(false)
     const [writingOpinion, setWritingOpinion] = useState(false)
     const [comment, setComment] = useState('')
-    const [replyTo, setReplyTo] = useState('')
+    const [replyTo, setReplyTo] = useState<SelectionCitation>(null)
 
     const router = useRouter()
     let like_count: Number = content._count.likedBy
@@ -99,9 +105,7 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
 
     const handleAddComment = async () => {
         if(writingComment){
-            await createComment(comment, content.id)
-        } else {
-            await createOpinion(comment, content.id)
+            await createComment(comment, replyTo, content.id)
         }
         setWritingComment(false)
         setWritingOpinion(false)
@@ -119,10 +123,15 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
     }
     
     const onSelectionComment = async (editor, selection) => {
-        const selected_test = Editor.string(editor, selection)
+        console.log(selection)
+        console.log(Editor.string(editor, selection))
         setWritingComment(true)
         setWritingOpinion(false)
-        setReplyTo(selected_test)   
+        setReplyTo({
+            text: Editor.string(editor, selection),
+            start: selection.anchor.offset,
+            end: selection.focus.offset
+        })
     }
 
     return <>
@@ -160,7 +169,9 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
         </div>
         {(writingComment || writingOpinion) ? <div>
             <div className="px-1 mt-1">
-            <p className="py-2 px-2 text-sm">En respuesta a: <span className="text-gray-500 italic">{replyTo}</span></p>
+            {replyTo &&
+                <p className="py-2 px-2 text-sm">En respuesta a: <span className="text-gray-500 italic">{replyTo.text}</span></p>
+            }
             <MyEditor
                 placeholder={writingComment ? "Agregá un comentario..." : "Agregá una opinión..."}
                 minHeight="4em"

@@ -1,10 +1,13 @@
-import React, { useMemo, useRef, useEffect } from 'react'
+import React, { useMemo, useRef, useEffect, useState, useCallback } from 'react'
 import { Slate, Editable, withReact, useSlate, useFocused } from 'slate-react'
 import {
   Editor,
   createEditor,
   Descendant,
   Range,
+  Transforms,
+  Element,
+  Text
 } from 'slate'
 import { withHistory } from 'slate-history'
 import "material-symbols";
@@ -13,32 +16,34 @@ import { Icon, Leaf, Menu, Portal, toggleMark } from './editor'
 
 export const ReadOnlyEditor: React.FC<{initialValue: any, onCommentClick: any}> = ({initialValue, onCommentClick}) => {
     const editor = useMemo(() => withHistory(withReact(createEditor())), [])
-  
+
     return (
         <Slate editor={editor} initialValue={initialValue}>
-            <CommentToolbar onClick={onCommentClick}/>
-            <Editable
-                className="px-2 py-1 border-transparent focus:border-transparent focus:outline-none"
-                renderLeaf={props => <Leaf {...props} />}
-                readOnly={true}
-                onDOMBeforeInput={(event: InputEvent) => {
-                    switch (event.inputType) {
-                        case 'formatBold':
-                            event.preventDefault()
-                            return toggleMark(editor, 'bold')
-                        case 'formatItalic':
-                            event.preventDefault()
-                            return toggleMark(editor, 'italic')
-                        case 'formatUnderline':
-                            event.preventDefault()
-                            return toggleMark(editor, 'underlined')
-                    }
-                }}
-            />
+        <CommentToolbar onClick={onCommentClick}/>
+        <Editable
+            className="px-2 py-1 border-transparent focus:border-transparent focus:outline-none"    
+            renderLeaf={props => <Leaf {...props} />}
+            readOnly={true}
+            onDOMBeforeInput={(event: InputEvent) => {
+                switch (event.inputType) {
+                    case 'formatBold':
+                        event.preventDefault()
+                        return toggleMark(editor, 'bold')
+                    case 'formatItalic':
+                        event.preventDefault()
+                        return toggleMark(editor, 'italic')
+                    case 'formatUnderline':
+                        event.preventDefault()
+                        return toggleMark(editor, 'underlined')
+                    case 'formatHighlight':
+                        event.preventDefault()
+                        return toggleMark(editor, 'highlighed')
+                }
+            }}
+        />
         </Slate>
     )
-  }
-
+}
 
 const CommentToolbar = ({onClick}) => {
     const ref = useRef<HTMLDivElement | null>()
@@ -85,6 +90,18 @@ const CommentToolbar = ({onClick}) => {
     </Portal>
 }
 
+const removeHighlight = (editor) => {
+    console.log(editor.children)
+    editor.children.forEach((c) => {
+        if(c.text){
+            
+        }
+        if(c.children){
+            removeHighlight(c)
+        }
+    })
+}
+
 const CommentButton = ({onClick}) => {
     const editor = useSlate()
     const className = "bg-transparent cursor-pointer rounded transition-colors flex items-center justify-center";
@@ -93,10 +110,22 @@ const CommentButton = ({onClick}) => {
     return <button
           className={className}
           onMouseDown={event => {
-            event.preventDefault()
             onClick(editor, selection)
+
+            Transforms.setNodes(
+                editor,
+                { highlighted: false },
+                {
+                  at: editor.range,
+                  match: node => Text.isText(node),
+                  split: true,
+                }
+            )
+            
+            event.preventDefault()
+            toggleMark(editor, "highlighted")
           }}
         >
           <Icon name="comment"/>
     </button>
-  }
+}
