@@ -80,11 +80,13 @@ const Escribir: React.FC = () => {
             <MyEditor
               placeholder={"Publicá lo que quieras."}
               onChange={setContent}
+              minHeight="6em"
             /> : <></>}
           {selectedButton == "discusion" ? 
             <MyEditor
               placeholder={"Preguntá lo que quieras."}
               onChange={setContent}
+              minHeight="6em"
             /> : <></>
           }
         </div>

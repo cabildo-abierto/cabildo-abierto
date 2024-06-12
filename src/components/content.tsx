@@ -8,11 +8,12 @@ import { useRouter } from "next/navigation";
 import { addDislike, addLike } from "@/actions/likes";
 import Image from 'next/image';
 
-import { createEditor, Descendant } from 'slate';
+import { createEditor, Descendant, Editor } from 'slate';
 import { withReact } from 'slate-react';
 import { BaseEditor } from 'slate';
 import { ReactEditor } from 'slate-react';
-import MyEditor, { ReadOnlyEditor } from "@/app/escribir/editor";
+import MyEditor from "@/app/escribir/editor";
+import { ReadOnlyEditor } from "@/app/escribir/readonly_editor";
 type CustomElement = { type: 'paragraph'; children: CustomText[] }
 type CustomText = { text: string; bold?: true }
 
@@ -43,12 +44,12 @@ export const ContentTopRow: React.FC<{type: string, content: ContentProps}> = ({
 }
 
 
-export const ContentText: React.FC<{content: ContentProps, isMainContent: boolean}> = ({content, isMainContent}) => {
+export const ContentText: React.FC<{content: ContentProps, isMainContent: boolean, onCommentClick: any}> = ({content, isMainContent, onCommentClick}) => {
     const [editor] = useState(() => withReact(createEditor()))
 
     const initialValue: Descendant[] = JSON.parse(content.text)
 
-    return <ReadOnlyEditor initialValue={initialValue}/>
+    return <ReadOnlyEditor initialValue={initialValue} onCommentClick={onCommentClick}/>
 }
 
 export function getDate(content: ContentProps): string {
@@ -73,6 +74,7 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
     const [writingComment, setWritingComment] = useState(false)
     const [writingOpinion, setWritingOpinion] = useState(false)
     const [comment, setComment] = useState('')
+    const [replyTo, setReplyTo] = useState('')
 
     const router = useRouter()
     let like_count: Number = content._count.likedBy
@@ -115,12 +117,19 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
         if(content.likeState == "disliked") return
         await addDislike(content.id)
     }
+    
+    const onSelectionComment = async (editor, selection) => {
+        const selected_test = Editor.string(editor, selection)
+        setWritingComment(true)
+        setWritingOpinion(false)
+        setReplyTo(selected_test)   
+    }
 
     return <>
         <div className={isMainContent ? "border-4 border-gray-300 rounded" : "border-b border-t"}
         >
             <ContentTopRow type={type_name} content={content}/>
-            <ContentText content={content} isMainContent={isMainContent}/>
+            <ContentText content={content} isMainContent={isMainContent} onCommentClick={onSelectionComment}/>
 
             <div className="flex justify-between px-1">
                 <div>
@@ -151,6 +160,7 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
         </div>
         {(writingComment || writingOpinion) ? <div>
             <div className="px-1 mt-1">
+            <p className="py-2 px-2 text-sm">En respuesta a: <span className="text-gray-500 italic">{replyTo}</span></p>
             <MyEditor
                 placeholder={writingComment ? "Agregá un comentario..." : "Agregá una opinión..."}
                 minHeight="4em"

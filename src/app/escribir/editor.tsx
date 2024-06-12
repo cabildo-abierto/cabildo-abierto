@@ -12,51 +12,22 @@ import { ReactNode, Ref, PropsWithChildren } from 'react'
 import ReactDOM from 'react-dom'
 
 
-export const ReadOnlyEditor: React.FC<{initialValue: any}> = ({initialValue}) => {
-  const editor = useMemo(() => withHistory(withReact(createEditor())), [])
-
-  return (
-      <Slate editor={editor} initialValue={initialValue}>
-          <HoveringToolbar />
-          <Editable
-              className="px-2 py-1 border-transparent focus:border-transparent focus:outline-none"
-              renderLeaf={props => <Leaf {...props} />}
-              readOnly={true}
-              onDOMBeforeInput={(event: InputEvent) => {
-                  switch (event.inputType) {
-                      case 'formatBold':
-                          event.preventDefault()
-                          return toggleMark(editor, 'bold')
-                      case 'formatItalic':
-                          event.preventDefault()
-                          return toggleMark(editor, 'italic')
-                      case 'formatUnderline':
-                          event.preventDefault()
-                          return toggleMark(editor, 'underlined')
-                  }
-              }}
-          />
-      </Slate>
-  )
-}
-
-
-const MyEditor: React.FC<{placeholder: string, onChange: any, minHeight: any}> = ({placeholder, onChange, minHeight = '6em'}) => {
+const MyEditor: React.FC<{placeholder: string, onChange: any, minHeight: any, initialValue: any}> = ({placeholder, onChange, minHeight = '6em', initialValue = null}) => {
     const editor = useMemo(() => withHistory(withReact(createEditor())), [])
 
-    const initialValue: Descendant[] = [
-      {
-        type: 'paragraph',
-        children: [
-          {
-            text: '',
-          },
-        ],
-      },
+    const initialValueObj = [
+        {
+            type: 'paragraph',
+            children: [
+              {
+                text: (initialValue ? initialValue : '')
+              },
+            ],
+        },
     ]
 
     return (
-        <Slate editor={editor} initialValue={initialValue} onChange={onChange}>
+        <Slate editor={editor} initialValue={initialValueObj} onChange={onChange}>
             <HoveringToolbar />
             <Editable
                 className="px-2 py-1 rounded border border-gray-300 focus:border-gray-500 focus:outline-none"
@@ -82,7 +53,7 @@ const MyEditor: React.FC<{placeholder: string, onChange: any, minHeight: any}> =
 }
 
 
-const toggleMark = (editor, format) => {
+export const toggleMark = (editor, format) => {
   const isActive = isMarkActive(editor, format)
 
   if (isActive) {
@@ -93,13 +64,13 @@ const toggleMark = (editor, format) => {
 }
 
 
-const isMarkActive = (editor, format) => {
+export const isMarkActive = (editor, format) => {
   const marks = Editor.marks(editor)
   return marks ? marks[format] === true : false
 }
 
 
-const Leaf = ({ attributes, children, leaf }) => {
+export const Leaf = ({ attributes, children, leaf }) => {
   if (leaf.bold) {
     children = <strong>{children}</strong>
   }
@@ -116,7 +87,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 }
 
 
-const Menu = React.forwardRef(
+export const Menu = React.forwardRef(
     (
       { className, ...props }: PropsWithChildren<BaseProps>,
       ref: Ref<OrNull<HTMLDivElement>>
@@ -130,14 +101,14 @@ const Menu = React.forwardRef(
 )
 
 
-const Portal = ({ children }: { children?: ReactNode }) => {
+export const Portal = ({ children }: { children?: ReactNode }) => {
   return typeof document === 'object'
     ? ReactDOM.createPortal(children, document.body)
     : null
 }
 
 
-const HoveringToolbar = () => {
+export const HoveringToolbar = () => {
   const ref = useRef<HTMLDivElement | null>()
   const editor = useSlate()
   const inFocus = useFocused()
@@ -185,7 +156,7 @@ const HoveringToolbar = () => {
 }
 
 
-const isBlockActive = (editor, format, blockType = 'type') => {
+export const isBlockActive = (editor, format, blockType = 'type') => {
   const { selection } = editor
   if (!selection) return false
 
@@ -203,27 +174,7 @@ const isBlockActive = (editor, format, blockType = 'type') => {
 }
 
 
-const BlockButton = ({ format, icon }) => {
-  const editor = useSlate()
-  return (
-    <Button
-      active={isBlockActive(
-        editor,
-        format,
-        TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
-      )}
-      onMouseDown={event => {
-        event.preventDefault()
-        toggleBlock(editor, format)
-      }}
-    >
-      <Icon>{icon}</Icon>
-    </Button>
-  )
-}
-
-
-const FormatButton = ({ format, icon }) => {
+export const FormatButton = ({ format, icon }) => {
   const editor = useSlate()
   return (
     <Button
@@ -254,7 +205,7 @@ export const Button = ({ active, onClick, children }) => {
 }
 
 
-const Icon: React.FC<{name: string}> = ({ name }) => {
+export const Icon: React.FC<{name: string}> = ({ name }) => {
     return (
       <span className="material-symbols-outlined" style={{ fontSize: 22, color: "black" }}>
           {name}
