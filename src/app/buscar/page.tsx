@@ -1,18 +1,19 @@
 "use client"
 
 import React, {useState} from "react";
-import {searchUsers, searchContents} from "@/actions/search";
+import {searchUsers, searchContents, searchEntities} from "@/actions/search";
 import {UserProps} from "@/actions/get-user";
 import Link from "next/link";
 import {debounce} from "next/dist/server/utils";
 import { ContentProps } from "@/actions/get-comment";
 import ContentComponent from "@/components/content";
+import { EntityProps } from "@/actions/get-entity";
 
 
-const UserSearchResult: React.FC<{result: UserProps}> = ({result}) => {
+export const UserSearchResult: React.FC<{result: UserProps | EntityProps, isEntity: boolean}> = ({result, isEntity}) => {
     return <div className="border mb-2">
         <Link
-            href={"/profile/" + result.id}
+            href={(isEntity ? "/entidad/" : "/profile/") + result.id}
             className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-base px-1`}>
             {result.name ? result.name : "@"+result.username}
         </Link>
@@ -52,6 +53,13 @@ const SelectionComponent: React.FC<{ selectionHandler: (arg: string) => void }> 
         >
           Publicaciones
         </button>
+        <button
+          className={`${selectedButton === 'entities' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+            } py-2 px-4 rounded-r flex-grow focus:outline-none`}
+          onClick={() => handleButtonClick('entities')}
+        >
+          Entidades
+        </button>
       </div>
     );
   };
@@ -60,11 +68,13 @@ const Search: React.FC = () => {
     const [searchValue, setSearchValue] = useState('')
     const [resultsUsers, setResultsUsers] = useState<UserProps[]>([]);
     const [resultsContents, setResultsContents] = useState<ContentProps[]>([]);
+    const [resultsEntities, setResultsEntities] = useState<EntityProps[]>([]);
     const [searchType, setSearchType] = useState("users");
 
     const search = async () => {
         setResultsUsers(await searchUsers(searchValue))
         setResultsContents(await searchContents(searchValue))
+        setResultsEntities(await searchEntities(searchValue))
     }
 
     const handleContentChange: (e:any) => void = (e) => {
@@ -74,6 +84,28 @@ const Search: React.FC = () => {
     const handleTypeChange = (t) => {
         search()
         setSearchType(t)
+    }
+
+    const searchResults = () => {
+      if(searchType == "users"){
+          return resultsUsers.map((result) => (
+            <div key={result.id}>
+                <UserSearchResult result={result} isEntity={false}/>
+            </div>
+          ))
+      } else if(searchType == "posts") {
+          return resultsContents.map((result) => (
+            <div key={result.id}>
+                <ContentComponent content={result} isMainContent={false}/>
+            </div>
+          ))
+      } else {
+        return resultsEntities.map((result) => (
+          <div key={result.id}>
+              <UserSearchResult result={result} isEntity={true}/>
+          </div>
+        ))
+      }
     }
 
     return (
@@ -92,17 +124,7 @@ const Search: React.FC = () => {
                 </div>
                 <SelectionComponent selectionHandler={handleTypeChange}/>
                 <div className="px-8 mt-4">
-                    {searchType == "users" ? 
-                        resultsUsers.map((result) => (
-                            <div key={result.id}>
-                                <UserSearchResult result={result}/>
-                            </div>
-                        )) : resultsContents.map((result) => (
-                            <div key={result.id}>
-                                <ContentComponent content={result} isMainContent={false}/>
-                            </div>
-                        ))
-                    }
+                    {searchResults()}
                 </div>
             </div>
         </div>

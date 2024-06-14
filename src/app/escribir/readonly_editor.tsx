@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useMemo, useRef, useEffect, useState, useCallback } from 'react'
 import { Slate, Editable, withReact, useSlate, useFocused } from 'slate-react'
 import {
@@ -121,7 +123,7 @@ const CommentButton = ({onClick}) => {
                   split: true,
                 }
             )
-            
+
             event.preventDefault()
             toggleMark(editor, "highlighted")
           }}

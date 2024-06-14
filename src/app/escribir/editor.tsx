@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useMemo, useRef, useEffect } from 'react'
 import { Slate, Editable, withReact, useSlate, useFocused } from 'slate-react'
 import {
@@ -11,23 +13,22 @@ import "material-symbols";
 import { ReactNode, Ref, PropsWithChildren } from 'react'
 import ReactDOM from 'react-dom'
 
+export const emptyInitialValue = [
+  {
+      type: 'paragraph',
+      children: [
+        {
+          text: ''
+        },
+      ],
+  },
+]
 
-const MyEditor: React.FC<{placeholder: string, onChange: any, minHeight: any, initialValue: any}> = ({placeholder, onChange, minHeight = '6em', initialValue = null}) => {
+const MyEditor: React.FC<{placeholder: string, onChange: any, minHeight: any, initialValue: any}> = ({placeholder = '', onChange = () => {}, minHeight = '6em', initialValue = emptyInitialValue}) => {
     const editor = useMemo(() => withHistory(withReact(createEditor())), [])
 
-    const initialValueObj = [
-        {
-            type: 'paragraph',
-            children: [
-              {
-                text: (initialValue ? initialValue : '')
-              },
-            ],
-        },
-    ]
-
     return (
-        <Slate editor={editor} initialValue={initialValueObj} onChange={onChange}>
+        <Slate editor={editor} initialValue={initialValue} onChange={onChange}>
             <HoveringToolbar />
             <Editable
                 className="px-2 py-1 rounded border border-gray-300 focus:border-gray-500 focus:outline-none"

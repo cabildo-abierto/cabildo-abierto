@@ -138,8 +138,9 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
         <div className={isMainContent ? "border-4 border-gray-300 rounded" : "border-b border-t"}
         >
             <ContentTopRow type={type_name} content={content}/>
-            <ContentText content={content} isMainContent={isMainContent} onCommentClick={onSelectionComment}/>
-
+            <div className={isMainContent ? "max-h-512 overflow-y-auto" : "max-h-64 overflow-y-auto"}>
+                <ContentText content={content} isMainContent={isMainContent} onCommentClick={onSelectionComment}/>
+            </div>
             <div className="flex justify-between px-1">
                 <div>
                     <AddCommentButton text="Responder" onClick={handleAddCommentClick}/>

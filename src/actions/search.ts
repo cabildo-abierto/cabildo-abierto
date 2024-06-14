@@ -4,6 +4,7 @@ import {db} from "@/db";
 import diceCoefficientDistance from "@/actions/dice-coefficient";
 import { UserProps } from "./get-user";
 import { ContentProps, ContentWithLinks, getPostsAndDiscussions } from "./get-comment";
+import { EntityProps } from "./get-entity";
 
 export type UserSearchResult = {
     id: string
@@ -32,6 +33,13 @@ export type ContentSearchResult = {
     likeState?: string
     dist?: number
 };
+
+
+export type EntitySearchResult = {
+    id: string
+    name: string
+    dist?: number
+}
 
 
 export async function searchUsers(value: string): Promise<UserProps[]>{
@@ -81,4 +89,33 @@ export async function searchContents(value: string): Promise<ContentProps[]>{
     contents.sort((a, b) => {return a.dist - b.dist })
     contents.filter((a) => {return a.dist < maxDist})
     return contents
+}
+
+
+export async function searchEntities(value: string): Promise<EntityProps[]>{
+    if(value.length == 0)
+        return []
+
+    const dist = diceCoefficientDistance
+
+    const entities: EntitySearchResult[] = await db.entity.findMany({
+        select: {
+            name: true, 
+            id: true, 
+        }
+    })
+
+    const maxDist = dist(value, '')
+    // console.log("Dist", value, 'empty string', dist(value, ''))
+
+    entities.forEach(function(item){
+        item.dist = 1e10
+        if(item.name) {
+            item.dist = dist(value, item.name)
+        }
+    })
+
+    entities.sort((a, b) => {return a.dist - b.dist })
+    entities.filter((a) => {return a.dist < maxDist})
+    return entities
 }

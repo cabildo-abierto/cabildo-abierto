@@ -21,6 +21,16 @@ export const SignupFormSchema = z.object({
         .trim(),
 })
 
+
+export const CreateEntityFormSchema = z.object({
+    name: z
+        .string()
+        .min(2, { message: 'El nombre tiene que tener al menos 2 caracteres.' })
+        .trim()
+        .max(60, { message: 'El nombre no puede tener más de 60 caracteres.'})
+})
+
+
 export const LoginFormSchema = z.object({
     email: z.string().email({ message: 'Please enter a valid email.' }).trim(),
     password: z
@@ -62,3 +72,13 @@ export type SessionPayload = {
     userId: string,
     expiresAt: Date
 }
+
+
+export type CreateEntityFormState =
+    | {
+    errors?: {
+        name?: string[]
+    }
+    message?: string
+}
+    | undefined

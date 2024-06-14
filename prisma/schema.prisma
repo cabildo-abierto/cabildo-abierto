@@ -23,6 +23,15 @@ model User {
   @@map(name: "users")
 }
 
+
+model Entity {
+  id              String       @id @default(cuid())
+  name            String       @unique @db.VarChar(255)
+  text            String
+  mentionedBy     Content[]    @relation("entityMention")
+}
+
+
 enum ContentType {
   Comment
   Post
@@ -30,22 +39,25 @@ enum ContentType {
   Discussion
 }
 
+
 model Content {
-  id               String      @id @default(cuid())
-  text             String
-  createdAt        DateTime    @default(now()) @map(name: "created_at")
-  type             ContentType
+  id                String      @id @default(cuid())
+  text              String
+  createdAt         DateTime    @default(now()) @map(name: "created_at")
+  type              ContentType
 
-  author           User?       @relation(fields: [authorId], references: [id])
-  authorId         String?
+  author            User?       @relation(fields: [authorId], references: [id])
+  authorId          String?
   
-  mentionedUsers   User[]      @relation("mention")
+  mentionedUsers    User[]      @relation("mention")
+  mentionedEntities Entity[]    @relation("entityMention")
 
-  childrenComments Content[]   @relation("ContentToContent")
+  childrenComments  Content[]   @relation("ContentToContent")
 
-  parentContent    Content?    @relation("ContentToContent", fields: [parentContentId], references: [id])
-  parentContentId  String?
+  parentContent     Content?    @relation("ContentToContent", fields: [parentContentId], references: [id])
+  parentContentId   String?
 
-  likedBy          User[]      @relation("likes")
-  dislikedBy       User[]      @relation("dislikes")
+  likedBy           User[]      @relation("likes")
+  dislikedBy        User[]      @relation("dislikes")
 }
+

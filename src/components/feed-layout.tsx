@@ -38,6 +38,8 @@ async function Sidebar() {
         <SidebarButton text="Temas" href="/temas"/>
         <SidebarButton text="Escribir" href="/escribir"/>
         <SidebarButton text="Buscar" href="/buscar"/>
+        <SidebarButton text="Explorar el Estado" href="/estado"/>
+        <SidebarButton text="Crear entidad" href="/crear-entidad"/>
         <SidebarButton text="Sobre Cabildo Abierto" href="/profile/cabildoabierto"/>
     </ul>
     <div className="mt-auto">
