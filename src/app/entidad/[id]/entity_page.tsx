@@ -2,30 +2,28 @@
 import { updateEntityContent } from "@/actions/create-entity"
 import MyEditor from "@/app/escribir/editor"
 import { ReadOnlyEditor } from "@/app/escribir/readonly_editor"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 const EntityPage = ({entity}) => {
-    const [content, setContent] = useState('')
+    const [content, setContent] = useState(JSON.parse(entity.text))
     const [modify, setModify] = useState(false)
-    const router = useRouter()
 
-    const handleSave = () => {
-        updateEntityContent(content, entity.id)
-        router.refresh()
+    const handleSave = async () => {
+        await updateEntityContent(content, entity.id)
+        setModify(false)
     }
 
     return <>
         <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
             {entity.name}
         </h1>
-        <div className="ml-2 mb-2">
+        <div className="px-2 mb-2">
             {modify ? <MyEditor
-                initialValue={JSON.parse(entity.text)}
+                initialValue={content}
                 onChange={setContent}
             /> : 
             <ReadOnlyEditor
-                initialValue={JSON.parse(entity.text)}
+                initialValue={content}
                 onCommentClick={() => {}}
             />}
         </div>

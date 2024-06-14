@@ -5,6 +5,7 @@ import React from "react"
 import EntityPage from "./entity_page";
 
 const Tema: React.FC = async ({params}) => {
+
     const entity: EntityProps | null = await getEntityById(params.id)
     if(!entity){
         return <>Entidad no encontrada.</>

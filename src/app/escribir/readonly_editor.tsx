@@ -13,36 +13,19 @@ import {
 } from 'slate'
 import { withHistory } from 'slate-history'
 import "material-symbols";
-import { Icon, Leaf, Menu, Portal, toggleMark } from './editor'
+import { Icon, Leaf, Menu, MyEditable, Portal, toggleMark, withInlines } from './editor'
 
 
 export const ReadOnlyEditor: React.FC<{initialValue: any, onCommentClick: any}> = ({initialValue, onCommentClick}) => {
-    const editor = useMemo(() => withHistory(withReact(createEditor())), [])
+    const editor = useMemo(
+        () => withInlines(withHistory(withReact(createEditor()))),
+        []
+    )
 
     return (
         <Slate editor={editor} initialValue={initialValue}>
-        <CommentToolbar onClick={onCommentClick}/>
-        <Editable
-            className="px-2 py-1 border-transparent focus:border-transparent focus:outline-none"    
-            renderLeaf={props => <Leaf {...props} />}
-            readOnly={true}
-            onDOMBeforeInput={(event: InputEvent) => {
-                switch (event.inputType) {
-                    case 'formatBold':
-                        event.preventDefault()
-                        return toggleMark(editor, 'bold')
-                    case 'formatItalic':
-                        event.preventDefault()
-                        return toggleMark(editor, 'italic')
-                    case 'formatUnderline':
-                        event.preventDefault()
-                        return toggleMark(editor, 'underlined')
-                    case 'formatHighlight':
-                        event.preventDefault()
-                        return toggleMark(editor, 'highlighed')
-                }
-            }}
-        />
+            <CommentToolbar onClick={onCommentClick}/>
+            <MyEditable editor={editor} readOnly={true} placeholder={""} minHeight={"0em"}/>
         </Slate>
     )
 }
