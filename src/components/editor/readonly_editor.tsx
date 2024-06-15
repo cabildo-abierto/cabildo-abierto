@@ -13,7 +13,9 @@ import {
 } from 'slate'
 import { withHistory } from 'slate-history'
 import "material-symbols";
-import { Icon, Leaf, Menu, MyEditable, Portal, toggleMark, withInlines } from './editor'
+import { withInlines, MyEditable } from './editor'
+import { Button, Icon, Menu, Portal } from './editor_utils'
+import { toggleMark } from './hoovering_toolbar'
 
 
 export const ReadOnlyEditor: React.FC<{initialValue: any, onCommentClick: any}> = ({initialValue, onCommentClick}) => {
@@ -76,7 +78,6 @@ const CommentToolbar = ({onClick}) => {
 }
 
 const removeHighlight = (editor) => {
-    console.log(editor.children)
     editor.children.forEach((c) => {
         if(c.text){
             

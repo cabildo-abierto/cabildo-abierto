@@ -10,8 +10,6 @@ import { AuthenticationFormLabel } from "../signup-form";
 export default function LoginForm() {
     const [success, action] = useFormState(authenticate, true)
 
-    console.log("Success", success)
-
     return (
         <div className="space-y-3 items-center">
             <form action={action}>

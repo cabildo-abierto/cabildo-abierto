@@ -10,7 +10,6 @@ const ContentPage: React.FC<{params: any}> = async ({params}) => {
     }
 
     const comments = await getContentComments(parentContent.id)
-    console.log(comments)
     const title = {"Comment": "Comentario", "Discussion": "Discusión", "Post": "Publicación", "Opinion": "Opinion"}[parentContent.type]
 
     return <div className="">

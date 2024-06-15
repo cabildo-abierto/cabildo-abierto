@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { createPost, createDiscussion } from '@/actions/create-comment'
 import { useRouter } from "next/navigation";
-import MyEditor from "./editor"
+import MyEditor from "@/components/editor/editor"
 
 
 
@@ -41,8 +41,6 @@ const Escribir: React.FC = () => {
   const router = useRouter();
 
   const handleCreate = async () => {
-    console.log("Creando publicacion con contenido")
-    console.log(content)
     if (selectedButton == "publicacion") {
       const success = await createPost(content)
       if (success) {
@@ -57,7 +55,6 @@ const Escribir: React.FC = () => {
   }
 
   const handleSelection = (button: string) => {
-    console.log("Handling selection " + button)
     if (button == "discusion") {
       setSelectedButton("discusion")
     } else {

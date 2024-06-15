@@ -27,7 +27,7 @@ export const CreateEntityFormSchema = z.object({
         .string()
         .min(2, { message: 'El nombre tiene que tener al menos 2 caracteres.' })
         .trim()
-        .max(60, { message: 'El nombre no puede tener más de 60 caracteres.'})
+        .max(100, { message: 'El nombre no puede tener más de 100 caracteres.'})
 })
 
 

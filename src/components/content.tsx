@@ -12,8 +12,8 @@ import { createEditor, Descendant, Editor } from 'slate';
 import { withReact } from 'slate-react';
 import { BaseEditor } from 'slate';
 import { ReactEditor } from 'slate-react';
-import MyEditor from "@/app/escribir/editor";
-import { ReadOnlyEditor } from "@/app/escribir/readonly_editor";
+import MyEditor from "./editor/editor";
+import { ReadOnlyEditor } from "./editor/readonly_editor";
 type CustomElement = { type: 'paragraph'; children: CustomText[] }
 type CustomText = { text: string; bold?: true }
 
@@ -123,8 +123,6 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
     }
     
     const onSelectionComment = async (editor, selection) => {
-        console.log(selection)
-        console.log(Editor.string(editor, selection))
         setWritingComment(true)
         setWritingOpinion(false)
         setReplyTo({
