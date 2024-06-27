@@ -19,13 +19,13 @@ const EntityPage = ({entity}) => {
         setContent(pushedContent)
         setModify(!modify)
     }
-
+    
     return <>
         <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
             {entity.name}
         </h1>
         <div className="px-2 mb-2">
-            {modify ? <MyEditor
+        {modify ? <MyEditor
                 initialValue={content}
                 onChange={(value) => {setContent(value); console.log(value)}}
             /> : 

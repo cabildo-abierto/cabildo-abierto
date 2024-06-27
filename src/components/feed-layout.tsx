@@ -6,8 +6,8 @@ import {logout} from "@/actions/auth";
 
 
 function FeedButton() {
-    return <li className="mb-8 mt-4 flex justify-center text-l font-bold text-gray-900 px-1">
-        <Link href={"/feed"} className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
+    return <li className="mb-8 mt-4 text-l font-bold text-gray-900 px-1">
+        <Link href={"/profile/cabildoabierto"} className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
             Cabildo Abierto
         </Link>
     </li>
@@ -16,7 +16,7 @@ function FeedButton() {
 
 const SidebarButton: React.FC<{text: string, href: string}> = ({text, href}) => {
     return <Link href={href} className="text-semibold">
-        <li className="flex justify-center mb-4 rounded-lg bg-gray-200 hover:bg-gray-400 transition duration-100 cursor-pointer px-2">
+        <li className="mb-4 rounded-lg hover:bg-gray-200 transition duration-100 cursor-pointer px-2">
             <div className="px-1 py-2">
                 {text}
             </div>
@@ -38,9 +38,8 @@ async function Sidebar() {
         <SidebarButton text="Temas" href="/temas"/>
         <SidebarButton text="Escribir" href="/escribir"/>
         <SidebarButton text="Buscar" href="/buscar"/>
-        <SidebarButton text="Explorar el Estado" href="/estado"/>
+        <SidebarButton text="Wiki" href="/estado"/>
         <SidebarButton text="Crear entidad" href="/crear-entidad"/>
-        <SidebarButton text="Sobre Cabildo Abierto" href="/profile/cabildoabierto"/>
     </ul>
     <div className="mt-auto">
         <ul>

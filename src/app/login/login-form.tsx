@@ -11,7 +11,7 @@ export default function LoginForm() {
     const [success, action] = useFormState(authenticate, true)
 
     return (
-        <div className="space-y-3 items-center">
+        <div className="">
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                     <h1 className='mb-3 text-2xl'>

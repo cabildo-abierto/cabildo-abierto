@@ -7,7 +7,7 @@ import {useState} from "react";
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
-        className="mb-1 mt-2 block text-s font-medium text-gray-900"
+        className="mt-2 block text-s font-medium text-gray-900"
         htmlFor={label}
     > 
         {text}
@@ -18,7 +18,7 @@ export default function SignupForm() {
     const [state, action] = useFormState(signup, undefined)
 
     return (
-        <div className="space-y-3 items-center">
+        <div className="">
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                     <h1 className='mb-3 text-2xl'>

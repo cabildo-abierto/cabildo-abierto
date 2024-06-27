@@ -1,9 +1,6 @@
 'use server'
 
 import {db} from "@/db";
-import {getUserIdByUsername} from "@/actions/get-user";
-import parse from 'html-react-parser'
-import { getLikeState } from "./likes";
 
 export type EntityProps = {
     id: string;
@@ -14,9 +11,9 @@ export type EntityProps = {
 export async function getEntityById(entityId: string): Promise<EntityProps | null> {
     let entity: EntityProps | null = await db.entity.findUnique(
         {select: {
-                id: true,
-                text: true,
-                name: true
+            id: true,
+            name: true,
+            text: true
         },
             where: {
                 id: entityId,

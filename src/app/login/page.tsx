@@ -4,8 +4,10 @@ import Link from "next/link";
 
 export default function LoginPage() {
     return (
-        <div className="flex">
-            <Home/>
+        <div className="flex justify-between items-center">
+            <div className="w-1/2">
+                <Home/>
+            </div>
             <div className="w-1/2 flex justify-center">
                 <div className="w-1/2 mr-8 py-32">
                     <LoginForm/>
