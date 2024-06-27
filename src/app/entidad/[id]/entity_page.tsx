@@ -4,6 +4,7 @@ import MyEditor from "@/components/editor/editor"
 import { ReadOnlyEditor } from "@/components/editor/readonly_editor"
 import { useState } from "react"
 
+
 const EntityPage = ({entity}) => {
     const [content, setContent] = useState(JSON.parse(entity.text))
     const [pushedContent, setPushedContent] = useState(content)
@@ -19,11 +20,26 @@ const EntityPage = ({entity}) => {
         setContent(pushedContent)
         setModify(!modify)
     }
-    
+
     return <>
-        <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
-            {entity.name}
-        </h1>
+        <div className="">
+            <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
+                {entity.name}
+            </h1>
+
+            <div className="flex justify-between items-center px-2 py-2">
+                <div>
+                <button 
+                    className="ml-3 py-2 px-4 rounded transition duration-200 bg-gray-200 hover:bg-gray-300 cursor-pointer"
+                    onClick={handleEdit}>{modify ? "Cancelar" : "Activar edición"}
+                </button>
+
+                {modify && <button className="ml-3 py-2 px-4 rounded transition duration-200 bg-gray-200 hover:bg-gray-300 cursor-pointer" onClick={handleSave}>Guardar</button>}
+                </div>
+            
+            </div>
+            
+        </div>
         <div className="px-2 mb-2">
         {modify ? <MyEditor
                 initialValue={content}
@@ -33,10 +49,6 @@ const EntityPage = ({entity}) => {
                 initialValue={content}
                 onCommentClick={() => {}}
             />}
-        </div>
-        <div className="flex justify-between">
-            <button className="ml-3 py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer" onClick={handleEdit}>{modify ? "Desactivar edición" : "Activar edición"}</button>
-            {modify && <button className="ml-3 py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer" onClick={handleSave}>Guardar</button>}
         </div>
     </>
 }

@@ -3,62 +3,17 @@
 import React, { useState } from "react";
 import { createPost, createDiscussion } from '@/actions/create-comment'
 import { useRouter } from "next/navigation";
-import MyEditor from "@/components/editor/editor"
+import MyEditor, { emptyInitialValue } from "@/components/editor/editor"
 
-
-
-const SelectionComponent: React.FC<{ selectionHandler: (arg: string) => void }> = ({ selectionHandler }) => {
-  const [selectedButton, setSelectedButton] = useState("publicacion");
-
-  const handleButtonClick = (button: string) => {
-    setSelectedButton(button);
-    selectionHandler(button);
-  };
-
-  return (
-    <div className="flex justify-center mt-8">
-      <button
-        className={`${selectedButton === 'publicacion' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-          } py-2 px-4 rounded-l flex-grow focus:outline-none`}
-        onClick={() => handleButtonClick('publicacion')}
-      >
-        Publicación
-      </button>
-      <button
-        className={`${selectedButton === 'discusion' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-          } py-2 px-4 rounded-r flex-grow focus:outline-none`}
-        onClick={() => handleButtonClick('discusion')}
-      >
-        Discusión
-      </button>
-    </div>
-  );
-};
 
 const Escribir: React.FC = () => {
-  const [content, setContent] = useState('');
-  const [selectedButton, setSelectedButton] = useState("publicacion");
+  const [content, setContent] = useState(emptyInitialValue);
   const router = useRouter();
 
   const handleCreate = async () => {
-    if (selectedButton == "publicacion") {
-      const success = await createPost(content)
-      if (success) {
-        router.push("/")
-      }
-    } else {
-      const success = await createDiscussion(content)
-      if (success) {
-        router.push("/")
-      }
-    }
-  }
-
-  const handleSelection = (button: string) => {
-    if (button == "discusion") {
-      setSelectedButton("discusion")
-    } else {
-      setSelectedButton("publicacion")
+    const success = await createPost(content)
+    if (success) {
+      router.push("/")
     }
   }
 
@@ -68,24 +23,16 @@ const Escribir: React.FC = () => {
 
   return (
     <div className="flex justify-center h-screen">
-      <div className="flex flex-col w-full px-5">
-        <div className="mb-4">
-          <SelectionComponent selectionHandler={handleSelection} />
-        </div>
+      <div className="flex flex-col w-full px-5 mt-8">
+        <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
+          Publicá lo que quieras
+        </h1>
         <div className="">
-          {selectedButton == "publicacion" ?
-            <MyEditor
-              placeholder={"Publicá lo que quieras."}
-              onChange={setContent}
-              minHeight="6em"
-            /> : <></>}
-          {selectedButton == "discusion" ? 
-            <MyEditor
-              placeholder={"Preguntá lo que quieras."}
-              onChange={setContent}
-              minHeight="6em"
-            /> : <></>
-          }
+          <MyEditor
+            placeholder={""}
+            onChange={setContent}
+            minHeight="6em"
+          />
         </div>
         <div className="flex justify-between mt-3">
           <button onClick={() => router.push("/feed")}

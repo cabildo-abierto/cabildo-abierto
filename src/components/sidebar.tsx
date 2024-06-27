@@ -1,8 +1,12 @@
-import Image from "next/image";
+"use client"
+
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import {getUser} from "@/actions/get-user";
 import {logout} from "@/actions/auth";
+
+import Popup from 'reactjs-popup'; 
+import EntityPopup from "@/app/entidad/entity-popup";
 
 
 function FeedButton() {
@@ -14,20 +18,29 @@ function FeedButton() {
 }
 
 
-const SidebarButton: React.FC<{text: string, href: string}> = ({text, href}) => {
-    return <Link href={href} className="text-semibold">
-        <li className="mb-4 rounded-lg hover:bg-gray-200 transition duration-100 cursor-pointer px-2">
-            <div className="px-1 py-2">
-                {text}
-            </div>
-        </li>
-    </Link>
+const SidebarButton: React.FC<{text: string, href?: string, onClick?: any}> = ({text, href = null, onClick = null}) => {
+    const list_item = <li className="mb-4 rounded-lg hover:bg-gray-200 transition duration-100 cursor-pointer px-2">
+        <div className="px-1 py-2">
+            {text}
+        </div>
+    </li>
+    if(href){
+        console.log("Creando link a " + href)
+        return <Link href={href} className="text-semibold">
+            {list_item}
+        </Link>
+    } else {
+        console.log("Creando un botón")
+        return <button className="text-semibold" onClick={onClick}>
+            {list_item}
+        </button>
+    }
 }
 
 
-async function Sidebar() {
-    const user = await getUser()
-    if(!user) return false
+export default function Sidebar({user}) {
+    const [showPopup, setShowPopup] = useState(false)
+
 
     const perfil_href: string = "/profile/" + user?.id
 
@@ -38,6 +51,7 @@ async function Sidebar() {
         <SidebarButton text="Escribir" href="/escribir"/>
         <SidebarButton text="Buscar" href="/buscar"/>
         <SidebarButton text="Wiki" href="/estado"/>
+        <SidebarButton text="Crear entidad" onClick={() => {setShowPopup(true)}}/>
     </ul>
     <div className="mt-auto">
         <ul>
@@ -57,28 +71,6 @@ async function Sidebar() {
             </li>
             </ul>
         </div>
+        {showPopup && <EntityPopup onClose={() => {setShowPopup(false)}}/>}
     </div>
 }
-
-
-const FeedLayout: React.FC<{children: React.ReactNode}> = ({children}) => {
-    const centerWidth = 800; // Width of the center feed
-    const sidebarWidth = `calc((100% - ${centerWidth}px) / 2)`;
-
-    return (
-        <div className="flex justify-center">
-            <div className="fixed left-0 top-0 h-screen" style={{ width: sidebarWidth }}>
-                <div className="flex justify-end">
-                    <Sidebar/>
-                </div>
-            </div>
-            <div className="border-l border-r" id="center" style={{ width: `${centerWidth}px` }}>
-                {children}
-            </div>
-            <div className="fixed top-0 right-0 h-screen" style={{ width: sidebarWidth }}>
-            </div>
-        </div>
-    );
-};
-
-export default FeedLayout;

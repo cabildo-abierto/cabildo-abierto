@@ -1,7 +1,7 @@
 import "@/app/globals.css";
-import FeedLayout from "@/components/feed-layout";
+import WikiLayout from "@/components/wiki-layout";
 
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  return <FeedLayout children={children}/>
+  return <WikiLayout children={children}/>
 }

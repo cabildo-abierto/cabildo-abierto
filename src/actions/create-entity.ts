@@ -33,12 +33,14 @@ export async function createEntity(state: CreateEntityFormState, formData) {
 
   const { name } = validatedFields.data
 
-  await db.entity.create({
+  const entity = await db.entity.create({
     data: {
       name: name,
       text: JSON.stringify(emptyInitialValue)
     }
   })
+
+  redirect("/entidad/"+entity.id)
 }
 
 export async function updateEntityContent(content, id){

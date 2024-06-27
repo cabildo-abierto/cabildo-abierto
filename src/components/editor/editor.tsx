@@ -70,42 +70,33 @@ const MyEditor: React.FC<{placeholder?: string, onChange?: any, minHeight?: any,
       setResults(res)
     }, 300)
 
-    const props = {
-      placeholder: placeholder,
-      readOnly: false,
-      onKeyDown: async (event) => {
-        if (event.key === '/') {
-          event.preventDefault()
-          Transforms.insertNodes(editor, {text: '/', isSearchReference: true});
+    const handleKeyDown = async (event) => {
+      if (event.key === '/') {
+        event.preventDefault()
+        Transforms.insertNodes(editor, {text: '/', isSearchReference: true});
+        setDoingSearch(true)
+        setSearchToolbarText("")
+        const domSelection = window.getSelection()
+        const domRange = domSelection.getRangeAt(0)
+        // el tempSpan es un hack, si no rect da 0 cuando
+        // la / es lo primero que se escribe
+        const tempSpan = document.createElement('span');
+        domRange.collapse(true);
+        domRange.insertNode(tempSpan);
+        const rect = tempSpan.getBoundingClientRect();
+        setSelectionRect(rect)
+      } else if(doingSearch) {
+        if(/^[a-zA-Z]$/.test(event.key)){
           setDoingSearch(true)
-          setSearchToolbarText("")
-          const domSelection = window.getSelection()
-          const domRange = domSelection.getRangeAt(0)
-          // el tempSpan es un hack, si no rect da 0 cuando
-          // la / es lo primero que se escribe
-          const tempSpan = document.createElement('span');
-          domRange.collapse(true);
-          domRange.insertNode(tempSpan);
-          const rect = tempSpan.getBoundingClientRect();
-          setSelectionRect(rect)
-        } else if(doingSearch) {
-          if(/^[a-zA-Z]$/.test(event.key)){
-            setDoingSearch(true)
-            debSearchEntities(searchToolbarText + event.key)
-            setSearchToolbarText(searchToolbarText + event.key)
-          } else if(event.key == "Backspace" && searchToolbarText && searchToolbarText.length > 0){
-            debSearchEntities(searchToolbarText.slice(0, searchToolbarText.length-1))
-            setSearchToolbarText(searchToolbarText.slice(0, searchToolbarText.length-1))
-          } else {
-            closeReferenceToolbar()
-          }
+          debSearchEntities(searchToolbarText + event.key)
+          setSearchToolbarText(searchToolbarText + event.key)
+        } else if(event.key == "Backspace" && searchToolbarText && searchToolbarText.length > 0){
+          debSearchEntities(searchToolbarText.slice(0, searchToolbarText.length-1))
+          setSearchToolbarText(searchToolbarText.slice(0, searchToolbarText.length-1))
+        } else {
+          closeReferenceToolbar()
         }
-      },
-      onClick: () => {
-        closeReferenceToolbar()
-      },
-      editor: editor,
-      minHeight: minHeight
+      }
     }
 
     return <div>
@@ -116,24 +107,33 @@ const MyEditor: React.FC<{placeholder?: string, onChange?: any, minHeight?: any,
             }
             <HoveringToolbar/>
             <MyEditable
-              {...props}
+              placeholder={placeholder}
+              readOnly={false}
+              onKeyDown={handleKeyDown}
+              onClick={closeReferenceToolbar}
+              editor={editor}
+              minHeight={minHeight}
             />
         </Slate>
       </div>
 }
 
 
-export const MyEditable = ({...props}) => {
+export const MyEditable = ({placeholder, readOnly, onKeyDown=()=>{}, onClick, editor, minHeight}) => {
 
-  const className = props.readOnly ? "px-2 py-1 rounded focus:outline-none" :
-  "px-2 py-1 rounded border focus:outline-none"
+  const className = readOnly ? "px-2 py-1 border border-gray-50 rounded focus:outline-none" :
+  "px-2 py-1 border rounded focus:outline-none"
 
   return <Editable
     className={className}
     renderLeaf={props => <Leaf {...props} />}
     renderElement={props => <Element {...props} />}
-    style={{minHeight: props.minHeight}}
-    {...props}
+    style={{minHeight: minHeight}}
+    placeholder={placeholder}
+    readOnly={readOnly}
+    onKeyDown={onKeyDown}
+    onClick={onClick}
+    editor={editor}
   />
 }
 
