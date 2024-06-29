@@ -11,10 +11,12 @@ import { EntityProps } from "@/actions/get-entity";
 
 
 export const UserSearchResult: React.FC<{result: UserProps | EntityProps, isEntity: boolean}> = ({result, isEntity}) => {
-    return <div className="border mb-2">
+    const className = "hover:scale-125 transition transform ease-in-out px-1"
+    
+    return <div className="border rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
         <Link
             href={(isEntity ? "/entidad/" : "/profile/") + result.id}
-            className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-base px-1`}>
+            className={className}>
             {result.name ? result.name : "@"+result.username}
         </Link>
     </div>

@@ -121,8 +121,8 @@ const MyEditor: React.FC<{placeholder?: string, onChange?: any, minHeight?: any,
 
 export const MyEditable = ({placeholder, readOnly, onKeyDown=()=>{}, onClick, editor, minHeight}) => {
 
-  const className = readOnly ? "px-2 py-1 border border-gray-50 rounded focus:outline-none" :
-  "px-2 py-1 border rounded focus:outline-none"
+  const className = readOnly ? "px-2 py-1 border-gray-50 rounded focus:outline-none z-0" :
+  "px-2 py-1 border border-gray-600 rounded focus:outline-none z-0"
 
   return <Editable
     className={className}

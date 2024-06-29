@@ -25,7 +25,7 @@ model User {
 
 
 model Entity {
-  id              String       @id @default(cuid())
+  id              String       @id
   name            String       @unique @db.VarChar(255)
   text            String
   mentionedBy     Content[]    @relation("entityMention")

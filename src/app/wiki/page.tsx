@@ -1,5 +1,4 @@
 import { getEntities } from "@/actions/get-entity";
-import Link from "next/link";
 import React from "react"
 import { UserSearchResult } from "../buscar/page";
 

@@ -2,10 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import {getUser} from "@/actions/get-user";
 import {logout} from "@/actions/auth";
-
-import Popup from 'reactjs-popup'; 
 import EntityPopup from "@/app/entidad/entity-popup";
 
 
@@ -18,7 +15,7 @@ function FeedButton() {
 }
 
 
-const SidebarButton: React.FC<{text: string, href?: string, onClick?: any}> = ({text, href = null, onClick = null}) => {
+export const SidebarButton: React.FC<{text: string, href?: string, onClick?: any}> = ({text, href = null, onClick = null}) => {
     const list_item = <li className="mb-4 rounded-lg hover:bg-gray-200 transition duration-100 cursor-pointer px-2">
         <div className="px-1 py-2">
             {text}
@@ -39,10 +36,6 @@ const SidebarButton: React.FC<{text: string, href?: string, onClick?: any}> = ({
 
 
 export default function Sidebar({user}) {
-    const [showPopup, setShowPopup] = useState(false)
-
-
-    const perfil_href: string = "/profile/" + user?.id
 
     return <div className="h-screen flex flex-col mr-4">
     <ul className="flex-1 mt-4">
@@ -51,7 +44,7 @@ export default function Sidebar({user}) {
         <SidebarButton text="Escribir" href="/escribir"/>
         <SidebarButton text="Buscar" href="/buscar"/>
         <SidebarButton text="Wiki" href="/estado"/>
-        <SidebarButton text="Crear entidad" onClick={() => {setShowPopup(true)}}/>
+        <EntityPopup/>
     </ul>
     <div className="mt-auto">
         <ul>
@@ -71,6 +64,5 @@ export default function Sidebar({user}) {
             </li>
             </ul>
         </div>
-        {showPopup && <EntityPopup onClose={() => {setShowPopup(false)}}/>}
     </div>
 }
