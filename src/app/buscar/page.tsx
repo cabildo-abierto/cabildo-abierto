@@ -4,7 +4,6 @@ import React, {useState} from "react";
 import {searchUsers, searchContents, searchEntities} from "@/actions/search";
 import {UserProps} from "@/actions/get-user";
 import Link from "next/link";
-import {debounce} from "next/dist/server/utils";
 import { ContentProps } from "@/actions/get-comment";
 import ContentComponent from "@/components/content";
 import { EntityProps } from "@/actions/get-entity";
@@ -14,7 +13,7 @@ export const UserSearchResult: React.FC<{result: UserProps | EntityProps, isEnti
     const className = "hover:scale-125 transition transform ease-in-out px-1"
     
     return <div className="border rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
-        <Link
+        <Link 
             href={(isEntity ? "/entidad/" : "/profile/") + result.id}
             className={className}>
             {result.name ? result.name : "@"+result.username}
