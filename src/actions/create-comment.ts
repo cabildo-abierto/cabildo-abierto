@@ -25,7 +25,7 @@ interface Connection {
 function findReferences(text: string): Connection[]{
     return []
 
-    // to do: reimlement this
+    // to do: reimplement this
     const words = text.split(" ")
 
     let connections: Connection[] = []
@@ -52,35 +52,13 @@ export async function createComment(text: string, parentContentId: string) {
 
     await db.content.create({
         data: {
-            text: JSON.stringify(text),
+            text: text,
             authorId: author.id,
             parentContentId: parentContentId,
             mentionedUsers: {
                 connectOrCreate: connections
             },
             type: "Comment"
-        },
-    })
-
-    return true
-}
-
-
-export async function createOpinion(text: string, parentContentId: string) {
-    const author = await getUser()
-    if(!author) return false
-
-    let connections = findReferences(text)
-
-    await db.content.create({
-        data: {
-            text: JSON.stringify(text),
-            authorId: author.id,
-            parentContentId: parentContentId,
-            mentionedUsers: {
-                connectOrCreate: connections
-            },
-            type: "Opinion"
         },
     })
 
@@ -97,33 +75,12 @@ export async function createPost(text: string) {
     
     await db.content.create({
         data: {
-            text: JSON.stringify(text),
+            text: text,
             authorId: author.id,
             mentionedUsers: {
                 connectOrCreate: connections
             },
             type: "Post"
-        },
-    })
-
-    return true
-}
-
-
-export async function createDiscussion(text: string) {
-    const author = await getUser()
-    if(!author) return false
-
-    let connections = findReferences(text)
-
-    await db.content.create({
-        data: {
-            text: JSON.stringify(text),
-            authorId: author.id,
-            mentionedUsers: {
-                connectOrCreate: connections
-            },
-            type: "Discussion"
         },
     })
 

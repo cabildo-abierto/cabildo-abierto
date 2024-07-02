@@ -1,13 +1,13 @@
 "use client"
 
 import React, { useState } from "react";
-import { createPost, createDiscussion } from '@/actions/create-comment'
+import { createPost } from '@/actions/create-comment'
 import { useRouter } from "next/navigation";
-import MyEditor, { emptyInitialValue } from "@/components/editor/editor"
+import {TinyEditor} from "@/components/tiny-editor";
 
 
 const Escribir: React.FC = () => {
-  const [content, setContent] = useState(emptyInitialValue);
+  const [content, setContent] = useState("");
   const router = useRouter();
 
   const handleCreate = async () => {
@@ -18,20 +18,19 @@ const Escribir: React.FC = () => {
   }
 
   const isEmpty = (value) => {
-      return value.length == 1 && value[0].children.length == 1 && value[0].children[0].text.length == 0
+      return value.length == 0
   }
 
   return (
     <div className="flex justify-center h-screen">
       <div className="flex flex-col w-full px-5 mt-8">
-        <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
+        <h1 className="text-2xl ml-2 py-8 font-semibold">
           Publicá lo que quieras
         </h1>
         <div className="">
-          <MyEditor
-            placeholder={""}
-            onChange={setContent}
-            minHeight="6em"
+          <TinyEditor
+            value={content}
+            onEditorChange={(value) => {console.log(value); setContent(value)}}
           />
         </div>
         <div className="flex justify-between mt-3">

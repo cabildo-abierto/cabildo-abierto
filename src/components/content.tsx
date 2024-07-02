@@ -1,29 +1,15 @@
 "use client"
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import TextareaAutosize from "react-textarea-autosize";
 import { ContentProps } from "@/actions/get-comment";
-import { createComment, createOpinion } from "@/actions/create-comment";
+import { createComment } from "@/actions/create-comment";
 import { useRouter } from "next/navigation";
 import { addDislike, addLike } from "@/actions/likes";
 import Image from 'next/image';
 
-import { createEditor, Descendant, Editor } from 'slate';
 import { withReact } from 'slate-react';
-import { BaseEditor } from 'slate';
-import { ReactEditor } from 'slate-react';
-import MyEditor from "./editor/editor";
-import { ReadOnlyEditor } from "./editor/readonly_editor";
-type CustomElement = { type: 'paragraph'; children: CustomText[] }
-type CustomText = { text: string; bold?: true }
+import { TinyEditor, ReadOnlyTinyEditor } from "./tiny-editor";
 
-declare module 'slate' {
-  interface CustomTypes {
-    Editor: BaseEditor & ReactEditor
-    Element: CustomElement
-    Text: CustomText
-  }
-}
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
     return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
@@ -31,25 +17,20 @@ export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
     </Link>
 }
 
-export const ContentTopRow: React.FC<{type: string, content: ContentProps}> = ({type, content}) => {
+export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}) => {
     const date = getDate(content)
     return <div className="flex justify-between mb-2">
         <p className="text-gray-600 ml-2 text-sm">
             <Link className="hover:text-gray-900"
                   href={"/profile/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
         </p>
-        <p className="text-gray-600 text-sm">{type}</p>
         <p className="text-gray-600 text-sm mr-1">{date}</p>
     </div>
 }
 
 
 export const ContentText: React.FC<{content: ContentProps, isMainContent: boolean, onCommentClick: any}> = ({content, isMainContent, onCommentClick}) => {
-    const [editor] = useState(() => withReact(createEditor()))
-
-    const initialValue: Descendant[] = JSON.parse(content.text)
-
-    return <ReadOnlyEditor initialValue={initialValue} onCommentClick={onCommentClick}/>
+    return <ReadOnlyTinyEditor initialValue={content.text}/> // onCommentClick={onCommentClick}/>
 }
 
 export function getDate(content: ContentProps): string {
@@ -85,8 +66,6 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
     const router = useRouter()
     let like_count: Number = content._count.likedBy
     let dislike_count: Number = content._count.dislikedBy
-
-    const type_name = {"Comment": "", "Discussion": "Discusión", "Post": "Publicación", "Opinion": "Opinión"}[content.type]
 
     const handleCancelComment = () => {
         setWritingComment(false)
@@ -135,10 +114,8 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
     return <>
         <div className={isMainContent ? "border-4 border-gray-300 rounded" : "border-b border-t"}
         >
-            <ContentTopRow type={type_name} content={content}/>
-            <div className={isMainContent ? "max-h-512 overflow-y-auto" : "max-h-64 overflow-y-auto"}>
-                <ContentText content={content} isMainContent={isMainContent} onCommentClick={onSelectionComment}/>
-            </div>
+            <ContentTopRow content={content}/>
+            <ContentText content={content} isMainContent={isMainContent} onCommentClick={onSelectionComment}/>
             <div className="flex justify-between px-1">
                 <div>
                     <AddCommentButton text="Responder" onClick={handleAddCommentClick}/>
@@ -171,10 +148,9 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
             {replyTo &&
                 <p className="py-2 px-2 text-sm">En respuesta a: <span className="text-gray-500 italic">{replyTo.text}</span></p>
             }
-            <MyEditor
-                placeholder={writingComment ? "Agregá un comentario..." : "Agregá una opinión..."}
-                minHeight="4em"
-                onChange={setComment}
+            <TinyEditor
+                value={comment}
+                onEditorChange={setComment}
             />
             </div>
             <div className="flex justify-end">
