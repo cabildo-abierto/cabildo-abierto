@@ -1,0 +1,19 @@
+
+:root {
+
+	--ck-color-base-foreground: 								transparent;
+	--ck-color-base-background: 								transparent;
+	--ck-color-base-border: 									transparent;
+	--ck-color-base-focus: 										transparent;
+	--ck-color-base-active: 									transparent;
+	--ck-color-base-active-focus:								transparent;
+
+	/* -- Generic colors ------------------------------------------------------------------------ */
+
+	--ck-color-focus-border-coordinates: 						218, 81.8%, 56.9%;
+	--ck-color-focus-border: 									transparent;
+	
+	--ck-color-shadow-drop: 									transparent;
+	--ck-color-shadow-drop-active:								transparent;
+	--ck-color-shadow-inner: 									transparent;
+}

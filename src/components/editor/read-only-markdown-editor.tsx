@@ -45,6 +45,7 @@ import {
 import translations from 'ckeditor5/translations/es.js';
 
 import 'ckeditor5/ckeditor5.css';
+import "./editor.css"
 
 export default function ReadOnlyMarkdownEditor({content}) {
     const [editor, setEditor] = useState(null);

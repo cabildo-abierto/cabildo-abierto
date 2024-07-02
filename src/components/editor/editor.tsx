@@ -37,6 +37,7 @@ import {
 } from 'ckeditor5';
 
 import 'ckeditor5/ckeditor5.css';
+import "./editor.css"
 
 export default function Editor({onChange}) {
     const [editor, setEditor] = useState(null);
@@ -181,16 +182,12 @@ export default function Editor({onChange}) {
 	};
 
 	return (
-        <div className="editor-container editor-container_balloon-editor editor-container_include-block-toolbar" ref={editorContainerRef}>
-            <div className="editor-container__editor">
-                <div ref={editorRef}>{isLayoutReady && 
-                <CKEditor
-                    editor={BalloonEditor}
-                    config={editorConfig}
-					onReady={setEditor}
-					onChange={event => {onChange(editor.getData())}}
-                />}</div>
-            </div>
-        </div>
+		<div ref={editorRef}>{isLayoutReady && 
+		<CKEditor
+			editor={BalloonEditor}
+			config={editorConfig}
+			onReady={setEditor}
+			onChange={event => {onChange(editor.getData())}}
+		/>}</div>
 	);
 }

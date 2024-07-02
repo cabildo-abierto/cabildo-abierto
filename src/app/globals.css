@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 :root {
   --foreground-rgb: 0, 0, 0;
@@ -20,19 +21,14 @@ h3 {
   @apply text-2xl font-bold;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-
 .ck-content {
 	font-family: 'Lato';
 	line-height: 1.6;
 	word-break: break-word;
 }
 
-.editor-container_include-block-toolbar {
-	margin-left: 25px; /* 42px */
-}
-
-.editor-container_balloon-editor .editor-container__editor {
+.editor-container p, h1, h2, h3, h4, h5, h6 {
+  margin-top: 8px
 }
 
 h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
