@@ -44,7 +44,7 @@ import {
 import translations from 'ckeditor5/translations/es.js';
 
 import 'ckeditor5/ckeditor5.css';
-import "./editor.css"
+import './markdown-editor.css';
 
 export default function MarkdownEditor({initialData, onChange}) {
     const [editor, setEditor] = useState(null);
@@ -198,7 +198,7 @@ export default function MarkdownEditor({initialData, onChange}) {
 				}
 			]
 		},
-		placeholder: 'Type or paste your content here!',
+		placeholder: 'Este artículo esta vacío!',
 		table: {
 			contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
 		},

@@ -4,23 +4,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+	--foreground-rgb: 0, 0, 0;
+	--background-start-rgb: 214, 219, 220;
+	--background-end-rgb: 255, 255, 255;
 }
 
 h1 {
-  @apply text-4xl font-bold;
+  	@apply text-4xl font-bold;
 	font-family: 'Lato';
 }
 
 h2 {
-  @apply text-3xl font-bold;
+ 	@apply text-3xl font-bold;
 	font-family: 'Lato';
 }
 
 h3 {
-  @apply text-2xl font-bold;
+  	@apply text-2xl font-bold;
 	font-family: 'Lato';
 }
 
@@ -31,7 +31,7 @@ h3 {
 }
 
 .editor-container p, h1, h2, h3, h4, h5, h6 {
-  margin-top: 8px
+  	margin-top: 8px
 }
 
 h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {

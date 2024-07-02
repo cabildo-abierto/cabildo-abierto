@@ -1,11 +1,8 @@
 "use client"
 import { updateEntityContent } from "@/actions/create-entity"
 import MarkdownEditor from "@/components/editor/markdown-editor";
-import ReadOnlyEditor from "@/components/editor/read-only-editor";
 import ReadOnlyMarkdownEditor from "@/components/editor/read-only-markdown-editor";
-import MarkdownContent from "@/components/markdown-content"
 import { useState } from "react"
-import TextareaAutosize from 'react-textarea-autosize';
 
 
 const EntityPage = ({entity}) => {
