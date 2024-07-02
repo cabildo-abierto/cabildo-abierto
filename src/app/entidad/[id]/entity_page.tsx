@@ -26,9 +26,9 @@ const EntityPage = ({entity}) => {
 
     return <>
         <div className="">
-            <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
+            <h2 className="ml-2 py-8">
                 {entity.name}
-            </h1>
+            </h2>
 
             <div className="flex justify-center items-center px-2 py-2">
                 <div>
