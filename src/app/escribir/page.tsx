@@ -3,7 +3,10 @@
 import React, { useState } from "react";
 import { createPost } from '@/actions/create-comment'
 import { useRouter } from "next/navigation";
-import {TinyEditor} from "@/components/tiny-editor";
+import dynamic from "next/dynamic";
+
+
+const Editor = dynamic( () => import( '@/components/editor/editor' ), { ssr: false } );
 
 
 const Escribir: React.FC = () => {
@@ -11,7 +14,7 @@ const Escribir: React.FC = () => {
   const router = useRouter();
 
   const handleCreate = async () => {
-    const success = await createPost(content)
+    const success = await createPost(JSON.stringify(content))
     if (success) {
       router.push("/")
     }
@@ -28,9 +31,8 @@ const Escribir: React.FC = () => {
           Publicá lo que quieras
         </h1>
         <div className="">
-          <TinyEditor
-            value={content}
-            onEditorChange={(value) => {console.log(value); setContent(value)}}
+          <Editor
+            onChange={setContent}
           />
         </div>
         <div className="flex justify-between mt-3">

@@ -72,7 +72,7 @@ export async function createPost(text: string) {
     if(!author) return false
 
     let connections = findReferences(text)
-    
+
     await db.content.create({
         data: {
             text: text,

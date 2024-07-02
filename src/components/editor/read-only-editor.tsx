@@ -38,8 +38,7 @@ import {
 
 import 'ckeditor5/ckeditor5.css';
 
-export default function Editor({onChange}) {
-    const [editor, setEditor] = useState(null);
+export default function Editor({content}) {
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -157,7 +156,7 @@ export default function Editor({onChange}) {
 			]
 		},
 		initialData:
-			'',
+			content,
 		link: {
 			addTargetToExternalLinks: true,
 			defaultProtocol: 'https://',
@@ -187,8 +186,7 @@ export default function Editor({onChange}) {
                 <CKEditor
                     editor={BalloonEditor}
                     config={editorConfig}
-					onReady={setEditor}
-					onChange={event => {onChange(editor.getData())}}
+					onReady={editor => {editor.enableReadOnlyMode("asd")}}
                 />}</div>
             </div>
         </div>

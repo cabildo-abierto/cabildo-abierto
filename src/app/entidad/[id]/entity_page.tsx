@@ -1,12 +1,12 @@
 "use client"
 import { updateEntityContent } from "@/actions/create-entity"
-import MyEditor from "@/components/editor/editor"
-import { ReadOnlyEditor } from "@/components/editor/readonly_editor"
+import MarkdownContent from "@/components/markdown-content"
 import { useState } from "react"
+import TextareaAutosize from 'react-textarea-autosize';
 
 
 const EntityPage = ({entity}) => {
-    const [content, setContent] = useState(JSON.parse(entity.text))
+    const [content, setContent] = useState(entity.text)
     const [pushedContent, setPushedContent] = useState(content)
     const [modify, setModify] = useState(false)
 
@@ -27,28 +27,24 @@ const EntityPage = ({entity}) => {
                 {entity.name}
             </h1>
 
-            <div className="flex justify-between items-center px-2 py-2">
+            <div className="flex justify-center items-center px-2 py-2">
                 <div>
                 <button 
                     className="ml-3 py-2 px-4 rounded transition duration-200 bg-gray-200 hover:bg-gray-300 cursor-pointer"
-                    onClick={handleEdit}>{modify ? "Cancelar" : "Activar edición"}
+                    onClick={handleEdit}>{modify ? "Cancelar" : "Editar"}
                 </button>
-
                 {modify && <button className="ml-3 py-2 px-4 rounded transition duration-200 bg-gray-200 hover:bg-gray-300 cursor-pointer" onClick={handleSave}>Guardar</button>}
                 </div>
-            
             </div>
             
         </div>
         <div className="px-2 mb-2">
-        {modify ? <MyEditor
-                initialValue={content}
-                onChange={(value) => {setContent(value); console.log(value)}}
-            /> : 
-            <ReadOnlyEditor
-                initialValue={content}
-                onCommentClick={() => {}}
-            />}
+        {modify ? <TextareaAutosize 
+            className="w-full border-0 focus:outline-none px-1 py-1 resize-none"
+            value={content}
+            onChange={(e) => {setContent(e.target.value)}}
+        /> : 
+        <MarkdownContent content={content}/>}
         </div>
     </>
 }

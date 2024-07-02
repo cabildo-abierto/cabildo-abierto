@@ -6,9 +6,8 @@ import { createComment } from "@/actions/create-comment";
 import { useRouter } from "next/navigation";
 import { addDislike, addLike } from "@/actions/likes";
 import Image from 'next/image';
-
-import { withReact } from 'slate-react';
-import { TinyEditor, ReadOnlyTinyEditor } from "./tiny-editor";
+import dynamic from "next/dynamic";
+const ReadOnlyEditor = dynamic( () => import( '@/components/editor/read-only-editor' ), { ssr: false } );
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -30,7 +29,7 @@ export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}
 
 
 export const ContentText: React.FC<{content: ContentProps, isMainContent: boolean, onCommentClick: any}> = ({content, isMainContent, onCommentClick}) => {
-    return <ReadOnlyTinyEditor initialValue={content.text}/> // onCommentClick={onCommentClick}/>
+    return <ReadOnlyEditor content={JSON.parse(content.text)}/>
 }
 
 export function getDate(content: ContentProps): string {

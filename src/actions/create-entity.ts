@@ -36,7 +36,7 @@ export async function createEntity(state: CreateEntityFormState, formData) {
   const entity = await db.entity.create({
     data: {
       name: name,
-      text: JSON.stringify(emptyInitialValue)
+      text: ""
     }
   })
 
@@ -49,7 +49,7 @@ export async function updateEntityContent(content, id){
             id: id,
         },
         data: {
-            text: JSON.stringify(content),
+            text: content,
         },
     })
 }
