@@ -24,13 +24,13 @@ function EntityPopup() {
         <form action={action}>
           <div className="space-y-3">
             <div>
-              <AuthenticationFormLabel text="Nombre de la entidad" label="name" />
               <input
                 className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"
                 type="text"
                 id="name"
                 name="name"
                 defaultValue=""
+                placeholder="Título"
               />
             </div>
             {state?.errors?.name && (

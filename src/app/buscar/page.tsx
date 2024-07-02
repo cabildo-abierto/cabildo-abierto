@@ -12,7 +12,7 @@ import { EntityProps } from "@/actions/get-entity";
 export const UserSearchResult: React.FC<{result: UserProps | EntityProps, isEntity: boolean}> = ({result, isEntity}) => {
     const className = "hover:scale-125 transition transform ease-in-out px-1"
     
-    return <div className="border rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
+    return <div style={{fontFamily: "Lato"}} className="border rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
         <Link 
             href={(isEntity ? "/entidad/" : "/profile/") + result.id}
             className={className}>

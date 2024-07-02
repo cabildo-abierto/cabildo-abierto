@@ -35,8 +35,7 @@ model Entity {
 enum ContentType {
   Comment
   Post
-  Opinion
-  Discussion
+  FastPost
 }
 
 

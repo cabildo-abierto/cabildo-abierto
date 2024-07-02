@@ -39,7 +39,7 @@ import {
 import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
 
-export default function Editor({content}) {
+export default function ReadOnlyEditor({content}) {
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);

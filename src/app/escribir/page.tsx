@@ -34,7 +34,7 @@ const Escribir: React.FC = () => {
   const router = useRouter();
 
   const handleCreate = async () => {
-    const success = await createPost(JSON.stringify(content))
+    const success = await createPost(content)
     if (success) {
       router.push("/")
     }

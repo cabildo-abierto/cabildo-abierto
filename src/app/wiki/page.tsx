@@ -9,9 +9,9 @@ const TopicsPage: React.FC = async () => {
 
     return (
         <div className="w-full">
-            <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
+            <h2 className="ml-2 py-8">
                 República Argentina
-            </h1>
+            </h2>
             <div className="px-4 w-full">
             {entities.map((entity, index) => (
                 <div key={index} className="mb-2 flex justify-center w-full">

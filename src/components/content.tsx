@@ -7,7 +7,9 @@ import { useRouter } from "next/navigation";
 import { addDislike, addLike } from "@/actions/likes";
 import Image from 'next/image';
 import dynamic from "next/dynamic";
+import FastEditor from "./editor/fast-editor";
 const ReadOnlyEditor = dynamic( () => import( '@/components/editor/read-only-editor' ), { ssr: false } );
+const ReadOnlyFastEditor = dynamic( () => import( '@/components/editor/read-only-fast-editor' ), { ssr: false } );
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -18,7 +20,7 @@ export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
 
 export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}) => {
     const date = getDate(content)
-    return <div className="flex justify-between mb-2">
+    return <div className="flex justify-between">
         <p className="text-gray-600 ml-2 text-sm">
             <Link className="hover:text-gray-900"
                   href={"/profile/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
@@ -29,7 +31,9 @@ export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}
 
 
 export const ContentText: React.FC<{content: ContentProps, isMainContent: boolean, onCommentClick: any}> = ({content, isMainContent, onCommentClick}) => {
-    return <ReadOnlyEditor content={JSON.parse(content.text)}/>
+    return (content.type == "FastPost") ? 
+    <ReadOnlyFastEditor content={content.text}/> :
+    <ReadOnlyEditor content={content.text}/>
 }
 
 export function getDate(content: ContentProps): string {
@@ -58,7 +62,6 @@ type SelectionCitation = {
 
 const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}> = ({content, isMainContent}) => {
     const [writingComment, setWritingComment] = useState(false)
-    const [writingOpinion, setWritingOpinion] = useState(false)
     const [comment, setComment] = useState('')
     const [replyTo, setReplyTo] = useState<SelectionCitation>(null)
 
@@ -68,17 +71,14 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
 
     const handleCancelComment = () => {
         setWritingComment(false)
-        setWritingOpinion(false)
     }
 
     const handleAddCommentClick = () => {
-        setWritingOpinion(false)
         setWritingComment(true)
     }
 
     const handleAddOpinionClick = () => {
         setWritingComment(false)
-        setWritingOpinion(true)
     }
 
     const handleAddComment = async () => {
@@ -86,7 +86,6 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
             await createComment(comment, replyTo, content.id)
         }
         setWritingComment(false)
-        setWritingOpinion(false)
         router.refresh()
     }
 
@@ -142,14 +141,13 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
                 </div>
             </div>
         </div>
-        {(writingComment || writingOpinion) ? <div>
-            <div className="px-1 mt-1">
+        {writingComment && <div>
+            <div className="px-1 mt-1 ml-2 mb-2">
             {replyTo &&
                 <p className="py-2 px-2 text-sm">En respuesta a: <span className="text-gray-500 italic">{replyTo.text}</span></p>
             }
-            <TinyEditor
-                value={comment}
-                onEditorChange={setComment}
+            <FastEditor
+                onChange={setComment}
             />
             </div>
             <div className="flex justify-end">
@@ -158,7 +156,7 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
                     <button onClick={handleAddComment} className="mr-2 text-gray-600 text-sm hover:text-gray-800">{writingComment ? "Enviar" : "Enviar"}</button>
                 </div>
             </div>
-        </div> : <></>}
+        </div>}
     </>
 };
 

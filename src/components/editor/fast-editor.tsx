@@ -119,7 +119,7 @@ export default function FastEditor({onChange}) {
 	};
 
 	return (
-		<div ref={editorRef}>{isLayoutReady && 
+		<div ref={editorRef} className="ml-4">{isLayoutReady && 
 		<CKEditor
 			editor={BalloonEditor}
 			config={editorConfig}

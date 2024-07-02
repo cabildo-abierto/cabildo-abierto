@@ -39,12 +39,11 @@ import {
 import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
 
-export default function Editor({onChange}) {
-    const [editor, setEditor] = useState(null);
+export default function ReadOnlyFastEditor({content}) {
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
-
+	console.log(content)
 	useEffect(() => {
 		setIsLayoutReady(true);
 
@@ -52,31 +51,6 @@ export default function Editor({onChange}) {
 	}, []);
 
 	const editorConfig = {
-		toolbar: {
-			items: [
-				'undo',
-				'redo',
-				'|',
-				'selectAll',
-				'|',
-				'heading',
-				'|',
-				'bold',
-				'italic',
-				'underline',
-				'strikethrough',
-				'|',
-				'specialCharacters',
-				'horizontalLine',
-				'link',
-				'insertTable',
-				'blockQuote',
-			],
-			shouldNotGroupWhenFull: false
-		},
-        title: {
-            placeholder: 'Título'
-        },
 		plugins: [
 			AccessibilityHelp,
 			Autoformat,
@@ -105,58 +79,11 @@ export default function Editor({onChange}) {
 			TableColumnResize,
 			TableProperties,
 			TableToolbar,
-			Title,
 			Underline,
 			Undo
 		],
-		blockToolbar: ['bold', 'italic', '|', 'link', 'insertTable'],
-		heading: {
-			options: [
-				{
-					model: 'paragraph',
-					title: 'Paragraph',
-					class: 'ck-heading_paragraph'
-				},
-				{
-					model: 'heading1',
-					view: 'h1',
-					title: 'Heading 1',
-					class: 'ck-heading_heading1'
-				},
-				{
-					model: 'heading2',
-					view: 'h2',
-					title: 'Heading 2',
-					class: 'ck-heading_heading2'
-				},
-				{
-					model: 'heading3',
-					view: 'h3',
-					title: 'Heading 3',
-					class: 'ck-heading_heading3'
-				},
-				{
-					model: 'heading4',
-					view: 'h4',
-					title: 'Heading 4',
-					class: 'ck-heading_heading4'
-				},
-				{
-					model: 'heading5',
-					view: 'h5',
-					title: 'Heading 5',
-					class: 'ck-heading_heading5'
-				},
-				{
-					model: 'heading6',
-					view: 'h6',
-					title: 'Heading 6',
-					class: 'ck-heading_heading6'
-				}
-			]
-		},
 		initialData:
-			'',
+			content,
 		link: {
 			addTargetToExternalLinks: true,
 			defaultProtocol: 'https://',
@@ -170,22 +97,21 @@ export default function Editor({onChange}) {
 				}
 			}
 		},
-		placeholder: 'Tu publicación va acá',
-		table: {
-			contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
-		},
         translations: [
             coreTranslations
         ]
 	};
 
 	return (
-		<div ref={editorRef} className="ml-4">{isLayoutReady && 
-		<CKEditor
-			editor={BalloonEditor}
-			config={editorConfig}
-			onReady={setEditor}
-			onChange={event => {onChange(editor.getData())}}
-		/>}</div>
+        <div className="editor-container editor-container_balloon-editor editor-container_include-block-toolbar" ref={editorContainerRef}>
+            <div className="editor-container__editor">
+                <div ref={editorRef}>{isLayoutReady && 
+                <CKEditor
+                    editor={BalloonEditor}
+                    config={editorConfig}
+					onReady={editor => {editor.enableReadOnlyMode("asd")}}
+                />}</div>
+            </div>
+        </div>
 	);
 }
