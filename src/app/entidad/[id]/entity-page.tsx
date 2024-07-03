@@ -1,6 +1,7 @@
 "use client"
 import { updateEntityContent } from "@/actions/create-entity"
 import { getEntityById } from "@/actions/get-entity";
+import MarkdownContent from "@/components/editor/ckeditor-markdown-content";
 import MarkdownEditor from "@/components/editor/markdown-editor";
 import ReadOnlyMarkdownEditor from "@/components/editor/read-only-markdown-editor";
 import { useEffect, useState } from "react"
@@ -45,7 +46,7 @@ const EntityPage = ({entity}) => {
                 </div>
 
                 <div className="px-2">
-                    <ReadOnlyMarkdownEditor content={content}/>
+                    <MarkdownContent content={content}/>
                 </div>
             </>
         }

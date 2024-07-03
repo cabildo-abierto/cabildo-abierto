@@ -6,11 +6,8 @@ import { createComment } from "@/actions/create-comment";
 import { useRouter } from "next/navigation";
 import { addDislike, addLike } from "@/actions/likes";
 import Image from 'next/image';
-import dynamic from "next/dynamic";
-import FastEditor from "./editor/fast-editor";
 import CommentEditor from "./editor/comment-editor";
-const ReadOnlyEditor = dynamic( () => import( '@/components/editor/read-only-editor' ), { ssr: false } );
-const ReadOnlyFastEditor = dynamic( () => import( '@/components/editor/read-only-fast-editor' ), { ssr: false } );
+import HtmlContent from "./editor/ckeditor-html-content";
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -33,12 +30,15 @@ export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}
 
 export const ContentText: React.FC<{content: ContentProps, isMainContent: boolean, onCommentClick: any}> = ({content, isMainContent, onCommentClick}) => {
     if(content.type == "FastPost" || content.type == "Comment") {
-        return <ReadOnlyFastEditor content={content.text}/>
+        return <HtmlContent content={content.text}/>
     } else if(content.type == "Post") {
         if(isMainContent){
-            return <ReadOnlyEditor content={content.text}/>
+            return <HtmlContent content={content.text}/>
         } else {
-            return <ReadOnlyFastEditor content={"Post: " + content.text.split("</h1>")[0].split("<h1>")[1]}/>
+            return <div className="flex">
+                <span className="mr-4">Publicación:</span>
+                <HtmlContent content={content.text.split("</h1>")[0].split("<h1>")[1]}/>
+            </div>
         }
     } else {
         return <>Tipo de contenido desconocido</>
@@ -121,7 +121,9 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
         <div className={isMainContent ? "border-b border-t" : "border rounded"}
         >
             <ContentTopRow content={content}/>
-            <ContentText content={content} isMainContent={isMainContent} onCommentClick={onSelectionComment}/>
+            <div className="px-2">
+                <ContentText content={content} isMainContent={isMainContent} onCommentClick={onSelectionComment}/>
+            </div>
             <div className="flex justify-between px-1">
                 <div>
                     <AddCommentButton text="Responder" onClick={handleAddCommentClick}/>
