@@ -46,7 +46,7 @@ import translations from 'ckeditor5/translations/es.js';
 import 'ckeditor5/ckeditor5.css';
 import './markdown-editor.css';
 
-export default function MarkdownEditor({initialData, onChange}) {
+export default function MarkdownEditor({initialData, onSubmit}) {
     const [editor, setEditor] = useState(null);
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
@@ -65,7 +65,6 @@ export default function MarkdownEditor({initialData, onChange}) {
 				'redo',
 				'|',
 				'sourceEditing',
-				'selectAll',
 				'|',
 				'heading',
 				'|',
@@ -73,7 +72,6 @@ export default function MarkdownEditor({initialData, onChange}) {
 				'italic',
 				'underline',
 				'strikethrough',
-				'removeFormat',
 				'|',
 				'specialCharacters',
 				'horizontalLine',
@@ -82,9 +80,7 @@ export default function MarkdownEditor({initialData, onChange}) {
 				'blockQuote',
 				'|',
 				'bulletedList',
-				'numberedList',
-				'|',
-				'accessibilityHelp'
+				'numberedList'
 			],
 			shouldNotGroupWhenFull: false
 		},
@@ -208,14 +204,22 @@ export default function MarkdownEditor({initialData, onChange}) {
 	return (
         <div className="editor-container editor-container_classic-editor editor-container_include-block-toolbar" ref={editorContainerRef}>
             <div className="editor-container__editor">
-                <div ref={editorRef} className="ml-4">{isLayoutReady &&
+                <div ref={editorRef} className="ml-6">{isLayoutReady &&
 				<CKEditor
 					editor={ClassicEditor}
 					config={editorConfig}
 					onReady={setEditor}
-					onChange={event => {onChange(editor.getData())}}
 				/>}</div>
             </div>
+
+			<div className="flex justify-end mt-3">
+			<button
+				onClick={() => {onSubmit(editor.getData())}}
+				className="py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+			>
+				Publicar
+			</button>
+			</div>
         </div>
 	);
 }

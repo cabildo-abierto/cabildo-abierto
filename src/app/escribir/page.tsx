@@ -4,10 +4,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { createPost } from '@/actions/create-comment'
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import FastEditor from "@/components/editor/fast-editor";
 
 
-const Editor = dynamic( () => import( '@/components/editor/editor' ), { ssr: false } );
+const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
+const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), { ssr: false } );
 
 
 const PostSelector = ({setSelection}) => {
@@ -29,19 +29,15 @@ const PostSelector = ({setSelection}) => {
 
 
 const Escribir: React.FC = () => {
-  const [content, setContent] = useState("");
   const [selection, setSelection] = useState("publicación rápida");
   const router = useRouter();
 
-  const handleCreate = async () => {
-    const success = await createPost(content)
+  const handleCreate = async (content) => {
+    const contentType = selection == "publicación" ? "Post" : "FastPost"
+    const success = await createPost(content, contentType)
     if (success) {
       router.push("/")
     }
-  }
-
-  const isEmpty = (value) => {
-      return value.length == 0
   }
 
   return (
@@ -49,23 +45,13 @@ const Escribir: React.FC = () => {
       <div className="flex flex-col w-full px-5 mt-8">
         <PostSelector setSelection={setSelection}/>
         {selection == "publicación" ?
-          <Editor
-            onChange={setContent}
+          <PostEditor
+            onSubmit={handleCreate}
           /> : 
           <FastEditor
-            onChange={setContent}
+            onSubmit={handleCreate}
           />
         }
-        <div className="flex justify-end mt-3">
-          <button
-            onClick={handleCreate}
-            disabled={isEmpty(content)}
-            className={`py-2 px-4 rounded font-bold transition duration-200 ${isEmpty(content) ? "bg-gray-200 text-gray-500" : "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-              }`}
-          >
-            Publicar
-          </button>
-        </div>
       </div>
     </div>
   );

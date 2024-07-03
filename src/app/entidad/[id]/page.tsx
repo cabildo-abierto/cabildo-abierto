@@ -1,6 +1,6 @@
 import { EntityProps, getEntityById } from "@/actions/get-entity";
 import React from "react"
-import EntityPage from "./entity_page";
+import EntityPage from "./entity-page";
 
 const Tema: React.FC = async ({params}) => {
 

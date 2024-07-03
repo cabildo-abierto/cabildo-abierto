@@ -31,9 +31,17 @@ export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}
 
 
 export const ContentText: React.FC<{content: ContentProps, isMainContent: boolean, onCommentClick: any}> = ({content, isMainContent, onCommentClick}) => {
-    return (content.type == "FastPost") ? 
-    <ReadOnlyFastEditor content={content.text}/> :
-    <ReadOnlyEditor content={content.text}/>
+    if(content.type == "FastPost" || content.type == "Comment") {
+        return <ReadOnlyFastEditor content={content.text}/>
+    } else if(content.type == "Post") {
+        if(isMainContent){
+            return <ReadOnlyEditor content={content.text}/>
+        } else {
+            return <ReadOnlyFastEditor content={"Post: " + content.text.split("</h1>")[0].split("<h1>")[1]}/>
+        }
+    } else {
+        return <>Tipo de contenido desconocido</>
+    }
 }
 
 export function getDate(content: ContentProps): string {
@@ -101,7 +109,6 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
     
     const onSelectionComment = async (editor, selection) => {
         setWritingComment(true)
-        setWritingOpinion(false)
         setReplyTo({
             text: Editor.string(editor, selection),
             start: selection.anchor.offset,
@@ -110,7 +117,7 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
     }
 
     return <>
-        <div className={isMainContent ? "border-4 border-gray-300 rounded" : "border-b border-t"}
+        <div className={isMainContent ? "border-b border-t" : "border-b border-t"}
         >
             <ContentTopRow content={content}/>
             <ContentText content={content} isMainContent={isMainContent} onCommentClick={onSelectionComment}/>
@@ -147,7 +154,7 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
                 <p className="py-2 px-2 text-sm">En respuesta a: <span className="text-gray-500 italic">{replyTo.text}</span></p>
             }
             <FastEditor
-                onChange={setComment}
+                onSubmit={handleAddComment}
             />
             </div>
             <div className="flex justify-end">

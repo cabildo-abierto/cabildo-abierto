@@ -39,7 +39,7 @@ import {
 import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
 
-export default function FastEditor({onChange}) {
+export default function FastEditor({onSubmit}) {
     const [editor, setEditor] = useState(null);
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
@@ -119,12 +119,22 @@ export default function FastEditor({onChange}) {
 	};
 
 	return (
-		<div ref={editorRef} className="ml-4">{isLayoutReady && 
-		<CKEditor
-			editor={BalloonEditor}
-			config={editorConfig}
-			onReady={setEditor}
-			onChange={event => {onChange(editor.getData())}}
-		/>}</div>
+		<div ref={editorRef} className="ml-4">
+			{isLayoutReady && 
+			<CKEditor
+				editor={BalloonEditor}
+				config={editorConfig}
+				onReady={setEditor}
+			/>}
+		
+			<div className="flex justify-end mt-3">
+			<button
+				onClick={() => {onSubmit(editor.getData())}}
+				className="py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+			>
+				Publicar
+			</button>
+			</div>
+		</div>
 	);
 }

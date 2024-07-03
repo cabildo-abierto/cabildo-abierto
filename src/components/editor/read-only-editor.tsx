@@ -44,6 +44,8 @@ export default function ReadOnlyEditor({content}) {
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
 
+	console.log("ReadOnlyEditor post", content)
+
 	useEffect(() => {
 		setIsLayoutReady(true);
 

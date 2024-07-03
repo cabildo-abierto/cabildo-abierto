@@ -36,7 +36,8 @@ export async function createEntity(state: CreateEntityFormState, formData) {
   const entity = await db.entity.create({
     data: {
       name: name,
-      text: ""
+      text: "",
+      id: encodeURI(name)
     }
   })
 
@@ -44,7 +45,7 @@ export async function createEntity(state: CreateEntityFormState, formData) {
 }
 
 export async function updateEntityContent(content, id){
-    await db.entity.update({
+    return await db.entity.update({
         where: {
             id: id,
         },

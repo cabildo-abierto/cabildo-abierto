@@ -10,13 +10,13 @@ const ContentPage: React.FC<{params: any}> = async ({params}) => {
     }
 
     const comments = await getContentComments(parentContent.id)
-    const title = {"Comment": "Comentario", "Discussion": "Discusión", "Post": "Publicación", "Opinion": "Opinion"}[parentContent.type]
+    const title = {"FastPost": "Publicación","Comment": "Comentario", "Discussion": "Discusión", "Post": "Publicación", "Opinion": "Opinion"}[parentContent.type]
 
     return <div className="">
         <div className="flex flex-col border-l border-r h-full">
-            <h1 className="text-2xl ml-2 py-8 font-semibold">
+            <h2 className="ml-2 py-8">
                 {title}
-            </h1>
+            </h2>
             <div className="mt-8">
                 <ContentComponent content={parentContent} isMainContent={true}/>
             </div>
