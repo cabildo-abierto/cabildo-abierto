@@ -5,9 +5,12 @@ import { ContentProps } from "@/actions/get-comment";
 import { createComment } from "@/actions/create-comment";
 import { useRouter } from "next/navigation";
 import { addDislike, addLike } from "@/actions/likes";
-import Image from 'next/image';
+
 import CommentEditor from "./editor/comment-editor";
 import HtmlContent from "./editor/ckeditor-html-content";
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
+import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -131,21 +134,21 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
                 </div>
 
                 <div className="flex justify-between">
-                    <div className="flex justify-between px-3">
+                    <div className="flex justify-between items-center px-3">
                         <button onClick={handleLike} className="text-sm mr-1">
-                            <Image src="/thumbs-up.png" width={16} height={16} alt={"thumbs up"}/>
+                            <ThumbUpOutlinedIcon sx={{ fontSize: 18 }}/>
                         </button>
                         <div className="text-gray-600 text-sm">{like_count}</div>
                     </div>
-                    <div className="flex justify-between px-3">
+                    <div className="flex justify-between items-center px-3">
                         <button onClick={handleDislike} className="text-sm mr-1">
-                            <Image src="/thumbs-down.png" width={16} height={16} alt={"thumbs down"}/>
+                            <ThumbDownOutlinedIcon sx={{ fontSize: 18 }}/>
                         </button>
                         <div className="text-gray-600 text-sm">{dislike_count}</div>
                     </div>
                     <div className="flex justify-between px-3">
                         <Link className="text-gray-600 text-sm hover:text-gray-800 ml-2" href={"/content/" + content.id}>
-                            💬 {content._count.childrenComments}
+                            <CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content._count.childrenComments}
                         </Link>
                     </div>
                 </div>

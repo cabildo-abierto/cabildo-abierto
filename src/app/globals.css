@@ -37,3 +37,20 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 	color: #ff0050;
 	font-size: 17px;
 }
+
+.transparent-button {
+	background-color: transparent;
+	color: gray;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.round-background {
+	border-radius: 50%;
+	padding: 7px 7px;
+}
+
+.transparent-button:hover {
+	background-color: rgb(193, 193, 193);
+}
