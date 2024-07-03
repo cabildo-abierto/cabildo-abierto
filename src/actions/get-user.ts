@@ -63,7 +63,7 @@ export async function getUserActivityById(userId: string){
                     },
                     {
                         OR: [
-                            {type: "Discussion"},
+                            {type: "FastPost"},
                             {type: "Post"}
                         ]
                     }
