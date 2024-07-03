@@ -8,6 +8,7 @@ import { addDislike, addLike } from "@/actions/likes";
 import Image from 'next/image';
 import dynamic from "next/dynamic";
 import FastEditor from "./editor/fast-editor";
+import CommentEditor from "./editor/comment-editor";
 const ReadOnlyEditor = dynamic( () => import( '@/components/editor/read-only-editor' ), { ssr: false } );
 const ReadOnlyFastEditor = dynamic( () => import( '@/components/editor/read-only-fast-editor' ), { ssr: false } );
 
@@ -149,21 +150,17 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
             </div>
         </div>
         {writingComment && <div>
-            <div className="px-1 mt-1 ml-2 mb-2">
-            {replyTo &&
-                <p className="py-2 px-2 text-sm">En respuesta a: <span className="text-gray-500 italic">{replyTo.text}</span></p>
-            }
-            <FastEditor
-                onSubmit={handleAddComment}
-            />
+            <div className="mt-1 mb-2">
+                {replyTo &&
+                    <p className="py-2 px-2 text-sm">En respuesta a: <span className="text-gray-500 italic">{replyTo.text}</span></p>
+                }
+                <CommentEditor
+                    onSubmit={handleAddComment}
+                    onCancel={handleCancelComment}
+                />
             </div>
-            <div className="flex justify-end">
-                <div>
-                    <button onClick={handleCancelComment} className="mr-2 text-gray-600 text-sm hover:text-gray-800">Cancelar</button>
-                    <button onClick={handleAddComment} className="mr-2 text-gray-600 text-sm hover:text-gray-800">{writingComment ? "Enviar" : "Enviar"}</button>
-                </div>
-            </div>
-        </div>}
+        </div>
+        }
     </>
 };
 

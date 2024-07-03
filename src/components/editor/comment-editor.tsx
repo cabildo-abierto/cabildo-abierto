@@ -39,7 +39,7 @@ import {
 import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
 
-export default function FastEditor({onSubmit}) {
+export default function CommentEditor({onSubmit, onCancel}) {
     const [editor, setEditor] = useState(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -97,6 +97,12 @@ export default function FastEditor({onSubmit}) {
         ]
 	};
 
+	function handleSubmit(){
+		const data = editor.getData()
+		if(data.length == 0) return
+		onSubmit(data)
+	}
+
 	return <div ref={editorRef} className="">
 		{isLayoutReady && 
 		<CKEditor
@@ -104,14 +110,27 @@ export default function FastEditor({onSubmit}) {
 			config={editorConfig}
 			onReady={setEditor}
 		/>}
-	
-		<div className="flex justify-end mt-3">
-		<button
-			onClick={() => {onSubmit(editor.getData())}}
-			className="py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-		>
-			Publicar
-		</button>
+
+
+		<div className="flex justify-end">
+			<div className="flex justify-end mt-3">
+				<div className="px-1">
+					<button
+						onClick={handleSubmit}
+						className="mr-2 text-gray-600 text-sm hover:text-gray-800"
+					>
+						Enviar
+					</button>
+				</div>
+				<div className="px-1">
+					<button
+						onClick={onCancel}
+						className="mr-2 text-gray-600 text-sm hover:text-gray-800"
+					>
+						Cancelar
+					</button>
+				</div>
+			</div>
 		</div>
 	</div>
 }
