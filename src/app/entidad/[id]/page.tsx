@@ -9,7 +9,7 @@ const Tema: React.FC = async ({params}) => {
         return <>Entidad no encontrada.</>
     }
 
-    return <div className="mx-auto max-w-4xl bg-white border-l border-r h-full">
+    return <div className="mx-auto max-w-4xl bg-white h-full">
         <EntityPage entity={entity}/>
     </div>
 }

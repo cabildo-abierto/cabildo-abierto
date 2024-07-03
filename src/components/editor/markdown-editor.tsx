@@ -204,7 +204,7 @@ export default function MarkdownEditor({initialData, onSubmit}) {
 	return (
         <div className="editor-container editor-container_classic-editor editor-container_include-block-toolbar" ref={editorContainerRef}>
             <div className="editor-container__editor">
-                <div ref={editorRef} className="ml-6">{isLayoutReady &&
+                <div ref={editorRef} className="">{isLayoutReady &&
 				<CKEditor
 					editor={ClassicEditor}
 					config={editorConfig}

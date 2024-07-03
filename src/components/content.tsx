@@ -117,7 +117,7 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
     }
 
     return <>
-        <div className={isMainContent ? "border-b border-t" : "border-b border-t"}
+        <div className={isMainContent ? "border-b border-t" : "border rounded"}
         >
             <ContentTopRow content={content}/>
             <ContentText content={content} isMainContent={isMainContent} onCommentClick={onSelectionComment}/>

@@ -180,7 +180,7 @@ export default function PostEditor({onSubmit}) {
 	};
 
 	return (
-		<div ref={editorRef} className="ml-4">{isLayoutReady && 
+		<div ref={editorRef} className="">{isLayoutReady && 
 		<CKEditor
 			editor={BalloonEditor}
 			config={editorConfig}

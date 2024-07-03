@@ -1,7 +1,7 @@
 import "@/app/globals.css";
-import WikiLayout from "@/components/wiki-layout";
+import MainLayout from "@/components/main-layout";
 
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  return <WikiLayout children={children}/>
+  return <MainLayout children={children}/>
 }

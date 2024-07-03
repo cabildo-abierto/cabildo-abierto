@@ -13,7 +13,7 @@ const ContentPage: React.FC<{params: any}> = async ({params}) => {
     const title = {"FastPost": "Publicación","Comment": "Comentario", "Discussion": "Discusión", "Post": "Publicación", "Opinion": "Opinion"}[parentContent.type]
 
     return <div className="">
-        <div className="flex flex-col border-l border-r h-full">
+        <div className="flex flex-col h-full">
             <h2 className="ml-2 py-8">
                 {title}
             </h2>

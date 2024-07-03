@@ -43,10 +43,6 @@ function EntityPopup() {
     </div>
   )}
 
-  const OpenPopup = () => {
-    return <button>Crear entidad</button>
-  }
-
   return <Popup
     trigger={SidebarButton({text: "Crear entidad"})}
     modal

@@ -22,13 +22,11 @@ export const SidebarButton: React.FC<{text: string, href?: string, onClick?: any
         </div>
     </li>
     if(href){
-        console.log("Creando link a " + href)
-        return <Link href={href} className="text-semibold">
+        return <Link href={href} className="w-full">
             {list_item}
         </Link>
     } else {
-        console.log("Creando un botón")
-        return <button className="text-semibold" onClick={onClick}>
+        return <button className="w-full text-left" onClick={onClick}>
             {list_item}
         </button>
     }
@@ -37,32 +35,13 @@ export const SidebarButton: React.FC<{text: string, href?: string, onClick?: any
 
 export default function Sidebar({user}) {
 
-    return <div className="h-screen flex flex-col mr-4">
-    <ul className="flex-1 mt-4">
-        <FeedButton/>
-        <SidebarButton text="Inicio" href="/feed"/>
-        <SidebarButton text="Escribir" href="/escribir"/>
-        <SidebarButton text="Buscar" href="/buscar"/>
-        <SidebarButton text="Wiki" href="/estado"/>
-        <EntityPopup/>
-    </ul>
-    <div className="mt-auto">
-        <ul>
-            <li className="mb-2">
-                <Link href={`/profile/${user?.id}`}
-                    className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-lg px-1`}>
-                    {user?.name}
-                </Link>
-            </li>
-            <li className="mb-2">
-                <form action={logout}>
-                    <button
-                        className="cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-gray-400 px-1">
-                        Cerrar sesión
-                    </button>
-                </form>
-            </li>
-            </ul>
-        </div>
+    return <div className="h-screen flex flex-col px-2 bg-white z-50 border-r">
+        <ul className="flex-1 mt-4">
+            <SidebarButton text="Inicio" href="/feed"/>
+            <SidebarButton text="Escribir" href="/escribir"/>
+            <SidebarButton text="Buscar" href="/buscar"/>
+            <SidebarButton text="Wiki" href="/wiki"/>
+            <EntityPopup/>
+        </ul>
     </div>
 }
