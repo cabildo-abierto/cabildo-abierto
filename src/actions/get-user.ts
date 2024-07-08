@@ -2,7 +2,7 @@
 
 import {db} from "@/db";
 import {verifySession} from "@/actions/auth";
-import { ContentProps, getContentWithLinks } from "./get-comment";
+import { ContentProps, getContentWithLinks } from "./get-content";
 import { getLikeState } from "./likes";
 
 

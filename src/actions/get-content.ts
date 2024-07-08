@@ -71,7 +71,7 @@ export async function getContentWithLinks(content: ContentProps): Promise<Conten
     async function replaceMention(match: string, username: string): Promise<string> {
         const user = await getUserIdByUsername(username)
         if (user) {
-            return `<a href="/profile/${user.id}" style="color: skyblue;">@${username}</a>`;
+            return `<a href="/perfil/${user.id}" style="color: skyblue;">@${username}</a>`;
         } else {
             return match
         }
@@ -113,7 +113,7 @@ export async function getContentComments(contentId: string){
     return comments
 }
 
-export async function getPostsAndDiscussions() {
+export async function getPosts() {
     let contents: ContentProps[] = await db.content.findMany({
         select: {
             id: true,

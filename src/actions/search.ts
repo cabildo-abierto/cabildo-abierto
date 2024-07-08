@@ -3,7 +3,7 @@
 import {db} from "@/db";
 import diceCoefficientDistance from "@/actions/dice-coefficient";
 import { UserProps } from "./get-user";
-import { ContentProps, ContentWithLinks, getPostsAndDiscussions } from "./get-comment";
+import { ContentProps, ContentWithLinks, getPosts } from "./get-content";
 import { EntityProps } from "./get-entity";
 
 export type UserSearchResult = {
@@ -79,7 +79,7 @@ export async function searchContents(value: string): Promise<ContentProps[]>{
 
     const dist = diceCoefficientDistance
 
-    const contents: ContentSearchResult[] = await getPostsAndDiscussions()
+    const contents: ContentSearchResult[] = await getPosts()
 
     const maxDist = dist(value, '')
     contents.forEach(function(item){

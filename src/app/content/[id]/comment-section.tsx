@@ -1,4 +1,4 @@
-import { ContentProps } from "@/actions/get-comment"
+import { ContentProps } from "@/actions/get-content"
 import ContentComponent from "@/components/content"
 
 

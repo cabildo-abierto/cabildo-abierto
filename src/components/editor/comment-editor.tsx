@@ -39,7 +39,7 @@ import {
 import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
 
-export default function CommentEditor({onSubmit, onCancel}) {
+export default function CommentEditor({onSubmit, onCancel=null}) {
     const [editor, setEditor] = useState(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -111,7 +111,6 @@ export default function CommentEditor({onSubmit, onCancel}) {
 			onReady={setEditor}
 		/>}
 
-
 		<div className="flex justify-end">
 			<div className="flex justify-end mt-3">
 				<div className="px-1">
@@ -122,14 +121,16 @@ export default function CommentEditor({onSubmit, onCancel}) {
 						Enviar
 					</button>
 				</div>
-				<div className="px-1">
-					<button
-						onClick={onCancel}
-						className="mr-2 text-gray-600 text-sm hover:text-gray-800"
-					>
-						Cancelar
-					</button>
-				</div>
+				{onCancel != null &&
+					<div className="px-1">
+						<button
+							onClick={onCancel}
+							className="mr-2 text-gray-600 text-sm hover:text-gray-800"
+						>
+							Cancelar
+						</button>
+					</div>
+				}
 			</div>
 		</div>
 	</div>

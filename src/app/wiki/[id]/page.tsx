@@ -1,6 +1,7 @@
 import { EntityProps, getEntityById } from "@/actions/get-entity";
 import React from "react"
 import EntityPage from "./entity-page";
+import { ThreeColumnsLayout } from "@/components/main-layout";
 
 const Tema: React.FC = async ({params}) => {
 
@@ -9,9 +10,11 @@ const Tema: React.FC = async ({params}) => {
         return <>Entidad no encontrada.</>
     }
 
-    return <div className="mx-auto max-w-4xl bg-white h-full">
+    const center = <div className="bg-white h-full">
         <EntityPage entity={entity}/>
     </div>
+
+    return <ThreeColumnsLayout center={center}/>
 }
 
 export default Tema

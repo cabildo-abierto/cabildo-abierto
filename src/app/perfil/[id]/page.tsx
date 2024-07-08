@@ -1,6 +1,7 @@
 import { getUserActivityById, getUserById, getUserIdByUsername } from "@/actions/get-user";
 import React from "react";
 import Feed from "@/components/feed";
+import { ThreeColumnsLayout } from "@/components/main-layout";
 
 
 const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
@@ -17,14 +18,17 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
     }
 
     const activity = await getUserActivityById(user.id);
-    return <div className="bg-white">
-        <div className="mx-auto max-w-4xl bg-white h-full">
-            <h1 className="text-2xl ml-2 py-8 font-semibold mb-8">
+
+    const center = <div className="bg-white">
+        <div className="bg-white h-full">
+            <h3 className="ml-2 py-8">
                 {user.name ? user.name : '@' + user.username}
-            </h1>
+            </h3>
             <Feed contents={activity}/>
         </div>
     </div>
+
+    return <ThreeColumnsLayout center={center}/>
 }
 
 export default UserProfile

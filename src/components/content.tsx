@@ -1,16 +1,19 @@
 "use client"
 import React, { useState } from "react";
 import Link from "next/link";
-import { ContentProps } from "@/actions/get-comment";
-import { createComment } from "@/actions/create-comment";
+import { ContentProps } from "@/actions/get-content"
+import { createComment } from "@/actions/create-content";
 import { useRouter } from "next/navigation";
 import { addDislike, addLike } from "@/actions/likes";
 
-import CommentEditor from "./editor/comment-editor";
 import HtmlContent from "./editor/ckeditor-html-content";
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
+
+import dynamic from 'next/dynamic';
+
+const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -24,7 +27,7 @@ export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}
     return <div className="flex justify-between">
         <p className="text-gray-600 ml-2 text-sm">
             <Link className="hover:text-gray-900"
-                  href={"/profile/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
+                  href={"/perfil/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
         </p>
         <p className="text-gray-600 text-sm mr-1">{date}</p>
     </div>
@@ -74,7 +77,6 @@ type SelectionCitation = {
 
 const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}> = ({content, isMainContent}) => {
     const [writingComment, setWritingComment] = useState(false)
-    const [comment, setComment] = useState('')
     const [replyTo, setReplyTo] = useState<SelectionCitation>(null)
 
     const router = useRouter()
@@ -93,9 +95,10 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
         setWritingComment(false)
     }
 
-    const handleAddComment = async () => {
+    const handleAddComment = async (comment) => {
         if(writingComment){
-            await createComment(comment, replyTo, content.id)
+            console.log("handle add comment", comment)
+            await createComment(comment, content.id)
         }
         setWritingComment(false)
         router.refresh()

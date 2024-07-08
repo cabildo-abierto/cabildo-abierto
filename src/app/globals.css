@@ -54,3 +54,7 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 .transparent-button:hover {
 	background-color: rgb(193, 193, 193);
 }
+
+.center-column {
+	width: 800px;
+}

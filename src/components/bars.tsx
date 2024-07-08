@@ -20,7 +20,7 @@ export default function Bars({user, sidebarWidth}) {
             </div>
             <button
                 className="fixed left-0 top-0 h-screen w-screen bg-gray-600 bg-opacity-50 z-10"
-                onClick={() => {console.log("Closing the sidebar"); setOpenSidebar(false)}}
+                onClick={() => {setOpenSidebar(false)}}
             >
             </button>
             </>

@@ -1,7 +1,7 @@
 import ContentComponent from "@/components/content";
 import React from "react";
 import CommentSection from "@/app/content/[id]/comment-section";
-import {getContentById, getContentComments} from "@/actions/get-comment";
+import {getContentById, getContentComments} from "@/actions/get-content";
 
 const ContentPage: React.FC<{params: any}> = async ({params}) => {
     const parentContent = await getContentById(params?.id)

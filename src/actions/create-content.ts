@@ -4,14 +4,6 @@ import {db} from "@/db";
 import {getUser} from "@/actions/get-user";
 import { ContentType } from "@prisma/client";
 
-async function createUnclaimedUser(username: string){
-    await db.user.create({
-        data: {
-        username: username
-        }
-    })
-}
-
 
 interface Connection {
     where: {
@@ -45,7 +37,7 @@ function findReferences(text: string): Connection[]{
 }
 
 
-export async function createComment(text: string, replyTo: string, parentContentId: string) {
+export async function createComment(text: string, parentContentId: string) {
     const author = await getUser()
     if(!author) return false
 

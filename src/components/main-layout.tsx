@@ -1,7 +1,21 @@
 import React from "react";
 import { getUser } from "@/actions/get-user";
 import Bars from "./bars";
-import Topbar from "./top-bar";
+
+
+export const ThreeColumnsLayout = ({left=null, center=null, right=null}) => {
+    return <div className="flex justify-center">
+        <div className="h-screen flex-1">
+            {left}
+        </div>
+        <div className="center-column">
+            {center}
+        </div>
+        <div className="h-screen flex-1">
+            {right}
+        </div>
+    </div>
+}
 
 
 const MainLayout: React.FC<{children: React.ReactNode}> = async ({children}) => {
@@ -14,11 +28,7 @@ const MainLayout: React.FC<{children: React.ReactNode}> = async ({children}) => 
 
     return <>
         <Bars user={user} sidebarWidth={sidebarWidth}/>
-        <div className="flex justify-center items-center">
-            <div className="" id="center" style={{ width: `${centerWidth}px` }}>
-                {children}
-            </div>
-        </div>
+        {children}
     </>
 };
 

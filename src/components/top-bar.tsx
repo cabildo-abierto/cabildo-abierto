@@ -3,7 +3,6 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import {logout} from "@/actions/auth";
-import EntityPopup from "@/app/entidad/entity-popup";
 import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -11,7 +10,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 function FeedButton() {
     return <div className="text-l font-bold text-gray-900 px-1 py-2">
-        <Link href={"/profile/cabildoabierto"} className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
+        <Link href={"/wiki/Cabildo Abierto"} className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
             Cabildo Abierto
         </Link>
     </div>
@@ -51,7 +50,7 @@ export default function Topbar({user, onOpenSidebar}) {
             {!searching && <SearchButton onClick={() => {setSearching(true)}}/>}
             
             <div className="px-2">
-                <Link href={`/profile/${user?.id}`}
+                <Link href={`/perfil/${user?.id}`}
                     className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide px-2`}>
                     {user?.name}
                 </Link>

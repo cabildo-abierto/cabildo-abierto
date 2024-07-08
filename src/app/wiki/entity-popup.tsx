@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { AuthenticationFormLabel } from '../signup-form';
 import { createEntity } from '@/actions/create-entity';
 import Popup from 'reactjs-popup';
 import styles from './Modal.module.css'
 import { SidebarButton } from '@/components/sidebar';
+import CloseIcon from '@mui/icons-material/Close';
 
 function EntityPopup() {
   const [state, action] = useFormState(createEntity, undefined);
@@ -18,7 +18,7 @@ function EntityPopup() {
             className="absolute top-2 right-2"
             onClick={close}
         >
-            ❌
+            <CloseIcon/>
         </button>
         <h1 className="text-2xl font-semibold mb-4">Crear entidad</h1>
         <form action={action}>
@@ -36,7 +36,7 @@ function EntityPopup() {
             {state?.errors?.name && (
               <div className="text-sm text-red-500">{state?.errors?.name.join(', ')}</div>
             )}
-            <CreateButton />
+            <CreateButton onClose={close}/>
           </div>
         </form>
       </div>
@@ -52,7 +52,7 @@ function EntityPopup() {
   </Popup>
 }
 
-export function CreateButton() {
+export function CreateButton({onClose}) {
     const {pending} = useFormStatus()
 
     return (

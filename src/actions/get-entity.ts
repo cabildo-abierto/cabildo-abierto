@@ -5,7 +5,6 @@ import {db} from "@/db";
 export type EntityProps = {
     id: string;
     name: string;
-    text: any;
 };
 
 export async function getEntityById(entityId: string): Promise<EntityProps | null> {
@@ -13,7 +12,11 @@ export async function getEntityById(entityId: string): Promise<EntityProps | nul
         {select: {
             id: true,
             name: true,
-            text: true
+            content: {
+                select: {
+                    text: true
+                }
+            }
         },
             where: {
                 id: entityId,
@@ -29,8 +32,12 @@ export async function getEntities(): Promise<EntityProps[]> {
         {
             select: {
                 id: true,
-                text: true,
-                name: true
+                name: true,
+                content: {
+                    select: {
+                        text: true
+                    }
+                }
             },
         }
     )
