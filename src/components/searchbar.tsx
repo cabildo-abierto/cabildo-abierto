@@ -18,7 +18,7 @@ export const UserSearchResult: React.FC<{ result: UserProps | EntityProps, isEnt
 
   return <div style={{ fontFamily: "Lato" }} className="flex justify-center w-64 border rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
     <Link
-      href={(isEntity ? "/entidad/" : "/perfil/") + result.id}
+      href={(isEntity ? "/wiki/" : "/perfil/") + result.id}
       className={className}>
       {result.name ? result.name : "@" + result.username}
     </Link>

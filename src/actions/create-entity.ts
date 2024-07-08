@@ -54,7 +54,7 @@ export async function createEntity(state: CreateEntityFormState, formData) {
     }
   })
 
-  redirect("/entidad/"+entity.id)
+  redirect("/wiki/"+entity.id)
 }
 
 export async function updateEntityContent(content, id) {
