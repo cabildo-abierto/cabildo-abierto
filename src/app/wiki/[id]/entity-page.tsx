@@ -60,7 +60,7 @@ const EntityCommentSection = ({entity}) => {
 
 
 const EntityPage = ({entity}) => {
-    const [content, setContent] = useState(entity.text)
+    const [content, setContent] = useState(entity.content.text)
     const [modify, setModify] = useState(false)
 
     const handleSave = async (content) => {

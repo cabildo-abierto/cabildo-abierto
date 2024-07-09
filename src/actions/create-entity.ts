@@ -9,18 +9,6 @@ import {
 import { getUser } from './get-user';
 
 
-const emptyInitialValue = [
-  {
-      type: 'paragraph',
-      children: [
-        {
-          text: ''
-        },
-      ],
-  },
-]
-
-
 export async function createEntity(state: CreateEntityFormState, formData) {
 
   const validatedFields = CreateEntityFormSchema.safeParse({
@@ -49,7 +37,7 @@ export async function createEntity(state: CreateEntityFormState, formData) {
   const entity = await db.entity.create({
     data: {
       name: name,
-      id: encodeURI(name),
+      id: encodeURI(name.replaceAll(" ", "_")),
       contentId: content.id
     }
   })

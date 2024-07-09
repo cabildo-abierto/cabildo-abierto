@@ -4,40 +4,12 @@ import coreTranslations from 'ckeditor5/translations/es.js';
 
 import {
 	BalloonEditor,
-	AccessibilityHelp,
-	Autoformat,
-	Autosave,
-	BlockQuote,
-	BlockToolbar,
-	Bold,
-	Essentials,
-	Heading,
-	HorizontalLine,
-	Italic,
-	Link,
-	Paragraph,
-	SelectAll,
-	SpecialCharacters,
-	SpecialCharactersArrows,
-	SpecialCharactersCurrency,
-	SpecialCharactersEssentials,
-	SpecialCharactersLatin,
-	SpecialCharactersMathematical,
-	SpecialCharactersText,
-	Strikethrough,
-	Table,
-	TableCaption,
-	TableCellProperties,
-	TableColumnResize,
-	TableProperties,
-	TableToolbar,
-	Title,
-	Underline,
-	Undo
 } from 'ckeditor5';
 
 import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
+import { fastEditorBlockToolbar, fastEditorPlugins } from './fast-editor';
+import { linkConfig } from './markdown-editor';
 
 export default function CommentEditor({onSubmit, onCancel=null}) {
     const [editor, setEditor] = useState(null);
@@ -51,46 +23,10 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
 	}, []);
 
 	const editorConfig = {
-		plugins: [
-			AccessibilityHelp,
-			Autoformat,
-			Autosave,
-			BlockQuote,
-			BlockToolbar,
-			Bold,
-			Essentials,
-			Heading,
-			HorizontalLine,
-			Italic,
-			Link,
-			Paragraph,
-			SelectAll,
-			SpecialCharacters,
-			SpecialCharactersArrows,
-			SpecialCharactersCurrency,
-			SpecialCharactersEssentials,
-			SpecialCharactersLatin,
-			SpecialCharactersMathematical,
-			SpecialCharactersText,
-			Strikethrough,
-			Underline,
-			Undo
-		],
-		blockToolbar: ['bold', 'italic', '|', 'link', 'insertTable'],
+		plugins: fastEditorPlugins,
+		blockToolbar: fastEditorBlockToolbar,
 		initialData: '',
-		link: {
-			addTargetToExternalLinks: true,
-			defaultProtocol: 'https://',
-			decorators: {
-				toggleDownloadable: {
-					mode: 'manual',
-					label: 'Downloadable',
-					attributes: {
-						download: 'file'
-					}
-				}
-			}
-		},
+		link: linkConfig,
 		placeholder: '...',
         translations: [
             coreTranslations

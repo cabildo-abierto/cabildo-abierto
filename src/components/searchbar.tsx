@@ -20,7 +20,7 @@ export const UserSearchResult: React.FC<{ result: UserProps | EntityProps, isEnt
     <Link
       href={(isEntity ? "/wiki/" : "/perfil/") + result.id}
       className={className}>
-      {result.name ? result.name : "@" + result.username}
+      {result.name ? result.name : result.id}
     </Link>
   </div>
 }

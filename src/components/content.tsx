@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ContentProps } from "@/actions/get-content"
 import { createComment } from "@/actions/create-content";
 import { useRouter } from "next/navigation";
-import { addDislike, addLike } from "@/actions/likes";
+import { addDislike, addLike, removeLike, removeDislike } from "@/actions/likes";
 
 import HtmlContent from "./editor/ckeditor-html-content";
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
@@ -17,24 +17,44 @@ const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
-    return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/content/" + content.id}>
+    return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/contenido/" + content.id}>
     {content._count.childrenComments} comentarios
     </Link>
 }
+
+
+const ReactionCounter = async ({icon, initialCount, isLiked, contentId}) => {
+    const [liked, setLiked] = useState(isLiked)
+
+    const likeCount = initialCount + liked
+
+    return <>
+        {liked ?
+            <button onClick={async () => {setLiked(false); await removeLike(contentId)}} className="text-sm mr-1">
+                {icon}               
+            </button> : 
+            <button onClick={async () => {setLiked(false); await removeLike(contentId)}} className="text-sm mr-1">
+                {icon}               
+            </button>
+        }
+        <div className="text-gray-600 text-sm">{likeCount}</div>
+    </>
+}
+
 
 export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}) => {
     const date = getDate(content)
     return <div className="flex justify-between">
         <p className="text-gray-600 ml-2 text-sm">
             <Link className="hover:text-gray-900"
-                  href={"/perfil/" + content.author?.id}>{content.author?.name} @{content.author?.username}</Link>
+                  href={"/perfil/" + content.author?.id.slice(1)}>{content.author?.name} {content.author?.id}</Link>
         </p>
         <p className="text-gray-600 text-sm mr-1">{date}</p>
     </div>
 }
 
 
-export const ContentText: React.FC<{content: ContentProps, isMainContent: boolean, onCommentClick: any}> = ({content, isMainContent, onCommentClick}) => {
+export const ContentText: React.FC<{content: ContentProps, isMainContent: boolean}> = ({content, isMainContent}) => {
     if(content.type == "FastPost" || content.type == "Comment") {
         return <HtmlContent content={content.text}/>
     } else if(content.type == "Post") {
@@ -47,6 +67,7 @@ export const ContentText: React.FC<{content: ContentProps, isMainContent: boolea
             </div>
         }
     } else {
+        console.log("El texto es", content.text)
         return <>Tipo de contenido desconocido</>
     }
 }
@@ -55,7 +76,7 @@ export function getDate(content: ContentProps): string {
     const options = {
         day: 'numeric',
         month: 'long',
-        year: content.createdAt.getFullYear() == (new Date()).getFullYear() ? undefined : 'numeric'
+        // to do: agregar año si no es el año actual
     };
 
     return content.createdAt.toLocaleDateString('es-AR', options)
@@ -69,19 +90,10 @@ export const AddCommentButton: React.FC<{text: string, onClick: () => void}> = (
     </button>
 }
 
-type SelectionCitation = {
-    text: string
-    start: number
-    end: number
-} | null
-
 const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}> = ({content, isMainContent}) => {
     const [writingComment, setWritingComment] = useState(false)
-    const [replyTo, setReplyTo] = useState<SelectionCitation>(null)
 
     const router = useRouter()
-    let like_count: Number = content._count.likedBy
-    let dislike_count: Number = content._count.dislikedBy
 
     const handleCancelComment = () => {
         setWritingComment(false)
@@ -97,38 +109,18 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
 
     const handleAddComment = async (comment) => {
         if(writingComment){
-            console.log("handle add comment", comment)
             await createComment(comment, content.id)
         }
         setWritingComment(false)
         router.refresh()
     }
 
-    const handleLike = async () => {
-        if(content.likeState == "liked") return
-        await addLike(content.id)
-    }
-
-    const handleDislike = async () => {
-        if(content.likeState == "disliked") return
-        await addDislike(content.id)
-    }
-    
-    const onSelectionComment = async (editor, selection) => {
-        setWritingComment(true)
-        setReplyTo({
-            text: Editor.string(editor, selection),
-            start: selection.anchor.offset,
-            end: selection.focus.offset
-        })
-    }
-
     return <>
-        <div className={isMainContent ? "border-b border-t" : "border rounded"}
+        <div className={isMainContent ? "border" : "border rounded"}
         >
             <ContentTopRow content={content}/>
             <div className="px-2">
-                <ContentText content={content} isMainContent={isMainContent} onCommentClick={onSelectionComment}/>
+                <ContentText content={content} isMainContent={isMainContent}/>
             </div>
             <div className="flex justify-between px-1">
                 <div>
@@ -137,20 +129,8 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
                 </div>
 
                 <div className="flex justify-between">
-                    <div className="flex justify-between items-center px-3">
-                        <button onClick={handleLike} className="text-sm mr-1">
-                            <ThumbUpOutlinedIcon sx={{ fontSize: 18 }}/>
-                        </button>
-                        <div className="text-gray-600 text-sm">{like_count}</div>
-                    </div>
-                    <div className="flex justify-between items-center px-3">
-                        <button onClick={handleDislike} className="text-sm mr-1">
-                            <ThumbDownOutlinedIcon sx={{ fontSize: 18 }}/>
-                        </button>
-                        <div className="text-gray-600 text-sm">{dislike_count}</div>
-                    </div>
                     <div className="flex justify-between px-3">
-                        <Link className="text-gray-600 text-sm hover:text-gray-800 ml-2" href={"/content/" + content.id}>
+                        <Link className="text-gray-600 text-sm hover:text-gray-800 ml-2" href={"/contenido/" + content.id}>
                             <CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content._count.childrenComments}
                         </Link>
                     </div>
@@ -159,9 +139,6 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
         </div>
         {writingComment && <div>
             <div className="mt-1 mb-2">
-                {replyTo &&
-                    <p className="py-2 px-2 text-sm">En respuesta a: <span className="text-gray-500 italic">{replyTo.text}</span></p>
-                }
                 <CommentEditor
                     onSubmit={handleAddComment}
                     onCancel={handleCancelComment}
@@ -173,3 +150,22 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
 };
 
 export default ContentComponent;
+
+/*
+<div className="flex justify-between items-center px-3">
+                        <ReactionCounter 
+                            icon={<ThumbUpOutlinedIcon sx={{ fontSize: 18 }}/>}
+                            initialCount={content._count.likedBy}
+                            isLiked={content.likeState == "liked"}
+                            contentId={content.id}
+                        />
+                    </div>
+                    <div className="flex justify-between items-center px-3">
+                        <ReactionCounter 
+                            icon={<ThumbDownOutlinedIcon sx={{ fontSize: 18 }}/>}
+                            initialCount={content._count.dislikedBy}
+                            isLiked={content.likeState == "disliked"}
+                            contentId={content.id}
+                        />
+                    </div>
+                */

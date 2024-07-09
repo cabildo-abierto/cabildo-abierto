@@ -58,3 +58,20 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 .center-column {
 	width: 800px;
 }
+
+.blue-button {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 0.25rem;
+    font-weight: bold;
+    transition: background-color 200ms;
+    background-color: #3B82F6;
+    color: white;
+    cursor: pointer;
+}
+
+.blue-button:hover {
+    background-color: #2563EB;
+}

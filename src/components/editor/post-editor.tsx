@@ -33,15 +33,76 @@ import {
 	TableToolbar,
 	Title,
 	Underline,
-	Undo
+	Undo,
+	Mention
 } from 'ckeditor5';
 
 import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
+import { headingConfig, linkConfig, mentionConfig, MentionCustomization, tableConfig } from './markdown-editor';
+
+const plugins = [
+	AccessibilityHelp,
+	Autoformat,
+	Autosave,
+	BlockQuote,
+	BlockToolbar,
+	Bold,
+	Essentials,
+	Heading,
+	HorizontalLine,
+	Italic,
+	Link,
+	Mention,
+	MentionCustomization,
+	Paragraph,
+	SelectAll,
+	SpecialCharacters,
+	SpecialCharactersArrows,
+	SpecialCharactersCurrency,
+	SpecialCharactersEssentials,
+	SpecialCharactersLatin,
+	SpecialCharactersMathematical,
+	SpecialCharactersText,
+	Strikethrough,
+	Table,
+	TableCaption,
+	TableCellProperties,
+	TableColumnResize,
+	TableProperties,
+	TableToolbar,
+	Title,
+	Underline,
+	Undo
+]
+
+
+const toolbar = {
+	items: [
+		'undo',
+		'redo',
+		'|',
+		'selectAll',
+		'|',
+		'heading',
+		'|',
+		'bold',
+		'italic',
+		'underline',
+		'strikethrough',
+		'|',
+		'specialCharacters',
+		'horizontalLine',
+		'link',
+		'insertTable',
+		'blockQuote',
+	],
+	shouldNotGroupWhenFull: false
+}
+
 
 export default function PostEditor({onSubmit}) {
     const [editor, setEditor] = useState(null);
-	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
 
@@ -52,131 +113,17 @@ export default function PostEditor({onSubmit}) {
 	}, []);
 
 	const editorConfig = {
-		toolbar: {
-			items: [
-				'undo',
-				'redo',
-				'|',
-				'selectAll',
-				'|',
-				'heading',
-				'|',
-				'bold',
-				'italic',
-				'underline',
-				'strikethrough',
-				'|',
-				'specialCharacters',
-				'horizontalLine',
-				'link',
-				'insertTable',
-				'blockQuote',
-			],
-			shouldNotGroupWhenFull: false
-		},
-        title: {
-            placeholder: 'Título'
-        },
-		plugins: [
-			AccessibilityHelp,
-			Autoformat,
-			Autosave,
-			BlockQuote,
-			BlockToolbar,
-			Bold,
-			Essentials,
-			Heading,
-			HorizontalLine,
-			Italic,
-			Link,
-			Paragraph,
-			SelectAll,
-			SpecialCharacters,
-			SpecialCharactersArrows,
-			SpecialCharactersCurrency,
-			SpecialCharactersEssentials,
-			SpecialCharactersLatin,
-			SpecialCharactersMathematical,
-			SpecialCharactersText,
-			Strikethrough,
-			Table,
-			TableCaption,
-			TableCellProperties,
-			TableColumnResize,
-			TableProperties,
-			TableToolbar,
-			Title,
-			Underline,
-			Undo
-		],
+		toolbar: toolbar,
+        title: {placeholder: 'Título'},
+		plugins: plugins,
+		mention: mentionConfig,
 		blockToolbar: ['bold', 'italic', '|', 'link', 'insertTable'],
-		heading: {
-			options: [
-				{
-					model: 'paragraph',
-					title: 'Paragraph',
-					class: 'ck-heading_paragraph'
-				},
-				{
-					model: 'heading1',
-					view: 'h1',
-					title: 'Heading 1',
-					class: 'ck-heading_heading1'
-				},
-				{
-					model: 'heading2',
-					view: 'h2',
-					title: 'Heading 2',
-					class: 'ck-heading_heading2'
-				},
-				{
-					model: 'heading3',
-					view: 'h3',
-					title: 'Heading 3',
-					class: 'ck-heading_heading3'
-				},
-				{
-					model: 'heading4',
-					view: 'h4',
-					title: 'Heading 4',
-					class: 'ck-heading_heading4'
-				},
-				{
-					model: 'heading5',
-					view: 'h5',
-					title: 'Heading 5',
-					class: 'ck-heading_heading5'
-				},
-				{
-					model: 'heading6',
-					view: 'h6',
-					title: 'Heading 6',
-					class: 'ck-heading_heading6'
-				}
-			]
-		},
-		initialData:
-			'',
-		link: {
-			addTargetToExternalLinks: true,
-			defaultProtocol: 'https://',
-			decorators: {
-				toggleDownloadable: {
-					mode: 'manual',
-					label: 'Downloadable',
-					attributes: {
-						download: 'file'
-					}
-				}
-			}
-		},
+		heading: headingConfig,
+		initialData: '',
+		link: linkConfig,
 		placeholder: 'Tu publicación va acá',
-		table: {
-			contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
-		},
-        translations: [
-            coreTranslations
-        ]
+		table: tableConfig,
+        translations: [coreTranslations]
 	};
 
 	return (

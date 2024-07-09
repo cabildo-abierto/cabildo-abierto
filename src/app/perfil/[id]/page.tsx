@@ -1,32 +1,31 @@
-import { getUserActivityById, getUserById, getUserIdByUsername } from "@/actions/get-user";
+import { getUserActivityById, getUserById, getUserId, getUserIdByUsername } from "@/actions/get-user";
 import React from "react";
 import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";
+import { doesFollow, follow, followerCount, followingCount } from "@/actions/following";
+import { ProfileHeader } from "@/components/follow-button";
 
 
 const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
-    let user = await getUserById(params?.id)
+    let user = await getUserById("@"+params?.id)
     if (!user) {
-        const id = await getUserIdByUsername(params?.id)
-        if(!id) {
-            return <>El usuario no existe</>
-        }
-        user = await getUserById(id.id)
-        if(!user) {
-            return <>El usuario no existe</>
-        }
+        return <>El usuario no existe</>
     }
+
+    let loggedInUserId = await getUserId()
 
     const activity = await getUserActivityById(user.id);
 
-    const center = <div className="bg-white">
-        <div className="bg-white h-full">
-            <h3 className="ml-2 py-8">
-                {user.name ? user.name : '@' + user.username}
-            </h3>
-            <Feed contents={activity}/>
-        </div>
-    </div>
+    const center = <>
+        <ProfileHeader
+            user={user}
+            isLoggedInUser={user.id == loggedInUserId}
+            doesFollow={await doesFollow(user.id)}
+            followerCount={await followerCount(user.id)}
+            followingCount={await followingCount(user.id)}
+        />
+        <Feed contents={activity}/>
+    </>
 
     return <ThreeColumnsLayout center={center}/>
 }

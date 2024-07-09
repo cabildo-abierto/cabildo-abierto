@@ -18,9 +18,9 @@ export default async function middleware(req: NextRequest) {
     if (
         isPublicRoute &&
         session?.userId &&
-        !req.nextUrl.pathname.startsWith('/feed')
+        !req.nextUrl.pathname.startsWith('/inicio')
     ) {
-      return NextResponse.redirect(new URL('/feed', req.nextUrl))
+      return NextResponse.redirect(new URL('/inicio', req.nextUrl))
     }
 
   return NextResponse.next()

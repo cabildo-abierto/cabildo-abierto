@@ -9,9 +9,8 @@ datasource db {
 }
 
 model User {
-  id              String       @id @default(cuid())
+  id              String       @id @db.VarChar(255)
   name            String       @db.VarChar(255)
-  username        String       @unique @db.VarChar(255)
   email           String       @unique @db.VarChar(255)
   password        String       @db.VarChar(255)
   createdAt       DateTime     @default(now()) @map(name: "created_at")
@@ -19,6 +18,9 @@ model User {
   mentionedBy     Content[]    @relation("mention")
   likes           Content[]    @relation("likes")
   dislikes        Content[]    @relation("dislikes")
+  
+  following       User[]       @relation("following")
+  followedBy      User[]       @relation("following")
 
   @@map(name: "users")
 }

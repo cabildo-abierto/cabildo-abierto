@@ -1,7 +1,8 @@
 import ContentComponent from "@/components/content";
 import React from "react";
-import CommentSection from "@/app/content/[id]/comment-section";
+import CommentSection from "@/app/contenido/[id]/comment-section";
 import {getContentById, getContentComments} from "@/actions/get-content";
+import { ThreeColumnsLayout } from "@/components/main-layout";
 
 const ContentPage: React.FC<{params: any}> = async ({params}) => {
     const parentContent = await getContentById(params?.id)
@@ -12,7 +13,7 @@ const ContentPage: React.FC<{params: any}> = async ({params}) => {
     const comments = await getContentComments(parentContent.id)
     const title = {"FastPost": "Publicación","Comment": "Comentario", "Discussion": "Discusión", "Post": "Publicación", "Opinion": "Opinion"}[parentContent.type]
 
-    return <div className="">
+    const center = <div className="">
         <div className="flex flex-col h-full">
             <h2 className="ml-2 py-8">
                 {title}
@@ -25,6 +26,9 @@ const ContentPage: React.FC<{params: any}> = async ({params}) => {
             </div>
         </div>
     </div>
+
+
+    return <ThreeColumnsLayout center={center}/>
 }
 
 export default ContentPage

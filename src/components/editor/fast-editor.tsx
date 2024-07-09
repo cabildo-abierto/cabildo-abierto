@@ -25,19 +25,47 @@ import {
 	SpecialCharactersMathematical,
 	SpecialCharactersText,
 	Strikethrough,
-	Table,
-	TableCaption,
-	TableCellProperties,
-	TableColumnResize,
-	TableProperties,
-	TableToolbar,
-	Title,
 	Underline,
-	Undo
+	Undo,
+	Mention
 } from 'ckeditor5';
 
 import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
+import { linkConfig, MentionCustomization } from './markdown-editor';
+
+
+export const fastEditorPlugins = [
+	AccessibilityHelp,
+	Autoformat,
+	Autosave,
+	BlockQuote,
+	BlockToolbar,
+	Bold,
+	Essentials,
+	Heading,
+	HorizontalLine,
+	Italic,
+	Link,
+	Mention,
+	MentionCustomization,
+	Paragraph,
+	SelectAll,
+	SpecialCharacters,
+	SpecialCharactersArrows,
+	SpecialCharactersCurrency,
+	SpecialCharactersEssentials,
+	SpecialCharactersLatin,
+	SpecialCharactersMathematical,
+	SpecialCharactersText,
+	Strikethrough,
+	Underline,
+	Undo
+]
+
+
+export const fastEditorBlockToolbar = ['bold', 'italic', '|', 'link']
+
 
 export default function FastEditor({onSubmit}) {
     const [editor, setEditor] = useState(null);
@@ -51,50 +79,12 @@ export default function FastEditor({onSubmit}) {
 	}, []);
 
 	const editorConfig = {
-		plugins: [
-			AccessibilityHelp,
-			Autoformat,
-			Autosave,
-			BlockQuote,
-			BlockToolbar,
-			Bold,
-			Essentials,
-			Heading,
-			HorizontalLine,
-			Italic,
-			Link,
-			Paragraph,
-			SelectAll,
-			SpecialCharacters,
-			SpecialCharactersArrows,
-			SpecialCharactersCurrency,
-			SpecialCharactersEssentials,
-			SpecialCharactersLatin,
-			SpecialCharactersMathematical,
-			SpecialCharactersText,
-			Strikethrough,
-			Underline,
-			Undo
-		],
-		blockToolbar: ['bold', 'italic', '|', 'link', 'insertTable'],
+		plugins: fastEditorPlugins,
+		blockToolbar: fastEditorBlockToolbar,
 		initialData: '',
-		link: {
-			addTargetToExternalLinks: true,
-			defaultProtocol: 'https://',
-			decorators: {
-				toggleDownloadable: {
-					mode: 'manual',
-					label: 'Downloadable',
-					attributes: {
-						download: 'file'
-					}
-				}
-			}
-		},
+		link: linkConfig,
 		placeholder: '...',
-        translations: [
-            coreTranslations
-        ]
+        translations: [coreTranslations]
 	};
 
 	return <div ref={editorRef} className="">

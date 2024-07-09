@@ -1,7 +1,7 @@
 'use server'
 
 import {db} from "@/db";
-import {getUserIdByUsername} from "@/actions/get-user";
+import {getUserId, getUserIdByUsername} from "@/actions/get-user";
 import parse from 'html-react-parser'
 import { getLikeState } from "./likes";
 
@@ -11,7 +11,6 @@ export type ContentProps = {
     author: {
         id: string
         name: string
-        username: string
     } | null;
     text: string;
     _count: {
@@ -34,7 +33,6 @@ export async function getContentById(contentId: string): Promise<ContentProps | 
                     select: {
                         name: true,
                         id: true,
-                        username: true
                     },
                 },
                 _count: {
@@ -69,12 +67,7 @@ export type ContentWithLinks = React.JSX.Element | string | React.JSX.Element[]
 
 export async function getContentWithLinks(content: ContentProps): Promise<ContentWithLinks> {
     async function replaceMention(match: string, username: string): Promise<string> {
-        const user = await getUserIdByUsername(username)
-        if (user) {
-            return `<a href="/perfil/${user.id}" style="color: skyblue;">@${username}</a>`;
-        } else {
-            return match
-        }
+        return `<a href="/perfil/${username}" style="color: skyblue;">${username}</a>`;
     }
 
     const withLinks = await replaceAsync(content.text, /@(\w+)/g, replaceMention);
@@ -91,8 +84,7 @@ export async function getContentComments(contentId: string){
             author: {
                 select: {
                     name: true,
-                    id: true,
-                    username: true
+                    id: true
                 },
             },
             _count: {
@@ -122,8 +114,7 @@ export async function getPosts() {
             author: {
                 select: {
                     name: true,
-                    id: true,
-                    username: true
+                    id: true
                 },
             },
             _count: {
@@ -136,12 +127,61 @@ export async function getPosts() {
             type: true
         },
         where: {
-            parentContentId: null
+            type: {
+                in: ["FastPost", "Post"]
+            }
         }
     })
     contents.forEach(async function(content){
         content.textWithLinks = await getContentWithLinks(content)
         content.likeState = await getLikeState(content.id)
     })
+    return contents
+}
+
+
+export async function getPostsFollowing() {
+    const userId = await getUserId()
+
+    const followedUsers = await db.user.findUnique({
+        where: {
+            id: userId,
+        },
+    }).following();
+
+    const followedUsernames = followedUsers.map(user => user.id);
+
+    let contents: ContentProps[] = await db.content.findMany({
+        select: {
+            id: true,
+            text: true,
+            createdAt: true,
+            author: {
+                select: {
+                    name: true,
+                    id: true
+                },
+            },
+            _count: {
+                select: { 
+                    childrenComments: true,
+                    likedBy: true,
+                    dislikedBy: true,
+                },
+            },
+            type: true
+        },
+        where: {
+            AND: [
+                {
+                    type: {in: ["FastPost", "Post", "Comment"]}
+                },
+                {
+                    authorId: {in: followedUsernames}
+                }
+            ]
+        }
+    })
+
     return contents
 }

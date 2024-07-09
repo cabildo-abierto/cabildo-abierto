@@ -9,7 +9,6 @@ import { getLikeState } from "./likes";
 export type UserProps = {
     id: string
     name: string
-    username: string
 };
 
 
@@ -25,15 +24,6 @@ export async function getUser() {
     if(!userId)
         return false
     return getUserById(userId)
-}
-
-export async function getUserIdByUsername(username: string){
-    return await db.user.findUnique(
-        {
-            where: {username:username},
-            select: {id: true}
-        }
-    )
 }
 
 export async function getUserById(userId: string){
@@ -90,4 +80,21 @@ export async function getUserActivityById(userId: string){
         content.likeState = await getLikeState(content.id)
     })
     return contents
+}
+
+
+export async function getUsersMatching(queryText) {
+    const users = await db.user.findMany({
+        select: {
+            id: true,
+            name: true
+        }
+    })
+    const searchString = queryText.toLowerCase();
+
+    function userMatch(user) {
+        return user.name.toLowerCase().includes(searchString) || user.id.toLowerCase().includes(searchString);
+    }
+
+    return users.filter(userMatch)
 }

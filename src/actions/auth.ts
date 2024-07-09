@@ -46,7 +46,7 @@ export async function authenticate(state: LoginFormState, formData){
   }
 
   await createSession(user.id)
-  redirect('/feed')
+  redirect('/inicio')
   return true
 }
 
@@ -72,8 +72,8 @@ export async function signup(state: SignupFormState, formData) {
 
   await db.user.create({
     data: {
+      id: "@"+username,
       name: name,
-      username: username,
       email: email,
       password: hashedPassword,
     }

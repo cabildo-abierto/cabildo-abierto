@@ -9,7 +9,6 @@ import { EntityProps } from "./get-entity";
 export type UserSearchResult = {
     id: string
     name: string
-    username: string
     dist?: number
 }
 
@@ -20,7 +19,6 @@ export type ContentSearchResult = {
     author: {
         id: string
         name: string
-        username: string
     } | null;
     text: string;
     _count: {
@@ -51,8 +49,7 @@ export async function searchUsers(value: string): Promise<UserProps[]>{
     const users: UserSearchResult[] = await db.user.findMany({
         select: {
             name: true, 
-            id: true, 
-            username: true
+            id: true
         }
     })
 
@@ -64,7 +61,7 @@ export async function searchUsers(value: string): Promise<UserProps[]>{
         if(item.name) {
             item.dist = dist(value, item.name)
         }
-        item.dist = Math.min(item.dist, dist(value, item.username))
+        item.dist = Math.min(item.dist, dist(value, item.id))
     })
 
     users.sort((a, b) => {return a.dist - b.dist })
