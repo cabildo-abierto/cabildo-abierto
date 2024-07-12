@@ -12,7 +12,7 @@
 	/* -- Generic colors ------------------------------------------------------------------------ */
 
 	--ck-color-focus-border-coordinates: 						218, 81.8%, 56.9%;
-	--ck-color-focus-border: 									hsl(220, 6%, 81%);
+	--ck-color-focus-border: 									var(--ck-color-base-border);
 	--ck-color-focus-outer-shadow:								hsl(212.4, 89.3%, 89%);
 	--ck-color-focus-disabled-shadow:							hsla(209, 90%, 72%,.3);
 	--ck-color-focus-error-shadow:								hsla(9,100%,56%,.3);
@@ -64,11 +64,11 @@
 	/* -- Input --------------------------------------------------------------------------------- */
 
 	--ck-color-input-background: 								var(--ck-color-base-background);
-	--ck-color-input-border: 									var(--ck-color-base-border);
+	--ck-color-input-border: 									transparent
 	--ck-color-input-error-border:								var(--ck-color-base-error);
 	--ck-color-input-text: 										var(--ck-color-base-text);
 	--ck-color-input-disabled-background: 						hsl(0, 0%, 95%);
-	--ck-color-input-disabled-border: 							var(--ck-color-base-border);
+	--ck-color-input-disabled-border: 							transparent;
 	--ck-color-input-disabled-text: 							hsl(0, 0%, 46%);
 
 	/* -- List ---------------------------------------------------------------------------------- */
@@ -79,7 +79,7 @@
 	--ck-color-list-button-on-background-focus: 				var(--ck-color-button-on-color);
 	--ck-color-list-button-on-text:								var(--ck-color-base-background);
 
-	/* -- Panel --------------------------------------------------------------------------------- */
+	/* -- Panel (balloon toolbar) --------------------------------------------------------------------------------- */
 
 	--ck-color-panel-background: 								var(--ck-color-base-background);
 	--ck-color-panel-border: 									var(--ck-color-base-border);

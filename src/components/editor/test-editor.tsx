@@ -38,14 +38,16 @@ import {
 	TableToolbar,
 	Underline,
 	Undo,
-	Autoformat
+	Autoformat,
+    InlineEditor
 } from 'ckeditor5';
 
 import translations from 'ckeditor5/translations/es.js';
 
-import { getUsersMatching } from '@/actions/get-user';
-
+import 'ckeditor5/ckeditor5.css';
 import './markdown-editor.css';
+import { getUsersMatching } from '@/actions/get-user';
+import editor from '@ckeditor/ckeditor5-core/src/editor/editor';
 
 const toolbar = {
 	items: [
@@ -87,6 +89,7 @@ const plugins = [
 	Heading,
 	HorizontalLine,
 	Italic,
+	Link,
 	List,
 	Markdown,
 	Mention,
@@ -114,7 +117,7 @@ const plugins = [
 ]
 
 
-export default function MarkdownEditor({initialData, onSubmit}) {
+export default function TestEditor({initialData, onSubmit}) {
     const [editor, setEditor] = useState(null);
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
@@ -138,7 +141,14 @@ export default function MarkdownEditor({initialData, onSubmit}) {
 		mention: mentionConfig,
 		placeholder: 'Este artículo está vacío!',
 		table: tableConfig,
-		translations: [translations]
+		translations: [translations],
+		internallink: {
+			testmode: false,
+			autocompleteurl: '',
+			titleurl: '',
+			previewurl: '',
+			axiosInstance: undefined
+		}
 	};
 
 	return (
@@ -146,7 +156,7 @@ export default function MarkdownEditor({initialData, onSubmit}) {
             <div className="editor-container__editor">
                 <div ref={editorRef} className="">{isLayoutReady &&
 				<CKEditor
-					editor={ClassicEditor}
+					editor={InlineEditor}
 					config={editorConfig}
 					onReady={setEditor}
 				/>}</div>

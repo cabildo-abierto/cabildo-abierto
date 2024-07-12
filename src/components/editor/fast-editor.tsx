@@ -30,9 +30,8 @@ import {
 	Mention
 } from 'ckeditor5';
 
-import 'ckeditor5/ckeditor5.css';
-import "./editor.css"
 import { linkConfig, MentionCustomization } from './markdown-editor';
+import "./editor.css"
 
 
 export const fastEditorPlugins = [

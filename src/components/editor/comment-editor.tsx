@@ -10,8 +10,9 @@ import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
 import { fastEditorBlockToolbar, fastEditorPlugins } from './fast-editor';
 import { linkConfig } from './markdown-editor';
+import NeedAccountPopup from '../need-account-popup';
 
-export default function CommentEditor({onSubmit, onCancel=null}) {
+export default function CommentEditor({onSubmit, user, onCancel=null}) {
     const [editor, setEditor] = useState(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -39,6 +40,17 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
 		onSubmit(data)
 	}
 
+	const SendCommentButton = () => {
+		return <div className="px-1">
+			<button
+				onClick={handleSubmit}
+				className="mr-2 text-gray-600 text-sm hover:text-gray-800"
+			>
+				Enviar
+			</button>
+		</div>
+	}
+
 	return <div ref={editorRef} className="">
 		{isLayoutReady && 
 		<CKEditor
@@ -49,14 +61,9 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
 
 		<div className="flex justify-end">
 			<div className="flex justify-end mt-3">
-				<div className="px-1">
-					<button
-						onClick={handleSubmit}
-						className="mr-2 text-gray-600 text-sm hover:text-gray-800"
-					>
-						Enviar
-					</button>
-				</div>
+				{user ? <SendCommentButton/> :
+					<NeedAccountPopup trigger={SendCommentButton()} text="Para hacer un comentario es necesario tener una cuenta."/>
+				}
 				{onCancel != null &&
 					<div className="px-1">
 						<button

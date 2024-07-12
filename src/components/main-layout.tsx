@@ -19,9 +19,7 @@ export const ThreeColumnsLayout = ({left=null, center=null, right=null}) => {
 
 
 const MainLayout: React.FC<{children: React.ReactNode}> = async ({children}) => {
-
     const user = await getUser()
-    if(!user) return false
 
     const centerWidth = 800;
     const sidebarWidth = `calc((100% - ${centerWidth}px) / 2)`;

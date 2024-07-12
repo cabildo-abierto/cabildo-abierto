@@ -75,3 +75,37 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 .blue-button:hover {
     background-color: #2563EB;
 }
+
+.editor-container a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.editor-container a:hover {
+    text-decoration: underline;
+}
+
+.large-btn {
+	border: 3px solid rgba(0,0,0,0);
+	font-size: 16px;
+	font-weight: 600;
+	margin-bottom: 10px;
+	padding: 8px 20px;
+	text-transform: inherit;
+	vertical-align: top;
+	white-space: normal;
+	word-break: initial;
+	text-decoration: none;
+	letter-spacing: inherit;
+	border-radius: 30px;
+	line-height: 1.42857143;
+	background-color: #242c4f;
+	color: #fff;
+	transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.large-btn:hover {
+	background-color: #1b203a;
+	color: #e0e0e0;
+}

@@ -3,9 +3,7 @@
 import { useFormState } from "react-dom";
 import {authenticate, signup} from '@/actions/auth';
 import LoginButton from "./login-button";
-import { redirect, useSearchParams } from "next/navigation";
-import {SignupButton} from "@/app/signup-button";
-import { AuthenticationFormLabel } from "../signup-form";
+import { AuthenticationFormLabel } from "../app/signup/signup-form";
 
 export default function LoginForm() {
     const [success, action] = useFormState(authenticate, true)

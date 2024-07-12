@@ -2,8 +2,7 @@
 
 import {signup} from "@/actions/auth";
 import { useFormState } from "react-dom";
-import {SignupButton} from "@/app/signup-button";
-import {useState} from "react";
+import {SignupButton} from "./signup-button";
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label

@@ -15,6 +15,7 @@ const Inicio: React.FC = async () => {
     </div>
 
     const right = <div className="flex justify-center items-center w-full h-64">
+
         <div className="rounded-2xl border px-2 py-2">
             <h3>
                 Tendencias

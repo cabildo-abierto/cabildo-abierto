@@ -10,9 +10,14 @@ export function ProfileHeader({user, isLoggedInUser, doesFollow, followerCount, 
     const updatedFollowerCount = followerCount + following - doesFollow
 
     return <><div className="flex justify-between">
-        <h3 className="ml-2 py-8">
-            {user.name ? user.name : user.id}
-        </h3>
+        <div className="ml-2 py-8">
+            <h3>
+                {user.name}
+            </h3>
+            <div className="text-gray-600">
+                {user.id}
+            </div>
+        </div>
         <div className="flex items-center">
             {!isLoggedInUser &&
                 (following ? <button 
