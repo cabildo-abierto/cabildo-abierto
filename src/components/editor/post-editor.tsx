@@ -120,7 +120,7 @@ export default function PostEditor({onSubmit}) {
         title: {placeholder: 'Título'},
 		plugins: plugins,
 		mention: mentionConfig,
-		blockToolbar: ['bold', 'italic', '|', 'link', 'insertTable'],
+		blockToolbar: ['bold', 'italic', '|', 'link', 'internal-link', 'insertTable'],
 		heading: headingConfig,
 		initialData: '',
 		link: linkConfig,

@@ -25,7 +25,7 @@ export default function CommentEditor({onSubmit, user, onCancel=null}) {
 
 	const editorConfig = {
 		plugins: fastEditorPlugins,
-		blockToolbar: fastEditorBlockToolbar,
+		balloonToolbar: fastEditorBlockToolbar,
 		initialData: '',
 		link: linkConfig,
 		placeholder: '...',

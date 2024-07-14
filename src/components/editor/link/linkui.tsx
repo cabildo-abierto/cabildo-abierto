@@ -23,7 +23,7 @@ export default class LinkUI extends Plugin {
 		editor.ui.componentFactory.add( 'internal-link', () => {
 			const button = new ButtonView();
 
-			button.label = 'Link';
+			button.label = 'Entidad';
 			button.tooltip = true;
 			button.withText = true;
 
@@ -100,7 +100,7 @@ export default class LinkUI extends Plugin {
 			const selectedText = getRangeText( selection.getFirstRange() );
 
 			this.formView.textInputView.fieldView.value = selectedText;
-			this.formView.urlInputView.fieldView.value = '';
+			this.formView.urlInputView.fieldView.value = selectedText;
 		}
 
 		this.formView.focus();

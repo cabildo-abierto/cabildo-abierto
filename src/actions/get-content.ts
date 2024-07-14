@@ -130,6 +130,9 @@ export async function getPosts() {
             type: {
                 in: ["FastPost", "Post"]
             }
+        },
+        orderBy: {
+            createdAt: 'desc'
         }
     })
     contents.forEach(async function(content){
@@ -180,6 +183,9 @@ export async function getPostsFollowing() {
                     authorId: {in: followedUsernames}
                 }
             ]
+        },
+        orderBy: {
+            createdAt: 'desc'
         }
     })
 

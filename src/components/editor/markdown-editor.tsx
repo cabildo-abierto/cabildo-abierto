@@ -46,6 +46,7 @@ import translations from 'ckeditor5/translations/es.js';
 import { getUsersMatching } from '@/actions/get-user';
 
 import './markdown-editor.css';
+import InternalLink from "./link/link"
 
 const toolbar = {
 	items: [
@@ -64,6 +65,7 @@ const toolbar = {
 		'specialCharacters',
 		'horizontalLine',
 		'link',
+		'internal-link',
 		'insertTable',
 		'blockQuote',
 		'|',
@@ -89,6 +91,7 @@ const plugins = [
 	Italic,
 	List,
 	Link,
+	InternalLink,
 	Markdown,
 	Mention,
 	MentionCustomization,
@@ -130,8 +133,8 @@ export default function MarkdownEditor({initialData, onSubmit}) {
 	const editorConfig = {
 		toolbar: toolbar,
 		plugins: plugins,
-		balloonToolbar: ['bold', 'italic', '|', 'link', '|', 'bulletedList', 'numberedList'],
-		blockToolbar: ['bold', 'italic', '|', 'link', 'insertTable', '|', 'bulletedList', 'numberedList'],
+		balloonToolbar: ['bold', 'italic', '|', 'link', 'internal-link', '|', 'bulletedList', 'numberedList'],
+		blockToolbar: ['bold', 'italic', '|', 'link', 'internal-link', 'insertTable', '|', 'bulletedList', 'numberedList'],
 		heading: headingConfig,
 		initialData: initialData,
 		language: 'es',

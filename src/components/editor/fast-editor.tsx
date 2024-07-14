@@ -32,6 +32,7 @@ import {
 
 import { linkConfig, MentionCustomization } from './markdown-editor';
 import "./editor.css"
+import InternalLink from "./link/link"
 
 
 export const fastEditorPlugins = [
@@ -46,6 +47,7 @@ export const fastEditorPlugins = [
 	HorizontalLine,
 	Italic,
 	Link,
+	InternalLink,
 	Mention,
 	MentionCustomization,
 	Paragraph,
@@ -63,7 +65,7 @@ export const fastEditorPlugins = [
 ]
 
 
-export const fastEditorBlockToolbar = ['bold', 'italic', '|', 'link']
+export const fastEditorBlockToolbar = ['bold', 'italic', '|', 'link', 'internal-link']
 
 
 export default function FastEditor({onSubmit}) {
@@ -79,7 +81,7 @@ export default function FastEditor({onSubmit}) {
 
 	const editorConfig = {
 		plugins: fastEditorPlugins,
-		blockToolbar: fastEditorBlockToolbar,
+		balloonToolbar: fastEditorBlockToolbar,
 		initialData: '',
 		link: linkConfig,
 		placeholder: '...',

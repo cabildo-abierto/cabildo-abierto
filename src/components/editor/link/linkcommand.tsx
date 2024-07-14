@@ -7,7 +7,7 @@ import { Command, findAttributeRange, toMap } from 'ckeditor5';
 import getRangeText from './utils';
 
 function entityLink(link){
-	return "/wiki/" + encodeURI(link.replace(" ", "_"))
+	return "/wiki/" + encodeURI(link.replaceAll(" ", "_"))
 }
 
 export default class LinkCommand extends Command {
@@ -18,9 +18,7 @@ export default class LinkCommand extends Command {
 
 		// When the selection is collapsed, the command has a value if the caret is in an abbreviation.
 		if ( firstRange.isCollapsed ) {
-			console.log("Selection collapsed")
 			if ( selection.hasAttribute( 'link' ) ) {
-				console.log("And there is a link")
 				const attributeValue = selection.getAttribute( 'link' );
 
 				// Find the entire range containing the abbreviation under the caret position.
@@ -32,7 +30,6 @@ export default class LinkCommand extends Command {
 					range: abbreviationRange
 				};
 			} else {
-				console.log("And there is no link")
 				this.value = null;
 			}
 		}
