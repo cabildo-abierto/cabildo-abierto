@@ -5,7 +5,7 @@ import { Roboto, Roboto_Mono } from 'next/font/google';
 import { Milonga } from 'next/font/google'
 import { Lato } from 'next/font/google'
 import "./globals.css";
-import {AuthProvider} from "./providers";
+import { Head, Html } from "next/document";
 //import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 
@@ -29,10 +29,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" spellCheck="false">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className="">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        {children}
       </body>
     </html>
   );

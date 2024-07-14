@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ContentProps } from "@/actions/get-content"
 import { createComment } from "@/actions/create-content";
@@ -43,13 +43,12 @@ const ReactionCounter = async ({icon, initialCount, isLiked, contentId}) => {
 
 
 export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}) => {
-    const date = getDate(content)
     return <div className="flex justify-between">
-        <p className="text-gray-600 ml-2 text-sm">
+        <div className="text-gray-600 ml-2 text-sm">
             <Link className="hover:text-gray-900"
                   href={"/perfil/" + content.author?.id.slice(1)}>{content.author?.name} {content.author?.id}</Link>
-        </p>
-        <p className="text-gray-600 text-sm mr-1">{date}</p>
+        </div>
+        <div className="text-gray-600 text-sm mr-1"><DateComponent date={content.createdAt}/></div>
     </div>
 }
 
@@ -72,15 +71,16 @@ export const ContentText: React.FC<{content: ContentProps, isMainContent: boolea
     }
 }
 
-export function getDate(content: ContentProps): string {
-    const options = {
-        day: 'numeric',
-        month: 'long',
-        // to do: agregar año si no es el año actual
-    };
+export function DateComponent({ date }) {
+    const [localeDate, setLocaleDate] = useState('')
 
-    return content.createdAt.toLocaleDateString('es-AR', options)
+    useEffect(() => {
+        setLocaleDate(date.toLocaleString());
+    }, []);
+
+    return <>{localeDate}</>
 }
+
 
 export const AddCommentButton: React.FC<{text: string, onClick: () => void}> = ({text, onClick}) => {
     return <button className="text-gray-600 text-sm mr-2 hover:text-gray-800" onClick={onClick}>

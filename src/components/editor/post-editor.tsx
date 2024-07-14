@@ -40,6 +40,8 @@ import {
 import { headingConfig, linkConfig, mentionConfig, MentionCustomization, tableConfig } from './markdown-editor';
 import "./editor.css"
 
+import InternalLink from "./link/link"
+
 const plugins = [
 	AccessibilityHelp,
 	Autoformat,
@@ -53,6 +55,7 @@ const plugins = [
 	Italic,
 	Link,
 	Mention,
+	InternalLink,
 	MentionCustomization,
 	Paragraph,
 	SelectAll,
@@ -93,6 +96,7 @@ const toolbar = {
 		'specialCharacters',
 		'horizontalLine',
 		'link',
+		'internal-link',
 		'insertTable',
 		'blockQuote',
 	],

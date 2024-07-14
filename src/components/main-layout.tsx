@@ -3,12 +3,12 @@ import { getUser } from "@/actions/get-user";
 import Bars from "./bars";
 
 
-export const ThreeColumnsLayout = ({left=null, center=null, right=null}) => {
+export const ThreeColumnsLayout = ({left=null, center=null, right=null, centerWidth=800}) => {
     return <div className="flex justify-center">
         <div className="h-screen flex-1">
             {left}
         </div>
-        <div className="center-column">
+        <div className="center-column" style={{width: centerWidth}}>
             {center}
         </div>
         <div className="h-screen flex-1">
@@ -21,11 +21,8 @@ export const ThreeColumnsLayout = ({left=null, center=null, right=null}) => {
 const MainLayout: React.FC<{children: React.ReactNode}> = async ({children}) => {
     const user = await getUser()
 
-    const centerWidth = 800;
-    const sidebarWidth = `calc((100% - ${centerWidth}px) / 2)`;
-
     return <>
-        <Bars user={user} sidebarWidth={sidebarWidth}/>
+        <Bars user={user}/>
         {children}
     </>
 };

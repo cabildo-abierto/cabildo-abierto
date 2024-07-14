@@ -109,3 +109,62 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 	background-color: #1b203a;
 	color: #e0e0e0;
 }
+
+
+.subscription-btn {
+	border: 3px solid transparent;
+	font-size: 16px;
+	font-weight: 600;
+	margin-bottom: 10px;
+	padding: 12px 28px;
+	vertical-align: top;
+	white-space: nowrap;
+	word-break: initial;
+	text-decoration: none;
+	letter-spacing: 0.5px;
+	border-radius: 30px;
+	line-height: 1.42857143;
+	background-color: #242c4f;
+	color: #fff;
+	transition: all 0.3s ease;
+}
+
+.subscription-btn:hover {
+	background-color: #1b203a;
+	color: #e0e0e0;
+	transform: scale(1.05);
+}
+
+.styled-list {
+    list-style-type: none; /* Remove default bullets */
+    padding-left: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+.styled-list li {
+    position: relative; /* Position relative for custom bullet */
+    padding-left: 1.5rem; /* Space for custom bullet */
+    padding: 1rem; /* Padding inside the box */
+    margin-bottom: 0.5rem; /* Space between list items */
+    font-size: 1rem; /* Base font size */
+    line-height: 1.5; /* Line height for readability */
+    background-color: #f8f9fa; /* Background color of the box */
+    border: 1px solid #e0e0e0; /* Border of the box */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.panel {
+	border: 1px solid #ddd;
+	padding: 20px;
+	background-color: #fff;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	margin: 10px 0;
+}
+  
+.fixed-bottom-right {
+position: fixed;
+bottom: 30px; /* Adjust as needed */
+right: 30px;  /* Adjust as needed */
+}

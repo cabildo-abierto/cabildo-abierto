@@ -14,9 +14,24 @@ export async function getEntityById(entityId: string): Promise<EntityProps | nul
             name: true,
             content: {
                 select: {
-                    text: true
+                    id: true,
+                    text: true,
+                    childrenComments: {
+                        select: {
+                            id: true,
+                            text: true,
+                            createdAt: true,
+                            type: true,
+                            author: true,
+                            _count: {
+                                select: {
+                                    childrenComments: true
+                                }
+                            }
+                        }
+                    }
                 }
-            }
+            },
         },
             where: {
                 id: entityId,

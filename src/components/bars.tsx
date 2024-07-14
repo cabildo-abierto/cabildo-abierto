@@ -5,7 +5,7 @@ import Sidebar from "./sidebar";
 import Topbar from "./top-bar";
 
 
-export default function Bars({user, sidebarWidth}) {
+export default function Bars({user}) {
     const [openSidebar, setOpenSidebar] = useState(false)
 
     return <>

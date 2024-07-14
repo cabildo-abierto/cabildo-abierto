@@ -30,6 +30,7 @@ export default function Sidebar({user}) {
             <SidebarButton text="Escribir" href="/escribir"/>
             <SidebarButton text="Wiki" href="/wiki"/>
             <EntityPopup/>
+            <SidebarButton text="Suscripciones" href="/suscripciones"/>
         </ul>
     </div>
 }

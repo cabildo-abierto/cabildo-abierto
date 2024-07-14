@@ -88,6 +88,7 @@ const plugins = [
 	HorizontalLine,
 	Italic,
 	List,
+	Link,
 	Markdown,
 	Mention,
 	MentionCustomization,
