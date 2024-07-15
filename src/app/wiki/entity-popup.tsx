@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { createEntity } from '@/actions/create-entity';
+import { createEntityFromForm } from '@/actions/create-entity';
 import Popup from 'reactjs-popup';
 import styles from './Modal.module.css'
 import { SidebarButton } from '@/components/sidebar';
 import CloseIcon from '@mui/icons-material/Close';
 
 function EntityPopup() {
-  const [state, action] = useFormState(createEntity, undefined);
+  const [state, action] = useFormState(createEntityFromForm, undefined);
 
   function children(close) { return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-10">

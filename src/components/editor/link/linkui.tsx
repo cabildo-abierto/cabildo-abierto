@@ -47,6 +47,7 @@ export default class LinkUI extends Plugin {
 				text: formView.textInputView.fieldView.element.value,
 				link: formView.urlInputView.fieldView.element.value
 			};
+
 			editor.execute( 'addLink', value );
 
             // Hide the form view after submit.

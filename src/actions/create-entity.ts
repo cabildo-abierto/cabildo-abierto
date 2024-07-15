@@ -9,7 +9,7 @@ import {
 import { getUser } from './get-user';
 
 
-export async function createEntity(state: CreateEntityFormState, formData) {
+export async function createEntityFromForm(state: CreateEntityFormState, formData) {
 
   const validatedFields = CreateEntityFormSchema.safeParse({
     name: formData.get('name'),
@@ -23,6 +23,11 @@ export async function createEntity(state: CreateEntityFormState, formData) {
 
   const { name } = validatedFields.data
 
+  createEntity(name)
+}
+
+
+export async function createEntity(name){
   const author = await getUser()
   if(!author) return false
 
@@ -44,6 +49,7 @@ export async function createEntity(state: CreateEntityFormState, formData) {
 
   redirect("/wiki/"+entity.id)
 }
+
 
 export async function updateEntityContent(content, id) {
     const entity = await db.entity.findUnique({

@@ -86,6 +86,21 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
     text-decoration: underline;
 }
 
+.editor-container {
+    list-style-type: none; /* Remove default bullets */
+    padding-left: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+.editor-container ul {
+	padding-left: 1.5rem;
+}
+
+.editor-container li {
+    padding-left: 0.5rem; /* Space for custom bullet */
+	margin-bottom: 0.5rem;
+}
+
 .large-btn {
 	border: 3px solid rgba(0,0,0,0);
 	font-size: 16px;
