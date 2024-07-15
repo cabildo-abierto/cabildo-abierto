@@ -15,7 +15,6 @@ export default class LinkCommand extends Command {
 		const model = this.editor.model;
 		const selection = model.document.selection;
 		const firstRange = selection.getFirstRange();
-
 		// When the selection is collapsed, the command has a value if the caret is in an abbreviation.
 		if ( firstRange.isCollapsed ) {
 			if ( selection.hasAttribute( 'link' ) ) {
@@ -61,17 +60,14 @@ export default class LinkCommand extends Command {
 	}
 
 	execute( { text, link } ) {
-		console.log("Executing with", text, link)
 		const model = this.editor.model;
 		const selection = model.document.selection;
 
 		model.change( writer => {
 			// If selection is collapsed then update the selected abbreviation or insert a new one at the place of caret.
 			if ( selection.isCollapsed ) {
-				console.log("Executing with collapsed selection")
 				// When a collapsed selection is inside text with the "abbreviation" attribute, update its text and title.
 				if ( this.value ) {
-					console.log("With value")
 					const { end: positionAfter } = model.insertContent(
 						writer.createText( text, { link: entityLink(link) } ),
 						this.value.range
@@ -83,7 +79,6 @@ export default class LinkCommand extends Command {
 				// in place of the caret. Because the selection is collapsed, the attribute value will be used as a data for text.
 				// If the abbreviation is empty, do not do anything.
 				else if ( text !== '' ) {
-					console.log("Without value")
 					const firstPosition = selection.getFirstPosition();
 
 					// Collect all attributes of the user selection (could be "bold", "italic", etc.)
@@ -104,7 +99,6 @@ export default class LinkCommand extends Command {
 				// if the user starts to type.
 				writer.removeSelectionAttribute( 'link' );
 			} else {
-				console.log("Selection is not collapsed")
 				// If the selection has non-collapsed ranges, change the attribute on nodes inside those ranges
 				// omitting nodes where the "abbreviation" attribute is disallowed.
 				const ranges = model.schema.getValidRanges( selection.getRanges(), 'link' );

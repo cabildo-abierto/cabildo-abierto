@@ -40,7 +40,6 @@ export default class LinkUI extends Plugin {
 		const editor = this.editor;
 		const formView = new FormView( editor.locale );
 
-		console.log("Editor", editor)
 		// Execute the command after clicking the "Save" button.
 		this.listenTo( formView, 'submit', () => {
 			// Grab values from the abbreviation and title input fields.

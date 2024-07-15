@@ -30,7 +30,7 @@ import {
 	Mention
 } from 'ckeditor5';
 
-import { linkConfig, MentionCustomization } from './markdown-editor';
+import { linkConfig, mentionConfig, MentionCustomization } from './markdown-editor';
 import "./editor.css"
 import InternalLink from "./link/link"
 
@@ -85,7 +85,9 @@ export default function FastEditor({onSubmit}) {
 		initialData: '',
 		link: linkConfig,
 		placeholder: '...',
-        translations: [coreTranslations]
+        translations: [coreTranslations],
+		language: 'es',
+		mention: mentionConfig,
 	};
 
 	return <div ref={editorRef} className="">
