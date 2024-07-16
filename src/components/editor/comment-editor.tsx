@@ -11,8 +11,10 @@ import "./editor.css"
 import { fastEditorBlockToolbar, fastEditorPlugins } from './fast-editor';
 import { linkConfig } from './markdown-editor';
 import NeedAccountPopup from '../need-account-popup';
+import useUser from '../use-user';
 
-export default function CommentEditor({onSubmit, user, onCancel=null}) {
+export default function CommentEditor({onSubmit, onCancel=null}) {
+    const user = useUser()
     const [editor, setEditor] = useState(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -28,7 +30,7 @@ export default function CommentEditor({onSubmit, user, onCancel=null}) {
 		balloonToolbar: fastEditorBlockToolbar,
 		initialData: '',
 		link: linkConfig,
-		placeholder: '...',
+		placeholder: 'Agregá un comentario...',
         translations: [
             coreTranslations
         ]
@@ -44,14 +46,14 @@ export default function CommentEditor({onSubmit, user, onCancel=null}) {
 		return <div className="px-1">
 			<button
 				onClick={handleSubmit}
-				className="mr-2 text-gray-600 text-sm hover:text-gray-800"
+				className="large-btn"
 			>
 				Enviar
 			</button>
 		</div>
 	}
 
-	return <div ref={editorRef} className="">
+	return <div ref={editorRef} className="panel">
 		{isLayoutReady && 
 		<CKEditor
 			editor={BalloonEditor}

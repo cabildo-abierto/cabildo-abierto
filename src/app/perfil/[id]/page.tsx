@@ -9,7 +9,8 @@ import { ProfileHeader } from "@/components/follow-button";
 const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
     let user = await getUserById("@"+params?.id)
     if (!user) {
-        return <>El usuario no existe</>
+        const center = <h1>El usuario {params?.id} no existe</h1>
+        return <ThreeColumnsLayout center={center}/>
     }
 
     let loggedInUserId = await getUserId()

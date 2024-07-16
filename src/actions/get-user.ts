@@ -35,6 +35,7 @@ export async function getUserById(userId: string){
 }
 
 export async function getUserActivityById(userId: string){
+    const loggedInUserId = await getUserId()
     let contents: ContentProps[] = await db.content.findMany(
         {
             where: {
@@ -64,6 +65,16 @@ export async function getUserActivityById(userId: string){
                 author: true,
                 createdAt: true,
                 id: true,
+                likedBy: {
+                    where: {
+                        id: loggedInUserId
+                    }
+                },
+                dislikedBy: {
+                    where: {
+                        id: loggedInUserId
+                    }
+                },
                 _count: {
                     select: { 
                         childrenComments: true,
@@ -72,13 +83,12 @@ export async function getUserActivityById(userId: string){
                     },
                 },
                 type: true
+            },
+            orderBy: {
+                createdAt: "desc"
             }
         }
     )
-    contents.forEach(async function(content){
-        content.textWithLinks = await getContentWithLinks(content)
-        content.likeState = await getLikeState(content.id)
-    })
     return contents
 }
 

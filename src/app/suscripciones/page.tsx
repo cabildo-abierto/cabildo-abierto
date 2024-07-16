@@ -58,7 +58,7 @@ const NoSubscriptionPage = () => {
             <SubscriptionOptionButton
                 title="El plan clásico"
                 description={desc}
-                price={`$${price} por mes`}
+                price={`$${price}`}
                 href={"/suscripciones/clasico"}
             />
         
@@ -72,7 +72,7 @@ const NoSubscriptionPage = () => {
             <SubscriptionOptionButton
                 title="Hacé crecer Cabildo Abierto"
                 description="Apoyá a la plataforma y a los creadores de contenido donando suscripciones."
-                price="A elección"
+                price={`Desde $${2*price}`}
                 href={"/suscripciones/donar"}
             />
             </div>
@@ -97,9 +97,12 @@ const NoSubscriptionPage = () => {
 
         <div className="mt-4">
             <ul className="styled-list">
-                <li>Cuando elegís hacer crecer a Cabildo Abierto con una donación, lo que donás se transforma en suscripciones gratuitas disponibles para quienes lo necesiten.</li>
-                <li>Queremos que en Cabildo Abierto estén representadas las voces de toda la sociedad y que el acceso a la información es un derecho, así que para nosotros es muy importante que siempre haya suscripciones gratuitas para quien lo necesite.</li>
-                <li><span className="font-bold">Importante:</span> Los usuarios que usan una suscripción donada reciben la misma experiencia que los que pagan su sucripción, no hacemos favoritismos.</li>
+                <li>
+                    Cuando alguien elige hacer crecer a Cabildo Abierto con una donación, lo que dona se transforma en suscripciones gratuitas disponibles para quienes lo necesiten.
+                </li>
+                <li>
+                    <span className="font-bold">Importante:</span> Los usuarios que usan una suscripción donada reciben la misma experiencia que los que pagan su sucripción, no hacemos favoritismos.
+                </li>
             </ul>
         </div>
     </div>

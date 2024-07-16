@@ -1,17 +1,17 @@
 "use client"
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { ContentProps } from "@/actions/get-content"
 import { createComment } from "@/actions/create-content";
 import { useRouter } from "next/navigation";
-import { addDislike, addLike, removeLike, removeDislike } from "@/actions/likes";
 
 import HtmlContent from "./editor/ckeditor-html-content";
-import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
-import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 
 import dynamic from 'next/dynamic';
+import { splitPost } from "./utils";
+import { DateAndTimeComponent, DateComponent } from "./date";
+import { LikeCounter } from "./like-counter";
 
 const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 
@@ -23,32 +23,13 @@ export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
 }
 
 
-const ReactionCounter = async ({icon, initialCount, isLiked, contentId}) => {
-    const [liked, setLiked] = useState(isLiked)
-
-    const likeCount = initialCount + liked
-
-    return <>
-        {liked ?
-            <button onClick={async () => {setLiked(false); await removeLike(contentId)}} className="text-sm mr-1">
-                {icon}               
-            </button> : 
-            <button onClick={async () => {setLiked(false); await removeLike(contentId)}} className="text-sm mr-1">
-                {icon}               
-            </button>
-        }
-        <div className="text-gray-600 text-sm">{likeCount}</div>
-    </>
-}
-
-
 export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}) => {
     return <div className="flex justify-between">
         <div className="text-gray-600 ml-2 text-sm">
             <Link className="hover:text-gray-900"
                   href={"/perfil/" + content.author?.id.slice(1)}>{content.author?.name} {content.author?.id}</Link>
         </div>
-        <div className="text-gray-600 text-sm mr-1"><DateComponent date={content.createdAt}/></div>
+        <div className="text-gray-600 text-sm mr-1"><DateAndTimeComponent date={content.createdAt}/></div>
     </div>
 }
 
@@ -62,23 +43,13 @@ export const ContentText: React.FC<{content: ContentProps, isMainContent: boolea
         } else {
             return <div className="flex">
                 <span className="mr-4">Publicación:</span>
-                <HtmlContent content={content.text.split("</h1>")[0].split("<h1>")[1]}/>
+                <HtmlContent content={splitPost(content).title}/>
             </div>
         }
     } else {
         console.log("El texto es", content.text)
         return <>Tipo de contenido desconocido</>
     }
-}
-
-export function DateComponent({ date }) {
-    const [localeDate, setLocaleDate] = useState('')
-
-    useEffect(() => {
-        setLocaleDate(date.toLocaleString());
-    }, []);
-
-    return <>{localeDate}</>
 }
 
 
@@ -127,9 +98,9 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
                     <AddCommentButton text="Responder" onClick={handleAddCommentClick}/>
                     {content.type == "Discussion" ? <AddCommentButton text="Opinar" onClick={handleAddOpinionClick}/> : <></>}
                 </div>
-
-                <div className="flex justify-between">
-                    <div className="flex justify-between px-3">
+                <div className="flex">
+                    <LikeCounter content={content}/>
+                    <div className="flex items-center px-3">
                         <Link className="text-gray-600 text-sm hover:text-gray-800 ml-2" href={"/contenido/" + content.id}>
                             <CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content._count.childrenComments}
                         </Link>
@@ -150,22 +121,3 @@ const ContentComponent: React.FC<{content: ContentProps, isMainContent: boolean}
 };
 
 export default ContentComponent;
-
-/*
-<div className="flex justify-between items-center px-3">
-                        <ReactionCounter 
-                            icon={<ThumbUpOutlinedIcon sx={{ fontSize: 18 }}/>}
-                            initialCount={content._count.likedBy}
-                            isLiked={content.likeState == "liked"}
-                            contentId={content.id}
-                        />
-                    </div>
-                    <div className="flex justify-between items-center px-3">
-                        <ReactionCounter 
-                            icon={<ThumbDownOutlinedIcon sx={{ fontSize: 18 }}/>}
-                            initialCount={content._count.dislikedBy}
-                            isLiked={content.likeState == "disliked"}
-                            contentId={content.id}
-                        />
-                    </div>
-                */

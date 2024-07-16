@@ -4,36 +4,6 @@ import {db} from "@/db";
 import {getUser} from "@/actions/get-user";
 
 
-export const getLikeState = async (content_id: string) => {
-    const user = await getUser()
-    if(!user) return "not authenticated"
-
-    const likedContent = await db.content.findUnique({
-        where: { id: content_id },
-        select: {
-            likedBy: {
-                where: { id: user.id },
-            },
-        },
-    });
-
-    if(likedContent && likedContent.likedBy.length > 0) return "liked"
-
-    const dislikedContent = await db.content.findUnique({
-        where: { id: content_id },
-        select: {
-            dislikedBy: {
-                where: { id: user.id },
-            },
-        },
-    });
-
-    if(dislikedContent && dislikedContent.dislikedBy.length > 0) return "disliked"
-
-    return "none"
-};
-
-
 export const addLike = async (content_id: string) => {
     const author = await getUser()
     if(!author) return false

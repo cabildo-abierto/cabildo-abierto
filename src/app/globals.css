@@ -179,9 +179,9 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 }
   
 .fixed-bottom-right {
-position: fixed;
-bottom: 30px; /* Adjust as needed */
-right: 30px;  /* Adjust as needed */
+	position: fixed;
+	bottom: 30px; /* Adjust as needed */
+	right: 30px;  /* Adjust as needed */
 }
 
 
@@ -190,7 +190,6 @@ right: 30px;  /* Adjust as needed */
 	border-radius: 0.25rem; /* Equivalent to rounded */
 	cursor: pointer;
 	transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
-	letter-spacing: 0.05em; /* Equivalent to tracking-wide */
 	color: #767a83; /* Equivalent to text-gray-400 */
 	padding-left: 0.5rem; /* Equivalent to px-2 */
 	padding-right: 0.5rem; /* Equivalent to px-2 */

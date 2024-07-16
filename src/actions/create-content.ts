@@ -3,13 +3,14 @@
 import {db} from "@/db";
 import {getUser} from "@/actions/get-user";
 import { ContentType } from "@prisma/client";
+import { getContentById } from "./get-content";
 
 
 export async function createComment(text: string, parentContentId: string) {
     const author = await getUser()
-    if(!author) return false
+    if(!author) return null
 
-    await db.content.create({
+    const comment = await db.content.create({
         data: {
             text: text,
             authorId: author.id,
@@ -17,13 +18,12 @@ export async function createComment(text: string, parentContentId: string) {
             type: "Comment"
         },
     })
-
-    return true
+    return await getContentById(comment.id)
 }
 
 
 
-export async function createPost(text: string, postType: ContentType, isDraft: Boolean) {
+export async function createPost(text: string, postType: ContentType, isDraft: boolean) {
     const author = await getUser()
     if(!author) return false
 
