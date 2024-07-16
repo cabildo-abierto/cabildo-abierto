@@ -16,7 +16,7 @@ export const addLike = async (content_id: string) => {
             },
         },
     });
-    removeDislike(content_id)
+    await removeDislike(content_id)
 }
 
 
@@ -32,7 +32,7 @@ export const addDislike = async (content_id: string) => {
             },
         },
     });
-    removeLike(content_id)
+    await removeLike(content_id)
 }
 
 
