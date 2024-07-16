@@ -57,7 +57,7 @@ function TopbarLoggedIn({user, onOpenSidebar}) {
 
             <div className="px-2">
                 <button
-                    className="hover:bg-gray-200 rounded cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-gray-400 px-2"
+                    className="gray-button"
                     onClick={(e) => {logout()}}
                 >
                     Cerrar sesión

@@ -1,79 +1,82 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  directUrl         = env("DIRECT_URL")
+    provider          = "postgresql"
+    url               = env("DATABASE_URL")
+    directUrl         = env("DIRECT_URL")
 }
 
 model User {
-  id              String       @id @db.VarChar(255)
-  name            String       @db.VarChar(255)
-  email           String       @unique @db.VarChar(255)
-  password        String       @db.VarChar(255)
-  createdAt       DateTime     @default(now()) @map(name: "created_at")
-  contents        Content[]
-  mentionedBy     Content[]    @relation("mention")
-  likes           Content[]    @relation("likes")
-  dislikes        Content[]    @relation("dislikes")
-  
-  following       User[]       @relation("following")
-  followedBy      User[]       @relation("following")
+    id              String       @id @db.VarChar(255)
+    name            String       @db.VarChar(255)
+    email           String       @unique @db.VarChar(255)
+    password        String       @db.VarChar(255)
+    createdAt       DateTime     @default(now()) @map(name: "created_at")
+    contents        Content[]
+    mentionedBy     Content[]    @relation("mention")
+    likes           Content[]    @relation("likes")
+    dislikes        Content[]    @relation("dislikes")
+    
+    following       User[]       @relation("following")
+    followedBy      User[]       @relation("following")
 
-  paymentHistory  Payment[]
+    paymentHistory  Payment[]
 
-  @@map(name: "users")
+    @@map(name: "users")
 }
 
 
 model Payment {
-  id                String      @id @default(cuid())
-  user              User        @relation(fields: [userId], references: [id])
-  userId            String
-  createdAt         DateTime    @default(now()) @map(name: "created_at")
-  amount            Int
+    id                String      @id @default(cuid())
+    user              User        @relation(fields: [userId], references: [id])
+    userId            String
+    createdAt         DateTime    @default(now()) @map(name: "created_at")
+    amount            Int
 }
 
 
 model Entity {
-  id              String       @id
-  name            String       @unique @db.VarChar(255)
-  mentionedBy     Content[]    @relation("entityMention")
-  content         Content      @relation(fields: [contentId], references: [id])
-  contentId       String       @unique
+    id              String       @id
+    name            String       @unique @db.VarChar(255)
+    mentionedBy     Content[]    @relation("entityMention")
+    content         Content      @relation(fields: [contentId], references: [id])
+    contentId       String       @unique
 }
 
 
 enum ContentType {
-  Comment
-  Post
-  FastPost
-  EntityContent
+    Comment
+    Post
+    FastPost
+    EntityContent
 }
 
 
 model Content {
-  id                String      @id @default(cuid())
-  text              String
-  createdAt         DateTime    @default(now()) @map(name: "created_at")
-  type              ContentType
+    id                String      @id @default(cuid())
+    text              String
+    createdAt         DateTime    @default(now()) @map(name: "created_at")
+    type              ContentType
 
-  author            User?       @relation(fields: [authorId], references: [id])
-  authorId          String?
-  
-  mentionedUsers    User[]      @relation("mention")
-  mentionedEntities Entity[]    @relation("entityMention")
+    author            User?       @relation(fields: [authorId], references: [id])
+    authorId          String?
+    
+    mentionedUsers    User[]      @relation("mention")
+    mentionedEntities Entity[]    @relation("entityMention")
 
-  childrenComments  Content[]   @relation("ContentToContent")
+    childrenComments  Content[]   @relation("ContentToContent")
 
-  // parent for comments
-  parentContent     Content?    @relation("ContentToContent", fields: [parentContentId], references: [id])
-  parentContentId   String?
+    // parent for comments
+    parentContent     Content?    @relation("ContentToContent", fields: [parentContentId], references: [id])
+    parentContentId   String?
 
-  likedBy           User[]      @relation("likes")
-  dislikedBy        User[]      @relation("dislikes")
+    likedBy           User[]      @relation("likes")
+    dislikedBy        User[]      @relation("dislikes")
 
-  parentEntity      Entity?
+    parentEntity      Entity?
+
+    // true or false for Post or FastPost, null for other types
+    isDraft           Boolean?
 }

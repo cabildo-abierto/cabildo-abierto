@@ -183,3 +183,27 @@ position: fixed;
 bottom: 30px; /* Adjust as needed */
 right: 30px;  /* Adjust as needed */
 }
+
+
+.gray-button {
+	background-color: #E5E7EB; /* Equivalent to bg-gray-200 */
+	border-radius: 0.25rem; /* Equivalent to rounded */
+	cursor: pointer;
+	transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+	letter-spacing: 0.05em; /* Equivalent to tracking-wide */
+	color: #767a83; /* Equivalent to text-gray-400 */
+	padding-left: 0.5rem; /* Equivalent to px-2 */
+	padding-right: 0.5rem; /* Equivalent to px-2 */
+}
+  
+.gray-button:hover {
+	background-color: #E5E7EB; /* Keep the hover background color the same */
+	transform: scale(1.05);
+}
+
+.panel {
+    background-color: #ffffff; /* bg-white */
+    border-radius: 0.5rem; /* rounded-lg (lg: large) */
+	padding: 0.5rem;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05); /* shadow-lg */
+}

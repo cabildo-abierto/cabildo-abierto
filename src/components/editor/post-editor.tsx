@@ -104,9 +104,10 @@ const toolbar = {
 }
 
 
-export default function PostEditor({onSubmit}) {
+export default function PostEditor({onSubmit, onSaveDraft, initialData=""}) {
     const [editor, setEditor] = useState(null);
 	const editorRef = useRef(null);
+	const editorContainerRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
 
 	useEffect(() => {
@@ -122,7 +123,7 @@ export default function PostEditor({onSubmit}) {
 		mention: mentionConfig,
 		blockToolbar: ['bold', 'italic', '|', 'link', 'internal-link', 'insertTable'],
 		heading: headingConfig,
-		initialData: '',
+		initialData: initialData,
 		link: linkConfig,
 		placeholder: 'Tu publicación va acá',
 		table: tableConfig,
@@ -130,21 +131,36 @@ export default function PostEditor({onSubmit}) {
 	};
 
 	return (
-		<div ref={editorRef} className="">{isLayoutReady && 
-		<CKEditor
-			editor={BalloonEditor}
-			config={editorConfig}
-			onReady={setEditor}
-		/>}
+		<div className="editor-container" ref={editorContainerRef}>
+            <div className="editor-container__editor ck-content">
+				<div ref={editorRef} className="">
+					{isLayoutReady && 
+						<CKEditor
+							editor={BalloonEditor}
+							config={editorConfig}
+							onReady={setEditor}
+					/>}
 
-		<div className="flex justify-end mt-3">
-          <button
-            onClick={() => {onSubmit(editor.getData())}}
-            className="py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-          >
-            Publicar
-          </button>
-        </div>
+					<div className="flex justify-end mt-3">
+						<div className="px-2">
+						<button
+							onClick={() => {onSaveDraft(editor.getData())}}
+							className="py-2 px-4 rounded font-bold transition duration-200 bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+						>
+							Guardar borrador
+						</button>
+						</div>
+						<div>
+							<button
+								onClick={() => {onSubmit(editor.getData())}}
+								className="py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+							>
+								Publicar
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }

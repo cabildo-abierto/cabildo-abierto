@@ -5,6 +5,7 @@ import { createPost } from '@/actions/create-content'
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ThreeColumnsLayout } from "@/components/main-layout";
+import Link from "next/link";
 
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
@@ -29,32 +30,45 @@ const PostSelector = ({setSelection}) => {
 
 
 const Escribir: React.FC = () => {
-  const [selection, setSelection] = useState("publicación rápida");
-  const router = useRouter();
+    const [selection, setSelection] = useState("publicación rápida");
+    const router = useRouter();
 
-  const handleCreate = async (content) => {
-      const contentType = selection == "publicación" ? "Post" : "FastPost"
-      const success = await createPost(content, contentType)
-      if (success) {
-          router.push("/")
-      }
-  }
+    const handleCreate = async (content) => {
+        const contentType = selection == "publicación" ? "Post" : "FastPost"
+        const success = await createPost(content, contentType, false)
+        if (success) {
+            router.push("/")
+        }
+    }
 
-  const center = <div className="flex justify-center h-screen">
-      <div className="flex flex-col w-full px-5 mt-8">
-          <PostSelector setSelection={setSelection}/>
-          {selection == "publicación" ?
-              <PostEditor
-                  onSubmit={handleCreate}
-              /> : 
-              <FastEditor
-                  onSubmit={handleCreate}
-              />
-          }
-      </div>
-  </div>
+    const handleSaveDraft = async (content) => {
+        const contentType = selection == "publicación" ? "Post" : "FastPost"
+        const success = await createPost(content, contentType, true)
+        if (success) {
+            router.push("/borradores")
+        }
+    }
 
-  return <ThreeColumnsLayout center={center}/>
+    const center = <div className="flex justify-center h-screen">
+        <div className="flex flex-col w-full px-5 mt-8">
+                <Link href="/borradores" className="mb-4">
+                    <button className="gray-button">Mis borradores</button>
+                </Link>
+                <PostSelector setSelection={setSelection}/>
+                {selection == "publicación" ?
+                    <PostEditor
+                        onSubmit={handleCreate}
+                        onSaveDraft={handleSaveDraft}
+                    /> : 
+                    <FastEditor
+                        onSubmit={handleCreate}
+                        onSaveDraft={handleSaveDraft}
+                    />
+                }
+        </div>
+    </div>
+
+    return <ThreeColumnsLayout center={center}/>
 };
 
 export default Escribir;
