@@ -19,9 +19,11 @@ export type ContentProps = {
     likedBy: []
     dislikedBy: []
     type: string
+    childrenComments?: []
+    childrenCommentsWithData?: []
 };
 
-export async function getContentById(contentId: string): Promise<ContentProps | null> {
+export async function getContentById(contentId: string) {
     const userId = await getUserId()
     let content: ContentProps | null = await db.content.findUnique(
         {select: {
@@ -44,8 +46,9 @@ export async function getContentById(contentId: string): Promise<ContentProps | 
                         id: userId
                     }
                 },
+                childrenComments: true,
                 _count: {
-                    select: { 
+                    select: {
                         childrenComments: true,
                         likedBy: true,
                         dislikedBy: true,
@@ -58,50 +61,15 @@ export async function getContentById(contentId: string): Promise<ContentProps | 
             }
         }
     )
-    if(!content) return null
-    return content
+    const childrenWithData = await Promise.all(content.childrenComments.map(async (child) => {
+        return await getContentById(child.id)
+    }))
+
+    return {content: content, children: childrenWithData}
 }
 
 export type ContentWithLinks = React.JSX.Element | string | React.JSX.Element[]
 
-export async function getContentComments(contentId: string){
-    const userId = await getUserId()
-
-    let comments: ContentProps[] = await db.content.findMany({
-        select: {
-            id: true,
-            text: true,
-            createdAt: true,
-            author: {
-                select: {
-                    name: true,
-                    id: true
-                },
-            },
-            likedBy: {
-                where: {
-                    id: userId
-                }
-            },
-            dislikedBy: {
-                where: {
-                    id: userId
-                }
-            },
-            _count: {
-                select: { 
-                    childrenComments: true,
-                    likedBy: true,
-                    dislikedBy: true,
-                },
-            },
-            type: true
-        },
-        where: {parentContentId: contentId},
-        orderBy: {createdAt: "desc"}
-    })
-    return comments
-}
 
 export async function getPosts() {
     const userId = await getUserId()

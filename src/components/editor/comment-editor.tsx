@@ -46,14 +46,14 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
 		return <div className="px-1">
 			<button
 				onClick={handleSubmit}
-				className="large-btn"
+				className="small-btn"
 			>
 				Enviar
 			</button>
 		</div>
 	}
 
-	return <div ref={editorRef} className="panel">
+	return <div ref={editorRef} className="border px-1 py-1 rounded">
 		{isLayoutReady && 
 		<CKEditor
 			editor={BalloonEditor}
@@ -70,7 +70,7 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
 					<div className="px-1">
 						<button
 							onClick={onCancel}
-							className="mr-2 text-gray-600 text-sm hover:text-gray-800"
+							className="small-btn"
 						>
 							Cancelar
 						</button>
