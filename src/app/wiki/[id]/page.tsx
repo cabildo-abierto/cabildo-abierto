@@ -1,14 +1,12 @@
-import { EntityProps, getEntityById } from "@/actions/get-entity";
+import { getEntityById } from "@/actions/get-entity";
 import React from "react"
-import EntityPage from "./entity-page";
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import { getUser } from "@/actions/get-user";
 import NoEntityPage from "./no-entity-page";
+import { ContentWithComments } from "@/components/content-with-comments";
 
-const Tema: React.FC = async ({params}) => {
-    const user = await getUser()
+const EntityPage: React.FC = async ({params}) => {
 
-    const entity: EntityProps | null = await getEntityById(params.id)
+    const entity = await getEntityById(params.id)
     if(!entity){
         const center = <NoEntityPage id={params.id}/>
 
@@ -16,10 +14,13 @@ const Tema: React.FC = async ({params}) => {
     }
 
     const center = <div className="bg-white h-full">
-        <EntityPage entity={entity} user={user}/>
+        <h2 className="ml-2 py-8">
+            {entity.entity?.name}
+        </h2>
+        <ContentWithComments content={entity.content} comments={entity.children} entity={entity.entity}/>
     </div>
 
     return <ThreeColumnsLayout center={center}/>
 }
 
-export default Tema
+export default EntityPage

@@ -61,6 +61,7 @@ export async function getContentById(contentId: string) {
             }
         }
     )
+
     const childrenWithData = await Promise.all(content.childrenComments.map(async (child) => {
         return await getContentById(child.id)
     }))
@@ -68,41 +69,22 @@ export async function getContentById(contentId: string) {
     return {content: content, children: childrenWithData}
 }
 
-export type ContentWithLinks = React.JSX.Element | string | React.JSX.Element[]
+
+export async function getChildrenAndData(contents){
+    const contentsWithChildren = await Promise.all(contents.map(async (content) => {
+        return await getContentById(content.id)
+    }))
+
+    return contentsWithChildren
+}
 
 
 export async function getPosts() {
     const userId = await getUserId()
 
-    let contents: ContentProps[] = await db.content.findMany({
+    let contents = await db.content.findMany({
         select: {
-            id: true,
-            text: true,
-            createdAt: true,
-            author: {
-                select: {
-                    name: true,
-                    id: true
-                },
-            },
-            likedBy: {
-                where: {
-                    id: userId
-                }
-            },
-            dislikedBy: {
-                where: {
-                    id: userId
-                }
-            },
-            _count: {
-                select: { 
-                    childrenComments: true,
-                    likedBy: true,
-                    dislikedBy: true,
-                },
-            },
-            type: true,
+            id: true
         },
         where: {
             type: {
@@ -113,7 +95,8 @@ export async function getPosts() {
             createdAt: 'desc'
         }
     })
-    return contents
+
+    return await getChildrenAndData(contents)
 }
 
 
@@ -131,32 +114,6 @@ export async function getPostsFollowing() {
     let contents: ContentProps[] = await db.content.findMany({
         select: {
             id: true,
-            text: true,
-            createdAt: true,
-            author: {
-                select: {
-                    name: true,
-                    id: true
-                },
-            },
-            likedBy: {
-                where: {
-                    id: userId
-                }
-            },
-            dislikedBy: {
-                where: {
-                    id: userId
-                }
-            },
-            _count: {
-                select: { 
-                    childrenComments: true,
-                    likedBy: true,
-                    dislikedBy: true,
-                },
-            },
-            type: true
         },
         where: {
             AND: [
@@ -173,5 +130,5 @@ export async function getPostsFollowing() {
         }
     })
 
-    return contents
+    return await getChildrenAndData(contents)
 }

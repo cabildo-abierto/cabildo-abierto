@@ -37,6 +37,7 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
 	};
 
 	function handleSubmit(){
+		if(!user) return
 		const data = editor.getData()
 		if(data.length == 0) return
 		onSubmit(data)
@@ -64,7 +65,7 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
 		<div className="flex justify-end">
 			<div className="flex justify-end mt-3">
 				{user ? <SendCommentButton/> :
-					<NeedAccountPopup trigger={SendCommentButton()} text="Para hacer un comentario es necesario tener una cuenta."/>
+					<NeedAccountPopup trigger={SendCommentButton()} text="Para agregar comentarios es necesario tener una cuenta."/>
 				}
 				{onCancel != null &&
 					<div className="px-1">

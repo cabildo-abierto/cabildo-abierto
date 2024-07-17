@@ -1,44 +1,27 @@
 'use server'
 
 import {db} from "@/db";
+import { getContentById } from "./get-content";
 
 export type EntityProps = {
     id: string;
     name: string;
 };
 
-export async function getEntityById(entityId: string): Promise<EntityProps | null> {
+export async function getEntityById(entityId: string) {
     let entity: EntityProps | null = await db.entity.findUnique(
         {select: {
             id: true,
             name: true,
-            content: {
-                select: {
-                    id: true,
-                    text: true,
-                    childrenComments: {
-                        select: {
-                            id: true,
-                            text: true,
-                            createdAt: true,
-                            type: true,
-                            author: true,
-                            _count: {
-                                select: {
-                                    childrenComments: true
-                                }
-                            }
-                        }
-                    }
-                }
-            },
+            content: true,
         },
             where: {
                 id: entityId,
             }
         }
     )
-    return entity
+    const content = await getContentById(entity.content.id)
+    return {entity: entity, content: content.content, children: content.children}
 }
 
 

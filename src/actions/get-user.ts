@@ -2,7 +2,7 @@
 
 import {db} from "@/db";
 import {verifySession} from "@/actions/auth";
-import { ContentProps, getContentWithLinks } from "./get-content";
+import { ContentProps, getChildrenAndData, getContentWithLinks } from "./get-content";
 import { getLikeState } from "./likes";
 
 
@@ -35,7 +35,6 @@ export async function getUserById(userId: string){
 }
 
 export async function getUserActivityById(userId: string){
-    const loggedInUserId = await getUserId()
     let contents: ContentProps[] = await db.content.findMany(
         {
             where: {
@@ -61,35 +60,14 @@ export async function getUserActivityById(userId: string){
                 ]
             },
             select: {
-                text: true,
-                author: true,
-                createdAt: true,
-                id: true,
-                likedBy: {
-                    where: {
-                        id: loggedInUserId
-                    }
-                },
-                dislikedBy: {
-                    where: {
-                        id: loggedInUserId
-                    }
-                },
-                _count: {
-                    select: { 
-                        childrenComments: true,
-                        likedBy: true,
-                        dislikedBy: true,
-                    },
-                },
-                type: true
+                id: true
             },
             orderBy: {
                 createdAt: "desc"
             }
         }
     )
-    return contents
+    return await getChildrenAndData(contents)
 }
 
 

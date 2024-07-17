@@ -8,12 +8,11 @@ import { useRouter } from "next/navigation";
 import HtmlContent from "./editor/ckeditor-html-content";
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 
-import dynamic from 'next/dynamic';
 import { splitPost } from "./utils";
 import { DateAndTimeComponent, DateComponent } from "./date";
 import { LikeCounter } from "./like-counter";
-
-const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
+import { Post } from "./post";
+import EntityComponent from "@/components/entity-component";
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -57,7 +56,13 @@ export const AddCommentButton: React.FC<{text: string, onClick: () => void}> = (
 }
 
 
-const ContentComponent = ({content, comments, onViewComments, onStartReply}) => {
+const ContentComponent = ({content, comments, onViewComments, onStartReply, entity=null}) => {
+    if(content.type == "Post"){
+        return <Post content={content}/>
+    } else if(content.type == "EntityContent"){
+        return <EntityComponent content={content} entity={entity}/>
+    }
+
     return <>
         <div className="border rounded">
             <ContentTopRow content={content}/>

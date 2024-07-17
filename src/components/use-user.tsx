@@ -7,6 +7,7 @@ const useUser = () => {
   useEffect(() => {
     const fetchUserId = async () => {
       const id = await getUserId();
+      console.log("Setting user id", id)
       setUserId(id);
     };
 

@@ -1,15 +1,11 @@
 "use client"
-import { createComment } from "@/actions/create-content";
 import { updateEntityContent } from "@/actions/create-entity"
-import { getEntityById } from "@/actions/get-entity";
 import MarkdownContent from "@/components/editor/ckeditor-markdown-content";
 import { useState } from "react"
 import dynamic from 'next/dynamic';
 import NeedAccountPopup from "@/components/need-account-popup";
-import Feed from "@/components/feed";
-import { getContentComments } from "@/actions/get-content";
+import useUser from "./use-user";
 
-const CommentEditor = dynamic(() => import('@/components/editor/comment-editor'), { ssr: false });
 const MarkdownEditor = dynamic(() => import('@/components/editor/markdown-editor'), { ssr: false });
 
 
@@ -30,7 +26,8 @@ const EditableContent = ({ content, handleSave, onCancel }) => {
 }
 
 
-const ReadOnlyContent = ({ onEdit, content, user }) => {
+const ReadOnlyContent = ({ onEdit, content }) => {
+    const user = useUser()
 
     const EditButton = () => {
         return <button
@@ -53,56 +50,25 @@ const ReadOnlyContent = ({ onEdit, content, user }) => {
     </>
 }
 
-
-const EntityCommentSection = ({ entity, user }) => {
-    const handleSubmit = async (content) => {
-        await createComment(content, entity.content.id)
-    }
-
-    return <div>
-        <div>Comentarios</div>
-        <div className="z-0">
-            <CommentEditor onSubmit={handleSubmit} user={user} />
-        </div>
-        <Feed contents={entity.content.childrenComments} />
-    </div>
-}
-
-
-const EntityPage = ({ entity, user }) => {
-    const [content, setContent] = useState(entity.content.text)
+const EntityComponent = ({ content, entity}) => {
+    const [updatedContent, setUpdatedContent] = useState(content.text)
     const [modify, setModify] = useState(false)
 
-    const handleSave = async (content) => {
-        await updateEntityContent(content, entity.id)
-        setContent(content)
+    const handleSave = async (newContent) => {
+        await updateEntityContent(newContent, entity.id)
+        setUpdatedContent(newContent)
         setModify(false)
     }
 
     const onEdit = () => {
-        if (user)
-            setModify(!modify)
-        else {
-            ;
-        }
+        setModify(!modify)
     }
 
-    return <>
-        <h2 className="ml-2 py-8">
-            {entity.name}
-        </h2>
-
-        <div className="mb-2">
-            {modify ?
-                <EditableContent onCancel={() => { setModify(!modify) }} content={content} handleSave={handleSave} />
-                :
-                <ReadOnlyContent onEdit={onEdit} content={content} user={user} />
-            }
-        </div>
-
-        <hr />
-        <EntityCommentSection entity={entity} user={user} />
-    </>
+    if(modify){
+        return <EditableContent onCancel={() => { setModify(!modify) }} content={updatedContent} handleSave={handleSave} />
+    } else {
+        return <ReadOnlyContent onEdit={onEdit} content={updatedContent}/>
+    }
 }
 
-export default EntityPage
+export default EntityComponent
