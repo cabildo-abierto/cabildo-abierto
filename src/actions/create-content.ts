@@ -27,7 +27,7 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
     const author = await getUser()
     if(!author) return false
 
-    await db.content.create({
+    return await db.content.create({
         data: {
             text: text,
             authorId: author.id,
@@ -35,8 +35,6 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
             isDraft: isDraft
         },
     })
-
-    return true
 }
 
 
