@@ -51,13 +51,13 @@ export const LikeCounter = ({content}) => {
 
     return <div className="flex">
         <div className="flex items-center px-3">
-            <button onClick={onLikeClick} className="text-sm mr-1">
-                    {like_icon}               
+            <button onClick={onLikeClick} className="text-sm mr-1 text-gray-600 hover:text-gray-800">
+                {like_icon}               
             </button>
             <div className="text-gray-600 text-sm">{likeCount}</div>
         </div>
         <div className="flex items-center px-3">
-            <button onClick={onDislikeClick} className="text-sm mr-1">
+            <button onClick={onDislikeClick} className="text-sm mr-1 text-gray-600 hover:text-gray-800">
                 {dislike_icon}               
             </button>
             <div className="text-gray-600 text-sm">{dislikeCount}</div>

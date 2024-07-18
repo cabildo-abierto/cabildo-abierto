@@ -8,7 +8,7 @@ export type EntityProps = {
     name: string;
 };
 
-export async function getEntityById(entityId: string) {
+export async function getEntityById(entityId: string, userId) {
     let entity: EntityProps | null = await db.entity.findUnique(
         {select: {
             id: true,
@@ -20,7 +20,7 @@ export async function getEntityById(entityId: string) {
             }
         }
     )
-    const content = await getContentById(entity.content.id)
+    const content = await getContentById(entity.content.id, userId)
     return {entity: entity, content: content.content, children: content.children}
 }
 

@@ -1,9 +1,6 @@
 'use server'
 
 import {db} from "@/db";
-import {verifySession} from "@/actions/auth";
-import { ContentProps, getContentWithLinks } from "./get-content";
-import { getLikeState } from "./likes";
 import { getUserId } from "./get-user";
 
 
@@ -22,7 +19,6 @@ export async function follow(userToFollow) {
             },
         },
     });
-    console.log("followed")
     return updatedUser;
 }
 

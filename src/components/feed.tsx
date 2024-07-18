@@ -6,7 +6,10 @@ const Feed: React.FC<{contents: any[]}> = ({contents}) => {
         <div className="">
             {contents.map((content, index) => {
                 return <div key={index} className="py-1">
-                    <ContentWithComments content={content.content} comments={content.children}/>
+                    <ContentWithComments
+                        content={content.content}
+                        comments={content.children}
+                    />
                 </div>
             })}
         </div>

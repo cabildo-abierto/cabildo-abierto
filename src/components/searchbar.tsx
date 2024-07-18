@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { searchUsers, searchContents, searchEntities } from "@/actions/search";
 import { UserProps } from "@/actions/get-user";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import { EntityProps } from "@/actions/get-entity";
 
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
+import useUser from "./use-user";
 
 
 
@@ -26,7 +27,17 @@ export const UserSearchResult: React.FC<{ result: UserProps | EntityProps, isEnt
 }
 
 const SearchInput: React.FC<{ onChange: (e: any) => void }> = ({ onChange }) => {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    // Focus the input element when the component mounts
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   return <input
+    ref={inputRef}
     className="rounded-lg w-128 px-4 py-1 focus:outline-none transition duration-300"
     placeholder="buscar"
     onChange={onChange}
@@ -69,9 +80,10 @@ const SelectionComponent: React.FC<{ selectionHandler: (arg: string) => void }> 
 
 const SearchPage = ({searchValue}) => {
   const [resultsUsers, setResultsUsers] = useState<UserProps[]>([]);
-  const [resultsContents, setResultsContents] = useState<ContentProps[]>([]);
+  const [resultsContents, setResultsContents] = useState([]);
   const [resultsEntities, setResultsEntities] = useState<EntityProps[]>([]);
   const [searchType, setSearchType] = useState("users");
+  const userId = useUser()
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -83,7 +95,7 @@ const SearchPage = ({searchValue}) => {
 
   const search = async () => {
       setResultsUsers(await searchUsers(searchValue))
-      setResultsContents(await searchContents(searchValue))
+      setResultsContents(await searchContents(searchValue, userId))
       setResultsEntities(await searchEntities(searchValue))
   }
 
@@ -101,8 +113,8 @@ const SearchPage = ({searchValue}) => {
       ))
     } else if (searchType == "contents") {
       return resultsContents.map((result) => (
-        <div className="py-2" key={result.id}>
-          <ContentComponent content={result} isMainContent={false} />
+        <div className="py-2" key={result.content.id}>
+          <ContentComponent content={result.content} comments={result.children}/>
         </div>
       ))
     } else {

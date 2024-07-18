@@ -70,13 +70,13 @@ export async function searchUsers(value: string): Promise<UserProps[]>{
 }
 
 
-export async function searchContents(value: string): Promise<ContentProps[]>{
+export async function searchContents(value: string, userId: string) {
     if(value.length == 0)
         return []
 
     const dist = diceCoefficientDistance
 
-    const contents: ContentSearchResult[] = await getPosts()
+    const contents: ContentSearchResult[] = await getPosts(userId)
 
     const maxDist = dist(value, '')
     contents.forEach(function(item){

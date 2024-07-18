@@ -56,8 +56,8 @@ export const AddCommentButton: React.FC<{text: string, onClick: () => void}> = (
 }
 
 
-const ContentComponent = ({content, comments, onViewComments, onStartReply, entity=null}) => {
-    if(content.type == "Post"){
+const ContentComponent = ({content, comments, onViewComments, onStartReply, entity=null, isPostPage=false}) => {
+    if(content.type == "Post" && isPostPage){
         return <Post content={content}/>
     } else if(content.type == "EntityContent"){
         return <EntityComponent content={content} entity={entity}/>
@@ -76,8 +76,8 @@ const ContentComponent = ({content, comments, onViewComments, onStartReply, enti
                 <div className="flex">
                     <LikeCounter content={content}/>
                     <div className="flex items-center px-3">
-                        <button className="text-gray-600 text-sm hover:text-gray-800 ml-2" onClick={onViewComments}>
-                            <CommentOutlinedIcon sx={{ fontSize: 18 }}/> {comments.length}
+                        <button className="text-gray-600 text-sm ml-2" onClick={onViewComments}>
+                            <span className="hover:text-gray-800"><CommentOutlinedIcon sx={{ fontSize: 18 }}/></span> {comments.length}
                         </button>
                     </div>
                 </div>

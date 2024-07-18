@@ -3,10 +3,11 @@ import React from "react"
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import NoEntityPage from "./no-entity-page";
 import { ContentWithComments } from "@/components/content-with-comments";
+import { getUserId } from "@/actions/get-user";
 
 const EntityPage: React.FC = async ({params}) => {
 
-    const entity = await getEntityById(params.id)
+    const entity = await getEntityById(params.id, await getUserId())
     if(!entity){
         const center = <NoEntityPage id={params.id}/>
 

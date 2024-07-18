@@ -3,12 +3,13 @@ import CommentSection from "./comment-section"
 import ContentComponent from "./content"
 import { useState } from "react"
 import { createComment } from "@/actions/create-content"
-import CommentEditor from "./editor/comment-editor"
-import useUser from "./use-user"
+import dynamic from "next/dynamic"
+
+const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 
 
-export const ContentWithComments = ({content, comments, entity=null}) => {
-    const startsOpen = content.type == "Post" || content.type == "EntityContent"
+export const ContentWithComments = ({content, comments, entity=null, isPostPage=false}) => {
+    const startsOpen = (content.type == "Post" && isPostPage) || content.type == "EntityContent"
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
     const [updatedComments, setUpdatedComments] = useState(comments)
@@ -31,8 +32,10 @@ export const ContentWithComments = ({content, comments, entity=null}) => {
             onViewComments={() => {setViewComments(!viewComments)}}
             onStartReply={() => {setWritingReply(!writingReply)}}
             entity={entity}
+            isPostPage={isPostPage}
         />
-        <div className="border-t">
+        {isPostPage && <hr/>}
+        <div className="">
             {writingReply && <div className="mt-1 mb-2 ml-2">
                 {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 
                     <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>

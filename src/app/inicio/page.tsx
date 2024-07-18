@@ -2,10 +2,11 @@ import React from "react"
 import {getPosts} from "@/actions/get-content";
 import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";
+import { getUserId } from "@/actions/get-user";
 
 
 const Inicio: React.FC = async () => {
-    const feed = await getPosts()
+    const feed = await getPosts(await getUserId())
 
     const center = <div className="w-full bg-white h-full">
         <h2 className="ml-2 py-8">
