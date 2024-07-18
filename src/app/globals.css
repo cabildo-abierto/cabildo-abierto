@@ -29,8 +29,34 @@ h3 {
 	word-break: break-word;
 }
 
-.editor-container p, h1, h2, h3, h4, h5, h6 {
-  	margin-top: 8px
+.editor-container h1 {
+  	margin-top: 20px;
+	margin-bottom: 20px
+}
+
+.editor-container h2 {
+	margin-top: 16px;
+  	margin-bottom: 16px
+}
+
+.editor-container h3 {
+	margin-top: 12px;
+  	margin-bottom: 12px
+}
+
+.editor-container h4 {
+	margin-top: 9px;
+  	margin-bottom: 9px
+}
+
+.editor-container h5 {
+	margin-top: 7px;
+  	margin-bottom: 7px
+}
+
+.editor-container p {
+	margin-top: 5px;
+	margin-bottom: 5px
 }
 
 h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {

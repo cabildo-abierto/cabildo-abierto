@@ -1,5 +1,5 @@
 "use client"
-import { createPost, publishDraft, updateContent } from "@/actions/create-content";
+import { publishDraft, updateContent } from "@/actions/create-content";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
