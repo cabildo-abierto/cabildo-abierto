@@ -2,6 +2,17 @@
 
 import { useFormStatus } from 'react-dom'
 
+
+export function DisabledSignupButton() {
+
+    return (
+        <button disabled={true} type="submit" className="bg-gray-200 py-2 rounded w-full transition duration-300 ease-in-out transform hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+            Próximamente
+        </button>
+    )
+}
+
+
 export function SignupButton() {
     const {pending} = useFormStatus()
 

@@ -2,7 +2,7 @@
 
 import {signup} from "@/actions/auth";
 import { useFormState } from "react-dom";
-import {SignupButton} from "./signup-button";
+import {DisabledSignupButton, SignupButton} from "./signup-button";
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
@@ -93,7 +93,7 @@ export default function SignupForm() {
                         }
                     </div>
 
-                    <SignupButton/>
+                    <DisabledSignupButton/>
                 </div>
             </form>
         </div>

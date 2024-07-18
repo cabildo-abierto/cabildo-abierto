@@ -1,8 +1,20 @@
 'use client'
 
-import { useFormStatus, useFormState } from 'react-dom'
+import { useFormStatus } from 'react-dom'
 
-export default function LoginButton() {
+export function DisabledLoginButton() {
+
+    return (
+        <button 
+            disabled={true}
+            className="bg-gray-200 py-2 rounded w-full transition duration-300 ease-in-out transform hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+            Próximamente
+        </button>
+    )
+
+}
+
+export function LoginButton() {
     const {pending} = useFormStatus()
 
     return (

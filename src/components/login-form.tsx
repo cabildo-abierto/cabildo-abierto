@@ -2,14 +2,14 @@
 
 import { useFormState } from "react-dom";
 import {authenticate, signup} from '@/actions/auth';
-import LoginButton from "./login-button";
+import {LoginButton, DisabledLoginButton} from "./login-button";
 import { AuthenticationFormLabel } from "../app/signup/signup-form";
 
 export default function LoginForm() {
     const [success, action] = useFormState(authenticate, true)
 
     return (
-        <div className="">
+        <div className="" tabIndex={-1}>
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
                     <h1 className='mb-3 text-2xl'>
