@@ -68,25 +68,33 @@ function TopbarLoggedIn({user, onOpenSidebar}) {
 }
 
 
+const TopBarGuest = () => {
+    return <>
+        <div className="w-1/4"></div>
+        <div className="text-gray-600 flex justify-center w-1/2">
+            <div>
+            Estás viendo esta página como invitado, muchas funciones no están disponibles.</div>
+            </div>
+        <div className="px-4 w-1/4 flex justify-end">
+            <button
+                className="hover:bg-gray-200 rounded cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 text-gray-600 px-2"
+                onClick={(e) => {logout()}}
+            >
+                <Link href="/">
+                    Crear cuenta o iniciar sesión
+                </Link>
+            </button>
+        </div>
+    </>
+}
+
+
 export default function Topbar({user, onOpenSidebar}) {
 
     return <div className="border-b z-1 bg-white h-16 flex items-center justify-between">
         {user ? 
             <TopbarLoggedIn user={user} onOpenSidebar={onOpenSidebar}/> :
-            <>
-                <div></div>
-
-                <div className="px-4">
-                    <button
-                        className="hover:bg-gray-200 rounded cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide text-gray-600 px-2"
-                        onClick={(e) => {logout()}}
-                    >
-                        <Link href="/">
-                            Crear cuenta o iniciar sesión
-                        </Link>
-                    </button>
-                </div>
-            </>
+            <TopBarGuest/>
         }
     </div>
     

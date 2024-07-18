@@ -1,15 +1,13 @@
 "use client"
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { ContentProps } from "@/actions/get-content"
-import { createComment } from "@/actions/create-content";
-import { useRouter } from "next/navigation";
 
 import HtmlContent from "./editor/ckeditor-html-content";
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 
 import { splitPost } from "./utils";
-import { DateAndTimeComponent, DateComponent } from "./date";
+import { DateAndTimeComponent } from "./date";
 import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
 import EntityComponent from "@/components/entity-component";

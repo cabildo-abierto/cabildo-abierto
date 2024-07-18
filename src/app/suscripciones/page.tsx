@@ -17,27 +17,7 @@ export const SubscriptionOptionButton = ({title, description, price=null, href})
     </div>
 }
 
-
-const ValidSubscriptionPage = () => {
-    const center = <div className="mt-8">
-        <div className="flex justify-center items-center">
-            <h2>
-                Tenés una suscripción activa
-            </h2>
-        </div>
-        <div className="flex justify-center items-center">
-            <div>TO DO: Administración de pagos y opción de donar</div>
-        </div>
-    </div>
-
-    return <ThreeColumnsLayout center={center} centerWidth={800}/>
-}
-
-
-const NoSubscriptionPage = () => {
-    const available = 289
-    const price = 1000
-
+const SubscriptionOptions = ({price, available}) => {
     const desc = <>
     <div>Podés hacer un pago único o activar pagos recurrentes.</div></>
 
@@ -46,7 +26,7 @@ const NoSubscriptionPage = () => {
         </span>
     </div>
 
-    const center = <div className="mt-8">
+    return <>
         <div className="flex justify-center items-center">
             <h2>
                 Tres opciones para obtener tu suscripción
@@ -61,28 +41,54 @@ const NoSubscriptionPage = () => {
                 price={`$${price}`}
                 href={"/suscripciones/clasico"}
             />
-        
+
             <SubscriptionOptionButton
                 title="Usá una suscripción donada"
                 description={desc2}
                 price="Gratis"
                 href={"/suscripciones/gratis"}
             />
-        
+
             <SubscriptionOptionButton
                 title="Hacé crecer Cabildo Abierto"
                 description="Apoyá a la plataforma y a los creadores de contenido donando suscripciones."
                 price={`Desde $${2*price}`}
                 href={"/suscripciones/donar"}
             />
-            </div>
         </div>
-
-        <div className="flex justify-center items-center mt-8">
-            <h3>¿Por qué suscripciones?</h3>
         </div>
+    </>
+}
 
-        <div className="mt-4">
+
+const ActiveSubscription = () => {
+    return <div className="p-4 bg-gray-100 rounded-md shadow-md">
+        <p className="text-gray-900 font-semibold">Tenés una suscripción activa</p>
+    </div>
+}
+
+
+export default async function Suscripciones() {
+    const status = await getSubscriptionStatus()
+
+    const price = 1000
+    const available = 289
+
+    const center = <div className="mt-8">
+        {status == "valid" ? <ActiveSubscription/>
+             : <SubscriptionOptions price={price} available={available}/>}
+
+        <div className="flex justify-center items-center py-8 editor-container text-xl">
+            <Link href="/wiki/Cabildo Abierto: Suscripciones">¿Cómo funcionan las suscripciones?</Link>
+        </div>
+    </div>
+
+    return <ThreeColumnsLayout center={center} centerWidth={800}/>
+}
+
+
+/*
+<div className="mt-4">
             <ul className="styled-list">
                 <li><span className="font-bold">Para financiar a quienes escriben lo que leés:</span> El 55% de los ingresos son para ellos y ellas, que te ofrecen contenido independiente y de calidad. Ojo, igual después podés elegir a quiénes financiar con tu suscripción.</li>
                 <li><span className="font-bold">Para financiar el desarrollo de la plataforma:</span> El diseño está orientado a las necesidades de los usuarios, que son los únicos clientes.</li>
@@ -104,19 +110,4 @@ const NoSubscriptionPage = () => {
                     <span className="font-bold">Importante:</span> Los usuarios que usan una suscripción donada reciben la misma experiencia que los que pagan su sucripción, no hacemos favoritismos.
                 </li>
             </ul>
-        </div>
-    </div>
-
-    return <ThreeColumnsLayout center={center} centerWidth={800}/>
-}
-
-
-export default async function Suscripciones() {
-    const status = await getSubscriptionStatus()
-
-    if(status == "valid"){
-        return <ValidSubscriptionPage/>
-    } else {
-        return <NoSubscriptionPage/>
-    }
-}
+        </div>*/

@@ -13,5 +13,6 @@ export const Post = ({content}) => {
             <DateComponent date={content.createdAt}/>
         </div>
         <HtmlContent content={split.text}/>
+        <hr/>
     </div>
 }

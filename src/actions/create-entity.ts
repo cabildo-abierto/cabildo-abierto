@@ -42,7 +42,7 @@ export async function createEntity(name){
   const entity = await db.entity.create({
     data: {
       name: name,
-      id: encodeURI(name.replaceAll(" ", "_")),
+      id: encodeURIComponent(name.replaceAll(" ", "_")),
       contentId: content.id
     }
   })

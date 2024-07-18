@@ -20,6 +20,9 @@ export async function getEntityById(entityId: string, userId) {
             }
         }
     )
+    if(!entity){
+        return null
+    }
     const content = await getContentById(entity.content.id, userId)
     return {entity: entity, content: content.content, children: content.children}
 }

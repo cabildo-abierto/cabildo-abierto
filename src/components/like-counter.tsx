@@ -4,10 +4,12 @@ import { useState } from "react"
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import { addDislike, addLike, removeLike, removeDislike } from "@/actions/likes";
+import useUser from "./use-user";
 
 export const LikeCounter = ({content}) => {
     const [likeCount, setLikeCount] = useState(content._count.likedBy)
     const [dislikeCount, setDislikeCount] = useState(content._count.dislikedBy)
+    const user = useUser()
 
     const wasLiked = content.likedBy.length > 0
     const wasDisliked = content.dislikedBy.length > 0
@@ -51,13 +53,13 @@ export const LikeCounter = ({content}) => {
 
     return <div className="flex">
         <div className="flex items-center px-3">
-            <button onClick={onLikeClick} className="text-sm mr-1 text-gray-600 hover:text-gray-800">
+            <button onClick={onLikeClick} disabled={!user} className="text-sm mr-1 text-gray-600 hover:text-gray-800">
                 {like_icon}               
             </button>
             <div className="text-gray-600 text-sm">{likeCount}</div>
         </div>
         <div className="flex items-center px-3">
-            <button onClick={onDislikeClick} className="text-sm mr-1 text-gray-600 hover:text-gray-800">
+            <button onClick={onDislikeClick} disabled={!user} className="text-sm mr-1 text-gray-600 hover:text-gray-800">
                 {dislike_icon}               
             </button>
             <div className="text-gray-600 text-sm">{dislikeCount}</div>

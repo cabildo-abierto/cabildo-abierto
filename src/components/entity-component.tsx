@@ -39,9 +39,7 @@ const ReadOnlyContent = ({ onEdit, content }) => {
 
     return <>
         <div className="flex justify-center items-center px-2 py-2">
-            {user ? <EditButton /> :
-                <NeedAccountPopup trigger={EditButton()} text="Para editar el contenido es necesario tener una cuenta" />
-            }
+            <EditButton />
         </div>
 
         <div className="px-2">
@@ -64,11 +62,11 @@ const EntityComponent = ({ content, entity}) => {
         setModify(!modify)
     }
 
-    if(modify){
-        return <EditableContent onCancel={() => { setModify(!modify) }} content={updatedContent} handleSave={handleSave} />
-    } else {
-        return <ReadOnlyContent onEdit={onEdit} content={updatedContent}/>
-    }
+    return <>
+        {modify ? <EditableContent onCancel={() => { setModify(!modify) }} content={updatedContent} handleSave={handleSave} /> : 
+        <ReadOnlyContent onEdit={onEdit} content={updatedContent}/>}
+        <hr className="mb-8 mt-4"/>
+    </>
 }
 
 export default EntityComponent

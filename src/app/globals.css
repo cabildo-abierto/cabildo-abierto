@@ -29,6 +29,10 @@ h3 {
 	word-break: break-word;
 }
 
+.editor-container {
+	@apply text-gray-900;
+}
+
 .editor-container h1 {
   	margin-top: 20px;
 	margin-bottom: 20px

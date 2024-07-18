@@ -47,6 +47,8 @@ import { getUsersMatching } from '@/actions/get-user';
 
 import './markdown-editor.css';
 import InternalLink from "./link/link"
+import useUser from '../use-user';
+import NeedAccountPopup from '../need-account-popup';
 
 const toolbar = {
 	items: [
@@ -118,11 +120,19 @@ const plugins = [
 ]
 
 
+const PublishButton = ({onSubmit, editor}) => {
+	return <button className="blue-button" onClick={() => {onSubmit(editor.getData())}}>
+		Publicar
+	</button>
+}
+
+
 export default function MarkdownEditor({initialData, onSubmit}) {
     const [editor, setEditor] = useState(null);
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
+	const user = useUser()
 
 	useEffect(() => {
 		setIsLayoutReady(true);
@@ -157,9 +167,8 @@ export default function MarkdownEditor({initialData, onSubmit}) {
             </div>
 
 			<div className="flex justify-end mt-3">
-				<button className="blue-button" onClick={() => {onSubmit(editor.getData())}}>
-					Publicar
-				</button>
+				{user ? <PublishButton onSubmit={onSubmit} editor={editor}/> : 
+				<NeedAccountPopup trigger={PublishButton({onSubmit: onSubmit, editor: editor})} text="Para editar el contenido es necesario tener una cuenta" />}
 			</div>
         </div>
 	);

@@ -1,27 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {verifySession} from "@/actions/auth";
 
-const newUserRoutes = ['/', '/signup']
-const publicRoutes = ['/wiki/Cabildo_Abierto']
+function isPublicRoute(path){
+    return path.includes("Cabildo_Abierto")
+}
+
+function isNewUserRoute(path){
+    return ['/', '/signup'].includes(path)
+}
 
 export default async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname
-    const isPublicRoute = publicRoutes.includes(path)
-    const isNewUserRoute = newUserRoutes.includes(path)
 
     const session = await verifySession()
     const loggedIn = session?.userId
 
     if(loggedIn){
-        if(isNewUserRoute){
+        if(isNewUserRoute(path)){
             return NextResponse.redirect(new URL('/inicio', req.nextUrl))
         } else {
             // todo ok
         }
     } else {
-        if(isNewUserRoute){
+        if(isNewUserRoute(path)){
             // todo ok
-        } else if(isPublicRoute){
+        } else if(isPublicRoute(path)){
             // todo ok
         } else {
             return NextResponse.redirect(new URL('/', req.nextUrl))

@@ -23,7 +23,9 @@ const MainLayout: React.FC<{children: React.ReactNode}> = async ({children}) => 
 
     return <>
         <Bars user={user}/>
-        {children}
+        <div className="mb-8"> {/* espacio al final de la página */}
+            {children}
+        </div>
     </>
 };
 
