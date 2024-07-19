@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { searchUsers, searchContents, searchEntities } from "@/actions/search";
 import { UserProps } from "@/actions/get-user";
 import Link from "next/link";
-import { ContentProps } from "@/actions/get-content";
 import ContentComponent from "@/components/content";
 import { EntityProps } from "@/actions/get-entity";
 
@@ -30,7 +29,6 @@ const SearchInput: React.FC<{ onChange: (e: any) => void }> = ({ onChange }) => 
   const inputRef = useRef(null);
 
   useEffect(() => {
-    // Focus the input element when the component mounts
     if (inputRef.current) {
       inputRef.current.focus();
     }

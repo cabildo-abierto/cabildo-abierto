@@ -76,11 +76,11 @@ export async function searchContents(value: string, userId: string) {
 
     const dist = diceCoefficientDistance
 
-    const contents: ContentSearchResult[] = await getPosts(userId)
+    const contents: any[] = await getPosts(userId)
 
     const maxDist = dist(value, '')
     contents.forEach(function(item){
-        item.dist = dist(value, item.text)
+        item.content.dist = dist(value, item.content.text)
     })
 
     contents.sort((a, b) => {return a.dist - b.dist })
@@ -95,7 +95,7 @@ export async function searchEntities(value: string): Promise<EntityProps[]>{
 
     const dist = diceCoefficientDistance
 
-    const entities: EntitySearchResult[] = await db.entity.findMany({
+    const entities: any[] = await db.entity.findMany({
         select: {
             name: true, 
             id: true, 

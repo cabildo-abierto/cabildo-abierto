@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {logout} from "@/actions/auth";
 import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';
@@ -90,12 +90,48 @@ const TopBarGuest = () => {
 
 
 export default function Topbar({user, onOpenSidebar}) {
+    const [barState, setBarState] = useState("top")
+    const [prevScrollPos, setPrevScrollPos] = useState(0);
 
-    return <div className="border-b z-1 bg-white h-16 flex items-center justify-between">
-        {user ? 
-            <TopbarLoggedIn user={user} onOpenSidebar={onOpenSidebar}/> :
-            <TopBarGuest/>
-        }
-    </div>
-    
+    // TO DO: por algún motivo la barra como que "titila" al scrollear hacia abajo desde "top"
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollPos = window.pageYOffset;
+            const scrollUp = prevScrollPos > currentScrollPos;
+            if(currentScrollPos == 0){
+                setBarState("top")
+            } else if (scrollUp) {
+                setBarState("transparent");
+            } else {
+                setBarState("no bar");
+            }
+            setPrevScrollPos(currentScrollPos);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [prevScrollPos]);
+
+    if(barState == "top"){
+        return <div className="border-b z-1 bg-white h-16 flex items-center justify-between">
+            {user ? 
+                <TopbarLoggedIn user={user} onOpenSidebar={onOpenSidebar}/> :
+                <TopBarGuest/>
+            }
+        </div>
+    } else if(barState == "transparent"){
+        return <div className="fixed top-0 left-0 w-full">
+            <div className="border-b z-1 bg-white bg-opacity-50 h-16 flex items-center justify-between">
+                {user ? 
+                    <TopbarLoggedIn user={user} onOpenSidebar={onOpenSidebar}/> :
+                    <TopBarGuest/>
+                }
+            </div>
+        </div>
+    } else if(barState == "no bar"){
+        return <></>
+    }
 }

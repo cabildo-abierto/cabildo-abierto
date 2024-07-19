@@ -79,7 +79,7 @@ export default async function Suscripciones() {
              : <SubscriptionOptions price={price} available={available}/>}
 
         <div className="flex justify-center items-center py-8 editor-container text-xl">
-            <Link href="/wiki/Cabildo Abierto: Suscripciones">¿Cómo funcionan las suscripciones?</Link>
+            <Link href="/wiki/Cabildo_Abierto:_Suscripciones">¿Cómo funcionan las suscripciones?</Link>
         </div>
     </div>
 
