@@ -12,6 +12,9 @@ function isNewUserRoute(path){
 export default async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname
 
+    // console.log("Request:")
+    // console.log(path)
+    // console.log(req)
     const session = await verifySession()
     const loggedIn = session?.userId
 

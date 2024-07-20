@@ -18,7 +18,7 @@ export default function PlanClasico() {
         </div>
 
         <div className="mt-32 flex justify-center text-gray-600">
-            Medios de pago: Mercado Pago, tarjeta de débito y crédito de cualquier banco.
+            Pagá con Mercado Pago o tarjeta de débito y crédito de cualquier banco.
         </div>
         <div className="flex justify-center items-center mt-2">
             <div className="w-full">

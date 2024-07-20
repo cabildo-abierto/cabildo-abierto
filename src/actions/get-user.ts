@@ -2,9 +2,7 @@
 
 import {db} from "@/db";
 import {verifySession} from "@/actions/auth";
-import { ContentProps, getChildrenAndData, getContentWithLinks } from "./get-content";
-import { getLikeState } from "./likes";
-
+import { ContentProps, getChildrenAndData } from "./get-content";
 
 export type UserProps = {
     id: string
@@ -13,6 +11,7 @@ export type UserProps = {
 
 
 export async function getUserId(){
+    console.log("Getting user id")
     const session = await verifySession()
     if(!session) return undefined
 

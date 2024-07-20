@@ -8,6 +8,22 @@ import { AuthenticationFormLabel } from "../app/signup/signup-form";
 export default function LoginForm() {
     const [success, action] = useFormState(authenticate, true)
 
+    const handleEmailInput = (e) => {
+        const email = e.target;
+        email.setCustomValidity('');
+        if (!email.validity.valid) {
+            email.setCustomValidity('Ingresá un correo electrónico válido.');
+        }
+    };
+
+    const handlePasswordInput = (e) => {
+        const email = e.target;
+        email.setCustomValidity('');
+        if (!email.validity.valid) {
+            email.setCustomValidity('Ingresá una contraseña.');
+        }
+    };
+
     return (
         <div className="" tabIndex={-1}>
             <form action={action}>
@@ -25,6 +41,9 @@ export default function LoginForm() {
                                 id="email"
                                 name="email"
                                 defaultValue=''
+                                required
+                                onInput={handleEmailInput}
+                                onInvalid={handleEmailInput}
                             />
                         </div>
                         <div>
@@ -35,7 +54,10 @@ export default function LoginForm() {
                                 type="password"
                                 id="password"
                                 name="password"
+                                required
                                 defaultValue=''
+                                onInput={handlePasswordInput}
+                                onInvalid={handlePasswordInput}
                             />
                         </div>
                     </div>

@@ -93,7 +93,7 @@ export default function SignupForm() {
                         }
                     </div>
 
-                    <DisabledSignupButton/>
+                    <SignupButton/>
                 </div>
             </form>
         </div>

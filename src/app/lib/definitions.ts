@@ -3,20 +3,20 @@ import { z } from 'zod'
 export const SignupFormSchema = z.object({
     name: z
         .string()
-        .min(2, { message: 'Name must be at least 2 characters long.' })
+        .min(2, { message: 'Tu nombre tiene que tener al menos 2 caracteres.' })
         .trim(),
-    email: z.string().email({ message: 'Please enter a valid email.' }).trim(),
+    email: z.string().email({ message: 'Ingresá un email válido.' }).trim(),
     username: z
         .string()
-        .min(2, { message: 'Username must be at least 2 characters long.' })
+        .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
         .trim(),
     password: z
         .string()
-        .min(8, { message: 'Be at least 8 characters long' })
-        .regex(/[a-zA-Z]/, { message: 'Contain at least one letter.' })
-        .regex(/[0-9]/, { message: 'Contain at least one number.' })
+        .min(8, { message: 'Tiene que tener al menos 8 caracteres' })
+        .regex(/[a-zA-Z]/, { message: 'Tiene que tener al menos una letra.' })
+        .regex(/[0-9]/, { message: 'Tiene que tener al menos un número.' })
         .regex(/[^a-zA-Z0-9]/, {
-            message: 'Contain at least one special character.',
+            message: 'Tiene que tener al menos un caracter especial.',
         })
         .trim(),
 })
@@ -32,16 +32,10 @@ export const CreateEntityFormSchema = z.object({
 
 
 export const LoginFormSchema = z.object({
-    email: z.string().email({ message: 'Please enter a valid email.' }).trim(),
+    email: z.string().email({ message: 'Ingresá un email válido.' }).trim(),
     password: z
         .string()
-        .min(8, { message: 'Be at least 8 characters long' })
-        .regex(/[a-zA-Z]/, { message: 'Contain at least one letter.' })
-        .regex(/[0-9]/, { message: 'Contain at least one number.' })
-        .regex(/[^a-zA-Z0-9]/, {
-            message: 'Contain at least one special character.',
-        })
-        .trim(),
+        .min(1, { message: 'Ingresá tu contraseña' })
 })
 
 export type SignupFormState =
