@@ -129,23 +129,26 @@ const SearchPage = ({searchValue}) => {
     }
   }
 
-  return <div className="fixed top-16 right-0 h-screen-minus-16 overflow-scroll">
-      <div className="flex justify-end">
-          <div className="bg-white" style={{width: "500px"}}>
-              <div className="flex justify-center">
+  return <div className="fixed top-16 right-0 h-screen-minus-16 border-l">
+      <div className="flex justify-end h-full">
+          <div className="bg-white h-full flex flex-col justify-between" style={{width: "500px"}}>
+              <div className="flex justify-centerl">
                   <SelectionComponent selectionHandler={handleTypeChange} />
               </div>
-              <div className="flex justify-center">
+              <div className="flex justify-center h-full overflow-scroll">
                   <div className="mt-4 w-full px-8">
                       <div className="w-full">
                           {searchResults()}
                       </div>
                   </div>
               </div>
-              <div className="flex justify-center" onClick="">
-                <button className="large-btn">
-                  Ver más resultados
-                </button>
+              <div>
+              <hr className="py-2"/>
+                <div className="flex justify-center">
+                  <button className="large-btn">
+                    Ver más resultados
+                  </button>
+                </div>
               </div>
           </div>
       </div>

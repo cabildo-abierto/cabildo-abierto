@@ -80,7 +80,7 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 
 .round-background {
 	border-radius: 50%;
-	padding: 7px 7px;
+	padding: 5px 3px 7px 7px;
 }
 
 .transparent-button:hover {

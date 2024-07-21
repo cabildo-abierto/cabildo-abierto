@@ -40,11 +40,10 @@ function TopbarLoggedIn({ user, onOpenSidebar, onSearchingUpdate, searching }) {
             <FeedButton />
         </div>
 
-        {searching && <div className="">
-            <SearchBar onClose={() => { onSearchingUpdate(false) }} />
-        </div>}
-
         <div className="flex items-center">
+            {searching && <div className="">
+                <SearchBar onClose={() => { onSearchingUpdate(false) }} />
+            </div>}
             {!searching && <SearchButton onClick={() => { onSearchingUpdate(true) }} />}
 
             <div className="px-2">
@@ -92,7 +91,7 @@ export default function Topbar({ user, onOpenSidebar }) {
     const [barState, setBarState] = useState("top")
     const [searching, setSearching] = useState(false)
     const [prevScrollPos, setPrevScrollPos] = useState(0);
-    
+
     // TO DO: por algún motivo la barra como que "titila" al scrollear hacia abajo desde "top"
     useEffect(() => {
         const handleScroll = () => {
