@@ -9,8 +9,8 @@ const TopicsPage: React.FC = async () => {
     const entities = await getEntities()
 
     const center = <div className="w-full">
-        <h2 className="ml-2 py-8">
-            República Argentina
+        <h2 className="ml-2 py-8 flex justify-center">
+            Artículos de la wiki
         </h2>
         <div className="px-4 w-full">
         {entities.map((entity, index) => (

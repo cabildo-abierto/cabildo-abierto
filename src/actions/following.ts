@@ -38,7 +38,6 @@ export async function unfollow(userToUnfollow) {
             },
         },
     });
-    console.log("unfollowed")
     return updatedUser;
 }
 

@@ -1,7 +1,6 @@
 
 
 export const splitPost = (text) => {
-    console.log(text)
     if(!text.includes("</h1>")) return null
     const split = text.split("</h1>")
     if(!split[0].includes("<h1>")) return null

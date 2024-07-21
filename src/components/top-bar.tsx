@@ -92,7 +92,7 @@ export default function Topbar({ user, onOpenSidebar }) {
     const [barState, setBarState] = useState("top")
     const [searching, setSearching] = useState(false)
     const [prevScrollPos, setPrevScrollPos] = useState(0);
-    console.log(barState, searching, barState == "top" || searching)
+    
     // TO DO: por algún motivo la barra como que "titila" al scrollear hacia abajo desde "top"
     useEffect(() => {
         const handleScroll = () => {

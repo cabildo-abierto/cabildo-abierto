@@ -35,7 +35,6 @@ export function validPost(text){
 }
 
 export function validFastPost(text){
-    console.log(text)
     return text.length > 0
 }
 

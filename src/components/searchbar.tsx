@@ -16,7 +16,7 @@ import useUser from "./use-user";
 export const UserSearchResult: React.FC<{ result: UserProps | EntityProps, isEntity: boolean }> = ({ result, isEntity }) => {
   const className = "transition transform ease-in-out px-1"
 
-  return <div style={{ fontFamily: "Lato" }} className="flex justify-center w-64 border rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
+  return <div className="flex justify-center max-w-128 border rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
     <Link
       href={(isEntity ? "/wiki/" : "/perfil/") + result.id.replace("@", "")}
       className={className}>

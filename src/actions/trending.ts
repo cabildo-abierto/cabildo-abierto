@@ -9,13 +9,31 @@ const invalidWords = [
     "hasta", "para", "por", "según", "sin", "como", "de", "la", "las", "el", "él",
     "y", "o", "u", "e", "que", "es", "se", "un", "los", "en", "del", 
     "una", "no", "si", "sí", "más", "mas", "lo", "su", "cada", "al", "sus", "ser", "puede",
-    "son", "pero", "pueden", "sobre", "también", "tambien"
+    "son", "pero", "pueden", "sobre", "también", "tambien", "\n", "artículo",
+    "articulo", "siguiente"
 ]
 
 function validTrending(word: string){
     return !invalidWords.includes(word.toLowerCase())
 }
 
+function cleanWord(word: string){
+    const badCharacters = [":", ",", ";", "\n", '"', "'"]
+    word = word.toLowerCase()
+    for(let i = word.length-1; i >= 0; i--){
+        if(!badCharacters.includes(word[i])){
+            word = word.slice(0, i+1)
+            break
+        }
+    }
+    for(let i = 0; i < word.length; i++){
+        if(!badCharacters.includes(word[i])){
+            word = word.slice(i)
+            break
+        }
+    }
+    return word
+}
 
 export async function getTrending(n) {
     const content = await db.content.findMany({
@@ -28,10 +46,11 @@ export async function getTrending(n) {
     content.forEach((content) => {
         const words: string[] = content.text.split(" ")
         words.forEach((word) => {
-            if(wordCounts.has(word)){
-                wordCounts.set(word, wordCounts.get(word)+1)
+            const cleanedWord = cleanWord(word)
+            if(wordCounts.has(cleanedWord)){
+                wordCounts.set(cleanedWord, wordCounts.get(cleanedWord)+1)
             } else {
-                wordCounts.set(word, 1)
+                wordCounts.set(cleanedWord, 1)
             }
         })
     })
@@ -47,5 +66,6 @@ export async function getTrending(n) {
             if(selection.length == n) break
         }
     }
+    // console.log(selection)
     return selection
 }

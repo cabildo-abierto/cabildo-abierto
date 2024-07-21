@@ -93,7 +93,6 @@ export default function FastEditor({onSubmit, onSaveDraft, initialData=""}) {
 		mention: mentionConfig,
 	};
 
-	console.log(validContent)
 
 	return <div className="editor-container editor-container_classic-editor editor-container_include-block-toolbar" ref={editorContainerRef}>
 		<div className="editor-container__editor">

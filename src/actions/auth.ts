@@ -2,7 +2,6 @@
 
 import { db } from '@/db';
 import bcryptjs from 'bcryptjs'
-import { randomBytes } from 'crypto';
 import { redirect } from 'next/navigation';
 import {
   LoginFormState,
@@ -50,8 +49,22 @@ export async function authenticate(state: LoginFormState, formData){
   return true
 }
 
+
+export async function validatedSignUp(name, email, username, password){
+  const hashedPassword = await generatePasswordHash(password)
+
+  return await db.user.create({
+    data: {
+      id: "@"+username,
+      name: name,
+      email: email,
+      password: hashedPassword,
+    }
+  })
+}
+
+
 export async function signup(state: SignupFormState, formData) {
-  // Validate form fields
   const validatedFields = SignupFormSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
@@ -59,7 +72,6 @@ export async function signup(state: SignupFormState, formData) {
     password: formData.get('password'),
   })
 
-  // If any form fields are invalid, return early
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -68,18 +80,10 @@ export async function signup(state: SignupFormState, formData) {
 
   const { name, email, username, password} = validatedFields.data
 
-  const hashedPassword = await generatePasswordHash(password)
-
-  await db.user.create({
-    data: {
-      id: "@"+username,
-      name: name,
-      email: email,
-      password: hashedPassword,
-    }
-  })
+  await validatedSignUp(name, email, username, password)
   redirect(`/login`)
 }
+
 
 export async function logout() {
     cookies().delete("session")

@@ -44,24 +44,26 @@ h3 {
 }
 
 .editor-container h3 {
-	margin-top: 12px;
-  	margin-bottom: 12px
+	margin-top: 14px;
+  	margin-bottom: 14px
 }
 
 .editor-container h4 {
-	margin-top: 9px;
-  	margin-bottom: 9px
+	margin-top: 12px;
+  	margin-bottom: 10px
 }
 
 .editor-container h5 {
-	margin-top: 7px;
-  	margin-bottom: 7px
+	margin-top: 10px;
+  	margin-bottom: 10px
 }
 
-.editor-container p {
-	margin-top: 5px;
-	margin-bottom: 5px
+.editor-container p, ul {
+	margin-bottom: 10px;
+	margin-top: 10px
 }
+
+
 
 h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 	color: #ff0050;

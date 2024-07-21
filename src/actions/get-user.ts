@@ -11,7 +11,6 @@ export type UserProps = {
 
 
 export async function getUserId(){
-    console.log("Getting user id")
     const session = await verifySession()
     if(!session) return undefined
 
