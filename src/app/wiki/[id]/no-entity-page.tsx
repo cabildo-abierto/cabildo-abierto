@@ -23,7 +23,7 @@ export default function NoEntityPage({id}){
                 {user ? <CreateEntityButton name={name}/> :
                     <NeedAccountPopup
                         trigger={CreateEntityButton(name)}
-                        text="Para editar el contenido es necesario tener una cuenta"
+                        text="Para crear entidades es necesario tener una cuenta"
                     />
                 }
             </div>

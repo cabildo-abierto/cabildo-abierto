@@ -132,8 +132,6 @@ export default function PostEditor({onSubmit, onSaveDraft, initialData=""}) {
         translations: [coreTranslations]
 	};
 
-	console.log(validContent)
-
 	return (
 		<div className="editor-container" ref={editorContainerRef}>
             <div className="editor-container__editor ck-content">

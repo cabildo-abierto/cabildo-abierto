@@ -39,7 +39,7 @@ const ReadOnlyContent = ({ onEdit, content }) => {
 
     return <>
         <div className="flex justify-center items-center px-2 py-2">
-            <EditButton />
+            {user ? <EditButton /> : <NeedAccountPopup trigger={EditButton()} text="Necesitás una cuenta para hacer ediciones."/>}
         </div>
 
         <div className="px-2">

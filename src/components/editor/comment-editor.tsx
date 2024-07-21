@@ -65,7 +65,7 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
 		<div className="flex justify-end">
 			<div className="flex justify-end mt-3">
 				{user ? <SendCommentButton/> :
-					<NeedAccountPopup trigger={SendCommentButton()} text="Para agregar comentarios es necesario tener una cuenta."/>
+					<NeedAccountPopup trigger={SendCommentButton()} text="Necesitás una cuenta para agregar comentarios."/>
 				}
 				{onCancel != null &&
 					<div className="px-1">

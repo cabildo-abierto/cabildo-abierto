@@ -3,6 +3,7 @@
 import {signup} from "@/actions/auth";
 import { useFormState } from "react-dom";
 import {DisabledSignupButton, SignupButton} from "./signup-button";
+import { useEffect, useRef, useState } from "react";
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
@@ -20,7 +21,7 @@ export default function SignupForm() {
         <div className="">
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-                    <h1 className='mb-3 text-2xl'>
+                    <h1 className='mb-3 text-2xl editor-container'>
                         Creá tu cuenta
                     </h1>
                     <div className="w-full mb-3">
@@ -76,7 +77,9 @@ export default function SignupForm() {
                             </div>
                         }
                         <div>
-                            <AuthenticationFormLabel text="Nombre de usuario" label="username"/>
+                            <AuthenticationFormLabel text="Tu nombre de usuario" label="username"/>
+                            <div className="flex items-center">
+                            <span className="text-gray-600 px-1 text-sm">@</span>
                             <input
                                 className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
                                 type="text"
@@ -84,6 +87,7 @@ export default function SignupForm() {
                                 name="username"
                                 placeholder=""
                             />
+                            </div>
                         </div>
                         {
                             state?.errors?.name
@@ -93,7 +97,7 @@ export default function SignupForm() {
                         }
                     </div>
 
-                    <SignupButton/>
+                    <DisabledSignupButton/>
                 </div>
             </form>
         </div>

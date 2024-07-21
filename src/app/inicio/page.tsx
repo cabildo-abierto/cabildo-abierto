@@ -31,7 +31,7 @@ const Inicio: React.FC = async () => {
     const trending = await getTrending(5)
     const right = <div className="flex justify-center w-full py-8 px-2">
 
-        <div className="rounded-2xl border px-2 py-2">
+        <div className="rounded border px-2 py-2">
             <h3 className="px-4">
                 Tendencias
             </h3>
