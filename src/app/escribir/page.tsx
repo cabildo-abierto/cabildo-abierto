@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import Link from "next/link";
+import { splitPost } from "@/components/utils";
 
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
@@ -29,21 +30,34 @@ const PostSelector = ({setSelection}) => {
 }
 
 
+export function validPost(text){
+    return splitPost(text) != null
+}
+
+export function validFastPost(text){
+    console.log(text)
+    return text.length > 0
+}
+
+
 const Escribir: React.FC = () => {
     const [selection, setSelection] = useState("publicación rápida");
     const router = useRouter();
 
-    const handleCreate = async (content) => {
+    const handleCreate = async (text) => {
         const contentType = selection == "publicación" ? "Post" : "FastPost"
-        const success = await createPost(content, contentType, false)
+        if(contentType == "Post" && !validPost(text)) return
+        if(contentType == "FastPost" && !validFastPost(text)) return
+        const success = await createPost(text, contentType, false)
         if (success) {
             router.push("/")
         }
     }
 
-    const handleSaveDraft = async (content) => {
+    const handleSaveDraft = async (text) => {
         const contentType = selection == "publicación" ? "Post" : "FastPost"
-        const success = await createPost(content, contentType, true)
+        if(text.length == 0) return
+        const success = await createPost(text, contentType, true)
         if (success) {
             router.push("/borradores")
         }

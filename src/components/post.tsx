@@ -4,7 +4,7 @@ import Link from "next/link";
 import { DateComponent } from "@/components/date";
 
 export const Post = ({content}) => {
-    const split = splitPost(content)
+    const split = splitPost(content.text)
     const title = "<h1>"+split.title+"</h1>"
     return <div className="bg-white">
         <HtmlContent content={title}/>
