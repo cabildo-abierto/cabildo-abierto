@@ -261,3 +261,10 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 	padding: 0.5rem;
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05); /* shadow-lg */
 }
+
+
+@layer utilities {
+.h-screen-minus-16 {
+	height: calc(100vh - 4rem); /* 16 is equivalent to 4rem (16 * 0.25rem) */
+}
+}

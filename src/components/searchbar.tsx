@@ -112,7 +112,12 @@ const SearchPage = ({searchValue}) => {
     } else if (searchType == "contents") {
       return resultsContents.map((result) => (
         <div className="py-2" key={result.content.id}>
-          <ContentComponent content={result.content} comments={result.children}/>
+          <ContentComponent
+            content={result.content}
+            comments={result.children}
+            onViewComments={() => {}}
+            onStartReply={() => {}}
+          />
         </div>
       ))
     } else {
@@ -124,9 +129,9 @@ const SearchPage = ({searchValue}) => {
     }
   }
 
-  return <div className="w-screen h-screen bg-white bg-opacity-50">
-      <div className="flex justify-center h-full">
-          <div className="bg-white h-full" style={{width: "800px"}}>
+  return <div className="fixed top-16 right-0 h-screen-minus-16 overflow-scroll">
+      <div className="flex justify-end">
+          <div className="bg-white" style={{width: "500px"}}>
               <div className="flex justify-center">
                   <SelectionComponent selectionHandler={handleTypeChange} />
               </div>
@@ -136,6 +141,11 @@ const SearchPage = ({searchValue}) => {
                           {searchResults()}
                       </div>
                   </div>
+              </div>
+              <div className="flex justify-center" onClick="">
+                <button className="large-btn">
+                  Ver más resultados
+                </button>
               </div>
           </div>
       </div>
@@ -161,7 +171,7 @@ const SearchBar: React.FC = ({onClose}) => {
         <CloseSearchButton onClick={onClose}/>
       </div>
       {(searchValue.length != 0) && 
-          <div className="fixed left-0 top-16 z-10">
+          <div className="fixed right-0 top-16 z-10">
               <SearchPage searchValue={searchValue}/>
           </div>
       }

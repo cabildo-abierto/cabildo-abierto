@@ -50,7 +50,7 @@ const ContentComponent = ({content, comments, onViewComments, onStartReply, enti
     } else if(content.type == "EntityContent"){
         return <EntityComponent content={content} entity={entity}/>
     } else if(content.type == "Post"){
-        return <div className="w-full text-left cursor-pointer editor-container" onClick={() => {router.push("/contenido/"+content.id)}}>
+        return <div className="w-full bg-white text-left cursor-pointer editor-container" onClick={() => {router.push("/contenido/"+content.id)}}>
             <div className="border rounded w-full">
                 <div className="px-2 mt-2 font-semibold">
                     <HtmlContent content={splitPost(content).title}/>

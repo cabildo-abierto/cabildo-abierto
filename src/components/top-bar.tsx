@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import {logout} from "@/actions/auth";
+import { logout } from "@/actions/auth";
 import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -16,38 +16,37 @@ function FeedButton() {
     </div>
 }
 
-function OpenSidebarButton({onClick}) {
+function OpenSidebarButton({ onClick }) {
     return <div className="text-l text-gray-900 px-1 py-2">
         <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg" onClick={onClick}>
-            <MenuIcon/>
+            <MenuIcon />
         </button>
     </div>
 }
 
 
-const SearchButton = ({onClick}) => {
+const SearchButton = ({ onClick }) => {
     return <button className="transparent-button round-background" onClick={onClick}>
-        <SearchIcon/>
+        <SearchIcon />
     </button>
 }
 
 
-function TopbarLoggedIn({user, onOpenSidebar}) {
-    const [searching, setSearching] = useState(false)
+function TopbarLoggedIn({ user, onOpenSidebar, onSearchingUpdate, searching }) {
 
     return <>
         <div className="flex items-center">
-            <OpenSidebarButton onClick={onOpenSidebar}/>
-            <FeedButton/>
+            <OpenSidebarButton onClick={onOpenSidebar} />
+            <FeedButton />
         </div>
 
         {searching && <div className="">
-        <SearchBar onClose={() => {setSearching(false)}}/>
+            <SearchBar onClose={() => { onSearchingUpdate(false) }} />
         </div>}
 
         <div className="flex items-center">
-            {!searching && <SearchButton onClick={() => {setSearching(true)}}/>}
-            
+            {!searching && <SearchButton onClick={() => { onSearchingUpdate(true) }} />}
+
             <div className="px-2">
                 <Link href={`/perfil/${user?.id.slice(1)}`}
                     className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide px-2`}>
@@ -58,7 +57,7 @@ function TopbarLoggedIn({user, onOpenSidebar}) {
             <div className="px-2">
                 <button
                     className="gray-button"
-                    onClick={(e) => {logout()}}
+                    onClick={(e) => { logout() }}
                 >
                     Cerrar sesión
                 </button>
@@ -73,12 +72,12 @@ const TopBarGuest = () => {
         <div className="w-1/4"></div>
         <div className="text-gray-600 flex justify-center w-1/2">
             <div>
-            Estás viendo esta página como invitado, muchas funciones no están disponibles.</div>
-            </div>
+                Estás viendo esta página como invitado, muchas funciones no están disponibles.</div>
+        </div>
         <div className="px-4 w-1/4 flex justify-end">
             <button
                 className="hover:bg-gray-200 rounded cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 text-gray-600 px-2"
-                onClick={(e) => {logout()}}
+                onClick={(e) => { logout() }}
             >
                 <Link href="/">
                     Crear cuenta o iniciar sesión
@@ -89,16 +88,17 @@ const TopBarGuest = () => {
 }
 
 
-export default function Topbar({user, onOpenSidebar}) {
+export default function Topbar({ user, onOpenSidebar }) {
     const [barState, setBarState] = useState("top")
+    const [searching, setSearching] = useState(false)
     const [prevScrollPos, setPrevScrollPos] = useState(0);
-
+    console.log(barState, searching, barState == "top" || searching)
     // TO DO: por algún motivo la barra como que "titila" al scrollear hacia abajo desde "top"
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollPos = window.pageYOffset;
             const scrollUp = prevScrollPos > currentScrollPos;
-            if(currentScrollPos == 0){
+            if (currentScrollPos == 0) {
                 setBarState("top")
             } else if (scrollUp) {
                 setBarState("transparent");
@@ -115,23 +115,31 @@ export default function Topbar({user, onOpenSidebar}) {
         };
     }, [prevScrollPos]);
 
-    if(barState == "top"){
-        return <div className="border-b z-1 bg-white h-16 flex items-center justify-between">
-            {user ? 
-                <TopbarLoggedIn user={user} onOpenSidebar={onOpenSidebar}/> :
-                <TopBarGuest/>
-            }
+    function handleSearchingUpdate(value) {
+        setSearching(value)
+        const currentScrollPos = window.pageYOffset;
+        if(currentScrollPos == 0){
+            setBarState("top")
+        } else {
+            setBarState("no bar")
+        }
+    }
+
+    
+
+    return <><div className="border-b z-1 bg-white h-16 flex items-center justify-between">
+        {user ?
+            <TopbarLoggedIn user={user} onOpenSidebar={onOpenSidebar} onSearchingUpdate={handleSearchingUpdate} searching={searching}/> :
+            <TopBarGuest />
+        }
         </div>
-    } else if(barState == "transparent"){
-        return <div className="fixed top-0 left-0 w-full">
-            <div className="border-b z-1 bg-white bg-opacity-50 h-16 flex items-center justify-between">
-                {user ? 
-                    <TopbarLoggedIn user={user} onOpenSidebar={onOpenSidebar}/> :
-                    <TopBarGuest/>
+        {(barState != "no bar" || searching) && <div className="fixed top-0 left-0 w-screen">
+            <div className={"border-b z-1 bg-white h-16 flex items-center justify-between w-full"+((barState == "transparent" && !searching) ? " bg-opacity-50" : "")}>
+                {user ?
+                    <TopbarLoggedIn user={user} onOpenSidebar={onOpenSidebar} onSearchingUpdate={handleSearchingUpdate} searching={searching}/> :
+                    <TopBarGuest />
                 }
             </div>
-        </div>
-    } else if(barState == "no bar"){
-        return <></>
-    }
+        </div>}
+    </>
 }
