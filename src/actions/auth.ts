@@ -13,6 +13,7 @@ import {
 import {createSession, decrypt} from "@/app/lib/session";
 import bcrypt from "bcryptjs";
 import {cookies} from "next/headers";
+import { getUserById } from './get-user';
 
 
 export const verifySession = async () : Promise<SessionPayload|undefined> => {
@@ -28,25 +29,24 @@ export async function authenticate(state: LoginFormState, formData){
   })
 
   if (!validatedFields.success) {
-    return false
+    return null
   }
 
   const { email, password } = validatedFields.data
 
   const user = await db.user.findUnique({ where: { email: email } })
   if(!user) {
-    return false
+    return null
   }
 
   const comp = await bcrypt.compare(password, user.password)
 
   if(!comp){
-    return false
+    return null
   }
 
   await createSession(user.id)
-  redirect('/inicio')
-  return true
+  return await getUserById(user.id)
 }
 
 

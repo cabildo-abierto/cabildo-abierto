@@ -21,7 +21,7 @@ export const SidebarButton: React.FC<{text: string, href?: string, onClick?: any
 }
 
 
-export default function Sidebar({user}) {
+export default function Sidebar() {
 
     return <div className="h-screen flex flex-col px-2 bg-white z-50 border-r">
         <ul className="flex-1 mt-4">

@@ -14,3 +14,16 @@ export const splitPost = (text) => {
 export function stopPropagation(func) {
     return (e) => {e.stopPropagation(); func()}
 }
+
+
+export function getSubscriptionStatus(subscriptionsUsed: any[]){
+    if(subscriptionsUsed.length == 0) return "invalid"
+
+    const lastPaymentDate = subscriptionsUsed[subscriptionsUsed.length-1].usedAt
+  
+    const nextSubscriptionEnd = new Date(lastPaymentDate)
+    
+    nextSubscriptionEnd?.setMonth(lastPaymentDate.getMonth()+1)
+  
+    return nextSubscriptionEnd > new Date() ? "valid" : "invalid"
+  }

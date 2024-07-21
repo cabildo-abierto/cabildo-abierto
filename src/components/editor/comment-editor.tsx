@@ -11,10 +11,10 @@ import "./editor.css"
 import { fastEditorBlockToolbar, fastEditorPlugins } from './fast-editor';
 import { linkConfig } from './markdown-editor';
 import NeedAccountPopup from '../need-account-popup';
-import useUser from '../use-user';
+import { useUser } from '../user-provider';
 
 export default function CommentEditor({onSubmit, onCancel=null}) {
-    const user = useUser()
+    const {user} = useUser()
     const [editor, setEditor] = useState(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);

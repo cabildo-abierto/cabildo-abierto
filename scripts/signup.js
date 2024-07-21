@@ -8,9 +8,9 @@ const generatePasswordHash = async (password) => {
 }
 
 (async () => {
-  const name = "Usuario de prueba";
-  const email = "prueba@gmail.com";
-  const username = "prueba";
+  const name = "Usuario sin suscripción";
+  const email = "prueba2@gmail.com";
+  const username = "prueba2";
   const password = "pruebaprueba";
 
   const hashedPassword = await generatePasswordHash(password)
@@ -23,5 +23,4 @@ const generatePasswordHash = async (password) => {
       password: hashedPassword,
     }
   })
-  console.log("User created successfully:", result);
 })();

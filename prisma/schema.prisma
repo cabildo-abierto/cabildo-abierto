@@ -8,6 +8,12 @@ datasource db {
     directUrl         = env("DIRECT_URL")
 }
 
+enum EditorStatus {
+    Beginner
+    Editor
+    Administrator
+}
+
 model User {
     id              String       @id @db.VarChar(255)
     name            String       @db.VarChar(255)
@@ -22,20 +28,32 @@ model User {
     following       User[]       @relation("following")
     followedBy      User[]       @relation("following")
 
-    paymentHistory  Payment[]
+    authenticated   Boolean      @default(false)
+    editorStatus    EditorStatus @default(Beginner)
+
+    subscriptionsUsed        Subscription[]
+    subscriptionsBought      Subscription[]  @relation("bought")
 
     @@map(name: "users")
 }
 
 
-model Payment {
+model Subscription {
     id                String      @id @default(cuid())
-    user              User        @relation(fields: [userId], references: [id])
-    userId            String
+    user              User?       @relation(fields: [userId], references: [id])
+    userId            String?
     createdAt         DateTime    @default(now()) @map(name: "created_at")
-    amount            Int
+
+    boughtBy          User       @relation("bought", fields: [boughtByUserId], references: [id])
+    boughtByUserId    String
+
+    usedAt            DateTime?
 }
 
+enum ProtectionLevel {
+    Unprotected
+    Administrator
+}
 
 model Entity {
     id              String       @id
@@ -43,6 +61,7 @@ model Entity {
     mentionedBy     Content[]    @relation("entityMention")
     content         Content      @relation(fields: [contentId], references: [id])
     contentId       String       @unique
+    protection      ProtectionLevel @default(Unprotected)
 }
 
 

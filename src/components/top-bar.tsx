@@ -6,6 +6,8 @@ import { logout } from "@/actions/auth";
 import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
+import { getSubscriptionStatus } from "./utils";
+import { useUser } from "./user-provider";
 
 
 function FeedButton() {
@@ -32,7 +34,8 @@ const SearchButton = ({ onClick }) => {
 }
 
 
-function TopbarLoggedIn({ user, onOpenSidebar, onSearchingUpdate, searching }) {
+function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }) {
+    const {user} = useUser()
 
     return <>
         <div className="flex items-center">
@@ -87,12 +90,44 @@ const TopBarGuest = () => {
 }
 
 
-export default function Topbar({ user, onOpenSidebar }) {
+const TopBarNoSubcription = () => {
+    const {user} = useUser()
+
+    return <>
+        <div className="w-1/4"></div>
+        <div className="text-gray-600 flex justify-center w-1/2">
+            <div>
+                No tenés una suscripción activa, muchas funciones no están disponibles</div>
+        </div>
+        <div className="px-4 w-1/4 flex justify-end">
+            <div className="px-2">
+                <Link href={`/perfil/${user?.id.slice(1)}`}
+                    className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide px-2`}>
+                    {user?.name}
+                </Link>
+            </div>
+
+            <div className="px-2">
+                <button
+                    className="gray-button"
+                    onClick={(e) => { logout() }}
+                >
+                    Cerrar sesión
+                </button>
+            </div>
+        </div>
+    </>
+}
+
+
+export default function Topbar({ onOpenSidebar }) {
     const [barState, setBarState] = useState("top")
     const [searching, setSearching] = useState(false)
     const [prevScrollPos, setPrevScrollPos] = useState(0);
-
-    // TO DO: por algún motivo la barra como que "titila" al scrollear hacia abajo desde "top"
+    const {user, setUser} = useUser()
+    console.log("top bar user", user)
+    const activeSubscription = user && getSubscriptionStatus(user.subscriptionsUsed) == "valid"
+    
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollPos = window.pageYOffset;
@@ -124,20 +159,26 @@ export default function Topbar({ user, onOpenSidebar }) {
         }
     }
 
-    
+
+    let bar = <></>
+    if(!user){
+        bar = <TopBarGuest/>
+    } else if(!activeSubscription){
+        bar = <TopBarNoSubcription/>
+    } else {
+        bar = <TopbarLoggedIn 
+            onOpenSidebar={onOpenSidebar}
+            onSearchingUpdate={handleSearchingUpdate}
+            searching={searching}
+        />
+    }
 
     return <><div className="border-b z-1 bg-white h-16 flex items-center justify-between">
-        {user ?
-            <TopbarLoggedIn user={user} onOpenSidebar={onOpenSidebar} onSearchingUpdate={handleSearchingUpdate} searching={searching}/> :
-            <TopBarGuest />
-        }
+            {bar}
         </div>
         {(barState != "no bar" || searching) && <div className="fixed top-0 left-0 w-screen">
             <div className={"border-b z-1 bg-white h-16 flex items-center justify-between w-full"+((barState == "transparent" && !searching) ? " bg-opacity-50" : "")}>
-                {user ?
-                    <TopbarLoggedIn user={user} onOpenSidebar={onOpenSidebar} onSearchingUpdate={handleSearchingUpdate} searching={searching}/> :
-                    <TopBarGuest />
-                }
+                {bar}
             </div>
         </div>}
     </>

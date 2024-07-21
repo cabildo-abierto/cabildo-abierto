@@ -4,7 +4,7 @@ import MarkdownContent from "@/components/editor/ckeditor-markdown-content";
 import { useState } from "react"
 import dynamic from 'next/dynamic';
 import NeedAccountPopup from "@/components/need-account-popup";
-import useUser from "./use-user";
+import { useUser } from "./user-provider";
 
 const MarkdownEditor = dynamic(() => import('@/components/editor/markdown-editor'), { ssr: false });
 
@@ -27,7 +27,7 @@ const EditableContent = ({ content, handleSave, onCancel }) => {
 
 
 const ReadOnlyContent = ({ onEdit, content }) => {
-    const user = useUser()
+    const {user} = useUser()
 
     const EditButton = () => {
         return <button

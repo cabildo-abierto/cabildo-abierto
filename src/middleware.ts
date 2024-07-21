@@ -16,9 +16,10 @@ export default async function middleware(req: NextRequest) {
     // console.log(path)
     // console.log(req)
     const session = await verifySession()
-    const loggedIn = session?.userId
+    const userId = session?.userId
+    console.log("user id middleware", userId)
 
-    if(loggedIn){
+    if(userId){ // logged in
         if(isNewUserRoute(path)){
             return NextResponse.redirect(new URL('/inicio', req.nextUrl))
         } else {

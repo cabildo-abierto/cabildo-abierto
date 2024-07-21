@@ -9,41 +9,68 @@ import {
 import { getUser, getUserId } from './get-user';
 
 
-export async function getSubscriptionStatus() {
-    const userId = await getUserId()
+export async function buyAndUseSubscription() {
+    const userId = await getUserId()  
 
-    const user = await db.user.findUnique({
-        select: {
-          paymentHistory: true
-        },
-        where: {id:userId}
+    await db.subscription.create({
+        data: {
+            userId: userId,
+            boughtByUserId: userId,
+            usedAt: new Date()
+        }
     })
-
-    if(!user){ // no debería pasar nunca
-      return "user not found"
-    }
-
-    if(user?.paymentHistory.length == 0){
-      return "invalid"
-    }
-
-    const lastPaymentDate = user?.paymentHistory[user?.paymentHistory.length-1].createdAt
-
-    const nextSubscriptionEnd = new Date(lastPaymentDate)
-    
-    nextSubscriptionEnd?.setMonth(lastPaymentDate.getMonth()+1)
-
-    return nextSubscriptionEnd > new Date() ? "valid" : "invalid"
 }
 
+export async function donateSubscriptions(n) {
+    const userId = await getUserId()
 
-export async function addPayment(amount) {
-  const userId = await getUserId()  
-
-  await db.payment.create({
-    data: {
-      amount: amount,
-      userId: userId,
+    const queries = []
+    
+    for(let i = 0; i < n; i++){
+        queries.push({
+            boughtByUserId: userId
+        })
     }
-  })
+    console.log(queries)
+
+    await db.subscription.createMany({
+        data: queries
+    })
+}
+
+export async function useDonatedSubscription() {
+    const userId = await getUserId()
+
+    const subscription = await db.subscription.findFirst({
+        where: {
+            usedAt: null
+        }
+    })
+
+    if(!subscription){
+        console.log("No subscription")
+        return null
+    } else {
+        return await db.subscription.update({
+            data: {
+                usedAt: new Date(),
+                userId: userId
+            },
+            where: {
+                id: subscription.id
+            }
+        })
+    }
+}
+
+export async function getSubscriptionPoolSize() {
+    const available = await db.subscription.findMany({
+        select: {id: true},
+        where: {usedAt: null}
+    })
+    return available.length
+}
+
+export async function getSubscriptionPrice() {
+    return 1000
 }

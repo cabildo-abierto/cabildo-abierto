@@ -1,12 +1,16 @@
 'use client'
 
 import { useFormState } from "react-dom";
-import {authenticate, signup} from '@/actions/auth';
-import {LoginButton, DisabledLoginButton} from "./login-button";
+import {authenticate} from '@/actions/auth';
+import {LoginButton} from "./login-button";
 import { AuthenticationFormLabel } from "../app/signup/signup-form";
+import { useRouter } from "next/navigation";
+import { useUser } from "./user-provider";
 
 export default function LoginForm() {
     const [success, action] = useFormState(authenticate, true)
+    const {user, setUser} = useUser();
+    const router = useRouter()
 
     const handleEmailInput = (e) => {
         const email = e.target;
@@ -23,6 +27,11 @@ export default function LoginForm() {
             email.setCustomValidity('Ingresá una contraseña.');
         }
     };
+
+    if(success){
+        setUser(success)
+        router.push("/inicio")
+    }
 
     return (
         <div className="">

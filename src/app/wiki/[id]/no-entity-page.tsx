@@ -2,14 +2,14 @@
 
 import { createEntity } from "@/actions/create-entity"
 import NeedAccountPopup from "@/components/need-account-popup"
-import useUser from "@/components/use-user"
+import { useUser } from "@/components/user-provider"
 
 const CreateEntityButton = ({name}) => {
     return <button className="large-btn" onClick={() => {createEntity(name)}}>Crear entidad</button>
 }
 
 export default function NoEntityPage({id}){
-    const user = useUser()
+    const {user} = useUser()
 
     const name = decodeURIComponent(id).replaceAll("_", " ")
     return <>

@@ -47,8 +47,8 @@ import { getUsersMatching } from '@/actions/get-user';
 
 import './markdown-editor.css';
 import InternalLink from "./link/link"
-import useUser from '../use-user';
 import NeedAccountPopup from '../need-account-popup';
+import { useUser } from '../user-provider';
 
 const toolbar = {
 	items: [
@@ -132,7 +132,7 @@ export default function MarkdownEditor({initialData, onSubmit}) {
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
-	const user = useUser()
+	const {user} = useUser()
 
 	useEffect(() => {
 		setIsLayoutReady(true);

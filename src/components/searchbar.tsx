@@ -9,7 +9,7 @@ import { EntityProps } from "@/actions/get-entity";
 
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
-import useUser from "./use-user";
+import { useUser } from "./user-provider";
 
 
 
@@ -81,7 +81,7 @@ const SearchPage = ({searchValue}) => {
   const [resultsContents, setResultsContents] = useState([]);
   const [resultsEntities, setResultsEntities] = useState<EntityProps[]>([]);
   const [searchType, setSearchType] = useState("users");
-  const userId = useUser()
+  const {user} = useUser()
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -93,7 +93,7 @@ const SearchPage = ({searchValue}) => {
 
   const search = async () => {
       setResultsUsers(await searchUsers(searchValue))
-      setResultsContents(await searchContents(searchValue, userId))
+      setResultsContents(await searchContents(searchValue, user.id))
       setResultsEntities(await searchEntities(searchValue))
   }
 

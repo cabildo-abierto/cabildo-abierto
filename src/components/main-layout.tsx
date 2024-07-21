@@ -1,6 +1,6 @@
 import React from "react";
-import { getUser } from "@/actions/get-user";
 import Bars from "./bars";
+import SubscriptionCheckWrapper from "./subscription-check-wrapper";
 
 
 export const ThreeColumnsLayout = ({left=null, center=null, right=null, centerWidth=800}) => {
@@ -18,13 +18,14 @@ export const ThreeColumnsLayout = ({left=null, center=null, right=null, centerWi
 }
 
 
-const MainLayout: React.FC<{children: React.ReactNode}> = async ({children}) => {
-    const user = await getUser()
-
+const MainLayout = async ({children, checkSubscription=true}) => {
     return <>
-        <Bars user={user}/>
-        <div className="mb-8"> {/* espacio al final de la página */}
-            {children}
+        <Bars/>
+        <div className="mb-8">
+            {checkSubscription ? <SubscriptionCheckWrapper>
+                {children}
+            </SubscriptionCheckWrapper> : children
+            }
         </div>
     </>
 };

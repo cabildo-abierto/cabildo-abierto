@@ -4,13 +4,13 @@ import { useState } from "react"
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import { addDislike, addLike, removeLike, removeDislike } from "@/actions/likes";
-import useUser from "./use-user";
 import { stopPropagation } from "./utils";
+import { useUser } from "./user-provider";
 
 export const LikeCounter = ({content}) => {
     const [likeCount, setLikeCount] = useState(content._count.likedBy)
     const [dislikeCount, setDislikeCount] = useState(content._count.dislikedBy)
-    const user = useUser()
+    const {user} = useUser()
 
     const wasLiked = content.likedBy.length > 0
     const wasDisliked = content.dislikedBy.length > 0

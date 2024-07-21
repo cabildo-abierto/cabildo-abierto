@@ -5,16 +5,16 @@ import Sidebar from "./sidebar";
 import Topbar from "./top-bar";
 
 
-export default function Bars({user}) {
+export default function Bars() {
     const [openSidebar, setOpenSidebar] = useState(false)
 
     return <>
-        <Topbar user={user} onOpenSidebar={() => setOpenSidebar(true)}/>
+        <Topbar onOpenSidebar={() => setOpenSidebar(true)}/>
         {openSidebar && <>
             <div className="fixed left-0 top-0 h-screen z-50">
                 <div className="flex">
                     <div className="" style={{ width: 200 }}>
-                        <Sidebar user={user}/>
+                        <Sidebar/>
                     </div>
                 </div>
             </div>
