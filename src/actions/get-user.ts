@@ -3,7 +3,6 @@
 import {db} from "@/db";
 import {verifySession} from "@/actions/auth";
 import { ContentProps, getChildrenAndData } from "./get-content";
-import { getSubscriptionStatus } from "@/components/utils";
 
 export type UserProps = {
     id: string
@@ -90,7 +89,7 @@ export async function getUserActivityById(userId: string){
             }
         }
     )
-    return await getChildrenAndData(contents)
+    return await getChildrenAndData(contents, userId)
 }
 
 

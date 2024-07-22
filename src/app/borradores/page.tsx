@@ -6,6 +6,7 @@ import { ThreeColumnsLayout } from "@/components/main-layout";
 import { getDrafts } from "@/actions/get-draft";
 import HtmlContent from "@/components/editor/ckeditor-html-content";
 import Link from "next/link";
+import { requireSubscription } from "@/components/utils";
 
 
 const DraftButton = ({draft, index}) => {
@@ -38,7 +39,7 @@ const Drafts: React.FC = async () => {
         </ul>
     </>
 
-    return <ThreeColumnsLayout center={center}/>
+    return requireSubscription(<ThreeColumnsLayout center={center}/>, true)
 };
 
 export default Drafts;

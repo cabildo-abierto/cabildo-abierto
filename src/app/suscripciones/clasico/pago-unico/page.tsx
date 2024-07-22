@@ -9,9 +9,10 @@ import { useRouter } from "next/navigation";
 export default function PlanClasicoPagoUnico() {
     const router = useRouter()
     const {price} = usePrice()
+    const {user} = useUser()
     
     const handlePayment = () => {
-        buyAndUseSubscription()
+        buyAndUseSubscription(user.id)
         router.push("/inicio")
     }
 

@@ -62,6 +62,7 @@ model Entity {
     content         Content      @relation(fields: [contentId], references: [id])
     contentId       String       @unique
     protection      ProtectionLevel @default(Unprotected)
+    isPublic        Boolean      @default(false)
 }
 
 

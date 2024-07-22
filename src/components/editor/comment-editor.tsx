@@ -12,6 +12,11 @@ import { fastEditorBlockToolbar, fastEditorPlugins } from './fast-editor';
 import { linkConfig } from './markdown-editor';
 import NeedAccountPopup from '../need-account-popup';
 import { useUser } from '../user-provider';
+import { validSubscription } from '../utils';
+
+function canComment(user){
+	return validSubscription(user)
+}
 
 export default function CommentEditor({onSubmit, onCancel=null}) {
     const {user} = useUser()
@@ -37,16 +42,15 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
 	};
 
 	function handleSubmit(){
-		if(!user) return
 		const data = editor.getData()
 		if(data.length == 0) return
 		onSubmit(data)
 	}
 
-	const SendCommentButton = () => {
+	const SendCommentButton = ({onClick}) => {
 		return <div className="px-1">
 			<button
-				onClick={handleSubmit}
+				onClick={onClick}
 				className="small-btn"
 			>
 				Enviar
@@ -64,8 +68,8 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
 
 		<div className="flex justify-end">
 			<div className="flex justify-end mt-3">
-				{user ? <SendCommentButton/> :
-					<NeedAccountPopup trigger={SendCommentButton()} text="Necesitás una cuenta para agregar comentarios."/>
+				{canComment(user) ? <SendCommentButton onClick={handleSubmit}/> :
+					<NeedAccountPopup trigger={SendCommentButton({onClick: () => {}})} text="Necesitás una cuenta para agregar comentarios."/>
 				}
 				{onCancel != null &&
 					<div className="px-1">

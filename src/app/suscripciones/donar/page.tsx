@@ -14,7 +14,7 @@ export default function DonationPage() {
     const center = <div className="mt-8">
         <div className="flex justify-center items-center">
             <h2>
-                Hacé crecer Cabildo Abierto
+                Hacé crecer a Cabildo Abierto
             </h2>
         </div>
 
@@ -39,8 +39,8 @@ export default function DonationPage() {
         
             <SubscriptionOptionButton
                 title="Pago automático"
-                description="Poné la tarjeta (o cualquier medio de pago) y olvidate."
-                disabled={!validAmount}
+                description={"Próximamente"/*"Poné la tarjeta (o cualquier medio de pago) y olvidate."*/}
+                disabled={true}
                 href={validAmount ? ("/suscripciones/donar/pago-automatico/"+donationAmount.toString()) : null}
             />
             </div>

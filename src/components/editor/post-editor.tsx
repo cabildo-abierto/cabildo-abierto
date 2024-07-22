@@ -109,7 +109,7 @@ export default function PostEditor({onSubmit, onSaveDraft, initialData=""}) {
     const [editor, setEditor] = useState(null);
 	const editorRef = useRef(null);
 	const editorContainerRef = useRef(null);
-	const [validContent, setValidContent] = useState(false)
+	const [validContent, setValidContent] = useState(validPost(initialData))
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
 
 	useEffect(() => {

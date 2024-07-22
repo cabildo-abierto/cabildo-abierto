@@ -1,16 +1,10 @@
 'use server';
 
 import { db } from '@/db';
-import { redirect } from 'next/navigation';
-import {
-  CreateEntityFormState,
-  CreateEntityFormSchema,
-} from "@/app/lib/definitions";
-import { getUser, getUserId } from './get-user';
+import { getUserId } from './get-user';
 
 
-export async function buyAndUseSubscription() {
-    const userId = await getUserId()  
+export async function buyAndUseSubscription(userId) { 
 
     await db.subscription.create({
         data: {

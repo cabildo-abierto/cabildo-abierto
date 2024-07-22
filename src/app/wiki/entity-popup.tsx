@@ -5,10 +5,10 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { createEntityFromForm } from '@/actions/create-entity';
 import Popup from 'reactjs-popup';
 import styles from './Modal.module.css'
-import { SidebarButton } from '@/components/sidebar';
 import CloseIcon from '@mui/icons-material/Close';
+import { SidebarButton } from '@/components/sidebar-button';
 
-function EntityPopup() {
+function EntityPopup({disabled=false}) {
   const [state, action] = useFormState(createEntityFromForm, undefined);
 
   function children(close) { return (
@@ -44,7 +44,7 @@ function EntityPopup() {
   )}
 
   return <Popup
-    trigger={SidebarButton({text: "Crear entidad"})}
+    trigger={SidebarButton({text: "Crear entidad", disabled: disabled})}
     modal
     nested
   >

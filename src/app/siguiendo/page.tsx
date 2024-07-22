@@ -3,6 +3,7 @@ import { getPostsFollowing } from "@/actions/get-content";
 import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { getUserId } from "@/actions/get-user";
+import { requireSubscription } from "@/components/utils";
 
 
 const Inicio: React.FC = async () => {
@@ -15,7 +16,7 @@ const Inicio: React.FC = async () => {
         <Feed contents={feed}/>
     </div>
 
-    return <ThreeColumnsLayout center={center} />
+    return requireSubscription(<ThreeColumnsLayout center={center} />, true)
 }
 
 export default Inicio

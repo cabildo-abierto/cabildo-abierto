@@ -3,6 +3,7 @@ import {getContentById} from "@/actions/get-content";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { ContentWithComments } from "@/components/content-with-comments";
 import { getUserId } from "@/actions/get-user";
+import { requireSubscription } from "@/components/utils";
 
 
 const ContentPage: React.FC<{params: any}> = async ({params}) => {
@@ -25,7 +26,7 @@ const ContentPage: React.FC<{params: any}> = async ({params}) => {
     </div>
 
 
-    return <ThreeColumnsLayout center={center}/>
+    return requireSubscription(<ThreeColumnsLayout center={center}/>, true)
 }
 
 export default ContentPage

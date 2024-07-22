@@ -6,7 +6,7 @@ import { logout } from "@/actions/auth";
 import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
-import { getSubscriptionStatus } from "./utils";
+import { validSubscription } from "./utils";
 import { useUser } from "./user-provider";
 
 
@@ -90,11 +90,16 @@ const TopBarGuest = () => {
 }
 
 
-const TopBarNoSubcription = () => {
+const TopBarNoSubcription = ({onOpenSidebar}) => {
     const {user} = useUser()
 
     return <>
-        <div className="w-1/4"></div>
+        <div className="w-1/4">
+            <div className="flex items-center">
+                <OpenSidebarButton onClick={onOpenSidebar} />
+                <FeedButton />
+            </div>
+        </div>
         <div className="text-gray-600 flex justify-center w-1/2">
             <div>
                 No tenés una suscripción activa, muchas funciones no están disponibles</div>
@@ -125,8 +130,7 @@ export default function Topbar({ onOpenSidebar }) {
     const [searching, setSearching] = useState(false)
     const [prevScrollPos, setPrevScrollPos] = useState(0);
     const {user, setUser} = useUser()
-    console.log("top bar user", user)
-    const activeSubscription = user && getSubscriptionStatus(user.subscriptionsUsed) == "valid"
+    const activeSubscription = validSubscription(user)
     
     useEffect(() => {
         const handleScroll = () => {
@@ -164,7 +168,9 @@ export default function Topbar({ onOpenSidebar }) {
     if(!user){
         bar = <TopBarGuest/>
     } else if(!activeSubscription){
-        bar = <TopBarNoSubcription/>
+        bar = <TopBarNoSubcription
+            onOpenSidebar={onOpenSidebar}
+        />
     } else {
         bar = <TopbarLoggedIn 
             onOpenSidebar={onOpenSidebar}

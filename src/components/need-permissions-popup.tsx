@@ -5,7 +5,7 @@ import Popup from 'reactjs-popup';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
 
-function NeedAccountPopup({trigger, text}) {
+function NeedPermissionsPopup({trigger, text}) {
 
   function children(close) { return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-10">
@@ -17,21 +17,10 @@ function NeedAccountPopup({trigger, text}) {
             <CloseIcon/>
         </button>
         <p className="text-lg">{text}</p>
-        <div className="flex justify-between mt-8">
-          <div className="px-6">
-            <Link href="/signup">
-              <button className="large-btn">
-                    Crear cuenta
-              </button>
-            </Link>
-          </div>
-          <div className="px-6">
-            <Link href="/">
-              <button className="large-btn">
-                    Iniciar sesión
-              </button>
-            </Link>
-          </div>
+        <div className="flex justify-center mt-8">
+            <button className="large-btn" onClick={close}>
+                Ok
+            </button>
         </div>
       </div>
     </div>
@@ -46,4 +35,4 @@ function NeedAccountPopup({trigger, text}) {
   </Popup>
 }
 
-export default NeedAccountPopup;
+export default NeedPermissionsPopup;

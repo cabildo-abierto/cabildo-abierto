@@ -1,3 +1,4 @@
+import SubscriptionCheckWrapper from "./subscription-check-wrapper"
 
 
 export const splitPost = (text) => {
@@ -16,14 +17,26 @@ export function stopPropagation(func) {
 }
 
 
-export function getSubscriptionStatus(subscriptionsUsed: any[]){
-    if(subscriptionsUsed.length == 0) return "invalid"
+export function validSubscription(user){
+    if(!user) return false
+    if(user.subscriptionsUsed.length == 0) return false
 
-    const lastPaymentDate = subscriptionsUsed[subscriptionsUsed.length-1].usedAt
+    const lastPaymentDate = user.subscriptionsUsed[user.subscriptionsUsed.length-1].usedAt
   
     const nextSubscriptionEnd = new Date(lastPaymentDate)
     
     nextSubscriptionEnd?.setMonth(lastPaymentDate.getMonth()+1)
   
-    return nextSubscriptionEnd > new Date() ? "valid" : "invalid"
-  }
+    return nextSubscriptionEnd > new Date()
+}
+
+
+export function requireSubscription(component, require){
+    if(require){
+        return <SubscriptionCheckWrapper>
+            {component}
+        </SubscriptionCheckWrapper>
+    } else {
+        return component
+    }
+}

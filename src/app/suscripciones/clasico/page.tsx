@@ -32,7 +32,8 @@ export default async function PlanClasico() {
         
             <SubscriptionOptionButton
                 title="Pago automático"
-                description="Poné la tarjeta (o cualquier medio de pago) y olvidate."
+                description={"Próximamente"/*"Poné la tarjeta (o cualquier medio de pago) y olvidate."*/}
+                disabled={true}
                 href={"/suscripciones/clasico/pago-automatico"}
             />
             </div>

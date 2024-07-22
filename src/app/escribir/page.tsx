@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import Link from "next/link";
-import { splitPost } from "@/components/utils";
+import { requireSubscription, splitPost } from "@/components/utils";
 
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
@@ -81,7 +81,7 @@ const Escribir: React.FC = () => {
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return requireSubscription(<ThreeColumnsLayout center={center}/>, true)
 };
 
 export default Escribir;

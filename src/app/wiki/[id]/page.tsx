@@ -4,6 +4,8 @@ import { ThreeColumnsLayout } from "@/components/main-layout";
 import NoEntityPage from "./no-entity-page";
 import { ContentWithComments } from "@/components/content-with-comments";
 import { getUserId } from "@/actions/get-user";
+import { requireSubscription } from "@/components/utils";
+
 
 const EntityPage: React.FC = async ({params}) => {
 
@@ -15,13 +17,16 @@ const EntityPage: React.FC = async ({params}) => {
     }
 
     const center = <div className="bg-white h-full">
-        <h2 className="ml-2 py-8">
-            {entity.entity?.name}
-        </h2>
+        <div className="ck-content">
+            <h2 className="ml-2 py-8">
+                {entity.entity?.name}
+            </h2>
+        </div>
         <ContentWithComments content={entity.content} comments={entity.children} entity={entity.entity}/>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    
+    return requireSubscription(<ThreeColumnsLayout center={center}/>, !entity.entity.isPublic)
 }
 
 export default EntityPage

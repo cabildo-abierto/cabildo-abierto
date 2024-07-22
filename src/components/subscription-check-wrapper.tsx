@@ -1,25 +1,36 @@
-import { getUserById, getUserId } from "@/actions/get-user"
-import { redirect } from "next/navigation"
-import { getSubscriptionStatus } from "./utils"
+"use client"
+import Link from "next/link"
+import { useUser } from "./user-provider"
+import { validSubscription } from "./utils"
 
+const SubscriptionRequiredPage = () => {
+    return <>
+        <div className="flex justify-center py-8">
+            <h3>Necesitás una suscripción para ver esta página</h3>
+            
+        </div>
+        <div className="flex justify-center">
+        <Link href="/suscripciones">
+            <button className="large-btn">
+                Ver métodos de suscripción
+            </button>
+        </Link>
+        </div>
+    </>
+}
 
+const SubscriptionCheckWrapper = ({children}) => {
+    const {user} = useUser()
 
-const SubscriptionCheckWrapper = async ({children}) => {
-    const userId = await getUserId()
-    console.log("subscription check user id", userId)
-    const user = await getUserById(userId)
-    console.log("subscription check user", user)
-    const validSubscription = user && getSubscriptionStatus(user.subscriptionsUsed) == "valid"
-    console.log("valid subscription", validSubscription)
-
-    if(!validSubscription){
-        console.log("Redirecting to suscripciones")
-        redirect("/suscripciones")
+    if(!validSubscription(user)){
+        return <SubscriptionRequiredPage/>
+    } else {
+        return <>
+            {children}
+        </>
     }
 
-    return <>
-        {children}
-    </>
+    
 }
 
 export default SubscriptionCheckWrapper

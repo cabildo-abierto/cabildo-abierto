@@ -2,14 +2,17 @@
 
 import { buyAndUseSubscription, donateSubscriptions } from "@/actions/subscriptions";
 import { ThreeColumnsLayout } from "@/components/main-layout";
+import { useUser } from "@/components/user-provider";
 import { useRouter } from "next/navigation";
 import React from "react";
 
 
 export default function PagoUnico({params}) {
     const router = useRouter()
+    const user = useUser()
+    
     const handlePayment = async () => {
-        await buyAndUseSubscription()
+        await buyAndUseSubscription(user.id)
         await donateSubscriptions(params.amount-1)
         router.push("/inicio")
     }

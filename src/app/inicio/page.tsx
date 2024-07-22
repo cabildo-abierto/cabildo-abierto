@@ -4,6 +4,7 @@ import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { getUserId } from "@/actions/get-user";
 import { getTrending } from "@/actions/trending";
+import { requireSubscription } from "@/components/utils";
 
 
 const TrendingTopic = ({value, count}) => {
@@ -45,7 +46,7 @@ const Inicio: React.FC = async () => {
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center} right={right}/>
+    return requireSubscription(<ThreeColumnsLayout center={center} right={right}/>, true)
 }
 
 export default Inicio
