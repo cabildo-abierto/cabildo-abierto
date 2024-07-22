@@ -97,9 +97,9 @@ const EntityComponent = ({ content, entity}) => {
     const [updatedContent, setUpdatedContent] = useState(content.text)
     const [modify, setModify] = useState(false)
 
-    const handleSave = async (newContent) => {
-        await updateEntityContent(newContent, entity.id)
-        setUpdatedContent(newContent)
+    const handleSave = async (newText) => {
+        await updateEntityContent(newText, content.id)
+        setUpdatedContent(newText)
         setModify(false)
     }
 

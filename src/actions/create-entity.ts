@@ -51,14 +51,20 @@ export async function createEntity(name){
 }
 
 
-export async function updateEntityContent(content, id) {
-    const entity = await db.entity.findUnique({
-      where: { id: id },
-      include: { content: true },
-    })
+export async function updateEntityContent(text, contentId) {
+    const currentContent = await db.content.findUnique({
+      where: { id: contentId },
+      select: { text: true, history: true }
+    });
+    if(!currentContent){
+      return null
+    }
 
-    const updatedContent = await db.content.update({
-      where: { id: entity.contentId },
-      data: { text: content },
+    return await db.content.update({
+      where: { id: contentId },
+      data: { 
+        text: text,
+        history: [...currentContent?.history, currentContent.text]
+      },
     });
 }
