@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { getUserId } from './get-user';
+import { getUserById, getUserId } from './get-user';
 
 
 export async function buyAndUseSubscription(userId) { 
@@ -13,6 +13,8 @@ export async function buyAndUseSubscription(userId) {
             usedAt: new Date()
         }
     })
+
+    return await getUserById(userId)
 }
 
 export async function donateSubscriptions(n) {

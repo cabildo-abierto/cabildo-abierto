@@ -34,7 +34,13 @@ import {
 	Title,
 	Underline,
 	Undo,
-	Mention
+	Mention,
+	Image,
+	PictureEditing,
+	ImageUpload,
+	CloudServices,
+	CKBoxImageEdit,
+	CKBox
 } from 'ckeditor5';
 
 import { headingConfig, linkConfig, mentionConfig, MentionCustomization, tableConfig } from './markdown-editor';
@@ -54,6 +60,7 @@ const plugins = [
 	Heading,
 	HorizontalLine,
 	Italic,
+	Image, PictureEditing, ImageUpload, CloudServices, CKBox, CKBoxImageEdit,
 	Link,
 	Mention,
 	InternalLink,
@@ -94,6 +101,8 @@ const toolbar = {
 		'underline',
 		'strikethrough',
 		'|',
+		'ckbox',
+		'image',
 		'specialCharacters',
 		'horizontalLine',
 		'link',
@@ -129,7 +138,14 @@ export default function PostEditor({onSubmit, onSaveDraft, initialData=""}) {
 		link: linkConfig,
 		placeholder: 'Tu publicación va acá',
 		table: tableConfig,
-        translations: [coreTranslations]
+        translations: [coreTranslations],
+		image: {
+            toolbar: [ 'toggleImageCaption', 'imageTextAlternative', 'ckboxImageEdit' ]
+        },
+        ckbox: {
+            tokenUrl: 'https://114213.cke-cs.com/token/dev/sFEQCpTaxVwDohkZJtbiTWyw4JHshEEgLlXe?limit=10',
+            defaultUploadWorkspaceId: [ 'Iu1BhybZJrt2hWKexpZS' ]
+        }
 	};
 
 	return (

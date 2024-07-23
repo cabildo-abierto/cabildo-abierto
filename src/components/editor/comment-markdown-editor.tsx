@@ -39,13 +39,30 @@ import {
 	Underline,
 	Undo,
 	Autoformat,
-	Image,
 	PictureEditing,
-	ImageUpload,
 	CloudServices,
 	CKBoxImageEdit,
-	CKBox
+	CKBox,
+	Image,
+	ImageBlock,
+	ImageCaption,
+	ImageInline,
+	ImageInsert,
+	ImageInsertViaUrl,
+	ImageResize,
+	ImageStyle,
+	ImageTextAlternative,
+	ImageToolbar,
+	ImageUpload
 } from 'ckeditor5';
+
+import {
+	Comments,
+	PresenceList,
+	RealTimeCollaborativeComments,
+	RealTimeCollaborativeEditing,
+	SlashCommand,
+} from 'ckeditor5-premium-features';
 
 import translations from 'ckeditor5/translations/es.js';
 
@@ -123,12 +140,21 @@ const plugins = [
 	TableToolbar,
 	Underline,
 	Undo,
-	Image,
 	PictureEditing,
-	ImageUpload,
 	CloudServices,
 	CKBoxImageEdit,
-	CKBox
+	CKBox,
+	Image,
+	ImageBlock,
+	ImageCaption,
+	ImageInline,
+	ImageInsert,
+	ImageInsertViaUrl,
+	ImageResize,
+	ImageStyle,
+	ImageTextAlternative,
+	ImageToolbar,
+	ImageUpload,
 ]
 
 
@@ -172,6 +198,7 @@ export default function MarkdownEditor({initialData, onSubmit}) {
             tokenUrl: 'https://114213.cke-cs.com/token/dev/sFEQCpTaxVwDohkZJtbiTWyw4JHshEEgLlXe?limit=10',
             defaultUploadWorkspaceId: [ 'Iu1BhybZJrt2hWKexpZS' ]
         },
+		commentsOnly: true
 	};
 
 	return (

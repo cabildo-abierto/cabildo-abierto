@@ -1,8 +1,6 @@
 'use server';
 
 import { db } from '@/db';
-import { redirect } from 'next/navigation';
-import { getUser } from './get-user';
 
 const invalidWords = [
     "", "a", "ante", "bajo", "con", "contra", "de", "desde", "hacia", 
@@ -39,6 +37,9 @@ export async function getTrending(n) {
     const content = await db.content.findMany({
         select: {
             text: true
+        },
+        where: {
+            visible: true
         }
     })
 

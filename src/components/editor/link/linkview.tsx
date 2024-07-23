@@ -64,7 +64,7 @@ export default class FormView extends View {
 
 		this.urlInputView.fieldView.on("input", async () => {
 			const value = this.urlInputView.fieldView.element.value;
-			const results = await searchEntities(value);
+			const results = (await searchEntities(value)).slice(0, 5);
 
 			const buttons = results.map((r) => {
 				const item = new ButtonView()

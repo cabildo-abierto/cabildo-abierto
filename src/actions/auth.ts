@@ -29,20 +29,20 @@ export async function authenticate(state: LoginFormState, formData){
   })
 
   if (!validatedFields.success) {
-    return null
+    return { error: "invalid auth" }
   }
 
   const { email, password } = validatedFields.data
 
   const user = await db.user.findUnique({ where: { email: email } })
   if(!user) {
-    return null
+    return { error: "invalid auth" }
   }
 
   const comp = await bcrypt.compare(password, user.password)
 
   if(!comp){
-    return null
+    return { error: "invalid auth" }
   }
 
   await createSession(user.id)
@@ -53,7 +53,17 @@ export async function authenticate(state: LoginFormState, formData){
 export async function validatedSignUp(name, email, username, password){
   const hashedPassword = await generatePasswordHash(password)
 
-  return await db.user.create({
+  const usernameExists = await db.user.findFirst({where: {id: "@"+username}})
+  if(usernameExists){
+    return {errors: {username: ["el nombre de usuario ya existe"]}}
+  }
+
+  const emailExists = await db.user.findFirst({where: {email: email}})
+  if(emailExists){
+    return {errors: {email: ["el mail que ingresaste ya fue usado"]}}
+  }
+
+  await db.user.create({
     data: {
       id: "@"+username,
       name: name,
@@ -61,6 +71,7 @@ export async function validatedSignUp(name, email, username, password){
       password: hashedPassword,
     }
   })
+  return "success"
 }
 
 
@@ -80,8 +91,7 @@ export async function signup(state: SignupFormState, formData) {
 
   const { name, email, username, password} = validatedFields.data
 
-  await validatedSignUp(name, email, username, password)
-  redirect(`/login`)
+  return await validatedSignUp(name, email, username, password)
 }
 
 

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "signup": "tsx scripts/signup.js"
+    "signup": "tsx scripts/signup.js",
+    "delete-user": "tsx scripts/delete-user.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.1",
@@ -18,6 +19,7 @@
     "@ckeditor/ckeditor5-editor-classic": "^42.0.1",
     "@ckeditor/ckeditor5-essentials": "^42.0.1",
     "@ckeditor/ckeditor5-heading": "^42.0.1",
+    "@ckeditor/ckeditor5-image": "^42.0.1",
     "@ckeditor/ckeditor5-list": "^42.0.1",
     "@ckeditor/ckeditor5-paragraph": "^42.0.1",
     "@ckeditor/ckeditor5-react": "^8.0.0",

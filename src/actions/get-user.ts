@@ -4,9 +4,23 @@ import {db} from "@/db";
 import {verifySession} from "@/actions/auth";
 import { ContentProps, getChildrenAndData } from "./get-content";
 
+
+export type SubscriptionProps = {
+    id: string
+    createdAt: Date
+    boughtBy: string
+    userId?: string
+    usedAt?: Date
+}
+
 export type UserProps = {
     id: string
     name: string
+    email: string
+    createdAt: Date
+    authenticated: Boolean
+    editorStatus: string
+    subscriptionsUsed: SubscriptionProps[]
 };
 
 
@@ -78,6 +92,9 @@ export async function getUserActivityById(userId: string){
                             {type: "FastPost"},
                             {type: "Post"}
                         ]
+                    },
+                    {
+                        visible: true
                     }
                 ]
             },

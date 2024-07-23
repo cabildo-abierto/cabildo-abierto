@@ -1,16 +1,27 @@
 'use client'
 
 import { useFormState } from "react-dom";
-import {authenticate} from '@/actions/auth';
-import {LoginButton} from "./login-button";
+import { authenticate} from '@/actions/auth';
+import { LoginButton } from "./login-button";
 import { AuthenticationFormLabel } from "../app/signup/signup-form";
 import { useRouter } from "next/navigation";
 import { useUser } from "./user-provider";
+import { validSubscription } from "./utils";
 
 export default function LoginForm() {
-    const [success, action] = useFormState(authenticate, true)
+    const [state, action] = useFormState(authenticate, undefined)
     const {user, setUser} = useUser();
     const router = useRouter()
+
+    if(state && !state.error){
+        setUser(state)
+        console.log("state", state)
+        if(validSubscription(state)){
+            router.push("/inicio")
+        } else {
+            router.push("/suscripciones")
+        }
+    }
 
     const handleEmailInput = (e) => {
         const email = e.target;
@@ -27,11 +38,6 @@ export default function LoginForm() {
             email.setCustomValidity('Ingresá una contraseña.');
         }
     };
-
-    if(success){
-        setUser(success)
-        router.push("/inicio")
-    }
 
     return (
         <div className="">
@@ -70,7 +76,7 @@ export default function LoginForm() {
                             />
                         </div>
                     </div>
-                    {!success && <div className={"mb-1 mt-3 text-red-600"}>Usuario o contraseña incorrectos.</div>}
+                    {state && state.error == "invalid auth" && <div className={"mb-1 mt-3 text-red-600"}>Usuario o contraseña incorrectos.</div>}
                     <LoginButton/>
                 </div>
             </form>

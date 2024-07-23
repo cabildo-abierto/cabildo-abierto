@@ -1,15 +1,16 @@
 'use server';
 
 import { db } from '@/db';
-import { redirect } from 'next/navigation';
 import {
   CreateEntityFormState,
   CreateEntityFormSchema,
 } from "@/app/lib/definitions";
-import { getUser } from './get-user';
+import { getUserId } from './get-user';
 
 
 export async function createEntityFromForm(state: CreateEntityFormState, formData) {
+  const userId = await getUserId()
+  if(!userId) return {error: "Necesitás una cuenta para crear entidades"} // no debería pasar
 
   const validatedFields = CreateEntityFormSchema.safeParse({
     name: formData.get('name'),
@@ -23,31 +24,32 @@ export async function createEntityFromForm(state: CreateEntityFormState, formDat
 
   const { name } = validatedFields.data
 
-  createEntity(name)
+  return await createEntity(name, userId)
 }
 
 
-export async function createEntity(name){
-  const author = await getUser()
-  if(!author) return false
+export async function createEntity(name, userId){
+  const entityId = encodeURIComponent(name.replaceAll(" ", "_"))
+  const exists = await db.entity.findFirst({
+    where: {id: entityId}
+  })
+  if(exists) return {error: "Ya existe una entidad con ese nombre"}
 
   const content = await db.content.create({
     data: {
       text: "",
-      authorId: author.id,
+      authorId: userId,
       type: "EntityContent"
     }
   })
 
-  const entity = await db.entity.create({
+  return await db.entity.create({
     data: {
       name: name,
-      id: encodeURIComponent(name.replaceAll(" ", "_")),
+      id: entityId,
       contentId: content.id
     }
   })
-
-  redirect("/wiki/"+entity.id)
 }
 
 

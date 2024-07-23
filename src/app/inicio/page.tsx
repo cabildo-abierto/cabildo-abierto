@@ -19,19 +19,9 @@ const TrendingTopic = ({value, count}) => {
 }
 
 
-const Inicio: React.FC = async () => {
-    const feed = await getPosts(await getUserId())
-
-    const center = <div className="w-full bg-white h-full">
-        <h2 className="ml-2 py-8">
-            En discusión
-        </h2>
-        <Feed contents={feed}/>
-    </div>
-
+const TrendingTopicsPanel = async () => {
     const trending = await getTrending(5)
-    const right = <div className="flex justify-center w-full py-8 px-2">
-
+    return <div className="flex justify-center w-full py-8 px-2">
         <div className="rounded border px-2 py-2">
             <h3 className="px-4">
                 Tendencias
@@ -45,6 +35,20 @@ const Inicio: React.FC = async () => {
             </ul>
         </div>
     </div>
+}
+
+
+const Inicio: React.FC = async () => {
+    const feed = await getPosts(await getUserId())
+
+    const center = <div className="w-full bg-white h-full">
+        <h2 className="ml-2 py-8">
+            En discusión
+        </h2>
+        <Feed contents={feed}/>
+    </div>
+
+    const right = null// <TrendingTopicsPanel/>
 
     return requireSubscription(<ThreeColumnsLayout center={center} right={right}/>, true)
 }

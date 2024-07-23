@@ -4,12 +4,18 @@ import React from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { createEntityFromForm } from '@/actions/create-entity';
 import Popup from 'reactjs-popup';
-import styles from './Modal.module.css'
 import CloseIcon from '@mui/icons-material/Close';
 import { SidebarButton } from '@/components/sidebar-button';
+import { useRouter } from 'next/navigation';
 
 function EntityPopup({disabled=false}) {
   const [state, action] = useFormState(createEntityFromForm, undefined);
+  const router = useRouter()
+
+  if(state && !state.error){
+      router.push("/wiki/"+state.id)
+      return <></>
+  }
 
   function children(close) { return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-10">
@@ -33,8 +39,8 @@ function EntityPopup({disabled=false}) {
                 placeholder="Título"
               />
             </div>
-            {state?.errors?.name && (
-              <div className="text-sm text-red-500">{state?.errors?.name.join(', ')}</div>
+            {(state && state.error) && (
+              <div className="text-sm text-red-500">{state.error}</div>
             )}
             <CreateButton onClose={close}/>
           </div>

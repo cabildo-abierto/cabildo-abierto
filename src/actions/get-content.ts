@@ -84,9 +84,12 @@ export async function getPosts(userId) {
             id: true
         },
         where: {
-            type: {
-                in: ["FastPost", "Post"]
-            }
+            AND: [
+                {type: {
+                    in: ["FastPost", "Post"]
+                }},
+                {visible: true}
+            ]
         },
         orderBy: {
             createdAt: 'desc'
@@ -117,6 +120,9 @@ export async function getPostsFollowing(userId) {
                 },
                 {
                     authorId: {in: followedUsernames}
+                },
+                {
+                    visible: true
                 }
             ]
         },

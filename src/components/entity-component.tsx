@@ -88,7 +88,7 @@ const ReadOnlyContent = ({ onEdit, content, entity }) => {
         {!administrator && <div className="text-gray-600">Nivel de protección: {protectionToName(protection)}</div>}
 
         <div className="px-2">
-            <MarkdownContent content={content} />
+            <MarkdownContent content={content == "" ? "Este artículo está vacío!" : content} />
         </div>
     </>
 }

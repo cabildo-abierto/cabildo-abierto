@@ -2,23 +2,23 @@
 
 import { buyAndUseSubscription } from "@/actions/subscriptions";
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import {usePrice} from "@/components/use-price";
+import { useUser } from "@/components/user-provider";
 import { useRouter } from "next/navigation";
 
 
 export default function PlanClasicoPagoUnico() {
     const router = useRouter()
-    const {price} = usePrice()
-    const {user} = useUser()
+    const {user, setUser} = useUser()
     
-    const handlePayment = () => {
-        buyAndUseSubscription(user.id)
+    const handlePayment = async () => {
+        const updatedUser = await buyAndUseSubscription(user.id)
+        setUser(updatedUser)
         router.push("/inicio")
     }
 
     const center = <>
         <div className="flex justify-center mt-16">Acá ingresarías tu método de pago si lo hubiéramos implementado.</div>
-        <div className="flex justify-center mt-8">Total: ${price}</div>
+        <div className="flex justify-center mt-8">Total: $1000</div>
         <div className="flex justify-center mt-8">Tocá el botón, es gratis, todavía no abrimos.</div>
         <div className="flex justify-center mt-8">
         <button className="large-btn py-16" onClick={handlePayment}>Pagar</button>

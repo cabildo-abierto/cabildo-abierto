@@ -3,7 +3,7 @@
 import {signup} from "@/actions/auth";
 import { useFormState } from "react-dom";
 import {DisabledSignupButton, SignupButton} from "./signup-button";
-import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
@@ -16,6 +16,11 @@ export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = 
 
 export default function SignupForm() {
     const [state, action] = useFormState(signup, undefined)
+    const router = useRouter()
+
+    if(state == "success"){
+        router.push("/")
+    }
 
     return (
         <div className="">
@@ -90,14 +95,14 @@ export default function SignupForm() {
                             </div>
                         </div>
                         {
-                            state?.errors?.name
+                            state?.errors?.username
                             && <div className="text-sm text-red-500">
-                                {state?.errors?.name.join(', ')}
+                                {state?.errors?.username.join(', ')}
                             </div>
                         }
                     </div>
 
-                    <DisabledSignupButton/>
+                    <SignupButton/>
                 </div>
             </form>
         </div>

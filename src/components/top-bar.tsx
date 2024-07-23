@@ -102,7 +102,7 @@ const TopBarNoSubcription = ({onOpenSidebar}) => {
         </div>
         <div className="text-gray-600 flex justify-center w-1/2">
             <div>
-                No tenés una suscripción activa, muchas funciones no están disponibles</div>
+                Sin suscripción activa</div>
         </div>
         <div className="px-4 w-1/4 flex justify-end">
             <div className="px-2">

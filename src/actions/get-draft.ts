@@ -1,9 +1,7 @@
 'use server'
 
 import {db} from "@/db";
-import {getUserId, getUserIdByUsername} from "@/actions/get-user";
-import parse from 'html-react-parser'
-import { getLikeState } from "./likes";
+import {getUserId} from "@/actions/get-user";
 
 export type ContentProps = {
     id: string;
@@ -48,54 +46,4 @@ export async function getDrafts() {
     })
 
     return drafts
-}
-
-
-export async function getPostsFollowing() {
-    const userId = await getUserId()
-
-    const followedUsers = await db.user.findUnique({
-        where: {
-            id: userId,
-        },
-    }).following();
-
-    const followedUsernames = followedUsers.map(user => user.id);
-
-    let contents: ContentProps[] = await db.content.findMany({
-        select: {
-            id: true,
-            text: true,
-            createdAt: true,
-            author: {
-                select: {
-                    name: true,
-                    id: true
-                },
-            },
-            _count: {
-                select: { 
-                    childrenComments: true,
-                    likedBy: true,
-                    dislikedBy: true,
-                },
-            },
-            type: true
-        },
-        where: {
-            AND: [
-                {
-                    type: {in: ["FastPost", "Post", "Comment"]}
-                },
-                {
-                    authorId: {in: followedUsernames}
-                }
-            ]
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    })
-
-    return contents
 }

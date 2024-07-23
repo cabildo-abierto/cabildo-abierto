@@ -1,11 +1,11 @@
 "use client"
-import { getUserById, getUserId } from '@/actions/get-user';
+import { getUserById, getUserId, UserProps } from '@/actions/get-user';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export const UserContext = createContext(null);
+export const UserContext = createContext<UserProps | null>(null);
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<UserProps | null>(null);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -17,15 +17,12 @@ export const UserProvider = ({ children }) => {
         setUser(user)
       }
     }
-
     fetchUserData();
   }, []);
 
-  return (
-    <UserContext.Provider value={{user, setUser}}>
+  return <UserContext.Provider value={{user, setUser}}>
       {children}
-    </UserContext.Provider>
-  );
+  </UserContext.Provider>
 };
 
 export const useUser = () => useContext(UserContext);
