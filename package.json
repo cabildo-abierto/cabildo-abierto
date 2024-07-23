@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "signup": "tsx scripts/signup.js",
-    "delete-user": "tsx scripts/delete-user.js"
+    "delete-user": "tsx scripts/delete-user.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.1",
