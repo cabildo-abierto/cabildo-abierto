@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import Link from "next/link";
-import { requireSubscription, splitPost, validFastPost, validPost } from "@/components/utils";
+import { requireSubscription, validFastPost, validPost } from "@/components/utils";
 
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );

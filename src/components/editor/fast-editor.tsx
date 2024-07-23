@@ -33,7 +33,7 @@ import {
 import { linkConfig, mentionConfig, MentionCustomization } from './markdown-editor';
 import "./editor.css"
 import InternalLink from "./link/link"
-import { validFastPost } from '@/app/escribir/page';
+import { validFastPost } from '../utils';
 
 
 export const fastEditorPlugins = [
