@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import Link from "next/link";
-import { requireSubscription, splitPost } from "@/components/utils";
+import { requireSubscription, splitPost, validFastPost, validPost } from "@/components/utils";
 
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
@@ -30,16 +30,7 @@ const PostSelector = ({setSelection}) => {
 }
 
 
-export function validPost(text){
-    return splitPost(text) != null
-}
-
-export function validFastPost(text){
-    return text.length > 0
-}
-
-
-const Escribir: React.FC = () => {
+const Escribir = () => {
     const [selection, setSelection] = useState("publicación rápida");
     const router = useRouter();
 
@@ -84,5 +75,5 @@ const Escribir: React.FC = () => {
     return requireSubscription(<ThreeColumnsLayout center={center}/>, true)
 };
 
-export default Escribir;
+export default Escribir
 

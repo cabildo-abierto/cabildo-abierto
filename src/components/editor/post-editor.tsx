@@ -47,7 +47,7 @@ import { headingConfig, linkConfig, mentionConfig, MentionCustomization, tableCo
 import "./editor.css"
 
 import InternalLink from "./link/link"
-import { validPost } from '@/app/escribir/page';
+import { validPost } from '../utils';
 
 const plugins = [
 	AccessibilityHelp,

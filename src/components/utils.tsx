@@ -40,3 +40,12 @@ export function requireSubscription(component, require){
         return component
     }
 }
+
+
+export function validPost(text){
+    return splitPost(text) != null
+}
+
+export function validFastPost(text){
+    return text.length > 0
+}
