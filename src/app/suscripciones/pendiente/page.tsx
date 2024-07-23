@@ -1,16 +1,16 @@
 "use client"
-import { useDonatedSubscription } from "@/actions/subscriptions"
+import { getDonatedSubscription } from "@/actions/subscriptions"
 import { ThreeColumnsLayout } from "@/components/main-layout"
 import { usePoolSize } from "@/components/use-pool-size"
 import { useRouter } from "next/navigation"
 
 
 export default function PlanGratuito() {
-    const {poolSize} = usePoolSize()
     const router = useRouter()
+    const poolSize = usePoolSize()
 
     const handlePayment = async () => {
-        (await useDonatedSubscription()).then(() => {router.push("/inicio")})
+        (await getDonatedSubscription()).then(() => {router.push("/inicio")})
     }
 
     const center = <>

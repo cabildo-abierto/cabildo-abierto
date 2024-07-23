@@ -34,7 +34,7 @@ export async function donateSubscriptions(n) {
     })
 }
 
-export async function useDonatedSubscription() {
+export async function getDonatedSubscription() {
     const userId = await getUserId()
 
     const subscription = await db.subscription.findFirst({
