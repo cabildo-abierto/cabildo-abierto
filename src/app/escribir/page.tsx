@@ -13,8 +13,8 @@ const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), {
 const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), { ssr: false } );
 
 
-const PostSelector = ({setSelection}) => {
-  const buttonRef = useRef(null);
+const PostSelector: React.FC<any> = ({setSelection}) => {
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
       if (buttonRef.current) {
@@ -34,17 +34,18 @@ const Escribir = () => {
     const [selection, setSelection] = useState("publicación rápida");
     const router = useRouter();
 
-    const handleCreate = async (text) => {
+    const handleCreate = async (text: string) => {
         const contentType = selection == "publicación" ? "Post" : "FastPost"
         if(contentType == "Post" && !validPost(text)) return
         if(contentType == "FastPost" && !validFastPost(text)) return
+        router.push("/")
         const success = await createPost(text, contentType, false)
-        if (success) {
-            router.push("/")
+        if (!success) {
+            console.log("Error al publicar post :(")
         }
     }
 
-    const handleSaveDraft = async (text) => {
+    const handleSaveDraft = async (text: string) => {
         const contentType = selection == "publicación" ? "Post" : "FastPost"
         if(text.length == 0) return
         const success = await createPost(text, contentType, true)

@@ -1,7 +1,8 @@
 "use client"
 import { useRouter } from "next/navigation"
+import React from "react"
 
-const SubscriptionOptionButton = ({title, description, disabled=false, price=null, href}) => {
+const SubscriptionOptionButton: React.FC<any> = ({title, description, disabled=false, price=null, href}) => {
     const router = useRouter()
     return <div className="flex-1 px-2">
         <button 

@@ -3,41 +3,7 @@
 import {db} from "@/db";
 import diceCoefficientDistance from "@/actions/dice-coefficient";
 import { UserProps } from "./get-user";
-import { ContentProps, ContentWithLinks, getPosts } from "./get-content";
-import { EntityProps } from "./get-entity";
-
-export type UserSearchResult = {
-    id: string
-    name: string
-    dist?: number
-}
-
-
-export type ContentSearchResult = {
-    id: string;
-    createdAt: Date
-    author: {
-        id: string
-        name: string
-    } | null;
-    text: string;
-    _count: {
-        childrenComments: number
-        likedBy: number
-        dislikedBy: number
-    }
-    type: string
-    textWithLinks?: ContentWithLinks | null
-    likeState?: string
-    dist?: number
-};
-
-
-export type EntitySearchResult = {
-    id: string
-    name: string
-    dist?: number
-}
+import { ContentAndChildrenProps, getPosts } from "./get-content";
 
 
 export async function searchUsers(value: string): Promise<UserProps[]>{
@@ -46,7 +12,7 @@ export async function searchUsers(value: string): Promise<UserProps[]>{
 
     const dist = diceCoefficientDistance
 
-    const users: UserSearchResult[] = await db.user.findMany({
+    const users: any[] = await db.user.findMany({
         select: {
             name: true, 
             id: true
@@ -54,7 +20,6 @@ export async function searchUsers(value: string): Promise<UserProps[]>{
     })
 
     const maxDist = dist(value, '')
-    // console.log("Dist", value, 'empty string', dist(value, ''))
 
     users.forEach(function(item){
         item.dist = 1e10
@@ -70,13 +35,14 @@ export async function searchUsers(value: string): Promise<UserProps[]>{
 }
 
 
-export async function searchContents(value: string, userId: string) {
+export async function searchContents(value: string, userId: string | null=null) {
     if(value.length == 0)
         return []
 
     const dist = diceCoefficientDistance
 
-    const contents: any[] = await getPosts(userId)
+    const contents = await getPosts(userId)
+    if(!contents) return []
 
     const maxDist = dist(value, '')
     contents.forEach(function(item){
@@ -89,7 +55,7 @@ export async function searchContents(value: string, userId: string) {
 }
 
 
-export async function searchEntities(value: string): Promise<EntityProps[]>{
+export async function searchEntities(value: string): Promise<any[]>{
     if(value.length == 0)
         return []
 

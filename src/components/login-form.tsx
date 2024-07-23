@@ -14,16 +14,15 @@ export default function LoginForm() {
     const router = useRouter()
 
     if(state && !state.error){
-        setUser(state)
-        console.log("state", state)
-        if(validSubscription(state)){
+        setUser(state.user)
+        if(validSubscription(state.user)){
             router.push("/inicio")
         } else {
             router.push("/suscripciones")
         }
     }
 
-    const handleEmailInput = (e) => {
+    const handleEmailInput = (e: any) => {
         const email = e.target;
         email.setCustomValidity('');
         if (!email.validity.valid) {
@@ -31,7 +30,7 @@ export default function LoginForm() {
         }
     };
 
-    const handlePasswordInput = (e) => {
+    const handlePasswordInput = (e: any) => {
         const email = e.target;
         email.setCustomValidity('');
         if (!email.validity.valid) {

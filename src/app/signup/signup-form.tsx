@@ -18,7 +18,7 @@ export default function SignupForm() {
     const [state, action] = useFormState(signup, undefined)
     const router = useRouter()
 
-    if(state == "success"){
+    if(state && !state.errors){
         router.push("/")
     }
 

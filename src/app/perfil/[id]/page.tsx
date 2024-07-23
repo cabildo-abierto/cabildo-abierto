@@ -1,4 +1,4 @@
-import { getUserActivityById, getUserById, getUserId, getUserIdByUsername } from "@/actions/get-user";
+import { getUserActivityById, getUserById, getUserId } from "@/actions/get-user";
 import React from "react";
 import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";

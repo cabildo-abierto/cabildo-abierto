@@ -1,7 +1,11 @@
 import 'server-only'
 import { SignJWT, jwtVerify } from 'jose'
-import { SessionPayload } from '@/app/lib/definitions'
 import { cookies } from 'next/headers'
+
+export type SessionPayload = {
+    userId: string,
+    expiresAt: Date
+}
 
 const secretKey = process.env.SESSION_SECRET
 const encodedKey = new TextEncoder().encode(secretKey)
@@ -14,16 +18,14 @@ export async function encrypt(payload: SessionPayload) {
         .sign(encodedKey)
 }
 
-export async function decrypt(session: string | undefined = ''): Promise<SessionPayload | undefined> {
+export async function decrypt(session: string = ''): Promise<SessionPayload | null> {
     try {
-        const { payload }: SessionPayload = await jwtVerify(session, encodedKey, {
+        const payload = await jwtVerify(session, encodedKey, {
             algorithms: ['HS256'],
         })
-        console.log("Returning payload")
-        return payload
+        return {userId: payload.payload.userId as string, expiresAt: payload.payload.expiresAt as Date}
     } catch (error) {
-        console.log('Failed to verify session')
-        return undefined
+        return null
     }
 }
 

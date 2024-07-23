@@ -3,33 +3,41 @@
  * For licensing, see LICENSE.md.
  */
 
-import { Command, findAttributeRange, toMap } from 'ckeditor5';
+import { Command, findAttributeRange, Position, toMap } from 'ckeditor5';
 import getRangeText from './utils';
 
-function entityLink(link){
+function entityLink(link: string){
 	return "/wiki/" + encodeURI(link.replaceAll(" ", "_"))
 }
+
+export type ValueProps = {
+	text: string,
+	link: string,
+	range: any
+} | null
 
 export default class LinkCommand extends Command {
     refresh() {
 		const model = this.editor.model;
 		const selection = model.document.selection;
 		const firstRange = selection.getFirstRange();
+
+		if(!firstRange) {this.isEnabled = false; return}
 		// When the selection is collapsed, the command has a value if the caret is in an abbreviation.
 		if ( firstRange.isCollapsed ) {
 			if ( selection.hasAttribute( 'link' ) ) {
 				const attributeValue = selection.getAttribute( 'link' );
 
 				// Find the entire range containing the abbreviation under the caret position.
-				const abbreviationRange = findAttributeRange( selection.getFirstPosition(), 'link', attributeValue, model );
+				const abbreviationRange = findAttributeRange(selection.getFirstPosition() as Position, 'link', attributeValue, model );
 
 				this.value = {
 					text: getRangeText( abbreviationRange ),
 					link: attributeValue,
 					range: abbreviationRange
-				};
+				} as ValueProps;
 			} else {
-				this.value = null;
+				this.value = null as ValueProps;
 			}
 		}
 		// When the selection is not collapsed, the command has a value if the selection contains a subset of a single abbreviation
@@ -39,7 +47,7 @@ export default class LinkCommand extends Command {
 				const linkValue = selection.getAttribute( 'link' );
 
 				// Find the entire range containing the abbreviation under the caret position.
-				const abbreviationRange = findAttributeRange( selection.getFirstPosition(), 'link', linkValue, model );
+				const abbreviationRange = findAttributeRange( selection.getFirstPosition() as Position, 'link', linkValue, model );
 
 				if ( abbreviationRange.containsRange( firstRange, true ) ) {
 					this.value = {
@@ -59,7 +67,7 @@ export default class LinkCommand extends Command {
 		this.isEnabled = model.schema.checkAttributeInSelection( selection, 'link' );
 	}
 
-	execute( { text, link } ) {
+	execute( { text, link }: any ) {
 		const model = this.editor.model;
 		const selection = model.document.selection;
 
@@ -70,7 +78,7 @@ export default class LinkCommand extends Command {
 				if ( this.value ) {
 					const { end: positionAfter } = model.insertContent(
 						writer.createText( text, { link: entityLink(link) } ),
-						this.value.range
+						(this.value as ValueProps)?.range
 					);
 					// Put the selection at the end of the inserted abbreviation.
 					writer.setSelection( positionAfter );

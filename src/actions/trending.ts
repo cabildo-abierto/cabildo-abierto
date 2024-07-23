@@ -33,7 +33,7 @@ function cleanWord(word: string){
     return word
 }
 
-export async function getTrending(n) {
+export async function getTrending(n: number) {
     const content = await db.content.findMany({
         select: {
             text: true
@@ -43,15 +43,16 @@ export async function getTrending(n) {
         }
     })
 
-    const wordCounts = new Map<string, Number>()
+    const wordCounts = new Map<string, number>()
     content.forEach((content) => {
         const words: string[] = content.text.split(" ")
         words.forEach((word) => {
             const cleanedWord = cleanWord(word)
-            if(wordCounts.has(cleanedWord)){
-                wordCounts.set(cleanedWord, wordCounts.get(cleanedWord)+1)
-            } else {
+            const current = wordCounts.get(cleanedWord)
+            if(current == undefined){
                 wordCounts.set(cleanedWord, 1)
+            } else {
+                wordCounts.set(cleanedWord, current+1)
             }
         })
     })
@@ -63,10 +64,9 @@ export async function getTrending(n) {
     for(let i = 0; i < wordCountsArray.length; i++){
         const [word, count] = wordCountsArray[i]
         if(validTrending(word)){
-            selection.push([word, count])
+            selection.push({word: word, count: count})
             if(selection.length == n) break
         }
     }
-    // console.log(selection)
     return selection
 }

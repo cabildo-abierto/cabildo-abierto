@@ -1,7 +1,7 @@
 "use client"
 import { updateEntityContent } from "@/actions/create-entity"
 import MarkdownContent from "@/components/editor/ckeditor-markdown-content";
-import { useState } from "react"
+import React, { useState } from "react"
 import dynamic from 'next/dynamic';
 import NeedAccountPopup from "@/components/need-account-popup";
 import { useUser } from "./user-provider";
@@ -9,11 +9,12 @@ import { setProtection } from "@/actions/protection";
 import { validSubscription } from "./utils";
 import NeedSubscriptionPopup from "./need-subscription-popup";
 import NeedPermissionsPopup from "./need-permissions-popup";
+import { UserProps } from "@/actions/get-user";
 
 const MarkdownEditor = dynamic(() => import('@/components/editor/markdown-editor'), { ssr: false });
 
 
-const EditableContent = ({ content, handleSave, onCancel }) => {
+const EditableContent: React.FC<any> = ({ content, handleSave, onCancel }) => {
     return <>
         <div className="flex justify-center items-center px-2 py-2">
             <button
@@ -30,7 +31,7 @@ const EditableContent = ({ content, handleSave, onCancel }) => {
 }
 
 
-function protectionToName(protection){
+function protectionToName(protection: string){
     if(protection == "Administrator") {
         return "Administrador"
     } else {
@@ -38,20 +39,19 @@ function protectionToName(protection){
     }
 }
 
-function hasEditPermissions(user, level){
+function hasEditPermissions(user: UserProps, level: string){
     return user.editorStatus == "Administrator" || level != "Administrator"
 }
 
-const ReadOnlyContent = ({ onEdit, content, entity }) => {
+const ReadOnlyContent: React.FC<any> = ({ onEdit, content, entity }) => {
     const {user} = useUser()
     const [protection, setProtectionState] = useState(entity.protection)
-    console.log(protection, entity)
     const administrator = user && user.editorStatus == "Administrator"
 
-    const EditButton = () => {
+    const EditButton: React.FC<any> = ({onClick}) => {
         return <button
             className="py-1 px-4 rounded transition duration-200 bg-gray-200 hover:bg-gray-300 cursor-pointer"
-            onClick={onEdit}>
+            onClick={onClick}>
             Editar
         </button>
     }
@@ -66,15 +66,17 @@ const ReadOnlyContent = ({ onEdit, content, entity }) => {
         </button>
     }
 
+    const trigger = (handleClick: any) => (<EditButton onClick={handleClick}/>)
+
     let editButton = <></>
     if(!user){
-        editButton = <NeedAccountPopup trigger={EditButton()} text="Necesitás una cuenta para hacer ediciones."/>
+        editButton = <NeedAccountPopup trigger={trigger} text="Necesitás una cuenta para hacer ediciones."/>
     } else if(!validSubscription(user)) {
-        editButton = <NeedSubscriptionPopup trigger={EditButton()} text="Necesitás una suscripción para editar"/>
+        editButton = <NeedSubscriptionPopup trigger={trigger} text="Necesitás una suscripción para editar"/>
     } else if(hasEditPermissions(user, protection)){
-        editButton = <EditButton/>
+        editButton = <EditButton onClick={onEdit}/>
     } else {
-        editButton = <NeedPermissionsPopup trigger={EditButton()} text="No tenés permisos para editar este artículo y todavía no implementamos las propuestas de edición :("/>
+        editButton = <NeedPermissionsPopup trigger={trigger} text="No tenés permisos para editar este artículo y todavía no implementamos las propuestas de edición :("/>
     }
 
     return <>
@@ -87,17 +89,17 @@ const ReadOnlyContent = ({ onEdit, content, entity }) => {
 
         {!administrator && <div className="text-gray-600">Nivel de protección: {protectionToName(protection)}</div>}
 
-        <div className="px-2">
+        <div className="px-2 min-h-64">
             <MarkdownContent content={content == "" ? "Este artículo está vacío!" : content} />
         </div>
     </>
 }
 
-const EntityComponent = ({ content, entity}) => {
+const EntityComponent: React.FC<any> = ({ content, entity}) => {
     const [updatedContent, setUpdatedContent] = useState(content.text)
     const [modify, setModify] = useState(false)
 
-    const handleSave = async (newText) => {
+    const handleSave = async (newText: string) => {
         await updateEntityContent(newText, content.id)
         setUpdatedContent(newText)
         setModify(false)

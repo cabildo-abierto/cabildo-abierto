@@ -13,14 +13,15 @@ import { linkConfig } from './markdown-editor';
 import NeedAccountPopup from '../need-account-popup';
 import { useUser } from '../user-provider';
 import { validSubscription } from '../utils';
+import { UserProps } from '@/actions/get-user';
 
-function canComment(user){
+function canComment(user: UserProps | null){
 	return validSubscription(user)
 }
 
-export default function CommentEditor({onSubmit, onCancel=null}) {
+export default function CommentEditor({onSubmit, onCancel=null}: any) {
     const {user} = useUser()
-    const [editor, setEditor] = useState(null);
+    const [editor, setEditor] = useState<BalloonEditor | null>(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
 
@@ -41,19 +42,22 @@ export default function CommentEditor({onSubmit, onCancel=null}) {
         ]
 	};
 
-	function handleSubmit(){
+	async function handleSubmit(){
+		if(!editor) return
 		const data = editor.getData()
 		if(data.length == 0) return
-		onSubmit(data)
+		await onSubmit(data)
 	}
 
-	const SendCommentButton = ({onClick}) => {
+	const SendCommentButton = ({onClick}: any) => {
+		const [submitting, setSubmitting] = useState(false)
 		return <div className="px-1">
 			<button
-				onClick={onClick}
+				onClick={async () => {setSubmitting(true); await onClick(); setSubmitting(false)}}
 				className="small-btn"
+				disabled={submitting}
 			>
-				Enviar
+				{submitting ? "Enviando" : "Enviar"}
 			</button>
 		</div>
 	}

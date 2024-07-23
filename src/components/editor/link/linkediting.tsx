@@ -50,7 +50,7 @@ export default class LinkEditing extends Plugin {
 				key: 'link',
 
                 // Callback function provides access to the view element
-				value: viewElement => {
+				value: (viewElement: any) => {
 					const link = viewElement.getAttribute( 'link' );
 					return link;
 				}

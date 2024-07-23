@@ -7,8 +7,12 @@ import { ButtonView, ContextualBalloon, Plugin, clickOutsideHandler } from 'cked
 import FormView from './linkview';
 import getRangeText from './utils';
 import '../styles.css';
+import { ValueProps } from './linkcommand';
 
 export default class LinkUI extends Plugin {
+	_balloon: ContextualBalloon | null = null;
+	formView: FormView | null = null;
+
 	static get requires() {
 		return [ ContextualBalloon ];
 	}
@@ -62,12 +66,12 @@ export default class LinkUI extends Plugin {
 		// Hide the form view when clicking outside the balloon.
 		clickOutsideHandler( {
 			emitter: formView,
-			activator: () => this._balloon.visibleView === formView,
-			contextElements: [ this._balloon.view.element ],
+			activator: () => this._balloon?.visibleView === formView,
+			contextElements: [ this._balloon?.view.element as HTMLElement ],
 			callback: () => this._hideUI()
 		} );
 
-		formView.keystrokes.set( 'Esc', ( data, cancel ) => {
+		formView.keystrokes.set( 'Esc', ( data: any, cancel: any ) => {
             this._hideUI();
             cancel();
         } );
@@ -77,23 +81,27 @@ export default class LinkUI extends Plugin {
 
 	_showUI() {
 		const selection = this.editor.model.document.selection;
+		if(!this.formView) return
 
 		// Check the value of the command.
-		const commandValue = this.editor.commands.get( 'addLink' ).value;
+		const commandValue: ValueProps = this.editor?.commands.get( 'addLink' )?.value as ValueProps;
 
-		this._balloon.add( {
+		const position = this._getBalloonPositionData()
+		if(!position) return
+		this._balloon?.add( {
 			view: this.formView,
-			position: this._getBalloonPositionData()
+			position: position
 		} );
 
 		// Disable the input when the selection is not collapsed.
-		this.formView.textInputView.isEnabled = selection.getFirstRange().isCollapsed;
+		this.formView.textInputView.isEnabled = selection.getFirstRange()?.isCollapsed;
 
 		// Fill the form using the state (value) of the command.
-		if ( commandValue ) {
+		if ( commandValue) {
 			this.formView.textInputView.fieldView.value = commandValue.text;
-			this.formView.urlInputView.fieldView.value = commandValue.url;
+			this.formView.urlInputView.fieldView.value = commandValue.link;
 		}
+
 		// If the command has no value, put the currently selected text (not collapsed)
 		// in the first field and empty the second in that case.
 		else {
@@ -107,11 +115,13 @@ export default class LinkUI extends Plugin {
 	}
 
 	_hideUI() {
+		if(!this.formView) return
 		// Clear the input field values and reset the form.
 		this.formView.textInputView.fieldView.value = '';
 		this.formView.urlInputView.fieldView.value = '';
-		this.formView.element.reset();
+		// this.formView.element.reset();
 
+		if(!this._balloon) return
 		this._balloon.remove( this.formView );
 
 		// Focus the editing view after inserting the abbreviation so the user can start typing the content
@@ -125,7 +135,9 @@ export default class LinkUI extends Plugin {
 		let target = null;
 
 		// Set a target position by converting view selection range to DOM
-		target = () => view.domConverter.viewRangeToDom( viewDocument.selection.getFirstRange() );
+		const range = viewDocument.selection.getFirstRange()
+		if(!range) return null
+		target = () => view.domConverter.viewRangeToDom( range );
 
 		return {
 			target

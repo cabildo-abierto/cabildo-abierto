@@ -11,9 +11,11 @@ export default function PlanClasicoPagoUnico() {
     const {user, setUser} = useUser()
     
     const handlePayment = async () => {
-        const updatedUser = await buyAndUseSubscription(user.id)
-        setUser(updatedUser)
-        router.push("/inicio")
+        if(user){
+            const updatedUser = await buyAndUseSubscription(user.id)
+            setUser(updatedUser)
+            router.push("/inicio")
+        }
     }
 
     const center = <>

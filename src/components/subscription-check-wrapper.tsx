@@ -19,7 +19,7 @@ const SubscriptionRequiredPage = () => {
     </>
 }
 
-const SubscriptionCheckWrapper = ({children}) => {
+const SubscriptionCheckWrapper: React.FC<any> = ({children}) => {
     const {user} = useUser()
 
     if(!validSubscription(user)){

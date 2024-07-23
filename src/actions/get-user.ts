@@ -8,9 +8,8 @@ import { ContentProps, getChildrenAndData } from "./get-content";
 export type SubscriptionProps = {
     id: string
     createdAt: Date
-    boughtBy: string
-    userId?: string
-    usedAt?: Date
+    boughtByUserId: string
+    usedAt: Date | null
 }
 
 export type UserProps = {
@@ -24,11 +23,10 @@ export type UserProps = {
 };
 
 
-export async function getUserId(){
+export async function getUserId(): Promise<string | null> {
     const session = await verifySession()
-    if(!session) return undefined
-
-    return session?.userId
+    if(!session) return null
+    return session.userId
 }
 
 export async function getUser() {
@@ -39,7 +37,7 @@ export async function getUser() {
 }
 
 export async function getUserById(userId: string){
-    const user = await db.user.findUnique(
+    const user: UserProps | null = await db.user.findUnique(
         {
             select: {
                 id: true,
@@ -71,7 +69,7 @@ export async function getUserStatusById(userId: string){
 }
 
 export async function getUserActivityById(userId: string){
-    let contents: ContentProps[] = await db.content.findMany(
+    let contents: {id: string}[] = await db.content.findMany(
         {
             where: {
                 AND: [
@@ -110,7 +108,7 @@ export async function getUserActivityById(userId: string){
 }
 
 
-export async function getUsersMatching(queryText) {
+export async function getUsersMatching(queryText: string) {
     const users = await db.user.findMany({
         select: {
             id: true,
@@ -119,7 +117,7 @@ export async function getUsersMatching(queryText) {
     })
     const searchString = queryText.toLowerCase();
 
-    function userMatch(user) {
+    function userMatch(user: any) {
         return user.name.toLowerCase().includes(searchString) || user.id.toLowerCase().includes(searchString);
     }
 

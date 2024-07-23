@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 
 import {
@@ -44,7 +44,11 @@ import {
 	ImageUpload,
 	CloudServices,
 	CKBoxImageEdit,
-	CKBox
+	CKBox,
+	MentionConfig,
+	MentionFeedObjectItem,
+	EditorConfig,
+	HeadingConfig
 } from 'ckeditor5';
 
 import translations from 'ckeditor5/translations/es.js';
@@ -132,15 +136,15 @@ const plugins = [
 ]
 
 
-const PublishButton = ({onSubmit, editor}) => {
+const PublishButton: React.FC<any> = ({onSubmit, editor}) => {
 	return <button className="blue-button" onClick={() => {onSubmit(editor.getData())}}>
 		Publicar
 	</button>
 }
 
 
-export default function MarkdownEditor({initialData, onSubmit}) {
-    const [editor, setEditor] = useState(null);
+export default function MarkdownEditor({initialData, onSubmit}: any) {
+    const [editor, setEditor] = useState<ClassicEditor | null>(null);
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -152,7 +156,7 @@ export default function MarkdownEditor({initialData, onSubmit}) {
 		return () => setIsLayoutReady(false);
 	}, []);
 
-	const editorConfig = {
+	const editorConfig: EditorConfig = {
 		toolbar: toolbar,
 		plugins: plugins,
 		balloonToolbar: ['bold', 'italic', '|', 'link', 'internal-link', '|', 'bulletedList', 'numberedList'],
@@ -170,7 +174,7 @@ export default function MarkdownEditor({initialData, onSubmit}) {
         },
         ckbox: {
             tokenUrl: 'https://114213.cke-cs.com/token/dev/sFEQCpTaxVwDohkZJtbiTWyw4JHshEEgLlXe?limit=10',
-            defaultUploadWorkspaceId: [ 'Iu1BhybZJrt2hWKexpZS' ]
+            defaultUploadWorkspaceId: 'Iu1BhybZJrt2hWKexpZS'
         },
 	};
 
@@ -181,7 +185,7 @@ export default function MarkdownEditor({initialData, onSubmit}) {
 				<CKEditor
 					editor={ClassicEditor}
 					config={editorConfig}
-					onReady={setEditor}
+					onReady={(editor: ClassicEditor) => {setEditor(editor)}}
 				/>}</div>
             </div>
 
@@ -205,7 +209,7 @@ export const linkConfig = {
 }
 
 
-export const mentionConfig = {
+export const mentionConfig: MentionConfig = {
 	feeds: [
 		{
 			marker: '@',
@@ -215,7 +219,7 @@ export const mentionConfig = {
 	]
 }
 
-export const headingConfig = {
+export const headingConfig: HeadingConfig = {
 	options: [
 		{
 			model: 'paragraph',
@@ -262,24 +266,26 @@ export const headingConfig = {
 }
 
 
-function getUsers(queryText) {
+function getUsers(queryText: string): Promise<MentionFeedObjectItem[]> {
     return new Promise( resolve => {
         setTimeout(async () => {
 			const users = await getUsersMatching(queryText)
 
-            resolve(users.slice(0, 10).map((user) => {
+			const userTransform = (user: any): any => {
 				return {
 					id: user.id,
 					name: user.name,
 					link: `/perfil/${user.id.slice(1)}`
 				}
-			}))
+			}
+
+            resolve(users.slice(0, 10).map(userTransform))
         }, 100 );
     } );
 }
 
 
-function userMentionRenderer( item ) {
+function userMentionRenderer(item: any) {
     const itemElement = document.createElement( 'span' );
 
     itemElement.classList.add( 'custom-item' );
@@ -298,7 +304,7 @@ function userMentionRenderer( item ) {
 
 
 
-export function MentionCustomization(editor) {
+export function MentionCustomization(editor: any) {
     // The upcast converter will convert <a class="mention" href="" data-user-id="">
     // elements to the model 'mention' attribute.
     editor.conversion.for('upcast').elementToAttribute({
@@ -313,7 +319,7 @@ export function MentionCustomization(editor) {
         },
         model: {
             key: 'mention',
-            value: (viewItem) => {
+            value: (viewItem: any) => {
                 // The mention feature expects that the mention attribute value
                 // in the model is a plain object with a set of additional attributes.
                 // In order to create a proper object, use the toMentionAttribute helper method:
@@ -332,7 +338,7 @@ export function MentionCustomization(editor) {
     // Downcast the model 'mention' text attribute to a view <a> element.
     editor.conversion.for( 'downcast' ).attributeToElement( {
         model: 'mention',
-        view: ( modelAttributeValue, { writer } ) => {
+        view: ( modelAttributeValue: any, { writer }: any ) => {
             // Do not convert empty attributes (lack of value means no mention).
             if ( !modelAttributeValue ) {
                 return;
@@ -351,22 +357,5 @@ export function MentionCustomization(editor) {
             } );
         },
         converterPriority: 'high'
-    } );
-}
-
-
-function getEntities(queryText) {
-    return new Promise( resolve => {
-        setTimeout(async () => {
-			const users = await getUsersMatching(queryText)
-
-            resolve(users.slice(0, 10).map((user) => {
-				return {
-					id: user.id.replace("@", "["),
-					name: user.name,
-					link: `/perfil/${user.id.slice(1)}`
-				}
-			}))
-        }, 100 );
     } );
 }

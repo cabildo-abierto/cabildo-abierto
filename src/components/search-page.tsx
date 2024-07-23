@@ -1,37 +1,36 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UserProps } from "@/actions/get-user";
 import { searchUsers, searchContents, searchEntities } from "@/actions/search";
 import ContentComponent from "@/components/content";
-import { useUser } from "./user-provider";
 import { UserSearchResult } from "./searchbar";
 import SelectionComponent from "./search-selection-component";
-import Link from "next/link";
 
-const SearchPage = ({searchValue}) => {
+
+const SearchPage = ({searchValue}: any) => {
   const [resultsUsers, setResultsUsers] = useState<UserProps[]>([]);
-  const [resultsContents, setResultsContents] = useState([]);
-  const [resultsEntities, setResultsEntities] = useState([]);
+  const [resultsContents, setResultsContents] = useState<any[]>([]);
+  const [resultsEntities, setResultsEntities] = useState<any[]>([]);
   const [searchType, setSearchType] = useState("users");
-  const {user} = useUser()
+
+  
 
   useEffect(() => {
+    const search = async (searchValue: string) => {
+      setResultsUsers(await searchUsers(searchValue))
+      setResultsContents(await searchContents(searchValue))
+      setResultsEntities(await searchEntities(searchValue))
+    }
+
     const delayDebounceFn = setTimeout(() => {
-      search();
+      search(searchValue);
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchValue]);
 
-  const search = async () => {
-      setResultsUsers(await searchUsers(searchValue))
-      setResultsContents(await searchContents(searchValue, user.id))
-      setResultsEntities(await searchEntities(searchValue))
-  }
-
-  const handleTypeChange = (t) => {
-    search()
+  const handleTypeChange = (t: any) => {
     setSearchType(t)
   }
 

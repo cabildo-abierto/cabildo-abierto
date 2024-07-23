@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {verifySession} from "@/actions/auth";
 
-function isPublicRoute(path){
+function isPublicRoute(path: string){
     return path.includes("Cabildo_Abierto")
 }
 
-function isNewUserRoute(path){
+function isNewUserRoute(path: string){
     return ['/', '/signup'].includes(path)
 }
 
@@ -15,9 +15,9 @@ export default async function middleware(req: NextRequest) {
     // console.log("Request:")
     // console.log(path)
     // console.log(req)
+    
     const session = await verifySession()
     const userId = session?.userId
-    console.log("user id middleware", userId)
 
     if(userId){ // logged in
         if(isNewUserRoute(path)){

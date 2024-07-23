@@ -40,7 +40,8 @@ import {
 	ImageUpload,
 	CloudServices,
 	CKBoxImageEdit,
-	CKBox
+	CKBox,
+	EditorConfig
 } from 'ckeditor5';
 
 import { headingConfig, linkConfig, mentionConfig, MentionCustomization, tableConfig } from './markdown-editor';
@@ -114,8 +115,8 @@ const toolbar = {
 }
 
 
-export default function PostEditor({onSubmit, onSaveDraft, initialData=""}) {
-    const [editor, setEditor] = useState(null);
+export default function PostEditor({onSubmit, onSaveDraft, initialData=""}: any) {
+    const [editor, setEditor] = useState<BalloonEditor | null>(null);
 	const editorRef = useRef(null);
 	const editorContainerRef = useRef(null);
 	const [validContent, setValidContent] = useState(validPost(initialData))
@@ -127,7 +128,7 @@ export default function PostEditor({onSubmit, onSaveDraft, initialData=""}) {
 		return () => setIsLayoutReady(false);
 	}, []);
 
-	const editorConfig = {
+	const editorConfig: EditorConfig = {
 		toolbar: toolbar,
         title: {placeholder: 'Título'},
 		plugins: plugins,
@@ -144,7 +145,7 @@ export default function PostEditor({onSubmit, onSaveDraft, initialData=""}) {
         },
         ckbox: {
             tokenUrl: 'https://114213.cke-cs.com/token/dev/sFEQCpTaxVwDohkZJtbiTWyw4JHshEEgLlXe?limit=10',
-            defaultUploadWorkspaceId: [ 'Iu1BhybZJrt2hWKexpZS' ]
+            defaultUploadWorkspaceId: 'Iu1BhybZJrt2hWKexpZS'
         }
 	};
 
@@ -156,14 +157,14 @@ export default function PostEditor({onSubmit, onSaveDraft, initialData=""}) {
 						<CKEditor
 							editor={BalloonEditor}
 							config={editorConfig}
-							onReady={setEditor}
-							onChange={(e) => {setValidContent(validPost(editor.getData()))}}
+							onReady={(editor: BalloonEditor) => {setEditor(editor)}}
+							onChange={(event, editor) => {setValidContent(validPost(editor.getData()))}}
 					/>}
 
 					<div className="flex justify-end mt-3">
 						<div className="px-2">
 						<button
-							onClick={() => {onSaveDraft(editor.getData())}}
+							onClick={() => {if(editor) onSaveDraft(editor.getData())}}
 							disabled={!validContent}
 							className="py-2 px-4 rounded font-bold transition duration-200 bg-red-500 hover:bg-red-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
 						>
@@ -172,7 +173,7 @@ export default function PostEditor({onSubmit, onSaveDraft, initialData=""}) {
 						</div>
 						<div>
 							<button
-								onClick={() => {onSubmit(editor.getData())}}
+								onClick={() => {if(editor) onSubmit(editor.getData())}}
 								disabled={!validContent}
 								className="py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
 							>

@@ -4,7 +4,7 @@ import { requireSubscription } from "@/components/utils";
 import SearchPage from "@/components/search-page";
 
 
-const Buscar: React.FC = async ({params}) => {
+const Buscar: React.FC<any> = async ({params}) => {
 
     const searchValue = decodeURIComponent(params.id)
 

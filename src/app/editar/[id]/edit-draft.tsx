@@ -1,5 +1,6 @@
 "use client"
 import { publishDraft, updateContent } from "@/actions/create-content";
+import { ContentProps } from "@/actions/get-content";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -7,18 +8,18 @@ const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), {
 const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), { ssr: false } );
 
 
-export default function EditDraftPage({content}) {
+export default function EditDraftPage({content}: {content: ContentProps}) {
     const type = content.type
     const router = useRouter()
 
-    const handleCreate = async (text) => {
+    const handleCreate = async (text: string) => {
         const success = await publishDraft(text, content.id)
         if (success) {
             router.push("/")
         }
     }
 
-    const handleSaveDraft = async (text) => {
+    const handleSaveDraft = async (text: string) => {
         const success = await updateContent(text, content.id)
         if (success) {
             router.push("/borradores")

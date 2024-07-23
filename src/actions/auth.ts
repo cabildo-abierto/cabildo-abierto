@@ -4,25 +4,26 @@ import { db } from '@/db';
 import bcryptjs from 'bcryptjs'
 import { redirect } from 'next/navigation';
 import {
-  LoginFormState,
   LoginFormSchema,
-  SignupFormState,
-  SignupFormSchema,
-  SessionPayload
+  SignupFormSchema
 } from "@/app/lib/definitions";
-import {createSession, decrypt} from "@/app/lib/session";
+import {createSession, decrypt, SessionPayload} from "@/app/lib/session";
 import bcrypt from "bcryptjs";
 import {cookies} from "next/headers";
 import { getUserById } from './get-user';
 
 
-export const verifySession = async () : Promise<SessionPayload|undefined> => {
+export const verifySession = async () => {
   const cookie = cookies().get('session')?.value
   return await decrypt(cookie)
 }
 
+type LoginFormState = {
+    error?: string
+    user?: any
+}
 
-export async function authenticate(state: LoginFormState, formData){
+export async function authenticate(state: any, formData: any): Promise<LoginFormState> {
   const validatedFields = LoginFormSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
@@ -46,11 +47,14 @@ export async function authenticate(state: LoginFormState, formData){
   }
 
   await createSession(user.id)
-  return await getUserById(user.id)
+  return { user: await getUserById(user.id)}
 }
 
+type SignUpFormState = {
+    errors?: any,
+}
 
-export async function validatedSignUp(name, email, username, password){
+export async function validatedSignUp(name: string, email: string, username: string, password: string): Promise<SignUpFormState>{
   const hashedPassword = await generatePasswordHash(password)
 
   const usernameExists = await db.user.findFirst({where: {id: "@"+username}})
@@ -71,11 +75,11 @@ export async function validatedSignUp(name, email, username, password){
       password: hashedPassword,
     }
   })
-  return "success"
+  return {}
 }
 
 
-export async function signup(state: SignupFormState, formData) {
+export async function signup(state: any, formData: any) {
   const validatedFields = SignupFormSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),

@@ -2,10 +2,15 @@
 import { getSubscriptionPoolSize } from '@/actions/subscriptions';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export const PoolSizeContext = createContext(null);
+interface PoolSizeContextType {
+  poolSize: number | null;
+  setPoolSize: React.Dispatch<React.SetStateAction<number | null>>;
+}
 
-export const PoolSizeProvider = ({ children }) => {
-  const [poolSize, setPoolSize] = useState(null);
+export const PoolSizeContext = createContext<PoolSizeContextType | null>(null);
+
+export const PoolSizeProvider = ({ children }: any) => {
+  const [poolSize, setPoolSize] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchPoolSize() {
@@ -23,4 +28,10 @@ export const PoolSizeProvider = ({ children }) => {
   );
 };
 
-export const usePoolSize = () => useContext(PoolSizeContext);
+export const usePoolSize = () => {
+  const context = useContext(PoolSizeContext);
+  if (!context) {
+    throw new Error('usePoolSize must be used within a UserProvider');
+  }
+  return context;
+};

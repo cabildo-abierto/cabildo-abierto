@@ -4,9 +4,17 @@ import { createEntity } from "@/actions/create-entity"
 import NeedAccountPopup from "@/components/need-account-popup"
 import { useUser } from "@/components/user-provider"
 import { useRouter } from "next/navigation"
+import React from "react"
 
-const CreateEntityButton = ({name, userId}) => {
+const CreateEntityButton: React.FC<{name?: string | null, userId?: string | null}> = ({name = null, userId = null}) => {
     const router = useRouter()
+    if(!name || !userId){
+        return <button 
+            className="large-btn"
+            disabled={true}
+        >Crear entidad
+        </button>   
+    }
     const url = "/wiki/"+encodeURIComponent(name)
     return <button 
         className="large-btn" 
@@ -15,7 +23,7 @@ const CreateEntityButton = ({name, userId}) => {
     </button>
 }
 
-export default function NoEntityPage({id}){
+export default function NoEntityPage({id}: {id: string}){
     const {user} = useUser()
 
     const name = decodeURIComponent(id).replaceAll("_", " ")
@@ -29,7 +37,7 @@ export default function NoEntityPage({id}){
             <div className="flex justify-center py-16">
                 {user ? <CreateEntityButton name={name} userId={user?.id}/> :
                     <NeedAccountPopup
-                        trigger={CreateEntityButton({name: name, userId: user?.id})}
+                        trigger={CreateEntityButton({})}
                         text="Para crear entidades es necesario tener una cuenta"
                     />
                 }

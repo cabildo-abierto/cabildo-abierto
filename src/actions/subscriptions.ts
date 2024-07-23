@@ -4,7 +4,7 @@ import { db } from '@/db';
 import { getUserById, getUserId } from './get-user';
 
 
-export async function buyAndUseSubscription(userId) { 
+export async function buyAndUseSubscription(userId: string) { 
 
     await db.subscription.create({
         data: {
@@ -17,8 +17,9 @@ export async function buyAndUseSubscription(userId) {
     return await getUserById(userId)
 }
 
-export async function donateSubscriptions(n) {
+export async function donateSubscriptions(n: number) {
     const userId = await getUserId()
+    if(!userId) return null
 
     const queries = []
     
@@ -27,7 +28,6 @@ export async function donateSubscriptions(n) {
             boughtByUserId: userId
         })
     }
-    console.log(queries)
 
     await db.subscription.createMany({
         data: queries
@@ -44,7 +44,6 @@ export async function getDonatedSubscription() {
     })
 
     if(!subscription){
-        console.log("No subscription")
         return null
     } else {
         return await db.subscription.update({

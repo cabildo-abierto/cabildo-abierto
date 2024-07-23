@@ -1,7 +1,7 @@
 "use client"
 import React from "react";
 import Link from "next/link";
-import { ContentProps } from "@/actions/get-content"
+import { AuthorProps, ContentProps } from "@/actions/get-content"
 
 import HtmlContent from "./editor/ckeditor-html-content";
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
@@ -16,12 +16,12 @@ import { useRouter } from "next/navigation";
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
     return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/contenido/" + content.id}>
-    {content._count.childrenComments} comentarios
+    {content.childrenComments.length} comentarios
     </Link>
 }
 
 
-export const ContentTopRow: React.FC<{content: ContentProps}> = ({type, content}) => {
+export const ContentTopRow: React.FC<{content: ContentProps}> = ({content}) => {
     return <div className="flex justify-between">
         <div className="text-gray-600 ml-2 text-sm">
             <Link className="hover:text-gray-900"
@@ -42,7 +42,29 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
 }
 
 
-const ContentComponent = ({content, comments, onViewComments, onStartReply, entity=null, isPostPage=false}) => {
+const LikeAndCommentCounter: React.FC<{content: ContentProps, onViewComments: any, comments: any}> = ({content, onViewComments, comments}) => {
+    return <div className="flex">
+        <LikeCounter content={content}/>
+        <div className="flex items-center px-2">
+            <div className="text-gray-600 text-sm" onClick={stopPropagation(onViewComments)}>
+                <span className="hover:text-gray-800"><CommentOutlinedIcon sx={{ fontSize: 18 }}/></span> {comments.length}
+            </div>
+        </div>
+    </div>
+}
+
+
+type ContentComponentProps = {
+    content: ContentProps,
+    comments: any,
+    onViewComments: any,
+    onStartReply: any,
+    entity?: any,
+    isPostPage?: boolean
+}
+
+
+const ContentComponent: React.FC<ContentComponentProps> = ({content, comments, onViewComments, onStartReply, entity=null, isPostPage=false}) => {
     const router = useRouter()
     
     if(content.type == "Post" && isPostPage){
@@ -50,49 +72,37 @@ const ContentComponent = ({content, comments, onViewComments, onStartReply, enti
     } else if(content.type == "EntityContent"){
         return <EntityComponent content={content} entity={entity}/>
     } else if(content.type == "Post"){
+        const postSplit = splitPost(content.text)
+        const text = postSplit ? postSplit.title : "Error al cargar el contenido"
         return <div className="w-full bg-white text-left cursor-pointer editor-container" onClick={() => {router.push("/contenido/"+content.id)}}>
             <div className="border rounded w-full">
                 <div className="px-2 mt-2 font-semibold">
-                    <HtmlContent content={splitPost(content.text).title}/>
+                    <HtmlContent content={text}/>
                 </div>
                 <div className="flex justify-between mb-1">
                     <div className="px-2 flex justify-between">
-                        <span className="mr-4">Por <Link href={"/perfil/"+content.authorId}>{content.author.name}</Link>
+                        <span className="mr-4">Por <Link href={"/perfil/"+content.author?.id.slice(1)}>{content.author?.name}</Link>
                         </span>
                         <DateComponent date={content.createdAt}/>
                     </div>
             
-                    <div className="flex">
-                        <LikeCounter content={content}/>
-                        <div className="flex items-center px-3">
-                            <div className="text-gray-600 text-sm ml-2" onClick={stopPropagation(onViewComments)}>
-                                <span className="hover:text-gray-800"><CommentOutlinedIcon sx={{ fontSize: 18 }}/></span> {comments.length}
-                            </div>
-                        </div>
-                    </div>
+                    <LikeAndCommentCounter content={content} onViewComments={onViewComments} comments={comments}/>
                 </div>
             </div>
         </div>
     }
 
-    return <div className="w-full text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
+    return <div className="w-full bg-white text-left cursor-pointer editor-container" onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">
             <ContentTopRow content={content}/>
             <div className="px-2">
                 <HtmlContent content={content.text}/>
             </div>
-            <div className="flex justify-between px-1">
-                <div>
+            <div className="flex justify-between">
+                <div className="px-1">
                     <AddCommentButton text="Responder" onClick={stopPropagation(onStartReply)}/>
                 </div>
-                <div className="flex">
-                    <LikeCounter content={content}/>
-                    <div className="flex items-center px-3">
-                        <div className="text-gray-600 text-sm ml-2" onClick={stopPropagation(onViewComments)}>
-                            <span className="hover:text-gray-800"><CommentOutlinedIcon sx={{ fontSize: 18 }}/></span> {comments.length}
-                        </div>
-                    </div>
-                </div>
+                <LikeAndCommentCounter content={content} onViewComments={onViewComments} comments={comments}/>
             </div>
         </div>
     </div>

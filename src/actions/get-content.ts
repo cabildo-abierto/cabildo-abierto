@@ -1,54 +1,54 @@
 'use server'
 
 import {db} from "@/db";
-import {getUserId} from "@/actions/get-user";
+import { getUserId, UserProps } from "./get-user";
+
+export type AuthorProps = {
+    id: string,
+    name: string
+}
 
 export type ContentProps = {
     id: string
     createdAt: Date
-    author: {
-        id: string
-        name: string
-    } | null
     text: string
+    author: AuthorProps | null
     _count: {
-        childrenComments: number
         likedBy: number
         dislikedBy: number
     }
-    likedBy: []
-    dislikedBy: []
+    likedBy: any[]
+    dislikedBy: any[]
     type: string
-    childrenComments?: []
-    childrenCommentsWithData?: []
+    childrenComments: any[]
 };
 
-export async function getContentById(contentId: string, userId: string) {
+export type ContentAndChildrenProps = {
+    content: ContentProps | null, 
+    children: (ContentAndChildrenProps | null)[] 
+}
+
+export async function getContentById(contentId: string, userId: string | null): Promise<ContentAndChildrenProps | null> {
+    const _userId = userId ? userId : undefined
     let content: ContentProps | null = await db.content.findUnique(
         {select: {
                 id: true,
                 text: true,
                 createdAt: true,
-                author: {
-                    select: {
-                        name: true,
-                        id: true,
-                    },
-                },
+                author: true,
                 likedBy: {
                     where: {
-                        id: userId
+                        id: _userId
                     }
                 },
                 dislikedBy: {
                     where: {
-                        id: userId
+                        id: _userId
                     }
                 },
                 childrenComments: true,
                 _count: {
                     select: {
-                        childrenComments: true,
                         likedBy: true,
                         dislikedBy: true,
                     },
@@ -60,7 +60,8 @@ export async function getContentById(contentId: string, userId: string) {
             }
         }
     )
-
+    if(!content) return null
+    if(!content.childrenComments) return null
     const childrenWithData = await Promise.all(content.childrenComments.map(async (child) => {
         return await getContentById(child.id, userId)
     }))
@@ -69,8 +70,8 @@ export async function getContentById(contentId: string, userId: string) {
 }
 
 
-export async function getChildrenAndData(contents, userId){
-    const contentsWithChildren = await Promise.all(contents.map(async (content) => {
+export async function getChildrenAndData(contents: any, userId: string){
+    const contentsWithChildren = await Promise.all(contents.map(async (content: any) => {
         return await getContentById(content.id, userId)
     }))
 
@@ -78,7 +79,10 @@ export async function getChildrenAndData(contents, userId){
 }
 
 
-export async function getPosts(userId) {
+export async function getPosts(userId: string | null = null) {
+    if(!userId) userId = await getUserId()
+    if(!userId) return null
+
     let contents = await db.content.findMany({
         select: {
             id: true
@@ -100,23 +104,28 @@ export async function getPosts(userId) {
 }
 
 
-export async function getPostsFollowing(userId) {
+export async function getPostsFollowing(userId: string | null = null) {
+    if(!userId) userId = await getUserId()
+    if(!userId) return null
+    
     const followedUsers = await db.user.findUnique({
         where: {
             id: userId,
         },
     }).following();
 
+    if(!followedUsers) return null
+
     const followedUsernames = followedUsers.map(user => user.id);
 
-    let contents: ContentProps[] = await db.content.findMany({
+    let contents: {id: string}[] = await db.content.findMany({
         select: {
             id: true,
         },
         where: {
             AND: [
                 {
-                    type: {in: ["FastPost", "Post", "Comment"]}
+                    type: {in: ["FastPost", "Post"]}
                 },
                 {
                     authorId: {in: followedUsernames}

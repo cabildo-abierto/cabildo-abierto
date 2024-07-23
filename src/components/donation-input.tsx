@@ -1,10 +1,10 @@
 "use client"
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-const DonationInput = ({onChange}) => {
+const DonationInput: React.FC<any> = ({onChange}) => {
   const [value, setValue] = useState('');
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
       const val = e.target.value;
       if(val === ''){
         onChange(0)

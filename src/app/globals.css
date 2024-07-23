@@ -267,3 +267,28 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 	height: calc(100vh - 4rem); /* 16 is equivalent to 4rem (16 * 0.25rem) */
 }
 }
+
+
+.sidebar-button {
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem; /* rounded-lg */
+    transition: background-color 0.1s;
+    display: block;
+	margin-bottom: 15px
+}
+
+.sidebar-button:hover {
+    background-color: #E5E7EB; /* hover:bg-gray-200 */
+}
+
+.sidebar-button:disabled {
+    color: #9CA3AF; /* disabled:text-gray-600 */
+    cursor: not-allowed;
+}
+
+.sidebar-button .content {
+    padding: 0.5rem 0.25rem;
+}

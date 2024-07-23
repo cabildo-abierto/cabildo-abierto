@@ -1,4 +1,4 @@
-function getBigrams(str) {
+function getBigrams(str: string) {
     const bigrams = new Set();
     for (let i = 0; i < str.length - 1; i += 1) {
         bigrams.add(str.substring(i, i + 2));
@@ -6,17 +6,17 @@ function getBigrams(str) {
     return bigrams;
 }
 
-function intersect(set1, set2) {
+function intersect(set1: any, set2: any) {
     return new Set([...set1].filter((x) => set2.has(x)));
 }
 
-function diceCoefficient(str1, str2) {
+function diceCoefficient(str1: string, str2: string) {
     const bigrams1 = getBigrams(str1);
     const bigrams2 = getBigrams(str2);
     return (2 * intersect(bigrams1, bigrams2).size) / (bigrams1.size + bigrams2.size);
 }
 
-export default function diceCoefficientDistance(str1, str2) {
+export default function diceCoefficientDistance(str1: string, str2: string) {
     str1 = str1.toLowerCase()
     str2 = str2.toLowerCase()
     if(str1.length == 0 || str2.length == 0)

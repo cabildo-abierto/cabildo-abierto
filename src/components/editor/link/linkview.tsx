@@ -6,17 +6,13 @@
 import { searchEntities } from '@/actions/search';
 import {
 	ButtonView,
-	Collection,
 	FocusCycler,
 	FocusTracker, KeystrokeHandler,
 	LabeledFieldView,
-	ListItemView,
-	ListView,
 	Locale,
-	SearchTextView,
-	Template,
+	TemplateDefinition,
 	View,
-	ViewModel,
+	ViewCollection,
 	createLabeledInputText,
 	icons,
 	submitHandler
@@ -26,7 +22,8 @@ import './formview.css'
 
 
 class SearchResultsView extends View {
-    constructor( locale? ) {
+	items: any;
+    constructor( locale?: any ) {
         super( locale );
 
 		this.items = this.createCollection()
@@ -42,9 +39,9 @@ class SearchResultsView extends View {
         } );
     }
 
-	update(results) {
+	update(results: any) {
 		this.items.clear()
-		results.forEach((item) => {
+		results.forEach((item: any) => {
 			this.items.add(item)
 		})
 	}
@@ -53,7 +50,17 @@ class SearchResultsView extends View {
 
 
 export default class FormView extends View {
-	constructor(locale) {
+	textInputView: any;
+	urlInputView: any;
+	keystrokes: any;
+	focusTracker: FocusTracker;
+	resultsContainerView: SearchResultsView;
+	saveButtonView: ButtonView;
+	buttonsView: View<HTMLElement>;
+	cancelButtonView: Node | View<HTMLElement> | TemplateDefinition | ViewCollection<View<HTMLElement>>;
+	private _focusCycler: FocusCycler;
+	childViews: ViewCollection<any>;
+	constructor(locale: any) {
 		super(locale);
 
 		this.focusTracker = new FocusTracker();
@@ -138,7 +145,7 @@ export default class FormView extends View {
 			view: this
 		});
 
-		this.childViews._items.forEach(view => {
+		this.childViews.forEach(view => {
 			// Register the view in the focus tracker.
 			this.focusTracker.add(view.element);
 		});
@@ -165,7 +172,7 @@ export default class FormView extends View {
 		}
 	}
 
-	_createInput(label) {
+	_createInput(label: string) {
 		const labeledInput = new LabeledFieldView(this.locale, createLabeledInputText);
 
 		labeledInput.label = label;
@@ -173,7 +180,7 @@ export default class FormView extends View {
 		return labeledInput;
 	}
 
-	_createButton(label, icon, className) {
+	_createButton(label: string, icon: any, className: string) {
 		const button = new ButtonView();
 
 		button.set({
@@ -193,7 +200,7 @@ export default class FormView extends View {
 		
 	}
 
-	_updateResultsContainer(results) {
+	_updateResultsContainer(results: any) {
 		this.resultsContainerView.update(results)
 	}
 }

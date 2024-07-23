@@ -4,12 +4,15 @@ import { ThreeColumnsLayout } from "@/components/main-layout";
 import { ContentWithComments } from "@/components/content-with-comments";
 import { getUserId } from "@/actions/get-user";
 import { requireSubscription } from "@/components/utils";
+import { ErrorPage } from "@/components/error-page";
 
 
 const ContentPage: React.FC<{params: any}> = async ({params}) => {
-    const parentContent = await getContentById(params?.id, await getUserId())
+    const userId = await getUserId()
+    if(!userId) return <ErrorPage>Error al cargar el contenido: Necesitás una cuenta</ErrorPage>
+    const parentContent = await getContentById(params?.id, userId)
     if(!parentContent){
-        return false
+        return <ErrorPage>Error al cargar el contenido: No se encontró el contenido</ErrorPage>
     }
 
     // TO DO: Allow post comments

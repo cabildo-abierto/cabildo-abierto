@@ -3,32 +3,22 @@
 import React from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { createEntityFromForm } from '@/actions/create-entity';
-import Popup from 'reactjs-popup';
-import CloseIcon from '@mui/icons-material/Close';
-import { SidebarButton } from '@/components/sidebar-button';
 import { useRouter } from 'next/navigation';
+import Popup from './popup';
+import PopupPanel from './popup-panel';
 
-function EntityPopup({disabled=false}) {
-  const [state, action] = useFormState(createEntityFromForm, undefined);
+
+export default function EntityPopup({disabled = false}) {
+  const [state, action] = useFormState(createEntityFromForm, null);
   const router = useRouter()
 
   if(state && !state.error){
-      router.push("/wiki/"+state.id)
-      return <></>
+    router.push("/wiki/"+state.id)
   }
 
-  function children(close) { return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-10">
-      <div className="relative bg-white p-8 rounded-lg w-full max-w-md" role="alert">
-        <button
-            className="absolute top-2 right-2"
-            onClick={close}
-        >
-            <CloseIcon/>
-        </button>
-        <h1 className="text-2xl font-semibold mb-4">Crear entidad</h1>
-        <form action={action}>
-          <div className="space-y-3">
+  const panel = (close: () => void) => (<PopupPanel onClose={close}>
+      <form action={action}>
+          <div className="space-y-3 py-6">
             <div>
               <input
                 className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"
@@ -42,23 +32,24 @@ function EntityPopup({disabled=false}) {
             {(state && state.error) && (
               <div className="text-sm text-red-500">{state.error}</div>
             )}
-            <CreateButton onClose={close}/>
+            <div className="py-4">
+              <CreateButton/>
+            </div>
           </div>
-        </form>
-      </div>
-    </div>
-  )}
+      </form>
+  </PopupPanel>)
 
-  return <Popup
-    trigger={SidebarButton({text: "Crear entidad", disabled: disabled})}
-    modal
-    nested
-  >
-    {children}
-  </Popup>
+  const trigger = (handleClick: any) => (
+    <button className="sidebar-button" onClick={handleClick} disabled={disabled}>
+      Crear entidad
+    </button>
+  )
+
+  return <Popup panel={panel} trigger={trigger}/>
 }
 
-export function CreateButton({onClose}) {
+
+export function CreateButton() {
     const {pending} = useFormStatus()
 
     return (
@@ -67,5 +58,3 @@ export function CreateButton({onClose}) {
         </button>
     )
 }
-
-export default EntityPopup;

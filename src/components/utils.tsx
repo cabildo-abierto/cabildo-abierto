@@ -1,7 +1,8 @@
+import { UserProps } from "@/actions/get-user"
 import SubscriptionCheckWrapper from "./subscription-check-wrapper"
 
 
-export const splitPost = (text) => {
+export const splitPost = (text: string) => {
     if(!text.includes("</h1>")) return null
     const split = text.split("</h1>")
     if(!split[0].includes("<h1>")) return null
@@ -12,17 +13,17 @@ export const splitPost = (text) => {
 }
 
 
-export function stopPropagation(func) {
-    return (e) => {e.stopPropagation(); func()}
+export function stopPropagation(func: any) {
+    return (e: any) => {e.stopPropagation(); func()}
 }
 
 
-export function validSubscription(user){
+export function validSubscription(user: UserProps | null){
     if(!user) return false
     if(user.subscriptionsUsed.length == 0) return false
 
-    const lastPaymentDate = user.subscriptionsUsed[user.subscriptionsUsed.length-1].usedAt
-  
+    const lastPaymentDate: Date = user.subscriptionsUsed[user.subscriptionsUsed.length-1].usedAt as Date
+    
     const nextSubscriptionEnd = new Date(lastPaymentDate)
     
     nextSubscriptionEnd?.setMonth(lastPaymentDate.getMonth()+1)
@@ -31,7 +32,7 @@ export function validSubscription(user){
 }
 
 
-export function requireSubscription(component, require){
+export function requireSubscription(component: any, require: boolean){
     if(require){
         return <SubscriptionCheckWrapper>
             {component}
@@ -42,10 +43,10 @@ export function requireSubscription(component, require){
 }
 
 
-export function validPost(text){
+export function validPost(text: string){
     return splitPost(text) != null
 }
 
-export function validFastPost(text){
+export function validFastPost(text: string){
     return text.length > 0
 }

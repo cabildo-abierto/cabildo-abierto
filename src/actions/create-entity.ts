@@ -2,13 +2,16 @@
 
 import { db } from '@/db';
 import {
-  CreateEntityFormState,
   CreateEntityFormSchema,
 } from "@/app/lib/definitions";
 import { getUserId } from './get-user';
 
+type CreateEntityFormState = {
+  error?: any,
+  id?: string
+} | null
 
-export async function createEntityFromForm(state: CreateEntityFormState, formData) {
+export async function createEntityFromForm(state: CreateEntityFormState, formData: any): Promise<CreateEntityFormState> {
   const userId = await getUserId()
   if(!userId) return {error: "Necesitás una cuenta para crear entidades"} // no debería pasar
 
@@ -18,7 +21,7 @@ export async function createEntityFromForm(state: CreateEntityFormState, formDat
 
   if (!validatedFields.success) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
+      error: validatedFields.error.flatten().fieldErrors,
     }
   }
 
@@ -28,7 +31,7 @@ export async function createEntityFromForm(state: CreateEntityFormState, formDat
 }
 
 
-export async function createEntity(name, userId){
+export async function createEntity(name: string, userId: string){
   const entityId = encodeURIComponent(name.replaceAll(" ", "_"))
   const exists = await db.entity.findFirst({
     where: {id: entityId}
@@ -43,17 +46,18 @@ export async function createEntity(name, userId){
     }
   })
 
-  return await db.entity.create({
+  await db.entity.create({
     data: {
       name: name,
       id: entityId,
       contentId: content.id
     }
   })
+  return {id: entityId}
 }
 
 
-export async function updateEntityContent(text, contentId) {
+export async function updateEntityContent(text: string, contentId: string) {
     const currentContent = await db.content.findUnique({
       where: { id: contentId },
       select: { text: true, history: true }

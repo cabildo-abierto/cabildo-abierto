@@ -5,12 +5,11 @@ import Link from "next/link";
 
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
-import SearchPage from "./search-page";
 import SearchSidebar from "./search-sidebar";
 
 
 
-export const UserSearchResult = ({ result, isEntity }) => {
+export const UserSearchResult: React.FC<{result: any, isEntity: boolean}> = ({ result, isEntity }) => {
   const className = "transition transform ease-in-out px-1"
 
   return <div className="flex justify-center max-w-128 border rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
@@ -23,7 +22,7 @@ export const UserSearchResult = ({ result, isEntity }) => {
 }
 
 const SearchInput: React.FC<{ onChange: (e: any) => void }> = ({ onChange }) => {
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -39,7 +38,7 @@ const SearchInput: React.FC<{ onChange: (e: any) => void }> = ({ onChange }) => 
   />
 }
 
-const CloseSearchButton = ({onClick}) => {
+const CloseSearchButton: React.FC<any> = ({onClick}) => {
   return <div className="px-1">
     <button className="transparent-button rounded" onClick={onClick}>
       <CloseIcon/>
@@ -48,7 +47,7 @@ const CloseSearchButton = ({onClick}) => {
 }
 
 
-const SearchBar: React.FC = ({onClose}) => {
+const SearchBar: React.FC<any> = ({onClose}) => {
   const [searchValue, setSearchValue] = useState('')
 
   return <div className="flex items-center justify-center">

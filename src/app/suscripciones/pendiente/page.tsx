@@ -7,10 +7,11 @@ import { useRouter } from "next/navigation"
 
 export default function PlanGratuito() {
     const router = useRouter()
-    const poolSize = usePoolSize()
+    const {poolSize, setPoolSize} = usePoolSize()
 
     const handlePayment = async () => {
-        (await getDonatedSubscription()).then(() => {router.push("/inicio")})
+        const success = await getDonatedSubscription()
+        if(success) router.push("/inicio")
     }
 
     const center = <>

@@ -7,8 +7,7 @@ import { getUserId } from "@/actions/get-user";
 import { requireSubscription } from "@/components/utils";
 
 
-const EntityPage: React.FC = async ({params}) => {
-
+const EntityPage: React.FC<any> = async ({params}) => {
     const entity = await getEntityById(params.id, await getUserId())
     if(!entity){
         const center = <NoEntityPage id={params.id}/>

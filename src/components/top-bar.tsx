@@ -18,7 +18,7 @@ function FeedButton() {
     </div>
 }
 
-function OpenSidebarButton({ onClick }) {
+function OpenSidebarButton({ onClick }: any) {
     return <div className="text-l text-gray-900 px-1 py-2">
         <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg" onClick={onClick}>
             <MenuIcon />
@@ -27,14 +27,14 @@ function OpenSidebarButton({ onClick }) {
 }
 
 
-const SearchButton = ({ onClick }) => {
+const SearchButton = ({ onClick }: any) => {
     return <button className="transparent-button round-background" onClick={onClick}>
         <SearchIcon />
     </button>
 }
 
 
-function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }) {
+function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
     const {user} = useUser()
 
     return <>
@@ -90,7 +90,7 @@ const TopBarGuest = () => {
 }
 
 
-const TopBarNoSubcription = ({onOpenSidebar}) => {
+const TopBarNoSubcription = ({onOpenSidebar}: any) => {
     const {user} = useUser()
 
     return <>
@@ -125,7 +125,7 @@ const TopBarNoSubcription = ({onOpenSidebar}) => {
 }
 
 
-export default function Topbar({ onOpenSidebar }) {
+export default function Topbar({ onOpenSidebar }: any) {
     const [barState, setBarState] = useState("top")
     const [searching, setSearching] = useState(false)
     const [prevScrollPos, setPrevScrollPos] = useState(0);
@@ -153,7 +153,7 @@ export default function Topbar({ onOpenSidebar }) {
         };
     }, [prevScrollPos]);
 
-    function handleSearchingUpdate(value) {
+    function handleSearchingUpdate(value: any) {
         setSearching(value)
         const currentScrollPos = window.pageYOffset;
         if(currentScrollPos == 0){

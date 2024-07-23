@@ -18,7 +18,7 @@ export async function createComment(text: string, parentContentId: string) {
             type: "Comment"
         },
     })
-    return await getContentById(comment.id)
+    return await getContentById(comment.id, author.id)
 }
 
 

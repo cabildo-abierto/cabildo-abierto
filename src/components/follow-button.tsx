@@ -3,7 +3,7 @@
 import { follow, unfollow } from "@/actions/following"
 import { useState } from "react"
 
-export function ProfileHeader({user, isLoggedInUser, doesFollow, followerCount, followingCount}) {
+export function ProfileHeader({user, isLoggedInUser, doesFollow, followerCount, followingCount}: any) {
     const [following, setFollowing] = useState(doesFollow)
 
     // hay alguna mejor forma de hacer esto?

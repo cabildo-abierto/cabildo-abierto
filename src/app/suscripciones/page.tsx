@@ -1,5 +1,6 @@
 import { getUserById, getUserId } from "@/actions/get-user"
 import { getSubscriptionPoolSize } from "@/actions/subscriptions"
+import { ErrorPage } from "@/components/error-page"
 import { ThreeColumnsLayout } from "@/components/main-layout"
 import SubscriptionOptions from "@/components/subscription-options"
 import { usePoolSize } from "@/components/use-pool-size"
@@ -22,6 +23,7 @@ const ActiveSubscription = async () => {
 
 export default async function Suscripciones() {
     const userId = await getUserId()
+    if(!userId) return <ErrorPage>Necesitás una cuenta para ver esta página</ErrorPage>
     const user = await getUserById(userId)
     
     const valid = validSubscription(user)

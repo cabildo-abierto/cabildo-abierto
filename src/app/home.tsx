@@ -1,5 +1,3 @@
-import {Typewriter} from "nextjs-simple-typewriter";
-import Image from "next/image";
 import Link from "next/link";
 
 

@@ -4,17 +4,18 @@ import {db} from "@/db";
 import { getUserId } from "./get-user";
 
 
-export async function follow(userToFollow) {
+export async function follow(userToFollowId: string) {
     const loggedInUserId = await getUserId()
+    if(!loggedInUserId) return null
 
     const updatedUser = await db.user.update({
         where: {
-            id: loggedInUserId,
+            id: loggedInUserId as string,
         },
         data: {
             following: {
                 connect: {
-                    id: userToFollow,
+                    id: userToFollowId,
                 },
             },
         },
@@ -23,17 +24,18 @@ export async function follow(userToFollow) {
 }
 
 
-export async function unfollow(userToUnfollow) {
+export async function unfollow(userToUnfollowId: string) {
     const loggedInUserId = await getUserId()
+    if(!loggedInUserId) return null
 
     const updatedUser = await db.user.update({
         where: {
-            id: loggedInUserId,
+            id: loggedInUserId as string,
         },
         data: {
             following: {
                 disconnect: {
-                    id: userToUnfollow,
+                    id: userToUnfollowId,
                 },
             },
         },
@@ -42,7 +44,7 @@ export async function unfollow(userToUnfollow) {
 }
 
 
-export async function followerCount(userId) {
+export async function followerCount(userId: string) {
     const user = await db.user.findUnique({
         where: {
             id: userId,
@@ -56,7 +58,7 @@ export async function followerCount(userId) {
 }
 
 
-export async function followingCount(userId) {
+export async function followingCount(userId: string) {
     const user = await db.user.findUnique({
         where: {
             id: userId,
@@ -70,12 +72,13 @@ export async function followingCount(userId) {
 }
 
 
-export async function doesFollow(userId) {
+export async function doesFollow(userId: string) {
     const loggedInUserId = await getUserId()
+    if(!loggedInUserId) return false
 
     const user = await db.user.findUnique({
         where: {
-            id: loggedInUserId,
+            id: loggedInUserId as string,
         },
         select: {
             following: {
@@ -86,5 +89,6 @@ export async function doesFollow(userId) {
         },
     });
 
+    if(!user) return false
     return user.following.length > 0;
 }

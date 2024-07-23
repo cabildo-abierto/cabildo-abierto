@@ -27,7 +27,8 @@ import {
 	Strikethrough,
 	Underline,
 	Undo,
-	Mention
+	Mention,
+	EditorConfig
 } from 'ckeditor5';
 
 import { linkConfig, mentionConfig, MentionCustomization } from './markdown-editor';
@@ -69,8 +70,20 @@ export const fastEditorPlugins = [
 export const fastEditorBlockToolbar = ['bold', 'italic', '|', 'link', 'internal-link']
 
 
-export default function FastEditor({onSubmit, onSaveDraft, initialData=""}) {
-    const [editor, setEditor] = useState(null);
+const SaveDraftButton: React.FC<any> = ({onSaveDraft, editor, disabled}) => {
+	const [submitting, setSubmitting] = useState(false)
+
+	return <button
+		onClick={async () => {setSubmitting(true); await onSaveDraft(editor.getData()); setSubmitting(false)}}
+		disabled={disabled || submitting}
+		className="py-2 px-4 rounded font-bold transition duration-200 bg-red-500 hover:bg-red-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
+	>
+		{submitting ? "Guardando..." : "Guardar borrador"}
+	</button>
+}
+
+export default function FastEditor({onSubmit, onSaveDraft, initialData=""}: any) {
+    const [editor, setEditor] = useState<BalloonEditor | null>(null);
 	const editorRef = useRef(null);
 	const editorContainerRef = useRef(null);
 	const [validContent, setValidContent] = useState(validFastPost(initialData))
@@ -82,7 +95,7 @@ export default function FastEditor({onSubmit, onSaveDraft, initialData=""}) {
 		return () => setIsLayoutReady(false);
 	}, []);
 
-	const editorConfig = {
+	const editorConfig: EditorConfig = {
 		plugins: fastEditorPlugins,
 		balloonToolbar: fastEditorBlockToolbar,
 		initialData: initialData,
@@ -101,23 +114,17 @@ export default function FastEditor({onSubmit, onSaveDraft, initialData=""}) {
 				<CKEditor
 					editor={BalloonEditor}
 					config={editorConfig}
-					onReady={setEditor}
-					onChange={(e) => {setValidContent(validFastPost(editor.getData()))}}
+					onReady={(editor: any) => {setEditor(editor)}}
+					onChange={(event, editor) => {setValidContent(validFastPost(editor.getData()))}}
 				/>}
 	
 				<div className="flex justify-end mt-3">
 					<div className="px-2">
-						<button
-							onClick={() => {onSaveDraft(editor.getData())}}
-							disabled={!validContent}
-							className="py-2 px-4 rounded font-bold transition duration-200 bg-red-500 hover:bg-red-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
-						>
-							Guardar borrador
-						</button>
+						<SaveDraftButton onSaveDraft={onSaveDraft} editor={editor} disabled={!validContent}/>
 						</div>
 						<div>
 							<button
-								onClick={() => {onSubmit(editor.getData())}}
+								onClick={() => {if(editor) onSubmit(editor.getData())}}
 								disabled={!validContent}
 								className="py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
 							>

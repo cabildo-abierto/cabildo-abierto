@@ -1,6 +1,6 @@
 
 
-export default function levenshtein(s, t) {
+export default function levenshtein(s: string, t: string) {
     if (s === t) {
         return 0;
     }

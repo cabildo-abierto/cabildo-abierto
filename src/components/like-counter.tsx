@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import { addDislike, addLike, removeLike, removeDislike } from "@/actions/likes";
 import { stopPropagation } from "./utils";
 import { useUser } from "./user-provider";
 
-export const LikeCounter = ({content}) => {
+export const LikeCounter: React.FC<any> = ({content}) => {
     const [likeCount, setLikeCount] = useState(content._count.likedBy)
     const [dislikeCount, setDislikeCount] = useState(content._count.dislikedBy)
     const {user} = useUser()

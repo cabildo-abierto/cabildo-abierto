@@ -7,9 +7,10 @@ import { getDrafts } from "@/actions/get-draft";
 import HtmlContent from "@/components/editor/ckeditor-html-content";
 import Link from "next/link";
 import { requireSubscription } from "@/components/utils";
+import { ContentProps } from "@/actions/get-content";
 
 
-const DraftButton = ({draft, index}) => {
+const DraftButton: React.FC<{draft: ContentProps, index: number}> = ({draft, index}) => {
     return <div>
         <div className="panel">
             <div className="px-2 py-2">
