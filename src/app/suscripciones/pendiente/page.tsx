@@ -9,9 +9,8 @@ export default function PlanGratuito() {
     const {poolSize} = usePoolSize()
     const router = useRouter()
 
-    const handlePayment = () => {
-        useDonatedSubscription()
-        router.push("/inicio")
+    const handlePayment = async () => {
+        (await useDonatedSubscription()).then(() => {router.push("/inicio")})
     }
 
     const center = <>

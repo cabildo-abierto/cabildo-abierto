@@ -24,7 +24,7 @@ export default function NoEntityPage({id}){
             <h1>No se encontró la entidad</h1>
             </div>
             <div className="flex justify-center py-8 text-lg">
-                "{name}"
+                {'"'+name+'"'}
             </div>
             <div className="flex justify-center py-16">
                 {user ? <CreateEntityButton name={name} userId={user?.id}/> :
