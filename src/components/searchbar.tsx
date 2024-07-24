@@ -6,19 +6,36 @@ import Link from "next/link";
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchSidebar from "./search-sidebar";
+import { useUsers } from "./use-users";
+import { useEntities } from "./use-entities";
 
 
 
-export const UserSearchResult: React.FC<{result: any, isEntity: boolean}> = ({ result, isEntity }) => {
-  const className = "transition transform ease-in-out px-1"
+export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {
+    const {users, setUsers} = useUsers()
 
-  return <div className="flex justify-center max-w-128 border border-gray-600 rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
-    <Link
-      href={(isEntity ? "/wiki/" : "/perfil/") + result.id.replace("@", "")}
-      className={className}>
-      {result.name ? result.name : result.id}
-    </Link>
-  </div>
+    const className = "transition transform ease-in-out px-1"
+
+    return <div className="flex justify-center max-w-128 border border-gray-600 rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
+        <Link
+            href={"/perfil/" + result.id.replace("@", "")}
+            className={className}>
+            {users ? users[result.id].name : "Cargando..."}
+        </Link>
+    </div>
+}
+
+export const EntitySearchResult: React.FC<{result: any}> = ({ result }) => {
+    const {entities, setEntities} = useEntities()
+    const className = "transition transform ease-in-out px-1"
+
+    return <div className="flex justify-center max-w-128 border border-gray-600 rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
+        <Link
+            href={"/wiki/" + result.id.replace("@", "")}
+            className={className}>
+            {entities ? entities[result.id].name : "Cargando..."}
+        </Link>
+    </div>
 }
 
 const SearchInput: React.FC<{ onChange: (e: any) => void }> = ({ onChange }) => {

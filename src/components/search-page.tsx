@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import { UserSearchResult } from "./searchbar";
+import { EntitySearchResult, UserSearchResult } from "./searchbar";
 import SelectionComponent from "./search-selection-component";
 import { useContents } from "./use-contents";
 import { ContentWithComments } from "./content-with-comments";
@@ -42,7 +42,7 @@ const SearchPage = ({searchValue}: any) => {
     if (searchType == "users") {
       return resultsUsers.map((result) => (
         <div className="flex justify-center" key={result.id}>
-          <UserSearchResult result={result} isEntity={false} />
+          <UserSearchResult result={result}/>
         </div>
       ))
     } else if (searchType == "contents") {
@@ -57,24 +57,24 @@ const SearchPage = ({searchValue}: any) => {
     } else {
       return resultsEntities.map((result) => (
         <div className="flex justify-center" key={result.id}>
-          <UserSearchResult result={result} isEntity={true} />
+          <EntitySearchResult result={result}/>
         </div>
       ))
     }
   }
 
-  return <div className="w-full flex flex-col justify-between">
+  return <>
       <div className="flex justify-center">
           <SelectionComponent selectionHandler={handleTypeChange} />
       </div>
-      <div className="flex justify-center h-full overflow-scroll">
+      <div className="flex justify-center overflow-scroll">
           <div className="mt-4 w-full px-8">
               <div className="w-full">
                   {searchResults()}
               </div>
           </div>
       </div>
-  </div>
+  </>
 }
 
 export default SearchPage
