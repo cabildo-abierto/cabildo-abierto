@@ -22,7 +22,8 @@ function mockComment(createdAt: Date, text: string, author: AuthorProps): Conten
             dislikedBy: 0
         },
         type: "Comment",
-        childrenComments: []
+        childrenComments: [],
+        isDraft: false
     }
 }
 

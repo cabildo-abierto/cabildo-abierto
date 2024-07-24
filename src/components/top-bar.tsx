@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import { validSubscription } from "./utils";
 import { useUser } from "./user-provider";
+import { useRouter } from "next/navigation";
 
 
 function FeedButton() {
@@ -36,6 +37,13 @@ const SearchButton = ({ onClick }: any) => {
 
 function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
     const {user, setUser} = useUser()
+    const router = useRouter()
+
+    const onLogout = async (e: any) => {
+        await logout()
+        router.push("/");
+        setTimeout(() => {setUser(null)}, 500)
+    }
 
     return <>
         <div className="flex items-center">
@@ -57,14 +65,12 @@ function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
             </div>
 
             <div className="px-2">
-                <Link href="/">
                 <button
                     className="gray-button"
-                    onClick={async (e) => { await logout().then(() => {setUser(null)})}}
+                    onClick={onLogout}
                 >
                     Cerrar sesión
                 </button>
-                </Link>
             </div>
         </div>
     </>
@@ -76,7 +82,7 @@ const TopBarGuest = () => {
         <div className="w-1/4"></div>
         <div className="text-gray-600 flex justify-center w-1/2">
             <div>
-                Estás viendo esta página como invitado, muchas funciones no están disponibles.</div>
+                Estás viendo esta página como invitado</div>
         </div>
         <div className="px-4 w-1/4 flex justify-end">
             <Link href="/">
@@ -89,6 +95,13 @@ const TopBarGuest = () => {
         </div>
     </>
 }
+
+
+const TopBarLoading = () => {
+    return <>
+    </>
+}
+
 
 
 const TopBarNoSubcription = ({onOpenSidebar}: any) => {
@@ -166,8 +179,10 @@ export default function Topbar({ onOpenSidebar }: any) {
 
 
     let bar = <></>
-    if(!user){
+    if(user === null){
         bar = <TopBarGuest/>
+    } else if(user === undefined){
+        bar = <TopBarLoading/>
     } else if(!activeSubscription){
         bar = <TopBarNoSubcription
             onOpenSidebar={onOpenSidebar}

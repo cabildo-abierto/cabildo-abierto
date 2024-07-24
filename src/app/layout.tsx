@@ -2,8 +2,9 @@ import { UserProvider } from "@/components/user-provider";
 import "./globals.css";
 import { PriceProvider } from "@/components/use-price";
 import { PoolSizeProvider } from "@/components/use-pool-size";
-import { FollowingFeedProvider } from "@/components/use-following-feed";
 import { ContentsProvider } from "@/components/use-contents";
+import { UsersProvider } from "@/components/use-users";
+import { EntitiesProvider } from "@/components/use-entities";
 
 export default function RootLayout({
     children
@@ -19,7 +20,11 @@ export default function RootLayout({
             <PriceProvider>
             <PoolSizeProvider>
             <ContentsProvider>
+            <UsersProvider>
+            <EntitiesProvider>
                 {children}
+            </EntitiesProvider>
+            </UsersProvider>
             </ContentsProvider>
             </PoolSizeProvider>
             </PriceProvider>

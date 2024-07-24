@@ -31,7 +31,8 @@ export default async function middleware(req: NextRequest) {
         } else if(isPublicRoute(path)){
             // todo ok
         } else {
-            return NextResponse.redirect(new URL('/', req.nextUrl))
+            // Ya no redirijimos si no está logueado si entra a una página no pública
+            // return NextResponse.redirect(new URL('/', req.nextUrl))
         }
     }
     

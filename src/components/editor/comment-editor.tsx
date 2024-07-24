@@ -16,7 +16,7 @@ import { UserProps } from '@/actions/get-user';
 import NeedAccountPopupPanel from '../need-account-popup';
 import Popup from '../popup';
 
-function canComment(user: UserProps | null){
+function canComment(user: UserProps | null | undefined){
 	return validSubscription(user)
 }
 

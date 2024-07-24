@@ -1,27 +1,30 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import { UserProps } from "@/actions/get-user";
-import { searchUsers, searchContents, searchEntities } from "@/actions/search";
-import ContentComponent from "@/components/content";
 import { UserSearchResult } from "./searchbar";
 import SelectionComponent from "./search-selection-component";
 import { useContents } from "./use-contents";
 import { ContentWithComments } from "./content-with-comments";
+import { searchContents, searchEntities, searchUsers } from "./search";
+import { useUsers } from "./use-users";
+import { useEntities } from "./use-entities";
 
 
 const SearchPage = ({searchValue}: any) => {
   const {contents, setContents} = useContents()
-  const [resultsUsers, setResultsUsers] = useState<UserProps[]>([]);
+  const {entities, setEntities} = useEntities()
+  const {users, setUsers} = useUsers()
+
+  const [resultsUsers, setResultsUsers] = useState<{id: string}[]>([]);
   const [resultsContents, setResultsContents] = useState<{id: string}[]>([]);
-  const [resultsEntities, setResultsEntities] = useState<any[]>([]);
+  const [resultsEntities, setResultsEntities] = useState<{id: string}[]>([]);
   const [searchType, setSearchType] = useState("users");
 
   useEffect(() => {
     const search = async (searchValue: string) => {
-      setResultsUsers(await searchUsers(searchValue))
-      if(contents) setResultsContents(await searchContents(searchValue, contents))
-      setResultsEntities(await searchEntities(searchValue))
+      if(users) setResultsUsers(searchUsers(searchValue, Object.values(users)))
+      if(contents) setResultsContents(searchContents(searchValue, Object.values(contents)))
+      if(entities) setResultsEntities(searchEntities(searchValue, Object.values(entities)))
     }
 
     const delayDebounceFn = setTimeout(() => {
@@ -29,7 +32,7 @@ const SearchPage = ({searchValue}: any) => {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchValue, contents]);
+  }, [searchValue, contents, entities, users]);
 
   const handleTypeChange = (t: any) => {
     setSearchType(t)

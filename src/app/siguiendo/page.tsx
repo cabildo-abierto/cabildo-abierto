@@ -3,7 +3,6 @@
 import React from "react"
 import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import { requireSubscription } from "@/components/utils";
 
 
 const Siguiendo: React.FC = () => {
@@ -14,7 +13,7 @@ const Siguiendo: React.FC = () => {
         <Feed onlyFollowing={true}/>
     </div>
 
-    return requireSubscription(<ThreeColumnsLayout center={center} />, true)
+    return <ThreeColumnsLayout center={center} />
 }
 
 export default Siguiendo

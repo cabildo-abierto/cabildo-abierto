@@ -1,12 +1,14 @@
-import { getSubscriptionPrice } from "@/actions/subscriptions"
+"use client"
+import LoadingPage from "@/components/loading-page"
 import { ThreeColumnsLayout } from "@/components/main-layout"
 import SubscriptionOptionButton from "@/components/subscription-option-button"
+import { usePrice } from "@/components/use-price"
 import Link from "next/link"
 
 
-export default async function PlanClasico() {
-
-    const price = await getSubscriptionPrice()
+export default function PlanClasico() {
+    const {price, setPrice} = usePrice()
+    if(!price) return <LoadingPage/>
 
     const center = <div className="mt-8">
         <div className="flex justify-center items-center">
@@ -46,5 +48,4 @@ export default async function PlanClasico() {
     </div>
 
     return <ThreeColumnsLayout center={center} centerWidth={600}/>
-
 }

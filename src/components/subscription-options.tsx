@@ -1,13 +1,14 @@
+"use client"
 import SubscriptionOptionButton from "./subscription-option-button"
 import { usePrice } from "./use-price"
 import { usePoolSize } from "./use-pool-size"
 
-const SubscriptionOptions = async () => {
+const SubscriptionOptions = () => {
     const {price, setPrice} = usePrice()
     const {poolSize, setPoolSize} = usePoolSize()
 
     const desc = <div>
-        Podés hacer un pago único o activar pagos recurrentes.
+        Pagá una suscripción y llevá una suscripción
     </div>
 
     const desc2 = <div>
@@ -28,7 +29,7 @@ const SubscriptionOptions = async () => {
             <SubscriptionOptionButton
                 title="El plan clásico"
                 description={desc}
-                price={`$${price ? price : "[...]"}`}
+                price={`$${price ? price : "..."}`}
                 href={"/suscripciones/clasico"}
             />
 
@@ -42,9 +43,12 @@ const SubscriptionOptions = async () => {
             <SubscriptionOptionButton
                 title="Hacé crecer Cabildo Abierto"
                 description="Apoyá a la plataforma y a los creadores de contenido donando suscripciones."
-                price={`Desde $${price ? 2*price : "[...]"}`}
+                price={`Desde $${price ? 2*price : "..."}`}
                 href={"/suscripciones/donar"}
             />
+            <div className="flex justify-center">
+                Todos los precios son mensuales y si querés podés pagar un único mes
+            </div>
         </div>
         </div>
     </>

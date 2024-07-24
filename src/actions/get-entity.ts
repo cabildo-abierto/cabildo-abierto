@@ -36,11 +36,9 @@ export async function getEntities(): Promise<any[]> {
             select: {
                 id: true,
                 name: true,
-                content: {
-                    select: {
-                        text: true
-                    }
-                }
+                contentId: true,
+                protection: true,
+                isPublic: true
             },
             orderBy: {
                 name: "asc"

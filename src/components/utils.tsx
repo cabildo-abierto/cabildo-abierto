@@ -18,7 +18,7 @@ export function stopPropagation(func: any) {
 }
 
 
-export function validSubscription(user: UserProps | null){
+export function validSubscription(user: UserProps | null | undefined){
     if(!user) return false
     if(user.subscriptionsUsed.length == 0) return false
 
@@ -29,17 +29,6 @@ export function validSubscription(user: UserProps | null){
     nextSubscriptionEnd?.setMonth(lastPaymentDate.getMonth()+1)
   
     return nextSubscriptionEnd > new Date()
-}
-
-
-export function requireSubscription(component: any, require: boolean){
-    if(require){
-        return <SubscriptionCheckWrapper>
-            {component}
-        </SubscriptionCheckWrapper>
-    } else {
-        return component
-    }
 }
 
 

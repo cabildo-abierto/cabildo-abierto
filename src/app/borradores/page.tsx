@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
-import { createPost } from '@/actions/create-content'
-import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
+"use client"
+import React from "react";
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import { getDrafts } from "@/actions/get-draft";
 import HtmlContent from "@/components/editor/ckeditor-html-content";
 import Link from "next/link";
-import { requireSubscription } from "@/components/utils";
 import { ContentProps } from "@/actions/get-content";
+import { useContents } from "@/components/use-contents";
+import LoadingPage from "@/components/loading-page";
+import { useUser } from "@/components/user-provider";
+import { UserProps } from "@/actions/get-user";
 
 
 const DraftButton: React.FC<{draft: ContentProps, index: number}> = ({draft, index}) => {
@@ -26,8 +26,26 @@ const DraftButton: React.FC<{draft: ContentProps, index: number}> = ({draft, ind
 }
 
 
-const Drafts: React.FC = async () => {
-    const drafts = await getDrafts()
+function getDraftsFromContents(contents: Record<string,ContentProps>, user: UserProps){
+    const drafts: ContentProps[] = []
+    Object.values(contents).forEach((content: ContentProps) => {
+        if(content.isDraft && content.author?.id == user.id){
+            drafts.push(content)
+        }
+    })
+    return drafts
+}
+
+
+const Drafts: React.FC = () => {
+    const {contents, setContents} = useContents()
+    const {user, setUser} = useUser()
+
+    if(!contents || !user){
+        return <LoadingPage/>
+    }
+
+    const drafts = getDraftsFromContents(contents, user)
 
     const center = <>
         <div className="py-4"><h1>Borradores</h1></div>
@@ -40,7 +58,7 @@ const Drafts: React.FC = async () => {
         </ul>
     </>
 
-    return requireSubscription(<ThreeColumnsLayout center={center}/>, true)
+    return <ThreeColumnsLayout center={center}/>
 };
 
 export default Drafts;

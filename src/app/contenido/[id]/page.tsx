@@ -1,18 +1,25 @@
+"use client"
 import React from "react";
-import {getContentById} from "@/actions/get-content";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { ContentWithComments } from "@/components/content-with-comments";
-import { requireSubscription } from "@/components/utils";
 import { ErrorPage } from "@/components/error-page";
+import { useContents } from "@/components/use-contents";
+import LoadingPage from "@/components/loading-page";
 
 
-const ContentPage: React.FC<{params: any}> = async ({params}) => {
-    const parentContent = await getContentById(params?.id)
+const ContentPage: React.FC<{params: any}> = ({params}) => {
+    const {contents, setContents} = useContents()
+
+    if(!contents){
+        return <LoadingPage/>
+    }
+
+    const parentContent = contents[params?.id]
+
     if(!parentContent){
         return <ErrorPage>No se encontró el contenido</ErrorPage>
     }
 
-    // TO DO: Allow post comments
     const center = <div className="">
         <div className="flex flex-col h-full">
             <div className="mt-8">
@@ -24,8 +31,7 @@ const ContentPage: React.FC<{params: any}> = async ({params}) => {
         </div>
     </div>
 
-
-    return requireSubscription(<ThreeColumnsLayout center={center}/>, true)
+    return <ThreeColumnsLayout center={center}/>
 }
 
 export default ContentPage

@@ -18,6 +18,7 @@ export type ContentProps = {
         dislikedBy: number
     }
     type: string
+    isDraft: boolean | null
     childrenComments: {id: string}[]
 };
 
@@ -40,7 +41,8 @@ export async function getContentById(contentId: string): Promise<ContentProps | 
                         dislikedBy: true,
                     },
                 },
-                type: true
+                type: true,
+                isDraft: true
         },
             where: {
                 id: contentId,
@@ -74,7 +76,8 @@ export async function getPosts(): Promise<ContentProps[]> {
                     dislikedBy: true,
                 },
             },
-            type: true
+            type: true,
+            isDraft: true
         },
         where: {
             AND: [

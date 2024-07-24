@@ -40,6 +40,27 @@ export async function getUser() {
     return getUserById(userId)
 }
 
+export async function getUsers() {
+    const users: UserProps[] = await db.user.findMany(
+        {
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                createdAt: true,
+                authenticated: true,
+                editorStatus: true,
+                subscriptionsUsed: true,
+                following: true,
+                followedBy: true,
+                likes: true,
+                dislikes: true,
+            }
+        }
+    )
+    return users
+}
+
 export async function getUserById(userId: string){
     const user: UserProps | null = await db.user.findUnique(
         {

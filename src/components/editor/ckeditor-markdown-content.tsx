@@ -1,11 +1,33 @@
-import Markdown from "react-markdown"
+import React from 'react';
+import Markdown, { Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import Link from 'next/link';
+import { AnchorHTMLAttributes, DetailedHTMLProps } from 'react';
 
-import 'ckeditor5/ckeditor5.css';
-
-import remarkGfm from 'remark-gfm'
-
-export default function MarkdownContent({content}: {content: string}) {
-    return <div className="editor-container ck-content">
-        <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
-    </div>
+interface MarkdownContentProps {
+  content: string;
 }
+
+const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
+
+  const components: Components = {
+    a: (props) => {
+        const {children, href, ...rest} = props
+        if(!href){
+            return <a {...rest}>{children}</a>
+        } else {
+            return <Link href={href}>{children}</Link>
+        }
+    },
+  };
+
+  return (
+    <div className="editor-container ck-content">
+      <Markdown remarkPlugins={[remarkGfm]} components={components}>
+        {content}
+      </Markdown>
+    </div>
+  );
+};
+
+export default MarkdownContent;

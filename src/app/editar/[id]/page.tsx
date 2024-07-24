@@ -2,7 +2,6 @@
 import React from "react";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import EditDraftPage from "./edit-draft";
-import { requireSubscription } from "@/components/utils";
 import { ErrorPage } from "@/components/error-page";
 import { useContents } from "@/components/use-contents";
 
@@ -20,7 +19,7 @@ const Editar: React.FC<any> = ({params}) => {
         center = <EditDraftPage content={content}/>
     }
 
-    return requireSubscription(<ThreeColumnsLayout center={center}/>, true)
+    return <ThreeColumnsLayout center={center}/>
 };
 
 export default Editar;

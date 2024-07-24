@@ -1,6 +1,5 @@
 import React from "react"
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import { requireSubscription } from "@/components/utils";
 import SearchPage from "@/components/search-page";
 
 
@@ -15,7 +14,7 @@ const Buscar: React.FC<any> = async ({params}) => {
         <SearchPage searchValue={searchValue}/>
     </>
 
-    return requireSubscription(<ThreeColumnsLayout center={center}/>, true)
+    return <ThreeColumnsLayout center={center}/>
 }
 
 export default Buscar

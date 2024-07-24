@@ -3,14 +3,14 @@ import { getUser, getUserById, getUserId, UserProps } from '@/actions/get-user';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface UserContextType {
-  user: UserProps | null;
-  setUser: React.Dispatch<React.SetStateAction<UserProps | null>>;
+  user: UserProps | null | undefined;
+  setUser: React.Dispatch<React.SetStateAction<UserProps | null | undefined>>;
 }
 
-export const UserContext = createContext<UserContextType | null>(null);
+export const UserContext = createContext<UserContextType | null | undefined>(null);
 
 export const UserProvider: React.FC<{children: ReactNode}> = ({ children }) => {
-  const [user, setUser] = useState<UserProps | null>(null);
+  const [user, setUser] = useState<UserProps | null | undefined>(undefined);
 
   useEffect(() => {
     async function fetchUserData() {

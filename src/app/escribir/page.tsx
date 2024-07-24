@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import Link from "next/link";
-import { requireSubscription, validFastPost, validPost } from "@/components/utils";
+import { validFastPost, validPost } from "@/components/utils";
 import { useUser } from "@/components/user-provider";
 
 
@@ -77,7 +77,7 @@ const Escribir = () => {
         </div>
     </div>
 
-    return requireSubscription(<ThreeColumnsLayout center={center}/>, true)
+    return <ThreeColumnsLayout center={center}/>
 };
 
 export default Escribir

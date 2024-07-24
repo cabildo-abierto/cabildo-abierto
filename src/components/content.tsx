@@ -22,10 +22,19 @@ export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
 
 
 export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean}> = ({content, author=true}) => {
+    const router = useRouter()
+
+    const url = "/perfil/" + content.author?.id.slice(1)
+    const onClick = stopPropagation((e: any) => {})
+
     return <div className="flex justify-between">
         <div className="text-gray-600 ml-2 text-sm">
-            {author && <Link className="hover:text-gray-900"
-                  href={"/perfil/" + content.author?.id.slice(1)}>{content.author?.name} {content.author?.id}</Link>}
+            {author && <Link 
+                href={url} 
+                className="hover:text-gray-900"
+                onClick={onClick}>
+                    {content.author?.name + " " + content.author?.id}
+            </Link>}
         </div>
         <div className="text-gray-600 text-sm mr-1"><DateAndTimeComponent date={content.createdAt}/></div>
     </div>

@@ -1,16 +1,23 @@
-import { getUserActivityById, getUserById, getUserId } from "@/actions/get-user";
+"use client"
 import React from "react";
 import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import { doesFollow, followerCount, followingCount } from "@/actions/following";
 import { ProfileHeader } from "@/components/profile-header";
+import { useUsers } from "@/components/use-users";
+import LoadingPage from "@/components/loading-page";
+import { ErrorPage } from "@/components/error-page";
 
 
-const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
-    let user = await getUserById("@"+params?.id)
+const UserProfile: React.FC<{ params: { id: string } }> = ({ params }) => {
+    const {users, setUsers} = useUsers()
+
+    if(!users){
+        return <LoadingPage/>
+    }
+
+    const user = users["@"+params?.id]
     if (!user) {
-        const center = <h1>El usuario {params?.id} no existe</h1>
-        return <ThreeColumnsLayout center={center}/>
+        return <ErrorPage>El usuario {params?.id} no existe</ErrorPage>
     }
 
     const center = <>

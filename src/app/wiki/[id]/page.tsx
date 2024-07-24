@@ -1,17 +1,21 @@
-import { getEntityById } from "@/actions/get-entity";
+"use client"
 import React from "react"
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import NoEntityPage from "./no-entity-page";
 import { ContentWithComments } from "@/components/content-with-comments";
-import { requireSubscription } from "@/components/utils";
+import { useEntities } from "@/components/use-entities";
+import LoadingPage from "@/components/loading-page";
+import PaywallChecker from "@/components/paywall-checker";
 
 
-const EntityPage: React.FC<any> = async ({params}) => {
-    const entity = await getEntityById(params.id)
+const EntityPage: React.FC<any> = ({params}) => {
+    const {entities, setEntities} = useEntities()
+
+    if(!entities) return <LoadingPage/>
+
+    const entity = entities[params.id]
     if(!entity){
-        const center = <NoEntityPage id={params.id}/>
-
-        return <ThreeColumnsLayout center={center}/>
+        return <ThreeColumnsLayout center={<NoEntityPage id={params.id}/>}/>
     }
 
     const center = <div className="bg-white h-full">
@@ -22,9 +26,14 @@ const EntityPage: React.FC<any> = async ({params}) => {
         </div>
         <ContentWithComments entity={entity}/>
     </div>
-
     
-    return requireSubscription(<ThreeColumnsLayout center={center}/>, !entity.isPublic)
+    if(entity.isPublic){
+        return <ThreeColumnsLayout center={center}/>
+    } else {
+        return <PaywallChecker>
+            <ThreeColumnsLayout center={center}/>
+        </PaywallChecker>
+    }
 }
 
 export default EntityPage
