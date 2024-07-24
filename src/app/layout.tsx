@@ -5,6 +5,7 @@ import { PoolSizeProvider } from "@/components/use-pool-size";
 import { ContentsProvider } from "@/components/use-contents";
 import { UsersProvider } from "@/components/use-users";
 import { EntitiesProvider } from "@/components/use-entities";
+import LoadingWrapper from "@/components/loading-wrapper";
 
 export default function RootLayout({
     children
@@ -22,7 +23,9 @@ export default function RootLayout({
             <ContentsProvider>
             <UsersProvider>
             <EntitiesProvider>
+            <LoadingWrapper>
                 {children}
+            </LoadingWrapper>
             </EntitiesProvider>
             </UsersProvider>
             </ContentsProvider>

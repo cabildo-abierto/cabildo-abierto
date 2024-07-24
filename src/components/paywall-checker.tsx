@@ -4,6 +4,9 @@ import Link from "next/link"
 import LoadingPage from "./loading-page"
 import { useUser } from "./user-provider"
 import { validSubscription } from "./utils"
+import { useContents } from "./use-contents"
+import { useUsers } from "./use-users"
+import { useEntities } from "./use-entities"
 
 
 const NeedAccountPaywall: React.FC<any> = ({ children }) => {
