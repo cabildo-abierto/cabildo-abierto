@@ -1,5 +1,5 @@
 "use client"
-import { getUserById, getUserId, UserProps } from '@/actions/get-user';
+import { getUser, getUserById, getUserId, UserProps } from '@/actions/get-user';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface UserContextType {
@@ -14,13 +14,8 @@ export const UserProvider: React.FC<{children: ReactNode}> = ({ children }) => {
 
   useEffect(() => {
     async function fetchUserData() {
-      const userId = await getUserId()
-      if(!userId){
-        setUser(null)
-      } else {
-        const user = await getUserById(userId)
-        setUser(user)
-      }
+      const user = await getUser()
+      setUser(user)
     }
     fetchUserData();
   }, []);

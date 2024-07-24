@@ -2,7 +2,7 @@ import { getUserActivityById, getUserById, getUserId } from "@/actions/get-user"
 import React from "react";
 import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import { doesFollow, follow, followerCount, followingCount } from "@/actions/following";
+import { doesFollow, followerCount, followingCount } from "@/actions/following";
 import { ProfileHeader } from "@/components/follow-button";
 
 
@@ -21,7 +21,7 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
         <ProfileHeader
             user={user}
             isLoggedInUser={user.id == loggedInUserId}
-            doesFollow={await doesFollow(user.id)}
+            doesFollow={loggedInUserId ? await doesFollow(user.id, loggedInUserId) : false}
             followerCount={await followerCount(user.id)}
             followingCount={await followingCount(user.id)}
         />

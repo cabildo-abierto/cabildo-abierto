@@ -4,7 +4,7 @@ import {db} from "@/db";
 import { getContentById } from "./get-content";
 
 
-export async function getEntityById(entityId: string, userId: string | null) {
+export async function getEntityById(entityId: string) {
     let entity = await db.entity.findUnique(
         {select: {
             id: true,
@@ -21,7 +21,7 @@ export async function getEntityById(entityId: string, userId: string | null) {
     if(!entity){
         return null
     }
-    const content = await getContentById(entity.content.id, userId)
+    const content = await getContentById(entity.content.id)
     if(!content){
         return null
     }
@@ -41,6 +41,9 @@ export async function getEntities(): Promise<any[]> {
                     }
                 }
             },
+            orderBy: {
+                name: "asc"
+            }
         }
     )
     return entities

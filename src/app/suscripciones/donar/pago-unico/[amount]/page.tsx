@@ -15,7 +15,7 @@ export default function PagoUnico({params}: any) {
     
     const handlePayment = async () => {
         await buyAndUseSubscription(user.id)
-        await donateSubscriptions(params.amount-1)
+        await donateSubscriptions(params.amount-1, user.id)
         router.push("/inicio")
     }
 

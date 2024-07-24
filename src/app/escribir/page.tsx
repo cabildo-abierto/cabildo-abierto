@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import Link from "next/link";
 import { requireSubscription, validFastPost, validPost } from "@/components/utils";
+import { useUser } from "@/components/user-provider";
 
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
@@ -32,23 +33,26 @@ const PostSelector: React.FC<any> = ({setSelection}) => {
 
 const Escribir = () => {
     const [selection, setSelection] = useState("publicación rápida");
+    const {user, setUser} = useUser()
     const router = useRouter();
 
     const handleCreate = async (text: string) => {
+        if(!user) return
         const contentType = selection == "publicación" ? "Post" : "FastPost"
         if(contentType == "Post" && !validPost(text)) return
         if(contentType == "FastPost" && !validFastPost(text)) return
         router.push("/")
-        const success = await createPost(text, contentType, false)
+        const success = await createPost(text, contentType, false, user.id)
         if (!success) {
             console.log("Error al publicar post :(")
         }
     }
 
     const handleSaveDraft = async (text: string) => {
+        if(!user) return
         const contentType = selection == "publicación" ? "Post" : "FastPost"
         if(text.length == 0) return
-        const success = await createPost(text, contentType, true)
+        const success = await createPost(text, contentType, true, user.id)
         if (success) {
             router.push("/borradores")
         }
@@ -56,20 +60,20 @@ const Escribir = () => {
 
     const center = <div className="flex justify-center h-screen">
         <div className="flex flex-col w-full px-5 mt-8">
-                <Link href="/borradores" className="mb-4">
-                    <button className="gray-button">Mis borradores</button>
-                </Link>
-                <PostSelector setSelection={setSelection}/>
-                {selection == "publicación" ?
-                    <PostEditor
-                        onSubmit={handleCreate}
-                        onSaveDraft={handleSaveDraft}
-                    /> : 
-                    <FastEditor
-                        onSubmit={handleCreate}
-                        onSaveDraft={handleSaveDraft}
-                    />
-                }
+            <Link href="/borradores" className="mb-4">
+                <button className="gray-button">Mis borradores</button>
+            </Link>
+            <PostSelector setSelection={setSelection}/>
+            {selection == "publicación" ?
+                <PostEditor
+                    onSubmit={handleCreate}
+                    onSaveDraft={handleSaveDraft}
+                /> : 
+                <FastEditor
+                    onSubmit={handleCreate}
+                    onSaveDraft={handleSaveDraft}
+                />
+            }
         </div>
     </div>
 

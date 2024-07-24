@@ -1,11 +1,10 @@
-import React, { ReactNode } from "react"
-import {getPosts} from "@/actions/get-content";
+"use client"
+import React from "react"
 import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import { getUserId } from "@/actions/get-user";
 import { getTrending } from "@/actions/trending";
 import { requireSubscription } from "@/components/utils";
-import { ErrorPage } from "@/components/error-page";
+import { useFeed } from "@/components/use-feed";
 
 
 const TrendingTopic: React.FC<{value: string, count: number}> = ({value, count}) => {
@@ -38,15 +37,14 @@ const TrendingTopicsPanel = async () => {
     </div>
 }
 
-const Inicio: React.FC = async () => {
-    const feed = await getPosts()
-    if(!feed) return <ErrorPage>Ocurrió un error al obtener el feed</ErrorPage>
+const Inicio: React.FC = () => {
+    const {feed, setFeed} = useFeed()
 
     const center = <div className="w-full bg-white h-full">
         <h2 className="ml-2 py-8">
             En discusión
         </h2>
-        <Feed contents={feed}/>
+        <Feed feed={feed}/>
     </div>
 
     const right = null// <TrendingTopicsPanel/>

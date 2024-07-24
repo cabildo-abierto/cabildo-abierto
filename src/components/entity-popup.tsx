@@ -2,13 +2,15 @@
 
 import React from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { createEntityFromForm } from '@/actions/create-entity';
+import { CreateEntityFormState, createEntityFromForm } from '@/actions/create-entity';
 import { useRouter } from 'next/navigation';
 import Popup from './popup';
 import PopupPanel from './popup-panel';
+import { useUser } from './user-provider';
 
 
 export default function EntityPopup({disabled = false}) {
+  const {user, setUser} = useUser()
   const [state, action] = useFormState(createEntityFromForm, null);
   const router = useRouter()
 

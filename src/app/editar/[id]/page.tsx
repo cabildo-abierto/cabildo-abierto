@@ -8,7 +8,7 @@ import { ErrorPage } from "@/components/error-page";
 
 
 const Editar: React.FC<any> = async ({params}) => {
-    const content = await getContentById(params.id, await getUserId())
+    const content = await getContentById(params.id)
     if(!content || !content.content){
         return <ErrorPage>No se pudo cargar el contenido</ErrorPage>
     }

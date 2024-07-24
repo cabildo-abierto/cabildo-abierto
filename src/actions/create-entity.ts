@@ -4,16 +4,16 @@ import { db } from '@/db';
 import {
   CreateEntityFormSchema,
 } from "@/app/lib/definitions";
-import { getUserId } from './get-user';
+import { getUserId, UserProps } from './get-user';
 
-type CreateEntityFormState = {
+export type CreateEntityFormState = {
   error?: any,
   id?: string
 } | null
 
 export async function createEntityFromForm(state: CreateEntityFormState, formData: any): Promise<CreateEntityFormState> {
   const userId = await getUserId()
-  if(!userId) return {error: "Necesitás una cuenta para crear entidades"} // no debería pasar
+  if(!userId) return {error: "Necesitás una cuenta para crear una entidad"}
 
   const validatedFields = CreateEntityFormSchema.safeParse({
     name: formData.get('name'),

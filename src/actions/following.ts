@@ -4,13 +4,10 @@ import {db} from "@/db";
 import { getUserId } from "./get-user";
 
 
-export async function follow(userToFollowId: string) {
-    const loggedInUserId = await getUserId()
-    if(!loggedInUserId) return null
-
+export async function follow(userToFollowId: string, userId: string) {
     const updatedUser = await db.user.update({
         where: {
-            id: loggedInUserId as string,
+            id: userId,
         },
         data: {
             following: {
@@ -24,13 +21,11 @@ export async function follow(userToFollowId: string) {
 }
 
 
-export async function unfollow(userToUnfollowId: string) {
-    const loggedInUserId = await getUserId()
-    if(!loggedInUserId) return null
+export async function unfollow(userToUnfollowId: string, userId: string) {
 
     const updatedUser = await db.user.update({
         where: {
-            id: loggedInUserId as string,
+            id: userId,
         },
         data: {
             following: {
@@ -72,13 +67,11 @@ export async function followingCount(userId: string) {
 }
 
 
-export async function doesFollow(userId: string) {
-    const loggedInUserId = await getUserId()
-    if(!loggedInUserId) return false
+export async function doesFollow(userId: string, userMaybeFollowed: string) {
 
     const user = await db.user.findUnique({
         where: {
-            id: loggedInUserId as string,
+            id: userMaybeFollowed,
         },
         select: {
             following: {

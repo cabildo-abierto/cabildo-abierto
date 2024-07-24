@@ -2,9 +2,11 @@
 
 import { follow, unfollow } from "@/actions/following"
 import { useState } from "react"
+import { useUser } from "./user-provider"
 
-export function ProfileHeader({user, isLoggedInUser, doesFollow, followerCount, followingCount}: any) {
+export function ProfileHeader({profileUser, isLoggedInUser, doesFollow, followerCount, followingCount}: any) {
     const [following, setFollowing] = useState(doesFollow)
+    const {user, setUser} = useUser()
 
     // hay alguna mejor forma de hacer esto?
     const updatedFollowerCount = followerCount + following - doesFollow
@@ -12,23 +14,23 @@ export function ProfileHeader({user, isLoggedInUser, doesFollow, followerCount, 
     return <><div className="flex justify-between">
         <div className="ml-2 py-8">
             <h3>
-                {user.name}
+                {profileUser.name}
             </h3>
             <div className="text-gray-600">
-                {user.id}
+                {profileUser.id}
             </div>
         </div>
         <div className="flex items-center">
             {!isLoggedInUser &&
                 (following ? <button 
-                    onClick={async () => {setFollowing(false); await unfollow(user.id);}} 
+                    onClick={async () => {if(!user) return; setFollowing(false); await unfollow(profileUser.id, user.id);}} 
                     className="blue-button"
                 >
                     Dejar de seguir
                 </button>
                 :
                 <button
-                    onClick={async () => {setFollowing(true); await follow(user.id);}}
+                    onClick={async () => {if(!user) return; setFollowing(true); await follow(profileUser.id, user.id);}}
                     className="blue-button"
                 >
                     Seguir

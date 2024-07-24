@@ -17,8 +17,6 @@ export type ContentProps = {
         likedBy: number
         dislikedBy: number
     }
-    likedBy: any[]
-    dislikedBy: any[]
     type: string
     childrenComments: any[]
 };
@@ -28,24 +26,13 @@ export type ContentAndChildrenProps = {
     children: (ContentAndChildrenProps | null)[] 
 }
 
-export async function getContentById(contentId: string, userId: string | null): Promise<ContentAndChildrenProps | null> {
-    const _userId = userId ? userId : undefined
+export async function getContentById(contentId: string): Promise<ContentAndChildrenProps | null> {
     let content: ContentProps | null = await db.content.findUnique(
         {select: {
                 id: true,
                 text: true,
                 createdAt: true,
                 author: true,
-                likedBy: {
-                    where: {
-                        id: _userId
-                    }
-                },
-                dislikedBy: {
-                    where: {
-                        id: _userId
-                    }
-                },
                 childrenComments: true,
                 _count: {
                     select: {
@@ -63,26 +50,23 @@ export async function getContentById(contentId: string, userId: string | null): 
     if(!content) return null
     if(!content.childrenComments) return null
     const childrenWithData = await Promise.all(content.childrenComments.map(async (child) => {
-        return await getContentById(child.id, userId)
+        return await getContentById(child.id)
     }))
 
     return {content: content, children: childrenWithData}
 }
 
 
-export async function getChildrenAndData(contents: any, userId: string){
+export async function getChildrenAndData(contents: any){
     const contentsWithChildren = await Promise.all(contents.map(async (content: any) => {
-        return await getContentById(content.id, userId)
+        return await getContentById(content.id)
     }))
 
     return contentsWithChildren
 }
 
 
-export async function getPosts(userId: string | null = null) {
-    if(!userId) userId = await getUserId()
-    if(!userId) return null
-
+export async function getPosts() {
     let contents = await db.content.findMany({
         select: {
             id: true
@@ -100,23 +84,13 @@ export async function getPosts(userId: string | null = null) {
         }
     })
 
-    return await getChildrenAndData(contents, userId)
+    return await getChildrenAndData(contents)
 }
 
 
-export async function getPostsFollowing(userId: string | null = null) {
-    if(!userId) userId = await getUserId()
-    if(!userId) return null
-    
-    const followedUsers = await db.user.findUnique({
-        where: {
-            id: userId,
-        },
-    }).following();
+export async function getPostsFollowing(user: UserProps) {
 
-    if(!followedUsers) return null
-
-    const followedUsernames = followedUsers.map(user => user.id);
+    const following = user.following.map(user => user.id);
 
     let contents: {id: string}[] = await db.content.findMany({
         select: {
@@ -128,7 +102,7 @@ export async function getPostsFollowing(userId: string | null = null) {
                     type: {in: ["FastPost", "Post"]}
                 },
                 {
-                    authorId: {in: followedUsernames}
+                    authorId: {in: following}
                 },
                 {
                     visible: true
@@ -140,5 +114,5 @@ export async function getPostsFollowing(userId: string | null = null) {
         }
     })
 
-    return await getChildrenAndData(contents, userId)
+    return await getChildrenAndData(contents)
 }

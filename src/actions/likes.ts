@@ -4,62 +4,52 @@ import {db} from "@/db";
 import {getUser} from "@/actions/get-user";
 
 
-export const addLike = async (content_id: string) => {
-    const author = await getUser()
-    if(!author) return false
+export const addLike = async (contentId: string, userId: string) => {
 
     await db.content.update({
-        where: { id: content_id },
+        where: { id: contentId },
         data: {
             likedBy: {
-                connect: { id: author.id },
+                connect: { id: userId },
             },
         },
     });
-    await removeDislike(content_id)
+    await removeDislike(contentId, userId)
 }
 
 
-export const addDislike = async (content_id: string) => {
-    const author = await getUser()
-    if(!author) return false
-
+export const addDislike = async (contentId: string, userId: string) => {
     await db.content.update({
-        where: { id: content_id },
+        where: { id: contentId },
         data: {
             dislikedBy: {
-                connect: { id: author.id },
+                connect: { id: userId },
             },
         },
     });
-    await removeLike(content_id)
+    await removeLike(contentId, userId)
 }
 
 
-export const removeLike = async (content_id: string) => {
-    const author = await getUser()
-    if(!author) return false
+export const removeLike = async (contentId: string, userId: string) => {
 
     await db.content.update({
-        where: { id: content_id },
+        where: { id: contentId },
         data: {
             likedBy: {
-                disconnect: { id: author.id },
+                disconnect: { id: userId },
             },
         },
     });
 }
 
 
-export const removeDislike = async (content_id: string) => {
-    const author = await getUser()
-    if(!author) return false
-
+export const removeDislike = async (contentId: string, userId: string) => {
     await db.content.update({
-        where: { id: content_id },
+        where: { id: contentId },
         data: {
             dislikedBy: {
-                disconnect: { id: author.id },
+                disconnect: { id: userId },
             },
         },
     });

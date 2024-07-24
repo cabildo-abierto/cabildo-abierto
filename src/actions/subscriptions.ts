@@ -17,10 +17,7 @@ export async function buyAndUseSubscription(userId: string) {
     return await getUserById(userId)
 }
 
-export async function donateSubscriptions(n: number) {
-    const userId = await getUserId()
-    if(!userId) return null
-
+export async function donateSubscriptions(n: number, userId: string) {
     const queries = []
     
     for(let i = 0; i < n; i++){
@@ -34,8 +31,7 @@ export async function donateSubscriptions(n: number) {
     })
 }
 
-export async function getDonatedSubscription() {
-    const userId = await getUserId()
+export async function getDonatedSubscription(userId: string) {
 
     const subscription = await db.subscription.findFirst({
         where: {

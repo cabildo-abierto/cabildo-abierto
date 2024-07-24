@@ -12,7 +12,7 @@ import SearchSidebar from "./search-sidebar";
 export const UserSearchResult: React.FC<{result: any, isEntity: boolean}> = ({ result, isEntity }) => {
   const className = "transition transform ease-in-out px-1"
 
-  return <div className="flex justify-center max-w-128 border rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
+  return <div className="flex justify-center max-w-128 border border-gray-600 rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
     <Link
       href={(isEntity ? "/wiki/" : "/perfil/") + result.id.replace("@", "")}
       className={className}>

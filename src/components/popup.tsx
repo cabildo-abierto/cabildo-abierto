@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-import { Unstable_Popup as BasePopup } from '@mui/base/Unstable_Popup';
+import { Unstable_Popup as BasePopup } from '@mui/base';
 
-function Popup({panel, trigger}: any) {
+function Popup({panel, trigger}: {panel: any, trigger: (handleClick: any) => any}) {
   const [open, setOpen] = useState<boolean>(false);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {

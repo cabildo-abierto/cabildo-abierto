@@ -3,7 +3,7 @@
 import {db} from "@/db";
 import diceCoefficientDistance from "@/actions/dice-coefficient";
 import { UserProps } from "./get-user";
-import { ContentAndChildrenProps, getPosts } from "./get-content";
+import { getPosts } from "./get-content";
 
 
 export async function searchUsers(value: string): Promise<UserProps[]>{
@@ -35,13 +35,13 @@ export async function searchUsers(value: string): Promise<UserProps[]>{
 }
 
 
-export async function searchContents(value: string, userId: string | null=null) {
+export async function searchContents(value: string) {
     if(value.length == 0)
         return []
 
     const dist = diceCoefficientDistance
 
-    const contents = await getPosts(userId)
+    const contents = await getPosts()
     if(!contents) return []
 
     const maxDist = dist(value, '')

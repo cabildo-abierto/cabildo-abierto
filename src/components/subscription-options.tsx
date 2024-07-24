@@ -1,9 +1,10 @@
-import { getSubscriptionPoolSize, getSubscriptionPrice } from "@/actions/subscriptions"
 import SubscriptionOptionButton from "./subscription-option-button"
+import { usePrice } from "./use-price"
+import { usePoolSize } from "./use-pool-size"
 
 const SubscriptionOptions = async () => {
-    const poolSize = await getSubscriptionPoolSize()
-    const price = await getSubscriptionPrice()
+    const {price, setPrice} = usePrice()
+    const {poolSize, setPoolSize} = usePoolSize()
 
     const desc = <div>
         Podés hacer un pago único o activar pagos recurrentes.
@@ -11,7 +12,7 @@ const SubscriptionOptions = async () => {
 
     const desc2 = <div>
         <span>
-            Hay <span className="font-bold">{poolSize}</span> disponibles para quien lo necesite.
+            Hay <span className="font-bold">{poolSize ? poolSize : "[...]"}</span> disponibles para quien lo necesite.
         </span>
     </div>
 
@@ -27,7 +28,7 @@ const SubscriptionOptions = async () => {
             <SubscriptionOptionButton
                 title="El plan clásico"
                 description={desc}
-                price={`$${price}`}
+                price={`$${price ? price : "[...]"}`}
                 href={"/suscripciones/clasico"}
             />
 
@@ -41,7 +42,7 @@ const SubscriptionOptions = async () => {
             <SubscriptionOptionButton
                 title="Hacé crecer Cabildo Abierto"
                 description="Apoyá a la plataforma y a los creadores de contenido donando suscripciones."
-                price={`Desde $${2*price}`}
+                price={`Desde $${price ? 2*price : "[...]"}`}
                 href={"/suscripciones/donar"}
             />
         </div>

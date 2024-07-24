@@ -20,8 +20,6 @@ function mockComment(createdAt: Date, text: string, author: AuthorProps): Conten
                 likedBy: 0,
                 dislikedBy: 0
             },
-            likedBy: [],
-            dislikedBy: [],
             type: "Comment",
             childrenComments: []
         },
@@ -48,7 +46,7 @@ export const ContentWithComments: React.FC<any> = ({content, comments, entity=nu
             const mock = mockComment(new Date(), text, {id: user.id, name: user.name})
             setWritingReply(false)
             setUpdatedComments([mock, ...updatedComments])
-            const newComment = await createComment(text, content.id)
+            const newComment = await createComment(text, content.id, user.id)
             setUpdatedComments([newComment, ...updatedComments])
             setViewComments(true)
         }

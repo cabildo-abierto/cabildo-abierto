@@ -1,36 +1,32 @@
 'use server'
 
 import {db} from "@/db";
-import {getUser} from "@/actions/get-user";
+import {getUser, UserProps} from "@/actions/get-user";
 import { ContentType } from "@prisma/client";
 import { getContentById } from "./get-content";
 
 
-export async function createComment(text: string, parentContentId: string) {
-    const author = await getUser()
-    if(!author) return null
+export async function createComment(text: string, parentContentId: string, userId: string) {
 
     const comment = await db.content.create({
         data: {
             text: text,
-            authorId: author.id,
+            authorId: userId,
             parentContentId: parentContentId,
             type: "Comment"
         },
     })
-    return await getContentById(comment.id, author.id)
+    return await getContentById(comment.id)
 }
 
 
 
-export async function createPost(text: string, postType: ContentType, isDraft: boolean) {
-    const author = await getUser()
-    if(!author) return false
+export async function createPost(text: string, postType: ContentType, isDraft: boolean, userId: string) {
 
     return await db.content.create({
         data: {
             text: text,
-            authorId: author.id,
+            authorId: userId,
             type: postType,
             isDraft: isDraft
         },
@@ -39,8 +35,6 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
 
 
 export async function updateContent(text: string, contentId: string) {
-    const author = await getUser()
-    if(!author) return false
 
     await db.content.update({
         where: {
@@ -56,8 +50,6 @@ export async function updateContent(text: string, contentId: string) {
 
 
 export async function publishDraft(text: string, contentId: string) {
-    const author = await getUser()
-    if(!author) return false
 
     await db.content.update({
         where: {

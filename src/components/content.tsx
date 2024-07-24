@@ -21,11 +21,11 @@ export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
 }
 
 
-export const ContentTopRow: React.FC<{content: ContentProps}> = ({content}) => {
+export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean}> = ({content, author=true}) => {
     return <div className="flex justify-between">
         <div className="text-gray-600 ml-2 text-sm">
-            <Link className="hover:text-gray-900"
-                  href={"/perfil/" + content.author?.id.slice(1)}>{content.author?.name} {content.author?.id}</Link>
+            {author && <Link className="hover:text-gray-900"
+                  href={"/perfil/" + content.author?.id.slice(1)}>{content.author?.name} {content.author?.id}</Link>}
         </div>
         <div className="text-gray-600 text-sm mr-1"><DateAndTimeComponent date={content.createdAt}/></div>
     </div>
@@ -76,16 +76,16 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, comments, o
         const text = postSplit ? postSplit.title : "Error al cargar el contenido"
         return <div className="w-full bg-white text-left cursor-pointer editor-container" onClick={() => {router.push("/contenido/"+content.id)}}>
             <div className="border rounded w-full">
+                <ContentTopRow content={content} author={true}/>
                 <div className="px-2 mt-2 font-semibold">
                     <HtmlContent content={text}/>
                 </div>
                 <div className="flex justify-between mb-1">
-                    <div className="px-2 flex justify-between">
+                    {false && <div className="px-2 flex justify-between">
                         <span className="mr-4">Por <Link href={"/perfil/"+content.author?.id.slice(1)}>{content.author?.name}</Link>
                         </span>
-                        <DateComponent date={content.createdAt}/>
-                    </div>
-            
+                    </div>}
+                    <div></div>
                     <LikeAndCommentCounter content={content} onViewComments={onViewComments} comments={comments}/>
                 </div>
             </div>

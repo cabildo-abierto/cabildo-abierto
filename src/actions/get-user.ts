@@ -2,7 +2,7 @@
 
 import {db} from "@/db";
 import {verifySession} from "@/actions/auth";
-import { ContentProps, getChildrenAndData } from "./get-content";
+import { getChildrenAndData } from "./get-content";
 
 
 export type SubscriptionProps = {
@@ -20,6 +20,9 @@ export type UserProps = {
     authenticated: Boolean
     editorStatus: string
     subscriptionsUsed: SubscriptionProps[]
+    following: {id: string}[]
+    likes: {id: string}[]
+    dislikes: {id: string}[]
 };
 
 
@@ -32,7 +35,7 @@ export async function getUserId(): Promise<string | null> {
 export async function getUser() {
     const userId = await getUserId()
     if(!userId)
-        return false
+        return null
     return getUserById(userId)
 }
 
@@ -46,7 +49,10 @@ export async function getUserById(userId: string){
                 createdAt: true,
                 authenticated: true,
                 editorStatus: true,
-                subscriptionsUsed: true
+                subscriptionsUsed: true,
+                following: true,
+                likes: true,
+                dislikes: true
             },
             where: {id:userId}
         }
@@ -104,7 +110,7 @@ export async function getUserActivityById(userId: string){
             }
         }
     )
-    return await getChildrenAndData(contents, userId)
+    return await getChildrenAndData(contents)
 }
 
 

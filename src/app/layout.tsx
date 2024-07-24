@@ -2,6 +2,8 @@ import { UserProvider } from "@/components/user-provider";
 import "./globals.css";
 import { PriceProvider } from "@/components/use-price";
 import { PoolSizeProvider } from "@/components/use-pool-size";
+import { FollowingFeedProvider } from "@/components/use-following-feed";
+import { FeedProvider } from "@/components/use-feed";
 
 export default function RootLayout({
     children
@@ -13,13 +15,17 @@ export default function RootLayout({
             <link rel="icon" href="/favicon.ico" />
         </head>
         <body className="">
+            <UserProvider>
             <PriceProvider>
             <PoolSizeProvider>
-            <UserProvider>
+            <FollowingFeedProvider>
+            <FeedProvider>
                 {children}
-            </UserProvider>
+            </FeedProvider>
+            </FollowingFeedProvider>
             </PoolSizeProvider>
             </PriceProvider>
+            </UserProvider>
         </body>
     </html>
 }

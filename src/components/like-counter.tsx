@@ -12,8 +12,8 @@ export const LikeCounter: React.FC<any> = ({content}) => {
     const [dislikeCount, setDislikeCount] = useState(content._count.dislikedBy)
     const {user} = useUser()
 
-    const wasLiked = content.likedBy.length > 0
-    const wasDisliked = content.dislikedBy.length > 0
+    const wasLiked = user?.likes.includes({id: content.id})
+    const wasDisliked = user?.dislikes.includes({id: content.id})
     const [liked, setLiked] = useState(wasLiked)
     const [disliked, setDisliked] = useState(wasDisliked)
     
@@ -21,10 +21,11 @@ export const LikeCounter: React.FC<any> = ({content}) => {
     const dislike_icon = <ThumbDownOutlinedIcon sx={{ fontSize: 18 }}/>
 
     const onLikeClick = async () => {
+        if(!user) return
         if(liked){
             setLikeCount(likeCount-1)
             setLiked(false)
-            await removeLike(content.id);
+            await removeLike(content.id, user.id);
         } else {
             setLikeCount(likeCount+1)
             setLiked(true)
@@ -32,15 +33,16 @@ export const LikeCounter: React.FC<any> = ({content}) => {
                 setDisliked(false)
                 setDislikeCount(dislikeCount-1)
             }
-            await addLike(content.id);
+            await addLike(content.id, user.id);
         }
     }
 
     const onDislikeClick = async () => {
+        if(!user) return
         if(disliked){
             setDislikeCount(dislikeCount-1)
             setDisliked(false)
-            await removeDislike(content.id);
+            await removeDislike(content.id, user.id);
         } else {
             setDislikeCount(dislikeCount+1)
             setDisliked(true)
@@ -48,7 +50,7 @@ export const LikeCounter: React.FC<any> = ({content}) => {
                 setLiked(false)
                 setLikeCount(likeCount-1)
             }
-            await addDislike(content.id);
+            await addDislike(content.id, user.id);
         }
     }
 
