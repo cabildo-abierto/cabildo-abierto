@@ -1,9 +1,12 @@
 'use client'
 
-import {signup} from "@/actions/auth";
+import React, { useState } from 'react';
+import { signup } from "@/actions/auth";
 import { useFormState } from "react-dom";
-import {DisabledSignupButton, SignupButton} from "./signup-button";
+import { DisabledSignupButton, SignupButton } from "./signup-button";
 import { useRouter } from "next/navigation";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
@@ -14,12 +17,23 @@ export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = 
     </label>
 }
 
+const FormErrors: React.FC<any> = ({errors}) => {
+    return <div className="flex flex-col text-sm text-red-500 px-1">
+        {errors.map((error: string, index: number) => {
+            return <div key={index}>
+                {error}
+            </div>
+        })}
+    </div>
+}
+
 export default function SignupForm() {
-    const [state, action] = useFormState(signup, undefined)
-    const router = useRouter()
+    const [state, action] = useFormState(signup, undefined);
+    const [showPassword, setShowPassword] = useState(false); // Add state for password visibility
+    const router = useRouter();
 
     if(state && !state.errors){
-        router.push("/")
+        router.push("/");
     }
 
     return (
@@ -42,26 +56,31 @@ export default function SignupForm() {
                             />
                             {
                                 state?.errors?.email
-                                && <div className="text-sm text-red-500">
-                                    {state?.errors?.email.join(', ')}
-                                </div>
+                                && <FormErrors errors={state?.errors?.email}/>
                             }
                         </div>
                         <div>
                             <AuthenticationFormLabel text="Contraseña" label="password"/>
-                            <input
-                                className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
-                                placeholder=""
-                                type="password"
-                                id="password"
-                                name="password"
-                                defaultValue=''
-                            />
+                            <div className="relative">
+                                <input
+                                    className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
+                                    placeholder=""
+                                    type={showPassword ? 'text' : 'password'} // Toggle password visibility
+                                    id="password"
+                                    name="password"
+                                    defaultValue=''
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600"
+                                    onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                                >
+                                    {showPassword ? <VisibilityOffIcon fontSize="small"/> : <VisibilityIcon fontSize="small"/>}
+                                </button>
+                            </div>
                             {
                                 state?.errors?.password
-                                && <div className="text-sm text-red-500">
-                                    {state?.errors?.password.join(', ')}
-                                </div>
+                                && <FormErrors errors={state?.errors?.password}/>
                             }
                         </div>
                         <div>
@@ -78,7 +97,7 @@ export default function SignupForm() {
                         {
                             state?.errors?.name
                             && <div className="text-sm text-red-500">
-                                {state?.errors?.name.join(', ')}
+                                <FormErrors errors={state?.errors?.name}/>
                             </div>
                         }
                         <div>
@@ -96,9 +115,7 @@ export default function SignupForm() {
                         </div>
                         {
                             state?.errors?.username
-                            && <div className="text-sm text-red-500">
-                                {state?.errors?.username.join(', ')}
-                            </div>
+                            && <FormErrors errors={state?.errors?.username}/>
                         }
                     </div>
 
