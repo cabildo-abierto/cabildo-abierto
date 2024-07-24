@@ -35,7 +35,7 @@ const SearchButton = ({ onClick }: any) => {
 
 
 function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
-    const {user} = useUser()
+    const {user, setUser} = useUser()
 
     return <>
         <div className="flex items-center">
@@ -57,12 +57,14 @@ function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
             </div>
 
             <div className="px-2">
+                <Link href="/">
                 <button
                     className="gray-button"
-                    onClick={(e) => { logout() }}
+                    onClick={async (e) => { await logout().then(() => {setUser(null)})}}
                 >
                     Cerrar sesión
                 </button>
+                </Link>
             </div>
         </div>
     </>
@@ -77,14 +79,13 @@ const TopBarGuest = () => {
                 Estás viendo esta página como invitado, muchas funciones no están disponibles.</div>
         </div>
         <div className="px-4 w-1/4 flex justify-end">
-            <button
-                className="hover:bg-gray-200 rounded cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 text-gray-600 px-2"
-                onClick={(e) => { logout() }}
-            >
-                <Link href="/">
+            <Link href="/">
+                <button
+                    className="hover:bg-gray-200 rounded cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 text-gray-600 px-2"
+                >
                     Crear cuenta o iniciar sesión
-                </Link>
-            </button>
+                </button>
+            </Link>
         </div>
     </>
 }

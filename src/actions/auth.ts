@@ -101,7 +101,6 @@ export async function signup(state: any, formData: any) {
 
 export async function logout() {
     cookies().delete("session")
-    redirect("/")
 }
 
 export const findUserByEmail = async (email: string) => {

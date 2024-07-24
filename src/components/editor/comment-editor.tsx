@@ -10,10 +10,11 @@ import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
 import { fastEditorBlockToolbar, fastEditorPlugins } from './fast-editor';
 import { linkConfig } from './markdown-editor';
-import NeedAccountPopup from '../need-account-popup';
 import { useUser } from '../user-provider';
 import { validSubscription } from '../utils';
 import { UserProps } from '@/actions/get-user';
+import NeedAccountPopupPanel from '../need-account-popup';
+import Popup from '../popup';
 
 function canComment(user: UserProps | null){
 	return validSubscription(user)
@@ -73,7 +74,10 @@ export default function CommentEditor({onSubmit, onCancel=null}: any) {
 		<div className="flex justify-end">
 			<div className="flex justify-end mt-3">
 				{canComment(user) ? <SendCommentButton onClick={handleSubmit}/> :
-					<NeedAccountPopup trigger={SendCommentButton({onClick: () => {}})} text="Necesitás una cuenta para agregar comentarios."/>
+					<Popup 
+						Trigger={SendCommentButton}
+						Panel={NeedAccountPopupPanel}
+					/>
 				}
 				{onCancel != null &&
 					<div className="px-1">
