@@ -3,13 +3,14 @@ import { updateEntityContent } from "@/actions/create-entity"
 import MarkdownContent from "@/components/editor/ckeditor-markdown-content";
 import React, { useState } from "react"
 import dynamic from 'next/dynamic';
-import NeedAccountPopup from "@/components/need-account-popup";
 import { useUser } from "./user-provider";
 import { setProtection } from "@/actions/protection";
 import { validSubscription } from "./utils";
-import NeedSubscriptionPopup from "./need-subscription-popup";
-import NeedPermissionsPopup from "./need-permissions-popup";
 import { UserProps } from "@/actions/get-user";
+import NeedAccountPopupPanel from "@/components/need-account-popup";
+import Popup from "./popup";
+import NeedPermissionsPopupPanel from "./need-permissions-popup";
+import NeedSubscriptionPopupPanel from "./need-subscription-popup";
 
 const MarkdownEditor = dynamic(() => import('@/components/editor/markdown-editor'), { ssr: false });
 
@@ -66,17 +67,24 @@ const ReadOnlyContent: React.FC<any> = ({ onEdit, content, entity }) => {
         </button>
     }
 
-    const trigger = (handleClick: any) => (<EditButton onClick={handleClick}/>)
-
     let editButton = <></>
     if(!user){
-        editButton = <NeedAccountPopup trigger={trigger} text="Necesitás una cuenta para hacer ediciones."/>
+        editButton = <Popup
+            Panel={NeedAccountPopupPanel}
+            Trigger={EditButton}
+        />
     } else if(!validSubscription(user)) {
-        editButton = <NeedSubscriptionPopup trigger={trigger} text="Necesitás una suscripción para editar"/>
+        editButton = <Popup
+            Panel={NeedSubscriptionPopupPanel}
+            Trigger={EditButton}
+        />
     } else if(hasEditPermissions(user, protection)){
         editButton = <EditButton onClick={onEdit}/>
     } else {
-        editButton = <NeedPermissionsPopup trigger={trigger} text="No tenés permisos para editar este artículo y todavía no implementamos las propuestas de edición :("/>
+        editButton = <Popup
+            Panel={NeedPermissionsPopupPanel}
+            Trigger={EditButton}
+        />
     }
 
     return <>

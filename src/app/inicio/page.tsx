@@ -1,10 +1,8 @@
-"use client"
 import React from "react"
 import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { getTrending } from "@/actions/trending";
 import { requireSubscription } from "@/components/utils";
-import { useFeed } from "@/components/use-feed";
 
 
 const TrendingTopic: React.FC<{value: string, count: number}> = ({value, count}) => {
@@ -37,14 +35,13 @@ const TrendingTopicsPanel = async () => {
     </div>
 }
 
-const Inicio: React.FC = () => {
-    const {feed, setFeed} = useFeed()
 
+const Inicio: React.FC = async () => {
     const center = <div className="w-full bg-white h-full">
         <h2 className="ml-2 py-8">
             En discusión
         </h2>
-        <Feed feed={feed}/>
+        <Feed/>
     </div>
 
     const right = null// <TrendingTopicsPanel/>

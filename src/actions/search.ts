@@ -3,7 +3,7 @@
 import {db} from "@/db";
 import diceCoefficientDistance from "@/actions/dice-coefficient";
 import { UserProps } from "./get-user";
-import { getPosts } from "./get-content";
+import { ContentProps, getPosts } from "./get-content";
 
 
 export async function searchUsers(value: string): Promise<UserProps[]>{
@@ -35,23 +35,22 @@ export async function searchUsers(value: string): Promise<UserProps[]>{
 }
 
 
-export async function searchContents(value: string) {
+export async function searchContents(value: string, contents: Record<string, ContentProps>) {
     if(value.length == 0)
         return []
 
     const dist = diceCoefficientDistance
 
-    const contents = await getPosts()
-    if(!contents) return []
-
     const maxDist = dist(value, '')
-    contents.forEach(function(item){
-        item.content.dist = dist(value, item.content.text)
+    const dists: {id: string, dist: number}[] = []
+
+    Object.values(contents).forEach(function(item){
+        dists.push({id: item.id, dist: dist(value, item.text)})
     })
 
-    contents.sort((a, b) => {return a.dist - b.dist })
-    contents.filter((a) => {return a.dist < maxDist})
-    return contents
+    dists.sort((a, b) => {return a.dist - b.dist })
+    dists.filter((a) => {return a.dist < maxDist})
+    return dists
 }
 
 

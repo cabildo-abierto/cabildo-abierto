@@ -1,15 +1,23 @@
 'use server'
 
 import {db} from "@/db";
-import { getContentById } from "./get-content";
+
+
+export type EntityProps = {
+    id: string
+    name: string
+    contentId: string
+    protection: string
+    isPublic: boolean
+}
 
 
 export async function getEntityById(entityId: string) {
-    let entity = await db.entity.findUnique(
+    let entity: EntityProps | null = await db.entity.findUnique(
         {select: {
             id: true,
             name: true,
-            content: true,
+            contentId: true,
             protection: true,
             isPublic: true
         },
@@ -18,14 +26,7 @@ export async function getEntityById(entityId: string) {
             }
         }
     )
-    if(!entity){
-        return null
-    }
-    const content = await getContentById(entity.content.id)
-    if(!content){
-        return null
-    }
-    return {entity: entity, content: content.content, children: content.children}
+    return entity
 }
 
 

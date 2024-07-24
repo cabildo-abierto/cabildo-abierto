@@ -6,43 +6,65 @@ import { createComment } from "@/actions/create-content"
 import dynamic from "next/dynamic"
 import { AuthorProps, ContentAndChildrenProps, ContentProps } from "@/actions/get-content"
 import { useUser } from "./user-provider"
+import { useContents } from "./use-contents"
+import { ErrorPage } from "./error-page"
 
 const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 
-function mockComment(createdAt: Date, text: string, author: AuthorProps): ContentAndChildrenProps {
+function mockComment(createdAt: Date, text: string, author: AuthorProps): ContentProps {
     return {
-        content: {
-            id: "mock",
-            createdAt: createdAt,
-            text: text,
-            author: author,
-            _count: {
-                likedBy: 0,
-                dislikedBy: 0
-            },
-            type: "Comment",
-            childrenComments: []
+        id: "mock",
+        createdAt: createdAt,
+        text: text,
+        author: author,
+        _count: {
+            likedBy: 0,
+            dislikedBy: 0
         },
-        children: []
+        type: "Comment",
+        childrenComments: []
     }
 }
 
-type ContentWithComments = {
-    content: any,
-    comments: ContentAndChildrenProps[],
-    entity: any,
-    isPostPage: boolean
+type ContentWithCommentsProps = {
+    content?: ContentProps,
+    entity?: any,
+    isPostPage?: boolean
 }
 
-export const ContentWithComments: React.FC<any> = ({content, comments, entity=null, isPostPage=false}) => {
-    const startsOpen = (content.type == "Post" && isPostPage) || content.type == "EntityContent"
+function getListOfComments(contents: Record<string, ContentProps>, content: ContentProps){
+    const comments: ContentProps[] = []
+    content.childrenComments.forEach((comment) => {
+        comments.push(contents[comment.id])
+    })
+    return comments
+}
+
+export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content=null, entity=null, isPostPage=false}) => {
+    const {contents, setContents} = useContents()
+    const startsOpen = (content && content.type == "Post" && isPostPage) || entity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
-    const [updatedComments, setUpdatedComments] = useState(comments)
+    const comments = (content != null && contents != null) ? getListOfComments(contents, content) : null
+    const [updatedComments, setUpdatedComments] = useState<ContentProps[] | null>(comments)
     const {user} = useUser()
 
+    if(contents && !content){
+        if(entity){
+            content = contents[entity.contentId]
+            if(updatedComments == null)
+                setUpdatedComments(getListOfComments(contents, content))
+        } else {
+            return <ErrorPage>Ocurrió un error al cargar la entidad</ErrorPage>
+        }
+    } else {
+        if(!content){
+            return <>Cargando...</>
+        }    
+    }
+
     const handleNewComment = async (text: string) => {
-        if(user){
+        if(user && updatedComments){
             const mock = mockComment(new Date(), text, {id: user.id, name: user.name})
             setWritingReply(false)
             setUpdatedComments([mock, ...updatedComments])
@@ -72,7 +94,7 @@ export const ContentWithComments: React.FC<any> = ({content, comments, entity=nu
                     <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
                 }
             </div>}
-            {viewComments && <div className="ml-2">
+            {(viewComments && updatedComments) && <div className="ml-2">
                 <CommentSection comments={updatedComments}/>
             </div>}
         </div>

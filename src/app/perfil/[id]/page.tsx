@@ -3,7 +3,7 @@ import React from "react";
 import Feed from "@/components/feed";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { doesFollow, followerCount, followingCount } from "@/actions/following";
-import { ProfileHeader } from "@/components/follow-button";
+import { ProfileHeader } from "@/components/profile-header";
 
 
 const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
@@ -13,19 +13,11 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
         return <ThreeColumnsLayout center={center}/>
     }
 
-    let loggedInUserId = await getUserId()
-
-    const activity = await getUserActivityById(user.id);
-
     const center = <>
-        <ProfileHeader
-            user={user}
-            isLoggedInUser={user.id == loggedInUserId}
-            doesFollow={loggedInUserId ? await doesFollow(user.id, loggedInUserId) : false}
-            followerCount={await followerCount(user.id)}
-            followingCount={await followingCount(user.id)}
-        />
-        <Feed contents={activity}/>
+        {user && <ProfileHeader
+            profileUser={user}
+        />}
+        <Feed userProfile={user}/>
     </>
 
     return <ThreeColumnsLayout center={center}/>

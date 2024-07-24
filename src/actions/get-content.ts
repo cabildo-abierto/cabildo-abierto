@@ -18,16 +18,16 @@ export type ContentProps = {
         dislikedBy: number
     }
     type: string
-    childrenComments: any[]
+    childrenComments: {id: string}[]
 };
 
 export type ContentAndChildrenProps = {
     content: ContentProps | null, 
-    children: (ContentAndChildrenProps | null)[] 
+    children: (ContentProps | null)[] 
 }
 
-export async function getContentById(contentId: string): Promise<ContentAndChildrenProps | null> {
-    let content: ContentProps | null = await db.content.findUnique(
+export async function getContentById(contentId: string): Promise<ContentProps | null> {
+    let content = await db.content.findUnique(
         {select: {
                 id: true,
                 text: true,
@@ -47,13 +47,7 @@ export async function getContentById(contentId: string): Promise<ContentAndChild
             }
         }
     )
-    if(!content) return null
-    if(!content.childrenComments) return null
-    const childrenWithData = await Promise.all(content.childrenComments.map(async (child) => {
-        return await getContentById(child.id)
-    }))
-
-    return {content: content, children: childrenWithData}
+    return content
 }
 
 
@@ -66,15 +60,26 @@ export async function getChildrenAndData(contents: any){
 }
 
 
-export async function getPosts() {
+export async function getPosts(): Promise<ContentProps[]> {
     let contents = await db.content.findMany({
         select: {
-            id: true
+            id: true,
+            text: true,
+            createdAt: true,
+            author: true,
+            childrenComments: true,
+            _count: {
+                select: {
+                    likedBy: true,
+                    dislikedBy: true,
+                },
+            },
+            type: true
         },
         where: {
             AND: [
                 {type: {
-                    in: ["FastPost", "Post"]
+                    in: ["FastPost", "Post", "Comment", "EntityContent"]
                 }},
                 {visible: true}
             ]
@@ -84,7 +89,7 @@ export async function getPosts() {
         }
     })
 
-    return await getChildrenAndData(contents)
+    return contents
 }
 
 

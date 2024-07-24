@@ -17,8 +17,7 @@ const ContentPage: React.FC<{params: any}> = async ({params}) => {
         <div className="flex flex-col h-full">
             <div className="mt-8">
                 <ContentWithComments
-                    content={parentContent.content}
-                    comments={parentContent.children}
+                    content={parentContent}
                     isPostPage={true}
                 />
             </div>

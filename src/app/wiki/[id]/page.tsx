@@ -17,14 +17,14 @@ const EntityPage: React.FC<any> = async ({params}) => {
     const center = <div className="bg-white h-full">
         <div className="ck-content">
             <h2 className="ml-2 py-8">
-                {entity.entity?.name}
+                {entity.name}
             </h2>
         </div>
-        <ContentWithComments content={entity.content} comments={entity.children} entity={entity.entity}/>
+        <ContentWithComments entity={entity}/>
     </div>
 
     
-    return requireSubscription(<ThreeColumnsLayout center={center}/>, !entity.entity.isPublic)
+    return requireSubscription(<ThreeColumnsLayout center={center}/>, !entity.isPublic)
 }
 
 export default EntityPage

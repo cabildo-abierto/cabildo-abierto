@@ -1,16 +1,29 @@
 "use client"
 
 import { follow, unfollow } from "@/actions/following"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useUser } from "./user-provider"
+import { UserProps } from "@/actions/get-user"
 
-export function ProfileHeader({profileUser, isLoggedInUser, doesFollow, followerCount, followingCount}: any) {
-    const [following, setFollowing] = useState(doesFollow)
+export function ProfileHeader({profileUser}: {profileUser: UserProps}) {
     const {user, setUser} = useUser()
+    const [following, setFollowing] = useState(false)
 
+    useEffect(() => {
+        if(user)
+            setFollowing(user.following.some((u) => u.id === profileUser.id))
+    }, [user, profileUser])
+
+    if(!user) return <>Cargando...</>
+
+    const doesFollow = user.following.some((u) => u.id === profileUser.id)
+
+    const followerCount = profileUser.followedBy.length
     // hay alguna mejor forma de hacer esto?
-    const updatedFollowerCount = followerCount + following - doesFollow
-
+    const updatedFollowerCount = followerCount + Number(following) - Number(doesFollow)
+    const isLoggedInUser = user.id == profileUser.id
+    const followingCount = profileUser.following.length
+    
     return <><div className="flex justify-between">
         <div className="ml-2 py-8">
             <h3>

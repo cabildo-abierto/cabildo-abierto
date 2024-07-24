@@ -6,20 +6,21 @@ import { searchUsers, searchContents, searchEntities } from "@/actions/search";
 import ContentComponent from "@/components/content";
 import { UserSearchResult } from "./searchbar";
 import SelectionComponent from "./search-selection-component";
+import { useContents } from "./use-contents";
+import { ContentWithComments } from "./content-with-comments";
 
 
 const SearchPage = ({searchValue}: any) => {
+  const {contents, setContents} = useContents()
   const [resultsUsers, setResultsUsers] = useState<UserProps[]>([]);
-  const [resultsContents, setResultsContents] = useState<any[]>([]);
+  const [resultsContents, setResultsContents] = useState<{id: string}[]>([]);
   const [resultsEntities, setResultsEntities] = useState<any[]>([]);
   const [searchType, setSearchType] = useState("users");
-
-  
 
   useEffect(() => {
     const search = async (searchValue: string) => {
       setResultsUsers(await searchUsers(searchValue))
-      setResultsContents(await searchContents(searchValue))
+      if(contents) setResultsContents(await searchContents(searchValue, contents))
       setResultsEntities(await searchEntities(searchValue))
     }
 
@@ -28,7 +29,7 @@ const SearchPage = ({searchValue}: any) => {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchValue]);
+  }, [searchValue, contents]);
 
   const handleTypeChange = (t: any) => {
     setSearchType(t)
@@ -42,13 +43,11 @@ const SearchPage = ({searchValue}: any) => {
         </div>
       ))
     } else if (searchType == "contents") {
-      return resultsContents.map((result) => (
-        <div className="py-2" key={result.content.id}>
-          <ContentComponent
-            content={result.content}
-            comments={result.children}
-            onViewComments={() => {}}
-            onStartReply={() => {}}
+      if(!contents) return <></>
+      return resultsContents.map((result: {id: string}) => (
+        <div className="py-2" key={result.id}>
+          <ContentWithComments
+            content={contents[result.id]}
           />
         </div>
       ))

@@ -2,15 +2,12 @@
 
 import React from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { CreateEntityFormState, createEntityFromForm } from '@/actions/create-entity';
+import { createEntityFromForm } from '@/actions/create-entity';
 import { useRouter } from 'next/navigation';
 import Popup from './popup';
-import PopupPanel from './popup-panel';
-import { useUser } from './user-provider';
 
 
 export default function EntityPopup({disabled = false}) {
-  const {user, setUser} = useUser()
   const [state, action] = useFormState(createEntityFromForm, null);
   const router = useRouter()
 
@@ -18,12 +15,13 @@ export default function EntityPopup({disabled = false}) {
     router.push("/wiki/"+state.id)
   }
 
-  const panel = (close: () => void) => (<PopupPanel onClose={close}>
+  const panel: React.FC<any> = ({onClose}) => { return <>
       <form action={action}>
-          <div className="space-y-3 py-6">
+          <div className="space-y-3">
+            <h3>Crear entidad</h3>
             <div>
               <input
-                className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"
+                className="block w-64 rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"
                 type="text"
                 id="name"
                 name="name"
@@ -39,15 +37,15 @@ export default function EntityPopup({disabled = false}) {
             </div>
           </div>
       </form>
-  </PopupPanel>)
+  </>}
 
-  const trigger = (handleClick: any) => (
-    <button className="sidebar-button" onClick={handleClick} disabled={disabled}>
+  const trigger: React.FC<any> = ({onClick}) => {
+    return <button className="sidebar-button" onClick={onClick} disabled={disabled}>
       Crear entidad
     </button>
-  )
+  }
 
-  return <Popup panel={panel} trigger={trigger}/>
+  return <Popup Panel={panel} Trigger={trigger}/>
 }
 
 

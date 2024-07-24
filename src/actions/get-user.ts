@@ -23,6 +23,7 @@ export type UserProps = {
     following: {id: string}[]
     likes: {id: string}[]
     dislikes: {id: string}[]
+    followedBy: {id: string}[]
 };
 
 
@@ -51,8 +52,9 @@ export async function getUserById(userId: string){
                 editorStatus: true,
                 subscriptionsUsed: true,
                 following: true,
+                followedBy: true,
                 likes: true,
-                dislikes: true
+                dislikes: true,
             },
             where: {id:userId}
         }

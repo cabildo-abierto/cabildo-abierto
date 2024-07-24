@@ -1,8 +1,14 @@
 import React from 'react';
-import NeedPermissionsPopup from './need-permissions-popup';
 
-function NeedSubscriptionPopup({trigger, text}: any) {
-    return <NeedPermissionsPopup trigger={trigger} text={text}/>
+function NeedSubscriptionPopupPanel({onClose}: any) {
+    return <>
+        <p className="text-lg">Necesitás una suscripción activa.</p>
+        <div className="flex justify-center mt-8">
+            <button className="large-btn" onClick={onClose}>
+                Ok
+            </button>
+        </div>
+    </>
 }
 
-export default NeedSubscriptionPopup;
+export default NeedSubscriptionPopupPanel;

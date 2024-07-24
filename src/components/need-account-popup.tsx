@@ -1,13 +1,11 @@
 "use client"
 
 import React from 'react';
-import Popup from './popup';
 import Link from 'next/link';
 
-function NeedAccountPopup({trigger, text}: any) {
-  
-    const panel = (close: any) => (<>
-        <p className="text-lg">{text}</p>
+const NeedAccountPopupPanel: React.FC<any> = ({onClose}) => {
+    return <>
+        <p className="text-lg">Necesitás una cuenta para hacer esto.</p>
         <div className="flex justify-between mt-8">
             <div className="px-6">
               <Link href="/signup">
@@ -24,12 +22,7 @@ function NeedAccountPopup({trigger, text}: any) {
               </Link>
             </div>
         </div>
-    </>)
-
-    return <Popup
-      panel={panel}
-      trigger={trigger}
-    />
+    </>
 }
 
-export default NeedAccountPopup;
+export default NeedAccountPopupPanel;

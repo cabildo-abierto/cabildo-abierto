@@ -3,7 +3,7 @@ import "./globals.css";
 import { PriceProvider } from "@/components/use-price";
 import { PoolSizeProvider } from "@/components/use-pool-size";
 import { FollowingFeedProvider } from "@/components/use-following-feed";
-import { FeedProvider } from "@/components/use-feed";
+import { ContentsProvider } from "@/components/use-contents";
 
 export default function RootLayout({
     children
@@ -18,11 +18,9 @@ export default function RootLayout({
             <UserProvider>
             <PriceProvider>
             <PoolSizeProvider>
-            <FollowingFeedProvider>
-            <FeedProvider>
+            <ContentsProvider>
                 {children}
-            </FeedProvider>
-            </FollowingFeedProvider>
+            </ContentsProvider>
             </PoolSizeProvider>
             </PriceProvider>
             </UserProvider>
