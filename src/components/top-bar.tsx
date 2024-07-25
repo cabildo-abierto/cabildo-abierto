@@ -91,8 +91,9 @@ const TopBarGuest = () => {
     return <>
         <div className="w-1/4"></div>
         <div className="text-gray-600 flex justify-center w-1/2">
-            <div>
-                Estás viendo esta página como invitado</div>
+            {false && <div>
+                Estás viendo esta página como invitado
+            </div>}
         </div>
         <div className="px-4 w-1/4 flex justify-end">
             <Link href="/">

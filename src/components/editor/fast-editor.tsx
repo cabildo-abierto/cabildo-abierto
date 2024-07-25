@@ -104,6 +104,7 @@ export default function FastEditor({onSubmit, onSaveDraft, initialData=""}: any)
         translations: [coreTranslations],
 		language: 'es',
 		mention: mentionConfig,
+		licenseKey: "RWU3cVZxZGdGQnJxb0lQdkJHckRwZ3VQYkNZV1FzdnUrbTFVbDMwaHZVOW5OL2ZxdTRKSUxNK3liWU9VVHc9PS1NakF5TkRBNE1qRT0="
 	};
 
 

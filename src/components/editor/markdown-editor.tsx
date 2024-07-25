@@ -176,6 +176,7 @@ export default function MarkdownEditor({initialData, onSubmit}: any) {
             tokenUrl: 'https://114213.cke-cs.com/token/dev/sFEQCpTaxVwDohkZJtbiTWyw4JHshEEgLlXe?limit=10',
             defaultUploadWorkspaceId: 'Iu1BhybZJrt2hWKexpZS'
         },
+		licenseKey: "RWU3cVZxZGdGQnJxb0lQdkJHckRwZ3VQYkNZV1FzdnUrbTFVbDMwaHZVOW5OL2ZxdTRKSUxNK3liWU9VVHc9PS1NakF5TkRBNE1qRT0="
 	};
 
 	return (

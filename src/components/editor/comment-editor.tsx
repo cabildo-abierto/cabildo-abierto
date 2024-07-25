@@ -40,7 +40,8 @@ export default function CommentEditor({onSubmit, onCancel=null}: any) {
 		placeholder: 'Agregá un comentario...',
         translations: [
             coreTranslations
-        ]
+        ],
+		licenseKey: "RWU3cVZxZGdGQnJxb0lQdkJHckRwZ3VQYkNZV1FzdnUrbTFVbDMwaHZVOW5OL2ZxdTRKSUxNK3liWU9VVHc9PS1NakF5TkRBNE1qRT0="
 	};
 
 	async function handleSubmit(){
