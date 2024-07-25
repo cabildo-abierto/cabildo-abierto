@@ -91,7 +91,6 @@ export async function getPosts(): Promise<ContentProps[]> {
             createdAt: 'desc'
         }
     })
-
     return contents
 }
 

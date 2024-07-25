@@ -13,7 +13,7 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     const {users, setUsers} = useUsers()
     const {entities, setEntities} = useEntities()
 
-    if(user == undefined || !contents || !users || !entities){
+    if(user === undefined || !contents || !users || !entities){
         return <LoadingPage/>
     } else {
         return <>{children}</>

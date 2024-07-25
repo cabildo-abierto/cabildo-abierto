@@ -1,7 +1,7 @@
 "use client"
 import React from "react"
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import { UserSearchResult } from "@/components/searchbar";
+import { EntitySearchResult, UserSearchResult } from "@/components/searchbar";
 import { useEntities } from "@/components/use-entities";
 import LoadingPage from "@/components/loading-page";
 
@@ -20,7 +20,7 @@ const TopicsPage: React.FC = () => {
         <div className="px-4 w-full">
         {Object.values(entities).map((entity, index) => (
             <div key={index} className="mb-2 flex justify-center w-full">
-                <UserSearchResult result={entity} isEntity={true}/>
+                <EntitySearchResult result={entity}/>
             </div>
         ))}
         </div>

@@ -1,7 +1,6 @@
 'use server'
 
 import {db} from "@/db";
-import {getUser, UserProps} from "@/actions/get-user";
 import { ContentType } from "@prisma/client";
 import { ContentProps, getContentById } from "./get-content";
 
@@ -16,7 +15,7 @@ export async function createComment(text: string, parentContentId: string, userI
             type: "Comment"
         },
     })
-    return await getContentById(comment.id) as ContentProps
+    return // await getContentById(comment.id) as ContentProps
 }
 
 

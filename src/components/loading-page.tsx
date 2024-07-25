@@ -11,6 +11,7 @@ const LoadingPage: React.FC = () => {
           alt="Loading..."
           width={64}
           height={64}
+          priority={true}
           className="object-contain animate-bounce"
         />
       </div>

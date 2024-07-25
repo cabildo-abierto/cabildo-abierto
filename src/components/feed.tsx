@@ -33,7 +33,7 @@ export function followingFeedFromContents(contents: Record<string, ContentProps>
 export function profileFeedFromContents(contents: Record<string, ContentProps>, user: UserProps){
     const feed: ContentProps[] = []
     Object.values(contents).forEach((content: ContentProps) => {
-        if(content.type == "Post" || content.type == "FastPost" || content.type == "Comment"){
+        if(content.type == "Post" || content.type == "FastPost"){
             if(content.author?.id == user.id)
                 feed.push(content)
         }

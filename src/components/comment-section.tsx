@@ -1,9 +1,14 @@
 "use client"
 
 import { ContentProps } from "@/actions/get-content"
-import { ContentWithComments } from "@/components/content-with-comments"
+import { ContentWithComments, getListOfComments } from "@/components/content-with-comments"
+import { useContents } from "./use-contents"
 
-const CommentSection: React.FC<{comments: ContentProps[]}> = ({comments}) => {
+const CommentSection: React.FC<{content: ContentProps}> = ({content}) => {
+    const {contents, setContents} = useContents()
+    if(!contents) return <>Cargando...</>
+
+    const comments = getListOfComments(contents, content)
 
     return <>
         {comments.map((comment: ContentProps) => (

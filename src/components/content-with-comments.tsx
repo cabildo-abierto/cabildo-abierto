@@ -8,6 +8,7 @@ import { AuthorProps, ContentAndChildrenProps, ContentProps } from "@/actions/ge
 import { useUser } from "./user-provider"
 import { useContents } from "./use-contents"
 import { ErrorPage } from "./error-page"
+import { updateContents } from "@/app/escribir/page"
 
 const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 
@@ -33,7 +34,7 @@ type ContentWithCommentsProps = {
     isPostPage?: boolean
 }
 
-function getListOfComments(contents: Record<string, ContentProps>, content: ContentProps){
+export function getListOfComments(contents: Record<string, ContentProps>, content: ContentProps){
     const comments: ContentProps[] = []
     content.childrenComments.forEach((comment) => {
         comments.push(contents[comment.id])
@@ -46,15 +47,11 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
     const startsOpen = (content && content.type == "Post" && isPostPage) || entity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
-    const comments = (content != null && contents != null) ? getListOfComments(contents, content) : null
-    const [updatedComments, setUpdatedComments] = useState<ContentProps[] | null>(comments)
     const {user} = useUser()
 
     if(contents && !content){
         if(entity){
             content = contents[entity.contentId]
-            if(updatedComments == null)
-                setUpdatedComments(getListOfComments(contents, content))
         } else {
             return <ErrorPage>Ocurrió un error al cargar la entidad</ErrorPage>
         }
@@ -65,13 +62,13 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
     }
 
     const handleNewComment = async (text: string) => {
-        if(user && updatedComments){
-            const mock = mockComment(new Date(), text, {id: user.id, name: user.name})
+        if(user){
+            // const mock = mockComment(new Date(), text, {id: user.id, name: user.name})
             setWritingReply(false)
-            setUpdatedComments([mock, ...updatedComments])
-            const newComment = await createComment(text, content.id, user.id)
-            setUpdatedComments([newComment, ...updatedComments])
-            setViewComments(true)
+            await createComment(text, content.id, user.id).then(() => {
+                updateContents(setContents)
+                setViewComments(true)
+            })
         }
     }
 
@@ -82,7 +79,6 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
     return <div>
         <ContentComponent
             content={content}
-            comments={updatedComments}
             onViewComments={() => {setViewComments(!viewComments)}}
             onStartReply={() => {setWritingReply(!writingReply)}}
             entity={entity}
@@ -95,8 +91,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
                     <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
                 }
             </div>}
-            {(viewComments && updatedComments) && <div className="ml-2">
-                <CommentSection comments={updatedComments}/>
+            {(viewComments) && <div className="ml-2">
+                <CommentSection content={content}/>
             </div>}
         </div>
     </div>

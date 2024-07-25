@@ -8,6 +8,8 @@ import { ThreeColumnsLayout } from "@/components/main-layout";
 import Link from "next/link";
 import { validFastPost, validPost } from "@/components/utils";
 import { useUser } from "@/components/user-provider";
+import { useContents } from "@/components/use-contents";
+import { ContentProps, getPosts } from "@/actions/get-content";
 
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
@@ -30,9 +32,18 @@ const PostSelector: React.FC<any> = ({setSelection}) => {
   </div>
 }
 
+export async function updateContents(setContents: any){
+    const _contents = await getPosts()
+    const map: Record<string, ContentProps> = _contents.reduce((acc, obj) => {
+      acc[obj.id] = obj;
+      return acc;
+    }, {} as Record<string, ContentProps>);
+    setContents(map)
+}
 
 const Escribir = () => {
     const [selection, setSelection] = useState("publicación rápida");
+    const {contents, setContents} = useContents()
     const {user, setUser} = useUser()
     const router = useRouter();
 
@@ -45,6 +56,8 @@ const Escribir = () => {
         const success = await createPost(text, contentType, false, user.id)
         if (!success) {
             console.log("Error al publicar post :(")
+        } else {
+            await updateContents(setContents)
         }
     }
 

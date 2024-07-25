@@ -22,8 +22,6 @@ export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
 
 
 export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean}> = ({content, author=true}) => {
-    const router = useRouter()
-
     const url = "/perfil/" + content.author?.id.slice(1)
     const onClick = stopPropagation((e: any) => {})
 
@@ -51,12 +49,12 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
 }
 
 
-const LikeAndCommentCounter: React.FC<{content: ContentProps, onViewComments: any, comments: any}> = ({content, onViewComments, comments}) => {
+const LikeAndCommentCounter: React.FC<{content: ContentProps, onViewComments: any}> = ({content, onViewComments}) => {
     return <div className="flex">
         <LikeCounter content={content}/>
         <div className="flex items-center px-2">
             <div className="text-gray-600 text-sm" onClick={stopPropagation(onViewComments)}>
-                <span className="hover:text-gray-800"><CommentOutlinedIcon sx={{ fontSize: 18 }}/></span> {comments.length}
+                <span className="hover:text-gray-800"><CommentOutlinedIcon sx={{ fontSize: 18 }}/></span> {content.childrenComments.length}
             </div>
         </div>
     </div>
@@ -65,7 +63,6 @@ const LikeAndCommentCounter: React.FC<{content: ContentProps, onViewComments: an
 
 type ContentComponentProps = {
     content: ContentProps,
-    comments: any,
     onViewComments: any,
     onStartReply: any,
     entity?: any,
@@ -73,7 +70,7 @@ type ContentComponentProps = {
 }
 
 
-const ContentComponent: React.FC<ContentComponentProps> = ({content, comments, onViewComments, onStartReply, entity=null, isPostPage=false}) => {
+const ContentComponent: React.FC<ContentComponentProps> = ({content, onViewComments, onStartReply, entity=null, isPostPage=false}) => {
     const router = useRouter()
     
     if(content.type == "Post" && isPostPage){
@@ -95,7 +92,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, comments, o
                         </span>
                     </div>}
                     <div></div>
-                    <LikeAndCommentCounter content={content} onViewComments={onViewComments} comments={comments}/>
+                    <LikeAndCommentCounter content={content} onViewComments={onViewComments}/>
                 </div>
             </div>
         </div>
@@ -111,7 +108,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, comments, o
                 <div className="px-1">
                     <AddCommentButton text="Responder" onClick={stopPropagation(onStartReply)}/>
                 </div>
-                <LikeAndCommentCounter content={content} onViewComments={onViewComments} comments={comments}/>
+                <LikeAndCommentCounter content={content} onViewComments={onViewComments}/>
             </div>
         </div>
     </div>
