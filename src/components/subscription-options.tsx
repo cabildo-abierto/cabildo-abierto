@@ -47,7 +47,7 @@ const SubscriptionOptions = () => {
                 href={"/suscripciones/donar"}
             />
             <div className="flex justify-center">
-                Todos los precios son mensuales y si querés podés pagar un único mes
+                Todos los precios son mensuales. Si querés, podés pagar un único mes.
             </div>
         </div>
         </div>

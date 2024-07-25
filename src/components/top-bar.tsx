@@ -48,41 +48,39 @@ function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
     }
 
     return <div className="flex justify-between items-center w-screen">
-        <div className="flex items-center w-1/4">
+        <div className="flex items-center w-1/3">
             <OpenSidebarButton onClick={onOpenSidebar} />
             <FeedButton />
         </div>
 
-
-        {!activeSubscription && <div className="text-gray-600 flex justify-center w-1/2">
-            <div>
-                Sin suscripción activa
-            </div>
-        </div>}
-
-        <div className="flex justify-end items-center w-1/4">
-            
-            <div className="flex items-center justify-center">
+        <div className="flex justify-end items-center w-2/3">
+            {activeSubscription && 
+            <div className="flex justify-end items-center">
                 {searching && <div className="">
-                    <SearchBar onClose={() => { onSearchingUpdate(false) }} />
-                </div>}
-                {(!searching && activeSubscription) && <SearchButton onClick={() => { onSearchingUpdate(true) }} />}
-            
-                <div className="px-2">
-                    <Link href={`/perfil/${user?.id.slice(1)}`}
-                        className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide px-2`}>
-                        {user?.name}
-                    </Link>
-                </div>
+                        <SearchBar onClose={() => { onSearchingUpdate(false) }} />
+                    </div>}
+                {!searching && <SearchButton onClick={() => { onSearchingUpdate(true) }} />}
+            </div>}
 
-                <div className="px-2">
-                    <button
-                        className="gray-button"
-                        onClick={onLogout}
-                    >
-                        Cerrar sesión
-                    </button>
-                </div>
+            {!activeSubscription && <div className="text-gray-600 flex justify-center">
+            <div>
+            Sin suscripción activa
+            </div>
+            </div>}
+            <div className="px-2">
+                <Link href={`/perfil/${user?.id.slice(1)}`}
+                    className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide px-2`}>
+                    {user?.name}
+                </Link>
+            </div>
+
+            <div className="px-2">
+                <button
+                    className="gray-button"
+                    onClick={onLogout}
+                >
+                    Cerrar sesión
+                </button>
             </div>
         </div>
     </div>
