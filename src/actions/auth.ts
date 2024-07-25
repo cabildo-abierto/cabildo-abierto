@@ -80,14 +80,17 @@ export async function validatedSignUp(name: string, email: string, username: str
 
 
 export async function signup(state: any, formData: any) {
+
   const validatedFields = SignupFormSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
     username: formData.get('username'),
     password: formData.get('password'),
+    betakey: formData.get('betakey')
   })
 
   if (!validatedFields.success) {
+    console.log("Returning", validatedFields.error.flatten().fieldErrors)
     return {
       errors: validatedFields.error.flatten().fieldErrors,
     }

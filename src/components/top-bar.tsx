@@ -39,41 +39,53 @@ function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
     const {user, setUser} = useUser()
     const router = useRouter()
 
+    const activeSubscription = validSubscription(user)
+
     const onLogout = async (e: any) => {
         await logout()
         router.push("/");
         setTimeout(() => {setUser(null)}, 500)
     }
 
-    return <>
-        <div className="flex items-center">
+    return <div className="flex justify-between items-center w-screen">
+        <div className="flex items-center w-1/4">
             <OpenSidebarButton onClick={onOpenSidebar} />
             <FeedButton />
         </div>
 
-        <div className="flex items-center">
-            {searching && <div className="">
-                <SearchBar onClose={() => { onSearchingUpdate(false) }} />
-            </div>}
-            {!searching && <SearchButton onClick={() => { onSearchingUpdate(true) }} />}
 
-            <div className="px-2">
-                <Link href={`/perfil/${user?.id.slice(1)}`}
-                    className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide px-2`}>
-                    {user?.name}
-                </Link>
+        {!activeSubscription && <div className="text-gray-600 flex justify-center w-1/2">
+            <div>
+                Sin suscripción activa
             </div>
+        </div>}
 
-            <div className="px-2">
-                <button
-                    className="gray-button"
-                    onClick={onLogout}
-                >
-                    Cerrar sesión
-                </button>
+        <div className="flex justify-end items-center w-1/4">
+            
+            <div className="flex items-center justify-center">
+                {searching && <div className="">
+                    <SearchBar onClose={() => { onSearchingUpdate(false) }} />
+                </div>}
+                {(!searching && activeSubscription) && <SearchButton onClick={() => { onSearchingUpdate(true) }} />}
+            
+                <div className="px-2">
+                    <Link href={`/perfil/${user?.id.slice(1)}`}
+                        className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide px-2`}>
+                        {user?.name}
+                    </Link>
+                </div>
+
+                <div className="px-2">
+                    <button
+                        className="gray-button"
+                        onClick={onLogout}
+                    >
+                        Cerrar sesión
+                    </button>
+                </div>
             </div>
         </div>
-    </>
+    </div>
 }
 
 
@@ -103,48 +115,11 @@ const TopBarLoading = () => {
 }
 
 
-
-const TopBarNoSubcription = ({onOpenSidebar}: any) => {
-    const {user} = useUser()
-
-    return <>
-        <div className="w-1/4">
-            <div className="flex items-center">
-                <OpenSidebarButton onClick={onOpenSidebar} />
-                <FeedButton />
-            </div>
-        </div>
-        <div className="text-gray-600 flex justify-center w-1/2">
-            <div>
-                Sin suscripción activa</div>
-        </div>
-        <div className="px-4 w-1/4 flex justify-end">
-            <div className="px-2">
-                <Link href={`/perfil/${user?.id.slice(1)}`}
-                    className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide px-2`}>
-                    {user?.name}
-                </Link>
-            </div>
-
-            <div className="px-2">
-                <button
-                    className="gray-button"
-                    onClick={(e) => { logout() }}
-                >
-                    Cerrar sesión
-                </button>
-            </div>
-        </div>
-    </>
-}
-
-
 export default function Topbar({ onOpenSidebar }: any) {
     const [barState, setBarState] = useState("top")
     const [searching, setSearching] = useState(false)
     const [prevScrollPos, setPrevScrollPos] = useState(0);
     const {user, setUser} = useUser()
-    const activeSubscription = validSubscription(user)
     
     useEffect(() => {
         const handleScroll = () => {
@@ -177,18 +152,13 @@ export default function Topbar({ onOpenSidebar }: any) {
         }
     }
 
-
     let bar = <></>
     if(user === null){
         bar = <TopBarGuest/>
     } else if(user === undefined){
         bar = <TopBarLoading/>
-    } else if(!activeSubscription){
-        bar = <TopBarNoSubcription
-            onOpenSidebar={onOpenSidebar}
-        />
     } else {
-        bar = <TopbarLoggedIn 
+        bar = <TopbarLoggedIn
             onOpenSidebar={onOpenSidebar}
             onSearchingUpdate={handleSearchingUpdate}
             searching={searching}

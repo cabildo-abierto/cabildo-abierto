@@ -1,4 +1,5 @@
 export default function Footer() {
+    return <></>
     return (
         <footer className="text-gray-400 py-1 px-2">
             <div className="container mx-auto flex justify-between items-center">

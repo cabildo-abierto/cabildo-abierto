@@ -4,6 +4,7 @@ import { buyAndUseSubscription } from "@/actions/subscriptions";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { useUser } from "@/components/user-provider";
 import { useRouter } from "next/navigation";
+import { updateUser } from "../../pendiente/page";
 
 
 export default function PlanClasicoPagoUnico() {
@@ -12,8 +13,8 @@ export default function PlanClasicoPagoUnico() {
     
     const handlePayment = async () => {
         if(user){
-            const updatedUser = await buyAndUseSubscription(user.id)
-            setUser(updatedUser)
+            await buyAndUseSubscription(user.id)
+            await updateUser(setUser)
             router.push("/inicio")
         }
     }

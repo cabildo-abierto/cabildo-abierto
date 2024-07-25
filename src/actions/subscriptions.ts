@@ -1,20 +1,16 @@
 'use server';
 
 import { db } from '@/db';
-import { getUserById, getUserId } from './get-user';
 
 
 export async function buyAndUseSubscription(userId: string) { 
-
-    await db.subscription.create({
+    return await db.subscription.create({
         data: {
             userId: userId,
             boughtByUserId: userId,
             usedAt: new Date()
         }
     })
-
-    return await getUserById(userId)
 }
 
 export async function donateSubscriptions(n: number, userId: string) {
@@ -32,7 +28,6 @@ export async function donateSubscriptions(n: number, userId: string) {
 }
 
 export async function getDonatedSubscription(userId: string) {
-
     const subscription = await db.subscription.findFirst({
         where: {
             usedAt: null

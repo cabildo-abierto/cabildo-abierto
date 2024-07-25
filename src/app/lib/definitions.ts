@@ -19,6 +19,9 @@ export const SignupFormSchema = z.object({
             message: 'Tiene que tener al menos un caracter especial',
         })
         .trim(),
+    betakey: z.literal("cabildo24", {
+        errorMap: () => ({ message: "Clave incorrecta" })
+    })
 })
 
 

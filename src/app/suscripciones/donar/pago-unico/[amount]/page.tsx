@@ -1,6 +1,7 @@
 "use client"
 
 import { buyAndUseSubscription, donateSubscriptions } from "@/actions/subscriptions";
+import { updateUser } from "@/app/suscripciones/pendiente/page";
 import { ErrorPage } from "@/components/error-page";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { useUser } from "@/components/user-provider";
@@ -10,12 +11,13 @@ import React from "react";
 
 export default function PagoUnico({params}: any) {
     const router = useRouter()
-    const {user} = useUser()
-    if(!user) return <ErrorPage>Necesitás un usuario para ver esta página</ErrorPage>
+    const {user, setUser} = useUser()
     
     const handlePayment = async () => {
+        if(!user) return
         await buyAndUseSubscription(user.id)
         await donateSubscriptions(params.amount-1, user.id)
+        await updateUser(setUser)
         router.push("/inicio")
     }
 

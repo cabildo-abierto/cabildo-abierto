@@ -117,6 +117,20 @@ export default function SignupForm() {
                             state?.errors?.username
                             && <FormErrors errors={state?.errors?.username}/>
                         }
+                        <div>
+                            <AuthenticationFormLabel text="Clave de la beta" label="betakey"/>
+                            <input
+                                className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
+                                type="text"
+                                id="betakey"
+                                name="betakey"
+                                placeholder=""
+                            />
+                        </div>
+                        {
+                            state?.errors?.betakey
+                            && <FormErrors errors={state?.errors?.betakey}/>
+                        }
                     </div>
 
                     <SignupButton/>
