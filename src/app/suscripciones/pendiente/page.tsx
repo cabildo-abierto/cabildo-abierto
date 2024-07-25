@@ -2,15 +2,10 @@
 import { getUser } from "@/actions/get-user"
 import { getDonatedSubscription } from "@/actions/subscriptions"
 import { ThreeColumnsLayout } from "@/components/main-layout"
+import { updateUser } from "@/components/update-context"
 import { usePoolSize } from "@/components/use-pool-size"
 import { useUser } from "@/components/user-provider"
 import { useRouter } from "next/navigation"
-
-
-export async function updateUser(setUser: any){
-    const user = await getUser()
-    setUser(user)
-}
 
 
 export default function PlanGratuito() {

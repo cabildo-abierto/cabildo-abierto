@@ -8,7 +8,7 @@ import { AuthorProps, ContentAndChildrenProps, ContentProps } from "@/actions/ge
 import { useUser } from "./user-provider"
 import { useContents } from "./use-contents"
 import { ErrorPage } from "./error-page"
-import { updateContents } from "@/app/escribir/page"
+import { updateContents } from "./update-context"
 
 const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 

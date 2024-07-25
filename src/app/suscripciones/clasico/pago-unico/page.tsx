@@ -2,9 +2,9 @@
 
 import { buyAndUseSubscription } from "@/actions/subscriptions";
 import { ThreeColumnsLayout } from "@/components/main-layout";
+import { updateUser } from "@/components/update-context";
 import { useUser } from "@/components/user-provider";
 import { useRouter } from "next/navigation";
-import { updateUser } from "../../pendiente/page";
 
 
 export default function PlanClasicoPagoUnico() {

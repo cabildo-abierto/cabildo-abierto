@@ -9,7 +9,7 @@ import Link from "next/link";
 import { validFastPost, validPost } from "@/components/utils";
 import { useUser } from "@/components/user-provider";
 import { useContents } from "@/components/use-contents";
-import { ContentProps, getPosts } from "@/actions/get-content";
+import { updateContents } from "@/components/update-context";
 
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
@@ -30,15 +30,6 @@ const PostSelector: React.FC<any> = ({setSelection}) => {
       <button ref={buttonRef} className={buttonClass} onClick={() => {setSelection("publicación rápida")}}>Publicación rápida</button>
       <button className={buttonClass} onClick={() => {setSelection("publicación")}}>Publicación</button>
   </div>
-}
-
-export async function updateContents(setContents: any){
-    const _contents = await getPosts()
-    const map: Record<string, ContentProps> = _contents.reduce((acc, obj) => {
-      acc[obj.id] = obj;
-      return acc;
-    }, {} as Record<string, ContentProps>);
-    setContents(map)
 }
 
 const Escribir = () => {

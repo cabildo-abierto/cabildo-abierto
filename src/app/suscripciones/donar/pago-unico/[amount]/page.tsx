@@ -1,9 +1,9 @@
 "use client"
 
 import { buyAndUseSubscription, donateSubscriptions } from "@/actions/subscriptions";
-import { updateUser } from "@/app/suscripciones/pendiente/page";
 import { ErrorPage } from "@/components/error-page";
 import { ThreeColumnsLayout } from "@/components/main-layout";
+import { updateUser } from "@/components/update-context";
 import { useUser } from "@/components/user-provider";
 import { useRouter } from "next/navigation";
 import React from "react";
