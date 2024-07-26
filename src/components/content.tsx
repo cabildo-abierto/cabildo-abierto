@@ -25,7 +25,7 @@ export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
 
 
 export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean, icon: any}> = ({content, author=true, icon=null}) => {
-    const url = "/perfil/" + content.author?.id.slice(1)
+    const url = content.author  ? ("/perfil/" + encodeURIComponent(content.author?.id.slice(1))) : ""
     const onClick = stopPropagation((e: any) => {})
 
     return <div className="flex justify-between">

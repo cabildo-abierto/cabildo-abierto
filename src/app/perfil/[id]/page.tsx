@@ -15,9 +15,10 @@ const UserProfile: React.FC<{ params: { id: string } }> = ({ params }) => {
         return <LoadingPage/>
     }
 
-    const user = users["@"+params?.id]
+    const username = "@"+decodeURIComponent(params?.id)
+    const user = users[username]
     if (!user) {
-        return <ErrorPage>El usuario {params?.id} no existe</ErrorPage>
+        return <ErrorPage>El usuario {username} no existe</ErrorPage>
     }
 
     const center = <>
