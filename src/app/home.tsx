@@ -17,7 +17,7 @@ export const Home: React.FC = () => {
                         <ConstructionIcon fontSize="large" />
                     </div>
                     <div className="flex flex-col justify-center items-start">
-                        <div>La plataforma está en beta privada.</div>
+                        <div>La plataforma está en período de prueba.</div>
                         <div>Escribinos a <span className="italic">contacto@cabildoabierto.com</span></div>
                     </div>
                 </div>
