@@ -28,6 +28,7 @@ export default function PagoUnico({params}: any) {
             await updateUser(setUser)
         } else {
             await donateSubscriptions(params.amount, user.id)
+            await updateUser(setUser)
         }
         setPaying(false)
         router.push("/inicio")

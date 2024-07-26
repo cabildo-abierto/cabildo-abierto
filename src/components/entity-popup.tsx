@@ -5,20 +5,26 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { createEntityFromForm } from '@/actions/create-entity';
 import { useRouter } from 'next/navigation';
 import Popup from './popup';
+import { useContents } from './use-contents';
+import { useEntities } from './use-entities';
 
 
 export default function EntityPopup({disabled = false}) {
   const [state, action] = useFormState(createEntityFromForm, null);
   const router = useRouter()
+  const {setEntities} = useEntities()
+  const {setContents} = useContents()
 
   if(state && !state.error){
+    setEntities(undefined)
+    setContents(undefined)
     router.push("/wiki/"+state.id)
   }
 
   const panel: React.FC<any> = ({onClose}) => { return <>
       <form action={action}>
           <div className="space-y-3">
-            <h3>Crear entidad</h3>
+            <h3>Crear artículo</h3>
             <div>
               <input
                 className="block w-64 rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"

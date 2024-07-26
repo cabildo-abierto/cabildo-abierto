@@ -59,8 +59,6 @@ const Inicio: React.FC = () => {
         <span className={`text-sm ${following ? 'text-blue-500' : 'text-gray-500'}`}>Siguiendo</span>
         </div>
 
-
-
         <Feed onlyFollowing={following}/>
     </div>
 

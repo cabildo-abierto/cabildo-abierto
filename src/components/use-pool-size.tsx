@@ -1,25 +1,18 @@
 "use client"
-import { getSubscriptionPoolSize } from '@/actions/subscriptions';
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+
+
+type PoolSizeType = number | null | undefined
 
 interface PoolSizeContextType {
-  poolSize: number | null;
-  setPoolSize: React.Dispatch<React.SetStateAction<number | null>>;
+  poolSize: PoolSizeType;
+  setPoolSize: React.Dispatch<React.SetStateAction<PoolSizeType>>;
 }
 
 export const PoolSizeContext = createContext<PoolSizeContextType | null>(null);
 
 export const PoolSizeProvider = ({ children }: any) => {
-  const [poolSize, setPoolSize] = useState<number | null>(null);
-
-  useEffect(() => {
-    async function fetchPoolSize() {
-      const poolSize = await getSubscriptionPoolSize()
-      setPoolSize(poolSize)
-    }
-
-    fetchPoolSize();
-  }, []);
+  const [poolSize, setPoolSize] = useState<PoolSizeType>(undefined);
 
   return (
     <PoolSizeContext.Provider value={{poolSize, setPoolSize}}>

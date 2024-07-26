@@ -2,24 +2,18 @@
 import { getSubscriptionPrice } from '@/actions/subscriptions';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+
+type PriceType = number | null | undefined
+
 interface PriceContextType {
-  price: number | null;
-  setPrice: React.Dispatch<React.SetStateAction<number | null>>;
+  price: PriceType;
+  setPrice: React.Dispatch<React.SetStateAction<PriceType>>;
 }
 
 export const PriceContext = createContext<PriceContextType | null>(null);
 
 export const PriceProvider = ({ children }: any) => {
-  const [price, setPrice] = useState<number | null>(null);
-
-  useEffect(() => {
-    async function fetchPrice() {
-      const price = await getSubscriptionPrice()
-      setPrice(price)
-    }
-
-    fetchPrice();
-  }, []);
+  const [price, setPrice] = useState<PriceType>(undefined);
 
   return (
     <PriceContext.Provider value={{price, setPrice}}>

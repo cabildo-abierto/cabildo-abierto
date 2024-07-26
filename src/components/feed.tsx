@@ -10,8 +10,10 @@ import { UserProps } from "@/actions/get-user";
 export function feedFromContents(contents: Record<string, ContentProps>){
     const feed: ContentProps[] = []
     Object.values(contents).forEach((content: ContentProps) => {
-        if(content.type == "Post" || content.type == "FastPost"){
-            feed.push(content)
+        if(!content.isDraft){
+            if(content.type == "Post" || content.type == "FastPost"){
+                feed.push(content)
+            }
         }
     })
     return feed
@@ -21,9 +23,11 @@ export function feedFromContents(contents: Record<string, ContentProps>){
 export function followingFeedFromContents(contents: Record<string, ContentProps>, user: UserProps){
     const feed: ContentProps[] = []
     Object.values(contents).forEach((content: ContentProps) => {
-        if(content.type == "Post" || content.type == "FastPost"){
-            if(user.following.some((u) => u.id == content.author?.id))
-                feed.push(content)
+        if(!content.isDraft){
+            if(content.type == "Post" || content.type == "FastPost"){
+                if(user.following.some((u) => u.id == content.author?.id))
+                    feed.push(content)
+            }
         }
     })
     return feed
@@ -33,9 +37,11 @@ export function followingFeedFromContents(contents: Record<string, ContentProps>
 export function profileFeedFromContents(contents: Record<string, ContentProps>, user: UserProps){
     const feed: ContentProps[] = []
     Object.values(contents).forEach((content: ContentProps) => {
-        if(content.type == "Post" || content.type == "FastPost"){
-            if(content.author?.id == user.id)
-                feed.push(content)
+        if(!content.isDraft){
+            if(content.type == "Post" || content.type == "FastPost"){
+                if(content.author?.id == user.id)
+                    feed.push(content)
+            }
         }
     })
     return feed

@@ -1,29 +1,16 @@
 "use client"
-import { ContentProps, getPosts } from '@/actions/get-content';
+import { ContentProps } from '@/actions/get-content';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface ContentsContextType {
-  contents: Record<string, ContentProps> | null;
-  setContents: React.Dispatch<React.SetStateAction<Record<string, ContentProps> | null>>;
+  contents: Record<string, ContentProps> | null | undefined;
+  setContents: React.Dispatch<React.SetStateAction<Record<string, ContentProps> | null | undefined>>;
 }
 
-export const ContentsContext = createContext<ContentsContextType | null>(null);
+export const ContentsContext = createContext<ContentsContextType | null | undefined>(null);
 
 export const ContentsProvider = ({ children }: any) => {
-  const [contents, setContents] = useState<Record<string, ContentProps> | null>(null);
-
-  useEffect(() => {
-    async function fetch() {
-        const _contents = await getPosts()
-        const map: Record<string, ContentProps> = _contents.reduce((acc, obj) => {
-          acc[obj.id] = obj;
-          return acc;
-        }, {} as Record<string, ContentProps>);
-        setContents(map)
-    }
-
-    fetch();
-  }, []);
+  const [contents, setContents] = useState<Record<string, ContentProps> | null | undefined>(undefined);
 
   return (
     <ContentsContext.Provider value={{contents, setContents}}>

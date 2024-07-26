@@ -1,29 +1,18 @@
 "use client"
-import { getUsers, UserProps } from '@/actions/get-user';
+import { UserProps } from '@/actions/get-user';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+type UsersType = Record<string, UserProps> | null | undefined
+
 interface UsersContextType {
-  users: Record<string, UserProps> | null;
-  setUsers: React.Dispatch<React.SetStateAction<Record<string, UserProps> | null>>;
+  users: UsersType;
+  setUsers: React.Dispatch<React.SetStateAction<UsersType>>;
 }
 
 export const UsersContext = createContext<UsersContextType | null>(null);
 
 export const UsersProvider = ({ children }: any) => {
-  const [users, setUsers] = useState<Record<string, UserProps> | null>(null);
-
-  useEffect(() => {
-    async function fetch() {
-        const _users = await getUsers()
-        const map: Record<string, UserProps> = _users.reduce((acc, obj) => {
-          acc[obj.id] = obj;
-          return acc;
-        }, {} as Record<string, UserProps>);
-        setUsers(map)
-    }
-
-    fetch();
-  }, []);
+  const [users, setUsers] = useState<UsersType>(undefined);
 
   return (
     <UsersContext.Provider value={{users, setUsers}}>
