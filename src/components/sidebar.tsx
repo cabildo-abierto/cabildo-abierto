@@ -44,7 +44,7 @@ export default function Sidebar({onClose}: any) {
                     <SidebarButton icon={<LocalLibraryIcon/>} text="Wiki" href="/wiki"/>
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
                     {user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={"/perfil/"+user.id.slice(1)}/>}
-                    <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/suscripciones"/>
+                    <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/wiki/Cabildo_Abierto"/>
                 </ul>
                 {user && <div className="flex flex-col items-center">
                     <Link href={`/perfil/${user?.id.slice(1)}`}

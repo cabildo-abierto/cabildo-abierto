@@ -56,7 +56,7 @@ export default function CommentEditor({onSubmit, onCancel=null}: any) {
 		return <div className="px-1">
 			<button
 				onClick={async () => {setSubmitting(true); await onClick(); setSubmitting(false)}}
-				className="small-btn"
+				className="small-btn scale-btn"
 				disabled={submitting}
 			>
 				{submitting ? "Enviando" : "Enviar"}
