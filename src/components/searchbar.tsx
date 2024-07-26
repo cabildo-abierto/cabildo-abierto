@@ -8,32 +8,33 @@ import CloseIcon from '@mui/icons-material/Close';
 import SearchSidebar from "./search-sidebar";
 import { useUsers } from "./use-users";
 import { useEntities } from "./use-entities";
+import { SearchButton } from "./top-bar";
 
 
 
 export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {
-    const {users, setUsers} = useUsers()
+  const {users, setUsers} = useUsers()
 
-    const className = "transition transform ease-in-out px-1"
-
-    return <div className="flex justify-center max-w-128 border border-gray-600 rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
-        <Link
-            href={"/perfil/" + result.id.replace("@", "")}
-            className={className}>
-            {users ? users[result.id].name : "Cargando..."}
-        </Link>
-    </div>
+  return (
+      <div className="flex justify-center mb-2">
+          <Link href={"/perfil/" + result.id.replace("@", "")}>
+              <button className="border border-gray-600 rounded scale-btn px-2 w-64 text-center">
+                  {users ? users[result.id].name : "Cargando..."}
+              </button>
+          </Link>
+      </div>
+  )
 }
+
 
 export const EntitySearchResult: React.FC<{result: any}> = ({ result }) => {
     const {entities, setEntities} = useEntities()
-    const className = "transition transform ease-in-out px-1"
 
-    return <div className="flex justify-center max-w-128 border border-gray-600 rounded mb-2 hover:scale-105 transition duration-300 ease-in-out transform">
-        <Link
-            href={"/wiki/" + result.id.replace("@", "")}
-            className={className}>
-            {entities ? entities[result.id].name : "Cargando..."}
+    return <div className="flex justify-center mb-2">
+        <Link href={"/wiki/" + result.id.replace("@", "")}>
+            <button className="border border-gray-600 rounded scale-btn px-2 w-64 text-center">
+                {entities ? entities[result.id].name : "Cargando..."}
+            </button>
         </Link>
     </div>
 }
@@ -49,17 +50,18 @@ const SearchInput: React.FC<{ onChange: (e: any) => void }> = ({ onChange }) => 
 
   return <input
     ref={inputRef}
-    className="rounded-lg w-128 px-4 py-1 focus:outline-none transition duration-300"
+    className="rounded-lg w-128 py-1 focus:outline-none transition duration-300"
     placeholder="buscar"
     onChange={onChange}
   />
 }
 
-const CloseSearchButton: React.FC<any> = ({onClick}) => {
-  return <div className="px-1">
-    <button className="transparent-button rounded" onClick={onClick}>
+
+const CloseSearchButton = ({ onClick }: any) => {
+  return <div className="text-l text-gray-900 px-1 py-2">
+      <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg" onClick={onClick}>
       <CloseIcon/>
-    </button>
+  </button>
   </div>
 }
 
@@ -67,12 +69,10 @@ const CloseSearchButton: React.FC<any> = ({onClick}) => {
 const SearchBar: React.FC<any> = ({onClose}) => {
   const [searchValue, setSearchValue] = useState('')
 
-  return <div className="flex items-center justify-center">
-      <SearchIcon/>
-      <div className="flex justify-center items-center">
-        <SearchInput onChange={(e) => {setSearchValue(e.target.value)}} />
-        <CloseSearchButton onClick={onClose}/>
-      </div>
+  return <div className="flex">
+      <SearchButton disabled={true}/>
+      <SearchInput onChange={(e) => {setSearchValue(e.target.value)}} />
+      <CloseSearchButton onClick={onClose}/>
       {(searchValue.length != 0) && 
           <div className="fixed right-0 top-16 z-10">
               <SearchSidebar searchValue={searchValue}/>

@@ -9,15 +9,42 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { validSubscription } from "./utils";
 import { useUser } from "./user-provider";
 import { useRouter } from "next/navigation";
-
+import HomeIcon from '@mui/icons-material/Home';
+import CreateIcon from '@mui/icons-material/Create';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 
 function FeedButton() {
-    return <div className="text-l font-bold text-gray-900 px-1 py-2">
-        <Link href={"/wiki/Cabildo_Abierto"} className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
-            Cabildo Abierto
+    return <div className="text-l text-gray-900 px-1 py-2">
+        <Link href="/inicio">
+        <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
+            <HomeIcon />
+        </button>
         </Link>
     </div>
 }
+
+function WriteButton() {
+    return <div className="text-l text-gray-900 px-1 py-2">
+        <Link href="/escribir">
+        <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
+            <CreateIcon />
+        </button>
+        </Link>
+    </div>
+}
+
+
+function WikiButton() {
+    return <div className="text-l text-gray-900 px-1 py-2">
+        <Link href="/wiki">
+        <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
+            <LocalLibraryIcon />
+        </button>
+        </Link>
+    </div>
+}
+
+
 
 function OpenSidebarButton({ onClick }: any) {
     return <div className="text-l text-gray-900 px-1 py-2">
@@ -28,11 +55,14 @@ function OpenSidebarButton({ onClick }: any) {
 }
 
 
-const SearchButton = ({ onClick }: any) => {
-    return <button className="transparent-button round-background" onClick={onClick}>
+export const SearchButton = ({ onClick=null, disabled=false }: any) => {
+    return <div className="text-l text-gray-900 px-1 py-2">
+        <button className={"py-2 px-2 cursor-pointer rounded-lg" + (!disabled ? " hover:bg-gray-300" : "")} onClick={onClick} disabled={disabled}>
         <SearchIcon />
     </button>
+    </div>
 }
+
 
 
 function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
@@ -41,48 +71,20 @@ function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
 
     const activeSubscription = validSubscription(user)
 
-    const onLogout = async (e: any) => {
-        await logout()
-        router.push("/");
-        setTimeout(() => {setUser(null)}, 500)
-    }
-
-    return <div className="flex justify-between items-center w-screen">
-        <div className="flex items-center w-1/3">
-            <OpenSidebarButton onClick={onOpenSidebar} />
+    return <div className="flex items-center w-screen">
+        <OpenSidebarButton onClick={onOpenSidebar} />
+        {!searching &&
+            <>
             <FeedButton />
-        </div>
+            <WikiButton />
+            <WriteButton />
+            <SearchButton onClick={onSearchingUpdate} />
+            </>
+        }
 
-        <div className="flex justify-end items-center w-2/3">
-            {activeSubscription && 
-            <div className="flex justify-end items-center">
-                {searching && <div className="">
-                        <SearchBar onClose={() => { onSearchingUpdate(false) }} />
-                    </div>}
-                {!searching && <SearchButton onClick={() => { onSearchingUpdate(true) }} />}
-            </div>}
-
-            {!activeSubscription && <div className="text-gray-600 flex justify-center">
-            <div>
-            Sin suscripción activa
-            </div>
-            </div>}
-            <div className="px-2">
-                <Link href={`/perfil/${user?.id.slice(1)}`}
-                    className={`inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide px-2`}>
-                    {user?.name}
-                </Link>
-            </div>
-
-            <div className="px-2">
-                <button
-                    className="gray-button"
-                    onClick={onLogout}
-                >
-                    Cerrar sesión
-                </button>
-            </div>
-        </div>
+        {searching && 
+            <SearchBar onClose={() => { onSearchingUpdate(false) }} />
+        }
     </div>
 }
 

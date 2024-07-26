@@ -12,9 +12,9 @@ function Popup({Panel, Trigger}: {Panel: React.FC<any>, Trigger: React.FC<any>})
   return <>
     {<Trigger onClick={handleClick}/>}
     <BasePopup id="simple-popper" open={open}>
-        <div className="h-screen w-screen bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+        <div className="h-screen w-screen backdrop-blur-sm bg-black/50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg max-w-md">
-              <div className="flex justify-end">
+              <div className="flex justify-end px-1">
                 <button
                     onClick={() => {setOpen(false)}}
                 >

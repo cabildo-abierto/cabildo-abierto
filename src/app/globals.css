@@ -246,10 +246,20 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 	color: #767a83; /* Equivalent to text-gray-400 */
 	padding-left: 0.5rem; /* Equivalent to px-2 */
 	padding-right: 0.5rem; /* Equivalent to px-2 */
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
 }
   
 .gray-button:hover {
 	background-color: #E5E7EB; /* Keep the hover background color the same */
+	transform: scale(1.05);
+}
+
+.scale-btn {
+	transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.scale-btn:hover {
 	transform: scale(1.05);
 }
 

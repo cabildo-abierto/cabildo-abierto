@@ -1,83 +1,27 @@
-"use client"
-
-import React, { useEffect, useRef, useState } from "react";
-import { createPost } from '@/actions/create-content'
-import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
+import React from "react";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import Link from "next/link";
-import { validFastPost, validPost } from "@/components/utils";
-import { useUser } from "@/components/user-provider";
-import { useContents } from "@/components/use-contents";
-import { updateContents } from "@/components/update-context";
+import BoltIcon from '@mui/icons-material/Bolt';
+import ArticleIcon from '@mui/icons-material/Article';
 
-
-const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
-const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), { ssr: false } );
-
-
-const PostSelector: React.FC<any> = ({setSelection}) => {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-      if (buttonRef.current) {
-        buttonRef.current.focus();
-      }
-  }, []);
-
-  const buttonClass = "focus:border-b-2 focus:border-blue-800 px-5 focus:outline-none"
-  return <div className="border-b">
-      <button ref={buttonRef} className={buttonClass} onClick={() => {setSelection("publicación rápida")}}>Publicación rápida</button>
-      <button className={buttonClass} onClick={() => {setSelection("publicación")}}>Publicación</button>
-  </div>
-}
 
 const Escribir = () => {
-    const [selection, setSelection] = useState("publicación rápida");
-    const {contents, setContents} = useContents()
-    const {user, setUser} = useUser()
-    const router = useRouter();
-
-    const handleCreate = async (text: string) => {
-        if(!user) return
-        const contentType = selection == "publicación" ? "Post" : "FastPost"
-        if(contentType == "Post" && !validPost(text)) return
-        if(contentType == "FastPost" && !validFastPost(text)) return
-        router.push("/")
-        const success = await createPost(text, contentType, false, user.id)
-        if (!success) {
-            console.log("Error al publicar post :(")
-        } else {
-            await updateContents(setContents)
-        }
-    }
-
-    const handleSaveDraft = async (text: string) => {
-        if(!user) return
-        const contentType = selection == "publicación" ? "Post" : "FastPost"
-        if(text.length == 0) return
-        const success = await createPost(text, contentType, true, user.id)
-        if (success) {
-            router.push("/borradores")
-        }
-    }
-
-    const center = <div className="flex justify-center h-screen">
-        <div className="flex flex-col w-full px-5 mt-8">
-            <Link href="/borradores" className="mb-4">
-                <button className="gray-button">Mis borradores</button>
-            </Link>
-            <PostSelector setSelection={setSelection}/>
-            {selection == "publicación" ?
-                <PostEditor
-                    onSubmit={handleCreate}
-                    onSaveDraft={handleSaveDraft}
-                /> : 
-                <FastEditor
-                    onSubmit={handleCreate}
-                    onSaveDraft={handleSaveDraft}
-                />
-            }
+    const center = <div className="flex flex-col items-center h-screen">
+        <div className="flex justify-center py-64">
+            <div className="px-4">
+                <Link href="/escribir/rapida">
+                    <button className="large-btn scale-btn">
+                        <BoltIcon/> Publicación rápida
+                    </button>
+                </Link>
+            </div>
+            <div className="px-4">
+                <Link href="/escribir/publicacion">
+                    <button className="large-btn scale-btn">
+                        <ArticleIcon/> Publicación
+                    </button>
+                </Link>
+            </div>
         </div>
     </div>
 

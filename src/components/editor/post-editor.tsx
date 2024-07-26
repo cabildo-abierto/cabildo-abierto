@@ -1,6 +1,8 @@
+"use client"
 import { useState, useEffect, useRef } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import coreTranslations from 'ckeditor5/translations/es.js';
+import NextLink from "next/link"
 
 import {
 	BalloonEditor,
@@ -49,6 +51,7 @@ import "./editor.css"
 
 import InternalLink from "./link/link"
 import { validPost } from '../utils';
+import { SaveDraftButton } from './save-draft-button';
 
 const plugins = [
 	AccessibilityHelp,
@@ -102,8 +105,6 @@ const toolbar = {
 		'underline',
 		'strikethrough',
 		'|',
-		'ckbox',
-		'image',
 		'specialCharacters',
 		'horizontalLine',
 		'link',
@@ -117,16 +118,7 @@ const toolbar = {
 
 export default function PostEditor({onSubmit, onSaveDraft, initialData=""}: any) {
     const [editor, setEditor] = useState<BalloonEditor | null>(null);
-	const editorRef = useRef(null);
-	const editorContainerRef = useRef(null);
 	const [validContent, setValidContent] = useState(validPost(initialData))
-	const [isLayoutReady, setIsLayoutReady] = useState(false);
-
-	useEffect(() => {
-		setIsLayoutReady(true);
-
-		return () => setIsLayoutReady(false);
-	}, []);
 
 	const editorConfig: EditorConfig = {
 		toolbar: toolbar,
@@ -150,40 +142,35 @@ export default function PostEditor({onSubmit, onSaveDraft, initialData=""}: any)
 		licenseKey: "RWU3cVZxZGdGQnJxb0lQdkJHckRwZ3VQYkNZV1FzdnUrbTFVbDMwaHZVOW5OL2ZxdTRKSUxNK3liWU9VVHc9PS1NakF5TkRBNE1qRT0="
 	};
 
-	return (
-		<div className="editor-container" ref={editorContainerRef}>
-            <div className="editor-container__editor ck-content">
-				<div ref={editorRef} className="">
-					{isLayoutReady && 
-						<CKEditor
-							editor={BalloonEditor}
-							config={editorConfig}
-							onReady={(editor: BalloonEditor) => {setEditor(editor)}}
-							onChange={(event, editor) => {setValidContent(validPost(editor.getData()))}}
-					/>}
-
-					<div className="flex justify-end mt-3">
-						<div className="px-2">
-						<button
-							onClick={() => {if(editor) onSaveDraft(editor.getData())}}
-							disabled={!validContent}
-							className="py-2 px-4 rounded font-bold transition duration-200 bg-red-500 hover:bg-red-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
-						>
-							Guardar borrador
-						</button>
-						</div>
-						<div>
-							<button
-								onClick={() => {if(editor) onSubmit(editor.getData())}}
-								disabled={!validContent}
-								className="py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
-							>
-								Publicar
-							</button>
-						</div>
-					</div>
+	return <div className="flex flex-col">
+		<div className="flex justify-between py-2">
+			<NextLink href="/borradores" className="">
+				<button className="px-4 py-2 gray-button">
+					Mis borradores
+				</button>
+			</NextLink>
+			<div className="flex ">
+				<div className="px-2">
+					<SaveDraftButton onSaveDraft={onSaveDraft} editor={editor} disabled={!validContent}/>
 				</div>
+				<button
+					onClick={() => {if(editor) onSubmit(editor.getData())}}
+					disabled={!validContent}
+					className="px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
+				>
+					Publicar
+				</button>
 			</div>
 		</div>
-	);
+		<div className="editor-container">
+			<div className="editor-container__editor ck-content">
+				<CKEditor
+					editor={BalloonEditor}
+					config={editorConfig}
+					onReady={(editor: BalloonEditor) => {setEditor(editor);}}
+					onChange={(event, editor) => {setValidContent(validPost(editor.getData()))}}
+				/>
+			</div>
+		</div>
+	</div>
 }

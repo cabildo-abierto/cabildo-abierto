@@ -1,15 +1,21 @@
 "use client"
 
 import { buyAndUseSubscription } from "@/actions/subscriptions";
+import LoadingPage from "@/components/loading-page";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { updateUser } from "@/components/update-context";
 import { useUser } from "@/components/user-provider";
+import { validSubscription } from "@/components/utils";
 import { useRouter } from "next/navigation";
 
 
 export default function PlanClasicoPagoUnico() {
     const router = useRouter()
     const {user, setUser} = useUser()
+    if(validSubscription(user)){
+        router.push("/suscripciones")
+        return <></>
+    }
     
     const handlePayment = async () => {
         if(user){

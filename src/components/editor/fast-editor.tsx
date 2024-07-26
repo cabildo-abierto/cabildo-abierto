@@ -1,6 +1,9 @@
+"use client"
+
 import { useState, useEffect, useRef } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import coreTranslations from 'ckeditor5/translations/es.js';
+import NextLink from "next/link"
 
 import {
 	BalloonEditor,
@@ -35,6 +38,7 @@ import { linkConfig, mentionConfig, MentionCustomization } from './markdown-edit
 import "./editor.css"
 import InternalLink from "./link/link"
 import { validFastPost } from '../utils';
+import { SaveDraftButton } from './save-draft-button';
 
 
 export const fastEditorPlugins = [
@@ -69,31 +73,9 @@ export const fastEditorPlugins = [
 
 export const fastEditorBlockToolbar = ['bold', 'italic', '|', 'link', 'internal-link']
 
-
-const SaveDraftButton: React.FC<any> = ({onSaveDraft, editor, disabled}) => {
-	const [submitting, setSubmitting] = useState(false)
-
-	return <button
-		onClick={async () => {setSubmitting(true); await onSaveDraft(editor.getData()); setSubmitting(false)}}
-		disabled={disabled || submitting}
-		className="py-2 px-4 rounded font-bold transition duration-200 bg-red-500 hover:bg-red-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
-	>
-		{submitting ? "Guardando..." : "Guardar borrador"}
-	</button>
-}
-
 export default function FastEditor({onSubmit, onSaveDraft, initialData=""}: any) {
     const [editor, setEditor] = useState<BalloonEditor | null>(null);
-	const editorRef = useRef(null);
-	const editorContainerRef = useRef(null);
 	const [validContent, setValidContent] = useState(validFastPost(initialData))
-	const [isLayoutReady, setIsLayoutReady] = useState(false);
-
-	useEffect(() => {
-		setIsLayoutReady(true);
-
-		return () => setIsLayoutReady(false);
-	}, []);
 
 	const editorConfig: EditorConfig = {
 		plugins: fastEditorPlugins,
@@ -108,31 +90,35 @@ export default function FastEditor({onSubmit, onSaveDraft, initialData=""}: any)
 	};
 
 
-	return <div className="editor-container editor-container_classic-editor editor-container_include-block-toolbar" ref={editorContainerRef}>
-		<div className="editor-container__editor">
-			<div ref={editorRef} className="">
-				{isLayoutReady && 
+	return <div className="flex flex-col">
+		<div className="flex justify-between py-2">
+			<NextLink href="/borradores" className="">
+				<button className="px-4 py-2 gray-button">
+					Mis borradores
+				</button>
+			</NextLink>
+			<div className="flex ">
+				<div className="px-2">
+					<SaveDraftButton onSaveDraft={onSaveDraft} editor={editor} disabled={!validContent}/>
+				</div>
+				<button
+					onClick={() => {if(editor) onSubmit(editor.getData())}}
+					disabled={!validContent}
+					className="px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
+				>
+					Publicar
+				</button>
+			</div>
+		</div>
+		
+		<div className="editor-container editor-container_classic-editor editor-container_include-block-toolbar">
+			<div className="editor-container__editor">
 				<CKEditor
 					editor={BalloonEditor}
 					config={editorConfig}
 					onReady={(editor: any) => {setEditor(editor)}}
 					onChange={(event, editor) => {setValidContent(validFastPost(editor.getData()))}}
-				/>}
-	
-				<div className="flex justify-end mt-3">
-					<div className="px-2">
-						<SaveDraftButton onSaveDraft={onSaveDraft} editor={editor} disabled={!validContent}/>
-						</div>
-						<div>
-							<button
-								onClick={() => {if(editor) onSubmit(editor.getData())}}
-								disabled={!validContent}
-								className="py-2 px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
-							>
-								Publicar
-							</button>
-					</div>
-				</div>
+				/>
 			</div>
 		</div>
 	</div>

@@ -40,8 +40,8 @@ export default function EntityPopup({disabled = false}) {
   </>}
 
   const trigger: React.FC<any> = ({onClick}) => {
-    return <button className="sidebar-button" onClick={onClick} disabled={disabled}>
-      Crear entidad
+    return <button className="large-btn scale-btn" onClick={onClick} disabled={disabled}>
+      Crear artículo
     </button>
   }
 

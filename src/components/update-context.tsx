@@ -1,5 +1,6 @@
 import { ContentProps, getPosts } from "@/actions/get-content";
 import { getUser } from "@/actions/get-user";
+import { getSubscriptionPoolSize } from "@/actions/subscriptions";
 
 
 export async function updateContents(setContents: any){
@@ -15,4 +16,10 @@ export async function updateContents(setContents: any){
 export async function updateUser(setUser: any){
     const user = await getUser()
     setUser(user)
+}
+
+
+export async function updatePoolSize(setPoolSize: any){
+  const poolSize = await getSubscriptionPoolSize()
+  setPoolSize(poolSize)
 }

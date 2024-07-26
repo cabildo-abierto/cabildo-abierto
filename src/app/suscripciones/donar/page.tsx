@@ -4,12 +4,17 @@ import Link from "next/link"
 import DonationInput from "@/components/donation-input"
 import { useState } from "react"
 import SubscriptionOptionButton from "@/components/subscription-option-button"
+import { useUser } from "@/components/user-provider"
+import { validSubscription } from "@/components/utils"
 
 
 export default function DonationPage() {
     const [donationAmount, setDonationAmount] = useState(0)
+    const {user, setUser} = useUser()
+    const activeSubscription = validSubscription(user)
 
-    const validAmount = donationAmount >= 2 && donationAmount <= 100
+    const minAmount = activeSubscription ? 1 : 2
+    const validAmount = donationAmount >= minAmount && donationAmount <= 100
 
     const center = <div className="mt-8">
         <div className="flex justify-center items-center">
@@ -19,7 +24,7 @@ export default function DonationPage() {
         </div>
 
         <div className="mt-16">
-            <DonationInput onChange={setDonationAmount}/>
+            <DonationInput onChange={setDonationAmount} oneForYou={!activeSubscription}/>
         </div>
         {donationAmount > 100 && <div className="flex justify-center text-red-600 py-2">
             Si querés donar más de 100 suscripciones contactate con nosotros.

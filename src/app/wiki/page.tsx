@@ -4,28 +4,32 @@ import { ThreeColumnsLayout } from "@/components/main-layout";
 import { EntitySearchResult, UserSearchResult } from "@/components/searchbar";
 import { useEntities } from "@/components/use-entities";
 import LoadingPage from "@/components/loading-page";
+import EntityPopup from "@/components/entity-popup";
 
 
 
 const TopicsPage: React.FC = () => {
-    const {entities, setEntities} = useEntities()
-    if(!entities) {
-        return <LoadingPage/>
+    const { entities, setEntities } = useEntities()
+    if (!entities) {
+        return <LoadingPage />
     }
 
     const center = <div className="w-full">
         <h2 className="ml-2 py-8 flex justify-center">
             Artículos de la wiki
         </h2>
+        <div className="flex justify-center mb-4">
+            <EntityPopup />
+        </div>
         <div className="px-4 w-full">
-        {Object.values(entities).map((entity, index) => (
-            <div key={index} className="mb-2 flex justify-center w-full">
-                <EntitySearchResult result={entity}/>
-            </div>
-        ))}
+            {Object.values(entities).map((entity, index) => (
+                <div key={index} className="mb-2 flex justify-center w-full">
+                    <EntitySearchResult result={entity} />
+                </div>
+            ))}
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return <ThreeColumnsLayout center={center} />
 }
 export default TopicsPage

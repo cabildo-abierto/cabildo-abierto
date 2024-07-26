@@ -1,6 +1,7 @@
 "use client"
 import { publishDraft, updateContent } from "@/actions/create-content";
 import { ContentProps } from "@/actions/get-content";
+import { SaveDraftButton } from "@/components/editor/save-draft-button";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -28,21 +29,18 @@ export default function EditDraftPage({content}: {content: ContentProps}) {
 
     return <div className="flex justify-center h-screen">
         <div className="flex flex-col w-full px-5 mt-8">
-                <Link href="/borradores" className="mb-4">
-                    <button className="gray-button">Mis borradores</button>
-                </Link>
-                {type == "Post" ?
-                    <PostEditor
-                        onSubmit={handleCreate}
-                        onSaveDraft={handleSaveDraft}
-                        initialData={content.text}
-                    /> : 
-                    <FastEditor
-                        onSubmit={handleCreate}
-                        onSaveDraft={handleSaveDraft}
-                        initialData={content.text}
-                    />
-                }
+            {type == "Post" ?
+                <PostEditor
+                    onSubmit={handleCreate}
+                    onSaveDraft={handleSaveDraft}
+                    initialData={content.text}
+                /> : 
+                <FastEditor
+                    onSubmit={handleCreate}
+                    onSaveDraft={handleSaveDraft}
+                    initialData={content.text}
+                />
+            }
         </div>
     </div>
 }
