@@ -170,22 +170,18 @@ export default function MarkdownEditor({initialData, onSubmit}: any) {
 		licenseKey: "RWU3cVZxZGdGQnJxb0lQdkJHckRwZ3VQYkNZV1FzdnUrbTFVbDMwaHZVOW5OL2ZxdTRKSUxNK3liWU9VVHc9PS1NakF5TkRBNE1qRT0="
 	};
 
-	return (
-        <div className="editor-container editor-container_classic-editor editor-container_include-block-toolbar">
-            <div className="editor-container__editor z-0">
-				<CKEditor
-					editor={ClassicEditor}
-					config={editorConfig}
-					onReady={(editor: ClassicEditor) => {setEditor(editor)}}
-				/>
-            </div>
+	return <div className="ck-content z-0">
+		<CKEditor
+			editor={ClassicEditor}
+			config={editorConfig}
+			onReady={(editor: ClassicEditor) => {setEditor(editor)}}
+		/>
 
-			<div className="flex justify-end mt-3">
-				{user ? <PublishButton onSubmit={onSubmit} editor={editor}/> : 
-				<NeedAccountPopup trigger={PublishButton({onSubmit: onSubmit, editor: editor})} text="Para editar el contenido es necesario tener una cuenta" />}
-			</div>
-        </div>
-	);
+		<div className="flex justify-end mt-3">
+			{user ? <PublishButton onSubmit={onSubmit} editor={editor}/> : 
+			<NeedAccountPopup trigger={PublishButton({onSubmit: onSubmit, editor: editor})} text="Para editar el contenido es necesario tener una cuenta" />}
+		</div>
+	</div>
 }
 
 

@@ -108,7 +108,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, onViewComme
     }
 
     const icon = content.type == "Comment" ? null : <BoltIcon fontSize={"small"}/>
-    const className = "w-full bg-white text-left cursor-pointer " + (content.type == "Comment" ? "comment-content" : "ck-content") 
+    const className = "w-full bg-white text-left cursor-pointer " + (content.type == "Comment" ? "ck-content" : "ck-content") 
 
     return <div className={className} onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">

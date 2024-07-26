@@ -162,15 +162,13 @@ export default function PostEditor({onSubmit, onSaveDraft, initialData=""}: any)
 				</button>
 			</div>
 		</div>
-		<div className="editor-container">
-			<div className="editor-container__editor ck-content">
-				<CKEditor
-					editor={BalloonEditor}
-					config={editorConfig}
-					onReady={(editor: BalloonEditor) => {setEditor(editor);}}
-					onChange={(event, editor) => {setValidContent(validPost(editor.getData()))}}
-				/>
-			</div>
+		<div className="ck-content">
+			<CKEditor
+				editor={BalloonEditor}
+				config={editorConfig}
+				onReady={(editor: BalloonEditor) => {setEditor(editor);}}
+				onChange={(event, editor) => {setValidContent(validPost(editor.getData()))}}
+			/>
 		</div>
 	</div>
 }

@@ -111,15 +111,13 @@ export default function FastEditor({onSubmit, onSaveDraft, initialData=""}: any)
 			</div>
 		</div>
 		
-		<div className="editor-container editor-container_classic-editor editor-container_include-block-toolbar">
-			<div className="editor-container__editor">
-				<CKEditor
-					editor={BalloonEditor}
-					config={editorConfig}
-					onReady={(editor: any) => {setEditor(editor)}}
-					onChange={(event, editor) => {setValidContent(validFastPost(editor.getData()))}}
-				/>
-			</div>
+		<div className="ck-content">
+			<CKEditor
+				editor={BalloonEditor}
+				config={editorConfig}
+				onReady={(editor: any) => {setEditor(editor)}}
+				onChange={(event, editor) => {setValidContent(validFastPost(editor.getData()))}}
+			/>
 		</div>
 	</div>
 }

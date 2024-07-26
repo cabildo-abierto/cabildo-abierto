@@ -22,7 +22,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
   };
 
   return (
-    <div className="editor-container ck-content">
+    <div className="ck-content">
       <Markdown remarkPlugins={[remarkGfm]} components={components}>
         {content}
       </Markdown>

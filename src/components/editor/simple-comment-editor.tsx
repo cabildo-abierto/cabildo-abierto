@@ -35,7 +35,7 @@ export default function SimpleCommentEditor({onSubmit, onCancel=null}: any) {
 
 	return <div className="border px-1 py-1 rounded">
 		<TextareaAutosize
-			className="focus:outline-none w-full resize-none comment-content px-2 py-1"
+			className="focus:outline-none w-full resize-none ck-content px-2 py-1"
 			value={value}
 			onChange={(e) => {setValue(e.target.value)}}
 			minRows={2}

@@ -27,6 +27,13 @@ h3 {
 	font-size: large;
 	line-height: 1.6;
 	word-break: break-word;
+	@apply text-gray-900;
+}
+
+.ck-content a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
 }
 
 .comment-content {
@@ -34,38 +41,41 @@ h3 {
 	font-size: large;
 	line-height: 1.6;
 	word-break: break-word;
-}
-
-.editor-container {
 	@apply text-gray-900;
 }
 
-.editor-container h1 {
+.comment-content a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.ck-content h1 {
   	margin-top: 20px;
 	margin-bottom: 20px
 }
 
-.editor-container h2 {
+.ck-content h2 {
 	margin-top: 16px;
   	margin-bottom: 16px
 }
 
-.editor-container h3 {
+.ck-content h3 {
 	margin-top: 14px;
   	margin-bottom: 14px
 }
 
-.editor-container h4 {
+.ck-content h4 {
 	margin-top: 12px;
   	margin-bottom: 10px
 }
 
-.editor-container h5 {
+.ck-content h5 {
 	margin-top: 10px;
   	margin-bottom: 10px
 }
 
-.editor-container p, ul {
+.ck-content p, ul {
 	margin-bottom: 10px;
 	margin-top: 10px
 }
@@ -121,7 +131,7 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
     font-weight: bold;
 }
 
-.editor-container a:hover {
+.ck-content a:hover {
     text-decoration: underline;
 }
 
