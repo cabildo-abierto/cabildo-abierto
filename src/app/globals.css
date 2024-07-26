@@ -36,20 +36,6 @@ h3 {
     font-weight: bold;
 }
 
-.comment-content {
-	/*font-family: 'Lato';*/
-	font-size: large;
-	line-height: 1.6;
-	word-break: break-word;
-	@apply text-gray-900;
-}
-
-.comment-content a {
-    color: #3498db;
-    text-decoration: none;
-    font-weight: bold;
-}
-
 .ck-content h1 {
   	margin-top: 20px;
 	margin-bottom: 20px
@@ -79,8 +65,6 @@ h3 {
 	margin-bottom: 10px;
 	margin-top: 10px
 }
-
-
 
 h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 	color: #ff0050;
@@ -135,17 +119,21 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
     text-decoration: underline;
 }
 
-.editor-container {
+.blue-links a:hover {
+    text-decoration: underline;
+}
+
+.ck-content {
     list-style-type: none; /* Remove default bullets */
     padding-left: 0; /* Remove default padding */
     margin: 0; /* Remove default margin */
 }
 
-.editor-container ul {
+.ck-content ul {
 	padding-left: 1.5rem;
 }
 
-.editor-container li {
+.ck-content li {
     padding-left: 0.5rem; /* Space for custom bullet */
 	margin-bottom: 0.5rem;
 }

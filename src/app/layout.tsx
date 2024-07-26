@@ -7,6 +7,12 @@ import { UsersProvider } from "@/components/use-users";
 import { EntitiesProvider } from "@/components/use-entities";
 import LoadingWrapper from "@/components/loading-wrapper";
 
+import { Metadata } from 'next'
+ 
+export const metadata: Metadata = {
+  title: 'Cabildo Abierto',
+}
+
 export default function RootLayout({
     children
 }: Readonly<{
