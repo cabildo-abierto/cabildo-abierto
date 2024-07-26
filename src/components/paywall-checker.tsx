@@ -20,10 +20,10 @@ const NeedAccountPaywall: React.FC<any> = ({ children }) => {
                 <div className="bg-white rounded border-2 border-black p-8 z-10 text-center max-w-lg">
                     <div className="py-4 text-lg">Iniciá sesión o creá una cuenta para ver esta página</div>
                     <div className="flex justify-between items-center py-8 space-x-4">
-                        <Link href="/" className="large-btn">
+                        <Link href="/" className="large-btn scale-btn">
                             Iniciar sesión
                         </Link>
-                        <Link href="/signup" className="large-btn">
+                        <Link href="/signup" className="large-btn scale-btn">
                             Crear cuenta
                         </Link>
                     </div>

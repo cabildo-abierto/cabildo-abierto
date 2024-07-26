@@ -55,7 +55,7 @@ export default function CommentEditor({onSubmit, onCancel=null}: any) {
 		const [submitting, setSubmitting] = useState(false)
 		return <div className="px-1">
 			<button
-				onClick={async () => {setSubmitting(true); await onClick(); setSubmitting(false)}}
+				onClick={async (e: any) => {setSubmitting(true); await onClick(e); setSubmitting(false)}}
 				className="small-btn scale-btn"
 				disabled={submitting}
 			>
