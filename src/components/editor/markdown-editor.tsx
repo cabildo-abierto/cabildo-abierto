@@ -145,16 +145,7 @@ const PublishButton: React.FC<any> = ({onSubmit, editor}) => {
 
 export default function MarkdownEditor({initialData, onSubmit}: any) {
     const [editor, setEditor] = useState<ClassicEditor | null>(null);
-	const editorContainerRef = useRef(null);
-	const editorRef = useRef(null);
-	const [isLayoutReady, setIsLayoutReady] = useState(false);
 	const {user} = useUser()
-
-	useEffect(() => {
-		setIsLayoutReady(true);
-
-		return () => setIsLayoutReady(false);
-	}, []);
 
 	const editorConfig: EditorConfig = {
 		toolbar: toolbar,
@@ -180,14 +171,13 @@ export default function MarkdownEditor({initialData, onSubmit}: any) {
 	};
 
 	return (
-        <div className="editor-container editor-container_classic-editor editor-container_include-block-toolbar" ref={editorContainerRef}>
-            <div className="editor-container__editor">
-                <div ref={editorRef} className="">{isLayoutReady &&
+        <div className="editor-container editor-container_classic-editor editor-container_include-block-toolbar">
+            <div className="editor-container__editor z-0">
 				<CKEditor
 					editor={ClassicEditor}
 					config={editorConfig}
 					onReady={(editor: ClassicEditor) => {setEditor(editor)}}
-				/>}</div>
+				/>
             </div>
 
 			<div className="flex justify-end mt-3">

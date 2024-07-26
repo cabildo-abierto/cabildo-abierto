@@ -39,7 +39,7 @@ export const EntitySearchResult: React.FC<{result: any}> = ({ result }) => {
     </div>
 }
 
-const SearchInput: React.FC<{ onChange: (e: any) => void }> = ({ onChange }) => {
+export const SearchInput: React.FC<any> = ({ onChange }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ const SearchInput: React.FC<{ onChange: (e: any) => void }> = ({ onChange }) => 
 
   return <input
     ref={inputRef}
-    className="rounded-lg w-128 py-1 focus:outline-none transition duration-300"
+    className="rounded-lg w-128 transition duration-300 focus:outline-none"
     placeholder="buscar"
     onChange={onChange}
   />
@@ -71,7 +71,7 @@ const SearchBar: React.FC<any> = ({onClose}) => {
 
   return <div className="flex">
       <SearchButton disabled={true}/>
-      <SearchInput onChange={(e) => {setSearchValue(e.target.value)}} />
+      <SearchInput onChange={(e: any) => {setSearchValue(e.target.value)}} />
       <CloseSearchButton onClick={onClose}/>
       {(searchValue.length != 0) && 
           <div className="fixed right-0 top-16 z-10">

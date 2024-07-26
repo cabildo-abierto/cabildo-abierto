@@ -37,7 +37,7 @@ export default function Sidebar({onClose}: any) {
 
     return <div className ="h-screen w-screen fixed top-0 left-0">
         <div className="flex">
-            <div className="h-screen w-64 flex flex-col justify-between bg-white border-r z-10">
+            <div className="h-screen w-[270px] flex flex-col justify-between bg-white border-r z-10">
                 <ul className="flex-1 mt-4 px-2">
                     <SidebarButton onClick={onClose} icon={<HomeIcon/>} text="Inicio" href="/inicio"/>
                     <SidebarButton onClick={onClose} icon={<CreateIcon/>} text="Escribir" href="/escribir"/>
@@ -64,7 +64,7 @@ export default function Sidebar({onClose}: any) {
                 }
             </div>
             <button
-                className="h-screen w-full bg-gray-600 bg-opacity-50 z-10"
+                className="h-screen w-full"
                 onClick={onClose}
             >
             </button>
