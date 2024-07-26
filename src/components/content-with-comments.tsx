@@ -3,14 +3,15 @@ import CommentSection from "./comment-section"
 import ContentComponent from "./content"
 import { useState } from "react"
 import { createComment } from "@/actions/create-content"
-import dynamic from "next/dynamic"
-import { AuthorProps, ContentAndChildrenProps, ContentProps } from "@/actions/get-content"
+// import dynamic from "next/dynamic"
+import { AuthorProps, ContentProps } from "@/actions/get-content"
 import { useUser } from "./user-provider"
 import { useContents } from "./use-contents"
 import { ErrorPage } from "./error-page"
 import { updateContents } from "./update-context"
+import SimpleCommentEditor from "./editor/simple-comment-editor"
 
-const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
+// const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 
 function mockComment(createdAt: Date, text: string, author: AuthorProps): ContentProps {
     return {
@@ -64,7 +65,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
     const handleNewComment = async (text: string) => {
         if(user){
             // const mock = mockComment(new Date(), text, {id: user.id, name: user.name})
-            setWritingReply(false)
+            setWritingReply(startsOpen)
             await createComment(text, content.id, user.id).then(() => {
                 updateContents(setContents)
                 setViewComments(true)
@@ -85,11 +86,10 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
             isPostPage={isPostPage}
             viewingComments={viewComments}
         />
-        {isPostPage && <hr/>}
         <div className="">
             {writingReply && <div className="mt-1 mb-2 ml-2">
-                {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 
-                    <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
+                {startsOpen ? <SimpleCommentEditor onSubmit={handleNewComment}/> : 
+                    <SimpleCommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
                 }
             </div>}
             {(viewComments) && <div className="ml-2">

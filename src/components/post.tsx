@@ -12,10 +12,12 @@ export const Post: React.FC<{content: ContentProps}> = ({content}) => {
     return <div className="bg-white">
         <HtmlContent content={title}/>
         <div className="flex justify-between editor-container">
-            <div className="py-2">Por <Link href={"/perfil/"+content.author?.id.slice(1)}>{content.author?.name}</Link></div>
+            <div className="py-2 blue-links">Por <Link href={"/perfil/"+content.author?.id.slice(1)}>{content.author?.name}</Link></div>
             <DateComponent date={content.createdAt}/>
         </div>
+        <div className="min-h-64">
         <HtmlContent content={text}/>
+        </div>
         <hr/>
     </div>
 }

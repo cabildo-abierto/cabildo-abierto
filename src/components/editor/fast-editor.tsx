@@ -82,7 +82,7 @@ export default function FastEditor({onSubmit, onSaveDraft, initialData=""}: any)
 		balloonToolbar: fastEditorBlockToolbar,
 		initialData: initialData,
 		link: linkConfig,
-		placeholder: '...',
+		placeholder: 'Escribí tu publicación acá...',
         translations: [coreTranslations],
 		language: 'es',
 		mention: mentionConfig,

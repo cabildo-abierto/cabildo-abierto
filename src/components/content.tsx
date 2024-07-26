@@ -13,6 +13,9 @@ import { Post } from "./post";
 import EntityComponent from "@/components/entity-component";
 import { useRouter } from "next/navigation";
 
+import BoltIcon from '@mui/icons-material/Bolt';
+import ArticleIcon from '@mui/icons-material/Article';
+
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
     return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/contenido/" + content.id}>
@@ -21,18 +24,19 @@ export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
 }
 
 
-export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean}> = ({content, author=true}) => {
+export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean, icon: any}> = ({content, author=true, icon=null}) => {
     const url = "/perfil/" + content.author?.id.slice(1)
     const onClick = stopPropagation((e: any) => {})
 
     return <div className="flex justify-between">
-        <div className="text-gray-600 ml-2 text-sm">
-            {author && <Link 
+        <div className="text-gray-600 ml-2 text-sm blue-links flex items-center">
+            {icon && <span>{icon}</span>}
+            <span className="px-1">{author && <Link 
                 href={url} 
                 className="hover:text-gray-900"
                 onClick={onClick}>
                     {content.author?.name + " " + content.author?.id}
-            </Link>}
+            </Link>}</span>
         </div>
         <div className="text-gray-600 text-sm mr-1"><DateAndTimeComponent date={content.createdAt}/></div>
     </div>
@@ -76,7 +80,6 @@ type ContentComponentProps = {
 
 const ContentComponent: React.FC<ContentComponentProps> = ({content, onViewComments, onStartReply, viewingComments, entity=null, isPostPage=false}) => {
     const router = useRouter()
-    
     if(content.type == "Post" && isPostPage){
         return <Post content={content}/>
     } else if(content.type == "EntityContent"){
@@ -84,14 +87,16 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, onViewComme
     } else if(content.type == "Post"){
         const postSplit = splitPost(content.text)
         const text = postSplit ? postSplit.title : "Error al cargar el contenido"
-        return <div className="w-full bg-white text-left cursor-pointer editor-container" onClick={() => {router.push("/contenido/"+content.id)}}>
+        return <div className="w-full bg-white text-left cursor-pointer ck-content" onClick={() => {router.push("/contenido/"+content.id)}}>
             <div className="border rounded w-full">
-                <ContentTopRow content={content} author={true}/>
-                <div className="px-2 mt-2 font-semibold">
-                    <HtmlContent content={text}/>
+                <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>}/>
+                <div className="flex items-center px-2 py-2">
+                    <div className="px-1 font-semibold">
+                        <HtmlContent content={text}/>
+                    </div>
                 </div>
                 <div className="flex justify-between mb-1">
-                    {false && <div className="px-2 flex justify-between">
+                    {false &&<div className="px-2 flex justify-between blue-links text-sm">
                         <span className="mr-4">Por <Link href={"/perfil/"+content.author?.id.slice(1)}>{content.author?.name}</Link>
                         </span>
                     </div>}
@@ -102,10 +107,13 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, onViewComme
         </div>
     }
 
-    return <div className="w-full bg-white text-left cursor-pointer editor-container" onClick={() => {router.push("/contenido/"+content.id)}}>
+    const icon = content.type == "Comment" ? null : <BoltIcon fontSize={"small"}/>
+    const className = "w-full bg-white text-left cursor-pointer " + (content.type == "Comment" ? "comment-content" : "ck-content") 
+
+    return <div className={className} onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">
-            <ContentTopRow content={content}/>
-            <div className="px-2">
+            <ContentTopRow content={content} icon={icon}/>
+            <div className="px-2 py-2">
                 <HtmlContent content={content.text}/>
             </div>
             <div className="flex justify-between">

@@ -23,7 +23,15 @@ h3 {
 }
 
 .ck-content {
-	font-family: 'Lato';
+	/*font-family: 'Lato';*/
+	font-size: large;
+	line-height: 1.6;
+	word-break: break-word;
+}
+
+.comment-content {
+	/*font-family: 'Lato';*/
+	font-size: large;
 	line-height: 1.6;
 	word-break: break-word;
 }
@@ -107,7 +115,7 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
     background-color: #2563EB;
 }
 
-.editor-container a {
+.blue-links a {
     color: #3498db;
     text-decoration: none;
     font-weight: bold;
@@ -158,28 +166,28 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 
 
 .small-btn {
-	border: 3px solid rgba(0,0,0,0);
-	font-size: 16px;
+	border: 2px solid transparent; /* Reduced border size for a sleeker look */
+	font-size: 0.9rem; /* Using rem units for better scalability */
 	font-weight: 400;
 	margin-bottom: 5px;
-	padding: 1px 5px;
+	padding: 0px 5px; /* Adjusted padding for better size and appearance */
 	text-transform: inherit;
-	vertical-align: top;
-	white-space: normal;
-	word-break: initial;
+	vertical-align: middle; /* Adjusted alignment for better positioning */
+	white-space: nowrap; /* Ensures text doesn't break into multiple lines */
+	word-break: normal;
 	text-decoration: none;
 	letter-spacing: inherit;
-	border-radius: 15px;
-	line-height: 1.42857143;
+	border-radius: 12px; /* Slightly reduced radius for a more subtle look */
+	line-height: 1.5; /* Adjusted line-height for better readability */
 	background-color: #242c4f;
 	color: #fff;
-	transition: background-color 0.3s ease, color 0.3s ease;
 }
-
+  
 .small-btn:hover {
 	background-color: #1b203a;
 	color: #e0e0e0;
 }
+
 
 
 .subscription-btn {

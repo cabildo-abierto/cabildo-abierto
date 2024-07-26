@@ -18,14 +18,14 @@ const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), {
 
 
 const Escribir: React.FC<{fast: boolean}> = ({fast}) => {
-    const [selection, setSelection] = useState("none");
     const {contents, setContents} = useContents()
     const {user, setUser} = useUser()
-    const router = useRouter();
+    const router = useRouter()
+    
+    const contentType = fast ? "FastPost" : "Post"
 
     const handleCreate = async (text: string) => {
         if(!user) return
-        const contentType = selection == "publicación" ? "Post" : "FastPost"
         if(contentType == "Post" && !validPost(text)) return
         if(contentType == "FastPost" && !validFastPost(text)) return
         router.push("/")
@@ -39,7 +39,6 @@ const Escribir: React.FC<{fast: boolean}> = ({fast}) => {
 
     const handleSaveDraft = async (text: string) => {
         if(!user) return
-        const contentType = selection == "publicación" ? "Post" : "FastPost"
         if(text.length == 0) return
         const success = await createPost(text, contentType, true, user.id)
         if (success) {

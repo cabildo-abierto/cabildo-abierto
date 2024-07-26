@@ -5,8 +5,8 @@ import 'ckeditor5/ckeditor5.css';
 
 export default function HtmlContent({content, limitHeight=false}: {content: string, limitHeight?: Boolean}) {
     if(limitHeight){
-        return <div className="editor-container ck-content max-h-40 overflow-hidden overflow-y-auto">{parse(content)}</div>
+        return <div className="max-h-40 overflow-hidden overflow-y-auto">{parse(content)}</div>
     } else {
-        return <div className="editor-container ck-content">{parse(content)}</div>
+        return <div className="">{parse(content)}</div>
     }
 }

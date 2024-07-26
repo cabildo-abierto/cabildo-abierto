@@ -1,46 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import coreTranslations from 'ckeditor5/translations/es.js';
-
-import {
-	BalloonEditor,
-} from 'ckeditor5';
-
-import 'ckeditor5/ckeditor5.css';
-import "./editor.css"
-import { fastEditorBlockToolbar, fastEditorPlugins } from './fast-editor';
-import { linkConfig } from './markdown-editor';
 import { useUser } from '../user-provider';
+
 import { validSubscription } from '../utils';
 import { UserProps } from '@/actions/get-user';
 import NeedAccountPopupPanel from '../need-account-popup';
 import Popup from '../popup';
+import { TextareaAutosize } from '@mui/material';
 
 function canComment(user: UserProps | null | undefined){
 	return validSubscription(user)
 }
 
-export default function CommentEditor({onSubmit, onCancel=null}: any) {
+export default function SimpleCommentEditor({onSubmit, onCancel=null}: any) {
     const {user} = useUser()
-    const [editor, setEditor] = useState<BalloonEditor | null>(null);
-
-	const editorConfig = {
-		plugins: fastEditorPlugins,
-		balloonToolbar: fastEditorBlockToolbar,
-		initialData: '',
-		link: linkConfig,
-		placeholder: 'Agregá un comentario...',
-        translations: [
-            coreTranslations
-        ],
-		licenseKey: "RWU3cVZxZGdGQnJxb0lQdkJHckRwZ3VQYkNZV1FzdnUrbTFVbDMwaHZVOW5OL2ZxdTRKSUxNK3liWU9VVHc9PS1NakF5TkRBNE1qRT0="
-	};
+	const [value, setValue] = useState("")
 
 	async function handleSubmit(){
-		if(!editor) return
-		const data = editor.getData()
-		if(data.length == 0) return
-		await onSubmit(data)
+		if(value.length == 0) return
+		await onSubmit(value)
 	}
 
 	const SendCommentButton = ({onClick}: any) => {
@@ -48,7 +25,7 @@ export default function CommentEditor({onSubmit, onCancel=null}: any) {
 		return <div className="px-1">
 			<button
 				onClick={async (e: any) => {setSubmitting(true); await onClick(e); setSubmitting(false)}}
-				className="small-btn scale-btn"
+				className="small-btn"
 				disabled={submitting}
 			>
 				{submitting ? "Enviando" : "Enviar"}
@@ -57,10 +34,12 @@ export default function CommentEditor({onSubmit, onCancel=null}: any) {
 	}
 
 	return <div className="border px-1 py-1 rounded">
-		<CKEditor
-			editor={BalloonEditor}
-			config={editorConfig}
-			onReady={setEditor}
+		<TextareaAutosize
+			className="focus:outline-none w-full resize-none comment-content px-2 py-1"
+			value={value}
+			onChange={(e) => {setValue(e.target.value)}}
+			minRows={2}
+			placeholder="Agregá un comentario"
 		/>
 
 		<div className="flex justify-end">

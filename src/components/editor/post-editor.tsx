@@ -129,7 +129,7 @@ export default function PostEditor({onSubmit, onSaveDraft, initialData=""}: any)
 		heading: headingConfig,
 		initialData: initialData,
 		link: linkConfig,
-		placeholder: 'Tu publicación va acá',
+		placeholder: 'Escribí tu publicación acá...',
 		table: tableConfig,
         translations: [coreTranslations],
 		image: {
