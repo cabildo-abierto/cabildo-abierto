@@ -12,8 +12,8 @@ export const LikeCounter: React.FC<any> = ({content}) => {
     const [dislikeCount, setDislikeCount] = useState(content._count.dislikedBy)
     const {user} = useUser()
 
-    const wasLiked = user?.likes.includes({id: content.id})
-    const wasDisliked = user?.dislikes.includes({id: content.id})
+    const wasLiked = user?.likes.some((c) => (c.id == content.id))
+    const wasDisliked = user?.dislikes.some((c) => (c.id == content.id))
     const [liked, setLiked] = useState(wasLiked)
     const [disliked, setDisliked] = useState(wasDisliked)
     
@@ -55,17 +55,23 @@ export const LikeCounter: React.FC<any> = ({content}) => {
     }
 
     return <div className="flex">
-        <div className="flex items-center px-3">
-            <button onClick={stopPropagation(onLikeClick)} disabled={!user} className="text-sm mr-1 text-gray-600 hover:text-gray-800">
-                {like_icon}               
+        <div className="px-3">
+            <button onClick={stopPropagation(onLikeClick)}
+                disabled={!user}
+                className={"text-sm mr-1 hover:text-gray-900 " + (liked ? "text-gray-700" : "text-gray-500")}
+            >
+                <span className="px-1">{like_icon}</span>             
+                <span>{likeCount}</span>  
             </button>
-            <div className="text-gray-600 text-sm">{likeCount}</div>
         </div>
-        <div className="flex items-center px-3">
-            <button onClick={stopPropagation(onDislikeClick)} disabled={!user} className="text-sm mr-1 text-gray-600 hover:text-gray-800">
-                {dislike_icon}               
+        <div className="px-3">
+            <button onClick={stopPropagation(onDislikeClick)}
+                disabled={!user}
+                className={"text-sm mr-1 hover:text-gray-900 " + (disliked ? "text-gray-700" : "text-gray-500")}
+            >
+                <span className="px-1">{dislike_icon}</span>             
+                <span>{dislikeCount}</span>
             </button>
-            <div className="text-gray-600 text-sm">{dislikeCount}</div>
         </div>
     </div>
 }

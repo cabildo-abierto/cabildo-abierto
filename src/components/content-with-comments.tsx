@@ -83,6 +83,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
             onStartReply={() => {setWritingReply(!writingReply)}}
             entity={entity}
             isPostPage={isPostPage}
+            viewingComments={viewComments}
         />
         {isPostPage && <hr/>}
         <div className="">
