@@ -18,7 +18,7 @@ export const Home: React.FC = () => {
                     </div>
                     <div className="flex flex-col justify-center items-start">
                         <div>La plataforma está en período de prueba.</div>
-                        <div>Escribinos a <span className="italic">contacto@cabildoabierto.com</span></div>
+                        <div>Escribinos a <span className="italic">contacto@cabildoabierto.com.ar</span></div>
                     </div>
                 </div>
             </div>
