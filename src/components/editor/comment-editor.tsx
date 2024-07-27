@@ -9,7 +9,7 @@ import {
 import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
 import { fastEditorBlockToolbar, fastEditorPlugins } from './fast-editor';
-import { linkConfig } from './markdown-editor';
+import { linkConfig, mentionConfig } from './markdown-editor';
 import { useUser } from '../user-provider';
 import { validSubscription } from '../utils';
 import { UserProps } from '@/actions/get-user';
@@ -33,6 +33,7 @@ export default function CommentEditor({onSubmit, onCancel=null}: any) {
         translations: [
             coreTranslations
         ],
+		mention: mentionConfig,
 		licenseKey: "RWU3cVZxZGdGQnJxb0lQdkJHckRwZ3VQYkNZV1FzdnUrbTFVbDMwaHZVOW5OL2ZxdTRKSUxNK3liWU9VVHc9PS1NakF5TkRBNE1qRT0="
 	};
 

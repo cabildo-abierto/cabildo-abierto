@@ -12,13 +12,13 @@ export const Home: React.FC = () => {
                         <button className="large-btn">¿Qué es Cabildo Abierto?</button>
                     </Link>
                 </div>
-                <div className="text-gray-700 flex items-center justify-center border w-96 mx-auto p-4">
+                <div className="text-gray-700 flex items-center justify-center border w-128 mx-auto p-4">
                     <div className="mr-2">
                         <ConstructionIcon fontSize="large" />
                     </div>
                     <div className="flex flex-col justify-center items-start">
-                        <div>La plataforma está en período de prueba.</div>
-                        <div>Escribinos a <span className="italic">contacto@cabildoabierto.com.ar</span></div>
+                        <div>La plataforma está en período de prueba cerrado.</div>
+                        <div>Escribinos a <span className="">contacto@cabildoabierto.com.ar</span></div>
                     </div>
                 </div>
             </div>
