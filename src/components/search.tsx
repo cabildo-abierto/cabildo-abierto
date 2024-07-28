@@ -38,8 +38,10 @@ export function searchContents(value: string, contents: ContentProps[]) {
 
     contents.forEach(function(item){
         if(item.type == "Post" || item.type == "Comment" || item.type == "FastPost"){
-            let d = dist(value, item.text)
-            dists.push({id: item.id, dist: d})
+            if(!item.isDraft){
+                let d = dist(value, item.text)
+                dists.push({id: item.id, dist: d})
+            }
         }
     })
 
