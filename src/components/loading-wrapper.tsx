@@ -24,7 +24,7 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchUser() {
             if (user === undefined) {
-                console.log("updating user")
+                // console.log("updating user")
                 setUser(await getUser());
             }
         }
@@ -35,7 +35,7 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchEntities() {
             if (entities === undefined) {
-                console.log("updating entities")
+                // console.log("updating entities")
                 setEntities(await getEntitiesMap())
             }
         }
@@ -46,7 +46,7 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchContents() {
             if (contents === undefined) {
-                console.log("updating contents")
+                // console.log("updating contents")
                 setContents(await getContentsMap())
             }
         }
@@ -57,7 +57,7 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchUsers() {
             if (users === undefined) {
-                console.log("updating users")
+                // console.log("updating users")
                 setUsers(await getUsersMap())
             }
         }
@@ -68,7 +68,7 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchPoolSize() {
             if (poolSize === undefined) {
-                console.log("updating pool size")
+                // console.log("updating pool size")
                 setPoolSize(await getSubscriptionPoolSize())
             }
         }
@@ -79,7 +79,7 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchPrice() {
             if (price === undefined) {
-                console.log("updating price")
+                // console.log("updating price")
                 setPrice(await getSubscriptionPrice())
             }
         }
