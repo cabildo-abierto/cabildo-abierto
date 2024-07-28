@@ -32,8 +32,17 @@ h3 {
 
 .ck-content a {
     color: #3498db;
+	/*color: #5e5e61;*/
     text-decoration: none;
-    font-weight: bold;
+    /*font-weight: bold;*/
+}
+
+.blue-links a {
+    color: #3498db;
+	/*color: #5e5e61;
+    color: #242c4f;*/
+    text-decoration: none;
+    font-weight: bold
 }
 
 .ck-content h1 {
@@ -107,12 +116,6 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 
 .blue-button:hover {
     background-color: #2563EB;
-}
-
-.blue-links a {
-    color: #3498db;
-    text-decoration: none;
-    font-weight: bold;
 }
 
 .ck-content a:hover {
