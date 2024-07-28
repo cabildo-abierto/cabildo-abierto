@@ -16,7 +16,7 @@ const ContentPage: React.FC<{params: any}> = ({params}) => {
 
     const parentContent = contents[params?.id]
 
-    if(!parentContent){
+    if(!parentContent || parentContent.isDraft){
         return <ErrorPage>No se encontró el contenido</ErrorPage>
     }
 

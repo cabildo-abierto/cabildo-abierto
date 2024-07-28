@@ -5,10 +5,12 @@ import { useUser } from "./user-provider"
 import { useContents } from "./use-contents"
 import { useUsers } from "./use-users"
 import { useEntities } from "./use-entities"
-import { updateContents, updateEntities, updatePoolSize, updatePrice, updateUser, updateUsers } from "./update-context"
 import { useEffect } from "react"
 import { usePrice } from "./use-price"
 import { usePoolSize } from "./use-pool-size"
+import { getUser } from "@/actions/get-user"
+import { getContentsMap, getEntitiesMap, getUsersMap } from "./update-context"
+import { getSubscriptionPoolSize, getSubscriptionPrice } from "@/actions/subscriptions"
 
 
 const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
@@ -22,7 +24,8 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchUser() {
             if (user === undefined) {
-                await updateUser(setUser);
+                console.log("updating user")
+                setUser(await getUser());
             }
         }
     
@@ -32,7 +35,8 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchEntities() {
             if (entities === undefined) {
-                await updateEntities(setEntities);
+                console.log("updating entities")
+                setEntities(await getEntitiesMap())
             }
         }
     
@@ -42,7 +46,8 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchContents() {
             if (contents === undefined) {
-                await updateContents(setContents);
+                console.log("updating contents")
+                setContents(await getContentsMap())
             }
         }
     
@@ -52,7 +57,8 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchUsers() {
             if (users === undefined) {
-                await updateUsers(setUsers);
+                console.log("updating users")
+                setUsers(await getUsersMap())
             }
         }
     
@@ -62,7 +68,8 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchPoolSize() {
             if (poolSize === undefined) {
-                await updatePoolSize(setPoolSize);
+                console.log("updating pool size")
+                setPoolSize(await getSubscriptionPoolSize())
             }
         }
     
@@ -72,7 +79,8 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     useEffect(() => {
         async function fetchPrice() {
             if (price === undefined) {
-                await updatePrice(setPrice);
+                console.log("updating price")
+                setPrice(await getSubscriptionPrice())
             }
         }
     

@@ -9,6 +9,7 @@ import SearchSidebar from "./search-sidebar";
 import { useUsers } from "./use-users";
 import { useEntities } from "./use-entities";
 import { SearchButton } from "./top-bar";
+import { useContents } from "./use-contents";
 
 
 
@@ -28,12 +29,16 @@ export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {
 
 
 export const EntitySearchResult: React.FC<{result: any}> = ({ result }) => {
-    const {entities, setEntities} = useEntities()
+    const {entities} = useEntities()
+    const {contents} = useContents()
+    if(!entities || !contents) return <></>
 
+    const entity = entities[result.id]
+    const content = contents[entity.contentId]
     return <div className="flex justify-center mb-2">
         <Link href={"/wiki/" + result.id.replace("@", "")}>
             <button className="border border-gray-600 rounded scale-btn px-2 w-64 text-center">
-                {entities ? entities[result.id].name : "Cargando..."}
+                {entity.name} {content.text.length == 0 ? <span className="text-red-600">(vacío)</span>: <></>} 
             </button>
         </Link>
     </div>

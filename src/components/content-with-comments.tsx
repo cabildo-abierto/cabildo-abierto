@@ -8,26 +8,10 @@ import { AuthorProps, ContentProps } from "@/actions/get-content"
 import { useUser } from "./user-provider"
 import { useContents } from "./use-contents"
 import { ErrorPage } from "./error-page"
-import { updateContents } from "./update-context"
-import SimpleCommentEditor from "./editor/simple-comment-editor"
+import { getContentsMap } from "./update-context"
 
 const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 
-function mockComment(createdAt: Date, text: string, author: AuthorProps): ContentProps {
-    return {
-        id: "mock",
-        createdAt: createdAt,
-        text: text,
-        author: author,
-        _count: {
-            likedBy: 0,
-            dislikedBy: 0
-        },
-        type: "Comment",
-        childrenComments: [],
-        isDraft: false
-    }
-}
 
 type ContentWithCommentsProps = {
     content?: ContentProps,
@@ -66,8 +50,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
         if(user){
             // const mock = mockComment(new Date(), text, {id: user.id, name: user.name})
             setWritingReply(startsOpen)
-            await createComment(text, content.id, user.id).then(() => {
-                updateContents(setContents)
+            await createComment(text, content.id, user.id).then(async () => {
+                setContents(await getContentsMap())
                 setViewComments(true)
             })
         }

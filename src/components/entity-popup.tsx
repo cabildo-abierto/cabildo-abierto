@@ -1,12 +1,16 @@
 "use client"
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { createEntityFromForm } from '@/actions/create-entity';
 import { useRouter } from 'next/navigation';
 import Popup from './popup';
 import { useContents } from './use-contents';
 import { useEntities } from './use-entities';
+import NeedSubscriptionPopupPanel from './need-subscription-popup';
+import { validSubscription } from './utils';
+import { useUser } from './user-provider';
+import NeedAccountPopupPanel from './need-account-popup';
 
 
 export default function EntityPopup({disabled = false}) {
@@ -14,14 +18,17 @@ export default function EntityPopup({disabled = false}) {
   const router = useRouter()
   const {setEntities} = useEntities()
   const {setContents} = useContents()
+  const {user} = useUser()
 
-  if(state && !state.error){
-    setEntities(undefined)
-    setContents(undefined)
-    router.push("/wiki/"+state.id)
-  }
+  useEffect(() => {
+      if(state && !state.error){
+        setEntities(undefined)
+        setContents(undefined)
+        router.push("/wiki/"+state.id)
+      }
+  }, [state])
 
-  const panel: React.FC<any> = ({onClose}) => { return <>
+  const ValidPanel: React.FC<any> = ({onClose}) => { return <>
       <form action={action}>
           <div className="space-y-3">
             <h3>Crear artículo</h3>
@@ -49,6 +56,16 @@ export default function EntityPopup({disabled = false}) {
     return <button className="large-btn scale-btn" onClick={onClick} disabled={disabled}>
       Crear artículo
     </button>
+  }
+
+  let panel: React.FC<any> | null = null
+
+  if(user === null){
+      panel = NeedAccountPopupPanel
+  } else if(!validSubscription(user)){
+      panel = NeedSubscriptionPopupPanel
+  } else {
+      panel = ValidPanel
   }
 
   return <Popup Panel={panel} Trigger={trigger}/>

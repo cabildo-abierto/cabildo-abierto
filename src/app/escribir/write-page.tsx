@@ -7,7 +7,7 @@ import { ThreeColumnsLayout } from "@/components/main-layout";
 import { validFastPost, validPost } from "@/components/utils";
 import { useUser } from "@/components/user-provider";
 import { useContents } from "@/components/use-contents";
-import { updateContents } from "@/components/update-context";
+import { getContentsMap } from "@/components/update-context";
 
 
 import dynamic from "next/dynamic";
@@ -18,8 +18,8 @@ const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), {
 
 
 const Escribir: React.FC<{fast: boolean}> = ({fast}) => {
-    const {contents, setContents} = useContents()
-    const {user, setUser} = useUser()
+    const {setContents} = useContents()
+    const {user} = useUser()
     const router = useRouter()
     
     const contentType = fast ? "FastPost" : "Post"
@@ -33,7 +33,7 @@ const Escribir: React.FC<{fast: boolean}> = ({fast}) => {
         if (!success) {
             console.log("Error al publicar post :(")
         } else {
-            await updateContents(setContents)
+            setContents(await getContentsMap())
         }
     }
 

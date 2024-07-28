@@ -13,7 +13,7 @@ export type CreateEntityFormState = {
 
 export async function createEntityFromForm(state: CreateEntityFormState, formData: any): Promise<CreateEntityFormState> {
   const userId = await getUserId()
-  if(!userId) return {error: "Necesitás una cuenta para crear una entidad"}
+  if(!userId) return {error: "Necesitás una cuenta para crear un artículo"}
 
   const validatedFields = CreateEntityFormSchema.safeParse({
     name: formData.get('name'),
@@ -36,7 +36,7 @@ export async function createEntity(name: string, userId: string){
   const exists = await db.entity.findFirst({
     where: {id: entityId}
   })
-  if(exists) return {error: "Ya existe una entidad con ese nombre"}
+  if(exists) return {error: "Ya existe un artículo con ese nombre"}
 
   const content = await db.content.create({
     data: {

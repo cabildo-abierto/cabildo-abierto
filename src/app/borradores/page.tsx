@@ -13,7 +13,7 @@ import { UserProps } from "@/actions/get-user";
 const DraftButton: React.FC<{draft: ContentProps, index: number}> = ({draft, index}) => {
     return <div>
         <div className="panel">
-            <div className="px-2 py-2">
+            <div className="px-2 py-2 ck-content">
                 <HtmlContent content={draft.text} limitHeight={true}/>
             </div>
             <div className="flex justify-end">

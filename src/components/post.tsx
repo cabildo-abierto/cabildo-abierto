@@ -9,14 +9,14 @@ export const Post: React.FC<{content: ContentProps}> = ({content}) => {
     const title = split ? "<h1>"+split.title+"</h1>" : "<h1>Error al cargar el título</h1>"
     const text = split ? split.text : content.text
 
-    return <div className="bg-white">
+    return <div className="bg-white ck-content">
         <HtmlContent content={title}/>
-        <div className="flex justify-between ck-content">
+        <div className="flex justify-between">
             <div className="py-2 blue-links">Por <Link href={"/perfil/"+content.author?.id.slice(1)}>{content.author?.name}</Link></div>
             <DateComponent date={content.createdAt}/>
         </div>
         <div className="min-h-64">
-        <HtmlContent content={text}/>
+            <HtmlContent content={text}/>
         </div>
         <hr/>
     </div>

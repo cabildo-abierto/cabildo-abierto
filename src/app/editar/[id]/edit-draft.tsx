@@ -1,7 +1,7 @@
 "use client"
 import { publishDraft, updateContent } from "@/actions/create-content";
 import { ContentProps } from "@/actions/get-content";
-import { updateContents } from "@/components/update-context";
+import { getContentsMap } from "@/components/update-context";
 import { useContents } from "@/components/use-contents";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -17,16 +17,14 @@ export default function EditDraftPage({content}: {content: ContentProps}) {
 
     const handleCreate = async (text: string) => {
         await publishDraft(text, content.id)
-        await updateContents(setContents).then(() => {
-            router.push("/borradores")
-        })
+        setContents(await getContentsMap())
+        router.push("/borradores")
     }
 
     const handleSaveDraft = async (text: string) => {
         await updateContent(text, content.id)
-        await updateContents(setContents).then(() => {
-            router.push("/borradores")
-        })
+        setContents(await getContentsMap())
+        router.push("/borradores")
     }
 
     return <>

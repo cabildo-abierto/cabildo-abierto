@@ -1,10 +1,9 @@
 "use client"
 
+import { getUser } from "@/actions/get-user";
 import { buyAndUseSubscription, donateSubscriptions } from "@/actions/subscriptions";
-import { ErrorPage } from "@/components/error-page";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import PayButton from "@/components/pay-button";
-import { updateUser } from "@/components/update-context";
 import { useUser } from "@/components/user-provider";
 import { validSubscription } from "@/components/utils";
 import Link from "next/link";
@@ -25,10 +24,10 @@ export default function PagoUnico({params}: any) {
         if(!activeSubscription) {
             await buyAndUseSubscription(user.id)
             await donateSubscriptions(params.amount-1, user.id)
-            await updateUser(setUser)
+            setUser(await getUser())
         } else {
             await donateSubscriptions(params.amount, user.id)
-            await updateUser(setUser)
+            setUser(await getUser())
         }
         setPaying(false)
         router.push("/inicio")
