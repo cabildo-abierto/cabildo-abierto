@@ -98,8 +98,8 @@ export default class LinkUI extends Plugin {
 
 		// Fill the form using the state (value) of the command.
 		if ( commandValue) {
-			this.formView.textInputView.fieldView.value = commandValue.text;
-			this.formView.urlInputView.fieldView.value = commandValue.link;
+			this.formView.textInputView.fieldView.set("value", commandValue.text);
+			this.formView.urlInputView.fieldView.set("value", commandValue.link);
 		}
 
 		// If the command has no value, put the currently selected text (not collapsed)

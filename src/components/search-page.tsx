@@ -21,7 +21,7 @@ const SearchPage = ({searchValue}: any) => {
   const [searchType, setSearchType] = useState("users");
 
   useEffect(() => {
-    const search = async (searchValue: string) => {
+    const search = (searchValue: string) => {
       if(users) setResultsUsers(searchUsers(searchValue, Object.values(users)))
       if(contents) setResultsContents(searchContents(searchValue, Object.values(contents)))
       if(entities) setResultsEntities(searchEntities(searchValue, Object.values(entities)))

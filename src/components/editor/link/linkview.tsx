@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-import { searchEntities } from '@/actions/search';
+"use client"
 import {
 	ButtonView,
 	FocusCycler,
@@ -19,6 +19,8 @@ import {
 } from 'ckeditor5';
 
 import './formview.css'
+import { searchEntities } from '@/actions/search';
+import { debounce } from '@mui/material';
 
 
 class SearchResultsView extends View {
@@ -61,6 +63,7 @@ export default class FormView extends View {
 	private _focusCycler: FocusCycler;
 	childViews: ViewCollection<any>;
 	constructor(locale: any) {
+
 		super(locale);
 
 		this.focusTracker = new FocusTracker();
@@ -69,7 +72,7 @@ export default class FormView extends View {
 		this.textInputView = this._createInput('Texto');
 		this.urlInputView = this._createInput('Entidad');
 
-		this.urlInputView.fieldView.on("input", async () => {
+		const updateList = async () => {
 			const value = this.urlInputView.fieldView.element.value;
 			const results = (await searchEntities(value)).slice(0, 5);
 
@@ -86,7 +89,10 @@ export default class FormView extends View {
 			})
 
 			this.resultsContainerView.update(buttons)
-		})
+		}
+
+		//this.urlInputView.fieldView.on("input", updateList)
+		this.urlInputView.fieldView.on("set", debounce(updateList))
 		this.saveButtonView = this._createButton('Save', icons.check, 'ck-button-save');
 
 		// Submit type of the button will trigger the submit event on entire form when clicked 
