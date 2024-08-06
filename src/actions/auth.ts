@@ -14,8 +14,8 @@ import { getUserById } from './get-user';
 
 
 export const verifySession = async () => {
-  const cookie = cookies().get('session')?.value
-  return await decrypt(cookie)
+    const cookie = cookies().get('session')?.value
+    return await decrypt(cookie)
 }
 
 type LoginFormState = {

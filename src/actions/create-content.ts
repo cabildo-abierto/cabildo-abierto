@@ -2,7 +2,6 @@
 
 import {db} from "@/db";
 import { ContentType } from "@prisma/client";
-import { ContentProps, getContentById } from "./get-content";
 
 
 export async function createComment(text: string, parentContentId: string, userId: string) {
