@@ -11,6 +11,8 @@ import { getContentsMap } from "@/components/update-context";
 
 
 import dynamic from "next/dynamic";
+import PostEditorLexical from "@/components/editor/post-editor-lexical";
+import FastEditorLexical from "@/components/editor/fast-editor-lexical";
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
 
@@ -47,11 +49,11 @@ const Escribir: React.FC<{fast: boolean}> = ({fast}) => {
     }
 
     const center = <>
-        {fast ? <FastEditor
+        {fast ? <PostEditorLexical
             onSubmit={handleCreate}
             onSaveDraft={handleSaveDraft}
         />: 
-        <PostEditor
+        <PostEditorLexical
             onSubmit={handleCreate}
             onSaveDraft={handleSaveDraft}
         />
