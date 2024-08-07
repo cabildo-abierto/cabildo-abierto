@@ -19,6 +19,7 @@ type ContentWithCommentsProps = {
     isPostPage?: boolean
 }
 
+
 export function getListOfComments(contents: Record<string, ContentProps>, content: ContentProps){
     const comments: ContentProps[] = []
     content.childrenComments.forEach((comment) => {
@@ -26,6 +27,7 @@ export function getListOfComments(contents: Record<string, ContentProps>, conten
     })
     return comments
 }
+
 
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content=null, entity=null, isPostPage=false}) => {
     const startsOpen = (content && content.type == "Post" && isPostPage) || entity
