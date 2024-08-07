@@ -1,7 +1,8 @@
 "use client"
+
 import React from "react";
 import Link from "next/link";
-import { AuthorProps, ContentProps } from "@/actions/get-content"
+import { ContentProps } from "@/actions/get-content"
 
 import HtmlContent from "./editor/ckeditor-html-content";
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
@@ -11,10 +12,9 @@ import { DateAndTimeComponent, DateComponent } from "./date";
 import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
 import EntityComponent from "@/components/entity-component";
-import { useRouter } from "next/navigation";
-
 import BoltIcon from '@mui/icons-material/Bolt';
 import ArticleIcon from '@mui/icons-material/Article';
+import { useRouter } from "next/navigation";
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -80,6 +80,7 @@ type ContentComponentProps = {
 
 const ContentComponent: React.FC<ContentComponentProps> = ({content, onViewComments, onStartReply, viewingComments, entity=null, isPostPage=false}) => {
     const router = useRouter()
+    
     if(content.type == "Post" && isPostPage){
         return <Post content={content}/>
     } else if(content.type == "EntityContent"){

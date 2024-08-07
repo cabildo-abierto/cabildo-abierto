@@ -1,10 +1,10 @@
 "use client"
 import React from "react"
 import { ContentWithComments } from "./content-with-comments";
-import { ContentAndChildrenProps, ContentProps } from "@/actions/get-content";
-import { useContents } from "./use-contents";
-import { useUser } from "./user-provider";
+import { ContentProps } from "@/actions/get-content";
 import { UserProps } from "@/actions/get-user";
+import { useUser } from "./user-provider";
+import { ErrorPage } from "./error-page";
 
 
 export function feedFromContents(contents: Record<string, ContentProps>){
@@ -48,19 +48,16 @@ export function profileFeedFromContents(contents: Record<string, ContentProps>, 
 }
 
 
-const Feed: React.FC<any> = ({onlyFollowing=false, userProfile=null}) => {
-    const {contents, setContents} = useContents()
-    const {user, setUser} = useUser()
+const Feed: React.FC<any> = ({contents, onlyFollowing=false, userProfile=null}) => {
+    const {user} = useUser()
 
-    if(!contents || (!user && onlyFollowing)){
-        return <div className="h-full w-full flex items-center justify-center">
-            Cargando...
-        </div>
+    if(!user){
+        return <ErrorPage>Necesitás una cuenta para ver esta página.</ErrorPage>
     }
 
     let feed: ContentProps[] = []
     if(onlyFollowing){
-        feed = followingFeedFromContents(contents, user as UserProps)
+        feed = followingFeedFromContents(contents, user)
     } else if(userProfile) {
         feed = profileFeedFromContents(contents, userProfile)
     } else {

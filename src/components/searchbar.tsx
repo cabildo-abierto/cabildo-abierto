@@ -3,46 +3,26 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
-import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchSidebar from "./search-sidebar";
 import { useUsers } from "./use-users";
-import { useEntities } from "./use-entities";
 import { SearchButton } from "./top-bar";
-import { useContents } from "./use-contents";
-
 
 
 export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {
-  const {users, setUsers} = useUsers()
+    const {users} = useUsers()
 
-  return (
-      <div className="flex justify-center mb-2">
-          <Link href={"/perfil/" + result.id.replace("@", "")}>
-              <button className="border border-gray-600 rounded scale-btn px-2 w-64 text-center">
-                  {users ? users[result.id].name : "Cargando..."}
-              </button>
-          </Link>
-      </div>
-  )
+    return (
+        <div className="flex justify-center mb-2">
+            <Link href={"/perfil/" + result.id.replace("@", "")}>
+                <button className="border border-gray-600 rounded scale-btn px-2 w-64 text-center">
+                    {users ? users[result.id].name : "Cargando..."}
+                </button>
+            </Link>
+        </div>
+    )
 }
 
-
-export const EntitySearchResult: React.FC<{result: any}> = ({ result }) => {
-    const {entities} = useEntities()
-    const {contents} = useContents()
-    if(!entities || !contents) return <></>
-
-    const entity = entities[result.id]
-    const content = contents[entity.contentId]
-    return <div className="flex justify-center mb-2">
-        <Link href={"/wiki/" + result.id.replace("@", "")}>
-            <button className="border border-gray-600 rounded scale-btn px-2 w-64 text-center">
-                {entity.name} {content.text.length == 0 ? <span className="text-red-600">(vacío)</span>: <></>} 
-            </button>
-        </Link>
-    </div>
-}
 
 export const SearchInput: React.FC<any> = ({ onChange }) => {
   const inputRef = useRef<HTMLInputElement>(null);

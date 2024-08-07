@@ -1,20 +1,12 @@
-"use client"
 import React from "react";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { ContentWithComments } from "@/components/content-with-comments";
 import { ErrorPage } from "@/components/error-page";
-import { useContents } from "@/components/use-contents";
-import LoadingPage from "@/components/loading-page";
+import { getContentById } from "@/actions/get-content";
 
 
-const ContentPage: React.FC<{params: any}> = ({params}) => {
-    const {contents, setContents} = useContents()
-
-    if(!contents){
-        return <LoadingPage/>
-    }
-
-    const parentContent = contents[params?.id]
+const ContentPage: React.FC<{params: any}> = async ({params}) => {
+    const parentContent = await getContentById(params.id)
 
     if(!parentContent || parentContent.isDraft){
         return <ErrorPage>No se encontró el contenido</ErrorPage>

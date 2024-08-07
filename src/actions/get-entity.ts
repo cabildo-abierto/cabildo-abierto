@@ -33,7 +33,7 @@ export async function getEntityById(entityId: string) {
 
 export const getEntities = cache(async () => {
     console.log("getting entities")
-    let entities: any[] = await db.entity.findMany(
+    let entities: EntityProps[] = await db.entity.findMany(
         {
             select: {
                 id: true,

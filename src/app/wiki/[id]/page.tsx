@@ -1,19 +1,17 @@
-"use client"
 import React from "react"
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import NoEntityPage from "./no-entity-page";
 import { ContentWithComments } from "@/components/content-with-comments";
-import { useEntities } from "@/components/use-entities";
-import LoadingPage from "@/components/loading-page";
 import PaywallChecker from "@/components/paywall-checker";
+import { getContentsMap, getEntitiesMap } from "@/components/update-context";
 
 
-const EntityPage: React.FC<any> = ({params}) => {
-    const {entities, setEntities} = useEntities()
-
-    if(!entities) return <LoadingPage/>
+const EntityPage: React.FC<any> = async ({params}) => {
+    const entities = await getEntitiesMap()
+    const contents = await getContentsMap()
 
     const entity = entities[params.id]
+
     if(!entity){
         return <ThreeColumnsLayout center={<NoEntityPage id={params.id}/>}/>
     }
@@ -24,7 +22,7 @@ const EntityPage: React.FC<any> = ({params}) => {
                 {entity.name}
             </h2>
         </div>
-        <ContentWithComments entity={entity}/>
+        <ContentWithComments entity={entity} content={contents[entity.contentId]}/>
     </div>
     
     if(entity.isPublic){

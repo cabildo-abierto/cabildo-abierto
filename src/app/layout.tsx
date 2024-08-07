@@ -1,7 +1,6 @@
 import { UserProvider } from "@/components/user-provider";
 import "./globals.css";
 import { PoolSizeProvider } from "@/components/use-pool-size";
-import { ContentsProvider } from "@/components/use-contents";
 import { UsersProvider } from "@/components/use-users";
 import { EntitiesProvider } from "@/components/use-entities";
 import LoadingWrapper from "@/components/loading-wrapper";
@@ -24,7 +23,6 @@ export default function RootLayout({
         <body className="">
             <UserProvider>
             <PoolSizeProvider>
-            <ContentsProvider>
             <UsersProvider>
             <EntitiesProvider>
             <LoadingWrapper>
@@ -32,7 +30,6 @@ export default function RootLayout({
             </LoadingWrapper>
             </EntitiesProvider>
             </UsersProvider>
-            </ContentsProvider>
             </PoolSizeProvider>
             </UserProvider>
         </body>

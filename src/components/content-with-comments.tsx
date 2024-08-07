@@ -1,14 +1,14 @@
 "use client"
 import CommentSection from "./comment-section"
 import ContentComponent from "./content"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { createComment } from "@/actions/create-content"
 import dynamic from "next/dynamic"
-import { AuthorProps, ContentProps } from "@/actions/get-content"
+import { ContentProps, getContentById } from "@/actions/get-content"
 import { useUser } from "./user-provider"
-import { useContents } from "./use-contents"
 import { ErrorPage } from "./error-page"
 import { getContentsMap } from "./update-context"
+
 
 const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 
@@ -28,31 +28,40 @@ export function getListOfComments(contents: Record<string, ContentProps>, conten
 }
 
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content=null, entity=null, isPostPage=false}) => {
-    const {contents, setContents} = useContents()
     const startsOpen = (content && content.type == "Post" && isPostPage) || entity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
-    const {user} = useUser()
+    const [comments, setComments] = useState<ContentProps[]>([])
 
-    if(contents && !content){
-        if(entity){
-            content = contents[entity.contentId]
-        } else {
-            return <ErrorPage>Ocurrió un error al cargar la entidad</ErrorPage>
-        }
-    } else {
-        if(!content){
-            return <>Cargando...</>
-        }    
+    const {user} = useUser()
+    
+    if(!content){
+        return <ErrorPage>Ocurrió un error al cargar la entidad</ErrorPage>   
     }
+
+    const fetchComments = async () => {
+        const contents = await getContentsMap()
+        const newContent: ContentProps | null = await getContentById(content.id)
+        if(newContent){
+            const newComments = getListOfComments(contents, newContent)
+            setComments(newComments)
+        }
+    }
+
+    useEffect(() => {
+        if(viewComments){
+            fetchComments()
+        }
+    }, [viewComments])
 
     const handleNewComment = async (text: string) => {
         if(user){
             // const mock = mockComment(new Date(), text, {id: user.id, name: user.name})
-            setWritingReply(startsOpen)
             await createComment(text, content.id, user.id).then(async () => {
-                setContents(await getContentsMap())
-                setViewComments(true)
+                await fetchComments().then(() => {
+                    setViewComments(true)
+                    setWritingReply(startsOpen)
+                })
             })
         }
     }
@@ -77,7 +86,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
                 }
             </div>}
             {(viewComments) && <div className="ml-2">
-                <CommentSection content={content}/>
+                <CommentSection comments={comments}/>
             </div>}
         </div>
     </div>

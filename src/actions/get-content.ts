@@ -1,7 +1,7 @@
 'use server'
 
 import {db} from "@/db";
-import { getUserId, UserProps } from "./get-user";
+import { UserProps } from "./get-user";
 import { cache } from "./cache";
 
 export type AuthorProps = {
@@ -28,7 +28,7 @@ export type ContentAndChildrenProps = {
     children: (ContentProps | null)[] 
 }
 
-export async function getContentById(contentId: string): Promise<ContentProps | null> {
+export const getContentById = cache(async (contentId: string) => {
     let content = await db.content.findUnique(
         {select: {
                 id: true,
@@ -51,7 +51,8 @@ export async function getContentById(contentId: string): Promise<ContentProps | 
         }
     )
     return content
-}
+}, ["content"],
+{tags: ["content"]})
 
 
 export async function getChildrenAndData(contents: any){
@@ -95,9 +96,9 @@ export const getPosts = cache(async () => {
     })
     return contents
 },
-    ["posts"],
+    ["contents"],
     {
-        tags: ["posts"]
+        tags: ["contents"]
     }
 )
 

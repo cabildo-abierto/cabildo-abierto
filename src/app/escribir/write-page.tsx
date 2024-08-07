@@ -1,13 +1,10 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { createPost } from '@/actions/create-content'
 import { useRouter } from "next/navigation";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { validFastPost, validPost } from "@/components/utils";
-import { useUser } from "@/components/user-provider";
-import { useContents } from "@/components/use-contents";
-import { getContentsMap } from "@/components/update-context";
 
 
 import dynamic from "next/dynamic";
@@ -18,29 +15,24 @@ const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), {
 
 
 const Escribir: React.FC<{fast: boolean}> = ({fast}) => {
-    const {setContents} = useContents()
-    const {user} = useUser()
     const router = useRouter()
-    
     const contentType = fast ? "FastPost" : "Post"
 
     const handleCreate = async (text: string) => {
-        if(!user) return
         if(contentType == "Post" && !validPost(text)) return
         if(contentType == "FastPost" && !validFastPost(text)) return
-        router.push("/")
-        const success = await createPost(text, contentType, false, user.id)
+        const success = await createPost(text, contentType, false)
         if (!success) {
             console.log("Error al publicar post :(")
         } else {
-            setContents(await getContentsMap())
+            // TO DO: Invalidate cache
+            router.push("/")
         }
     }
 
     const handleSaveDraft = async (text: string) => {
-        if(!user) return
         if(text.length == 0) return
-        const success = await createPost(text, contentType, true, user.id)
+        const success = await createPost(text, contentType, true)
         if (success) {
             router.push("/borradores")
         }

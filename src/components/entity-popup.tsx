@@ -5,8 +5,6 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { createEntityFromForm } from '@/actions/create-entity';
 import { useRouter } from 'next/navigation';
 import Popup from './popup';
-import { useContents } from './use-contents';
-import { useEntities } from './use-entities';
 import NeedSubscriptionPopupPanel from './need-subscription-popup';
 import { validSubscription } from './utils';
 import { useUser } from './user-provider';
@@ -16,14 +14,11 @@ import NeedAccountPopupPanel from './need-account-popup';
 export default function EntityPopup({disabled = false}) {
   const [state, action] = useFormState(createEntityFromForm, null);
   const router = useRouter()
-  const {setEntities} = useEntities()
-  const {setContents} = useContents()
   const {user} = useUser()
 
   useEffect(() => {
       if(state && !state.error){
-        setEntities(undefined)
-        setContents(undefined)
+        // TO DO: Invalidate cache
         router.push("/wiki/"+state.id)
       }
   }, [state])

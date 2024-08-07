@@ -1,11 +1,11 @@
 'use server'
 
 import {db} from "@/db";
-import {getUser} from "@/actions/get-user";
+import { revalidateTag } from "next/cache";
 
 
 export const addLike = async (contentId: string, userId: string) => {
-
+    
     await db.content.update({
         where: { id: contentId },
         data: {
@@ -14,7 +14,9 @@ export const addLike = async (contentId: string, userId: string) => {
             },
         },
     });
-    await removeDislike(contentId, userId)
+    revalidateTag("content")
+    revalidateTag("contents")
+    return await removeDislike(contentId, userId)
 }
 
 
@@ -27,13 +29,15 @@ export const addDislike = async (contentId: string, userId: string) => {
             },
         },
     });
-    await removeLike(contentId, userId)
+    const result = await removeLike(contentId, userId)
+    revalidateTag("content")
+    revalidateTag("contents")
+    return result
 }
 
 
 export const removeLike = async (contentId: string, userId: string) => {
-
-    await db.content.update({
+    const result = await db.content.update({
         where: { id: contentId },
         data: {
             likedBy: {
@@ -41,11 +45,14 @@ export const removeLike = async (contentId: string, userId: string) => {
             },
         },
     });
+    revalidateTag("content")
+    revalidateTag("contents")
+    return result
 }
 
 
 export const removeDislike = async (contentId: string, userId: string) => {
-    await db.content.update({
+    const result = await db.content.update({
         where: { id: contentId },
         data: {
             dislikedBy: {
@@ -53,4 +60,8 @@ export const removeDislike = async (contentId: string, userId: string) => {
             },
         },
     });
+
+    revalidateTag("content")
+    revalidateTag("contents")
+    return result
 }
