@@ -18,10 +18,9 @@ export default function EntityPopup({disabled = false}) {
 
   useEffect(() => {
       if(state && !state.error){
-        // TO DO: Invalidate cache
         router.push("/wiki/"+state.id)
       }
-  }, [state])
+  }, [state, router])
 
   const ValidPanel: React.FC<any> = ({onClose}) => { return <>
       <form action={action}>

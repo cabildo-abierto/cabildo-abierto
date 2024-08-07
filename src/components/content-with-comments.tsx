@@ -14,7 +14,7 @@ const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor
 
 
 type ContentWithCommentsProps = {
-    content?: ContentProps,
+    content: ContentProps,
     entity?: any,
     isPostPage?: boolean
 }
@@ -29,17 +29,13 @@ export function getListOfComments(contents: Record<string, ContentProps>, conten
 }
 
 
-export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content=null, entity=null, isPostPage=false}) => {
+export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content, entity=null, isPostPage=false}) => {
     const startsOpen = (content && content.type == "Post" && isPostPage) || entity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
     const [comments, setComments] = useState<ContentProps[]>([])
 
     const {user} = useUser()
-    
-    if(!content){
-        return <ErrorPage>Ocurrió un error al cargar la entidad</ErrorPage>   
-    }
 
     const fetchComments = async () => {
         const contents = await getContentsMap()
