@@ -3,6 +3,7 @@
 import {db} from "@/db";
 import {verifySession} from "@/actions/auth";
 import { getChildrenAndData } from "./get-content";
+import { cache } from "./cache";
 
 
 export type SubscriptionProps = {
@@ -40,7 +41,8 @@ export async function getUser() {
     return getUserById(userId)
 }
 
-export async function getUsers() {
+export const getUsers = cache(async () => {
+    console.log("getting users")
     const users: UserProps[] = await db.user.findMany(
         {
             select: {
@@ -59,7 +61,12 @@ export async function getUsers() {
         }
     )
     return users
-}
+},
+    ["users"],
+    {
+        tags: ["users"]
+    }
+)
 
 export async function getUserById(userId: string){
     const user: UserProps | null = await db.user.findUnique(

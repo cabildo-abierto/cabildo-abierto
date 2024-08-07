@@ -1,7 +1,6 @@
 'use server'
 
 import {db} from "@/db";
-import { getUserId } from "./get-user";
 
 
 export async function follow(userToFollowId: string, userId: string) {

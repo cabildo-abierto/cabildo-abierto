@@ -1,14 +1,11 @@
 "use client"
-import LoadingPage from "@/components/loading-page"
+import { getSubscriptionPrice } from "@/components/utils"
 import { ThreeColumnsLayout } from "@/components/main-layout"
 import SubscriptionOptionButton from "@/components/subscription-option-button"
-import { usePrice } from "@/components/use-price"
 import Link from "next/link"
 
 
 export default function PlanClasico() {
-    const {price, setPrice} = usePrice()
-    if(!price) return <LoadingPage/>
 
     const center = <div className="mt-8">
         <div className="flex justify-center items-center">
@@ -18,7 +15,7 @@ export default function PlanClasico() {
         </div>
 
         <div className="mt-16 flex justify-center items-center">
-            ${price} por mes.
+            ${getSubscriptionPrice()} por mes.
         </div>
 
         <div className="mt-32 flex justify-center text-gray-600">

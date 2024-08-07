@@ -39,3 +39,8 @@ export function validPost(text: string){
 export function validFastPost(text: string){
     return text.length > 0
 }
+
+
+export function getSubscriptionPrice() {
+    return 1000
+}

@@ -4,7 +4,7 @@ import { db } from '@/db';
 import {
   CreateEntityFormSchema,
 } from "@/app/lib/definitions";
-import { getUserId, UserProps } from './get-user';
+import { getUserId } from './get-user';
 
 export type CreateEntityFormState = {
   error?: any,

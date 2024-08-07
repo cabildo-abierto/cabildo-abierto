@@ -1,6 +1,7 @@
 'use server';
 
 import { db } from '@/db';
+import { cache } from './cache';
 
 
 export async function buyAndUseSubscription(userId: string) { 
@@ -49,14 +50,16 @@ export async function getDonatedSubscription(userId: string) {
     }
 }
 
-export async function getSubscriptionPoolSize() {
+export const getSubscriptionPoolSize = cache(async () => {
+    console.log("getting pool size")
     const available = await db.subscription.findMany({
         select: {id: true},
         where: {usedAt: null}
     })
     return available.length
-}
-
-export async function getSubscriptionPrice() {
-    return 1000
-}
+},
+    ["poolsize"],
+    {
+        tags: ["poolsize"]
+    }
+)

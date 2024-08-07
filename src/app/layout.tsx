@@ -1,6 +1,5 @@
 import { UserProvider } from "@/components/user-provider";
 import "./globals.css";
-import { PriceProvider } from "@/components/use-price";
 import { PoolSizeProvider } from "@/components/use-pool-size";
 import { ContentsProvider } from "@/components/use-contents";
 import { UsersProvider } from "@/components/use-users";
@@ -24,7 +23,6 @@ export default function RootLayout({
         </head>
         <body className="">
             <UserProvider>
-            <PriceProvider>
             <PoolSizeProvider>
             <ContentsProvider>
             <UsersProvider>
@@ -36,7 +34,6 @@ export default function RootLayout({
             </UsersProvider>
             </ContentsProvider>
             </PoolSizeProvider>
-            </PriceProvider>
             </UserProvider>
         </body>
     </html>

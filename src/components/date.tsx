@@ -20,7 +20,7 @@ export function DateComponent({ date }: { date: Date }) {
 // Componente para mostrar la fecha y la hora
 export function DateAndTimeComponent({ date }: { date: Date }) {
     const [localeDate, setLocaleDate] = useState('');
-
+    
     useEffect(() => {
         if(date.getFullYear() != 2024)
             setLocaleDate(format(date, "dd 'de' MMMM, HH:mm", { locale: es }));

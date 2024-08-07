@@ -1,10 +1,9 @@
 "use client"
+import { getSubscriptionPrice } from "./utils"
 import SubscriptionOptionButton from "./subscription-option-button"
-import { usePrice } from "./use-price"
 import { usePoolSize } from "./use-pool-size"
 
 const SubscriptionOptions = () => {
-    const {price, setPrice} = usePrice()
     const {poolSize, setPoolSize} = usePoolSize()
 
     const desc = <div>
@@ -29,7 +28,7 @@ const SubscriptionOptions = () => {
             <SubscriptionOptionButton
                 title="El plan clásico"
                 description={desc}
-                price={`$${price ? price : "..."}`}
+                price={`$${getSubscriptionPrice()}`}
                 href={"/suscripciones/clasico"}
             />
 
@@ -43,7 +42,7 @@ const SubscriptionOptions = () => {
             <SubscriptionOptionButton
                 title="Hacé crecer Cabildo Abierto"
                 description="Apoyá a la plataforma y a los creadores de contenido donando suscripciones."
-                price={`Desde $${price ? 2*price : "..."}`}
+                price={`Desde $${2*getSubscriptionPrice()}`}
                 href={"/suscripciones/donar"}
             />
             <div className="flex justify-center">

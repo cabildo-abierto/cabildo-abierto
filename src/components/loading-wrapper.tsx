@@ -6,12 +6,10 @@ import { useContents } from "./use-contents"
 import { useUsers } from "./use-users"
 import { useEntities } from "./use-entities"
 import { useEffect } from "react"
-import { usePrice } from "./use-price"
 import { usePoolSize } from "./use-pool-size"
 import { getUser } from "@/actions/get-user"
 import { getContentsMap, getEntitiesMap, getUsersMap } from "./update-context"
-import { getSubscriptionPoolSize, getSubscriptionPrice } from "@/actions/subscriptions"
-
+import { getSubscriptionPoolSize } from "@/actions/subscriptions"
 
 const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     const {user, setUser} = useUser()
@@ -19,7 +17,6 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     const {users, setUsers} = useUsers()
     const {entities, setEntities} = useEntities()
     const {poolSize, setPoolSize} = usePoolSize()
-    const {price, setPrice} = usePrice()
 
     useEffect(() => {
         async function fetchUser() {
@@ -75,19 +72,8 @@ const LoadingWrapper: React.FC<{children: any}> = ({children}) => {
     
         fetchPoolSize();
     }, [poolSize, setPoolSize]);
-    
-    useEffect(() => {
-        async function fetchPrice() {
-            if (price === undefined) {
-                // console.log("updating price")
-                setPrice(await getSubscriptionPrice())
-            }
-        }
-    
-        fetchPrice();
-    }, [price, setPrice]);
 
-    if(user === undefined || contents === undefined || users === undefined || entities === undefined || price === undefined || poolSize === undefined){
+    if(user === undefined || contents === undefined || users === undefined || entities === undefined || poolSize === undefined){
         return <LoadingPage/>
     } else {
         return <>{children}</>

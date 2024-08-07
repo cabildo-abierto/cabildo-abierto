@@ -2,6 +2,7 @@
 
 import {db} from "@/db";
 import { getUserId, UserProps } from "./get-user";
+import { cache } from "./cache";
 
 export type AuthorProps = {
     id: string,
@@ -62,7 +63,8 @@ export async function getChildrenAndData(contents: any){
 }
 
 
-export async function getPosts(): Promise<ContentProps[]> {
+export const getPosts = cache(async () => {
+    console.log("getting posts")
     let contents = await db.content.findMany({
         select: {
             id: true,
@@ -92,7 +94,12 @@ export async function getPosts(): Promise<ContentProps[]> {
         }
     })
     return contents
-}
+},
+    ["posts"],
+    {
+        tags: ["posts"]
+    }
+)
 
 
 export async function getPostsFollowing(user: UserProps) {
