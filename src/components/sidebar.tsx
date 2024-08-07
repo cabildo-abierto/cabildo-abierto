@@ -1,9 +1,7 @@
 "use client"
 import React from "react";
-import EntityPopup from "@/components/entity-popup";
 import { SidebarButton } from "./sidebar-button";
 import { useUser } from "./user-provider";
-import { validSubscription } from "./utils";
 import Link from "next/link";
 import { logout } from "@/actions/auth";
 import { useRouter } from "next/navigation";
@@ -12,18 +10,8 @@ import CreateIcon from '@mui/icons-material/Create';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
-import Image from "next/image"
 import InfoIcon from '@mui/icons-material/Info';
-import HelpIcon from '@mui/icons-material/Help';
 
-const CabildoAbiertoIcon: React.FC = () => {
-    return <Image
-        src="/favicon.ico"
-        alt="Cabildo Abierto"
-        width={16}
-        height={16}
-    />
-}
 
 export default function Sidebar({onClose}: any) {
     const {user, setUser} = useUser()
@@ -31,8 +19,8 @@ export default function Sidebar({onClose}: any) {
 
     const onLogout = async (e: any) => {
         await logout()
-        router.push("/");
-        setTimeout(() => {setUser(null)}, 500)
+        router.push("/")
+        setTimeout(() => {setUser(null)}, 1000) // TO DO: Esta un poco atado con alambre esto...
     }
 
     return <div className ="h-screen w-screen fixed top-0 left-0">

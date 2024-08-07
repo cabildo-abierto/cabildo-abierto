@@ -1,5 +1,7 @@
 import React, { ReactNode } from "react";
 import Bars from "./bars";
+import { UserProvider } from "./user-provider";
+import LoadingWrapper from "./loading-wrapper";
 
 type ColumnsProps = {left?: ReactNode, center?: ReactNode, right?: ReactNode, centerWidth?: number}
 
@@ -21,10 +23,13 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = (
 
 const MainLayout: React.FC<{children: ReactNode}> = async ({children}) => {
     return <>
+        <LoadingWrapper>
         <Bars/>
         <div className="mb-8">
             {children}
         </div>
+        </LoadingWrapper>
+        
     </>
 };
 

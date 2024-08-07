@@ -52,7 +52,7 @@ const Feed: React.FC<any> = ({contents, onlyFollowing=false, userProfile=null}) 
     const {user} = useUser()
 
     if(!user){
-        return <ErrorPage>Necesitás una cuenta para ver esta página.</ErrorPage>
+        return <></>
     }
 
     let feed: ContentProps[] = []

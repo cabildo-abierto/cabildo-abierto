@@ -14,7 +14,7 @@ export function ProfileHeader({profileUser}: {profileUser: UserProps}) {
             setFollowing(user.following.some((u) => u.id === profileUser.id))
     }, [user, profileUser])
 
-    if(!user) return <>Cargando...</>
+    if(!user) return <></>
 
     const doesFollow = user.following.some((u) => u.id === profileUser.id)
 

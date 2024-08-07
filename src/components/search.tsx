@@ -14,18 +14,19 @@ export async function searchUsers(value: string) {
     const dist = diceCoefficientDistance
 
     const maxDist = dist(value, '')
-    const dists: {id: string, dist: number}[] = []
+    const dists: any[] = []
     users.forEach(function(item){
         let d = 1e10
         if(item.name) {
             d = dist(value, item.name)
         }
         d = Math.min(d, dist(value, item.id))
-        dists.push({id: item.id, dist: d})
+        dists.push({id: item.id, dist: d, name: item.name})
     })
 
     dists.sort((a, b) => {return a.dist - b.dist })
     dists.filter((a) => {return a.dist < maxDist})
+
     return dists
 }
 

@@ -5,18 +5,15 @@ import Link from "next/link";
 
 import CloseIcon from '@mui/icons-material/Close';
 import SearchSidebar from "./search-sidebar";
-import { useUsers } from "./use-users";
 import { SearchButton } from "./top-bar";
 
 
 export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {
-    const {users} = useUsers()
-
     return (
         <div className="flex justify-center mb-2">
             <Link href={"/perfil/" + result.id.replace("@", "")}>
                 <button className="border border-gray-600 rounded scale-btn px-2 w-64 text-center">
-                    {users ? users[result.id].name : "Cargando..."}
+                    {result.name}
                 </button>
             </Link>
         </div>
