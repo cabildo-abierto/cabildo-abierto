@@ -7,10 +7,14 @@ export default async function PlanGratuito() {
     const poolSize = await getSubscriptionPoolSize()
 
     const center = <>
-        <div className="flex justify-center mt-8">Hay {poolSize} suscripciones disponibles para usar</div>
         <div className="flex justify-center mt-8">
-        <FreeSubscriptionButton/>
+            <p className="text-gray-900">Hay <span className="font-bold">{poolSize}</span> suscripciones disponibles en el sitio.</p>
         </div>
+        <p className="flex justify-center mt-8">
+            Fueron donadas por otros usuarios para quien lo necesite.</p>
+        <p className="flex justify-center mt-8">
+            <FreeSubscriptionButton/>
+        </p>
     </>
 
     return <ThreeColumnsLayout center={center}/>

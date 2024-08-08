@@ -25,7 +25,11 @@ const EntityPage: React.FC<any> = async ({params}) => {
                 {entity.name}
             </h2>
         </div>
-        {(user && user.editorStatus == "Administrator") && <SetProtectionButton entity={entity}/>}
+        {(user && user.editorStatus == "Administrator") &&
+        <div className="flex justify-center">
+            <SetProtectionButton entity={entity}/>
+        </div>
+        }
         <ContentWithComments
             user={user}
             content={contents[entity.contentId]}

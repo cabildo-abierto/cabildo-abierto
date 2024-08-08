@@ -20,7 +20,7 @@ const ActiveSubscription: React.FC = async () => {
         </div>
 
         <div className="flex justify-center py-8">
-            <div className="w-1/2">
+            <div className="w-1/2 flex justify-center">
                 <SubscriptionOptionButton
                     title="Donar suscripciones"
                     description="Para hacer crecer la discusión"

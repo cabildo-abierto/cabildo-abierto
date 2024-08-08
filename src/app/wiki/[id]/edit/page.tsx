@@ -31,7 +31,11 @@ const EntityPage: React.FC<any> = async ({params}) => {
         if(validSubscription(user)){
             if(hasEditPermissions(user, entity.protection)){
                 editableContent = <>
-                    <SetProtectionButton entity={entity}/>
+                    {(user && user.editorStatus == "Administrator") &&
+                    <div className="flex justify-center">
+                        <SetProtectionButton entity={entity}/>
+                    </div>
+                    }
                     <ContentWithComments
                         user={user}
                         content={contents[entity.contentId]}

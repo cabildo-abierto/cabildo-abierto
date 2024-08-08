@@ -14,7 +14,9 @@ export default async function PagoUnico({params}: any) {
     const amount = activeSubscription ? params.amount : params.amount-1
 
     const center = <>
-        <div className="flex justify-center mt-16">Acá deberías ingresar tu medio de pago si lo hubiéramos implementado</div>
+        <div className="flex justify-center mt-16">
+            Acá deberías ingresar tu medio de pago si lo hubiéramos implementado
+        </div>
         {!activeSubscription ? <div className="flex justify-center mt-16">Vas a comprar una suscripción para vos y donar 
             {params.amount == 2 ? " una suscripción" : " " + (amount).toString() + " suscripciones"}</div>
          : <div className="flex justify-center mt-16">Vas a donar

@@ -9,14 +9,20 @@ export default async function DonationPage() {
 
     const center = <div className="mt-8">
         <div className="flex justify-center items-center">
-            <h2>
+            <h3>
                 Hacé crecer a Cabildo Abierto
-            </h2>
+            </h3>
         </div>
-        <NewDonation user={user}/>
-        <div className="flex justify-end items-center mt-4">
-            <div>
-                <Link href="/suscripciones"><button className="large-btn">Volver</button></Link>
+        <div className="flex justify-center">
+            <div className="w-72 lg:w-96">
+                <NewDonation user={user}/>
+                <div className="flex justify-end items-center mt-4">
+                    <div>
+                        <Link href="/suscripciones">
+                            <button className="large-btn">Volver</button>
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

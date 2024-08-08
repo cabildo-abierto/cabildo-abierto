@@ -14,7 +14,7 @@ export const NewDonation: React.FC<any> = ({user}) => {
     const validAmount = donationAmount >= minAmount && donationAmount <= 100
 
     return <>
-        <div className="mt-16">
+        <div className="mt-16 flex justify-center">
             <DonationInput onChange={setDonationAmount} oneForYou={!activeSubscription}/>
         </div>
         {donationAmount > 100 && <div className="flex justify-center text-red-600 py-2">
@@ -26,19 +26,24 @@ export const NewDonation: React.FC<any> = ({user}) => {
         </div>
         <div className="flex justify-center items-center mt-2">
             <div className="w-full">
+            
+            <div className="flex justify-center">
             <SubscriptionOptionButton
                 title="Pago único"
                 description="Sin compromisos"
                 disabled={!validAmount}
-                href={validAmount ? ("/suscripciones/donar/pago-unico/"+donationAmount.toString()) : null}
+                href={"/suscripciones/donar/pago-unico/"+donationAmount.toString()}
             />
+            </div>
         
+            <div className="flex justify-center">
             <SubscriptionOptionButton
                 title="Pago automático"
                 description={"Próximamente"/*"Poné la tarjeta (o cualquier medio de pago) y olvidate."*/}
                 disabled={true}
-                href={validAmount ? ("/suscripciones/donar/pago-automatico/"+donationAmount.toString()) : null}
+                href={"/suscripciones/donar/pago-automatico/"+donationAmount.toString()}
             />
+            </div>
             </div>
         </div>
     </>

@@ -32,7 +32,7 @@ export const SearchInput: React.FC<any> = ({ onChange }) => {
 
   return <input
     ref={inputRef}
-    className="rounded-lg w-128 transition duration-300 focus:outline-none"
+    className="rounded-lg w-full transition duration-300 focus:outline-none"
     placeholder="buscar"
     onChange={onChange}
   />
@@ -53,12 +53,12 @@ const SearchBar: React.FC<any> = ({user, onClose}) => {
 
   return <div className="flex">
       <SearchButton disabled={true}/>
-      <SearchInput onChange={(e: any) => {setSearchValue(e.target.value)}} />
-      <CloseSearchButton onClick={onClose}/>
+      <div className="flex w-full">
+        <SearchInput onChange={(e: any) => {setSearchValue(e.target.value)}} />
+        <CloseSearchButton onClick={onClose}/>
+      </div>
       {(searchValue.length != 0) && 
-          <div className="fixed right-0 top-16 z-10">
-              <SearchSidebar user={user} searchValue={searchValue}/>
-          </div>
+          <SearchSidebar user={user} searchValue={searchValue}/>
       }
   </div>
 };

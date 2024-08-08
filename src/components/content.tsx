@@ -27,17 +27,23 @@ export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean, i
     const url = content.author  ? ("/perfil/" + encodeURIComponent(content.author?.id.slice(1))) : ""
     const onClick = stopPropagation((e: any) => {})
 
-    return <div className="flex justify-between">
-        <div className="text-gray-600 ml-2 text-sm blue-links flex items-center">
-            {icon && <span>{icon}</span>}
-            <span className="px-1">{author && <Link 
+    return <div className="text-gray-600 px-2 blue-links flex items-center">
+        {icon && <div>{icon}</div>}
+        <div>
+        {author && 
+            <span className="px-1">
+                <Link 
                 href={url} 
-                className="hover:text-gray-900"
+                className="hover:text-gray-900 lg:text-sm text-xs"
                 onClick={onClick}>
                     {content.author?.name + " " + content.author?.id}
-            </Link>}</span>
+                </Link>
+            </span>
+        }
+        <span className="text-gray-600 lg:text-sm text-xs">
+            · <DateAndTimeComponent date={content.createdAt}/>
+        </span>
         </div>
-        <div className="text-gray-600 text-sm mr-1"><DateAndTimeComponent date={content.createdAt}/></div>
     </div>
 }
 
