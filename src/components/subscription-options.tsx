@@ -1,10 +1,9 @@
-"use client"
 import { getSubscriptionPrice } from "./utils"
 import SubscriptionOptionButton from "./subscription-option-button"
-import { usePoolSize } from "./use-pool-size"
+import { getSubscriptionPoolSize } from "@/actions/subscriptions"
 
-const SubscriptionOptions = () => {
-    const {poolSize, setPoolSize} = usePoolSize()
+const SubscriptionOptions = async () => {
+    const poolSize = await getSubscriptionPoolSize()
 
     const desc = <div>
         Pagá una suscripción y llevá una suscripción
@@ -12,7 +11,7 @@ const SubscriptionOptions = () => {
 
     const desc2 = <div>
         <span>
-            Hay <span className="font-bold">{poolSize ? poolSize : "[...]"}</span> disponibles para quien lo necesite.
+            Hay <span className="font-bold">{poolSize}</span> disponibles para quien lo necesite.
         </span>
     </div>
 

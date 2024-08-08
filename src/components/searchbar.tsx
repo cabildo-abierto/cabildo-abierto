@@ -48,7 +48,7 @@ const CloseSearchButton = ({ onClick }: any) => {
 }
 
 
-const SearchBar: React.FC<any> = ({onClose}) => {
+const SearchBar: React.FC<any> = ({user, onClose}) => {
   const [searchValue, setSearchValue] = useState('')
 
   return <div className="flex">
@@ -57,7 +57,7 @@ const SearchBar: React.FC<any> = ({onClose}) => {
       <CloseSearchButton onClick={onClose}/>
       {(searchValue.length != 0) && 
           <div className="fixed right-0 top-16 z-10">
-              <SearchSidebar searchValue={searchValue}/>
+              <SearchSidebar user={user} searchValue={searchValue}/>
           </div>
       }
   </div>

@@ -1,11 +1,9 @@
 "use client"
 
-import { redirect, useRouter } from "next/navigation"
-import { useUser } from "./user-provider"
+import { useRouter } from "next/navigation"
 import { validSubscription } from "./utils"
 
-export const RedirectWrapper: React.FC<any> = ({children}) => {
-    const {user, setUser} = useUser()
+export const RedirectWrapper: React.FC<any> = ({children, user}) => {
     const router = useRouter()
 
     if(validSubscription(user)){

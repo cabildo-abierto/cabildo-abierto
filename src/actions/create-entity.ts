@@ -6,6 +6,7 @@ import {
 } from "@/app/lib/definitions";
 import { getUserId } from './get-user';
 import { revalidateTag } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 export type CreateEntityFormState = {
   error?: any,
@@ -62,7 +63,7 @@ export async function createEntity(name: string, userId: string){
 }
 
 
-export async function updateEntityContent(text: string, contentId: string) {
+export async function updateEntityContent(entityId: string, text: string, contentId: string) {
     const currentContent = await db.content.findUnique({
         where: { id: contentId },
         select: { text: true, history: true }
@@ -81,5 +82,6 @@ export async function updateEntityContent(text: string, contentId: string) {
 
     revalidateTag("contents")
     revalidateTag("content")
+    redirect("/wiki/"+encodeURIComponent(entityId))
     return result
 }

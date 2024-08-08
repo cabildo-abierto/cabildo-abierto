@@ -7,9 +7,10 @@ import { ContentWithComments } from "./content-with-comments";
 import { searchContents, searchEntities, searchUsers } from "./search";
 import { ContentProps } from "@/actions/get-content";
 import { EntitySearchResult } from "./entity-search-result";
+import ContentComponent from "./content";
 
 
-const SearchPage = ({searchValue}: any) => {
+const SearchPage = ({user, searchValue}: any) => {
   const [resultsUsers, setResultsUsers] = useState<any[]>([]);
   const [resultsContents, setResultsContents] = useState<ContentProps[]>([]);
   const [resultsEntities, setResultsEntities] = useState<any[]>([]);
@@ -43,8 +44,12 @@ const SearchPage = ({searchValue}: any) => {
     } else if (searchType == "contents") {
       return resultsContents.map((content: ContentProps) => (
         <div className="py-2" key={content.id}>
-          <ContentWithComments
+          <ContentComponent
             content={content}
+            user={user}
+            onViewComments={() => {}}
+            onStartReply={() => {}}
+            viewingComments={false}
           />
         </div>
       ))

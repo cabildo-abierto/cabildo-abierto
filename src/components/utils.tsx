@@ -1,5 +1,4 @@
 import { UserProps } from "@/actions/get-user"
-import SubscriptionCheckWrapper from "./subscription-check-wrapper"
 
 
 export const splitPost = (text: string) => {

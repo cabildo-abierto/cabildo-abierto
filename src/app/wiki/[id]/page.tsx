@@ -4,16 +4,19 @@ import NoEntityPage from "./no-entity-page";
 import { ContentWithComments } from "@/components/content-with-comments";
 import PaywallChecker from "@/components/paywall-checker";
 import { getContentsMap, getEntitiesMap } from "@/components/update-context";
+import { getUser } from "@/actions/get-user";
+import { SetProtectionButton } from "@/components/protection-button";
 
 
 const EntityPage: React.FC<any> = async ({params}) => {
     const entities = await getEntitiesMap()
     const contents = await getContentsMap()
+    const user = await getUser()
 
     const entity = entities[params.id]
 
     if(!entity){
-        return <ThreeColumnsLayout center={<NoEntityPage id={params.id}/>}/>
+        return <ThreeColumnsLayout center={<NoEntityPage user={user} id={params.id}/>}/>
     }
 
     const center = <div className="bg-white h-full">
@@ -22,7 +25,13 @@ const EntityPage: React.FC<any> = async ({params}) => {
                 {entity.name}
             </h2>
         </div>
-        <ContentWithComments entity={entity} content={contents[entity.contentId]}/>
+        {(user && user.editorStatus == "Administrator") && <SetProtectionButton entity={entity}/>}
+        <ContentWithComments
+            user={user}
+            content={contents[entity.contentId]}
+            contents={contents}
+            entity={entity} 
+        />
     </div>
     
     if(entity.isPublic){

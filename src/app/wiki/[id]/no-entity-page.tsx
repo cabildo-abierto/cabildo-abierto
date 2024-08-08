@@ -3,9 +3,8 @@
 import { createEntity } from "@/actions/create-entity"
 import NeedSubscriptionPopupPanel from "@/components/need-subscription-popup"
 import Popup from "@/components/popup"
-import { useUser } from "@/components/user-provider"
 import { validSubscription } from "@/components/utils"
-import { useRouter } from "next/navigation"
+import { redirect } from "next/navigation"
 import React from "react"
 
 const CreateEntityButton: React.FC<any> = ({onClick}) => {
@@ -17,17 +16,14 @@ const CreateEntityButton: React.FC<any> = ({onClick}) => {
     </button>
 }
 
-export default function NoEntityPage({id}: {id: string}){
-    const {user} = useUser()
-    const router = useRouter()
-
+export default function NoEntityPage({id, user}: any){
     const name = decodeURIComponent(id).replaceAll("_", " ")
     const url = "/wiki/"+id
 
     const handleCreateEntity = async () => {
         if(user) {
             await createEntity(name, user.id).then(async () => {
-                router.push(url)
+                redirect(url)
             })
         }
     }

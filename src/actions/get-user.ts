@@ -68,7 +68,7 @@ export const getUsers = cache(async () => {
     }
 )
 
-export async function getUserById(userId: string){
+export const getUserById = cache(async (userId: string) => {
     const user: UserProps | null = await db.user.findUnique(
         {
             select: {
@@ -88,7 +88,12 @@ export async function getUserById(userId: string){
         }
     )
     return user
-}
+},
+    ["user"],
+    {
+        tags: ["user"]
+    }
+)
 
 export async function getUserStatusById(userId: string){
     return await db.user.findUnique(

@@ -4,7 +4,7 @@ import { useState } from "react"
 import Feed from "./feed"
 
 
-const MainFeed = ({contents}: any) => {
+const MainFeed = ({contents, user}: any) => {
     const [following, setFollowing] = useState(false)
     return <div className="w-full bg-white h-full">
         
@@ -25,7 +25,7 @@ const MainFeed = ({contents}: any) => {
         <span className={`text-sm ${following ? 'text-blue-500' : 'text-gray-500'}`}>Siguiendo</span>
         </div>
 
-        <Feed onlyFollowing={following} contents={contents}/>
+        <Feed userFollowing={following} user={user} contents={contents}/>
     </div>
 }
 

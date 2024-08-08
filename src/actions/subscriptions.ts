@@ -2,16 +2,22 @@
 
 import { db } from '@/db';
 import { cache } from './cache';
+import { redirect } from 'next/navigation';
+import { revalidateTag } from 'next/cache';
 
 
-export async function buyAndUseSubscription(userId: string) { 
-    return await db.subscription.create({
+export async function buyAndUseSubscription(userId: string, redirect_on_done: boolean = true) { 
+    const result = await db.subscription.create({
         data: {
             userId: userId,
             boughtByUserId: userId,
             usedAt: new Date()
         }
     })
+    revalidateTag("user")
+    revalidateTag("users")
+    if(redirect_on_done)
+        redirect("/inicio")
 }
 
 export async function donateSubscriptions(n: number, userId: string) {
@@ -26,6 +32,9 @@ export async function donateSubscriptions(n: number, userId: string) {
     await db.subscription.createMany({
         data: queries
     })
+    revalidateTag("user")
+    revalidateTag("users")
+    redirect("/inicio")
 }
 
 export async function getDonatedSubscription(userId: string) {
@@ -38,7 +47,7 @@ export async function getDonatedSubscription(userId: string) {
     if(!subscription){
         return null
     } else {
-        return await db.subscription.update({
+        const result = await db.subscription.update({
             data: {
                 usedAt: new Date(),
                 userId: userId
@@ -47,6 +56,10 @@ export async function getDonatedSubscription(userId: string) {
                 id: subscription.id
             }
         })
+        revalidateTag("user")
+        revalidateTag("users")
+        redirect("/inicio")
+        return result
     }
 }
 

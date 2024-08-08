@@ -1,13 +1,14 @@
+"use client"
 
+import StateButton from "./state-button"
 
-const PayButton: React.FC<any> = ({onClick, paying=false}) => {
-    return <button 
-        className="large-btn scale-btn"
+export const PayButton: React.FC<any> = ({onClick}) => {
+    return <StateButton
         onClick={onClick}
-        disabled={paying}
-    >
-        {paying ? "Pagando..." : "Pagar"}
-    </button>
+        className="large-btn scale-btn"
+        text1={"Pagando..."}
+        text2={"Pagar"}
+    />
 }
 
 export default PayButton

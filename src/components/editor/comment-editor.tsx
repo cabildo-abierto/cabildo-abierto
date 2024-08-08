@@ -10,7 +10,6 @@ import 'ckeditor5/ckeditor5.css';
 import "./editor.css"
 import { fastEditorBlockToolbar, fastEditorPlugins } from './fast-editor';
 import { linkConfig, mentionConfig } from './markdown-editor';
-import { useUser } from '../user-provider';
 import { validSubscription } from '../utils';
 import { UserProps } from '@/actions/get-user';
 import NeedAccountPopupPanel from '../need-account-popup';
@@ -20,8 +19,7 @@ function canComment(user: UserProps | null | undefined){
 	return validSubscription(user)
 }
 
-export default function CommentEditor({onSubmit, onCancel=null}: any) {
-    const {user} = useUser()
+export default function CommentEditor({user, onSubmit, onCancel=null}: any) {
     const [editor, setEditor] = useState<BalloonEditor | null>(null);
 
 	const editorConfig = {

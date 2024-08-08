@@ -1,11 +1,12 @@
-"use client"
+import { getUser } from "@/actions/get-user";
 import "@/app/globals.css";
 import { RedirectWrapper } from "@/components/redirect-wrapper";
 import React from "react";
 
 
-export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-    return <RedirectWrapper>
+export default async function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
+    const user = await getUser()
+    return <RedirectWrapper user={user}>
         {children}
     </RedirectWrapper>
 }

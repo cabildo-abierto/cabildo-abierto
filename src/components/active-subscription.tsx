@@ -1,11 +1,10 @@
-
-import { usePoolSize } from "@/components/use-pool-size"
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import SubscriptionOptionButton from "./subscription-option-button";
+import { getSubscriptionPoolSize } from '@/actions/subscriptions';
 
-const ActiveSubscription: React.FC = () => {
-    const {poolSize} = usePoolSize()
-    
+const ActiveSubscription: React.FC = async () => {
+    const poolSize = await getSubscriptionPoolSize()
+
     return <div>
         <div className="text-gray-700 flex items-center justify-center border w-96 mx-auto p-4">
             <div className="mr-2">

@@ -7,14 +7,12 @@ import { useRouter } from 'next/navigation';
 import Popup from './popup';
 import NeedSubscriptionPopupPanel from './need-subscription-popup';
 import { validSubscription } from './utils';
-import { useUser } from './user-provider';
 import NeedAccountPopupPanel from './need-account-popup';
 
 
-export default function EntityPopup({disabled = false}) {
+export default function EntityPopup({user, disabled = false}: any) {
   const [state, action] = useFormState(createEntityFromForm, null);
   const router = useRouter()
-  const {user} = useUser()
 
   useEffect(() => {
       if(state && !state.error){

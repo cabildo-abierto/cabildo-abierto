@@ -2,13 +2,9 @@
 
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { logout } from "@/actions/auth";
 import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
-import { validSubscription } from "./utils";
-import { useUser } from "./user-provider";
-import { useRouter } from "next/navigation";
 import HomeIcon from '@mui/icons-material/Home';
 import CreateIcon from '@mui/icons-material/Create';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
@@ -65,12 +61,7 @@ export const SearchButton = ({ onClick=null, disabled=false }: any) => {
 
 
 
-function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
-    const {user, setUser} = useUser()
-    const router = useRouter()
-
-    const activeSubscription = validSubscription(user)
-
+function TopbarLoggedIn({ user, onOpenSidebar, onSearchingUpdate, searching }: any) {
     return <div className="flex items-center w-screen">
         <OpenSidebarButton onClick={onOpenSidebar} />
         {!searching &&
@@ -83,7 +74,7 @@ function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: any) {
         }
 
         {searching && 
-            <SearchBar onClose={() => { onSearchingUpdate(false) }} />
+            <SearchBar user={user} onClose={() => { onSearchingUpdate(false) }} />
         }
     </div>
 }
@@ -116,11 +107,10 @@ const TopBarLoading = () => {
 }
 
 
-export default function Topbar({ onOpenSidebar }: any) {
+export default function Topbar({ user, onOpenSidebar }: any) {
     const [barState, setBarState] = useState("top")
     const [searching, setSearching] = useState(false)
     const [prevScrollPos, setPrevScrollPos] = useState(0);
-    const {user, setUser} = useUser()
     
     useEffect(() => {
         const handleScroll = () => {
@@ -160,6 +150,7 @@ export default function Topbar({ onOpenSidebar }: any) {
         bar = <TopBarLoading/>
     } else {
         bar = <TopbarLoggedIn
+            user={user}
             onOpenSidebar={onOpenSidebar}
             onSearchingUpdate={handleSearchingUpdate}
             searching={searching}

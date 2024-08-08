@@ -1,9 +1,7 @@
-"use client"
-
 import Link from "next/link"
 import LoadingPage from "./loading-page"
-import { useUser } from "./user-provider"
 import { validSubscription } from "./utils"
+import { getUser } from "@/actions/get-user"
 
 
 const NeedAccountPaywall: React.FC<any> = ({ children }) => {
@@ -54,8 +52,8 @@ const NeedSubscriptionPaywall: React.FC<any> = ({ children }) => {
 
 
 
-const PaywallChecker: React.FC<{children: any}> = ({children}) => {
-    const {user} = useUser()
+const PaywallChecker: React.FC<{children: any}> = async ({children}) => {
+    const user = await getUser()
     if(user === null){
         return <NeedAccountPaywall>
             {children}

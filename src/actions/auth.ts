@@ -11,11 +11,13 @@ import {createSession, decrypt, SessionPayload} from "@/app/lib/session";
 import bcrypt from "bcryptjs";
 import {cookies} from "next/headers";
 import { getUserById } from './get-user';
+import { revalidateTag } from 'next/cache';
 
 
 export const verifySession = async () => {
     const cookie = cookies().get('session')?.value
-    return await decrypt(cookie)
+    const result = await decrypt(cookie)
+    return result
 }
 
 type LoginFormState = {
@@ -47,6 +49,7 @@ export async function authenticate(state: any, formData: any): Promise<LoginForm
   }
 
   await createSession(user.id)
+  revalidateTag("user")
   return { user: await getUserById(user.id)}
 }
 
@@ -106,6 +109,8 @@ export async function signup(state: any, formData: any) {
 
 export async function logout() {
     cookies().delete("session")
+    revalidateTag("user")
+    redirect("/")
 }
 
 export const findUserByEmail = async (email: string) => {

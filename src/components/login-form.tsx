@@ -5,16 +5,13 @@ import { authenticate} from '@/actions/auth';
 import { LoginButton } from "./login-button";
 import { AuthenticationFormLabel } from "../app/signup/signup-form";
 import { useRouter } from "next/navigation";
-import { useUser } from "./user-provider";
 import { validSubscription } from "./utils";
 
 export default function LoginForm() {
     const [state, action] = useFormState(authenticate, undefined)
-    const {user, setUser} = useUser();
     const router = useRouter()
 
     if(state && !state.error){
-        setUser(state.user)
         if(validSubscription(state.user)){
             router.push("/inicio")
         } else {

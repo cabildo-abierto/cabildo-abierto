@@ -5,11 +5,11 @@ import Sidebar from "./sidebar";
 import Topbar from "./top-bar";
 
 
-export default function Bars() {
+export default function Bars({user}: any) {
     const [openSidebar, setOpenSidebar] = useState(false)
 
     return <>
-        <Topbar onOpenSidebar={() => setOpenSidebar(true)}/>
-        {openSidebar && <Sidebar onClose={() => {setOpenSidebar(false)}}/>}
+        <Topbar user={user} onOpenSidebar={() => setOpenSidebar(true)}/>
+        {openSidebar && <Sidebar user={user} onClose={() => {setOpenSidebar(false)}}/>}
     </>
 }

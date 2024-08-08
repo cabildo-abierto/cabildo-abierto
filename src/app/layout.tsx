@@ -1,4 +1,3 @@
-import { UserProvider } from "@/components/user-provider";
 import "./globals.css";
 import { Metadata } from 'next'
  
@@ -16,9 +15,7 @@ export default function RootLayout({
             <link rel="icon" href="/favicon.ico" />
         </head>
         <body className="">
-            <UserProvider>
             {children}
-            </UserProvider>
         </body>
     </html>
 }
