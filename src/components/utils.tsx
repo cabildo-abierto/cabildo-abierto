@@ -1,5 +1,4 @@
 import { UserProps } from "@/actions/get-user"
-import SubscriptionCheckWrapper from "./subscription-check-wrapper"
 
 
 export const splitPost = (text: string) => {
@@ -38,4 +37,9 @@ export function validPost(text: string){
 
 export function validFastPost(text: string){
     return text.length > 0
+}
+
+
+export function getSubscriptionPrice() {
+    return 1000
 }

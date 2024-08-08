@@ -2,11 +2,15 @@
 
 import { db } from '@/db';
 import { ProtectionLevel } from '@prisma/client';
+import { revalidateTag } from 'next/cache';
 
 
 export async function setProtection(entityId: string, level: ProtectionLevel) {
-    return await db.entity.update({
+    const result = await db.entity.update({
       where: { id: entityId },
       data: { protection: level },
     });
+    revalidateTag("entity")
+    revalidateTag("entities")
+    return result
 }

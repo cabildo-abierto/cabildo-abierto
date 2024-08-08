@@ -4,7 +4,9 @@ import { db } from '@/db';
 import {
   CreateEntityFormSchema,
 } from "@/app/lib/definitions";
-import { getUserId, UserProps } from './get-user';
+import { getUserId } from './get-user';
+import { revalidateTag } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 export type CreateEntityFormState = {
   error?: any,
@@ -53,24 +55,33 @@ export async function createEntity(name: string, userId: string){
       contentId: content.id
     }
   })
+  revalidateTag("contents")
+  revalidateTag("content")
+  revalidateTag("entities")
+  revalidateTag("entity")
   return {id: entityId}
 }
 
 
-export async function updateEntityContent(text: string, contentId: string) {
+export async function updateEntityContent(entityId: string, text: string, contentId: string) {
     const currentContent = await db.content.findUnique({
-      where: { id: contentId },
-      select: { text: true, history: true }
+        where: { id: contentId },
+        select: { text: true, history: true }
     });
     if(!currentContent){
-      return null
+        return null
     }
 
-    return await db.content.update({
+    const result = await db.content.update({
       where: { id: contentId },
       data: { 
         text: text,
         history: [...currentContent?.history, currentContent.text]
       },
     });
+
+    revalidateTag("contents")
+    revalidateTag("content")
+    redirect("/wiki/"+encodeURIComponent(entityId))
+    return result
 }

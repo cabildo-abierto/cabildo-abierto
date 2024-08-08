@@ -2,9 +2,14 @@
 
 import {db} from "@/db";
 import { ContentType } from "@prisma/client";
+import { getUserId } from "./get-user";
+import { revalidateTag } from "next/cache";
 
 
-export async function createComment(text: string, parentContentId: string, userId: string) {
+export async function createComment(text: string, parentContentId: string, userId: string | null = null) {
+    if(!userId){
+        userId = await getUserId()
+    }
 
     const comment = await db.content.create({
         data: {
@@ -14,14 +19,19 @@ export async function createComment(text: string, parentContentId: string, userI
             type: "Comment"
         },
     })
+    revalidateTag("contents")
+    revalidateTag("content")
     return // await getContentById(comment.id) as ContentProps
 }
 
 
 
-export async function createPost(text: string, postType: ContentType, isDraft: boolean, userId: string) {
+export async function createPost(text: string, postType: ContentType, isDraft: boolean, userId: string | null = null) {
+    if(!userId){
+        userId = await getUserId()
+    }
 
-    return await db.content.create({
+    const result = await db.content.create({
         data: {
             text: text,
             authorId: userId,
@@ -29,6 +39,10 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
             isDraft: isDraft
         },
     })
+
+    revalidateTag("contents")
+    revalidateTag("content")
+    return result
 }
 
 
@@ -43,6 +57,8 @@ export async function updateContent(text: string, contentId: string) {
         }
     })
 
+    revalidateTag("contents")
+    revalidateTag("content")
     return true
 }
 
@@ -59,6 +75,7 @@ export async function publishDraft(text: string, contentId: string) {
             createdAt: new Date()
         }
     })
-
+    revalidateTag("contents")
+    revalidateTag("content")
     return true
 }

@@ -1,3 +1,5 @@
+"use client"
+
 import { ReactNode, useEffect, useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import { Modal as BaseModal } from '@mui/base';

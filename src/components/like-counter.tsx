@@ -5,15 +5,13 @@ import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import { addDislike, addLike, removeLike, removeDislike } from "@/actions/likes";
 import { stopPropagation } from "./utils";
-import { useUser } from "./user-provider";
 
-export const LikeCounter: React.FC<any> = ({content}) => {
+export const LikeCounter: React.FC<any> = ({user, content}) => {
     const [likeCount, setLikeCount] = useState(content._count.likedBy)
     const [dislikeCount, setDislikeCount] = useState(content._count.dislikedBy)
-    const {user} = useUser()
 
-    const wasLiked = user?.likes.some((c) => (c.id == content.id))
-    const wasDisliked = user?.dislikes.some((c) => (c.id == content.id))
+    const wasLiked = user?.likes.some((c: any) => (c.id == content.id))
+    const wasDisliked = user?.dislikes.some((c: any) => (c.id == content.id))
     const [liked, setLiked] = useState(wasLiked)
     const [disliked, setDisliked] = useState(wasDisliked)
     

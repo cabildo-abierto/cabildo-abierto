@@ -5,28 +5,20 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { createEntityFromForm } from '@/actions/create-entity';
 import { useRouter } from 'next/navigation';
 import Popup from './popup';
-import { useContents } from './use-contents';
-import { useEntities } from './use-entities';
 import NeedSubscriptionPopupPanel from './need-subscription-popup';
 import { validSubscription } from './utils';
-import { useUser } from './user-provider';
 import NeedAccountPopupPanel from './need-account-popup';
 
 
-export default function EntityPopup({disabled = false}) {
+export default function EntityPopup({user, disabled = false}: any) {
   const [state, action] = useFormState(createEntityFromForm, null);
   const router = useRouter()
-  const {setEntities} = useEntities()
-  const {setContents} = useContents()
-  const {user} = useUser()
 
   useEffect(() => {
       if(state && !state.error){
-        setEntities(undefined)
-        setContents(undefined)
         router.push("/wiki/"+state.id)
       }
-  }, [state])
+  }, [state, router])
 
   const ValidPanel: React.FC<any> = ({onClose}) => { return <>
       <form action={action}>

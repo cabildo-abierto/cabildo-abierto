@@ -16,6 +16,12 @@ const config= {
       maxHeight: {
         '512': '512px',
       },
+      width: {
+        '128': '32rem',
+        '72': '18rem',
+        '256': '64rem',
+        '192': '48rem'
+      }
     },
   },
   plugins: [],

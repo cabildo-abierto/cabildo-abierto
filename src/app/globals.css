@@ -194,7 +194,6 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 .subscription-btn {
 	border: 3px solid transparent;
 	font-size: 16px;
-	font-weight: 600;
 	margin-bottom: 10px;
 	padding: 12px 28px;
 	vertical-align: top;
@@ -213,6 +212,7 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 	background-color: #1b203a;
 	color: #e0e0e0;
 	transform: scale(1.05);
+	z-index: 0;
 }
 
 .styled-list {
@@ -272,6 +272,7 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 
 .scale-btn:hover {
 	transform: scale(1.05);
+	z-index: 0;
 }
 
 .panel {

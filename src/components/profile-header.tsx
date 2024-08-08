@@ -2,11 +2,9 @@
 
 import { follow, unfollow } from "@/actions/following"
 import { useEffect, useState } from "react"
-import { useUser } from "./user-provider"
 import { UserProps } from "@/actions/get-user"
 
-export function ProfileHeader({profileUser}: {profileUser: UserProps}) {
-    const {user, setUser} = useUser()
+export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user: UserProps | null}) {
     const [following, setFollowing] = useState(false)
 
     useEffect(() => {
@@ -14,7 +12,7 @@ export function ProfileHeader({profileUser}: {profileUser: UserProps}) {
             setFollowing(user.following.some((u) => u.id === profileUser.id))
     }, [user, profileUser])
 
-    if(!user) return <>Cargando...</>
+    if(!user) return <></>
 
     const doesFollow = user.following.some((u) => u.id === profileUser.id)
 

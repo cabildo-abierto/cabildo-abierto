@@ -1,7 +1,7 @@
 'use server'
 
 import {db} from "@/db";
-import { getUserId } from "./get-user";
+import { revalidateTag } from "next/cache";
 
 
 export async function follow(userToFollowId: string, userId: string) {
@@ -17,6 +17,8 @@ export async function follow(userToFollowId: string, userId: string) {
             },
         },
     });
+    revalidateTag("user")
+    revalidateTag("users")
     return updatedUser;
 }
 
@@ -35,6 +37,8 @@ export async function unfollow(userToUnfollowId: string, userId: string) {
             },
         },
     });
+    revalidateTag("user")
+    revalidateTag("users")
     return updatedUser;
 }
 

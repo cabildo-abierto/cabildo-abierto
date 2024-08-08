@@ -1,13 +1,11 @@
-"use client"
 import React from "react";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import HtmlContent from "@/components/editor/ckeditor-html-content";
 import Link from "next/link";
 import { ContentProps } from "@/actions/get-content";
-import { useContents } from "@/components/use-contents";
-import LoadingPage from "@/components/loading-page";
-import { useUser } from "@/components/user-provider";
-import { UserProps } from "@/actions/get-user";
+import { getUser, UserProps } from "@/actions/get-user";
+import { getContentsMap } from "@/components/update-context";
+import { ErrorPage } from "@/components/error-page";
 
 
 const DraftButton: React.FC<{draft: ContentProps, index: number}> = ({draft, index}) => {
@@ -37,12 +35,12 @@ function getDraftsFromContents(contents: Record<string,ContentProps>, user: User
 }
 
 
-const Drafts: React.FC = () => {
-    const {contents, setContents} = useContents()
-    const {user, setUser} = useUser()
+const Drafts: React.FC = async () => {
+    const user = await getUser()
+    const contents = await getContentsMap()
 
-    if(!contents || !user){
-        return <LoadingPage/>
+    if(!user){
+        return <ErrorPage>Necesitás una cuenta para ver esta página</ErrorPage>
     }
 
     const drafts = getDraftsFromContents(contents, user)

@@ -1,12 +1,4 @@
-import { UserProvider } from "@/components/user-provider";
 import "./globals.css";
-import { PriceProvider } from "@/components/use-price";
-import { PoolSizeProvider } from "@/components/use-pool-size";
-import { ContentsProvider } from "@/components/use-contents";
-import { UsersProvider } from "@/components/use-users";
-import { EntitiesProvider } from "@/components/use-entities";
-import LoadingWrapper from "@/components/loading-wrapper";
-
 import { Metadata } from 'next'
  
 export const metadata: Metadata = {
@@ -23,21 +15,7 @@ export default function RootLayout({
             <link rel="icon" href="/favicon.ico" />
         </head>
         <body className="">
-            <UserProvider>
-            <PriceProvider>
-            <PoolSizeProvider>
-            <ContentsProvider>
-            <UsersProvider>
-            <EntitiesProvider>
-            <LoadingWrapper>
-                {children}
-            </LoadingWrapper>
-            </EntitiesProvider>
-            </UsersProvider>
-            </ContentsProvider>
-            </PoolSizeProvider>
-            </PriceProvider>
-            </UserProvider>
+            {children}
         </body>
     </html>
 }

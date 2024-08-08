@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 
@@ -57,8 +58,6 @@ import { getUsersMatching } from '@/actions/get-user';
 
 import './markdown-editor.css';
 import InternalLink from "./link/link"
-import NeedAccountPopup from '../need-account-popup';
-import { useUser } from '../user-provider';
 
 const toolbar = {
 	items: [
@@ -145,7 +144,6 @@ const PublishButton: React.FC<any> = ({onSubmit, editor}) => {
 
 export default function MarkdownEditor({initialData, onSubmit}: any) {
     const [editor, setEditor] = useState<ClassicEditor | null>(null);
-	const {user} = useUser()
 
 	const editorConfig: EditorConfig = {
 		toolbar: toolbar,
@@ -178,8 +176,7 @@ export default function MarkdownEditor({initialData, onSubmit}: any) {
 		/>
 
 		<div className="flex justify-end mt-3">
-			{user ? <PublishButton onSubmit={onSubmit} editor={editor}/> : 
-			<NeedAccountPopup trigger={PublishButton({onSubmit: onSubmit, editor: editor})} text="Para editar el contenido es necesario tener una cuenta" />}
+			<PublishButton onSubmit={onSubmit} editor={editor}/>
 		</div>
 	</div>
 }

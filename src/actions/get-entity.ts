@@ -1,6 +1,7 @@
 'use server'
 
 import {db} from "@/db";
+import { cache } from "./cache";
 
 
 export type EntityProps = {
@@ -30,8 +31,9 @@ export async function getEntityById(entityId: string) {
 }
 
 
-export async function getEntities(): Promise<any[]> {
-    let entities: any[] = await db.entity.findMany(
+export const getEntities = cache(async () => {
+    console.log("getting entities")
+    let entities: EntityProps[] = await db.entity.findMany(
         {
             select: {
                 id: true,
@@ -46,4 +48,9 @@ export async function getEntities(): Promise<any[]> {
         }
     )
     return entities
-}
+},
+["entities"],
+    {
+        tags: ["entities"]
+    }
+)

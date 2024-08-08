@@ -1,9 +1,6 @@
-"use client"
 import React from "react"
 import { ContentWithComments } from "./content-with-comments";
-import { ContentAndChildrenProps, ContentProps } from "@/actions/get-content";
-import { useContents } from "./use-contents";
-import { useUser } from "./user-provider";
+import { ContentProps } from "@/actions/get-content";
 import { UserProps } from "@/actions/get-user";
 
 
@@ -48,19 +45,11 @@ export function profileFeedFromContents(contents: Record<string, ContentProps>, 
 }
 
 
-const Feed: React.FC<any> = ({onlyFollowing=false, userProfile=null}) => {
-    const {contents, setContents} = useContents()
-    const {user, setUser} = useUser()
-
-    if(!contents || (!user && onlyFollowing)){
-        return <div className="h-full w-full flex items-center justify-center">
-            Cargando...
-        </div>
-    }
+const Feed: React.FC<any> = ({contents, user, following=false, userProfile=null}) => {
 
     let feed: ContentProps[] = []
-    if(onlyFollowing){
-        feed = followingFeedFromContents(contents, user as UserProps)
+    if(following){
+        feed = followingFeedFromContents(contents, user)
     } else if(userProfile) {
         feed = profileFeedFromContents(contents, userProfile)
     } else {
@@ -71,7 +60,9 @@ const Feed: React.FC<any> = ({onlyFollowing=false, userProfile=null}) => {
         {feed.map((content: ContentProps, index: number) => {
             return <div key={index} className="py-1">
                 <ContentWithComments
+                    user={user}
                     content={content}
+                    contents={contents}
                 />
             </div>
         })}

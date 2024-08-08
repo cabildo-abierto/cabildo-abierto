@@ -1,7 +1,8 @@
 'use server'
 
 import {db} from "@/db";
-import { getUserId, UserProps } from "./get-user";
+import { UserProps } from "./get-user";
+import { cache } from "./cache";
 
 export type AuthorProps = {
     id: string,
@@ -27,7 +28,7 @@ export type ContentAndChildrenProps = {
     children: (ContentProps | null)[] 
 }
 
-export async function getContentById(contentId: string): Promise<ContentProps | null> {
+export const getContentById = cache(async (contentId: string) => {
     let content = await db.content.findUnique(
         {select: {
                 id: true,
@@ -50,7 +51,8 @@ export async function getContentById(contentId: string): Promise<ContentProps | 
         }
     )
     return content
-}
+}, ["content"],
+{tags: ["content"]})
 
 
 export async function getChildrenAndData(contents: any){
@@ -62,7 +64,8 @@ export async function getChildrenAndData(contents: any){
 }
 
 
-export async function getPosts(): Promise<ContentProps[]> {
+export const getPosts = cache(async () => {
+    console.log("getting posts")
     let contents = await db.content.findMany({
         select: {
             id: true,
@@ -92,7 +95,12 @@ export async function getPosts(): Promise<ContentProps[]> {
         }
     })
     return contents
-}
+},
+    ["contents"],
+    {
+        tags: ["contents"]
+    }
+)
 
 
 export async function getPostsFollowing(user: UserProps) {

@@ -1,30 +1,26 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import { EntitySearchResult, UserSearchResult } from "./searchbar";
+import { UserSearchResult } from "./searchbar";
 import SelectionComponent from "./search-selection-component";
-import { useContents } from "./use-contents";
 import { ContentWithComments } from "./content-with-comments";
 import { searchContents, searchEntities, searchUsers } from "./search";
-import { useUsers } from "./use-users";
-import { useEntities } from "./use-entities";
+import { ContentProps } from "@/actions/get-content";
+import { EntitySearchResult } from "./entity-search-result";
+import ContentComponent from "./content";
 
 
-const SearchPage = ({searchValue}: any) => {
-  const {contents, setContents} = useContents()
-  const {entities, setEntities} = useEntities()
-  const {users, setUsers} = useUsers()
-
-  const [resultsUsers, setResultsUsers] = useState<{id: string}[]>([]);
-  const [resultsContents, setResultsContents] = useState<{id: string}[]>([]);
-  const [resultsEntities, setResultsEntities] = useState<{id: string}[]>([]);
+const SearchPage = ({user, searchValue}: any) => {
+  const [resultsUsers, setResultsUsers] = useState<any[]>([]);
+  const [resultsContents, setResultsContents] = useState<ContentProps[]>([]);
+  const [resultsEntities, setResultsEntities] = useState<any[]>([]);
   const [searchType, setSearchType] = useState("users");
 
   useEffect(() => {
-    const search = (searchValue: string) => {
-      if(users) setResultsUsers(searchUsers(searchValue, Object.values(users)))
-      if(contents) setResultsContents(searchContents(searchValue, Object.values(contents)))
-      if(entities) setResultsEntities(searchEntities(searchValue, Object.values(entities)))
+    const search = async (searchValue: string) => {
+      setResultsUsers(await searchUsers(searchValue))
+      setResultsContents(await searchContents(searchValue))
+      setResultsEntities(await searchEntities(searchValue))
     }
 
     const delayDebounceFn = setTimeout(() => {
@@ -32,7 +28,7 @@ const SearchPage = ({searchValue}: any) => {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchValue, contents, entities, users]);
+  }, [searchValue]);
 
   const handleTypeChange = (t: any) => {
     setSearchType(t)
@@ -46,18 +42,21 @@ const SearchPage = ({searchValue}: any) => {
         </div>
       ))
     } else if (searchType == "contents") {
-      if(!contents) return <></>
-      return resultsContents.map((result: {id: string}) => (
-        <div className="py-2" key={result.id}>
-          <ContentWithComments
-            content={contents[result.id]}
+      return resultsContents.map((content: ContentProps) => (
+        <div className="py-2" key={content.id}>
+          <ContentComponent
+            content={content}
+            user={user}
+            onViewComments={() => {}}
+            onStartReply={() => {}}
+            viewingComments={false}
           />
         </div>
       ))
     } else {
       return resultsEntities.map((result) => (
         <div className="flex justify-center" key={result.id}>
-          <EntitySearchResult result={result}/>
+          <EntitySearchResult entity={result.entity} content={result.content}/>
         </div>
       ))
     }

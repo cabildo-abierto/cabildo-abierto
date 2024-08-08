@@ -1,29 +1,20 @@
-"use client"
-import { getUser } from "@/actions/get-user"
-import { getDonatedSubscription } from "@/actions/subscriptions"
+import { getSubscriptionPoolSize } from "@/actions/subscriptions"
+import { FreeSubscriptionButton } from "@/components/free-subcription-button"
 import { ThreeColumnsLayout } from "@/components/main-layout"
-import { usePoolSize } from "@/components/use-pool-size"
-import { useUser } from "@/components/user-provider"
-import { useRouter } from "next/navigation"
 
 
-export default function PlanGratuito() {
-    const router = useRouter()
-    const {user, setUser} = useUser()
-    const {poolSize, setPoolSize} = usePoolSize()
-
-    const handlePayment = async () => {
-        if(!user) return
-        await getDonatedSubscription(user.id)
-        setUser(await getUser())
-        router.push("/inicio")
-    }
+export default async function PlanGratuito() {
+    const poolSize = await getSubscriptionPoolSize()
 
     const center = <>
-        <div className="flex justify-center mt-8">Hay {poolSize} suscripciones disponibles para usar</div>
         <div className="flex justify-center mt-8">
-        <button className="large-btn py-16" onClick={handlePayment}>Usar una suscripción pendiente</button>
+            <p className="text-gray-900">Hay <span className="font-bold">{poolSize}</span> suscripciones disponibles en el sitio.</p>
         </div>
+        <p className="flex justify-center mt-8">
+            Fueron donadas por otros usuarios para quien lo necesite.</p>
+        <p className="flex justify-center mt-8">
+            <FreeSubscriptionButton/>
+        </p>
     </>
 
     return <ThreeColumnsLayout center={center}/>
