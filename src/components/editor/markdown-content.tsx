@@ -2,7 +2,7 @@ import React from 'react';
 import Markdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
-import { AnchorHTMLAttributes, DetailedHTMLProps } from 'react';
+import "./styles.css"
 
 interface MarkdownContentProps {
   content: string;
@@ -22,7 +22,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
   };
 
   return (
-    <div className="ck-content">
+    <div className="">
       <Markdown remarkPlugins={[remarkGfm]} components={components}>
         {content}
       </Markdown>

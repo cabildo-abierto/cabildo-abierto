@@ -1,6 +1,6 @@
 import React from "react";
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import HtmlContent from "@/components/editor/ckeditor-html-content";
+import HtmlContent from "@/components/editor/html-content";
 import Link from "next/link";
 import { ContentProps } from "@/actions/get-content";
 import { getUser, UserProps } from "@/actions/get-user";

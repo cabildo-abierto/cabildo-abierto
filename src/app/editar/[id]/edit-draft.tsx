@@ -1,9 +1,11 @@
+"use client"
+
 import { publishDraft, updateContent } from "@/actions/create-content";
 import { ContentProps } from "@/actions/get-content";
 import dynamic from "next/dynamic";
+
 import { redirect } from "next/navigation";
-const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
-const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), { ssr: false } );
+const PostEditorLexical = dynamic( () => import( '@/components/editor/post-editor-lexical' ), { ssr: false } );
 
 
 export default function EditDraftPage({content}: {content: ContentProps}) {
@@ -22,12 +24,12 @@ export default function EditDraftPage({content}: {content: ContentProps}) {
 
     return <>
         {type == "Post" ?
-            <PostEditor
+            <PostEditorLexical
                 onSubmit={handleCreate}
                 onSaveDraft={handleSaveDraft}
                 initialData={content.text}
             /> : 
-            <FastEditor
+            <PostEditorLexical
                 onSubmit={handleCreate}
                 onSaveDraft={handleSaveDraft}
                 initialData={content.text}

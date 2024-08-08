@@ -8,12 +8,9 @@ import { validFastPost, validPost } from "@/components/utils";
 
 
 import dynamic from "next/dynamic";
-import PostEditorLexical from "@/components/editor/post-editor-lexical";
-import FastEditorLexical from "@/components/editor/fast-editor-lexical";
 
-const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
+const PostEditorLexical = dynamic( () => import( '@/components/editor/post-editor-lexical' ), { ssr: false } );
 
-const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), { ssr: false } );
 
 
 const Escribir: React.FC<{fast: boolean}> = ({fast}) => {

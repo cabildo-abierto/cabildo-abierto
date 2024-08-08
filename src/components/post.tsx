@@ -1,4 +1,4 @@
-import HtmlContent from "@/components/editor/ckeditor-html-content";
+import HtmlContent from "@/components/editor/html-content";
 import { splitPost } from "@/components/utils";
 import Link from "next/link";
 import { DateComponent } from "@/components/date";

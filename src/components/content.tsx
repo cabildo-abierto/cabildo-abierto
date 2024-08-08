@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { ContentProps } from "@/actions/get-content"
 
-import HtmlContent from "./editor/ckeditor-html-content";
+import HtmlContent from "./editor/html-content";
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 
 import { splitPost, stopPropagation } from "./utils";

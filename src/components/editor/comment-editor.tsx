@@ -1,86 +1,151 @@
-import { useState, useEffect, useRef } from 'react';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import coreTranslations from 'ckeditor5/translations/es.js';
+"use client"
+import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
+import {LexicalComposer} from '@lexical/react/LexicalComposer';
+import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
+import {ContentEditable} from '@lexical/react/LexicalContentEditable';
+import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
+import {LinkPlugin} from '@lexical/react/LexicalLinkPlugin';
+import { LinkNode } from '@lexical/link';
+import {EditorRefPlugin} from '@lexical/react/LexicalEditorRefPlugin';
+import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
+import NextLink from "next/link"
+import { validPost } from '../utils';
+import { SaveDraftButton } from './save-draft-button';
+import { useEffect, useRef, useState } from 'react';
 
-import {
-	BalloonEditor,
-} from 'ckeditor5';
+import "./styles.css"
+import EditorTheme from './EditorTheme';
+import ToolbarPlugin from './plugins/ToolbarPlugin';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import {$generateNodesFromDOM} from '@lexical/html';
+import {$generateHtmlFromNodes} from '@lexical/html';
+import { $createParagraphNode, $getRoot, $insertNodes, EditorState, LexicalEditor } from 'lexical';
 
-import 'ckeditor5/ckeditor5.css';
-import "./editor.css"
-import { fastEditorBlockToolbar, fastEditorPlugins } from './fast-editor';
-import { linkConfig, mentionConfig } from './markdown-editor';
-import { validSubscription } from '../utils';
-import { UserProps } from '@/actions/get-user';
-import NeedAccountPopupPanel from '../need-account-popup';
-import Popup from '../popup';
 
-function canComment(user: UserProps | null | undefined){
-	return validSubscription(user)
+function OnChangePlugin({ onChange }: any) {
+    const [editor] = useLexicalComposerContext();
+    useEffect(() => {
+      return editor.registerUpdateListener(({editorState}) => {
+        onChange(editorState);
+      });
+    }, [editor, onChange]);
+    return null;
 }
 
-export default function CommentEditor({user, onSubmit, onCancel=null}: any) {
-    const [editor, setEditor] = useState<BalloonEditor | null>(null);
 
-	const editorConfig = {
-		plugins: fastEditorPlugins,
-		balloonToolbar: fastEditorBlockToolbar,
-		initialData: '',
-		link: linkConfig,
-		placeholder: 'Agregá un comentario...',
-        translations: [
-            coreTranslations
-        ],
-		mention: mentionConfig,
-		licenseKey: "RWU3cVZxZGdGQnJxb0lQdkJHckRwZ3VQYkNZV1FzdnUrbTFVbDMwaHZVOW5OL2ZxdTRKSUxNK3liWU9VVHc9PS1NakF5TkRBNE1qRT0="
-	};
+function CommentEditor({onSubmit, onSaveDraft, initialData=""}: any) {
+    const editorRef = useRef<LexicalEditor>(null);
+    const [editorState, setEditorState] = useState<EditorState | null>(null)
+	const [validContent, setValidContent] = useState(validPost(initialData))
 
-	async function handleSubmit(){
-		if(!editor) return
-		const data = editor.getData()
-		if(data.length == 0) return
-		await onSubmit(data)
-	}
+    
+    const editorConfig = {
+        namespace: 'React.js Demo',
+        nodes: [LinkNode],
 
-	const SendCommentButton = ({onClick}: any) => {
-		const [submitting, setSubmitting] = useState(false)
-		return <div className="px-1">
-			<button
-				onClick={async (e: any) => {setSubmitting(true); await onClick(e); setSubmitting(false)}}
-				className="small-btn scale-btn"
-				disabled={submitting}
-			>
-				{submitting ? "Enviando" : "Enviar"}
-			</button>
-		</div>
-	}
+        onError(error: Error) {
+          throw error;
+        },
+        theme: EditorTheme,
 
-	return <div className="border px-1 py-1 rounded">
-		<CKEditor
-			editor={BalloonEditor}
-			config={editorConfig}
-			onReady={setEditor}
-		/>
+        editorState: (editor: any) => {
+            const parser = new DOMParser();
+            const dom = parser.parseFromString(initialData, 'text/html');
+            const nodes = $generateNodesFromDOM(editor, dom);
+            const root = $getRoot();
+            root.clear();
+            const paragraphNode = $createParagraphNode();
+      
+            nodes.forEach((n) => paragraphNode.append(n));
+      
+            root.append(paragraphNode);
+        },
+    };
 
-		<div className="flex justify-end">
-			<div className="flex justify-end mt-3">
-				{canComment(user) ? <SendCommentButton onClick={handleSubmit}/> :
-					<Popup 
-						Trigger={SendCommentButton}
-						Panel={NeedAccountPopupPanel}
-					/>
-				}
-				{onCancel != null &&
-					<div className="px-1">
-						<button
-							onClick={onCancel}
-							className="small-btn"
-						>
-							Cancelar
-						</button>
-					</div>
-				}
-			</div>
-		</div>
-	</div>
+    const placeholder = 'Empezá a escribir tu publicación acá...';
+
+    const onChange = (e: any) => {
+        setEditorState(e)
+        setValidContent(true)
+    }
+
+    const handleSubmit = async () => {
+        if(editorState){
+            editorState.read(async () => {
+                if(editorRef.current){
+                    const data = $generateHtmlFromNodes(editorRef.current);
+                    console.log(data)
+                    await onSubmit(data)
+                }
+            });
+        }
+    }
+
+    const handleSaveDraft = async () => {
+        if(editorState){
+            editorState.read(async () => {
+                if(editorRef.current){
+                    const data = $generateHtmlFromNodes(editorRef.current);
+                    console.log(data)
+                    await onSaveDraft(data)
+                }
+            });
+        }
+    }
+
+    return <div className="flex flex-col">
+        <div className="">
+            <LexicalComposer 
+                initialConfig={editorConfig}
+            >
+            
+            <div className="flex justify-between py-2">
+                <NextLink href="/borradores" className="">
+                    <button className="px-4 py-2 gray-button">
+                        Mis borradores
+                    </button>
+                </NextLink>
+                <div className="flex ">
+                    <div className="px-2">
+                        <SaveDraftButton handleSaveDraft={handleSaveDraft} disabled={!validContent}/>
+                    </div>
+                    <button
+                        onClick={handleSubmit}
+                        disabled={!validContent}
+                        className="px-4 rounded font-bold transition duration-200 bg-blue-500 hover:bg-blue-600 text-white enabled:cursor-pointer disabled:bg-gray-400"
+                    >
+                        Publicar
+                    </button>
+                </div>
+            </div>
+
+            <div className="editor-container">
+                <ToolbarPlugin />
+                <LinkPlugin />
+                <div className="editor-inner">
+                <RichTextPlugin
+                    contentEditable={
+                    <ContentEditable
+                        className="editor-input"
+                        aria-placeholder={placeholder}
+                        placeholder={
+                            <div className="editor-placeholder">{placeholder}</div>
+                        }
+                    />
+                    }
+                    ErrorBoundary={LexicalErrorBoundary}
+                    
+                />
+                <HistoryPlugin />
+                <AutoFocusPlugin />
+                <OnChangePlugin onChange={onChange}/>
+                <EditorRefPlugin editorRef={editorRef} />
+                </div>
+            </div>
+            </LexicalComposer>
+        </div>
+    </div>
 }
+
+
+export default CommentEditor

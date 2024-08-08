@@ -1,4 +1,4 @@
-import MarkdownContent from "./editor/ckeditor-markdown-content"
+import MarkdownContent from "./editor/markdown-content"
 import Link from "next/link";
 
 
