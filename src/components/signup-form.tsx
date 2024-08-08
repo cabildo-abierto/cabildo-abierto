@@ -40,9 +40,9 @@ export default function SignupForm() {
         <div className="">
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-                    <h1 className='flex justify-center mb-3 text-2xl ck-content'>
-                        Creá tu cuenta
-                    </h1>
+                    <h3 className='flex justify-center mb-3'>
+                        Crear una cuenta
+                    </h3>
                     <div className="w-full mb-3">
                         <div>
                             <AuthenticationFormLabel text="Email" label="email"/>

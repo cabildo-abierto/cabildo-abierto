@@ -7,11 +7,11 @@ export const Presentation: React.FC = () => {
             <div className="">
                 <h1 className="text-5xl font-bold text-gray-900">Cabildo Abierto</h1>
             
-                <h3 className="mt-4 text-gray-700">Información abierta a discusión</h3>
+                <h3 className="mt-2 text-gray-700">Información abierta a discusión</h3>
             </div>
         </div>
         <div className="flex justify-center">
-            <div className="mt-8 px-4 max-w-96">
+            <div className="mt-16 px-4 max-w-96">
             <div className="text-gray-700 flex items-center border p-2">
                 <div className="mr-2">
                     <ConstructionIcon fontSize="large" />
@@ -24,7 +24,7 @@ export const Presentation: React.FC = () => {
         </div>
         <div className="flex justify-center mt-8">
             <Link href="/wiki/Cabildo_Abierto">
-                <button className="large-btn">Más información</button>
+                <button className="large-btn">¿Qué es Cabildo Abierto?</button>
             </Link>
         </div>
     </div>

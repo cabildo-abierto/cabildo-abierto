@@ -2,7 +2,7 @@ import { Presentation } from "@/app/presentation"
 import LoginForm from "./login-form"
 import Link from "next/link"
 import Footer from "./footer"
-import SignupForm from "@/app/signup/signup-form"
+import SignupForm from "@/components/signup-form"
 
 
 export const HomePage = ({signup}: {signup: boolean}) => {

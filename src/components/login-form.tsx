@@ -3,7 +3,7 @@
 import { useFormState } from "react-dom";
 import { authenticate} from '@/actions/auth';
 import { LoginButton } from "./login-button";
-import { AuthenticationFormLabel } from "../app/signup/signup-form";
+import { AuthenticationFormLabel } from "./signup-form";
 import { useRouter } from "next/navigation";
 import { validSubscription } from "./utils";
 
@@ -39,9 +39,9 @@ export default function LoginForm() {
         <div className="">
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-                    <h1 className='mb-3 text-2xl'>
-                        Iniciá sesión
-                    </h1>
+                    <h3 className='flex justify-center mb-3'>
+                        Iniciar sesión
+                    </h3>
                     <div className="w-full pb-4">
                         <div>
                             <AuthenticationFormLabel text="Email" label="email"/>
