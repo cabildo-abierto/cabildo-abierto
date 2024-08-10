@@ -43,6 +43,7 @@ function TextFormatFloatingToolbar({
   isSubscript,
   isSuperscript,
   setIsLinkEditMode,
+  settings,
 }: {
   editor: LexicalEditor;
   anchorElem: HTMLElement;
@@ -55,8 +56,11 @@ function TextFormatFloatingToolbar({
   isSuperscript: boolean;
   isUnderline: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
+  settings: any
 }): JSX.Element {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
+
+  const {isComment, useSuperscript, useSubscript, useStrikethrough, useCodeblock} = settings
 
   const insertLink = useCallback(() => {
     if (!isLink) {
@@ -213,7 +217,7 @@ function TextFormatFloatingToolbar({
             aria-label="Format text to underlined">
             <i className="format underline" />
           </button>
-          <button
+          {useStrikethrough && <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
@@ -221,8 +225,8 @@ function TextFormatFloatingToolbar({
             className={'popup-item spaced ' + (isStrikethrough ? 'active' : '')}
             aria-label="Format text with a strikethrough">
             <i className="format strikethrough" />
-          </button>
-          <button
+          </button>}
+          {useSubscript && <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'subscript');
@@ -231,8 +235,8 @@ function TextFormatFloatingToolbar({
             title="Subscript"
             aria-label="Format Subscript">
             <i className="format subscript" />
-          </button>
-          <button
+          </button>}
+          {useSuperscript && <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'superscript');
@@ -241,8 +245,8 @@ function TextFormatFloatingToolbar({
             title="Superscript"
             aria-label="Format Superscript">
             <i className="format superscript" />
-          </button>
-          <button
+          </button>}
+          {useCodeblock && <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
@@ -250,7 +254,7 @@ function TextFormatFloatingToolbar({
             className={'popup-item spaced ' + (isCode ? 'active' : '')}
             aria-label="Insert code block">
             <i className="format code" />
-          </button>
+          </button>}
           <button
             type="button"
             onClick={insertLink}
@@ -260,13 +264,13 @@ function TextFormatFloatingToolbar({
           </button>
         </>
       )}
-      <button
+      {isComment && <button
         type="button"
         onClick={insertComment}
         className={'popup-item spaced insert-comment'}
         aria-label="Insert comment">
         <i className="format add-comment" />
-      </button>
+      </button>}
     </div>
   );
 }
@@ -275,6 +279,7 @@ function useFloatingTextFormatToolbar(
   editor: LexicalEditor,
   anchorElem: HTMLElement,
   setIsLinkEditMode: Dispatch<boolean>,
+  settings: any
 ): JSX.Element | null {
   const [isText, setIsText] = useState(false);
   const [isLink, setIsLink] = useState(false);
@@ -383,6 +388,7 @@ function useFloatingTextFormatToolbar(
       isUnderline={isUnderline}
       isCode={isCode}
       setIsLinkEditMode={setIsLinkEditMode}
+      settings={settings}
     />,
     anchorElem,
   );
@@ -391,10 +397,12 @@ function useFloatingTextFormatToolbar(
 export default function FloatingTextFormatToolbarPlugin({
   anchorElem = document.body,
   setIsLinkEditMode,
+  settings
 }: {
   anchorElem?: HTMLElement;
   setIsLinkEditMode: Dispatch<boolean>;
+  settings: any
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  return useFloatingTextFormatToolbar(editor, anchorElem, setIsLinkEditMode);
+  return useFloatingTextFormatToolbar(editor, anchorElem, setIsLinkEditMode, settings);
 }

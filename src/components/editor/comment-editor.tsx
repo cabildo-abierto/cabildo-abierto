@@ -23,9 +23,20 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
         showTreeView: false,
         tableCellBackgroundColor: false,
         tableCellMerge: false,
+        showActions: false,
+        showToolbar: false,
+        isComments: false,
+        isDraggableBlock: false,
+        useSuperscript: false,
+        useStrikethrough: false,
+        useSubscript: false,
+        useCodeblock: false,
+        placeholder: "Agregá un comentario..."
     }
 
-    return <LexicalEditor settings={settings}/>
+    return <div className="border rounded">
+        <LexicalEditor settings={settings}/>
+    </div>
 }
 
 

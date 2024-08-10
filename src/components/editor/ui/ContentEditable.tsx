@@ -24,6 +24,7 @@ export default function LexicalContentEditable({
 }: Props): JSX.Element {
   return (
     <ContentEditable
+      spellCheck={false}
       className={className ?? 'ContentEditable__root'}
       aria-placeholder={placeholder}
       placeholder={

@@ -29,7 +29,6 @@ import {InlineImageNode} from './InlineImageNode/InlineImageNode';
 import {KeywordNode} from './KeywordNode';
 import {LayoutContainerNode} from './LayoutContainerNode';
 import {LayoutItemNode} from './LayoutItemNode';
-import {MentionNode} from './MentionNode';
 import {PageBreakNode} from './PageBreakNode';
 import {PollNode} from './PollNode';
 import {StickyNode} from './StickyNode';
@@ -54,7 +53,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   StickyNode,
   ImageNode,
   InlineImageNode,
-  MentionNode,
   EmojiNode,
   EquationNode,
   AutocompleteNode,

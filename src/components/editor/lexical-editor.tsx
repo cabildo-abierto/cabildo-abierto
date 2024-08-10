@@ -50,12 +50,9 @@ import KeywordsPlugin from './plugins/KeywordsPlugin';
 import {LayoutPlugin} from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
-import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
 import {MaxLengthPlugin} from './plugins/MaxLengthPlugin';
-import MentionsPlugin from './plugins/MentionsPlugin';
 import PageBreakPlugin from './plugins/PageBreakPlugin';
 import PollPlugin from './plugins/PollPlugin';
-import SpeechToTextPlugin from './plugins/SpeechToTextPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
@@ -73,6 +70,9 @@ import { TableContext } from './plugins/TablePlugin';
 import { SharedAutocompleteContext } from './context/SharedAutocompleteContext';
 import { FlashMessageContext } from './context/FlashMessageContext';
 
+import {beautifulMentionsTheme} from './themes/beautiful-mentions-theme'
+import { BeautifulMentionsPlugin, createBeautifulMentionNode } from 'lexical-beautiful-mentions';
+import { CustomMentionComponent, CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './custom-mention-component';
 
 function Editor({settings}: any): JSX.Element {
   const {historyState} = useSharedHistoryContext();
@@ -88,11 +88,15 @@ function Editor({settings}: any): JSX.Element {
     shouldUseLexicalContextMenu,
     shouldPreserveNewLinesInMarkdown,
     tableCellMerge,
-    tableCellBackgroundColor
+    tableCellBackgroundColor,
+    showActions,
+    showToolbar,
+    isComments,
+    isDraggableBlock,
+    placeholder
   } = settings
 
   const isEditable = useLexicalEditable();
-  const placeholder = "Escribí tu publicación acá..."
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
   const [isSmallWidthViewport, setIsSmallWidthViewport] =
@@ -124,7 +128,7 @@ function Editor({settings}: any): JSX.Element {
 
   return (
     <>
-      {isRichText && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />}
+      {(isRichText && showToolbar) && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />}
       <div
         className={`editor-container ${showTreeView ? 'tree-view' : ''} ${
           !isRichText ? 'plain-text' : ''
@@ -137,15 +141,20 @@ function Editor({settings}: any): JSX.Element {
         <EmojiPickerPlugin />
         <AutoEmbedPlugin />
 
-        <MentionsPlugin />
+        <BeautifulMentionsPlugin
+          triggers={["@"]}
+          onSearch={queryMentions}
+          emptyComponent={EmptyMentionResults}
+          menuComponent={CustomMenuMentions}
+          menuItemComponent={CustomMenuItemMentions}
+        />
         <EmojisPlugin />
         <HashtagPlugin />
         <KeywordsPlugin />
-        <SpeechToTextPlugin />
         <AutoLinkPlugin />
-        <CommentPlugin
+        {isComments && <CommentPlugin
           providerFactory={undefined}
-        />
+        />}
         {isRichText ? (
           <>
             <HistoryPlugin externalHistoryState={historyState} />
@@ -159,7 +168,6 @@ function Editor({settings}: any): JSX.Element {
               }
               ErrorBoundary={LexicalErrorBoundary}
             />
-            <MarkdownShortcutPlugin />
             <CodeHighlightPlugin />
             <ListPlugin />
             <CheckListPlugin />
@@ -186,7 +194,7 @@ function Editor({settings}: any): JSX.Element {
             <LayoutPlugin />
             {floatingAnchorElem && !isSmallWidthViewport && (
               <>
-                <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
+                {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
                 <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
                 <FloatingLinkEditorPlugin
                   anchorElem={floatingAnchorElem}
@@ -200,6 +208,7 @@ function Editor({settings}: any): JSX.Element {
                 <FloatingTextFormatToolbarPlugin
                   anchorElem={floatingAnchorElem}
                   setIsLinkEditMode={setIsLinkEditMode}
+                  settings={settings}
                 />
               </>
             )}
@@ -222,10 +231,10 @@ function Editor({settings}: any): JSX.Element {
         {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
-        <ActionsPlugin
+        {showActions && <ActionsPlugin
           isRichText={isRichText}
           shouldPreserveNewLinesInMarkdown={shouldPreserveNewLinesInMarkdown}
-        />
+        />}
       </div>
       {showTreeView && <TreeViewPlugin />}
     </>
@@ -233,16 +242,22 @@ function Editor({settings}: any): JSX.Element {
 }
 
 
-
 const LexicalEditor = ({settings}: any) => {
     const initialConfig = {
         editorState: undefined,
         namespace: 'Playground',
-        nodes: [...PlaygroundNodes],
+        nodes: [
+          ...createBeautifulMentionNode(CustomMentionComponent),
+          ...PlaygroundNodes
+        ],
         onError: (error: Error) => {
           throw error;
         },
-        theme: PlaygroundEditorTheme,
+        theme: {
+          editorTheme: PlaygroundEditorTheme,
+          beautifulMentions: beautifulMentionsTheme
+        },
+
       };
 
     return <FlashMessageContext>

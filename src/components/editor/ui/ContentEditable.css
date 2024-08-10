@@ -6,14 +6,20 @@
  *
  *
  */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .ContentEditable__root {
   border: 0;
-  font-size: 15px;
   display: block;
   position: relative;
   outline: 0;
-  padding: 8px 28px 40px;
+  padding: 8px 28px 8px;
   min-height: 150px;
+	font-size: large;
+	line-height: 1.6;
+	word-break: break-word;
 }
 @media (max-width: 1025px) {
   .ContentEditable__root {
@@ -23,19 +29,19 @@
 }
 
 .ContentEditable__placeholder {
-  font-size: 15px;
   color: #999;
-  overflow: hidden;
-  position: absolute;
-  text-overflow: ellipsis;
   top: 8px;
   left: 28px;
   right: 28px;
+  overflow: hidden;
+  position: absolute;
+  text-overflow: ellipsis;
   user-select: none;
   white-space: nowrap;
   display: inline-block;
   pointer-events: none;
 }
+
 @media (max-width: 1025px) {
   .ContentEditable__placeholder {
     left: 8px;
