@@ -1090,7 +1090,7 @@ export default function ToolbarPlugin({
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {
-                    showModal('Insert Image', (onClose) => (
+                    showModal('Insert Image', (onClose: any) => (
                       <InsertImageDialog
                         activeEditor={activeEditor}
                         onClose={onClose}
@@ -1103,7 +1103,7 @@ export default function ToolbarPlugin({
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {
-                    showModal('Insert Inline Image', (onClose) => (
+                    showModal('Insert Inline Image', (onClose: any) => (
                       <InsertInlineImageDialog
                         activeEditor={activeEditor}
                         onClose={onClose}
@@ -1127,7 +1127,7 @@ export default function ToolbarPlugin({
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {
-                    showModal('Insert Table', (onClose) => (
+                    showModal('Insert Table', (onClose: any) => (
                       <InsertTableDialog
                         activeEditor={activeEditor}
                         onClose={onClose}
@@ -1140,7 +1140,7 @@ export default function ToolbarPlugin({
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {
-                    showModal('Insert Poll', (onClose) => (
+                    showModal('Insert Poll', (onClose: any) => (
                       <InsertPollDialog
                         activeEditor={activeEditor}
                         onClose={onClose}
@@ -1153,7 +1153,7 @@ export default function ToolbarPlugin({
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {
-                    showModal('Insert Columns Layout', (onClose) => (
+                    showModal('Insert Columns Layout', (onClose: any) => (
                       <InsertLayoutDialog
                         activeEditor={activeEditor}
                         onClose={onClose}
@@ -1167,7 +1167,7 @@ export default function ToolbarPlugin({
 
                 <DropDownItem
                   onClick={() => {
-                    showModal('Insert Equation', (onClose) => (
+                    showModal('Insert Equation', (onClose: any) => (
                       <InsertEquationDialog
                         activeEditor={activeEditor}
                         onClose={onClose}

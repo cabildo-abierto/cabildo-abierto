@@ -1,9 +1,7 @@
 import LexicalEditor from "./lexical-editor"
 
 
-
-
-const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
+const FastEditor = ({ onSubmit, onSaveDraft, initialData }: any) => {
 
     const isDevPlayground = false
     const settings = {
@@ -29,4 +27,4 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
 }
 
 
-export default CommentEditor
+export default FastEditor

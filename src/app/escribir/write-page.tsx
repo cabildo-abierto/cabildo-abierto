@@ -9,7 +9,7 @@ import { validFastPost, validPost } from "@/components/utils";
 
 import dynamic from "next/dynamic";
 
-const PostEditorLexical = dynamic( () => import( '@/components/editor/post-editor-lexical' ), { ssr: false } );
+const PostEditorLexical = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
 

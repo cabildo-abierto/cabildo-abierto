@@ -5,7 +5,7 @@ import { ContentProps } from "@/actions/get-content";
 import dynamic from "next/dynamic";
 
 import { redirect } from "next/navigation";
-const PostEditorLexical = dynamic( () => import( '@/components/editor/post-editor-lexical' ), { ssr: false } );
+const PostEditorLexical = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
 export default function EditDraftPage({content}: {content: ContentProps}) {

@@ -72,23 +72,24 @@ import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
 import { TableContext } from './plugins/TablePlugin';
 import { SharedAutocompleteContext } from './context/SharedAutocompleteContext';
 import { FlashMessageContext } from './context/FlashMessageContext';
-import Image from 'next/image';
 
 
-function Editor(): JSX.Element {
+function Editor({settings}: any): JSX.Element {
   const {historyState} = useSharedHistoryContext();
-  const isCollab = false
-  const isAutocomplete = true
-  const isMaxLength = false
-  const isCharLimit = false
-  const isCharLimitUtf8 = false
-  const isRichText = true
-  const showTreeView = false
-  const showTableOfContents = false
-  const shouldUseLexicalContextMenu = true
-  const shouldPreserveNewLinesInMarkdown = true
-  const tableCellMerge = false
-  const tableCellBackgroundColor = false
+
+  const {
+    isAutocomplete,
+    isMaxLength,
+    isCharLimit,
+    isCharLimitUtf8,
+    isRichText,
+    showTreeView,
+    showTableOfContents,
+    shouldUseLexicalContextMenu,
+    shouldPreserveNewLinesInMarkdown,
+    tableCellMerge,
+    tableCellBackgroundColor
+  } = settings
 
   const isEditable = useLexicalEditable();
   const placeholder = "Escribí tu publicación acá..."
@@ -233,7 +234,7 @@ function Editor(): JSX.Element {
 
 
 
-const PostEditorLexical = ({onSubmit, onSaveDraft, initialData}: any) => {
+const LexicalEditor = ({settings}: any) => {
     const initialConfig = {
         editorState: undefined,
         namespace: 'Playground',
@@ -250,7 +251,7 @@ const PostEditorLexical = ({onSubmit, onSaveDraft, initialData}: any) => {
         <TableContext>
             <SharedAutocompleteContext>
             <div className="editor-shell">
-                <Editor />
+                <Editor settings={settings}/>
             </div>
             </SharedAutocompleteContext>
         </TableContext>
@@ -260,4 +261,4 @@ const PostEditorLexical = ({onSubmit, onSaveDraft, initialData}: any) => {
 }
 
 
-export default PostEditorLexical
+export default LexicalEditor
