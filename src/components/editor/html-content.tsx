@@ -1,5 +1,4 @@
 import parse from "html-react-parser"
-import "./styles.css"
 
 export default function HtmlContent({content, limitHeight=false}: {content: string, limitHeight?: Boolean}) {
     if(limitHeight){

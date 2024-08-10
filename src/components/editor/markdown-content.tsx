@@ -2,7 +2,6 @@ import React from 'react';
 import Markdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
-import "./styles.css"
 
 interface MarkdownContentProps {
   content: string;
