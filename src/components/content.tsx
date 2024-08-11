@@ -1,3 +1,5 @@
+"use client"
+
 import React from "react";
 import Link from "next/link";
 import { ContentProps } from "@/actions/get-content"
@@ -12,7 +14,7 @@ import { Post } from "./post";
 import EntityComponent from "@/components/entity-component";
 import BoltIcon from '@mui/icons-material/Bolt';
 import ArticleIcon from '@mui/icons-material/Article';
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { UserProps } from "@/actions/get-user";
 
 
@@ -86,6 +88,8 @@ type ContentComponentProps = {
 
 
 const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onViewComments, onStartReply, viewingComments, entity=null, isPostPage=false, modify=false}) => {
+    const router = useRouter()
+    
     if(content.type == "Post" && isPostPage){
         return <Post content={content}/>
     } else if(content.type == "EntityContent"){
@@ -93,7 +97,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onVie
     } else if(content.type == "Post"){
         const postSplit = splitPost(content.text)
         const text = postSplit ? postSplit.title : "Error al cargar el contenido"
-        return <div className="w-full bg-white text-left cursor-pointer ck-content" onClick={() => {redirect("/contenido/"+content.id)}}>
+        return <div className="w-full bg-white text-left cursor-pointer ck-content" onClick={() => {router.push("/contenido/"+content.id)}}>
             <div className="border rounded w-full">
                 <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>}/>
                 <div className="flex items-center px-2 py-2">
@@ -116,7 +120,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onVie
     const icon = content.type == "Comment" ? null : <BoltIcon fontSize={"small"}/>
     const className = "w-full bg-white text-left cursor-pointer " + (content.type == "Comment" ? "ck-content" : "ck-content") 
 
-    return <div className={className} onClick={() => {redirect("/contenido/"+content.id)}}>
+    return <div className={className} onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">
             <ContentTopRow content={content} icon={icon}/>
             <div className="px-2 py-2">

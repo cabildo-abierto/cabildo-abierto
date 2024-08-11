@@ -43,23 +43,32 @@ h3 {
     font-weight: bold
 }
 
-.ck-content h1 {
+h1 {
+	font-size: xx-large;
+    font-weight: bold;
 	margin-bottom: 20px
 }
 
-.ck-content h2 {
+h2 {
+	font-size: x-large;
+    font-weight: bold;
   	margin-bottom: 16px
 }
 
-.ck-content h3 {
+h3 {
+	font-size: larger;
+    font-weight: bold;
   	margin-bottom: 14px
 }
 
-.ck-content h4 {
+h4 {
+	font-size: large;
+    font-weight: bold;
   	margin-bottom: 10px
 }
 
-.ck-content h5 {
+h5 {
+    font-weight: bold;
   	margin-bottom: 10px
 }
 

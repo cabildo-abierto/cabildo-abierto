@@ -13,12 +13,13 @@ import { emptyOutput } from "./comment-editor"
 import { useRouter } from "next/navigation"
 import { createPost } from "@/actions/create-content"
 import Link from "next/link"
-
+import { TitleInput } from "./title-input"
 
 const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
     const [editor, setEditor] = useState<LexicalEditor | null>(null)
     const [editorOutput, setEditorOutput] = useState<EditorState | null>(null)
     const router = useRouter()
+    const [title, setTitle] = useState("")
 
     const isDevPlayground = false
     const settings = {
@@ -54,7 +55,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
         if(editor && editorOutput){
             editorOutput.read(async () => {
                 const html = $generateHtmlFromNodes(editor, null)
-                await onSubmit(html, "Post")
+                await onSubmit("<h1>"+title+"</h1>"+html, "Post")
                 router.push("/")
             })
         }
@@ -109,6 +110,9 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
                 <SaveDraftButton onClick={handleSaveDraft}/>
 			</div>
 		</div>
+        <div className="py-4">
+        <TitleInput onChange={setTitle}/>
+        </div>
         <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
 
     </div>
