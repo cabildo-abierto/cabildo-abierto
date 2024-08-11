@@ -98,18 +98,18 @@ import {InsertTableDialog} from '../TablePlugin';
 import FontSize from './fontSize';
 
 const blockTypeToBlockName = {
-  bullet: 'Bulleted List',
+  bullet: 'Lista',
   check: 'Check List',
   code: 'Code Block',
-  h1: 'Heading 1',
-  h2: 'Heading 2',
-  h3: 'Heading 3',
-  h4: 'Heading 4',
-  h5: 'Heading 5',
-  h6: 'Heading 6',
-  number: 'Numbered List',
+  h1: 'Encabezado 1',
+  h2: 'Encabezado 2',
+  h3: 'Encabezado 3',
+  h4: 'Encabezado 4',
+  h5: 'Encabezado 5',
+  h6: 'Encabezado 6',
+  number: 'Enumerado',
   paragraph: 'Normal',
-  quote: 'Quote',
+  quote: 'Cita',
 };
 
 const rootTypeToRootName = {
@@ -302,50 +302,50 @@ function BlockFormatDropDown({
         className={'item ' + dropDownActiveClass(blockType === 'h1')}
         onClick={() => formatHeading('h1')}>
         <i className="icon h1" />
-        <span className="text">Heading 1</span>
+        <span className="text">Encabezado 1</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h2')}
         onClick={() => formatHeading('h2')}>
         <i className="icon h2" />
-        <span className="text">Heading 2</span>
+        <span className="text">Encabezado 2</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h3')}
         onClick={() => formatHeading('h3')}>
         <i className="icon h3" />
-        <span className="text">Heading 3</span>
+        <span className="text">Encabezado 3</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'bullet')}
         onClick={formatBulletList}>
         <i className="icon bullet-list" />
-        <span className="text">Bullet List</span>
+        <span className="text">Lista</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'number')}
         onClick={formatNumberedList}>
         <i className="icon numbered-list" />
-        <span className="text">Numbered List</span>
+        <span className="text">Enumerado</span>
       </DropDownItem>
-      <DropDownItem
+      {false && <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'check')}
         onClick={formatCheckList}>
         <i className="icon check-list" />
         <span className="text">Check List</span>
-      </DropDownItem>
+      </DropDownItem>}
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'quote')}
         onClick={formatQuote}>
         <i className="icon quote" />
-        <span className="text">Quote</span>
+        <span className="text">Cita</span>
       </DropDownItem>
-      <DropDownItem
+      {false && <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'code')}
         onClick={formatCode}>
         <i className="icon code" />
         <span className="text">Code Block</span>
-      </DropDownItem>
+      </DropDownItem>}
     </DropDown>
   );
 }
@@ -867,7 +867,7 @@ export default function ToolbarPlugin({
         onClick={() => {
           activeEditor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
-        title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'}
+        title={IS_APPLE ? 'Deshacer (⌘Z)' : 'Deshacer (Ctrl+Z)'}
         type="button"
         className="toolbar-item spaced"
         aria-label="Undo">
@@ -878,7 +878,7 @@ export default function ToolbarPlugin({
         onClick={() => {
           activeEditor.dispatchCommand(REDO_COMMAND, undefined);
         }}
-        title={IS_APPLE ? 'Redo (⇧⌘Z)' : 'Redo (Ctrl+Y)'}
+        title={IS_APPLE ? 'Rehacer (⇧⌘Z)' : 'Rehacer (Ctrl+Y)'}
         type="button"
         className="toolbar-item"
         aria-label="Redo">
@@ -917,6 +917,7 @@ export default function ToolbarPlugin({
         </DropDown>
       ) : (
         <>
+          {false && <>
           <FontDropDown
             disabled={!isEditable}
             style={'font-family'}
@@ -929,14 +930,14 @@ export default function ToolbarPlugin({
             editor={activeEditor}
             disabled={!isEditable}
           />
-          <Divider />
+          <Divider /></>}
           <button
             disabled={!isEditable}
             onClick={() => {
               activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
             }}
             className={'toolbar-item spaced ' + (isBold ? 'active' : '')}
-            title={IS_APPLE ? 'Bold (⌘B)' : 'Bold (Ctrl+B)'}
+            title={IS_APPLE ? 'Negrita (⌘B)' : 'Negrita (Ctrl+B)'}
             type="button"
             aria-label={`Format text as bold. Shortcut: ${
               IS_APPLE ? '⌘B' : 'Ctrl+B'
@@ -949,7 +950,7 @@ export default function ToolbarPlugin({
               activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
             }}
             className={'toolbar-item spaced ' + (isItalic ? 'active' : '')}
-            title={IS_APPLE ? 'Italic (⌘I)' : 'Italic (Ctrl+I)'}
+            title={IS_APPLE ? 'Itálica (⌘I)' : 'Itálica (Ctrl+I)'}
             type="button"
             aria-label={`Format text as italics. Shortcut: ${
               IS_APPLE ? '⌘I' : 'Ctrl+I'
@@ -962,14 +963,14 @@ export default function ToolbarPlugin({
               activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
             }}
             className={'toolbar-item spaced ' + (isUnderline ? 'active' : '')}
-            title={IS_APPLE ? 'Underline (⌘U)' : 'Underline (Ctrl+U)'}
+            title={IS_APPLE ? 'Subrayado (⌘U)' : 'Subrayado (Ctrl+U)'}
             type="button"
             aria-label={`Format text to underlined. Shortcut: ${
               IS_APPLE ? '⌘U' : 'Ctrl+U'
             }`}>
             <i className="format underline" />
           </button>
-          {canViewerSeeInsertCodeButton && (
+          {(canViewerSeeInsertCodeButton && false) && (
             <button
               disabled={!isEditable}
               onClick={() => {
@@ -991,7 +992,7 @@ export default function ToolbarPlugin({
             type="button">
             <i className="format link" />
           </button>
-          <DropdownColorPicker
+          {false && <DropdownColorPicker
             disabled={!isEditable}
             buttonClassName="toolbar-item color-picker"
             buttonAriaLabel="Formatting text color"
@@ -999,8 +1000,8 @@ export default function ToolbarPlugin({
             color={fontColor}
             onChange={onFontColorSelect}
             title="text color"
-          />
-          <DropdownColorPicker
+          />}
+          {false && <DropdownColorPicker
             disabled={!isEditable}
             buttonClassName="toolbar-item color-picker"
             buttonAriaLabel="Formatting background color"
@@ -1008,8 +1009,8 @@ export default function ToolbarPlugin({
             color={bgColor}
             onChange={onBgColorSelect}
             title="bg color"
-          />
-          <DropDown
+          />}
+          {false && <DropDown
             disabled={!isEditable}
             buttonClassName="toolbar-item spaced"
             buttonLabel=""
@@ -1059,14 +1060,14 @@ export default function ToolbarPlugin({
               <i className="icon clear" />
               <span className="text">Clear Formatting</span>
             </DropDownItem>
-          </DropDown>
-          {canViewerSeeInsertDropdown && (
+          </DropDown>}
+          {(canViewerSeeInsertDropdown) && (
             <>
               <Divider />
               <DropDown
                 disabled={!isEditable}
                 buttonClassName="toolbar-item spaced"
-                buttonLabel="Insert"
+                buttonLabel="Insertar"
                 buttonAriaLabel="Insert specialized editor node"
                 buttonIconClassName="icon plus">
                 <DropDownItem
@@ -1078,16 +1079,16 @@ export default function ToolbarPlugin({
                   }}
                   className="item">
                   <i className="icon horizontal-rule" />
-                  <span className="text">Horizontal Rule</span>
+                  <span className="text">Regla horizontal</span>
                 </DropDownItem>
-                <DropDownItem
+                {false && <DropDownItem
                   onClick={() => {
                     activeEditor.dispatchCommand(INSERT_PAGE_BREAK, undefined);
                   }}
                   className="item">
                   <i className="icon page-break" />
                   <span className="text">Page Break</span>
-                </DropDownItem>
+                </DropDownItem>}
                 <DropDownItem
                   onClick={() => {
                     showModal('Insert Image', (onClose: any) => (
@@ -1099,9 +1100,9 @@ export default function ToolbarPlugin({
                   }}
                   className="item">
                   <i className="icon image" />
-                  <span className="text">Image</span>
+                  <span className="text">Imagen</span>
                 </DropDownItem>
-                <DropDownItem
+                {false && <DropDownItem
                   onClick={() => {
                     showModal('Insert Inline Image', (onClose: any) => (
                       <InsertInlineImageDialog
@@ -1113,18 +1114,7 @@ export default function ToolbarPlugin({
                   className="item">
                   <i className="icon image" />
                   <span className="text">Inline Image</span>
-                </DropDownItem>
-                <DropDownItem
-                  onClick={() =>
-                    insertGifOnClick({
-                      altText: 'Cat typing on a laptop',
-                      src: catTypingGif,
-                    })
-                  }
-                  className="item">
-                  <i className="icon gif" />
-                  <span className="text">GIF</span>
-                </DropDownItem>
+                </DropDownItem>}
                 <DropDownItem
                   onClick={() => {
                     showModal('Insert Table', (onClose: any) => (
@@ -1136,9 +1126,9 @@ export default function ToolbarPlugin({
                   }}
                   className="item">
                   <i className="icon table" />
-                  <span className="text">Table</span>
+                  <span className="text">Tabla</span>
                 </DropDownItem>
-                <DropDownItem
+                {false && <DropDownItem
                   onClick={() => {
                     showModal('Insert Poll', (onClose: any) => (
                       <InsertPollDialog
@@ -1150,8 +1140,8 @@ export default function ToolbarPlugin({
                   className="item">
                   <i className="icon poll" />
                   <span className="text">Poll</span>
-                </DropDownItem>
-                <DropDownItem
+                </DropDownItem>}
+                {false && <DropDownItem
                   onClick={() => {
                     showModal('Insert Columns Layout', (onClose: any) => (
                       <InsertLayoutDialog
@@ -1163,9 +1153,9 @@ export default function ToolbarPlugin({
                   className="item">
                   <i className="icon columns" />
                   <span className="text">Columns Layout</span>
-                </DropDownItem>
+                </DropDownItem>}
 
-                <DropDownItem
+                {false && <DropDownItem
                   onClick={() => {
                     showModal('Insert Equation', (onClose: any) => (
                       <InsertEquationDialog
@@ -1177,8 +1167,8 @@ export default function ToolbarPlugin({
                   className="item">
                   <i className="icon equation" />
                   <span className="text">Equation</span>
-                </DropDownItem>
-                <DropDownItem
+                </DropDownItem>}
+                {false && <DropDownItem
                   onClick={() => {
                     editor.update(() => {
                       const root = $getRoot();
@@ -1189,8 +1179,8 @@ export default function ToolbarPlugin({
                   className="item">
                   <i className="icon sticky" />
                   <span className="text">Sticky Note</span>
-                </DropDownItem>
-                <DropDownItem
+                </DropDownItem>}
+                {false && <DropDownItem
                   onClick={() => {
                     editor.dispatchCommand(
                       INSERT_COLLAPSIBLE_COMMAND,
@@ -1200,8 +1190,8 @@ export default function ToolbarPlugin({
                   className="item">
                   <i className="icon caret-right" />
                   <span className="text">Collapsible container</span>
-                </DropDownItem>
-                {EmbedConfigs.map((embedConfig) => (
+                </DropDownItem>}
+                {false && EmbedConfigs.map((embedConfig) => (
                   <DropDownItem
                     key={embedConfig.type}
                     onClick={() => {
@@ -1220,13 +1210,13 @@ export default function ToolbarPlugin({
           )}
         </>
       )}
-      <Divider />
-      <ElementFormatDropdown
+      
+      {false && <><Divider /><ElementFormatDropdown
         disabled={!isEditable}
         value={elementFormat}
         editor={activeEditor}
         isRTL={isRTL}
-      />
+      /></>}
 
       {modal}
     </div>

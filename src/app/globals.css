@@ -64,6 +64,34 @@
 	margin-bottom: 10px;
 }
 
+.ck-content blockquote {
+    border-left: 3px solid #ccc;
+    padding: 10px 20px;
+    margin: 20px 0;
+    font-style: italic;
+    background-color: #f9f9f9;
+    color: #555;
+}
+
+.ck-content ul {
+    list-style-type: disc;
+    margin: 20px 0;
+    padding-left: 40px;
+}
+
+.ck-content li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.ck-content ol {
+    list-style-type: decimal;
+    margin: 20px 0;
+    padding-left: 40px;
+}
+
+
 .transparent-button {
 	background-color: transparent;
 	color: gray;
