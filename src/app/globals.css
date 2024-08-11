@@ -10,18 +10,6 @@
     --ck-z-panel: calc( var(--ck-z-default) + 2 );
 }
 
-h1 {
-  	@apply text-4xl font-bold text-gray-900
-}
-
-h2 {
- 	@apply text-3xl font-bold text-gray-900;
-}
-
-h3 {
-  	@apply text-2xl font-bold text-gray-900;
-}
-
 .ck-content {
 	/*font-family: 'Lato';*/
 	font-size: large;
@@ -43,42 +31,37 @@ h3 {
     font-weight: bold
 }
 
-h1 {
+.ck-content h1 {
 	font-size: xx-large;
     font-weight: bold;
 	margin-bottom: 20px
 }
 
-h2 {
+.ck-content h2 {
 	font-size: x-large;
     font-weight: bold;
   	margin-bottom: 16px
 }
 
-h3 {
+.ck-content h3 {
 	font-size: larger;
     font-weight: bold;
   	margin-bottom: 14px
 }
 
-h4 {
+.ck-content h4 {
 	font-size: large;
     font-weight: bold;
   	margin-bottom: 10px
 }
 
-h5 {
+.ck-content h5 {
     font-weight: bold;
   	margin-bottom: 10px
 }
 
 .ck-content p, ul {
 	margin-bottom: 10px;
-}
-
-h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
-	color: #ff0050;
-	font-size: 17px;
 }
 
 .transparent-button {

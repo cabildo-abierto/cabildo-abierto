@@ -77,6 +77,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { $getRoot, $insertNodes } from 'lexical';
 import { $generateNodesFromDOM } from '@lexical/html';
+import { $convertFromMarkdownString } from '@lexical/markdown'
 
 function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
   const { historyState } = useSharedHistoryContext();
@@ -106,20 +107,26 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     isComments,
     isDraggableBlock,
     placeholder,
-    initialData
+    initialData,
+    isMarkdownEditor
   } = settings
 
   useEffect(() => {
     if(!hasInitialized.current && initialData) {
       editor.update(() => {
-        const parser = new DOMParser();
-        const dom = parser.parseFromString(initialData, "text/html");
-      
-        const nodes = $generateNodesFromDOM(editor, dom);
-        $getRoot().clear();
-        $getRoot().select();
-      
-        $insertNodes(nodes);
+        if(isMarkdownEditor){
+          const root = $getRoot()
+          $convertFromMarkdownString(initialData, undefined, root, false)
+        } else {
+          const parser = new DOMParser();
+          const dom = parser.parseFromString(initialData, "text/html");
+        
+          const nodes = $generateNodesFromDOM(editor, dom);
+          $getRoot().clear();
+          $getRoot().select();
+        
+          $insertNodes(nodes);
+        }
       });
     }
     hasInitialized.current = true;

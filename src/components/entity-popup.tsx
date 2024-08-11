@@ -22,7 +22,7 @@ export default function EntityPopup({user, disabled = false}: any) {
 
   const ValidPanel: React.FC<any> = ({onClose}) => { return <>
       <form action={action}>
-          <div className="space-y-3">
+          <div className="space-y-3 ck-content">
             <h3>Crear artículo</h3>
             <div>
               <input
