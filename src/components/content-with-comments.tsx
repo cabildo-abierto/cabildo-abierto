@@ -40,6 +40,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
     const handleNewComment = async (text: string) => {
         if(user){
             await createComment(text, content.id, user.id)
+            setViewComments(true)
+            setWritingReply(false)
         }
     }
 

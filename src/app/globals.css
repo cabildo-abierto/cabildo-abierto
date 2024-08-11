@@ -25,8 +25,6 @@ h3 {
 .ck-content {
 	/*font-family: 'Lato';*/
 	font-size: large;
-	line-height: 1.6;
-	word-break: break-word;
 	@apply text-gray-900;
 }
 
@@ -46,33 +44,27 @@ h3 {
 }
 
 .ck-content h1 {
-  	margin-top: 20px;
 	margin-bottom: 20px
 }
 
 .ck-content h2 {
-	margin-top: 16px;
   	margin-bottom: 16px
 }
 
 .ck-content h3 {
-	margin-top: 14px;
   	margin-bottom: 14px
 }
 
 .ck-content h4 {
-	margin-top: 12px;
   	margin-bottom: 10px
 }
 
 .ck-content h5 {
-	margin-top: 10px;
   	margin-bottom: 10px
 }
 
 .ck-content p, ul {
 	margin-bottom: 10px;
-	margin-top: 10px
 }
 
 h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
@@ -164,6 +156,17 @@ h2.fancy, .ck.ck-button.ck-heading_heading2_fancy {
 	background-color: #1b203a;
 	color: #e0e0e0;
 }
+
+.large-btn:disabled:hover {
+	background-color: #757575;
+	color: #fff
+}
+
+.large-btn:disabled {
+	background-color: #757575;
+	color: #fff
+}
+
 
 
 .small-btn {

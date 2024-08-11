@@ -1,7 +1,24 @@
-import LexicalEditor from "./lexical-editor"
+"use client"
+
+import { UserProps } from "@/actions/get-user"
+import { validSubscription } from "../utils"
+import MyLexicalEditor from "./lexical-editor"
+import { useState } from "react"
+import Popup from "../popup"
+import NeedAccountPopupPanel from "../need-account-popup"
+import StateButton from "../state-button"
+import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode, LexicalEditor } from "lexical"
+import { $generateHtmlFromNodes } from '@lexical/html';
+import { emptyOutput } from "./comment-editor"
+import { useRouter } from "next/navigation"
+import { createPost } from "@/actions/create-content"
+import Link from "next/link"
 
 
-const FastEditor = ({ onSubmit, onSaveDraft, initialData }: any) => {
+const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
+    const [editor, setEditor] = useState<LexicalEditor | null>(null)
+    const [editorOutput, setEditorOutput] = useState<EditorState | null>(null)
+    const router = useRouter()
 
     const isDevPlayground = false
     const settings = {
@@ -21,10 +38,81 @@ const FastEditor = ({ onSubmit, onSaveDraft, initialData }: any) => {
         showTreeView: false,
         tableCellBackgroundColor: false,
         tableCellMerge: false,
+        showActions: false,
+        showToolbar: true,
+        isComments: false,
+        isDraggableBlock: true,
+        useSuperscript: false,
+        useStrikethrough: false,
+        useSubscript: false,
+        useCodeblock: false,
+        placeholder: "Escribí tu publicación acá...",
+        initialData: initialData
     }
 
-    return <LexicalEditor settings={settings}/>
+    async function handleSubmit(){
+        if(editor && editorOutput){
+            editorOutput.read(async () => {
+                const html = $generateHtmlFromNodes(editor, null)
+                await onSubmit(html, "Post")
+                router.push("/")
+            })
+        }
+	}
+
+    async function handleSaveDraft(){
+        if(editor && editorOutput){
+            editorOutput.read(async () => {
+                const html = $generateHtmlFromNodes(editor, null)
+                await onSaveDraft(html, "Post")
+                router.push("/borradores")
+            })
+        }
+	}
+
+	const PublishButton = ({onClick}: any) => {
+        return <StateButton
+            onClick={onClick}
+            className="large-btn"
+            text1="Publicar"
+            text2="Publicando..."
+            disabled={emptyOutput(editorOutput)}
+        />
+	}
+
+    const SaveDraftButton = ({onClick}: any) => {
+        return <StateButton
+            onClick={onClick}
+            className="large-btn"
+            text1="Guardar borrador"
+            text2="Guardando..."
+            disabled={emptyOutput(editorOutput)}
+        />
+	}
+
+    const DraftsButton = () => {
+        return <Link href="/borradores">
+            <button className="large-btn">
+                Ver borradores
+            </button>
+        </Link>
+    }
+
+    return <div className="p-1 rounded">
+        
+        <div className="flex justify-between mt-3">
+            <DraftsButton/>
+			<div className="flex justify-end">
+                <div className="px-1">
+                    <PublishButton onClick={handleSubmit}/>
+                </div>
+                <SaveDraftButton onClick={handleSaveDraft}/>
+			</div>
+		</div>
+        <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
+
+    </div>
 }
 
 
-export default FastEditor
+export default PostEditor

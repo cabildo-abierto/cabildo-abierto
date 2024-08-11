@@ -7,17 +7,16 @@ const StateButton: React.FC<any> = ({onClick, className, text1, text2=null, disa
 
     const handleClick = async () => {
         setSubmitting(true)
-        await onClick().then(() =>{
-            setSubmitting(false)
-        })
+        await onClick()
     }
+
 
     return <button 
         className={className}
         onClick={handleClick}
         disabled={submitting || disabled}
     >
-        {!submitting ? text1 : (text2 ? text2 : text1)}
+        {!submitting ? text1 : (text2 !== null ? text2 : text1)}
     </button>
 }
 

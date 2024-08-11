@@ -5,31 +5,29 @@ import { ContentProps } from "@/actions/get-content";
 import dynamic from "next/dynamic";
 
 import { redirect } from "next/navigation";
-const PostEditorLexical = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
+const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
+const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), { ssr: false } );
 
 
 export default function EditDraftPage({content}: {content: ContentProps}) {
     const type = content.type
 
-    const handleCreate = async (text: string) => {
+    const handleCreate = async (text: string, type: string) => {
         await publishDraft(text, content.id)
-        redirect("/borradores")
     }
 
-    const handleSaveDraft = async (text: string) => {
+    const handleSaveDraft = async (text: string, type: string) => {
         await updateContent(text, content.id)
-        redirect("/borradores")
-        // TO DO: Invalidate cache
     }
 
     return <>
         {type == "Post" ?
-            <PostEditorLexical
+            <PostEditor
                 onSubmit={handleCreate}
                 onSaveDraft={handleSaveDraft}
                 initialData={content.text}
             /> : 
-            <PostEditorLexical
+            <FastEditor
                 onSubmit={handleCreate}
                 onSaveDraft={handleSaveDraft}
                 initialData={content.text}

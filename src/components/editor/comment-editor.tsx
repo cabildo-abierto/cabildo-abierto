@@ -1,9 +1,54 @@
-import LexicalEditor from "./lexical-editor"
+"use client"
+
+import { UserProps } from "@/actions/get-user"
+import { validSubscription } from "../utils"
+import MyLexicalEditor from "./lexical-editor"
+import { useState } from "react"
+import Popup from "../popup"
+import NeedAccountPopupPanel from "../need-account-popup"
+import StateButton from "../state-button"
+import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode, LexicalEditor } from "lexical"
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 
+function canComment(user: UserProps | null | undefined){
+	return validSubscription(user)
+}
 
+export function $isWhitespace(node: ElementNode): boolean {
+    for (const child of node.getChildren()) {
+      if (
+        ($isElementNode(child) && !$isWhitespace(child)) ||
+        ($isTextNode(child) && child.getTextContent().trim() !== "") ||
+        $isDecoratorNode(child)
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+export function emptyOutput(editorState: EditorState | null){
+    if(!editorState) return true
+    const isEmpty = editorState.read(() => {
+        const root = $getRoot();
+        const child = root.getFirstChild();
+
+        if (
+            child == null ||
+            ($isElementNode(child) && child.isEmpty() && root.getChildrenSize() === 1)
+            ) {
+        return true;
+        }
+
+        return $isWhitespace(root);
+    });
+    return isEmpty;
+}
 
 const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
+    const [editor, setEditor] = useState<LexicalEditor | null>(null)
+    const [editorOutput, setEditorOutput] = useState<EditorState | null>(null)
 
     const isDevPlayground = false
     const settings = {
@@ -34,8 +79,50 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
         placeholder: "Agregá un comentario..."
     }
 
-    return <div className="border rounded">
-        <LexicalEditor settings={settings}/>
+    async function handleSubmit(){
+        if(editor && editorOutput){
+            editorOutput.read(async () => {
+                const html = $generateHtmlFromNodes(editor, null)
+                await onSubmit(html)
+            })
+        }
+	}
+
+	const SendCommentButton = ({onClick}: any) => {
+        return <StateButton
+            onClick={onClick}
+            className="small-btn disabled:bg-gray-600"
+            text1="Enviar"
+            text2="Enviando..."
+            disabled={emptyOutput(editorOutput)}
+        />
+	}
+
+    return <div className="p-1 border rounded">
+        <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
+
+        <div className="flex justify-end">
+			<div className="flex justify-end mt-3">
+                <div className="px-1">
+                    {canComment(user) ? <SendCommentButton onClick={handleSubmit}/> :
+                        <Popup 
+                            Trigger={SendCommentButton}
+                            Panel={NeedAccountPopupPanel}
+                        />
+                    }
+                </div>
+				{onCancel != null &&
+					<div className="px-1">
+						<button
+							onClick={onCancel}
+							className="small-btn"
+						>
+							Cancelar
+						</button>
+					</div>
+				}
+			</div>
+		</div>
     </div>
 }
 

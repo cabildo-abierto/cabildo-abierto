@@ -1,8 +1,11 @@
-import WritePage from "../write-page"
+import { ThreeColumnsLayout } from '@/components/main-layout';
+import dynamic from 'next/dynamic';
+
+const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), { ssr: false } );
 
 
 const PublicacionRapida: React.FC = () => {
-    return <WritePage fast={true}/>
+    return <ThreeColumnsLayout center={<FastEditor/>}/>
 }
 
 export default PublicacionRapida

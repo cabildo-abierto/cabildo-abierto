@@ -7,26 +7,26 @@
  */
 
 import './index.css';
-import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
-import {CharacterLimitPlugin} from '@lexical/react/LexicalCharacterLimitPlugin';
-import {CheckListPlugin} from '@lexical/react/LexicalCheckListPlugin';
-import {ClearEditorPlugin} from '@lexical/react/LexicalClearEditorPlugin';
-import {ClickableLinkPlugin} from '@lexical/react/LexicalClickableLinkPlugin';
-import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
-import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
-import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
-import {HorizontalRulePlugin} from '@lexical/react/LexicalHorizontalRulePlugin';
-import {ListPlugin} from '@lexical/react/LexicalListPlugin';
-import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
-import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
-import {TabIndentationPlugin} from '@lexical/react/LexicalTabIndentationPlugin';
-import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
-import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
+import { CharacterLimitPlugin } from '@lexical/react/LexicalCharacterLimitPlugin';
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
+import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
+import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
+import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
+import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
+import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import * as React from 'react';
-import {useEffect, useState} from 'react';
-import {CAN_USE_DOM} from './shared/canUseDOM';
+import { useEffect, useRef, useState } from 'react';
+import { CAN_USE_DOM } from './shared/canUseDOM';
 
-import {SharedHistoryContext, useSharedHistoryContext} from './context/SharedHistoryContext';
+import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
 import ActionsPlugin from './plugins/ActionsPlugin';
 import AutocompletePlugin from './plugins/AutocompletePlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
@@ -47,10 +47,10 @@ import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbar
 import ImagesPlugin from './plugins/ImagesPlugin';
 import InlineImagePlugin from './plugins/InlineImagePlugin';
 import KeywordsPlugin from './plugins/KeywordsPlugin';
-import {LayoutPlugin} from './plugins/LayoutPlugin/LayoutPlugin';
+import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
-import {MaxLengthPlugin} from './plugins/MaxLengthPlugin';
+import { MaxLengthPlugin } from './plugins/MaxLengthPlugin';
 import PageBreakPlugin from './plugins/PageBreakPlugin';
 import PollPlugin from './plugins/PollPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
@@ -70,12 +70,24 @@ import { TableContext } from './plugins/TablePlugin';
 import { SharedAutocompleteContext } from './context/SharedAutocompleteContext';
 import { FlashMessageContext } from './context/FlashMessageContext';
 
-import {beautifulMentionsTheme} from './themes/beautiful-mentions-theme'
+import { beautifulMentionsTheme } from './themes/beautiful-mentions-theme'
 import { BeautifulMentionsPlugin, createBeautifulMentionNode } from 'lexical-beautiful-mentions';
 import { CustomMentionComponent, CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './custom-mention-component';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import { $getRoot, $insertNodes } from 'lexical';
+import { $generateNodesFromDOM } from '@lexical/html';
 
-function Editor({settings}: any): JSX.Element {
-  const {historyState} = useSharedHistoryContext();
+function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
+  const { historyState } = useSharedHistoryContext();
+  const [editor] = useLexicalComposerContext()
+  const hasInitialized = useRef(false);
+
+  useEffect(() => {
+    if (setEditor) {
+      setEditor(editor);
+    }
+  }, [editor, setEditor]);
 
   const {
     isAutocomplete,
@@ -93,8 +105,25 @@ function Editor({settings}: any): JSX.Element {
     showToolbar,
     isComments,
     isDraggableBlock,
-    placeholder
+    placeholder,
+    initialData
   } = settings
+
+  useEffect(() => {
+    if(!hasInitialized.current) {
+      editor.update(() => {
+        const parser = new DOMParser();
+        const dom = parser.parseFromString(initialData, "text/html");
+      
+        const nodes = $generateNodesFromDOM(editor, dom);
+        $getRoot().clear();
+        $getRoot().select();
+      
+        $insertNodes(nodes);
+      });
+    }
+    hasInitialized.current = true;
+  }, [editor])
 
   const isEditable = useLexicalEditable();
   const [floatingAnchorElem, setFloatingAnchorElem] =
@@ -130,9 +159,8 @@ function Editor({settings}: any): JSX.Element {
     <>
       {(isRichText && showToolbar) && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />}
       <div
-        className={`editor-container ${showTreeView ? 'tree-view' : ''} ${
-          !isRichText ? 'plain-text' : ''
-        }`}>
+        className={`editor-container ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''
+          }`}>
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <DragDropPaste />
         <AutoFocusPlugin />
@@ -140,6 +168,13 @@ function Editor({settings}: any): JSX.Element {
         <ComponentPickerPlugin />
         <EmojiPickerPlugin />
         <AutoEmbedPlugin />
+
+        <OnChangePlugin
+          onChange={(editorState) => {
+            setOutput(editorState)
+            setEditor(editor)
+          }}
+        />
 
         <BeautifulMentionsPlugin
           triggers={["@"]}
@@ -160,7 +195,7 @@ function Editor({settings}: any): JSX.Element {
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
               contentEditable={
-                <div className="editor-scroller">
+                <div className="editor-scroller ck-content">
                   <div className="editor" ref={onRef}>
                     <ContentEditable placeholder={placeholder} />
                   </div>
@@ -192,6 +227,7 @@ function Editor({settings}: any): JSX.Element {
             <CollapsiblePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
+
             {floatingAnchorElem && !isSmallWidthViewport && (
               <>
                 {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
@@ -242,37 +278,41 @@ function Editor({settings}: any): JSX.Element {
 }
 
 
-const LexicalEditor = ({settings}: any) => {
-    const initialConfig = {
-        editorState: undefined,
-        namespace: 'Playground',
-        nodes: [
-          ...createBeautifulMentionNode(CustomMentionComponent),
-          ...PlaygroundNodes
-        ],
-        onError: (error: Error) => {
-          throw error;
-        },
-        theme: {
-          editorTheme: PlaygroundEditorTheme,
-          beautifulMentions: beautifulMentionsTheme
-        },
+const LexicalEditor = ({ settings, setEditor, setOutput }: any) => {
+  const initialConfig = {
+    editorState: undefined,
+    namespace: 'Playground',
+    nodes: [
+      ...createBeautifulMentionNode(CustomMentionComponent),
+      ...PlaygroundNodes
+    ],
+    onError: (error: Error) => {
+      throw error;
+    },
+    theme: {
+      editorTheme: PlaygroundEditorTheme,
+      beautifulMentions: beautifulMentionsTheme
+    },
 
-      };
+  };
 
-    return <FlashMessageContext>
-        <LexicalComposer initialConfig={initialConfig}>
-        <SharedHistoryContext>
+  return <FlashMessageContext>
+    <LexicalComposer initialConfig={initialConfig}>
+      <SharedHistoryContext>
         <TableContext>
-            <SharedAutocompleteContext>
+          <SharedAutocompleteContext>
             <div className="editor-shell">
-                <Editor settings={settings}/>
+              <Editor
+                settings={settings}
+                setEditor={setEditor}
+                setOutput={setOutput}  
+              />
             </div>
-            </SharedAutocompleteContext>
+          </SharedAutocompleteContext>
         </TableContext>
-        </SharedHistoryContext>
+      </SharedHistoryContext>
     </LexicalComposer>
-    </FlashMessageContext>
+  </FlashMessageContext>
 }
 
 

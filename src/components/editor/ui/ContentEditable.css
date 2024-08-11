@@ -17,8 +17,6 @@
   outline: 0;
   padding: 8px 28px 8px;
   min-height: 150px;
-	font-size: large;
-	line-height: 1.6;
 	word-break: break-word;
 }
 @media (max-width: 1025px) {
