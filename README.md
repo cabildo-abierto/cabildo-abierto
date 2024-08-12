@@ -1,37 +1,27 @@
-
-## Para hacer
-
-## Cambiar esquema de la base de datos
-
-npx prisma db push
-
 ## Setup
 
-Instalar MUI
+### Instalar
+
+Descargar el repo y desde la raíz ejecutar:
 ```bash
-npm install @mui/material-nextjs @emotion/cache @emotion/server
+npm install
+npx prisma generate // No estoy seguro de si hace falta
 ```
 
-Arrancar el servidor de desarrollo.
+### Arrancar el servidor de desarrollo
+
 ```bash
 npm run dev
 ```
+Para que funcione además hay que tener el .env
 
-Instalar Roboto
-```bash
-npm install @fontsource/roboto
+### Build
+```
+npm run build
 ```
 
-### Postgres
-
-sudo apt install postgresql postgresql-contrib
-sudo systemctl start postgresql.service
-sudo -u postgres psql
-\qs
-npx prisma migrate dev --name init
-
-### Prisma
-
-Generar cliente de Prisma para el modelo actual
+### Actualizar el esquema de la base de datos
+```
 npx prisma generate
 npx prisma db push
+```
