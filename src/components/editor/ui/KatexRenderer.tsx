@@ -9,6 +9,7 @@
 import katex from 'katex';
 import * as React from 'react';
 import {useEffect, useRef} from 'react';
+import NextImage from 'next/image'
 
 export default function KatexRenderer({
   equation,
@@ -41,14 +42,14 @@ export default function KatexRenderer({
     // inner text from Katex. There didn't seem to be any other way of making this work,
     // without having a physical space.
     <>
-      <img src="#" alt="" />
+      <NextImage src="#" alt="" />
       <span
         role="button"
         tabIndex={-1}
         onDoubleClick={onDoubleClick}
         ref={katexElementRef}
       />
-      <img src="#" alt="" />
+      <NextImage src="#" alt="" />
     </>
   );
 }

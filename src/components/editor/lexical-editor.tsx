@@ -130,7 +130,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
       });
     }
     hasInitialized.current = true;
-  }, [editor])
+  }, [editor, initialData, isMarkdownEditor])
 
   const isEditable = useLexicalEditable();
   const [floatingAnchorElem, setFloatingAnchorElem] =

@@ -1,5 +1,5 @@
 import { getUsers, UserProps } from "@/actions/get-user";
-import { BeautifulMentionComponentProps, BeautifulMentionsItem, BeautifulMentionsMenuItemProps, BeautifulMentionsMenuProps } from "lexical-beautiful-mentions";
+import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, BeautifulMentionsMenuProps } from "lexical-beautiful-mentions";
 import Link from "next/link";
 import { forwardRef } from "react";
 
@@ -27,6 +27,9 @@ export const CustomMentionComponent = forwardRef<
 });
 
 
+CustomMentionComponent.displayName = 'CustomMentionComponent';
+
+
 export const queryMentions = async (trigger: string, query: string | undefined | null)=> {
   if(!query) return []
   const data = (await getUsers()).filter((user: UserProps) =>
@@ -37,12 +40,10 @@ export const queryMentions = async (trigger: string, query: string | undefined |
 
 
 export function CustomMenuMentions({ loading, ...props }: BeautifulMentionsMenuProps) {
-  return (
-    <ul
+  return <ul
       className="m-0 mt-6 p-2 bg-white shadow-lg rounded-lg border border-gray-200 w-64"
       {...props}
-    />
-  );
+  />
 }
 
 export const CustomMenuItemMentions = forwardRef<
@@ -58,3 +59,5 @@ export const CustomMenuItemMentions = forwardRef<
     );
   }
 );
+
+CustomMenuItemMentions.displayName = 'CustomMenuItemMentions';

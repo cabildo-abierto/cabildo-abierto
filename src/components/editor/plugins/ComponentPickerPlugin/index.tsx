@@ -263,15 +263,6 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
           <InsertEquationDialog activeEditor={editor} onClose={onClose} />
         )),
     }),
-    new ComponentPickerOption('GIF', {
-      icon: <i className="icon gif" />,
-      keywords: ['gif', 'animate', 'image', 'file'],
-      onSelect: () =>
-        editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-          altText: 'Cat typing on a laptop',
-          src: catTypingGif,
-        }),
-    }),
     new ComponentPickerOption('Image', {
       icon: <i className="icon image" />,
       keywords: ['image', 'photo', 'picture', 'file'],

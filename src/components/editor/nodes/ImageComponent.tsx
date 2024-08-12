@@ -62,6 +62,7 @@ import {$isImageNode} from './ImageNode';
 import {KeywordNode} from './KeywordNode';
 import { BeautifulMentionsPlugin } from 'lexical-beautiful-mentions';
 import { queryMentions } from '../custom-mention-component';
+import NextImage from 'next/image'
 
 const imageCache = new Set();
 
@@ -105,7 +106,7 @@ function LazyImage({
 }): JSX.Element {
   useSuspenseImage(src);
   return (
-    <img
+    <NextImage
       className={className || undefined}
       src={src}
       alt={altText}
@@ -123,13 +124,14 @@ function LazyImage({
 
 function BrokenImage(): JSX.Element {
   return (
-    <img
+    <NextImage
       src={brokenImage}
       style={{
         height: 200,
         opacity: 0.2,
         width: 200,
       }}
+      alt="broken-image"
       draggable="false"
     />
   );
