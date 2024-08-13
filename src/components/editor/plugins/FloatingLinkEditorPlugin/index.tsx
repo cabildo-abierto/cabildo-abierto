@@ -52,7 +52,7 @@ function FloatingLinkEditor({
   const editorRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [linkUrl, setLinkUrl] = useState('');
-  const [editedLinkUrl, setEditedLinkUrl] = useState('https://');
+  const [editedLinkUrl, setEditedLinkUrl] = useState('');
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
@@ -107,13 +107,15 @@ function FloatingLinkEditor({
         setFloatingElemPositionForLinkEditor(domRect, editorElem, anchorElem);
       }
       setLastSelection(selection);
-    } else if (!activeElement || activeElement.className !== 'link-input') {
+    } else if (!activeElement || activeElement.className !== 'link-input w-96') {
+      
+      console.log("activeElement", activeElement)
       if (rootElement !== null) {
         setFloatingElemPositionForLinkEditor(null, editorElem, anchorElem);
       }
       setLastSelection(null);
       setIsLinkEditMode(false);
-      setLinkUrl('https://');
+      setLinkUrl('');
     }
 
     return true;
@@ -198,11 +200,9 @@ function FloatingLinkEditor({
   };
 
   const handleLinkSubmission = () => {
-    console.log("submitted", editedLinkUrl)
     if (lastSelection !== null) {
       if (linkUrl !== '') {
         const sanitized = sanitizeUrl(editedLinkUrl)
-        console.log("dispatching toggle link", sanitized)
         editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitized);
         editor.update(() => {
           const selection = $getSelection();
@@ -214,7 +214,6 @@ function FloatingLinkEditor({
                 target: parent.__target,
                 title: parent.__title,
               });
-              console.log("Replacing with link node", parent.getURL())
               parent.replace(linkNode, true);
             }
           }
@@ -234,18 +233,6 @@ function FloatingLinkEditor({
       }
   }
 
-
-  function makeUrl(url: string, relative: string) {
-      const protocols = ["http://", "https://"]
-      for(let i = 0; i < 2; i++){
-        const protocol = protocols[i]
-        if(url.includes(protocol)){
-          return protocol + url.split(protocol)[1].split("/")[0] + relative
-        }
-      }
-      return url
-  }
-
   const SearchResults = ({results, setValue}: any) => {
     return <div className="">
       {results.map((entity: EntityProps) => {
@@ -260,9 +247,6 @@ function FloatingLinkEditor({
       })}
     </div>
   }
-
-  console.log("is link", isLink)
-  console.log("isLinkEditMode", isLinkEditMode)
 
   return (
     <div ref={editorRef} className="link-editor">
@@ -374,10 +358,8 @@ function useFloatingLinkEditorToolbar(
             );
           });
         if (!badNode) {
-          console.log("Is good node")
           setIsLink(true);
         } else {
-          console.log("Is bad node")
           setIsLink(false);
         }
       }

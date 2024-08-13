@@ -63,10 +63,14 @@ function TextFormatFloatingToolbar({
   const {isComment, useSuperscript, useSubscript, useStrikethrough, useCodeblock} = settings
 
   const insertLink = useCallback(() => {
-    console.log("inserting link", isLink)
     if (!isLink) {
       setIsLinkEditMode(true);
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://');
+      console.log("thinking")
+      editor.read(() => {
+        const selection = $getSelection()?.getTextContent();
+        console.log("dispatching", selection)
+        editor.dispatchCommand(TOGGLE_LINK_COMMAND, selection ? selection : "");  
+      })
     } else {
       setIsLinkEditMode(false);
       editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);

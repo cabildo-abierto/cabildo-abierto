@@ -15,7 +15,6 @@ export const SUPPORTED_URL_PROTOCOLS = new Set([
 ]);
 
 export function sanitizeUrl(url: string): string {
-  return url
   try {
     const parsedUrl = new URL(url);
     // eslint-disable-next-line no-script-url
@@ -23,7 +22,6 @@ export function sanitizeUrl(url: string): string {
       return 'about:blank';
     }
   } catch {
-    console.log("failed, returning", url)
     return url;
   }
   return url;
@@ -34,8 +32,8 @@ const urlRegExp = new RegExp(
   /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[\w]*))?)/,
 );
 export function validateUrl(url: string): boolean {
+  return true
   // TODO Fix UI for link insertion; it should never default to an invalid URL such as https://.
   // Maybe show a dialog where they user can type the URL before inserting it.
-  return true
-  return url === 'https://' || urlRegExp.test(url);
+  return url === 'https://' || urlRegExp.test(url) || url.startsWith("/wiki/");
 }

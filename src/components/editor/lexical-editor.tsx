@@ -94,16 +94,6 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     
   }, [editor, setEditor]);
 
-  useEffect(() => {
-    return editor.registerCommand(
-      TOGGLE_LINK_COMMAND,
-      ev => {
-        return true
-      },
-      COMMAND_PRIORITY_CRITICAL, // Not necessary. Ensures it is run before the internal handler.
-    );
-  }, [editor]);
-
   const {
     isAutocomplete,
     isMaxLength,
@@ -153,8 +143,6 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
   const [isSmallWidthViewport, setIsSmallWidthViewport] =
     useState<boolean>(false);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
-
-  console.log("Is link edit mode", isLinkEditMode)
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {

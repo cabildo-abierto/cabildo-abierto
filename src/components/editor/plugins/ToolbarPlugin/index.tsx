@@ -726,14 +726,18 @@ export default function ToolbarPlugin({
 
         if (code === 'KeyK' && (ctrlKey || metaKey)) {
           event.preventDefault();
-          let url: string | null;
+          let url: string | null = "";
           if (!isLink) {
             setIsLinkEditMode(true);
-            url = sanitizeUrl('https://');
+            editor.read(() => {
+              const selection = $getSelection()?.getTextContent()
+              url = selection ? selection : ""
+            })
           } else {
             setIsLinkEditMode(false);
             url = null;
           }
+          console.log("dispatching", url)
           return activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
         }
         return false;
@@ -830,10 +834,14 @@ export default function ToolbarPlugin({
   const insertLink = useCallback(() => {
     if (!isLink) {
       setIsLinkEditMode(true);
-      activeEditor.dispatchCommand(
-        TOGGLE_LINK_COMMAND,
-        sanitizeUrl('https://'),
-      );
+      activeEditor.read(() => {
+        const selection = $getSelection()?.getTextContent()
+
+        activeEditor.dispatchCommand(
+          TOGGLE_LINK_COMMAND,
+          selection ? selection : "",
+        );
+      })
     } else {
       setIsLinkEditMode(false);
       activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
