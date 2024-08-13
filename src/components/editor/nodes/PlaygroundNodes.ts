@@ -10,7 +10,6 @@ import type {Klass, LexicalNode} from 'lexical';
 
 import {CodeHighlightNode, CodeNode} from '@lexical/code';
 import {HashtagNode} from '@lexical/hashtag';
-import {AutoLinkNode, LinkNode} from '@lexical/link';
 import {ListItemNode, ListNode} from '@lexical/list';
 import {MarkNode} from '@lexical/mark';
 import {OverflowNode} from '@lexical/overflow';
@@ -46,8 +45,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   TableRowNode,
   HashtagNode,
   CodeHighlightNode,
-  AutoLinkNode,
-  LinkNode,
   OverflowNode,
   PollNode,
   StickyNode,

@@ -27,6 +27,8 @@ import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { CAN_USE_DOM } from './shared/canUseDOM';
+import {AutoCustomLinkNode, CustomLinkNode, TOGGLE_LINK_COMMAND} from './nodes/CustomLinkNode'
+import {AutoLinkNode, LinkNode} from '@lexical/link';
 
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
 import ActionsPlugin from './plugins/ActionsPlugin';
@@ -77,7 +79,7 @@ import { BeautifulMentionsPlugin, createBeautifulMentionNode } from 'lexical-bea
 import { CustomMentionComponent, CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './custom-mention-component';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { $getRoot, $insertNodes } from 'lexical';
+import { $getRoot, $insertNodes, COMMAND_PRIORITY_CRITICAL } from 'lexical';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { $convertFromMarkdownString } from '@lexical/markdown'
 
@@ -90,7 +92,18 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     if (setEditor) {
       setEditor(editor);
     }
+    
   }, [editor, setEditor]);
+
+  useEffect(() => {
+    return editor.registerCommand(
+      TOGGLE_LINK_COMMAND,
+      ev => {
+        return true
+      },
+      COMMAND_PRIORITY_CRITICAL, // Not necessary. Ensures it is run before the internal handler.
+    );
+  }, [editor]);
 
   const {
     isAutocomplete,
@@ -110,7 +123,8 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     isDraggableBlock,
     placeholder,
     initialData,
-    isMarkdownEditor
+    isMarkdownEditor,
+    isReadOnly
   } = settings
 
   useEffect(() => {
@@ -205,7 +219,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
               contentEditable={
-                <div className={"editor-scroller ck-content"}>
+                <div className={"editor-scroller ck-content" + (isReadOnly ? "" : " min-h-[105px]")}>
                   <div className="editor" ref={onRef}>
                     <ContentEditable placeholder={placeholder} settings={settings}/>
                   </div>
@@ -295,7 +309,27 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: any) => {
     namespace: 'Playground',
     nodes: [
       ...createBeautifulMentionNode(CustomMentionComponent),
-      ...PlaygroundNodes
+      ...PlaygroundNodes,
+      CustomLinkNode,
+      {
+        replace: LinkNode,
+        with: (node: LinkNode) => {
+            return new CustomLinkNode(
+              node.__url, 
+              {target: node.__target, rel: node.__rel, title: node.__title}
+            );
+        }
+      },
+      AutoCustomLinkNode,
+      {
+        replace: AutoLinkNode,
+        with: (node: AutoLinkNode) => {
+            return new AutoCustomLinkNode(
+              node.__url, 
+              {target: node.__target, rel: node.__rel, title: node.__title}
+            );
+        }
+      },
     ],
     onError: (error: Error) => {
       throw error;

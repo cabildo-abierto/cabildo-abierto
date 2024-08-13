@@ -13,7 +13,6 @@ import {
   CODE_LANGUAGE_MAP,
   getLanguageFriendlyName,
 } from '@lexical/code';
-import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {
   $isListNode,
   INSERT_CHECK_LIST_COMMAND,
@@ -96,6 +95,7 @@ import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
 import {InsertPollDialog} from '../PollPlugin';
 import {InsertTableDialog} from '../TablePlugin';
 import FontSize from './fontSize';
+import { $isCustomLinkNode, TOGGLE_LINK_COMMAND } from '../../nodes/CustomLinkNode';
 
 const blockTypeToBlockName = {
   bullet: 'Lista',
@@ -590,7 +590,7 @@ export default function ToolbarPlugin({
       // Update links
       const node = getSelectedNode(selection);
       const parent = node.getParent();
-      if ($isLinkNode(parent) || $isLinkNode(node)) {
+      if ($isCustomLinkNode(parent) || $isCustomLinkNode(node)) {
         setIsLink(true);
       } else {
         setIsLink(false);
@@ -646,7 +646,7 @@ export default function ToolbarPlugin({
         $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial'),
       );
       let matchingParent;
-      if ($isLinkNode(parent)) {
+      if ($isCustomLinkNode(parent)) {
         // If node is a link, we need to fetch the parent paragraph node to set format
         matchingParent = $findMatchingParent(
           node,
@@ -987,8 +987,8 @@ export default function ToolbarPlugin({
             disabled={!isEditable}
             onClick={insertLink}
             className={'toolbar-item spaced ' + (isLink ? 'active' : '')}
-            aria-label="Insert link"
-            title="Insert link"
+            aria-label="Insertar vínculo"
+            title="Insertar vínculo"
             type="button">
             <i className="format link" />
           </button>

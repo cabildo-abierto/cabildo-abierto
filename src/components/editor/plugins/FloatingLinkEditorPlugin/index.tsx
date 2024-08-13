@@ -7,12 +7,6 @@
  */
 import './index.css';
 
-import {
-  $createLinkNode,
-  $isAutoLinkNode,
-  $isLinkNode,
-  TOGGLE_LINK_COMMAND,
-} from '@lexical/link';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$findMatchingParent, mergeRegister} from '@lexical/utils';
 import {
@@ -34,7 +28,9 @@ import {createPortal} from 'react-dom';
 
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
-import {sanitizeUrl} from '../../utils/url';
+import {sanitizeUrl, SUPPORTED_URL_PROTOCOLS} from '../../utils/url';
+import { EntityProps, getEntities } from '@/actions/get-entity';
+import { $createCustomLinkNode, $isAutoCustomLinkNode, $isCustomLinkNode, TOGGLE_LINK_COMMAND } from '../../nodes/CustomLinkNode';
 
 function FloatingLinkEditor({
   editor,
@@ -58,16 +54,25 @@ function FloatingLinkEditor({
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
+  const [results, setResults] = useState<EntityProps[]>([])
+  const [currentUrl, setCurrentUrl] = useState('');
+
+  useEffect(() => {
+    // Check if the code is running on the client side
+    if (process) {
+      // Access the current page URL using window.location
+      setCurrentUrl(window.location.href);
+    }
+  }, []);
 
   const $updateLinkEditor = useCallback(() => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
       const node = getSelectedNode(selection);
-      const linkParent = $findMatchingParent(node, $isLinkNode);
-
+      const linkParent = $findMatchingParent(node, $isCustomLinkNode);
       if (linkParent) {
         setLinkUrl(linkParent.getURL());
-      } else if ($isLinkNode(node)) {
+      } else if ($isCustomLinkNode(node)) {
         setLinkUrl(node.getURL());
       } else {
         setLinkUrl('');
@@ -106,7 +111,7 @@ function FloatingLinkEditor({
       }
       setLastSelection(null);
       setIsLinkEditMode(false);
-      setLinkUrl('');
+      setLinkUrl('https://');
     }
 
     return true;
@@ -191,64 +196,107 @@ function FloatingLinkEditor({
   };
 
   const handleLinkSubmission = () => {
+    console.log("submitted", editedLinkUrl)
     if (lastSelection !== null) {
       if (linkUrl !== '') {
-        editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitizeUrl(editedLinkUrl));
+        const sanitized = sanitizeUrl(editedLinkUrl)
+        console.log("dispatching toggle link", sanitized)
+        editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitized);
         editor.update(() => {
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const parent = getSelectedNode(selection).getParent();
-            if ($isAutoLinkNode(parent)) {
-              const linkNode = $createLinkNode(parent.getURL(), {
+            if ($isAutoCustomLinkNode(parent)) {
+              const linkNode = $createCustomLinkNode(parent.getURL(), {
                 rel: parent.__rel,
                 target: parent.__target,
                 title: parent.__title,
               });
+              console.log("Replacing with link node", parent.getURL())
               parent.replace(linkNode, true);
             }
           }
         });
       }
-      setEditedLinkUrl('https://');
+      setEditedLinkUrl('');
       setIsLinkEditMode(false);
     }
   };
 
+  async function searchEntities(query: string){
+      if(query){
+        const entities = (await getEntities()).filter((entity) => (entity.name.toLowerCase().includes(query.toLowerCase())))
+        setResults(entities)
+      } else {
+        setResults([])
+      }
+  }
+
+
+  function makeUrl(url: string, relative: string) {
+      const protocols = ["http://", "https://"]
+      for(let i = 0; i < 2; i++){
+        const protocol = protocols[i]
+        if(url.includes(protocol)){
+          return protocol + url.split(protocol)[1].split("/")[0] + relative
+        }
+      }
+      return url
+  }
+
+  const SearchResults = ({results, setValue}: any) => {
+    return <div className="">
+      {results.map((entity: EntityProps) => {
+          return <div key={entity.id}>
+            <button 
+              className="w-64 mt-1 ml-8 px-2 flex items-center cursor-pointer hover:bg-gray-100 rounded"
+              onClick={() => {setValue("/wiki/"+entity.id)}}
+            >
+            {entity.name}
+            </button>
+          </div>
+      })}
+    </div>
+  }
+
   return (
     <div ref={editorRef} className="link-editor">
       {!isLink ? null : isLinkEditMode ? (
-        <>
-          <input
-            ref={inputRef}
-            className="link-input"
-            value={editedLinkUrl}
-            onChange={(event) => {
-              setEditedLinkUrl(event.target.value);
-            }}
-            onKeyDown={(event) => {
-              monitorInputInteraction(event);
-            }}
-          />
-          <div>
-            <div
-              className="link-cancel"
-              role="button"
-              tabIndex={0}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => {
-                setIsLinkEditMode(false);
+        <div className="">
+          <div className="flex items-center justify-between">
+            <input
+              ref={inputRef}
+              className="link-input w-96"
+              placeholder="Ingresá un link o el nombre de un artículo"
+              value={editedLinkUrl}
+              onChange={(event) => {
+                setEditedLinkUrl(event.target.value);
+                searchEntities(event.target.value)
+              }}
+              onKeyDown={(event) => {
+                monitorInputInteraction(event);
               }}
             />
+            <div className="flex">
+              <div
+                className="link-cancel"
+                role="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  setIsLinkEditMode(false);
+                }}
+              />
 
-            <div
-              className="link-confirm"
-              role="button"
-              tabIndex={0}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={handleLinkSubmission}
-            />
+              <div
+                className="link-confirm"
+                role="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={handleLinkSubmission}
+              />
+            </div>
           </div>
-        </>
+          <SearchResults results={results} setValue={setEditedLinkUrl}/>
+        </div>
       ) : (
         <div className="link-view">
           <a
@@ -296,10 +344,10 @@ function useFloatingLinkEditorToolbar(
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         const focusNode = getSelectedNode(selection);
-        const focusLinkNode = $findMatchingParent(focusNode, $isLinkNode);
+        const focusLinkNode = $findMatchingParent(focusNode, $isCustomLinkNode);
         const focusAutoLinkNode = $findMatchingParent(
           focusNode,
-          $isAutoLinkNode,
+          $isAutoCustomLinkNode,
         );
         if (!(focusLinkNode || focusAutoLinkNode)) {
           setIsLink(false);
@@ -309,8 +357,8 @@ function useFloatingLinkEditorToolbar(
           .getNodes()
           .filter((node) => !$isLineBreakNode(node))
           .find((node) => {
-            const linkNode = $findMatchingParent(node, $isLinkNode);
-            const autoLinkNode = $findMatchingParent(node, $isAutoLinkNode);
+            const linkNode = $findMatchingParent(node, $isCustomLinkNode);
+            const autoLinkNode = $findMatchingParent(node, $isAutoCustomLinkNode);
             return (
               (focusLinkNode && !focusLinkNode.is(linkNode)) ||
               (linkNode && !linkNode.is(focusLinkNode)) ||
@@ -348,8 +396,8 @@ function useFloatingLinkEditorToolbar(
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const node = getSelectedNode(selection);
-            const linkNode = $findMatchingParent(node, $isLinkNode);
-            if ($isLinkNode(linkNode) && (payload.metaKey || payload.ctrlKey)) {
+            const linkNode = $findMatchingParent(node, $isCustomLinkNode);
+            if ($isCustomLinkNode(linkNode) && (payload.metaKey || payload.ctrlKey)) {
               window.open(linkNode.getURL(), '_blank');
               return true;
             }

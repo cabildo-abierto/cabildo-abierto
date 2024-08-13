@@ -63,6 +63,7 @@ import {KeywordNode} from './KeywordNode';
 import { BeautifulMentionsPlugin } from 'lexical-beautiful-mentions';
 import { queryMentions } from '../custom-mention-component';
 import NextImage from 'next/image'
+import { CustomLinkNode } from './CustomLinkNode';
 
 const imageCache = new Set();
 
@@ -425,7 +426,13 @@ export default function ImageComponent({
                 TextNode,
                 LineBreakNode,
                 ParagraphNode,
-                LinkNode,
+                CustomLinkNode,
+                {
+                  replace: LinkNode,
+                  with: (node: LinkNode) => {
+                      return new CustomLinkNode(node.__url, {target: node.__target, rel: node.__rel, title: node.__title});
+                  }
+                },
                 EmojiNode,
                 HashtagNode,
                 KeywordNode,

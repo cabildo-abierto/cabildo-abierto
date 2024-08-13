@@ -545,7 +545,6 @@ i.page-break,
 
 .link-editor .link-input {
   display: block;
-  width: calc(100% - 75px);
   box-sizing: border-box;
   margin: 12px 12px;
   padding: 8px 12px;
@@ -613,12 +612,7 @@ i.page-break,
   background-position: center;
   background-repeat: no-repeat;
   width: 35px;
-  vertical-align: -0.25em;
-  margin-right: 28px;
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  height: 35px;
   cursor: pointer;
 }
 
@@ -628,12 +622,7 @@ i.page-break,
   background-position: center;
   background-repeat: no-repeat;
   width: 35px;
-  vertical-align: -0.25em;
-  margin-right: 2px;
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  height: 35px;
   cursor: pointer;
 }
 
@@ -642,7 +631,6 @@ i.page-break,
   text-decoration: underline;
   white-space: nowrap;
   overflow: hidden;
-  margin-right: 30px;
   text-overflow: ellipsis;
 }
 

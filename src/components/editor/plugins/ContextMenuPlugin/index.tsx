@@ -6,7 +6,6 @@
  *
  */
 
-import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {
   LexicalContextMenuPlugin,
@@ -24,6 +23,7 @@ import {
 import {useCallback, useMemo} from 'react';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { $isCustomLinkNode, TOGGLE_LINK_COMMAND } from '../../nodes/CustomLinkNode';
 
 function ContextMenuItem({
   index,
@@ -209,7 +209,7 @@ export default function ContextMenuPlugin(): JSX.Element {
       const node = $getNearestNodeFromDOMNode(event.target as Element);
       if (node) {
         const parent = node.getParent();
-        if ($isLinkNode(parent)) {
+        if ($isCustomLinkNode(parent)) {
           newOptions = [
             new ContextMenuOption(`Remove Link`, {
               onSelect: (_node) => {

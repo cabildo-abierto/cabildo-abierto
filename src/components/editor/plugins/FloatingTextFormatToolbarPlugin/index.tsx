@@ -9,7 +9,6 @@
 import './index.css';
 
 import {$isCodeHighlightNode} from '@lexical/code';
-import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
 import {
@@ -30,6 +29,7 @@ import {getDOMRangeRect} from '../../utils/getDOMRangeRect';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPosition} from '../../utils/setFloatingElemPosition';
 import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
+import { $isCustomLinkNode, TOGGLE_LINK_COMMAND } from '../../nodes/CustomLinkNode';
 
 function TextFormatFloatingToolbar({
   editor,
@@ -63,6 +63,7 @@ function TextFormatFloatingToolbar({
   const {isComment, useSuperscript, useSubscript, useStrikethrough, useCodeblock} = settings
 
   const insertLink = useCallback(() => {
+    console.log("inserting link", isLink)
     if (!isLink) {
       setIsLinkEditMode(true);
       editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://');
@@ -328,7 +329,7 @@ function useFloatingTextFormatToolbar(
 
       // Update links
       const parent = node.getParent();
-      if ($isLinkNode(parent) || $isLinkNode(node)) {
+      if ($isCustomLinkNode(parent) || $isCustomLinkNode(node)) {
         setIsLink(true);
       } else {
         setIsLink(false);
