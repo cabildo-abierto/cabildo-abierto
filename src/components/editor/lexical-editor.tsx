@@ -245,7 +245,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
 
             {floatingAnchorElem && !isSmallWidthViewport && (
               <>
-                {isDraggableBlock && <DraggableBlockPlugin />}
+                {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem}/>}
                 <CodeActionMenuPlugin />
                 <FloatingLinkEditorPlugin
                   isLinkEditMode={isLinkEditMode}
