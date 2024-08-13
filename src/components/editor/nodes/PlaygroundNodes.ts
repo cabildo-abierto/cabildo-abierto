@@ -33,6 +33,7 @@ import {PollNode} from './PollNode';
 import {StickyNode} from './StickyNode';
 import {TweetNode} from './TweetNode';
 import {YouTubeNode} from './YouTubeNode';
+import {LinkNode, AutoLinkNode} from '@lexical/link'
 
 const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   HeadingNode,
@@ -46,6 +47,8 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   HashtagNode,
   CodeHighlightNode,
   OverflowNode,
+  LinkNode,
+  AutoLinkNode,
   PollNode,
   StickyNode,
   ImageNode,

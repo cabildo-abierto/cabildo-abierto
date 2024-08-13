@@ -9,6 +9,9 @@ import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$findMatchingParent, mergeRegister} from '@lexical/utils';
+
+import { $createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+
 import {
   $getSelection,
   $isLineBreakNode,
@@ -30,7 +33,6 @@ import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl, SUPPORTED_URL_PROTOCOLS} from '../../utils/url';
 import { EntityProps, getEntities } from '@/actions/get-entity';
-import { $createCustomLinkNode, $isAutoCustomLinkNode, $isCustomLinkNode, TOGGLE_LINK_COMMAND } from '../../nodes/CustomLinkNode';
 
 function FloatingLinkEditor({
   editor,
@@ -69,10 +71,10 @@ function FloatingLinkEditor({
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
       const node = getSelectedNode(selection);
-      const linkParent = $findMatchingParent(node, $isCustomLinkNode);
+      const linkParent = $findMatchingParent(node, $isLinkNode);
       if (linkParent) {
         setLinkUrl(linkParent.getURL());
-      } else if ($isCustomLinkNode(node)) {
+      } else if ($isLinkNode(node)) {
         setLinkUrl(node.getURL());
       } else {
         setLinkUrl('');
@@ -206,8 +208,8 @@ function FloatingLinkEditor({
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const parent = getSelectedNode(selection).getParent();
-            if ($isAutoCustomLinkNode(parent)) {
-              const linkNode = $createCustomLinkNode(parent.getURL(), {
+            if ($isAutoLinkNode(parent)) {
+              const linkNode = $createLinkNode(parent.getURL(), {
                 rel: parent.__rel,
                 target: parent.__target,
                 title: parent.__title,
@@ -258,6 +260,9 @@ function FloatingLinkEditor({
       })}
     </div>
   }
+
+  console.log("is link", isLink)
+  console.log("isLinkEditMode", isLinkEditMode)
 
   return (
     <div ref={editorRef} className="link-editor">
@@ -344,10 +349,10 @@ function useFloatingLinkEditorToolbar(
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         const focusNode = getSelectedNode(selection);
-        const focusLinkNode = $findMatchingParent(focusNode, $isCustomLinkNode);
+        const focusLinkNode = $findMatchingParent(focusNode, $isLinkNode);
         const focusAutoLinkNode = $findMatchingParent(
           focusNode,
-          $isAutoCustomLinkNode,
+          $isAutoLinkNode,
         );
         if (!(focusLinkNode || focusAutoLinkNode)) {
           setIsLink(false);
@@ -357,8 +362,8 @@ function useFloatingLinkEditorToolbar(
           .getNodes()
           .filter((node) => !$isLineBreakNode(node))
           .find((node) => {
-            const linkNode = $findMatchingParent(node, $isCustomLinkNode);
-            const autoLinkNode = $findMatchingParent(node, $isAutoCustomLinkNode);
+            const linkNode = $findMatchingParent(node, $isLinkNode);
+            const autoLinkNode = $findMatchingParent(node, $isAutoLinkNode);
             return (
               (focusLinkNode && !focusLinkNode.is(linkNode)) ||
               (linkNode && !linkNode.is(focusLinkNode)) ||
@@ -369,8 +374,10 @@ function useFloatingLinkEditorToolbar(
             );
           });
         if (!badNode) {
+          console.log("Is good node")
           setIsLink(true);
         } else {
+          console.log("Is bad node")
           setIsLink(false);
         }
       }
@@ -396,8 +403,8 @@ function useFloatingLinkEditorToolbar(
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const node = getSelectedNode(selection);
-            const linkNode = $findMatchingParent(node, $isCustomLinkNode);
-            if ($isCustomLinkNode(linkNode) && (payload.metaKey || payload.ctrlKey)) {
+            const linkNode = $findMatchingParent(node, $isLinkNode);
+            if ($isLinkNode(linkNode) && (payload.metaKey || payload.ctrlKey)) {
               window.open(linkNode.getURL(), '_blank');
               return true;
             }

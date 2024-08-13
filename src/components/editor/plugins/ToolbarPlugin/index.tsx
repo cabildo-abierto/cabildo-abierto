@@ -95,7 +95,7 @@ import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
 import {InsertPollDialog} from '../PollPlugin';
 import {InsertTableDialog} from '../TablePlugin';
 import FontSize from './fontSize';
-import { $isCustomLinkNode, TOGGLE_LINK_COMMAND } from '../../nodes/CustomLinkNode';
+import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 
 const blockTypeToBlockName = {
   bullet: 'Lista',
@@ -590,7 +590,7 @@ export default function ToolbarPlugin({
       // Update links
       const node = getSelectedNode(selection);
       const parent = node.getParent();
-      if ($isCustomLinkNode(parent) || $isCustomLinkNode(node)) {
+      if ($isLinkNode(parent) || $isLinkNode(node)) {
         setIsLink(true);
       } else {
         setIsLink(false);
@@ -646,7 +646,7 @@ export default function ToolbarPlugin({
         $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial'),
       );
       let matchingParent;
-      if ($isCustomLinkNode(parent)) {
+      if ($isLinkNode(parent)) {
         // If node is a link, we need to fetch the parent paragraph node to set format
         matchingParent = $findMatchingParent(
           node,

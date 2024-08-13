@@ -27,8 +27,7 @@ import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { CAN_USE_DOM } from './shared/canUseDOM';
-import {AutoCustomLinkNode, CustomLinkNode, TOGGLE_LINK_COMMAND} from './nodes/CustomLinkNode'
-import {AutoLinkNode, LinkNode} from '@lexical/link';
+import {AutoLinkNode, LinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link'
 
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
 import ActionsPlugin from './plugins/ActionsPlugin';
@@ -154,6 +153,8 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
   const [isSmallWidthViewport, setIsSmallWidthViewport] =
     useState<boolean>(false);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
+
+  console.log("Is link edit mode", isLinkEditMode)
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
@@ -310,26 +311,6 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: any) => {
     nodes: [
       ...createBeautifulMentionNode(CustomMentionComponent),
       ...PlaygroundNodes,
-      CustomLinkNode,
-      {
-        replace: LinkNode,
-        with: (node: LinkNode) => {
-            return new CustomLinkNode(
-              node.__url, 
-              {target: node.__target, rel: node.__rel, title: node.__title}
-            );
-        }
-      },
-      AutoCustomLinkNode,
-      {
-        replace: AutoLinkNode,
-        with: (node: AutoLinkNode) => {
-            return new AutoCustomLinkNode(
-              node.__url, 
-              {target: node.__target, rel: node.__rel, title: node.__title}
-            );
-        }
-      },
     ],
     onError: (error: Error) => {
       throw error;

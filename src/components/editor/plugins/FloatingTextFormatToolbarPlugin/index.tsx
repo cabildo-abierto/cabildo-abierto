@@ -29,7 +29,7 @@ import {getDOMRangeRect} from '../../utils/getDOMRangeRect';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPosition} from '../../utils/setFloatingElemPosition';
 import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
-import { $isCustomLinkNode, TOGGLE_LINK_COMMAND } from '../../nodes/CustomLinkNode';
+import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 
 function TextFormatFloatingToolbar({
   editor,
@@ -329,7 +329,7 @@ function useFloatingTextFormatToolbar(
 
       // Update links
       const parent = node.getParent();
-      if ($isCustomLinkNode(parent) || $isCustomLinkNode(node)) {
+      if ($isLinkNode(parent) || $isLinkNode(node)) {
         setIsLink(true);
       } else {
         setIsLink(false);
