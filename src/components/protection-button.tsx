@@ -21,7 +21,7 @@ export const SetProtectionButton = ({entity} : any) => {
     return <StateButton
         text1={"Cambiar protección a " + protectionToName(otherProtection(protection))}
         text2={"Cambiando..."}
-        className="py-1 px-4 rounded transition duration-200 bg-gray-200 hover:bg-gray-300 cursor-pointer"
+        className="gray-btn"
         onClick={async () => {await setProtection(entity.id, otherProtection(protection));}}
     />
 }

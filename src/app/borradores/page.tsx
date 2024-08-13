@@ -16,7 +16,7 @@ const DraftButton: React.FC<{draft: ContentProps, index: number}> = ({draft, ind
             </div>
             <div className="flex justify-end">
                 <Link href={"/editar/"+draft.id}>
-                    <button className="large-btn">Editar</button>
+                    <button className="gray-btn">Editar</button>
                 </Link>
             </div>
         </div>

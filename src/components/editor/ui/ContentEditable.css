@@ -6,43 +6,19 @@
  *
  *
  */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 .ContentEditable__root {
   border: 0;
   display: block;
   position: relative;
   outline: 0;
-  padding: 8px 28px 8px;
-  min-height: 150px;
 	word-break: break-word;
-}
-@media (max-width: 1025px) {
-  .ContentEditable__root {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
 }
 
 .ContentEditable__placeholder {
-  color: #999;
-  top: 8px;
-  left: 28px;
-  right: 28px;
-  overflow: hidden;
   position: absolute;
-  text-overflow: ellipsis;
-  user-select: none;
-  white-space: nowrap;
-  display: inline-block;
+  top: 0;
+  padding: 0 2px; 
+  color: #999;
   pointer-events: none;
-}
-
-@media (max-width: 1025px) {
-  .ContentEditable__placeholder {
-    left: 8px;
-    right: 8px;
-  }
 }

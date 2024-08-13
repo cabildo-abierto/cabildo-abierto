@@ -15,20 +15,22 @@ type Props = {
   className?: string;
   placeholderClassName?: string;
   placeholder: string;
+  settings?: any
 };
 
 export default function LexicalContentEditable({
   className,
   placeholder,
   placeholderClassName,
+  settings
 }: Props): JSX.Element {
   return (
     <ContentEditable
       spellCheck={false}
-      className={className ?? 'ContentEditable__root'}
+      className={className ?? ('ContentEditable__root' + ((settings && settings.isDraggableBlock) ? " pl-6" : ""))}
       aria-placeholder={placeholder}
       placeholder={
-        <div className={placeholderClassName ?? 'ContentEditable__placeholder'}>
+        <div className={placeholderClassName ?? ('ContentEditable__placeholder' + ((settings && settings.isDraggableBlock) ? " left-6" : ""))}>
           {placeholder}
         </div>
       }

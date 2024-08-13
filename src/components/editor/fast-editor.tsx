@@ -73,7 +73,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
 	const PublishButton = ({onClick}: any) => {
         return <StateButton
             onClick={onClick}
-            className="large-btn"
+            className="gray-btn"
             text1="Publicar"
             text2="Publicando..."
             disabled={emptyOutput(editorOutput)}
@@ -83,7 +83,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
     const SaveDraftButton = ({onClick}: any) => {
         return <StateButton
             onClick={onClick}
-            className="large-btn"
+            className="gray-btn"
             text1="Guardar borrador"
             text2="Guardando..."
             disabled={emptyOutput(editorOutput)}
@@ -92,7 +92,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
 
     const DraftsButton = () => {
         return <Link href="/borradores">
-            <button className="large-btn">
+            <button className="gray-btn">
                 Ver borradores
             </button>
         </Link>
@@ -109,8 +109,9 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
                 <SaveDraftButton onClick={handleSaveDraft}/>
 			</div>
 		</div>
+        <div className="mt-4">
         <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
-
+        </div>
     </div>
 }
 

@@ -20,9 +20,11 @@ const TopicsPage: React.FC = async () => {
     const sortedEntities = Object.values(entities).sort(entityOrder)
 
     const center = <div className="w-full">
-        <h2 className="ml-2 py-8 flex justify-center">
-            Artículos colaborativos
-        </h2>
+        <div className="ck-content">
+            <h2 className="ml-2 py-8 flex justify-center">
+                Artículos colaborativos
+            </h2>
+        </div>
         <div className="flex justify-center mb-4">
             <EntityPopup user={user}/>
         </div>

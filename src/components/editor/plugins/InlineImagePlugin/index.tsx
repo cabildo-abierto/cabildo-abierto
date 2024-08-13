@@ -212,8 +212,17 @@ export default function InlineImagePlugin(): JSX.Element | null {
 
 const TRANSPARENT_IMAGE =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-const img = document.createElement('img');
-img.src = TRANSPARENT_IMAGE;
+
+let img: HTMLImageElement | null = null;
+
+function initializeImage() {
+  if (typeof window !== 'undefined') {
+    const _img = document.createElement('img');
+    _img.src = TRANSPARENT_IMAGE;
+    return _img
+  }
+  return null
+}
 
 function $onDragStart(event: DragEvent): boolean {
   const node = $getImageNodeInSelection();
@@ -224,6 +233,13 @@ function $onDragStart(event: DragEvent): boolean {
   if (!dataTransfer) {
     return false;
   }
+  if (!img) {
+    img = initializeImage();
+  }
+  if (!img) {
+    return false
+  }
+
   dataTransfer.setData('text/plain', '_');
   dataTransfer.setDragImage(img, 0, 0);
   dataTransfer.setData(

@@ -6,6 +6,8 @@
  *
  */
 
+"use client"
+
 import './index.css';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CharacterLimitPlugin } from '@lexical/react/LexicalCharacterLimitPlugin';
@@ -176,19 +178,20 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
         <EmojiPickerPlugin />
         <AutoEmbedPlugin />
 
-        <OnChangePlugin
-          onChange={(editorState) => {
-            setOutput(editorState)
-            setEditor(editor)
-          }}
-        />
-
         <BeautifulMentionsPlugin
           triggers={["@"]}
           onSearch={queryMentions}
           emptyComponent={EmptyMentionResults}
           menuComponent={CustomMenuMentions}
           menuItemComponent={CustomMenuItemMentions}
+        />
+
+
+        <OnChangePlugin
+          onChange={(editorState) => {
+            setOutput(editorState)
+            setEditor(editor)
+          }}
         />
         <EmojisPlugin />
         <HashtagPlugin />
@@ -202,9 +205,9 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
               contentEditable={
-                <div className="editor-scroller ck-content">
+                <div className={"editor-scroller ck-content"}>
                   <div className="editor" ref={onRef}>
-                    <ContentEditable placeholder={placeholder} />
+                    <ContentEditable placeholder={placeholder} settings={settings}/>
                   </div>
                 </div>
               }
@@ -286,6 +289,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
 
 
 const LexicalEditor = ({ settings, setEditor, setOutput }: any) => {
+  const {isReadOnly} = settings
   const initialConfig = {
     editorState: undefined,
     namespace: 'Playground',
@@ -300,7 +304,7 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: any) => {
       editorTheme: PlaygroundEditorTheme,
       beautifulMentions: beautifulMentionsTheme
     },
-
+    editable: !isReadOnly
   };
 
   return <FlashMessageContext>

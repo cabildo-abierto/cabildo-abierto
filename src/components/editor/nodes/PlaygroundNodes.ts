@@ -34,7 +34,6 @@ import {PollNode} from './PollNode';
 import {StickyNode} from './StickyNode';
 import {TweetNode} from './TweetNode';
 import {YouTubeNode} from './YouTubeNode';
-import { BeautifulMentionNode } from 'lexical-beautiful-mentions';
 
 const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   HeadingNode,
@@ -68,7 +67,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   PageBreakNode,
   LayoutContainerNode,
   LayoutItemNode,
-  BeautifulMentionNode,
 ];
 
 export default PlaygroundNodes;

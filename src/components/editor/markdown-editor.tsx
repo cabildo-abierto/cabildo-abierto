@@ -7,6 +7,7 @@ import StateButton from "../state-button"
 import { updateContent } from "@/actions/create-content"
 
 import {$convertToMarkdownString} from "@lexical/markdown"
+import Link from "next/link"
 
 const MarkdownEditor = ({initialData, contentId, entityId}: any) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
@@ -46,7 +47,7 @@ const MarkdownEditor = ({initialData, contentId, entityId}: any) => {
 
     const SaveEditButton = () => {
         return <StateButton
-            className="large-btn"
+            className="gray-btn"
             text1="Guardar edición"
             text2="Guardando..."
             onClick={async () => {
@@ -55,7 +56,7 @@ const MarkdownEditor = ({initialData, contentId, entityId}: any) => {
                         const root = $getRoot()
                         const markdown = $convertToMarkdownString(undefined, root, false)
                         await updateContent(markdown, contentId)
-                        router.push("/wiki/"+encodeURIComponent(entityId))
+                        router.push("/wiki/"+entityId)
                     })
                 }
             }}
@@ -64,7 +65,12 @@ const MarkdownEditor = ({initialData, contentId, entityId}: any) => {
 
     return <>
         <div className="flex justify-end">
-        <SaveEditButton/>
+            <Link href={"/wiki/"+entityId} className="px-2">
+                <button className="gray-btn">
+                    Cancelar
+                </button>
+            </Link>
+            <SaveEditButton/>
         </div>
         <div className="ck-content">
             <MyLexicalEditor

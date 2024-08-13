@@ -6,7 +6,7 @@ const ReadOnlyContent: React.FC<any> = ({ content, entity }) => {
     const EditButton: React.FC<any> = () => {
         return <Link href={"/wiki/"+entity.id+"/edit"}>
             <button
-                className="py-1 px-4 rounded transition duration-200 bg-gray-200 hover:bg-gray-300 cursor-pointer"
+                className="gray-btn"
             >
                 Editar
             </button>

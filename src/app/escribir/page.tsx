@@ -6,18 +6,20 @@ import ArticleIcon from '@mui/icons-material/Article';
 
 
 const Escribir = () => {
+    const className = "gray-btn w-64 flex justify-center items-center"
+
     const center = <div className="flex flex-col items-center h-screen">
         <div className="lg:flex lg:justify-center py-64">
             <div className="px-4">
                 <Link href="/escribir/rapida">
-                    <button className="large-btn scale-btn w-64 flex justify-center items-center">
+                    <button className={className}>
                     <span className="px-1"><BoltIcon/></span> Publicación rápida
                     </button>
                 </Link>
             </div>
             <div className="px-4">
                 <Link href="/escribir/publicacion">
-                    <button className="large-btn scale-btn w-64 flex justify-center items-center">
+                    <button className={className}>
                         <span className="px-1"><ArticleIcon/></span> Publicación
                     </button>
                 </Link>

@@ -2,13 +2,17 @@
 
 import { UserProps } from "@/actions/get-user"
 import { validSubscription } from "../utils"
-import MyLexicalEditor from "./lexical-editor"
 import { useState } from "react"
 import Popup from "../popup"
 import NeedAccountPopupPanel from "../need-account-popup"
 import StateButton from "../state-button"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode, LexicalEditor } from "lexical"
 import { $generateHtmlFromNodes } from '@lexical/html';
+
+import dynamic from 'next/dynamic'
+
+const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
+
 
 
 function canComment(user: UserProps | null | undefined){
@@ -91,7 +95,7 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
 	const SendCommentButton = ({onClick}: any) => {
         return <StateButton
             onClick={onClick}
-            className="small-btn disabled:bg-gray-600"
+            className="small-btn"
             text1="Enviar"
             text2="Enviando..."
             disabled={emptyOutput(editorOutput)}
@@ -99,8 +103,9 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
 	}
 
     return <div className="p-1 border rounded">
-        <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
-
+        <div className="ml-3 mr-2 mt-2">
+            <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
+        </div>
         <div className="flex justify-end">
 			<div className="flex justify-end mt-3">
                 <div className="px-1">

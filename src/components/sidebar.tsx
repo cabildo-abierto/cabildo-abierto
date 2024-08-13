@@ -34,7 +34,7 @@ export default function Sidebar({onClose, user}: any) {
 
                     <div className="py-4">
                         <button
-                            className="gray-button"
+                            className="gray-btn"
                             onClick={onLogout}
                         >
                             Cerrar sesión

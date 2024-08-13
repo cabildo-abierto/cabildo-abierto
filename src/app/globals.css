@@ -31,31 +31,31 @@
     font-weight: bold
 }
 
-.ck-content h1 {
+h1 {
 	font-size: xx-large;
     font-weight: bold;
 	margin-bottom: 20px
 }
 
-.ck-content h2 {
+h2 {
 	font-size: x-large;
     font-weight: bold;
   	margin-bottom: 16px
 }
 
-.ck-content h3 {
+h3 {
 	font-size: larger;
     font-weight: bold;
   	margin-bottom: 14px
 }
 
-.ck-content h4 {
+h4 {
 	font-size: large;
     font-weight: bold;
   	margin-bottom: 10px
 }
 
-.ck-content h5 {
+h5 {
     font-weight: bold;
   	margin-bottom: 10px
 }
@@ -188,6 +188,33 @@
 }
 
 
+.gray-btn {
+	padding-top: 0.25rem; /* py-1 */
+	padding-bottom: 0.25rem;
+	padding-left: 1rem; /* px-4 */
+	padding-right: 1rem;
+	border-radius: 0.25rem; /* rounded */
+	transition: background-color 0.2s ease; /* transition duration-200 */
+	background-color: #e5e7eb; /* bg-gray-200 */
+	cursor: pointer; /* cursor-pointer */
+  }
+  
+.gray-btn:hover {
+background-color: #d1d5db; /* hover:bg-gray-300 */
+}
+
+.gray-btn:disabled {
+	background-color: #d1d5db; /* Disabled background color */
+	color: #a0aec0; /* Disabled text color */
+	opacity: 0.6; /* Add opacity to make it look disabled */
+}
+
+.gray-btn:disabled:hover {
+background-color: #d1d5db; /* Maintain the same background color for disabled */
+}
+  
+
+
 
 .small-btn {
 	border: 2px solid transparent; /* Reduced border size for a sleeker look */
@@ -212,6 +239,15 @@
 	color: #e0e0e0;
 }
 
+.small-btn:disabled {
+	background-color: #d1d5db; /* Disabled background color */
+	color: #a0aec0; /* Disabled text color */
+	opacity: 0.6; /* Add opacity to make it look disabled */
+}
+
+.small-btn:disabled:hover {
+	background-color: #d1d5db; /* Maintain the same background color for disabled */
+}
 
 
 .subscription-btn {
