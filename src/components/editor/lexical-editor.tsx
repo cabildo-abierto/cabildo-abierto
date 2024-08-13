@@ -167,6 +167,8 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     };
   }, [isSmallWidthViewport]);
 
+  console.log("anchorEleme", floatingAnchorElem)
+
   return (
     <>
       {(isRichText && showToolbar) && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />}
@@ -243,19 +245,16 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
 
             {floatingAnchorElem && !isSmallWidthViewport && (
               <>
-                {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
-                <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
+                {isDraggableBlock && <DraggableBlockPlugin />}
+                <CodeActionMenuPlugin />
                 <FloatingLinkEditorPlugin
-                  anchorElem={floatingAnchorElem}
                   isLinkEditMode={isLinkEditMode}
                   setIsLinkEditMode={setIsLinkEditMode}
                 />
                 <TableCellActionMenuPlugin
-                  anchorElem={floatingAnchorElem}
                   cellMerge={true}
                 />
                 <FloatingTextFormatToolbarPlugin
-                  anchorElem={floatingAnchorElem}
                   setIsLinkEditMode={setIsLinkEditMode}
                   settings={settings}
                 />
