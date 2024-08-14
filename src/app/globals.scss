@@ -25,10 +25,18 @@ $accent: #8790b0;
 
 .content {
 	/*font-family: 'Lato';*/
-	font-size: large;
 	font-family: "Bodoni Moda SC", serif;
 	font-optical-sizing: auto;
 	font-style: normal;
+}
+
+.text-link {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.text-link:hover {
+    text-decoration: underline;
 }
 
 .link a {
@@ -97,12 +105,15 @@ h4 {
 }
 
 .content blockquote {
-    border-left: 3px solid var(--accent);
-    padding: 10px 20px;
-    margin: 20px 0;
-    font-style: italic;
-    background-color: var(--secondary-light);
-    color: var(--text);
+	margin: 0;
+	margin-left: 20px;
+	margin-bottom: 10px;
+	font-size: 15px;
+	color: rgb(101, 103, 107);
+	border-left-color: rgb(206, 208, 212);
+	border-left-width: 4px;
+	border-left-style: solid;
+	padding-left: 16px;
 }
 
 .content ul {
@@ -311,4 +322,14 @@ h4 {
 
 .topbar-btn:hover {
 	background-color: var(--secondary-light);
+}
+
+.topbar-btn:hover:disabled {
+	background-color: transparent;
+	cursor: default
+}
+
+.topbar-btn:disabled {
+	background-color: transparent;
+	cursor: default
 }

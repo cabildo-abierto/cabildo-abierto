@@ -114,7 +114,8 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     initialData,
     isMarkdownEditor,
     isReadOnly,
-    isAutofocus
+    isAutofocus,
+    editorClassName
   } = settings
 
   useEffect(() => {
@@ -191,7 +192,6 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
           menuItemComponent={CustomMenuItemMentions}
         />
 
-
         <OnChangePlugin
           onChange={(editorState) => {
             setOutput(editorState)
@@ -210,7 +210,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
               contentEditable={
-                <div className={"editor-scroller content" + (isReadOnly ? "" : " min-h-[105px]")}>
+                <div className={"editor-scroller " + editorClassName + (isReadOnly ? "" : " min-h-[105px]")}>
                   <div className="editor" ref={onRef}>
                     <ContentEditable placeholder={placeholder} settings={settings}/>
                   </div>
@@ -302,10 +302,7 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: any) => {
     onError: (error: Error) => {
       throw error;
     },
-    theme: {
-      editorTheme: PlaygroundEditorTheme,
-      beautifulMentions: beautifulMentionsTheme
-    },
+    theme: PlaygroundEditorTheme,
     editable: !isReadOnly
   };
 

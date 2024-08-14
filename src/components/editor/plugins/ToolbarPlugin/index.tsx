@@ -738,7 +738,7 @@ export default function ToolbarPlugin({
             url = null;
           }
           console.log("dispatching", url)
-          return activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
+          return activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, url ? {url: url, target: "", rel: ""} : null);
         }
         return false;
       },

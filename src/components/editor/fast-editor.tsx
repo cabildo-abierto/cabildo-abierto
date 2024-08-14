@@ -48,7 +48,8 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
         useCodeblock: false,
         placeholder: "Escribí tu publicación acá...",
         initialData: initialData,
-        isAutofocus: true
+        isAutofocus: true,
+        editorClassName: "link"
     }
 
     async function handleSubmit(){

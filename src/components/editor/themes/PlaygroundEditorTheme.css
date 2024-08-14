@@ -13,37 +13,14 @@
   text-align: right;
 }
 .PlaygroundEditorTheme__paragraph {
-  margin: 0;
-  position: relative;
 }
 .PlaygroundEditorTheme__quote {
-  margin: 0;
-  margin-left: 20px;
-  margin-bottom: 10px;
-  font-size: 15px;
-  color: rgb(101, 103, 107);
-  border-left-color: rgb(206, 208, 212);
-  border-left-width: 4px;
-  border-left-style: solid;
-  padding-left: 16px;
 }
 .PlaygroundEditorTheme__h1 {
-  font-size: 24px;
-  color: rgb(5, 5, 5);
-  font-weight: 400;
-  margin: 0;
 }
 .PlaygroundEditorTheme__h2 {
-  font-size: 15px;
-  color: rgb(101, 103, 107);
-  font-weight: 700;
-  margin: 0;
-  text-transform: uppercase;
 }
 .PlaygroundEditorTheme__h3 {
-  font-size: 12px;
-  margin: 0;
-  text-transform: uppercase;
 }
 .PlaygroundEditorTheme__indent {
   --lexical-indent-base-value: 40px;
@@ -82,12 +59,8 @@
   border-bottom: 1px solid rgba(88, 144, 255, 0.3);
 }
 .PlaygroundEditorTheme__link {
-  color: rgb(33, 111, 219);
-  text-decoration: none;
 }
 .PlaygroundEditorTheme__link:hover {
-  text-decoration: underline;
-  cursor: pointer;
 }
 .PlaygroundEditorTheme__code {
   background-color: rgb(240, 242, 245);
