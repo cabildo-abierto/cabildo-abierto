@@ -18,6 +18,7 @@ import {
   YArrayEvent,
   YEvent,
 } from 'yjs';
+import { UserProps } from '@/actions/get-user';
 
 export type Comment = {
   author: string;
@@ -52,7 +53,7 @@ export function createComment(
   deleted?: boolean,
 ): Comment {
   return {
-    author,
+    author: author,
     content,
     deleted: deleted === undefined ? false : deleted,
     id: id === undefined ? createUID() : id,

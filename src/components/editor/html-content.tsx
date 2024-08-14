@@ -1,10 +1,11 @@
 "use client"
 
+import { UserProps } from '@/actions/get-user';
 import dynamic from 'next/dynamic'
 
 const LexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
-export default function HtmlContent({content, limitHeight=false}: {content: string, limitHeight?: Boolean}) {
+export default function HtmlContent({content, user, limitHeight=false}: {content: string, user: UserProps | null, limitHeight?: Boolean}) {
     
     const isDevPlayground = false
     const settings = {
@@ -38,6 +39,7 @@ export default function HtmlContent({content, limitHeight=false}: {content: stri
         isReadOnly: true,
         isAutofocus: true,
         editorClassName: "link",
+        user: user
     }
 
     const parsed_content = <LexicalEditor settings={settings} setEditor={(editor: any) => {}} setOutput={(output: any) => {}}/>

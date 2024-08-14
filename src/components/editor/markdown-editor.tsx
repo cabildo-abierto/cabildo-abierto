@@ -9,7 +9,7 @@ import { updateContent } from "@/actions/create-content"
 import {$convertToMarkdownString} from "@lexical/markdown"
 import Link from "next/link"
 
-const MarkdownEditor = ({initialData, contentId, entityId}: any) => {
+const MarkdownEditor = ({initialData, contentId, entityId, user, readOnly=false}: any) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
@@ -33,9 +33,9 @@ const MarkdownEditor = ({initialData, contentId, entityId}: any) => {
         tableCellBackgroundColor: false,
         tableCellMerge: false,
         showActions: false,
-        showToolbar: true,
-        isComments: false,
-        isDraggableBlock: true,
+        showToolbar: !readOnly,
+        isComments: readOnly,
+        isDraggableBlock: !readOnly,
         useSuperscript: false,
         useStrikethrough: false,
         useSubscript: false,
@@ -43,7 +43,9 @@ const MarkdownEditor = ({initialData, contentId, entityId}: any) => {
         placeholder: "Este artículo está vacío!",
         initialData: initialData,
         isMarkdownEditor: true,
-        editorClassName: "content mt-4"
+        editorClassName: "content mt-4",
+        isReadOnly: readOnly,
+        user: user
     }
 
     const SaveEditButton = () => {
@@ -65,14 +67,14 @@ const MarkdownEditor = ({initialData, contentId, entityId}: any) => {
     }
 
     return <>
-        <div className="flex justify-end">
+        {!readOnly && <div className="flex justify-end">
             <Link href={"/wiki/"+entityId} className="px-2">
                 <button className="gray-btn">
                     Cancelar
                 </button>
             </Link>
             <SaveEditButton/>
-        </div>
+        </div>}
         <div className="ck-content">
             <MyLexicalEditor
                 settings={settings}

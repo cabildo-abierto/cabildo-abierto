@@ -82,7 +82,8 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
         useCodeblock: false,
         placeholder: "Agregá un comentario...",
         isAutofocus: false,
-        editorClassName: "link"
+        editorClassName: "link",
+        user: user
     }
 
     async function handleSubmit(){

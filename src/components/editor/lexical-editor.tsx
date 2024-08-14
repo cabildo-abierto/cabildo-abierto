@@ -115,7 +115,8 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     isMarkdownEditor,
     isReadOnly,
     isAutofocus,
-    editorClassName
+    editorClassName,
+    user
   } = settings
 
   useEffect(() => {
@@ -203,7 +204,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
         <KeywordsPlugin />
         <AutoLinkPlugin />
         {isComments && <CommentPlugin
-          providerFactory={undefined}
+          user={user}
         />}
         {isRichText ? (
           <>
