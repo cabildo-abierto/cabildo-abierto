@@ -13,11 +13,11 @@ const SearchSidebar: React.FC<{searchValue: string, user: UserProps}> = (
             <SearchPage user={user} searchValue={searchValue}/>
           </div>
           <div>
-            <hr className="py-2"/>
-            <div className="flex justify-center">
+            <hr className="mt-2"/>
+            <div className="flex justify-center py-2">
               <Link href={"/buscar/"+encodeURIComponent(searchValue)}>
-                <button className="large-btn scale-btn">
-                Ver más resultados
+                <button className="gray-btn">
+                  Ver más resultados
                 </button>
               </Link>
             </div>

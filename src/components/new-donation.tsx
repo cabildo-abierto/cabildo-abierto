@@ -27,7 +27,7 @@ export const NewDonation: React.FC<any> = ({user}) => {
         <div className="flex justify-center items-center mt-2">
             <div className="w-full">
             
-            <div className="flex justify-center">
+            <div className="flex justify-center py-2">
             <SubscriptionOptionButton
                 title="Pago único"
                 description="Sin compromisos"

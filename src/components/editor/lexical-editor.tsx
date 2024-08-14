@@ -113,7 +113,8 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     placeholder,
     initialData,
     isMarkdownEditor,
-    isReadOnly
+    isReadOnly,
+    isAutofocus
   } = settings
 
   useEffect(() => {
@@ -167,7 +168,6 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     };
   }, [isSmallWidthViewport]);
 
-  console.log("anchorEleme", floatingAnchorElem)
 
   return (
     <>
@@ -177,7 +177,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
           }`}>
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <DragDropPaste />
-        <AutoFocusPlugin />
+        {isAutofocus && <AutoFocusPlugin />}
         <ClearEditorPlugin />
         <ComponentPickerPlugin />
         <EmojiPickerPlugin />
@@ -210,7 +210,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
               contentEditable={
-                <div className={"editor-scroller ck-content" + (isReadOnly ? "" : " min-h-[105px]")}>
+                <div className={"editor-scroller content" + (isReadOnly ? "" : " min-h-[105px]")}>
                   <div className="editor" ref={onRef}>
                     <ContentEditable placeholder={placeholder} settings={settings}/>
                   </div>
@@ -243,7 +243,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
             <PageBreakPlugin />
             <LayoutPlugin />
 
-            {floatingAnchorElem && !isSmallWidthViewport && (
+            {!isReadOnly && floatingAnchorElem && !isSmallWidthViewport && (
               <>
                 {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem}/>}
                 <CodeActionMenuPlugin />

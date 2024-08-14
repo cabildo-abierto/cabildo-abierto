@@ -20,11 +20,9 @@ const EntityPage: React.FC<any> = async ({params}) => {
     }
 
     const center = <div className="bg-white h-full">
-        <div className="ck-content">
-            <h2 className="ml-2 py-8">
-                {entity.name}
-            </h2>
-        </div>
+        <h1 className="ml-2 py-8">
+            {entity.name}
+        </h1>
         {(user && user.editorStatus == "Administrator") &&
         <div className="flex justify-center">
             <SetProtectionButton entity={entity}/>

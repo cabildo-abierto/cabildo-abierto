@@ -9,7 +9,6 @@ import { stopPropagation } from "./utils";
 export const LikeCounter: React.FC<any> = ({user, content}) => {
     const [likeCount, setLikeCount] = useState(content._count.likedBy)
     const [dislikeCount, setDislikeCount] = useState(content._count.dislikedBy)
-
     const wasLiked = user?.likes.some((c: any) => (c.id == content.id))
     const wasDisliked = user?.dislikes.some((c: any) => (c.id == content.id))
     const [liked, setLiked] = useState(wasLiked)
@@ -56,7 +55,7 @@ export const LikeCounter: React.FC<any> = ({user, content}) => {
         <div className="px-3">
             <button onClick={stopPropagation(onLikeClick)}
                 disabled={!user}
-                className={"text-sm mr-1 hover:text-gray-900 " + (liked ? "text-gray-700" : "text-gray-500")}
+                className={liked ? "reaction-btn-selected" : "reaction-btn"}
             >
                 <span className="px-1">{like_icon}</span>             
                 <span>{likeCount}</span>  
@@ -65,7 +64,7 @@ export const LikeCounter: React.FC<any> = ({user, content}) => {
         <div className="px-3">
             <button onClick={stopPropagation(onDislikeClick)}
                 disabled={!user}
-                className={"text-sm mr-1 hover:text-gray-900 " + (disliked ? "text-gray-700" : "text-gray-500")}
+                className={disliked ? "reaction-btn-selected" : "reaction-btn"}
             >
                 <span className="px-1">{dislike_icon}</span>             
                 <span>{dislikeCount}</span>

@@ -29,7 +29,7 @@ export default async function PagoUnico({params}: any) {
             <div className="px-2">
             <PayDonationButton user={user}/>
             </div>
-            <Link href="/suscripciones/donar"><button className="large-btn scale-btn">Volver</button></Link>
+            <Link href="/suscripciones/donar"><button className="gray-btn">Volver</button></Link>
         </div>
     </>
 

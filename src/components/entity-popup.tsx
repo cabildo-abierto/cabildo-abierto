@@ -22,7 +22,7 @@ export default function EntityPopup({user, disabled = false}: any) {
 
   const ValidPanel: React.FC<any> = ({onClose}) => { return <>
       <form action={action}>
-          <div className="space-y-3 ck-content">
+          <div className="space-y-3">
             <h3>Crear artículo</h3>
             <div>
               <input
@@ -45,7 +45,7 @@ export default function EntityPopup({user, disabled = false}: any) {
   </>}
 
   const trigger: React.FC<any> = ({onClick}) => {
-    return <button className="large-btn scale-btn" onClick={onClick} disabled={disabled}>
+    return <button className="gray-btn" onClick={onClick} disabled={disabled}>
       Crear artículo
     </button>
   }

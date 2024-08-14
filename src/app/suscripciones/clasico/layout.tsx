@@ -1,5 +1,4 @@
 import { getUser } from "@/actions/get-user";
-import "@/app/globals.css";
 import { RedirectWrapper } from "@/components/redirect-wrapper";
 import React from "react";
 

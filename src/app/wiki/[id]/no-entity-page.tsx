@@ -9,7 +9,7 @@ import React from "react"
 
 const CreateEntityButton: React.FC<any> = ({onClick}) => {
     return <button 
-            className="large-btn"
+            className="gray-btn"
             onClick={onClick}
         >
             Crear artículo

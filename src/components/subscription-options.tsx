@@ -19,15 +19,15 @@ const SubscriptionOptions = async () => {
                 </h2>
             </div>
 
-            <div className="flex justify-center font-bold mt-8">
+            <div className="flex justify-center mt-8">
                 <p className="lg:w-96 w-64">
                     Cabildo Abierto se sostiene únicamente con las suscripciones de sus usuarios.
                 </p>
             </div>
         </div>
 
-        <div className="mt-16 flex flex-col">
-            <div className="flex justify-center">
+        <div className="mt-8 flex flex-col">
+            <div className="flex justify-center py-2">
                 <SubscriptionOptionButton
                     title="El plan clásico"
                     description="Pagar una suscripción"
@@ -36,18 +36,19 @@ const SubscriptionOptions = async () => {
                 />
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center py-2">
                 <SubscriptionOptionButton
-                    title="Gratis"
+                    title="Continuar gratis"
                     description={desc2}
                     price="$0"
+                    disabled={poolSize == 0}
                     href={"/suscripciones/pendiente"}
                 />
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center py-2">
                 <SubscriptionOptionButton
-                    title="Hacé crecer Cabildo Abierto"
+                    title="Hacer crecer Cabildo Abierto"
                     description="Comprar y donar"
                     price={`Desde $${2*getSubscriptionPrice()}`}
                     href={"/suscripciones/donar"}

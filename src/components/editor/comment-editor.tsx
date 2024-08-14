@@ -80,7 +80,8 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
         useStrikethrough: false,
         useSubscript: false,
         useCodeblock: false,
-        placeholder: "Agregá un comentario..."
+        placeholder: "Agregá un comentario...",
+        isAutofocus: false
     }
 
     async function handleSubmit(){

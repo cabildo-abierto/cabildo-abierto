@@ -10,9 +10,9 @@ import CreateIcon from '@mui/icons-material/Create';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 
 function FeedButton() {
-    return <div className="text-l text-gray-900 px-1 py-2">
+    return <div className="px-1 py-2">
         <Link href="/inicio">
-        <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
+        <button className="topbar-btn">
             <HomeIcon />
         </button>
         </Link>
@@ -20,9 +20,9 @@ function FeedButton() {
 }
 
 function WriteButton() {
-    return <div className="text-l text-gray-900 px-1 py-2">
+    return <div className="px-1 py-2">
         <Link href="/escribir">
-        <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
+        <button className="topbar-btn">
             <CreateIcon />
         </button>
         </Link>
@@ -31,9 +31,9 @@ function WriteButton() {
 
 
 function WikiButton() {
-    return <div className="text-l text-gray-900 px-1 py-2">
+    return <div className="px-1 py-2">
         <Link href="/wiki">
-        <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg">
+        <button className="topbar-btn">
             <LocalLibraryIcon />
         </button>
         </Link>
@@ -43,8 +43,8 @@ function WikiButton() {
 
 
 function OpenSidebarButton({ onClick }: any) {
-    return <div className="text-l text-gray-900 px-1 py-2">
-        <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg" onClick={onClick}>
+    return <div className="px-1 py-2">
+        <button className="topbar-btn" onClick={onClick}>
             <MenuIcon />
         </button>
     </div>
@@ -52,8 +52,9 @@ function OpenSidebarButton({ onClick }: any) {
 
 
 export const SearchButton = ({ onClick=null, disabled=false }: any) => {
-    return <div className="text-l text-gray-900 px-1 py-2">
-        <button className={"py-2 px-2 cursor-pointer rounded-lg" + (!disabled ? " hover:bg-gray-300" : "")} onClick={onClick} disabled={disabled}>
+    return <div className="px-1 py-2">
+        <button className={"topbar-btn"} 
+            onClick={onClick} disabled={disabled}>
         <SearchIcon />
     </button>
     </div>
