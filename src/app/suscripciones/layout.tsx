@@ -1,4 +1,3 @@
-import "@/app/globals.css";
 import MainLayout from "@/components/main-layout";
 
 

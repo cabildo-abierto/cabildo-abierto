@@ -35,14 +35,14 @@ export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user
             {!isLoggedInUser &&
                 (following ? <button 
                     onClick={async () => {if(!user) return; setFollowing(false); await unfollow(profileUser.id, user.id);}} 
-                    className="blue-button"
+                    className="gray-btn"
                 >
                     Dejar de seguir
                 </button>
                 :
                 <button
                     onClick={async () => {if(!user) return; setFollowing(true); await follow(profileUser.id, user.id);}}
-                    className="blue-button"
+                    className="gray-btn"
                 >
                     Seguir
                 </button>)

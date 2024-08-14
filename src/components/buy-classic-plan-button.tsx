@@ -2,6 +2,7 @@
 
 import { getUser } from "@/actions/get-user";
 import { buyAndUseSubscription } from "@/actions/subscriptions";
+import PayButton from "./pay-button";
 
 export const BuyClassicPlanButton = () => {
     const handlePayment = async () => {
@@ -11,9 +12,9 @@ export const BuyClassicPlanButton = () => {
         }
     }
 
-    return <button
-        className="large-btn py-16"
-        onClick={handlePayment}>
-            Pagar
-    </button>
+    return <div className="py-16">
+        <PayButton
+            onClick={handlePayment}
+        />
+    </div>
 }

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { signup } from "@/actions/auth";
 import { useFormState } from "react-dom";
-import { DisabledSignupButton, SignupButton } from "./signup-button";
+import { SignupButton } from "./signup-button";
 import { useRouter } from "next/navigation";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -39,7 +39,7 @@ export default function SignupForm() {
     return (
         <div className="">
             <form action={action}>
-                <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
+                <div className="flex-1 rounded-lg bg-[var(--secondary-light)] px-6 pb-4 pt-8">
                     <h3 className='flex justify-center mb-3'>
                         Crear una cuenta
                     </h3>

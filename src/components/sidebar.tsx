@@ -28,7 +28,7 @@ export default function Sidebar({onClose, user}: any) {
                 </ul>
                 {user && <div className="flex flex-col items-center">
                     <Link href={`/perfil/${user?.id.slice(1)}`}
-                        className="py-2 inline-block cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 tracking-wide">
+                        className="py-2 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)]">
                         {user?.name}
                     </Link>
 

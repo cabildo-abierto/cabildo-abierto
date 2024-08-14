@@ -1,21 +1,40 @@
 import { getSubscriptionPoolSize } from "@/actions/subscriptions"
 import { FreeSubscriptionButton } from "@/components/free-subcription-button"
 import { ThreeColumnsLayout } from "@/components/main-layout"
+import Link from "next/link"
 
 
 export default async function PlanGratuito() {
     const poolSize = await getSubscriptionPoolSize()
 
-    const center = <>
+    let center = <></>
+    if(poolSize > 0){
+        center = <>
         <div className="flex justify-center mt-8">
             <p className="text-gray-900">Hay <span className="font-bold">{poolSize}</span> suscripciones disponibles en el sitio.</p>
         </div>
         <p className="flex justify-center mt-8">
-            Fueron donadas por otros usuarios para quien lo necesite.</p>
+            Fueron donadas por otros usuarios para quien lo necesite.
+        </p> 
         <p className="flex justify-center mt-8">
             <FreeSubscriptionButton/>
         </p>
-    </>
+        </>
+    } else {
+        center = <>
+        <p className="flex justify-center mt-32">
+            Lamentablemente en este momento no hay suscripciones gratuitas disponibles en la página.
+        </p>
+        <div className="flex justify-center items-center mt-4">
+            <div>
+                <Link href="/suscripciones">
+                    <button className="gray-btn">Volver</button>
+                </Link>
+            </div>
+        </div>
+        </>
+    }
+    
 
     return <ThreeColumnsLayout center={center}/>
 

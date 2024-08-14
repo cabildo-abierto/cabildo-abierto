@@ -12,7 +12,7 @@ export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {
     return (
         <div className="flex justify-center mb-2">
             <Link href={"/perfil/" + result.id.replace("@", "")}>
-                <button className="border border-gray-600 rounded scale-btn px-2 w-64 text-center">
+                <button className="search-result">
                     {result.name}
                 </button>
             </Link>

@@ -24,13 +24,16 @@ export default function PlanClasico() {
             </div>
             <div className="flex justify-center items-center mt-2">
                 <div className="w-full">
-                    
-                <SubscriptionOptionButton
-                    title="Pago único"
-                    description="Sin compromisos"
-                    href={"/suscripciones/clasico/pago-unico"}
-                />
+                
+                <div className="py-2">
+                    <SubscriptionOptionButton
+                        title="Pago único"
+                        description="Sin compromisos"
+                        href={"/suscripciones/clasico/pago-unico"}
+                    />
+                </div>
             
+                <div className="py-2">
                 <SubscriptionOptionButton
                     title="Pago automático"
                     description={"Próximamente"/*"Poné la tarjeta (o cualquier medio de pago) y olvidate."*/}
@@ -38,10 +41,11 @@ export default function PlanClasico() {
                     href={"/suscripciones/clasico/pago-automatico"}
                 />
                 </div>
+                </div>
             </div>
             <div className="flex justify-end items-center mt-4">
                 <div>
-                    <Link href="/suscripciones"><button className="large-btn">Volver</button></Link>
+                    <Link href="/suscripciones"><button className="gray-btn">Volver</button></Link>
                 </div>
             </div>
         </div>

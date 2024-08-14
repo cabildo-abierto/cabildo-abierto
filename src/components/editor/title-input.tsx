@@ -29,7 +29,7 @@ export const TitleInput = ({ onChange }: any) => {
             ref={textareaRef}
             onChange={handleChange}
             placeholder="Título"
-            className="ck-content"
+            className="content"
             onInput={(e) => {
                 if (textareaRef.current) {
                     // Remove new lines and truncate to maximum length

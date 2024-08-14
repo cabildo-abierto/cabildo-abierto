@@ -50,7 +50,7 @@ const EntityPage: React.FC<any> = async ({ params }) => {
                 editableContent = <>
                     <h3 className="flex justify-center mt-16">No tenés los permisos suficientes para editar este artículo</h3>
                     <Link className="flex justify-center mt-16" href={"/wiki/" + params.id}>
-                        <button className="large-btn">Volver al artículo</button>
+                        <button className="gray-btn">Volver al artículo</button>
                     </Link>
                 </>
             }
@@ -58,7 +58,7 @@ const EntityPage: React.FC<any> = async ({ params }) => {
             editableContent = <>
                 <h3 className="flex justify-center mt-16">Necesitás una suscripción para editar</h3>
                 <Link className="flex justify-center mt-16" href={"/wiki/" + params.id}>
-                    <button className="large-btn">Volver al artículo</button>
+                    <button className="gray-btn">Volver al artículo</button>
                 </Link>
             </>
         }
@@ -66,17 +66,15 @@ const EntityPage: React.FC<any> = async ({ params }) => {
         editableContent = <>
             <h3 className="flex justify-center mt-16">Necesitás una cuenta para editar</h3>
             <Link className="flex justify-center mt-16" href={"/wiki/" + params.id}>
-                <button className="large-btn">Volver al artículo</button>
+                <button className="gray-btn">Volver al artículo</button>
             </Link>
         </>
     }
 
     const center = <div className="bg-white h-full">
-        <div className="ck-content">
-            <h2 className="ml-2 py-8">
-                {entity.name}
-            </h2>
-        </div>
+        <h1 className="ml-2 py-8">
+            {entity.name}
+        </h1>
         {editableContent}
     </div>
 

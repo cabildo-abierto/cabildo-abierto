@@ -65,10 +65,10 @@ const LikeAndCommentCounter: React.FC<{content: ContentProps, user: UserProps | 
         <LikeCounter user={user} content={content}/>
         <div className="flex items-center px-2">
             <div 
-                className={"text-sm " + viewingComments ? "text-gray-700" : "text-gray-500"}
+                className={viewingComments ? "reaction-btn-selected" : "reaction-btn"}
                 onClick={stopPropagation(onViewComments)}
             >
-                <span className="hover:text-gray-900"><CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content.childrenComments.length}</span>
+                <span className=""><CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content.childrenComments.length}</span>
             </div>
         </div>
     </div>
@@ -87,6 +87,15 @@ type ContentComponentProps = {
 }
 
 
+export const Authorship = ({content}: any) => {
+    return <span className="mr-4 link">
+        Por <Link href={"/perfil/"+content.author?.id.slice(1)}>
+            {content.author?.name}
+        </Link>
+    </span>
+}
+
+
 const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onViewComments, onStartReply, viewingComments, entity=null, isPostPage=false, modify=false}) => {
     const router = useRouter()
     
@@ -97,18 +106,17 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onVie
     } else if(content.type == "Post"){
         const postSplit = splitPost(content.text)
         const text = postSplit ? postSplit.title : "Error al cargar el contenido"
-        return <div className="w-full bg-white text-left cursor-pointer ck-content" onClick={() => {router.push("/contenido/"+content.id)}}>
+        return <div className="w-full bg-white text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
             <div className="border rounded w-full">
                 <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>}/>
                 <div className="flex items-center px-2 py-2">
-                    <div className="px-1 font-semibold">
-                        <HtmlContent content={text}/>
+                    <div className="px-1 font-semibold content">
+                        {text}
                     </div>
                 </div>
                 <div className="flex justify-between mb-1">
-                    {false &&<div className="px-2 flex justify-between blue-links text-sm">
-                        <span className="mr-4">Por <Link href={"/perfil/"+content.author?.id.slice(1)}>{content.author?.name}</Link>
-                        </span>
+                    {false &&<div className="px-2 flex justify-between text-sm">
+                        <Authorship/>
                     </div>}
                     <div></div>
                     <LikeAndCommentCounter content={content} user={user} onViewComments={onViewComments} viewingComments={viewingComments}/>
@@ -118,7 +126,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onVie
     }
 
     const icon = content.type == "Comment" ? null : <BoltIcon fontSize={"small"}/>
-    const className = "w-full bg-white text-left cursor-pointer " + (content.type == "Comment" ? "ck-content" : "ck-content") 
+    const className = "w-full bg-white text-left cursor-pointer content" 
 
     return <div className={className} onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">
@@ -126,7 +134,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onVie
             <div className="px-2 py-2">
                 <HtmlContent content={content.text}/>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between mb-1">
                 <div className="px-1">
                     <AddCommentButton text="Responder" onClick={stopPropagation(onStartReply)}/>
                 </div>

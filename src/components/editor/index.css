@@ -18,6 +18,7 @@
 }
 
 .editor-shell .editor-container {
+  margin-top: 15px;
   background: #fff;
   position: relative;
   display: block;

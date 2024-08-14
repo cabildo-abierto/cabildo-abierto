@@ -35,13 +35,14 @@ export default function HtmlContent({content, limitHeight=false}: {content: stri
         placeholder: "...",
         isMarkdownEditor: false,
         initialData: content,
-        isReadOnly: true
+        isReadOnly: true,
+        isAutofocus: true
     }
 
     const parsed_content = <LexicalEditor settings={settings} setEditor={(editor: any) => {}} setOutput={(output: any) => {}}/>
     
     if(limitHeight){
-        return <div className="max-h-40 overflow-hidden overflow-y-auto ck-content">
+        return <div className="max-h-40 overflow-hidden overflow-y-auto">
             {parsed_content}
         </div>
     } else {

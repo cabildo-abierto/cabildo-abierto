@@ -9,14 +9,14 @@ const NeedAccountPopupPanel: React.FC<any> = ({onClose}) => {
         <div className="flex justify-between mt-8">
             <div className="px-6">
               <Link href="/signup">
-                <button className="large-btn scale-btn">
+                <button className="gray-btn">
                       Crear cuenta
                 </button>
               </Link>
             </div>
             <div className="px-6">
               <Link href="/">
-                <button className="large-btn scale-btn">
+                <button className="gray-btn">
                       Iniciar sesión
                 </button>
               </Link>

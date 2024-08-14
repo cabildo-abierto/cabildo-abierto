@@ -10,7 +10,7 @@ export default async function DonationPage() {
     const center = <div className="mt-8">
         <div className="flex justify-center items-center">
             <h3>
-                Hacé crecer a Cabildo Abierto
+                Donar suscripciones
             </h3>
         </div>
         <div className="flex justify-center">
@@ -19,7 +19,7 @@ export default async function DonationPage() {
                 <div className="flex justify-end items-center mt-4">
                     <div>
                         <Link href="/suscripciones">
-                            <button className="large-btn">Volver</button>
+                            <button className="gray-btn">Volver</button>
                         </Link>
                     </div>
                 </div>

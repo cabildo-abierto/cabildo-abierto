@@ -9,16 +9,16 @@ import { ErrorPage } from "@/components/error-page";
 
 
 const DraftButton: React.FC<{draft: ContentProps, index: number}> = ({draft, index}) => {
-    return <div>
-        <div className="panel">
-            <div className="px-2 py-2 ck-content">
+    return <div className="">
+        <div className="panel w-full">
+            <div className="px-2 py-2">
                 <HtmlContent content={draft.text} limitHeight={true}/>
             </div>
-            <div className="flex justify-end">
-                <Link href={"/editar/"+draft.id}>
-                    <button className="gray-btn">Editar</button>
-                </Link>
-            </div>
+        </div>
+        <div className="flex justify-end mt-1 mr-1">
+            <Link href={"/editar/"+draft.id}>
+                <button className="gray-btn">Editar</button>
+            </Link>
         </div>
     </div>
 }

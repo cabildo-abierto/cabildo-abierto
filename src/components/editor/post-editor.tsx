@@ -110,10 +110,12 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
                 <SaveDraftButton onClick={handleSaveDraft}/>
 			</div>
 		</div>
-        <div className="py-4 ml-4">
+        <div className="mt-4 ml-4">
         <TitleInput onChange={setTitle}/>
         </div>
+        <div className="mt-4">
         <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
+        </div>
     </div>
 }
 

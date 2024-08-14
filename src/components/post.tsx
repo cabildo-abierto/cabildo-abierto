@@ -3,6 +3,7 @@ import { splitPost } from "@/components/utils";
 import Link from "next/link";
 import { DateComponent } from "@/components/date";
 import { ContentProps } from "@/actions/get-content";
+import { Authorship } from "./content";
 
 export const Post: React.FC<{content: ContentProps}> = ({content}) => {
     const split = splitPost(content.text)
@@ -12,7 +13,7 @@ export const Post: React.FC<{content: ContentProps}> = ({content}) => {
     return <div className="bg-white ck-content">
         <HtmlContent content={title}/>
         <div className="flex justify-between">
-            <div className="py-2 blue-links">Por <Link href={"/perfil/"+content.author?.id.slice(1)}>{content.author?.name}</Link></div>
+            <Authorship content={content}/>
             <DateComponent date={content.createdAt}/>
         </div>
         <div className="min-h-64">

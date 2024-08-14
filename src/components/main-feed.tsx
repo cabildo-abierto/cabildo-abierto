@@ -7,18 +7,18 @@ import Feed from "./feed"
 const MainFeed = ({contents, user}: any) => {
     const [following, setFollowing] = useState(false);
     return (
-        <div className="w-full bg-white h-full">
+        <div className="w-full h-full">
             <div className="flex justify-center items-center space-x-2 py-4">
                 <button 
                     disabled={!following}
-                    className="text-sm font-medium disabled:text-blue-500 text-gray-400"
+                    className="gray-btn"
                     onClick={() => {setFollowing(false)}}
                 >
                     General
                 </button>
                 <button 
                     disabled={following}
-                    className="text-sm font-medium disabled:text-blue-500 text-gray-400"
+                    className="gray-btn"
                     onClick={() => {setFollowing(true)}}
                 >
                     Siguiendo

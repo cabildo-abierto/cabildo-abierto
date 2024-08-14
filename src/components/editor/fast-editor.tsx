@@ -47,7 +47,8 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
         useSubscript: false,
         useCodeblock: false,
         placeholder: "Escribí tu publicación acá...",
-        initialData: initialData
+        initialData: initialData,
+        isAutofocus: true
     }
 
     async function handleSubmit(){
@@ -109,7 +110,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
                 <SaveDraftButton onClick={handleSaveDraft}/>
 			</div>
 		</div>
-        <div className="mt-4">
+        <div className="mt-12">
         <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
         </div>
     </div>
