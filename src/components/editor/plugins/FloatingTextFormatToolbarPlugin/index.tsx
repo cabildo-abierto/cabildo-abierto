@@ -69,7 +69,7 @@ function TextFormatFloatingToolbar({
       editor.read(() => {
         const selection = $getSelection()?.getTextContent();
         console.log("dispatching", selection)
-        editor.dispatchCommand(TOGGLE_LINK_COMMAND, selection ? selection : "");  
+        editor.dispatchCommand(TOGGLE_LINK_COMMAND, {url: selection ? selection : "", target: "", rel: ""});  
       })
     } else {
       setIsLinkEditMode(false);

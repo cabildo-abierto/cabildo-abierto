@@ -126,9 +126,9 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onVie
     }
 
     const icon = content.type == "Comment" ? null : <BoltIcon fontSize={"small"}/>
-    const className = "w-full bg-white text-left cursor-pointer content" 
+    const className = "w-full bg-white text-left cursor-pointer" 
 
-    return <div className={className} onClick={() => {router.push("/contenido/"+content.id)}}>
+    return <div className={className}>
         <div className="border rounded w-full">
             <ContentTopRow content={content} icon={icon}/>
             <div className="px-2 py-2">

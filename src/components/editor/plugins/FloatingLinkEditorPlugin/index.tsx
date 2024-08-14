@@ -203,7 +203,7 @@ function FloatingLinkEditor({
     if (lastSelection !== null) {
       if (linkUrl !== '') {
         const sanitized = sanitizeUrl(editedLinkUrl)
-        editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitized);
+        editor.dispatchCommand(TOGGLE_LINK_COMMAND, {url: sanitized, target: "", rel: ""});
         editor.update(() => {
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
@@ -384,11 +384,14 @@ function useFloatingLinkEditorToolbar(
       editor.registerCommand(
         CLICK_COMMAND,
         (payload) => {
+          console.log("a click was received")
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const node = getSelectedNode(selection);
             const linkNode = $findMatchingParent(node, $isLinkNode);
             if ($isLinkNode(linkNode) && (payload.metaKey || payload.ctrlKey)) {
+              
+              console.log("opening new window")
               window.open(linkNode.getURL(), '_blank');
               return true;
             }

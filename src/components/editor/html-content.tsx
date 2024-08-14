@@ -36,7 +36,8 @@ export default function HtmlContent({content, limitHeight=false}: {content: stri
         isMarkdownEditor: false,
         initialData: content,
         isReadOnly: true,
-        isAutofocus: true
+        isAutofocus: true,
+        editorClassName: "link",
     }
 
     const parsed_content = <LexicalEditor settings={settings} setEditor={(editor: any) => {}} setOutput={(output: any) => {}}/>

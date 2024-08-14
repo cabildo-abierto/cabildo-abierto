@@ -41,9 +41,9 @@ export const SearchInput: React.FC<any> = ({ onChange }) => {
 
 const CloseSearchButton = ({ onClick }: any) => {
   return <div className="text-l text-gray-900 px-1 py-2">
-      <button className="py-2 px-2 cursor-pointer hover:bg-gray-300 rounded-lg" onClick={onClick}>
-      <CloseIcon/>
-  </button>
+      <button className="topbar-btn" onClick={onClick}>
+          <CloseIcon/>
+      </button>
   </div>
 }
 

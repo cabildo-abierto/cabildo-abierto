@@ -53,7 +53,7 @@ function OpenSidebarButton({ onClick }: any) {
 
 export const SearchButton = ({ onClick=null, disabled=false }: any) => {
     return <div className="px-1 py-2">
-        <button className={"topbar-btn"} 
+        <button className="topbar-btn"
             onClick={onClick} disabled={disabled}>
         <SearchIcon />
     </button>

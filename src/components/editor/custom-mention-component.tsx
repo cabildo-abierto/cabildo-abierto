@@ -1,6 +1,8 @@
+"use client"
 import { getUsers, UserProps } from "@/actions/get-user";
 import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, BeautifulMentionsMenuProps } from "lexical-beautiful-mentions";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
 
 export const EmptyMentionResults = () => (
@@ -19,10 +21,19 @@ export const CustomMentionComponent = forwardRef<
   HTMLDivElement,
   BeautifulMentionComponentProps<MentionProps>
 >(({ trigger, value, data: myData, children, ...other }: any, ref: any) => {
+  const router = useRouter()
+
+  // Tuve que hacer esto porque Link abría en otra ventana por algún motivo
+  // Investigar...
+
+  const handleClick = (e: any) => {
+    router.push("/perfil/"+encodeURIComponent(myData.id.slice(1)))
+  }
+
   return (
-    <Link {...other} ref={ref} title={trigger + value} href={"/perfil/"+encodeURIComponent(myData.id.slice(1))}>
+    <button className="text-link" onClick={handleClick}>
       {myData.id}
-    </Link>
+    </button>
   );
 });
 

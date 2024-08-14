@@ -42,7 +42,8 @@ const MarkdownEditor = ({initialData, contentId, entityId}: any) => {
         useCodeblock: false,
         placeholder: "Este artículo está vacío!",
         initialData: initialData,
-        isMarkdownEditor: true
+        isMarkdownEditor: true,
+        editorClassName: "content mt-4"
     }
 
     const SaveEditButton = () => {

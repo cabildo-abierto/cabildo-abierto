@@ -48,7 +48,8 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
         useSubscript: false,
         useCodeblock: false,
         placeholder: "Escribí tu publicación acá...",
-        initialData: initialData
+        initialData: initialData,
+        editorClassName: "content mt-4"
     }
 
     async function handleSubmit(){
