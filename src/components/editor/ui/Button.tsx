@@ -34,9 +34,6 @@ export default function Button({
     <button
       disabled={disabled}
       className={joinClasses(
-        'Button__root',
-        disabled && 'Button__disabled',
-        small && 'Button__small',
         className,
       )}
       onClick={onClick}

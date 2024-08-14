@@ -25,14 +25,14 @@ const EditableContent: React.FC<any> = ({ entity, content, handleSave, onCancel 
 }
 
 
-const EntityComponent: React.FC<any> = ({ content, entity, modify}) => {
+const EntityComponent: React.FC<any> = ({ content, entity, modify, user}) => {
     const handleSave = async (newText: string) => {
         await updateEntityContent(entity.id, newText, content.id)
     }
     
     return <>
         {modify ? <EditableContent content={content} handleSave={handleSave} entity={entity}/> : 
-            <ReadOnlyContent content={content} entity={entity}/>
+            <ReadOnlyContent content={content} entity={entity} user={user}/>
         }
         <hr className="mb-8 mt-4"/>
     </>

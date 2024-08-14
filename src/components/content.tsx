@@ -100,9 +100,9 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onVie
     const router = useRouter()
     
     if(content.type == "Post" && isPostPage){
-        return <Post content={content}/>
+        return <Post content={content} user={user}/>
     } else if(content.type == "EntityContent"){
-        return <EntityComponent content={content} entity={entity} modify={modify}/>
+        return <EntityComponent content={content} entity={entity} modify={modify} user={user}/>
     } else if(content.type == "Post"){
         const postSplit = splitPost(content.text)
         const text = postSplit ? postSplit.title : "Error al cargar el contenido"
@@ -132,7 +132,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onVie
         <div className="border rounded w-full">
             <ContentTopRow content={content} icon={icon}/>
             <div className="px-2 py-2">
-                <HtmlContent content={content.text}/>
+                <HtmlContent content={content.text} user={user}/>
             </div>
             <div className="flex justify-between mb-1">
                 <div className="px-1">

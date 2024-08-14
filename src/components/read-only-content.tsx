@@ -1,8 +1,11 @@
 import MarkdownContent from "./editor/markdown-content"
 import Link from "next/link";
+import dynamic from "next/dynamic"
+
+const MarkdownEditor = dynamic( () => import( '@/components/editor/markdown-editor' ), { ssr: false } );
 
 
-const ReadOnlyContent: React.FC<any> = ({ content, entity }) => {
+const ReadOnlyContent: React.FC<any> = ({ content, entity, user }) => {
     const EditButton: React.FC<any> = () => {
         return <Link href={"/wiki/"+entity.id+"/edit"}>
             <button
@@ -39,7 +42,13 @@ const ReadOnlyContent: React.FC<any> = ({ content, entity }) => {
         </div>
 
         <div className="px-2 min-h-64">
-            <MarkdownContent content={content.text == "" ? "Este artículo está vacío!" : content.text} />
+            <MarkdownEditor 
+                initialData={content.text == "" ? "Este artículo está vacío!" : content.text}
+                readOnly={true}
+                contentId={content.id}
+                entityId={entity.id}
+                user={user}
+            />
         </div>
     </>
 }
