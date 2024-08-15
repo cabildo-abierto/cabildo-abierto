@@ -2,7 +2,7 @@ import MarkdownContent from "./editor/markdown-content"
 import Link from "next/link";
 import dynamic from "next/dynamic"
 
-const MarkdownEditor = dynamic( () => import( '@/components/editor/markdown-editor' ), { ssr: false } );
+const MarkdownEditor = dynamic( () => import( '@/components/editor/wiki-editor' ), { ssr: false } );
 
 
 const ReadOnlyContent: React.FC<any> = ({ content, entity, user }) => {
@@ -45,7 +45,7 @@ const ReadOnlyContent: React.FC<any> = ({ content, entity, user }) => {
             <MarkdownEditor 
                 initialData={content.text == "" ? "Este artículo está vacío!" : content.text}
                 readOnly={true}
-                contentId={content.id}
+                content={content}
                 entityId={entity.id}
                 user={user}
             />

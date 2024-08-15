@@ -32,7 +32,7 @@ export function $isWhitespace(node: ElementNode): boolean {
     return true;
   }
 
-export function emptyOutput(editorState: EditorState | null){
+export function emptyOutput(editorState: EditorState | undefined){
     if(!editorState) return true
     const isEmpty = editorState.read(() => {
         const root = $getRoot();
@@ -51,8 +51,8 @@ export function emptyOutput(editorState: EditorState | null){
 }
 
 const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
-    const [editor, setEditor] = useState<LexicalEditor | null>(null)
-    const [editorOutput, setEditorOutput] = useState<EditorState | null>(null)
+    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
+    const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
 
     const isDevPlayground = false
     const settings = {
@@ -89,8 +89,7 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
     async function handleSubmit(){
         if(editor && editorOutput){
             editorOutput.read(async () => {
-                const html = $generateHtmlFromNodes(editor, null)
-                await onSubmit(html)
+                await onSubmit(JSON.stringify(editorOutput))
             })
         }
 	}

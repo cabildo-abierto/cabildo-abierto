@@ -8,11 +8,11 @@ import { getContentsMap } from "@/components/update-context";
 import { ErrorPage } from "@/components/error-page";
 
 
-const DraftButton: React.FC<{draft: ContentProps, index: number}> = ({draft, index}) => {
+const DraftButton: React.FC<{draft: ContentProps, index: number, user: UserProps}> = ({draft, index, user}) => {
     return <div className="">
         <div className="panel w-full">
             <div className="px-2 py-2">
-                <HtmlContent content={draft.text} limitHeight={true}/>
+                <HtmlContent content={draft.text} limitHeight={true} user={user}/>
             </div>
         </div>
         <div className="flex justify-end mt-1 mr-1">
@@ -50,7 +50,7 @@ const Drafts: React.FC = async () => {
         <ul>
             {drafts.map((draft, index) => {
                 return <li key={index}>
-                    <DraftButton draft={draft} index={index}/>
+                    <DraftButton draft={draft} index={index} user={user}/>
                 </li>
             })}
         </ul>

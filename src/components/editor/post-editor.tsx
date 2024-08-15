@@ -16,8 +16,8 @@ import Link from "next/link"
 import { TitleInput } from "./title-input"
 
 const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
-    const [editor, setEditor] = useState<LexicalEditor | null>(null)
-    const [editorOutput, setEditorOutput] = useState<EditorState | null>(null)
+    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
+    const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
     const [title, setTitle] = useState("")
 
@@ -55,8 +55,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
     async function handleSubmit(){
         if(editor && editorOutput){
             editorOutput.read(async () => {
-                const html = $generateHtmlFromNodes(editor, null)
-                await onSubmit("<h1>"+title+"</h1>"+html, "Post")
+                await onSubmit(JSON.stringify([title, editorOutput]), "Post")
                 router.push("/")
             })
         }
@@ -65,8 +64,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
     async function handleSaveDraft(){
         if(editor && editorOutput){
             editorOutput.read(async () => {
-                const html = $generateHtmlFromNodes(editor, null)
-                await onSaveDraft(html, "Post")
+                await onSaveDraft(JSON.stringify([title, editorOutput]), "Post")
                 router.push("/borradores")
             })
         }

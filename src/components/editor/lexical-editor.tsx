@@ -113,10 +113,12 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     placeholder,
     initialData,
     isMarkdownEditor,
+    isHtmlEditor,
     isReadOnly,
     isAutofocus,
     editorClassName,
-    user
+    user,
+    content
   } = settings
 
   useEffect(() => {
@@ -125,7 +127,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
         if(isMarkdownEditor){
           const root = $getRoot()
           $convertFromMarkdownString(initialData, undefined, root, false)
-        } else {
+        } else if(isHtmlEditor){
           const parser = new DOMParser();
           const dom = parser.parseFromString(initialData, "text/html");
         
@@ -205,6 +207,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
         <AutoLinkPlugin />
         {isComments && <CommentPlugin
           user={user}
+          parentContent={content}
         />}
         {isRichText ? (
           <>
@@ -292,9 +295,9 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
 
 
 const LexicalEditor = ({ settings, setEditor, setOutput }: any) => {
-  const {isReadOnly} = settings
+  const {isReadOnly, initialData, isHtmlEditor, isMarkdownEditor} = settings
   const initialConfig = {
-    editorState: undefined,
+    editorState: (!isHtmlEditor && !isMarkdownEditor) ? initialData : undefined,
     namespace: 'Playground',
     nodes: [
       ...createBeautifulMentionNode(CustomMentionComponent),
@@ -304,7 +307,7 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: any) => {
       throw error;
     },
     theme: PlaygroundEditorTheme,
-    editable: !isReadOnly
+    editable: !isReadOnly,
   };
 
   return <FlashMessageContext>

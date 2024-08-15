@@ -16,8 +16,8 @@ import Link from "next/link"
 
 
 const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
-    const [editor, setEditor] = useState<LexicalEditor | null>(null)
-    const [editorOutput, setEditorOutput] = useState<EditorState | null>(null)
+    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
+    const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
 
     const isDevPlayground = false
@@ -55,8 +55,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
     async function handleSubmit(){
         if(editor && editorOutput){
             editorOutput.read(async () => {
-                const html = $generateHtmlFromNodes(editor, null)
-                await onSubmit(html, "FastPost")
+                await onSubmit(JSON.stringify(editorOutput), "FastPost")
                 router.push("/")
             })
         }
@@ -65,8 +64,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
     async function handleSaveDraft(){
         if(editor && editorOutput){
             editorOutput.read(async () => {
-                const html = $generateHtmlFromNodes(editor, null)
-                await onSaveDraft(html, "FastPost")
+                await onSaveDraft(JSON.stringify(editorOutput), "FastPost")
                 router.push("/borradores")
             })
         }
