@@ -66,7 +66,7 @@ import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
-import { LexicalComposer } from '@lexical/react/LexicalComposer';
+import { InitialEditorStateType, LexicalComposer } from '@lexical/react/LexicalComposer';
 import PlaygroundNodes from './nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
 import { TableContext } from './plugins/TablePlugin';
@@ -81,8 +81,50 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { $getRoot, $insertNodes, COMMAND_PRIORITY_CRITICAL } from 'lexical';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { $convertFromMarkdownString } from '@lexical/markdown'
+import { UserProps } from '@/actions/get-user';
+import { ContentProps } from '@/actions/get-content';
 
-function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
+
+export type SettingsProps = {
+  disableBeforeInput: boolean,
+  emptyEditor: boolean,
+  isAutocomplete: boolean,
+  isCharLimit: boolean,
+  isCharLimitUtf8: boolean,
+  isCollab: boolean,
+  isMaxLength: boolean,
+  isRichText: boolean,
+  measureTypingPerf: boolean,
+  shouldPreserveNewLinesInMarkdown: boolean,
+  shouldUseLexicalContextMenu: boolean,
+  showNestedEditorTreeView: boolean,
+  showTableOfContents: boolean,
+  showTreeView: boolean,
+  tableCellBackgroundColor: boolean,
+  tableCellMerge: boolean,
+  showActions: boolean,
+  showToolbar: boolean,
+  isComments: boolean,
+  isDraggableBlock: boolean,
+  useSuperscript: boolean,
+  useStrikethrough: boolean,
+  useSubscript: boolean,
+  useCodeblock: boolean,
+  placeholder: string,
+  initialData: InitialEditorStateType,
+  isReadOnly: boolean,
+  isAutofocus: boolean,
+  editorClassName: string,
+  user?: UserProps | null,
+  content?: ContentProps | null,
+}
+
+
+type LexicalEditorProps = {settings: SettingsProps, setEditor: any, setOutput: any}
+
+
+function Editor({ settings, setEditor, setOutput }: 
+  LexicalEditorProps): JSX.Element {
   const { historyState } = useSharedHistoryContext();
   const [editor] = useLexicalComposerContext()
   const hasInitialized = useRef(false);
@@ -111,36 +153,12 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
     isComments,
     isDraggableBlock,
     placeholder,
-    initialData,
-    isMarkdownEditor,
-    isHtmlEditor,
     isReadOnly,
     isAutofocus,
     editorClassName,
     user,
     content
   } = settings
-
-  useEffect(() => {
-    if(!hasInitialized.current && initialData) {
-      editor.update(() => {
-        if(isMarkdownEditor){
-          const root = $getRoot()
-          $convertFromMarkdownString(initialData, undefined, root, false)
-        } else if(isHtmlEditor){
-          const parser = new DOMParser();
-          const dom = parser.parseFromString(initialData, "text/html");
-        
-          const nodes = $generateNodesFromDOM(editor, dom);
-          $getRoot().clear();
-          $getRoot().select();
-        
-          $insertNodes(nodes);
-        }
-      });
-    }
-    hasInitialized.current = true;
-  }, [editor, initialData, isMarkdownEditor])
 
   const isEditable = useLexicalEditable();
   const [floatingAnchorElem, setFloatingAnchorElem] =
@@ -205,7 +223,7 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
         <HashtagPlugin />
         <KeywordsPlugin />
         <AutoLinkPlugin />
-        {isComments && <CommentPlugin
+        {isComments && user && content && <CommentPlugin
           user={user}
           parentContent={content}
         />}
@@ -294,10 +312,10 @@ function Editor({ settings, setEditor, setOutput }: any): JSX.Element {
 }
 
 
-const LexicalEditor = ({ settings, setEditor, setOutput }: any) => {
-  const {isReadOnly, initialData, isHtmlEditor, isMarkdownEditor} = settings
+const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) => {
+  const {isReadOnly, initialData} = settings
   const initialConfig = {
-    editorState: (!isHtmlEditor && !isMarkdownEditor) ? initialData : undefined,
+    editorState: initialData,
     namespace: 'Playground',
     nodes: [
       ...createBeautifulMentionNode(CustomMentionComponent),

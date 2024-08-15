@@ -10,8 +10,8 @@ const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), {
 
 const Publicacion: React.FC = () => {
     return <ThreeColumnsLayout center={<PostEditor
-        onSubmit={async (text: string, type: ContentType) => {await createPost(text, type, false)}}
-        onSaveDraft={async (text: string, type: ContentType) => {await createPost(text, type, true)}}
+        onSubmit={async (text: string, type: ContentType, title?: string) => {await createPost(text, type, false, null, title)}}
+        onSaveDraft={async (text: string, type: ContentType, title?: string) => {await createPost(text, type, true, null, title)}}
     />}/>
 }
 

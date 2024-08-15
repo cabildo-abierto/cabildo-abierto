@@ -9,13 +9,12 @@ import ArticleIcon from '@mui/icons-material/Article';
 
 export const PostOnFeed = ({content, user, onViewComments, viewingComments}: any) => {
     const router = useRouter()
-    const [title, text] = JSON.parse(content.text)
     return <div className="w-full bg-white text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">
             <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>}/>
             <div className="flex items-center px-2 py-2">
                 <div className="px-1 font-semibold content">
-                    {title}
+                    {content.title}
                 </div>
             </div>
             <div className="flex justify-between mb-1">

@@ -102,4 +102,7 @@ model Content {
     isDraft           Boolean?
 
     visible           Boolean     @default(true)
+
+    // solo para publicaciones largas
+    title             String?
 }
