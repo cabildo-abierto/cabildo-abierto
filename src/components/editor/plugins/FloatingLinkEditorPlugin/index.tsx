@@ -67,7 +67,7 @@ function FloatingLinkEditor({
     }
   }, []);
 
-  const $updateLinkEditor = useCallback(() => {
+  const $updateLinkEditor = useCallback(async () => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
       const node = getSelectedNode(selection);
@@ -81,6 +81,7 @@ function FloatingLinkEditor({
       }
       if (isLinkEditMode) {
         setEditedLinkUrl(linkUrl);
+        await searchEntities(linkUrl)
       }
     }
     const editorElem = editorRef.current;
@@ -109,7 +110,6 @@ function FloatingLinkEditor({
       setLastSelection(selection);
     } else if (!activeElement || activeElement.className !== 'link-input w-96') {
       
-      console.log("activeElement", activeElement)
       if (rootElement !== null) {
         setFloatingElemPositionForLinkEditor(null, editorElem, anchorElem);
       }
@@ -242,7 +242,7 @@ function FloatingLinkEditor({
               onClick={() => {setValue("/wiki/"+entity.id)}}
             >
               <div className="py-1">
-            {entity.name}
+                {entity.name}
               </div>
             </button>
           </div>
@@ -260,9 +260,9 @@ function FloatingLinkEditor({
               className="link-input w-96"
               placeholder="Ingresá un link o el nombre de un artículo"
               value={editedLinkUrl}
-              onChange={(event) => {
+              onChange={async (event) => {
                 setEditedLinkUrl(event.target.value);
-                searchEntities(event.target.value)
+                await searchEntities(event.target.value)
               }}
               onKeyDown={(event) => {
                 monitorInputInteraction(event);
