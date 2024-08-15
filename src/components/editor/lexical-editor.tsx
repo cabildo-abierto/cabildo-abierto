@@ -238,7 +238,7 @@ function Editor({ settings, setEditor, setOutput, contents }:
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
               contentEditable={
-                <div className={"editor-scroller " + editorClassName + (isReadOnly ? "" : " min-h-[105px]")}>
+                <div className={"editor-scroller " + editorClassName}>
                   <div className="editor" ref={onRef}>
                     <ContentEditable placeholder={placeholder} settings={settings}/>
                   </div>
