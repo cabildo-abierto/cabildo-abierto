@@ -8,11 +8,18 @@ import { ContentProps } from "@/actions/get-content";
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
-export const ReadOnlyEditor = ({initialData, enableComments=false, user, content, editorClassName="link"}: 
+export const ReadOnlyEditor = ({initialData, 
+    enableComments=false, 
+    user, 
+    content, 
+    editorClassName="link",
+    contents
+}: 
     {initialData: InitialEditorStateType,
     enableComments?: boolean, 
     user?: UserProps | null, 
     content?: ContentProps,
+    contents?: Record<string, ContentProps>,
     editorClassName?: string}) => {
 
     const settings: SettingsProps = {
@@ -49,5 +56,10 @@ export const ReadOnlyEditor = ({initialData, enableComments=false, user, content
         content: content
     }
     
-    return <MyLexicalEditor settings={settings} setEditor={() => {}} setOutput={() => {}}/>
+    return <MyLexicalEditor
+    settings={settings}
+    setEditor={() => {}}
+    setOutput={() => {}}
+    contents={contents}
+    />
 }

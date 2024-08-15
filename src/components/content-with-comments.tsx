@@ -11,16 +11,6 @@ import { UserProps } from "@/actions/get-user"
 const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 
 
-type ContentWithCommentsProps = {
-    content: ContentProps,
-    contents: Record<string, ContentProps>,
-    entity?: any,
-    user: UserProps | null,
-    isPostPage?: boolean,
-    modify?: boolean
-}
-
-
 export function getListOfComments(contents: Record<string, ContentProps>, content: ContentProps){
     const comments: ContentProps[] = []
     content.childrenComments.forEach((comment) => {
@@ -30,8 +20,17 @@ export function getListOfComments(contents: Record<string, ContentProps>, conten
 }
 
 
+type ContentWithCommentsProps = {
+    content: ContentProps,
+    contents: Record<string, ContentProps>,
+    user: UserProps | null,
+    entity?: any,
+    isPostPage?: boolean
+}
+
+
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
-    content, contents, user, entity=null, isPostPage=false, modify=false}) => {
+    content, contents, user, entity=null, isPostPage=false}) => {
     const startsOpen = (content && content.type == "Post" && isPostPage) || entity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
@@ -42,7 +41,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         if(user){
             await createComment(text, content.id, user.id)
             setViewComments(true)
-            setWritingReply(false)
+            setWritingReply(startsOpen)
         }
     }
 
@@ -60,7 +59,6 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             entity={entity}
             isPostPage={isPostPage}
             viewingComments={viewComments}
-            modify={modify}
         />
         <div className="">
             {writingReply && <div className="mt-1 mb-2 ml-2">

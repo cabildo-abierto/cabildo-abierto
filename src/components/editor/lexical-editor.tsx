@@ -120,10 +120,15 @@ export type SettingsProps = {
 }
 
 
-type LexicalEditorProps = {settings: SettingsProps, setEditor: any, setOutput: any}
+type LexicalEditorProps = {
+  settings: SettingsProps,
+  setEditor: any,
+  setOutput: any,
+  contents?: Record<string, ContentProps>
+}
 
 
-function Editor({ settings, setEditor, setOutput }: 
+function Editor({ settings, setEditor, setOutput, contents }: 
   LexicalEditorProps): JSX.Element {
   const { historyState } = useSharedHistoryContext();
   const [editor] = useLexicalComposerContext()
@@ -223,9 +228,10 @@ function Editor({ settings, setEditor, setOutput }:
         <HashtagPlugin />
         <KeywordsPlugin />
         <AutoLinkPlugin />
-        {isComments && user && content && <CommentPlugin
+        {isComments && contents && user && content && <CommentPlugin
           user={user}
           parentContent={content}
+          contents={contents}
         />}
         {isRichText ? (
           <>
@@ -312,7 +318,7 @@ function Editor({ settings, setEditor, setOutput }:
 }
 
 
-const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) => {
+const LexicalEditor = ({ settings, setEditor, setOutput, contents }: LexicalEditorProps) => {
   const {isReadOnly, initialData} = settings
   const initialConfig = {
     editorState: initialData,
@@ -337,7 +343,8 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) =
               <Editor
                 settings={settings}
                 setEditor={setEditor}
-                setOutput={setOutput}  
+                setOutput={setOutput}
+                contents={contents}
               />
             </div>
           </SharedAutocompleteContext>

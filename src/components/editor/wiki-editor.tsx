@@ -6,13 +6,9 @@ import { $getRoot, EditorState, LexicalEditor } from "lexical"
 import StateButton from "../state-button"
 import { updateContent } from "@/actions/create-content"
 
-import {$convertToMarkdownString} from "@lexical/markdown"
 import Link from "next/link"
 
-import SelectionSerializer from '@ancientec/selection-serializer'
-import { $generateHtmlFromNodes } from "@lexical/html"
-
-const MarkdownEditor = ({initialData, content, entityId, user, readOnly=false}: any) => {
+const WikiEditor = ({initialData, content, contents, entityId, user, readOnly=false}: any) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
@@ -49,7 +45,8 @@ const MarkdownEditor = ({initialData, content, entityId, user, readOnly=false}: 
         editorClassName: "content mt-4",
         isReadOnly: readOnly,
         user: user,
-        content: content
+        content: content,
+        isAutofocus: true
     }
 
     const SaveEditButton = () => {
@@ -102,10 +99,11 @@ const MarkdownEditor = ({initialData, content, entityId, user, readOnly=false}: 
                 settings={settings}
                 setEditor={setEditor}
                 setOutput={setEditorOutput}
+                contents={contents}
             />
         </div>
     </>
 }
 
 
-export default MarkdownEditor
+export default WikiEditor

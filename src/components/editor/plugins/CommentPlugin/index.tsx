@@ -40,15 +40,19 @@ import { UserProps } from '@/actions/get-user';
 import { ContentProps } from '@/actions/get-content';
 import { AddCommentBox } from './AddCommentBox';
 import { CommentInputBox } from './ui';
+import { CommentsPanel } from './CommentsPanel';
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
 );
 
 
-export default function CommentPlugin({user, parentContent}: {user: UserProps, parentContent: ContentProps}): JSX.Element {
+export default function CommentPlugin({user, parentContent, contents}: {
+  user: UserProps, 
+  parentContent: ContentProps,
+  contents: Record<string, ContentProps>
+}): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const comments: ContentProps[] = []
   const markNodeMap = useMemo<Map<string, Set<NodeKey>>>(() => {
     return new Map();
   }, []);
@@ -235,7 +239,7 @@ export default function CommentPlugin({user, parentContent}: {user: UserProps, p
           />,
           document.body,
         )}
-      {false && createPortal(
+      {createPortal(
         <Button
           className={`gray-btn CommentPlugin_ShowCommentsButton ${
             showComments ? 'active' : ''
@@ -245,6 +249,17 @@ export default function CommentPlugin({user, parentContent}: {user: UserProps, p
           <i className="comments" />
         </Button>,
         document.body,
+      )}
+
+      {showComments &&
+        createPortal(
+          <CommentsPanel
+            parentContent={parentContent}
+            contents={contents}
+            markNodeMap={markNodeMap}
+            user={user}
+          />,
+          document.body,
       )}
     </>
   );

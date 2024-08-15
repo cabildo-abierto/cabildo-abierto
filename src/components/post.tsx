@@ -4,7 +4,11 @@ import { Authorship } from "./content";
 import { UserProps } from "@/actions/get-user";
 import { ReadOnlyEditor } from "./editor/read-only-editor";
 
-export const Post: React.FC<{content: ContentProps, user: UserProps | null}> = ({content, user}) => {
+export const Post: React.FC<{
+    content: ContentProps, 
+    user: UserProps | null,
+    contents: Record<string, ContentProps>
+}> = ({content, user, contents}) => {
 
     return <div className="">
         <div className="content">
@@ -21,6 +25,7 @@ export const Post: React.FC<{content: ContentProps, user: UserProps | null}> = (
                 user={user}
                 content={content}
                 editorClassName="content"
+                contents={contents}
             />
         </div>
         <hr/>

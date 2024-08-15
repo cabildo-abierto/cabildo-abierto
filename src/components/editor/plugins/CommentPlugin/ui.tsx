@@ -199,18 +199,22 @@ export function CommentInputBox({
       placeholder: "Agregá un comentario...",
       isAutofocus: false,
       editorClassName: "link",
-      user: user
+      user: user,
+      initialData: null,
+      isReadOnly: false
   }
 
   //className="CommentPlugin_CommentInputBox_Editor mt-3"
   //placeholderClassName="CommentPlugin_CommentInputBox_Placeholder"
   return (
     <div className="CommentPlugin_CommentInputBox px-2" ref={boxRef}>
-      <MyLexicalEditor
-          settings={settings}
-          setEditor={setCommentEditor}
-          setOutput={setCommentEditorState}
-      />
+      <div className="mt-2 px-2 py-2 border rounded">
+        <MyLexicalEditor
+            settings={settings}
+            setEditor={setCommentEditor}
+            setOutput={setCommentEditorState}
+        />
+      </div>
       <div className="flex justify-between py-2">
         <Button
           onClick={cancelAddComment}

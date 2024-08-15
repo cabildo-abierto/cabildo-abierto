@@ -109,7 +109,11 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
         <TitleInput onChange={setTitle}/>
         </div>
         <div className="mt-4">
-        <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
+            <MyLexicalEditor
+                settings={settings}
+                setEditor={setEditor}
+                setOutput={setEditorOutput}
+            />
         </div>
     </div>
 }
