@@ -7,7 +7,7 @@ import { ContentProps } from "@/actions/get-content"
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 
 import { splitPost, stopPropagation } from "./utils";
-import { DateAndTimeComponent, DateComponent } from "./date";
+import { DateAndTimeComponent, DateComponent, DateSince } from "./date";
 import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
 import EntityComponent from "@/components/entity-component";
@@ -42,7 +42,7 @@ export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean, i
             </span>
         }
         <span className="text-gray-600 lg:text-sm text-xs">
-            · <DateAndTimeComponent date={content.createdAt}/>
+            · <DateSince date={content.createdAt}/>
         </span>
         </div>
     </div>
@@ -59,13 +59,13 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
 }
 
 
-export const LikeAndCommentCounter: React.FC<{content: ContentProps, user: UserProps | null, onViewComments: any, viewingComments: boolean}> = ({content, user, onViewComments, viewingComments}) => {
+export const LikeAndCommentCounter: React.FC<{content: ContentProps, user?: UserProps, onViewComments: any, viewingComments: boolean}> = ({content, user, onViewComments, viewingComments}) => {
     return <div className="flex">
         <LikeCounter user={user} content={content}/>
         <div className="flex items-center px-2">
             <div 
                 className={viewingComments ? "reaction-btn-selected" : "reaction-btn"}
-                onClick={stopPropagation(onViewComments)}
+                onClick={(e: any) => {if(content.childrenComments.length > 0) stopPropagation(onViewComments)(e)}}
             >
                 <span className=""><CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content.childrenComments.length}</span>
             </div>
@@ -75,7 +75,7 @@ export const LikeAndCommentCounter: React.FC<{content: ContentProps, user: UserP
 
 
 export const Authorship = ({content}: any) => {
-    return <span className="mr-4 link">
+    return <span className="link">
         Por <Link href={"/perfil/"+content.author?.id.slice(1)}>
             {content.author?.name}
         </Link>
@@ -88,7 +88,7 @@ type ContentComponentProps = {
     contents: Record<string, ContentProps>,
     onViewComments: any,
     onStartReply: any,
-    user: UserProps | null,
+    user?: UserProps,
     entity?: any,
     isPostPage?: boolean,
     viewingComments: boolean,

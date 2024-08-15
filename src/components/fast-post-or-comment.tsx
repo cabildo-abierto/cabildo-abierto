@@ -29,7 +29,7 @@ function getQuoteFromContent(node: any, id: string): any {
 
 export const FastPostOrComment = ({content, contents, user, onStartReply, onViewComments, viewingComments}: any) => {
     const icon = content.type == "Comment" ? null : <BoltIcon fontSize={"small"}/>
-    const className = "w-ful text-left" 
+    const className = "w-full bg-white text-left" 
 
     const parentContent = contents[content.parentContentId]
 

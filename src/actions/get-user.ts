@@ -27,16 +27,16 @@ export type UserProps = {
 };
 
 
-export async function getUserId(): Promise<string | null> {
+export async function getUserId(): Promise<string | undefined> {
     const session = await verifySession()
-    if(!session) return null
+    if(!session) return undefined
     return session.userId
 }
 
 export async function getUser() {
     const userId = await getUserId()
     if(!userId)
-        return null
+        return undefined
     return getUserById(userId)
 }
 
@@ -68,7 +68,7 @@ export const getUsers = cache(async () => {
 )
 
 export const getUserById = cache(async (userId: string) => {
-    const user: UserProps | null = await db.user.findUnique(
+    const user = await db.user.findUnique(
         {
             select: {
                 id: true,
@@ -86,7 +86,7 @@ export const getUserById = cache(async (userId: string) => {
             where: {id:userId}
         }
     )
-    return user
+    return user ? user : undefined
 },
     ["user"],
     {

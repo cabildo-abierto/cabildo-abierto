@@ -17,7 +17,7 @@ export function stopPropagation(func: any) {
 }
 
 
-export function validSubscription(user: UserProps | null | undefined){
+export function validSubscription(user: UserProps | undefined){
     if(!user) return false
     if(user.subscriptionsUsed.length == 0) return false
 
