@@ -239,17 +239,14 @@ export default function CommentPlugin({user, parentContent, contents}: {
           />,
           document.body,
         )}
-      {createPortal(
-        <Button
-          className={`gray-btn CommentPlugin_ShowCommentsButton ${
-            showComments ? 'active' : ''
-          }`}
+      {
+        <button
+          className="gray-btn CommentPlugin_ShowCommentsButton"
           onClick={() => setShowComments(!showComments)}
           title={showComments ? 'Esconder comentarios' : 'Ver comentarios'}>
           <i className="comments" />
-        </Button>,
-        document.body,
-      )}
+        </button>
+      }
 
       {showComments &&
         createPortal(
