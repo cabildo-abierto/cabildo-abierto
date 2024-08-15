@@ -30,7 +30,8 @@ export function getListOfComments(contents: Record<string, ContentProps>, conten
 }
 
 
-export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content, contents, user, entity=null, isPostPage=false, modify=false}) => {
+export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
+    content, contents, user, entity=null, isPostPage=false, modify=false}) => {
     const startsOpen = (content && content.type == "Post" && isPostPage) || entity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
@@ -52,6 +53,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({content
     return <div>
         <ContentComponent
             content={content}
+            contents={contents}
             user={user}
             onViewComments={() => {setViewComments(!viewComments)}}
             onStartReply={() => {setWritingReply(!writingReply)}}
