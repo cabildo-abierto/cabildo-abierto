@@ -2,26 +2,27 @@
 
 import { UserProps } from "@/actions/get-user"
 import { validSubscription } from "../utils"
-import MyLexicalEditor from "./lexical-editor"
+import MyLexicalEditor, { SettingsProps } from "./lexical-editor"
 import { useState } from "react"
 import Popup from "../popup"
 import NeedAccountPopupPanel from "../need-account-popup"
 import StateButton from "../state-button"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode, LexicalEditor } from "lexical"
-import { $generateHtmlFromNodes } from '@lexical/html';
 import { emptyOutput } from "./comment-editor"
 import { useRouter } from "next/navigation"
-import { createPost } from "@/actions/create-content"
 import Link from "next/link"
+import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 
 
-const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
+const FastEditor = ({onSubmit, onSaveDraft, initialData=null}: 
+    {onSubmit?: any, onSaveDraft?: any, initialData?: InitialEditorStateType}
+) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
 
     const isDevPlayground = false
-    const settings = {
+    const settings: SettingsProps = {
         disableBeforeInput: false,
         emptyEditor: isDevPlayground,
         isAutocomplete: false,
@@ -50,6 +51,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
         initialData: initialData,
         isAutofocus: true,
         editorClassName: "link",
+        isReadOnly: false
     }
 
     async function handleSubmit(){
@@ -99,7 +101,6 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
     }
 
     return <div className="p-1 rounded">
-        
         <div className="flex justify-between mt-3">
             <DraftsButton/>
 			<div className="flex justify-end">
@@ -110,7 +111,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
 			</div>
 		</div>
         <div className="mt-12">
-        <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
+            <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
         </div>
     </div>
 }

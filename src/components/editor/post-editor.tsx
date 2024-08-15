@@ -1,6 +1,6 @@
 "use client"
 
-import MyLexicalEditor from "./lexical-editor"
+import MyLexicalEditor, { SettingsProps } from "./lexical-editor"
 import { useState } from "react"
 import StateButton from "../state-button"
 import { EditorState, LexicalEditor } from "lexical"
@@ -16,7 +16,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
     const [title, setTitle] = useState("")
 
     const isDevPlayground = false
-    const settings = {
+    const settings: SettingsProps = {
         disableBeforeInput: false,
         emptyEditor: isDevPlayground,
         isAutocomplete: false,
@@ -43,13 +43,15 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
         useCodeblock: false,
         placeholder: "Escribí tu publicación acá...",
         initialData: initialData,
-        editorClassName: "content mt-4"
+        editorClassName: "content mt-4",
+        isReadOnly: false,
+        isAutofocus: true
     }
 
     async function handleSubmit(){
         if(editor && editorOutput){
             editorOutput.read(async () => {
-                await onSubmit(JSON.stringify([title, editorOutput]), "Post")
+                await onSubmit(JSON.stringify(editorOutput), "Post", title)
                 router.push("/")
             })
         }
@@ -58,7 +60,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
     async function handleSaveDraft(){
         if(editor && editorOutput){
             editorOutput.read(async () => {
-                await onSaveDraft(JSON.stringify([title, editorOutput]), "Post")
+                await onSaveDraft(JSON.stringify(title), "Post", title)
                 router.push("/borradores")
             })
         }

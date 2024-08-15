@@ -2,7 +2,6 @@
 import BoltIcon from '@mui/icons-material/Bolt';
 import { AddCommentButton, ContentTopRow, LikeAndCommentCounter } from './content';
 import { stopPropagation } from './utils';
-import HtmlContent from './editor/html-content';
 import { getContentById } from '@/actions/get-content';
 import {MarkNode} from '@lexical/mark';
 import {$getRoot, $insertNodes, EditorState, LexicalEditor, LexicalNode} from 'lexical'
@@ -10,6 +9,8 @@ import {$insertFirst} from '@lexical/utils'
 import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
 import {$createQuoteNode} from '@lexical/rich-text';
 import {$unwrapMarkNode} from '@lexical/mark'
+import { ReadOnlyEditor } from './editor/read-only-editor';
+
 
 function getQuoteFromContent(node: any, id: string): any {
     if(node.type === "mark"){
@@ -31,8 +32,12 @@ export const FastPostOrComment = ({content, contents, user, onStartReply, onView
     const className = "w-ful text-left" 
 
     const parentContent = contents[content.parentContentId]
-    const parentText = JSON.parse(parentContent.text)
-    const snode = getQuoteFromContent(parentText.root, content.id)
+
+    let snode = null
+    if(parentContent){
+        const parentText = JSON.parse(parentContent.text)
+        snode = getQuoteFromContent(parentText.root, content.id)
+    }
 
     const initializeQuote = (editor: LexicalEditor) => {
         editor.update(() => {
@@ -56,9 +61,9 @@ export const FastPostOrComment = ({content, contents, user, onStartReply, onView
             <ContentTopRow content={content} icon={icon}/>
             <div className="px-2 py-2">
                 {snode && <div className="content">
-                    <HtmlContent content={initializeQuote} user={user}/>
+                    <ReadOnlyEditor initialData={initializeQuote}/>
                 </div>}
-                <HtmlContent content={content.text} user={user}/>
+                <ReadOnlyEditor initialData={content.text}/>
             </div>
             <div className="flex justify-between mb-1">
                 <div className="px-1">

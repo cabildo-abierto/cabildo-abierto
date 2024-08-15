@@ -29,17 +29,19 @@ export async function createComment(text: string, parentContentId: string, userI
 
 
 
-export async function createPost(text: string, postType: ContentType, isDraft: boolean, userId: string | null = null) {
+export async function createPost(text: string, postType: ContentType, isDraft: boolean, userId: string | null = null, title?: string) {
     if(!userId){
         userId = await getUserId()
     }
+    console.log("author", userId)
 
     const result = await db.content.create({
         data: {
             text: text,
             authorId: userId,
             type: postType,
-            isDraft: isDraft
+            isDraft: isDraft,
+            title: title
         },
     })
 
@@ -49,14 +51,15 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
 }
 
 
-export async function updateContent(text: string, contentId: string) {
+export async function updateContent(text: string, contentId: string, title?: string) {
 
     await db.content.update({
         where: {
             id: contentId
         },
         data: {
-            text: text
+            text: text,
+            title: title
         }
     })
 
@@ -66,7 +69,7 @@ export async function updateContent(text: string, contentId: string) {
 }
 
 
-export async function publishDraft(text: string, contentId: string) {
+export async function publishDraft(text: string, contentId: string, title?: string) {
 
     await db.content.update({
         where: {
@@ -75,7 +78,8 @@ export async function publishDraft(text: string, contentId: string) {
         data: {
             text: text,
             isDraft: false,
-            createdAt: new Date()
+            createdAt: new Date(),
+            title: title
         }
     })
     revalidateTag("contents")

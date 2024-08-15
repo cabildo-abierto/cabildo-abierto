@@ -21,7 +21,8 @@ export type ContentProps = {
     type: string
     isDraft: boolean | null
     childrenComments: {id: string}[],
-    parentContentId: string | null
+    parentContentId: string | null,
+    title?: string
 };
 
 export type ContentAndChildrenProps = {
@@ -45,7 +46,8 @@ export const getContentById = cache(async (contentId: string) => {
             },
             type: true,
             isDraft: true,
-            parentContentId: true
+            parentContentId: true,
+            title: true
         },
             where: {
                 id: contentId,
@@ -72,7 +74,8 @@ export const getPosts = cache(async () => {
             },
             type: true,
             isDraft: true,
-            parentContentId: true
+            parentContentId: true,
+            title: true
         },
         where: {
             AND: [
