@@ -14,13 +14,11 @@
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 10;
+  z-index: 30;
   opacity: 0;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  transition: opacity 0.5s;
   height: 45px;
-  will-change: transform;
 }
 
 .floating-text-format-popup button.popup-item {

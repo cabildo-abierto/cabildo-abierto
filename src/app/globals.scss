@@ -335,3 +335,16 @@ h4 {
 	background-color: transparent;
 	cursor: default
 }
+
+.comments-panel {
+    position: fixed;
+	top: 4rem;
+    right: 0;
+    width: 22%; /* Adjust width as needed */
+    height: calc(100vh - 4rem);
+    background-color: rgba(255, 255, 255, 0.7); /* Transparent background */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 1rem; /* Add some padding */
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow to separate from main content */
+    z-index: 1000; /* Ensure it stays on top of other content */
+}

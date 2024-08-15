@@ -10,6 +10,7 @@ import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, E
 import { $generateHtmlFromNodes } from '@lexical/html';
 
 import dynamic from 'next/dynamic'
+import { SettingsProps } from "@/components/editor/lexical-editor"
 
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
@@ -55,7 +56,7 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
 
     const isDevPlayground = false
-    const settings = {
+    const settings: SettingsProps = {
         disableBeforeInput: false,
         emptyEditor: isDevPlayground,
         isAutocomplete: false,
@@ -83,7 +84,9 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
         placeholder: "Agregá un comentario...",
         isAutofocus: false,
         editorClassName: "link",
-        user: user
+        user: user,
+        initialData: null,
+        isReadOnly: false
     }
 
     async function handleSubmit(){

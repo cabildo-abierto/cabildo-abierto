@@ -22,7 +22,7 @@ export type ContentProps = {
     isDraft: boolean | null
     childrenComments: {id: string}[],
     parentContentId: string | null,
-    title?: string
+    title?: string | null
 };
 
 export type ContentAndChildrenProps = {

@@ -99,9 +99,9 @@ type ContentComponentProps = {
 const ContentComponent: React.FC<ContentComponentProps> = ({content, contents, user, onViewComments, onStartReply, viewingComments, entity=null, isPostPage=false, modify=false}) => {
 
     if(content.type == "Post" && isPostPage){
-        return <Post content={content} user={user}/>
+        return <Post content={content} user={user} contents={contents}/>
     } else if(content.type == "EntityContent"){
-        return <EntityComponent content={content} entity={entity} modify={modify} user={user}/>
+        return <EntityComponent content={content} entity={entity} user={user} contents={contents}/>
     } else if(content.type == "Post"){
         return <PostOnFeed content={content} user={user}/>
     } else {
