@@ -115,7 +115,7 @@ export type SettingsProps = {
   isReadOnly: boolean,
   isAutofocus: boolean,
   editorClassName: string,
-  user?: UserProps | null,
+  user?: UserProps,
   content?: ContentProps | null,
 }
 
@@ -228,7 +228,7 @@ function Editor({ settings, setEditor, setOutput, contents }:
         <HashtagPlugin />
         <KeywordsPlugin />
         <AutoLinkPlugin />
-        {isComments && contents && user && content && <CommentPlugin
+        {isComments && contents && content && <CommentPlugin
           user={user}
           parentContent={content}
           contents={contents}

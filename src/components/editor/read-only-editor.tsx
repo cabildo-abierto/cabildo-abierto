@@ -17,7 +17,7 @@ export const ReadOnlyEditor = ({initialData,
 }: 
     {initialData: InitialEditorStateType,
     enableComments?: boolean, 
-    user?: UserProps | null, 
+    user?: UserProps, 
     content?: ContentProps,
     contents?: Record<string, ContentProps>,
     editorClassName?: string}) => {

@@ -48,7 +48,7 @@ export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
 
 
 export default function CommentPlugin({user, parentContent, contents}: {
-  user: UserProps, 
+  user?: UserProps, 
   parentContent: ContentProps,
   contents: Record<string, ContentProps>
 }): JSX.Element {

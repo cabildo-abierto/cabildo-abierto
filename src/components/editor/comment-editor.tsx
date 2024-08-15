@@ -16,7 +16,7 @@ const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-edit
 
 
 
-function canComment(user: UserProps | null | undefined){
+function canComment(user?: UserProps){
 	return validSubscription(user)
 }
 

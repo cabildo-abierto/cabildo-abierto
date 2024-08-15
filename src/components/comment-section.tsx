@@ -5,7 +5,7 @@ import { ContentWithComments } from "@/components/content-with-comments"
 type CommentSectionProps = {
     comments: ContentProps[], 
     contents: Record<string, ContentProps>,
-    user: UserProps | null
+    user?: UserProps
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({comments, contents, user}) => {

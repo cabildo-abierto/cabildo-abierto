@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -14,6 +14,26 @@ export function DateComponent({ date }: { date: Date }) {
             setLocaleDate(format(date, "dd 'de' MMMM 'de' yyyy", { locale: es }));
     }, [date]);
 
+    return <>{localeDate}</>;
+}
+
+export function DateSince({ date }: { date: Date }) {
+    const rtf = useMemo(
+        () =>
+            new Intl.RelativeTimeFormat('es', {
+                localeMatcher: 'best fit',
+                numeric: 'auto',
+                style: 'short',
+            }),
+        [],
+    );
+
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    const minutes = Math.floor(seconds / 60);
+    console.log(seconds, minutes)
+    const localeDate = seconds < 10 ? 'ahora' : rtf.format(-minutes, 'minute');
+    
     return <>{localeDate}</>;
 }
 

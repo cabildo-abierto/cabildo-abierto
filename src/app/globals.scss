@@ -306,6 +306,10 @@ h4 {
 	transform: scale(1.05);
 }
 
+.reaction-btn:disabled:hover {
+	transform: scale(1);
+}
+
 .reaction-btn-selected {
 	font-size: small;
 	color: var(--primary)
@@ -314,6 +318,11 @@ h4 {
 .reaction-btn-selected:hover {
 	transform: scale(1.05);
 }
+
+.reaction-btn-selected:disabled:hover {
+	transform: scale(1);
+}
+
 
 .topbar-btn {
 	cursor: pointer;
@@ -339,11 +348,11 @@ h4 {
     position: fixed;
 	top: 4rem;
     right: 0;
-    width: 22%; /* Adjust width as needed */
+    width: 400px; /* Adjust width as needed */
     height: calc(100vh - 4rem);
     background-color: rgba(255, 255, 255, 0.7); /* Transparent background */
     overflow-y: auto; /* Enable vertical scrolling */
     padding: 1rem; /* Add some padding */
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow to separate from main content */
-    z-index: 1000; /* Ensure it stays on top of other content */
+    z-index: 50; /* Ensure it stays on top of other content */
 }

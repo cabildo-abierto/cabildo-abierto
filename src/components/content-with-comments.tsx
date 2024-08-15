@@ -23,7 +23,7 @@ export function getListOfComments(contents: Record<string, ContentProps>, conten
 type ContentWithCommentsProps = {
     content: ContentProps,
     contents: Record<string, ContentProps>,
-    user: UserProps | null,
+    user?: UserProps,
     entity?: any,
     isPostPage?: boolean
 }

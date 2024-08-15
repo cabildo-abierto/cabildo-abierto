@@ -34,7 +34,7 @@ export function CommentInputBox({
 }: {
   cancelAddComment: () => void;
   editor: LexicalEditor;
-  user: UserProps;
+  user?: UserProps;
   parentContent: ContentProps;
   submitAddComment: () => void;
 }) {
@@ -136,7 +136,7 @@ export function CommentInputBox({
   }, [updateLocation]);
 
   const submitComment = async () => {
-    if (!emptyOutput(commentEditorState)) {
+    if (!emptyOutput(commentEditorState) && user) {
         let quote = editor.getEditorState().read(() => {
             const selection = selectionRef.current;
             return selection ? selection.getTextContent() : '';
@@ -223,7 +223,7 @@ export function CommentInputBox({
         </Button>
         <Button
           onClick={submitComment}
-          disabled={emptyOutput(commentEditorState)}
+          disabled={emptyOutput(commentEditorState) || !user}
           className="gray-btn w-full ml-1">
           Comentar
         </Button>

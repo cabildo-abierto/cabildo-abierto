@@ -8,7 +8,7 @@ import { RangeSelection } from "lexical";
 import { getContentById } from "./get-content";
 
 
-export async function createComment(text: string, parentContentId: string, userId: string | null = null) {
+export async function createComment(text: string, parentContentId: string, userId?: string) {
     if(!userId){
         userId = await getUserId()
     }
@@ -29,7 +29,7 @@ export async function createComment(text: string, parentContentId: string, userI
 
 
 
-export async function createPost(text: string, postType: ContentType, isDraft: boolean, userId: string | null = null, title?: string) {
+export async function createPost(text: string, postType: ContentType, isDraft: boolean, userId?: string, title?: string) {
     if(!userId){
         userId = await getUserId()
     }

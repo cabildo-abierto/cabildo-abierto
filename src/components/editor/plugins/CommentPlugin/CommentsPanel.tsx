@@ -27,7 +27,7 @@ export function CommentsPanel({
     parentContent: ContentProps,
     contents: Record<string, ContentProps>;
     markNodeMap: Map<string, Set<NodeKey>>;
-    user: UserProps | null
+    user?: UserProps
 }): JSX.Element {
     const comments = getTextComments(parentContent, contents)
     return <div className="comments-panel">
