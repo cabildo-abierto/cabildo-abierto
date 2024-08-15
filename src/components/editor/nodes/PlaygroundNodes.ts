@@ -20,7 +20,6 @@ import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 import {CollapsibleContainerNode} from '../plugins/CollapsiblePlugin/CollapsibleContainerNode';
 import {CollapsibleContentNode} from '../plugins/CollapsiblePlugin/CollapsibleContentNode';
 import {CollapsibleTitleNode} from '../plugins/CollapsiblePlugin/CollapsibleTitleNode';
-import {AutocompleteNode} from './AutocompleteNode';
 import {EmojiNode} from './EmojiNode';
 import {EquationNode} from './EquationNode';
 import {ImageNode} from './ImageNode';
@@ -30,7 +29,6 @@ import {LayoutContainerNode} from './LayoutContainerNode';
 import {LayoutItemNode} from './LayoutItemNode';
 import {PageBreakNode} from './PageBreakNode';
 import {PollNode} from './PollNode';
-import {StickyNode} from './StickyNode';
 import {TweetNode} from './TweetNode';
 import {YouTubeNode} from './YouTubeNode';
 import {LinkNode, AutoLinkNode} from '@lexical/link'
@@ -50,12 +48,10 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   LinkNode,
   AutoLinkNode,
   PollNode,
-  StickyNode,
   ImageNode,
   InlineImageNode,
   EmojiNode,
   EquationNode,
-  AutocompleteNode,
   KeywordNode,
   HorizontalRuleNode,
   TweetNode,
