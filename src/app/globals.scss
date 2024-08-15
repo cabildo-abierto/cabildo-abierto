@@ -17,6 +17,7 @@ $accent: #8790b0;
   --background-dark: #{darken($background, 20%)};
   --primary-dark: #{darken($primary, 20%)};
   --secondary-light: #{lighten($secondary, 20%)};
+  --secondary-xlight: #{lighten($secondary, 23%)};
   --primary-light: #{lighten($primary, 20%)};
   --accent-dark: #{darken($accent, 20%)};
   --text-light: #{lighten($text, 20%)};
@@ -106,7 +107,7 @@ h4 {
 
 .content blockquote {
 	margin: 0;
-	margin-left: 20px;
+	margin-left: 10px;
 	margin-bottom: 10px;
 	font-size: 15px;
 	color: rgb(101, 103, 107);
@@ -114,6 +115,7 @@ h4 {
 	border-left-width: 4px;
 	border-left-style: solid;
 	padding-left: 16px;
+	background-color: var(--secondary-xlight)
 }
 
 .content ul {

@@ -235,7 +235,7 @@ export default function CommentPlugin({user, parentContent}: {user: UserProps, p
           />,
           document.body,
         )}
-      {createPortal(
+      {false && createPortal(
         <Button
           className={`gray-btn CommentPlugin_ShowCommentsButton ${
             showComments ? 'active' : ''

@@ -62,7 +62,7 @@ export const SearchButton = ({ onClick=null, disabled=false }: any) => {
 
 
 
-function TopbarLoggedIn({ user, onOpenSidebar, onSearchingUpdate, searching }: any) {
+function TopbarLoggedIn({ user, onOpenSidebar, onSearchingUpdate, searching, contents }: any) {
     return <div className="flex items-center w-screen">
         <OpenSidebarButton onClick={onOpenSidebar} />
         {!searching &&
@@ -75,7 +75,7 @@ function TopbarLoggedIn({ user, onOpenSidebar, onSearchingUpdate, searching }: a
         }
 
         {searching && 
-            <SearchBar user={user} onClose={() => { onSearchingUpdate(false) }} />
+            <SearchBar contents={contents} user={user} onClose={() => { onSearchingUpdate(false) }} />
         }
     </div>
 }
@@ -108,7 +108,7 @@ const TopBarLoading = () => {
 }
 
 
-export default function Topbar({ user, onOpenSidebar }: any) {
+export default function Topbar({ user, onOpenSidebar, contents }: any) {
     const [barState, setBarState] = useState("top")
     const [searching, setSearching] = useState(false)
     const [prevScrollPos, setPrevScrollPos] = useState(0);
@@ -155,6 +155,7 @@ export default function Topbar({ user, onOpenSidebar }: any) {
             onOpenSidebar={onOpenSidebar}
             onSearchingUpdate={handleSearchingUpdate}
             searching={searching}
+            contents={contents}
         />
     }
 

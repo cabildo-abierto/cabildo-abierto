@@ -1,17 +1,11 @@
 "use client"
 
-import { UserProps } from "@/actions/get-user"
-import { validSubscription } from "../utils"
 import MyLexicalEditor from "./lexical-editor"
 import { useState } from "react"
-import Popup from "../popup"
-import NeedAccountPopupPanel from "../need-account-popup"
 import StateButton from "../state-button"
-import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode, LexicalEditor } from "lexical"
-import { $generateHtmlFromNodes } from '@lexical/html';
+import { EditorState, LexicalEditor } from "lexical"
 import { emptyOutput } from "./comment-editor"
 import { useRouter } from "next/navigation"
-import { createPost } from "@/actions/create-content"
 import Link from "next/link"
 import { TitleInput } from "./title-input"
 

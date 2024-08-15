@@ -20,7 +20,8 @@ export type ContentProps = {
     }
     type: string
     isDraft: boolean | null
-    childrenComments: {id: string}[]
+    childrenComments: {id: string}[],
+    parentContentId: string | null
 };
 
 export type ContentAndChildrenProps = {
@@ -31,19 +32,20 @@ export type ContentAndChildrenProps = {
 export const getContentById = cache(async (contentId: string) => {
     let content = await db.content.findUnique(
         {select: {
-                id: true,
-                text: true,
-                createdAt: true,
-                author: true,
-                childrenComments: true,
-                _count: {
-                    select: {
-                        likedBy: true,
-                        dislikedBy: true,
-                    },
+            id: true,
+            text: true,
+            createdAt: true,
+            author: true,
+            childrenComments: true,
+            _count: {
+                select: {
+                    likedBy: true,
+                    dislikedBy: true,
                 },
-                type: true,
-                isDraft: true
+            },
+            type: true,
+            isDraft: true,
+            parentContentId: true
         },
             where: {
                 id: contentId,
@@ -51,21 +53,10 @@ export const getContentById = cache(async (contentId: string) => {
         }
     )
     return content
-}, ["content"],
-{tags: ["content"]})
-
-
-export async function getChildrenAndData(contents: any){
-    const contentsWithChildren = await Promise.all(contents.map(async (content: any) => {
-        return await getContentById(content.id)
-    }))
-
-    return contentsWithChildren
-}
+}, ["content"], {tags: ["content"]})
 
 
 export const getPosts = cache(async () => {
-    console.log("getting posts")
     let contents = await db.content.findMany({
         select: {
             id: true,
@@ -80,7 +71,8 @@ export const getPosts = cache(async () => {
                 },
             },
             type: true,
-            isDraft: true
+            isDraft: true,
+            parentContentId: true
         },
         where: {
             AND: [
@@ -101,33 +93,3 @@ export const getPosts = cache(async () => {
         tags: ["contents"]
     }
 )
-
-
-export async function getPostsFollowing(user: UserProps) {
-
-    const following = user.following.map(user => user.id);
-
-    let contents: {id: string}[] = await db.content.findMany({
-        select: {
-            id: true,
-        },
-        where: {
-            AND: [
-                {
-                    type: {in: ["FastPost", "Post"]}
-                },
-                {
-                    authorId: {in: following}
-                },
-                {
-                    visible: true
-                }
-            ]
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    })
-
-    return await getChildrenAndData(contents)
-}

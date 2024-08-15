@@ -10,7 +10,7 @@ import { EntitySearchResult } from "./entity-search-result";
 import ContentComponent from "./content";
 
 
-const SearchPage = ({user, searchValue}: any) => {
+const SearchPage = ({user, searchValue, contents}: any) => {
   const [resultsUsers, setResultsUsers] = useState<any[]>([]);
   const [resultsContents, setResultsContents] = useState<ContentProps[]>([]);
   const [resultsEntities, setResultsEntities] = useState<any[]>([]);
@@ -46,6 +46,7 @@ const SearchPage = ({user, searchValue}: any) => {
         <div className="py-2" key={content.id}>
           <ContentComponent
             content={content}
+            contents={contents}
             user={user}
             onViewComments={() => {}}
             onStartReply={() => {}}

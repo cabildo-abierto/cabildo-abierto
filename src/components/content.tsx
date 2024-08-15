@@ -12,10 +12,10 @@ import { DateAndTimeComponent, DateComponent } from "./date";
 import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
 import EntityComponent from "@/components/entity-component";
-import BoltIcon from '@mui/icons-material/Bolt';
-import ArticleIcon from '@mui/icons-material/Article';
 import { useRouter } from "next/navigation";
 import { UserProps } from "@/actions/get-user";
+import { PostOnFeed } from "./post-on-feed";
+import { FastPostOrComment } from "./fast-post-or-comment";
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -60,7 +60,7 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
 }
 
 
-const LikeAndCommentCounter: React.FC<{content: ContentProps, user: UserProps | null, onViewComments: any, viewingComments: boolean}> = ({content, user, onViewComments, viewingComments}) => {
+export const LikeAndCommentCounter: React.FC<{content: ContentProps, user: UserProps | null, onViewComments: any, viewingComments: boolean}> = ({content, user, onViewComments, viewingComments}) => {
     return <div className="flex">
         <LikeCounter user={user} content={content}/>
         <div className="flex items-center px-2">
@@ -75,18 +75,6 @@ const LikeAndCommentCounter: React.FC<{content: ContentProps, user: UserProps | 
 }
 
 
-type ContentComponentProps = {
-    content: ContentProps,
-    onViewComments: any,
-    onStartReply: any,
-    user: UserProps | null,
-    entity?: any,
-    isPostPage?: boolean,
-    viewingComments: boolean,
-    modify?: boolean
-}
-
-
 export const Authorship = ({content}: any) => {
     return <span className="mr-4 link">
         Por <Link href={"/perfil/"+content.author?.id.slice(1)}>
@@ -96,51 +84,32 @@ export const Authorship = ({content}: any) => {
 }
 
 
-const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onViewComments, onStartReply, viewingComments, entity=null, isPostPage=false, modify=false}) => {
-    const router = useRouter()
-    
+type ContentComponentProps = {
+    content: ContentProps,
+    contents: Record<string, ContentProps>,
+    onViewComments: any,
+    onStartReply: any,
+    user: UserProps | null,
+    entity?: any,
+    isPostPage?: boolean,
+    viewingComments: boolean,
+    modify?: boolean,
+}
+
+
+const ContentComponent: React.FC<ContentComponentProps> = ({content, contents, user, onViewComments, onStartReply, viewingComments, entity=null, isPostPage=false, modify=false}) => {
+
     if(content.type == "Post" && isPostPage){
         return <Post content={content} user={user}/>
     } else if(content.type == "EntityContent"){
         return <EntityComponent content={content} entity={entity} modify={modify} user={user}/>
     } else if(content.type == "Post"){
-        const [title, text] = JSON.parse(content.text)
-        return <div className="w-full bg-white text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
-            <div className="border rounded w-full">
-                <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>}/>
-                <div className="flex items-center px-2 py-2">
-                    <div className="px-1 font-semibold content">
-                        {title}
-                    </div>
-                </div>
-                <div className="flex justify-between mb-1">
-                    {false &&<div className="px-2 flex justify-between text-sm">
-                        <Authorship/>
-                    </div>}
-                    <div></div>
-                    <LikeAndCommentCounter content={content} user={user} onViewComments={onViewComments} viewingComments={viewingComments}/>
-                </div>
-            </div>
-        </div>
+        return <PostOnFeed content={content} user={user}/>
+    } else {
+        return <FastPostOrComment content={content} contents={contents} user={user} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
     }
 
-    const icon = content.type == "Comment" ? null : <BoltIcon fontSize={"small"}/>
-    const className = "w-full bg-white text-left cursor-pointer" 
-
-    return <div className={className}>
-        <div className="border rounded w-full">
-            <ContentTopRow content={content} icon={icon}/>
-            <div className="px-2 py-2">
-                <HtmlContent content={content.text} user={user}/>
-            </div>
-            <div className="flex justify-between mb-1">
-                <div className="px-1">
-                    <AddCommentButton text="Responder" onClick={stopPropagation(onStartReply)}/>
-                </div>
-                <LikeAndCommentCounter content={content} user={user} onViewComments={onViewComments} viewingComments={viewingComments}/>
-            </div>
-        </div>
-    </div>
+    
 };
 
 export default ContentComponent;

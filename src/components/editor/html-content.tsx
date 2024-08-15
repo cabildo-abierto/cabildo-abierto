@@ -1,11 +1,12 @@
 "use client"
 
 import { UserProps } from '@/actions/get-user';
+import { InitialEditorStateType } from '@lexical/react/LexicalComposer';
 import dynamic from 'next/dynamic'
 
 const LexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
-export default function HtmlContent({content, user, limitHeight=false}: {content: string, user: UserProps | null, limitHeight?: Boolean}) {
+export default function HtmlContent({content, user, limitHeight=false}: {content: InitialEditorStateType, user: UserProps | null, limitHeight?: Boolean}) {
     
     const isDevPlayground = false
     const settings = {
@@ -40,7 +41,8 @@ export default function HtmlContent({content, user, limitHeight=false}: {content
         isAutofocus: true,
         editorClassName: "link",
         user: user,
-        content: content
+        content: content,
+        isHtmlEditor: false
     }
     const parsed_content = <LexicalEditor settings={settings} setEditor={(editor: any) => {}} setOutput={(output: any) => {}}/>
     
