@@ -319,7 +319,16 @@ function Editor({ settings, setEditor, setOutput, contents }:
 
 
 const LexicalEditor = ({ settings, setEditor, setOutput, contents }: LexicalEditorProps) => {
-  const {isReadOnly, initialData} = settings
+  let {isReadOnly, initialData} = settings
+
+  if(typeof initialData === 'string'){
+      try {
+          JSON.parse(initialData)
+      } catch {
+          initialData = null
+      }
+  }
+
   const initialConfig = {
     editorState: initialData,
     namespace: 'Playground',
