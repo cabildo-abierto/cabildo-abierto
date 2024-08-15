@@ -104,14 +104,13 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, user, onVie
     } else if(content.type == "EntityContent"){
         return <EntityComponent content={content} entity={entity} modify={modify} user={user}/>
     } else if(content.type == "Post"){
-        const postSplit = splitPost(content.text)
-        const text = postSplit ? postSplit.title : "Error al cargar el contenido"
+        const [title, text] = JSON.parse(content.text)
         return <div className="w-full bg-white text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
             <div className="border rounded w-full">
                 <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>}/>
                 <div className="flex items-center px-2 py-2">
                     <div className="px-1 font-semibold content">
-                        {text}
+                        {title}
                     </div>
                 </div>
                 <div className="flex justify-between mb-1">

@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import ReadOnlyContent from "./read-only-content";
 import Link from "next/link";
 
-const MarkdownEditor = dynamic(() => import('@/components/editor/markdown-editor'), { ssr: false });
+const MarkdownEditor = dynamic(() => import('@/components/editor/wiki-editor'), { ssr: false });
 
 const EditableContent: React.FC<any> = ({ entity, content, handleSave, onCancel }) => {
     return <>
@@ -19,7 +19,7 @@ const EditableContent: React.FC<any> = ({ entity, content, handleSave, onCancel 
         </div>
 
         <div className="px-2">
-            <MarkdownEditor initialData={content.text} onSubmit={handleSave}/>
+            <MarkdownEditor initialData={content.text} onSubmit={handleSave} content={content}/>
         </div>
     </>
 }

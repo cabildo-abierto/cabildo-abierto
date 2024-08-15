@@ -9,9 +9,8 @@ import { SetProtectionButton } from "@/components/protection-button";
 import Link from "next/link";
 import { validSubscription } from "@/components/utils";
 import dynamic from "next/dynamic";
-import { updateContent } from "@/actions/create-content";
 
-const MarkdownEditor = dynamic(() => import('@/components/editor/markdown-editor'), { ssr: false });
+const MarkdownEditor = dynamic(() => import('@/components/editor/wiki-editor'), { ssr: false });
 
 
 function hasEditPermissions(user: UserProps, level: string) {
@@ -42,7 +41,7 @@ const EntityPage: React.FC<any> = async ({ params }) => {
                     }
                     <MarkdownEditor
                         initialData={contents[entity.contentId].text}
-                        contentId={entity.contentId}
+                        content={contents[entity.contentId]}
                         entityId={entity.id}
                     />
                 </>

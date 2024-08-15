@@ -39,9 +39,9 @@ export default function HtmlContent({content, user, limitHeight=false}: {content
         isReadOnly: true,
         isAutofocus: true,
         editorClassName: "link",
-        user: user
+        user: user,
+        content: content
     }
-
     const parsed_content = <LexicalEditor settings={settings} setEditor={(editor: any) => {}} setOutput={(output: any) => {}}/>
     
     if(limitHeight){

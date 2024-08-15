@@ -22,14 +22,12 @@ import {
 } from '@lexical/markdown';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
-import {CONNECTED_COMMAND, TOGGLE_CONNECT_COMMAND} from '@lexical/yjs';
 import {
   $createTextNode,
   $getRoot,
   $isParagraphNode,
   CLEAR_EDITOR_COMMAND,
   CLEAR_HISTORY_COMMAND,
-  COMMAND_PRIORITY_EDITOR,
 } from 'lexical';
 import {useCallback, useEffect, useState} from 'react';
 
@@ -105,22 +103,6 @@ export default function ActionsPlugin({
         editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
       }
     });
-  }, [editor]);
-  useEffect(() => {
-    return mergeRegister(
-      editor.registerEditableListener((editable) => {
-        setIsEditable(editable);
-      }),
-      editor.registerCommand<boolean>(
-        CONNECTED_COMMAND,
-        (payload) => {
-          const isConnected = payload;
-          setConnected(isConnected);
-          return false;
-        },
-        COMMAND_PRIORITY_EDITOR,
-      ),
-    );
   }, [editor]);
 
   useEffect(() => {

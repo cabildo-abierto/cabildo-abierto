@@ -9,7 +9,10 @@ import { updateContent } from "@/actions/create-content"
 import {$convertToMarkdownString} from "@lexical/markdown"
 import Link from "next/link"
 
-const MarkdownEditor = ({initialData, contentId, entityId, user, readOnly=false}: any) => {
+import SelectionSerializer from '@ancientec/selection-serializer'
+import { $generateHtmlFromNodes } from "@lexical/html"
+
+const MarkdownEditor = ({initialData, content, entityId, user, readOnly=false}: any) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
@@ -42,10 +45,11 @@ const MarkdownEditor = ({initialData, contentId, entityId, user, readOnly=false}
         useCodeblock: false,
         placeholder: "Este artículo está vacío!",
         initialData: initialData,
-        isMarkdownEditor: true,
+        isMarkdownEditor: false,
         editorClassName: "content mt-4",
         isReadOnly: readOnly,
-        user: user
+        user: user,
+        content: content
     }
 
     const SaveEditButton = () => {
@@ -54,17 +58,34 @@ const MarkdownEditor = ({initialData, contentId, entityId, user, readOnly=false}
             text1="Guardar edición"
             text2="Guardando..."
             onClick={async () => {
-                if(editorOutput){
+                if(editor && editorOutput){
                     editorOutput.read(async () => {
-                        const root = $getRoot()
-                        const markdown = $convertToMarkdownString(undefined, root, false)
-                        await updateContent(markdown, contentId)
+                        await updateContent(JSON.stringify(editor.getEditorState()), content.id)
                         router.push("/wiki/"+entityId)
                     })
                 }
             }}
         />
     }
+
+    /*const saveSelection = () => {
+        //const selection = window.getSelection()
+        const contentContainer = document.getElementById("editor")
+        if(!contentContainer) return
+
+        const selection = SelectionSerializer.save(contentContainer)
+        const json = JSON.stringify(selection)
+
+        setSavedSelection(json)
+    }
+
+    const markSelection = () => {
+        const contentContainer = document.getElementById("editor")
+        if(!contentContainer) return
+        if(!savedSelection) return
+        const selection = JSON.parse(savedSelection)
+        SelectionSerializer.restore(contentContainer, selection)
+    }*/
 
     return <>
         {!readOnly && <div className="flex justify-end">
@@ -75,7 +96,8 @@ const MarkdownEditor = ({initialData, contentId, entityId, user, readOnly=false}
             </Link>
             <SaveEditButton/>
         </div>}
-        <div className="ck-content">
+
+        <div id="editor">
             <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}

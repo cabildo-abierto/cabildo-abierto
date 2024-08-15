@@ -7,18 +7,18 @@ import { Authorship } from "./content";
 import { UserProps } from "@/actions/get-user";
 
 export const Post: React.FC<{content: ContentProps, user: UserProps | null}> = ({content, user}) => {
-    const split = splitPost(content.text)
-    const title = split ? "<h1>"+split.title+"</h1>" : "<h1>Error al cargar el título</h1>"
-    const text = split ? split.text : content.text
+    const [title, text] = JSON.parse(content.text)
 
     return <div className="">
-        <HtmlContent content={title} user={user}/>
+        <div className="content">
+            <h1>{title}</h1>
+        </div>
         <div className="flex justify-between">
             <Authorship content={content}/>
             <DateComponent date={content.createdAt}/>
         </div>
         <div className="min-h-64">
-            <HtmlContent content={text} user={user}/>
+            <HtmlContent content={JSON.stringify(text)} user={user}/>
         </div>
         <hr/>
     </div>
