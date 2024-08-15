@@ -27,11 +27,8 @@ import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { CAN_USE_DOM } from './shared/canUseDOM';
-import {AutoLinkNode, LinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link'
 
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
-import ActionsPlugin from './plugins/ActionsPlugin';
-import AutocompletePlugin from './plugins/AutocompletePlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
@@ -70,17 +67,11 @@ import { InitialEditorStateType, LexicalComposer } from '@lexical/react/LexicalC
 import PlaygroundNodes from './nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
 import { TableContext } from './plugins/TablePlugin';
-import { SharedAutocompleteContext } from './context/SharedAutocompleteContext';
-import { FlashMessageContext } from './context/FlashMessageContext';
 
-import { beautifulMentionsTheme } from './themes/beautiful-mentions-theme'
 import { BeautifulMentionsPlugin, createBeautifulMentionNode } from 'lexical-beautiful-mentions';
 import { CustomMentionComponent, CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './custom-mention-component';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { $getRoot, $insertNodes, COMMAND_PRIORITY_CRITICAL } from 'lexical';
-import { $generateNodesFromDOM } from '@lexical/html';
-import { $convertFromMarkdownString } from '@lexical/markdown'
 import { UserProps } from '@/actions/get-user';
 import { ContentProps } from '@/actions/get-content';
 
@@ -304,13 +295,8 @@ function Editor({ settings, setEditor, setOutput, contents }:
             maxLength={5}
           />
         )}
-        {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
-        {showActions && <ActionsPlugin
-          isRichText={isRichText}
-          shouldPreserveNewLinesInMarkdown={shouldPreserveNewLinesInMarkdown}
-        />}
       </div>
       {showTreeView && <TreeViewPlugin />}
     </>
@@ -343,24 +329,20 @@ const LexicalEditor = ({ settings, setEditor, setOutput, contents }: LexicalEdit
     editable: !isReadOnly,
   };
 
-  return <FlashMessageContext>
-    <LexicalComposer initialConfig={initialConfig}>
+  return <LexicalComposer initialConfig={initialConfig}>
       <SharedHistoryContext>
         <TableContext>
-          <SharedAutocompleteContext>
-            <div className="editor-shell">
-              <Editor
-                settings={settings}
-                setEditor={setEditor}
-                setOutput={setOutput}
-                contents={contents}
-              />
-            </div>
-          </SharedAutocompleteContext>
+          <div className="editor-shell">
+            <Editor
+              settings={settings}
+              setEditor={setEditor}
+              setOutput={setOutput}
+              contents={contents}
+            />
+          </div>
         </TableContext>
       </SharedHistoryContext>
     </LexicalComposer>
-  </FlashMessageContext>
 }
 
 
