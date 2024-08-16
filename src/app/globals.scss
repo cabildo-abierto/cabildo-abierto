@@ -168,7 +168,7 @@ h4 {
 	padding-left: 0.5rem; 
 	padding-right: 0.5rem;
 	border-radius: 0.25rem;
-	font-size: medium; 
+	font-size: 14px; 
 	background-color: var(--primary); 
 	cursor: pointer; 
 	color: var(--background)
@@ -355,4 +355,25 @@ h4 {
     padding: 1rem; /* Add some padding */
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow to separate from main content */
     z-index: 50; /* Ensure it stays on top of other content */
+}
+
+
+.route-edit-btn {
+	cursor: pointer;
+	padding: 2px;
+	border-radius: 2rem;
+}
+
+.route-edit-btn:hover {
+	background-color: var(--secondary-light);
+}
+
+.route-edit-btn:hover:disabled {
+	background-color: transparent;
+	cursor: default
+}
+
+.route-edit-btn:disabled {
+	background-color: transparent;
+	cursor: default
 }

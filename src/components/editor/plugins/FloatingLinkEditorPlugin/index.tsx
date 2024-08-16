@@ -239,7 +239,7 @@ function FloatingLinkEditor({
           return <div key={entity.id}>
             <button 
               className="w-72 mt-1 ml-8 px-2 flex items-center cursor-pointer hover:bg-gray-100 rounded"
-              onClick={() => {setValue("/wiki/"+entity.id)}}
+              onClick={() => {setValue("/articulo/"+entity.id)}}
             >
               <div className="py-1">
                 {entity.name}

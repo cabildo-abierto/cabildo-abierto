@@ -8,7 +8,7 @@ const WikiEditor = dynamic( () => import( '@/components/editor/wiki-editor' ), {
 
 const EntityComponent: React.FC<any> = ({ content, entity, user, contents}) => {
     const EditButton: React.FC<any> = () => {
-        return <Link href={"/wiki/"+entity.id+"/edit"}>
+        return <Link href={"/articulo/"+entity.id+"/edit"}>
             <button
                 className="gray-btn"
             >

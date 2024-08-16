@@ -7,10 +7,15 @@ import StateButton from "../state-button"
 import { updateContent } from "@/actions/create-content"
 
 import Link from "next/link"
+import { RoutesEditor } from "../routes-editor"
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
-const WikiEditor = ({initialData, content, contents, entityId, user, readOnly=false}: any) => {
+const WikiEditor = ({initialData, content, contents, entity, user, readOnly=false}: any) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
+    const [editingRoutes, setEditingRoutes] = useState(false)
+    
     const router = useRouter()
     
     const isDevPlayground = false
@@ -58,7 +63,7 @@ const WikiEditor = ({initialData, content, contents, entityId, user, readOnly=fa
                 if(editor && editorOutput){
                     editorOutput.read(async () => {
                         await updateContent(JSON.stringify(editor.getEditorState()), content.id)
-                        router.push("/wiki/"+entityId)
+                        router.push("/articulo/"+entity.id)
                     })
                 }
             }}
@@ -86,12 +91,23 @@ const WikiEditor = ({initialData, content, contents, entityId, user, readOnly=fa
 
     return <>
         {!readOnly && <div className="flex justify-end">
-            <Link href={"/wiki/"+entityId} className="px-2">
+            <Link href={"/articulo/"+entity.id} className="mr-2">
                 <button className="gray-btn">
-                    Cancelar
+                    Volver
                 </button>
             </Link>
+            <button
+                className="mr-2 gray-btn flex items-center"
+                onClick={() => {setEditingRoutes(!editingRoutes)}}
+            >
+                <span>Editar categorías</span>{editingRoutes ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
+            </button>
             <SaveEditButton/>
+        </div>}
+
+        {editingRoutes &&
+        <div className="py-4">
+            <RoutesEditor entity={entity}/>
         </div>}
 
         <div id="editor">

@@ -2,6 +2,8 @@
 
 import {db} from "@/db";
 import { cache } from "./cache";
+import { UserProps } from "./get-user";
+import { revalidateTag } from "next/cache";
 
 
 export type EntityProps = {
@@ -9,7 +11,8 @@ export type EntityProps = {
     name: string
     contentId: string
     protection: string
-    isPublic: boolean
+    isPublic: boolean,
+    categories: string
 }
 
 
@@ -20,7 +23,8 @@ export async function getEntityById(entityId: string) {
             name: true,
             contentId: true,
             protection: true,
-            isPublic: true
+            isPublic: true,
+            categories: true
         },
             where: {
                 id: entityId,
@@ -40,7 +44,8 @@ export const getEntities = cache(async () => {
                 name: true,
                 contentId: true,
                 protection: true,
-                isPublic: true
+                isPublic: true,
+                categories: true
             },
             orderBy: {
                 name: "asc"
@@ -54,3 +59,17 @@ export const getEntities = cache(async () => {
         tags: ["entities"]
     }
 )
+
+
+export const updateCategories = async (entityId: string, categories: string, user?: UserProps) => {
+    await db.entity.update({
+        where: {
+            id: entityId
+        },
+        data: {
+            categories: categories
+        }
+    })
+    revalidateTag("entities")
+    revalidateTag("entity")
+}

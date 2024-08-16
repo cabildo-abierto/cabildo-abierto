@@ -10,7 +10,7 @@ import Link from "next/link";
 import { validSubscription } from "@/components/utils";
 import dynamic from "next/dynamic";
 
-const MarkdownEditor = dynamic(() => import('@/components/editor/wiki-editor'), { ssr: false });
+const WikiEditor = dynamic(() => import('@/components/editor/wiki-editor'), { ssr: false });
 
 
 function hasEditPermissions(user: UserProps, level: string) {
@@ -39,16 +39,18 @@ const EntityPage: React.FC<any> = async ({ params }) => {
                             <SetProtectionButton entity={entity} />
                         </div>
                     }
-                    <MarkdownEditor
-                        initialData={contents[entity.contentId].text}
-                        content={contents[entity.contentId]}
-                        entityId={entity.id}
-                    />
+                    <div className="mb-4">
+                        <WikiEditor
+                            initialData={contents[entity.contentId].text}
+                            content={contents[entity.contentId]}
+                            entity={entity}
+                        />
+                    </div>
                 </>
             } else {
                 editableContent = <>
                     <h3 className="flex justify-center mt-16">No tenés los permisos suficientes para editar este artículo</h3>
-                    <Link className="flex justify-center mt-16" href={"/wiki/" + params.id}>
+                    <Link className="flex justify-center mt-16" href={"/articulo/" + params.id}>
                         <button className="gray-btn">Volver al artículo</button>
                     </Link>
                 </>
@@ -56,7 +58,7 @@ const EntityPage: React.FC<any> = async ({ params }) => {
         } else {
             editableContent = <>
                 <h3 className="flex justify-center mt-16">Necesitás una suscripción para editar</h3>
-                <Link className="flex justify-center mt-16" href={"/wiki/" + params.id}>
+                <Link className="flex justify-center mt-16" href={"/articulo/" + params.id}>
                     <button className="gray-btn">Volver al artículo</button>
                 </Link>
             </>
@@ -64,7 +66,7 @@ const EntityPage: React.FC<any> = async ({ params }) => {
     } else {
         editableContent = <>
             <h3 className="flex justify-center mt-16">Necesitás una cuenta para editar</h3>
-            <Link className="flex justify-center mt-16" href={"/wiki/" + params.id}>
+            <Link className="flex justify-center mt-16" href={"/articulo/" + params.id}>
                 <button className="gray-btn">Volver al artículo</button>
             </Link>
         </>

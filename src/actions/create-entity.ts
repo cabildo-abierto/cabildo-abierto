@@ -82,6 +82,6 @@ export async function updateEntityContent(entityId: string, text: string, conten
 
     revalidateTag("contents")
     revalidateTag("content")
-    redirect("/wiki/"+encodeURIComponent(entityId))
+    redirect("/articulo/"+encodeURIComponent(entityId))
     return result
 }
