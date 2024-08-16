@@ -32,7 +32,7 @@ function WriteButton() {
 
 function WikiButton() {
     return <div className="px-1 py-2">
-        <Link href="/wiki">
+        <Link href="/nav">
         <button className="topbar-btn">
             <LocalLibraryIcon />
         </button>

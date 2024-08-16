@@ -2,12 +2,16 @@
 
 import { useState } from "react"
 
-const StateButton: React.FC<any> = ({onClick, className, text1, text2=null, disabled=false}) => {
+const StateButton: React.FC<any> = (
+    {onClick, className, text1, text2=null, disabled=false, reUsable=false}) => {
     const [submitting, setSubmitting] = useState(false)
 
     const handleClick = async () => {
         setSubmitting(true)
         await onClick()
+        if(reUsable){
+            setSubmitting(false)
+        }
     }
 
 

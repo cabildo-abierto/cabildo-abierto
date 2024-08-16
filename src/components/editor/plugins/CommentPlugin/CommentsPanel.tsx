@@ -1,8 +1,5 @@
 import { ContentProps } from "@/actions/get-content";
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { NodeKey } from "lexical";
-import { useEffect, useMemo, useState } from "react";
-import useModal from "../../hooks/useModal";
 import CommentSection from "@/components/comment-section";
 import { UserProps } from "@/actions/get-user";
 

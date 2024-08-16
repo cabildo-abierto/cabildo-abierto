@@ -18,7 +18,7 @@ const CreateEntityButton: React.FC<any> = ({onClick}) => {
 
 export default function NoEntityPage({id, user}: any){
     const name = decodeURIComponent(id).replaceAll("_", " ")
-    const url = "/wiki/"+id
+    const url = "/articulo/"+id
     const router = useRouter()
 
     const handleCreateEntity = async () => {

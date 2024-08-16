@@ -23,7 +23,7 @@ export const Presentation: React.FC = () => {
             </div>
         </div>
         <div className="flex justify-center mt-8">
-            <Link href="/wiki/Cabildo_Abierto">
+            <Link href="/articulo/Cabildo_Abierto">
                 <button className="gray-btn">¿Qué es Cabildo Abierto?</button>
             </Link>
         </div>

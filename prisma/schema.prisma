@@ -63,6 +63,7 @@ model Entity {
     contentId       String       @unique
     protection      ProtectionLevel @default(Unprotected)
     isPublic        Boolean      @default(false)
+    categories      String       @default("[]")
 }
 
 

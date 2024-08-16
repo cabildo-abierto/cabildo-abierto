@@ -9,7 +9,7 @@ export default function Suscripciones() {
         <SubscriptionPage/>
 
         <div className="flex justify-center items-center link py-8 text-lg">
-            <Link href="/wiki/Cabildo_Abierto:_Suscripciones">Más información sobre las suscripciones</Link>
+            <Link href="/articulo/Cabildo_Abierto:_Suscripciones">Más información sobre las suscripciones</Link>
         </div>
     </div>
 
