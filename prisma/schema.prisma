@@ -21,7 +21,6 @@ model User {
     password        String       @db.VarChar(255)
     createdAt       DateTime     @default(now()) @map(name: "created_at")
     contents        Content[]
-    mentionedBy     Content[]    @relation("mention")
     likes           Content[]    @relation("likes")
     dislikes        Content[]    @relation("dislikes")
     
@@ -58,12 +57,9 @@ enum ProtectionLevel {
 model Entity {
     id              String       @id
     name            String       @unique @db.VarChar(255)
-    mentionedBy     Content[]    @relation("entityMention")
-    content         Content      @relation(fields: [contentId], references: [id])
-    contentId       String       @unique
     protection      ProtectionLevel @default(Unprotected)
     isPublic        Boolean      @default(false)
-    categories      String       @default("[]")
+    versions        Content[]
 }
 
 
@@ -78,15 +74,12 @@ enum ContentType {
 model Content {
     id                String      @id @default(cuid())
     text              String
-    history           String[]
+
     createdAt         DateTime    @default(now()) @map(name: "created_at")
     type              ContentType
 
     author            User?       @relation(fields: [authorId], references: [id])
     authorId          String?
-    
-    mentionedUsers    User[]      @relation("mention")
-    mentionedEntities Entity[]    @relation("entityMention")
 
     childrenComments  Content[]   @relation("ContentToContent")
 
@@ -97,7 +90,8 @@ model Content {
     likedBy           User[]      @relation("likes")
     dislikedBy        User[]      @relation("dislikes")
 
-    parentEntity      Entity?
+    parentEntity      Entity?     @relation(fields: [parentEntityId], references: [id])
+    parentEntityId    String?
 
     // true or false for Post or FastPost, null for other types
     isDraft           Boolean?
@@ -106,4 +100,7 @@ model Content {
 
     // solo para publicaciones largas
     title             String?
+
+    // solo para artículos (entities)
+    categories      String       @default("[]")
 }

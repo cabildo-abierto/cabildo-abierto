@@ -2,6 +2,7 @@ import React from "react"
 import Link from "next/link";
 
 import dynamic from "next/dynamic";
+import { $createParagraphNode, $createTextNode, $getRoot, LexicalEditor } from "lexical";
 
 const WikiEditor = dynamic( () => import( '@/components/editor/wiki-editor' ), { ssr: false } );
 
@@ -44,7 +45,7 @@ const EntityComponent: React.FC<any> = ({ content, entity, user, contents}) => {
 
         <div className="px-2 min-h-64">
             <WikiEditor 
-                initialData={content.text == "" ? "Este artículo está vacío!" : content.text}
+                initialData={content.text}
                 readOnly={true}
                 content={content}
                 entityId={entity.id}

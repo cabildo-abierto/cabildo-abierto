@@ -7,7 +7,7 @@ import { getContentsMap, getEntitiesMap } from "@/components/update-context";
 import { getUser, UserProps } from "@/actions/get-user";
 import { SetProtectionButton } from "@/components/protection-button";
 import Link from "next/link";
-import { validSubscription } from "@/components/utils";
+import { entityLastVersionId, validSubscription } from "@/components/utils";
 import dynamic from "next/dynamic";
 
 const WikiEditor = dynamic(() => import('@/components/editor/wiki-editor'), { ssr: false });
@@ -41,9 +41,11 @@ const EntityPage: React.FC<any> = async ({ params }) => {
                     }
                     <div className="mb-4">
                         <WikiEditor
-                            initialData={contents[entity.contentId].text}
-                            content={contents[entity.contentId]}
+                            initialData={contents[entityLastVersionId(entity)].text}
+                            content={contents[entityLastVersionId(entity)]}
                             entity={entity}
+                            contents={contents}
+                            user={user}
                         />
                     </div>
                 </>

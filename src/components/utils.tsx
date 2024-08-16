@@ -1,3 +1,4 @@
+import { EntityProps } from "@/actions/get-entity"
 import { UserProps } from "@/actions/get-user"
 
 
@@ -42,4 +43,9 @@ export function validFastPost(text: string){
 
 export function getSubscriptionPrice() {
     return 1000
+}
+
+
+export const entityLastVersionId = (entity: EntityProps) => {
+    return entity.versions[entity.versions.length-1].id
 }

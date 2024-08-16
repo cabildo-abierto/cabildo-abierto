@@ -1,11 +1,15 @@
 "use client"
 
-import { EntityProps, updateCategories } from "@/actions/get-entity"
+import { EntityProps } from "@/actions/get-entity"
 import { useState } from "react"
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
+import { updateCategories } from "@/actions/create-entity";
+import { ContentProps } from "@/actions/get-content";
+import { UserProps } from "@/actions/get-user";
+import { entityLastVersionId } from "./utils";
 
 
 function validCategories(categories: string[][]){
@@ -63,9 +67,14 @@ function areCategoriesEqual(cat1: string[][], cat2: string[][]){
 }
 
 
-export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
-    const entityCategories = JSON.parse(entity.categories)
+export const RoutesEditor = ({entity, contents, user}: {entity: EntityProps, contents: Record<string, ContentProps>, user: UserProps}) => {
+    const lastVersion = contents[entityLastVersionId(entity)]
+    const entityCategories = lastVersion.categories ? JSON.parse(lastVersion.categories) : null
     const [categories, setCategories] = useState<string[][]>(entityCategories)
+
+    if(!lastVersion || !lastVersion.categories){
+        return <>Ocurrió un error</>
+    }
 
     function addCategory() {
         setCategories([...categories, []])
@@ -90,7 +99,6 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
         }
     }
 
-    console.log(categories)
     return <div className="">
         <div className="py-3"><hr/></div>
         <div className="ml-1">
@@ -122,7 +130,7 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
             <StateButton
                 className="small-btn"
                 disabled={areCategoriesEqual(categories, entityCategories) || !validCategories(categories)}
-                onClick={async () => {await updateCategories(entity.id, JSON.stringify(categories))}}
+                onClick={async () => {await updateCategories(entity.id, lastVersion.id, JSON.stringify(categories), user)}}
                 text1="Confirmar"
                 text2="Guardando..."
                 reUsable={true}

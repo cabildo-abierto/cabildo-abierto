@@ -4,9 +4,10 @@ import { db } from '@/db';
 import {
   CreateEntityFormSchema,
 } from "@/app/lib/definitions";
-import { getUserId } from './get-user';
+import { getUserId, UserProps } from './get-user';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { getContentById } from './get-content';
 
 export type CreateEntityFormState = {
   error?: any,
@@ -40,21 +41,23 @@ export async function createEntity(name: string, userId: string){
   })
   if(exists) return {error: "Ya existe un artículo con ese nombre"}
 
-  const content = await db.content.create({
-    data: {
-      text: "",
-      authorId: userId,
-      type: "EntityContent"
-    }
-  })
 
   await db.entity.create({
     data: {
       name: name,
       id: entityId,
-      contentId: content.id
     }
   })
+
+  const content = await db.content.create({
+    data: {
+      text: "Este artículo está vacío!",
+      authorId: userId,
+      type: "EntityContent",
+      parentEntityId: entityId
+    }
+  })
+
   revalidateTag("contents")
   revalidateTag("content")
   revalidateTag("entities")
@@ -63,25 +66,43 @@ export async function createEntity(name: string, userId: string){
 }
 
 
-export async function updateEntityContent(entityId: string, text: string, contentId: string) {
-    const currentContent = await db.content.findUnique({
-        where: { id: contentId },
-        select: { text: true, history: true }
-    });
-    if(!currentContent){
-        return null
-    }
+export const updateCategories = async (entityId: string, lastVersionId: string, categories: string, user: UserProps) => {
+  const lastVersion = await getContentById(lastVersionId)
+  if(!lastVersion){
+      return null
+  }
 
-    const result = await db.content.update({
-      where: { id: contentId },
-      data: { 
-        text: text,
-        history: [...currentContent?.history, currentContent.text]
-      },
-    });
+  await db.content.create({
+      data: {
+          text: lastVersion.text,
+          authorId: user.id,
+          type: lastVersion.type,
+          parentEntityId: entityId
+      }
+  })
+  revalidateTag("entities")
+  revalidateTag("entity")
+  revalidateTag("contents")
+  revalidateTag("content")
+}
 
-    revalidateTag("contents")
-    revalidateTag("content")
-    redirect("/articulo/"+encodeURIComponent(entityId))
-    return result
+
+export const updateEntityContent = async (text: string, entityId: string, lastVersionId: string, user: UserProps) => {
+  const lastVersion = await getContentById(lastVersionId)
+  if(!lastVersion){
+      return null
+  }
+
+  await db.content.create({
+      data: {
+          text: text,
+          authorId: user.id,
+          type: lastVersion.type,
+          parentEntityId: entityId
+      }
+  })
+  revalidateTag("entities")
+  revalidateTag("entity")
+  revalidateTag("contents")
+  revalidateTag("content")
 }
