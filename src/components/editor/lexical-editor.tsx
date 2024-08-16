@@ -75,6 +75,9 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { UserProps } from '@/actions/get-user';
 import { ContentProps } from '@/actions/get-content';
 
+import {MarkNode} from '@lexical/mark';
+import { CustomMarkNode } from './nodes/CustomMarkNode';
+
 
 export type SettingsProps = {
   disableBeforeInput: boolean,
@@ -321,6 +324,13 @@ const LexicalEditor = ({ settings, setEditor, setOutput, contents }: LexicalEdit
     nodes: [
       ...createBeautifulMentionNode(CustomMentionComponent),
       ...PlaygroundNodes,
+      CustomMarkNode,
+      {
+        replace: MarkNode,
+        with: (node: MarkNode) => {
+            return new CustomMarkNode(node.getIDs());
+        }
+      }
     ],
     onError: (error: Error) => {
       throw error;
