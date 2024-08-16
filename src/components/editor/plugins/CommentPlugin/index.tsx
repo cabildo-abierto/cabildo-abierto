@@ -14,13 +14,6 @@ import type {
 
 import './index.css';
 
-import {
-  $createMarkNode,
-  $getMarkIDs,
-  $isMarkNode,
-  $wrapSelectionInMarkNode,
-  MarkNode,
-} from '@lexical/mark';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister, registerNestedElementResolver} from '@lexical/utils';
 import {
@@ -31,16 +24,19 @@ import {
   COMMAND_PRIORITY_EDITOR,
   createCommand,
 } from 'lexical';
+
+import {$getMarkIDs} from '@lexical/mark'
+
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import * as React from 'react';
 import {createPortal} from 'react-dom';
 
-import Button from '../../ui/Button';
 import { UserProps } from '@/actions/get-user';
 import { ContentProps } from '@/actions/get-content';
 import { AddCommentBox } from './AddCommentBox';
 import { CommentInputBox } from './ui';
 import { CommentsPanel } from './CommentsPanel';
+import { $createMarkNode, $isMarkNode, CustomMarkNode } from '../../nodes/CustomMarkNode';
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -100,13 +96,13 @@ export default function CommentPlugin({user, parentContent, contents}: {
     const markNodeKeysToIDs: Map<NodeKey, Array<string>> = new Map();
 
     return mergeRegister(
-      registerNestedElementResolver<MarkNode>(
+      registerNestedElementResolver<CustomMarkNode>(
         editor,
-        MarkNode,
-        (from: MarkNode) => {
+        CustomMarkNode,
+        (from: CustomMarkNode) => {
           return $createMarkNode(from.getIDs());
         },
-        (from: MarkNode, to: MarkNode) => {
+        (from: CustomMarkNode, to: CustomMarkNode) => {
           // Merge the IDs
           const ids = from.getIDs();
           ids.forEach((id) => {
@@ -115,11 +111,11 @@ export default function CommentPlugin({user, parentContent, contents}: {
         },
       ),
       editor.registerMutationListener(
-        MarkNode,
+        CustomMarkNode,
         (mutations) => {
           editor.getEditorState().read(() => {
             for (const [key, mutation] of mutations) {
-              const node: null | MarkNode = $getNodeByKey(key);
+              const node: null | CustomMarkNode = $getNodeByKey(key);
               let ids: NodeKey[] = [];
 
               if (mutation === 'destroyed') {
@@ -251,6 +247,7 @@ export default function CommentPlugin({user, parentContent, contents}: {
       {showComments &&
         createPortal(
           <CommentsPanel
+            activeIDs={activeIDs}
             parentContent={parentContent}
             contents={contents}
             markNodeMap={markNodeMap}
