@@ -3,6 +3,7 @@ import { getEntities } from "@/actions/get-entity";
 import { getUsers } from "@/actions/get-user";
 import { getContentsMap, getEntitiesMap } from "./update-context";
 import { ContentProps } from "@/actions/get-content";
+import { entityLastVersionId } from "./utils";
 
 
 export async function searchUsers(value: string) {
@@ -88,7 +89,7 @@ export async function searchEntities(value: string){
 
     const results: any[] = []
     dists.forEach(({id, dist}: {id: string, dist: number}) => {
-        results.push({content: contents[entities[id].contentId], entity: entities[id], id: id})
+        results.push({content: contents[entityLastVersionId(entities[id])], entity: entities[id], id: id})
     })
 
     return results

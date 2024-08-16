@@ -6,8 +6,12 @@ import { EntitySearchResult } from "./entity-search-result"
 import { areArraysEqual } from "@mui/base"
 import Link from "next/link"
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import { entityLastVersionId } from "./utils"
 
-
+export function currentCategories(entity: EntityProps, contents: Record<string, ContentProps>){
+    const categories = contents[entityLastVersionId(entity)].categories
+    return categories ? JSON.parse(categories) : undefined
+}
 
 export const WikiCategories = ({route, entities, contents}: {
     route: string[], 
@@ -15,17 +19,18 @@ export const WikiCategories = ({route, entities, contents}: {
     contents: Record<string, ContentProps>}) => {
     
     const entityOrder = (a: EntityProps, b: EntityProps) => {
-        return Number(contents[b.contentId].text.length != 0) - Number(contents[a.contentId].text.length != 0)
+        return Number(contents[entityLastVersionId(a)].text.length != 0) - Number(contents[entityLastVersionId(b)].text.length != 0)
     }
 
     function isPrefix(p: any[], q: any[]){
         if(p.length > q.length) return false
-        if(p.length == 0) return true
         return areArraysEqual(p.slice(0, q.length), q)
     }
 
     function entityInRoute(entity: EntityProps){
-        const categories: string[][] = JSON.parse(entity.categories)
+        const categories = currentCategories(entity, contents)
+        if(route.length == 0) return true
+        if(!categories) return false // esto no debería pasar
         return categories.some((c: string[]) => {
             return isPrefix(route, c)
         })
@@ -40,14 +45,13 @@ export const WikiCategories = ({route, entities, contents}: {
     const nextCategories = new Set<string>()
     
     Object.values(entities).forEach((entity: EntityProps) => {
-        const categories: string[][] = JSON.parse(entity.categories)
+        const categories: string[][] = currentCategories(entity, contents)
+        if(!currentCategories) return // no debería pasar
         categories.forEach((category: string[]) => {
             if(isPrefix(route, category)){
                 if(category.length > route.length){
                     nextCategories.add(category[route.length])
                 }
-            } else {
-                console.log("Not a prefix", category, route)
             }
         })
     })
@@ -78,10 +82,10 @@ export const WikiCategories = ({route, entities, contents}: {
             <div className="flex flex-wrap justify-center">
                 {sortedEntities.map((entity, index) => (
                     <div key={index} className="p-1">
-                        <EntitySearchResult entity={entity} content={contents[entity.contentId]}/>
+                        <EntitySearchResult entity={entity} content={contents[entityLastVersionId(entity)]}/>
                     </div>
                 ))}
             </div>
-        </div> : <>No hay artículos en esta categoría</>}
+        </div> : <div className="flex justify-center">No hay artículos en esta categoría</div>}
     </>
 }

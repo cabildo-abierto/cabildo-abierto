@@ -74,7 +74,7 @@ export function CreateButton() {
 
     return (
         <button aria-disabled={pending} type="submit" className="gray-btn w-full">
-            {pending ? 'Creando entidad...' : 'Crear'}
+            {pending ? 'Creando artículo...' : 'Crear'}
         </button>
     )
 }

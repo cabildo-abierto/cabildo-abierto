@@ -10,6 +10,7 @@ import Link from "next/link"
 import { RoutesEditor } from "../routes-editor"
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import { updateEntityContent } from "@/actions/create-entity"
 
 const WikiEditor = ({initialData, content, contents, entity, user, readOnly=false}: any) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
@@ -62,32 +63,13 @@ const WikiEditor = ({initialData, content, contents, entity, user, readOnly=fals
             onClick={async () => {
                 if(editor && editorOutput){
                     editorOutput.read(async () => {
-                        await updateContent(JSON.stringify(editor.getEditorState()), content.id)
+                        await updateEntityContent(JSON.stringify(editor.getEditorState()), entity.id, content.id, user)
                         router.push("/articulo/"+entity.id)
                     })
                 }
             }}
         />
     }
-
-    /*const saveSelection = () => {
-        //const selection = window.getSelection()
-        const contentContainer = document.getElementById("editor")
-        if(!contentContainer) return
-
-        const selection = SelectionSerializer.save(contentContainer)
-        const json = JSON.stringify(selection)
-
-        setSavedSelection(json)
-    }
-
-    const markSelection = () => {
-        const contentContainer = document.getElementById("editor")
-        if(!contentContainer) return
-        if(!savedSelection) return
-        const selection = JSON.parse(savedSelection)
-        SelectionSerializer.restore(contentContainer, selection)
-    }*/
 
     return <>
         {!readOnly && <div className="flex justify-end">
@@ -107,7 +89,7 @@ const WikiEditor = ({initialData, content, contents, entity, user, readOnly=fals
 
         {editingRoutes &&
         <div className="py-4">
-            <RoutesEditor entity={entity}/>
+            <RoutesEditor entity={entity} contents={contents} user={user}/>
         </div>}
 
         <div id="editor">

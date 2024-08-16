@@ -2,17 +2,14 @@
 
 import {db} from "@/db";
 import { cache } from "./cache";
-import { UserProps } from "./get-user";
-import { revalidateTag } from "next/cache";
 
 
 export type EntityProps = {
     id: string
     name: string
-    contentId: string
+    versions: {id: string}[]
     protection: string
-    isPublic: boolean,
-    categories: string
+    isPublic: boolean
 }
 
 
@@ -21,10 +18,13 @@ export async function getEntityById(entityId: string) {
         {select: {
             id: true,
             name: true,
-            contentId: true,
             protection: true,
             isPublic: true,
-            categories: true
+            versions: {
+                select: {
+                    id: true
+                }
+            }
         },
             where: {
                 id: entityId,
@@ -36,16 +36,18 @@ export async function getEntityById(entityId: string) {
 
 
 export const getEntities = cache(async () => {
-    console.log("getting entities")
     let entities: EntityProps[] = await db.entity.findMany(
         {
             select: {
                 id: true,
                 name: true,
-                contentId: true,
                 protection: true,
                 isPublic: true,
-                categories: true
+                versions: {
+                    select: {
+                        id: true
+                    }
+                }
             },
             orderBy: {
                 name: "asc"
@@ -59,17 +61,3 @@ export const getEntities = cache(async () => {
         tags: ["entities"]
     }
 )
-
-
-export const updateCategories = async (entityId: string, categories: string, user?: UserProps) => {
-    await db.entity.update({
-        where: {
-            id: entityId
-        },
-        data: {
-            categories: categories
-        }
-    })
-    revalidateTag("entities")
-    revalidateTag("entity")
-}
