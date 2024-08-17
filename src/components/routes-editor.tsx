@@ -17,17 +17,16 @@ function validCategories(categories: string[][]){
 }
 
 type RouteEditorProps = {
-    key: any
     category: string[],
     removeCategory: () => void,
     updateCategory: (a: string[]) => void
 }
 
-const RouteEditor = ({key, category, removeCategory, updateCategory}: 
+const RouteEditor = ({category, removeCategory, updateCategory}: 
     RouteEditorProps
 ) => {
 
-    return <div className="flex items-center py-2" key={key}>
+    return <div className="flex items-center py-2">
         <button className="flex items-center route-edit-btn" onClick={removeCategory}>
             <div className="px-1 py-1 flex items-center">
             <RemoveCircleOutlineIcon fontSize="small"/>
@@ -59,16 +58,16 @@ const NewCategory = ({addCategory}: any) => {
 
 function areCategoriesEqual(cat1: string[][], cat2: string[][]){
     function comp(a: string[], b: string[]){
-        console.log("a", a, "b", b, typeof(a), typeof(b))
         return areArraysEqual(a, b)
     }
 
-    return areArraysEqual(cat1, cat2, comp)
+    const result = areArraysEqual(cat1, cat2, comp)
+    return result
 }
 
 
 export const RoutesEditor = ({entity, contents, user}: {entity: EntityProps, contents: Record<string, ContentProps>, user: UserProps}) => {
-    const lastVersion = contents[entityLastVersionId(entity)]
+    const lastVersion = contents[entityLastVersionId(entity, contents)]
     const entityCategories = lastVersion.categories ? JSON.parse(lastVersion.categories) : null
     const [categories, setCategories] = useState<string[][]>(entityCategories)
 
@@ -107,12 +106,11 @@ export const RoutesEditor = ({entity, contents, user}: {entity: EntityProps, con
         <div className="flex justify-center">
             <div className="w-72">
                 {categories.length > 0 ? categories.map((cat: string[], i: number) => {
-                    return <RouteEditor
-                        key={i}
+                    return <div key={i}><RouteEditor
                         category={cat}
                         removeCategory={removeCategory(i)}
                         updateCategory={updateCategory(i)}
-                    />
+                    /></div>
                 }) : 
                 <></>}
                 <NewCategory

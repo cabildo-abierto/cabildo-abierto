@@ -14,7 +14,7 @@ const TopicsPage: React.FC<{
 
     const center = <div className="w-full">
         <h1 className="ml-2 py-8 flex justify-center">
-            {decodedRoute ? "Categoría: "+ decodedRoute.join(" > ") : "Artículos colaborativos"}
+            {decodedRoute.length > 0 ? "Categoría: "+ decodedRoute.join(" > ") : "Artículos colaborativos"}
         </h1>
         <div>
             <WikiCategories entities={entities} route={decodedRoute} contents={contents}/>

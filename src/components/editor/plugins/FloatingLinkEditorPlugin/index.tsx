@@ -384,7 +384,6 @@ function useFloatingLinkEditorToolbar(
       editor.registerCommand(
         CLICK_COMMAND,
         (payload) => {
-          console.log("a click was received")
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const node = getSelectedNode(selection);

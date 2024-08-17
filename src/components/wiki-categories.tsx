@@ -9,7 +9,7 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { entityLastVersionId } from "./utils"
 
 export function currentCategories(entity: EntityProps, contents: Record<string, ContentProps>){
-    const categories = contents[entityLastVersionId(entity)].categories
+    const categories = contents[entityLastVersionId(entity, contents)].categories
     return categories ? JSON.parse(categories) : undefined
 }
 
@@ -19,12 +19,12 @@ export const WikiCategories = ({route, entities, contents}: {
     contents: Record<string, ContentProps>}) => {
     
     const entityOrder = (a: EntityProps, b: EntityProps) => {
-        return Number(contents[entityLastVersionId(a)].text.length != 0) - Number(contents[entityLastVersionId(b)].text.length != 0)
+        return Number(contents[entityLastVersionId(a, contents)].text.length != 0) - Number(contents[entityLastVersionId(b, contents)].text.length != 0)
     }
 
     function isPrefix(p: any[], q: any[]){
         if(p.length > q.length) return false
-        return areArraysEqual(p.slice(0, q.length), q)
+        return areArraysEqual(p, q.slice(0, p.length))
     }
 
     function entityInRoute(entity: EntityProps){
@@ -57,32 +57,34 @@ export const WikiCategories = ({route, entities, contents}: {
     })
 
     return <>
+        {nextCategories.size > 0 && <>
         <h2 className="flex justify-center py-4">Subcategorías</h2>
         <div className="flex justify-center">
             <div className="flex flex-wrap justify-center">
-            {nextCategories.size > 0 ? [...nextCategories].map((nextCategory: string, index: number) => {
+                {[...nextCategories].map((nextCategory: string, index: number) => {
                 return <div className="p-1" key={index}>
-                    <Link href={routeToUrl([...route, nextCategory])}>
-                        <button className="search-result">
-                            <div className="">
-                                <LibraryBooksIcon/>
-                                <div className="flex justify-center w-full">
-                                    {nextCategory}
+                        <Link href={routeToUrl([...route, nextCategory])}>
+                            <button className="search-result">
+                                <div className="">
+                                    <LibraryBooksIcon/>
+                                    <div className="flex justify-center w-full">
+                                        {nextCategory}
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
-                    </Link>
-                </div>
-            }) : <div className="flex justify-center">No hay subcategorías</div>}
+                            </button>
+                        </Link>
+                    </div>
+                })}
             </div>
         </div>
+        </>}
         <h2 className="flex justify-center py-4">Artículos</h2>
         {sortedEntities.length > 0 ? 
         <div className="flex justify-center">
             <div className="flex flex-wrap justify-center">
                 {sortedEntities.map((entity, index) => (
                     <div key={index} className="p-1">
-                        <EntitySearchResult entity={entity} content={contents[entityLastVersionId(entity)]}/>
+                        <EntitySearchResult entity={entity} content={contents[entityLastVersionId(entity, contents)]}/>
                     </div>
                 ))}
             </div>
