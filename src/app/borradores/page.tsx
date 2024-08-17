@@ -50,7 +50,7 @@ const Drafts: React.FC = async () => {
         <div className="py-4"><h1>Borradores</h1></div>
         <ul>
             {drafts.map((draft, index) => {
-                return <li key={index}>
+                return <li key={index} className="py-4">
                     <DraftButton draft={draft} index={index} user={user}/>
                 </li>
             })}

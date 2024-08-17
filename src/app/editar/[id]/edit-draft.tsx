@@ -25,6 +25,7 @@ export default function EditDraftPage({content}: {content: ContentProps}) {
                 onSubmit={handleCreate}
                 onSaveDraft={handleSaveDraft}
                 initialData={content.text}
+                initialTitle={content.title ? content.title : undefined}
             /> : 
             <FastEditor
                 onSubmit={handleCreate}

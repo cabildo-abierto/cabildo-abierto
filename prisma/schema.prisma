@@ -78,8 +78,8 @@ model Content {
     createdAt         DateTime    @default(now()) @map(name: "created_at")
     type              ContentType
 
-    author            User?       @relation(fields: [authorId], references: [id])
-    authorId          String?
+    author            User       @relation(fields: [authorId], references: [id])
+    authorId          String
 
     childrenComments  Content[]   @relation("ContentToContent")
 

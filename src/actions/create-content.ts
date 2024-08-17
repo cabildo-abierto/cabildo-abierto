@@ -12,6 +12,7 @@ export async function createComment(text: string, parentContentId: string, userI
     if(!userId){
         userId = await getUserId()
     }
+    if(!userId) return null
 
     console.log("creating comment in db")
     const comment = await db.content.create({
@@ -33,7 +34,7 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
     if(!userId){
         userId = await getUserId()
     }
-    console.log("author", userId)
+    if(!userId) return null
 
     const result = await db.content.create({
         data: {
