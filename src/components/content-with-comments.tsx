@@ -41,6 +41,9 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         if(user){
             await createComment(text, content.id, user.id)
             setViewComments(true)
+
+            // para que se resetee el editor
+            setWritingReply(false)
             setWritingReply(startsOpen)
         }
     }

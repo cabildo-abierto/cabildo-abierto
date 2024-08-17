@@ -14,7 +14,7 @@ export const splitPost = (text: string) => {
 }
 
 
-export function stopPropagation(func: any) {
+export function stopPropagation(func: () => void) {
     return (e: any) => {e.stopPropagation(); func()}
 }
 
