@@ -22,7 +22,11 @@ const EntityPage: React.FC<{
         return <ThreeColumnsLayout center={<NoEntityPage user={user} id={params.id}/>}/>
     }
 
-    const version = typeof searchParams.version == 'string' ? Number(searchParams.version as string) : entity.versions.length-1
+    if(!entity.versions){
+        return <>Algo raro está pasando</>
+    }
+
+    const version = (searchParams.version && typeof searchParams.version == 'string') ? Number(searchParams.version as string) : entity.versions.length-1
 
     const sortedVersions = getSortedVersions(entity, contents)
     
