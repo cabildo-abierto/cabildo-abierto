@@ -3,11 +3,19 @@ import { useRouter } from "next/navigation";
 import { Authorship, ContentTopRow, LikeAndCommentCounter } from "./content"
 
 import ArticleIcon from '@mui/icons-material/Article';
+import { ContentProps } from "@/actions/get-content";
+import { UserProps } from "@/actions/get-user";
 
 
+type PostOnFeedProps = {
+    content: ContentProps,
+    user?: UserProps,
+    onViewComments: () => void,
+    viewingComments: boolean
+}
 
 
-export const PostOnFeed = ({content, user, onViewComments, viewingComments}: any) => {
+export const PostOnFeed = ({content, user, onViewComments, viewingComments}: PostOnFeedProps) => {
     const router = useRouter()
     return <div className="w-full bg-white text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">

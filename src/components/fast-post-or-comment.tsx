@@ -2,7 +2,7 @@
 import BoltIcon from '@mui/icons-material/Bolt';
 import { AddCommentButton, ContentTopRow, LikeAndCommentCounter } from './content';
 import { stopPropagation } from './utils';
-import { getContentById } from '@/actions/get-content';
+import { ContentProps, getContentById } from '@/actions/get-content';
 import {MarkNode} from '@lexical/mark';
 import {$getRoot, $insertNodes, EditorState, LexicalEditor, LexicalNode} from 'lexical'
 import {$insertFirst} from '@lexical/utils'
@@ -10,6 +10,7 @@ import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
 import {$createQuoteNode} from '@lexical/rich-text';
 import {$unwrapMarkNode} from '@lexical/mark'
 import { ReadOnlyEditor } from './editor/read-only-editor';
+import { UserProps } from '@/actions/get-user';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -27,16 +28,34 @@ function getQuoteFromContent(node: any, id: string): any {
     return null
 }
 
-export const FastPostOrComment = ({content, contents, user, onStartReply, onViewComments, viewingComments}: any) => {
+
+type FastPostOrCommentProps = {
+    content: ContentProps,
+    contents: Record<string, ContentProps>,
+    user?: UserProps,
+    onStartReply: () => void,
+    onViewComments: () => void,
+    viewingComments: boolean
+}
+
+
+export const FastPostOrComment = ({
+    content,
+    contents,
+    user,
+    onStartReply,
+    onViewComments,
+    viewingComments}: FastPostOrCommentProps) => {
     const icon = content.type == "Comment" ? null : <BoltIcon fontSize={"small"}/>
     const className = "w-full bg-white text-left" 
 
-    const parentContent = contents[content.parentContentId]
-
     let snode = null
-    if(parentContent){
-        const parentText = JSON.parse(parentContent.text)
-        snode = getQuoteFromContent(parentText.root, content.id)
+    if(content.parentContentId){
+        const parentContent = contents[content.parentContentId]
+        if(parentContent){
+            const parentText = JSON.parse(parentContent.text)
+            snode = getQuoteFromContent(parentText.root, content.id)
+        }
     }
 
     const initializeQuote = (editor: LexicalEditor) => {

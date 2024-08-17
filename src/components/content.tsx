@@ -26,7 +26,7 @@ export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
 
 export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean, icon: any}> = ({content, author=true, icon=null}) => {
     const url = content.author  ? ("/perfil/" + encodeURIComponent(content.author?.id.slice(1))) : ""
-    const onClick = stopPropagation((e: any) => {})
+    const onClick = stopPropagation(() => {})
 
     return <div className="text-gray-600 px-2 blue-links flex items-center">
         {icon && <div>{icon}</div>}
@@ -58,8 +58,14 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
     </button>
 }
 
+type LikeAndCommentCounterProps = {
+    content: ContentProps,
+    user?: UserProps,
+    onViewComments: () => void,
+    viewingComments: boolean
+}
 
-export const LikeAndCommentCounter: React.FC<{content: ContentProps, user?: UserProps, onViewComments: any, viewingComments: boolean}> = ({content, user, onViewComments, viewingComments}) => {
+export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({content, user, onViewComments, viewingComments}) => {
     return <div className="flex">
         <LikeCounter user={user} content={content}/>
         <div className="flex items-center px-2">
@@ -87,7 +93,7 @@ type ContentComponentProps = {
     content: ContentProps,
     contents: Record<string, ContentProps>,
     onViewComments: any,
-    onStartReply: any,
+    onStartReply: () => void,
     user?: UserProps,
     entity?: any,
     isPostPage?: boolean,
@@ -103,7 +109,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({content, contents, u
     } else if(content.type == "EntityContent"){
         return <EntityComponent content={content} entity={entity} user={user} contents={contents}/>
     } else if(content.type == "Post"){
-        return <PostOnFeed content={content} user={user}/>
+        return <PostOnFeed content={content} user={user} onViewComments={onViewComments} viewingComments={viewingComments}/>
     } else {
         return <FastPostOrComment content={content} contents={contents} user={user} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
     }
