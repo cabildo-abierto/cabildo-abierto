@@ -12,7 +12,7 @@ export const HomePage = ({signup}: {signup: boolean}) => {
                 <Presentation/>
             </div>
             <div className="w-full lg:w-1/2 flex justify-center">
-                <div className="w-3/4 lg:w-1/2 lg:mt-24 mt-8">
+                <div className="w-3/4 lg:w-1/2 lg:mt-24 mt-8 max-w-96">
                     {signup ? 
                     <>
                         <SignupForm/>

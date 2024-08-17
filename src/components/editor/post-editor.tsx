@@ -8,12 +8,20 @@ import { emptyOutput } from "./comment-editor"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { TitleInput } from "./title-input"
+import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 
-const PostEditor = ({onSubmit, onSaveDraft, initialData}: any) => {
+type PostEditorProps = {
+    onSubmit: any,
+    onSaveDraft: any,
+    initialData?: InitialEditorStateType,
+    initialTitle?: string
+}
+
+const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: PostEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
-    const [title, setTitle] = useState("")
+    const [title, setTitle] = useState(initialTitle)
 
     const isDevPlayground = false
     const settings: SettingsProps = {

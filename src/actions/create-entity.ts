@@ -102,7 +102,7 @@ export const updateEntityContent = async (text: string, entityId: string, lastVe
           authorId: user.id,
           type: lastVersion.type,
           parentEntityId: entityId,
-          categories: lastVersion.categories
+          categories: lastVersion.categories ? lastVersion.categories : undefined
       }
   })
   revalidateTag("entities")

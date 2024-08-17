@@ -3,6 +3,7 @@
 import {db} from "@/db";
 import { UserProps } from "./get-user";
 import { cache } from "./cache";
+import { ContentType } from "@prisma/client";
 
 export type AuthorProps = {
     id: string,
@@ -13,26 +14,22 @@ export type ContentProps = {
     id: string
     createdAt: Date
     text: string
-    author: AuthorProps | null
+    author: AuthorProps
     _count: {
         likedBy: number
         dislikedBy: number
     }
-    type: string
+    type: ContentType
     isDraft: boolean | null
-    childrenComments: {id: string}[],
-    parentContentId: string | null,
-    title?: string | null
-    categories?: string
+    childrenComments: {id: string}[]
+    parentContentId: string | null
+    title: string | null
+    categories: string | null
 };
 
-export type ContentAndChildrenProps = {
-    content: ContentProps | null, 
-    children: (ContentProps | null)[] 
-}
 
 export const getContentById = cache(async (contentId: string) => {
-    let content = await db.content.findUnique(
+    let content: ContentProps | null = await db.content.findUnique(
         {select: {
             id: true,
             text: true,
@@ -60,7 +57,7 @@ export const getContentById = cache(async (contentId: string) => {
 }, ["content"], {tags: ["content"]})
 
 
-export const getPosts = cache(async () => {
+export const getPosts = async () => {
     let contents = await db.content.findMany({
         select: {
             id: true,
@@ -93,9 +90,4 @@ export const getPosts = cache(async () => {
         }
     })
     return contents
-},
-    ["contents"],
-    {
-        tags: ["contents"]
-    }
-)
+}
