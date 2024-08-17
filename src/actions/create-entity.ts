@@ -69,6 +69,7 @@ export async function createEntity(name: string, userId: string){
 export const updateCategories = async (entityId: string, lastVersionId: string, categories: string, user: UserProps) => {
   const lastVersion = await getContentById(lastVersionId)
   if(!lastVersion){
+      console.log("Error: Last version not found.")
       return null
   }
 
@@ -77,9 +78,11 @@ export const updateCategories = async (entityId: string, lastVersionId: string, 
           text: lastVersion.text,
           authorId: user.id,
           type: lastVersion.type,
-          parentEntityId: entityId
+          parentEntityId: entityId,
+          categories: categories
       }
   })
+
   revalidateTag("entities")
   revalidateTag("entity")
   revalidateTag("contents")
@@ -98,7 +101,8 @@ export const updateEntityContent = async (text: string, entityId: string, lastVe
           text: text,
           authorId: user.id,
           type: lastVersion.type,
-          parentEntityId: entityId
+          parentEntityId: entityId,
+          categories: lastVersion.categories
       }
   })
   revalidateTag("entities")

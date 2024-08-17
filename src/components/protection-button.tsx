@@ -23,5 +23,6 @@ export const SetProtectionButton = ({entity} : any) => {
         text2={"Cambiando..."}
         className="gray-btn"
         onClick={async () => {await setProtection(entity.id, otherProtection(protection));}}
+        reUsable={true}
     />
 }

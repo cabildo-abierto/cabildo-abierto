@@ -89,7 +89,7 @@ export async function searchEntities(value: string){
 
     const results: any[] = []
     dists.forEach(({id, dist}: {id: string, dist: number}) => {
-        results.push({content: contents[entityLastVersionId(entities[id])], entity: entities[id], id: id})
+        results.push({content: contents[entityLastVersionId(entities[id], contents)], entity: entities[id], id: id})
     })
 
     return results

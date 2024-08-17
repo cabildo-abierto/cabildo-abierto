@@ -1,13 +1,12 @@
 import React from "react"
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import NoEntityPage from "./no-entity-page";
+import NoEntityPage from "../../../components/no-entity-page";
 import { ContentWithComments } from "@/components/content-with-comments";
 import PaywallChecker from "@/components/paywall-checker";
 import { getContentsMap, getEntitiesMap } from "@/components/update-context";
 import { getUser } from "@/actions/get-user";
 import { SetProtectionButton } from "@/components/protection-button";
-import { entityLastVersionId } from "@/components/utils";
-
+import { getSortedVersions } from "@/components/utils";
 
 const EntityPage: React.FC<{
     params: any,
@@ -25,9 +24,7 @@ const EntityPage: React.FC<{
 
     const version = typeof searchParams.version == 'string' ? Number(searchParams.version as string) : entity.versions.length-1
 
-    const sortedVersions = entity.versions.sort((a: { id: string }, b: { id: string }) => {
-        return (new Date(contents[a.id].createdAt).getTime()) - (new Date(contents[b.id].createdAt).getTime());
-    });
+    const sortedVersions = getSortedVersions(entity, contents)
     
     const content = contents[sortedVersions[version].id]
 
@@ -36,7 +33,7 @@ const EntityPage: React.FC<{
             {entity.name}
         </h1>
         {(user && user.editorStatus == "Administrator") &&
-        <div className="flex justify-center">
+        <div className="flex justify-center py-2">
             <SetProtectionButton entity={entity}/>
         </div>
         }

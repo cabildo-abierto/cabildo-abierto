@@ -1,6 +1,6 @@
 import React from "react"
 import { ThreeColumnsLayout } from "@/components/main-layout";
-import NoEntityPage from "../no-entity-page";
+import NoEntityPage from "../../../../components/no-entity-page";
 import { ContentWithComments } from "@/components/content-with-comments";
 import PaywallChecker from "@/components/paywall-checker";
 import { getContentsMap, getEntitiesMap } from "@/components/update-context";
@@ -35,14 +35,14 @@ const EntityPage: React.FC<any> = async ({ params }) => {
             if (hasEditPermissions(user, entity.protection)) {
                 editableContent = <>
                     {(user && user.editorStatus == "Administrator") &&
-                        <div className="flex justify-center">
+                        <div className="flex justify-center py-2">
                             <SetProtectionButton entity={entity} />
                         </div>
                     }
-                    <div className="mb-4">
+                    <div className="mb-32">
                         <WikiEditor
-                            initialData={contents[entityLastVersionId(entity)].text}
-                            content={contents[entityLastVersionId(entity)]}
+                            initialData={contents[entityLastVersionId(entity, contents)].text}
+                            content={contents[entityLastVersionId(entity, contents)]}
                             entity={entity}
                             contents={contents}
                             user={user}
@@ -74,7 +74,7 @@ const EntityPage: React.FC<any> = async ({ params }) => {
         </>
     }
 
-    const center = <div className="bg-white h-full">
+    const center = <div className="">
         <h1 className="ml-2 py-8">
             {entity.name}
         </h1>

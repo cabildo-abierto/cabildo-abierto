@@ -1,3 +1,4 @@
+import { ContentProps } from "@/actions/get-content"
 import { EntityProps } from "@/actions/get-entity"
 import { UserProps } from "@/actions/get-user"
 
@@ -46,6 +47,16 @@ export function getSubscriptionPrice() {
 }
 
 
-export const entityLastVersionId = (entity: EntityProps) => {
-    return entity.versions[entity.versions.length-1].id
+export function getSortedVersions(entity: EntityProps, contents: Record<string, ContentProps>){
+    const sortedVersions = entity.versions.sort((a: { id: string }, b: { id: string }) => {
+        return (new Date(contents[a.id].createdAt).getTime()) - (new Date(contents[b.id].createdAt).getTime());
+    });
+    return sortedVersions
+}
+
+
+export const entityLastVersionId = (entity: EntityProps, contents: Record<string, ContentProps>) => {
+    const sortedVersions = getSortedVersions(entity, contents)
+
+    return sortedVersions[sortedVersions.length-1].id
 }
