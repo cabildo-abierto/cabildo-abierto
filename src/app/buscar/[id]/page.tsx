@@ -1,5 +1,5 @@
 import React from "react"
-import { ThreeColumnsLayout } from "@/components/main-layout";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import { SearchPageWithInput } from "@/components/search-page-with-input";
 
 

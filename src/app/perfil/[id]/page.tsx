@@ -1,5 +1,5 @@
 import React from "react";
-import { ThreeColumnsLayout } from "@/components/main-layout";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import { ProfileHeader } from "@/components/profile-header";
 import { ErrorPage } from "@/components/error-page";
 import { getUserById } from "@/actions/get-user";

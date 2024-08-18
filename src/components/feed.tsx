@@ -23,7 +23,7 @@ type FeedProps = {
 const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
     const user = useUser()
     if(feed.isLoading || user.isLoading){
-        return <>Cargando...</>
+        return <></>
     }
     if(feed.isError){
         return <>Error :(</>

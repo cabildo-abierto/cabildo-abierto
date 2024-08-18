@@ -103,7 +103,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewCom
     const {content, isLoading, isError} = useContent(contentId)
 
     if(isLoading){
-        return <>Cargando...</>
+        return <></>
     }
     if(isError || !content){
         return <>Error :(</>

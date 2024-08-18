@@ -1,5 +1,5 @@
 import React from "react"
-import { ThreeColumnsLayout } from "@/components/main-layout";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import MainFeed from "@/components/main-feed";
 
 

@@ -1,6 +1,6 @@
 import { getSubscriptionPoolSize } from "@/actions/subscriptions"
 import { FreeSubscriptionButton } from "@/components/free-subcription-button"
-import { ThreeColumnsLayout } from "@/components/main-layout"
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import Link from "next/link"
 
 

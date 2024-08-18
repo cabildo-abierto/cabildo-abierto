@@ -1,9 +1,14 @@
-import React from 'react';
+"use client"
+
+import React, { ReactNode } from 'react';
 import styles from './LoadingPage.module.css'; // Adjust the path as necessary
 import Image from 'next/image'
+import { useUser } from '@/app/hooks/user';
 
-const LoadingPage: React.FC = () => {
-  return (
+
+const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
+  const user = useUser()
+  return <>{user.isLoading ? 
     <div className="flex flex-col justify-center items-center w-screen h-screen space-y-4">
       <div className="relative w-16 h-16">
         <Image
@@ -12,11 +17,11 @@ const LoadingPage: React.FC = () => {
           width={64}
           height={64}
           priority={true}
-          className="object-contain animate-bounce"
+          className="object-contain"
         />
       </div>
-    </div>
-  );
-};
+    </div> : children
+  }</>
+}
 
 export default LoadingPage

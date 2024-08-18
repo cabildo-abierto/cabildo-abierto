@@ -1,13 +1,13 @@
 "use client"
 
 import React from "react"
-import { ThreeColumnsLayout } from "@/components/main-layout";
 import NoEntityPage from "../../../components/no-entity-page";
 import { ContentWithComments } from "@/components/content-with-comments";
 import PaywallChecker from "@/components/paywall-checker";
 import { SetProtectionButton } from "@/components/protection-button";
 import { useUser } from "@/app/hooks/user";
 import { useEntity } from "@/app/hooks/entities";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 
 const EntityPage: React.FC<{
     params: any,
@@ -17,7 +17,7 @@ const EntityPage: React.FC<{
     const {entity, isLoading, isError} = useEntity(params.id)
 
     if(isLoading){
-        return <>Cargando...</>
+        return <></>
     }
 
     if(isError || !entity){

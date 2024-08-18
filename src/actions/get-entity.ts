@@ -6,28 +6,26 @@ import { cache } from "./cache";
 
 
 export const getEntities = cache(async () => {
-    let entities: EntityProps[] = await db.entity.findMany(
-        {
-            select: {
-                id: true,
-                name: true,
-                protection: true,
-                isPublic: true,
-                versions: {
-                    select: {
-                        id: true,
-                        categories: true
-                    },
-                    orderBy: {
-                        createdAt: "asc"
-                    }
+    let entities = await db.entity.findMany({
+        select: {
+            id: true,
+            name: true,
+            protection: true,
+            isPublic: true,
+            versions: {
+                select: {
+                    id: true,
+                    categories: true
+                },
+                orderBy: {
+                    createdAt: "asc"
                 }
-            },
-            orderBy: {
-                name: "asc"
             }
+        },
+        orderBy: {
+            name: "asc"
         }
-    )
+    })
     return entities
 }, ["entities"], {tags: ["entities"]})
 

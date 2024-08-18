@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { ThreeColumnsLayout } from "@/components/main-layout";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import NoEntityPage from "../../../../components/no-entity-page";
 import PaywallChecker from "@/components/paywall-checker";
 import { SetProtectionButton } from "@/components/protection-button";
@@ -24,7 +24,7 @@ const EntityPage: React.FC<any> = ({ params }) => {
     const user = useUser()
 
     if (isLoading || user.isLoading) {
-        return <>Cargando...</>
+        return <></>
     }
     if(isError || !entity){
         return <ThreeColumnsLayout center={<NoEntityPage id={params.id} />} />

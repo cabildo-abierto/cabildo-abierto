@@ -24,7 +24,7 @@ export default function EntityPopup() {
     }, [state, router])
 
     if(user.isLoading){
-      return <>Cargando...</>
+      return <></>
     }
 
     const ValidPanel: React.FC<any> = ({onClose}) => { return <>

@@ -1,5 +1,5 @@
 import React from "react";
-import { ThreeColumnsLayout } from "@/components/main-layout";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import { ContentWithComments } from "@/components/content-with-comments";
 
 

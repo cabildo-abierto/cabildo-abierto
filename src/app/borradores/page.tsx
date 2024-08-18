@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react";
-import { ThreeColumnsLayout } from "@/components/main-layout";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import { useDrafts } from "../hooks/contents";
 import { DraftButton } from "@/components/draft-button";
 import { useUser } from "../hooks/user";
@@ -11,7 +11,7 @@ import { DraftsPreview } from "../../components/drafts-preview";
 const Drafts: React.FC = () => {
     const user = useUser()
     if(user.isLoading){
-        return <>Cargando...</>
+        return <></>
     }
     if(user.isError || !user.user){
         return <>Necesitás una cuenta para ver esta página</>

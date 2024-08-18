@@ -43,7 +43,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     }
 
     if(isLoading || user.isLoading){
-        return <>Cargando...</>
+        return <></>
     }
 
     if(isError){

@@ -1,4 +1,5 @@
-import { ThreeColumnsLayout } from "@/components/main-layout"
+
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import { getUser } from "@/actions/get-user"
 import { NewDonation } from "@/components/new-donation"
 import Link from "next/link"
