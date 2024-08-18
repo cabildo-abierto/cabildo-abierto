@@ -43,7 +43,8 @@ CustomMentionComponent.displayName = 'CustomMentionComponent';
 
 export const queryMentions = async (trigger: string, query: string | undefined | null)=> {
   if(!query) return []
-  const data = (await getUsers()).filter((user: UserProps) =>
+  const users = await getUsers()
+  const data = users.filter((user) =>
     user.name.toLowerCase().includes(query.toLowerCase()),
   );
   return data.map(({ id, name }: any) => ({ id, value: name, name: name}))

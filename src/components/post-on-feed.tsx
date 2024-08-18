@@ -9,13 +9,12 @@ import { UserProps } from "@/actions/get-user";
 
 type PostOnFeedProps = {
     content: ContentProps,
-    user?: UserProps,
     onViewComments: () => void,
     viewingComments: boolean
 }
 
 
-export const PostOnFeed = ({content, user, onViewComments, viewingComments}: PostOnFeedProps) => {
+export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFeedProps) => {
     const router = useRouter()
     return <div className="w-full bg-white text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">
@@ -30,7 +29,7 @@ export const PostOnFeed = ({content, user, onViewComments, viewingComments}: Pos
                     <Authorship/>
                 </div>}
                 <div></div>
-                <LikeAndCommentCounter content={content} user={user} onViewComments={onViewComments} viewingComments={viewingComments}/>
+                <LikeAndCommentCounter content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
             </div>
         </div>
     </div>

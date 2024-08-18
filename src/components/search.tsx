@@ -1,16 +1,11 @@
 import diceCoefficientDistance from "@/actions/dice-coefficient";
-import { getEntities } from "@/actions/get-entity";
-import { getUsers } from "@/actions/get-user";
-import { getContentsMap, getEntitiesMap } from "./update-context";
-import { ContentProps } from "@/actions/get-content";
-import { entityLastVersionId } from "./utils";
+import { EntityProps } from "@/actions/get-entity";
+import { SmallContentProps } from "@/app/api/feed/route";
 
 
-export async function searchUsers(value: string) {
+export function searchUsers(value: string, users: {id: string, name: string}[]) {
     if(value.length == 0)
         return []
-
-    const users = await getUsers()
     
     const dist = diceCoefficientDistance
 
@@ -32,18 +27,16 @@ export async function searchUsers(value: string) {
 }
 
 
-export async function searchContents(value: string) {
+export function searchContents(value: string, contents: SmallContentProps[]) {
     if(value.length == 0)
         return []
-
-    const contents = await getContentsMap()
 
     const dist = diceCoefficientDistance
 
     const maxDist = dist(value, '')
     const dists: {id: string, dist: number}[] = []
 
-    Object.values(contents).forEach(function(item){
+    contents.forEach(function(item){
         if(item.type == "Post" || item.type == "Comment" || item.type == "FastPost"){
             if(!item.isDraft){
                 let d = dist(value, item.text)
@@ -55,42 +48,34 @@ export async function searchContents(value: string) {
     dists.sort((a, b) => {return a.dist - b.dist })
     dists.filter((a) => {return a.dist < maxDist})
 
-    const orderedContents: ContentProps[] = []
+    const orderedContents: {id: string}[] = []
     dists.forEach(({id, dist}: {id: string, dist: number}) => {
-        orderedContents.push(contents[id])
+        orderedContents.push({id: id})
     })
 
     return orderedContents
 }
 
 
-export async function searchEntities(value: string){
+export function searchEntities(value: string, entities: EntityProps[]){
     if(value.length == 0)
         return []
-
-    const entities = await getEntitiesMap()
-    const contents = await getContentsMap()
 
     const dist = diceCoefficientDistance
 
     const maxDist = dist(value, '')
-    const dists: {id: string, dist: number}[] = []
+    const dists: {id: string, dist: number, name: string}[] = []
 
-    Object.values(entities).forEach(function(item){
+    entities.forEach(function(item){
         let d = 1e10
         if(item.name) {
             d = dist(value, item.name)
         }
-        dists.push({id: item.id, dist: d})
+        dists.push({id: item.id, dist: d, name: item.name})
     })
 
     dists.sort((a, b) => {return a.dist - b.dist })
     dists.filter((a) => {return a.dist < maxDist})
 
-    const results: any[] = []
-    dists.forEach(({id, dist}: {id: string, dist: number}) => {
-        results.push({content: contents[entityLastVersionId(entities[id], contents)], entity: entities[id], id: id})
-    })
-
-    return results
+    return dists
 }

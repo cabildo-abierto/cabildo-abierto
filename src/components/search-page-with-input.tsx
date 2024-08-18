@@ -7,7 +7,7 @@ import { SearchButton } from "@/components/top-bar";
 import { useRouter } from "next/navigation";
 
 
-export const SearchPageWithInput = ({contents, initialValue}: any) => {
+export const SearchPageWithInput = ({initialValue}: {initialValue: string}) => {
     const [value, setValue] = useState("")
     const router = useRouter()
 
@@ -20,6 +20,6 @@ export const SearchPageWithInput = ({contents, initialValue}: any) => {
         <div className="py-4">
             <h2>Buscando <span className="italic">{initialValue}</span></h2>
         </div>
-        <SearchPage contents={contents} searchValue={initialValue}/>
+        <SearchPage searchValue={initialValue}/>
     </>
 }

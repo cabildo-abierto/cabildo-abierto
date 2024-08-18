@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Sidebar from "./sidebar";
 import Topbar from "./top-bar";
+import { UserProps } from "@/actions/get-user";
 
 
-export default function Bars({user, contents}: any) {
+export default function Bars() {
     const [openSidebar, setOpenSidebar] = useState(false)
 
     return <>
-        <Topbar user={user} contents={contents} onOpenSidebar={() => setOpenSidebar(true)}/>
-        {openSidebar && <Sidebar user={user} onClose={() => {setOpenSidebar(false)}}/>}
+        <Topbar onOpenSidebar={() => setOpenSidebar(true)}/>
+        {openSidebar && <Sidebar onClose={() => {setOpenSidebar(false)}}/>}
     </>
 }

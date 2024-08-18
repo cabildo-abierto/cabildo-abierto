@@ -1,9 +1,14 @@
-import { ContentProps } from "@/actions/get-content"
-import { EntityProps } from "@/actions/get-entity"
+"use client"
+
 import Link from "next/link"
 import ArticleIcon from '@mui/icons-material/Article';
 
-export const EntitySearchResult: React.FC<{entity: EntityProps, content: ContentProps}> = ({ entity, content }) => {
+export type SmallEntityProps = {
+    id: string,
+    name: string
+}
+
+export const EntitySearchResult: React.FC<{entity: SmallEntityProps}> = ({ entity }) => {
     return <div className="flex justify-center mb-2">
         <Link href={"/articulo/" + entity.id.replace("@", "")}>
             <button className="search-result">
@@ -11,7 +16,7 @@ export const EntitySearchResult: React.FC<{entity: EntityProps, content: Content
                     <span className="px-1"><ArticleIcon/></span>
                     <div className="flex justify-center w-full">
                         <div>
-                            {entity.name} {content.text.length == 0 ? <span className="text-[var(--secondary)]">(vacío)</span>: <></>}
+                            {entity.name}
                         </div>
                     </div>
                 </div>                  

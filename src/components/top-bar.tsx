@@ -8,6 +8,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import CreateIcon from '@mui/icons-material/Create';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import { UserProps } from "@/actions/get-user";
+import { useUser } from "@/app/hooks/user";
 
 function FeedButton() {
     return <div className="px-1 py-2">
@@ -61,8 +63,12 @@ export const SearchButton = ({ onClick=null, disabled=false }: any) => {
 }
 
 
-
-function TopbarLoggedIn({ user, onOpenSidebar, onSearchingUpdate, searching, contents }: any) {
+type TopbarLoggedInProps = {
+    onOpenSidebar: any,
+    onSearchingUpdate: any,
+    searching: boolean
+}
+function TopbarLoggedIn({ onOpenSidebar, onSearchingUpdate, searching }: TopbarLoggedInProps) {
     return <div className="flex items-center w-screen">
         <OpenSidebarButton onClick={onOpenSidebar} />
         {!searching &&
@@ -75,7 +81,7 @@ function TopbarLoggedIn({ user, onOpenSidebar, onSearchingUpdate, searching, con
         }
 
         {searching && 
-            <SearchBar contents={contents} user={user} onClose={() => { onSearchingUpdate(false) }} />
+            <SearchBar onClose={() => { onSearchingUpdate(false) }} />
         }
     </div>
 }
@@ -108,10 +114,11 @@ const TopBarLoading = () => {
 }
 
 
-export default function Topbar({ user, onOpenSidebar, contents }: any) {
+export default function Topbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
     const [barState, setBarState] = useState("top")
     const [searching, setSearching] = useState(false)
     const [prevScrollPos, setPrevScrollPos] = useState(0);
+    const user = useUser()
     
     useEffect(() => {
         const handleScroll = () => {
@@ -145,17 +152,15 @@ export default function Topbar({ user, onOpenSidebar, contents }: any) {
     }
 
     let bar = <></>
-    if(user === null){
-        bar = <TopBarGuest/>
-    } else if(user === undefined){
+    if(user.isLoading){
         bar = <TopBarLoading/>
+    } else if(user.isError || !user.user){
+        bar = <TopBarGuest/>
     } else {
         bar = <TopbarLoggedIn
-            user={user}
             onOpenSidebar={onOpenSidebar}
             onSearchingUpdate={handleSearchingUpdate}
             searching={searching}
-            contents={contents}
         />
     }
 

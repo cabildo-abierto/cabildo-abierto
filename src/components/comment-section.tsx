@@ -3,16 +3,21 @@ import { UserProps } from "@/actions/get-user"
 import { ContentWithComments } from "@/components/content-with-comments"
 
 type CommentSectionProps = {
-    comments: ContentProps[], 
-    contents: Record<string, ContentProps>,
-    user?: UserProps
+    parentContent: ContentProps,
+    user?: UserProps,
+    activeIDs?: string[]
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({comments, contents, user}) => {
+const CommentSection: React.FC<CommentSectionProps> = ({parentContent, activeIDs}) => {
+
+    function inActiveIDs() {
+        return !activeIDs || activeIDs.includes(parentContent.id)
+    }
+    
     return <>
-        {comments.map((comment: ContentProps) => (
-            <div className="py-1" key={comment.id}>
-                <ContentWithComments user={user} content={comment} contents={contents}/>
+        {parentContent.childrenComments.filter(inActiveIDs).map(({id}) => (
+            <div className="py-1" key={id}>
+                <ContentWithComments contentId={id}/>
             </div>
         ))}
     </>

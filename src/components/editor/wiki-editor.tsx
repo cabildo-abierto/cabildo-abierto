@@ -10,14 +10,32 @@ import Link from "next/link"
 import { RoutesEditor } from "../routes-editor"
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { updateEntityContent } from "@/actions/create-entity"
+import { UserProps } from "@/actions/get-user"
+import { EntityProps } from "@/actions/get-entity"
+import { useContent } from "@/app/hooks/contents"
+import { updateEntity } from "@/actions/create-entity"
+import { useUser } from "@/app/hooks/user"
 
-const WikiEditor = ({initialData, content, contents, entity, user, readOnly=false}: any) => {
+type WikiEditorProps = {
+    contentId: string,
+    entity: EntityProps,
+    readOnly?: boolean
+}
+
+const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
-    
     const router = useRouter()
+    
+    const user = useUser()
+    const {content, isLoading, isError} = useContent(contentId)
+    if(isLoading || user.isLoading){
+        return <>Cargando...</>
+    }
+    if(!content || isError){
+        return <>Ocurrió un error :(</>
+    }
     
     const isDevPlayground = false
     const settings = {
@@ -46,11 +64,11 @@ const WikiEditor = ({initialData, content, contents, entity, user, readOnly=fals
         useSubscript: false,
         useCodeblock: false,
         placeholder: "Este artículo está vacío!",
-        initialData: initialData,
+        initialData: content.text,
         isMarkdownEditor: false,
         editorClassName: "content mt-4",
         isReadOnly: readOnly,
-        user: user,
+        user: user.user,
         content: content,
         isAutofocus: true
     }
@@ -63,8 +81,10 @@ const WikiEditor = ({initialData, content, contents, entity, user, readOnly=fals
             onClick={async () => {
                 if(editor && editorOutput){
                     editorOutput.read(async () => {
-                        await updateEntityContent(JSON.stringify(editor.getEditorState()), entity.id, content.id, user)
-                        router.push("/articulo/"+entity.id)
+                        if(content.categories && user.user){
+                            await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user)
+                            router.push("/articulo/"+entity.id)
+                        }
                     })
                 }
             }}
@@ -89,7 +109,7 @@ const WikiEditor = ({initialData, content, contents, entity, user, readOnly=fals
 
         {editingRoutes &&
         <div className="py-4">
-            <RoutesEditor entity={entity} contents={contents} user={user}/>
+            <RoutesEditor entity={entity}/>
         </div>}
 
         <div id="editor">
@@ -97,7 +117,6 @@ const WikiEditor = ({initialData, content, contents, entity, user, readOnly=fals
                 settings={settings}
                 setEditor={setEditor}
                 setOutput={setEditorOutput}
-                contents={contents}
             />
         </div>
     </>

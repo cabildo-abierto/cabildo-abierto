@@ -117,12 +117,11 @@ export type SettingsProps = {
 type LexicalEditorProps = {
   settings: SettingsProps,
   setEditor: any,
-  setOutput: any,
-  contents?: Record<string, ContentProps>
+  setOutput: any
 }
 
 
-function Editor({ settings, setEditor, setOutput, contents }: 
+function Editor({ settings, setEditor, setOutput }: 
   LexicalEditorProps): JSX.Element {
   const { historyState } = useSharedHistoryContext();
   const [editor] = useLexicalComposerContext()
@@ -222,10 +221,8 @@ function Editor({ settings, setEditor, setOutput, contents }:
         <HashtagPlugin />
         <KeywordsPlugin />
         <AutoLinkPlugin />
-        {isComments && contents && content && <CommentPlugin
-          user={user}
+        {isComments && content && <CommentPlugin
           parentContent={content}
-          contents={contents}
         />}
         {isRichText ? (
           <>
@@ -307,7 +304,7 @@ function Editor({ settings, setEditor, setOutput, contents }:
 }
 
 
-const LexicalEditor = ({ settings, setEditor, setOutput, contents }: LexicalEditorProps) => {
+const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) => {
   let {isReadOnly, initialData} = settings
 
   if(typeof initialData === 'string'){
@@ -347,7 +344,6 @@ const LexicalEditor = ({ settings, setEditor, setOutput, contents }: LexicalEdit
               settings={settings}
               setEditor={setEditor}
               setOutput={setOutput}
-              contents={contents}
             />
           </div>
         </TableContext>

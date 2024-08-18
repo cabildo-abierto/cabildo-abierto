@@ -6,8 +6,6 @@ import {
 } from "@/app/lib/definitions";
 import { getUserId, UserProps } from './get-user';
 import { revalidateTag } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { getContentById } from './get-content';
 
 export type CreateEntityFormState = {
   error?: any,
@@ -66,43 +64,15 @@ export async function createEntity(name: string, userId: string){
 }
 
 
-export const updateCategories = async (entityId: string, lastVersionId: string, categories: string, user: UserProps) => {
-  const lastVersion = await getContentById(lastVersionId)
-  if(!lastVersion){
-      console.log("Error: Last version not found.")
-      return null
-  }
-
-  await db.content.create({
-      data: {
-          text: lastVersion.text,
-          authorId: user.id,
-          type: lastVersion.type,
-          parentEntityId: entityId,
-          categories: categories
-      }
-  })
-
-  revalidateTag("entities")
-  revalidateTag("entity")
-  revalidateTag("contents")
-  revalidateTag("content")
-}
-
-
-export const updateEntityContent = async (text: string, entityId: string, lastVersionId: string, user: UserProps) => {
-  const lastVersion = await getContentById(lastVersionId)
-  if(!lastVersion){
-      return null
-  }
+export const updateEntity = async (text: string, categories: string, entityId: string, user: UserProps) => {
 
   await db.content.create({
       data: {
           text: text,
           authorId: user.id,
-          type: lastVersion.type,
+          type: "EntityContent",
           parentEntityId: entityId,
-          categories: lastVersion.categories ? lastVersion.categories : undefined
+          categories: categories
       }
   })
   revalidateTag("entities")

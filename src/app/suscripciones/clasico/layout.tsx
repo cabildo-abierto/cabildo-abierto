@@ -4,8 +4,7 @@ import React from "react";
 
 
 export default async function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-    const user = await getUser()
-    return <RedirectWrapper user={user}>
+    return <RedirectWrapper>
         {children}
     </RedirectWrapper>
 }

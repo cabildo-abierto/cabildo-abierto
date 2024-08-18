@@ -7,22 +7,21 @@ import { SettingsProps } from "./lexical-editor"
 import dynamic from "next/dynamic";
 import { UserProps } from "@/actions/get-user";
 import { ContentProps } from "@/actions/get-content";
+import { useUser } from "@/app/hooks/user";
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
-export const ReadOnlyEditor = ({initialData, 
-    enableComments=false, 
-    user, 
+export const ReadOnlyEditor = ({initialData,
     content, 
-    editorClassName="link",
-    contents
+    editorClassName="link"
 }: 
     {initialData: InitialEditorStateType,
-    enableComments?: boolean, 
-    user?: UserProps, 
     content?: ContentProps,
-    contents?: Record<string, ContentProps>,
     editorClassName?: string}) => {
+    const user = useUser()
+    if(user.isLoading){
+        return <>Cargando...</>
+    }
 
     const settings: SettingsProps = {
         disableBeforeInput: false,
@@ -43,7 +42,7 @@ export const ReadOnlyEditor = ({initialData,
         tableCellMerge: false,
         showActions: false,
         showToolbar: false,
-        isComments: enableComments,
+        isComments: user.user != null,
         isDraggableBlock: false,
         useSuperscript: false,
         useStrikethrough: false,
@@ -54,14 +53,13 @@ export const ReadOnlyEditor = ({initialData,
         isAutofocus: true,
         editorClassName: editorClassName,
         isReadOnly: true,
-        user: user,
+        user: user.user,
         content: content
     }
     
     return <MyLexicalEditor
-    settings={settings}
-    setEditor={() => {}}
-    setOutput={() => {}}
-    contents={contents}
+        settings={settings}
+        setEditor={() => {}}
+        setOutput={() => {}}
     />
 }

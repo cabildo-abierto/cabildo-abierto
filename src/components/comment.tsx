@@ -1,8 +1,10 @@
 
+"use client"
+
 import BoltIcon from '@mui/icons-material/Bolt';
 import { AddCommentButton, ContentTopRow, LikeAndCommentCounter } from './content';
 import { stopPropagation } from './utils';
-import { ContentProps, getContentById } from '@/actions/get-content';
+import { ContentProps } from '@/actions/get-content';
 import {MarkNode} from '@lexical/mark';
 import {$getRoot, $insertNodes, EditorState, LexicalEditor, LexicalNode} from 'lexical'
 import {$insertFirst} from '@lexical/utils'
@@ -11,6 +13,8 @@ import {$createQuoteNode} from '@lexical/rich-text';
 import {$unwrapMarkNode} from '@lexical/mark'
 import { ReadOnlyEditor } from './editor/read-only-editor';
 import { UserProps } from '@/actions/get-user';
+import { useContent } from '@/app/hooks/contents';
+import assert from 'assert';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -29,33 +33,27 @@ function getQuoteFromContent(node: any, id: string): any {
 }
 
 
-type FastPostOrCommentProps = {
+type CommentProps = {
     content: ContentProps,
-    contents: Record<string, ContentProps>,
-    user?: UserProps,
     onStartReply: () => void,
     onViewComments: () => void,
     viewingComments: boolean
 }
 
 
-export const FastPostOrComment = ({
+export const Comment = ({
     content,
-    contents,
-    user,
     onStartReply,
     onViewComments,
-    viewingComments}: FastPostOrCommentProps) => {
-    const icon = content.type == "Comment" ? null : <BoltIcon fontSize={"small"}/>
+    viewingComments}: CommentProps) => {
     const className = "w-full bg-white text-left" 
 
     let snode = null
-    if(content.parentContentId){
-        const parentContent = contents[content.parentContentId]
-        if(parentContent){
-            const parentText = JSON.parse(parentContent.text)
-            snode = getQuoteFromContent(parentText.root, content.id)
-        }
+    assert(content.parentContentId)
+    const parentContent = useContent(content.parentContentId)
+    if(!parentContent.isLoading && !parentContent.isError){
+        const parentText = JSON.parse(parentContent.content.text)
+        snode = getQuoteFromContent(parentText.root, content.id)
     }
 
     const initializeQuote = (editor: LexicalEditor) => {
@@ -77,7 +75,7 @@ export const FastPostOrComment = ({
 
     return <div className={className}>
         <div className="border rounded w-full">
-            <ContentTopRow content={content} icon={icon}/>
+            <ContentTopRow content={content} icon={null}/>
             <div className="px-2 py-2">
                 {snode && <div className="content">
                     <ReadOnlyEditor initialData={initializeQuote}/>
@@ -88,7 +86,7 @@ export const FastPostOrComment = ({
                 <div className="px-1">
                     <AddCommentButton text="Responder" onClick={stopPropagation(onStartReply)}/>
                 </div>
-                <LikeAndCommentCounter content={content} user={user} onViewComments={onViewComments} viewingComments={viewingComments}/>
+                <LikeAndCommentCounter content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
             </div>
         </div>
     </div>

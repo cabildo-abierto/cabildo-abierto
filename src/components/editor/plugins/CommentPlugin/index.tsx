@@ -43,10 +43,8 @@ export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
 );
 
 
-export default function CommentPlugin({user, parentContent, contents}: {
-  user?: UserProps, 
-  parentContent: ContentProps,
-  contents: Record<string, ContentProps>
+export default function CommentPlugin({parentContent}: {
+  parentContent: ContentProps
 }): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const markNodeMap = useMemo<Map<string, Set<NodeKey>>>(() => {
@@ -219,7 +217,6 @@ export default function CommentPlugin({user, parentContent, contents}: {
             editor={editor}
             cancelAddComment={cancelAddComment}
             submitAddComment={submitAddComment}
-            user={user}
             parentContent={parentContent}
           />,
           document.body,
@@ -249,9 +246,7 @@ export default function CommentPlugin({user, parentContent, contents}: {
           <CommentsPanel
             activeIDs={activeIDs}
             parentContent={parentContent}
-            contents={contents}
             markNodeMap={markNodeMap}
-            user={user}
           />,
           document.body,
       )}

@@ -17,7 +17,7 @@ export function DateComponent({ date }: { date: Date }) {
     return <>{localeDate}</>;
 }
 
-export function DateSince({ date }: { date: Date }) {
+export function DateSince({ date }: { date: string | Date}) {
     const rtf = useMemo(
         () =>
             new Intl.RelativeTimeFormat('es', {
@@ -29,7 +29,7 @@ export function DateSince({ date }: { date: Date }) {
     );
 
     const now = new Date();
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    const seconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
     
     const formatTime = () => {
         if (seconds < 60) {

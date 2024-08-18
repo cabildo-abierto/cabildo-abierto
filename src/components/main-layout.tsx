@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import Bars from "./bars";
 import { getUser } from "@/actions/get-user";
-import { getContentsMap } from "./update-context";
 
 type ColumnsProps = {left?: ReactNode, center?: ReactNode, right?: ReactNode, centerWidth?: number}
 
@@ -23,10 +22,8 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = (
 
 
 const MainLayout: React.FC<{children: ReactNode}> = async ({children}) => {
-    const user = await getUser()
-    const contents = await getContentsMap()
     return <>
-        <Bars user={user} contents={contents}/>
+        <Bars/>
         <div className="mb-8">
             {children}
         </div>

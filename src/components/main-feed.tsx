@@ -2,10 +2,14 @@
 
 import { useState } from "react"
 import Feed from "./feed"
+import { useFeed } from "@/app/hooks/contents";
+import { useUser } from "@/app/hooks/user";
 
 
-const MainFeed = ({contents, user}: any) => {
+const MainFeed = () => {
     const [following, setFollowing] = useState(false);
+    const feed = useFeed()
+
     return (
         <div className="w-full h-full">
             <div className="flex justify-center items-center space-x-2 py-4">
@@ -24,7 +28,9 @@ const MainFeed = ({contents, user}: any) => {
                     Siguiendo
                 </button>
             </div>
-            <Feed following={following} user={user} contents={contents} />
+            {feed && 
+                <Feed feed={feed} following={following}/>
+            }
         </div>
     );
 }
