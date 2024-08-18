@@ -111,7 +111,7 @@ export const getProfileFeed = cache(async (id: string) => {
         }
     })
     return feed
-}, ["users"], {tags: ["users"]})
+}, ["users", "contents"], {tags: ["users", "contents"]})
 
 
 export const getFollowingFeed = cache(async (id: string) => {

@@ -70,7 +70,7 @@ const SearchPage = ({searchValue}: {searchValue: string}) => {
   }
 
   return <>
-      <div className="flex justify-center">
+      <div className="flex justify-center w-full">
           <SelectionComponent selectionHandler={handleTypeChange} />
       </div>
       <div className="flex justify-center overflow-scroll">

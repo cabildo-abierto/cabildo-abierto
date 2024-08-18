@@ -5,7 +5,7 @@ import Feed from "@/components/feed"
 
 
 
-export const ProfileFeed = ({profileUser, user}: {profileUser: UserProps, user?: UserProps}) => {
+export const ProfileFeed = ({profileUser}: {profileUser: UserProps}) => {
     let feed = useProfileFeed(profileUser.id)
     return <Feed feed={feed}/>
 }

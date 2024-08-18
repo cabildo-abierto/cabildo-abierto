@@ -48,20 +48,18 @@ const CloseSearchButton = ({ onClick }: any) => {
 }
 
 
-const SearchBar: React.FC<{onClose: any}> = ({onClose}) => {
-  const [searchValue, setSearchValue] = useState('')
+const SearchBar: React.FC<{onClose: any, setSearchValue: any}> = ({onClose, setSearchValue}) => {
 
-  return <div className="flex">
-      <SearchButton disabled={true}/>
-      <div className="flex w-full">
-        <SearchInput onChange={(e: any) => {setSearchValue(e.target.value)}} />
-        <CloseSearchButton onClick={onClose}/>
-      </div>
-      {(searchValue.length != 0) && 
-          <SearchSidebar searchValue={searchValue}/>
-      }
-  </div>
-};
+  return <>
+    <div className="flex">
+        <SearchButton disabled={true}/>
+        <div className="flex w-full">
+          <SearchInput onChange={(e: any) => {setSearchValue(e.target.value)}} />
+          <CloseSearchButton onClick={() => {onClose(); setSearchValue("")}}/>
+        </div>
+    </div>
+  </>
+}
 
 export default SearchBar;
 

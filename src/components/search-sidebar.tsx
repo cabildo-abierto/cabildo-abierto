@@ -5,25 +5,26 @@ import Link from "next/link";
 
 const SearchSidebar: React.FC<{searchValue: string}> = (
   {searchValue}) => {
-  return <div className="fixed top-16 right-0 h-screen-minus-16 border-l z-10">
-      <div className="flex justify-end h-full bg-white">
-        <div className="bg-white h-full flex flex-col justify-between lg:w-96 w-screen">
-          <div className="h-full overflow-scroll">
-            <SearchPage searchValue={searchValue}/>
+  
+  return <div className="search-sidebar">
+  <div className="flex justify-end h-full w-full">
+      <div className="h-full flex flex-col justify-between w-screen w-full">
+        <div className="h-full overflow-scroll">
+          <SearchPage searchValue={searchValue}/>
+        </div>
+        <div>
+          <hr className="mt-2"/>
+          <div className="flex justify-center py-2">
+            <Link href={"/buscar/"+encodeURIComponent(searchValue)}>
+              <button className="gray-btn">
+                Ver más resultados
+              </button>
+            </Link>
           </div>
-          <div>
-            <hr className="mt-2"/>
-            <div className="flex justify-center py-2">
-              <Link href={"/buscar/"+encodeURIComponent(searchValue)}>
-                <button className="gray-btn">
-                  Ver más resultados
-                </button>
-              </Link>
-            </div>
-          </div>
-      </div>
-      </div>
+        </div>
   </div>
+</div>
+</div>
 }
 
 export default SearchSidebar
