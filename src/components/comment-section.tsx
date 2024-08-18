@@ -9,7 +9,7 @@ type CommentSectionProps = {
 const CommentSection: React.FC<CommentSectionProps> = ({parentContent, activeIDs}) => {
 
     function inActiveIDs({id}: {id: string}) {
-        return !activeIDs || activeIDs.includes(id)
+        return (!activeIDs || activeIDs.length == 0) || activeIDs.includes(id)
     }
     
     return <>

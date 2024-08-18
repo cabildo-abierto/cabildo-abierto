@@ -10,7 +10,7 @@ export type SmallEntityProps = {
 
 export const EntitySearchResult: React.FC<{entity: SmallEntityProps}> = ({ entity }) => {
     return <div className="flex justify-center mb-2">
-        <Link href={"/articulo/" + entity.id.replace("@", "")}>
+        <Link href={"/articulo/" + encodeURIComponent(entity.id.replace(" ", "_"))}>
             <button className="search-result">
                 <div className="flex items-center">
                     <span className="px-1"><ArticleIcon/></span>

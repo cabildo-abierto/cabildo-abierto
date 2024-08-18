@@ -25,6 +25,7 @@ import Button from '../../ui/Button';
 import { emptyOutput } from '../../comment-editor';
 import { ContentProps } from '@/app/lib/definitions';
 import { useUser } from '@/app/hooks/user';
+import { useSWRConfig } from 'swr';
 
 
 export function CommentInputBox({
@@ -42,6 +43,7 @@ export function CommentInputBox({
   const [commentEditorState, setCommentEditorState] = useState<EditorState | undefined>(undefined)
   const user = useUser()
   const boxRef = useRef<HTMLDivElement>(null);
+  const {mutate} = useSWRConfig()
   const selectionState = useMemo(
     () => ({
       container: document.createElement('div'),
@@ -146,19 +148,21 @@ export function CommentInputBox({
         }
 
         if(commentEditor) await commentEditor.read(async () => {
-          if(!user.user) return
-          const comment = await createCommentDB(JSON.stringify(commentEditor.getEditorState()), parentContent.id, user.user.id)
+            if(!user.user) return
+            const comment = await createCommentDB(JSON.stringify(commentEditor.getEditorState()), parentContent.id, user.user.id)
 
-          if(comment){
-            editor.update(async () => {
-                if ($isRangeSelection(selectionRef.current)) {
-                    const isBackward = selectionRef.current.isBackward();
-                    const id = comment.id;
-        
-                    $wrapSelectionInMarkNode(selectionRef.current, isBackward, id);
-                }
-            });
-          }
+            if(comment){
+                editor.update(async () => {
+                    if ($isRangeSelection(selectionRef.current)) {
+                        const isBackward = selectionRef.current.isBackward();
+                        const id = comment.id;
+            
+                        $wrapSelectionInMarkNode(selectionRef.current, isBackward, id);
+                    }
+                })
+                mutate("/api/content/"+comment.id)
+                mutate("/api/user/"+user.user.id)
+            }
         })
         
         if(editor){

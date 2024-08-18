@@ -82,15 +82,6 @@ export const SignupFormSchema = z.object({
 })
 
 
-export const CreateEntityFormSchema = z.object({
-    name: z
-        .string()
-        .min(2, { message: 'El nombre tiene que tener al menos 2 caracteres.' })
-        .trim()
-        .max(100, { message: 'El nombre no puede tener más de 100 caracteres.'})
-})
-
-
 export const LoginFormSchema = z.object({
     email: z.string().email({ message: 'Ingresá un email válido.' }).trim(),
     password: z

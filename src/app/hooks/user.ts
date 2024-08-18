@@ -3,7 +3,7 @@ import useSWR from "swr"
 import { UserProps } from "../lib/definitions"
 
 
-export function useUser(): {user: UserProps | undefined, isLoading: boolean, isError: boolean}{
+export function useUser(): {user: UserProps, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/user', fetcher)
   
     return {
@@ -14,11 +14,11 @@ export function useUser(): {user: UserProps | undefined, isLoading: boolean, isE
 }
 
 
-export function useUsers(): {users: UserProps[] | undefined, isLoading: boolean, isError: boolean}{
+export function useUsers(): {users: UserProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/users', fetcher)
   
     return {
-        users: data ? data : undefined,
+        users: data,
         isLoading: isLoading,
         isError: error
     }

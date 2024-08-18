@@ -31,7 +31,7 @@ const SelectionComponent: React.FC<{ selectionHandler: (arg: string) => void }> 
           } py-2 px-4 focus:outline-none flex-1`}
         onClick={() => handleButtonClick('entities')}
       >
-        Wiki
+        Artículos colaborativos
       </button>
   </div>
 };

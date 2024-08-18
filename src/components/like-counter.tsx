@@ -7,6 +7,7 @@ import { addDislike, addLike, removeLike, removeDislike } from "@/actions/likes"
 import { stopPropagation } from "./utils";
 import { ContentProps } from '@/app/lib/definitions';
 import { useUser } from "@/app/hooks/user";
+import { useSWRConfig } from "swr";
 
 export const LikeCounter: React.FC<{content: ContentProps}> = ({content}) => {
     const {user} = useUser()
@@ -16,6 +17,7 @@ export const LikeCounter: React.FC<{content: ContentProps}> = ({content}) => {
     const wasDisliked = user?.dislikes.some((c: any) => (c.id == content.id))
     const [liked, setLiked] = useState(wasLiked)
     const [disliked, setDisliked] = useState(wasDisliked)
+    const {mutate} = useSWRConfig()
     
     const like_icon = <ThumbUpOutlinedIcon sx={{ fontSize: 18 }}/>
     const dislike_icon = <ThumbDownOutlinedIcon sx={{ fontSize: 18 }}/>
@@ -26,6 +28,8 @@ export const LikeCounter: React.FC<{content: ContentProps}> = ({content}) => {
             setLikeCount(likeCount-1)
             setLiked(false)
             await removeLike(content.id, user.id);
+            mutate("/api/content/"+content.id)
+            mutate("/api/user/"+user.id)
         } else {
             setLikeCount(likeCount+1)
             setLiked(true)
@@ -34,6 +38,8 @@ export const LikeCounter: React.FC<{content: ContentProps}> = ({content}) => {
                 setDislikeCount(dislikeCount-1)
             }
             await addLike(content.id, user.id);
+            mutate("/api/content/"+content.id)
+            mutate("/api/user/"+user.id)
         }
     }
 
@@ -43,6 +49,8 @@ export const LikeCounter: React.FC<{content: ContentProps}> = ({content}) => {
             setDislikeCount(dislikeCount-1)
             setDisliked(false)
             await removeDislike(content.id, user.id);
+            mutate("/api/content/"+content.id)
+            mutate("/api/user/"+user.id)
         } else {
             setDislikeCount(dislikeCount+1)
             setDisliked(true)
@@ -51,6 +59,8 @@ export const LikeCounter: React.FC<{content: ContentProps}> = ({content}) => {
                 setLikeCount(likeCount-1)
             }
             await addDislike(content.id, user.id);
+            mutate("/api/content/"+content.id)
+            mutate("/api/user/"+user.id)
         }
     }
 

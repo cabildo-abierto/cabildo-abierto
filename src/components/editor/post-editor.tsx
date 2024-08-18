@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { TitleInput } from "./title-input"
 import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
+import { useSWRConfig } from "swr"
+import { useUser } from "@/app/hooks/user"
 
 type PostEditorProps = {
     onSubmit: any,
@@ -68,7 +70,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
     async function handleSaveDraft(){
         if(editor && editorOutput){
             editorOutput.read(async () => {
-                await onSaveDraft(JSON.stringify(title), "Post", title)
+                await onSaveDraft(JSON.stringify(editorOutput), "Post", title)
                 router.push("/borradores")
             })
         }

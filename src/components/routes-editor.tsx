@@ -10,6 +10,7 @@ import { useContent } from "@/app/hooks/contents";
 import { updateEntity } from "@/actions/create-entity";
 import { EntityProps } from "@/app/lib/definitions";
 import { useUser } from "@/app/hooks/user";
+import { useSWRConfig } from "swr";
 
 
 function validCategories(categories: string[][]){
@@ -71,6 +72,7 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
     const {content, isLoading, isError} = useContent(entityLastVersionId(entity))
     const entityCategories = content.categories ? JSON.parse(content.categories) : null
     const [categories, setCategories] = useState<string[][]>(entityCategories)
+    const {mutate} = useSWRConfig()
 
     if(!content || !content.categories){
         return <>Ocurrió un error</>
@@ -96,6 +98,14 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
                 ...categories.slice(0, i),
                 ...categories.slice(i+1)
             ])
+        }
+    }
+
+    const onSubmitCategories = async () => {
+        if(user.user) {
+            await updateEntity(content.text, JSON.stringify(categories), entity.id, user.user)
+            mutate("/api/entitiy/"+entity.id)
+            mutate("/api/entities")
         }
     }
 
@@ -129,7 +139,7 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
             <StateButton
                 className="small-btn"
                 disabled={areCategoriesEqual(categories, entityCategories) || !validCategories(categories)}
-                onClick={async () => {if(user.user) await updateEntity(content.text, JSON.stringify(categories), entity.id, user.user)}}
+                onClick={onSubmitCategories}
                 text1="Confirmar"
                 text2="Guardando..."
                 reUsable={true}

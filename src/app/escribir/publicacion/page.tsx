@@ -1,17 +1,33 @@
 "use client"
 
 import { createPost } from '@/actions/create-content';
+import { useUser } from '@/app/hooks/user';
 import { ThreeColumnsLayout } from "@/components/three-columns";
 import { ContentType } from '@prisma/client';
 import dynamic from 'next/dynamic';
+import { useSWRConfig } from 'swr';
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
 
 
+
+
 const Publicacion: React.FC = () => {
+    const {mutate} = useSWRConfig()
+    const {user} = useUser()
+
+    const onCreatePost = (isDraft: boolean) => async (text: string, type: ContentType, title?: string) => {
+        if(user){
+            await createPost(text, type, isDraft, user.id, title)
+            mutate("/api/feed")
+            mutate("/api/profile-feed/"+user.id)
+            // Habría que mutar el following-feed de todos los que lo siguen, medio raro
+        }
+    }
+
     return <ThreeColumnsLayout center={<PostEditor
-        onSubmit={async (text: string, type: ContentType, title?: string) => {await createPost(text, type, false, undefined, title)}}
-        onSaveDraft={async (text: string, type: ContentType, title?: string) => {await createPost(text, type, true, undefined, title)}}
+        onSubmit={onCreatePost(false)}
+        onSaveDraft={onCreatePost(true)}
     />}/>
 }
 

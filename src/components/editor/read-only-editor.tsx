@@ -13,14 +13,12 @@ const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-edit
 export const ReadOnlyEditor = ({initialData,
     content, 
     editorClassName="link"
-}: 
-    {initialData: InitialEditorStateType,
+}: {
+    initialData: InitialEditorStateType,
     content?: ContentProps,
-    editorClassName?: string}) => {
+    editorClassName?: string
+}) => {
     const user = useUser()
-    if(user.isLoading){
-        return <></>
-    }
 
     const settings: SettingsProps = {
         disableBeforeInput: false,

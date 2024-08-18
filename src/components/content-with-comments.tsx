@@ -6,6 +6,7 @@ import { createComment } from "@/actions/create-content"
 import dynamic from "next/dynamic"
 import { useContent } from "@/app/hooks/contents"
 import { useUser } from "@/app/hooks/user"
+import { useSWRConfig } from "swr"
 
 
 const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
@@ -21,6 +22,8 @@ type ContentWithCommentsProps = {
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     contentId, entity=null, isPostPage=false}) => {
     const {content, isLoading, isError} = useContent(contentId)
+    const { mutate } = useSWRConfig()
+
     const user = useUser()
 
     const startsOpen = isPostPage || entity
@@ -35,6 +38,9 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             // para que se resetee el editor
             setWritingReply(false)
             setWritingReply(startsOpen)
+
+            mutate("/api/content/"+content.id)
+            mutate("/api/user/"+user.user.id)
         }
     }
 
