@@ -1,6 +1,8 @@
 import { ContentProps } from "@/actions/get-content"
-import { EntityProps } from "@/actions/get-entity"
+import { EntityProps, getEntities } from "@/actions/get-entity"
 import { UserProps } from "@/actions/get-user"
+import { useContent } from "@/app/hooks/contents"
+import assert from "assert"
 
 
 export const splitPost = (text: string) => {
@@ -23,7 +25,7 @@ export function validSubscription(user: UserProps | undefined){
     if(!user) return false
     if(user.subscriptionsUsed.length == 0) return false
 
-    const lastPaymentDate: Date = user.subscriptionsUsed[user.subscriptionsUsed.length-1].usedAt as Date
+    const lastPaymentDate = new Date(user.subscriptionsUsed[user.subscriptionsUsed.length-1].usedAt as Date | string)
     
     const nextSubscriptionEnd = new Date(lastPaymentDate)
     
@@ -47,16 +49,7 @@ export function getSubscriptionPrice() {
 }
 
 
-export function getSortedVersions(entity: EntityProps, contents: Record<string, ContentProps>){
-    const sortedVersions = entity.versions.sort((a: { id: string }, b: { id: string }) => {
-        return (new Date(contents[a.id].createdAt).getTime()) - (new Date(contents[b.id].createdAt).getTime());
-    });
-    return sortedVersions
-}
-
-
-export const entityLastVersionId = (entity: EntityProps, contents: Record<string, ContentProps>) => {
-    const sortedVersions = getSortedVersions(entity, contents)
-
-    return sortedVersions[sortedVersions.length-1].id
+export const entityLastVersionId = (entity: EntityProps) => {
+    return entity.versions[entity.versions.length-1].id
+    assert(false)
 }

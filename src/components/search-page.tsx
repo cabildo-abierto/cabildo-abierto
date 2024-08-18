@@ -3,24 +3,34 @@
 import React, { useEffect, useState } from "react";
 import { UserSearchResult } from "./searchbar";
 import SelectionComponent from "./search-selection-component";
-import { ContentWithComments } from "./content-with-comments";
 import { searchContents, searchEntities, searchUsers } from "./search";
 import { ContentProps } from "@/actions/get-content";
-import { EntitySearchResult } from "./entity-search-result";
+import { EntitySearchResult, SmallEntityProps } from "./entity-search-result";
 import ContentComponent from "./content";
+import { UserProps } from "@/actions/get-user";
+import { useEntities } from "@/app/hooks/entities";
+import { useFeed } from "@/app/hooks/contents";
+import { useUsers } from "@/app/hooks/user";
 
 
-const SearchPage = ({user, searchValue, contents}: any) => {
+const SearchPage = ({searchValue}: {searchValue: string}) => {
   const [resultsUsers, setResultsUsers] = useState<any[]>([]);
-  const [resultsContents, setResultsContents] = useState<ContentProps[]>([]);
-  const [resultsEntities, setResultsEntities] = useState<any[]>([]);
+  const [resultsContents, setResultsContents] = useState<{id: string}[]>([]);
+  const [resultsEntities, setResultsEntities] = useState<SmallEntityProps[]>([]);
   const [searchType, setSearchType] = useState("users");
+
+  const entities = useEntities()
+  const contents = useFeed()
+  const users = useUsers()
 
   useEffect(() => {
     const search = async (searchValue: string) => {
-      setResultsUsers(await searchUsers(searchValue))
-      setResultsContents(await searchContents(searchValue))
-      setResultsEntities(await searchEntities(searchValue))
+      if(!users.isLoading && users.users)
+        setResultsUsers(searchUsers(searchValue, users.users))
+      if(!contents.isLoading)
+      setResultsContents(searchContents(searchValue, contents.feed))
+      if(!entities.isLoading)
+        setResultsEntities(searchEntities(searchValue, entities.entities))
     }
 
     const delayDebounceFn = setTimeout(() => {
@@ -28,7 +38,7 @@ const SearchPage = ({user, searchValue, contents}: any) => {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchValue]);
+  }, [searchValue, users.isLoading, contents.isLoading, entities.isLoading]);
 
   const handleTypeChange = (t: any) => {
     setSearchType(t)
@@ -42,12 +52,10 @@ const SearchPage = ({user, searchValue, contents}: any) => {
         </div>
       ))
     } else if (searchType == "contents") {
-      return resultsContents.map((content: ContentProps) => (
-        <div className="py-2" key={content.id}>
+      return resultsContents.map(({id}) => (
+        <div className="py-2" key={id}>
           <ContentComponent
-            content={content}
-            contents={contents}
-            user={user}
+            contentId={id}
             onViewComments={() => {}}
             onStartReply={() => {}}
             viewingComments={false}
@@ -55,9 +63,9 @@ const SearchPage = ({user, searchValue, contents}: any) => {
         </div>
       ))
     } else {
-      return resultsEntities.map((result) => (
-        <div className="flex justify-center" key={result.id}>
-          <EntitySearchResult entity={result.entity} content={result.content}/>
+      return resultsEntities.map((entity: SmallEntityProps) => (
+        <div className="flex justify-center" key={entity.id}>
+          <EntitySearchResult entity={entity}/>
         </div>
       ))
     }

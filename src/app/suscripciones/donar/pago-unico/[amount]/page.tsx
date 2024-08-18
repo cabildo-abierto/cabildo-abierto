@@ -1,4 +1,5 @@
-import { getUser } from "@/actions/get-user";
+"use client"
+import { useUser } from "@/app/hooks/user";
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import { PayDonationButton } from "@/components/pay-donation-button";
 import { validSubscription } from "@/components/utils";
@@ -6,10 +7,12 @@ import Link from "next/link";
 import React from "react";
 
 
-export default async function PagoUnico({params}: any) {
-    const user = await getUser()
-
-    const activeSubscription = validSubscription(user)
+export default function PagoUnico({params}: any) {
+    const user = useUser()
+    if(user.isLoading){
+        return <>Cargando...</>
+    }
+    const activeSubscription = validSubscription(user.user)
 
     const amount = activeSubscription ? params.amount : params.amount-1
 
@@ -27,7 +30,7 @@ export default async function PagoUnico({params}: any) {
         
         <div className="flex justify-center mt-8">
             <div className="px-2">
-            <PayDonationButton user={user}/>
+            <PayDonationButton amount={amount}/>
             </div>
             <Link href="/suscripciones/donar"><button className="gray-btn">Volver</button></Link>
         </div>

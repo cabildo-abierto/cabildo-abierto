@@ -6,40 +6,32 @@ import { createComment } from "@/actions/create-content"
 import dynamic from "next/dynamic"
 import { ContentProps } from "@/actions/get-content"
 import { UserProps } from "@/actions/get-user"
+import { useContent } from "@/app/hooks/contents"
+import { useUser } from "@/app/hooks/user"
 
 
 const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
 
 
-export function getListOfComments(contents: Record<string, ContentProps>, content: ContentProps){
-    const comments: ContentProps[] = []
-    content.childrenComments.forEach((comment) => {
-        comments.push(contents[comment.id])
-    })
-    return comments
-}
-
-
 type ContentWithCommentsProps = {
-    content: ContentProps,
-    contents: Record<string, ContentProps>,
-    user?: UserProps,
+    contentId: string,
     entity?: any,
     isPostPage?: boolean
 }
 
 
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
-    content, contents, user, entity=null, isPostPage=false}) => {
+    contentId, entity=null, isPostPage=false}) => {
+    const {content, isLoading, isError} = useContent(contentId)
+    const user = useUser()
+
     const startsOpen = (content && content.type == "Post" && isPostPage) || entity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
 
-    const comments = getListOfComments(contents, content)
-
     const handleNewComment = async (text: string) => {
-        if(user){
-            await createComment(text, content.id, user.id)
+        if(user.user){
+            await createComment(text, content.id, user.user.id)
             setViewComments(true)
 
             // para que se resetee el editor
@@ -52,11 +44,21 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         setWritingReply(false)
     }
 
+    if(isLoading || user.isLoading){
+        return <>Cargando...</>
+    }
+
+    if(isError){
+        return <>Ocurrió un error al cargar el contenido :(</>
+    }
+
+    if(!content){
+        return <><span>Ocurrió un error raro...</span> <span>{contentId}</span></>
+    }
+
     return <div>
         <ContentComponent
-            content={content}
-            contents={contents}
-            user={user}
+            contentId={contentId}
             onViewComments={() => {setViewComments(!viewComments)}}
             onStartReply={() => {setWritingReply(!writingReply)}}
             entity={entity}
@@ -65,12 +67,12 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         />
         <div className="">
             {writingReply && <div className="mt-1 mb-2 ml-2">
-                {startsOpen ? <CommentEditor user={user} onSubmit={handleNewComment}/> : 
-                    <CommentEditor user={user} onSubmit={handleNewComment} onCancel={handleCancelComment}/>
+                {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 
+                    <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
                 }
             </div>}
             {(viewComments) && <div className="ml-2">
-                <CommentSection user={user} comments={comments} contents={contents}/>
+                <CommentSection parentContent={content}/>
             </div>}
         </div>
     </div>

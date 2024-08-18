@@ -6,6 +6,7 @@ import Link from "next/link";
 import CloseIcon from '@mui/icons-material/Close';
 import SearchSidebar from "./search-sidebar";
 import { SearchButton } from "./top-bar";
+import { UserProps } from "@/actions/get-user";
 
 
 export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {
@@ -48,7 +49,7 @@ const CloseSearchButton = ({ onClick }: any) => {
 }
 
 
-const SearchBar: React.FC<any> = ({user, onClose, contents}) => {
+const SearchBar: React.FC<{onClose: any}> = ({onClose}) => {
   const [searchValue, setSearchValue] = useState('')
 
   return <div className="flex">
@@ -58,7 +59,7 @@ const SearchBar: React.FC<any> = ({user, onClose, contents}) => {
         <CloseSearchButton onClick={onClose}/>
       </div>
       {(searchValue.length != 0) && 
-          <SearchSidebar user={user} searchValue={searchValue} contents={contents}/>
+          <SearchSidebar searchValue={searchValue}/>
       }
   </div>
 };

@@ -4,7 +4,8 @@ module.exports = {
     logging: {
         fetches: {
             fullUrl: true
-        }
+        },
+        
     },
     webpack: (config, { isServer }) => {
         if (!isServer) {

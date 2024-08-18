@@ -6,15 +6,15 @@ import { ContentProps } from "@/actions/get-content"
 
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 
-import { splitPost, stopPropagation } from "./utils";
-import { DateAndTimeComponent, DateComponent, DateSince } from "./date";
+import { stopPropagation } from "./utils";
+import { DateSince } from "./date";
 import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
 import EntityComponent from "@/components/entity-component";
-import { useRouter } from "next/navigation";
-import { UserProps } from "@/actions/get-user";
 import { PostOnFeed } from "./post-on-feed";
-import { FastPostOrComment } from "./fast-post-or-comment";
+import { useContent } from "@/app/hooks/contents";
+import { FastPost } from "./fast-post";
+import { Comment } from "./comment"
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -60,14 +60,13 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
 
 type LikeAndCommentCounterProps = {
     content: ContentProps,
-    user?: UserProps,
     onViewComments: () => void,
     viewingComments: boolean
 }
 
-export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({content, user, onViewComments, viewingComments}) => {
+export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({content, onViewComments, viewingComments}) => {
     return <div className="flex">
-        <LikeCounter user={user} content={content}/>
+        <LikeCounter content={content}/>
         <div className="flex items-center px-2">
             <div 
                 className={viewingComments ? "reaction-btn-selected" : "reaction-btn"}
@@ -90,11 +89,9 @@ export const Authorship = ({content}: any) => {
 
 
 type ContentComponentProps = {
-    content: ContentProps,
-    contents: Record<string, ContentProps>,
+    contentId: string,
     onViewComments: any,
     onStartReply: () => void,
-    user?: UserProps,
     entity?: any,
     isPostPage?: boolean,
     viewingComments: boolean,
@@ -102,19 +99,26 @@ type ContentComponentProps = {
 }
 
 
-const ContentComponent: React.FC<ContentComponentProps> = ({content, contents, user, onViewComments, onStartReply, viewingComments, entity=null, isPostPage=false, modify=false}) => {
+const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewComments, onStartReply, viewingComments, entity=null, isPostPage=false, modify=false}) => {
+    const {content, isLoading, isError} = useContent(contentId)
 
-    if(content.type == "Post" && isPostPage){
-        return <Post content={content} user={user} contents={contents}/>
-    } else if(content.type == "EntityContent"){
-        return <EntityComponent content={content} entity={entity} user={user} contents={contents}/>
-    } else if(content.type == "Post"){
-        return <PostOnFeed content={content} user={user} onViewComments={onViewComments} viewingComments={viewingComments}/>
-    } else {
-        return <FastPostOrComment content={content} contents={contents} user={user} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
+    if(isLoading){
+        return <>Cargando...</>
     }
-
-    
+    if(isError || !content){
+        return <>Error :(</>
+    }
+    if(content.type == "Post" && isPostPage){
+        return <Post content={content}/>
+    } else if(content.type == "EntityContent"){
+        return <EntityComponent content={content} entity={entity}/>
+    } else if(content.type == "Post"){
+        return <PostOnFeed content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
+    } else if(content.type == "FastPost"){
+        return <FastPost content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
+    } else if(content.type == "Comment"){
+        return <Comment content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/> 
+    }
 };
 
 export default ContentComponent;

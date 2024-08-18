@@ -9,7 +9,6 @@ import { getUser } from "@/actions/get-user";
 
 const Escribir = async () => {
     const className = "gray-btn w-64 flex justify-center items-center"
-    const user = await getUser()
 
     const center = <div className="flex flex-col items-center h-screen">
         <div className="lg:flex lg:justify-center py-64">
@@ -28,7 +27,7 @@ const Escribir = async () => {
                 </Link>
             </div>
             <div className="p-4">
-                <EntityPopup user={user}/>
+                <EntityPopup/>
             </div>
         </div>
     </div>

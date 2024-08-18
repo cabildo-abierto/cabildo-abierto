@@ -1,7 +1,6 @@
 import { ContentProps } from "@/actions/get-content";
 import { NodeKey } from "lexical";
 import CommentSection from "@/components/comment-section";
-import { UserProps } from "@/actions/get-user";
 
 
 function getTextComments(
@@ -26,22 +25,16 @@ function getTextComments(
 export function CommentsPanel({
     activeIDs,
     parentContent,
-    contents,
-    markNodeMap,
-    user
+    markNodeMap
 }: {
     activeIDs: string[],
     parentContent: ContentProps,
-    contents: Record<string, ContentProps>;
-    markNodeMap: Map<string, Set<NodeKey>>;
-    user?: UserProps
+    markNodeMap: Map<string, Set<NodeKey>>
 }): JSX.Element {
-    const comments = getTextComments(parentContent, contents, activeIDs)
     return <div className="comments-panel">
         <CommentSection
-            comments={comments}
-            contents={contents}
-            user={user}
+            parentContent={parentContent}
+            activeIDs={activeIDs}
         />
     </div>
 }

@@ -5,8 +5,6 @@ import Link from "next/link"
 
 
 export default async function DonationPage() {
-    const user = await getUser()
-
     const center = <div className="mt-8">
         <div className="flex justify-center items-center">
             <h3>
@@ -15,7 +13,7 @@ export default async function DonationPage() {
         </div>
         <div className="flex justify-center">
             <div className="w-72 lg:w-96">
-                <NewDonation user={user}/>
+                <NewDonation/>
                 <div className="flex justify-end items-center mt-4">
                     <div>
                         <Link href="/suscripciones">

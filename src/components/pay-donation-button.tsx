@@ -3,9 +3,13 @@ import { buyAndUseSubscription, donateSubscriptions } from "@/actions/subscripti
 
 import PayButton from "@/components/pay-button";
 import { validSubscription } from "./utils";
+import { useUser } from "@/app/hooks/user";
 
-export const PayDonationButton = ({user, amount}: any) => {
+export const PayDonationButton = ({amount}: {amount: number}) => {
+    const {user, isLoading, isError} = useUser()
+
     const handlePayment = async () => {
+        if(!user) return
         if(!validSubscription(user)) {
             await buyAndUseSubscription(user.id, false)
             await donateSubscriptions(amount, user.id)

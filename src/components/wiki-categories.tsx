@@ -7,46 +7,24 @@ import { areArraysEqual } from "@mui/base"
 import Link from "next/link"
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { entityLastVersionId } from "./utils"
+import { useContent } from "@/app/hooks/contents"
+import { useEntities } from "@/app/hooks/entities"
 
-export function currentCategories(entity: EntityProps, contents: Record<string, ContentProps>){
-    const categories = contents[entityLastVersionId(entity, contents)].categories
-    return categories ? JSON.parse(categories) : undefined
+function currentCategories(entity: EntityProps){
+    return JSON.parse(entity.versions[entity.versions.length-1].categories)
 }
 
-export const WikiCategories = ({route, entities, contents}: {
-    route: string[], 
-    entities: Record<string, EntityProps>,
-    contents: Record<string, ContentProps>}) => {
-    
-    const entityOrder = (a: EntityProps, b: EntityProps) => {
-        return Number(contents[entityLastVersionId(a, contents)].text.length != 0) - Number(contents[entityLastVersionId(b, contents)].text.length != 0)
-    }
+function isPrefix(p: any[], q: any[]){
+    if(p.length > q.length) return false
+    return areArraysEqual(p, q.slice(0, p.length))
+}
 
-    function isPrefix(p: any[], q: any[]){
-        if(p.length > q.length) return false
-        return areArraysEqual(p, q.slice(0, p.length))
-    }
-
-    function entityInRoute(entity: EntityProps){
-        const categories = currentCategories(entity, contents)
-        if(route.length == 0) return true
-        if(!categories) return false // esto no debería pasar
-        return categories.some((c: string[]) => {
-            return isPrefix(route, c)
-        })
-    }
-
-    function routeToUrl(route: string[]){
-        return "/nav/" + route.map(encodeURIComponent).join("/")
-    }
-
-    const sortedEntities = Object.values(entities).filter(entityInRoute).sort(entityOrder)
-
+function getNextCategories(route: string[], entities: EntityProps[]){
     const nextCategories = new Set<string>()
     
-    Object.values(entities).forEach((entity: EntityProps) => {
-        const categories: string[][] = currentCategories(entity, contents)
-        if(!currentCategories) return // no debería pasar
+    entities.forEach((entity: EntityProps) => {
+        const categories: string[][] = currentCategories(entity)
+        if(!categories) return
         categories.forEach((category: string[]) => {
             if(isPrefix(route, category)){
                 if(category.length > route.length){
@@ -55,6 +33,60 @@ export const WikiCategories = ({route, entities, contents}: {
             }
         })
     })
+
+    return nextCategories
+}
+
+function routeToUrl(route: string[]){
+    return "/nav/" + route.map(encodeURIComponent).join("/")
+}
+
+export type LoadingContent = {
+    content: ContentProps,
+    isLoading: boolean,
+    isError: boolean
+}
+
+export const WikiCategories = ({route}: {route: string[]}) => {
+
+    /*const entityOrder = (a: EntityProps, b: EntityProps) => {
+        const contentA = useContent(entityLastVersionId(a))
+        const contentB = useContent(entityLastVersionId(b))
+
+        return Number(contentA.content.text.length != 0) - Number(contentB.content.text.length != 0)
+    }*/
+
+    /*function entityInRoute(entity: EntityProps){
+        const categories = currentCategories(entity)
+        if(route.length == 0) return true
+        if(!categories) return false // esto no debería pasar
+        return categories.some((c: string[]) => {
+            return isPrefix(route, c)
+        })
+    }*/
+
+    /*const sortedEntities: {entity: EntityProps, content: LoadingContent}[] = []
+    
+    Object.values(entities).forEach((entity: EntityProps) => {
+        if(entityInRoute(entity)){
+            const content = useContent(entityLastVersionId(entity))
+            sortedEntities.push({entity: entity, content: content})
+        }
+    })
+
+    sortedEntities.sort((a, b) => (Number(a.content.content.text.length != 0) - Number(b.content.content.text.length != 0)))
+    */
+
+    const {entities, isLoading, isError} = useEntities()
+
+    if(isLoading){
+        return <>Cargando...</>
+    }
+    if(!entities || isError){
+        return <>Error :(</>
+    }
+
+    const nextCategories = getNextCategories(route, entities)
 
     return <>
         {nextCategories.size > 0 && <>
@@ -79,12 +111,12 @@ export const WikiCategories = ({route, entities, contents}: {
         </div>
         </>}
         <h2 className="flex justify-center py-4">Artículos</h2>
-        {sortedEntities.length > 0 ? 
+        {entities.length > 0 ? 
         <div className="flex justify-center">
             <div className="flex flex-wrap justify-center">
-                {sortedEntities.map((entity, index) => (
+                {entities.map((entity, index) => (
                     <div key={index} className="p-1">
-                        <EntitySearchResult entity={entity} content={contents[entityLastVersionId(entity, contents)]}/>
+                        <EntitySearchResult entity={entity}/>
                     </div>
                 ))}
             </div>

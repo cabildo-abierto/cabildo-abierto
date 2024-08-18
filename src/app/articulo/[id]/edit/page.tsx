@@ -1,14 +1,16 @@
+"use client"
+
 import React from "react"
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import NoEntityPage from "../../../../components/no-entity-page";
-import { ContentWithComments } from "@/components/content-with-comments";
 import PaywallChecker from "@/components/paywall-checker";
-import { getContentsMap, getEntitiesMap } from "@/components/update-context";
-import { getUser, UserProps } from "@/actions/get-user";
+import { UserProps } from "@/actions/get-user";
 import { SetProtectionButton } from "@/components/protection-button";
 import Link from "next/link";
 import { entityLastVersionId, validSubscription } from "@/components/utils";
 import dynamic from "next/dynamic";
+import { useUser } from "@/app/hooks/user";
+import { useEntity } from "@/app/hooks/entities";
 
 const WikiEditor = dynamic(() => import('@/components/editor/wiki-editor'), { ssr: false });
 
@@ -17,35 +19,32 @@ function hasEditPermissions(user: UserProps, level: string) {
     return user.editorStatus == "Administrator" || level != "Administrator"
 }
 
-const EntityPage: React.FC<any> = async ({ params }) => {
-    const entities = await getEntitiesMap()
-    const contents = await getContentsMap()
-    const user = await getUser()
+const EntityPage: React.FC<any> = ({ params }) => {
+    const {entity, isLoading, isError} = useEntity(params.id)
+    const user = useUser()
 
-    const entity = entities[params.id]
-
-    if (!entity) {
+    if (isLoading || user.isLoading) {
+        return <>Cargando...</>
+    }
+    if(isError || !entity){
         return <ThreeColumnsLayout center={<NoEntityPage id={params.id} />} />
     }
 
     let editableContent = <></>
 
     if (user) {
-        if (validSubscription(user)) {
-            if (hasEditPermissions(user, entity.protection)) {
+        if (validSubscription(user.user)) {
+            if (user.user && hasEditPermissions(user.user, entity.protection)) {
                 editableContent = <>
-                    {(user && user.editorStatus == "Administrator") &&
+                    {(user.user && user.user.editorStatus == "Administrator") &&
                         <div className="flex justify-center py-2">
                             <SetProtectionButton entity={entity} />
                         </div>
                     }
                     <div className="mb-32">
                         <WikiEditor
-                            initialData={contents[entityLastVersionId(entity, contents)].text}
-                            content={contents[entityLastVersionId(entity, contents)]}
+                            contentId={entityLastVersionId(entity)}
                             entity={entity}
-                            contents={contents}
-                            user={user}
                         />
                     </div>
                 </>

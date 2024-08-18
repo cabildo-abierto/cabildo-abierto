@@ -7,16 +7,16 @@ import { cache } from "./cache";
 
 export type SubscriptionProps = {
     id: string
-    createdAt: Date
+    createdAt: string | Date
     boughtByUserId: string
-    usedAt: Date | null
+    usedAt: string | Date | null
 }
 
 export type UserProps = {
     id: string
     name: string
     email: string
-    createdAt: Date
+    createdAt: string | Date
     authenticated: Boolean
     editorStatus: string
     subscriptionsUsed: SubscriptionProps[]
@@ -41,21 +41,11 @@ export async function getUser() {
 }
 
 export const getUsers = cache(async () => {
-    console.log("getting users")
-    const users: UserProps[] = await db.user.findMany(
+    const users = await db.user.findMany(
         {
             select: {
                 id: true,
-                name: true,
-                email: true,
-                createdAt: true,
-                authenticated: true,
-                editorStatus: true,
-                subscriptionsUsed: true,
-                following: true,
-                followedBy: true,
-                likes: true,
-                dislikes: true,
+                name: true
             }
         }
     )

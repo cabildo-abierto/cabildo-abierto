@@ -11,10 +11,12 @@ import NeedAccountPopupPanel from './need-account-popup';
 import { UserProps } from '@/actions/get-user';
 import ArticleIcon from '@mui/icons-material/Article';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import { useUser } from '@/app/hooks/user';
 
 
-export default function EntityPopup({user}: {user?: UserProps}) {
+export default function EntityPopup() {
     const [state, action] = useFormState(createEntityFromForm, null);
+    const user = useUser()
     const router = useRouter()
 
     useEffect(() => {
@@ -22,6 +24,10 @@ export default function EntityPopup({user}: {user?: UserProps}) {
           router.push("/articulo/"+state.id)
         }
     }, [state, router])
+
+    if(user.isLoading){
+      return <>Cargando...</>
+    }
 
     const ValidPanel: React.FC<any> = ({onClose}) => { return <>
         <form action={action}>
@@ -57,9 +63,9 @@ export default function EntityPopup({user}: {user?: UserProps}) {
 
     let panel: React.FC<any> | null = null
 
-    if(user === null){
+    if(!user.user){
         panel = NeedAccountPopupPanel
-    } else if(!validSubscription(user)){
+    } else if(!validSubscription(user.user)){
         panel = NeedSubscriptionPopupPanel
     } else {
         panel = ValidPanel

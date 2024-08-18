@@ -6,10 +6,10 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
-import { updateCategories } from "@/actions/create-entity";
-import { ContentProps } from "@/actions/get-content";
 import { UserProps } from "@/actions/get-user";
 import { entityLastVersionId } from "./utils";
+import { useContent } from "@/app/hooks/contents";
+import { updateEntity } from "@/actions/create-entity";
 
 
 function validCategories(categories: string[][]){
@@ -66,12 +66,12 @@ function areCategoriesEqual(cat1: string[][], cat2: string[][]){
 }
 
 
-export const RoutesEditor = ({entity, contents, user}: {entity: EntityProps, contents: Record<string, ContentProps>, user: UserProps}) => {
-    const lastVersion = contents[entityLastVersionId(entity, contents)]
-    const entityCategories = lastVersion.categories ? JSON.parse(lastVersion.categories) : null
+export const RoutesEditor = ({entity, user}: {entity: EntityProps, user?: UserProps}) => {
+    const {content, isLoading, isError} = useContent(entityLastVersionId(entity))
+    const entityCategories = content.categories ? JSON.parse(content.categories) : null
     const [categories, setCategories] = useState<string[][]>(entityCategories)
 
-    if(!lastVersion || !lastVersion.categories){
+    if(!content || !content.categories){
         return <>Ocurrió un error</>
     }
 
@@ -128,7 +128,7 @@ export const RoutesEditor = ({entity, contents, user}: {entity: EntityProps, con
             <StateButton
                 className="small-btn"
                 disabled={areCategoriesEqual(categories, entityCategories) || !validCategories(categories)}
-                onClick={async () => {await updateCategories(entity.id, lastVersion.id, JSON.stringify(categories), user)}}
+                onClick={async () => {if(user) await updateEntity(content.text, JSON.stringify(categories), entity.id, user)}}
                 text1="Confirmar"
                 text2="Guardando..."
                 reUsable={true}

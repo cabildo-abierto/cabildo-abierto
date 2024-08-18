@@ -3,12 +3,11 @@ import { ContentProps } from "@/actions/get-content";
 import { Authorship } from "./content";
 import { UserProps } from "@/actions/get-user";
 import { ReadOnlyEditor } from "./editor/read-only-editor";
+import { useUser } from "@/app/hooks/user";
 
 export const Post: React.FC<{
-    content: ContentProps, 
-    user?: UserProps,
-    contents: Record<string, ContentProps>
-}> = ({content, user, contents}) => {
+    content: ContentProps
+}> = ({content}) => {
 
     return <div className="">
         <div className="content">
@@ -19,12 +18,9 @@ export const Post: React.FC<{
         </div>
         <div className="min-h-64 mt-4">
             <ReadOnlyEditor 
-                initialData={content.text} 
-                enableComments={user !== null}
-                user={user}
+                initialData={content.text}
                 content={content}
                 editorClassName="content"
-                contents={contents}
             />
         </div>
         <hr/>

@@ -2,6 +2,8 @@ import React from "react"
 import { ContentWithComments } from "./content-with-comments";
 import { ContentProps } from "@/actions/get-content";
 import { UserProps } from "@/actions/get-user";
+import { useContent } from "@/app/hooks/contents";
+import { useUser } from "@/app/hooks/user";
 
 
 export function feedFromContents(contents: Record<string, ContentProps>){
@@ -44,25 +46,41 @@ export function profileFeedFromContents(contents: Record<string, ContentProps>, 
     return feed
 }
 
+function getOnlyFollowing(feed: {id: string}[], user: UserProps){
+    return feed.filter(({id}) => {
+        const {content, isLoading, isError} = useContent(id)
+        return content && user.following.some((u) => u.id == content.author?.id)
+    })
+}
 
-const Feed: React.FC<any> = ({contents, user, following=false, userProfile=null}) => {
 
-    let feed: ContentProps[] = []
+type FeedProps = {
+    feed: {id: string}[],
+    isLoading: boolean,
+    isError: boolean
+}
+
+
+const Feed: React.FC<{feed: FeedProps, following?: boolean}> = ({feed, following=false}) => {
+    const user = useUser()
+    if(feed.isLoading || user.isLoading){
+        return <>Cargando...</>
+    }
+    if(feed.isError){
+        return <>Error al cargar el feed :(</>
+    }
     if(following){
-        feed = followingFeedFromContents(contents, user)
-    } else if(userProfile) {
-        feed = profileFeedFromContents(contents, userProfile)
-    } else {
-        feed = feedFromContents(contents)
+        if(!user.user){
+            return <>Creá una cuenta y empezá a seguir a otras personas.</>
+        }
+        feed.feed = getOnlyFollowing(feed.feed, user.user)
     }
     
     return <div className="h-full w-full">
-        {feed.map((content: ContentProps, index: number) => {
+        {feed.feed.map(({id}, index: number) => {
             return <div key={index} className="py-1">
                 <ContentWithComments
-                    user={user}
-                    content={content}
-                    contents={contents}
+                    contentId={id}
                 />
             </div>
         })}

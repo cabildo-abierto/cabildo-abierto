@@ -33,6 +33,7 @@ import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl, SUPPORTED_URL_PROTOCOLS} from '../../utils/url';
 import { EntityProps, getEntities } from '@/actions/get-entity';
+import { useEntities } from '@/app/hooks/entities';
 
 function FloatingLinkEditor({
   editor,
@@ -58,6 +59,7 @@ function FloatingLinkEditor({
   );
   const [results, setResults] = useState<EntityProps[]>([])
   const [currentUrl, setCurrentUrl] = useState('');
+  const entities = useEntities()
 
   useEffect(() => {
     // Check if the code is running on the client side
@@ -225,9 +227,9 @@ function FloatingLinkEditor({
   };
 
   async function searchEntities(query: string){
-      if(query){
-        const entities = (await getEntities()).filter((entity) => (entity.name.toLowerCase().includes(query.toLowerCase())))
-        setResults(entities)
+      if(query && !entities.isLoading){
+        const filtered = entities.entities.filter((entity) => (entity.name.toLowerCase().includes(query.toLowerCase())))
+        setResults(filtered)
       } else {
         setResults([])
       }
