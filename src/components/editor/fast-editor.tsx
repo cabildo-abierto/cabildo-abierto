@@ -8,6 +8,8 @@ import { emptyOutput } from "./comment-editor"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
+import { useSWRConfig } from "swr"
+import { useUser } from "@/app/hooks/user"
 
 
 const FastEditor = ({onSubmit, onSaveDraft, initialData=null}: 
@@ -16,6 +18,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData=null}:
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
+    const {user} = useUser()
 
     const isDevPlayground = false
     const settings: SettingsProps = {

@@ -69,7 +69,7 @@ export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({con
         <LikeCounter content={content}/>
         <div className="flex items-center px-2">
             <div 
-                className={viewingComments ? "reaction-btn-selected" : "reaction-btn"}
+                className={viewingComments ? "cursor-pointer reaction-btn-selected" : "cursor-pointer reaction-btn"}
                 onClick={(e: any) => {if(content.childrenComments.length > 0) stopPropagation(onViewComments)(e)}}
             >
                 <span className=""><CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content.childrenComments.length}</span>

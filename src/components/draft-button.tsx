@@ -7,10 +7,11 @@ import Link from "next/link"
 
 export const DraftButton: React.FC<{draftId: string}> = ({draftId}) => {
     const {content, isLoading, isError} = useContent(draftId)
+    console.log(content)
     return <div className="">
         <div className="panel w-full">
             <div className="px-2 py-2">
-                {isLoading ? <></> : <ReadOnlyEditor initialData={content.text}/>}
+                {!content ? <></> : <ReadOnlyEditor initialData={content.text} content={content}/>}
             </div>
         </div>
         <div className="flex justify-end mt-1 mr-1">

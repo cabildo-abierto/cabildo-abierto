@@ -11,6 +11,7 @@ import { $generateHtmlFromNodes } from '@lexical/html';
 import dynamic from 'next/dynamic'
 import { SettingsProps } from "@/components/editor/lexical-editor"
 import { UserProps } from "@/app/lib/definitions"
+import { useUser } from "@/app/hooks/user"
 
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
@@ -51,9 +52,19 @@ export function emptyOutput(editorState: EditorState | undefined){
     return isEmpty;
 }
 
-const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
+type CommentEditorProps = {
+    onSubmit: (arg0: string) => void,
+    onCancel?: () => void
+}
+
+const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
+    const user = useUser()
+
+    if(user.isLoading){
+        return <></>
+    }
 
     const isDevPlayground = false
     const settings: SettingsProps = {
@@ -84,7 +95,7 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
         placeholder: "Agregá un comentario...",
         isAutofocus: false,
         editorClassName: "link",
-        user: user,
+        user: user.user,
         initialData: null,
         isReadOnly: false
     }
@@ -114,14 +125,14 @@ const CommentEditor = ({ user, onSubmit, onCancel }: any) => {
         <div className="flex justify-end">
 			<div className="flex justify-end mt-3">
                 <div className="px-1">
-                    {canComment(user) ? <SendCommentButton onClick={handleSubmit}/> :
+                    {canComment(user.user) ? <SendCommentButton onClick={handleSubmit}/> :
                         <Popup 
                             Trigger={SendCommentButton}
                             Panel={NeedAccountPopupPanel}
                         />
                     }
                 </div>
-				{onCancel != null &&
+				{onCancel &&
 					<div className="px-1">
 						<button
 							onClick={onCancel}

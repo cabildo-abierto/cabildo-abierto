@@ -1,36 +1,8 @@
 'use server';
 
+import { UserProps } from '@/app/lib/definitions';
 import { db } from '@/db';
-import {
-  CreateEntityFormSchema,
-  UserProps,
-} from "@/app/lib/definitions";
-import { getUserId } from './get-user';
 import { revalidateTag } from 'next/cache';
-
-export type CreateEntityFormState = {
-  error?: any,
-  id?: string
-} | null
-
-export async function createEntityFromForm(state: CreateEntityFormState, formData: any): Promise<CreateEntityFormState> {
-  const userId = await getUserId()
-  if(!userId) return {error: "Necesitás una cuenta para crear un artículo"}
-
-  const validatedFields = CreateEntityFormSchema.safeParse({
-    name: formData.get('name'),
-  })
-
-  if (!validatedFields.success) {
-    return {
-      error: validatedFields.error.flatten().fieldErrors,
-    }
-  }
-
-  const { name } = validatedFields.data
-
-  return await createEntity(name, userId)
-}
 
 
 export async function createEntity(name: string, userId: string){

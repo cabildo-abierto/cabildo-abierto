@@ -12,7 +12,14 @@ export const getContentById = cache(async (id: string) => {
             text: true,
             createdAt: true,
             author: true,
-            childrenComments: true,
+            childrenComments: {
+                select: {
+                    id: true
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            },
             _count: {
                 select: {
                     likedBy: true,
@@ -47,6 +54,7 @@ export const getFeed = cache(async () => {
                     in: ["FastPost", "Post"]
                 }},
                 {visible: true},
+                {isDraft: false}
             ]
         },
         orderBy: {
@@ -103,7 +111,8 @@ export const getProfileFeed = cache(async (id: string) => {
                     in: ["FastPost", "Post"]
                 }},
                 {visible: true},
-                {authorId: id}
+                {authorId: id},
+                {isDraft: false}
             ]
         },
         orderBy: {
@@ -127,6 +136,7 @@ export const getFollowingFeed = cache(async (id: string) => {
                     in: ["FastPost", "Post"]
                 }},
                 {visible: true},
+                {isDraft: false},
                 {authorId: {
                     in: user.following.map(({id}: {id: string}) => (id))
                 }}

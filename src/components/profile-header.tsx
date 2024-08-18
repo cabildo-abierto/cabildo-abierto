@@ -4,10 +4,12 @@ import { follow, unfollow } from "@/actions/following"
 import { useEffect, useState } from "react"
 import { useUser } from "@/app/hooks/user"
 import { UserProps } from "@/app/lib/definitions"
+import { useSWRConfig } from "swr"
 
 export function ProfileHeader({profileUser}: {profileUser: UserProps}) {
     const [following, setFollowing] = useState(false)
     const user = useUser()
+    const {mutate} = useSWRConfig()
 
     useEffect(() => {
         if(user.user)
@@ -22,6 +24,20 @@ export function ProfileHeader({profileUser}: {profileUser: UserProps}) {
     const isLoggedInUser = user.user && user.user.id == profileUser.id
     const followingCount = profileUser.following.length
     
+    const onFollow = async () => {
+        if(!user.user) return; 
+        setFollowing(false);
+        await unfollow(profileUser.id, user.user.id);
+        mutate("/api/following-feed/"+user.user.id)
+    }
+
+    const onUnfollow = async () => {
+        if(!user.user) return
+        setFollowing(true)
+        await follow(profileUser.id, user.user.id)
+        mutate("/api/following-feed/"+user.user.id)
+    }
+
     return <><div className="flex justify-between">
         <div className="ml-2 py-8">
             <h3>
@@ -34,14 +50,14 @@ export function ProfileHeader({profileUser}: {profileUser: UserProps}) {
         <div className="flex items-center">
             {!isLoggedInUser &&
                 (following ? <button 
-                    onClick={async () => {if(!user.user) return; setFollowing(false); await unfollow(profileUser.id, user.user.id);}} 
+                    onClick={onFollow} 
                     className="gray-btn"
                 >
                     Dejar de seguir
                 </button>
                 :
                 <button
-                    onClick={async () => {if(!user.user) return; setFollowing(true); await follow(profileUser.id, user.user.id);}}
+                    onClick={onUnfollow}
                     className="gray-btn"
                 >
                     Seguir

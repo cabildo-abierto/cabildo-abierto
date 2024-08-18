@@ -46,6 +46,7 @@ export type LoadingContent = {
 
 export const WikiCategories = ({route}: {route: string[]}) => {
 
+    const {entities, isLoading, isError} = useEntities()
     /*const entityOrder = (a: EntityProps, b: EntityProps) => {
         const contentA = useContent(entityLastVersionId(a))
         const contentB = useContent(entityLastVersionId(b))
@@ -53,14 +54,14 @@ export const WikiCategories = ({route}: {route: string[]}) => {
         return Number(contentA.content.text.length != 0) - Number(contentB.content.text.length != 0)
     }*/
 
-    /*function entityInRoute(entity: EntityProps){
+    function entityInRoute(entity: EntityProps){
         const categories = currentCategories(entity)
         if(route.length == 0) return true
         if(!categories) return false // esto no debería pasar
         return categories.some((c: string[]) => {
             return isPrefix(route, c)
         })
-    }*/
+    }
 
     /*const sortedEntities: {entity: EntityProps, content: LoadingContent}[] = []
     
@@ -74,7 +75,6 @@ export const WikiCategories = ({route}: {route: string[]}) => {
     sortedEntities.sort((a, b) => (Number(a.content.content.text.length != 0) - Number(b.content.content.text.length != 0)))
     */
 
-    const {entities, isLoading, isError} = useEntities()
 
     if(isLoading){
         return <></>
@@ -84,6 +84,8 @@ export const WikiCategories = ({route}: {route: string[]}) => {
     }
 
     const nextCategories = getNextCategories(route, entities)
+
+    const routeEntities = entities.filter(entityInRoute)
 
     return <>
         {nextCategories.size > 0 && <>
@@ -111,7 +113,7 @@ export const WikiCategories = ({route}: {route: string[]}) => {
         {entities.length > 0 ? 
         <div className="flex justify-center">
             <div className="flex flex-wrap justify-center">
-                {entities.map((entity, index) => (
+                {routeEntities.map((entity, index) => (
                     <div key={index} className="p-1">
                         <EntitySearchResult entity={entity}/>
                     </div>

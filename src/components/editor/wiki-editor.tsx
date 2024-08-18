@@ -14,6 +14,7 @@ import { useContent } from "@/app/hooks/contents"
 import { updateEntity } from "@/actions/create-entity"
 import { useUser } from "@/app/hooks/user"
 import { EntityProps } from "@/app/lib/definitions"
+import { useSWRConfig } from "swr"
 
 type WikiEditorProps = {
     contentId: string,
@@ -26,6 +27,7 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
     const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
     const router = useRouter()
+    const {mutate} = useSWRConfig()
     
     const user = useUser()
     const {content, isLoading, isError} = useContent(contentId)
@@ -82,6 +84,8 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
                     editorOutput.read(async () => {
                         if(content.categories && user.user){
                             await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user)
+                            mutate("/api/entities")
+                            mutate("/api/entity/"+entity.id)
                             router.push("/articulo/"+entity.id)
                         }
                     })
