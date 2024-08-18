@@ -20,7 +20,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
 
     return <div className ="h-screen w-screen fixed top-0 left-0">
         <div className="flex">
-            <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-white border-r z-10">
+            <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-white border-r">
                 <ul className="flex-1 mt-4 px-2">
                     <SidebarButton onClick={onClose} icon={<HomeIcon/>} text="Inicio" href="/inicio"/>
                     <SidebarButton icon={<LocalLibraryIcon/>} text="Wiki" href="/nav"/>

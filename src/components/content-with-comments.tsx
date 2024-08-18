@@ -23,10 +23,10 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const {content, isLoading, isError} = useContent(contentId)
     const user = useUser()
 
-    const startsOpen = (content && content.type == "Post" && isPostPage) || entity
+    const startsOpen = isPostPage || entity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
-
+    
     const handleNewComment = async (text: string) => {
         if(user.user){
             await createComment(text, content.id, user.user.id)
@@ -46,12 +46,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         return <></>
     }
 
-    if(isError){
-        return <>Ocurrió un error al cargar el contenido :(</>
-    }
-
-    if(!content){
-        return <><span>Ocurrió un error raro...</span> <span>{contentId}</span></>
+    if(isError || !content){
+        return <>Error :(</>
     }
 
     return <div>
