@@ -5,7 +5,7 @@ import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import { addDislike, addLike, removeLike, removeDislike } from "@/actions/likes";
 import { stopPropagation } from "./utils";
-import { ContentProps } from "@/actions/get-content";
+import { ContentProps } from '@/app/lib/definitions';
 import { useUser } from "@/app/hooks/user";
 
 export const LikeCounter: React.FC<{content: ContentProps}> = ({content}) => {

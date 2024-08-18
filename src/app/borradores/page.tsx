@@ -5,7 +5,7 @@ import { ThreeColumnsLayout } from "@/components/main-layout";
 import { useDrafts } from "../hooks/contents";
 import { DraftButton } from "@/components/draft-button";
 import { useUser } from "../hooks/user";
-import { DraftsPreview } from "./drafts-preview";
+import { DraftsPreview } from "../../components/drafts-preview";
 
 
 const Drafts: React.FC = () => {

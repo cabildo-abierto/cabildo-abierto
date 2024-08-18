@@ -10,7 +10,6 @@ export async function setProtection(entityId: string, level: ProtectionLevel) {
       where: { id: entityId },
       data: { protection: level },
     });
-    revalidateTag("entity")
     revalidateTag("entities")
     return result
 }

@@ -1,6 +1,6 @@
 import diceCoefficientDistance from "@/actions/dice-coefficient";
-import { EntityProps } from "@/actions/get-entity";
 import { SmallContentProps } from "@/app/api/feed/route";
+import { EntityProps } from "@/app/lib/definitions";
 
 
 export function searchUsers(value: string, users: {id: string, name: string}[]) {

@@ -6,7 +6,6 @@ import Link from "next/link";
 import CloseIcon from '@mui/icons-material/Close';
 import SearchSidebar from "./search-sidebar";
 import { SearchButton } from "./top-bar";
-import { UserProps } from "@/actions/get-user";
 
 
 export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {

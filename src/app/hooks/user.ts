@@ -1,7 +1,6 @@
-import { ContentProps } from "@/actions/get-content"
-import { UserProps } from "@/actions/get-user"
 import { fetcher } from "@/app/hooks/utils"
 import useSWR from "swr"
+import { UserProps } from "../lib/definitions"
 
 
 export function useUser(): {user: UserProps | undefined, isLoading: boolean, isError: boolean}{

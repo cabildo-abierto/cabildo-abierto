@@ -1,10 +1,8 @@
-import { ContentProps } from "@/actions/get-content"
-import { UserProps } from "@/actions/get-user"
+import { ContentProps } from "@/app/lib/definitions"
 import { ContentWithComments } from "@/components/content-with-comments"
 
 type CommentSectionProps = {
     parentContent: ContentProps,
-    user?: UserProps,
     activeIDs?: string[]
 }
 

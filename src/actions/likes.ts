@@ -13,9 +13,7 @@ export const addLike = async (contentId: string, userId: string) => {
             },
         },
     });
-    revalidateTag("content")
     revalidateTag("contents")
-    revalidateTag("user")
     revalidateTag("users")
     return await removeDislike(contentId, userId)
 }
@@ -31,9 +29,7 @@ export const addDislike = async (contentId: string, userId: string) => {
         },
     });
     const result = await removeLike(contentId, userId)
-    revalidateTag("content")
     revalidateTag("contents")
-    revalidateTag("user")
     revalidateTag("users")
     return result
 }
@@ -48,9 +44,7 @@ export const removeLike = async (contentId: string, userId: string) => {
             },
         },
     });
-    revalidateTag("content")
     revalidateTag("contents")
-    revalidateTag("user")
     revalidateTag("users")
     return result
 }
@@ -65,9 +59,7 @@ export const removeDislike = async (contentId: string, userId: string) => {
             },
         },
     });
-    revalidateTag("content")
-    revalidateTag("contents")
-    revalidateTag("user")
     revalidateTag("users")
+    revalidateTag("contents")
     return result
 }

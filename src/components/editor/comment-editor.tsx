@@ -1,6 +1,5 @@
 "use client"
 
-import { UserProps } from "@/actions/get-user"
 import { validSubscription } from "../utils"
 import { useState } from "react"
 import Popup from "../popup"
@@ -11,6 +10,7 @@ import { $generateHtmlFromNodes } from '@lexical/html';
 
 import dynamic from 'next/dynamic'
 import { SettingsProps } from "@/components/editor/lexical-editor"
+import { UserProps } from "@/app/lib/definitions"
 
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 

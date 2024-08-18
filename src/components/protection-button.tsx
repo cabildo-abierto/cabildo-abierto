@@ -1,6 +1,5 @@
 "use client"
 
-import { UserProps } from "@/actions/get-user";
 import StateButton from "./state-button";
 import { setProtection } from "@/actions/protection";
 

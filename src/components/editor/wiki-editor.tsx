@@ -10,11 +10,10 @@ import Link from "next/link"
 import { RoutesEditor } from "../routes-editor"
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { UserProps } from "@/actions/get-user"
-import { EntityProps } from "@/actions/get-entity"
 import { useContent } from "@/app/hooks/contents"
 import { updateEntity } from "@/actions/create-entity"
 import { useUser } from "@/app/hooks/user"
+import { EntityProps } from "@/app/lib/definitions"
 
 type WikiEditorProps = {
     contentId: string,

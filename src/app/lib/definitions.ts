@@ -1,4 +1,61 @@
+import { ContentType } from '@prisma/client';
 import { z } from 'zod'
+
+
+export type SmallUserProps = {
+    id: string,
+    name: string
+}
+
+export type ContentProps = {
+    id: string
+    createdAt: string
+    text: string
+    author: SmallUserProps
+    _count: {
+        likedBy: number
+        dislikedBy: number
+    }
+    type: ContentType
+    isDraft: boolean | null
+    childrenComments: {id: string}[]
+    parentContentId: string | null
+    title: string | null
+    categories: string | null
+}
+
+
+export type EntityProps = {
+    id: string
+    name: string
+    versions: {id: string, categories: string}[]
+    protection: string
+    isPublic: boolean,
+}
+
+
+export type SubscriptionProps = {
+    id: string
+    createdAt: string | Date
+    boughtByUserId: string
+    usedAt: string | Date | null
+}
+
+
+export type UserProps = {
+    id: string
+    name: string
+    email: string
+    createdAt: string | Date
+    authenticated: Boolean
+    editorStatus: string
+    subscriptionsUsed: SubscriptionProps[]
+    following: {id: string}[]
+    likes: {id: string}[]
+    dislikes: {id: string}[]
+    followedBy: {id: string}[]
+};
+
 
 export const SignupFormSchema = z.object({
     name: z

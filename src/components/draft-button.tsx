@@ -1,7 +1,6 @@
 "use client"
 import { useContent } from "@/app/hooks/contents"
 import { ReadOnlyEditor } from "./editor/read-only-editor"
-import { UserProps } from "@/actions/get-user"
 import Link from "next/link"
 
 

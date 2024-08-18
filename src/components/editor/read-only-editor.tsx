@@ -5,9 +5,8 @@ import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 import { SettingsProps } from "./lexical-editor"
 
 import dynamic from "next/dynamic";
-import { UserProps } from "@/actions/get-user";
-import { ContentProps } from "@/actions/get-content";
 import { useUser } from "@/app/hooks/user";
+import { ContentProps } from "@/app/lib/definitions";
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 

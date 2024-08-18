@@ -1,6 +1,6 @@
 "use client"
-import { UserProps } from "@/actions/get-user"
 import { useProfileFeed } from "@/app/hooks/contents"
+import { UserProps } from "@/app/lib/definitions"
 import Feed from "@/components/feed"
 
 

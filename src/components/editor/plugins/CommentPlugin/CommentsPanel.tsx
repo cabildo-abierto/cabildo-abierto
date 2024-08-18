@@ -1,6 +1,6 @@
-import { ContentProps } from "@/actions/get-content";
 import { NodeKey } from "lexical";
 import CommentSection from "@/components/comment-section";
+import { ContentProps } from "@/app/lib/definitions";
 
 
 function getTextComments(

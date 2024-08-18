@@ -3,8 +3,7 @@ import { useRouter } from "next/navigation";
 import { Authorship, ContentTopRow, LikeAndCommentCounter } from "./content"
 
 import ArticleIcon from '@mui/icons-material/Article';
-import { ContentProps } from "@/actions/get-content";
-import { UserProps } from "@/actions/get-user";
+import { ContentProps } from '@/app/lib/definitions';
 
 
 type PostOnFeedProps = {
