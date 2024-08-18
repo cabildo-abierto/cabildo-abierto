@@ -2,8 +2,8 @@
 
 import { follow, unfollow } from "@/actions/following"
 import { useEffect, useState } from "react"
-import { UserProps } from "@/actions/get-user"
 import { useUser } from "@/app/hooks/user"
+import { UserProps } from "@/app/lib/definitions"
 
 export function ProfileHeader({profileUser}: {profileUser: UserProps}) {
     const [following, setFollowing] = useState(false)

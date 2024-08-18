@@ -72,11 +72,10 @@ import { BeautifulMentionsPlugin, createBeautifulMentionNode } from 'lexical-bea
 import { CustomMentionComponent, CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './custom-mention-component';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { UserProps } from '@/actions/get-user';
-import { ContentProps } from '@/actions/get-content';
 
 import {MarkNode} from '@lexical/mark';
 import { CustomMarkNode } from './nodes/CustomMarkNode';
+import { ContentProps, UserProps } from '@/app/lib/definitions';
 
 
 export type SettingsProps = {

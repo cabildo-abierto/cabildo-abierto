@@ -1,6 +1,6 @@
-import { UserProps } from "@/actions/get-user"
-import { useDrafts } from "../hooks/contents"
+import { useDrafts } from "../app/hooks/contents"
 import { DraftButton } from "@/components/draft-button"
+import { UserProps } from "../app/lib/definitions"
 
 
 export const DraftsPreview = ({user}: {user: UserProps}) => {

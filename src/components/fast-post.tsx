@@ -4,16 +4,8 @@
 import BoltIcon from '@mui/icons-material/Bolt';
 import { AddCommentButton, ContentTopRow, LikeAndCommentCounter } from './content';
 import { stopPropagation } from './utils';
-import { ContentProps } from '@/actions/get-content';
-import {MarkNode} from '@lexical/mark';
-import {$getRoot, $insertNodes, EditorState, LexicalEditor, LexicalNode} from 'lexical'
-import {$insertFirst} from '@lexical/utils'
-import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
-import {$createQuoteNode} from '@lexical/rich-text';
-import {$unwrapMarkNode} from '@lexical/mark'
 import { ReadOnlyEditor } from './editor/read-only-editor';
-import { UserProps } from '@/actions/get-user';
-import { useContent } from '@/app/hooks/contents';
+import { ContentProps } from '@/app/lib/definitions';
 
 
 type FastPostProps = {

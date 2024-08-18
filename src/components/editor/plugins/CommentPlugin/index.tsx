@@ -31,12 +31,11 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import * as React from 'react';
 import {createPortal} from 'react-dom';
 
-import { UserProps } from '@/actions/get-user';
-import { ContentProps } from '@/actions/get-content';
 import { AddCommentBox } from './AddCommentBox';
 import { CommentInputBox } from './ui';
 import { CommentsPanel } from './CommentsPanel';
 import { $createMarkNode, $isMarkNode, CustomMarkNode } from '../../nodes/CustomMarkNode';
+import { ContentProps } from '@/app/lib/definitions';
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',

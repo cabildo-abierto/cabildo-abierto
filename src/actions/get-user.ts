@@ -5,28 +5,6 @@ import {verifySession} from "@/actions/auth";
 import { cache } from "./cache";
 
 
-export type SubscriptionProps = {
-    id: string
-    createdAt: string | Date
-    boughtByUserId: string
-    usedAt: string | Date | null
-}
-
-export type UserProps = {
-    id: string
-    name: string
-    email: string
-    createdAt: string | Date
-    authenticated: Boolean
-    editorStatus: string
-    subscriptionsUsed: SubscriptionProps[]
-    following: {id: string}[]
-    likes: {id: string}[]
-    dislikes: {id: string}[]
-    followedBy: {id: string}[]
-};
-
-
 export async function getUserId(): Promise<string | undefined> {
     const session = await verifySession()
     if(!session) return undefined
@@ -78,8 +56,8 @@ export const getUserById = cache(async (userId: string) => {
     )
     return user ? user : undefined
 },
-    ["user"],
+    ["users"],
     {
-        tags: ["user"]
+        tags: ["users"]
     }
 )

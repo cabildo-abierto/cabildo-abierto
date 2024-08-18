@@ -2,13 +2,15 @@
 
 import { useState } from "react"
 import Feed from "./feed"
-import { useFeed } from "@/app/hooks/contents";
+import { useFeed, useFollowingFeed } from "@/app/hooks/contents";
 import { useUser } from "@/app/hooks/user";
 
 
 const MainFeed = () => {
     const [following, setFollowing] = useState(false);
     const feed = useFeed()
+    const user = useUser()
+    const followingFeed = useFollowingFeed(user.user?.id)
 
     return (
         <div className="w-full h-full">
@@ -28,9 +30,7 @@ const MainFeed = () => {
                     Siguiendo
                 </button>
             </div>
-            {feed && 
-                <Feed feed={feed} following={following}/>
-            }
+            <Feed feed={following ? followingFeed : feed}/>
         </div>
     );
 }

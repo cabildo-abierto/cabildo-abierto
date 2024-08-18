@@ -1,15 +1,15 @@
 "use client"
 
-import { EntityProps } from "@/actions/get-entity"
 import { useState } from "react"
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
-import { UserProps } from "@/actions/get-user";
 import { entityLastVersionId } from "./utils";
 import { useContent } from "@/app/hooks/contents";
 import { updateEntity } from "@/actions/create-entity";
+import { EntityProps } from "@/app/lib/definitions";
+import { useUser } from "@/app/hooks/user";
 
 
 function validCategories(categories: string[][]){
@@ -66,7 +66,8 @@ function areCategoriesEqual(cat1: string[][], cat2: string[][]){
 }
 
 
-export const RoutesEditor = ({entity, user}: {entity: EntityProps, user?: UserProps}) => {
+export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
+    const user = useUser()
     const {content, isLoading, isError} = useContent(entityLastVersionId(entity))
     const entityCategories = content.categories ? JSON.parse(content.categories) : null
     const [categories, setCategories] = useState<string[][]>(entityCategories)
@@ -128,7 +129,7 @@ export const RoutesEditor = ({entity, user}: {entity: EntityProps, user?: UserPr
             <StateButton
                 className="small-btn"
                 disabled={areCategoriesEqual(categories, entityCategories) || !validCategories(categories)}
-                onClick={async () => {if(user) await updateEntity(content.text, JSON.stringify(categories), entity.id, user)}}
+                onClick={async () => {if(user.user) await updateEntity(content.text, JSON.stringify(categories), entity.id, user.user)}}
                 text1="Confirmar"
                 text2="Guardando..."
                 reUsable={true}

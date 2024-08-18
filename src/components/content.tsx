@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { ContentProps } from "@/actions/get-content"
 
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 
@@ -15,6 +14,7 @@ import { PostOnFeed } from "./post-on-feed";
 import { useContent } from "@/app/hooks/contents";
 import { FastPost } from "./fast-post";
 import { Comment } from "./comment"
+import { ContentProps } from "@/app/lib/definitions";
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {

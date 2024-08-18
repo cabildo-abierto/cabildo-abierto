@@ -1,7 +1,8 @@
-import { ContentProps } from "@/actions/get-content"
+
 import { fetcher } from "@/app/hooks/utils"
 import useSWR from "swr"
 import { SmallContentProps } from "../api/feed/route"
+import { ContentProps } from "../lib/definitions"
 
 
 export function useContent(id: string): {content: ContentProps, isLoading: boolean, isError: boolean}{
@@ -17,6 +18,17 @@ export function useContent(id: string): {content: ContentProps, isLoading: boole
 
 export function useFeed(): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/feed', fetcher)
+  
+    return {
+        feed: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useFollowingFeed(id: string | undefined): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR(id ? '/api/following-feed/'+id : "/api/feed", fetcher)
   
     return {
         feed: data,

@@ -1,7 +1,7 @@
 "use client"
 
 import { publishDraft, updateContent } from "@/actions/create-content";
-import { ContentProps } from "@/actions/get-content";
+import { ContentProps } from "@/app/lib/definitions";
 import dynamic from "next/dynamic";
 
 const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );

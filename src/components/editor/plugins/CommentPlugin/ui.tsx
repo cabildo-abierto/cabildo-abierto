@@ -22,27 +22,25 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import * as React from 'react';
 import useLayoutEffect from '../../shared/useLayoutEffect';
 import Button from '../../ui/Button';
-import { UserProps } from '@/actions/get-user';
-import { ContentProps } from '@/actions/get-content';
 import { emptyOutput } from '../../comment-editor';
+import { ContentProps } from '@/app/lib/definitions';
+import { useUser } from '@/app/hooks/user';
 
 
 export function CommentInputBox({
   editor,
-  user,
   parentContent,
   cancelAddComment,
   submitAddComment,
 }: {
   cancelAddComment: () => void;
   editor: LexicalEditor;
-  user?: UserProps;
   parentContent: ContentProps;
   submitAddComment: () => void;
 }) {
   const [commentEditor, setCommentEditor] = useState<LexicalEditor | undefined>(undefined)
   const [commentEditorState, setCommentEditorState] = useState<EditorState | undefined>(undefined)
-
+  const user = useUser()
   const boxRef = useRef<HTMLDivElement>(null);
   const selectionState = useMemo(
     () => ({
@@ -148,7 +146,8 @@ export function CommentInputBox({
         }
 
         if(commentEditor) await commentEditor.read(async () => {
-          const comment = await createCommentDB(JSON.stringify(commentEditor.getEditorState()), parentContent.id, user.id)
+          if(!user.user) return
+          const comment = await createCommentDB(JSON.stringify(commentEditor.getEditorState()), parentContent.id, user.user.id)
 
           if(comment){
             editor.update(async () => {
@@ -201,7 +200,7 @@ export function CommentInputBox({
       placeholder: "Agregá un comentario...",
       isAutofocus: false,
       editorClassName: "link",
-      user: user,
+      user: user.user,
       initialData: null,
       isReadOnly: false
   }

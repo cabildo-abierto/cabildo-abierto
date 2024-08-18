@@ -1,50 +1,9 @@
 import React from "react"
 import { ContentWithComments } from "./content-with-comments";
-import { ContentProps } from "@/actions/get-content";
-import { UserProps } from "@/actions/get-user";
+import { UserProps } from '@/app/lib/definitions';
 import { useContent } from "@/app/hooks/contents";
 import { useUser } from "@/app/hooks/user";
 
-
-export function feedFromContents(contents: Record<string, ContentProps>){
-    const feed: ContentProps[] = []
-    Object.values(contents).forEach((content: ContentProps) => {
-        if(!content.isDraft){
-            if(content.type == "Post" || content.type == "FastPost"){
-                feed.push(content)
-            }
-        }
-    })
-    return feed
-}
-
-
-export function followingFeedFromContents(contents: Record<string, ContentProps>, user: UserProps){
-    const feed: ContentProps[] = []
-    Object.values(contents).forEach((content: ContentProps) => {
-        if(!content.isDraft){
-            if(content.type == "Post" || content.type == "FastPost"){
-                if(user.following.some((u) => u.id == content.author?.id))
-                    feed.push(content)
-            }
-        }
-    })
-    return feed
-}
-
-
-export function profileFeedFromContents(contents: Record<string, ContentProps>, user: UserProps){
-    const feed: ContentProps[] = []
-    Object.values(contents).forEach((content: ContentProps) => {
-        if(!content.isDraft){
-            if(content.type == "Post" || content.type == "FastPost"){
-                if(content.author?.id == user.id)
-                    feed.push(content)
-            }
-        }
-    })
-    return feed
-}
 
 function getOnlyFollowing(feed: {id: string}[], user: UserProps){
     return feed.filter(({id}) => {
@@ -61,19 +20,13 @@ type FeedProps = {
 }
 
 
-const Feed: React.FC<{feed: FeedProps, following?: boolean}> = ({feed, following=false}) => {
+const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
     const user = useUser()
     if(feed.isLoading || user.isLoading){
         return <>Cargando...</>
     }
     if(feed.isError){
-        return <>Error al cargar el feed :(</>
-    }
-    if(following){
-        if(!user.user){
-            return <>Creá una cuenta y empezá a seguir a otras personas.</>
-        }
-        feed.feed = getOnlyFollowing(feed.feed, user.user)
+        return <>Error :(</>
     }
     
     return <div className="h-full w-full">

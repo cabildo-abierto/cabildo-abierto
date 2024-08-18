@@ -1,9 +1,7 @@
 import { DateSince } from "@/components/date";
-import { ContentProps } from "@/actions/get-content";
 import { Authorship } from "./content";
-import { UserProps } from "@/actions/get-user";
 import { ReadOnlyEditor } from "./editor/read-only-editor";
-import { useUser } from "@/app/hooks/user";
+import { ContentProps } from '@/app/lib/definitions';
 
 export const Post: React.FC<{
     content: ContentProps

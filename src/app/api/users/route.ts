@@ -1,15 +1,9 @@
+import { getUsers } from '@/actions/get-user';
 import { db } from '@/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
-    const users = await db.user.findMany(
-        {
-            select: {
-                id: true,
-                name: true
-            }
-        }
-    )
+    const users = await getUsers()
     
     return NextResponse.json(users);
 }

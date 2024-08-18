@@ -1,7 +1,6 @@
 "use client"
-import { getUsers, UserProps } from "@/actions/get-user";
+import { getUsers } from "@/actions/get-user";
 import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, BeautifulMentionsMenuProps } from "lexical-beautiful-mentions";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
 

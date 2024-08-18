@@ -3,8 +3,9 @@
 import { db } from '@/db';
 import {
   CreateEntityFormSchema,
+  UserProps,
 } from "@/app/lib/definitions";
-import { getUserId, UserProps } from './get-user';
+import { getUserId } from './get-user';
 import { revalidateTag } from 'next/cache';
 
 export type CreateEntityFormState = {
@@ -56,16 +57,13 @@ export async function createEntity(name: string, userId: string){
     }
   })
 
-  revalidateTag("contents")
-  revalidateTag("content")
   revalidateTag("entities")
-  revalidateTag("entity")
+  revalidateTag("contents")
   return {id: entityId}
 }
 
 
 export const updateEntity = async (text: string, categories: string, entityId: string, user: UserProps) => {
-
   await db.content.create({
       data: {
           text: text,
@@ -75,8 +73,6 @@ export const updateEntity = async (text: string, categories: string, entityId: s
           categories: categories
       }
   })
+
   revalidateTag("entities")
-  revalidateTag("entity")
-  revalidateTag("contents")
-  revalidateTag("content")
 }

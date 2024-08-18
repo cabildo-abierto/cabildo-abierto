@@ -1,14 +1,11 @@
 "use client"
 
-import { ContentProps } from "@/actions/get-content"
-import { EntityProps } from "@/actions/get-entity"
 import { EntitySearchResult } from "./entity-search-result"
 import { areArraysEqual } from "@mui/base"
 import Link from "next/link"
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import { entityLastVersionId } from "./utils"
-import { useContent } from "@/app/hooks/contents"
 import { useEntities } from "@/app/hooks/entities"
+import { ContentProps, EntityProps } from "@/app/lib/definitions";
 
 function currentCategories(entity: EntityProps){
     return JSON.parse(entity.versions[entity.versions.length-1].categories)

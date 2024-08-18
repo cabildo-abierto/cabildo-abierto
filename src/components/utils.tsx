@@ -1,7 +1,4 @@
-import { ContentProps } from "@/actions/get-content"
-import { EntityProps, getEntities } from "@/actions/get-entity"
-import { UserProps } from "@/actions/get-user"
-import { useContent } from "@/app/hooks/contents"
+import { EntityProps, UserProps } from "@/app/lib/definitions"
 import assert from "assert"
 
 

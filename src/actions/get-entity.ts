@@ -1,18 +1,11 @@
 'use server'
 
+import { EntityProps } from "@/app/lib/definitions";
 import {db} from "@/db";
+import { cache } from "./cache";
 
 
-export type EntityProps = {
-    id: string
-    name: string
-    versions: {id: string, categories: string}[]
-    protection: string
-    isPublic: boolean,
-}
-
-
-export const getEntities = async () => {
+export const getEntities = cache(async () => {
     let entities: EntityProps[] = await db.entity.findMany(
         {
             select: {
@@ -36,4 +29,30 @@ export const getEntities = async () => {
         }
     )
     return entities
-}
+}, ["entities"], {tags: ["entities"]})
+
+
+export const getEntityById = cache(async (id: string) => {
+    const entity = db.entity.findUnique(
+        {select: {
+            id: true,
+            name: true,
+            protection: true,
+            isPublic: true,
+            versions: {
+                select: {
+                    id: true,
+                    categories: true
+                },
+                orderBy: {
+                    createdAt: "asc"
+                }
+            }
+        },
+            where: {
+                id: id,
+            }
+        }
+    )
+    return entity
+}, ["entities"], {tags: ["entities"]})

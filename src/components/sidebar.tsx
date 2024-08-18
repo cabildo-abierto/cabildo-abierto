@@ -8,9 +8,12 @@ import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
+import { useUser } from "@/app/hooks/user";
 
 
-export default function Sidebar({onClose, user}: any) {
+export default function Sidebar({onClose}: {onClose: () => void}) {
+    const user = useUser()
+    
     const onLogout = async (e: any) => {
         await logout()
     }
@@ -23,13 +26,13 @@ export default function Sidebar({onClose, user}: any) {
                     <SidebarButton icon={<LocalLibraryIcon/>} text="Wiki" href="/nav"/>
                     <SidebarButton onClick={onClose} icon={<CreateIcon/>} text="Escribir" href="/escribir"/>
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
-                    {user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={"/perfil/"+user.id.slice(1)}/>}
+                    {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={"/perfil/"+user.user.id.slice(1)}/>}
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/articulo/Cabildo_Abierto"/>
                 </ul>
-                {user && <div className="flex flex-col items-center">
-                    <Link href={`/perfil/${user?.id.slice(1)}`}
+                {user.user && <div className="flex flex-col items-center">
+                    <Link href={`/perfil/${user.user.id.slice(1)}`}
                         className="py-2 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)]">
-                        {user?.name}
+                        {user.user.name}
                     </Link>
 
                     <div className="py-4">

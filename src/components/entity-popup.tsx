@@ -8,8 +8,6 @@ import Popup from './popup';
 import NeedSubscriptionPopupPanel from './need-subscription-popup';
 import { validSubscription } from './utils';
 import NeedAccountPopupPanel from './need-account-popup';
-import { UserProps } from '@/actions/get-user';
-import ArticleIcon from '@mui/icons-material/Article';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import { useUser } from '@/app/hooks/user';
 

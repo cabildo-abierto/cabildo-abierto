@@ -4,13 +4,13 @@ import React from "react"
 import { ThreeColumnsLayout } from "@/components/main-layout";
 import NoEntityPage from "../../../../components/no-entity-page";
 import PaywallChecker from "@/components/paywall-checker";
-import { UserProps } from "@/actions/get-user";
 import { SetProtectionButton } from "@/components/protection-button";
 import Link from "next/link";
 import { entityLastVersionId, validSubscription } from "@/components/utils";
 import dynamic from "next/dynamic";
 import { useUser } from "@/app/hooks/user";
 import { useEntity } from "@/app/hooks/entities";
+import { UserProps } from "@/app/lib/definitions";
 
 const WikiEditor = dynamic(() => import('@/components/editor/wiki-editor'), { ssr: false });
 

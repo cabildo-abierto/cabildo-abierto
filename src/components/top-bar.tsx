@@ -8,7 +8,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import CreateIcon from '@mui/icons-material/Create';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
-import { UserProps } from "@/actions/get-user";
 import { useUser } from "@/app/hooks/user";
 
 function FeedButton() {

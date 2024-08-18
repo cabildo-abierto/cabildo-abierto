@@ -12,7 +12,7 @@ export async function createComment(text: string, parentContentId: string, userI
     }
     if(!userId) return null
 
-    return await db.content.create({
+    const comment = await db.content.create({
         data: {
             text: text,
             authorId: userId,
@@ -20,8 +20,10 @@ export async function createComment(text: string, parentContentId: string, userI
             type: "Comment"
         },
     })
+    revalidateTag("contents")
+    revalidateTag("users")
+    return comment
 }
-
 
 
 export async function createPost(text: string, postType: ContentType, isDraft: boolean, userId?: string, title?: string) {
@@ -41,7 +43,7 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
     })
 
     revalidateTag("contents")
-    revalidateTag("content")
+    revalidateTag("users")
     return result
 }
 
@@ -59,7 +61,7 @@ export async function updateContent(text: string, contentId: string, title?: str
     })
 
     revalidateTag("contents")
-    revalidateTag("content")
+    revalidateTag("users")
     return true
 }
 
@@ -78,6 +80,6 @@ export async function publishDraft(text: string, contentId: string, title?: stri
         }
     })
     revalidateTag("contents")
-    revalidateTag("content")
+    revalidateTag("users")
     return true
 }

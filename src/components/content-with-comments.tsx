@@ -4,8 +4,6 @@ import ContentComponent from "./content"
 import { useState } from "react"
 import { createComment } from "@/actions/create-content"
 import dynamic from "next/dynamic"
-import { ContentProps } from "@/actions/get-content"
-import { UserProps } from "@/actions/get-user"
 import { useContent } from "@/app/hooks/contents"
 import { useUser } from "@/app/hooks/user"
 
