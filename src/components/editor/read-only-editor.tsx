@@ -19,7 +19,7 @@ export const ReadOnlyEditor = ({initialData,
     editorClassName?: string}) => {
     const user = useUser()
     if(user.isLoading){
-        return <>Cargando...</>
+        return <></>
     }
 
     const settings: SettingsProps = {

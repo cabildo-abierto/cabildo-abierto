@@ -1,6 +1,6 @@
 "use client"
 import { useUser } from "@/app/hooks/user";
-import { ThreeColumnsLayout } from "@/components/main-layout";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import { PayDonationButton } from "@/components/pay-donation-button";
 import { validSubscription } from "@/components/utils";
 import Link from "next/link";
@@ -10,7 +10,7 @@ import React from "react";
 export default function PagoUnico({params}: any) {
     const user = useUser()
     if(user.isLoading){
-        return <>Cargando...</>
+        return <></>
     }
     const activeSubscription = validSubscription(user.user)
 

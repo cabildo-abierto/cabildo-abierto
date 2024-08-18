@@ -30,7 +30,7 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
     const user = useUser()
     const {content, isLoading, isError} = useContent(contentId)
     if(isLoading || user.isLoading){
-        return <>Cargando...</>
+        return <></>
     }
     if(!content || isError){
         return <>Ocurrió un error :(</>

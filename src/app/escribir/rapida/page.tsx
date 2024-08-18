@@ -1,7 +1,7 @@
 "use client"
 
 import { createPost } from '@/actions/create-content';
-import { ThreeColumnsLayout } from '@/components/main-layout';
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import { ContentType } from '@prisma/client';
 import dynamic from 'next/dynamic';
 

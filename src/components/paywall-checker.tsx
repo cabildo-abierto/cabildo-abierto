@@ -57,12 +57,12 @@ const NeedSubscriptionPaywall: React.FC<any> = ({ children }) => {
 
 const PaywallChecker: React.FC<{children: any}> = ({children}) => {
     const user = useUser()
-    if(user === null){
+    if(user.isLoading){
+        return <></>
+    } else if(!user.user){
         return <NeedAccountPaywall>
             {children}
         </NeedAccountPaywall>
-    } else if(user === undefined){
-        return <LoadingPage/>
     } else {
         if(validSubscription(user.user)){
             return <>{children}</>

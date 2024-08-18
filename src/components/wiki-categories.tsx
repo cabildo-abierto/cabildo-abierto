@@ -77,17 +77,17 @@ export const WikiCategories = ({route}: {route: string[]}) => {
     const {entities, isLoading, isError} = useEntities()
 
     if(isLoading){
-        return <>Cargando...</>
+        return <></>
     }
     if(!entities || isError){
-        return <>Error :(</>
+        return <>Ocurrió un error :(</>
     }
 
     const nextCategories = getNextCategories(route, entities)
 
     return <>
         {nextCategories.size > 0 && <>
-        <h2 className="flex justify-center py-4">Subcategorías</h2>
+        <h2 className="flex justify-center py-4">{route.length == 0 ? "Categorías" : "Subcategorías"}</h2>
         <div className="flex justify-center">
             <div className="flex flex-wrap justify-center">
                 {[...nextCategories].map((nextCategory: string, index: number) => {

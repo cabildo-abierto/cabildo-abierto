@@ -1,8 +1,8 @@
 "use client"
 import { getSubscriptionPrice } from "@/components/utils"
-import { ThreeColumnsLayout } from "@/components/main-layout"
 import SubscriptionOptionButton from "@/components/subscription-option-button"
 import Link from "next/link"
+import { ThreeColumnsLayout } from "@/components/three-columns"
 
 
 export default function PlanClasico() {

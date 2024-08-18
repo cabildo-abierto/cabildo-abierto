@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react";
-import { ThreeColumnsLayout } from "@/components/main-layout";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import EditDraftPage from "./edit-draft";
 import { ErrorPage } from "@/components/error-page";
 import { useContent } from "@/app/hooks/contents";
@@ -11,7 +11,7 @@ const Editar: React.FC<any> = ({params}) => {
     const {content, isLoading, isError} = useContent(params.id)
 
     if(isLoading){
-        return <>Cargando...</>
+        return <></>
     }
     if(isError || !content){
         return <ErrorPage>No se encontró el contenido</ErrorPage>

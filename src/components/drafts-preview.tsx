@@ -6,7 +6,7 @@ import { UserProps } from "../app/lib/definitions"
 export const DraftsPreview = ({user}: {user: UserProps}) => {
     const {drafts, isLoading, isError} = useDrafts(user.id)
     if(isLoading){
-        return <>Cargando...</>
+        return <></>
     }
     if(isError || !drafts){
         return <>Error :(</>

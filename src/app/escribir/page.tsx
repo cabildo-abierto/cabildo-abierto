@@ -1,13 +1,13 @@
 import React from "react";
-import { ThreeColumnsLayout } from "@/components/main-layout";
 import Link from "next/link";
 import BoltIcon from '@mui/icons-material/Bolt';
 import ArticleIcon from '@mui/icons-material/Article';
 import EntityPopup from "@/components/entity-popup";
 import { getUser } from "@/actions/get-user";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 
 
-const Escribir = async () => {
+const Escribir = () => {
     const className = "gray-btn w-64 flex justify-center items-center"
 
     const center = <div className="flex flex-col items-center h-screen">

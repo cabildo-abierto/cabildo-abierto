@@ -1,4 +1,5 @@
-import { ThreeColumnsLayout } from "@/components/main-layout"
+
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import SubscriptionPage from "@/components/subscription-page"
 import Link from "next/link"
 

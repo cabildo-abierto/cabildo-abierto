@@ -1,5 +1,5 @@
 import { BuyClassicPlanButton } from "@/components/buy-classic-plan-button";
-import { ThreeColumnsLayout } from "@/components/main-layout";
+import { ThreeColumnsLayout } from "@/components/three-columns";
 import { getSubscriptionPrice } from "@/components/utils";
 
 export default async function PlanClasicoPagoUnico() {
