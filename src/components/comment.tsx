@@ -46,8 +46,7 @@ export const Comment = ({
     const className = "w-full bg-white text-left" 
 
     let snode = null
-    assert(content.parentContentId)
-    const parentContent = useContent(content.parentContentId)
+    const parentContent = useContent(content.parentContents[0].id)
     if(!parentContent.isLoading && !parentContent.isError){
         const parentText = JSON.parse(parentContent.content.text)
         snode = getQuoteFromContent(parentText.root, content.id)
@@ -55,7 +54,7 @@ export const Comment = ({
 
     const initializeQuote = (editor: LexicalEditor) => {
         editor.update(() => {
-            if(content.parentContentId && snode){
+            if(content.parentContents[0].id && snode){
                 const root = $getRoot()
                 const quoteNode = $createQuoteNode()
                 const nodes = $generateNodesFromSerializedNodes([snode])

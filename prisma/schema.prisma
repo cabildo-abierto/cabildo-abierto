@@ -60,6 +60,8 @@ model Entity {
     protection      ProtectionLevel @default(Unprotected)
     isPublic        Boolean      @default(false)
     versions        Content[]
+
+    referencedBy    Content[]    @relation("entityReferences")
 }
 
 
@@ -69,7 +71,6 @@ enum ContentType {
     FastPost
     EntityContent
 }
-
 
 model Content {
     id                String      @id @default(cuid())
@@ -81,11 +82,10 @@ model Content {
     author            User       @relation(fields: [authorId], references: [id])
     authorId          String
 
-    childrenComments  Content[]   @relation("ContentToContent")
+    childrenContents  Content[]   @relation("ContentToContent")
 
     // parent for comments
-    parentContent     Content?    @relation("ContentToContent", fields: [parentContentId], references: [id])
-    parentContentId   String?
+    parentContents    Content[]   @relation("ContentToContent")
 
     likedBy           User[]      @relation("likes")
     dislikedBy        User[]      @relation("dislikes")
@@ -102,5 +102,7 @@ model Content {
     title             String?
 
     // solo para artículos (entities)
-    categories      String       @default("[]")
+    categories        String       @default("[]")
+
+    entityReferences  Entity[]     @relation("entityReferences")  
 }

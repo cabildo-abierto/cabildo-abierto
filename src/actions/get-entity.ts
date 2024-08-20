@@ -45,6 +45,12 @@ export const getEntityById = cache(async (id: string) => {
                 orderBy: {
                     createdAt: "asc"
                 }
+            },
+            referencedBy: {
+                select: {
+                    id: true,
+                    createdAt: true
+                }
             }
         },
             where: {
