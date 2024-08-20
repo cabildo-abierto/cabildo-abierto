@@ -3,12 +3,7 @@
 import Link from "next/link"
 import ArticleIcon from '@mui/icons-material/Article';
 
-export type SmallEntityProps = {
-    id: string,
-    name: string
-}
-
-export const EntitySearchResult: React.FC<{entity: SmallEntityProps}> = ({ entity }) => {
+export const EntitySearchResult: React.FC<{entity: {id: string, name: string}}> = ({ entity }) => {
     
     return <div className="flex justify-center mb-2">
         <Link href={"/articulo/" + entity.id}>

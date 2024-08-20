@@ -19,13 +19,14 @@ const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
         return <>Error :(</>
     }
     return <div className="h-full w-full">
-        {feed.feed.map(({id}, index: number) => {
+        {feed.feed.length > 0 ? feed.feed.map(({id}, index: number) => {
             return <div key={index} className="py-1">
                 <ContentWithComments
                     contentId={id}
                 />
             </div>
-        })}
+        }) : 
+        <div className="ml-4">Todavía no hay nada acá... Escribí algo y referenciá a alguno de los artículos de esta categoría para que aparezca acá.</div>}
     </div>
 }
 

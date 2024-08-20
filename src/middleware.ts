@@ -6,7 +6,7 @@ function isPublicRoute(path: string){
 }
 
 function isNewUserRoute(path: string){
-    return ['/', '/signup'].includes(path)
+    return ['/', '/signup', '/login'].includes(path)
 }
 
 export default async function middleware(req: NextRequest) {

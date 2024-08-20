@@ -1,5 +1,5 @@
-import { HomePage } from "@/components/home-page";
+import { AuthPage } from "@/components/auth-page";
 
 export default function SignupPage() {
-    return <HomePage signup={true}/>
+    return <AuthPage signup={true}/>
 }

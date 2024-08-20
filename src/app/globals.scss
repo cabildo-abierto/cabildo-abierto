@@ -21,6 +21,15 @@ $accent: #8790b0;
   --primary-light: #{lighten($primary, 20%)};
   --accent-dark: #{darken($accent, 20%)};
   --text-light: #{lighten($text, 20%)};
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.logo {
+	line-height: 1;
+	font-weight: 500;
 }
 
 
@@ -56,6 +65,13 @@ $accent: #8790b0;
 
 .content a:hover {
     text-decoration: underline;
+}
+
+.bodoni {
+	font-family: "Bodoni Moda SC", serif;
+	font-optical-sizing: auto;
+	font-weight: 600;
+	font-style: normal;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -223,6 +239,13 @@ h4 {
 	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
 	border-radius: 2px;
 }
+
+.categories-panel {
+	border: 1px solid var(--accent);
+	padding: 0px;
+	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+	border-radius: 6px;
+}
   
 .fixed-bottom-right {
 	position: fixed;
@@ -269,6 +292,18 @@ h4 {
 	background-color: var(--secondary-light);
 	color: var(--accent);
 	opacity: 0.6;
+}
+
+.subcategories-dropdown {
+	border: 1px solid var(--accent);
+	border-radius: 0.25rem;
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	text-align: center;
+}
+
+.subcategories-dropdown:hover {
+	background-color: var(--secondary-light);
 }
 
 .search-result {
@@ -389,4 +424,17 @@ h4 {
 .route-edit-btn:disabled {
 	background-color: transparent;
 	cursor: default
+}
+
+.subcategory:hover {
+	color: $primary;
+	border-color: var(--primary-dark)
+}
+
+.view-more {
+	color: $primary;
+}
+
+.view-more:hover {
+	text-decoration: underline
 }

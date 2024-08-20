@@ -51,7 +51,21 @@ export const getFeed = cache(async () => {
             id: true,
             type: true,
             isDraft: true,
-            text: true
+            text: true,
+            entityReferences: {
+                select: {
+                    id: true,
+                    versions: {
+                        select: {
+                            id: true,
+                            categories: true
+                        },
+                        orderBy: {
+                            createdAt: "asc"
+                        }
+                    }
+                }
+            }
         },
         where: {
             AND: [

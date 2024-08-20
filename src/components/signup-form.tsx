@@ -10,7 +10,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
-        className="mt-2 block text-s font-medium text-gray-900"
+        className="mt-2 block text-gray-900"
         htmlFor={label}
     > 
         {text}
@@ -39,10 +39,10 @@ export default function SignupForm() {
     return (
         <div className="">
             <form action={action}>
-                <div className="flex-1 rounded-lg bg-[var(--secondary-light)] px-6 pb-4 pt-8">
-                    <h3 className='flex justify-center mb-3'>
+                <div className="flex-1 rounded-lg bg-[var(--secondary-light)] px-12 pb-4 pt-8">
+                    <h2 className='flex justify-center mb-3'>
                         Crear una cuenta
-                    </h3>
+                    </h2>
                     <div className="w-full mb-3">
                         <div>
                             <AuthenticationFormLabel text="Email" label="email"/>

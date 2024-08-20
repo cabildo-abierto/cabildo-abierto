@@ -1,6 +1,6 @@
 import "./globals.scss";
 import { Metadata } from 'next'
- 
+
 export const metadata: Metadata = {
   title: 'Cabildo Abierto',
 }

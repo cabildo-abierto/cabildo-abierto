@@ -1,32 +1,76 @@
 import Link from 'next/link';
 import ConstructionIcon from '@mui/icons-material/Construction';
+import ArticleIcon from '@mui/icons-material/Article';
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { LoginButton, SignupButton } from '@/components/home-page';
+
+export const PeriodoDePrueba = () => {
+    return <div className="flex justify-center">
+        <div className="mt-8 px-4">
+        <div className="text-[var(--accent-dark)] flex items-center border p-2 rounded">
+            <div className="mr-2">
+                <ConstructionIcon fontSize="large" />
+            </div>
+            <div className="flex justify-center">
+                La plataforma está en período de prueba cerrada. 
+                {false && "Podés escribirnos a contacto@cabildoabierto.com.ar"}
+            </div>
+        </div>
+        </div>
+    </div>
+}
+
+
+const Feature = ({text, className}: {text: string, className: string}) => {
+    return <div className="flex items-center py-2">
+        <ArrowForwardIosIcon/>
+        <div className={"flex items-center font-semibold "+className}>
+            {text}
+        </div>
+    </div>
+}
+
+
+export const Features = () => {
+  return (
+    <div className="flex justify-center mt-16 mb-6 text-lg content">
+      <div className="flex flex-col w-128 px-4">
+        {true && <div className="">
+            Cabildo Abierto es una plataforma argentina en la que vas a encontrar información y análisis:
+        </div>}
+        <Feature text="independiente" className="text-[var(--primary)]"/>
+        <Feature text="abierto a discusión" className="text-[var(--primary)]"/>
+        <Feature text="escrito y financiado por la comunidad" className="text-[var(--primary)]"/>
+        {true && <div className="">
+            Sin algoritmos, bots, anonimato ni noticias falsas.
+        </div>}
+      </div>
+    </div>
+  );
+};
 
 export const Presentation: React.FC = () => {
     return <div className="flex-col justify-between">
         <div className="flex justify-center">
-            <div className="">
-                <h1 className="text-5xl">Cabildo Abierto</h1>
-                
-                <h3 className="mt-2 text-2xl text-[var(--accent)]">Discutí lo público</h3>
+            <div className="flex justify-center">
+                <h3 className="flex justify-center mt-20 lg:text-5xl md:text-4xl text-3xl px-2">Lo público abierto a discusión</h3>
             </div>
         </div>
-        <div className="flex justify-center">
-            <div className="mt-16 px-4">
-            <div className="text-[var(--accent-dark)] flex items-center border p-2">
-                <div className="mr-2">
-                    <ConstructionIcon fontSize="large" />
-                </div>
-                <div className="flex justify-center">
-                    La plataforma está en período de prueba cerrada. 
-                    {false && "Podés escribirnos a contacto@cabildoabierto.com.ar"}
-                </div>
-            </div>
-            </div>
-        </div>
+        <Features/>
+
         {false && <div className="flex justify-center mt-8">
             <Link href="/articulo/Cabildo_Abierto">
                 <button className="gray-btn">¿Qué es Cabildo Abierto?</button>
             </Link>
         </div>}
+
+        {false && <div className="flex justify-center py-2 mt-16">
+            {false && <LoginButton className="w-64 h-12 text-lg"/>}
+            <SignupButton className="w-64 h-12 text-lg"/>
+        </div>}
+        <div className="flex justify-center mt-16">
+            <SignupButton className="w-64 h-12" text="Empezar"/>
+        </div>
     </div>
 };
