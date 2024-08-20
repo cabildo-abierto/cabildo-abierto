@@ -65,10 +65,8 @@ function TextFormatFloatingToolbar({
   const insertLink = useCallback(() => {
     if (!isLink) {
       setIsLinkEditMode(true);
-      console.log("thinking")
       editor.read(() => {
         const selection = $getSelection()?.getTextContent();
-        console.log("dispatching", selection)
         editor.dispatchCommand(TOGGLE_LINK_COMMAND, {url: selection ? selection : "", target: "", rel: ""});  
       })
     } else {

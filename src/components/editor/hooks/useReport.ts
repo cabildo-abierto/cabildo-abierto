@@ -53,7 +53,7 @@ export default function useReport(): (
   return useCallback(
     (content) => {
       // eslint-disable-next-line no-console
-      console.log(content);
+      
       const element = getElement();
       if (timer.current !== null) {
         clearTimeout(timer.current);

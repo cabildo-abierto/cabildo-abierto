@@ -6,8 +6,9 @@ import { ContentWithComments } from "@/components/content-with-comments";
 import PaywallChecker from "@/components/paywall-checker";
 import { SetProtectionButton } from "@/components/protection-button";
 import { useUser } from "@/app/hooks/user";
-import { useEntity } from "@/app/hooks/entities";
+import { useEntities, useEntity } from "@/app/hooks/entities";
 import { ThreeColumnsLayout } from "@/components/three-columns";
+import { useSWRConfig } from "swr";
 
 const EntityPage: React.FC<{
     params: any,

@@ -69,7 +69,6 @@ export class CustomMarkNode extends MarkNode {
     }
   
     createDOM(config: EditorConfig): HTMLElement {
-        console.log("creating dom for custom mark node")
         const element = document.createElement('mark');
         addClassNamesToElement(element, config.theme.mark);
         if (this.__ids.length > 1) {

@@ -29,6 +29,7 @@ export default function NoEntityPage({id}: {id: string}){
         if(user) {
             await createEntity(name, user.id)
             mutate("/api/entities")
+            mutate("/api/entity/"+id)
             router.push(url)
         }
     }

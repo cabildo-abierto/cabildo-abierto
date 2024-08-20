@@ -42,9 +42,10 @@ const ValidPanel: React.FC<PanelProps> = ({onClose}) => {
               <StateButton
                   onClick={async () => {
                       if(user.user){
-                          const newEntity = await createEntity(entityName, user.user.id)
-                          mutate("api/entities")
-                          router.push("/articulo/"+newEntity.id)
+                          const {id} = await createEntity(entityName, user.user.id)
+                          mutate("/api/entities")
+                          mutate("/api/entity/"+id)
+                          router.push("/articulo/"+id)
                       }
                   }}
                   disabled={!validEntityName(entityName)}
