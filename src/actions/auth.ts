@@ -92,10 +92,7 @@ export async function signup(state: any, formData: any) {
     betakey: formData.get('betakey')
   })
 
-  console.log(validatedFields)
-
   if (!validatedFields.success) {
-    console.log("Returning", validatedFields.error.flatten().fieldErrors)
     return {
       errors: validatedFields.error.flatten().fieldErrors,
     }

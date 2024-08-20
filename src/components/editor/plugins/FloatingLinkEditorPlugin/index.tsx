@@ -392,7 +392,6 @@ function useFloatingLinkEditorToolbar(
             const linkNode = $findMatchingParent(node, $isLinkNode);
             if ($isLinkNode(linkNode) && (payload.metaKey || payload.ctrlKey)) {
               
-              console.log("opening new window")
               window.open(linkNode.getURL(), '_blank');
               return true;
             }

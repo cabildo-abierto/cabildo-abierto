@@ -735,7 +735,6 @@ export default function ToolbarPlugin({
             setIsLinkEditMode(false);
             url = null;
           }
-          console.log("dispatching", url)
           return activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, url ? {url: url, target: "", rel: ""} : null);
         }
         return false;

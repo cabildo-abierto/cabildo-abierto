@@ -2,10 +2,17 @@ import diceCoefficientDistance from "@/actions/dice-coefficient";
 import { SmallContentProps } from "@/app/api/feed/route";
 import { EntityProps } from "@/app/lib/definitions";
 
+function included(a: string, b: string){
+    return b.toLowerCase().includes(a.toLowerCase())
+}
 
 export function searchUsers(value: string, users: {id: string, name: string}[]) {
     if(value.length == 0)
         return []
+
+    users = users.filter(({id, name}) => {
+        return included(value, name) || included(value, id)
+    })
     
     const dist = diceCoefficientDistance
 
@@ -30,6 +37,10 @@ export function searchUsers(value: string, users: {id: string, name: string}[]) 
 export function searchContents(value: string, contents: SmallContentProps[]) {
     if(value.length == 0)
         return []
+
+    contents = contents.filter(({id, text}) => {
+        return included(value, text) || included(value, id)
+    })
 
     const dist = diceCoefficientDistance
 
@@ -60,7 +71,11 @@ export function searchContents(value: string, contents: SmallContentProps[]) {
 export function searchEntities(value: string, entities: EntityProps[]){
     if(value.length == 0)
         return []
-
+    
+    entities = entities.filter(({id, name}) => {
+        return included(value, name) || included(value, id)
+    })
+    
     const dist = diceCoefficientDistance
 
     const maxDist = dist(value, '')

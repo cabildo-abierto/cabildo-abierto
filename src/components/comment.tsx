@@ -15,7 +15,7 @@ import { ContentProps } from '@/app/lib/definitions';
 
 
 function getQuoteFromContent(node: any, id: string): any {
-    if(node.type === "mark"){
+    if(node.type === "custom-mark"){
         if(node.ids.includes(id)){
             return node
         }

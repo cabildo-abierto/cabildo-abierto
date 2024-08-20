@@ -9,7 +9,7 @@ import { ContentProps } from '@/app/lib/definitions';
 import { useUser } from "@/app/hooks/user";
 import { useSWRConfig } from "swr";
 
-export const LikeCounter: React.FC<{content: ContentProps}> = ({content}) => {
+export const LikeCounter: React.FC<{content: ContentProps, disabled: boolean}> = ({content, disabled}) => {
     const {user} = useUser()
     const [likeCount, setLikeCount] = useState(content._count.likedBy)
     const [dislikeCount, setDislikeCount] = useState(content._count.dislikedBy)
@@ -23,7 +23,7 @@ export const LikeCounter: React.FC<{content: ContentProps}> = ({content}) => {
     const dislike_icon = <ThumbDownOutlinedIcon sx={{ fontSize: 18 }}/>
 
     const onLikeClick = async () => {
-        if(!user) return
+        if(!user || disabled) return
         if(liked){
             setLikeCount(likeCount-1)
             setLiked(false)
@@ -44,7 +44,7 @@ export const LikeCounter: React.FC<{content: ContentProps}> = ({content}) => {
     }
 
     const onDislikeClick = async () => {
-        if(!user) return
+        if(!user || disabled) return
         if(disliked){
             setDislikeCount(dislikeCount-1)
             setDisliked(false)

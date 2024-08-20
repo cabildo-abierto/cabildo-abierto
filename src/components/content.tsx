@@ -61,16 +61,17 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
 type LikeAndCommentCounterProps = {
     content: ContentProps,
     onViewComments: () => void,
-    viewingComments: boolean
+    viewingComments: boolean,
+    disabled?: boolean
 }
 
-export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({content, onViewComments, viewingComments}) => {
+export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false}) => {
     return <div className="flex">
-        <LikeCounter content={content}/>
+        <LikeCounter content={content} disabled={disabled}/>
         <div className="flex items-center px-2">
             <div 
                 className={viewingComments ? "cursor-pointer reaction-btn-selected" : "cursor-pointer reaction-btn"}
-                onClick={(e: any) => {if(content.childrenComments.length > 0) stopPropagation(onViewComments)(e)}}
+                onClick={(e: any) => {if(content.childrenComments.length > 0 && !disabled) stopPropagation(onViewComments)(e)}}
             >
                 <span className=""><CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content.childrenComments.length}</span>
             </div>

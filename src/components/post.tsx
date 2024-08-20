@@ -1,7 +1,8 @@
 import { DateSince } from "@/components/date";
-import { Authorship } from "./content";
+import { Authorship, LikeAndCommentCounter } from "./content";
 import { ReadOnlyEditor } from "./editor/read-only-editor";
 import { ContentProps } from '@/app/lib/definitions';
+import { LikeCounter } from "./like-counter";
 
 export const Post: React.FC<{
     content: ContentProps
@@ -11,8 +12,13 @@ export const Post: React.FC<{
         <div className="content">
             <h1>{content.title}</h1>
         </div>
-        <div className="flex">
-            <span className="mr-1"><Authorship content={content}/></span> · <DateSince date={content.createdAt}/>
+        <div className="flex justify-between">
+            <div className="flex">
+                <span className="mr-1"><Authorship content={content}/></span> · <DateSince date={content.createdAt}/>
+            </div>
+            <div className="flex">
+                <LikeCounter content={content} disabled={false}/>
+            </div>
         </div>
         <div className="min-h-64 mt-4">
             <ReadOnlyEditor 

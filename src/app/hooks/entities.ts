@@ -5,7 +5,6 @@ import { EntityProps } from "../lib/definitions"
 
 export function useEntity(id: string): {entity: EntityProps, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/entity/'+id, fetcher)
-  
     return {
         entity: data,
         isLoading,
