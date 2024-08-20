@@ -5,7 +5,7 @@ import { useState } from "react"
 import Popup from "../popup"
 import NeedAccountPopupPanel from "../need-account-popup"
 import StateButton from "../state-button"
-import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode, LexicalEditor } from "lexical"
+import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, CLEAR_EDITOR_COMMAND, EditorState, ElementNode, LexicalEditor } from "lexical"
 import { $generateHtmlFromNodes } from '@lexical/html';
 
 import dynamic from 'next/dynamic'
@@ -104,6 +104,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
         if(editor && editorOutput){
             editorOutput.read(async () => {
                 await onSubmit(JSON.stringify(editorOutput))
+                editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined)
             })
         }
 	}

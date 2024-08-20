@@ -72,7 +72,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
                 }
             </div>}
             {(viewComments) && <div className="ml-2">
-                <CommentSection parentContent={content}/>
+                <CommentSection parentContent={content} otherContents={entity ? entity.referencedBy : undefined}/>
             </div>}
         </div>
     </div>

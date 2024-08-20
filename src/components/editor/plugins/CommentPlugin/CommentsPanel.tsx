@@ -8,7 +8,7 @@ function getTextComments(
     contents: Record<string, ContentProps>,
     activeIDs: string[]
 ){
-    const commentIds = parentContent.childrenComments.filter(({id}) => {
+    const commentIds = parentContent.childrenContents.filter(({id}) => {
         if(activeIDs.length > 0){
             return activeIDs.includes(id)
         } else {

@@ -18,8 +18,8 @@ export type ContentProps = {
     }
     type: ContentType
     isDraft: boolean | null
-    childrenComments: {id: string}[]
-    parentContentId: string | null
+    childrenContents: {id: string, createdAt: string}[]
+    parentContents: {id: string}[]
     title: string | null
     categories: string | null
 }
@@ -31,6 +31,7 @@ export type EntityProps = {
     versions: {id: string, categories: string}[]
     protection: string
     isPublic: boolean,
+    referencedBy: {id: string, createdAt: string}[]
 }
 
 

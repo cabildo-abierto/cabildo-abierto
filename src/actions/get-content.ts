@@ -12,12 +12,18 @@ export const getContentById = cache(async (id: string) => {
             text: true,
             createdAt: true,
             author: true,
-            childrenComments: {
+            childrenContents: {
                 select: {
-                    id: true
+                    id: true,
+                    createdAt: true
                 },
                 orderBy: {
                     createdAt: "desc"
+                }
+            },
+            parentContents: {
+                select: {
+                    id: true
                 }
             },
             _count: {
@@ -28,7 +34,6 @@ export const getContentById = cache(async (id: string) => {
             },
             type: true,
             isDraft: true,
-            parentContentId: true,
             title: true,
             categories: true
         },
@@ -72,7 +77,17 @@ export const getDraftsById = cache(async (id: string) => {
             text: true,
             createdAt: true,
             author: true,
-            childrenComments: true,
+            childrenContents: {
+                select: {
+                    id: true,
+                    createdAt: true
+                }
+            },
+            parentContents: {
+                select: {
+                    id: true
+                }
+            },
             _count: {
                 select: {
                     likedBy: true,
@@ -81,7 +96,6 @@ export const getDraftsById = cache(async (id: string) => {
             },
             type: true,
             isDraft: true,
-            parentContentId: true,
             title: true,
             categories: true
         },

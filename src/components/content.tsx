@@ -19,7 +19,7 @@ import { ContentProps } from "@/app/lib/definitions";
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
     return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/contenido/" + content.id}>
-    {content.childrenComments.length} comentarios
+    {content.childrenContents.length} comentarios
     </Link>
 }
 
@@ -71,9 +71,9 @@ export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({con
         <div className="flex items-center px-2">
             <div 
                 className={viewingComments ? "cursor-pointer reaction-btn-selected" : "cursor-pointer reaction-btn"}
-                onClick={(e: any) => {if(content.childrenComments.length > 0 && !disabled) stopPropagation(onViewComments)(e)}}
+                onClick={(e: any) => {if(content.childrenContents.length > 0 && !disabled) stopPropagation(onViewComments)(e)}}
             >
-                <span className=""><CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content.childrenComments.length}</span>
+                <span className=""><CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content.childrenContents.length}</span>
             </div>
         </div>
     </div>
