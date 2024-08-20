@@ -4,17 +4,18 @@ import React, { useEffect, useState } from "react";
 import { UserSearchResult } from "./searchbar";
 import SelectionComponent from "./search-selection-component";
 import { searchContents, searchEntities, searchUsers } from "./search";
-import { EntitySearchResult, SmallEntityProps } from "./entity-search-result";
+import { EntitySearchResult } from "./entity-search-result";
 import ContentComponent from "./content";
 import { useEntities } from "@/app/hooks/entities";
 import { useFeed } from "@/app/hooks/contents";
 import { useUsers } from "@/app/hooks/user";
+import { SmallEntityProps } from "@/app/lib/definitions";
 
 
 const SearchPage = ({searchValue}: {searchValue: string}) => {
   const [resultsUsers, setResultsUsers] = useState<any[]>([]);
   const [resultsContents, setResultsContents] = useState<{id: string}[]>([]);
-  const [resultsEntities, setResultsEntities] = useState<SmallEntityProps[]>([]);
+  const [resultsEntities, setResultsEntities] = useState<{id: string, name: string}[]>([]);
   const [searchType, setSearchType] = useState("users");
 
   const entities = useEntities()
@@ -61,7 +62,7 @@ const SearchPage = ({searchValue}: {searchValue: string}) => {
         </div>
       ))
     } else {
-      return resultsEntities.map((entity: SmallEntityProps) => (
+      return resultsEntities.map((entity) => (
         <div className="flex justify-center" key={entity.id}>
           <EntitySearchResult entity={entity}/>
         </div>

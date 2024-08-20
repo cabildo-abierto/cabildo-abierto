@@ -35,6 +35,13 @@ export type EntityProps = {
 }
 
 
+export type SmallEntityProps = {
+    id: string,
+    name: string,
+    versions: {id: string, categories: string}[]
+}
+
+
 export type SubscriptionProps = {
     id: string
     createdAt: string | Date

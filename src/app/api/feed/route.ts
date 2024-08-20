@@ -7,7 +7,8 @@ export type SmallContentProps = {
     id: string
     type: ContentType
     isDraft: boolean | null
-    text: string
+    text: string,
+    entityReferences: {id: string, versions: {id: string, categories: string}[]}[]
 }
 
 export async function GET(req: NextRequest) {

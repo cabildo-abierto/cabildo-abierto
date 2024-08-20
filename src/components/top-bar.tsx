@@ -31,18 +31,6 @@ function WriteButton() {
 }
 
 
-function WikiButton() {
-    return <div className="px-1 py-2">
-        <Link href="/nav">
-        <button className="topbar-btn">
-            <LocalLibraryIcon />
-        </button>
-        </Link>
-    </div>
-}
-
-
-
 function OpenSidebarButton({ onClick }: any) {
     return <div className="px-1 py-2">
         <button className="topbar-btn" onClick={onClick}>
@@ -75,7 +63,6 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
         {!searchBarOpen &&
             <>
             <FeedButton />
-            <WikiButton />
             <WriteButton />
             <SearchButton onClick={() => {setSearchBarOpen(true)}} />
             </>

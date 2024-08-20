@@ -9,6 +9,7 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
 import { useUser } from "@/app/hooks/user";
+import { Logo } from "./home-page";
 
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
@@ -23,7 +24,6 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
             <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-white border-r">
                 <ul className="flex-1 mt-4 px-2">
                     <SidebarButton onClick={onClose} icon={<HomeIcon/>} text="Inicio" href="/inicio"/>
-                    <SidebarButton icon={<LocalLibraryIcon/>} text="Artículos colaborativos" href="/nav"/>
                     <SidebarButton onClick={onClose} icon={<CreateIcon/>} text="Escribir" href="/escribir"/>
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
                     {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={"/perfil/"+user.user.id.slice(1)}/>}
