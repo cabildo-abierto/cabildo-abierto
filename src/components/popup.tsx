@@ -28,12 +28,10 @@ function Popup({Panel, Trigger}: {Panel: React.FC<any>, Trigger: React.FC<any>})
   return <>
       {<Trigger onClick={handleClick}/>}
       <Modal
-        aria-labelledby="unstyled-modal-title"
-        aria-describedby="unstyled-modal-description"
         open={open}
         onClose={() => {setOpen(false)}}
       >
-        <ModalContent>
+        <div className="bg-[var(--background)] border border-[var(--accent)] rounded">
           <div className="flex justify-end px-1">
             <button
                 onClick={() => {setOpen(false)}}
@@ -41,10 +39,10 @@ function Popup({Panel, Trigger}: {Panel: React.FC<any>, Trigger: React.FC<any>})
                 <CloseIcon/>
             </button>
           </div>
-          <div className="px-8 mb-4">
+          <div className="px-8 py-4">
             <Panel onClose={() => {setOpen(false)}}/>
           </div>
-        </ModalContent>
+          </div>
       </Modal>
   </>
 }
@@ -60,48 +58,3 @@ const Modal = styled(BaseModal)`
   align-items: center;
   justify-content: center;
 `;
-
-
-const blue = {
-  200: '#99CCFF',
-  300: '#66B2FF',
-  400: '#3399FF',
-  500: '#007FFF',
-  600: '#0072E5',
-  700: '#0066CC',
-};
-
-const grey = {
-  50: '#F3F6F9',
-  100: '#E5EAF2',
-  200: '#DAE2ED',
-  300: '#C7D0DD',
-  400: '#B0B8C4',
-  500: '#9DA8B7',
-  600: '#6B7A90',
-  700: '#434D5B',
-  800: '#303740',
-  900: '#1C2025',
-};
-
-
-
-const ModalContent = styled('div')(
-  ({ theme }) => css`
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 500;
-    text-align: start;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow: hidden;
-    background-color: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-    border-radius: 8px;
-    border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
-    box-shadow: 0 4px 12px
-      ${theme.palette.mode === 'dark' ? 'rgb(0 0 0 / 0.5)' : 'rgb(0 0 0 / 0.2)'};
-    padding: 24px;
-    color: ${theme.palette.mode === 'dark' ? grey[50] : grey[900]};
-  `,
-);
