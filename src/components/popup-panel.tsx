@@ -4,7 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 const PopupPanel: React.FC<any> = ({children, onClose}) => {
     return <div className="fixed w-screen h-screen z-100">
     <div className="flex justify-center items-center h-screen z-100">
-      <div className="relative panel bg-white p-8 rounded-lg w-[300px] z-100">
+      <div className="relative panel bg-[var(--background)] p-8 rounded-lg w-[300px] z-100">
 
           <button
               className="absolute top-2 right-2"

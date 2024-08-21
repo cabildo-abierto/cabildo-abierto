@@ -11,7 +11,7 @@
   display: block;
   position: fixed;
   border-radius: 20px;
-  background-color: white;
+  background-color: var(--background);
   width: 40px;
   height: 60px;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);

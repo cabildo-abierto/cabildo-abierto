@@ -15,7 +15,7 @@ type PostOnFeedProps = {
 
 export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFeedProps) => {
     const router = useRouter()
-    return <div className="w-full bg-white text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
+    return <div className="w-full bg-[var(--background)] text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">
             <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>}/>
             <div className="flex items-center px-2 py-2">

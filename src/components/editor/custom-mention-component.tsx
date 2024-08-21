@@ -52,7 +52,7 @@ export const queryMentions = async (trigger: string, query: string | undefined |
 
 export function CustomMenuMentions({ loading, ...props }: BeautifulMentionsMenuProps) {
   return <ul
-      className="m-0 mt-6 p-2 bg-white shadow-lg rounded-lg border border-gray-200 w-64"
+      className="m-0 mt-6 p-2 bg-[var(--background)] shadow-lg rounded-lg border border-gray-200 w-64"
       {...props}
   />
 }

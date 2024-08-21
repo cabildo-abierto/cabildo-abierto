@@ -27,7 +27,7 @@ const EntityPage: React.FC<{
 
     const version = (searchParams.version && typeof searchParams.version == 'string') ? Number(searchParams.version as string) : entity.versions.length-1
 
-    const center = <div className="bg-white h-full">
+    const center = <div className="bg-[var(--background)] h-full">
         <h1 className="ml-2 py-8">
             {entity.name}
         </h1>

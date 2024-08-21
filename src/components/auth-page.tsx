@@ -1,15 +1,15 @@
 import Link from "next/link"
-import { Logo } from "./home-page"
+import { Logo, LogoWithName } from "./home-page"
 import LoginForm from "./login-form"
 import SignupForm from "./signup-form"
 
 
 
 export const AuthPage = ({signup}: {signup: boolean}) => {
-    return <div>
-        <div className="w-screen h-16">
+    return <div className="">
+        <div className="border-b w-screen py-2">
             <Link href="/">
-            <Logo/>
+                <LogoWithName/>
             </Link>
         </div>
     <div className="flex justify-center items-center h-screen-minus-16 w-screen">

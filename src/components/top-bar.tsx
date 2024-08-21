@@ -9,6 +9,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import CreateIcon from '@mui/icons-material/Create';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import { useUser } from "@/app/hooks/user";
+import { GoHome } from "react-icons/go";
 
 function FeedButton() {
     return <div className="px-1 py-2">
@@ -157,11 +158,11 @@ export default function Topbar({ onOpenSidebar, setSearchValue, searching }: Top
         />
     }
 
-    return <><div className="border-b bg-white h-16 flex items-center justify-between">
+    return <><div className="border-b bg-[var(--background)] h-16 flex items-center justify-between">
             {bar}
         </div>
         {(barState != "no bar" || searching) && <div className="fixed top-0 left-0 w-screen">
-            <div className={"border-b bg-white h-16 flex items-center justify-between w-full"+((barState == "transparent" && !searching) ? " bg-opacity-50" : "")}>
+            <div className={"border-b bg-[var(--background)] h-16 flex items-center justify-between w-full"+((barState == "transparent" && !searching) ? " bg-opacity-50" : "")}>
                 {bar}
             </div>
         </div>}

@@ -32,7 +32,7 @@ export const SearchInput: React.FC<any> = ({ onChange }) => {
 
   return <input
     ref={inputRef}
-    className="rounded-lg w-full transition duration-300 focus:outline-none"
+    className="rounded-lg bg-[var(--background)] w-full transition duration-300 focus:outline-none"
     placeholder="buscar"
     onChange={onChange}
   />

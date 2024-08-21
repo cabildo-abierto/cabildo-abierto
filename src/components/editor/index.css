@@ -18,7 +18,7 @@
 }
 
 .editor-shell .editor-container {
-  background: #fff;
+  background: var(--bacgkround);
   position: relative;
   display: block;
   border-bottom-left-radius: 10px;
@@ -58,7 +58,7 @@
 pre {
   line-height: 1.1;
   background: #222;
-  color: #fff;
+  color: var(--background);
   margin: 0;
   padding: 10px;
   font-size: 12px;
@@ -69,7 +69,7 @@ pre {
 .tree-view-output {
   display: block;
   background: #222;
-  color: #fff;
+  color: var(--background);
   padding: 0;
   font-size: 12px;
   margin: 1px auto 10px auto;
@@ -219,7 +219,7 @@ pre::-webkit-scrollbar-thumb {
 }
 
 .typeahead-popover {
-  background: #fff;
+  background: var(--background);
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   position: fixed;
@@ -267,7 +267,7 @@ pre::-webkit-scrollbar-thumb {
   align-content: center;
   flex-direction: row;
   flex-shrink: 0;
-  background-color: #fff;
+  background-color: var(--background);
   border-radius: 8px;
   border: 0;
 }
@@ -677,7 +677,7 @@ i.page-break,
     inset 0 0 0 1px rgba(255, 255, 255, 0.5);
   border-radius: 8px;
   min-height: 40px;
-  background-color: #fff;
+  background-color: var(--background);
 }
 
 .dropdown .item {
@@ -692,7 +692,7 @@ i.page-break,
   flex-direction: row;
   flex-shrink: 0;
   justify-content: space-between;
-  background-color: #fff;
+  background-color: var(--background);
   border-radius: 8px;
   border: 0;
   max-width: 250px;
@@ -891,7 +891,7 @@ i.page-break,
   width: 20px;
   height: 20px;
   border-radius: 12px;
-  background-color: white;
+  background-color: var(--background);
   transition: transform 0.2s;
 }
 
@@ -941,7 +941,7 @@ i.page-break,
   right: 0;
   padding: 0;
   margin: 0;
-  border-top: 1px solid #fff;
+  border-top: 1px solid var(--background);
   background-color: rgba(255, 255, 255, 0.9);
   min-width: 100px;
   color: #000;
@@ -961,7 +961,7 @@ i.page-break,
   border-radius: 5px;
   background-color: rgba(0, 0, 0, 0.5);
   min-width: 100px;
-  color: #fff;
+  color: var(--background);
   cursor: pointer;
   user-select: none;
 }
@@ -997,7 +997,7 @@ i.page-break,
   height: 7px;
   position: absolute;
   background-color: rgb(60, 132, 244);
-  border: 1px solid #fff;
+  border: 1px solid var(--background);
 }
 
 .editor-shell .editor-image .image-resizer.image-resizer-n {
@@ -1104,7 +1104,7 @@ i.page-break,
   border-radius: 5px;
   background-color: rgba(0, 0, 0, 0.5);
   min-width: 60px;
-  color: #fff;
+  color: var(--background);
   cursor: pointer;
   user-select: none;
 }
@@ -1322,7 +1322,7 @@ button.action-button:disabled {
   border: 0;
   background: none;
   flex: 1;
-  color: #fff;
+  color: var(--background);
   font-size: 12px;
 }
 
@@ -1338,7 +1338,7 @@ button.action-button:disabled {
   right: 15px;
   position: absolute;
   background: none;
-  color: #fff;
+  color: var(--background);
 }
 
 .debug-timetravel-button:hover {
@@ -1353,7 +1353,7 @@ button.action-button:disabled {
   right: 85px;
   position: absolute;
   background: none;
-  color: #fff;
+  color: var(--background);
 }
 
 .debug-treetype-button:hover {
@@ -1385,7 +1385,7 @@ button.action-button:disabled {
 .toolbar {
   display: flex;
   margin-bottom: 1px;
-  background: #fff;
+  background: var(--background);
   padding: 4px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -1543,10 +1543,10 @@ button.toolbar-item.active i {
   border-top: 1px solid #fdfd86;
   background: linear-gradient(
     135deg,
-    #ffff88 81%,
-    #ffff88 82%,
-    #ffff88 82%,
-    #ffffc6 100%
+    var(--background)f88 81%,
+    var(--background)f88 82%,
+    var(--background)f88 82%,
+    var(--background)fc6 100%
   );
 }
 

@@ -10,6 +10,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
 import { useUser } from "@/app/hooks/user";
 import { Logo } from "./home-page";
+import EditNoteIcon from '@mui/icons-material/EditNote';
 
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
@@ -19,12 +20,14 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
         await logout()
     }
 
-    return <div className ="h-screen w-screen fixed top-0 left-0">
+    return <div className ="h-screen w-screen fixed top-0 left-0 z-20">
         <div className="flex">
-            <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-white border-r">
+            <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--background)] border-r">
                 <ul className="flex-1 mt-4 px-2">
                     <SidebarButton onClick={onClose} icon={<HomeIcon/>} text="Inicio" href="/inicio"/>
                     <SidebarButton onClick={onClose} icon={<CreateIcon/>} text="Escribir" href="/escribir"/>
+                    <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
+                    
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
                     {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={"/perfil/"+user.user.id.slice(1)}/>}
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/articulo/Cabildo_Abierto"/>

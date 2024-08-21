@@ -119,7 +119,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
         />
 	}
 
-    return <div className="px-1 py-2 border rounded bg-white">
+    return <div className="px-1 py-2 border rounded bg-[var(--background)]">
         <div className="ml-3 mr-2 mt-2">
             <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
         </div>
