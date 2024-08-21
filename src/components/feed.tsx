@@ -26,7 +26,7 @@ const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
                 />
             </div>
         }) : 
-        <div className="ml-4">Todavía no hay nada acá... Escribí algo y referenciá a alguno de los artículos de esta categoría para que aparezca acá.</div>}
+        <div className="ml-4 flex justify-center">Todavía no hay nada acá...</div>}
     </div>
 }
 

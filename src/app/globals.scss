@@ -383,9 +383,10 @@ h4 {
     position: fixed;
 	top: 4rem;
     right: 0;
-    width: 400px; /* Adjust width as needed */
+    width: 400px;
     height: calc(100vh - 4rem);
-    background-color: rgba(255, 255, 255, 0.7); /* Transparent background */
+    background-color: rgba(var(--background), 0.7);
+	opacity: 0.7;
     overflow-y: auto; /* Enable vertical scrolling */
     padding: 1rem; /* Add some padding */
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow to separate from main content */
@@ -397,9 +398,9 @@ h4 {
     position: fixed;
 	top: 4rem;
     right: 0;
-    width: 400px; /* Adjust width as needed */
+    width: 400px;
     height: calc(100vh - 4rem);
-    background-color: rgba(255, 255, 255, 0.7); /* Transparent background */
+    background-color: rgba(var(--background), 0.7);
     overflow-y: auto; /* Enable vertical scrolling */
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow to separate from main content */
     z-index: 50; /* Ensure it stays on top of other content */
@@ -437,4 +438,37 @@ h4 {
 
 .view-more:hover {
 	text-decoration: underline
+}
+
+.info-panel {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	margin-top: 8px;
+	padding: 6px;
+	background-color: var(--background);
+	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	z-index: 10;
+	width: 200px;
+	border-width: 1px;
+	border-color: var(--accent)
+}
+
+.auth-btn {
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	padding-left: 0.25rem; 
+	padding-right: 0.25rem;
+	border-radius: 0.25rem; 
+	width: 8rem;
+	background-color: var(--background); 
+	font-size: medium;
+	cursor: pointer; 
+	color: var(--text)
+}
+  
+.auth-btn:hover {
+	background-color: var(--secondary-light);
 }

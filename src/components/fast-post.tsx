@@ -22,7 +22,7 @@ export const FastPost = ({
     onViewComments,
     viewingComments}: FastPostProps) => {
     const icon = <BoltIcon fontSize={"small"}/>
-    const className = "w-full bg-white text-left" 
+    const className = "w-full bg-[var(--background)] text-left" 
 
     return <div className={className}>
         <div className="border rounded w-full">

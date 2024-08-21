@@ -1,20 +1,28 @@
 "use client"
-import React from "react"
+import React, { useState } from "react"
 import { ThreeColumnsLayout } from "@/components/three-columns";
 import { entityInRoute, WikiCategories } from "@/components/wiki-categories";
 import Feed from "@/components/feed";
-import { useFeed } from "@/app/hooks/contents";
+import { useFeed, useFollowingFeed } from "@/app/hooks/contents";
 import { CategoryArticles } from "@/components/category-articles";
 import { useEntities } from "@/app/hooks/entities";
+import SelectionComponent from "@/components/search-selection-component";
+import { useUser } from "@/app/hooks/user";
+import { useRouter } from "next/navigation";
+
 
 
 const TopicsPage: React.FC<{
     params: {route: string[]}
-}> = ({params}) => {
-
+    searchParams: { [key: string]: string }
+}> = ({params, searchParams}) => {
     const decodedRoute = params.route ? params.route.map(decodeURIComponent) : []
-
+    let selected = searchParams.selected ? searchParams.selected : "General"
+    
+    let {user} = useUser()
     let feed = useFeed()
+    let followingFeed = useFollowingFeed(user.id)
+    const router = useRouter()
     const entities = useEntities()
 
     if(feed.feed){
@@ -25,8 +33,6 @@ const TopicsPage: React.FC<{
         })
     }
 
-    const category = decodedRoute.length > 0 ? decodedRoute.join(" > ") : "Inicio"
-
     if(entities.isLoading){
         return <></>
     }
@@ -35,13 +41,22 @@ const TopicsPage: React.FC<{
     }
 
     const routeEntities = entities.entities.filter((entity) => (entityInRoute(entity, decodedRoute)))
+    
+    function setSelected(value: string) {
+        router.push("/inicio/"+decodedRoute.join("/")+"?selected="+value)
+    }
 
     const center = <div className="w-full">
-        <WikiCategories route={decodedRoute}/>
-        <CategoryArticles entities={routeEntities}/>
-
-        <h3 className="flex ml-2 py-4">Discusión</h3>
-        {feed && <Feed feed={feed}/>}
+        <WikiCategories route={decodedRoute} selected={selected}/>
+        <SelectionComponent onSelection={setSelected} options={["General", "Siguiendo", "Artículos colaborativos"]} selected={selected}/>
+        
+        {selected == "Artículos colaborativos" ? 
+            <CategoryArticles entities={routeEntities}/> :
+        selected == "General" ? 
+        <>{feed && <div className="mt-8">
+            <Feed feed={feed}/>
+        </div>}</> : 
+        <>{followingFeed && <div className="mt-8"><Feed feed={followingFeed}/></div>}</>}
     </div>
 
     return <ThreeColumnsLayout center={center} />

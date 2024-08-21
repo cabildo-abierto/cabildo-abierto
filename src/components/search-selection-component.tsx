@@ -1,38 +1,32 @@
 "use client"
 
 import { useState } from "react";
+import InfoPanel from "./info-panel";
 
+type SelectionComponentProps = { 
+    onSelection: (arg: string) => void
+    options: string[]
+    selected?: string
+}
 
-const SelectionComponent: React.FC<{ selectionHandler: (arg: string) => void }> = ({ selectionHandler }) => {
-  const [selectedButton, setSelectedButton] = useState("users");
+const SelectionComponent: React.FC<SelectionComponentProps> = ({ onSelection, options, selected }) => {
+  const [selectedButton, setSelectedButton] = useState(selected ? selected : options[0]);
 
   const handleButtonClick = (button: string) => {
     setSelectedButton(button);
-    selectionHandler(button);
+    onSelection(button);
   };
 
   return <div className="flex w-full">
-      <button
-        className={`${selectedButton === 'users' ? 'selected-search-option' : 'not-selected-search-option'
+      {options.map((option, index) => {
+        return <button key={index}
+        className={`${selectedButton === option ? 'selected-search-option' : 'not-selected-search-option'
           } py-2 px-4 focus:outline-none flex-1`}
-        onClick={() => handleButtonClick('users')}
+        onClick={() => handleButtonClick(option)}
       >
-        Usuarios
+        {option}
       </button>
-      <button
-        className={`${selectedButton === 'contents' ? 'selected-search-option' : 'not-selected-search-option'
-          } py-2 px-4 focus:outline-none flex-1`}
-        onClick={() => handleButtonClick('contents')}
-      >
-        Publicaciones
-      </button>
-      <button
-        className={`${selectedButton === 'entities' ? 'selected-search-option' : 'not-selected-search-option'
-          } py-2 px-4 focus:outline-none flex-1`}
-        onClick={() => handleButtonClick('entities')}
-      >
-        Artículos colaborativos
-      </button>
+      })}
   </div>
 };
 

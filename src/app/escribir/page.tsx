@@ -11,13 +11,6 @@ const Escribir = () => {
     const className = "gray-btn w-64 flex justify-center items-center"
 
     const center = <div className="flex flex-col items-center h-screen">
-        <div className="p-4">
-            <Link href="/borradores">
-                <button className="search-result">
-                    Borradores
-                </button>
-            </Link>
-        </div>
         <div className="lg:flex lg:justify-center py-64">
             <div className="p-4">
                 <Link href="/escribir/rapida">

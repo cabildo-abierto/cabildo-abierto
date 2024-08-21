@@ -43,7 +43,7 @@ export const Comment = ({
     onStartReply,
     onViewComments,
     viewingComments}: CommentProps) => {
-    const className = "w-full bg-white text-left" 
+    const className = "w-full bg-[var(--background)] text-left" 
 
     let snode = null
     const parentContent = useContent(content.parentContents[0].id)

@@ -16,7 +16,7 @@ const SearchPage = ({searchValue}: {searchValue: string}) => {
   const [resultsUsers, setResultsUsers] = useState<any[]>([]);
   const [resultsContents, setResultsContents] = useState<{id: string}[]>([]);
   const [resultsEntities, setResultsEntities] = useState<{id: string, name: string}[]>([]);
-  const [searchType, setSearchType] = useState("users");
+  const [searchType, setSearchType] = useState("Usuarios");
 
   const entities = useEntities()
   const contents = useFeed()
@@ -44,13 +44,13 @@ const SearchPage = ({searchValue}: {searchValue: string}) => {
   }
 
   const searchResults = () => {
-    if (searchType == "users") {
+    if (searchType == "Usuarios") {
       return resultsUsers.map((result) => (
         <div className="flex justify-center" key={result.id}>
           <UserSearchResult result={result}/>
         </div>
       ))
-    } else if (searchType == "contents") {
+    } else if (searchType == "Publicaciones") {
       return resultsContents.map(({id}) => (
         <div className="py-2" key={id}>
           <ContentComponent
@@ -72,7 +72,7 @@ const SearchPage = ({searchValue}: {searchValue: string}) => {
 
   return <>
       <div className="flex justify-center w-full">
-          <SelectionComponent selectionHandler={handleTypeChange} />
+          <SelectionComponent onSelection={handleTypeChange} options={["Usuarios", "Publicaciones", "Artículos colaborativos"]}/>
       </div>
       <div className="flex justify-center overflow-scroll">
           <div className="mt-4 w-full px-8">

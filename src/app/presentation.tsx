@@ -70,7 +70,7 @@ export const Presentation: React.FC = () => {
             <SignupButton className="w-64 h-12 text-lg"/>
         </div>}
         <div className="flex justify-center mt-16">
-            <SignupButton className="w-64 h-12" text="Empezar"/>
+            <SignupButton className="w-64 h-12 gray-btn" text="Empezar"/>
         </div>
     </div>
 };
