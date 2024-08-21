@@ -12,9 +12,17 @@ import { EntityProps } from "@/app/lib/definitions";
 import { useUser } from "@/app/hooks/user";
 import { useSWRConfig } from "swr";
 
+function validCategoryElement(e: string){
+    return e.length > 0
+}
+
+function validCategory(category: string[]){
+    return category.length > 0 && !category.some((e) => !validCategoryElement(e))
+}
+
 
 function validCategories(categories: string[][]){
-    return !categories.some((cat: string[]) => {return cat.length == 0})
+    return !categories.some((cat: string[]) => (!validCategory(cat)))
 }
 
 type RouteEditorProps = {
@@ -27,18 +35,30 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
     RouteEditorProps
 ) => {
 
+    function updateCategoryAt(i: number, value: string){
+        updateCategory([...category.slice(0, i), value, ...category.slice(i+1)])
+    }
+
     return <div className="flex items-center py-2">
         <button className="flex items-center route-edit-btn" onClick={removeCategory}>
             <div className="px-1 py-1 flex items-center">
             <RemoveCircleOutlineIcon fontSize="small"/>
             </div>
         </button>
-        <input
-            className="border px-2 py-1 rounded outline-none w-64"
-            placeholder={category[0]}
-            value={category}
-            onChange={(e) => {updateCategory([e.target.value])}}
-        />
+        <div className="flex">
+            {category.map((c, i) => {
+                return <input
+                    key={i}
+                    className="border px-2 mx-1 py-1 rounded outline-none w-48"
+                    placeholder={c}
+                    value={c}
+                    onChange={(e) => {updateCategoryAt(i, e.target.value)}}
+                />
+            })}
+            <button className="route-edit-btn px-1 py-1" onClick={() => {updateCategory(category.concat([""]))}}>
+                <AddCircleOutlineIcon fontSize="small"/>
+            </button>
+        </div>
         <div className="ml-2">
         </div>
     </div>
@@ -79,7 +99,7 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
     }
 
     function addCategory() {
-        setCategories([...categories, []])
+        setCategories([...categories, [""]])
     }
 
     const updateCategory = (i: number) => {
@@ -114,7 +134,7 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
         <div className="ml-1">
             <h3>Categorías</h3>
         </div>
-        <div className="flex justify-center">
+        <div className="flex">
             <div className="w-72">
                 {categories.length > 0 ? categories.map((cat: string[], i: number) => {
                     return <div key={i}><RouteEditor
