@@ -25,6 +25,8 @@ import {
     removeClassNamesFromElement,
 } from '@lexical/utils';
 import {$applyNodeReplacement, $isRangeSelection, ElementNode} from 'lexical';
+import Link from 'next/link';
+import ReactDOM from 'react-dom';
   
 export type SerializedCustomMarkNode = Spread<
     {

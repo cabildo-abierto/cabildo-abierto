@@ -24,8 +24,10 @@ export const PeriodoDePrueba = () => {
 
 const Feature = ({text, className}: {text: string, className: string}) => {
     return <div className="flex items-center py-2">
-        <ArrowForwardIosIcon/>
-        <div className={"flex items-center font-semibold "+className}>
+        <div className="ml-2">
+            <ArrowForwardIosIcon/>
+        </div>
+        <div className={"ml-3 flex items-center font-semibold "+className}>
             {text}
         </div>
     </div>
@@ -34,18 +36,18 @@ const Feature = ({text, className}: {text: string, className: string}) => {
 
 export const Features = () => {
   return (
-    <div className="flex justify-center mt-16 mb-6 text-lg content">
-      <div className="flex flex-col w-128 px-4">
-        {true && <div className="">
-            Cabildo Abierto es una plataforma argentina en la que vas a encontrar información y análisis:
-        </div>}
-        <Feature text="independiente" className="text-[var(--primary)]"/>
-        <Feature text="abierto a discusión" className="text-[var(--primary)]"/>
-        <Feature text="escrito y financiado por la comunidad" className="text-[var(--primary)]"/>
-        {true && <div className="">
-            Sin algoritmos, bots, anonimato ni noticias falsas.
-        </div>}
-      </div>
+    <div className="flex flex-col items-center mt-8 text-lg content">
+        <div className="mb-2 w-128 text-center">
+            Cabildo Abierto es una plataforma en la que vas a encontrar <span className="font-bold">información</span> y <span className="font-bold">análisis</span>:
+        </div>
+        <div className="flex flex-col w-128 px-4">
+            <Feature text="independiente," className="text-[var(--primary)]"/>
+            <Feature text="abierto a discusión," className="text-[var(--primary)]"/>
+            <Feature text="y escrito y financiado por la comunidad." className="text-[var(--primary)]"/>
+            {true && <div className="mt-4">
+                Sin algoritmos, bots, anonimato ni noticias falsas.
+            </div>}
+        </div>
     </div>
   );
 };
@@ -70,7 +72,7 @@ export const Presentation: React.FC = () => {
             <SignupButton className="w-64 h-12 text-lg"/>
         </div>}
         <div className="flex justify-center mt-16">
-            <SignupButton className="w-64 h-12 gray-btn" text="Empezar"/>
+            <SignupButton className="w-64 h-12 gray-btn font-semibold" text="Empezar"/>
         </div>
     </div>
 };

@@ -76,7 +76,10 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import {MarkNode} from '@lexical/mark';
 import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { ContentProps, UserProps } from '@/app/lib/definitions';
-import { $createParagraphNode, $createTextNode, $getRoot, LexicalEditor as OriginalLexicalEditor } from 'lexical';
+import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalEditor as OriginalLexicalEditor } from 'lexical';
+
+import {LinkNode, AutoLinkNode} from '@lexical/link'
+import { CustomLinkNode } from './nodes/CustomLinkNode';
 
 export type SettingsProps = {
   disableBeforeInput: boolean,
@@ -250,7 +253,7 @@ function Editor({ settings, setEditor, setOutput }:
             <PollPlugin />
             <TwitterPlugin />
             <YouTubePlugin />
-            <ClickableLinkPlugin disabled={isEditable} />
+            <ClickableLinkPlugin disabled={isEditable} newTab={false}/>
             <HorizontalRulePlugin />
             <EquationsPlugin />
             <TabFocusPlugin />

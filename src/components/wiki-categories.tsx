@@ -6,6 +6,8 @@ import { useEntities } from "@/app/hooks/entities"
 import { ContentProps, EntityProps, SmallEntityProps } from "@/app/lib/definitions";
 import { useState } from "react";
 import { SubcategoriesDropDown } from "./subcategories-dropdown";
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 function currentCategories(entity: {versions: {id: string, categories: string}[]}){
     return JSON.parse(entity.versions[entity.versions.length-1].categories)
@@ -62,7 +64,10 @@ export const Route = ({route, nextCategories, selected}: {route: string[], nextC
                     {c}
                 </Link>
 
-                {(index != route.length || (nextCategories && nextCategories.size > 0)) && <span className="px-1 text-2xl bodoni text-[var(--primary)]">{">"}</span>}
+                {(index != route.length || (nextCategories && nextCategories.size > 0)) && 
+                <span className="px-1 text-2xl bodoni text-[var(--primary)] mb-1">
+                    <KeyboardArrowRightIcon/>
+                </span>}
             
             </div>
         })}
@@ -74,17 +79,15 @@ export const WikiCategories = ({route, selected}: {route: string[], selected: st
 
     const {entities} = useEntities()
     const nextCategories = getNextCategories(route, entities)
-    return <div className="mt-8 mx-2">
-        <div className="px-2 py-2">
-            <div className="flex py-2 items-center">
-                <Route route={route} nextCategories={nextCategories} selected={selected}/>
-                {nextCategories.size > 0 && 
-                <SubcategoriesDropDown
-                    nextCategories={nextCategories}
-                    route={route}
-                    selected={selected}
-                />}
-            </div>
+    return <div className="">
+        <div className="flex py-2 items-center px-2">
+            <Route route={route} nextCategories={nextCategories} selected={selected}/>
+            {nextCategories.size > 0 && 
+            <SubcategoriesDropDown
+                nextCategories={nextCategories}
+                route={route}
+                selected={selected}
+            />}
         </div>
     </div>
 }

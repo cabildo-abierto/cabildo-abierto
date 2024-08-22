@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Link from "next/link";
 import AddIcon from '@mui/icons-material/Add';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 function routeToUrl(route: string[]){
     return "/inicio/" + route.map(encodeURIComponent).join("/")
@@ -32,19 +33,19 @@ export const SubcategoriesDropDown = ({ nextCategories, route, selected }: { nex
 
     return (
         <div className="relative ml-2" ref={dropdownRef}> {/* Make the parent div relative */}
-            <button className="text-2xl w-48 flex items-center justify-center h-8 font-bold bodoni text-[var(--primary)] border hover:bg-[var(--secondary-light)] rounded px-2" onClick={() => setViewSubcategories(!viewSubcategories)}>
-                <AddIcon/>
+            <button className="text-2xl h-8 bodoni text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2" onClick={() => setViewSubcategories(!viewSubcategories)}>
+                Agregar...
             </button>
             {viewSubcategories && (
                 nextCategories.size > 0 ?
-                    <div className="w-full absolute top-full mt-2 left-0 z-10"> {/* Position the dropdown absolutely */}
+                    <div className="w-64 absolute top-full mt-2 left-0 z-10"> {/* Position the dropdown absolutely */}
                         {[...nextCategories].map((nextCategory: string, index: number) => (
                             <div key={index}>
                                 <Link href={routeToUrl([...route, nextCategory])+"?selected="+selected}>
                                     <button className="subcategories-dropdown w-full bg-[var(--background)] py-1 mt-1 px-2">
-                                        <div className="flex justify-center w-full">
+                                        <span className="flex justify-center w-full bodoni text-[var(--primary)]">
                                             {nextCategory}
-                                        </div>
+                                        </span>
                                     </button>
                                 </Link>
                             </div>
