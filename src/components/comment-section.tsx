@@ -25,7 +25,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({parentContent, activeIDs
     const contents = otherContents ? comments.concat(otherContents) : comments
 
     function compDate(a: {createdAt: string}, b: {createdAt: string}){
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     }
 
     return <>
