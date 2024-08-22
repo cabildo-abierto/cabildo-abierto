@@ -8,9 +8,12 @@ import StateButton from "./state-button";
 import { entityLastVersionId } from "./utils";
 import { useContent } from "@/app/hooks/contents";
 import { updateEntity } from "@/actions/create-entity";
-import { EntityProps } from "@/app/lib/definitions";
+import { EntityProps, SmallEntityProps } from "@/app/lib/definitions";
 import { useUser } from "@/app/hooks/user";
 import { useSWRConfig } from "swr";
+import { useCategories, useEntities } from "@/app/hooks/entities";
+import { getNextCategories, isPrefix } from "./wiki-categories";
+import InfoPanel from "./info-panel";
 
 function validCategoryElement(e: string){
     return e.length > 0
@@ -34,10 +37,23 @@ type RouteEditorProps = {
 const RouteEditor = ({category, removeCategory, updateCategory}: 
     RouteEditorProps
 ) => {
+    const entities = useEntities()
 
     function updateCategoryAt(i: number, value: string){
         updateCategory([...category.slice(0, i), value, ...category.slice(i+1)])
     }
+
+    console.log("----------------------------------")
+    let newIndex = 0
+    if(!entities.isLoading){
+        const next = getNextCategories(category.slice(0, newIndex), entities.entities)
+        console.log(category.slice(0, newIndex), next, category[newIndex])
+        while(newIndex < category.length && next.has(category[newIndex])){
+            newIndex ++
+        }
+    }
+    console.log(category, newIndex)
+    console.log("----------------------------------")
 
     return <div className="flex items-center py-2">
         <button className="flex items-center route-edit-btn" onClick={removeCategory}>
@@ -47,9 +63,10 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
         </button>
         <div className="flex">
             {category.map((c, i) => {
+                const isNew = i >= newIndex
                 return <input
                     key={i}
-                    className="border border-[var(--accent)] px-2 mx-1 py-1 rounded outline-none w-48 bg-[var(--background)]"
+                    className={"border px-2 mx-1 py-1 rounded outline-none w-48 bg-[var(--background)]" + (isNew ? " border-[var(--primary)] border-2":" border-[var(--accent)]")}
                     placeholder={c}
                     value={c}
                     onChange={(e) => {updateCategoryAt(i, e.target.value)}}
@@ -122,6 +139,7 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
     }
 
     const onSubmitCategories = async () => {
+        // TO DO: Pedir confirmación si crea una nueva categoría
         if(user.user) {
             await updateEntity(content.text, JSON.stringify(categories), entity.id, user.user)
             mutate("/api/entitiy/"+entity.id)
@@ -130,10 +148,13 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
         }
     }
 
+    const info = "Cada artículo puede estar en una o más categorías y subcategorías. Al asignar un artículo a una categoría que no existe todavía (borde azul) se crea automáticamente esa categoría."
+
     return <div className="">
         <div className="py-3"><hr/></div>
-        <div className="ml-1">
+        <div className="ml-1 flex justify-between">
             <h3>Categorías</h3>
+            <InfoPanel text={info} className="w-96"/>
         </div>
         <div className="flex">
             <div className="w-72">

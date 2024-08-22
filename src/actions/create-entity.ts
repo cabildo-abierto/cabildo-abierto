@@ -48,6 +48,7 @@ export const updateEntity = async (text: string, categories: string, entityId: s
   })
 
   revalidateTag("entities")
+  revalidateTag("contents")
 }
 
 

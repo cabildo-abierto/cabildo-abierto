@@ -22,3 +22,14 @@ export function useEntities(): {entities: EntityProps[], isLoading: boolean, isE
         isError: error
     }
 }
+
+
+export function useCategories(): {categories: string[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/categories', fetcher)
+  
+    return {
+        categories: data,
+        isLoading,
+        isError: error
+    }
+}
