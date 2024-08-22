@@ -47,9 +47,10 @@ export const TitleInput = ({ onChange }: any) => {
                 borderRadius: '5px',
                 outline: 'none',
                 fontWeight: 'bold',
-                resize: 'none', // Prevents manual resizing by the user
-                overflow: 'hidden', // Hides the scrollbar
-                whiteSpace: 'pre-wrap', // Preserves whitespace and ensures line breaks
+                resize: 'none',
+                overflow: 'hidden',
+                whiteSpace: 'pre-wrap',
+                backgroundColor: 'var(--background)'
             }}
             rows={1} // Starts with one visible row
             maxLength={maxLength} // HTML attribute to limit the input length

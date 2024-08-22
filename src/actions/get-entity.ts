@@ -24,6 +24,11 @@ export const getEntities = cache(async () => {
                 }
             }
         },
+        where: {
+            NOT: {
+                deleted: true
+            }
+        },
         orderBy: {
             name: "asc"
         }

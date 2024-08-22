@@ -13,7 +13,7 @@ const ArticlesWithSearch = ({entities}: {entities: EntityProps[]}) => {
     }
 
     return <div className="flex flex-col items-center">
-        <div className="my-4 py-2 border rounded border-[var(--accent)] px-2">
+        <div className="my-4 py-2 border rounded border-[var(--accent)] px-2 w-64">
             <SearchInput onChange={(v: string) => {setSearchValue(v)}}/>
         </div>
         <div className="flex flex-col justify-center">

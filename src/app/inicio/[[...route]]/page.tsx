@@ -47,9 +47,16 @@ const TopicsPage: React.FC<{
     }
 
     const center = <div className="w-full">
-        <WikiCategories route={decodedRoute} selected={selected}/>
-        <SelectionComponent onSelection={setSelected} options={["General", "Siguiendo", "Artículos colaborativos"]} selected={selected}/>
-        
+        <div className="mt-2 border rounded-lg">
+            <WikiCategories route={decodedRoute} selected={selected}/>
+            <SelectionComponent
+                onSelection={setSelected}
+                options={["General", "Siguiendo", "Artículos colaborativos"]}
+                selected={selected}
+                className="main-feed"
+            />
+        </div>
+
         {selected == "Artículos colaborativos" ? 
             <CategoryArticles entities={routeEntities}/> :
         selected == "General" ? 

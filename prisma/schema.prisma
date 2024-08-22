@@ -33,6 +33,8 @@ model User {
     subscriptionsUsed        Subscription[]
     subscriptionsBought      Subscription[]  @relation("bought")
 
+    deletedEntities Entity[]  @relation("entityDelete")
+
     @@map(name: "users")
 }
 
@@ -62,6 +64,10 @@ model Entity {
     versions        Content[]
 
     referencedBy    Content[]    @relation("entityReferences")
+
+    deleted         Boolean      @default(false)
+    deletedBy       User?        @relation("entityDelete", fields: [deletedById], references: [id])
+    deletedById     String?
 }
 
 

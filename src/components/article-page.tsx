@@ -13,6 +13,9 @@ import { ToggleButton } from "@/components/toggle-button";
 import { EditHistory } from "@/components/edit-history";
 import { EntityCategories } from "@/components/categories";
 import NoEntityPage from "./no-entity-page";
+import StateButton from "./state-button";
+import { useRouter } from "next/navigation";
+import { deleteEntity } from "@/actions/create-entity";
 
 
 export const ArticlePage = ({entityId, version}: {entityId: string, version?: number}) => {
@@ -20,6 +23,8 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
     const {entity, isLoading, isError} = useEntity(entityId)
     const [showingCategories, setShowingCategories] = useState(false)
     const [showingHistory, setShowingHistory] = useState(version !== undefined)
+    const router = useRouter()
+    const {mutate} = useSWRConfig()
 
     if(isLoading){
         return <></>
@@ -54,6 +59,22 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         />
     }
 
+    const DeleteArticleButton = () => {
+        return <StateButton
+            className="gray-btn"
+            text1="Eliminar artículo"
+            text2="Eliminando..."
+            onClick={async () => {
+                if(user.user){
+                    await deleteEntity(entity.id, user.user.id); 
+                    router.push("/inicio");
+                    mutate("/api/entities")
+                    mutate("/api/contents")
+                }
+            }}
+        />
+    }
+
     if(version === undefined){
         version = entity.versions.length-1
     }
@@ -63,13 +84,18 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         <h1 className="ml-2 py-8">
             {entity.name}
         </h1>
-        <div className="flex justify-end items-center px-2 py-2 space-x-2">
+        <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
             <ViewHistoryButton/>
             <ViewCategoriesButton/>
             <EditButton/>
             {(user.user && user.user.editorStatus == "Administrator") &&
             <div className="flex justify-center py-2">
                 <SetProtectionButton entity={entity}/>
+            </div>
+            }
+            {(user.user && user.user.editorStatus == "Administrator") &&
+            <div className="flex justify-center py-2">
+                <DeleteArticleButton/>
             </div>
             }
         </div>

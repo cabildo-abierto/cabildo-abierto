@@ -43,17 +43,14 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
         updateCategory([...category.slice(0, i), value, ...category.slice(i+1)])
     }
 
-    console.log("----------------------------------")
     let newIndex = 0
     if(!entities.isLoading){
-        const next = getNextCategories(category.slice(0, newIndex), entities.entities)
-        console.log(category.slice(0, newIndex), next, category[newIndex])
+        let next = getNextCategories(category.slice(0, newIndex), entities.entities)
         while(newIndex < category.length && next.has(category[newIndex])){
             newIndex ++
+            next = getNextCategories(category.slice(0, newIndex), entities.entities)
         }
     }
-    console.log(category, newIndex)
-    console.log("----------------------------------")
 
     return <div className="flex items-center py-2">
         <button className="flex items-center route-edit-btn" onClick={removeCategory}>

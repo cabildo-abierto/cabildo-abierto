@@ -68,3 +68,19 @@ export const undoChange = async (entityId: string, contentId: string, versionNum
 
   revalidateTag("entities")
 }
+
+
+export const deleteEntity = async (entityId: string, userId: string) => {
+  await db.entity.update({
+      data: {
+          deleted: true,
+          deletedById: userId
+      },
+      where: {
+          id: entityId
+      }
+  })
+
+  revalidateTag("entities")
+  revalidateTag("contents")
+}

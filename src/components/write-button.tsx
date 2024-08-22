@@ -103,22 +103,22 @@ const WriteButton = () => {
             </div>
 
             {isDropdownOpen && (
-                <div className="absolute mt-2 z-10">
-                    <div className="py-1">
+                <div className="absolute mt-2 z-10 bg-[var(--background)] rounded border border-[var(--accent)] px-2 py-2">
+                    <div className="">
                         <Link href="/escribir/rapida">
-                            <button className={className}>
+                            <button className={className} onClick={() => {setIsDropdownOpen(false)}}>
                                 <span className="px-1"><BoltIcon /></span> Publicación rápida
                             </button>
                         </Link>
                     </div>
-                    <div className="py-1">
+                    <div className="py-2">
                         <Link href="/escribir/publicacion">
-                            <button className={className}>
+                            <button className={className} onClick={() => {setIsDropdownOpen(false)}}>
                                 <span className="px-1"><ArticleIcon /></span> Publicación
                             </button>
                         </Link>
                     </div>
-                    <div className="py-1">
+                    <div className="">
                         <button
                             onClick={() => {
                                 setIsModalOpen(true);

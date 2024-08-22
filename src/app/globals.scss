@@ -21,7 +21,7 @@ $accent: #8790b0;
   --primary-light: #{lighten($primary, 20%)};
   --accent-dark: #{darken($accent, 20%)};
   --text-light: #{lighten($text, 20%)};
-  font-family: "Inter", sans-serif;
+  font-family: "Roboto", sans-serif;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
@@ -308,7 +308,7 @@ ol {
 }
 
 .subcategories-dropdown {
-	border: 1px solid var(--accent);
+	border: 1px solid var(--primary);
 	border-radius: 0.25rem;
 	padding-top: 0.25rem;
 	padding-bottom: 0.25rem;
@@ -334,15 +334,14 @@ ol {
 	background-color: var(--secondary-light);
 }
 
-.selected-search-option {
+.main-feed.selected-option-text {
+	border-bottom: 4px solid var(--primary);
+	border-radius: 2px
+}
+
+.search.selected-option {
 	background-color: var(--secondary-light);
-	border-bottom: 3px solid var(--accent-dark)
-}
-
-.not-selected-search-option {
-}
-
-.not-selected-search-option:hover {
+	border-bottom: 3px solid var(--accent-dark);
 }
 
 .reaction-btn {
