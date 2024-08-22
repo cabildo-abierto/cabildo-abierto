@@ -50,7 +50,6 @@ export const ReadOnlyEditor = ({initialData,
         isAutofocus: true,
         editorClassName: editorClassName,
         isReadOnly: true,
-        user: user.user,
         content: content
     }
     

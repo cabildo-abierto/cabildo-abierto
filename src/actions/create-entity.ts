@@ -1,8 +1,9 @@
 'use server';
 
-import { UserProps } from '@/app/lib/definitions';
+import { ContentProps, UserProps } from '@/app/lib/definitions';
 import { db } from '@/db';
 import { revalidateTag } from 'next/cache';
+import { getEntityById } from './get-entity';
 
 
 export async function createEntity(name: string, userId: string){
@@ -45,6 +46,24 @@ export const updateEntity = async (text: string, categories: string, entityId: s
           categories: categories
       }
   })
+
+  revalidateTag("entities")
+}
+
+
+export const undoChange = async (entityId: string, contentId: string, versionNumber: number, message: string) => {
+  const entity = await getEntityById(entityId)
+  if(entity && entity.versions.length-1 == versionNumber){
+    await db.content.update({
+        data: {
+            isUndo: true,
+            undoMessage: message
+        },
+        where: {
+          id: contentId
+        }
+    })
+  }
 
   revalidateTag("entities")
 }

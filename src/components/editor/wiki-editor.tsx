@@ -1,8 +1,7 @@
 "use client"
 import { useState } from "react"
-import MyLexicalEditor from "./lexical-editor"
 import { useRouter } from "next/navigation"
-import { $getRoot, EditorState, LexicalEditor } from "lexical"
+import { EditorState, LexicalEditor } from "lexical"
 import StateButton from "../state-button"
 import { updateContent } from "@/actions/create-content"
 
@@ -15,6 +14,12 @@ import { updateEntity } from "@/actions/create-entity"
 import { useUser } from "@/app/hooks/user"
 import { EntityProps } from "@/app/lib/definitions"
 import { useSWRConfig } from "swr"
+
+import dynamic from 'next/dynamic'
+import { ToggleButton } from "../toggle-button"
+const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
+
+
 
 type WikiEditorProps = {
     contentId: string,
@@ -69,9 +74,19 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
         isMarkdownEditor: false,
         editorClassName: "content mt-4",
         isReadOnly: readOnly,
-        user: user.user,
         content: content,
         isAutofocus: true
+    }
+
+    let hasChanges = false
+    
+    if(editor && content){
+        editorOutput?.read(() => {
+            const current = JSON.stringify(editor.getEditorState())
+            if(current != content.text){
+                hasChanges = true
+            }
+        })
     }
 
     const SaveEditButton = () => {
@@ -91,6 +106,7 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
                     })
                 }
             }}
+            disabled={!hasChanges}
         />
     }
 
@@ -101,12 +117,12 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
                     Volver
                 </button>
             </Link>
-            <button
+            <ToggleButton
                 className="mr-2 gray-btn flex items-center"
-                onClick={() => {setEditingRoutes(!editingRoutes)}}
-            >
-                <span>Editar categorías</span>{editingRoutes ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
-            </button>
+                toggled={editingRoutes}
+                setToggled={setEditingRoutes}
+                text="Editar categorías"
+            />
             <SaveEditButton/>
         </div>}
 
@@ -114,7 +130,6 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
         <div className="py-4">
             <RoutesEditor entity={entity}/>
         </div>}
-
         <div id="editor">
             <MyLexicalEditor
                 settings={settings}

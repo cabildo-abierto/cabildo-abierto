@@ -8,11 +8,11 @@ import StateButton from "../state-button"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, CLEAR_EDITOR_COMMAND, EditorState, ElementNode, LexicalEditor } from "lexical"
 import { $generateHtmlFromNodes } from '@lexical/html';
 
-import dynamic from 'next/dynamic'
 import { SettingsProps } from "@/components/editor/lexical-editor"
 import { UserProps } from "@/app/lib/definitions"
 import { useUser } from "@/app/hooks/user"
 
+import dynamic from 'next/dynamic'
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
@@ -95,7 +95,6 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
         placeholder: "Agregá un comentario...",
         isAutofocus: false,
         editorClassName: "link",
-        user: user.user,
         initialData: null,
         isReadOnly: false
     }

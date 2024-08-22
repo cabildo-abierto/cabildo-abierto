@@ -23,15 +23,14 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
     return <div className ="h-screen w-screen fixed top-0 left-0 z-20">
         <div className="flex">
             <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--background)] border-r">
-                <ul className="flex-1 mt-4 px-2">
+                <div className="flex flex-col mt-4 px-2">
                     <SidebarButton onClick={onClose} icon={<HomeIcon/>} text="Inicio" href="/inicio"/>
-                    <SidebarButton onClick={onClose} icon={<CreateIcon/>} text="Escribir" href="/escribir"/>
                     <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
                     
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
                     {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={"/perfil/"+user.user.id.slice(1)}/>}
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/articulo/Cabildo_Abierto"/>
-                </ul>
+                </div>
                 {user.user && <div className="flex flex-col items-center">
                     <Link href={`/perfil/${user.user.id.slice(1)}`}
                         className="py-2 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)]">

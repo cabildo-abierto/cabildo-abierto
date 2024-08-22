@@ -50,19 +50,23 @@ export function entityInRoute(entity: {versions: {id: string, categories: string
 }
 
 
-const Route = ({route, nextCategories, selected}: {route: string[], nextCategories: Set<string>, selected: string}) => {
-    return <>
+export const Route = ({route, nextCategories, selected}: {route: string[], nextCategories?: Set<string>, selected?: string}) => {
+    return <div className="flex items-center">
         {["Inicio"].concat(route).map((c: string, index: number) => {
-            return <><Link className="text-2xl bodoni text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2"
-                href={"/inicio/"+route.slice(0, index).join("/")+"?selected="+selected}
-                key={index}
-            >
-                {c}
-            </Link>
-                {(index != route.length || nextCategories.size > 0) && <span className="px-1 text-2xl bodoni text-[var(--primary)]">{">"}</span>}
-            </>
+            return <div className="flex items-center" key={index}>
+            
+                <Link className="text-2xl bodoni text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2"
+                    href={"/inicio/"+route.slice(0, index).join("/")+(selected ? "?selected="+selected : "")}
+                    key={index}
+                >
+                    {c}
+                </Link>
+
+                {(index != route.length || (nextCategories && nextCategories.size > 0)) && <span className="px-1 text-2xl bodoni text-[var(--primary)]">{">"}</span>}
+            
+            </div>
         })}
-    </>
+    </div>
 }
 
 

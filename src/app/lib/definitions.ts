@@ -22,13 +22,15 @@ export type ContentProps = {
     parentContents: {id: string}[]
     title: string | null
     categories: string | null
+    isUndo: boolean
+    undoMessage: string | null
 }
 
 
 export type EntityProps = {
     id: string
     name: string
-    versions: {id: string, categories: string}[]
+    versions: {id: string, categories: string, isUndo: boolean, undoMessage: string}[]
     protection: string
     isPublic: boolean,
     referencedBy: {id: string, createdAt: string}[]

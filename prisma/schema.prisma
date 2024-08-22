@@ -104,5 +104,8 @@ model Content {
     // solo para artículos (entities)
     categories        String       @default("[]")
 
-    entityReferences  Entity[]     @relation("entityReferences")  
+    entityReferences  Entity[]     @relation("entityReferences")
+
+    isUndo            Boolean      @default(false)
+    undoMessage       String?
 }

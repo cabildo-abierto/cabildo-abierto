@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
@@ -49,7 +49,7 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
             {category.map((c, i) => {
                 return <input
                     key={i}
-                    className="border px-2 mx-1 py-1 rounded outline-none w-48"
+                    className="border border-[var(--accent)] px-2 mx-1 py-1 rounded outline-none w-48 bg-[var(--background)]"
                     placeholder={c}
                     value={c}
                     onChange={(e) => {updateCategoryAt(i, e.target.value)}}
@@ -126,6 +126,7 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
             await updateEntity(content.text, JSON.stringify(categories), entity.id, user.user)
             mutate("/api/entitiy/"+entity.id)
             mutate("/api/entities")
+            mutate("/api/content/"+content.id)
         }
     }
 

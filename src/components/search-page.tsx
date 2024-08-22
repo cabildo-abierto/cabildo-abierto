@@ -40,18 +40,22 @@ const SearchPage = ({searchValue}: {searchValue: string}) => {
   }, [searchValue, users.isLoading, contents.isLoading, entities.isLoading]);
 
   const handleTypeChange = (t: any) => {
-    setSearchType(t)
+      setSearchType(t)
+  }
+
+  const NoResults = () => {
+      return <div className="flex justify-center py-8">No se encontró ningún resultado.</div>
   }
 
   const searchResults = () => {
     if (searchType == "Usuarios") {
-      return resultsUsers.map((result) => (
+      return resultsUsers.length > 0 ? resultsUsers.map((result) => (
         <div className="flex justify-center" key={result.id}>
           <UserSearchResult result={result}/>
         </div>
-      ))
+      )) : <NoResults/>
     } else if (searchType == "Publicaciones") {
-      return resultsContents.map(({id}) => (
+      return resultsContents.length > 0 ? resultsContents.map(({id}) => (
         <div className="py-2" key={id}>
           <ContentComponent
             contentId={id}
@@ -60,13 +64,13 @@ const SearchPage = ({searchValue}: {searchValue: string}) => {
             viewingComments={false}
           />
         </div>
-      ))
+      )) : <NoResults/>
     } else {
-      return resultsEntities.map((entity) => (
+      return resultsEntities.length > 0 ? resultsEntities.map((entity) => (
         <div className="flex justify-center" key={entity.id}>
           <EntitySearchResult entity={entity}/>
         </div>
-      ))
+      )) : <NoResults/>
     }
   }
 

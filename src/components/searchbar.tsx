@@ -21,7 +21,7 @@ export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {
 }
 
 
-export const SearchInput: React.FC<any> = ({ onChange }) => {
+export const SearchInput: React.FC<{onChange: (arg: string) => void}> = ({ onChange }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export const SearchInput: React.FC<any> = ({ onChange }) => {
     ref={inputRef}
     className="rounded-lg bg-[var(--background)] w-full transition duration-300 focus:outline-none"
     placeholder="buscar"
-    onChange={onChange}
+    onChange={(e) => {onChange(e.target.value)}}
   />
 }
 
@@ -54,7 +54,7 @@ const SearchBar: React.FC<{onClose: any, setSearchValue: any}> = ({onClose, setS
     <div className="flex">
         <SearchButton disabled={true}/>
         <div className="flex w-full">
-          <SearchInput onChange={(e: any) => {setSearchValue(e.target.value)}} />
+          <SearchInput onChange={setSearchValue}/>
           <CloseSearchButton onClick={() => {onClose(); setSearchValue("")}}/>
         </div>
     </div>

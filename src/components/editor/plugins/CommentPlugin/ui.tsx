@@ -6,7 +6,7 @@ import type {
     RangeSelection,
   } from 'lexical';
   
-  import MyLexicalEditor from '@/components/editor/lexical-editor'
+  import MyLexicalEditor, { SettingsProps } from '@/components/editor/lexical-editor'
   import './index.css';
   
   import {createComment as createCommentDB, updateContent} from "@/actions/create-content"
@@ -176,7 +176,7 @@ export function CommentInputBox({
   };
 
   const isDevPlayground = false
-  const settings = {
+  const settings: SettingsProps = {
       disableBeforeInput: false,
       emptyEditor: isDevPlayground,
       isAutocomplete: false,
@@ -204,13 +204,10 @@ export function CommentInputBox({
       placeholder: "Agregá un comentario...",
       isAutofocus: false,
       editorClassName: "link",
-      user: user.user,
       initialData: null,
       isReadOnly: false
   }
 
-  //className="CommentPlugin_CommentInputBox_Editor mt-3"
-  //placeholderClassName="CommentPlugin_CommentInputBox_Placeholder"
   return (
     <div className="CommentPlugin_CommentInputBox px-2" ref={boxRef}>
       <div className="mt-2 px-2 py-2 border rounded">
