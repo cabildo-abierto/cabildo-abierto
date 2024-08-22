@@ -14,7 +14,7 @@ export const SearchPageWithInput = ({initialValue}: {initialValue: string}) => {
     return <>
         <div className="flex justify-center py-2">
             <div className="flex rounded px-2 border">
-        <SearchInput onChange={(e: any) => {setValue(e.target.value)}} border={true}/>
+        <SearchInput onChange={setValue}/>
         <SearchButton onClick={() => {router.push("/buscar/"+encodeURIComponent(value))}}/>
         </div></div>
         <div className="py-4">

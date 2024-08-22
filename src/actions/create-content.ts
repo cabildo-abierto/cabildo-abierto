@@ -38,7 +38,6 @@ export async function createComment(text: string, parentContentId: string, userI
 export async function findReferences(text: string){
 
     function findReferencesInNode(node: any): {id: string}[] {
-        console.log("searching node with type", node.type)
         let references: {id: string}[] = []
         if(node.type === "link"){
             if(node.url.startsWith("/articulo/")){

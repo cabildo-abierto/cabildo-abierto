@@ -134,18 +134,18 @@ h4 {
 	background-color: var(--secondary-xlight)
 }
 
-.content ul {
+ul {
     list-style-type: disc;
     margin: 20px 0;
     padding-left: 0px;
 }
 
-.content li {
+li {
     margin-bottom: 10px;
     line-height: 1.6;
 }
 
-.content ol {
+ol {
     list-style-type: decimal;
     margin: 20px 0;
     padding-left: 40px;
@@ -176,6 +176,10 @@ h4 {
 	background-color: var(--background-dark);
 	color: var(--accent);
 	opacity: 0.6;
+}
+
+.gray-btn.toggled {
+	background-color: var(--primary-dark)
 }
   
 .small-btn {
@@ -233,6 +237,15 @@ h4 {
 	opacity: 0.6;
 }
 
+.article-edit {
+	border: 1px solid var(--accent);
+	border-radius: 4px;
+}
+
+.article-edit.selected {
+	border: 2px solid var(--accent);
+}
+
 .panel {
 	border: 1px solid var(--accent);
 	padding: 0px;
@@ -272,7 +285,7 @@ h4 {
     width: 100%;
     text-align: left;
     cursor: pointer;
-    border-radius: 0.375rem; /* rounded-lg */
+    border-radius: 0.375rem;
     display: block;
 	margin-bottom: 15px;
     padding: 0.5rem 0.25rem;
@@ -400,10 +413,19 @@ h4 {
     right: 0;
     width: 400px;
     height: calc(100vh - 4rem);
-    background-color: rgba(var(--background), 0.7);
+    background-color: rgba($background, 0.6);
     overflow-y: auto; /* Enable vertical scrolling */
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow to separate from main content */
     z-index: 50; /* Ensure it stays on top of other content */
+}
+
+
+.create-entity-panel {
+	border: 1px solid var(--accent);
+	border-radius: 0.25rem;
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	text-align: center;
 }
 
 

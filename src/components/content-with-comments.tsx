@@ -23,7 +23,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     contentId, entity=null, isPostPage=false}) => {
     const {content, isLoading, isError} = useContent(contentId)
     const { mutate } = useSWRConfig()
-
+    
     const user = useUser()
 
     const startsOpen = isPostPage || entity

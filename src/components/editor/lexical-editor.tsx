@@ -76,7 +76,7 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import {MarkNode} from '@lexical/mark';
 import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { ContentProps, UserProps } from '@/app/lib/definitions';
-
+import { $createParagraphNode, $createTextNode, $getRoot, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 
 export type SettingsProps = {
   disableBeforeInput: boolean,
@@ -108,7 +108,6 @@ export type SettingsProps = {
   isReadOnly: boolean,
   isAutofocus: boolean,
   editorClassName: string,
-  user?: UserProps,
   content?: ContentProps | null,
 }
 
@@ -116,7 +115,8 @@ export type SettingsProps = {
 type LexicalEditorProps = {
   settings: SettingsProps,
   setEditor: any,
-  setOutput: any
+  setOutput: any,
+  contentId?: string
 }
 
 
@@ -124,7 +124,6 @@ function Editor({ settings, setEditor, setOutput }:
   LexicalEditorProps): JSX.Element {
   const { historyState } = useSharedHistoryContext();
   const [editor] = useLexicalComposerContext()
-  const hasInitialized = useRef(false);
 
   useEffect(() => {
     if (setEditor) {
@@ -153,7 +152,6 @@ function Editor({ settings, setEditor, setOutput }:
     isReadOnly,
     isAutofocus,
     editorClassName,
-    user,
     content
   } = settings
 
@@ -303,16 +301,26 @@ function Editor({ settings, setEditor, setOutput }:
 }
 
 
-const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) => {
-  let {isReadOnly, initialData} = settings
+const initializeEmpty = (editor: OriginalLexicalEditor) => {
+    editor.update(() => {
+        const root = $getRoot()
+        const node = $createParagraphNode()
+        node.append($createTextNode("Este artículo está vacío!"))
+        root.append(node)
+    })
+}
 
+const LexicalEditor = ({ settings, setEditor, setOutput, contentId }: LexicalEditorProps) => {
+  let {isReadOnly, initialData} = settings
+  
   if(typeof initialData === 'string'){
       try {
           JSON.parse(initialData)
       } catch {
-          initialData = null
+          initialData = initializeEmpty
       }
   }
+  
 
   const initialConfig = {
     editorState: initialData,

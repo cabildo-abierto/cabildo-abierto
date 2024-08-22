@@ -35,7 +35,9 @@ export const getContentById = cache(async (id: string) => {
             type: true,
             isDraft: true,
             title: true,
-            categories: true
+            categories: true,
+            isUndo: true,
+            undoMessage: true
         },
         where: {
             id: id,
@@ -58,14 +60,18 @@ export const getFeed = cache(async () => {
                     versions: {
                         select: {
                             id: true,
-                            categories: true
+                            categories: true,
+                            isUndo: true,
+                            undoMessage: true
                         },
                         orderBy: {
                             createdAt: "asc"
                         }
                     }
                 }
-            }
+            },
+            isUndo: true,
+            undoMessage: true
         },
         where: {
             AND: [

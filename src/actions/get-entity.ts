@@ -15,7 +15,9 @@ export const getEntities = cache(async () => {
             versions: {
                 select: {
                     id: true,
-                    categories: true
+                    categories: true,
+                    isUndo: true,
+                    undoMessage: true
                 },
                 orderBy: {
                     createdAt: "asc"
@@ -40,7 +42,9 @@ export const getEntityById = cache(async (id: string) => {
             versions: {
                 select: {
                     id: true,
-                    categories: true
+                    categories: true,
+                    isUndo: true,
+                    undoMessage: true
                 },
                 orderBy: {
                     createdAt: "asc"

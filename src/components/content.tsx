@@ -80,9 +80,9 @@ export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({con
 }
 
 
-export const Authorship = ({content}: any) => {
+export const Authorship = ({content, onlyAuthor=false}: any) => {
     return <span className="link">
-        Por <Link href={"/perfil/"+content.author?.id.slice(1)}>
+        {onlyAuthor ? "" : "Por "}<Link href={"/perfil/"+content.author?.id.slice(1)}>
             {content.author?.name}
         </Link>
     </span>

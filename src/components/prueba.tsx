@@ -9,7 +9,6 @@ export const Prueba = () => {
         const text = await getContentById("cm01to9le0009148pt9uv6w1u")
         if(text){
             const refs = await findReferences(text.text)
-            console.log(refs)
         }
     }}>Prueba</button>
 }

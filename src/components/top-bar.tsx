@@ -6,26 +6,14 @@ import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
-import CreateIcon from '@mui/icons-material/Create';
-import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import { useUser } from "@/app/hooks/user";
-import { GoHome } from "react-icons/go";
+import WriteButton from "./write-button";
 
 function FeedButton() {
     return <div className="px-1 py-2">
         <Link href="/inicio">
         <button className="topbar-btn">
             <HomeIcon />
-        </button>
-        </Link>
-    </div>
-}
-
-function WriteButton() {
-    return <div className="px-1 py-2">
-        <Link href="/escribir">
-        <button className="topbar-btn">
-            <CreateIcon />
         </button>
         </Link>
     </div>
