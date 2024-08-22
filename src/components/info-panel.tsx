@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 
-export const InfoPanel = ({text}: {text: string}) => {
+export const InfoPanel = ({text, className}: {text: string, className?: string}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -13,7 +13,7 @@ export const InfoPanel = ({text}: {text: string}) => {
         <InfoIcon/>
       </div>
       {isHovered && (
-        <div className="info-panel">
+        <div className={"info-panel " + (className ? className : "")}>
           <p>
             {text}
           </p>

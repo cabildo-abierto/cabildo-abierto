@@ -64,3 +64,14 @@ export const getEntityById = cache(async (id: string) => {
     )
     return entity
 }, ["entities"], {tags: ["entities"]})
+
+
+export const getCategories = cache(async () => {
+    let entities = await db.content.findMany({
+        distinct: ["categories"],
+        select: {
+            categories: true
+        },
+    })
+    return entities.map(({categories}) => (categories))
+}, ["entities", "contents"], {tags: ["entities", "contents"]})

@@ -11,12 +11,12 @@ function currentCategories(entity: {versions: {id: string, categories: string}[]
     return JSON.parse(entity.versions[entity.versions.length-1].categories)
 }
 
-function isPrefix(p: any[], q: any[]){
+export function isPrefix(p: any[], q: any[]){
     if(p.length > q.length) return false
     return areArraysEqual(p, q.slice(0, p.length))
 }
 
-function getNextCategories(route: string[], entities: EntityProps[]){
+export function getNextCategories(route: string[], entities: EntityProps[]){
     const nextCategories = new Set<string>()
     
     entities.forEach((entity: SmallEntityProps) => {
