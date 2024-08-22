@@ -715,34 +715,6 @@ export default function ToolbarPlugin({
     );
   }, [$updateToolbar, activeEditor, editor]);
 
-  useEffect(() => {
-    return activeEditor.registerCommand(
-      KEY_MODIFIER_COMMAND,
-      (payload) => {
-        const event: KeyboardEvent = payload;
-        const {code, ctrlKey, metaKey} = event;
-
-        if (code === 'KeyK' && (ctrlKey || metaKey)) {
-          event.preventDefault();
-          let url: string | null = "";
-          if (!isLink) {
-            setIsLinkEditMode(true);
-            editor.read(() => {
-              const selection = $getSelection()?.getTextContent()
-              url = selection ? selection : ""
-            })
-          } else {
-            setIsLinkEditMode(false);
-            url = null;
-          }
-          return activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, url ? {url: url, target: "", rel: ""} : null);
-        }
-        return false;
-      },
-      COMMAND_PRIORITY_NORMAL,
-    );
-  }, [activeEditor, isLink, setIsLinkEditMode]);
-
   const applyStyleText = useCallback(
     (styles: Record<string, string>, skipHistoryStack?: boolean) => {
       activeEditor.update(

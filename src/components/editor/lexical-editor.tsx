@@ -78,8 +78,6 @@ import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { ContentProps, UserProps } from '@/app/lib/definitions';
 import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 
-import {LinkNode, AutoLinkNode} from '@lexical/link'
-import { CustomLinkNode } from './nodes/CustomLinkNode';
 
 export type SettingsProps = {
   disableBeforeInput: boolean,
