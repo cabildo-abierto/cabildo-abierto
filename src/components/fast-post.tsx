@@ -27,7 +27,7 @@ export const FastPost = ({
     return <div className={className}>
         <div className="border rounded w-full">
             <ContentTopRow content={content} icon={icon}/>
-            <div className="px-2 py-2">
+            <div className="px-2 py-2 content">
                 <ReadOnlyEditor initialData={content.text}/>
             </div>
             <div className="flex justify-between mb-1">

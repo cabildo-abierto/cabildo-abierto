@@ -60,13 +60,18 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     </div>
 }
 
-
-export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: number}) => {
-
+export function currentVersion(entity: EntityProps){
     let currentIndex = entity.versions.length-1
     while(entity.versions[currentIndex].isUndo){
         currentIndex --
     }
+    return currentIndex
+}
+
+
+export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: number}) => {
+
+    const currentIndex = currentVersion(entity)
     console.log(currentIndex)
 
     return <>{entity.versions.map((version, index) => {

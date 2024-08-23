@@ -33,8 +33,8 @@ export const SubcategoriesDropDown = ({ nextCategories, route, selected }: { nex
 
     return (
         <div className="relative ml-2" ref={dropdownRef}> {/* Make the parent div relative */}
-            <button className="text-2xl h-8 bodoni text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2" onClick={() => setViewSubcategories(!viewSubcategories)}>
-                Agregar...
+            <button className="flex items-center text-2xl font-bold h-8 content text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2" onClick={() => setViewSubcategories(!viewSubcategories)}>
+                Subcategoría...
             </button>
             {viewSubcategories && (
                 nextCategories.size > 0 ?
@@ -43,7 +43,7 @@ export const SubcategoriesDropDown = ({ nextCategories, route, selected }: { nex
                             <div key={index}>
                                 <Link href={routeToUrl([...route, nextCategory])+"?selected="+selected}>
                                     <button className="subcategories-dropdown w-full bg-[var(--background)] py-1 mt-1 px-2">
-                                        <span className="flex justify-center w-full bodoni text-[var(--primary)]">
+                                        <span className="flex justify-center w-full content text-[var(--primary)]">
                                             {nextCategory}
                                         </span>
                                     </button>

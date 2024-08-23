@@ -72,7 +72,7 @@ export const Comment = ({
     return <div className={className}>
         <div className="border rounded w-full">
             <ContentTopRow content={content} icon={null}/>
-            <div className="px-2 py-2">
+            <div className="px-2 py-2 content">
                 {snode && <div className="content">
                     <ReadOnlyEditor initialData={initializeQuote}/>
                 </div>}

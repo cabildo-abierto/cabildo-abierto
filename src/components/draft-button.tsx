@@ -10,7 +10,7 @@ export const DraftButton: React.FC<{draftId: string}> = ({draftId}) => {
     
     return <div className="">
         <div className="panel w-full">
-            <div className="px-2 py-2">
+            <div className="px-2 py-2 content">
                 {!content ? <></> : <ReadOnlyEditor initialData={content.text} content={content}/>}
             </div>
         </div>

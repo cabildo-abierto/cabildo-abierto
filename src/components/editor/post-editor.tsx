@@ -116,7 +116,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
 			</div>
 		</div>
         <div className="mt-4 ml-4">
-        <TitleInput onChange={setTitle}/>
+        <TitleInput onChange={setTitle} title={title}/>
         </div>
         <div className="mt-4">
             <MyLexicalEditor

@@ -3,7 +3,7 @@ import { getTrending } from "@/actions/trending"
 
 const TrendingTopic: React.FC<{value: string, count: number}> = ({value, count}) => {
     return <div className="py-2">
-        <div className="font-semibold">
+        <div className="font-bold">
             {value}
         </div>
         <div className="text-gray-600">

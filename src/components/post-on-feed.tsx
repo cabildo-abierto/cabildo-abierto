@@ -19,7 +19,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
         <div className="border rounded w-full">
             <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>}/>
             <div className="flex items-center px-2 py-2">
-                <div className="px-1 font-semibold content">
+                <div className="px-1 font-bold content">
                     {content.title}
                 </div>
             </div>

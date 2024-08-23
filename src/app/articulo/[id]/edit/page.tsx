@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import { useUser } from "@/app/hooks/user";
 import { useEntity } from "@/app/hooks/entities";
 import { UserProps } from "@/app/lib/definitions";
+import { currentVersion } from "@/components/edit-history";
 
 const WikiEditor = dynamic(() => import('@/components/editor/wiki-editor'), { ssr: false });
 
@@ -43,7 +44,7 @@ const EntityPage: React.FC<any> = ({ params }) => {
                     }
                     <div className="mb-32">
                         <WikiEditor
-                            contentId={entityLastVersionId(entity)}
+                            contentId={entity.versions[currentVersion(entity)].id}
                             entity={entity}
                         />
                     </div>

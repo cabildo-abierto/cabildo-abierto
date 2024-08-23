@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 
-export const TitleInput = ({ onChange }: any) => {
+export const TitleInput = ({ onChange, title }: any) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const maxLength = 100;
 
@@ -30,6 +30,7 @@ export const TitleInput = ({ onChange }: any) => {
             onChange={handleChange}
             placeholder="Título"
             className="content"
+            value={title}
             onInput={(e) => {
                 if (textareaRef.current) {
                     // Remove new lines and truncate to maximum length
