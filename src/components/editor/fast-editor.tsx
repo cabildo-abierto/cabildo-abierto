@@ -49,7 +49,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData=null}:
         placeholder: "Escribí tu publicación acá...",
         initialData: initialData,
         isAutofocus: true,
-        editorClassName: "link",
+        editorClassName: "content",
         isReadOnly: false
     }
 

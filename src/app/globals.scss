@@ -21,23 +21,29 @@ $accent: #8790b0;
   --primary-light: #{lighten($primary, 20%)};
   --accent-dark: #{darken($accent, 20%)};
   --text-light: #{lighten($text, 20%)};
-  font-family: "Roboto", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
+}
+
+
+.content {
+	font-family: var(--font-pt-serif);
+	font-optical-sizing: auto;
+	font-style: normal;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: var(--font-pt-serif);
+	font-optical-sizing: auto;
+	font-style: normal;
+	font-weight: 700;
+}
+
+.content h1, h2, h3, h4, h5, h6 {
 }
 
 .logo {
 	line-height: 1;
 	font-weight: 500;
-}
-
-
-.content {
-	/*font-family: 'Lato';*/
-	font-family: "Bodoni Moda SC", serif;
-	font-optical-sizing: auto;
-	font-style: normal;
 }
 
 .text-link {
@@ -65,20 +71,6 @@ $accent: #8790b0;
 
 .content a:hover {
     text-decoration: underline;
-}
-
-.bodoni {
-	font-family: "Bodoni Moda SC", serif;
-	font-optical-sizing: auto;
-	font-weight: 600;
-	font-style: normal;
-}
-
-h1, h2, h3, h4, h5, h6 {
-	font-family: "Bodoni Moda SC", serif;
-	font-optical-sizing: auto;
-	font-weight: 600;
-	font-style: normal;
 }
 
 h1 {

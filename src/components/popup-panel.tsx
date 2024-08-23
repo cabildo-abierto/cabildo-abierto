@@ -13,7 +13,7 @@ const PopupPanel: React.FC<any> = ({children, onClose}) => {
               <CloseIcon/>
           </button>
 
-          <h1 className="text-2xl font-semibold mb-4">Crear entidad</h1>
+          <h1 className="text-2xl font-bold mb-4">Crear entidad</h1>
 
           {children}
       </div>

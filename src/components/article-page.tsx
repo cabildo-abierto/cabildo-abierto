@@ -10,7 +10,7 @@ import { ThreeColumnsLayout } from "@/components/three-columns";
 import { useSWRConfig } from "swr";
 import Link from "next/link";
 import { ToggleButton } from "@/components/toggle-button";
-import { EditHistory } from "@/components/edit-history";
+import { currentVersion, EditHistory } from "@/components/edit-history";
 import { EntityCategories } from "@/components/categories";
 import NoEntityPage from "./no-entity-page";
 import StateButton from "./state-button";
@@ -76,7 +76,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
     }
 
     if(version === undefined){
-        version = entity.versions.length-1
+        version = currentVersion(entity)
     }
     const contentId = entity.versions[version].id
 

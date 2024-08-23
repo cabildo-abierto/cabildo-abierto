@@ -27,7 +27,7 @@ const Feature = ({text, className}: {text: string, className: string}) => {
         <div className="ml-2">
             <ArrowForwardIosIcon/>
         </div>
-        <div className={"ml-3 flex items-center font-semibold "+className}>
+        <div className={"ml-3 flex items-center font-bold "+className}>
             {text}
         </div>
     </div>
@@ -72,7 +72,7 @@ export const Presentation: React.FC = () => {
             <SignupButton className="w-64 h-12 text-lg"/>
         </div>}
         <div className="flex justify-center mt-16">
-            <SignupButton className="w-64 h-12 gray-btn font-semibold" text="Empezar"/>
+            <SignupButton className="w-64 h-12 gray-btn font-bold" text="Empezar"/>
         </div>
     </div>
 };

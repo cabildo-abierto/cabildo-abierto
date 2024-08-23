@@ -57,7 +57,7 @@ export const Route = ({route, nextCategories, selected}: {route: string[], nextC
         {["Inicio"].concat(route).map((c: string, index: number) => {
             return <div className="flex items-center" key={index}>
             
-                <Link className="text-2xl bodoni text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2"
+                <Link className="text-2xl font-bold content text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2"
                     href={"/inicio/"+route.slice(0, index).join("/")+(selected ? "?selected="+selected : "")}
                     key={index}
                 >
@@ -65,7 +65,7 @@ export const Route = ({route, nextCategories, selected}: {route: string[], nextC
                 </Link>
 
                 {(index != route.length || (nextCategories && nextCategories.size > 0)) && 
-                <span className="px-1 text-2xl bodoni text-[var(--primary)] mb-1">
+                <span className="px-1 text-2xl font-bold content text-[var(--primary)] mb-1">
                     <KeyboardArrowRightIcon/>
                 </span>}
             
