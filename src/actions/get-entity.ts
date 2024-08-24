@@ -22,7 +22,12 @@ export const getEntities = cache(async () => {
                 orderBy: {
                     createdAt: "asc"
                 }
-            }
+            },
+            _count: {
+                select: {
+                    reactions: true
+                }
+            },
         },
         where: {
             NOT: {
@@ -60,7 +65,12 @@ export const getEntityById = cache(async (id: string) => {
                     id: true,
                     createdAt: true
                 }
-            }
+            },
+            _count: {
+                select: {
+                    reactions: true
+                }
+            },
         },
             where: {
                 id: id,

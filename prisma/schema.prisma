@@ -21,14 +21,32 @@ model User {
     editorStatus        EditorStatus   @default(Beginner)
     contents            Content[]
     deletedEntities     Entity[]       @relation("entityDelete")
+
     subscriptionsBought Subscription[] @relation("bought")
     subscriptionsUsed   Subscription[]
-    dislikes            Content[]      @relation("dislikes")
+
     following           User[]         @relation("following")
     followedBy          User[]         @relation("following")
-    likes               Content[]      @relation("likes")
+
+    reactions               Reaction[]
 
     @@map("users")
+    @@schema("public")
+}
+
+
+model Reaction {
+    id                  String         @id @default(cuid())
+    createdAt           DateTime       @default(now()) @map("created_at")
+
+    userBy              User           @relation(fields: [userById], references: [id])
+    userById            String
+
+    content             Content?        @relation(fields: [contentId], references: [id])
+    contentId           String?         
+
+    entity             Entity?          @relation(fields: [entityId], references: [id])
+    entityId           String?      
     @@schema("public")
 }
 
@@ -55,6 +73,7 @@ model Entity {
   deletedBy    User?           @relation("entityDelete", fields: [deletedById], references: [id])
   referencedBy Content[]       @relation("entityReferences")
 
+  reactions    Reaction[]
   @@schema("public")
 }
 
@@ -75,9 +94,9 @@ model Content {
   parentEntity     Entity?     @relation(fields: [parentEntityId], references: [id])
   childrenContents Content[]   @relation("ContentToContent")
   parentContents   Content[]   @relation("ContentToContent")
-  dislikedBy       User[]      @relation("dislikes")
   entityReferences Entity[]    @relation("entityReferences")
-  likedBy          User[]      @relation("likes")
+
+  reactions        Reaction[]
 
   @@schema("public")
 }

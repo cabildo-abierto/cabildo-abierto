@@ -13,8 +13,7 @@ export type ContentProps = {
     text: string
     author: SmallUserProps
     _count: {
-        likedBy: number
-        dislikedBy: number
+        reactions: number
     }
     type: ContentType
     isDraft: boolean | null
@@ -34,6 +33,7 @@ export type EntityProps = {
     protection: string
     isPublic: boolean,
     referencedBy: {id: string, createdAt: string}[]
+    _count: {reactions: number}
 }
 
 
@@ -60,8 +60,7 @@ export type UserProps = {
     editorStatus: string
     subscriptionsUsed: SubscriptionProps[]
     following: {id: string}[]
-    likes: {id: string}[]
-    dislikes: {id: string}[]
+    reactions: {contentId: string | null, entityId: string | null}[]
     followedBy: {id: string}[]
     authUser: {email: string | null} | null
 };

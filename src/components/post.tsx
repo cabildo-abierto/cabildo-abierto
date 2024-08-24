@@ -27,6 +27,5 @@ export const Post: React.FC<{
                 editorClassName="content"
             />
         </div>
-        <hr/>
     </div>
 }

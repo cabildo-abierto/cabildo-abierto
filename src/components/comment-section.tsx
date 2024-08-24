@@ -30,7 +30,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({parentContent, activeIDs
 
     return <>
         {contents.sort(compDate).map(({id}) => (
-            <div className="py-1" key={id}>
+            <div className="" key={id}>
                 <ContentWithComments contentId={id}/>
             </div>
         ))}

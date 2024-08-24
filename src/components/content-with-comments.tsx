@@ -56,24 +56,27 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         return <>Error :(</>
     }
 
-    return <div>
+    const isMainPage = isPostPage || entity
+
+    return <>
         <ContentComponent
             contentId={contentId}
             onViewComments={() => {setViewComments(!viewComments)}}
-            onStartReply={() => {setWritingReply(!writingReply)}}
             entity={entity}
             isPostPage={isPostPage}
             viewingComments={viewComments}
+            onStartReply={() => {setWritingReply(!writingReply)}}
         />
-        <div className="">
-            {writingReply && <div className="mt-1 mb-2 ml-2">
+        {isMainPage && <hr/>}
+        <div className={isMainPage ? "" : "ml-2"}>
+            {writingReply && <div className="py-1">
                 {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 
                     <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
                 }
             </div>}
-            {(viewComments) && <div className="ml-2">
+            {viewComments && <div>
                 <CommentSection parentContent={content} otherContents={entity ? entity.referencedBy : undefined}/>
             </div>}
         </div>
-    </div>
+    </>
 }

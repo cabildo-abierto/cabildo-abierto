@@ -10,17 +10,18 @@ import { ContentProps } from '@/app/lib/definitions';
 
 type FastPostProps = {
     content: ContentProps,
-    onStartReply: () => void,
     onViewComments: () => void,
     viewingComments: boolean
+    onStartReply: () => void
 }
 
 
 export const FastPost = ({
     content,
-    onStartReply,
     onViewComments,
-    viewingComments}: FastPostProps) => {
+    viewingComments,
+    onStartReply
+}: FastPostProps) => {
     const icon = <BoltIcon fontSize={"small"}/>
     const className = "w-full bg-[var(--background)] text-left" 
 
@@ -31,9 +32,7 @@ export const FastPost = ({
                 <ReadOnlyEditor initialData={content.text}/>
             </div>
             <div className="flex justify-between mb-1">
-                <div className="px-1">
-                    <AddCommentButton text="Responder" onClick={stopPropagation(onStartReply)}/>
-                </div>
+                <button className="reply-btn" onClick={onStartReply}>Responder</button>
                 <LikeAndCommentCounter content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
             </div>
         </div>
