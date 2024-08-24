@@ -3,7 +3,6 @@
 import Link from "next/link"
 import LoadingPage from "./loading-page"
 import { validSubscription } from "./utils"
-import { getUser } from "@/actions/get-user"
 import { useUser } from "@/app/hooks/user";
 
 

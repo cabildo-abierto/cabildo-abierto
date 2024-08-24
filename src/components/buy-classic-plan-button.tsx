@@ -1,12 +1,12 @@
 "use client"
 
-import { getUser } from "@/actions/get-user";
 import { buyAndUseSubscription } from "@/actions/subscriptions";
 import PayButton from "./pay-button";
+import { useUser } from "@/app/hooks/user";
 
 export const BuyClassicPlanButton = () => {
+    const {user} = useUser()
     const handlePayment = async () => {
-        const user = await getUser()
         if(user){
             await buyAndUseSubscription(user.id)
         }

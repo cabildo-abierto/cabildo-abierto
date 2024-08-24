@@ -1,13 +1,12 @@
 "use client"
-import { getUser } from "@/actions/get-user"
 import { getDonatedSubscription, getSubscriptionPoolSize } from "@/actions/subscriptions"
-import PayButton from "./pay-button"
 import StateButton from "./state-button"
+import { useUser } from "@/app/hooks/user"
 
 
 export const FreeSubscriptionButton = () => {
+    const {user} = useUser()
     const handlePayment = async () => {
-        const user = await getUser()
         if(user){
             await getDonatedSubscription(user.id)
         }

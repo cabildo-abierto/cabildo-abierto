@@ -1,13 +1,15 @@
+"use client"
 import { getSubscriptionPrice } from "./utils"
 import SubscriptionOptionButton from "./subscription-option-button"
-import { getSubscriptionPoolSize } from "@/actions/subscriptions"
+import { useSubscriptionPoolSize } from "@/app/hooks/subscriptions"
 
-const SubscriptionOptions = async () => {
-    const poolSize = await getSubscriptionPoolSize()
+const SubscriptionOptions = () => {
+    const poolSize = useSubscriptionPoolSize()
 
+    if(poolSize.isLoading) return <></>
     const desc2 = <div>
         <span>
-            Hay <span className="font-bold">{poolSize}</span> suscripciones disponibles.
+            Hay <span className="font-bold">{poolSize.poolSize}</span> suscripciones disponibles.
         </span>
     </div>
 
@@ -41,7 +43,7 @@ const SubscriptionOptions = async () => {
                     title="Continuar gratis"
                     description={desc2}
                     price="$0"
-                    disabled={poolSize == 0}
+                    disabled={poolSize.poolSize == 0}
                     href={"/suscripciones/pendiente"}
                 />
             </div>

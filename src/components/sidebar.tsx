@@ -1,7 +1,7 @@
 import React from "react";
 import { SidebarButton } from "./sidebar-button";
 import Link from "next/link";
-import { logout } from "@/actions/auth";
+import { signOut } from "@/actions/auth";
 import HomeIcon from '@mui/icons-material/Home';
 import CreateIcon from '@mui/icons-material/Create';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
@@ -17,7 +17,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
     const user = useUser()
     
     const onLogout = async (e: any) => {
-        await logout()
+        await signOut()
     }
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-20">
