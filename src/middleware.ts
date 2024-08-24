@@ -1,14 +1,6 @@
 import { type NextRequest } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 
-function isPublicRoute(path: string){
-    return path.includes("Cabildo_Abierto")
-}
-
-function isNewUserRoute(path: string){
-    return ['/', '/signup', '/login'].includes(path)
-}
-
 
 export async function middleware(request: NextRequest) {
   return await updateSession(request)

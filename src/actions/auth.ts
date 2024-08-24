@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { LoginFormSchema, SignupFormSchema } from '@/app/lib/definitions'
 import { db } from '@/db'
+import { getUserById } from './get-user'
 
 type LoginFormState = {
   error?: string
@@ -57,15 +58,23 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
     }
   }
 
+  const user = await db.user.findFirst({where: {id: validatedFields.data.username}})
+
+  if(!user){
+    return {
+      errors: {username: ["El nombre de usuario ya existe."]}
+    }
+  }
+
   const { error, data } = await supabase.auth.signUp(validatedFields.data)
 
-  console.log(error, data)
   if (error || !data || !data.user) {
+    console.log("returning with error", error)
     return {
       authError: error?.code
     }
   }
-  console.log(error, data)
+
   await db.user.create({
     data: {
       authUserId: data.user.id,
@@ -82,4 +91,6 @@ export async function signOut() {
   const supabase = createClient()
 
   const { error } = await supabase.auth.signOut()
+
+  redirect("/")
 }

@@ -1,6 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+function isPublicRoute(path: string){
+  return path.includes("Cabildo_Abierto")
+}
+
+function isNewUserRoute(request: NextRequest){
+  return ['/', '/signup', '/login', '/auth'].includes(request.nextUrl.pathname)
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -35,16 +43,18 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+
+
   if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/signup') &&
-    request.nextUrl.pathname != "/" &&
-    !request.nextUrl.pathname.startsWith('/auth')
+    !user && !isNewUserRoute(request)
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = '/'
+    return NextResponse.redirect(url)
+  } else if(user && isNewUserRoute(request)){
+    const url = request.nextUrl.clone()
+    url.pathname = '/inicio'
     return NextResponse.redirect(url)
   }
 
