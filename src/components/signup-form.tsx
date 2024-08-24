@@ -29,12 +29,14 @@ const FormErrors: React.FC<any> = ({errors}) => {
 
 export default function SignupForm() {
     const [state, action] = useFormState(signup, undefined);
-    const [showPassword, setShowPassword] = useState(false); // Add state for password visibility
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
 
-    if(state && !state.errors){
+    if(state && !state.errors && !state.authError){
         router.push("/");
     }
+
+    console.log(state)
 
     return (
         <div className="">
@@ -57,6 +59,9 @@ export default function SignupForm() {
                             {
                                 state?.errors?.email
                                 && <FormErrors errors={state?.errors?.email}/>
+                            }
+                            {   state?.authError == "user_already_exists"
+                                && <FormErrors errors={["Ya existe una cuenta con ese mail."]}/>    
                             }
                         </div>
                         <div>
