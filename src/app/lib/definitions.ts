@@ -55,7 +55,6 @@ export type SubscriptionProps = {
 export type UserProps = {
     id: string
     name: string
-    email: string
     createdAt: string | Date
     authenticated: Boolean
     editorStatus: string
@@ -64,6 +63,7 @@ export type UserProps = {
     likes: {id: string}[]
     dislikes: {id: string}[]
     followedBy: {id: string}[]
+    authUser: {email: string | null} | null
 };
 
 

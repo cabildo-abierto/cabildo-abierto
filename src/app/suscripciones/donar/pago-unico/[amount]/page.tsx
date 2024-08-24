@@ -5,14 +5,12 @@ import { PayDonationButton } from "@/components/pay-donation-button";
 import { validSubscription } from "@/components/utils";
 import Link from "next/link";
 import React from "react";
+import { getUser } from "@/actions/get-user";
 
 
-export default function PagoUnico({params}: any) {
-    const user = useUser()
-    if(user.isLoading){
-        return <></>
-    }
-    const activeSubscription = validSubscription(user.user)
+export default async function PagoUnico({params}: any) {
+    const user = await getUser()
+    const activeSubscription = validSubscription(user)
 
     const amount = activeSubscription ? params.amount : params.amount-1
 

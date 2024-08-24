@@ -1,11 +1,10 @@
 
 import { ThreeColumnsLayout } from "@/components/three-columns";
-import { getUser } from "@/actions/get-user"
 import { NewDonation } from "@/components/new-donation"
 import Link from "next/link"
 
 
-export default async function DonationPage() {
+export default function DonationPage() {
     const center = <div className="mt-8">
         <div className="flex justify-center items-center">
             <h3>

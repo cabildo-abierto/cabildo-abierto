@@ -1,23 +1,16 @@
-'use client'
-
+"use client"
 import { useFormState } from "react-dom";
-import { authenticate} from '@/actions/auth';
 import { LoginButton } from "./login-button";
 import { AuthenticationFormLabel } from "./signup-form";
 import { useRouter } from "next/navigation";
 import { validSubscription } from "./utils";
+import { login } from "@/actions/auth";
 
 export default function LoginForm() {
-    const [state, action] = useFormState(authenticate, undefined)
+    const [state, action] = useFormState(login, undefined)
     const router = useRouter()
 
-    if(state && !state.error){
-        if(validSubscription(state.user)){
-            router.push("/inicio")
-        } else {
-            router.push("/suscripciones")
-        }
-    }
+    console.log(state)
 
     const handleEmailInput = (e: any) => {
         const email = e.target;
@@ -37,11 +30,11 @@ export default function LoginForm() {
 
     return (
         <div className="">
-            <form action={action}>
-                <div className="flex-1 rounded-lg bg-[var(--secondary-light)] px-12 pb-4 pt-8">
-                    <h2 className='flex justify-center mb-3'>
-                        Iniciar sesión
-                    </h2>
+            <div className="flex-1 rounded-lg bg-[var(--secondary-light)] px-12 pb-4 pt-8 w-96">
+                <h2 className='flex justify-center mb-3'>
+                    Iniciar sesión
+                </h2>
+                <form action={action}>
                     <div className="w-full pb-4">
                         <div>
                             <AuthenticationFormLabel text="Email" label="email"/>
@@ -72,10 +65,15 @@ export default function LoginForm() {
                             />
                         </div>
                     </div>
-                    {state && state.error == "invalid auth" && <div className={"mb-1 mt-3 text-red-600"}>Usuario o contraseña incorrectos.</div>}
+                    {(state && state.error == "invalid auth") ? 
+                        <div className="mb-1 mt-1 text-red-600 h-8 px-2">Usuario o contraseña incorrectos.</div>
+                        :
+                        <div className="h-8"></div>
+                    }
+                    
                     <LoginButton/>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     )
 }

@@ -1,17 +1,21 @@
-import { getSubscriptionPoolSize } from "@/actions/subscriptions"
+"use client"
+
+import { useSubscriptionPoolSize } from "@/app/hooks/subscriptions";
 import { FreeSubscriptionButton } from "@/components/free-subcription-button"
 import { ThreeColumnsLayout } from "@/components/three-columns";
 import Link from "next/link"
 
 
-export default async function PlanGratuito() {
-    const poolSize = await getSubscriptionPoolSize()
+export default function PlanGratuito() {
+    const poolSize = useSubscriptionPoolSize()
+
+    if(poolSize.isLoading) return <></>
 
     let center = <></>
-    if(poolSize > 0){
+    if(poolSize.poolSize > 0){
         center = <>
         <div className="flex justify-center mt-8">
-            <p className="text-gray-900">Hay <span className="font-bold">{poolSize}</span> suscripciones disponibles en el sitio.</p>
+            <p className="text-gray-900">Hay <span className="font-bold">{poolSize.poolSize}</span> suscripciones disponibles en el sitio.</p>
         </div>
         <p className="flex justify-center mt-8">
             Fueron donadas por otros usuarios para quien lo necesite.

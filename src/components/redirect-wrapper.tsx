@@ -10,8 +10,8 @@ export const RedirectWrapper: React.FC<any> = ({children}) => {
 
     if(user.isLoading || user.isError || !user.user){
         return <></>
-    } else if(!validSubscription(user.user)){
-        router.push("/suscripciones")
+    } else if(validSubscription(user.user)){
+        router.push("/inicio")
         return <></>
     } else {
         return <>{children}</>
