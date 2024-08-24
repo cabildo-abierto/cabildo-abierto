@@ -20,7 +20,7 @@ const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
     }
     return <div className="h-full w-full">
         {feed.feed.length > 0 ? feed.feed.map(({id}, index: number) => {
-            return <div key={index} className="py-1">
+            return <div key={index} className="">
                 <ContentWithComments
                     contentId={id}
                 />

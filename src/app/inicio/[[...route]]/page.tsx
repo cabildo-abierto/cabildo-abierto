@@ -47,7 +47,7 @@ const TopicsPage: React.FC<{
     }
 
     const center = <div className="w-full">
-        <div className="mt-2 border rounded-lg">
+        <div className="border rounded my-1">
             <WikiCategories route={decodedRoute} selected={selected}/>
             <SelectionComponent
                 onSelection={setSelected}
@@ -60,7 +60,7 @@ const TopicsPage: React.FC<{
         {selected == "Artículos colaborativos" ? 
             <CategoryArticles entities={routeEntities}/> :
         selected == "General" ? 
-        <>{feed && <div className="mt-8">
+        <>{feed && <div className="">
             <Feed feed={feed}/>
         </div>}</> : 
         <>{followingFeed && <div className="mt-8"><Feed feed={followingFeed}/></div>}</>}

@@ -15,6 +15,8 @@ import { useContent } from "@/app/hooks/contents";
 import { FastPost } from "./fast-post";
 import { Comment } from "./comment"
 import { ContentProps } from "@/app/lib/definitions";
+import { ReactionButton } from "./reaction-button";
+import CommentIcon from '@mui/icons-material/Comment';
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -58,24 +60,30 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
     </button>
 }
 
-type LikeAndCommentCounterProps = {
+type CommentCounterProps = {
     content: ContentProps,
     onViewComments: () => void,
     viewingComments: boolean,
     disabled?: boolean
 }
 
-export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false}) => {
+export const CommentCounter = ({viewingComments, disabled, content, onViewComments}: CommentCounterProps) => {
+    return <div className="flex items-center px-2">
+        <ReactionButton
+            icon1={<CommentIcon fontSize="small"/>}
+            icon2={<CommentOutlinedIcon fontSize="small"/>}
+            count={content.childrenContents.length}
+            disabled={disabled}
+            active={viewingComments}
+            onClick={onViewComments}
+        />
+    </div>
+}
+
+export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false}) => {
     return <div className="flex">
         <LikeCounter content={content} disabled={disabled}/>
-        <div className="flex items-center px-2">
-            <div 
-                className={viewingComments ? "cursor-pointer reaction-btn-selected" : "cursor-pointer reaction-btn"}
-                onClick={(e: any) => {if(content.childrenContents.length > 0 && !disabled) stopPropagation(onViewComments)(e)}}
-            >
-                <span className=""><CommentOutlinedIcon sx={{ fontSize: 18 }}/> {content.childrenContents.length}</span>
-            </div>
-        </div>
+        <CommentCounter content={content} disabled={disabled} viewingComments={viewingComments} onViewComments={onViewComments}/>
     </div>
 }
 
@@ -90,17 +98,16 @@ export const Authorship = ({content, onlyAuthor=false}: any) => {
 
 
 type ContentComponentProps = {
-    contentId: string,
-    onViewComments: any,
-    onStartReply: () => void,
-    entity?: any,
-    isPostPage?: boolean,
-    viewingComments: boolean,
-    modify?: boolean,
+    contentId: string
+    onViewComments: any
+    entity?: any
+    isPostPage?: boolean
+    viewingComments: boolean
+    onStartReply: () => void
 }
 
 
-const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewComments, onStartReply, viewingComments, entity=null, isPostPage=false, modify=false}) => {
+const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewComments, viewingComments, entity=null, isPostPage=false, onStartReply}) => {
     const {content, isLoading, isError} = useContent(contentId)
 
     if(isLoading){
@@ -109,17 +116,19 @@ const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewCom
     if(isError || !content){
         return <>Error :(</>
     }
+    let element = null
     if(content.type == "Post" && isPostPage){
-        return <Post content={content}/>
+        element = <Post content={content}/>
     } else if(content.type == "EntityContent"){
-        return <EntityComponent content={content} entity={entity}/>
+        element = <EntityComponent content={content} entity={entity}/>
     } else if(content.type == "Post"){
-        return <PostOnFeed content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
+        element = <PostOnFeed content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
     } else if(content.type == "FastPost"){
-        return <FastPost content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
+        element = <FastPost content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
     } else if(content.type == "Comment"){
-        return <Comment content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/> 
+        element = <Comment content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/> 
     }
+    return <div className="py-1">{element}</div>
 };
 
 export default ContentComponent;

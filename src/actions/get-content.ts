@@ -28,8 +28,7 @@ export const getContentById = cache(async (id: string) => {
             },
             _count: {
                 select: {
-                    likedBy: true,
-                    dislikedBy: true,
+                    reactions: true
                 },
             },
             type: true,
@@ -110,9 +109,8 @@ export const getDraftsById = cache(async (id: string) => {
             },
             _count: {
                 select: {
-                    likedBy: true,
-                    dislikedBy: true,
-                },
+                    reactions: true
+                }
             },
             type: true,
             isDraft: true,

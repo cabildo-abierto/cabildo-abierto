@@ -32,10 +32,14 @@ export const getUserById = cache(async (userId: string) => {
                 authenticated: true,
                 editorStatus: true,
                 subscriptionsUsed: true,
-                following: true,
-                followedBy: true,
-                likes: true,
-                dislikes: true,
+                following: {select: {id: true}},
+                followedBy: {select: {id: true}},
+                reactions: {
+                    select: {
+                        contentId: true,
+                        entityId: true
+                    }
+                },
                 authUser: {
                     select: {
                         email: true,
@@ -64,15 +68,19 @@ export const getUserByAuthId = cache(async (userId: string) => {
                 authenticated: true,
                 editorStatus: true,
                 subscriptionsUsed: true,
-                following: true,
-                followedBy: true,
-                likes: true,
-                dislikes: true,
+                following: {select: {id: true}},
+                followedBy: {select: {id: true}},
                 authUser: {
                     select: {
                         email: true,
                     }
-                }
+                },
+                reactions: {
+                    select: {
+                        contentId: true,
+                        entityId: true
+                    }
+                },   
             },
             where: {
                 authUserId: userId

@@ -32,18 +32,17 @@ function getQuoteFromContent(node: any, id: string): any {
 
 type CommentProps = {
     content: ContentProps,
-    onStartReply: () => void,
-    onViewComments: () => void,
+    onViewComments: () => void
     viewingComments: boolean
+    onStartReply: () => void
 }
 
 
 export const Comment = ({
     content,
-    onStartReply,
     onViewComments,
-    viewingComments}: CommentProps) => {
-    const className = "w-full bg-[var(--background)] text-left" 
+    viewingComments,
+    onStartReply}: CommentProps) => {
 
     let snode = null
     const parentContent = useContent(content.parentContents[0].id)
@@ -69,19 +68,19 @@ export const Comment = ({
         })
     }
 
-    return <div className={className}>
-        <div className="border rounded w-full">
+    return <div className="w-full bg-[var(--background)] text-left" >
+        <div className="border rounded w-full border-[var(--accent)]">
             <ContentTopRow content={content} icon={null}/>
-            <div className="px-2 py-2 content">
+            <div className="px-2 mt-2 ml-2 content">
                 {snode && <div className="content">
                     <ReadOnlyEditor initialData={initializeQuote}/>
                 </div>}
                 <ReadOnlyEditor initialData={content.text}/>
             </div>
             <div className="flex justify-between mb-1">
-                <div className="px-1">
-                    <AddCommentButton text="Responder" onClick={stopPropagation(onStartReply)}/>
-                </div>
+                <button className="reply-btn" onClick={onStartReply}>
+                    Responder
+                </button>
                 <LikeAndCommentCounter content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
             </div>
         </div>

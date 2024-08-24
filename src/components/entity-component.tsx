@@ -18,7 +18,6 @@ const EntityComponent: React.FC<{content: ContentProps, entity: EntityProps}> = 
                 entity={entity}
             />
         </div>
-        <hr className="mb-8 mt-4"/>
     </>
 }
 
