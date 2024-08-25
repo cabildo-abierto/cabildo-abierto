@@ -10,7 +10,7 @@ type ReactionButtonProps = {
     disabled?: boolean
 }
 
-export const ReactionButton = ({onClick, count, icon1, icon2, active=false, disabled=false}: ReactionButtonProps) => {
+export const ReactionButton = ({onClick, count, icon1, icon2, active=true, disabled=false}: ReactionButtonProps) => {
     
     return <div className="" >
         <button onClick={stopPropagation(onClick)}

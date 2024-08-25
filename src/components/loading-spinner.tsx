@@ -12,17 +12,17 @@ const LoadingSpinnerOld = () => {
 const LoadingSpinner = () => {
   return <div className="flex items-center justify-center h-full w-full">
     <LineWave
-  visible={true}
-  height="80"
-  width="80"
-  color="var(--primary)"
-  ariaLabel="line-wave-loading"
-  wrapperStyle={{}}
-  wrapperClass=""
-  firstLineColor=""
-  middleLineColor=""
-  lastLineColor=""
-  />
+        visible={true}
+        height="80"
+        width="80"
+        color="var(--primary)"
+        ariaLabel="line-wave-loading"
+        wrapperStyle={{}}
+        wrapperClass=""
+        firstLineColor=""
+        middleLineColor=""
+        lastLineColor=""
+    />
   </div>
 }
 

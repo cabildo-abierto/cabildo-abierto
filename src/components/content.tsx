@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
@@ -18,6 +18,9 @@ import { ContentProps } from "@/app/lib/definitions";
 import { ReactionButton } from "./reaction-button";
 import CommentIcon from '@mui/icons-material/Comment';
 import LoadingSpinner from "./loading-spinner";
+import { useUser } from "@/app/hooks/user";
+import { addView } from "@/actions/likes";
+import { ViewsCounter } from "./views-counter";
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -83,6 +86,7 @@ export const CommentCounter = ({viewingComments, disabled, content, onViewCommen
 
 export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false}) => {
     return <div className="flex">
+        <ViewsCounter contentId={content.id}/>
         <LikeCounter content={content} disabled={disabled}/>
         <CommentCounter content={content} disabled={disabled} viewingComments={viewingComments} onViewComments={onViewComments}/>
     </div>
@@ -110,6 +114,21 @@ type ContentComponentProps = {
 
 const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewComments, viewingComments, entity=null, isPostPage=false, onStartReply}) => {
     const {content, isLoading, isError} = useContent(contentId)
+    const {user} = useUser()
+    const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
+
+    useEffect(() => {
+        const recordView = async () => {
+            if (user && !viewRecordedRef.current) {
+                if(content.type == "Post" && isPostPage || content.type != "Post"){
+                    console.log("adding view to", contentId)
+                    await addView(contentId, user.id);
+                    viewRecordedRef.current = true;
+                }
+            }
+        };
+        recordView();
+    }, [user, contentId]);
 
     if(isLoading){
         return <LoadingSpinner/>

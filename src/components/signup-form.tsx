@@ -36,8 +36,6 @@ export default function SignupForm() {
         router.push("/");
     }
 
-    console.log(state)
-
     return (
         <div className="">
             <form action={action}>

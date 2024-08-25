@@ -19,6 +19,7 @@ import { deleteEntity } from "@/actions/create-entity";
 import LoadingSpinner from "./loading-spinner";
 import { ReactionButton } from "./reaction-button";
 import { LikeCounter } from "./like-counter";
+import { ViewsCounter } from "./views-counter";
 
 
 export const ArticlePage = ({entityId, version}: {entityId: string, version?: number}) => {
@@ -88,6 +89,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             {entity.name}
         </h1>
         <div className="flex justify-end items-center">
+            <ViewsCounter contentId={contentId}/>
             <span className="px-1">Te sirvió el artículo?</span>
             <LikeCounter
                 content={entity}

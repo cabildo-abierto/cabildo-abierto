@@ -28,9 +28,33 @@ model User {
     following           User[]         @relation("following")
     followedBy          User[]         @relation("following")
 
-    reactions               Reaction[]
+    reactions           Reaction[]
+
+    views               View[]
 
     @@map("users")
+    @@schema("public")
+}
+
+
+enum ReactionType {
+  Like
+  View
+
+  @@schema("public")
+}
+
+
+model View {
+    id                  String         @id @default(cuid())
+    createdAt           DateTime       @default(now()) @map("created_at")
+
+    userBy              User           @relation(fields: [userById], references: [id])
+    userById            String
+
+    content             Content?       @relation(fields: [contentId], references: [id])
+    contentId           String?
+        
     @@schema("public")
 }
 
@@ -42,11 +66,12 @@ model Reaction {
     userBy              User           @relation(fields: [userById], references: [id])
     userById            String
 
-    content             Content?        @relation(fields: [contentId], references: [id])
-    contentId           String?         
+    content             Content?       @relation(fields: [contentId], references: [id])
+    contentId           String?      
 
-    entity             Entity?          @relation(fields: [entityId], references: [id])
-    entityId           String?      
+    entity              Entity?        @relation(fields: [entityId], references: [id])
+    entityId            String?
+
     @@schema("public")
 }
 
@@ -74,6 +99,7 @@ model Entity {
   referencedBy Content[]       @relation("entityReferences")
 
   reactions    Reaction[]
+
   @@schema("public")
 }
 
@@ -98,6 +124,7 @@ model Content {
 
   reactions        Reaction[]
 
+  views            View[]
   @@schema("public")
 }
 
