@@ -3,6 +3,7 @@ import { Authorship, LikeAndCommentCounter } from "./content";
 import { ReadOnlyEditor } from "./editor/read-only-editor";
 import { ContentProps } from '@/app/lib/definitions';
 import { LikeCounter } from "./like-counter";
+import { ViewsCounter } from "./views-counter";
 
 export const Post: React.FC<{
     content: ContentProps
@@ -17,6 +18,7 @@ export const Post: React.FC<{
                 <span className="mr-1"><Authorship content={content}/></span> · <DateSince date={content.createdAt}/>
             </div>
             <div className="flex">
+                <ViewsCounter contentId={content.id}/>
                 <LikeCounter content={content} disabled={false}/>
             </div>
         </div>

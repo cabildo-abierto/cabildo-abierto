@@ -28,7 +28,6 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
   const { error } = await supabase.auth.signInWithPassword(validatedFields.data)
 
   if (error) {
-    console.log("returning invalid auth")
     return { error: "invalid auth" }
   }
 
@@ -69,7 +68,6 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
   const { error, data } = await supabase.auth.signUp(validatedFields.data)
 
   if (error || !data || !data.user) {
-    console.log("returning with error", error)
     return {
       authError: error?.code
     }

@@ -28,7 +28,8 @@ export const getContentById = cache(async (id: string) => {
             },
             _count: {
                 select: {
-                    reactions: true
+                    reactions: true,
+                    views: true
                 },
             },
             type: true,
@@ -89,6 +90,7 @@ export const getFeed = cache(async () => {
 }, ["contents"], {tags: ["contents"]})
 
 
+// TO DO: Tiene sentido esto?
 export const getDraftsById = cache(async (id: string) => {
     const drafts = await db.content.findMany({
         select: {
@@ -109,7 +111,8 @@ export const getDraftsById = cache(async (id: string) => {
             },
             _count: {
                 select: {
-                    reactions: true
+                    reactions: true,
+                    views: true
                 }
             },
             type: true,

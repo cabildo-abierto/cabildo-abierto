@@ -207,7 +207,6 @@ function FloatingLinkEditor({
         const sanitized = sanitizeUrl(editedLinkUrl)
         const isInternal = editedLinkUrl.startsWith("/")
         const target = isInternal ? "" : "_blank"
-        console.log("adding link", editedLinkUrl, "target", target)
         editor.dispatchCommand(TOGGLE_LINK_COMMAND, {url: sanitized, target: target, rel: ""});
         editor.update(() => {
           const selection = $getSelection();

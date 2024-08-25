@@ -10,7 +10,6 @@ export default function LoginForm() {
     const [state, action] = useFormState(login, undefined)
     const router = useRouter()
 
-    console.log("login state", state)
 
     const handleEmailInput = (e: any) => {
         const email = e.target;

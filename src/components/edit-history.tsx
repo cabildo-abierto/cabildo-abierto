@@ -72,7 +72,6 @@ export function currentVersion(entity: EntityProps){
 export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: number}) => {
 
     const currentIndex = currentVersion(entity)
-    console.log(currentIndex)
 
     return <>{entity.versions.map((version, index) => {
         const versionIndex = entity.versions.length-1-index

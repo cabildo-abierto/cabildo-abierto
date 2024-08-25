@@ -14,6 +14,7 @@ export type ContentProps = {
     author: SmallUserProps
     _count: {
         reactions: number
+        views: number
     }
     type: ContentType
     isDraft: boolean | null
