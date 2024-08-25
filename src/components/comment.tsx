@@ -12,6 +12,7 @@ import { ReadOnlyEditor } from './editor/read-only-editor';
 import { useContent } from '@/app/hooks/contents';
 import assert from 'assert';
 import { ContentProps } from '@/app/lib/definitions';
+import LoadingSpinner from './loading-spinner';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -46,7 +47,12 @@ export const Comment = ({
 
     let snode = null
     const parentContent = useContent(content.parentContents[0].id)
-    if(!parentContent.isLoading && !parentContent.isError){
+
+    if(parentContent.isLoading){
+        return <LoadingSpinner/>
+    }
+
+    if(parentContent.content){
         const parentText = JSON.parse(parentContent.content.text)
         snode = getQuoteFromContent(parentText.root, content.id)
     }

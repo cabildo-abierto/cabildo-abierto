@@ -1,6 +1,7 @@
 import { useFeed } from "@/app/hooks/contents"
 import { ContentProps } from "@/app/lib/definitions"
 import { ContentWithComments } from "@/components/content-with-comments"
+import LoadingSpinner from "./loading-spinner"
 
 type CommentSectionProps = {
     parentContent: ContentProps,
@@ -19,7 +20,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({parentContent, activeIDs
     const feed = useFeed()
 
     if(feed.isLoading){
-        return <></>
+        return <LoadingSpinner/>
     }
 
     const contents = otherContents ? comments.concat(otherContents) : comments

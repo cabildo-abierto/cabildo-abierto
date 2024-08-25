@@ -5,13 +5,14 @@ import { ThreeColumnsLayout } from "@/components/three-columns";
 import EditDraftPage from "./edit-draft";
 import { ErrorPage } from "@/components/error-page";
 import { useContent } from "@/app/hooks/contents";
+import LoadingSpinner from "@/components/loading-spinner";
 
 
 const Editar: React.FC<any> = ({params}) => {
     const {content, isLoading, isError} = useContent(params.id)
 
     if(isLoading){
-        return <></>
+        return <LoadingSpinner/>
     }
     if(isError || !content){
         return <ErrorPage>No se encontró el contenido</ErrorPage>

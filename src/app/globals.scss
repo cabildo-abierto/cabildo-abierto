@@ -487,3 +487,12 @@ ol {
 .reply-btn:hover {
 	color: var(--text)
 }
+
+.topbar-container {
+	border-bottom: 1px solid;
+	background-color: var(--background);
+	height: 4rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}

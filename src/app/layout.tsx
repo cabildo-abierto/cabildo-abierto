@@ -1,4 +1,5 @@
 
+import Bars from '@/components/bars'
 import './globals.scss'
 import { Metadata } from 'next'
 //import { Roboto_Mono, Roboto, Roboto_Condensed, Roboto_Serif, Roboto_Slab, Roboto_Flex } from 'next/font/google'

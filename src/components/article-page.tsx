@@ -16,6 +16,9 @@ import NoEntityPage from "./no-entity-page";
 import StateButton from "./state-button";
 import { useRouter } from "next/navigation";
 import { deleteEntity } from "@/actions/create-entity";
+import LoadingSpinner from "./loading-spinner";
+import { ReactionButton } from "./reaction-button";
+import { LikeCounter } from "./like-counter";
 
 
 export const ArticlePage = ({entityId, version}: {entityId: string, version?: number}) => {
@@ -27,7 +30,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
     const {mutate} = useSWRConfig()
 
     if(isLoading){
-        return <></>
+        return <LoadingSpinner/>
     }
 
     if(isError || !entity){
@@ -84,6 +87,13 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         <h1 className="ml-2 py-8">
             {entity.name}
         </h1>
+        <div className="flex justify-end items-center">
+            <span className="px-1">Te sirvió el artículo?</span>
+            <LikeCounter
+                content={entity}
+                isEntity={true}
+            />
+        </div>
         <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
             <ViewHistoryButton/>
             <ViewCategoriesButton/>

@@ -2,6 +2,7 @@
 
 import { useSubscriptionPoolSize } from "@/app/hooks/subscriptions";
 import { FreeSubscriptionButton } from "@/components/free-subcription-button"
+import LoadingSpinner from "@/components/loading-spinner";
 import { ThreeColumnsLayout } from "@/components/three-columns";
 import Link from "next/link"
 
@@ -9,7 +10,7 @@ import Link from "next/link"
 export default function PlanGratuito() {
     const poolSize = useSubscriptionPoolSize()
 
-    if(poolSize.isLoading) return <></>
+    if(poolSize.isLoading) return <LoadingSpinner/>
 
     let center = <></>
     if(poolSize.poolSize > 0){

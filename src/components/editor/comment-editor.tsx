@@ -13,6 +13,7 @@ import { UserProps } from "@/app/lib/definitions"
 import { useUser } from "@/app/hooks/user"
 
 import dynamic from 'next/dynamic'
+import LoadingSpinner from "../loading-spinner"
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
@@ -63,7 +64,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     const user = useUser()
 
     if(user.isLoading){
-        return <></>
+        return <LoadingSpinner/>
     }
 
     const isDevPlayground = false

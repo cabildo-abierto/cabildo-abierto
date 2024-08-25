@@ -5,6 +5,7 @@ import { useContent } from "@/app/hooks/contents"
 import { ContentProps, EntityProps } from "@/app/lib/definitions"
 import { useRouter } from "next/navigation"
 import { UndoButton } from "./undo-button"
+import LoadingSpinner from "./loading-spinner"
 
 const EditDetails = ({content, prev}: {content: ContentProps, prev: ContentProps | null}) => {
     if(!prev){
@@ -31,8 +32,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     const content = useContent(entity.versions[index].id)
     let prev = useContent(entity.versions[Math.max(index-1, 0)].id)
 
-    if(content.isLoading) return <></>
-    if(prev.isLoading) return <></>
+    if(content.isLoading || prev.isLoading) return <LoadingSpinner/>
 
     const selected = viewing == index
 

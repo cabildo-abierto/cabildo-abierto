@@ -9,7 +9,7 @@ import { createClient } from "@/utils/supabase/client"
 
 export const AuthPage = ({signup}: {signup: boolean}) => {
     return <div className="">
-        <div className="border-b w-screen py-2">
+        <div className="topbar-container">
             <LogoWithName/>
         </div>
     <div className="flex justify-center items-center h-screen-minus-16 w-screen">

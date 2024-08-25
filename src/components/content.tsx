@@ -17,6 +17,7 @@ import { Comment } from "./comment"
 import { ContentProps } from "@/app/lib/definitions";
 import { ReactionButton } from "./reaction-button";
 import CommentIcon from '@mui/icons-material/Comment';
+import LoadingSpinner from "./loading-spinner";
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -111,10 +112,10 @@ const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewCom
     const {content, isLoading, isError} = useContent(contentId)
 
     if(isLoading){
-        return <></>
+        return <LoadingSpinner/>
     }
     if(isError || !content){
-        return <>Error :(</>
+        return <></>
     }
     let element = null
     if(content.type == "Post" && isPostPage){

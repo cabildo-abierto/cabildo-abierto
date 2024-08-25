@@ -4,30 +4,51 @@ import {db} from "@/db";
 import { revalidateTag } from "next/cache";
 
 
-export const addLike = async (contentId: string, userId: string) => {
-    await db.reaction.create({
-        data: {
-            userById: userId,
-            contentId: contentId
-        },
-    });
-    revalidateTag("contents")
+export const addLike = async (id: string, userId: string, isEntity: boolean) => {
+    if(isEntity){
+        await db.reaction.create({
+            data: {
+                userById: userId,
+                entityId: id
+            },
+        });
+        revalidateTag("entities")
+    } else {
+        await db.reaction.create({
+            data: {
+                userById: userId,
+                contentId: id
+            },
+        });
+        revalidateTag("contents")
+    }
     revalidateTag("users")
     revalidateTag("reactions")
 }
 
 
-export const removeLike = async (contentId: string, userId: string) => {
-    const result = await db.reaction.deleteMany({
-        where: { 
-            AND: [
-                {contentId: contentId},
-                {userById: userId}
-            ]
-        }
-    });
-    revalidateTag("contents")
+export const removeLike = async (id: string, userId: string, isEntity: boolean) => {
+    if(isEntity){
+        await db.reaction.deleteMany({
+            where: { 
+                AND: [
+                    {contentId: id},
+                    {userById: userId}
+                ]
+            }
+        });
+        revalidateTag("contents")
+    } else {
+        await db.reaction.deleteMany({
+            where: { 
+                AND: [
+                    {entityId: id},
+                    {userById: userId}
+                ]
+            }
+        });
+        revalidateTag("entities")
+    }
     revalidateTag("users")
     revalidateTag("reactions")
-    return result
 }

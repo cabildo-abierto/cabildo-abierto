@@ -14,6 +14,7 @@ import { useSWRConfig } from "swr";
 import { useCategories, useEntities } from "@/app/hooks/entities";
 import { getNextCategories, isPrefix } from "./wiki-categories";
 import InfoPanel from "./info-panel";
+import LoadingSpinner from "./loading-spinner";
 
 function validCategoryElement(e: string){
     return e.length > 0
@@ -50,6 +51,8 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
             newIndex ++
             next = getNextCategories(category.slice(0, newIndex), entities.entities)
         }
+    } else {
+        return <LoadingSpinner/>
     }
 
     return <div className="flex items-center py-2">

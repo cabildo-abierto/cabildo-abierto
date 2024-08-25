@@ -7,6 +7,7 @@ import dynamic from "next/dynamic"
 import { useContent } from "@/app/hooks/contents"
 import { useUser } from "@/app/hooks/user"
 import { useSWRConfig } from "swr"
+import LoadingSpinner from "./loading-spinner"
 
 
 const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
@@ -49,11 +50,11 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     }
 
     if(isLoading || user.isLoading){
-        return <></>
+        return <LoadingSpinner/>
     }
 
     if(isError || !content){
-        return <>Error :(</>
+        return <></>
     }
 
     const isMainPage = isPostPage || entity

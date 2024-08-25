@@ -7,16 +7,16 @@ import Image from 'next/image'
 
 
 export const LogoWithName = () => {
-    return <Link href="/"><div className="flex items-center px-2">
+    return <div><Link href="/"><div className="flex items-center px-2">
         <Image
           src="/logo-texto.png"
           alt="Loading..."
           width={796}
           height={291}
           priority={true}
-          className={"object-contain w-24"}
+          className="w-24"
         />
-    </div></Link>
+    </div></Link></div>
 }
 
 
@@ -49,18 +49,18 @@ export const SignupButton = ({className="", text="Crear cuenta"}: {className?: s
 }
 
 const Topbar = () => {
-    return <div className="flex justify-between items-center border-b py-2">
+    return <div className="topbar-container">
         <LogoWithName/>
-        <div>
-        <LoginButton className="auth-btn h-10 mr-2"/>
-        <SignupButton className="auth-btn h-10 mr-2"/>
+        <div className="flex items-center">
+            <LoginButton className="auth-btn h-10 mr-2"/>
+            <SignupButton className="auth-btn h-10 mr-2"/>
         </div>
     </div>
 }
 
 
 export const HomePage = () => {
-    return <div className="h-screen flex flex-col">
+    return <div className="h-screen">
         <Topbar/>
         <Presentation/>
         <div className="flex flex-col justify-end h-full">

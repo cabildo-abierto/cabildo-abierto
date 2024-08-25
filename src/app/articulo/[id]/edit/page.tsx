@@ -12,6 +12,7 @@ import { useUser } from "@/app/hooks/user";
 import { useEntity } from "@/app/hooks/entities";
 import { UserProps } from "@/app/lib/definitions";
 import { currentVersion } from "@/components/edit-history";
+import LoadingSpinner from "@/components/loading-spinner";
 
 const WikiEditor = dynamic(() => import('@/components/editor/wiki-editor'), { ssr: false });
 
@@ -25,7 +26,7 @@ const EntityPage: React.FC<any> = ({ params }) => {
     const user = useUser()
 
     if (isLoading || user.isLoading) {
-        return <></>
+        return <LoadingSpinner/>
     }
     if(isError || !entity){
         return <ThreeColumnsLayout center={<NoEntityPage id={params.id} />} />

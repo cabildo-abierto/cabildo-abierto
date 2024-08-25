@@ -9,6 +9,7 @@ import { useEntities } from "@/app/hooks/entities";
 import SelectionComponent from "@/components/search-selection-component";
 import { useUser } from "@/app/hooks/user";
 import { useRouter } from "next/navigation";
+import LoadingSpinner from "@/components/loading-spinner";
 
 
 
@@ -34,10 +35,10 @@ const TopicsPage: React.FC<{
     }
 
     if(entities.isLoading){
-        return <></>
+        return <LoadingSpinner/>
     }
     if(!entities || entities.isError){
-        return <>Ocurrió un error :(</>
+        return <></>
     }
 
     const routeEntities = entities.entities.filter((entity) => (entityInRoute(entity, decodedRoute)))
