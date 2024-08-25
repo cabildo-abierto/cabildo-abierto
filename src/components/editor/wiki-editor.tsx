@@ -17,6 +17,7 @@ import { useSWRConfig } from "swr"
 
 import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
+import LoadingSpinner from "../loading-spinner"
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
@@ -37,10 +38,10 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
     const user = useUser()
     const {content, isLoading, isError} = useContent(contentId)
     if(isLoading || user.isLoading){
-        return <></>
+        return <LoadingSpinner/>
     }
     if(!content || isError){
-        return <>Ocurrió un error :(</>
+        return <></>
     }
     
     const isDevPlayground = false

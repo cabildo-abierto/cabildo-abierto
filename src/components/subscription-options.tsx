@@ -2,11 +2,12 @@
 import { getSubscriptionPrice } from "./utils"
 import SubscriptionOptionButton from "./subscription-option-button"
 import { useSubscriptionPoolSize } from "@/app/hooks/subscriptions"
+import LoadingSpinner from "./loading-spinner"
 
 const SubscriptionOptions = () => {
     const poolSize = useSubscriptionPoolSize()
 
-    if(poolSize.isLoading) return <></>
+    if(poolSize.isLoading) return <LoadingSpinner/>
     const desc2 = <div>
         <span>
             Hay <span className="font-bold">{poolSize.poolSize}</span> suscripciones disponibles.

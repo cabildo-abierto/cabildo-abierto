@@ -41,7 +41,7 @@ export default function SignupForm() {
     return (
         <div className="">
             <form action={action}>
-                <div className="flex-1 rounded-lg bg-[var(--secondary-light)] px-12 pb-4 pt-8">
+                <div className="flex-1 rounded-lg bg-[var(--secondary-light)] px-12 pb-4 pt-8 w-96">
                     <h2 className='flex justify-center mb-3'>
                         Crear cuenta
                     </h2>

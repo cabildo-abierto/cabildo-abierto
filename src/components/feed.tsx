@@ -1,6 +1,7 @@
 import React from "react"
 import { ContentWithComments } from "./content-with-comments";
 import { useUser } from "@/app/hooks/user";
+import LoadingSpinner from "./loading-spinner";
 
 
 type FeedProps = {
@@ -13,10 +14,10 @@ type FeedProps = {
 const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
     const user = useUser()
     if(feed.isLoading || user.isLoading){
-        return <></>
+        return <LoadingSpinner/>
     }
     if(feed.isError){
-        return <>Error :(</>
+        return <></>
     }
     return <div className="h-full w-full">
         {feed.feed.length > 0 ? feed.feed.map(({id}, index: number) => {
@@ -26,7 +27,7 @@ const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
                 />
             </div>
         }) : 
-        <div className="ml-4 flex justify-center">Todavía no hay nada acá...</div>}
+        <div className="ml-4 mt-8 flex justify-center">Todavía no hay nada acá...</div>}
     </div>
 }
 

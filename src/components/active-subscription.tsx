@@ -2,13 +2,14 @@
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import SubscriptionOptionButton from "./subscription-option-button";
 import { useSubscriptionPoolSize } from '@/app/hooks/subscriptions';
+import LoadingSpinner from './loading-spinner';
 
 
 const ActiveSubscription: React.FC = () => {
     const poolSize = useSubscriptionPoolSize()
 
     if(poolSize.isLoading){
-        return <></>
+        return <LoadingSpinner/>
     }
     return <div>
         <div className="text-gray-700 flex items-center justify-center border w-96 mx-auto p-4">

@@ -11,13 +11,16 @@ import InfoIcon from '@mui/icons-material/Info';
 import { useUser } from "@/app/hooks/user";
 import { Logo } from "./home-page";
 import EditNoteIcon from '@mui/icons-material/EditNote';
+import { useSWRConfig } from "swr";
 
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
     const user = useUser()
+    const {mutate} = useSWRConfig()
     
     const onLogout = async (e: any) => {
         await signOut()
+        mutate("/api/user")
     }
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-20">

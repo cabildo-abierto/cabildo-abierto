@@ -146,7 +146,7 @@ export default function Topbar({ onOpenSidebar, setSearchValue, searching }: Top
         />
     }
 
-    return <><div className="border-b bg-[var(--background)] h-16 flex items-center justify-between">
+    return <><div className="topbar-container">
             {bar}
         </div>
         {(barState != "no bar" || searching) && <div className="fixed top-0 left-0 w-screen">

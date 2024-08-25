@@ -3,12 +3,17 @@
 import { useRouter } from "next/navigation"
 import { validSubscription } from "./utils"
 import { useUser } from "@/app/hooks/user"
+import LoadingPage from "./loading-page"
 
 export const RedirectWrapper: React.FC<any> = ({children}) => {
     const router = useRouter()
     const user = useUser()
 
-    if(user.isLoading || user.isError || !user.user){
+    if(user.isLoading){
+        return <LoadingPage>
+            {children}
+        </LoadingPage>
+    } else if(!user.user || user.isError){
         return <></>
     } else if(validSubscription(user.user)){
         router.push("/inicio")

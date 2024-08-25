@@ -31,11 +31,11 @@ export default function LoginForm() {
     return (
         <div className="">
             <div className="flex-1 rounded-lg bg-[var(--secondary-light)] px-12 pb-4 pt-8 w-96">
-                <h2 className='flex justify-center mb-3'>
+                <h2 className='flex justify-center mb-8'>
                     Iniciar sesión
                 </h2>
                 <form action={action}>
-                    <div className="w-full pb-4">
+                    <div className="w-full">
                         <div>
                             <AuthenticationFormLabel text="Email" label="email"/>
                             <input
@@ -66,9 +66,9 @@ export default function LoginForm() {
                         </div>
                     </div>
                     {(state && state.error == "invalid auth") ? 
-                        <div className="mb-1 mt-1 text-red-600 h-8 px-2">Usuario o contraseña incorrectos.</div>
+                        <div className="flex items-center text-red-600 h-10 px-2">Usuario o contraseña incorrectos.</div>
                         :
-                        <div className="h-8"></div>
+                        <div className="h-10"></div>
                     }
                     
                     <LoginButton/>

@@ -9,7 +9,8 @@ import { Logo } from './home-page';
 
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
   const user = useUser()
-  return <>{user.isLoading ? 
+  console.log(user)
+  return <>{(user.isLoading || user.isError || !user) ? 
     <div className="flex flex-col justify-center items-center w-screen h-screen space-y-4">
       <div className="relative">
         <Logo className="w-16 h-16"/>
