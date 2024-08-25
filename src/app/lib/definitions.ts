@@ -76,6 +76,9 @@ export const SignupFormSchema = z.object({
     username: z
         .string()
         .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
+        .regex(/^[a-zA-Z0-9]+$/, {
+            message: 'Solo puede contener letras y números.',
+        })
         .trim(),
     password: z
         .string()
@@ -89,8 +92,7 @@ export const SignupFormSchema = z.object({
     betakey: z.literal("cabildo24", {
         errorMap: () => ({ message: "Clave incorrecta." })
     })
-})
-
+});
 
 export const LoginFormSchema = z.object({
     email: z.string().email({ message: 'Ingresá un email válido.' }).trim(),
