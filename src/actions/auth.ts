@@ -59,7 +59,7 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
 
   const user = await db.user.findFirst({where: {id: validatedFields.data.username}})
 
-  if(!user){
+  if(user){
     return {
       errors: {username: ["El nombre de usuario ya existe."]}
     }
