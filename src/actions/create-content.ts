@@ -31,6 +31,7 @@ export async function createComment(text: string, parentContentId: string, userI
     revalidateTag("contents")
     revalidateTag("users")
     revalidateTag("entities")
+    revalidateTag("entity")
     return comment
 }
 
@@ -90,6 +91,7 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
     revalidateTag("contents")
     revalidateTag("users")
     revalidateTag("entities")
+    revalidateTag("entity")
     return result
 }
 

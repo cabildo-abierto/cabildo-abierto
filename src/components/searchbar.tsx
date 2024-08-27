@@ -10,7 +10,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
 export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = ({ result }) => {
     return (
-        <div className="flex justify-center mb-2">
+        <div className="flex justify-center">
             <Link href={id2url(result.id)}>
                 <button className="search-result items-center">
                   <div className="w-full flex">

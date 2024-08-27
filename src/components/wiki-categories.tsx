@@ -19,7 +19,7 @@ export function isPrefix(p: any[], q: any[]){
     return areArraysEqual(p, q.slice(0, p.length))
 }
 
-export function getNextCategories(route: string[], entities: EntityProps[]){
+export function getNextCategories(route: string[], entities: SmallEntityProps[]){
     const nextCategories = new Set<string>()
     
     entities.forEach((entity: SmallEntityProps) => {

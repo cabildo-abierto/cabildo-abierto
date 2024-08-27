@@ -1,6 +1,5 @@
 'use server'
 
-import { EntityProps } from "@/app/lib/definitions";
 import {db} from "@/db";
 import { cache } from "./cache";
 
@@ -25,7 +24,8 @@ export const getEntities = cache(async () => {
             },
             _count: {
                 select: {
-                    reactions: true
+                    reactions: true,
+                    referencedBy: true
                 }
             },
         },
@@ -78,7 +78,7 @@ export const getEntityById = cache(async (id: string) => {
         }
     )
     return entity
-}, ["entities"], {tags: ["entities"]})
+}, ["entity"], {tags: ["entity"]})
 
 
 export const getCategories = cache(async () => {
@@ -89,4 +89,4 @@ export const getCategories = cache(async () => {
         },
     })
     return entities.map(({categories}) => (categories))
-}, ["entities", "contents"], {tags: ["entities", "contents"]})
+}, ["categories"], {tags: ["categories"]})

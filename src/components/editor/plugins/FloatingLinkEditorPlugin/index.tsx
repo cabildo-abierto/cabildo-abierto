@@ -33,7 +33,7 @@ import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl, SUPPORTED_URL_PROTOCOLS} from '../../utils/url';
 import { useEntities } from '@/app/hooks/entities';
-import { EntityProps } from '@/app/lib/definitions';
+import { EntityProps, SmallEntityProps } from '@/app/lib/definitions';
 
 function FloatingLinkEditor({
   editor,
@@ -57,7 +57,7 @@ function FloatingLinkEditor({
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
-  const [results, setResults] = useState<EntityProps[]>([])
+  const [results, setResults] = useState<SmallEntityProps[]>([])
   const [currentUrl, setCurrentUrl] = useState('');
   const entities = useEntities()
 

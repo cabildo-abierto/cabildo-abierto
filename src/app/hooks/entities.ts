@@ -1,6 +1,6 @@
 import { fetcher } from "@/app/hooks/utils"
 import useSWR from "swr"
-import { EntityProps } from "../lib/definitions"
+import { EntityProps, SmallEntityProps } from "../lib/definitions"
 
 
 export function useEntity(id: string): {entity: EntityProps, isLoading: boolean, isError: boolean}{
@@ -13,7 +13,7 @@ export function useEntity(id: string): {entity: EntityProps, isLoading: boolean,
 }
 
 
-export function useEntities(): {entities: EntityProps[], isLoading: boolean, isError: boolean}{
+export function useEntities(): {entities: SmallEntityProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/entities', fetcher)
   
     return {

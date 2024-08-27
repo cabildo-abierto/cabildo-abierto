@@ -5,7 +5,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 
 export const EntitySearchResult: React.FC<{entity: {id: string, name: string}}> = ({ entity }) => {
     
-    return <div className="flex justify-center mb-2">
+    return <div className="flex justify-center">
         <Link href={"/articulo/" + entity.id}>
             <button className="search-result">
                 <div className="flex w-full items-center">
