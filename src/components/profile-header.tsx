@@ -5,37 +5,44 @@ import { useEffect, useState } from "react"
 import { useUser } from "@/app/hooks/user"
 import { UserProps } from "@/app/lib/definitions"
 import { useSWRConfig } from "swr"
+import { addAt } from "./content"
 
-export function ProfileHeader({profileUser}: {profileUser: UserProps}) {
+export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user?: UserProps }) {
     const [following, setFollowing] = useState(false)
-    const user = useUser()
     const {mutate} = useSWRConfig()
 
     useEffect(() => {
-        if(user.user)
-            setFollowing(user.user.following.some((u) => u.id === profileUser.id))
+        if(user)
+            setFollowing(user.following.some((u) => u.id === profileUser.id))
     }, [user, profileUser])
 
-    const doesFollow = user.user && user.user.following.some((u) => u.id === profileUser.id)
+    const doesFollow = user && user.following.some((u) => u.id === profileUser.id)
 
     const followerCount = profileUser.followedBy.length
+
     // hay alguna mejor forma de hacer esto?
     const updatedFollowerCount = followerCount + Number(following) - Number(doesFollow)
-    const isLoggedInUser = user.user && user.user.id == profileUser.id
+    const isLoggedInUser = user && user.id == profileUser.id
     const followingCount = profileUser.following.length
     
-    const onFollow = async () => {
-        if(!user.user) return; 
+    const onUnfollow = async () => {
+        if(!user) return; 
+        console.log("unfollowing")
         setFollowing(false);
-        await unfollow(profileUser.id, user.user.id);
-        mutate("/api/following-feed/"+user.user.id)
+        await unfollow(profileUser.id, user.id);
+        mutate("/api/following-feed/"+user.id)
+        mutate("/api/user")
+        console.log("done")
     }
 
-    const onUnfollow = async () => {
-        if(!user.user) return
+    const onFollow = async () => {
+        if(!user) return
+        console.log("following")
         setFollowing(true)
-        await follow(profileUser.id, user.user.id)
-        mutate("/api/following-feed/"+user.user.id)
+        await follow(profileUser.id, user.id)
+        mutate("/api/following-feed/"+user.id)
+        mutate("/api/user")
+        console.log("done")
     }
 
     return <><div className="flex justify-between">
@@ -44,20 +51,20 @@ export function ProfileHeader({profileUser}: {profileUser: UserProps}) {
                 {profileUser.name}
             </h3>
             <div className="text-gray-600">
-                {profileUser.id}
+                {addAt(profileUser.id)}
             </div>
         </div>
         <div className="flex items-center">
             {!isLoggedInUser &&
                 (following ? <button 
-                    onClick={onFollow} 
+                    onClick={onUnfollow} 
                     className="gray-btn"
                 >
                     Dejar de seguir
                 </button>
                 :
                 <button
-                    onClick={onUnfollow}
+                    onClick={onFollow}
                     className="gray-btn"
                 >
                     Seguir

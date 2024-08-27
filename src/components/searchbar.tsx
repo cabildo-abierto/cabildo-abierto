@@ -6,12 +6,13 @@ import Link from "next/link";
 import CloseIcon from '@mui/icons-material/Close';
 import SearchSidebar from "./search-sidebar";
 import { SearchButton } from "./top-bar";
+import { id2url } from "./content";
 
 
 export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {
     return (
         <div className="flex justify-center mb-2">
-            <Link href={"/perfil/" + result.id.replace("@", "")}>
+            <Link href={id2url(result.id)}>
                 <button className="search-result">
                     {result.name}
                 </button>

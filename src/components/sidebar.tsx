@@ -13,6 +13,7 @@ import { Logo } from "./home-page";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useSWRConfig } from "swr";
 import StateButton from "./state-button";
+import { id2url } from "./content";
 
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
@@ -32,11 +33,11 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
                     
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
-                    {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={"/perfil/"+user.user.id.slice(1)}/>}
+                    {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={id2url(user.user.id)}/>}
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/articulo/Cabildo_Abierto"/>
                 </div>
                 {user.user && <div className="flex flex-col items-center">
-                    <Link href={`/perfil/${user.user.id.slice(1)}`}
+                    <Link href={`/perfil/${user.user.id}`}
                         className="py-2 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)]">
                         {user.user.name}
                     </Link>

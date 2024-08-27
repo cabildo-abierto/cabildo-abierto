@@ -31,8 +31,19 @@ export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
 }
 
 
+export function id2url(id: string){
+    return "/perfil/" + id.replace("@", "")
+}
+
+
+export function addAt(id: string){
+    if(id.startsWith("@")) return id
+    return "@" + id
+}
+
+
 export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean, icon: any}> = ({content, author=true, icon=null}) => {
-    const url = content.author  ? ("/perfil/" + encodeURIComponent(content.author?.id.slice(1))) : ""
+    const url = content.author  ? id2url(content.author.id) : ""
     const onClick = stopPropagation(() => {})
 
     return <div className="text-gray-600 px-2 blue-links flex items-center">
@@ -44,7 +55,7 @@ export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean, i
                 href={url} 
                 className="hover:text-gray-900 lg:text-sm text-xs"
                 onClick={onClick}>
-                    {content.author?.name + " " + content.author?.id}
+                    {content.author?.name + " " + addAt(content.author?.id)}
                 </Link>
             </span>
         }
@@ -96,7 +107,7 @@ export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, o
 
 export const Authorship = ({content, onlyAuthor=false}: any) => {
     return <span className="link">
-        {onlyAuthor ? "" : "Por "}<Link href={"/perfil/"+content.author?.id.slice(1)}>
+        {onlyAuthor ? "" : "Por "}<Link href={"/perfil/"+content.author?.id}>
             {content.author?.name}
         </Link>
     </span>

@@ -26,7 +26,7 @@ export const CustomMentionComponent = forwardRef<
   // Investigar...
 
   const handleClick = (e: any) => {
-    router.push("/perfil/"+encodeURIComponent(myData.id.slice(1)))
+    router.push("/perfil/"+encodeURIComponent(myData.id))
   }
 
   return (

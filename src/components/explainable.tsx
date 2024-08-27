@@ -1,22 +1,32 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 
-export const Explainable = ({text, id, content}: {text: string, id?: string, content: string}) => {
+/*
+
+const Explainable = ({text, id}: {text: string, id?: string}) => {
+    return <Link
+        href={"#" + (id ? id : text)}
+        className="hover:text-[var(--primary)] cursor-pointer">
+        {text}
+    </Link>
+}*/
+
+export const Explainable = ({text, content}: {text: string, content: ReactNode}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
+    <div style={{ position: 'relative', display: 'inline-block' }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        className="hover:text-[var(--primary)] cursor-pointer"
       >
         {text}
       </div>
       {isHovered && (
-        <div className="info-panel">
-          <p>
-            {text}
-          </p>
+        <div className="absolute text-lg border bg-[var(--background)] z-10 w-96 p-2">
+          {content}
         </div>
       )}
     </div>

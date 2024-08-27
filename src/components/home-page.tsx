@@ -60,9 +60,11 @@ const Topbar = () => {
 
 
 export const HomePage = () => {
-    return <div className="h-screen" id="start">
+    return <div className="h-screen">
         <Topbar/>
+        <div className="flex flex-col justify-between h-screen-minus-16">
         <Presentation/>
         <Footer/>
+        </div>
     </div>
 }
