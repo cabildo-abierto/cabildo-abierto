@@ -4,17 +4,18 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import CloseIcon from '@mui/icons-material/Close';
-import SearchSidebar from "./search-sidebar";
 import { SearchButton } from "./top-bar";
 import { id2url } from "./content";
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
-
-export const UserSearchResult: React.FC<{result: any}> = ({ result }) => {
+export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = ({ result }) => {
     return (
         <div className="flex justify-center mb-2">
             <Link href={id2url(result.id)}>
-                <button className="search-result">
-                    {result.name}
+                <button className="search-result items-center">
+                  <div className="w-full flex">
+                    <AccountBoxIcon/> <div className="w-full text-center">{result.name}</div>
+                  </div>
                 </button>
             </Link>
         </div>

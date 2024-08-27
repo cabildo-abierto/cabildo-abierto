@@ -8,9 +8,9 @@ export const EntitySearchResult: React.FC<{entity: {id: string, name: string}}> 
     return <div className="flex justify-center mb-2">
         <Link href={"/articulo/" + entity.id}>
             <button className="search-result">
-                <div className="flex items-center">
-                    <span className="px-1"><ArticleIcon/></span>
-                    <div className="flex justify-center w-full">
+                <div className="flex w-full items-center">
+                    <ArticleIcon/>
+                    <div className="text-center w-full">
                         <div>
                             {entity.name}
                         </div>

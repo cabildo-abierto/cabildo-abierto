@@ -85,8 +85,8 @@ const Table = () => {
 export const Presentation: React.FC = () => {
     const informacion = <div className="">
         <p>El contenido se compone de:</p>
-        <p className="py-2"><span className="">Artículos informativos escritos colaborativamente</span>, que representan consensos.</p>
-        <p className="py-2"><span className="">Publicaciones individuales</span>, que pueden contener apreciaciones personales, análisis, relatos, o lo que sea.</p>
+        <p className=""><span className="">Artículos informativos escritos colaborativamente</span>, que representan consensos.</p>
+        <p className=""><span className="">Publicaciones individuales</span>, que pueden contener apreciaciones personales, análisis, relatos, o lo que sea.</p>
     </div>
 
     const abierta = <div className="flex flex-col items-center text-center">
@@ -102,9 +102,10 @@ export const Presentation: React.FC = () => {
 </div>
 
     const financiada = <div className="flex flex-col justify-center text-center">
-        <p>Cabildo Abierto se financia exclusivamente con suscripciones mensuales de sus usuarios.</p>
-        <p>Con esto se cubre el desarrollo de la plataforma y el trabajo de los autores.</p>
-        <p>Hay además un pozo de suscripciones gratuitas del que el que lo necesite puede agarrar.</p>
+        <p>Cabildo Abierto <span className="highlight">se financia exclusivamente con suscripciones mensuales de sus usuarios.</span></p>
+        <p>Con esto se cubre <span className="highlight">el desarrollo de la plataforma</span> y <span className="highlight">el trabajo de los autores.</span></p>
+        <p>Hay además un <span className="highlight">pozo de suscripciones gratuitas</span> del que el que lo necesite puede agarrar, que se forma con donaciones.</p>
+        <p>A diferencia de otras plataformas, no vendemos la decisión de qué contenido aparece en tu pantalla a nadie.</p>
     </div>
 
     const personas = <div className="flex flex-col justify-center text-center">
@@ -113,7 +114,7 @@ export const Presentation: React.FC = () => {
     </div>
 
     const algoritmos = <div className="flex flex-col items-center text-center">
-    <p>No usamos inteligencia artificial para elegir el contenido que ven los usuarios en función de su comportamiento previo.</p>
+    <p>No usamos inteligencia artificial para elegir el contenido que ven los usuarios en función de su comportamiento.</p>
     <p>La selección y priorización de contenido está exclusivamente bajo tu control.</p>
 </div>
 

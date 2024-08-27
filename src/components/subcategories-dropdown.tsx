@@ -33,8 +33,8 @@ export const SubcategoriesDropDown = ({ nextCategories, route, selected }: { nex
 
     return (
         <div className="relative ml-2" ref={dropdownRef}> {/* Make the parent div relative */}
-            <button className="flex items-center text-2xl font-bold h-8 content text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2" onClick={() => setViewSubcategories(!viewSubcategories)}>
-                Subcategoría...
+            <button className="gray-btn" onClick={() => setViewSubcategories(!viewSubcategories)}>
+                Filtrar
             </button>
             {viewSubcategories && (
                 nextCategories.size > 0 ?

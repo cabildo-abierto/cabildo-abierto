@@ -25,7 +25,7 @@ export const Explainable = ({text, content}: {text: string, content: ReactNode})
         {text}
       </div>
       {isHovered && (
-        <div className="absolute text-lg border bg-[var(--background)] z-10 w-96 p-2">
+        <div className="absolute text-base border bg-[var(--background)] z-10 w-96 p-2 explainable">
           {content}
         </div>
       )}
