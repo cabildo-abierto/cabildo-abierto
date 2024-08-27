@@ -16,7 +16,8 @@ export const getEntities = cache(async () => {
                     id: true,
                     categories: true,
                     isUndo: true,
-                    undoMessage: true
+                    undoMessage: true,
+                    createdAt: true
                 },
                 orderBy: {
                     createdAt: "asc"
@@ -54,7 +55,8 @@ export const getEntityById = cache(async (id: string) => {
                     id: true,
                     categories: true,
                     isUndo: true,
-                    undoMessage: true
+                    undoMessage: true,
+                    createdAt: true
                 },
                 orderBy: {
                     createdAt: "asc"

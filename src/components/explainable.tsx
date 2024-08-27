@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 
 /*
@@ -11,21 +11,37 @@ const Explainable = ({text, id}: {text: string, id?: string}) => {
     </Link>
 }*/
 
-export const Explainable = ({text, content}: {text: string, content: ReactNode}) => {
+export const Explainable = ({ text, content }: { text: string, content: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [position, setPosition] = useState({ left: 0 });
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isHovered && panelRef.current) {
+      const rect = panelRef.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+
+      if (rect.right > viewportWidth) {
+        setPosition({ left: -(rect.right - viewportWidth + 10) }); // 10px padding to keep it within the viewport
+      }
+    }
+  }, [isHovered]);
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}
+    <div
+      style={{ position: 'relative', display: 'inline-block' }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className="hover:text-[var(--primary)] cursor-pointer"
-      >
+      <div className="hover:text-[var(--primary)] cursor-pointer">
         {text}
       </div>
       {isHovered && (
-        <div className="absolute text-base border bg-[var(--background)] z-10 w-96 p-2 explainable">
+        <div
+          ref={panelRef}
+          className="absolute text-base border bg-[var(--background)] z-10 w-96 p-2 explainable"
+          style={{ ...position }}
+        >
           {content}
         </div>
       )}

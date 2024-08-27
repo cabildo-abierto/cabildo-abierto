@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import ConstructionIcon from '@mui/icons-material/Construction';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { SignupButton } from '@/components/home-page';
 import { ReactNode } from 'react';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -95,10 +94,9 @@ export const Presentation: React.FC = () => {
     <p> El diseño de la plataforma también está abierto a discusión.</p>
 </div>
 
-    const escrita = <div className="flex justify-center text-center">
-    <p>
-        Además de agregar comentarios, cualquier usuario puede contribuir con contenido y recibir una remuneración en función del valor que otros usuarios encuentran en lo que escribe.
-    </p>
+    const escrita = <div className="flex flex-col justify-center text-center">
+    <p>Además de agregar comentarios, cualquier usuario puede contribuir con contenido.</p> 
+    <p>Los aportes a los artículos colaborativos y las publicaciones son remunerados en función del valor que generan los usuarios.</p>
 </div>
 
     const financiada = <div className="flex flex-col justify-center text-center">

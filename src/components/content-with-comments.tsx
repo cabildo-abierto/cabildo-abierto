@@ -67,7 +67,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             viewingComments={viewComments}
             onStartReply={() => {setWritingReply(!writingReply)}}
         />
-        {isMainPage && <hr/>}
+        {isMainPage && <hr className="mt-12"/>}
         <div className={isMainPage ? "" : "ml-2"}>
             {writingReply && <div className="py-1">
                 {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 

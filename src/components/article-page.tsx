@@ -20,6 +20,7 @@ import LoadingSpinner from "./loading-spinner";
 import { ReactionButton } from "./reaction-button";
 import { LikeCounter } from "./like-counter";
 import { ViewsCounter } from "./views-counter";
+import { DateSince } from "./date";
 
 
 export const ArticlePage = ({entityId, version}: {entityId: string, version?: number}) => {
@@ -84,17 +85,24 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
     }
     const contentId = entity.versions[version].id
 
+    const lastUpdated = entity.versions[entity.versions.length-1].createdAt
+
     const center = <div className="bg-[var(--background)] h-full">
         <h1 className="ml-2 py-8">
             {entity.name}
         </h1>
-        <div className="flex justify-end items-center">
+        <div className="flex justify-between items-center">
+            <div>
+                <span>Últ. actualización</span> <DateSince date={lastUpdated}/>
+            </div>
+            <div className="flex">
             <ViewsCounter contentId={contentId}/>
             <span className="px-1">Te sirvió el artículo?</span>
             <LikeCounter
                 content={entity}
                 isEntity={true}
             />
+            </div>
         </div>
         <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
             <ViewHistoryButton/>
@@ -118,7 +126,6 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             <EditHistory entity={entity} viewing={version}/>
         </div>
         }
-
         <ContentWithComments
             contentId={contentId}
             entity={entity} 
