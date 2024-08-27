@@ -205,7 +205,8 @@ export function CommentInputBox({
       isAutofocus: false,
       editorClassName: "link",
       initialData: null,
-      isReadOnly: false
+      isReadOnly: false,
+      placeholderClassName: ""
   }
 
   return (

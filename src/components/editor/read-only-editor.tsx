@@ -50,7 +50,8 @@ const ReadOnlyEditor = ({initialData,
         isAutofocus: true,
         editorClassName: editorClassName,
         isReadOnly: true,
-        content: content
+        content: content,
+        placeholderClassName: ""
     }
     
     return <MyLexicalEditor

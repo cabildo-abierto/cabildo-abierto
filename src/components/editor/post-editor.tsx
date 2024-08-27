@@ -55,7 +55,8 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
         initialData: initialData,
         editorClassName: "content mt-4",
         isReadOnly: false,
-        isAutofocus: true
+        isAutofocus: true,
+        placeholderClassName: ""
     }
 
     async function handleSubmit(){

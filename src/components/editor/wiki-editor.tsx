@@ -18,6 +18,7 @@ import { useSWRConfig } from "swr"
 import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
 import LoadingSpinner from "../loading-spinner"
+import { SettingsProps } from "@/components/editor/lexical-editor"
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
@@ -45,7 +46,7 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
     }
     
     const isDevPlayground = false
-    const settings = {
+    const settings: SettingsProps = {
         disableBeforeInput: false,
         emptyEditor: isDevPlayground,
         isAutocomplete: false,
@@ -72,11 +73,11 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
         useCodeblock: false,
         placeholder: "Este artículo está vacío!",
         initialData: content.text,
-        isMarkdownEditor: false,
         editorClassName: "content mt-4",
         isReadOnly: readOnly,
         content: content,
-        isAutofocus: true
+        isAutofocus: true,
+        placeholderClassName: ""
     }
 
     let hasChanges = false

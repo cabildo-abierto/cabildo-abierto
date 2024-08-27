@@ -130,3 +130,27 @@ export async function publishDraft(text: string, contentId: string, title?: stri
     revalidateTag("users")
     return result
 }
+
+
+export async function createFakeNewsReport(text: string, parentContentId: string, userId: string) {
+    let references = await findReferences(text)
+
+    const report = await db.content.create({
+        data: {
+            text: text,
+            authorId: userId,
+            type: "FakeNewsReport",
+            parentContents: {
+                connect: [{id: parentContentId}]
+            },
+            entityReferences: {
+                connect: references
+            }
+        },
+    })
+    revalidateTag("contents")
+    revalidateTag("users")
+    revalidateTag("entities")
+    revalidateTag("entity")
+    return report
+}

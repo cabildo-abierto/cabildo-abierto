@@ -25,9 +25,14 @@ export const FastPost = ({
     const icon = <BoltIcon fontSize={"small"}/>
     const className = "w-full bg-[var(--background)] text-left" 
 
+    function onShowFakeNews() {
+        if(!viewingComments)
+            onViewComments()
+    }
+
     return <div className={className}>
         <div className="border rounded w-full">
-            <ContentTopRow content={content} icon={icon}/>
+            <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews}/>
             <div className="px-2 py-2 content">
                 <ReadOnlyEditor initialData={content.text}/>
             </div>
