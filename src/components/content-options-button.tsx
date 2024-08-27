@@ -1,6 +1,5 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useEffect, useRef, useState } from 'react';
-import FlagIcon from '@mui/icons-material/Flag';
 import { useUser } from '@/app/hooks/user';
 import { useSWRConfig } from 'swr';
 import { useRouter } from 'next/navigation';
@@ -11,6 +10,7 @@ import { commentEditorSettings } from './editor/comment-editor';
 import { createFakeNewsReport } from '@/actions/create-content';
 
 import dynamic from 'next/dynamic'
+import { RedFlag } from './icons';
 const LexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
@@ -70,7 +70,7 @@ const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string 
 export const ContentOptionsDropdown = ({onFlagFalse}: {onFlagFalse: () => void}) => {
     return <button className="sidebar-btn" onClick={onFlagFalse}>
         <div className="flex">
-            <FlagIcon fontSize="small" className="text-red-600"/> <span className="ml-2">Esta publicación contiene información falsa</span>
+            <RedFlag/> <span className="ml-2">Esta publicación contiene información falsa</span>
         </div>
     </button>
 };

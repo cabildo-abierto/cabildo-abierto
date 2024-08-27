@@ -2,8 +2,8 @@
 import { useRouter } from "next/navigation";
 import { Authorship, ContentTopRow, LikeAndCommentCounter } from "./content"
 
-import ArticleIcon from '@mui/icons-material/Article';
 import { ContentProps } from '@/app/lib/definitions';
+import { PostIcon } from "./icons";
 
 
 type PostOnFeedProps = {
@@ -17,7 +17,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
     const router = useRouter()
     return <div className="w-full bg-[var(--background)] text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">
-            <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>} showOptions={false}/>
+            <ContentTopRow content={content} author={true} icon={<PostIcon/>} showOptions={false}/>
             <div className="flex items-center px-2 py-2">
                 <div className="px-1 font-bold content">
                     {content.title}

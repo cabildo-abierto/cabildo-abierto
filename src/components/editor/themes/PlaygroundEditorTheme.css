@@ -268,6 +268,7 @@
   padding: 0;
   margin: 0;
   list-style-position: outside;
+  margin-bottom: 10px;
 }
 .PlaygroundEditorTheme__listItem {
   margin: 0 32px;
