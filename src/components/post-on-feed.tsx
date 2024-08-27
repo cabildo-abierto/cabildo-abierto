@@ -17,7 +17,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
     const router = useRouter()
     return <div className="w-full bg-[var(--background)] text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
         <div className="border rounded w-full">
-            <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>}/>
+            <ContentTopRow content={content} author={true} icon={<ArticleIcon fontSize={"small"}/>} showOptions={false}/>
             <div className="flex items-center px-2 py-2">
                 <div className="px-1 font-bold content">
                     {content.title}

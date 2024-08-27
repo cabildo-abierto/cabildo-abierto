@@ -17,6 +17,39 @@ import LoadingSpinner from "../loading-spinner"
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
+export const commentEditorSettings: SettingsProps = {
+    disableBeforeInput: false,
+    emptyEditor: false,
+    isAutocomplete: false,
+    isCharLimit: false,
+    isCharLimitUtf8: false,
+    isCollab: false,
+    isMaxLength: false,
+    isRichText: true,
+    measureTypingPerf: false,
+    shouldPreserveNewLinesInMarkdown: true,
+    shouldUseLexicalContextMenu: false,
+    showNestedEditorTreeView: false,
+    showTableOfContents: false,
+    showTreeView: false,
+    tableCellBackgroundColor: false,
+    tableCellMerge: false,
+    showActions: false,
+    showToolbar: false,
+    isComments: false,
+    isDraggableBlock: false,
+    useSuperscript: false,
+    useStrikethrough: false,
+    useSubscript: false,
+    useCodeblock: false,
+    placeholder: "Agregá un comentario...",
+    isAutofocus: false,
+    editorClassName: "link",
+    initialData: null,
+    isReadOnly: false,
+    placeholderClassName: ""
+}
+
 
 function canComment(user?: UserProps){
 	return validSubscription(user)
@@ -66,39 +99,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     if(user.isLoading){
         return <LoadingSpinner/>
     }
-
-    const isDevPlayground = false
-    const settings: SettingsProps = {
-        disableBeforeInput: false,
-        emptyEditor: isDevPlayground,
-        isAutocomplete: false,
-        isCharLimit: false,
-        isCharLimitUtf8: false,
-        isCollab: false,
-        isMaxLength: false,
-        isRichText: true,
-        measureTypingPerf: false,
-        shouldPreserveNewLinesInMarkdown: true,
-        shouldUseLexicalContextMenu: false,
-        showNestedEditorTreeView: false,
-        showTableOfContents: false,
-        showTreeView: false,
-        tableCellBackgroundColor: false,
-        tableCellMerge: false,
-        showActions: false,
-        showToolbar: false,
-        isComments: false,
-        isDraggableBlock: false,
-        useSuperscript: false,
-        useStrikethrough: false,
-        useSubscript: false,
-        useCodeblock: false,
-        placeholder: "Agregá un comentario...",
-        isAutofocus: false,
-        editorClassName: "link",
-        initialData: null,
-        isReadOnly: false
-    }
+    
 
     async function handleSubmit(){
         if(editor && editorOutput){
@@ -121,7 +122,10 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
 
     return <div className="px-1 py-2 border rounded bg-[var(--background)]">
         <div className="ml-3 mr-2 mt-2">
-            <MyLexicalEditor settings={settings} setEditor={setEditor} setOutput={setEditorOutput}/>
+            <MyLexicalEditor
+            settings={commentEditorSettings}
+            setEditor={setEditor}
+            setOutput={setEditorOutput}/>
         </div>
         <div className="flex justify-end">
 			<div className="flex justify-end mt-3">

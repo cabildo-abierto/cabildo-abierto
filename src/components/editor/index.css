@@ -48,6 +48,7 @@
   position: relative;
   resize: vertical;
   z-index: 0;
+  text-align: left;
 }
 
 .test-recorder-output {

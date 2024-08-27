@@ -95,9 +95,9 @@ export const Presentation: React.FC = () => {
 </div>
 
     const escrita = <div className="flex flex-col justify-center text-center">
-    <p>Además de agregar comentarios, cualquier usuario puede contribuir con contenido.</p> 
-    <p>Los aportes a los artículos colaborativos y las publicaciones son remunerados en función del valor que generan los usuarios.</p>
-</div>
+      <p>Además de agregar comentarios, cualquier usuario puede contribuir con contenido.</p> 
+      <p>Los aportes a los artículos colaborativos y las publicaciones son remunerados en función del valor que generan los usuarios.</p>
+    </div>
 
     const financiada = <div className="flex flex-col justify-center text-center">
         <p>Cabildo Abierto <span className="highlight">se financia exclusivamente con suscripciones mensuales de sus usuarios.</span></p>

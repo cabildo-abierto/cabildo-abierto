@@ -47,7 +47,8 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData=null}:
         initialData: initialData,
         isAutofocus: true,
         editorClassName: "content",
-        isReadOnly: false
+        isReadOnly: false,
+        placeholderClassName: ""
     }
 
     async function handleSubmit(){

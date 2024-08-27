@@ -18,7 +18,7 @@ export type ContentProps = {
     }
     type: ContentType
     isDraft: boolean | null
-    childrenContents: {id: string, createdAt: string}[]
+    childrenContents: {id: string, createdAt: string, type: string}[]
     parentContents: {id: string}[]
     title: string | null
     categories: string | null

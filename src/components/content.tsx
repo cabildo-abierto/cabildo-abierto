@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import Link from "next/link";
 
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
@@ -22,6 +22,9 @@ import { useUser } from "@/app/hooks/user";
 import { addView } from "@/actions/likes";
 import { ViewsCounter } from "./views-counter";
 import { useSWRConfig } from "swr";
+import { ContentOptionsButton } from "./content-options-button";
+import { FakeNewsReport } from "./fake-news-report";
+import { FakeNewsCounter } from "./fake-news-counter";
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -42,11 +45,28 @@ export function addAt(id: string){
 }
 
 
-export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean, icon: any}> = ({content, author=true, icon=null}) => {
+type ContentTopRowProps = {
+    content: ContentProps
+    author?: boolean
+    icon: ReactNode
+    showOptions: boolean
+    onShowFakeNews?: () => void
+}
+
+function countFakeNews(content: ContentProps){
+    let c = 0
+    content.childrenContents.forEach(({type}) => {
+        if(type == "FakeNewsReport") c ++
+    })
+    return c
+}
+
+export const ContentTopRow: React.FC<ContentTopRowProps> = ({content, author=true, icon=null, showOptions, onShowFakeNews}) => {
     const url = content.author  ? id2url(content.author.id) : ""
     const onClick = stopPropagation(() => {})
 
-    return <div className="text-gray-600 px-2 blue-links flex items-center">
+    return <div className="flex justify-between mt-1">
+        <div className="text-gray-600 px-2 blue-links flex items-center">
         {icon && <div>{icon}</div>}
         <div>
         {author && 
@@ -63,6 +83,12 @@ export const ContentTopRow: React.FC<{content: ContentProps, author?: boolean, i
             · <DateSince date={content.createdAt}/>
         </span>
         </div>
+    </div>
+        {showOptions && <div className="flex">
+            <FakeNewsCounter count={countFakeNews(content)} onClick={onShowFakeNews}/>
+            <ContentOptionsButton contentId={content.id}/>
+        </div>    
+        }
     </div>
 }
 
@@ -160,6 +186,8 @@ const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewCom
         element = <FastPost content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
     } else if(content.type == "Comment"){
         element = <Comment content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/> 
+    } else if(content.type == "FakeNewsReport"){
+        element = <FakeNewsReport content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
     }
     return <div className="py-1">{element}</div>
 };

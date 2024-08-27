@@ -110,6 +110,7 @@ export type SettingsProps = {
   isAutofocus: boolean,
   editorClassName: string,
   content?: ContentProps | null,
+  placeholderClassName: string
 }
 
 
@@ -153,7 +154,8 @@ function Editor({ settings, setEditor, setOutput }:
     isReadOnly,
     isAutofocus,
     editorClassName,
-    content
+    content,
+    placeholderClassName
   } = settings
 
   const isEditable = useLexicalEditable();
@@ -229,7 +231,7 @@ function Editor({ settings, setEditor, setOutput }:
               contentEditable={
                 <div className={"editor-scroller " + editorClassName}>
                   <div className="editor" ref={onRef}>
-                    <ContentEditable placeholder={placeholder} settings={settings}/>
+                    <ContentEditable placeholder={placeholder} placeholderClassName={settings.placeholderClassName} settings={settings}/>
                   </div>
                 </div>
               }
@@ -281,7 +283,7 @@ function Editor({ settings, setEditor, setOutput }:
         ) : (
           <>
             <PlainTextPlugin
-              contentEditable={<ContentEditable placeholder={placeholder} />}
+              contentEditable={<ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} />}
               ErrorBoundary={LexicalErrorBoundary}
             />
             <HistoryPlugin externalHistoryState={historyState} />

@@ -15,7 +15,8 @@ export const getContentById = cache(async (id: string) => {
             childrenContents: {
                 select: {
                     id: true,
-                    createdAt: true
+                    createdAt: true,
+                    type: true
                 },
                 orderBy: {
                     createdAt: "desc"
