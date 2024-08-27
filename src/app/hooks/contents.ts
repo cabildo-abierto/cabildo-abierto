@@ -38,8 +38,8 @@ export function useFeed(): {feed: SmallContentProps[], isLoading: boolean, isErr
 }
 
 
-export function useFollowingFeed(id: string | undefined): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR(id ? '/api/following-feed/'+id : "/api/feed", fetcher)
+export function useFollowingFeed(id: string): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/following-feed/'+id, fetcher)
   
     return {
         feed: data,

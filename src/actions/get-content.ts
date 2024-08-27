@@ -138,7 +138,28 @@ export const getDraftsById = cache(async (id: string) => {
 export const getProfileFeed = cache(async (id: string) => {
     const feed = await db.content.findMany({
         select: {
-            id: true
+            id: true,
+            type: true,
+            isDraft: true,
+            text: true,
+            entityReferences: {
+                select: {
+                    id: true,
+                    versions: {
+                        select: {
+                            id: true,
+                            categories: true,
+                            isUndo: true,
+                            undoMessage: true
+                        },
+                        orderBy: {
+                            createdAt: "asc"
+                        }
+                    }
+                }
+            },
+            isUndo: true,
+            undoMessage: true
         },
         where: {
             AND: [
@@ -163,7 +184,28 @@ export const getFollowingFeed = cache(async (id: string) => {
     if(!user) return []
     const feed = await db.content.findMany({
         select: {
-            id: true
+            id: true,
+            type: true,
+            isDraft: true,
+            text: true,
+            entityReferences: {
+                select: {
+                    id: true,
+                    versions: {
+                        select: {
+                            id: true,
+                            categories: true,
+                            isUndo: true,
+                            undoMessage: true
+                        },
+                        orderBy: {
+                            createdAt: "asc"
+                        }
+                    }
+                }
+            },
+            isUndo: true,
+            undoMessage: true
         },
         where: {
             AND: [

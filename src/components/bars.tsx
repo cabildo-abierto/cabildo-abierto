@@ -1,24 +1,23 @@
 "use client"
 
-import { useState } from "react";
+import React, { ReactNode, useState } from "react";
+import { useSearch } from "./search-context";
 import Sidebar from "./sidebar";
 import Topbar from "./top-bar";
-import SearchSidebar from "./search-sidebar";
 
+const Bars: React.FC = () => {
+    const { searchValue, setSearchValue } = useSearch();
+    const [openSidebar, setOpenSidebar] = useState(false);
+    const searching = searchValue.length > 0;
+    return (
+        <>
+            <Topbar onOpenSidebar={() => setOpenSidebar(true)}
+                    setSearchValue={setSearchValue}
+                    searching={searching}
+            />
+            {openSidebar && <Sidebar onClose={() => setOpenSidebar(false)} />}
+        </>
+    );
+};
 
-export default function Bars() {
-    const [openSidebar, setOpenSidebar] = useState(false)
-    const [searchValue, setSearchValue] = useState("")
-    const searching = searchValue.length > 0
-
-    return <>
-        <Topbar onOpenSidebar={() => setOpenSidebar(true)}
-                setSearchValue={setSearchValue}
-                searching={searching}
-        />
-        {openSidebar && <Sidebar onClose={() => {setOpenSidebar(false)}}/>}
-        {searching && 
-            <SearchSidebar searchValue={searchValue}/>
-        }
-    </>
-}
+export default Bars;

@@ -2,9 +2,10 @@ import React from "react"
 import { ContentWithComments } from "./content-with-comments";
 import { useUser } from "@/app/hooks/user";
 import LoadingSpinner from "./loading-spinner";
+import { NoResults } from "./category-users";
 
 
-type FeedProps = {
+export type FeedProps = {
     feed: {id: string}[],
     isLoading: boolean,
     isError: boolean
@@ -19,15 +20,15 @@ const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
     if(feed.isError){
         return <></>
     }
-    return <div className="h-full w-full">
+    return <div className="h-full w-full flex flex-col items-center">
         {feed.feed.length > 0 ? feed.feed.map(({id}, index: number) => {
-            return <div key={index} className="">
+            return <div key={index} className="w-full">
                 <ContentWithComments
                     contentId={id}
                 />
             </div>
         }) : 
-        <div className="ml-4 mt-8 flex justify-center">Todavía no hay nada acá...</div>}
+        <NoResults/>}
     </div>
 }
 

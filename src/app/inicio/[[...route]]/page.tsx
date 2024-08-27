@@ -1,16 +1,13 @@
 "use client"
-import React, { useState } from "react"
+import React from "react"
 import { ThreeColumnsLayout } from "@/components/three-columns";
-import { entityInRoute, WikiCategories } from "@/components/wiki-categories";
-import Feed from "@/components/feed";
-import { useFeed, useFollowingFeed } from "@/app/hooks/contents";
+import { WikiCategories } from "@/components/wiki-categories";
 import { CategoryArticles } from "@/components/category-articles";
-import { useEntities } from "@/app/hooks/entities";
 import SelectionComponent from "@/components/search-selection-component";
-import { useUser } from "@/app/hooks/user";
 import { useRouter } from "next/navigation";
-import LoadingSpinner from "@/components/loading-spinner";
 import { RouteFeed } from "@/components/route-feed";
+import { useSearch } from "@/components/search-context";
+import { CategoryUsers } from "@/components/category-users";
 
 
 
@@ -20,7 +17,7 @@ const TopicsPage: React.FC<{
 }> = ({params, searchParams}) => {
     const decodedRoute = params.route ? params.route.map(decodeURIComponent) : []
     let selected = searchParams.selected ? searchParams.selected : "General"
-    
+
     const router = useRouter()
 
     function setSelected(value: string) {
@@ -32,15 +29,24 @@ const TopicsPage: React.FC<{
             <WikiCategories route={decodedRoute} selected={selected}/>
             <SelectionComponent
                 onSelection={setSelected}
-                options={["General", "Siguiendo", "Artículos colaborativos"]}
+                options={["General", "Siguiendo", "Artículos colaborativos", "Usuarios"]}
                 selected={selected}
                 className="main-feed"
             />
         </div>
         
-        {selected == "Artículos colaborativos" && <CategoryArticles route={decodedRoute}/>}
+        <div className="mt-1">
+        {selected == "Artículos colaborativos" && 
+        <CategoryArticles route={decodedRoute}/>}
 
-        {selected != "Artículos colaborativos" && <RouteFeed route={decodedRoute} following={selected == "Siguiendo"}/>}
+        {(selected == "General" || selected == "Siguiendo") && 
+        <RouteFeed
+        route={decodedRoute}
+        following={selected == "Siguiendo"}
+        />}
+
+        {selected == "Usuarios" && <CategoryUsers route={decodedRoute}/>}
+        </div>
     </div>
 
     return <ThreeColumnsLayout center={center} />
