@@ -82,7 +82,7 @@ export const addView = async (id: string, userId: string) => {
                 contentId: id
             },
         });
-        revalidateTag("contents")
+        revalidateTag("views")
         revalidateTag("users")
         revalidateTag("reactions")
     }

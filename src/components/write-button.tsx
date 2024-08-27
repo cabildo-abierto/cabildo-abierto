@@ -51,8 +51,8 @@ const Modal = ({ onClose }: { onClose: any }) => {
                             onClick={async () => {
                                 if (user.user) {
                                     const { id } = await createEntity(entityName, user.user.id);
-                                    mutate("/api/entities");
-                                    mutate("/api/entity/" + id);
+                                    await mutate("/api/entities");
+                                    await mutate("/api/entity/" + id);
                                     if (goToArticle) router.push("/articulo/" + id);
                                     else onClose();
                                 }

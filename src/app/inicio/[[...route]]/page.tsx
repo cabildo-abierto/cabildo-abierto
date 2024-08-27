@@ -10,6 +10,7 @@ import SelectionComponent from "@/components/search-selection-component";
 import { useUser } from "@/app/hooks/user";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/loading-spinner";
+import { RouteFeed } from "@/components/route-feed";
 
 
 
@@ -20,29 +21,8 @@ const TopicsPage: React.FC<{
     const decodedRoute = params.route ? params.route.map(decodeURIComponent) : []
     let selected = searchParams.selected ? searchParams.selected : "General"
     
-    let {user} = useUser()
-    let feed = useFeed()
-    let followingFeed = useFollowingFeed(user.id)
     const router = useRouter()
-    const entities = useEntities()
 
-    if(feed.feed){
-        feed.feed = feed.feed.filter(({entityReferences}) => {
-            return entityReferences.some((entity) => {
-                return entityInRoute(entity, decodedRoute)
-            }) || decodedRoute.length == 0
-        })
-    }
-
-    if(entities.isLoading){
-        return <LoadingSpinner/>
-    }
-    if(!entities || entities.isError){
-        return <></>
-    }
-
-    const routeEntities = entities.entities.filter((entity) => (entityInRoute(entity, decodedRoute)))
-    
     function setSelected(value: string) {
         router.push("/inicio/"+decodedRoute.join("/")+"?selected="+value)
     }
@@ -57,14 +37,10 @@ const TopicsPage: React.FC<{
                 className="main-feed"
             />
         </div>
+        
+        {selected == "Artículos colaborativos" && <CategoryArticles route={decodedRoute}/>}
 
-        {selected == "Artículos colaborativos" ? 
-            <CategoryArticles entities={routeEntities}/> :
-        selected == "General" ? 
-        <>{feed && <div className="">
-            <Feed feed={feed}/>
-        </div>}</> : 
-        <>{followingFeed && <div className="mt-8"><Feed feed={followingFeed}/></div>}</>}
+        {selected != "Artículos colaborativos" && <RouteFeed route={decodedRoute} following={selected == "Siguiendo"}/>}
     </div>
 
     return <ThreeColumnsLayout center={center} />

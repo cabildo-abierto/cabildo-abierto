@@ -16,6 +16,17 @@ export function useContent(id: string): {content: ContentProps, isLoading: boole
 }
 
 
+export function useViews(id: string): {views: number, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/views/'+id, fetcher)
+  
+    return {
+        views: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
 export function useFeed(): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/feed', fetcher)
   

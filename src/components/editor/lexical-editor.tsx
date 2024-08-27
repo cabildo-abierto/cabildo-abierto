@@ -311,7 +311,7 @@ const initializeEmpty = (editor: OriginalLexicalEditor) => {
     })
 }
 
-const LexicalEditor = ({ settings, setEditor, setOutput, contentId }: LexicalEditorProps) => {
+const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) => {
   let {isReadOnly, initialData} = settings
   
   if(typeof initialData === 'string'){

@@ -11,11 +11,11 @@ export const DraftsPreview = ({user}: {user: UserProps}) => {
     if(isError || !drafts){
         return <></>
     }
-    return <ul>
+    return <div>
         {drafts.map(({id}, index: number) => {
-            return <li key={index} className="py-4">
+            return <div key={index} className="py-4">
                 <DraftButton draftId={id}/>
-            </li>
+            </div>
         })}
-    </ul>
+    </div>
 }

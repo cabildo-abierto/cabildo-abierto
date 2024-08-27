@@ -71,9 +71,9 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             onClick={async () => {
                 if(user.user){
                     await deleteEntity(entity.id, user.user.id); 
+                    await mutate("/api/entities")
+                    await mutate("/api/contents")
                     router.push("/inicio");
-                    mutate("/api/entities")
-                    mutate("/api/contents")
                 }
             }}
         />

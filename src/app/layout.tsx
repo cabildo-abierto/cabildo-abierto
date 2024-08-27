@@ -2,16 +2,30 @@
 import Bars from '@/components/bars'
 import './globals.scss'
 import { Metadata } from 'next'
-//import { Roboto_Mono, Roboto, Roboto_Condensed, Roboto_Serif, Roboto_Slab, Roboto_Flex } from 'next/font/google'
+//import { Roboto_Mono, Roboto, Roboto_Condensed, , Roboto_Slab, Roboto_Flex } from 'next/font/google'
 //import { Bodoni_Moda, Lora, Inter, Source_Serif_4, PT_Serif } from 'next/font/google'
-import { PT_Serif} from 'next/font/google'
-
+import { PT_Serif } from 'next/font/google'
+import { Oswald, Roboto_Serif, Noto_Serif } from 'next/font/google'
 
 const pt_serif = PT_Serif({
     subsets: ['latin'],
     variable: '--font-pt-serif',
     display: 'swap',
     weight: ["400", "700"]
+})
+
+const oswald = Oswald({
+  subsets: ['latin'],
+  variable: '--font-oswald',
+  display: 'swap',
+  weight: ["400", "700"]
+})
+
+const roboto_serif = Noto_Serif({
+  subsets: ['latin'],
+  variable: '--font-noto-serif',
+  display: 'swap',
+  weight: ['400', '600', '700', '800', '900'],
 })
 
 /*const inter = Inter({
@@ -40,19 +54,7 @@ const roboto_condensed = Roboto_Condensed({
   weight: ['400', '700'],
 })
 
-const roboto_serif = Roboto_Serif({
-  subsets: ['latin'],
-  variable: '--font-roboto-serif',
-  display: 'swap',
-  weight: ['400', '600', '700', '800', '900'],
-})
 
-const roboto_slab = Roboto_Slab({
-  subsets: ['latin'],
-  variable: '--font-roboto-slab',
-  display: 'swap',
-  weight: ['400', '700'],
-})
 
 const roboto_flex = Roboto_Flex({
   subsets: ['latin'],
@@ -85,7 +87,8 @@ const fonts = [
     bodoni_moda.variable,
     lora.variable,
     inter.variable,*/
-    pt_serif.variable
+    pt_serif.variable,
+    roboto_serif.variable
 ]
 
 

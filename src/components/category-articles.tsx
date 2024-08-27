@@ -3,6 +3,9 @@ import { EntitySearchResult } from "./entity-search-result"
 import { useState } from "react"
 import InfoPanel from "./info-panel"
 import { SearchInput } from "./searchbar"
+import { entityInRoute } from "./wiki-categories"
+import LoadingSpinner from "./loading-spinner"
+import { useEntities } from "@/app/hooks/entities"
 
 
 const ArticlesWithSearch = ({entities}: {entities: EntityProps[]}) => {
@@ -27,15 +30,25 @@ const ArticlesWithSearch = ({entities}: {entities: EntityProps[]}) => {
 }
 
 
-export const CategoryArticles = ({entities}: {entities: EntityProps[]}) => {
+export const CategoryArticles = ({route}: {route: string[]}) => {
+    const entities = useEntities()
+    
+    if(entities.isLoading){
+        return <LoadingSpinner/>
+    }
+    if(!entities.entities || entities.isError){
+        return <></>
+    }
+    
+    const routeEntities = entities.entities.filter((entity) => (entityInRoute(entity, route)))
 
     return <div className="mx-2 mt-8">
         {false && <div className="flex items-center">
             <h3 className="flex ml-2 py-4 mr-1">Artículos colaborativos</h3>
             <InfoPanel text="Artículos informativos que cualquier usuario puede editar."/>
         </div>}
-        {entities.length > 0 ? 
-            <ArticlesWithSearch entities={entities}/>
+        {routeEntities.length > 0 ? 
+            <ArticlesWithSearch entities={routeEntities}/>
              : 
             <div className="flex justify-center">No hay artículos en esta categoría</div>}
     </div>

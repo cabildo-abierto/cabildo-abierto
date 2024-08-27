@@ -183,3 +183,21 @@ export const getFollowingFeed = cache(async (id: string) => {
     })
     return feed
 }, ["users", "contents"], {tags: ["users", "contents"]})
+
+
+export const getContentViews = cache(async (id: string) => {
+    let content = await db.content.findUnique({
+        select: {
+            views: {
+                select: {
+                    id: true
+                },
+                distinct: ["userById"]
+            },
+        },
+        where: {
+            id: id,
+        }
+    })
+    return content?.views.length
+}, ["views"], {tags: ["views"]})

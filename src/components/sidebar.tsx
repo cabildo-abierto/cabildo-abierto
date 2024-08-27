@@ -12,15 +12,16 @@ import { useUser } from "@/app/hooks/user";
 import { Logo } from "./home-page";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useSWRConfig } from "swr";
+import StateButton from "./state-button";
 
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
     const user = useUser()
     const {mutate} = useSWRConfig()
     
-    const onLogout = async (e: any) => {
+    const onLogout = async () => {
         await signOut()
-        mutate("/api/user")
+        await mutate("/api/user")
     }
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-20">
@@ -41,12 +42,12 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     </Link>
 
                     <div className="py-4">
-                        <button
+                        <StateButton
                             className="gray-btn"
                             onClick={onLogout}
-                        >
-                            Cerrar sesión
-                        </button>
+                            text1="Cerrar sesión"
+                            text2="Cerrando sesión"
+                        />
                     </div>
                 </div>
                 }

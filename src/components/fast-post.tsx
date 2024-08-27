@@ -4,7 +4,7 @@
 import BoltIcon from '@mui/icons-material/Bolt';
 import { AddCommentButton, ContentTopRow, LikeAndCommentCounter } from './content';
 import { stopPropagation } from './utils';
-import { ReadOnlyEditor } from './editor/read-only-editor';
+import ReadOnlyEditor from './editor/read-only-editor';
 import { ContentProps } from '@/app/lib/definitions';
 
 

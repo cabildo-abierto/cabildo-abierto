@@ -21,6 +21,7 @@ import LoadingSpinner from "./loading-spinner";
 import { useUser } from "@/app/hooks/user";
 import { addView } from "@/actions/likes";
 import { ViewsCounter } from "./views-counter";
+import { useSWRConfig } from "swr";
 
 
 export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
@@ -116,14 +117,15 @@ const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewCom
     const {content, isLoading, isError} = useContent(contentId)
     const {user} = useUser()
     const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
+    const {mutate} = useSWRConfig()
 
     useEffect(() => {
         const recordView = async () => {
             if (user && !viewRecordedRef.current) {
                 if(content.type == "Post" && isPostPage || content.type != "Post"){
-                    console.log("adding view to", contentId)
                     await addView(contentId, user.id);
                     viewRecordedRef.current = true;
+                    await mutate("/api/views/"+contentId)
                 }
             }
         };

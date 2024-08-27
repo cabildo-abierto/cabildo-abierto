@@ -24,9 +24,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     contentId, entity=null, isPostPage=false}) => {
     const {content, isLoading, isError} = useContent(contentId)
     const { mutate } = useSWRConfig()
-    
-    const user = useUser()
 
+    const user = useUser()
     const startsOpen = isPostPage || entity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
@@ -40,13 +39,9 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             setWritingReply(false)
             setWritingReply(startsOpen)
 
-            mutate("/api/content/"+content.id)
-            mutate("/api/user/"+user.user.id)
+            await mutate("/api/content/"+content.id)
+            await mutate("/api/user/"+user.user.id)
         }
-    }
-
-    const handleCancelComment = () => {
-        setWritingReply(false)
     }
 
     if(isLoading || user.isLoading){
@@ -55,6 +50,10 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
 
     if(isError || !content){
         return <></>
+    }
+
+    const handleCancelComment = () => {
+        setWritingReply(false)
     }
 
     const isMainPage = isPostPage || entity
