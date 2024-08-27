@@ -17,21 +17,24 @@ export default function EditDraftPage({content}: {content: ContentProps}) {
 
     const handleCreate = async (text: string, type: string, title?: string) => {
         if(user){
-            await publishDraft(text, content.id, title)
-            mutate("/api/content"+content.id)
-            mutate("/api/feed")
-            mutate("/api/profile-feed/"+user.id)
-            mutate("/api/drafts/"+user.id)
+            const result = await publishDraft(text, content.id, title)
+            await mutate("/api/content/"+content.id)
+            await mutate("/api/feed")
+            await mutate("/api/profile-feed/"+user.id)
+            await mutate("/api/drafts/"+user.id)
+            return result
         }
     }
 
     const handleSaveDraft = async (text: string, type: string, title?: string) => {
-        if(user){
-            await updateContent(text, content.id, title)
-            mutate("/api/content/"+content.id)
-            mutate("/api/drafts/"+user.id)
+        if (user) {
+            const result = await updateContent(text, content.id, title);
+            await mutate("/api/content/" + content.id);
+            await mutate("/api/drafts/" + user.id);
+    
+            return result;
         }
-    }
+    };
 
     return <>
         {type == "Post" ?

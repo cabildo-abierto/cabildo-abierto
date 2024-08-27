@@ -96,7 +96,7 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
 
 export async function updateContent(text: string, contentId: string, title?: string) {
 
-    await db.content.update({
+    const result = await db.content.update({
         where: {
             id: contentId
         },
@@ -108,13 +108,12 @@ export async function updateContent(text: string, contentId: string, title?: str
 
     revalidateTag("contents")
     revalidateTag("users")
-    return true
+    return result
 }
 
 
 export async function publishDraft(text: string, contentId: string, title?: string) {
-
-    await db.content.update({
+    const result = await db.content.update({
         where: {
             id: contentId
         },
@@ -127,5 +126,5 @@ export async function publishDraft(text: string, contentId: string, title?: stri
     })
     revalidateTag("contents")
     revalidateTag("users")
-    return true
+    return result
 }

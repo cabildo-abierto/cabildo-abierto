@@ -8,7 +8,7 @@ import {$getRoot, LexicalEditor} from 'lexical'
 import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
 import {$createQuoteNode} from '@lexical/rich-text';
 import {$unwrapMarkNode} from '@lexical/mark'
-import { ReadOnlyEditor } from './editor/read-only-editor';
+import ReadOnlyEditor from './editor/read-only-editor';
 import { useContent } from '@/app/hooks/contents';
 import assert from 'assert';
 import { ContentProps } from '@/app/lib/definitions';

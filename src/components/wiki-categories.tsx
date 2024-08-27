@@ -8,6 +8,7 @@ import { useState } from "react";
 import { SubcategoriesDropDown } from "./subcategories-dropdown";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import LoadingSpinner from "./loading-spinner";
 
 function currentCategories(entity: {versions: {id: string, categories: string}[]}){
     return JSON.parse(entity.versions[entity.versions.length-1].categories)
@@ -77,8 +78,17 @@ export const Route = ({route, nextCategories, selected}: {route: string[], nextC
 
 export const WikiCategories = ({route, selected}: {route: string[], selected: string}) => {
 
-    const {entities} = useEntities()
-    const nextCategories = getNextCategories(route, entities)
+    const entities = useEntities()
+
+    if(entities.isLoading){
+        return <LoadingSpinner/>
+    }
+
+    if(!entities || entities.isError){
+        return <></>
+    }
+
+    const nextCategories = getNextCategories(route, entities.entities)
     return <div className="">
         <div className="flex py-2 items-center px-2">
             <Route route={route} nextCategories={nextCategories} selected={selected}/>

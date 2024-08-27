@@ -1,6 +1,6 @@
 "use client"
 
-import { PeriodoDePrueba, Presentation } from "@/app/presentation"
+import { Presentation } from "@/app/presentation"
 import Link from "next/link"
 import Footer from "./footer"
 import Image from 'next/image'
@@ -60,11 +60,9 @@ const Topbar = () => {
 
 
 export const HomePage = () => {
-    return <div className="h-screen">
+    return <div className="h-screen" id="start">
         <Topbar/>
         <Presentation/>
-        <div className="flex flex-col justify-end h-full">
-            <Footer/>
-        </div>
+        <Footer/>
     </div>
 }

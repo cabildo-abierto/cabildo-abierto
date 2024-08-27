@@ -36,13 +36,14 @@ $accent: #8790b0;
 
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: var(--font-pt-serif);
+	font-family: var(--font-noto-serif);
 	font-optical-sizing: auto;
 	font-style: normal;
 	font-weight: 700;
 }
 
 .content h1, h2, h3, h4, h5, h6 {
+	font-weight: 700;
 }
 
 .logo {
@@ -495,4 +496,8 @@ ol {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+}
+
+.highlight {
+	color: $primary
 }

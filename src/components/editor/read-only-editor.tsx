@@ -10,7 +10,7 @@ import { ContentProps } from "@/app/lib/definitions";
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
-export const ReadOnlyEditor = ({initialData,
+const ReadOnlyEditor = ({initialData,
     content, 
     editorClassName="link"
 }: {
@@ -59,3 +59,5 @@ export const ReadOnlyEditor = ({initialData,
         setOutput={() => {}}
     />
 }
+
+export default ReadOnlyEditor

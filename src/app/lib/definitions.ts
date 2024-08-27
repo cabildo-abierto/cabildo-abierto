@@ -100,3 +100,17 @@ export const LoginFormSchema = z.object({
         .string()
         .min(1, { message: 'Ingresá tu contraseña' })
 })
+
+
+export type LoadingUser = {
+    user: UserProps,
+    isLoading: boolean,
+    isError: boolean
+}
+
+
+export type LoadingEntities = {
+    entities: EntityProps[]
+    isLoading: boolean
+    isError: boolean
+}

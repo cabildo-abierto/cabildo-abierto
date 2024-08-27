@@ -1,12 +1,11 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { createClient } from '@/utils/supabase/server'
 import { LoginFormSchema, SignupFormSchema } from '@/app/lib/definitions'
 import { db } from '@/db'
-import { getUserById } from './get-user'
 
 type LoginFormState = {
   error?: string
@@ -82,6 +81,7 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
   })
 
   revalidatePath('/', 'layout')
+  revalidateTag("users")
   redirect('/')
 }
 

@@ -3,7 +3,7 @@ import { stopPropagation } from "./utils"
 
 type ReactionButtonProps = {
     onClick: () => void
-    count: number
+    count: ReactNode
     icon1: ReactNode
     icon2?: ReactNode
     active?: boolean

@@ -1,6 +1,6 @@
 import { DateSince } from "@/components/date";
-import { Authorship, LikeAndCommentCounter } from "./content";
-import { ReadOnlyEditor } from "./editor/read-only-editor";
+import { Authorship } from "./content";
+import ReadOnlyEditor from "./editor/read-only-editor";
 import { ContentProps } from '@/app/lib/definitions';
 import { LikeCounter } from "./like-counter";
 import { ViewsCounter } from "./views-counter";
