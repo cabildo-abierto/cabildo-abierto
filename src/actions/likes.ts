@@ -13,6 +13,7 @@ export const addLike = async (id: string, userId: string, isEntity: boolean) => 
             },
         });
         revalidateTag("entities")
+        revalidateTag("entity")
     } else {
         await db.reaction.create({
             data: {
@@ -48,6 +49,7 @@ export const removeLike = async (id: string, userId: string, isEntity: boolean) 
             }
         });
         revalidateTag("entities")
+        revalidateTag("entity")
     }
     revalidateTag("users")
     revalidateTag("reactions")

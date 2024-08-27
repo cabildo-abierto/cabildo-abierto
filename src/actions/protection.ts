@@ -11,5 +11,6 @@ export async function setProtection(entityId: string, level: ProtectionLevel) {
       data: { protection: level },
     });
     revalidateTag("entities")
+    revalidateTag("entity")
     return result
 }

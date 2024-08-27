@@ -1,8 +1,6 @@
-import { EntityProps } from "@/app/lib/definitions"
+import { SmallEntityProps } from "@/app/lib/definitions"
 import { EntitySearchResult } from "./entity-search-result"
-import { useState } from "react"
 import InfoPanel from "./info-panel"
-import { SearchInput } from "./searchbar"
 import { entityInRoute } from "./wiki-categories"
 import LoadingSpinner from "./loading-spinner"
 import { useEntities } from "@/app/hooks/entities"
@@ -10,20 +8,32 @@ import { useSearch } from "./search-context"
 import { NoResults } from "./category-users"
 
 
-const ArticlesWithSearch = ({entities}: {entities: EntityProps[]}) => {
+function popularityScore(entity: SmallEntityProps){
+    return entity._count.reactions + entity._count.referencedBy + (entity.versions.length != 0 ? 1 : 0)
+}
+
+
+const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
     const {searchValue} = useSearch()
 
-    function isMatch(entity: EntityProps){
+    function isMatch(entity: SmallEntityProps){
         return entity.name.toLowerCase().includes(searchValue.toLowerCase())
     }
 
-    const filteredEntities = entities.filter(isMatch)
+    let filteredEntities = entities.filter(isMatch)
 
+    function order(a: {score: number}, b: {score: number}){
+        return b.score - a.score // score descending
+    }
+
+    let entitiesWithScore = filteredEntities.map((entity) => ({entity: entity, score: popularityScore(entity)}))
+    entitiesWithScore = entitiesWithScore.sort(order)
+    
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center">
-            {filteredEntities.length > 0 ? filteredEntities.map((entity, index) => (
+            {entitiesWithScore.length > 0 ? entitiesWithScore.map((entity, index) => (
                 <div key={index} className="p-1">
-                    <EntitySearchResult entity={entity}/>
+                    <EntitySearchResult entity={entity.entity}/>
                 </div>
             )) : <NoResults/>}
         </div>

@@ -6,7 +6,6 @@ import { CategoryArticles } from "@/components/category-articles";
 import SelectionComponent from "@/components/search-selection-component";
 import { useRouter } from "next/navigation";
 import { RouteFeed } from "@/components/route-feed";
-import { useSearch } from "@/components/search-context";
 import { CategoryUsers } from "@/components/category-users";
 
 

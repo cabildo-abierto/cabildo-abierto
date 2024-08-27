@@ -32,6 +32,7 @@ export async function createEntity(name: string, userId: string){
 
   revalidateTag("entities")
   revalidateTag("contents")
+  revalidateTag("entity")
   return {id: entityId}
 }
 
@@ -49,6 +50,7 @@ export const updateEntity = async (text: string, categories: string, entityId: s
 
   revalidateTag("entities")
   revalidateTag("contents")
+  revalidateTag("entity")
 }
 
 
@@ -67,6 +69,7 @@ export const undoChange = async (entityId: string, contentId: string, versionNum
   }
 
   revalidateTag("entities")
+  revalidateTag("entity")
 }
 
 
@@ -83,4 +86,5 @@ export const deleteEntity = async (entityId: string, userId: string) => {
 
   revalidateTag("entities")
   revalidateTag("contents")
+  revalidateTag("entity")
 }

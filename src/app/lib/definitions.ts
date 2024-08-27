@@ -42,6 +42,7 @@ export type SmallEntityProps = {
     id: string,
     name: string,
     versions: {id: string, categories: string}[]
+    _count: {reactions: number, referencedBy: number}
 }
 
 

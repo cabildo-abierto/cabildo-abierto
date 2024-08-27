@@ -27,12 +27,18 @@ export const CategoryUsers = ({route}: {route: string[]}) => {
         return user.name.toLowerCase().includes(searchValue.toLowerCase())
     }
 
-    const filteredUsers = users.users.filter(isMatch)
+    let filteredUsers = users.users.filter(isMatch)
+
+    function order(a: SmallUserProps, b: SmallUserProps){
+        return a.name.length - b.name.length
+    }
+
+    filteredUsers = filteredUsers.sort(order)
 
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center">
             {filteredUsers.length > 0 ? filteredUsers.map((user, index) => (
-                <div key={index} className="p-1">
+                <div key={index} className="py-1">
                     <UserSearchResult result={user}/>
                 </div>
             )) : <NoResults/>}
