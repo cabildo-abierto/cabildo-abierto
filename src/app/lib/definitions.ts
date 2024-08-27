@@ -30,7 +30,7 @@ export type ContentProps = {
 export type EntityProps = {
     id: string
     name: string
-    versions: {id: string, categories: string, isUndo: boolean, undoMessage: string}[]
+    versions: {id: string, categories: string, isUndo: boolean, undoMessage: string, createdAt: string}[]
     protection: string
     isPublic: boolean,
     referencedBy: {id: string, createdAt: string}[]
@@ -41,7 +41,7 @@ export type EntityProps = {
 export type SmallEntityProps = {
     id: string,
     name: string,
-    versions: {id: string, categories: string}[]
+    versions: {id: string, categories: string, createdAt: string}[]
     _count: {reactions: number, referencedBy: number}
 }
 

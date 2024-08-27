@@ -9,6 +9,7 @@
     "lint": "next lint",
     "signup": "tsx scripts/signup.js",
     "delete-user": "tsx scripts/delete-user.js",
+    "update-user": "tsx scripts/update-user.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {
