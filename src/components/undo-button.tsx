@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import CreateIcon from '@mui/icons-material/Create';
-import BoltIcon from '@mui/icons-material/Bolt';
-import ArticleIcon from '@mui/icons-material/Article';
-import Link from 'next/link';
 import TickButton from './tick-button';
 import StateButton from './state-button';
-import { createEntity, undoChange } from '@/actions/create-entity';
+import { undoChange } from '@/actions/create-entity';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/app/hooks/user';
 import { useSWRConfig } from 'swr';

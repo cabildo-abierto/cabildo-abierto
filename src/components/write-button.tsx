@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import CreateIcon from '@mui/icons-material/Create';
-import BoltIcon from '@mui/icons-material/Bolt';
-import ArticleIcon from '@mui/icons-material/Article';
 import Link from 'next/link';
 import TickButton from './tick-button';
 import StateButton from './state-button';
@@ -11,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/app/hooks/user';
 import { useSWRConfig } from 'swr';
 import CloseIcon from '@mui/icons-material/Close';
+import { ArticleIcon, FastPostIcon, PostIcon } from './icons';
 
 export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100;
@@ -70,10 +69,26 @@ const Modal = ({ onClose }: { onClose: any }) => {
     );
 };
 
+
 const WriteButton = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const [dropdownStyles, setDropdownStyles] = useState<React.CSSProperties>({});
+
+    useEffect(() => {
+        if (isDropdownOpen && buttonRef.current && dropdownRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setDropdownStyles({
+                position: 'absolute',
+                top: `${rect.bottom + window.scrollY}px`,
+                left: `${rect.left + window.scrollX}px`,
+                zIndex: 10,
+                width: 'max-content', // Optional: Adjust based on your design
+            });
+        }
+    }, [isDropdownOpen]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -89,12 +104,11 @@ const WriteButton = () => {
         };
     }, [isModalOpen]);
 
-    const className = "gray-btn w-64 flex justify-center items-center";
-
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative">
             <div className="px-1 py-2">
                 <button 
+                    ref={buttonRef}
                     className="topbar-btn"
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
@@ -102,19 +116,19 @@ const WriteButton = () => {
                 </button>
             </div>
 
-            {isDropdownOpen && (
-                <div className="absolute mt-2 z-10 bg-[var(--background)] rounded border border-[var(--accent)] px-2 py-2">
+            {isDropdownOpen && createPortal(
+                <div ref={dropdownRef} style={dropdownStyles} className="z-10 mt-4 bg-[var(--background)] rounded border border-[var(--accent)] px-2 py-2">
                     <div className="">
                         <Link href="/escribir/rapida">
-                            <button className={className} onClick={() => {setIsDropdownOpen(false)}}>
-                                <span className="px-1"><BoltIcon /></span> Publicación rápida
+                            <button className="create-btn w-64 flex justify-center items-center" onClick={() => setIsDropdownOpen(false)}>
+                                <span className="px-1"><FastPostIcon/></span> Publicación rápida
                             </button>
                         </Link>
                     </div>
                     <div className="py-2">
                         <Link href="/escribir/publicacion">
-                            <button className={className} onClick={() => {setIsDropdownOpen(false)}}>
-                                <span className="px-1"><ArticleIcon /></span> Publicación
+                            <button className="create-btn w-64 flex justify-center items-center" onClick={() => setIsDropdownOpen(false)}>
+                                <span className="px-1"><PostIcon /></span> Publicación
                             </button>
                         </Link>
                     </div>
@@ -124,12 +138,13 @@ const WriteButton = () => {
                                 setIsModalOpen(true);
                                 setIsDropdownOpen(false);
                             }}
-                            className={className}
+                            className="create-btn w-64 flex justify-center items-center"
                         >
                             <span className="px-1"><ArticleIcon /></span> Artículo Colaborativo
                         </button>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} />}

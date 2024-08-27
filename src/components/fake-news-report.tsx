@@ -12,7 +12,7 @@ import ReadOnlyEditor from './editor/read-only-editor';
 import { useContent } from '@/app/hooks/contents';
 import { ContentProps } from '@/app/lib/definitions';
 import LoadingSpinner from './loading-spinner';
-import FlagIcon from '@mui/icons-material/Flag';
+import { RedFlag } from './icons';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -76,7 +76,7 @@ export const FakeNewsReport = ({
 
     return <div className="w-full bg-[var(--background)] text-left" >
         <div className="border rounded w-full border-[var(--accent)]">
-            <ContentTopRow content={content} icon={<FlagIcon fontSize="small" className="text-red-600"/>} showOptions={false}/>
+            <ContentTopRow content={content} icon={<RedFlag/>} showOptions={false}/>
             <div className="px-2 mt-2 ml-2 content">
                 {snode && <div className="content">
                     <ReadOnlyEditor initialData={initializeQuote}/>

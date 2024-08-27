@@ -178,6 +178,21 @@ ol {
 .gray-btn.toggled {
 	background-color: var(--primary-dark)
 }
+
+.create-btn {
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	padding-left: 1rem; 
+	padding-right: 1rem;
+	border-radius: 0.25rem; 
+	background-color: var(--primary); 
+	cursor: pointer; 
+	color: var(--background)
+}
+  
+.create-btn:hover {
+	background-color: var(--primary-dark)
+}
   
 .small-btn {
 	padding-top: 0.01rem;

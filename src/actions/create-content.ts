@@ -115,6 +115,9 @@ export async function updateContent(text: string, contentId: string, title?: str
 
 
 export async function publishDraft(text: string, contentId: string, title?: string) {
+
+    let references = await findReferences(text)
+    
     const result = await db.content.update({
         where: {
             id: contentId
@@ -123,7 +126,10 @@ export async function publishDraft(text: string, contentId: string, title?: stri
             text: text,
             isDraft: false,
             createdAt: new Date(),
-            title: title
+            title: title,
+            entityReferences: {
+                connect: references
+            }
         }
     })
     revalidateTag("contents")

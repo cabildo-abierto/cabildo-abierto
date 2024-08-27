@@ -1,11 +1,11 @@
 
 "use client"
 
-import BoltIcon from '@mui/icons-material/Bolt';
 import { AddCommentButton, ContentTopRow, LikeAndCommentCounter } from './content';
 import { stopPropagation } from './utils';
 import ReadOnlyEditor from './editor/read-only-editor';
 import { ContentProps } from '@/app/lib/definitions';
+import { FastPostIcon } from './icons';
 
 
 type FastPostProps = {
@@ -22,7 +22,7 @@ export const FastPost = ({
     viewingComments,
     onStartReply
 }: FastPostProps) => {
-    const icon = <BoltIcon fontSize={"small"}/>
+    const icon = <FastPostIcon/>
     const className = "w-full bg-[var(--background)] text-left" 
 
     function onShowFakeNews() {

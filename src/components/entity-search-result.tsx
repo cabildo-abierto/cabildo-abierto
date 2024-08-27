@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import ArticleIcon from '@mui/icons-material/Article';
+import { ArticleIcon } from "./icons"
 
 export const EntitySearchResult: React.FC<{entity: {id: string, name: string}}> = ({ entity }) => {
     
