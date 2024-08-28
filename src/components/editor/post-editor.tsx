@@ -83,7 +83,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
             className="gray-btn"
             text1="Publicar"
             text2="Publicando..."
-            disabled={emptyOutput(editorOutput)}
+            disabled={emptyOutput(editorOutput) || title.length == 0}
         />
 	}
 
@@ -93,7 +93,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
             className="gray-btn"
             text1="Guardar borrador"
             text2="Guardando..."
-            disabled={emptyOutput(editorOutput)}
+            disabled={emptyOutput(editorOutput) || title.length == 0}
         />
 	}
 

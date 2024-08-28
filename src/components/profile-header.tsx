@@ -6,6 +6,7 @@ import { useUser } from "@/app/hooks/user"
 import { UserProps } from "@/app/lib/definitions"
 import { useSWRConfig } from "swr"
 import { addAt } from "./content"
+import { Description } from "./description"
 
 export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user?: UserProps }) {
     const [following, setFollowing] = useState(false)
@@ -37,16 +38,15 @@ export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user
 
     const onFollow = async () => {
         if(!user) return
-        console.log("following")
         setFollowing(true)
         await follow(profileUser.id, user.id)
         mutate("/api/following-feed/"+user.id)
         mutate("/api/user")
-        console.log("done")
     }
 
-    return <><div className="flex justify-between">
-        <div className="ml-2 py-8">
+    return <div className="border rounded mt-2">
+        <div className="flex justify-between">
+        <div className="ml-2 py-2">
             <h3>
                 {profileUser.name}
             </h3>
@@ -54,7 +54,7 @@ export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user
                 {addAt(profileUser.id)}
             </div>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center mr-1">
             {!isLoggedInUser &&
                 (following ? <button 
                     onClick={onUnfollow} 
@@ -72,13 +72,19 @@ export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user
             }
         </div>
     </div>
-    <div className="ml-2 flex">
-        <div>
-        <span className="font-bold">{updatedFollowerCount}</span> {updatedFollowerCount == 1 ? "seguidor" : "seguidores"}
+        <div className="ml-2">
+            <Description
+                text={profileUser.description}
+                isOwner={isLoggedInUser !== undefined ? isLoggedInUser : false}
+            />
         </div>
-        <div className="px-4">
-        <span className="font-bold">{followingCount}</span> siguiendo
+        <div className="ml-2 flex mb-1">
+            <div>
+            <span className="font-bold">{updatedFollowerCount}</span> {updatedFollowerCount == 1 ? "seguidor" : "seguidores"}
+            </div>
+            <div className="px-4">
+            <span className="font-bold">{followingCount}</span> siguiendo
+            </div>
         </div>
     </div>
-    </>
 }

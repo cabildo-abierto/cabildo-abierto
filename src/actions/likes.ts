@@ -5,22 +5,39 @@ import { revalidateTag } from "next/cache";
 
 
 export const addLike = async (id: string, userId: string, isEntity: boolean) => {
+
     if(isEntity){
-        await db.reaction.create({
-            data: {
+        const exists = await db.reaction.findFirst({
+            where: {
                 userById: userId,
                 entityId: id
-            },
-        });
+            }
+        })
+        if(!exists){
+            await db.reaction.create({
+                data: {
+                    userById: userId,
+                    entityId: id
+                },
+            });
+        }
         revalidateTag("entities")
         revalidateTag("entity")
     } else {
-        await db.reaction.create({
-            data: {
+        const exists = await db.reaction.findFirst({
+            where: {
                 userById: userId,
                 contentId: id
-            },
-        });
+            }
+        })
+        if(!exists){
+            await db.reaction.create({
+                data: {
+                    userById: userId,
+                    contentId: id
+                },
+            })
+        }
         revalidateTag("contents")
     }
     revalidateTag("users")

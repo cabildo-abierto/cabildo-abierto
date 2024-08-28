@@ -44,7 +44,8 @@ export const getUserById = cache(async (userId: string) => {
                     select: {
                         email: true,
                     }
-                }
+                },
+                description: true
             },
             where: {id:userId}
         }
@@ -80,7 +81,8 @@ export const getUserByAuthId = cache(async (userId: string) => {
                         contentId: true,
                         entityId: true
                     }
-                },   
+                },
+                description: true
             },
             where: {
                 authUserId: userId
