@@ -65,6 +65,7 @@ export type UserProps = {
     reactions: {contentId: string | null, entityId: string | null}[]
     followedBy: {id: string}[]
     authUser: {email: string | null} | null
+    description: string | null
 };
 
 

@@ -8,6 +8,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import { useUser } from "@/app/hooks/user";
 import WriteButton from "./write-button";
+import { usePathname, useRouter } from "next/navigation";
 
 function FeedButton() {
     return <div className="px-1 py-2">
@@ -46,6 +47,8 @@ type TopbarLoggedInProps = {
 
 function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) {
     const [searchBarOpen, setSearchBarOpen] = useState(false)
+    const router = useRouter()
+    const path = usePathname()
     
     return <div className="flex items-center w-screen">
         <OpenSidebarButton onClick={onOpenSidebar} />
@@ -53,7 +56,12 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
             <>
             <FeedButton />
             <WriteButton />
-            <SearchButton onClick={() => {setSearchBarOpen(true)}} />
+            <SearchButton onClick={() => {
+                if(path.includes("/inicio"))
+                    setSearchBarOpen(true)
+                else
+                    router.push("/inicio")
+            }} />
             </>
         }
 

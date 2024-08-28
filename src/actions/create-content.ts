@@ -160,3 +160,16 @@ export async function createFakeNewsReport(text: string, parentContentId: string
     revalidateTag("entity")
     return report
 }
+
+
+export async function updateDescription(text: string, userId: string) {
+    await db.user.update({
+        data: {
+            description: text
+        },
+        where: {
+            id: userId
+        }
+    })
+    revalidateTag("users")
+}

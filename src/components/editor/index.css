@@ -10,28 +10,13 @@
 
 
 .editor-shell {
-  border-radius: 2px;
-  max-width: 1100px;
-  color: #000;
   position: relative;
-  font-weight: 400;
 }
 
 .editor-shell .editor-container {
-  background: var(--bacgkround);
+  background: var(--background);
   position: relative;
   display: block;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-}
-
-.editor-shell .editor-container.tree-view {
-  border-radius: 0;
-}
-
-.editor-shell .editor-container.plain-text {
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
 }
 
 .editor-scroller {

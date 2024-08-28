@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import Bars from "./bars";
 import LoadingPage from "./loading-page";
 import { SearchProvider } from "./search-context";
+import { SearchPage } from "./search-page";
 
 
 const MainLayout: React.FC<{children: ReactNode}> = ({children}) => {
@@ -10,7 +11,9 @@ const MainLayout: React.FC<{children: ReactNode}> = ({children}) => {
             <SearchProvider>
                 <Bars/>
                 <div className="mb-8">
-                    {children}
+                    <SearchPage>
+                        {children}
+                    </SearchPage>
                 </div>
             </SearchProvider>
         </LoadingPage>

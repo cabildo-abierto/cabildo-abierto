@@ -9,7 +9,7 @@ import { ProfileFeed } from "./profile-feed";
 const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
     const username = decodeURIComponent(params?.id)
     
-    const user = await getUserById(username == "tdelgado" ? "@tdelgado" : username)
+    const user = await getUserById(username)
     if (!user) {
         return <ErrorPage>El usuario @{username} no existe</ErrorPage>
     }
@@ -17,9 +17,11 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
     const loggedInUser = await getUser()
 
     const center = <>
-        {user && <ProfileHeader
-            profileUser={user} user={loggedInUser}
-        />}
+        <div className="mb-4">
+            <ProfileHeader
+                profileUser={user} user={loggedInUser}
+            />
+        </div>
         <ProfileFeed profileUser={user}/>
     </>
 

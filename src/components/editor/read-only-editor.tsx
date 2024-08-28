@@ -4,13 +4,14 @@ import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 
 import { SettingsProps } from "./lexical-editor"
 
-import dynamic from "next/dynamic";
 import { useUser } from "@/app/hooks/user";
 import { ContentProps } from "@/app/lib/definitions";
+import dynamic from "next/dynamic";
 const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
 
 
-const ReadOnlyEditor = ({initialData,
+const ReadOnlyEditor = ({
+    initialData,
     content, 
     editorClassName="link"
 }: {
@@ -45,7 +46,7 @@ const ReadOnlyEditor = ({initialData,
         useStrikethrough: false,
         useSubscript: false,
         useCodeblock: false,
-        placeholder: "Escribí tu publicación acá...",
+        placeholder: "",
         initialData: initialData,
         isAutofocus: true,
         editorClassName: editorClassName,

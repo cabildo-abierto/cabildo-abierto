@@ -16,6 +16,7 @@ model User {
     id                  String         @id @db.VarChar(255)
     name                String         @db.VarChar(255)
     createdAt           DateTime       @default(now()) @map("created_at")
+    description         String?         
 
     authenticated       Boolean        @default(false)
     editorStatus        EditorStatus   @default(Beginner)
