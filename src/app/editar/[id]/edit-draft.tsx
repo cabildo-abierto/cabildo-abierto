@@ -20,8 +20,8 @@ export default function EditDraftPage({content}: {content: ContentProps}) {
             const result = await publishDraft(text, content.id, user.id, title)
             await mutate("/api/content/"+content.id)
             await mutate("/api/feed")
-            await mutate("/api/profile-feed/"+user.id)
-            await mutate("/api/drafts/"+user.id)
+            mutate("/api/profile-feed/"+user.id)
+            mutate("/api/drafts/"+user.id)
             return result
         }
     }
@@ -30,8 +30,7 @@ export default function EditDraftPage({content}: {content: ContentProps}) {
         if (user) {
             const result = await updateContent(text, content.id, title);
             await mutate("/api/content/" + content.id);
-            await mutate("/api/drafts/" + user.id);
-    
+            mutate("/api/drafts/" + user.id);
             return result;
         }
     };

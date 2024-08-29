@@ -98,8 +98,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             <ViewsCounter contentId={contentId}/>
             <span className="px-1 flex items-center">Te sirvió el artículo?</span>
             <LikeCounter
-                contentId={entity.id}
-                isEntity={true}
+                contentId={contentId}
             />
             </div>
         </div>

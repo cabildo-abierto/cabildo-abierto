@@ -1,5 +1,4 @@
 import { getFeed } from 'src/actions/actions';
-import { db } from 'src/db';
 import { ContentType } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 

@@ -22,7 +22,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
     
     const onLogout = async () => {
         await signOut()
-        await mutate("/api/user")
+        mutate("/api/user")
     }
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-20">
