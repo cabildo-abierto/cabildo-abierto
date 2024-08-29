@@ -53,8 +53,14 @@ export const Comment = ({
     }
 
     if(parentContent.content){
-        const parentText = JSON.parse(parentContent.content.text)
-        snode = getQuoteFromContent(parentText.root, content.id)
+        try {
+            let parentText = JSON.parse(parentContent.content.text)
+            snode = getQuoteFromContent(parentText.root, content.id)
+        } catch { 
+            // falla si text no es un editorState de Lexical, 
+            //que pasa a veces si está mal inicializado el content
+            snode = null
+        }
     }
 
     const initializeQuote = (editor: LexicalEditor) => {

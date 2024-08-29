@@ -647,7 +647,7 @@ export async function createEntity(name: string, userId: string){
   
     await db.content.create({
       data: {
-        text: "Este artículo está vacío!",
+        text: "",
         authorId: userId,
         type: "EntityContent",
         parentEntityId: entityId
