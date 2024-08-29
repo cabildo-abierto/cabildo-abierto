@@ -5,8 +5,9 @@ import { NextRequest, NextResponse } from 'next/server';
 export type SmallContentProps = {
     id: string
     type: ContentType
-    text: string
-    entityReferences: {id: string, versions: {id: string, categories: string}[]}[]
+    text?: string
+    createdAt?: string | Date
+    entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
 }
 
 export async function GET(req: NextRequest) {

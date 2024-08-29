@@ -5,8 +5,9 @@ import { useState } from "react"
 import { createComment } from "src/actions/actions"
 import dynamic from "next/dynamic"
 import { useUser } from "src/app/hooks/user"
-import useSWR, { useSWRConfig } from "swr"
-import { fetcher } from "src/app/hooks/utils"
+import { useSWRConfig } from "swr"
+import { EntityProps } from "src/app/lib/definitions"
+import { useContent } from "src/app/hooks/contents"
 
 
 const CommentEditor = dynamic( () => import( 'src/components/editor/comment-editor' ), { ssr: false } );
@@ -14,18 +15,20 @@ const CommentEditor = dynamic( () => import( 'src/components/editor/comment-edit
 
 type ContentWithCommentsProps = {
     contentId: string,
-    entity?: any,
+    entity?: EntityProps,
     isPostPage?: boolean
 }
 
 
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
-    contentId, entity=null, isPostPage=false}) => {
+    contentId, entity, isPostPage=false}) => {
     
-    const { mutate } = useSWR("/api/comments/"+contentId, fetcher)
+    const {mutate} = useSWRConfig()
+    const content = useContent(contentId)
 
     const user = useUser()
-    const startsOpen = isPostPage || entity
+    const isEntity = entity !== undefined
+    const startsOpen = isPostPage || isEntity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
     
@@ -33,7 +36,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const handleNewComment = async (text: string) => {
         if(user.user){
             await createComment(text, contentId, user.user.id)
-            mutate()
+            mutate("/api/comments/"+contentId)
+            mutate("/api/entity-comments/"+entity.id)
             setViewComments(true)
 
             // para que se resetee el contenido del editor
@@ -64,8 +68,11 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
                     <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
                 }
             </div>}
-            {viewComments && <div>
-                <CommentSection parentContentId={contentId} otherContents={entity ? entity.referencedBy : undefined}/>
+            {viewComments && content.content && <div>
+                <CommentSection
+                    content={content.content}
+                    otherContents={entity ? entity.referencedBy : undefined}
+                />
             </div>}
         </div>
     </>

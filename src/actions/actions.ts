@@ -5,11 +5,12 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { ContentType } from "@prisma/client";
 import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
+import { ContentProps, EntityProps } from "src/app/lib/definitions";
 
 
 export async function getContentById(id: string) {
     return unstable_cache(async () => {
-        let content = await db.content.findUnique({
+        let content: ContentProps | null = await db.content.findUnique({
             select: {
                 id: true,
                 text: true,
@@ -25,7 +26,8 @@ export async function getContentById(id: string) {
                 title: true,
                 categories: true,
                 isUndo: true,
-                undoMessage: true
+                undoMessage: true,
+                parentEntityId: true
             },
             where: {
                 id: id,
@@ -58,6 +60,22 @@ export async function getContentComments(id: string) {
         return content?.childrenContents
     }, ["comments", id], {tags: ["comments", "comments:"+id]})()
 }
+
+
+export async function getEntityComments(id: string) {
+    console.log("getting entity comments", id)
+    return unstable_cache(async () => {
+        let versions = (await getEntityById(id)).versions
+        let comments = []
+        for(let i = 0; i < versions.length; i++){
+            const versionComments = await getContentComments(versions[i].id)
+            comments = [...comments, ...versionComments]
+        }
+        console.log("result", comments)
+        return comments
+    }, ["comments", id], {tags: ["comments", "comments:"+id]})()
+}
+
 
 
 export const getFeed = unstable_cache(async () => {
@@ -279,6 +297,8 @@ export const userLikesContent = (contentId: string, userId: string) => {
 export async function createComment(text: string, parentContentId: string, userId: string) {
     let references = await findReferences(text)
 
+    const parentEntityId = (await getContentById(parentContentId)).parentEntityId
+
     const comment = await db.content.create({
         data: {
             text: text,
@@ -293,10 +313,15 @@ export async function createComment(text: string, parentContentId: string, userI
         },
     })
 
+    if(parentEntityId){
+        console.log("revalidating comments of", parentEntityId)
+        revalidateTag("comments:"+parentEntityId)
+    } else {
+        console.log("parent entity id is", parentEntityId)
+    }
     revalidateTag("comments:"+parentContentId)
     return comment
 }
-
 
 export async function findReferences(text: string){
 
@@ -731,7 +756,6 @@ export const getEntities = cache(async () => {
             },
             _count: {
                 select: {
-                    reactions: true,
                     referencedBy: true
                 }
             },
@@ -751,7 +775,7 @@ export const getEntities = cache(async () => {
 
 export async function getEntityById(id: string) {
     return unstable_cache(async () => {
-        const entity = db.entity.findUnique(
+        const entity: EntityProps | null = await db.entity.findUnique(
             {select: {
                 id: true,
                 name: true,
@@ -772,14 +796,10 @@ export async function getEntityById(id: string) {
                 referencedBy: {
                     select: {
                         id: true,
-                        createdAt: true
+                        createdAt: true,
+                        type: true
                     }
-                },
-                _count: {
-                    select: {
-                        reactions: true
-                    }
-                },
+                }
             },
                 where: {
                     id: id,

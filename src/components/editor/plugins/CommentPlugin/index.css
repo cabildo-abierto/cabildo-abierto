@@ -54,7 +54,7 @@ i.add-comment {
   position: absolute;
   width: 250px;
   min-height: 80px;
-  background-color: #fff;
+  background-color: var(--background);
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   z-index: 24;
@@ -71,7 +71,7 @@ i.add-comment {
   left: calc(50% + 0.25em);
   box-sizing: border-box;
   border: 0.5em solid black;
-  border-color: transparent transparent #fff #fff;
+  border-color: transparent transparent var(--background) var(--background);
   transform-origin: 0 0;
   transform: rotate(135deg);
   box-shadow: -3px 3px 3px 0 rgba(0, 0, 0, 0.05);
@@ -137,8 +137,7 @@ i.add-comment {
 
 .CommentPlugin_CommentInputBox_Editor {
   position: relative;
-  border: 1px solid #ccc;
-  background-color: #fff;
+  background-color: var(--background);
   border-radius: 5px;
   font-size: 15px;
   caret-color: rgb(5, 5, 5);

@@ -68,10 +68,7 @@ model Reaction {
     userById            String
 
     content             Content?       @relation(fields: [contentId], references: [id])
-    contentId           String?      
-
-    entity              Entity?        @relation(fields: [entityId], references: [id])
-    entityId            String?
+    contentId           String?
 
     @@unique(fields: [userById, contentId])
     @@schema("public")
@@ -100,8 +97,6 @@ model Entity {
   deletedBy    User?           @relation("entityDelete", fields: [deletedById], references: [id])
   referencedBy Content[]       @relation("entityReferences")
 
-  reactions    Reaction[]
-
   @@schema("public")
 }
 
@@ -127,6 +122,7 @@ model Content {
   reactions        Reaction[]
 
   views            View[]
+   
   @@schema("public")
 }
 

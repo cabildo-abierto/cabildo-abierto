@@ -1,29 +1,55 @@
-import { useFeed } from "src/app/hooks/contents"
 import { ContentProps } from "src/app/lib/definitions"
 import { ContentWithComments } from "src/components/content-with-comments"
 import LoadingSpinner from "./loading-spinner"
 import useSWR from "swr"
 import { fetcher } from "src/app/hooks/utils"
+import { SmallContentProps } from "src/app/api/feed/route"
+import { getAllQuoteIds } from "./comment"
 
 type CommentSectionProps = {
-    parentContentId: string,
+    content: ContentProps,
     activeIDs?: string[],
-    otherContents?: {id: string, createdAt: string, type: string}[]
+    otherContents?: SmallContentProps[],
+    onlyQuotes?: boolean
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({parentContentId, activeIDs, otherContents}) => {
+
+/* En una sección de comentarios muestro: 
+    Si es sidebar:
+        Todos los comentarios hechos sobre el texto actual y solo sobre este contenido
+    Si no:
+        Todos los comentarios hechos sobre alguna versión del contenido. Eventualmente con una marca de a qué versión pertenecen
+*/
+const CommentSection: React.FC<CommentSectionProps> = ({content, activeIDs, otherContents, onlyQuotes=false}) => {
 
     function inActiveIDs({id}: {id: string}) {
         return (!activeIDs || activeIDs.length == 0) || activeIDs.includes(id)
     }
 
-    const comments: {data: {id: string, createdAt: string, type: string}[], mutate: any, isLoading: boolean} = useSWR("/api/comments/"+parentContentId, fetcher)
+    const parentEntityId = content.parentEntityId
 
+    const commentsAPI = parentEntityId ? "/api/entity-comments/"+parentEntityId : "/api/comments/"+content.id
+    const comments: {data: SmallContentProps[], mutate: any, isLoading: boolean} = useSWR(
+        commentsAPI,
+        fetcher
+    )
+
+    let allIds: string[] = []
+    try {
+        let parentText = JSON.parse(content.text)
+        allIds = getAllQuoteIds(parentText.root)
+    } catch {}
+    
     if(comments.isLoading){
         return <LoadingSpinner/>
     }
 
-    let filteredComments = comments.data.filter(inActiveIDs)
+    let filteredComments = null
+    if(onlyQuotes){
+        filteredComments = comments.data.filter(({id}) => (allIds.includes(id) && inActiveIDs({id})))
+    } else {
+        filteredComments = comments.data
+    }
 
     const contents = otherContents ? filteredComments.concat(otherContents) : filteredComments
 
@@ -38,7 +64,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({parentContentId, activeI
         return 0
     }
 
-    function commentScore(comment: {type: string, createdAt: string}): number[]{
+    function commentScore(comment: SmallContentProps): number[]{
         return [-Number(comment.type == "FakeNewsReport"), -new Date(comment.createdAt).getTime()]
     }
 

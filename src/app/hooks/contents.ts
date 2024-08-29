@@ -1,13 +1,11 @@
 import useSWR from "swr"
 import { SmallContentProps } from "../api/feed/route"
 import { ContentProps } from "../lib/definitions"
-import { getContentById } from "../../actions/actions"
 import { fetcher } from "./utils"
 
 
 export function useContent(id: string): {content: ContentProps | undefined, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/content/'+id,
-        async () => {return await getContentById(id)})
+    const { data, error, isLoading } = useSWR('/api/content/'+id, fetcher)
   
     return {
         content: data,
@@ -30,6 +28,17 @@ export function useEntityCategories(id: string): {categories: string, isLoading:
 
 export function useContentComments(id: string): {comments: SmallContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/comments/'+id, fetcher)
+  
+    return {
+        comments: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useEntityComments(id: string): {comments: SmallContentProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/entity-comments/'+id, fetcher)
   
     return {
         comments: data,

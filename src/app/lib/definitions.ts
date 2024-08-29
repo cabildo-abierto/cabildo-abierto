@@ -1,5 +1,6 @@
 import { ContentType } from '@prisma/client';
 import { z } from 'zod'
+import { SmallContentProps } from '../api/feed/route';
 
 
 export type SmallUserProps = {
@@ -19,17 +20,17 @@ export type ContentProps = {
     categories: string | null
     isUndo: boolean
     undoMessage: string | null
+    parentEntityId: string | null
 }
 
 
 export type EntityProps = {
     id: string
     name: string
-    versions: {id: string, categories: string, isUndo: boolean, undoMessage: string, createdAt: string}[]
     protection: string
     isPublic: boolean,
-    referencedBy: {id: string, createdAt: string}[]
-    _count: {reactions: number}
+    versions: {id: string, categories: string, isUndo: boolean, undoMessage: string, createdAt: string | Date}[]
+    referencedBy: SmallContentProps[]
 }
 
 

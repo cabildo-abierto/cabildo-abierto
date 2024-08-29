@@ -14,8 +14,9 @@ export function CommentsPanel({
 }): JSX.Element {
     return <div className="comments-panel">
         <CommentSection
-            parentContentId={parentContent.id}
+            content={parentContent}
             activeIDs={activeIDs}
+            onlyQuotes={true}
         />
     </div>
 }
