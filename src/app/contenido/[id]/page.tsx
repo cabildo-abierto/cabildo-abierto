@@ -1,6 +1,6 @@
 import React from "react";
-import { ThreeColumnsLayout } from "@/components/three-columns";
-import { ContentWithComments } from "@/components/content-with-comments";
+import { ThreeColumnsLayout } from "src/components/three-columns";
+import { ContentWithComments } from "src/components/content-with-comments";
 
 
 const ContentPage: React.FC<{params: any}> = ({params}) => {

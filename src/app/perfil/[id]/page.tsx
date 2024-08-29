@@ -1,9 +1,9 @@
 import React from "react";
-import { ThreeColumnsLayout } from "@/components/three-columns";
-import { ProfileHeader } from "@/components/profile-header";
-import { ErrorPage } from "@/components/error-page";
-import { getUser, getUserById } from "@/actions/get-user";
+import { ThreeColumnsLayout } from "src/components/three-columns";
+import { ProfileHeader } from "src/components/profile-header";
+import { ErrorPage } from "src/components/error-page";
 import { ProfileFeed } from "./profile-feed";
+import { getUser, getUserById } from "src/actions/actions";
 
 
 const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {

@@ -35,7 +35,7 @@ import { AddCommentBox } from './AddCommentBox';
 import { CommentInputBox } from './ui';
 import { CommentsPanel } from './CommentsPanel';
 import { $createMarkNode, $isMarkNode, CustomMarkNode } from '../../nodes/CustomMarkNode';
-import { ContentProps } from '@/app/lib/definitions';
+import { ContentProps } from 'src/app/lib/definitions';
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -71,7 +71,7 @@ export default function CommentPlugin({parentContent}: {
       const id = activeIDs[i];
       const keys = markNodeMap.get(id);
       if (keys !== undefined) {
-        for (const key of keys) {
+        for (const key of Array.from(keys)) {
           const elem = editor.getElementByKey(key);
           if (elem !== null) {
             elem.classList.add('selected');
@@ -111,7 +111,7 @@ export default function CommentPlugin({parentContent}: {
         CustomMarkNode,
         (mutations) => {
           editor.getEditorState().read(() => {
-            for (const [key, mutation] of mutations) {
+            for (const [key, mutation] of Array.from(mutations)) {
               const node: null | CustomMarkNode = $getNodeByKey(key);
               let ids: NodeKey[] = [];
 

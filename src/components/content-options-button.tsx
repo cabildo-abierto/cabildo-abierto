@@ -1,17 +1,17 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useEffect, useRef, useState } from 'react';
-import { useUser } from '@/app/hooks/user';
+import { useUser } from 'src/app/hooks/user';
 import { useSWRConfig } from 'swr';
 import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import StateButton from './state-button';
 import { commentEditorSettings } from './editor/comment-editor';
-import { createFakeNewsReport } from '@/actions/create-content';
+import { createFakeNewsReport } from 'src/actions/actions';
 
 import dynamic from 'next/dynamic'
 import { RedFlag } from './icons';
-const LexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
+const LexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
 
 
 const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string }) => {
@@ -50,8 +50,7 @@ const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string 
                                 if(user.user){
                                     await createFakeNewsReport(JSON.stringify(output), contentId, user.user.id)
                                     
-                                    mutate("/api/content/"+contentId)
-                                    mutate("/api/user/"+user.user.id)
+                                    mutate("/api/comments/"+contentId)
                                     onClose()
                                 }
                             }}

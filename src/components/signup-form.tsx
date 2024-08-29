@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { signup } from "@/actions/auth";
+import { signup } from "src/actions/auth";
 import { useFormState } from "react-dom";
 import { SignupButton } from "./signup-button";
 import { useRouter } from "next/navigation";

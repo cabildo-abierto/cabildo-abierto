@@ -3,23 +3,20 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { EditorState, LexicalEditor } from "lexical"
 import StateButton from "../state-button"
-import { updateContent } from "@/actions/create-content"
 
 import Link from "next/link"
 import { RoutesEditor } from "../routes-editor"
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { useContent } from "@/app/hooks/contents"
-import { updateEntity } from "@/actions/create-entity"
-import { useUser } from "@/app/hooks/user"
-import { EntityProps } from "@/app/lib/definitions"
+import { useContent } from "src/app/hooks/contents"
+import { updateEntity } from "src/actions/actions"
+import { useUser } from "src/app/hooks/user"
+import { EntityProps } from "src/app/lib/definitions"
 import { useSWRConfig } from "swr"
 
 import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
 import LoadingSpinner from "../loading-spinner"
-import { SettingsProps } from "@/components/editor/lexical-editor"
-const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
+import { SettingsProps } from "src/components/editor/lexical-editor"
+const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
 
 
 
@@ -100,7 +97,7 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
                 if(editor && editorOutput){
                     editorOutput.read(async () => {
                         if(content.categories && user.user){
-                            await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user)
+                            await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user.id)
                             await mutate("/api/entities")
                             await mutate("/api/entity/"+entity.id)
                             router.push("/articulo/"+entity.id)

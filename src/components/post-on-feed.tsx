@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { Authorship, ContentTopRow, LikeAndCommentCounter } from "./content"
 
-import { ContentProps } from '@/app/lib/definitions';
+import { ContentProps } from 'src/app/lib/definitions';
 import { PostIcon } from "./icons";
 
 
@@ -28,7 +28,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
                     <Authorship/>
                 </div>}
                 <div></div>
-                <LikeAndCommentCounter disabled={true} content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
+                <LikeAndCommentCounter disabled={true} contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
             </div>
         </div>
     </div>

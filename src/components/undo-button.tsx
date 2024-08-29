@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import TickButton from './tick-button';
 import StateButton from './state-button';
-import { undoChange } from '@/actions/create-entity';
-import { useRouter } from 'next/navigation';
-import { useUser } from '@/app/hooks/user';
-import { useSWRConfig } from 'swr';
+import { undoChange } from 'src/actions/actions';
+import { useUser } from 'src/app/hooks/user';
 import CloseIcon from '@mui/icons-material/Close';
-import { ContentProps, EntityProps } from '@/app/lib/definitions';
-import { useContent } from '@/app/hooks/contents';
+import { EntityProps } from 'src/app/lib/definitions';
+import { useContent } from 'src/app/hooks/contents';
 
 export function validExplanation(text: string) {
     return text.length > 0
@@ -17,8 +15,6 @@ export function validExplanation(text: string) {
 const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: EntityProps, version: number}) => {
     const user = useUser()
     const [explanation, setExplanation] = useState("")
-    const {mutate} = useSWRConfig()
-    const router = useRouter()
     const [vandalism, setVandalism] = useState(false)
     const {content} = useContent(entity.versions[version].id)
 

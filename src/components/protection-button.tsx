@@ -1,7 +1,7 @@
 "use client"
 
 import StateButton from "./state-button";
-import { setProtection } from "@/actions/protection";
+import { setProtection } from "src/actions/protection";
 
 function protectionToName(protection: string){
     if(protection == "Administrator") {

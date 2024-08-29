@@ -1,8 +1,8 @@
-import { SmallUserProps } from "@/app/lib/definitions"
+import { SmallUserProps } from "src/app/lib/definitions"
 import { UserSearchResult } from "./searchbar"
 import LoadingSpinner from "./loading-spinner"
 import { useSearch } from "./search-context"
-import { useUsers } from "@/app/hooks/user"
+import { useUsers } from "src/app/hooks/user"
 
 
 export const NoResults = () => {

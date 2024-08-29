@@ -1,11 +1,11 @@
 "use client"
-import { useUser } from "@/app/hooks/user";
-import { ThreeColumnsLayout } from "@/components/three-columns";
-import { PayDonationButton } from "@/components/pay-donation-button";
-import { validSubscription } from "@/components/utils";
+import { useUser } from "src/app/hooks/user";
+import { ThreeColumnsLayout } from "src/components/three-columns";
+import { PayDonationButton } from "src/components/pay-donation-button";
+import { validSubscription } from "src/components/utils";
 import Link from "next/link";
 import React from "react";
-import { getUser } from "@/actions/get-user";
+import { getUser } from "src/actions/actions";
 
 
 export default async function PagoUnico({params}: any) {

@@ -1,6 +1,7 @@
 'use server';
 
-import { db } from '@/db';
+import { db } from "../db";
+
 
 const invalidWords = [
     "", "a", "ante", "bajo", "con", "contra", "de", "desde", "hacia", 

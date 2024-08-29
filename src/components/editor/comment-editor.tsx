@@ -8,13 +8,13 @@ import StateButton from "../state-button"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, CLEAR_EDITOR_COMMAND, EditorState, ElementNode, LexicalEditor } from "lexical"
 import { $generateHtmlFromNodes } from '@lexical/html';
 
-import { SettingsProps } from "@/components/editor/lexical-editor"
-import { UserProps } from "@/app/lib/definitions"
-import { useUser } from "@/app/hooks/user"
+import { SettingsProps } from "src/components/editor/lexical-editor"
+import { UserProps } from "src/app/lib/definitions"
+import { useUser } from "src/app/hooks/user"
 
 import dynamic from 'next/dynamic'
 import LoadingSpinner from "../loading-spinner"
-const MyLexicalEditor = dynamic( () => import( '@/components/editor/lexical-editor' ), { ssr: false } );
+const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
 
 
 export const commentEditorSettings: SettingsProps = {

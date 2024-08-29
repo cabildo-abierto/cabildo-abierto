@@ -1,7 +1,7 @@
 "use client"
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import SubscriptionOptionButton from "./subscription-option-button";
-import { useSubscriptionPoolSize } from '@/app/hooks/subscriptions';
+import { useSubscriptionPoolSize } from 'src/app/hooks/subscriptions';
 import LoadingSpinner from './loading-spinner';
 
 

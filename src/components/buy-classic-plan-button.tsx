@@ -1,8 +1,8 @@
 "use client"
 
-import { buyAndUseSubscription } from "@/actions/subscriptions";
+import { buyAndUseSubscription } from "src/actions/subscriptions";
 import PayButton from "./pay-button";
-import { useUser } from "@/app/hooks/user";
+import { useUser } from "src/app/hooks/user";
 
 export const BuyClassicPlanButton = () => {
     const {user} = useUser()

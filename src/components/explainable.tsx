@@ -11,6 +11,7 @@ const Explainable = ({text, id}: {text: string, id?: string}) => {
     </Link>
 }*/
 
+
 export const Explainable = ({ text, content }: { text: string, content: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [position, setPosition] = useState({ left: 0 });
@@ -33,13 +34,13 @@ export const Explainable = ({ text, content }: { text: string, content: ReactNod
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="hover:text-[var(--primary)] cursor-pointer">
+      <div className="hover:text-[var(--primary)] cursor-pointer fancy-text">
         {text}
       </div>
       {isHovered && (
         <div
           ref={panelRef}
-          className="absolute text-base border bg-[var(--background)] z-10 w-96 p-2 explainable"
+          className="mt-1 absolute text-base border bg-[var(--background)] z-10 w-96 p-2 explainable"
           style={{ ...position }}
         >
           {content}
@@ -48,5 +49,6 @@ export const Explainable = ({ text, content }: { text: string, content: ReactNod
     </div>
   );
 };
+
 
 export default Explainable

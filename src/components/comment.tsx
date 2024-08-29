@@ -9,9 +9,9 @@ import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
 import {$createQuoteNode} from '@lexical/rich-text';
 import {$unwrapMarkNode} from '@lexical/mark'
 import ReadOnlyEditor from './editor/read-only-editor';
-import { useContent } from '@/app/hooks/contents';
+import { useContent } from 'src/app/hooks/contents';
 import assert from 'assert';
-import { ContentProps } from '@/app/lib/definitions';
+import { ContentProps } from 'src/app/lib/definitions';
 import LoadingSpinner from './loading-spinner';
 
 
@@ -87,7 +87,7 @@ export const Comment = ({
                 <button className="reply-btn" onClick={onStartReply}>
                     Responder
                 </button>
-                <LikeAndCommentCounter content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
+                <LikeAndCommentCounter contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
             </div>
         </div>
     </div>

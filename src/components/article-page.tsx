@@ -1,21 +1,21 @@
 "use client"
 import React, { useState } from "react"
 
-import { ContentWithComments } from "@/components/content-with-comments";
-import PaywallChecker from "@/components/paywall-checker";
-import { SetProtectionButton } from "@/components/protection-button";
-import { useUser } from "@/app/hooks/user";
-import { useEntities, useEntity } from "@/app/hooks/entities";
-import { ThreeColumnsLayout } from "@/components/three-columns";
+import { ContentWithComments } from "src/components/content-with-comments";
+import PaywallChecker from "src/components/paywall-checker";
+import { SetProtectionButton } from "src/components/protection-button";
+import { useUser } from "src/app/hooks/user";
+import { useEntities, useEntity } from "src/app/hooks/entities";
+import { ThreeColumnsLayout } from "src/components/three-columns";
 import { useSWRConfig } from "swr";
 import Link from "next/link";
-import { ToggleButton } from "@/components/toggle-button";
-import { currentVersion, EditHistory } from "@/components/edit-history";
-import { EntityCategories } from "@/components/categories";
+import { ToggleButton } from "src/components/toggle-button";
+import { currentVersion, EditHistory } from "src/components/edit-history";
+import { EntityCategories } from "src/components/categories";
 import NoEntityPage from "./no-entity-page";
 import StateButton from "./state-button";
 import { useRouter } from "next/navigation";
-import { deleteEntity } from "@/actions/create-entity";
+import { deleteEntity } from "src/actions/actions";
 import LoadingSpinner from "./loading-spinner";
 import { ReactionButton } from "./reaction-button";
 import { LikeCounter } from "./like-counter";
@@ -72,8 +72,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             onClick={async () => {
                 if(user.user){
                     await deleteEntity(entity.id, user.user.id); 
-                    await mutate("/api/entities")
-                    await mutate("/api/contents")
+                    mutate("/api/entities")
                     router.push("/inicio");
                 }
             }}
@@ -99,7 +98,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             <ViewsCounter contentId={contentId}/>
             <span className="px-1 flex items-center">Te sirvió el artículo?</span>
             <LikeCounter
-                content={entity}
+                contentId={entity.id}
                 isEntity={true}
             />
             </div>

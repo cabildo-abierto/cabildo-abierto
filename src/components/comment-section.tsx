@@ -1,29 +1,31 @@
-import { useFeed } from "@/app/hooks/contents"
-import { ContentProps } from "@/app/lib/definitions"
-import { ContentWithComments } from "@/components/content-with-comments"
+import { useFeed } from "src/app/hooks/contents"
+import { ContentProps } from "src/app/lib/definitions"
+import { ContentWithComments } from "src/components/content-with-comments"
 import LoadingSpinner from "./loading-spinner"
+import useSWR from "swr"
+import { fetcher } from "src/app/hooks/utils"
 
 type CommentSectionProps = {
-    parentContent: ContentProps,
+    parentContentId: string,
     activeIDs?: string[],
     otherContents?: {id: string, createdAt: string, type: string}[]
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({parentContent, activeIDs, otherContents}) => {
+const CommentSection: React.FC<CommentSectionProps> = ({parentContentId, activeIDs, otherContents}) => {
 
     function inActiveIDs({id}: {id: string}) {
         return (!activeIDs || activeIDs.length == 0) || activeIDs.includes(id)
     }
 
-    const comments: {id: string, createdAt: string, type: string}[] = parentContent.childrenContents.filter(inActiveIDs)
+    const comments: {data: {id: string, createdAt: string, type: string}[], mutate: any, isLoading: boolean} = useSWR("/api/comments/"+parentContentId, fetcher)
 
-    const feed = useFeed()
-
-    if(feed.isLoading){
+    if(comments.isLoading){
         return <LoadingSpinner/>
     }
 
-    const contents = otherContents ? comments.concat(otherContents) : comments
+    let filteredComments = comments.data.filter(inActiveIDs)
+
+    const contents = otherContents ? filteredComments.concat(otherContents) : filteredComments
 
     function order(a: {score: number[]}, b: {score: number[]}){
         for(let i = 0; i < a.score.length; i++){
@@ -42,7 +44,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({parentContent, activeIDs
 
     let contentsWithScore = contents.map((comment) => ({comment: comment, score: commentScore(comment)}))
     contentsWithScore = contentsWithScore.sort(order)
-    console.log(contentsWithScore)
+    
     return <>
         {contentsWithScore.map(({comment}) => (
             <div key={comment.id}>

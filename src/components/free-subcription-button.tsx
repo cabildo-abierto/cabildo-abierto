@@ -1,7 +1,7 @@
 "use client"
-import { getDonatedSubscription, getSubscriptionPoolSize } from "@/actions/subscriptions"
+import { getDonatedSubscription, getSubscriptionPoolSize } from "src/actions/subscriptions"
 import StateButton from "./state-button"
-import { useUser } from "@/app/hooks/user"
+import { useUser } from "src/app/hooks/user"
 
 
 export const FreeSubscriptionButton = () => {

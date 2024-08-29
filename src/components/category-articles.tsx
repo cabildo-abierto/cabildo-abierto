@@ -1,9 +1,9 @@
-import { SmallEntityProps } from "@/app/lib/definitions"
+import { SmallEntityProps } from "src/app/lib/definitions"
 import { EntitySearchResult } from "./entity-search-result"
 import InfoPanel from "./info-panel"
 import { entityInRoute } from "./wiki-categories"
 import LoadingSpinner from "./loading-spinner"
-import { useEntities } from "@/app/hooks/entities"
+import { useEntities } from "src/app/hooks/entities"
 import { useSearch } from "./search-context"
 import { NoResults } from "./category-users"
 

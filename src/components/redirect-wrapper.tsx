@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { validSubscription } from "./utils"
-import { useUser } from "@/app/hooks/user"
+import { useUser } from "src/app/hooks/user"
 import LoadingPage from "./loading-page"
 
 export const RedirectWrapper: React.FC<any> = ({children}) => {

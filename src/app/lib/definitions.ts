@@ -9,16 +9,11 @@ export type SmallUserProps = {
 
 export type ContentProps = {
     id: string
-    createdAt: string
+    createdAt: string | Date
     text: string
     author: SmallUserProps
-    _count: {
-        reactions: number
-        views: number
-    }
     type: ContentType
     isDraft: boolean | null
-    childrenContents: {id: string, createdAt: string, type: string}[]
     parentContents: {id: string}[]
     title: string | null
     categories: string | null
@@ -62,7 +57,6 @@ export type UserProps = {
     editorStatus: string
     subscriptionsUsed: SubscriptionProps[]
     following: {id: string}[]
-    reactions: {contentId: string | null, entityId: string | null}[]
     followedBy: {id: string}[]
     authUser: {email: string | null} | null
     description: string | null

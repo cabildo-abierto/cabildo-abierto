@@ -2,8 +2,8 @@
 
 import { areArraysEqual } from "@mui/base"
 import Link from "next/link"
-import { useEntities } from "@/app/hooks/entities"
-import { ContentProps, EntityProps, SmallEntityProps } from "@/app/lib/definitions";
+import { useEntities } from "src/app/hooks/entities"
+import { ContentProps, EntityProps, SmallEntityProps } from "src/app/lib/definitions";
 import { useState } from "react";
 import { SubcategoriesDropDown } from "./subcategories-dropdown";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';

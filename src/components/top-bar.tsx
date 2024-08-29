@@ -6,7 +6,7 @@ import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
-import { useUser } from "@/app/hooks/user";
+import { useUser } from "src/app/hooks/user";
 import WriteButton from "./write-button";
 import { usePathname, useRouter } from "next/navigation";
 

@@ -1,13 +1,12 @@
-import { getFeed } from '@/actions/get-content';
-import { db } from '@/db';
+import { getFeed } from 'src/actions/actions';
+import { db } from 'src/db';
 import { ContentType } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export type SmallContentProps = {
     id: string
     type: ContentType
-    isDraft: boolean | null
-    text: string,
+    text: string
     entityReferences: {id: string, versions: {id: string, categories: string}[]}[]
 }
 

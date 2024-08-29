@@ -1,13 +1,13 @@
 "use client"
 
-import { publishDraft, updateContent } from "@/actions/create-content";
-import { useUser } from "@/app/hooks/user";
-import { ContentProps } from "@/app/lib/definitions";
+import { publishDraft, updateContent } from "src/actions/actions";
+import { useUser } from "src/app/hooks/user";
+import { ContentProps } from "src/app/lib/definitions";
 import dynamic from "next/dynamic";
 import { useSWRConfig } from "swr";
 
-const PostEditor = dynamic( () => import( '@/components/editor/post-editor' ), { ssr: false } );
-const FastEditor = dynamic( () => import( '@/components/editor/fast-editor' ), { ssr: false } );
+const PostEditor = dynamic( () => import( 'src/components/editor/post-editor' ), { ssr: false } );
+const FastEditor = dynamic( () => import( 'src/components/editor/fast-editor' ), { ssr: false } );
 
 
 export default function EditDraftPage({content}: {content: ContentProps}) {
@@ -17,7 +17,7 @@ export default function EditDraftPage({content}: {content: ContentProps}) {
 
     const handleCreate = async (text: string, type: string, title?: string) => {
         if(user){
-            const result = await publishDraft(text, content.id, title)
+            const result = await publishDraft(text, content.id, user.id, title)
             await mutate("/api/content/"+content.id)
             await mutate("/api/feed")
             await mutate("/api/profile-feed/"+user.id)

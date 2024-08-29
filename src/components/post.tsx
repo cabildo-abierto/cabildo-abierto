@@ -1,7 +1,7 @@
-import { DateSince } from "@/components/date";
+import { DateSince } from "src/components/date";
 import { Authorship } from "./content";
 import ReadOnlyEditor from "./editor/read-only-editor";
-import { ContentProps } from '@/app/lib/definitions';
+import { ContentProps } from 'src/app/lib/definitions';
 import { LikeCounter } from "./like-counter";
 import { ViewsCounter } from "./views-counter";
 
@@ -19,7 +19,7 @@ export const Post: React.FC<{
             </div>
             <div className="flex">
                 <ViewsCounter contentId={content.id}/>
-                <LikeCounter content={content} disabled={false}/>
+                <LikeCounter contentId={content.id} disabled={false}/>
             </div>
         </div>
         <div className="min-h-64 mt-4">

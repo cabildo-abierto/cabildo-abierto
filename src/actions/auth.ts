@@ -2,10 +2,10 @@
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { createClient } from '../utils/supabase/server'
+import { LoginFormSchema, SignupFormSchema } from '../app/lib/definitions'
+import { db } from '../db'
 
-import { createClient } from '@/utils/supabase/server'
-import { LoginFormSchema, SignupFormSchema } from '@/app/lib/definitions'
-import { db } from '@/db'
 
 type LoginFormState = {
   error?: string
@@ -24,7 +24,7 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
     return { error: "invalid auth "}
   }
 
-  const { error } = await supabase.auth.signInWithPassword(validatedFields.data)
+  const { error } = await supabase.auth.signInWithPassword(validatedFields.data as {email: string, password: string})
 
   if (error) {
     return { error: "invalid auth" }
@@ -64,7 +64,7 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
     }
   }
 
-  const { error, data } = await supabase.auth.signUp(validatedFields.data)
+  const { error, data } = await supabase.auth.signUp(validatedFields.data as {email: string, password: string, username: string, name: string, betakey: string})
 
   if (error || !data || !data.user) {
     return {

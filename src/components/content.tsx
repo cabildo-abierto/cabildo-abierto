@@ -9,29 +9,23 @@ import { stopPropagation } from "./utils";
 import { DateSince } from "./date";
 import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
-import EntityComponent from "@/components/entity-component";
+import EntityComponent from "src/components/entity-component";
 import { PostOnFeed } from "./post-on-feed";
-import { useContent } from "@/app/hooks/contents";
+import { useContent, useContentComments } from "src/app/hooks/contents";
 import { FastPost } from "./fast-post";
 import { Comment } from "./comment"
-import { ContentProps } from "@/app/lib/definitions";
+import { ContentProps } from "src/app/lib/definitions";
 import { ReactionButton } from "./reaction-button";
 import CommentIcon from '@mui/icons-material/Comment';
 import LoadingSpinner from "./loading-spinner";
-import { useUser } from "@/app/hooks/user";
-import { addView } from "@/actions/likes";
+import { useUser } from "src/app/hooks/user";
 import { ViewsCounter } from "./views-counter";
-import { useSWRConfig } from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { ContentOptionsButton } from "./content-options-button";
 import { FakeNewsReport } from "./fake-news-report";
 import { FakeNewsCounter } from "./fake-news-counter";
-
-
-export const CommentCount: React.FC<{content: ContentProps}> = ({content}) => {
-    return <Link className="text-gray-600 text-sm hover:text-gray-800" href={"/contenido/" + content.id}>
-    {content.childrenContents.length} comentarios
-    </Link>
-}
+import { addView } from "src/actions/actions";
+import { fetcher } from "src/app/hooks/utils";
 
 
 export function id2url(id: string){
@@ -51,14 +45,6 @@ type ContentTopRowProps = {
     icon: ReactNode
     showOptions: boolean
     onShowFakeNews?: () => void
-}
-
-function countFakeNews(content: ContentProps){
-    let c = 0
-    content.childrenContents.forEach(({type}) => {
-        if(type == "FakeNewsReport") c ++
-    })
-    return c
 }
 
 export const ContentTopRow: React.FC<ContentTopRowProps> = ({content, author=true, icon=null, showOptions, onShowFakeNews}) => {
@@ -85,7 +71,7 @@ export const ContentTopRow: React.FC<ContentTopRowProps> = ({content, author=tru
         </div>
     </div>
         {showOptions && <div className="flex">
-            <FakeNewsCounter count={countFakeNews(content)} onClick={onShowFakeNews}/>
+            <FakeNewsCounter contentId={content.id} onClick={onShowFakeNews}/>
             <ContentOptionsButton contentId={content.id}/>
         </div>    
         }
@@ -103,18 +89,20 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
 }
 
 type CommentCounterProps = {
-    content: ContentProps,
+    contentId: string,
     onViewComments: () => void,
     viewingComments: boolean,
     disabled?: boolean
 }
 
-export const CommentCounter = ({viewingComments, disabled, content, onViewComments}: CommentCounterProps) => {
+export const CommentCounter = ({viewingComments, disabled, contentId, onViewComments}: CommentCounterProps) => {
+    const comments = useContentComments(contentId)
+
     return <div className="flex items-center px-2">
         <ReactionButton
             icon1={<CommentIcon fontSize="small"/>}
             icon2={<CommentOutlinedIcon fontSize="small"/>}
-            count={content.childrenContents.length}
+            count={comments.comments ? comments.comments.length : "?"}
             disabled={disabled}
             active={viewingComments}
             onClick={onViewComments}
@@ -122,11 +110,11 @@ export const CommentCounter = ({viewingComments, disabled, content, onViewCommen
     </div>
 }
 
-export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false}) => {
+export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({contentId, onViewComments, viewingComments, disabled=false}) => {
     return <div className="flex">
-        <ViewsCounter contentId={content.id}/>
-        <LikeCounter content={content} disabled={disabled}/>
-        <CommentCounter content={content} disabled={disabled} viewingComments={viewingComments} onViewComments={onViewComments}/>
+        <ViewsCounter contentId={contentId}/>
+        <LikeCounter contentId={contentId} disabled={disabled}/>
+        <CommentCounter contentId={contentId} disabled={disabled} viewingComments={viewingComments} onViewComments={onViewComments}/>
     </div>
 }
 
@@ -155,19 +143,24 @@ const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewCom
     const {user} = useUser()
     const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
     const {mutate} = useSWRConfig()
+    const views = useSWR("/api/views/"+contentId, fetcher)
 
     useEffect(() => {
         const recordView = async () => {
-            if (user && !viewRecordedRef.current) {
+            if (user && !viewRecordedRef.current && content && views) {
                 if(content.type == "Post" && isPostPage || content.type != "Post"){
-                    await addView(contentId, user.id);
                     viewRecordedRef.current = true;
-                    await mutate("/api/views/"+contentId)
+                    await views.mutate(addView(contentId, user.id), {
+                        optimisticData: views.data,
+                        rollbackOnError: true,
+                        populateCache: true,
+                        revalidate: false
+                    })
                 }
             }
         };
         recordView();
-    }, [user, contentId]);
+    }, [user, contentId, content, views.isLoading]);
 
     if(isLoading){
         return <LoadingSpinner/>

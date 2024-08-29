@@ -3,7 +3,7 @@
 import React, { ReactNode } from 'react';
 import styles from './LoadingPage.module.css'; // Adjust the path as necessary
 import Image from 'next/image'
-import { useUser } from '@/app/hooks/user';
+import { useUser } from 'src/app/hooks/user';
 import { Logo } from './home-page';
 
 

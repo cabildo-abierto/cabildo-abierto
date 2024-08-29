@@ -1,9 +1,9 @@
 'use server';
 
-import { db } from '@/db';
 import { cache } from './cache';
 import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
+import { db } from '../db';
 
 
 export async function buyAndUseSubscription(userId: string, redirect_on_done: boolean = true) { 

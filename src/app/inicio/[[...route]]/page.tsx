@@ -1,12 +1,12 @@
 "use client"
 import React from "react"
-import { ThreeColumnsLayout } from "@/components/three-columns";
-import { WikiCategories } from "@/components/wiki-categories";
-import { CategoryArticles } from "@/components/category-articles";
-import SelectionComponent from "@/components/search-selection-component";
+import { ThreeColumnsLayout } from "src/components/three-columns";
+import { WikiCategories } from "src/components/wiki-categories";
+import { CategoryArticles } from "src/components/category-articles";
+import SelectionComponent from "src/components/search-selection-component";
 import { useRouter } from "next/navigation";
-import { RouteFeed } from "@/components/route-feed";
-import { CategoryUsers } from "@/components/category-users";
+import { RouteFeed } from "src/components/route-feed";
+import { CategoryUsers } from "src/components/category-users";
 
 
 

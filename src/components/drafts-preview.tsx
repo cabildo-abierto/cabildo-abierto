@@ -1,5 +1,5 @@
 import { useDrafts } from "../app/hooks/contents"
-import { DraftButton } from "@/components/draft-button"
+import { DraftButton } from "src/components/draft-button"
 import { UserProps } from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
  

@@ -1,6 +1,6 @@
 import React from "react"
 import { ContentWithComments } from "./content-with-comments";
-import { useUser } from "@/app/hooks/user";
+import { useUser } from "src/app/hooks/user";
 import LoadingSpinner from "./loading-spinner";
 import { NoResults } from "./category-users";
 

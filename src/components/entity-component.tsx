@@ -2,10 +2,10 @@ import React from "react"
 import Link from "next/link";
 
 import dynamic from "next/dynamic";
-import { ContentProps, EntityProps } from "@/app/lib/definitions";
+import { ContentProps, EntityProps } from "src/app/lib/definitions";
 
 
-const WikiEditor = dynamic( () => import( '@/components/editor/wiki-editor' ), { ssr: false } );
+const WikiEditor = dynamic( () => import( 'src/components/editor/wiki-editor' ), { ssr: false } );
 
 
 const EntityComponent: React.FC<{content: ContentProps, entity: EntityProps}> = ({ content, entity}) => {

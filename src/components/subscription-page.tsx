@@ -3,7 +3,7 @@ import React from "react"
 import SubscriptionOptions from "./subscription-options"
 import ActiveSubscription from "./active-subscription"
 import { validSubscription } from "./utils"
-import { useUser } from "@/app/hooks/user"
+import { useUser } from "src/app/hooks/user"
 
 const SubscriptionPage: React.FC = () => {
     const {user} = useUser()

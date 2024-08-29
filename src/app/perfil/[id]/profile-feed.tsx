@@ -1,7 +1,7 @@
 "use client"
-import { useProfileFeed } from "@/app/hooks/contents"
-import { UserProps } from "@/app/lib/definitions"
-import Feed from "@/components/feed"
+import { useProfileFeed } from "src/app/hooks/contents"
+import { UserProps } from "src/app/lib/definitions"
+import Feed from "src/components/feed"
 
 
 

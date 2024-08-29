@@ -1,5 +1,5 @@
 "use client"
-import { useContent } from "@/app/hooks/contents"
+import { useContent } from "src/app/hooks/contents"
 import Link from "next/link"
 import LoadingSpinner from "./loading-spinner"
 import dynamic from "next/dynamic";

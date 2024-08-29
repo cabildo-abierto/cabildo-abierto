@@ -1,4 +1,4 @@
-import { EntityProps, UserProps } from "@/app/lib/definitions"
+import { EntityProps, UserProps } from "src/app/lib/definitions"
 import assert from "assert"
 
 
