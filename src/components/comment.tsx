@@ -31,6 +31,21 @@ function getQuoteFromContent(node: any, id: string): any {
 }
 
 
+export function getAllQuoteIds(node: any): any {
+    let quoteIds = []
+    if(node.type === "custom-mark"){
+        quoteIds = node.ids
+    }
+    if(node.children){
+        for(let i = 0; i < node.children.length; i++) {
+            const childrenIds = getAllQuoteIds(node.children[i])
+            quoteIds = [...quoteIds, ...childrenIds]
+        }
+    }
+    return quoteIds
+}
+
+
 type CommentProps = {
     content: ContentProps,
     onViewComments: () => void
@@ -45,8 +60,9 @@ export const Comment = ({
     viewingComments,
     onStartReply}: CommentProps) => {
 
+    const parentId = content.parentContents[0].id
     let snode = null
-    const parentContent = useContent(content.parentContents[0].id)
+    const parentContent = useContent(parentId)
 
     if(parentContent.isLoading){
         return <LoadingSpinner/>
