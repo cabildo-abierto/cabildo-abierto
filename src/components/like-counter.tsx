@@ -14,7 +14,6 @@ import { addLike, removeLike } from "src/actions/actions";
 type LikeCounterProps = {
     contentId: string
     disabled?: boolean
-    isEntity?: boolean
     icon1?: ReactNode
     icon2?: ReactNode
 }
@@ -23,7 +22,6 @@ type LikeCounterProps = {
 export const LikeCounter: React.FC<LikeCounterProps> = ({
     contentId,
     disabled=false,
-    isEntity=false,
     icon1=<ThumbUpAltIcon fontSize="small"/>,
     icon2=<ThumbUpOffAltIcon fontSize="small"/>
 }) => {

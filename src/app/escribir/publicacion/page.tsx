@@ -19,8 +19,8 @@ const Publicacion: React.FC = () => {
     const onCreatePost = (isDraft: boolean) => async (text: string, type: ContentType, title?: string) => {
         if(user){
             await createPost(text, type, isDraft, user.id, title)
-            mutate("/api/feed")
-            mutate("/api/profile-feed/"+user.id)
+            await mutate("/api/feed")
+            await mutate("/api/profile-feed/"+user.id)
             // Habría que mutar el following-feed de todos los que lo siguen, medio raro
         }
     }

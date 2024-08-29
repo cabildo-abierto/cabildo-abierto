@@ -142,11 +142,8 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
         // TO DO: Pedir confirmación si crea una nueva categoría
         if(user.user) {
             await updateEntity(content.text, JSON.stringify(categories), entity.id, user.user.id)
-            console.log("mutating", "/api/entitiy/"+entity.id)
-            await mutate("/api/entitiy/"+entity.id)
-            await mutate("/api/entities")
-            console.log("categorias modificadas")
-            
+            mutate("/api/entitiy/"+entity.id)
+            mutate("/api/entities")
         }
     }
 

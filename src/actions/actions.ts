@@ -61,7 +61,6 @@ export async function getContentComments(id: string) {
 
 
 export const getFeed = unstable_cache(async () => {
-    console.log("getting feed")
     let feed = await db.content.findMany({
         select: {
             id: true,
@@ -103,7 +102,6 @@ export const getFeed = unstable_cache(async () => {
 
 export const getDrafts = (userId: string) => {
     return unstable_cache(async () => {
-        console.log("getting drafts", userId)
         const drafts = await db.content.findMany({
             select: {
                 id: true,
@@ -155,7 +153,6 @@ export const getProfileFeed = (userId: string) => {
 
 export const getFollowingFeed = (userId: string) => {
     return unstable_cache(async () => {
-        console.log("getting following feed", userId)
         const user = await getUserById(userId)
         if(!user) return []
         const feed = await db.content.findMany({
@@ -203,7 +200,6 @@ export const getFollowingFeed = (userId: string) => {
 
 export const getContentViews = (contentId: string) => {
     return unstable_cache(async () => {
-        console.log("getting content views", contentId)
         let content = await db.content.findUnique({
             select: {
                 views: {
@@ -537,8 +533,6 @@ export const addLike = async (id: string, userId: string) => {
                 contentId: id
             },
         })
-    } else {
-        console.log("like already exists")
     }
     revalidateTag("reactions:"+id)
     revalidateTag("userLikesContent:"+id+":"+userId)

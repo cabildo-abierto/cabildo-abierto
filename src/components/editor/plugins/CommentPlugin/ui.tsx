@@ -160,8 +160,8 @@ export function CommentInputBox({
                         $wrapSelectionInMarkNode(selectionRef.current, isBackward, id);
                     }
                 })
-                await mutate("/api/content/"+comment.id)
-                await mutate("/api/user/"+user.user.id)
+                mutate("/api/content/"+comment.id)
+                mutate("/api/user/"+user.user.id)
             }
         })
         

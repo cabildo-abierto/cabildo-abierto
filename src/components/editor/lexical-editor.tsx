@@ -67,15 +67,15 @@ import PlaygroundNodes from './nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
 import { TableContext } from './plugins/TablePlugin';
 
-import { BeautifulMentionsPlugin, createBeautifulMentionNode } from 'lexical-beautiful-mentions';
-import { CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './custom-mention-component';
+import { BeautifulMentionNode, BeautifulMentionsPlugin, createBeautifulMentionNode } from 'lexical-beautiful-mentions';
+import { CustomMentionComponent, CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './custom-mention-component';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 
 import {MarkNode} from '@lexical/mark';
 import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { ContentProps } from 'src/app/lib/definitions';
-import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalEditor as OriginalLexicalEditor } from 'lexical';
+import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalNodeReplacement, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 
 
 export type SettingsProps = {
@@ -281,7 +281,8 @@ function Editor({ settings, setEditor, setOutput }:
         ) : (
           <>
             <PlainTextPlugin
-              contentEditable={<ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} />}
+              contentEditable={
+              <ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} />}
               ErrorBoundary={LexicalErrorBoundary}
             />
             <HistoryPlugin externalHistoryState={historyState} />
@@ -327,6 +328,7 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) =
     namespace: 'Playground',
     editorState: initialData,
     nodes: [
+      ...createBeautifulMentionNode(CustomMentionComponent),
       ...PlaygroundNodes,
       CustomMarkNode,
       {

@@ -37,8 +37,6 @@ const EntityPage: React.FC<any> = ({ params }) => {
     if (user) {
         if (validSubscription(user.user)) {
             if (user.user && hasEditPermissions(user.user, entity.protection)) {
-                console.log("content editor id", entity.versions[currentVersion(entity)].id)
-                console.log("entity versions", entity.versions.length, entity.id)
                 editableContent = <>
                     {(user.user && user.user.editorStatus == "Administrator") &&
                         <div className="flex justify-center py-2">

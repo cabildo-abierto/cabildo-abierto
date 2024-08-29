@@ -28,8 +28,8 @@ export default function NoEntityPage({id}: {id: string}){
     const handleCreateEntity = async () => {
         if(user) {
             await createEntity(name, user.id)
-            await mutate("/api/entities")
-            await mutate("/api/entity/"+id)
+            mutate("/api/entities")
+            mutate("/api/entity/"+id)
             router.push(url)
         }
     }

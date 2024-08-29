@@ -27,11 +27,11 @@ export type MentionProps = {
   );
 });*/
 
-/*
+
 export const CustomMentionComponent = forwardRef<
   HTMLDivElement,
   BeautifulMentionComponentProps<MentionProps>
->(({ trigger, value, data: myData, children, ...other }: any, ref: any) => {
+>(({ trigger, value, data: myData, children, ...other }, ref) => {
   const router = useRouter()
 
   // Tuve que hacer esto porque Link abría en otra ventana por algún motivo
@@ -46,10 +46,9 @@ export const CustomMentionComponent = forwardRef<
       {myData.id}
     </button>
   );
-});*/
+});
 
-
-//CustomMentionComponent.displayName = 'CustomMentionComponent';
+CustomMentionComponent.displayName = 'CustomMentionComponent';
 
 
 export const queryMentions = async (trigger: string, query: string | undefined | null)=> {
