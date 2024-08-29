@@ -1,9 +1,9 @@
 "use client"
 
-import { Presentation } from "@/app/presentation"
 import Link from "next/link"
 import Footer from "./footer"
 import Image from 'next/image'
+import { Presentation } from "src/app/presentation"
 
 
 export const LogoWithName = () => {

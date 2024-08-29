@@ -1,14 +1,14 @@
 import React from "react";
 import { SidebarButton } from "./sidebar-button";
 import Link from "next/link";
-import { signOut } from "@/actions/auth";
+import { signOut } from "src/actions/auth";
 import HomeIcon from '@mui/icons-material/Home';
 import CreateIcon from '@mui/icons-material/Create';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
-import { useUser } from "@/app/hooks/user";
+import { useUser } from "src/app/hooks/user";
 import { Logo } from "./home-page";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useSWRConfig } from "swr";

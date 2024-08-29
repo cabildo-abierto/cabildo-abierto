@@ -1,4 +1,4 @@
-import { getSubscriptionPoolSize } from '@/actions/subscriptions';
+import { getSubscriptionPoolSize } from 'src/actions/subscriptions';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {

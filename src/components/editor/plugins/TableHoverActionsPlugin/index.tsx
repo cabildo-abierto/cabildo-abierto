@@ -23,8 +23,7 @@ import {$getNearestNodeFromDOMNode, NodeKey} from 'lexical';
 import {useEffect, useRef, useState} from 'react';
 import * as React from 'react';
 import {createPortal} from 'react-dom';
-
-import {useDebounce} from '../CodeActionMenuPlugin/utils';
+import { useDebounce } from '../utils';
 
 const BUTTON_WIDTH_PX = 20;
 
@@ -152,7 +151,7 @@ function TableHoverActionsContainer({
         TableNode,
         (mutations) => {
           editor.getEditorState().read(() => {
-            for (const [key, type] of mutations) {
+            for (const [key, type] of Array.from(mutations)) {
               switch (type) {
                 case 'created':
                   codeSetRef.current.add(key);

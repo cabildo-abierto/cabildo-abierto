@@ -4,9 +4,9 @@ import CreateIcon from '@mui/icons-material/Create';
 import Link from 'next/link';
 import TickButton from './tick-button';
 import StateButton from './state-button';
-import { createEntity } from '@/actions/create-entity';
+import { createEntity } from 'src/actions/actions';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/app/hooks/user';
+import { useUser } from 'src/app/hooks/user';
 import { useSWRConfig } from 'swr';
 import CloseIcon from '@mui/icons-material/Close';
 import { ArticleIcon, FastPostIcon, PostIcon } from './icons';
@@ -50,8 +50,8 @@ const Modal = ({ onClose }: { onClose: any }) => {
                             onClick={async () => {
                                 if (user.user) {
                                     const { id } = await createEntity(entityName, user.user.id);
-                                    await mutate("/api/entities");
-                                    await mutate("/api/entity/" + id);
+                                    mutate("/api/entities");
+                                    mutate("/api/entity/"+id);
                                     if (goToArticle) router.push("/articulo/" + id);
                                     else onClose();
                                 }

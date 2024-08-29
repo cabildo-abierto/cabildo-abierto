@@ -31,7 +31,6 @@ import { CAN_USE_DOM } from './shared/canUseDOM';
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
-import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPlugin from './plugins/CodeHighlightPlugin';
 import CollapsiblePlugin from './plugins/CollapsiblePlugin';
 import CommentPlugin from './plugins/CommentPlugin';
@@ -63,19 +62,19 @@ import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
-import { InitialEditorStateType, LexicalComposer } from '@lexical/react/LexicalComposer';
+import { InitialConfigType, InitialEditorStateType, LexicalComposer } from '@lexical/react/LexicalComposer';
 import PlaygroundNodes from './nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
 import { TableContext } from './plugins/TablePlugin';
 
 import { BeautifulMentionsPlugin, createBeautifulMentionNode } from 'lexical-beautiful-mentions';
-import { CustomMentionComponent, CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './custom-mention-component';
+import { CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './custom-mention-component';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 
 import {MarkNode} from '@lexical/mark';
 import { CustomMarkNode } from './nodes/CustomMarkNode';
-import { ContentProps, UserProps } from '@/app/lib/definitions';
+import { ContentProps } from 'src/app/lib/definitions';
 import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 
 
@@ -265,7 +264,6 @@ function Editor({ settings, setEditor, setOutput }:
             {!isReadOnly && floatingAnchorElem && !isSmallWidthViewport && (
               <>
                 {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem}/>}
-                <CodeActionMenuPlugin />
                 <FloatingLinkEditorPlugin
                   isLinkEditMode={isLinkEditMode}
                   setIsLinkEditMode={setIsLinkEditMode}
@@ -325,11 +323,10 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) =
   }
   
 
-  const initialConfig = {
-    editorState: initialData,
+  const initialConfig: InitialConfigType = {
     namespace: 'Playground',
+    editorState: initialData,
     nodes: [
-      ...createBeautifulMentionNode(CustomMentionComponent),
       ...PlaygroundNodes,
       CustomMarkNode,
       {

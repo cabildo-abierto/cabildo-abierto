@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react";
-import { ThreeColumnsLayout } from "@/components/three-columns";
+import { ThreeColumnsLayout } from "src/components/three-columns";
 import { useUser } from "../hooks/user";
 import { DraftsPreview } from "../../components/drafts-preview";
 

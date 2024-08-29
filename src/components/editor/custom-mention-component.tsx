@@ -1,5 +1,5 @@
 "use client"
-import { getUsers } from "@/actions/get-user";
+import { getUsers } from "src/actions/actions";
 import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, BeautifulMentionsMenuProps } from "lexical-beautiful-mentions";
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
@@ -16,6 +16,18 @@ export type MentionProps = {
     value: string
 }
 
+/*export const CustomMentionComponent = forwardRef<
+  HTMLDivElement,
+  BeautifulMentionComponentProps<MentionProps>
+>(({ trigger, value, data: myData, children, ...other }, ref) => {
+  return (
+    <div {...other} ref={ref} title={trigger + value}>
+      {value}
+    </div>
+  );
+});*/
+
+/*
 export const CustomMentionComponent = forwardRef<
   HTMLDivElement,
   BeautifulMentionComponentProps<MentionProps>
@@ -34,10 +46,10 @@ export const CustomMentionComponent = forwardRef<
       {myData.id}
     </button>
   );
-});
+});*/
 
 
-CustomMentionComponent.displayName = 'CustomMentionComponent';
+//CustomMentionComponent.displayName = 'CustomMentionComponent';
 
 
 export const queryMentions = async (trigger: string, query: string | undefined | null)=> {

@@ -1,9 +1,9 @@
 "use client"
-import { buyAndUseSubscription, donateSubscriptions } from "@/actions/subscriptions";
+import { buyAndUseSubscription, donateSubscriptions } from "src/actions/subscriptions";
 
-import PayButton from "@/components/pay-button";
+import PayButton from "src/components/pay-button";
 import { validSubscription } from "./utils";
-import { useUser } from "@/app/hooks/user";
+import { useUser } from "src/app/hooks/user";
 
 export const PayDonationButton = ({amount}: {amount: number}) => {
     const {user, isLoading, isError} = useUser()

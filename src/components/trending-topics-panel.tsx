@@ -1,4 +1,4 @@
-import { getTrending } from "@/actions/trending"
+import { getTrending } from "src/actions/trending"
 
 
 const TrendingTopic: React.FC<{value: string, count: number}> = ({value, count}) => {

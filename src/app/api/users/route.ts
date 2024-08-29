@@ -1,5 +1,4 @@
-import { getUsers } from '@/actions/get-user';
-import { db } from '@/db';
+import { getUsers } from 'src/actions/actions';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {

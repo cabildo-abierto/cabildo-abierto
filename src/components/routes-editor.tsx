@@ -6,12 +6,12 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
 import { entityLastVersionId } from "./utils";
-import { useContent } from "@/app/hooks/contents";
-import { updateEntity } from "@/actions/create-entity";
-import { EntityProps, SmallEntityProps } from "@/app/lib/definitions";
-import { useUser } from "@/app/hooks/user";
+import { useContent } from "src/app/hooks/contents";
+import { updateEntity } from "src/actions/actions";
+import { EntityProps, SmallEntityProps } from "src/app/lib/definitions";
+import { useUser } from "src/app/hooks/user";
 import { useSWRConfig } from "swr";
-import { useCategories, useEntities } from "@/app/hooks/entities";
+import { useCategories, useEntities } from "src/app/hooks/entities";
 import { getNextCategories, isPrefix } from "./wiki-categories";
 import InfoPanel from "./info-panel";
 import LoadingSpinner from "./loading-spinner";
@@ -107,7 +107,7 @@ function areCategoriesEqual(cat1: string[][], cat2: string[][]){
 export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
     const user = useUser()
     const {content, isLoading, isError} = useContent(entityLastVersionId(entity))
-    const entityCategories = content.categories ? JSON.parse(content.categories) : null
+    const entityCategories = (content && content.categories) ? JSON.parse(content.categories) : null
     const [categories, setCategories] = useState<string[][]>(entityCategories)
     const {mutate} = useSWRConfig()
 
@@ -141,10 +141,12 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
     const onSubmitCategories = async () => {
         // TO DO: Pedir confirmación si crea una nueva categoría
         if(user.user) {
-            await updateEntity(content.text, JSON.stringify(categories), entity.id, user.user)
+            await updateEntity(content.text, JSON.stringify(categories), entity.id, user.user.id)
+            console.log("mutating", "/api/entitiy/"+entity.id)
             await mutate("/api/entitiy/"+entity.id)
             await mutate("/api/entities")
-            await mutate("/api/content/"+content.id)
+            console.log("categorias modificadas")
+            
         }
     }
 

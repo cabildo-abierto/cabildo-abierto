@@ -1,4 +1,4 @@
-import { getUser } from '@/actions/get-user';
+import { getUser } from 'src/actions/actions';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {

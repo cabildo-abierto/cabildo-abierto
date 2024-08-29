@@ -1,4 +1,4 @@
-import { getProfileFeed } from '@/actions/get-content';
+import { getProfileFeed } from 'src/actions/actions';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest,

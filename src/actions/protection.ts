@@ -1,8 +1,8 @@
 'use server';
 
-import { db } from '@/db';
 import { ProtectionLevel } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
+import { db } from '../db';
 
 
 export async function setProtection(entityId: string, level: ProtectionLevel) {

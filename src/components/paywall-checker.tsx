@@ -3,7 +3,7 @@
 import Link from "next/link"
 import LoadingPage from "./loading-page"
 import { validSubscription } from "./utils"
-import { useUser } from "@/app/hooks/user";
+import { useUser } from "src/app/hooks/user";
 
 
 const NeedAccountPaywall: React.FC<any> = ({ children }) => {

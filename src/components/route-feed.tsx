@@ -1,5 +1,5 @@
-import { useFeed, useFollowingFeed } from "@/app/hooks/contents"
-import { useUser } from "@/app/hooks/user"
+import { useFeed, useFollowingFeed } from "src/app/hooks/contents"
+import { useUser } from "src/app/hooks/user"
 import LoadingSpinner from "./loading-spinner"
 import { entityInRoute } from "./wiki-categories"
 import Feed, { FeedProps } from "./feed"

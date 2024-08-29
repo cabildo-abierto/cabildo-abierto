@@ -10,7 +10,7 @@ import Link from "next/link"
 import { TitleInput } from "./title-input"
 import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 import { useSWRConfig } from "swr"
-import { useUser } from "@/app/hooks/user"
+import { useUser } from "src/app/hooks/user"
 
 type PostEditorProps = {
     onSubmit: any,

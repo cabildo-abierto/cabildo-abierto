@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Logo, LogoWithName } from "./home-page"
 import LoginForm from "./login-form"
 import SignupForm from "./signup-form"
-import { createClient } from "@/utils/supabase/client"
+import { createClient } from "src/utils/supabase/client"
 
 
 

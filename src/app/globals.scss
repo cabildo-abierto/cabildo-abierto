@@ -517,5 +517,34 @@ ol {
 	margin-bottom: 5px;
 }
 
-.explainable.highlight {
+.fancy-text {
+    position: relative; /* Ensure positioning context for the pseudo-element */
+    color: var(--text); /* Fallback color for text */
+    text-decoration: none; /* Remove default text underline */
 }
+
+.fancy-text::after {
+    content: ""; /* Create a pseudo-element for the underline */
+    position: absolute;
+    left: 0;
+    bottom: 0; /* Align to the bottom of the text */
+    width: 100%; /* Full width of the text */
+    height: 3px; /* Height of the underline */
+    background: linear-gradient(90deg, var(--primary), var(--text));
+    background-size: 200% 200%;
+    animation: gradient-animation 2s ease-in-out infinite;
+}
+
+  
+@keyframes gradient-animation {
+0% {
+	background-position: 0% 50%;
+}
+50% {
+	background-position: 100% 50%;
+}
+100% {
+	background-position: 0% 50%;
+}
+}
+  

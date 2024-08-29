@@ -1,13 +1,12 @@
 import Link from "next/link"
 import { Authorship } from "./content"
 import { DateSince } from "./date"
-import { useContent } from "@/app/hooks/contents"
-import { ContentProps, EntityProps } from "@/app/lib/definitions"
-import { useRouter } from "next/navigation"
+import { useContent } from "src/app/hooks/contents"
+import { ContentProps, EntityProps } from "src/app/lib/definitions"
 import { UndoButton } from "./undo-button"
 import LoadingSpinner from "./loading-spinner"
 
-const EditDetails = ({content, prev}: {content: ContentProps, prev: ContentProps | null}) => {
+const EditDetails = ({content, prev}: {content: ContentProps, prev: ContentProps | undefined}) => {
     if(!prev){
         return <span>Creación del artículo</span>
     } else {
@@ -33,6 +32,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     let prev = useContent(entity.versions[Math.max(index-1, 0)].id)
 
     if(content.isLoading || prev.isLoading) return <LoadingSpinner/>
+    if(!content.content) return <></>
 
     const selected = viewing == index
 
@@ -48,7 +48,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
             <div className="mr-2 w-24">(<DateSince date={content.content.createdAt}/>)</div>
             <div className="mr-2 w-32"><Authorship content={content.content} onlyAuthor={true}/></div>
             <div className="w-32">
-            <EditDetails content={content.content} prev={index > 0 ? prev.content : null}/>
+            <EditDetails content={content.content} prev={index > 0 ? prev.content : undefined}/>
             </div>
             <Link className="ml-2" href={"/articulo/"+entity.id+"/"+index}>
                 Ver versión

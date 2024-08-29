@@ -2,15 +2,14 @@
 import CommentSection from "./comment-section"
 import ContentComponent from "./content"
 import { useState } from "react"
-import { createComment } from "@/actions/create-content"
+import { createComment } from "src/actions/actions"
 import dynamic from "next/dynamic"
-import { useContent } from "@/app/hooks/contents"
-import { useUser } from "@/app/hooks/user"
-import { useSWRConfig } from "swr"
-import LoadingSpinner from "./loading-spinner"
+import { useUser } from "src/app/hooks/user"
+import useSWR, { useSWRConfig } from "swr"
+import { fetcher } from "src/app/hooks/utils"
 
 
-const CommentEditor = dynamic( () => import( '@/components/editor/comment-editor' ), { ssr: false } );
+const CommentEditor = dynamic( () => import( 'src/components/editor/comment-editor' ), { ssr: false } );
 
 
 type ContentWithCommentsProps = {
@@ -22,34 +21,25 @@ type ContentWithCommentsProps = {
 
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     contentId, entity=null, isPostPage=false}) => {
-    const {content, isLoading, isError} = useContent(contentId)
-    const { mutate } = useSWRConfig()
+    
+    const { mutate } = useSWR("/api/comments/"+contentId, fetcher)
 
     const user = useUser()
     const startsOpen = isPostPage || entity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
     
+
     const handleNewComment = async (text: string) => {
         if(user.user){
-            await createComment(text, content.id, user.user.id)
+            await createComment(text, contentId, user.user.id)
+            mutate()
             setViewComments(true)
 
-            // para que se resetee el editor
+            // para que se resetee el contenido del editor
             setWritingReply(false)
             setWritingReply(startsOpen)
-
-            await mutate("/api/content/"+content.id)
-            await mutate("/api/user/"+user.user.id)
         }
-    }
-
-    if(isLoading || user.isLoading){
-        return <LoadingSpinner/>
-    }
-
-    if(isError || !content){
-        return <></>
     }
 
     const handleCancelComment = () => {
@@ -75,7 +65,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
                 }
             </div>}
             {viewComments && <div>
-                <CommentSection parentContent={content} otherContents={entity ? entity.referencedBy : undefined}/>
+                <CommentSection parentContentId={contentId} otherContents={entity ? entity.referencedBy : undefined}/>
             </div>}
         </div>
     </>

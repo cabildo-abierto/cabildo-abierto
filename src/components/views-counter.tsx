@@ -3,7 +3,7 @@
 import React from "react"
 import { ReactionButton } from "./reaction-button";
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { useViews } from "@/app/hooks/contents";
+import { useViews } from "src/app/hooks/contents";
 import LoadingSpinner from "./loading-spinner";
 
 type ViewsCounterProps = {

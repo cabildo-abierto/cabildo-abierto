@@ -1,17 +1,18 @@
 "use client"
 
-import React, { ReactNode, useState } from "react"
-import { addLike, removeLike } from "@/actions/likes";
+import React, { ReactNode, useOptimistic, useState } from "react"
 import { stopPropagation } from "./utils";
-import { ContentProps } from '@/app/lib/definitions';
-import { useUser } from "@/app/hooks/user";
-import { useSWRConfig } from "swr";
+import { ContentProps } from 'src/app/lib/definitions';
+import { useUser, useUserLikesContent } from "src/app/hooks/user";
+import useSWR, { useSWRConfig } from "swr";
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import { ReactionButton } from "./reaction-button";
+import { fetcher } from "src/app/hooks/utils";
+import { addLike, removeLike } from "src/actions/actions";
 
 type LikeCounterProps = {
-    content: {id: string, _count: {reactions: number}}
+    contentId: string
     disabled?: boolean
     isEntity?: boolean
     icon1?: ReactNode
@@ -20,36 +21,38 @@ type LikeCounterProps = {
 
 
 export const LikeCounter: React.FC<LikeCounterProps> = ({
-    content,
+    contentId,
     disabled=false,
     isEntity=false,
     icon1=<ThumbUpAltIcon fontSize="small"/>,
     icon2=<ThumbUpOffAltIcon fontSize="small"/>
 }) => {
     const {user} = useUser()
-    const [likeCount, setLikeCount] = useState(content._count.reactions)
-    const wasLiked = user?.reactions.some((c: any) => (c.contentId == content.id || c.entityId == content.id))
-    const [liked, setLiked] = useState(wasLiked)
-    const {mutate} = useSWRConfig()
+    const userLikesContent = useSWR("/api/user-like-content/"+contentId+"/"+user.id, fetcher)
+    
+    if(userLikesContent.isLoading){
+        return <></>
+    }
+    
+    const [liked, likeCount] = userLikesContent.data
 
     const onLikeClick = async () => {
         if(!user) return
         if(liked){
-            setLikeCount(likeCount-1)
-            setLiked(false)
-            await removeLike(content.id, user.id, isEntity);
+            await userLikesContent.mutate(removeLike(contentId, user.id), {
+                optimisticData: [false, likeCount-1],
+                rollbackOnError: true,
+                populateCache: true,
+                revalidate: false
+            });
         } else {
-            setLikeCount(likeCount+1)
-            setLiked(true)
-            await addLike(content.id, user.id, isEntity);
+            await userLikesContent.mutate(addLike(contentId, user.id), {
+                optimisticData: [true, likeCount+1],
+                rollbackOnError: true,
+                populateCache: true,
+                revalidate: false
+            });
         }
-        if(isEntity){
-            mutate("/api/entity/"+content.id)
-            mutate("/api/entities/")
-        } else {
-            mutate("/api/content/"+content.id)
-        }
-        mutate("/api/user/"+user.id)
     }
 
     return <ReactionButton

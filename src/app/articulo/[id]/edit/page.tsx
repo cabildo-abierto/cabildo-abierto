@@ -1,20 +1,20 @@
 "use client"
 
 import React from "react"
-import { ThreeColumnsLayout } from "@/components/three-columns";
+import { ThreeColumnsLayout } from "src/components/three-columns";
 import NoEntityPage from "../../../../components/no-entity-page";
-import PaywallChecker from "@/components/paywall-checker";
-import { SetProtectionButton } from "@/components/protection-button";
+import PaywallChecker from "src/components/paywall-checker";
+import { SetProtectionButton } from "src/components/protection-button";
 import Link from "next/link";
-import { entityLastVersionId, validSubscription } from "@/components/utils";
+import { entityLastVersionId, validSubscription } from "src/components/utils";
 import dynamic from "next/dynamic";
-import { useUser } from "@/app/hooks/user";
-import { useEntity } from "@/app/hooks/entities";
-import { UserProps } from "@/app/lib/definitions";
-import { currentVersion } from "@/components/edit-history";
-import LoadingSpinner from "@/components/loading-spinner";
+import { useUser } from "src/app/hooks/user";
+import { useEntity } from "src/app/hooks/entities";
+import { UserProps } from "src/app/lib/definitions";
+import { currentVersion } from "src/components/edit-history";
+import LoadingSpinner from "src/components/loading-spinner";
 
-const WikiEditor = dynamic(() => import('@/components/editor/wiki-editor'), { ssr: false });
+const WikiEditor = dynamic(() => import('src/components/editor/wiki-editor'), { ssr: false });
 
 
 function hasEditPermissions(user: UserProps, level: string) {
@@ -37,6 +37,8 @@ const EntityPage: React.FC<any> = ({ params }) => {
     if (user) {
         if (validSubscription(user.user)) {
             if (user.user && hasEditPermissions(user.user, entity.protection)) {
+                console.log("content editor id", entity.versions[currentVersion(entity)].id)
+                console.log("entity versions", entity.versions.length, entity.id)
                 editableContent = <>
                     {(user.user && user.user.editorStatus == "Administrator") &&
                         <div className="flex justify-center py-2">

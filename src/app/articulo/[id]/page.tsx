@@ -1,6 +1,6 @@
 "use client"
 
-import { ArticlePage } from "@/components/article-page"
+import { ArticlePage } from "src/components/article-page"
 
 
 

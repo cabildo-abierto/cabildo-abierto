@@ -4,7 +4,7 @@ import { LoginButton } from "./login-button";
 import { AuthenticationFormLabel } from "./signup-form";
 import { useRouter } from "next/navigation";
 import { validSubscription } from "./utils";
-import { login } from "@/actions/auth";
+import { login } from "src/actions/auth";
 
 export default function LoginForm() {
     const [state, action] = useFormState(login, undefined)

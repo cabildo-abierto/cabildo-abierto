@@ -1,4 +1,4 @@
-import { fetcher } from "@/app/hooks/utils"
+import { fetcher } from "src/app/hooks/utils"
 import useSWR from "swr"
 import { EntityProps, SmallEntityProps } from "../lib/definitions"
 

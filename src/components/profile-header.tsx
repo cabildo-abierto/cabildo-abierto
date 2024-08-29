@@ -1,9 +1,9 @@
 "use client"
 
-import { follow, unfollow } from "@/actions/following"
+import { follow, unfollow } from "src/actions/actions"
 import { useEffect, useState } from "react"
-import { useUser } from "@/app/hooks/user"
-import { UserProps } from "@/app/lib/definitions"
+import { useUser } from "src/app/hooks/user"
+import { UserProps } from "src/app/lib/definitions"
 import { useSWRConfig } from "swr"
 import { addAt } from "./content"
 import { Description } from "./description"
@@ -28,12 +28,10 @@ export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user
     
     const onUnfollow = async () => {
         if(!user) return; 
-        console.log("unfollowing")
         setFollowing(false);
         await unfollow(profileUser.id, user.id);
         mutate("/api/following-feed/"+user.id)
         mutate("/api/user")
-        console.log("done")
     }
 
     const onFollow = async () => {

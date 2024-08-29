@@ -1,6 +1,6 @@
-import diceCoefficientDistance from "@/actions/dice-coefficient";
-import { SmallContentProps } from "@/app/api/feed/route";
-import { EntityProps, SmallEntityProps } from "@/app/lib/definitions";
+import diceCoefficientDistance from "src/actions/dice-coefficient";
+import { SmallContentProps } from "src/app/api/feed/route";
+import { EntityProps, SmallEntityProps } from "src/app/lib/definitions";
 
 function included(a: string, b: string){
     return b.toLowerCase().includes(a.toLowerCase())
@@ -48,12 +48,8 @@ export function searchContents(value: string, contents: SmallContentProps[]) {
     const dists: {id: string, dist: number}[] = []
 
     contents.forEach(function(item){
-        if(item.type == "Post" || item.type == "Comment" || item.type == "FastPost"){
-            if(!item.isDraft){
-                let d = dist(value, item.text)
-                dists.push({id: item.id, dist: d})
-            }
-        }
+        let d = dist(value, item.text)
+        dists.push({id: item.id, dist: d})
     })
 
     dists.sort((a, b) => {return a.dist - b.dist })

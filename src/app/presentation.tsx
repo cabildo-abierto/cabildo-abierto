@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import ConstructionIcon from '@mui/icons-material/Construction';
-import { SignupButton } from '@/components/home-page';
 import { ReactNode } from 'react';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import Explainable from '@/components/explainable';
+import Explainable from 'src/components/explainable';
+import { SignupButton } from 'src/components/home-page';
 
 export const PeriodoDePrueba = () => {
     return <div className="flex justify-center">
@@ -83,27 +83,33 @@ const Table = () => {
 
 export const Presentation: React.FC = () => {
     const informacion = <div className="">
-        <p>El contenido se compone de:</p>
-        <p className=""><span className="">Artículos informativos escritos colaborativamente</span>, que representan consensos.</p>
-        <p className=""><span className="">Publicaciones individuales</span>, que pueden contener apreciaciones personales, análisis, relatos, o lo que sea.</p>
+        <p className="">El contenido incluye:</p>
+        <p className="text-left ml-[-3px]"><span className="">- Artículos informativos escritos colaborativamente.</span></p>
+        <p className="text-left ml-[-3px]"><span className="">- Publicaciones individuales, elaboradas y rápidas.</span></p>
+        
     </div>
 
     const abierta = <div className="flex flex-col items-center text-center">
-    <p>Todo está abierto a discusión.</p>
+    <p className="italic">Todo está abierto a discusión</p>
     <p> En cualquier artículo o publicación vas a poder agregar comentarios, incluso sobre selecciones de texto.</p>
     <p> El diseño de la plataforma también está abierto a discusión.</p>
 </div>
 
     const escrita = <div className="flex flex-col justify-center text-center">
       <p>Además de agregar comentarios, cualquier usuario puede contribuir con contenido.</p> 
-      <p>Los aportes a los artículos colaborativos y las publicaciones son remunerados en función del valor que generan los usuarios.</p>
+      <p>Al hacerlo, quien escribe es remunerado en función del valor que genera en otros usuarios.</p>
     </div>
 
     const financiada = <div className="flex flex-col justify-center text-center">
         <p>Cabildo Abierto <span className="highlight">se financia exclusivamente con suscripciones mensuales de sus usuarios.</span></p>
         <p>Con esto se cubre <span className="highlight">el desarrollo de la plataforma</span> y <span className="highlight">el trabajo de los autores.</span></p>
-        <p>Hay además un <span className="highlight">pozo de suscripciones gratuitas</span> del que el que lo necesite puede agarrar, que se forma con donaciones.</p>
         <p>A diferencia de otras plataformas, no vendemos la decisión de qué contenido aparece en tu pantalla a nadie.</p>
+    </div>
+
+    const comunidad = <div className="flex flex-col justify-center text-center">
+      <p>Queremos que en Cabildo Abierto participe la mayor cantidad de gente posible.</p>
+      <p>Siempre en la plataforma va a haber un pozo de suscripciones gratuitas formado por donaciones, del que cualquiera que lo necesite puede agarrar.</p>
+      <p>La disponibilidad de estas suscripciones depende de la cantidad de gente que elija usarlas y la cantidad que elija donar.</p>
     </div>
 
     const personas = <div className="flex flex-col justify-center text-center">
@@ -136,7 +142,7 @@ export const Presentation: React.FC = () => {
                 <Explainable text="Información" content={informacion}/> <Explainable text="abierta a discusión" content={abierta}/>. 
             </div>
             <div className="text-center text-xl mb-2">
-                <Explainable text="Escrita" content={escrita}/> y <Explainable text="financiada" content={financiada}/> por la comunidad.
+                <Explainable text="Escrita" content={escrita}/> y <Explainable text="financiada" content={financiada}/> por la <Explainable text="comunidad" content={comunidad}/>.
             </div>
             </div>
             <div className="text-center text-lg mt-8 text-gray-800">
