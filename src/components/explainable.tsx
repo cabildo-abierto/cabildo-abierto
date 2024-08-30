@@ -12,26 +12,46 @@ const Explainable = ({text, id}: {text: string, id?: string}) => {
 }*/
 
 
+export const HoverSuggestWrapper = ({ show, children, suggestionText = "..." }) => {
+
+  return (
+    <div
+      className="relative inline-block"
+    >
+      {show && (
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 px-3 py-1 bg-[var(--background)] border text-xs rounded shadow-lg">
+          {suggestionText}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+};
+
+
 export const Explainable = ({ text, content }: { text: string, content: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [position, setPosition] = useState({ left: 0 });
   const panelRef = useRef<HTMLDivElement>(null);
+  const [wasHovered, setWasHovered] = useState(true);
 
   useEffect(() => {
     if (isHovered && panelRef.current) {
-      const rect = panelRef.current.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-
+      const rect = panelRef.current.getBoundingClientRect()
+      const viewportWidth = window.innerWidth
+      const viewportHeight = window.innerHeight
+      console.log(rect.bottom, viewportHeight)
       if (rect.right > viewportWidth) {
-        setPosition({ left: -(rect.right - viewportWidth + 10) }); // 10px padding to keep it within the viewport
+        setPosition({ left: -(rect.right - viewportWidth + 10)}) // 10px padding to keep it within the viewport
       }
     }
   }, [isHovered]);
 
   return (
+    <HoverSuggestWrapper show={!wasHovered}>
     <div
       style={{ position: 'relative', display: 'inline-block' }}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => {setIsHovered(true); setWasHovered(true)}}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="hover:text-[var(--primary)] cursor-pointer fancy-text">
@@ -40,13 +60,14 @@ export const Explainable = ({ text, content }: { text: string, content: ReactNod
       {isHovered && (
         <div
           ref={panelRef}
-          className="mt-1 absolute text-base border bg-[var(--background)] z-10 w-96 p-2 explainable"
+          className="mt-1 absolute text-base border bg-white z-10 w-96 p-2 explainable"
           style={{ ...position }}
         >
           {content}
         </div>
       )}
     </div>
+    </HoverSuggestWrapper>
   );
 };
 

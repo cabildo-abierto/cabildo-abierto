@@ -1,25 +1,8 @@
 import Link from 'next/link';
-import ConstructionIcon from '@mui/icons-material/Construction';
 import { ReactNode } from 'react';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Explainable from 'src/components/explainable';
 import { SignupButton } from 'src/components/home-page';
-
-export const PeriodoDePrueba = () => {
-    return <div className="flex justify-center">
-        <div className="mt-8 px-4">
-        <div className="text-[var(--accent-dark)] flex items-center border p-2 rounded">
-            <div className="mr-2">
-                <ConstructionIcon fontSize="large" />
-            </div>
-            <div className="flex justify-center">
-                La plataforma está en período de prueba cerrada. 
-                {false && "Podés escribirnos a contacto@cabildoabierto.com.ar"}
-            </div>
-        </div>
-        </div>
-    </div>
-}
 
 const Explanation = ({children, id, title}: {children: ReactNode, id: string, title: string}) => {
     return <div className="w-full border-[var(--accent)] border-t" id={id}>
@@ -82,56 +65,64 @@ const Table = () => {
 
 
 export const Presentation: React.FC = () => {
+    const className="flex flex-col rounded text-base w-full p-1 mx-1 my-1"
     const informacion = <div className="">
-        <p className="">El contenido incluye:</p>
-        <p className="text-left ml-[-3px]"><span className="">- Artículos informativos escritos colaborativamente.</span></p>
-        <p className="text-left ml-[-3px]"><span className="">- Publicaciones individuales, elaboradas y rápidas.</span></p>
-        
+        <div className="flex flex-col">
+        <div className="text-center py-1 text-gray-600">Tres formas de contenido</div>
+        <div className={className}><span className="font-bold">Artículos colaborativos</span>Tienen información y cualquiera puede editarlos. <span className="text-gray-600">El cepo, las SAD, Lijo, Alberto, etc.</span></div>
+        <div className={className}><span className="font-bold">Publicaciones individuales elaboradas</span>Con título y sin límite de caracteres.<span className="text-gray-600">Noticias, análisis, relato, o lo que sea.</span></div>
+        <div className={className}><span className="font-bold">Publicaciones rápidas</span>A lo sumo 281 caracteres.<br/><span className="text-gray-600">Ráfagas comunicacionales.</span></div>
+        </div>
     </div>
 
     const abierta = <div className="flex flex-col items-center text-center">
-    <p className="italic">Todo está abierto a discusión</p>
-    <p> En cualquier artículo o publicación vas a poder agregar comentarios, incluso sobre selecciones de texto.</p>
+    <p className="font-bold">Todo está abierto a discusión</p>
+    <p> En cualquier artículo o publicación vas a poder agregar comentarios y ver los comentarios de otros, incluso sobre selecciones de texto.</p>
     <p> El diseño de la plataforma también está abierto a discusión.</p>
-</div>
+    </div>
 
     const escrita = <div className="flex flex-col justify-center text-center">
-      <p>Además de agregar comentarios, cualquier usuario puede contribuir con contenido.</p> 
-      <p>Al hacerlo, quien escribe es remunerado en función del valor que genera en otros usuarios.</p>
+      <p className="font-bold">Explicá algo que sepas, contá una noticia o analizá la realidad argentina, y te pagamos.</p> 
+      <p>Todos los usuarios pueden editar artículos colaborativos y escribir publicaciones, elaboradas o rápidas.</p>
+      <p className="">Si escribís, vas a ser remunerado en función del valor que otros usuarios encuentren en lo que escribiste.</p>
     </div>
 
     const financiada = <div className="flex flex-col justify-center text-center">
-        <p>Cabildo Abierto <span className="highlight">se financia exclusivamente con suscripciones mensuales de sus usuarios.</span></p>
-        <p>Con esto se cubre <span className="highlight">el desarrollo de la plataforma</span> y <span className="highlight">el trabajo de los autores.</span></p>
-        <p>A diferencia de otras plataformas, no vendemos la decisión de qué contenido aparece en tu pantalla a nadie.</p>
+        <p className="font-bold">La plataforma se financia exclusivamente con suscripciones mensuales de sus usuarios.</p>
+        <p>Con eso cubrimos <span className="highlight">el desarrollo de la plataforma</span> y <span className="highlight">el trabajo de los autores.</span></p>
+        <p className="">Gracias a esto, la decisión de qué contenido aparece en tu pantalla no se vende a nadie.</p>
     </div>
 
     const comunidad = <div className="flex flex-col justify-center text-center">
-      <p>Queremos que en Cabildo Abierto participe la mayor cantidad de gente posible.</p>
-      <p>Siempre en la plataforma va a haber un pozo de suscripciones gratuitas formado por donaciones, del que cualquiera que lo necesite puede agarrar.</p>
+      <p className="font-bold">Si podés, pagás. Si no, te lo financia otro</p>
+      <p>En Argentina la cosa está complicada: 41.7% de personas bajo la línea de pobreza al segundo semestre de 2023, según INDEC.</p>
+      <p>Por eso, siempre en la plataforma va a haber un pozo de suscripciones gratuitas del que quien lo necesite puede agarrar.</p>
       <p>La disponibilidad de estas suscripciones depende de la cantidad de gente que elija usarlas y la cantidad que elija donar.</p>
+      <p>Más allá de esto, apuntamos a hacer suscripciones lo más baratas posibles para que resulten accesibles para la mayor cantidad de gente posible.</p>
     </div>
 
     const personas = <div className="flex flex-col justify-center text-center">
-    <p>En Cabildo Abierto los usuarios son personas se hacen cargo de lo que dicen, como en la vida real.</p>
+    <p>En Cabildo Abierto los usuarios son personas que se hacen cargo de lo que dicen, como en la vida real.</p>
     <p>No hay bots en la discusión y tampoco segundas cuentas.</p>
     </div>
 
     const algoritmos = <div className="flex flex-col items-center text-center">
-    <p>No usamos inteligencia artificial para elegir el contenido que ven los usuarios en función de su comportamiento.</p>
-    <p>La selección y priorización de contenido está exclusivamente bajo tu control.</p>
+    <p>No usamos inteligencia artificial para personalizar el contenido que ves en función de tu comportamiento.</p>
+    <p>Te mostramos lo más discutido en forma transparente y la selección y priorización de contenido está exclusivamente bajo tu control.</p>
 </div>
 
     const noticias = <div className="flex flex-col items-center text-center">
-    <p>La libertad de expresión es uno de los motivadores centrales de esta plataforma, pero no es un derecho absoluto.</p>
-    <p>Si ves una publicación falsa, podés marcarlo para que otros lo vean, abriendo una discusión al respecto.</p>
+    <p className="font-bold">No, no te podemos garantizar que no haya noticias falsas, pero:</p>
+    <p>Las publicaciones pueden ser públicamente marcadas como falsas por otros usuarios, iniciando una discusión.</p>
+    <p>Si hay algo falso en lo que leés, posiblemente encuentres un comentario al costado que lo indique.</p>
+    <p>Si una noticia es falsa, la va a haber escrito una persona real con una única cuenta y tendrá que hacerse cargo.</p>
 </div>
 
     return <div className="flex flex-col items-center text-gray-900">
         <div className="flex justify-center">
             <div className="flex flex-col justify-center">
                 <h3 className="flex justify-center text-center mt-20 lg:text-4xl md:text-4xl text-3xl px-2">
-                    Un nuevo medio para la discusión pública
+                    Una plataforma para la discusión pública argentina
                 </h3>
             </div>
         </div>

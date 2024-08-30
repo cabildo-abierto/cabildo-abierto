@@ -9,13 +9,16 @@ import { Presentation } from "src/app/presentation"
 export const LogoWithName = () => {
     return <div><Link href="/"><div className="flex items-center px-2">
         <Image
-          src="/logo-texto.png"
+          src="/favicon.ico"
           alt="Loading..."
-          width={796}
-          height={291}
+          width={314}
+          height={314}
           priority={true}
-          className="w-24"
+          className="w-14"
         />
+        <div className="ml-1 flex items-end text-lg text-gray-900">
+            <div>Cabildo Abierto</div>
+        </div>
     </div></Link></div>
 }
 
