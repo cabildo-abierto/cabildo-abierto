@@ -7,6 +7,7 @@ import { SignupButton } from "./signup-button";
 import { useRouter } from "next/navigation";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import ConstructionIcon from '@mui/icons-material/Construction';
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
@@ -27,6 +28,23 @@ const FormErrors: React.FC<any> = ({errors}) => {
     </div>
 }
 
+
+export const PeriodoDePrueba = () => {
+    return <div className="flex justify-center mt-4">
+        <div className="px-4">
+        <div className="text-[var(--accent-dark)] flex items-center border p-2 rounded">
+            <div className="mr-2">
+                <ConstructionIcon fontSize="large" />
+            </div>
+            <div className="flex justify-center">
+                Cabildo Abierto está en período de prueba.
+                <br/>Abrimos pronto :)
+            </div>
+        </div>
+        </div>
+    </div>
+}
+
 export default function SignupForm() {
     const [state, action] = useFormState(signup, undefined);
     const [showPassword, setShowPassword] = useState(false);
@@ -37,7 +55,10 @@ export default function SignupForm() {
     }
 
     return (
-        <div className="">
+        <div className="flex flex-col items-center">
+            <div className="mb-4 mt-6">
+                <PeriodoDePrueba/>
+            </div>
             <form action={action}>
                 <div className="flex-1 rounded-lg bg-[var(--secondary-light)] px-12 pb-4 pt-8 w-96">
                     <h2 className='flex justify-center mb-3'>

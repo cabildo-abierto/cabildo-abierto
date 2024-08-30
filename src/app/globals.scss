@@ -518,9 +518,8 @@ ol {
 }
 
 .fancy-text {
-    position: relative; /* Ensure positioning context for the pseudo-element */
-    color: var(--text); /* Fallback color for text */
-    text-decoration: none; /* Remove default text underline */
+    position: relative; /* Ensure the pseudo-element is positioned relative to the text */
+    display: inline-block; /* Adjust to the width of the text */
 }
 
 .fancy-text::after {
@@ -530,21 +529,18 @@ ol {
     bottom: 0; /* Align to the bottom of the text */
     width: 100%; /* Full width of the text */
     height: 3px; /* Height of the underline */
-    background: linear-gradient(90deg, var(--primary), var(--text));
-    background-size: 200% 200%;
-    animation: gradient-animation 2s ease-in-out infinite;
+    background: linear-gradient(90deg, var(--primary) 25%, var(--text) 25%, var(--text) 50%, var(--primary) 50%, var(--primary) 75%, var(--text) 75%);
+    background-size: 200% 100%;
+    background-position: 100% 0;
+    animation: gradient-animation 1s linear infinite;
 }
 
-  
 @keyframes gradient-animation {
-0% {
-	background-position: 0% 50%;
-}
-50% {
-	background-position: 100% 50%;
-}
-100% {
-	background-position: 0% 50%;
-}
+    0% {
+        background-position: 100% 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
 }
   
