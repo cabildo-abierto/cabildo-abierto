@@ -8,8 +8,6 @@
  */
 
 .CommentPlugin_AddCommentBox {
-  display: block;
-  position: fixed;
   border-radius: 20px;
   background-color: var(--background);
   width: 40px;
@@ -24,9 +22,6 @@
   background: none;
   width: 40px;
   height: 60px;
-  position: absolute;
-  top: 0;
-  left: 0;
   cursor: pointer;
 }
 
@@ -41,12 +36,6 @@ i.add-comment {
   width: 20px;
   vertical-align: -10px;
   background-image: url(../../images/icons/chat-left-text.svg);
-}
-
-@media (max-width: 1024px) {
-  .CommentPlugin_AddCommentBox {
-    display: none;
-  }
 }
 
 .CommentPlugin_CommentInputBox {
