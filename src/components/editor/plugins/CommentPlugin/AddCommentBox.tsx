@@ -1,12 +1,7 @@
-import type {
-    LexicalEditor,
-    NodeKey,
-} from 'lexical';
-  
-import './index.css';
-import {useCallback, useEffect, useRef} from 'react';
+import type { LexicalEditor, NodeKey } from 'lexical';
+import { useRef, useLayoutEffect, useCallback, useEffect } from 'react';
 import * as React from 'react';
-import useLayoutEffect from '../../shared/useLayoutEffect';
+import './index.css';
 
 export function AddCommentBox({
   anchorKey,
@@ -20,16 +15,28 @@ export function AddCommentBox({
   const boxRef = useRef<HTMLDivElement>(null);
 
   const updatePosition = useCallback(() => {
-    const boxElem = boxRef.current;
-    const rootElement = editor.getRootElement();
-    const anchorElement = editor.getElementByKey(anchorKey);
+    const boxElement = boxRef.current;
+    const editorElement = editor.getRootElement();
 
-    if (boxElem !== null && rootElement !== null && anchorElement !== null) {
-      const {right} = rootElement.getBoundingClientRect();
-      const {top} = anchorElement.getBoundingClientRect();
-      boxElem.style.left = `${right - 20}px`;
-      boxElem.style.top = `${top - 30}px`;
+    if (!boxElement || !editorElement) {
+      return;
     }
+
+    const anchorNode = editor.getElementByKey(anchorKey);
+
+    if (!anchorNode) {
+      return;
+    }
+
+    const anchorRect = anchorNode.getBoundingClientRect();
+    const editorRect = editorElement.getBoundingClientRect();
+
+    const top = anchorRect.top
+    const right = editorRect.right
+    boxElement.style.position = 'absolute';
+    boxElement.style.top = `${top-25}px`;
+    boxElement.style.left = `${right-50}px`;
+
   }, [anchorKey, editor]);
 
   useEffect(() => {
@@ -44,11 +51,10 @@ export function AddCommentBox({
     updatePosition();
   }, [anchorKey, editor, updatePosition]);
 
+
   return (
-    <div className="CommentPlugin_AddCommentBox" ref={boxRef}>
-      <button
-        className="CommentPlugin_AddCommentBox_button"
-        onClick={onAddComment}>
+    <div ref={boxRef} className="CommentPlugin_AddCommentBox">
+      <button className="CommentPlugin_AddCommentBox_button" onClick={onAddComment}>
         <i className="icon add-comment" />
       </button>
     </div>
