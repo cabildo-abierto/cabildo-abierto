@@ -57,7 +57,7 @@ const WikiEditor = ({contentId, entity, readOnly=false}: WikiEditorProps) => {
         shouldUseLexicalContextMenu: false,
         showNestedEditorTreeView: false,
         showTableOfContents: false,
-        showTreeView: true,
+        showTreeView: false,
         tableCellBackgroundColor: false,
         tableCellMerge: false,
         showActions: false,
