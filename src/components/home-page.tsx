@@ -14,7 +14,7 @@ export const LogoWithName = ({showName}: {showName: boolean}) => {
           width={314}
           height={314}
           priority={true}
-          className="w-14"
+          className="w-12"
         />
         {showName && <div className="ml-1 items-end text-lg text-gray-900 hidden sm:flex">
             <div>Cabildo Abierto</div>
@@ -54,10 +54,10 @@ export const SignupButton = ({className="", text="Crear cuenta"}: {className?: s
 export const TopbarExternal = ({showButtons}: {showButtons: boolean}) => {
     return <div className="topbar-container">
         <LogoWithName showName={false}/>
-        <div className="flex items-center justify-center">
+        {showButtons && <div className="flex items-center justify-center">
             <LoginButton className="auth-btn h-10 mr-2"/>
             <SignupButton className="auth-btn h-10 mr-2"/>
-        </div>
+        </div>}
     </div>
 }
 

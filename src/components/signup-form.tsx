@@ -50,9 +50,8 @@ export const PeriodoDePrueba = () => {
                     <ConstructionIcon fontSize="large" />
                 </div>
                 <div className="flex justify-center">
-                    Cabildo Abierto está en período de prueba.<br/>
-                    No te vas a poder registrar sin la clave.
-                    <br/>Abrimos pronto :)
+                    Necesitás una clave para registrarte. <br/>
+                    Abrimos pronto :)
                 </div>
             </div>
         </div>
@@ -195,8 +194,8 @@ const BetaPWInput = ({state}: {state: SignUpFormState}) => {
 export const AuthForm = ({children, action, state, title}: {children: ReactNode, action: any, state: any, title: string}) => {
 
     return <form action={action} className="flex justify-center items-center">
-        <div className="flex-1 rounded-lg bg-[var(--secondary-light)] mx-3 px-4 pb-4 pt-4 w-90 border">
-            <h2 className='flex justify-center mb-4'>
+        <div className="flex-1 rounded-lg bg-[var(--secondary-light)] mx-3 p-3 w-90 border">
+            <h2 className='flex justify-center mb-2'>
                 {title}
             </h2>
             <div className="w-full space-y-2">

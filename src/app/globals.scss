@@ -288,11 +288,6 @@ ol {
 }
 
 
-.h-screen-minus-16 {
-	height: calc(100vh - 4rem);
-}
-
-
 .sidebar-btn {
     width: 100%;
     text-align: left;
@@ -501,6 +496,7 @@ ol {
 
 .topbar-container {
 	border-bottom: 1px solid;
+	border-color: var(--accent);
 	background-color: var(--background);
 	height: 4rem;
 	display: flex;

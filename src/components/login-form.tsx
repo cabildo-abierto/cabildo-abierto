@@ -19,9 +19,9 @@ export default function LoginForm() {
                 <EmailInput state={state}/>
                 <PasswordInput state={state}/>
                 {(state && state.error == "invalid auth") ? 
-                    <div className="flex items-center text-red-600 h-10 px-2">Usuario o contraseña incorrectos.</div>
+                    <div className="flex items-center text-red-600 h-6 px-2">Usuario o contraseña incorrectos.</div>
                     :
-                    <div className="h-10"></div>
+                    <div className="h-6"></div>
                 }
                 <LoginButton/>
             </AuthForm>

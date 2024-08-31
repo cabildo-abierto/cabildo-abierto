@@ -213,13 +213,13 @@ function Editor({ settings, setEditor, setOutput }:
             setOutput(editorState)
             setEditor(editor)
 
-            editorState.read(async () => {
+            /*editorState.read(async () => {
               const initialState = JSON.parse(content.text)
               const parsedState = JSON.parse(JSON.stringify(editorState))
               console.log("current state", parsedState)
               console.log("initial state", initialState)
               console.log("DIFF", diff(initialState, parsedState))
-            })
+            })*/
           }}
         />
         <EmojisPlugin />
