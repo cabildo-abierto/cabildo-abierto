@@ -28,7 +28,7 @@ export const AuthPage = ({signup}: {signup: boolean}) => {
                     </div>
                     </div>
                 }
-                <div className="text-center">
+                <div className="text-center mb-2">
                     O volvé al <Link href="/" className={linkClassName}>inicio</Link>.
                 </div>
             </div>
