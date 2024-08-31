@@ -14,9 +14,7 @@ export async function buyAndUseSubscription(userId: string, redirect_on_done: bo
             usedAt: new Date()
         }
     })
-    revalidateTag("users")
-    if(redirect_on_done)
-        redirect("/inicio")
+    revalidateTag("user:"+userId)
 }
 
 export async function donateSubscriptions(n: number, userId: string) {
@@ -31,9 +29,8 @@ export async function donateSubscriptions(n: number, userId: string) {
     await db.subscription.createMany({
         data: queries
     })
-    revalidateTag("users")
+    revalidateTag("user:"+userId)
     revalidateTag("poolsize")
-    redirect("/inicio")
 }
 
 export async function getDonatedSubscription(userId: string) {
@@ -55,10 +52,8 @@ export async function getDonatedSubscription(userId: string) {
                 id: subscription.id
             }
         })
-        revalidateTag("users")
+        revalidateTag("user:"+userId)
         revalidateTag("poolsize")
-        redirect("/inicio")
-        return result
     }
 }
 

@@ -4,22 +4,6 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Explainable from 'src/components/explainable';
 import { SignupButton } from 'src/components/home-page';
 
-const Explanation = ({children, id, title}: {children: ReactNode, id: string, title: string}) => {
-    return <div className="w-full border-[var(--accent)] border-t" id={id}>
-        {false && <div className="flex justify-end">
-        <Link href="#start" className="hover:bg-[var(--accent-light)] rounded my-1 mx-1">
-        <ArrowUpwardIcon/>
-        </Link>
-        </div>}
-
-        <div className="flex justify-center text-center">
-        <h3 className="mt-4 mb-8">{title}</h3>
-        </div>
-        <div className="text-lg mb-16">
-        {children}
-        </div>
-    </div>
-}
 
 
 const Table = () => {
@@ -118,16 +102,19 @@ export const Presentation: React.FC = () => {
     <p>Si una noticia es falsa, la va a haber escrito una persona real con una única cuenta y tendrá que hacerse cargo.</p>
 </div>
 
-    return <div className="flex flex-col items-center text-gray-900">
+    return <div className="flex flex-col items-center text-gray-900 mb-4">
         <div className="flex justify-center">
-            <div className="flex flex-col justify-center">
-                <h3 className="flex justify-center text-center mt-20 lg:text-4xl md:text-4xl text-3xl px-2">
+            <div className="flex flex-col justify-center mt-12">
+                <h4 className="flex justify-center text-gray-700 sm:text-2xl mb-2">
+                  Cabildo Abierto
+                </h4>
+                <h3 className="flex justify-center text-center lg:text-4xl md:text-4xl text-3xl px-2">
                     Una plataforma para la discusión pública argentina
                 </h3>
             </div>
         </div>
 
-        <div className="flex flex-col items-center py-16  max-w-[800px]">
+        <div className="flex flex-col items-center py-12  max-w-[800px]">
             <div className="bg-gray-200 rounded px-8 py-3">
             <div className="mb-2 text-center text-xl">
                 <Explainable text="Información" content={informacion}/> <Explainable text="abierta a discusión" content={abierta}/>. 

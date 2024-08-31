@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { Presentation } from "src/app/presentation"
 
 
-export const LogoWithName = () => {
+export const LogoWithName = ({showName}: {showName: boolean}) => {
     return <div><Link href="/"><div className="flex items-center px-2">
         <Image
           src="/favicon.ico"
@@ -16,9 +16,9 @@ export const LogoWithName = () => {
           priority={true}
           className="w-14"
         />
-        <div className="ml-1 flex items-end text-lg text-gray-900">
+        {showName && <div className="ml-1 items-end text-lg text-gray-900 hidden sm:flex">
             <div>Cabildo Abierto</div>
-        </div>
+        </div>}
     </div></Link></div>
 }
 
@@ -51,10 +51,10 @@ export const SignupButton = ({className="", text="Crear cuenta"}: {className?: s
     </Link>
 }
 
-const Topbar = () => {
+export const TopbarExternal = ({showButtons}: {showButtons: boolean}) => {
     return <div className="topbar-container">
-        <LogoWithName/>
-        <div className="flex items-center">
+        <LogoWithName showName={false}/>
+        <div className="flex items-center justify-center">
             <LoginButton className="auth-btn h-10 mr-2"/>
             <SignupButton className="auth-btn h-10 mr-2"/>
         </div>
@@ -63,11 +63,11 @@ const Topbar = () => {
 
 
 export const HomePage = () => {
-    return <div className="h-screen">
-        <Topbar/>
-        <div className="flex flex-col justify-between h-screen-minus-16">
-        <Presentation/>
-        <Footer/>
+    return <div className="flex flex-col">
+        <TopbarExternal showButtons={true}/>
+        <div className="flex flex-col justify-between h-full">
+            <Presentation/>
+            <Footer/>
         </div>
     </div>
 }

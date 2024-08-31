@@ -34,7 +34,7 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
   redirect('/')
 }
 
-type SignUpFormState = {
+export type SignUpFormState = {
   errors?: any,
   authError?: any
 }

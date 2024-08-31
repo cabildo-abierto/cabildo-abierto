@@ -12,23 +12,6 @@ const Explainable = ({text, id}: {text: string, id?: string}) => {
 }*/
 
 
-export const HoverSuggestWrapper = ({ show, children, suggestionText = "..." }) => {
-
-  return (
-    <div
-      className="relative inline-block"
-    >
-      {show && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 px-3 py-1 bg-[var(--background)] border text-xs rounded shadow-lg">
-          {suggestionText}
-        </div>
-      )}
-      {children}
-    </div>
-  );
-};
-
-
 export const Explainable = ({ text, content }: { text: string, content: ReactNode }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [position, setPosition] = useState({ left: 0 });
@@ -48,7 +31,6 @@ export const Explainable = ({ text, content }: { text: string, content: ReactNod
   }, [isHovered]);
 
   return (
-    <HoverSuggestWrapper show={!wasHovered}>
     <div
       style={{ position: 'relative', display: 'inline-block' }}
       onMouseEnter={() => {setIsHovered(true); setWasHovered(true)}}
@@ -67,7 +49,6 @@ export const Explainable = ({ text, content }: { text: string, content: ReactNod
         </div>
       )}
     </div>
-    </HoverSuggestWrapper>
   );
 };
 

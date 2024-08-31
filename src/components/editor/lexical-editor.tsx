@@ -76,6 +76,7 @@ import {MarkNode} from '@lexical/mark';
 import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { ContentProps } from 'src/app/lib/definitions';
 import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalNodeReplacement, LexicalEditor as OriginalLexicalEditor } from 'lexical';
+import { diff } from '../diff';
 
 
 export type SettingsProps = {
@@ -134,7 +135,6 @@ function Editor({ settings, setEditor, setOutput }:
   }, [editor, setEditor]);
 
   const {
-    isAutocomplete,
     isMaxLength,
     isCharLimit,
     isCharLimitUtf8,
@@ -142,10 +142,8 @@ function Editor({ settings, setEditor, setOutput }:
     showTreeView,
     showTableOfContents,
     shouldUseLexicalContextMenu,
-    shouldPreserveNewLinesInMarkdown,
     tableCellMerge,
     tableCellBackgroundColor,
-    showActions,
     showToolbar,
     isComments,
     isDraggableBlock,
@@ -214,6 +212,14 @@ function Editor({ settings, setEditor, setOutput }:
           onChange={(editorState) => {
             setOutput(editorState)
             setEditor(editor)
+
+            editorState.read(async () => {
+              const initialState = JSON.parse(content.text)
+              const parsedState = JSON.parse(JSON.stringify(editorState))
+              console.log("current state", parsedState)
+              console.log("initial state", initialState)
+              console.log("DIFF", diff(initialState, parsedState))
+            })
           }}
         />
         <EmojisPlugin />

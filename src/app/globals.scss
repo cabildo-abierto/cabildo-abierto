@@ -477,13 +477,9 @@ ol {
 }
 
 .auth-btn {
-	padding-top: 0.25rem;
-	padding-bottom: 0.25rem;
-	padding-left: 0.25rem; 
-	padding-right: 0.25rem;
 	border-radius: 0.25rem; 
 	width: 8rem;
-	background-color: var(--background); 
+	background-color: transparent; 
 	font-size: medium;
 	cursor: pointer; 
 	color: var(--text)

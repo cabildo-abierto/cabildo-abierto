@@ -24,7 +24,7 @@ const SubscriptionOptions = () => {
 
             <div className="flex justify-center mt-8">
                 <p className="lg:w-96 w-64">
-                    Cabildo Abierto se sostiene únicamente con las suscripciones de sus usuarios.
+                    Las suscripciones son la única fuente de financiamiento de Cabildo Abierto.
                 </p>
             </div>
         </div>

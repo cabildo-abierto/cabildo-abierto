@@ -1,12 +1,13 @@
 
 "use client"
-import Link from "next/link"
 import DonationInput from "src/components/donation-input"
 import { useState } from "react"
 import SubscriptionOptionButton from "src/components/subscription-option-button"
 import { validSubscription } from "src/components/utils"
+import { useUser } from "src/app/hooks/user"
 
-export const NewDonation: React.FC<any> = ({user}) => {
+export const NewDonation: React.FC = () => {
+    const {user} = useUser()
     const [donationAmount, setDonationAmount] = useState(0)
     const activeSubscription = validSubscription(user)
 
