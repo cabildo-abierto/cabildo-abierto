@@ -23,23 +23,20 @@ export const FastPost = ({
     onStartReply
 }: FastPostProps) => {
     const icon = <FastPostIcon/>
-    const className = "w-full bg-[var(--background)] text-left" 
 
     function onShowFakeNews() {
         if(!viewingComments)
             onViewComments()
     }
 
-    return <div className={className}>
-        <div className="border rounded w-full">
-            <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews}/>
-            <div className="px-2 py-2 content">
-                <ReadOnlyEditor initialData={content.text}/>
-            </div>
-            <div className="flex justify-between mb-1">
-                <button className="reply-btn" onClick={onStartReply}>Responder</button>
-                <LikeAndCommentCounter contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
-            </div>
+    return <div className="content-container">
+        <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews}/>
+        <div className="px-2 py-2 content">
+            <ReadOnlyEditor initialData={content.text}/>
+        </div>
+        <div className="flex justify-between mb-1">
+            <button className="reply-btn" onClick={onStartReply}>Responder</button>
+            <LikeAndCommentCounter contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
         </div>
     </div>
 }

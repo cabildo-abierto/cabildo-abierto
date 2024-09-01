@@ -142,7 +142,6 @@ const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewCom
     const {content, isLoading, isError} = useContent(contentId)
     const {user} = useUser()
     const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
-    const {mutate} = useSWRConfig()
     const views = useSWR("/api/views/"+contentId, fetcher)
 
     useEffect(() => {
@@ -182,7 +181,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewCom
     } else if(content.type == "FakeNewsReport"){
         element = <FakeNewsReport content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
     }
-    return <div className="py-1">{element}</div>
+    return <>{element}</>
 };
 
 export default ContentComponent;

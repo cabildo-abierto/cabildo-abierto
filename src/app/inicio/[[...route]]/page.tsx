@@ -24,7 +24,7 @@ const TopicsPage: React.FC<{
     }
 
     const center = <div className="w-full">
-        <div className="border rounded my-1">
+        <div className="content-container py-2 mt-2">
             <WikiCategories route={decodedRoute} selected={selected}/>
             <SelectionComponent
                 onSelection={setSelected}
@@ -34,7 +34,7 @@ const TopicsPage: React.FC<{
             />
         </div>
         
-        <div className="mt-1">
+        <div className="pt-2">
         {selected == "Artículos colaborativos" && 
         <CategoryArticles route={decodedRoute}/>}
 

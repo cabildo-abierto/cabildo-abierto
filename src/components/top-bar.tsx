@@ -9,20 +9,22 @@ import HomeIcon from '@mui/icons-material/Home';
 import { useUser } from "src/app/hooks/user";
 import WriteButton from "./write-button";
 import { usePathname, useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
+import { CabildoIcon } from "./icons";
 
 function FeedButton() {
-    return <div className="px-1 py-2">
-        <Link href="/inicio">
+    return <Link href="/inicio" className="px-1">
         <button className="topbar-btn">
-            <HomeIcon />
+            <div className="flex pt-1">
+                <CabildoIcon/>
+            </div>
         </button>
-        </Link>
-    </div>
+    </Link>
 }
 
 
 function OpenSidebarButton({ onClick }: any) {
-    return <div className="px-1 py-2">
+    return <div className="px-1">
         <button className="topbar-btn" onClick={onClick}>
             <MenuIcon />
         </button>
@@ -31,7 +33,7 @@ function OpenSidebarButton({ onClick }: any) {
 
 
 export const SearchButton = ({ onClick=null, disabled=false }: any) => {
-    return <div className="px-1 py-2">
+    return <div className="px-1">
         <button className="topbar-btn"
             onClick={onClick} disabled={disabled}>
         <SearchIcon />
@@ -56,12 +58,12 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
             <>
             <FeedButton />
             <WriteButton />
-            <SearchButton onClick={() => {
+            {path.includes("/inicio") && <SearchButton onClick={() => {
                 if(path.includes("/inicio"))
                     setSearchBarOpen(true)
                 else
                     router.push("/inicio")
-            }} />
+            }} />}
             </>
         }
 
@@ -154,13 +156,16 @@ export default function Topbar({ onOpenSidebar, setSearchValue, searching }: Top
         />
     }
 
-    return <><div className="topbar-container">
-            {bar}
-        </div>
-        {(barState != "no bar" || searching) && <div className="fixed top-0 left-0 w-screen">
-            <div className={"border-b bg-[var(--background)] h-16 flex items-center justify-between w-full"+((barState == "transparent" && !searching) ? " bg-opacity-50" : "")}>
-                {bar}
-            </div>
-        </div>}
-    </>
+    return createPortal(
+        <>
+            {(barState != "no bar" || searching) && 
+                <div className="fixed top-0 left-0 w-screen">
+                    <div className={"topbar-container"+((barState == "transparent" && !searching) ? "-transparent" : "")}>
+                        {bar}
+                    </div>
+                </div>
+            }
+        </>, 
+        document.body
+    )
 }

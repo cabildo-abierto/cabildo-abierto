@@ -74,21 +74,19 @@ export const FakeNewsReport = ({
         })
     }
 
-    return <div className="w-full bg-[var(--background)] text-left" >
-        <div className="border rounded w-full border-[var(--accent)]">
-            <ContentTopRow content={content} icon={<RedFlag/>} showOptions={false}/>
-            <div className="px-2 mt-2 ml-2 content">
-                {snode && <div className="content">
-                    <ReadOnlyEditor initialData={initializeQuote}/>
-                </div>}
-                <ReadOnlyEditor initialData={content.text}/>
-            </div>
-            <div className="flex justify-between mb-1">
-                <button className="reply-btn" onClick={onStartReply}>
-                    Responder
-                </button>
-                <LikeAndCommentCounter contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
-            </div>
+    return <div className="content-container" >
+        <ContentTopRow content={content} icon={<RedFlag/>} showOptions={false}/>
+        <div className="px-2 mt-2 ml-2 content">
+            {snode && <div className="content">
+                <ReadOnlyEditor initialData={initializeQuote}/>
+            </div>}
+            <ReadOnlyEditor initialData={content.text}/>
+        </div>
+        <div className="flex justify-between mb-1">
+            <button className="reply-btn" onClick={onStartReply}>
+                Responder
+            </button>
+            <LikeAndCommentCounter contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
         </div>
     </div>
 }

@@ -15,21 +15,19 @@ type PostOnFeedProps = {
 
 export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFeedProps) => {
     const router = useRouter()
-    return <div className="w-full bg-[var(--background)] text-left cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
-        <div className="border rounded w-full">
-            <ContentTopRow content={content} author={true} icon={<PostIcon/>} showOptions={false}/>
-            <div className="flex items-center px-2 py-2">
-                <div className="px-1 font-bold content">
-                    {content.title}
-                </div>
+    return <div className="content-container w-full cursor-poiner" onClick={() => {router.push("/contenido/"+content.id)}}>
+        <ContentTopRow content={content} author={true} icon={<PostIcon/>} showOptions={false}/>
+        <div className="flex items-center px-2 py-2">
+            <div className="px-1 font-bold content">
+                {content.title}
             </div>
-            <div className="flex justify-between mb-1">
-                {false &&<div className="px-2 flex justify-between text-sm">
-                    <Authorship/>
-                </div>}
-                <div></div>
-                <LikeAndCommentCounter disabled={true} contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
-            </div>
+        </div>
+        <div className="flex justify-between mb-1">
+            {false &&<div className="px-2 flex justify-between text-sm">
+                <Authorship/>
+            </div>}
+            <div></div>
+            <LikeAndCommentCounter disabled={true} contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
         </div>
     </div>
 }

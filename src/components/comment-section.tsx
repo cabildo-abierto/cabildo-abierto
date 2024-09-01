@@ -33,6 +33,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({content, activeIDs, othe
         commentsAPI,
         fetcher
     )
+    console.log(commentsAPI)
+    console.log("comments", comments.data)
 
     let allIds: string[] = []
     try {
@@ -71,13 +73,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({content, activeIDs, othe
     let contentsWithScore = contents.map((comment) => ({comment: comment, score: commentScore(comment)}))
     contentsWithScore = contentsWithScore.sort(order)
     
-    return <>
+    return <div className="space-y-2">
         {contentsWithScore.map(({comment}) => (
             <div key={comment.id}>
                 <ContentWithComments contentId={comment.id}/>
             </div>
         ))}
-    </>
+    </div>
 }
 
 export default CommentSection
