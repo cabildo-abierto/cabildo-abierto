@@ -102,7 +102,7 @@ export default function RootLayout({
 }>) {
     return <html lang="es" spellCheck="false" className={fonts.join(" ")}>
         <head>
-            <link rel="icon" href="/favicon.ico" />
+            <link rel="icon" href="/cabildo-icono.svg" />
         </head>
         <body className="bg-[var(--background)]">
             {children}

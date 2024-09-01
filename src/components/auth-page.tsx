@@ -1,6 +1,6 @@
 "use client"
 import Link from "next/link"
-import { Logo, LogoWithName, TopbarExternal } from "./home-page"
+import { TopbarExternal } from "./home-page"
 import LoginForm from "./login-form"
 import SignupForm from "./signup-form"
 import Footer from "./footer"

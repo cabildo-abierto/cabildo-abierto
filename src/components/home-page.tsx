@@ -7,14 +7,14 @@ import { Presentation } from "src/app/presentation"
 
 
 export const LogoWithName = ({showName}: {showName: boolean}) => {
-    return <div><Link href="/"><div className="flex items-center px-2">
+    return <div><Link href="/"><div className="flex items-center ml-1">
         <Image
-          src="/favicon.ico"
+          src="/cabildo-icono.png"
           alt="Loading..."
           width={314}
           height={314}
           priority={true}
-          className="w-12"
+          className="w-10 h-10"
         />
         {showName && <div className="ml-1 items-end text-lg text-gray-900 hidden sm:flex">
             <div>Cabildo Abierto</div>
@@ -26,7 +26,7 @@ export const LogoWithName = ({showName}: {showName: boolean}) => {
 
 export const Logo = ({className}: {className: string}) => {
     return <Image
-          src="/favicon.ico"
+          src="/cabildo-icono.png"
           alt="Loading..."
           width={397}
           height={397}
