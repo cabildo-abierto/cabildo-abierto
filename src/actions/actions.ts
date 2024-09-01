@@ -500,7 +500,7 @@ export const getUserById = (userId: string) => {
             }
         )
         return user ? user : undefined
-    }, ["user"], {tags: ["user", "user:"+userId]})()    
+    }, ["user", userId], {tags: ["user:"+userId]})()    
 }
 
 
@@ -518,7 +518,7 @@ export const getUserIdByAuthId = (authId: string) => {
             }
         )
         return userId?.id
-    }, ["userIdByAuthId"], {tags: ["userIdByAuthId", "userIdByAuthId:"+authId]})()    
+    }, ["userIdByAuthId", authId], {tags: ["userIdByAuthId", "userIdByAuthId:"+authId]})()    
 }
 
 
