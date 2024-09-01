@@ -10,7 +10,7 @@ const MainLayout: React.FC<{children: ReactNode}> = ({children}) => {
         <LoadingPage>
             <SearchProvider>
                 <Bars/>
-                <div className="mb-8">
+                <div className="mt-12 mb-8">
                     <SearchPage>
                         {children}
                     </SearchPage>

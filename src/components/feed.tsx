@@ -20,7 +20,7 @@ const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
     if(feed.isError){
         return <></>
     }
-    return <div className="h-full w-full flex flex-col items-center">
+    return <div className="h-full w-full flex flex-col items-center space-y-2">
         {feed.feed.length > 0 ? feed.feed.map(({id}, index: number) => {
             return <div key={index} className="w-full">
                 <ContentWithComments

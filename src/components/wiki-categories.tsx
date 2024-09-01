@@ -89,15 +89,13 @@ export const WikiCategories = ({route, selected}: {route: string[], selected: st
     }
 
     const nextCategories = getNextCategories(route, entities.entities)
-    return <div className="">
-        <div className="flex py-2 items-center px-2">
-            <Route route={route} nextCategories={nextCategories} selected={selected}/>
-            {nextCategories.size > 0 && 
-            <SubcategoriesDropDown
-                nextCategories={nextCategories}
-                route={route}
-                selected={selected}
-            />}
-        </div>
+    return <div className="flex py-2 items-center px-2">
+        <Route route={route} nextCategories={nextCategories} selected={selected}/>
+        {nextCategories.size > 0 && 
+        <SubcategoriesDropDown
+            nextCategories={nextCategories}
+            route={route}
+            selected={selected}
+        />}
     </div>
 }

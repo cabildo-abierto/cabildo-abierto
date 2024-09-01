@@ -295,6 +295,7 @@ ol {
     border-radius: 0.375rem;
     display: block;
     padding: 0.5rem 0.25rem;
+	align-items: center;
 }
 
 .sidebar-btn:hover {
@@ -369,7 +370,7 @@ ol {
 
 .topbar-btn {
 	cursor: pointer;
-	padding: 8px;
+	padding: 4px;
 	border-radius: 0.5rem;
 }
 
@@ -496,12 +497,23 @@ ol {
 
 .topbar-container {
 	border-bottom: 1px solid;
-	border-color: var(--accent);
+	border-color: $accent;
 	background-color: var(--background);
-	height: 4rem;
+	height: 3rem;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	z-index: 10
+}
+
+.topbar-container-transparent {
+	border-bottom: 1px solid;
+	background-color: rgba($background, 0.5);
+	height: 3rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	z-index: 10
 }
 
 .explainable p {
@@ -536,3 +548,18 @@ ol {
     }
 }
   
+
+.content-container {
+	border: 1px solid;
+	border-color: $accent;
+}
+
+
+i.cabildo {
+	background-image: url(../../public/cabildo-icon-simple.svg);
+    background-size: 24px 24px; /* Set width and height */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    background-position: center; /* Center the image */
+    width: 24px; /* Set the container's width */
+    height: 24px; /* Set the container's height */
+}

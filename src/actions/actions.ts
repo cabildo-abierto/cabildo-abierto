@@ -39,7 +39,9 @@ export async function getContentById(id: string) {
 
 
 export async function getContentComments(id: string) {
+    console.log("getting content comments", id)
     return unstable_cache(async () => {
+        console.log("computing them", id)
         let content = await db.content.findUnique({
             select: {
                 childrenContents: {
@@ -63,7 +65,6 @@ export async function getContentComments(id: string) {
 
 
 export async function getEntityComments(id: string) {
-    console.log("getting entity comments", id)
     return unstable_cache(async () => {
         let versions = (await getEntityById(id)).versions
         let comments = []
@@ -314,10 +315,7 @@ export async function createComment(text: string, parentContentId: string, userI
     })
 
     if(parentEntityId){
-        console.log("revalidating comments of", parentEntityId)
         revalidateTag("comments:"+parentEntityId)
-    } else {
-        console.log("parent entity id is", parentEntityId)
     }
     revalidateTag("comments:"+parentContentId)
     return comment

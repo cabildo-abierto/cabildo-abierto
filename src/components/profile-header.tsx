@@ -42,7 +42,7 @@ export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user
         mutate("/api/user")
     }
 
-    return <div className="border rounded mt-2">
+    return <div className="content-container mt-2">
         <div className="flex justify-between">
         <div className="ml-2 py-2">
             <h3>
@@ -52,7 +52,7 @@ export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user
                 {addAt(profileUser.id)}
             </div>
         </div>
-        <div className="flex items-center mr-1">
+        <div className="flex items-center mr-2">
             {!isLoggedInUser &&
                 (following ? <button 
                     onClick={onUnfollow} 

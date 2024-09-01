@@ -37,7 +37,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         if(user.user){
             await createComment(text, contentId, user.user.id)
             mutate("/api/comments/"+contentId)
-            mutate("/api/entity-comments/"+entity.id)
+            if(entity)
+                mutate("/api/entity-comments/"+entity.id)
             setViewComments(true)
 
             // para que se resetee el contenido del editor
@@ -63,12 +64,12 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         />
         {isMainPage && <hr className="mt-12"/>}
         <div className={isMainPage ? "" : "ml-2"}>
-            {writingReply && <div className="py-1">
+            {writingReply && <div className="py-2">
                 {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 
                     <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
                 }
             </div>}
-            {viewComments && content.content && <div>
+            {viewComments && content.content && <div className="mt-2">
                 <CommentSection
                     content={content.content}
                     otherContents={entity ? entity.referencedBy : undefined}

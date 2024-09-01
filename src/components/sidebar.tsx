@@ -2,9 +2,6 @@ import React from "react";
 import { SidebarButton } from "./sidebar-button";
 import Link from "next/link";
 import { signOut } from "src/actions/auth";
-import HomeIcon from '@mui/icons-material/Home';
-import CreateIcon from '@mui/icons-material/Create';
-import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
@@ -14,6 +11,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useSWRConfig } from "swr";
 import StateButton from "./state-button";
 import { id2url } from "./content";
+import { CabildoIcon } from "./icons";
 
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
@@ -29,7 +27,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
         <div className="flex">
             <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--background)] border-r">
                 <div className="flex flex-col mt-4 px-2">
-                    <SidebarButton onClick={onClose} icon={<HomeIcon/>} text="Inicio" href="/inicio"/>
+                    <SidebarButton onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio"/>
                     <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
                     
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>

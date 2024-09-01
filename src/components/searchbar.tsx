@@ -34,7 +34,7 @@ export const SearchInput: React.FC<{onChange: (arg: string) => void}> = ({ onCha
 
   return <input
     ref={inputRef}
-    className="rounded-lg bg-[var(--background)] w-full transition duration-300 focus:outline-none"
+    className="bg-[var(--background)] w-full focus:outline-none"
     placeholder="buscar"
     onChange={(e) => {onChange(e.target.value)}}
   />
@@ -42,7 +42,7 @@ export const SearchInput: React.FC<{onChange: (arg: string) => void}> = ({ onCha
 
 
 const CloseSearchButton = ({ onClick }: any) => {
-  return <div className="text-l text-gray-900 px-1 py-2">
+  return <div className="text-l text-gray-900 px-1">
       <button className="topbar-btn" onClick={onClick}>
           <CloseIcon/>
       </button>

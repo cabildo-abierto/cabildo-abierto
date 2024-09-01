@@ -10,10 +10,8 @@ export const EntitySearchResult: React.FC<{entity: {id: string, name: string}}> 
             <button className="search-result">
                 <div className="flex w-full items-center">
                     <ArticleIcon/>
-                    <div className="text-center w-full">
-                        <div>
-                            {entity.name}
-                        </div>
+                    <div className="text-center w-full px-1">
+                        {entity.name}
                     </div>
                 </div>                  
             </button>
