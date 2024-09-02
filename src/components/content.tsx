@@ -14,7 +14,7 @@ import { PostOnFeed } from "./post-on-feed";
 import { useContent, useContentComments } from "src/app/hooks/contents";
 import { FastPost } from "./fast-post";
 import { Comment } from "./comment"
-import { ContentProps } from "src/app/lib/definitions";
+import { ContentProps, EntityProps } from "src/app/lib/definitions";
 import { ReactionButton } from "./reaction-button";
 import CommentIcon from '@mui/icons-material/Comment';
 import LoadingSpinner from "./loading-spinner";
@@ -130,15 +130,26 @@ export const Authorship = ({content, onlyAuthor=false}: any) => {
 
 type ContentComponentProps = {
     contentId: string
-    onViewComments: any
-    entity?: any
+    onViewComments: () => void
+    entity?: EntityProps
+    version?: number
     isPostPage?: boolean
     viewingComments: boolean
     onStartReply: () => void
+    showingChanges?: boolean
 }
 
 
-const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewComments, viewingComments, entity=null, isPostPage=false, onStartReply}) => {
+const ContentComponent: React.FC<ContentComponentProps> = ({
+    contentId,
+    onViewComments,
+    viewingComments,
+    entity,
+    version,
+    onStartReply,
+    isPostPage=false,
+    showingChanges=false
+}) => {
     const {content, isLoading, isError} = useContent(contentId)
     const {user} = useUser()
     const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
@@ -171,7 +182,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({contentId, onViewCom
     if(content.type == "Post" && isPostPage){
         element = <Post content={content}/>
     } else if(content.type == "EntityContent"){
-        element = <EntityComponent content={content} entity={entity}/>
+        element = <EntityComponent version={version} entity={entity} showingChanges={showingChanges}/>
     } else if(content.type == "Post"){
         element = <PostOnFeed content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
     } else if(content.type == "FastPost"){

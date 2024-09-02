@@ -33,8 +33,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({content, activeIDs, othe
         commentsAPI,
         fetcher
     )
-    console.log(commentsAPI)
-    console.log("comments", comments.data)
 
     let allIds: string[] = []
     try {

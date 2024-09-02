@@ -45,7 +45,7 @@ const EntityPage: React.FC<any> = ({ params }) => {
                     }
                     <div className="mb-32">
                         <WikiEditor
-                            contentId={entity.versions[currentVersion(entity)].id}
+                            version={currentVersion(entity)}
                             entity={entity}
                         />
                     </div>

@@ -250,12 +250,12 @@ ol {
 }
 
 .article-edit {
-	border: 1px solid var(--accent);
+	border-width: 1px;
 	border-radius: 4px;
 }
 
 .article-edit.selected {
-	border: 2px solid var(--accent);
+	border-width: 2px;
 }
 
 .panel {
@@ -562,4 +562,18 @@ i.cabildo {
     background-position: center; /* Center the image */
     width: 24px; /* Set the container's width */
     height: 24px; /* Set the container's height */
+}
+
+.custom-input {
+    display: block;
+    width: 100%;
+    border-radius: 0.375rem;
+    border-width: 1px;
+    padding: 9px 12px;
+    font-size: 0.875rem;
+    outline-width: 2px;
+}
+
+.custom-input::placeholder {
+    color: #6b7280;
 }

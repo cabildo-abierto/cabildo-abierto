@@ -21,6 +21,7 @@ import { ReactionButton } from "./reaction-button";
 import { LikeCounter } from "./like-counter";
 import { ViewsCounter } from "./views-counter";
 import { DateSince } from "./date";
+import EntityComponent from "./entity-component";
 
 
 export const ArticlePage = ({entityId, version}: {entityId: string, version?: number}) => {
@@ -28,6 +29,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
     const {entity, isLoading, isError} = useEntity(entityId)
     const [showingCategories, setShowingCategories] = useState(false)
     const [showingHistory, setShowingHistory] = useState(version !== undefined)
+    const [showingChanges, setShowingChanges] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
 
@@ -53,6 +55,14 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             text="Ver historial"
             setToggled={(v) => {setShowingHistory(v)}}
             toggled={showingHistory}
+        />
+    }
+
+    const ViewLastChangesButton = () => {
+        return <ToggleButton
+            text="Ver últimos cambios"
+            setToggled={(v) => {setShowingChanges(v)}}
+            toggled={showingChanges}
         />
     }
 
@@ -105,6 +115,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
             <ViewHistoryButton/>
             <ViewCategoriesButton/>
+            <ViewLastChangesButton/>
             <EditButton/>
             {(user.user && user.user.editorStatus == "Administrator") &&
             <div className="flex justify-center py-2">
@@ -127,6 +138,8 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         <ContentWithComments
             contentId={contentId}
             entity={entity} 
+            version={version}
+            showingChanges={showingChanges}
         />
     </div>
     
