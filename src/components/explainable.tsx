@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
+import Link from 'next/link';
 
 /*
 
@@ -36,10 +37,10 @@ export const Explainable = ({ text, content }: { text: string, content: ReactNod
       onMouseEnter={() => {setIsHovered(true); setWasHovered(true)}}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="hover:text-[var(--primary)] cursor-pointer fancy-text">
+      <Link href={"#"+text.replaceAll(" ", "_")} className="hover:text-[var(--primary)] cursor-pointer fancy-text">
         {text}
-      </div>
-      {isHovered && (
+      </Link>
+      {(isHovered && false) && (
         <div
           ref={panelRef}
           className="mt-1 absolute text-base border bg-white z-10 w-96 p-2 explainable"

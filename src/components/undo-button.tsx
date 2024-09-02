@@ -7,6 +7,7 @@ import { useUser } from 'src/app/hooks/user';
 import CloseIcon from '@mui/icons-material/Close';
 import { EntityProps } from 'src/app/lib/definitions';
 import { useContent } from 'src/app/hooks/contents';
+import { useSWRConfig } from 'swr';
 
 export function validExplanation(text: string) {
     return text.length > 0
@@ -17,6 +18,8 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
     const [explanation, setExplanation] = useState("")
     const [vandalism, setVandalism] = useState(false)
     const {content} = useContent(entity.versions[version].id)
+
+    const {mutate} = useSWRConfig()
 
     return createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -49,6 +52,8 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
                             onClick={async () => {
                                 if(user.user && content){
                                     await undoChange(entity.id, content.id, version, explanation)
+                                    mutate("/api/entity/"+entity.id)
+                                    mutate("/api/entities")
                                     onClose()
                                 }
                             }}
