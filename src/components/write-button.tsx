@@ -35,7 +35,7 @@ const Modal = ({ onClose }: { onClose: any }) => {
                     <h3>Nuevo artículo colaborativo</h3>
                     <div>
                         <input
-                            className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"
+                            className="custom-input"
                             value={entityName}
                             onChange={(e) => setEntityName(e.target.value)}
                             placeholder="Título"

@@ -58,7 +58,7 @@ export const PeriodoDePrueba = () => {
     </div>
 }
 
-const inputClassName = "peer block w-full rounded-md border py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
+const inputClassName = "custom-input"
 
 export const EmailInput = ({state}) => {
     const handleEmailInput = (e: any) => {

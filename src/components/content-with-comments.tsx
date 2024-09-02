@@ -1,38 +1,43 @@
 "use client"
 import CommentSection from "./comment-section"
-import ContentComponent from "./content"
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import { createComment } from "src/actions/actions"
 import dynamic from "next/dynamic"
 import { useUser } from "src/app/hooks/user"
 import { useSWRConfig } from "swr"
 import { EntityProps } from "src/app/lib/definitions"
 import { useContent } from "src/app/hooks/contents"
+import LoadingSpinner from "./loading-spinner"
+import ContentComponent from "./content"
 
 
 const CommentEditor = dynamic( () => import( 'src/components/editor/comment-editor' ), { ssr: false } );
 
 
 type ContentWithCommentsProps = {
-    contentId: string,
+    contentId?: string,
     entity?: EntityProps,
-    isPostPage?: boolean
+    version?: number,
+    isPostPage?: boolean,
+    showingChanges?: boolean
 }
 
-
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
-    contentId, entity, isPostPage=false}) => {
+    contentId,
+    entity,
+    version,
+    isPostPage=false,
+    showingChanges=false}) => {
     
     const {mutate} = useSWRConfig()
-    const content = useContent(contentId)
 
+    const content = useContent(contentId ? contentId : entity.versions[version].id)
     const user = useUser()
     const isEntity = entity !== undefined
     const startsOpen = isPostPage || isEntity
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
     
-
     const handleNewComment = async (text: string) => {
         if(user.user){
             await createComment(text, contentId, user.user.id)
@@ -56,11 +61,13 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     return <>
         <ContentComponent
             contentId={contentId}
-            onViewComments={() => {setViewComments(!viewComments)}}
             entity={entity}
+            version={version}
+            onViewComments={() => {setViewComments(!viewComments)}}
             isPostPage={isPostPage}
             viewingComments={viewComments}
             onStartReply={() => {setWritingReply(!writingReply)}}
+            showingChanges={showingChanges}
         />
         {isMainPage && <hr className="mt-12"/>}
         <div className={isMainPage ? "" : "ml-2"}>
@@ -69,12 +76,15 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
                     <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
                 }
             </div>}
-            {viewComments && content.content && <div className="mt-2">
+            {viewComments && (content.content ? 
+            <div className="mt-2">
                 <CommentSection
                     content={content.content}
                     otherContents={entity ? entity.referencedBy : undefined}
                 />
-            </div>}
+            </div> :
+                <LoadingSpinner/>
+            )}
         </div>
     </>
 }
