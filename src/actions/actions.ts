@@ -700,7 +700,7 @@ export const updateEntity = async (text: string, categories: string, entityId: s
   
 export const undoChange = async (entityId: string, contentId: string, versionNumber: number, message: string) => {
     const entity = await getEntityById(entityId)
-    if(entity && entity.versions.length-1 == versionNumber){
+    if(entity){
       await db.content.update({
           data: {
               isUndo: true,

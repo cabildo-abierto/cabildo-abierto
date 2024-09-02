@@ -49,8 +49,8 @@ export const PeriodoDePrueba = () => {
                 <div className="mr-2">
                     <ConstructionIcon fontSize="large" />
                 </div>
-                <div className="flex justify-center">
-                    Necesitás una clave para registrarte. <br/>
+                <div className="flex justify-center w-72">
+                    Por ahora necesitás una clave para registrarte.
                     Abrimos pronto :)
                 </div>
             </div>
