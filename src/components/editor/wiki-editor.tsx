@@ -29,29 +29,30 @@ type WikiEditorProps = {
 }
 
 
-const ChangesCounter = ({entity, version1, version2}: {entity: EntityProps, version1: number, version2: number}) => {
-    const content1 = useContent(entity.versions[Math.max(version1, 0)].id)
-    const content2 = useContent(entity.versions[version2].id)
+const ChangesCounter = ({id1, id2, editor}: {id1: string, id2?: string, editor?: LexicalEditor}) => {
+    const content1 = useContent(id1)
+    const content2 = useContent(id2 ? id2 : id1)
     if(content1.isLoading || content2.isLoading){
         return <></>
     }
-    if(version1 < 0){
-        return <div className="text-center">Estás viendo la primera versión del artículo.</div>
-    }
 
     const parsed1 = JSON.parse(content1.content.text)
-    const parsed2 = JSON.parse(content2.content.text)
+    let parsed2 = null
+    if(id2){
+        parsed2 = JSON.parse(content2.content.text)
+    } else {
+        parsed2 = JSON.parse(JSON.stringify(editor.getEditorState()))
+    }
 
     const {newNodes, removedNodes, matches} = diff(parsed1, parsed2)
-
     let removedChars = 0
     for(let i = 0; i < removedNodes.length; i++){
-        removedChars += getAllText(parsed1.root.children[i]).length
+        removedChars += getAllText(parsed1.root.children[removedNodes[i]]).length
     }
 
     let newChars = 0
     for(let i = 0; i < newNodes.length; i++){
-        newChars += getAllText(parsed2.root.children[i]).length
+        newChars += getAllText(parsed2.root.children[newNodes[i]]).length
     }
 
     return <div className="text-center">
@@ -109,7 +110,8 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false}: Wik
         isReadOnly: readOnly,
         content: content,
         isAutofocus: true,
-        placeholderClassName: ""
+        placeholderClassName: "",
+        showingChanges: (showingChanges && version > 0) ? entity.versions[version-1].id : undefined
     }
 
     let hasChanges = false
@@ -145,12 +147,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false}: Wik
     }
 
     return <>
-        {!readOnly && <div className="flex justify-end">
-            <Link href={"/articulo/"+entity.id} className="mr-2">
-                <button className="gray-btn">
-                    Volver
-                </button>
-            </Link>
+        {!readOnly && <div className="flex">
             <ToggleButton
                 className="mr-2 gray-btn flex items-center"
                 toggled={editingRoutes}
@@ -165,7 +162,14 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false}: Wik
             <RoutesEditor entity={entity}/>
         </div>}
 
-        {showingChanges && <ChangesCounter entity={entity} version1={version-1} version2={version}/>}
+        {showingChanges && readOnly && version > 0 && <ChangesCounter
+            id1={entity.versions[version-1].id}
+            id2={entity.versions[version].id}/>}
+        {showingChanges && readOnly && version == 0 && <div className="text-center">Estás viendo la primera versión</div>}
+        {showingChanges && !readOnly && editor && <ChangesCounter
+            id1={entity.versions[version].id}
+            editor={editor}
+        />}
         <div id="editor">
             <MyLexicalEditor
                 settings={settings}

@@ -20,6 +20,7 @@ type ContentWithCommentsProps = {
     version?: number,
     isPostPage?: boolean,
     showingChanges?: boolean
+    editing?: boolean
 }
 
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
@@ -27,7 +28,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     entity,
     version,
     isPostPage=false,
-    showingChanges=false}) => {
+    showingChanges=false,
+    editing=false}) => {
     
     const {mutate} = useSWRConfig()
 
@@ -68,6 +70,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             viewingComments={viewComments}
             onStartReply={() => {setWritingReply(!writingReply)}}
             showingChanges={showingChanges}
+            editing={editing}
         />
         {isMainPage && <hr className="mt-12"/>}
         <div className={isMainPage ? "" : "ml-2"}>

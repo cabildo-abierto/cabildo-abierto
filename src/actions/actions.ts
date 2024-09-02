@@ -39,9 +39,7 @@ export async function getContentById(id: string) {
 
 
 export async function getContentComments(id: string) {
-    console.log("getting content comments", id)
     return unstable_cache(async () => {
-        console.log("computing them", id)
         let content = await db.content.findUnique({
             select: {
                 childrenContents: {
@@ -72,7 +70,6 @@ export async function getEntityComments(id: string) {
             const versionComments = await getContentComments(versions[i].id)
             comments = [...comments, ...versionComments]
         }
-        console.log("result", comments)
         return comments
     }, ["comments", id], {tags: ["comments", "comments:"+id]})()
 }

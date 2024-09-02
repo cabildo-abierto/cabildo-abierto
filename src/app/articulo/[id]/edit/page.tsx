@@ -13,6 +13,7 @@ import { useEntity } from "src/app/hooks/entities";
 import { UserProps } from "src/app/lib/definitions";
 import { currentVersion } from "src/components/edit-history";
 import LoadingSpinner from "src/components/loading-spinner";
+import { ArticlePage } from "src/components/article-page";
 
 const WikiEditor = dynamic(() => import('src/components/editor/wiki-editor'), { ssr: false });
 
@@ -21,7 +22,14 @@ function hasEditPermissions(user: UserProps, level: string) {
     return user.editorStatus == "Administrator" || level != "Administrator"
 }
 
-const EntityPage: React.FC<any> = ({ params }) => {
+const EntityPage: React.FC<{
+    params: {id: string}
+}> = ({params}) => {
+
+    return <ArticlePage entityId={params.id}/>
+}
+
+/*const EntityPage: React.FC<any> = ({ params }) => {
     const {entity, isLoading, isError} = useEntity(params.id)
     const user = useUser()
 
@@ -43,10 +51,12 @@ const EntityPage: React.FC<any> = ({ params }) => {
                             <SetProtectionButton entity={entity} />
                         </div>
                     }
+                    
                     <div className="mb-32">
                         <WikiEditor
                             version={currentVersion(entity)}
                             entity={entity}
+                            showingChanges={true}
                         />
                     </div>
                 </>
@@ -89,6 +99,6 @@ const EntityPage: React.FC<any> = ({ params }) => {
             <ThreeColumnsLayout center={center} />
         </PaywallChecker>
     }
-}
+}*/
 
 export default EntityPage

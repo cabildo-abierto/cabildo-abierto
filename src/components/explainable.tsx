@@ -24,7 +24,6 @@ export const Explainable = ({ text, content }: { text: string, content: ReactNod
       const rect = panelRef.current.getBoundingClientRect()
       const viewportWidth = window.innerWidth
       const viewportHeight = window.innerHeight
-      console.log(rect.bottom, viewportHeight)
       if (rect.right > viewportWidth) {
         setPosition({ left: -(rect.right - viewportWidth + 10)}) // 10px padding to keep it within the viewport
       }

@@ -86,6 +86,7 @@ export function minMatch(nodes1, nodes2){
             if(!matched[j] && nodes1[i] == nodes2[j]){
                 matches.push({x: i, y: j})
                 matched[j] = true
+                break
             }
         }
     }
@@ -112,5 +113,10 @@ export function diff(prevState: any, state: any){
         }
     }
 
+    //console.log("nodes1", nodes1)
+    //console.log("nodes2", nodes2)
+    //console.log("newNodes", newNodes)
+    //console.log("removedNodes", removedNodes)
+    //console.log("matches", matches)
     return {matches: matches, newNodes: newNodes, removedNodes: removedNodes}
 }
