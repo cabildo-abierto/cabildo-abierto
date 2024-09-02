@@ -77,6 +77,7 @@ import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { ContentProps } from 'src/app/lib/definitions';
 import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalNodeReplacement, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 import { diff } from '../diff';
+import { ShowChangesPlugin } from './plugins/ShowChangesPlugin';
 
 
 export type SettingsProps = {
@@ -110,7 +111,8 @@ export type SettingsProps = {
   isAutofocus: boolean,
   editorClassName: string,
   content?: ContentProps | null,
-  placeholderClassName: string
+  placeholderClassName: string,
+  showingChanges?: string
 }
 
 
@@ -152,7 +154,8 @@ function Editor({ settings, setEditor, setOutput }:
     isAutofocus,
     editorClassName,
     content,
-    placeholderClassName
+    placeholderClassName,
+    showingChanges
   } = settings
 
   const isEditable = useLexicalEditable();
@@ -266,6 +269,7 @@ function Editor({ settings, setEditor, setOutput }:
             <CollapsiblePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
+            {showingChanges !== undefined && <ShowChangesPlugin withRespectToContentId={showingChanges}/>}
 
             {!isReadOnly && floatingAnchorElem && !isSmallWidthViewport && (
               <>

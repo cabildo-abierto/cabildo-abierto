@@ -27,6 +27,7 @@ import EntityComponent from "./entity-component";
 export const ArticlePage = ({entityId, version}: {entityId: string, version?: number}) => {
     const user = useUser()
     const {entity, isLoading, isError} = useEntity(entityId)
+    const [editing, setEditing] = useState(false)
     const [showingCategories, setShowingCategories] = useState(false)
     const [showingHistory, setShowingHistory] = useState(version !== undefined)
     const [showingChanges, setShowingChanges] = useState(false)
@@ -41,13 +42,12 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         return <ThreeColumnsLayout center={<NoEntityPage id={entityId}/>}/>
     }
     const EditButton = () => {
-        return <Link href={"/articulo/"+entity.id+"/edit"}>
-            <button
-                className="gray-btn"
-            >
-                Editar
-            </button>
-        </Link>
+        return <ToggleButton
+            text="Editar"
+            toggledText="Cancelar edición"
+            setToggled={(v) => {setEditing(v)}}
+            toggled={editing}
+        />
     }
 
     const ViewHistoryButton = () => {
@@ -135,12 +135,21 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             <EditHistory entity={entity} viewing={version}/>
         </div>
         }
-        <ContentWithComments
+        {editing && <ContentWithComments
             contentId={contentId}
             entity={entity} 
             version={version}
             showingChanges={showingChanges}
-        />
+            editing={true}
+        />}
+        {!editing && <ContentWithComments
+            contentId={contentId}
+            entity={entity} 
+            version={version}
+            showingChanges={showingChanges}
+            editing={false}
+        />}
+
     </div>
     
     if(entity.isPublic){

@@ -208,8 +208,6 @@ export default function CommentPlugin({parentContent}: {
       setShowCommentInput(false)
   }
 
-  console.log(activeAnchorKey !== null, activeAnchorKey !== undefined, !showCommentInput)
-  console.log(activeAnchorKey)
   return (
     <>
       {showCommentInput &&

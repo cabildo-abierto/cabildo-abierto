@@ -11,17 +11,19 @@ type EntityComponentProps = {
     version: number,
     entity: EntityProps,
     showingChanges?: boolean
+    editing?: boolean
 }
 
-const EntityComponent: React.FC<EntityComponentProps> = ({ entity, version, showingChanges = false}) => {
+const EntityComponent: React.FC<EntityComponentProps> = ({
+    entity, version, showingChanges=false, editing=false}) => {
 
     return <>
         <div className="px-2 min-h-64">
             <WikiEditor 
-                readOnly={true}
                 version={version}
                 entity={entity}
                 showingChanges={showingChanges}
+                readOnly={!editing}
             />
         </div>
     </>
