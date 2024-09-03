@@ -22,27 +22,25 @@ const EditButton = ({onClick, isEmpty}: {onClick: () => void, isEmpty: boolean})
 const DescriptionEditor = ({setEditing}: {setEditing: (arg0: boolean) => void}) => {
     const settings = {...commentEditorSettings}
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
+    const [changed, setChanged] = useState(false)
     const {user} = useUser()
     const {mutate} = useSWRConfig()
 
     settings.placeholder = "Tu descripción personal..."
 
-    function onSubmit() {
-        if(editor && editorOutput){
-            editorOutput.read(async () => {
-                await updateDescription(JSON.stringify(editorOutput), user.id)
-                mutate("/api/user/"+user.id)
-            })
+    async function onSubmit() {
+        if(editor){
+            await updateDescription(JSON.stringify(editor.getEditorState()), user.id)
+            mutate("/api/user/"+user.id)
+            setEditing(false)
         }
-        setEditing(false)
     }
 
     return <div>
         <MyLexicalEditor
             settings={settings}
             setEditor={setEditor}
-            setOutput={setEditorOutput}
+            setChanged={setChanged}
         />
         <div className="flex justify-end px-1 mb-1">
             <button className="small-btn mr-1" onClick={() => {setEditing(false)}}>Cancelar</button>

@@ -75,7 +75,6 @@ export async function getEntityComments(id: string) {
 }
 
 
-
 export const getFeed = unstable_cache(async () => {
     let feed = await db.content.findMany({
         select: {
@@ -782,7 +781,9 @@ export async function getEntityById(id: string) {
                         categories: true,
                         isUndo: true,
                         undoMessage: true,
-                        createdAt: true
+                        createdAt: true,
+                        text: true,
+                        authorId: true
                     },
                     orderBy: {
                         createdAt: "asc"

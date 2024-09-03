@@ -11,15 +11,16 @@ import { createFakeNewsReport } from 'src/actions/actions';
 
 import dynamic from 'next/dynamic'
 import { RedFlag } from './icons';
-const LexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
+import { LexicalEditor } from 'lexical';
+const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
 
 
 const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string }) => {
     const user = useUser();
     const { mutate } = useSWRConfig();
     const router = useRouter();
-    const [editor, setEditor] = useState()
-    const [output, setOutput] = useState()
+    const [editor, setEditor] = useState<LexicalEditor | undefined>()
+    const [changed, setChanged] = useState(false)
 
     let settings = {...commentEditorSettings}
     settings.placeholder = "Elaborá tus argumentos. Explicá por qué creés que la información es falsa y citá tu fuente."
@@ -38,17 +39,17 @@ const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string 
                 <div className="space-y-3 px-6 pb-6">
                     <h3>Reportando información falsa</h3>
                     <div className="border rounded p-1">
-                        <LexicalEditor
+                        <MyLexicalEditor
                             settings={settings}
-                            setOutput={setOutput}
+                            setChanged={setChanged}
                             setEditor={setEditor}
                         />
                     </div>
                     <div className="py-4">
                         <StateButton
                             onClick={async () => {
-                                if(user.user){
-                                    await createFakeNewsReport(JSON.stringify(output), contentId, user.user.id)
+                                if(user.user && editor){
+                                    await createFakeNewsReport(JSON.stringify(editor.getEditorState()), contentId, user.user.id)
                                     
                                     mutate("/api/comments/"+contentId)
                                     onClose()

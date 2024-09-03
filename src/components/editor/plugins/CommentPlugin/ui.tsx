@@ -40,7 +40,7 @@ export function CommentInputBox({
   submitAddComment: () => void;
 }) {
   const [commentEditor, setCommentEditor] = useState<LexicalEditor | undefined>(undefined)
-  const [commentEditorState, setCommentEditorState] = useState<EditorState | undefined>(undefined)
+  const [commentEditorChanged, setCommentEditorChanged] = useState(false)
   const user = useUser()
   const boxRef = useRef<HTMLDivElement>(null);
   const {mutate} = useSWRConfig()
@@ -138,7 +138,7 @@ export function CommentInputBox({
   }, [updateLocation]);
 
   const submitComment = async () => {
-    if (!emptyOutput(commentEditorState) && user) {
+    if (!emptyOutput(editor.getEditorState()) && user) {
         let quote = editor.getEditorState().read(() => {
             const selection = selectionRef.current;
             return selection ? selection.getTextContent() : '';
@@ -215,7 +215,7 @@ export function CommentInputBox({
         <MyLexicalEditor
             settings={settings}
             setEditor={setCommentEditor}
-            setOutput={setCommentEditorState}
+            setChanged={setCommentEditorChanged}
         />
       </div>
       <div className="flex justify-between py-2">
@@ -226,7 +226,7 @@ export function CommentInputBox({
         </Button>
         <Button
           onClick={submitComment}
-          disabled={emptyOutput(commentEditorState) || !user}
+          disabled={emptyOutput(editor.getEditorState()) || !user}
           className="gray-btn w-full ml-1">
           Comentar
         </Button>

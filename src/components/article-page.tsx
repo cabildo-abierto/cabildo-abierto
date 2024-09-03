@@ -31,6 +31,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
     const [showingCategories, setShowingCategories] = useState(false)
     const [showingHistory, setShowingHistory] = useState(version !== undefined)
     const [showingChanges, setShowingChanges] = useState(false)
+    const [showingAuthors, setShowingAuthors] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
 
@@ -45,7 +46,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         return <ToggleButton
             text="Editar"
             toggledText="Cancelar edición"
-            setToggled={(v) => {setEditing(v)}}
+            setToggled={(v) => {setEditing(v); if(v) {setShowingChanges(false); setShowingAuthors(false)}}}
             toggled={editing}
         />
     }
@@ -60,9 +61,17 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
 
     const ViewLastChangesButton = () => {
         return <ToggleButton
-            text="Ver últimos cambios"
-            setToggled={(v) => {setShowingChanges(v)}}
+            text="Ver cambios"
+            setToggled={(v) => {setShowingChanges(v); if(v) {setEditing(false); setShowingAuthors(false)}}}
             toggled={showingChanges}
+        />
+    }
+
+    const ViewAuthorsButton = () => {
+        return <ToggleButton
+            text="Ver autores"
+            setToggled={(v) => {setShowingAuthors(v); if(v) {setEditing(false); setShowingChanges(false)}}}
+            toggled={showingAuthors}
         />
     }
 
@@ -100,22 +109,33 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         <h1 className="ml-2 py-8">
             {entity.name}
         </h1>
-        <div className="flex justify-between items-center">
-            <div>
-                <span>Últ. actualización</span> <DateSince date={lastUpdated}/>
-            </div>
-            <div className="flex">
-            <ViewsCounter contentId={contentId}/>
-            <span className="px-1 flex items-center">Te sirvió el artículo?</span>
-            <LikeCounter
-                contentId={contentId}
-            />
+        <div className="flex justify-between">
+            <div className="flex flex-col link ml-2">
+                <span>
+                    Últ. actualización <DateSince date={lastUpdated}/>
+                </span>
+                {version != entity.versions.length-1 && <>
+                    <span className="">Estás viendo la versión {version} (publicada <DateSince date={entity.versions[version].createdAt}/>)</span>
+                    <Link href={"/articulo/"+entityId}>Ir a la versión actual</Link>
+                    </>
+                }
+
+                </div>
+            <div className="flex flex-col items-end">
+                <div className="border rounded p-1 flex">
+                    <span className="px-1 flex items-center">Te sirvió el artículo?</span>
+                    <LikeCounter
+                        contentId={contentId}
+                    />
+                    </div>
+                <ViewsCounter contentId={contentId}/>
             </div>
         </div>
         <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
             <ViewHistoryButton/>
             <ViewCategoriesButton/>
             <ViewLastChangesButton/>
+            <ViewAuthorsButton/>
             <EditButton/>
             {(user.user && user.user.editorStatus == "Administrator") &&
             <div className="flex justify-center py-2">
@@ -140,6 +160,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             entity={entity} 
             version={version}
             showingChanges={showingChanges}
+            showingAuthors={showingAuthors}
             editing={true}
         />}
         {!editing && <ContentWithComments
@@ -147,6 +168,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             entity={entity} 
             version={version}
             showingChanges={showingChanges}
+            showingAuthors={showingAuthors}
             editing={false}
         />}
 
