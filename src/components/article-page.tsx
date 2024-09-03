@@ -17,11 +17,11 @@ import StateButton from "./state-button";
 import { useRouter } from "next/navigation";
 import { deleteEntity } from "src/actions/actions";
 import LoadingSpinner from "./loading-spinner";
-import { ReactionButton } from "./reaction-button";
 import { LikeCounter } from "./like-counter";
 import { ViewsCounter } from "./views-counter";
 import { DateSince } from "./date";
-import EntityComponent from "./entity-component";
+import { ShowContributors } from "./show-contributors";
+
 
 
 export const ArticlePage = ({entityId, version}: {entityId: string, version?: number}) => {
@@ -130,6 +130,9 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
                     </div>
                 <ViewsCounter contentId={contentId}/>
             </div>
+        </div>
+        <div className="ml-2">
+            <ShowContributors entity={entity} version={version}/>
         </div>
         <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
             <ViewHistoryButton/>

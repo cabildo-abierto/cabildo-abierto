@@ -649,23 +649,23 @@ i.cabildo {
 
 .author {
     position: relative;
-    border-left-width: 4px;
-    border-left-style: solid;
-    border-color: $primary;
-    padding-left: 4px;
 }
 
 .author::before {
     content: var(--author-name, "Autor");
     position: absolute;
-    left: -83px;
+	right: 100%;
+	margin-right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    background-color: $primary;
-    color: white;
+    background-color: transparent;
+    color: $text;
     padding: 2px 4px;
     border-radius: 3px;
     font-size: 12px;
-	width: 75px;
 	text-align: center;
+	height: 24px;
+	border-width: 1px;
+	border-color: $accent;
+    width: calc(20px + 6.8px * var(--authors-width)); /* Increase height on hover */
 }

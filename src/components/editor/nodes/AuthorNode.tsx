@@ -23,7 +23,7 @@ import type {
   
   export type SerializedAuthorNode = Spread<
     {
-      author: string;
+      authors: string[];
     },
     SerializedElementNode
   >;
@@ -31,14 +31,14 @@ import type {
   /** @noInheritDoc */
   export class AuthorNode extends ElementNode {
     /** @internal */
-    __author: string;
+    __authors: string[];
   
     static getType(): string {
       return 'author';
     }
   
     static clone(node: AuthorNode): AuthorNode {
-      return new AuthorNode(node.__author, node.__key);
+      return new AuthorNode(node.__authors, node.__key);
     }
   
     static importDOM(): null {
@@ -46,7 +46,7 @@ import type {
     }
   
     static importJSON(serializedNode: SerializedAuthorNode): AuthorNode {
-      const node = $createAuthorNode(serializedNode.author);
+      const node = $createAuthorNode(serializedNode.authors);
       node.setFormat(serializedNode.format);
       node.setIndent(serializedNode.indent);
       node.setDirection(serializedNode.direction);
@@ -56,21 +56,23 @@ import type {
     exportJSON(): SerializedAuthorNode {
       return {
         ...super.exportJSON(),
-        author: this.getauthor(),
+        authors: this.getAuthors(),
         type: 'author',
         version: 1,
       };
     }
   
-    constructor(author: string, key?: NodeKey) {
+    constructor(authors: string[], key?: NodeKey) {
       super(key);
-      this.__author = author || "";
+      this.__authors = authors || [];
     }
   
     createDOM(config: EditorConfig): HTMLElement {
       const element = document.createElement('div');
       addClassNamesToElement(element, "author")
-      element.style.setProperty('--author-name', `"@${this.__author}"`);
+      const authorsStr = this.__authors.map((a) => ("@"+a)).join(" ")
+      element.style.setProperty('--author-name', `"${authorsStr}"`);
+      element.style.setProperty('--authors-width', `${authorsStr.length}`);
       return element;
     }
   
@@ -79,22 +81,22 @@ import type {
       element: HTMLElement,
       config: EditorConfig,
     ): boolean {
-      const prevauthor = prevNode.__author;
-      const nextauthor = this.__author;
+      const prevauthor = prevNode.__authors;
+      const nextauthor = this.__authors;
         
       return false;
     }
 
-    getauthor(): string {
+    getAuthors(): string[] {
       const self = this.getLatest();
-      return $isAuthorNode(self) ? self.__author : "";
+      return $isAuthorNode(self) ? self.__authors : [];
     }
   
     insertNewAfter(
       selection: RangeSelection,
       restoreSelection = true,
     ): null | ElementNode {
-      const AuthorNode = $createAuthorNode(this.__author);
+      const AuthorNode = $createAuthorNode(this.__authors);
       this.insertAfter(AuthorNode, restoreSelection);
       return AuthorNode;
     }
@@ -143,7 +145,7 @@ import type {
     }
   }
   
-  export function $createAuthorNode(author: string): AuthorNode {
+  export function $createAuthorNode(author: string[]): AuthorNode {
     return $applyNodeReplacement(new AuthorNode(author));
   }
   
