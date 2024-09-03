@@ -77,6 +77,7 @@ import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { ContentProps } from 'src/app/lib/definitions';
 import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalNodeReplacement, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 import { DiffNode } from './nodes/DiffNode';
+import { AuthorNode } from './nodes/AuthorNode';
 
 
 export type SettingsProps = {
@@ -338,7 +339,8 @@ const LexicalEditor = ({ settings, setEditor, setChanged }: LexicalEditorProps) 
             return new CustomMarkNode(node.getIDs());
         }
       },
-      DiffNode
+      DiffNode,
+      AuthorNode
     ],
     onError: (error: Error) => {
       throw error;

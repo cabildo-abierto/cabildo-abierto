@@ -21,7 +21,7 @@ type PostEditorProps = {
 
 const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: PostEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
+    const [changed, setChanged] = useState(false)
     const router = useRouter()
     const [title, setTitle] = useState(initialTitle)
 
@@ -60,22 +60,18 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
     }
 
     async function handleSubmit(){
-        if(editor && editorOutput){
-            editorOutput.read(async () => {
-                await onSubmit(JSON.stringify(editorOutput), "Post", title)
-                router.push("/")
-            })
+        if(editor){
+            await onSubmit(JSON.stringify(editor.getEditorState()), "Post", title)
+            router.push("/")
         }
 	}
 
     async function handleSaveDraft(){
-        if(editor && editorOutput){
-            editorOutput.read(async () => {
-                await onSaveDraft(JSON.stringify(editorOutput), "Post", title)
-                router.push("/borradores")
-            })
+        if(editor){
+            await onSaveDraft(JSON.stringify(editor.getEditorState()), "Post", title)
+            router.push("/borradores")
         }
-	}
+    }
 
 	const PublishButton = ({onClick}: any) => {
         return <StateButton
@@ -83,7 +79,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
             className="gray-btn"
             text1="Publicar"
             text2="Publicando..."
-            disabled={emptyOutput(editorOutput) || title.length == 0}
+            disabled={emptyOutput(editor.getEditorState()) || title.length == 0}
         />
 	}
 
@@ -93,7 +89,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
             className="gray-btn"
             text1="Guardar borrador"
             text2="Guardando..."
-            disabled={emptyOutput(editorOutput) || title.length == 0}
+            disabled={emptyOutput(editor.getEditorState()) || title.length == 0}
         />
 	}
 
@@ -123,7 +119,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
             <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}
-                setOutput={setEditorOutput}
+                setChanged={setChanged}
             />
         </div>
     </div>

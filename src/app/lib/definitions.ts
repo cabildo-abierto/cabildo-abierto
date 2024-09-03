@@ -29,7 +29,15 @@ export type EntityProps = {
     name: string
     protection: string
     isPublic: boolean,
-    versions: {id: string, categories: string, isUndo: boolean, undoMessage: string, createdAt: string | Date}[]
+    versions: {
+        id: string,
+        categories: string,
+        isUndo: boolean,
+        undoMessage: string,
+        createdAt: string | Date,
+        text: string,
+        authorId: string
+    }[]
     referencedBy: SmallContentProps[]
 }
 

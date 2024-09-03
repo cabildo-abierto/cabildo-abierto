@@ -58,7 +58,7 @@ const ReadOnlyEditor = ({
     return <MyLexicalEditor
         settings={settings}
         setEditor={() => {}}
-        setOutput={() => {}}
+        setChanged={() => {}}
     />
 }
 

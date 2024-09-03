@@ -69,7 +69,6 @@ function lcs(s1: any[], s2: any[]) {
     let i = s1.length-1;
     let j = s2.length-1;
     while(i >= 0 && j >= 0){
-        console.log(i, j)
         if(s1[i] == s2[j]){
             common.push({x: i, y: j})
             i--
@@ -88,14 +87,16 @@ function lcs(s1: any[], s2: any[]) {
 }
 
 
-export function diff(prevState: any, state: any){
-    const nodes1 = prevState.root.children.map(getAllText)
-    const nodes2 = state.root.children.map(getAllText)
-
+export function diff(prevState: any[], state: any[]){
+    const nodes1 = prevState.map(getAllText)
+    const nodes2 = state.map(getAllText)
     const common: {x: number, y: number}[] = lcs(nodes1, nodes2)
 
     let matches: {x: number, y: number}[] = minMatch(nodes1, nodes2)
 
+    let perfectMatches = matches.filter(({x, y}) => {
+        return nodes1[x] == nodes2[y]
+    })
     /*matches = matches.filter(({x, y}) => {
         const d = charDiff(nodes1[x], nodes2[y]).total
         const maxDist = nodes1[x].length + nodes2.length 
@@ -116,5 +117,5 @@ export function diff(prevState: any, state: any){
         }
     }
 
-    return {common: common, matches: matches}
+    return {common: common, matches: matches, perfectMatches: perfectMatches}
 }

@@ -137,6 +137,7 @@ type ContentComponentProps = {
     viewingComments: boolean
     onStartReply: () => void
     showingChanges?: boolean
+    showingAuthors?: boolean
     editing?: boolean
 }
 
@@ -150,6 +151,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     onStartReply,
     isPostPage=false,
     showingChanges=false,
+    showingAuthors=false,
     editing=false
 }) => {
     const {content, isLoading, isError} = useContent(contentId)
@@ -185,7 +187,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
         element = <Post content={content}/>
     } else if(content.type == "EntityContent"){
         element = <EntityComponent
-            version={version} entity={entity} showingChanges={showingChanges} editing={editing}/>
+            version={version} entity={entity} showingChanges={showingChanges} editing={editing} showingAuthors={showingAuthors}/>
     } else if(content.type == "Post"){
         element = <PostOnFeed content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
     } else if(content.type == "FastPost"){

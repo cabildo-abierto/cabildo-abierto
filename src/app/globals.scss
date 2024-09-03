@@ -646,3 +646,26 @@ i.cabildo {
 	width: 75px;
 	text-align: center;
 }
+
+.author {
+    position: relative;
+    border-left-width: 4px;
+    border-left-style: solid;
+    border-color: $primary;
+    padding-left: 4px;
+}
+
+.author::before {
+    content: var(--author-name, "Autor");
+    position: absolute;
+    left: -83px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: $primary;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 12px;
+	width: 75px;
+	text-align: center;
+}

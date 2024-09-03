@@ -14,7 +14,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData=null}:
     {onSubmit?: any, onSaveDraft?: any, initialData?: InitialEditorStateType}
 ) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
+    const [changed, setChanged] = useState(false)
     const router = useRouter()
 
     const isDevPlayground = false
@@ -52,20 +52,16 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData=null}:
     }
 
     async function handleSubmit(){
-        if(editor && editorOutput){
-            editorOutput.read(async () => {
-                await onSubmit(JSON.stringify(editorOutput), "FastPost")
-                router.push("/")
-            })
+        if(editor){
+            await onSubmit(JSON.stringify(editor.getEditorState()), "FastPost")
+            router.push("/")
         }
 	}
 
     async function handleSaveDraft(){
-        if(editor && editorOutput){
-            editorOutput.read(async () => {
-                await onSaveDraft(JSON.stringify(editorOutput), "FastPost")
-                router.push("/borradores")
-            })
+        if(editor){
+            await onSaveDraft(JSON.stringify(editor.getEditorState()), "FastPost")
+            router.push("/borradores")
         }
 	}
 
@@ -75,7 +71,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData=null}:
             className="gray-btn"
             text1="Publicar"
             text2="Publicando..."
-            disabled={emptyOutput(editorOutput)}
+            disabled={!changed}
         />
 	}
 
@@ -85,7 +81,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData=null}:
             className="gray-btn"
             text1="Guardar borrador"
             text2="Guardando..."
-            disabled={emptyOutput(editorOutput)}
+            disabled={!changed}
         />
 	}
 
@@ -111,7 +107,7 @@ const FastEditor = ({onSubmit, onSaveDraft, initialData=null}:
             <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}
-                setOutput={setEditorOutput}
+                setChanged={setChanged}
             />
         </div>
     </div>

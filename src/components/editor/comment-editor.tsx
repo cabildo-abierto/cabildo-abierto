@@ -93,7 +93,7 @@ type CommentEditorProps = {
 
 const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
+    const [changed, setChanged] = useState(false)
     const user = useUser()
 
     if(user.isLoading){
@@ -102,11 +102,9 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     
 
     async function handleSubmit(){
-        if(editor && editorOutput){
-            editorOutput.read(async () => {
-                await onSubmit(JSON.stringify(editorOutput))
-                editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined)
-            })
+        if(editor){
+            await onSubmit(JSON.stringify(editor.getEditorState()))
+            editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined)
         }
 	}
 
@@ -116,7 +114,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
             className="small-btn"
             text1="Enviar"
             text2="Enviando..."
-            disabled={emptyOutput(editorOutput)}
+            disabled={!changed}
         />
 	}
 
@@ -125,7 +123,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
             <MyLexicalEditor
             settings={commentEditorSettings}
             setEditor={setEditor}
-            setOutput={setEditorOutput}/>
+            setChanged={setChanged}/>
         </div>
         <div className="flex justify-end">
 			<div className="flex justify-end mt-3">
