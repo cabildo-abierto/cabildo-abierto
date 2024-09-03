@@ -16,7 +16,8 @@ import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
 import LoadingSpinner from "../loading-spinner"
 import { SettingsProps } from "src/components/editor/lexical-editor"
-import { diff, getAllText } from "../diff"
+import { charDiff, diff, getAllText } from "../diff"
+import { SerializedDiffNode } from "./nodes/DiffNode"
 const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
 
 
@@ -44,15 +45,30 @@ const ChangesCounter = ({id1, id2, editor}: {id1: string, id2?: string, editor?:
         parsed2 = JSON.parse(JSON.stringify(editor.getEditorState()))
     }
 
-    const {newNodes, removedNodes, matches} = diff(parsed1, parsed2)
     let removedChars = 0
-    for(let i = 0; i < removedNodes.length; i++){
-        removedChars += getAllText(parsed1.root.children[removedNodes[i]]).length
+    let newChars = 0
+    const {common, matches} = diff(parsed1, parsed2)
+    for(let i = 0; i < parsed1.root.children.length; i++){
+        if(!matches.some(({x, y}) => (i == x))){
+            removedChars += getAllText(parsed1.root.children[i]).length
+            console.log("unmatched", getAllText(parsed1.root.children[i]))
+        }
     }
 
-    let newChars = 0
-    for(let i = 0; i < newNodes.length; i++){
-        newChars += getAllText(parsed2.root.children[newNodes[i]]).length
+    for(let i = 0; i < parsed2.root.children.length; i++){
+        if(!matches.some(({x, y}) => (i == y))){
+            newChars += getAllText(parsed2.root.children[i]).length
+            console.log("unmatched", getAllText(parsed2.root.children[i]))
+        }
+    }
+
+    for(let i = 0; i < matches.length; i++){
+        const node1 = getAllText(parsed1.root.children[matches[i].x])
+        const node2 = getAllText(parsed2.root.children[matches[i].y])
+        const matchDiff = charDiff(node1, node2)
+        console.log("from match", node1, node2, matchDiff)
+        removedChars += matchDiff.deletions
+        newChars += matchDiff.insertions
     }
 
     return <div className="text-center">
@@ -60,10 +76,59 @@ const ChangesCounter = ({id1, id2, editor}: {id1: string, id2?: string, editor?:
     </div>
 }
 
+function showChanges(initialData: string, withRespectToContent: string){
+    const parsed1 = JSON.parse(withRespectToContent)
+    const parsed2 = JSON.parse(initialData)
+    const {common, matches} = diff(parsed1, parsed2)
+    
+    function newDiffNode(kind: string, childNode){
+        const diffNode: SerializedDiffNode = {
+            children: [childNode],
+            type: "diff",
+            kind: kind,
+            direction: 'ltr',
+            version: childNode.version,
+            format: 'left',
+            indent: 0
+        }
+        return diffNode
+    }
+
+    let i = 0
+    let j = 0
+    let newChildren = []
+    for(let k = 0; k < common.length; k++){
+        const {x, y} = common[k]
+        while(i < x){
+            newChildren.push(newDiffNode("removed", parsed1.root.children[i]))
+            i++
+        }
+        while(j < y){
+            newChildren.push(newDiffNode("new", parsed2.root.children[j]))
+            j++
+        }
+        newChildren.push(newDiffNode("no dif", parsed1.root.children[x]))
+        i++
+        j++
+    }
+    while(i < parsed1.root.children.length){
+        newChildren.push(newDiffNode("removed", parsed1.root.children[i]))
+        i++
+    }
+    while(j < parsed2.root.children.length){
+        newChildren.push(newDiffNode("new", parsed2.root.children[j]))
+        j++
+    }
+    parsed2.root.children = newChildren
+    console.log("new children", newChildren)
+    const r = JSON.stringify(parsed2)
+    return r
+}
+
 const WikiEditor = ({entity, version, readOnly=false, showingChanges=false}: WikiEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [editorOutput, setEditorOutput] = useState<EditorState | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
+    const [changed, setChanged] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
     
@@ -71,10 +136,11 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false}: Wik
     
     const contentId = entity.versions[version].id
     const {content, isLoading, isError} = useContent(contentId)
-    if(isLoading || user.isLoading){
+    const changesContent = useContent(showingChanges && version > 0 ? entity.versions[version-1].id : contentId)
+    if(isLoading || user.isLoading || changesContent.isLoading){
         return <LoadingSpinner/>
     }
-    if(!content || isError){
+    if(!content || isError || !changesContent){
         return <></>
     }
     
@@ -111,19 +177,11 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false}: Wik
         content: content,
         isAutofocus: true,
         placeholderClassName: "",
-        showingChanges: (showingChanges && version > 0) ? entity.versions[version-1].id : undefined
     }
 
-    let hasChanges = false
-    
-    if(editor && content){
-        editorOutput?.read(() => {
-            const current = JSON.stringify(editor.getEditorState())
-            if(current != content.text){
-                hasChanges = true
-            }
-        })
-    }
+    const settingsChanges = {...settings}
+    if(showingChanges)
+        settingsChanges.initialData = showChanges(content.text, changesContent.content.text)
 
     const SaveEditButton = () => {
         return <StateButton
@@ -131,8 +189,8 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false}: Wik
             text1="Guardar edición"
             text2="Guardando..."
             onClick={async () => {
-                if(editor && editorOutput){
-                    editorOutput.read(async () => {
+                if(editor){
+                    editor.read(async () => {
                         if(content.categories && user.user){
                             await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user.id)
                             mutate("/api/entities")
@@ -142,7 +200,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false}: Wik
                     })
                 }
             }}
-            disabled={!hasChanges}
+            disabled={!changed}
         />
     }
 
@@ -161,7 +219,6 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false}: Wik
         <div className="py-4">
             <RoutesEditor entity={entity}/>
         </div>}
-
         {showingChanges && readOnly && version > 0 && <ChangesCounter
             id1={entity.versions[version-1].id}
             id2={entity.versions[version].id}/>}
@@ -171,14 +228,18 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false}: Wik
             editor={editor}
         />}
         <div id="editor">
-            <MyLexicalEditor
+            {!showingChanges && <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}
-                setOutput={setEditorOutput}
-            />
+                setChanged={setChanged}
+            />}
+            {showingChanges && <MyLexicalEditor
+                settings={settingsChanges}
+                setEditor={setEditor}
+                setChanged={setChanged}
+            />}
         </div>
     </>
 }
-
 
 export default WikiEditor

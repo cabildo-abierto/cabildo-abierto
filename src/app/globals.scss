@@ -577,3 +577,72 @@ i.cabildo {
 .custom-input::placeholder {
     color: #6b7280;
 }
+
+.diffNew {
+    position: relative;
+    border-left-width: 4px;
+    border-left-style: solid;
+    border-color: green;
+    padding-left: 4px;
+}
+
+.diffNew::before {
+    content: "Nuevo";
+    position: absolute;
+    left: -83px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: green;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 12px;
+	width: 75px;
+	text-align: center;
+}
+
+.diffRemoved {
+    position: relative;
+    border-left-width: 4px;
+    border-left-style: solid;
+    border-color: red;
+    padding-left: 4px;
+}
+
+.diffRemoved::before {
+    content: "Eliminado";
+    position: absolute;
+    left: -83px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: red;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 12px;
+	width: 75px;
+	text-align: center;
+}
+
+.diffModified {
+    position: relative;
+    border-left-width: 4px;
+    border-left-style: solid;
+    border-color: orange;
+    padding-left: 4px;
+}
+
+.diffModified::before {
+    content: "Modificado";
+    position: absolute;
+    left: -83px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: orange;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 12px;
+	width: 75px;
+	text-align: center;
+}

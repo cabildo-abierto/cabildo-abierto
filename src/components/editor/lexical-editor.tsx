@@ -76,8 +76,7 @@ import {MarkNode} from '@lexical/mark';
 import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { ContentProps } from 'src/app/lib/definitions';
 import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalNodeReplacement, LexicalEditor as OriginalLexicalEditor } from 'lexical';
-import { diff } from '../diff';
-import { ShowChangesPlugin } from './plugins/ShowChangesPlugin';
+import { DiffNode } from './nodes/DiffNode';
 
 
 export type SettingsProps = {
@@ -119,12 +118,12 @@ export type SettingsProps = {
 type LexicalEditorProps = {
   settings: SettingsProps,
   setEditor: any,
-  setOutput: any,
+  setChanged: any,
   contentId?: string
 }
 
 
-function Editor({ settings, setEditor, setOutput }: 
+function Editor({ settings, setEditor, setChanged }: 
   LexicalEditorProps): JSX.Element {
   const { historyState } = useSharedHistoryContext();
   const [editor] = useLexicalComposerContext()
@@ -155,7 +154,7 @@ function Editor({ settings, setEditor, setOutput }:
     editorClassName,
     content,
     placeholderClassName,
-    showingChanges
+    initialData
   } = settings
 
   const isEditable = useLexicalEditable();
@@ -213,16 +212,11 @@ function Editor({ settings, setEditor, setOutput }:
 
         <OnChangePlugin
           onChange={(editorState) => {
-            setOutput(editorState)
             setEditor(editor)
 
-            /*editorState.read(async () => {
-              const initialState = JSON.parse(content.text)
-              const parsedState = JSON.parse(JSON.stringify(editorState))
-              console.log("current state", parsedState)
-              console.log("initial state", initialState)
-              console.log("DIFF", diff(initialState, parsedState))
-            })*/
+            if(JSON.stringify(editorState) != initialData){
+                setChanged(true)
+            }
           }}
         />
         <EmojisPlugin />
@@ -269,7 +263,6 @@ function Editor({ settings, setEditor, setOutput }:
             <CollapsiblePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
-            {showingChanges !== undefined && <ShowChangesPlugin withRespectToContentId={showingChanges}/>}
 
             {!isReadOnly && floatingAnchorElem && !isSmallWidthViewport && (
               <>
@@ -322,9 +315,9 @@ const initializeEmpty = (editor: OriginalLexicalEditor) => {
     })
 }
 
-const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) => {
-  let {isReadOnly, initialData} = settings
-  
+const LexicalEditor = ({ settings, setEditor, setChanged }: LexicalEditorProps) => {
+  let {isReadOnly, initialData, showingChanges} = settings
+
   if(typeof initialData === 'string'){
       try {
           JSON.parse(initialData)
@@ -332,8 +325,6 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) =
           initialData = initializeEmpty
       }
   }
-  
-
   const initialConfig: InitialConfigType = {
     namespace: 'Playground',
     editorState: initialData,
@@ -346,7 +337,8 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) =
         with: (node: MarkNode) => {
             return new CustomMarkNode(node.getIDs());
         }
-      }
+      },
+      DiffNode
     ],
     onError: (error: Error) => {
       throw error;
@@ -362,7 +354,7 @@ const LexicalEditor = ({ settings, setEditor, setOutput }: LexicalEditorProps) =
             <Editor
               settings={settings}
               setEditor={setEditor}
-              setOutput={setOutput}
+              setChanged={setChanged}
             />
           </div>
         </TableContext>
