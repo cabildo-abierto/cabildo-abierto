@@ -83,13 +83,14 @@ function lcs(s1: any[], s2: any[]) {
             j--
         }
     }
-    return common;
+    return common.reverse();
 }
 
 
 export function diff(prevState: any[], state: any[]){
     const nodes1 = prevState.map(getAllText)
     const nodes2 = state.map(getAllText)
+
     const common: {x: number, y: number}[] = lcs(nodes1, nodes2)
 
     let matches: {x: number, y: number}[] = minMatch(nodes1, nodes2)
@@ -118,4 +119,34 @@ export function diff(prevState: any[], state: any[]){
     }
 
     return {common: common, matches: matches, perfectMatches: perfectMatches}
+}
+
+
+export function nodesCharDiff(nodes1, nodes2) {
+    const {common, matches} = diff(nodes1, nodes2)
+
+    let removedChars = 0
+    let newChars = 0
+    for(let i = 0; i < nodes1.length; i++){
+        if(!matches.some(({x, y}) => (i == x))){
+            removedChars += getAllText(nodes1[i]).length
+        }
+    }
+
+    for(let i = 0; i < nodes2.length; i++){
+        if(!matches.some(({x, y}) => (i == y))){
+            newChars += getAllText(nodes2[i]).length
+        }
+    }
+
+    for(let i = 0; i < matches.length; i++){
+        if(matches[i]){
+            const node1 = getAllText(nodes1[matches[i].x])
+            const node2 = getAllText(nodes2[matches[i].y])
+            const matchDiff = charDiff(node1, node2)
+            removedChars += matchDiff.deletions
+            newChars += matchDiff.insertions
+        }
+    }
+    return {newChars: newChars, removedChars: removedChars}
 }

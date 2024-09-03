@@ -15,7 +15,7 @@ import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
 import LoadingSpinner from "../loading-spinner"
 import { SettingsProps } from "src/components/editor/lexical-editor"
-import { diff } from "../diff"
+import { diff, getAllText } from "../diff"
 import { SerializedDiffNode } from "./nodes/DiffNode"
 import { ChangesCounter } from "../changes-counter"
 import { SerializedAuthorNode } from "./nodes/AuthorNode"
@@ -80,7 +80,7 @@ function showChanges(initialData: string, withRespectToContent: string){
     return r
 }
 
-function editorStateFromJSON(text: string){
+export function editorStateFromJSON(text: string){
     let res = null
     try {
         res = JSON.parse(text)
@@ -91,11 +91,11 @@ function editorStateFromJSON(text: string){
 }
 
 function showAuthors(entity: EntityProps, version: number){
-    function newAuthorNode(author: string, childNode){
+    function newAuthorNode(authors: string[], childNode){
         const authorNode: SerializedAuthorNode = {
             children: [childNode],
             type: "author",
-            author: author,
+            authors: authors,
             direction: 'ltr',
             version: childNode.version,
             format: 'left',
@@ -115,20 +115,38 @@ function showAuthors(entity: EntityProps, version: number){
         const parsedVersion = editorStateFromJSON(entity.versions[i].text)
         if(!parsedVersion) continue
         const nodes = parsedVersion.root.children
-        const {perfectMatches} = diff(prevNodes, nodes)
-        let authors = []
+        const {matches} = diff(prevNodes, nodes)
+        console.log("version", i)
+        console.log("prevNodes", prevNodes)
+        console.log("prevAuthors", prevAuthors)
+        console.log("nodes", nodes)
+        console.log("matches", matches)
+        const versionAuthor = entity.versions[i].authorId
+        let nodeAuthors: string[] = []
         for(let j = 0; j < nodes.length; j++){
-            let author = null
-            for(let k = 0; k < perfectMatches.length; k++){
-                if(perfectMatches[k].y == j){
-                    author = prevAuthors[perfectMatches[k].x]
+            let authors = null
+            for(let k = 0; k < matches.length; k++){
+                if(matches[k] && matches[k].y == j){
+                    const prevNodeAuthors = prevAuthors[matches[k].x]
+                    if(getAllText(prevNodes[matches[k].x]) == getAllText(nodes[matches[k].y])){
+                        console.log(j, "is perfect match")
+                        authors = prevNodeAuthors
+                    } else {
+                        console.log(j, "is imperfect match")
+                        if(!prevNodeAuthors.includes(versionAuthor)){
+                            authors = [...prevNodeAuthors, versionAuthor]
+                        } else {
+                            authors = prevNodeAuthors
+                        }
+                    }
                     break
                 }
             }
-            if(!author) author = entity.versions[i].authorId
-            authors.push(author)
+            if(authors === null) authors = [versionAuthor]
+            nodeAuthors.push(authors)
         }
-        prevAuthors = [...authors]
+        console.log("authors", nodeAuthors)
+        prevAuthors = [...nodeAuthors]
         prevNodes = [...nodes]
     }
     const newChildren = []
