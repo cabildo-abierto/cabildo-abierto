@@ -42,6 +42,9 @@ export type EntityProps = {
 }
 
 
+export type ContributionsArray = [string, number][][]
+
+
 export type SmallEntityProps = {
     id: string,
     name: string,
@@ -118,4 +121,17 @@ export type LoadingEntities = {
     entities: EntityProps[]
     isLoading: boolean
     isError: boolean
+}
+
+
+export type UserStats = {
+    posts: number
+    entityEdits: number
+    editedEntities: number
+    reactionsInPosts: number
+    reactionsInEntities: number
+    income: number
+    entityAddedChars: number
+    viewsInPosts: number
+    viewsInEntities: number
 }

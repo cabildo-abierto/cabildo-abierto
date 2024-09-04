@@ -55,7 +55,7 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
 
     return <>
         {false && <div className="flex items-center">
-            <h3 className="flex ml-2 py-4 mr-1">Artículos colaborativos</h3>
+            <h3 className="flex ml-2 py-4 mr-1">Artículos públicos</h3>
             <InfoPanel text="Artículos informativos que cualquier usuario puede editar."/>
         </div>}
         {routeEntities.length > 0 ? 

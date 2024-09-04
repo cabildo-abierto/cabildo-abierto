@@ -5,7 +5,9 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { ContentType } from "@prisma/client";
 import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
-import { ContentProps, EntityProps } from "src/app/lib/definitions";
+import { ContentProps, EntityProps, UserStats } from "src/app/lib/definitions";
+import { nodesCharDiff } from "src/components/diff";
+import { sumFromFirstEdit } from "src/components/utils";
 
 
 export async function getContentById(id: string) {
@@ -367,6 +369,8 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
     revalidateTag("feed")
     revalidateTag("followingFeed")
     revalidateTag("profileFeed:"+userId)
+    if(postType == "Post")
+        revalidateTag("userContents:"+userId)
     return result
 }
 
@@ -498,6 +502,38 @@ export const getUserById = (userId: string) => {
 }
 
 
+export const getUserContents = (userId: string) => {
+    return unstable_cache(async () => {
+        console.log("computing them")
+        const contents = (await db.user.findUnique(
+            {
+                select: {
+                    contents: {
+                        select: {
+                            id: true,
+                            type: true,
+                            parentEntityId: true
+                        },
+                        where: {
+                            type: {
+                                in: ["Post", "EntityContent"]
+                            }
+                        },
+                        orderBy: {
+                            createdAt: "desc"
+                        }
+                    },
+                },
+                where: {
+                    id: userId
+                }
+            }
+        )).contents
+
+        return contents ? contents : undefined
+    }, ["userContents", userId], {tags: ["userContents:"+userId]})()    
+}
+
 
 export const getUserIdByAuthId = (authId: string) => {
     return unstable_cache(async () => {
@@ -517,13 +553,18 @@ export const getUserIdByAuthId = (authId: string) => {
 
 
 export async function getUser() {
-    const userAuthId = await getUserAuthId()
-    if(!userAuthId) return undefined
-
-    const userId = await getUserIdByAuthId(userAuthId)
+    const userId = await getUserId()
     if(!userId) return undefined
 
     return await getUserById(userId)
+}
+
+
+export async function getUserId() {
+    const userAuthId = await getUserAuthId()
+    if(!userAuthId) return undefined
+
+    return await getUserIdByAuthId(userAuthId)
 }
 
 
@@ -538,7 +579,7 @@ export async function getUserAuthId() {
 }
 
 
-export const addLike = async (id: string, userId: string) => {
+export const addLike = async (id: string, userId: string, entityId?: string) => {
     const exists = await db.reaction.findFirst({
         where: {
             userById: userId,
@@ -555,12 +596,14 @@ export const addLike = async (id: string, userId: string) => {
     }
     revalidateTag("reactions:"+id)
     revalidateTag("userLikesContent:"+id+":"+userId)
+    if(entityId)
+        revalidateTag("entityReactions:"+entityId)
     const likeCount = await getContentReactions(id)
     return [true, likeCount]
 }
 
 
-export const removeLike = async (id: string, userId: string) => {
+export const removeLike = async (id: string, userId: string, entityId?: string) => {
     await db.reaction.deleteMany({
         where: { 
             AND: [
@@ -571,6 +614,8 @@ export const removeLike = async (id: string, userId: string) => {
     })
     revalidateTag("reactions:"+id)
     revalidateTag("userLikesContent:"+id+":"+userId)
+    if(entityId)
+        revalidateTag("entityReactions:"+entityId)
     const likeCount = await getContentReactions(id)
     return [false, likeCount]
 }
@@ -678,7 +723,7 @@ export async function createEntity(name: string, userId: string){
 }
   
   
-export const updateEntity = async (text: string, categories: string, entityId: string, userId: string) => {
+export const updateEntity = async (text: string, categories: string, entityId: string, userId: string, changingContent: boolean) => {
     await db.content.create({
         data: {
             text: text,
@@ -691,6 +736,8 @@ export const updateEntity = async (text: string, categories: string, entityId: s
 
     revalidateTag("entity:"+entityId)
     revalidateTag("entities")
+    revalidateTag("userContents:"+userId)
+    revalidateTag("entityContributions:"+entityId)
 }
   
   
@@ -816,3 +863,138 @@ export const getCategories = cache(async () => {
     })
     return entities.map(({categories}) => (categories))
 }, ["categories"], {tags: ["categories"]})
+
+
+export async function getEntityContributions(id: string) {
+    function editorStateFromJSON(text: string){
+        let res = null
+        try {
+            res = JSON.parse(text)
+        } catch {
+    
+        }
+        return res
+    }
+
+    return unstable_cache(async () => {
+        const entity = await getEntityById(id)
+        if(!entity) return null
+
+        const charsContributed: Map<string, number>[] = Array.from({length: entity.versions.length}, (_, i) => new Map<string, number>())
+        let prevNodes = []
+        for(let i = 0; i < entity.versions.length; i++){
+            const parsedVersion = editorStateFromJSON(entity.versions[i].text)
+            if(!parsedVersion) continue
+
+            const nodes = parsedVersion.root.children
+            const {newChars} = nodesCharDiff(prevNodes, nodes)
+
+            const author = entity.versions[i].authorId
+            
+            if(i > 0){
+                charsContributed[i] = new Map<string, number>(charsContributed[i-1])
+            }
+
+            if(charsContributed[i].has(author)){
+                charsContributed[i].set(author, charsContributed[i].get(author) + newChars)
+            } else {
+                charsContributed[i].set(author, newChars)
+            }
+
+            prevNodes = [...nodes]
+        }
+        
+        return charsContributed.map((m) => Array.from(m))
+
+    }, ["entityContributions", id], {tags: ["entityContributions", "entityContributions:"+id]})()
+}
+
+
+export async function getEntityReactions(id: string) {
+    return unstable_cache(async () => {
+        const entity = await getEntityById(id)
+        if(!entity) return null
+
+        const reactions = await Promise.all(entity.versions.map(async (content) => {return await getContentReactions(content.id)}))
+
+        return reactions
+    }, ["entityReactions", id], {tags: ["entityReactions", "entityReactions:"+id]})()
+}
+
+
+export async function getEntityViews(id: string) {
+    return unstable_cache(async () => {
+        const entity = await getEntityById(id)
+        if(!entity) return null
+
+        const views = await Promise.all(entity.versions.map(async (content) => {return await getContentViews(content.id)}))
+
+        return views
+    }, ["entityViews", id], {tags: ["entityViews", "entityViews:"+id]})()
+}
+
+
+export async function getUserStats(userId: string) {
+    return unstable_cache(async () => {
+        const userContents = await getUserContents(userId)
+
+        let entityEdits = 0
+        let editedEntitiesIds = new Set()
+        const postsIds = []
+        userContents.forEach((content) => {
+            if(content.type == "EntityContent"){
+                entityEdits ++
+                if(content.parentEntityId)
+                    editedEntitiesIds.add(content.parentEntityId)
+            } else if(content.type == "Post"){
+                postsIds.push(content.id)
+            }
+        })
+
+        const postReactions = await Promise.all(postsIds.map(getContentReactions))
+        const entityContributions = await Promise.all(Array.from(editedEntitiesIds).map(getEntityContributions))
+
+        function arraySum(a: any[]) {
+            return a.reduce((acc, curr) => acc + curr, 0)
+        }
+
+        function getAddedChars(entityContrArray: [string, number][][]){
+            const lastVersion = entityContrArray[entityContrArray.length-1]
+            for(let i = 0; i < lastVersion.length; i++){
+                if(lastVersion[i][0] === userId){
+                    return lastVersion[i][1]
+                }
+            }
+        }
+
+        async function getReactionsFromFirstEdit(entityId: string){
+            const reactions = await getEntityReactions(entityId)
+            const entity = await getEntityById(entityId)
+            return sumFromFirstEdit(reactions, entity, userId)
+        }
+
+        async function getViewsFromFirstEdit(entityId: string){
+            const views = await getEntityViews(entityId)
+            const entity = await getEntityById(entityId)
+            return sumFromFirstEdit(views, entity, userId)
+        }
+
+        const entityReactions = await Promise.all(Array.from(editedEntitiesIds).map(getReactionsFromFirstEdit))
+        
+        const postViews = await Promise.all(postsIds.map(getContentViews))
+        const entityViews = await Promise.all(Array.from(editedEntitiesIds).map(getViewsFromFirstEdit))
+
+        const stats: UserStats = {
+            posts: postsIds.length,
+            entityEdits: entityEdits,
+            editedEntities: editedEntitiesIds.size,
+            reactionsInPosts: arraySum(postReactions),
+            reactionsInEntities: arraySum(entityReactions),
+            income: 0,
+            entityAddedChars: arraySum(entityContributions.map(getAddedChars)),
+            viewsInPosts: arraySum(postViews),
+            viewsInEntities: arraySum(entityViews)
+        }
+        return stats
+    }, ["userStats", userId], {tags: ["userStats:"+userId]})()    
+}

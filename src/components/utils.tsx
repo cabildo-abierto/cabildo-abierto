@@ -49,3 +49,17 @@ export const entityLastVersionId = (entity: EntityProps) => {
     return entity.versions[entity.versions.length-1].id
     assert(false)
 }
+
+
+export function sumFromFirstEdit(values: number[], entity: EntityProps, userId: string) {
+    let total = 0
+    let firstEdit = 0
+    for(let i = 0; i < entity.versions.length; i++){
+        if(entity.versions[i].authorId == userId){
+            firstEdit = i
+            break
+        }
+    }
+    for(let i = firstEdit; i < values.length; i++) total += values[i]
+    return total
+}

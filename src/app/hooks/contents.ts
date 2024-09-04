@@ -1,6 +1,6 @@
 import useSWR from "swr"
 import { SmallContentProps } from "../api/feed/route"
-import { ContentProps } from "../lib/definitions"
+import { ContentProps, UserStats } from "../lib/definitions"
 import { fetcher } from "./utils"
 
 
@@ -75,6 +75,17 @@ export function useReactions(id: string): {reactions: number, isLoading: boolean
   
     return {
         reactions: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/user-stats', fetcher)
+  
+    return {
+        stats: data,
         isLoading,
         isError: error
     }
