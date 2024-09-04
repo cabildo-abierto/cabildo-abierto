@@ -3,34 +3,46 @@
 import MyLexicalEditor, { SettingsProps } from "./lexical-editor"
 import { useState } from "react"
 import StateButton from "../state-button"
-import { EditorState, LexicalEditor } from "lexical"
-import { emptyOutput } from "./comment-editor"
+import { $getRoot, EditorState, LexicalEditor } from "lexical"
+import { emptyOutput, hasChanged, validFastPost } from "./comment-editor"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { TitleInput } from "./title-input"
 import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 import { useSWRConfig } from "swr"
 import { useUser } from "src/app/hooks/user"
+import { createPost, publishDraft, updateContent } from "src/actions/actions"
 
 type PostEditorProps = {
-    onSubmit: any,
-    onSaveDraft: any,
-    initialData?: InitialEditorStateType,
+    initialData?: string,
     initialTitle?: string
+    isFast?: boolean
+    isDraft?: boolean
+    contentId?: string
 }
 
-const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: PostEditorProps) => {
+
+const PostEditor = ({
+    initialData=null,
+    initialTitle="", 
+    isFast=false,
+    isDraft=false,
+    contentId
+}: PostEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [changed, setChanged] = useState(false)
+    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
     const [title, setTitle] = useState(initialTitle)
+    const [submitting, setSubmitting] = useState(false)
+    const {user} = useUser()
+    const {mutate} = useSWRConfig()
 
-    const isDevPlayground = false
     const settings: SettingsProps = {
         disableBeforeInput: false,
-        emptyEditor: isDevPlayground,
+        emptyEditor: false,
         isAutocomplete: false,
-        isCharLimit: false,
+        isCharLimit: true,
+        charLimit: isFast ? 281 : undefined,
         isCharLimitUtf8: false,
         isCollab: false,
         isMaxLength: false,
@@ -44,7 +56,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
         tableCellBackgroundColor: false,
         tableCellMerge: false,
         showActions: false,
-        showToolbar: true,
+        showToolbar: !isFast,
         isComments: false,
         isDraggableBlock: true,
         useSuperscript: false,
@@ -60,18 +72,44 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
     }
 
     async function handleSubmit(){
-        if(editor){
-            await onSubmit(JSON.stringify(editor.getEditorState()), "Post", title)
+        if(editor && user){
+            setSubmitting(true)
+            const text = JSON.stringify(editor.getEditorState())
+            const type = isFast ? "FastPost" : "Post"
+            if(!isDraft){ 
+                createPost(text, type, isDraft, user.id, !isFast ? title : undefined)
+            } else {
+                publishDraft(text, contentId, user.id, !isFast ? title : undefined)
+                mutate("/api/content/"+contentId)
+                mutate("/api/drafts/"+user.id)
+            }
+            mutate("/api/feed")
+            mutate("/api/profile-feed/"+user.id)
             router.push("/")
         }
 	}
 
     async function handleSaveDraft(){
-        if(editor){
-            await onSaveDraft(JSON.stringify(editor.getEditorState()), "Post", title)
+        if(editor && user){
+            setSubmitting(true)
+            const text = JSON.stringify(editor.getEditorState())
+            const type = isFast ? "FastPost" : "Post"
+            if(!isDraft){
+                await createPost(text, type, true, user.id, !isFast ? title : undefined)
+            } else {
+                await updateContent(text, contentId, title)
+                await mutate("/api/content/" + contentId)
+            }
+            mutate("/api/drafts")
             router.push("/borradores")
         }
     }
+
+    let disabled = !editor || 
+        emptyOutput(editorState) ||
+        (!isFast && title.length == 0) ||
+        (isFast && !validFastPost(editorState, settings.charLimit)) ||
+        (isDraft && !hasChanged(editorState, initialData)) || submitting
 
 	const PublishButton = ({onClick}: any) => {
         return <StateButton
@@ -79,7 +117,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
             className="gray-btn"
             text1="Publicar"
             text2="Publicando..."
-            disabled={emptyOutput(editor.getEditorState()) || title.length == 0}
+            disabled={disabled}
         />
 	}
 
@@ -89,7 +127,7 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
             className="gray-btn"
             text1="Guardar borrador"
             text2="Guardando..."
-            disabled={emptyOutput(editor.getEditorState()) || title.length == 0}
+            disabled={disabled}
         />
 	}
 
@@ -112,14 +150,14 @@ const PostEditor = ({onSubmit, onSaveDraft, initialData=null, initialTitle=""}: 
                 <SaveDraftButton onClick={handleSaveDraft}/>
 			</div>
 		</div>
-        <div className="mt-4 ml-4">
-        <TitleInput onChange={setTitle} title={title}/>
-        </div>
-        <div className="mt-4">
+        {!isFast && <div className="mt-4 ml-4">
+            <TitleInput onChange={setTitle} title={title}/>
+        </div>}
+        <div className={isFast ? "mt-12" : "mt-4"}>
             <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}
-                setChanged={setChanged}
+                setEditorState={setEditorState}
             />
         </div>
     </div>

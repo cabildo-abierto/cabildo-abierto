@@ -11,8 +11,8 @@ const ActiveSubscription: React.FC = () => {
     if(poolSize.isLoading){
         return <LoadingSpinner/>
     }
-    return <div>
-        <div className="text-gray-700 flex items-center justify-center border w-96 mx-auto p-4">
+    return <div className="flex flex-col items-center">
+        <div className="text-gray-700 flex items-center justify-center border w-96 p-4">
             <div className="mr-2">
                 <CheckCircleOutlineIcon fontSize="large" />
             </div>
@@ -21,17 +21,16 @@ const ActiveSubscription: React.FC = () => {
             </div>
         </div>
 
-        <div className="flex justify-center py-8">
-            <p className="text-gray-900">Hay <span className="font-bold">{poolSize.poolSize}</span> suscripciones disponibles en el sitio.</p>
+        <div className="flex flex-col items-center text-center mt-8 w-96 px-2">
+            <p>Hay <span className="font-bold">{poolSize.poolSize}</span> suscripciones gratuitas disponibles.</p>
+            <p className="py-4">Si te gusta la plataforma y querés que más personas participen, podés ayudar donando suscripciones.</p>
         </div>
 
-        <div className="flex justify-center py-8">
-            <div className="w-1/2 flex justify-center">
-                <SubscriptionOptionButton
-                    title="Donar suscripciones"
-                    description="Para hacer crecer la discusión"
-                    href="/suscripciones/donar"
-                />
+        <div className="flex justify-center mt-8">
+            <div className="flex justify-center">
+                <button className="gray-btn font-bold w-32 h-12 mb-8">
+                    <span className="">Donar</span>
+                </button>
             </div>
         </div>
     </div>

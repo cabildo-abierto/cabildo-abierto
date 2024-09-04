@@ -3,14 +3,17 @@ import { getDonatedSubscription, getSubscriptionPoolSize } from "src/actions/sub
 import StateButton from "./state-button"
 import { useUser } from "src/app/hooks/user"
 import { useRouter } from "next/navigation"
+import { useSWRConfig } from "swr"
 
 
 export const FreeSubscriptionButton = () => {
     const {user} = useUser()
     const router = useRouter()
+    const {mutate} = useSWRConfig()
     const handlePayment = async () => {
         if(user){
             await getDonatedSubscription(user.id)
+            await mutate("/api/user")
             router.push("/suscripciones")
         }
     }

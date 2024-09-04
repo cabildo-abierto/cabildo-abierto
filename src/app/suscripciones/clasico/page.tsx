@@ -28,7 +28,7 @@ export default function PlanClasico() {
                 <div className="py-2">
                     <SubscriptionOptionButton
                         title="Pago único"
-                        description="Sin compromisos"
+                        description="Pagá un solo mes. Sin compromisos."
                         href={"/suscripciones/clasico/pago-unico"}
                     />
                 </div>
@@ -36,7 +36,7 @@ export default function PlanClasico() {
                 <div className="py-2">
                 <SubscriptionOptionButton
                     title="Pago automático"
-                    description={"Próximamente"/*"Poné la tarjeta (o cualquier medio de pago) y olvidate."*/}
+                    description={"Próximamente."/*"Poné la tarjeta (o cualquier medio de pago) y olvidate."*/}
                     disabled={true}
                     href={"/suscripciones/clasico/pago-automatico"}
                 />

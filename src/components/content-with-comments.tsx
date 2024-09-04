@@ -22,6 +22,7 @@ type ContentWithCommentsProps = {
     showingChanges?: boolean
     editing?: boolean
     showingAuthors?: boolean
+    setEditing?: (arg0: boolean) => void
 }
 
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
@@ -31,7 +32,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     isPostPage=false,
     showingChanges=false,
     showingAuthors=false,
-    editing=false}) => {
+    editing=false,
+    setEditing}) => {
     
     const {mutate} = useSWRConfig()
 
@@ -74,6 +76,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             showingChanges={showingChanges}
             showingAuthors={showingAuthors}
             editing={editing}
+            setEditing={setEditing}
         />
         {isMainPage && <hr className="mt-12"/>}
         <div className={isMainPage ? "" : "ml-2"}>
@@ -83,12 +86,12 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
                 }
             </div>}
             {viewComments && (content.content ? 
-            <div className="mt-2">
-                <CommentSection
-                    content={content.content}
-                    otherContents={entity ? entity.referencedBy : undefined}
-                />
-            </div> :
+            <CommentSection
+                content={content.content}
+                otherContents={entity ? entity.referencedBy : undefined}
+                setWritingReply={setWritingReply}
+                writingReply={writingReply}
+            /> :
                 <LoadingSpinner/>
             )}
         </div>

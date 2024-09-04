@@ -19,6 +19,7 @@ import { diff, getAllText } from "../diff"
 import { SerializedDiffNode } from "./nodes/DiffNode"
 import { ChangesCounter } from "../changes-counter"
 import { SerializedAuthorNode } from "./nodes/AuthorNode"
+import { hasChanged } from "./comment-editor"
 const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
 
 
@@ -29,6 +30,7 @@ type WikiEditorProps = {
     readOnly?: boolean,
     showingChanges?: boolean
     showingAuthors?: boolean
+    setEditing: (arg0: boolean) => void
 }
 
 
@@ -116,11 +118,6 @@ function showAuthors(entity: EntityProps, version: number){
         if(!parsedVersion) continue
         const nodes = parsedVersion.root.children
         const {matches} = diff(prevNodes, nodes)
-        console.log("version", i)
-        console.log("prevNodes", prevNodes)
-        console.log("prevAuthors", prevAuthors)
-        console.log("nodes", nodes)
-        console.log("matches", matches)
         const versionAuthor = entity.versions[i].authorId
         let nodeAuthors: string[] = []
         for(let j = 0; j < nodes.length; j++){
@@ -159,10 +156,10 @@ function showAuthors(entity: EntityProps, version: number){
 }
 
 const WikiEditor = ({
-    entity, version, readOnly=false, showingChanges=false, showingAuthors=false}: WikiEditorProps) => {
+    entity, version, readOnly=false, showingChanges=false, showingAuthors=false, setEditing}: WikiEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
-    const [changed, setChanged] = useState(false)
+    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
     const {mutate} = useSWRConfig()
     
@@ -238,18 +235,27 @@ const WikiEditor = ({
                     })
                 }
             }}
-            disabled={!changed}
+            disabled={!editorState || !hasChanged(editorState, content.text)}
+        />
+    }
+    
+    const CancelEditButton = () => {
+        return <StateButton
+            text1="Cancelar edición"
+            onClick={() => {setEditing(false)}}
+            className="gray-btn"
         />
     }
 
     return <>
-        {!readOnly && <div className="flex">
+        {!readOnly && <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
             <ToggleButton
-                className="mr-2 gray-btn flex items-center"
+                className="gray-btn"
                 toggled={editingRoutes}
                 setToggled={setEditingRoutes}
                 text="Editar categorías"
             />
+            <CancelEditButton/>
             <SaveEditButton/>
         </div>}
 
@@ -269,17 +275,17 @@ const WikiEditor = ({
             {!showingChanges && !showingAuthors && <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}
-                setChanged={setChanged}
+                setEditorState={setEditorState}
             />}
             {showingChanges && <MyLexicalEditor
                 settings={settingsChanges}
                 setEditor={setEditor}
-                setChanged={setChanged}
+                setEditorState={setEditorState}
             />}
             {showingAuthors && <MyLexicalEditor
                 settings={settingsAuthors}
                 setEditor={setEditor}
-                setChanged={setChanged}
+                setEditorState={setEditorState}
             />}
         </div>
     </>

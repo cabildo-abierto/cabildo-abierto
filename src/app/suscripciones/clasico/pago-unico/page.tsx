@@ -2,8 +2,8 @@ import { BuyClassicPlanButton } from "src/components/buy-classic-plan-button";
 import { ThreeColumnsLayout } from "src/components/three-columns";
 import { getSubscriptionPrice } from "src/components/utils";
 
-export default async function PlanClasicoPagoUnico() {
-    const price = await getSubscriptionPrice()
+export default function PlanClasicoPagoUnico() {
+    const price = getSubscriptionPrice()
 
     const center = <>
         <div className="flex justify-center mt-16">Acá ingresarías tu método de pago si lo hubiéramos implementado.</div>

@@ -35,7 +35,7 @@ const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
                 <div key={index} className="p-1">
                     <EntitySearchResult entity={entity.entity}/>
                 </div>
-            )) : <NoResults/>}
+            )) : <NoResults text="No se encontró ningún artículo."/>}
         </div>
     </div>
 }

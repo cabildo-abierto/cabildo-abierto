@@ -6,24 +6,29 @@ import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import StateButton from './state-button';
-import { commentEditorSettings } from './editor/comment-editor';
+import { commentEditorSettings, emptyOutput } from './editor/comment-editor';
 import { createFakeNewsReport } from 'src/actions/actions';
 
 import dynamic from 'next/dynamic'
 import { RedFlag } from './icons';
-import { LexicalEditor } from 'lexical';
+import { EditorState, LexicalEditor } from 'lexical';
 const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
+
+
+function validFakeNewsReport(editorState: EditorState) {
+    return editorState && !emptyOutput(editorState)
+}
 
 
 const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string }) => {
     const user = useUser();
     const { mutate } = useSWRConfig();
     const router = useRouter();
-    const [editor, setEditor] = useState<LexicalEditor | undefined>()
-    const [changed, setChanged] = useState(false)
+    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
+    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
 
     let settings = {...commentEditorSettings}
-    settings.placeholder = "Elaborá tus argumentos. Explicá por qué creés que la información es falsa y citá tu fuente."
+    settings.placeholder = "Explicá por qué creés que la publicación incluye información falsa. Tené en cuenta que hacer un reporte sin justificarlo puede ser sancionado."
     settings.editorClassName = "min-h-[200px]"
     settings.placeholderClassName = "text-left"
 
@@ -41,7 +46,7 @@ const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string 
                     <div className="border rounded p-1">
                         <MyLexicalEditor
                             settings={settings}
-                            setChanged={setChanged}
+                            setEditorState={setEditorState}
                             setEditor={setEditor}
                         />
                     </div>
@@ -58,6 +63,7 @@ const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string 
                             className="gray-btn w-64"
                             text1="Confirmar"
                             text2="Enviando..."
+                            disabled={validFakeNewsReport(editorState)}
                         />
                     </div>
                 </div>
@@ -68,12 +74,12 @@ const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string 
 };
 
 export const ContentOptionsDropdown = ({onFlagFalse}: {onFlagFalse: () => void}) => {
-    return <button className="sidebar-btn" onClick={onFlagFalse}>
-        <div className="flex">
-            <RedFlag/> <span className="ml-2">Esta publicación contiene información falsa</span>
+    return <button className="py-2 hover:bg-[var(--secondary-light)] px-2 rounded" onClick={onFlagFalse}>
+        <div className="flex items-center">
+            <RedFlag/> <span className="ml-2">Reportar que incluye información falsa</span>
         </div>
     </button>
-};
+}
 
 export const ContentOptionsButton = ({contentId}: {contentId: string}) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -144,7 +150,7 @@ export const ContentOptionsButton = ({contentId}: {contentId: string}) => {
         {isDropdownOpen && (
             <div
                 ref={dropdownRef}
-                className="absolute text-base border rounded bg-[var(--background)] z-10 w-96 p-2 mt-1"
+                className="absolute text-base border rounded bg-[var(--background)] z-10 w-64 p-2 mt-1"
                 style={{ ...position }}
             >
                 <ContentOptionsDropdown onFlagFalse={onFlagFalse}/>

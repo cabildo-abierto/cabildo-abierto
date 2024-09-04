@@ -17,7 +17,7 @@ const DonationInput: React.FC<any> = ({onChange, oneForYou=true}) => {
 
   return (
     <div className="flex flex-col items-center">
-      <label htmlFor="integer-input" className="mb-2 text-lg font-medium text-gray-700">
+      <label htmlFor="integer-input" className="mb-2 font-medium text-gray-700">
         {"Elegí una cantidad" + (oneForYou ? " (al menos 2, una es para vos)" : "")}
       </label>
       <input

@@ -17,6 +17,8 @@ export function CommentsPanel({
             content={parentContent}
             activeIDs={activeIDs}
             onlyQuotes={true}
+            writingReply={false}
+            setWritingReply={(arg0: boolean) => {}}
         />
     </div>
 }

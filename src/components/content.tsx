@@ -11,14 +11,14 @@ import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
 import EntityComponent from "src/components/entity-component";
 import { PostOnFeed } from "./post-on-feed";
-import { useContent, useContentComments } from "src/app/hooks/contents";
+import { useContent, useContentComments, useReactions, useViews } from "src/app/hooks/contents";
 import { FastPost } from "./fast-post";
 import { Comment } from "./comment"
 import { ContentProps, EntityProps } from "src/app/lib/definitions";
 import { ReactionButton } from "./reaction-button";
 import CommentIcon from '@mui/icons-material/Comment';
 import LoadingSpinner from "./loading-spinner";
-import { useUser } from "src/app/hooks/user";
+import { useUser, useUserLikesContent } from "src/app/hooks/user";
 import { ViewsCounter } from "./views-counter";
 import useSWR, { useSWRConfig } from "swr";
 import { ContentOptionsButton } from "./content-options-button";
@@ -43,38 +43,46 @@ type ContentTopRowProps = {
     content: ContentProps
     author?: boolean
     icon: ReactNode
-    showOptions: boolean
+    showOptions?: boolean
     onShowFakeNews?: () => void
+    showEnterLink?: boolean
 }
 
-export const ContentTopRow: React.FC<ContentTopRowProps> = ({content, author=true, icon=null, showOptions, onShowFakeNews}) => {
+export const ContentTopRow: React.FC<ContentTopRowProps> = ({
+    content,
+    author=true,
+    icon=null,
+    showOptions=false,
+    onShowFakeNews,
+    showEnterLink=false
+}) => {
     const url = content.author  ? id2url(content.author.id) : ""
     const onClick = stopPropagation(() => {})
 
     return <div className="flex justify-between mt-1">
         <div className="text-gray-600 px-2 blue-links flex items-center">
-        {icon && <div>{icon}</div>}
-        <div>
-        {author && 
-            <span className="px-1">
-                <Link 
-                href={url} 
-                className="hover:text-gray-900 lg:text-sm text-xs"
-                onClick={onClick}>
-                    {content.author?.name + " " + addAt(content.author?.id)}
-                </Link>
-            </span>
-        }
-        <span className="text-gray-600 lg:text-sm text-xs">
-            · <DateSince date={content.createdAt}/>
-        </span>
+            {icon && <div className="mb-1">{icon}</div>}
+            <div>
+                {author && 
+                    <span className="px-1">
+                        <Link 
+                        href={url} 
+                        className="hover:text-gray-900 lg:text-sm text-xs"
+                        onClick={onClick}>
+                            {content.author?.name + " " + addAt(content.author?.id)}
+                        </Link>
+                    </span>
+                }
+                <span className="text-gray-600 lg:text-sm text-xs">
+                    · <DateSince date={content.createdAt}/>
+                </span>
+            </div>
         </div>
-    </div>
+        {false && <Link className="gray-btn mr-2 mt-1" href={"/contenido/"+content.id}>Entrar a leer</Link>}
         {showOptions && <div className="flex">
             <FakeNewsCounter contentId={content.id} onClick={onShowFakeNews}/>
             <ContentOptionsButton contentId={content.id}/>
-        </div>    
-        }
+        </div>}
     </div>
 }
 
@@ -139,6 +147,7 @@ type ContentComponentProps = {
     showingChanges?: boolean
     showingAuthors?: boolean
     editing?: boolean
+    setEditing: (arg0: boolean) => void
 }
 
 
@@ -152,20 +161,23 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     isPostPage=false,
     showingChanges=false,
     showingAuthors=false,
-    editing=false
+    editing=false,
+    setEditing
 }) => {
-    const {content, isLoading, isError} = useContent(contentId)
     const {user} = useUser()
+    const {content, isLoading, isError} = useContent(contentId)
+    const reactions = useUserLikesContent(contentId, user.id)
+    const comments = useContentComments(contentId)
     const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
-    const views = useSWR("/api/views/"+contentId, fetcher)
+    const views = useViews(contentId)
 
     useEffect(() => {
         const recordView = async () => {
-            if (user && !viewRecordedRef.current && content && views) {
+            if (user && !viewRecordedRef.current && content && views.views) {
                 if(content.type == "Post" && isPostPage || content.type != "Post"){
                     viewRecordedRef.current = true;
                     await views.mutate(addView(contentId, user.id), {
-                        optimisticData: views.data,
+                        optimisticData: views.views,
                         rollbackOnError: true,
                         populateCache: true,
                         revalidate: false
@@ -176,7 +188,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
         recordView();
     }, [user, contentId, content, views.isLoading]);
 
-    if(isLoading){
+    if(isLoading || reactions.isLoading || views.isLoading){
         return <LoadingSpinner/>
     }
     if(isError || !content){
@@ -187,6 +199,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
         element = <Post content={content}/>
     } else if(content.type == "EntityContent"){
         element = <EntityComponent
+            setEditing={setEditing}
             version={version} entity={entity} showingChanges={showingChanges} editing={editing} showingAuthors={showingAuthors}/>
     } else if(content.type == "Post"){
         element = <PostOnFeed content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>

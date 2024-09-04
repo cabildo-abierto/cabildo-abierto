@@ -1,4 +1,4 @@
-import useSWR from "swr"
+import useSWR, { KeyedMutator } from "swr"
 import { SmallContentProps } from "../api/feed/route"
 import { ContentProps, UserStats } from "../lib/definitions"
 import { fetcher } from "./utils"
@@ -48,13 +48,14 @@ export function useEntityComments(id: string): {comments: SmallContentProps[], i
 }
 
 
-export function useViews(id: string): {views: number, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/views/'+id, fetcher)
+export function useViews(id: string): {views: number, isLoading: boolean, isError: boolean, mutate: KeyedMutator<any>}{
+    const { data, error, isLoading, mutate } = useSWR('/api/views/'+id, fetcher)
   
     return {
         views: data,
         isLoading,
-        isError: error
+        isError: error,
+        mutate: mutate
     }
 }
 
@@ -103,8 +104,8 @@ export function useFeed(): {feed: SmallContentProps[], isLoading: boolean, isErr
 }
 
 
-export function useFollowingFeed(id: string): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/following-feed/'+id, fetcher)
+export function useFollowingFeed(): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/following-feed', fetcher)
   
     return {
         feed: data,
@@ -125,8 +126,8 @@ export function useProfileFeed(id: string): {feed: {id: string}[], isLoading: bo
 }
 
 
-export function useDrafts(id: string): {drafts: {id: string}[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/drafts/'+id, fetcher)
+export function useDrafts(): {drafts: {id: string}[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/drafts', fetcher)
   
     return {
         drafts: data,

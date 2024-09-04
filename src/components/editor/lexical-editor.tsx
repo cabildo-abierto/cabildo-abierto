@@ -25,7 +25,7 @@ import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CAN_USE_DOM } from './shared/canUseDOM';
 
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
@@ -78,6 +78,14 @@ import { ContentProps } from 'src/app/lib/definitions';
 import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalNodeReplacement, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 import { DiffNode } from './nodes/DiffNode';
 import { AuthorNode } from './nodes/AuthorNode';
+import { emptyOutput } from './comment-editor';
+
+
+const CharLimitComponent = ({remainingCharacters} : {remainingCharacters: number}) => {
+  return <div className="flex justify-end text-sm text-[var(--text-light)]">
+    Caracteres restantes: {remainingCharacters}
+  </div>
+}
 
 
 export type SettingsProps = {
@@ -86,6 +94,7 @@ export type SettingsProps = {
   isAutocomplete: boolean,
   isCharLimit: boolean,
   isCharLimitUtf8: boolean,
+  charLimit?: number,
   isCollab: boolean,
   isMaxLength: boolean,
   isRichText: boolean,
@@ -119,12 +128,12 @@ export type SettingsProps = {
 type LexicalEditorProps = {
   settings: SettingsProps,
   setEditor: any,
-  setChanged: any,
+  setEditorState: any,
   contentId?: string
 }
 
 
-function Editor({ settings, setEditor, setChanged }: 
+function Editor({ settings, setEditor, setEditorState }: 
   LexicalEditorProps): JSX.Element {
   const { historyState } = useSharedHistoryContext();
   const [editor] = useLexicalComposerContext()
@@ -155,7 +164,8 @@ function Editor({ settings, setEditor, setChanged }:
     editorClassName,
     content,
     placeholderClassName,
-    initialData
+    initialData,
+    charLimit
   } = settings
 
   const isEditable = useLexicalEditable();
@@ -214,10 +224,7 @@ function Editor({ settings, setEditor, setChanged }:
         <OnChangePlugin
           onChange={(editorState) => {
             setEditor(editor)
-
-            if(JSON.stringify(editorState) != initialData){
-                setChanged(true)
-            }
+            setEditorState(editorState)
           }}
         />
         <EmojisPlugin />
@@ -292,10 +299,11 @@ function Editor({ settings, setEditor, setChanged }:
             <HistoryPlugin externalHistoryState={historyState} />
           </>
         )}
-        {(isCharLimit || isCharLimitUtf8) && (
+        {(isCharLimit || isCharLimitUtf8) && charLimit && (
           <CharacterLimitPlugin
             charset={isCharLimit ? 'UTF-16' : 'UTF-8'}
-            maxLength={5}
+            maxLength={charLimit}
+            renderer={CharLimitComponent}
           />
         )}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
@@ -316,7 +324,7 @@ const initializeEmpty = (editor: OriginalLexicalEditor) => {
     })
 }
 
-const LexicalEditor = ({ settings, setEditor, setChanged }: LexicalEditorProps) => {
+const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorProps) => {
   let {isReadOnly, initialData, showingChanges} = settings
 
   if(typeof initialData === 'string'){
@@ -356,7 +364,7 @@ const LexicalEditor = ({ settings, setEditor, setChanged }: LexicalEditorProps) 
             <Editor
               settings={settings}
               setEditor={setEditor}
-              setChanged={setChanged}
+              setEditorState={setEditorState}
             />
           </div>
         </TableContext>

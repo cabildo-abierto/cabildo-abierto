@@ -30,16 +30,6 @@ export function validSubscription(user: UserProps | undefined){
     return nextSubscriptionEnd > new Date()
 }
 
-
-export function validPost(text: string){
-    return splitPost(text) != null
-}
-
-export function validFastPost(text: string){
-    return text.length > 0
-}
-
-
 export function getSubscriptionPrice() {
     return 1000
 }

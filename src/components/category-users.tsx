@@ -5,8 +5,8 @@ import { useSearch } from "./search-context"
 import { useUsers } from "src/app/hooks/user"
 
 
-export const NoResults = () => {
-    return <div className="mt-8">No se encontraron resultados...</div>
+export const NoResults = ({text="No se encontraron resultados..."}: {text?: string}) => {
+    return <div className="mt-8">{text}</div>
 }
 
 
@@ -41,7 +41,7 @@ export const CategoryUsers = ({route}: {route: string[]}) => {
                 <div key={index} className="py-1">
                     <UserSearchResult result={user}/>
                 </div>
-            )) : <NoResults/>}
+            )) : <NoResults text="No se encontró ningún usuario."/>}
         </div>
     </div>
 }

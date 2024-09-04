@@ -81,7 +81,7 @@ export const WikiCategories = ({route, selected}: {route: string[], selected: st
     const entities = useEntities()
 
     if(entities.isLoading){
-        return <LoadingSpinner/>
+        return <></>
     }
 
     if(!entities || entities.isError){
@@ -89,7 +89,9 @@ export const WikiCategories = ({route, selected}: {route: string[], selected: st
     }
 
     const nextCategories = getNextCategories(route, entities.entities)
-    return <div className="flex py-2 items-center px-2">
+    return <div className="flex flex-col">
+        <span className="ml-2 text-sm text-[var(--text-light)]">Estás viendo:</span>
+        <div className="flex pb-2 items-center px-2">
         <Route route={route} nextCategories={nextCategories} selected={selected}/>
         {nextCategories.size > 0 && 
         <SubcategoriesDropDown
@@ -97,5 +99,8 @@ export const WikiCategories = ({route, selected}: {route: string[], selected: st
             route={route}
             selected={selected}
         />}
+        </div>
     </div>
+    
+    
 }

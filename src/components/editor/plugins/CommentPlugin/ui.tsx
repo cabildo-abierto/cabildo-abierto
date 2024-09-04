@@ -40,7 +40,7 @@ export function CommentInputBox({
   submitAddComment: () => void;
 }) {
   const [commentEditor, setCommentEditor] = useState<LexicalEditor | undefined>(undefined)
-  const [commentEditorChanged, setCommentEditorChanged] = useState(false)
+  const [commentEditorState, setCommentEditorState] = useState<EditorState | undefined>(undefined)
   const user = useUser()
   const boxRef = useRef<HTMLDivElement>(null);
   const {mutate} = useSWRConfig()
@@ -215,7 +215,7 @@ export function CommentInputBox({
         <MyLexicalEditor
             settings={settings}
             setEditor={setCommentEditor}
-            setChanged={setCommentEditorChanged}
+            setEditorState={setCommentEditorState}
         />
       </div>
       <div className="flex justify-between py-2">

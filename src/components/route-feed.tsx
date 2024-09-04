@@ -11,7 +11,7 @@ import { useSearch } from "./search-context"
 export const RouteFeed = ({route, following}: {route: string[], following: boolean}) => {
     let {user} = useUser()
     let feed = useFeed()
-    let followingFeed = useFollowingFeed(user.id)
+    let followingFeed = useFollowingFeed()
     const {searchValue} = useSearch()
 
     let selectedFeed = !following ? feed : followingFeed

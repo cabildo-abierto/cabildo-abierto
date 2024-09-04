@@ -3,14 +3,14 @@ import { getSubscriptionPrice } from "./utils"
 import SubscriptionOptionButton from "./subscription-option-button"
 import { useSubscriptionPoolSize } from "src/app/hooks/subscriptions"
 import LoadingSpinner from "./loading-spinner"
+import Link from "next/link"
 
 const SubscriptionOptions = () => {
     const poolSize = useSubscriptionPoolSize()
 
-    if(poolSize.isLoading) return <LoadingSpinner/>
     const desc2 = <div>
         <span>
-            Hay <span className="font-bold">{poolSize.poolSize}</span> suscripciones disponibles.
+            Hay <span className="font-bold">{poolSize.isLoading ? "??" : poolSize.poolSize}</span> suscripciones disponibles.
         </span>
     </div>
 
@@ -23,8 +23,8 @@ const SubscriptionOptions = () => {
             </div>
 
             <div className="flex justify-center mt-8">
-                <p className="lg:w-96 w-64">
-                    Las suscripciones son la única fuente de financiamiento de Cabildo Abierto.
+                <p className="lg:w-96 w-64 link">
+                    Cabildo Abierto <Link href="/articulo/Cabildo_Abierto:_Suscripciones">se financia</Link> exclusivamente con suscripciones.
                 </p>
             </div>
         </div>
@@ -56,12 +56,6 @@ const SubscriptionOptions = () => {
                     price={`Desde $${2*getSubscriptionPrice()}`}
                     href={"/suscripciones/donar"}
                 />
-            </div>
-
-            <div className="flex justify-center mt-8">
-                <p className="lg:w-96 w-64">
-                    Todas las suscripciones son mensuales y podés cancelar en cualquier momento. <br/>También podés hacer un pago único, sin compromisos.
-                </p>
             </div>
         </div>
     </>

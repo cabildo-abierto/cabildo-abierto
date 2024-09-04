@@ -4,6 +4,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Link from "next/link";
 import AddIcon from '@mui/icons-material/Add';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { ToggleButton } from "./toggle-button";
 
 function routeToUrl(route: string[]){
     return "/inicio/" + route.map(encodeURIComponent).join("/")
@@ -33,9 +34,12 @@ export const SubcategoriesDropDown = ({ nextCategories, route, selected }: { nex
 
     return (
         <div className="relative ml-2" ref={dropdownRef}> {/* Make the parent div relative */}
-            <button className="gray-btn" onClick={() => setViewSubcategories(!viewSubcategories)}>
-                Filtrar
-            </button>
+            <ToggleButton 
+                className="filter-btn"
+                setToggled={setViewSubcategories}
+                toggled={viewSubcategories}
+                text="Filtrar"
+            />
             {viewSubcategories && (
                 nextCategories.size > 0 ?
                     <div className="w-64 absolute top-full mt-2 left-0 z-10"> {/* Position the dropdown absolutely */}
