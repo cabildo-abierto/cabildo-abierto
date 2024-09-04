@@ -56,13 +56,16 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
         }
     }
 
+    const isAuthor = user.id == content.content.author.id
+    
     return <ReactionButton
         onClick={onLikeClick}
         active={liked}
         icon1={icon1}
         icon2={icon2}
-        disabled={!user || disabled}
+        disabled={!user || disabled || isAuthor}
         count={likeCount}
+        title={isAuthor ? "No podés reaccionar a tus propias publicaciones." : undefined}
     />
 }
 

@@ -12,7 +12,7 @@ export type FeedProps = {
 }
 
 
-const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
+const Feed: React.FC<{feed: FeedProps, noResultsText?: string}> = ({feed, noResultsText="No se encontró ninguna publicación."}) => {
     const user = useUser()
     if(feed.isLoading || user.isLoading){
         return <LoadingSpinner/>
@@ -28,7 +28,7 @@ const Feed: React.FC<{feed: FeedProps}> = ({feed}) => {
                 />
             </div>
         }) : 
-        <NoResults/>}
+        <NoResults text={noResultsText}/>}
     </div>
 }
 

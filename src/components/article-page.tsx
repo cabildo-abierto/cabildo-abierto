@@ -134,12 +134,12 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         <div className="ml-2">
             <ShowContributors entityId={entityId} version={version}/>
         </div>
-        <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
-            <ViewHistoryButton/>
-            <ViewCategoriesButton/>
-            <ViewLastChangesButton/>
-            <ViewAuthorsButton/>
-            <EditButton/>
+        {!editing && <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
+            {<ViewHistoryButton/>}
+            {<ViewCategoriesButton/>}
+            {<ViewLastChangesButton/>}
+            {<ViewAuthorsButton/>}
+            {<EditButton/>}
             {(user.user && user.user.editorStatus == "Administrator") &&
             <div className="flex justify-center py-2">
                 <SetProtectionButton entity={entity}/>
@@ -150,9 +150,9 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
                 <DeleteArticleButton/>
             </div>
             }
-        </div>
+        </div>}
         {showingCategories && <div className="px-4">
-        <EntityCategories categories={entity.versions[version].categories}/>
+        <EntityCategories categories={entity.versions[version].categories} name={entity.name}/>
         </div>}
         {showingHistory && <div className="px-4">
             <EditHistory entity={entity} viewing={version}/>
@@ -165,6 +165,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             showingChanges={showingChanges}
             showingAuthors={showingAuthors}
             editing={true}
+            setEditing={setEditing}
         />}
         {!editing && <ContentWithComments
             contentId={contentId}
@@ -173,6 +174,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             showingChanges={showingChanges}
             showingAuthors={showingAuthors}
             editing={false}
+            setEditing={setEditing}
         />}
 
     </div>

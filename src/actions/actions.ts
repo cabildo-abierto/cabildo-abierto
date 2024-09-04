@@ -371,6 +371,11 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
     revalidateTag("profileFeed:"+userId)
     if(postType == "Post")
         revalidateTag("userContents:"+userId)
+    if(isDraft)
+        revalidateTag("drafts:"+userId)
+    references.forEach(({id}) => {
+        revalidateTag("entity:"+id)
+    })
     return result
 }
 
@@ -418,6 +423,7 @@ export async function publishDraft(text: string, contentId: string, userId: stri
     revalidateTag("feed")
     revalidateTag("followingFeed")
     revalidateTag("profileFeed:"+userId)
+    revalidateTag("drafts:"+userId)
     return result
 }
 
@@ -760,7 +766,7 @@ export const undoChange = async (entityId: string, contentId: string, versionNum
 }
   
   
-  export const deleteEntity = async (entityId: string, userId: string) => {
+export const deleteEntity = async (entityId: string, userId: string) => {
     await db.entity.update({
         data: {
             deleted: true,
@@ -773,7 +779,7 @@ export const undoChange = async (entityId: string, contentId: string, versionNum
   
     revalidateTag("entities")
     revalidateTag("entity:"+entityId)
-  }
+}
 
 
 export const getEntities = cache(async () => {
@@ -935,66 +941,64 @@ export async function getEntityViews(id: string) {
 
 
 export async function getUserStats(userId: string) {
-    return unstable_cache(async () => {
-        const userContents = await getUserContents(userId)
+    const userContents = await getUserContents(userId)
 
-        let entityEdits = 0
-        let editedEntitiesIds = new Set()
-        const postsIds = []
-        userContents.forEach((content) => {
-            if(content.type == "EntityContent"){
-                entityEdits ++
-                if(content.parentEntityId)
-                    editedEntitiesIds.add(content.parentEntityId)
-            } else if(content.type == "Post"){
-                postsIds.push(content.id)
-            }
-        })
-
-        const postReactions = await Promise.all(postsIds.map(getContentReactions))
-        const entityContributions = await Promise.all(Array.from(editedEntitiesIds).map(getEntityContributions))
-
-        function arraySum(a: any[]) {
-            return a.reduce((acc, curr) => acc + curr, 0)
+    let entityEdits = 0
+    let editedEntitiesIds = new Set()
+    const postsIds = []
+    userContents.forEach((content) => {
+        if(content.type == "EntityContent"){
+            entityEdits ++
+            if(content.parentEntityId)
+                editedEntitiesIds.add(content.parentEntityId)
+        } else if(content.type == "Post"){
+            postsIds.push(content.id)
         }
+    })
 
-        function getAddedChars(entityContrArray: [string, number][][]){
-            const lastVersion = entityContrArray[entityContrArray.length-1]
-            for(let i = 0; i < lastVersion.length; i++){
-                if(lastVersion[i][0] === userId){
-                    return lastVersion[i][1]
-                }
+    const postReactions = await Promise.all(postsIds.map(getContentReactions))
+    const entityContributions = await Promise.all(Array.from(editedEntitiesIds).map(getEntityContributions))
+
+    function arraySum(a: any[]) {
+        return a.reduce((acc, curr) => acc + curr, 0)
+    }
+
+    function getAddedChars(entityContrArray: [string, number][][]){
+        const lastVersion = entityContrArray[entityContrArray.length-1]
+        for(let i = 0; i < lastVersion.length; i++){
+            if(lastVersion[i][0] === userId){
+                return lastVersion[i][1]
             }
         }
+    }
 
-        async function getReactionsFromFirstEdit(entityId: string){
-            const reactions = await getEntityReactions(entityId)
-            const entity = await getEntityById(entityId)
-            return sumFromFirstEdit(reactions, entity, userId)
-        }
+    async function getReactionsFromFirstEdit(entityId: string){
+        const reactions = await getEntityReactions(entityId)
+        const entity = await getEntityById(entityId)
+        return sumFromFirstEdit(reactions, entity, userId)
+    }
 
-        async function getViewsFromFirstEdit(entityId: string){
-            const views = await getEntityViews(entityId)
-            const entity = await getEntityById(entityId)
-            return sumFromFirstEdit(views, entity, userId)
-        }
+    async function getViewsFromFirstEdit(entityId: string){
+        const views = await getEntityViews(entityId)
+        const entity = await getEntityById(entityId)
+        return sumFromFirstEdit(views, entity, userId)
+    }
 
-        const entityReactions = await Promise.all(Array.from(editedEntitiesIds).map(getReactionsFromFirstEdit))
-        
-        const postViews = await Promise.all(postsIds.map(getContentViews))
-        const entityViews = await Promise.all(Array.from(editedEntitiesIds).map(getViewsFromFirstEdit))
+    const entityReactions = await Promise.all(Array.from(editedEntitiesIds).map(getReactionsFromFirstEdit))
+    
+    const postViews = await Promise.all(postsIds.map(getContentViews))
+    const entityViews = await Promise.all(Array.from(editedEntitiesIds).map(getViewsFromFirstEdit))
 
-        const stats: UserStats = {
-            posts: postsIds.length,
-            entityEdits: entityEdits,
-            editedEntities: editedEntitiesIds.size,
-            reactionsInPosts: arraySum(postReactions),
-            reactionsInEntities: arraySum(entityReactions),
-            income: 0,
-            entityAddedChars: arraySum(entityContributions.map(getAddedChars)),
-            viewsInPosts: arraySum(postViews),
-            viewsInEntities: arraySum(entityViews)
-        }
-        return stats
-    }, ["userStats", userId], {tags: ["userStats:"+userId]})()    
+    const stats: UserStats = {
+        posts: postsIds.length,
+        entityEdits: entityEdits,
+        editedEntities: editedEntitiesIds.size,
+        reactionsInPosts: arraySum(postReactions),
+        reactionsInEntities: arraySum(entityReactions),
+        income: 0,
+        entityAddedChars: arraySum(entityContributions.map(getAddedChars)),
+        viewsInPosts: arraySum(postViews),
+        viewsInEntities: arraySum(entityViews)
+    }
+    return stats
 }

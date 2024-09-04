@@ -13,7 +13,6 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
     if (!user) {
         return <ErrorPage>El usuario @{username} no existe</ErrorPage>
     }
-
     const loggedInUser = await getUser()
 
     const center = <>

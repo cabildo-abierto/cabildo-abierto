@@ -31,7 +31,7 @@ export const NewDonation: React.FC = () => {
             <div className="flex justify-center py-2">
             <SubscriptionOptionButton
                 title="Pago único"
-                description="Sin compromisos"
+                description="Pagá un solo mes. Sin compromisos."
                 disabled={!validAmount}
                 href={"/suscripciones/donar/pago-unico/"+donationAmount.toString()}
             />
@@ -40,7 +40,7 @@ export const NewDonation: React.FC = () => {
             <div className="flex justify-center">
             <SubscriptionOptionButton
                 title="Pago automático"
-                description={"Próximamente"/*"Poné la tarjeta (o cualquier medio de pago) y olvidate."*/}
+                description={"Próximamente."/*"Poné la tarjeta (o cualquier medio de pago) y olvidate."*/}
                 disabled={true}
                 href={"/suscripciones/donar/pago-automatico/"+donationAmount.toString()}
             />

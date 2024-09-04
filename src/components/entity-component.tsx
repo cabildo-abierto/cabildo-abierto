@@ -13,10 +13,11 @@ type EntityComponentProps = {
     showingChanges?: boolean
     editing?: boolean
     showingAuthors?: boolean
+    setEditing: (arg0: boolean) => void
 }
 
 const EntityComponent: React.FC<EntityComponentProps> = ({
-    entity, version, showingChanges=false, editing=false, showingAuthors=false}) => {
+    entity, version, showingChanges=false, editing=false, showingAuthors=false, setEditing}) => {
 
     return <>
         <div className="px-2 min-h-64">
@@ -26,6 +27,7 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
                 showingChanges={showingChanges}
                 readOnly={!editing}
                 showingAuthors={showingAuthors}
+                setEditing={setEditing}
             />
         </div>
     </>

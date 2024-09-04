@@ -70,6 +70,7 @@ export function $isWhitespace(node: ElementNode): boolean {
 
 export function emptyOutput(editorState: EditorState | undefined){
     if(!editorState) return true
+
     const isEmpty = editorState.read(() => {
         const root = $getRoot();
         const child = root.getFirstChild();
@@ -86,6 +87,22 @@ export function emptyOutput(editorState: EditorState | undefined){
     return isEmpty;
 }
 
+export function validFastPost(state: EditorState | undefined, charLimit: number){
+    if(!state) return false
+    if(!charLimit) return true
+    let isValid = state.read(() => {
+        const root = $getRoot()
+        return root.getTextContentSize() <= charLimit
+    })
+    return isValid
+}
+
+
+export function hasChanged(state: EditorState | undefined, initialData: string){
+    return JSON.stringify(state) !== initialData
+}
+
+
 type CommentEditorProps = {
     onSubmit: (arg0: string) => void,
     onCancel?: () => void
@@ -93,7 +110,7 @@ type CommentEditorProps = {
 
 const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [changed, setChanged] = useState(false)
+    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const user = useUser()
 
     if(user.isLoading){
@@ -114,7 +131,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
             className="small-btn"
             text1="Enviar"
             text2="Enviando..."
-            disabled={!changed}
+            disabled={!editor || emptyOutput(editorState)}
         />
 	}
 
@@ -123,7 +140,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
             <MyLexicalEditor
             settings={commentEditorSettings}
             setEditor={setEditor}
-            setChanged={setChanged}/>
+            setEditorState={setEditorState}/>
         </div>
         <div className="flex justify-end">
 			<div className="flex justify-end mt-3">

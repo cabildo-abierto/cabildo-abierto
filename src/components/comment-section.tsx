@@ -7,10 +7,12 @@ import { SmallContentProps } from "src/app/api/feed/route"
 import { getAllQuoteIds } from "./comment"
 
 type CommentSectionProps = {
-    content: ContentProps,
-    activeIDs?: string[],
-    otherContents?: SmallContentProps[],
+    content: ContentProps
+    activeIDs?: string[]
+    otherContents?: SmallContentProps[]
     onlyQuotes?: boolean
+    writingReply: boolean
+    setWritingReply: (arg0: boolean) => void
 }
 
 
@@ -20,8 +22,10 @@ type CommentSectionProps = {
     Si no:
         Todos los comentarios hechos sobre alguna versión del contenido. Eventualmente con una marca de a qué versión pertenecen
 */
-const CommentSection: React.FC<CommentSectionProps> = ({content, activeIDs, otherContents, onlyQuotes=false}) => {
-
+const CommentSection: React.FC<CommentSectionProps> = ({
+    content, activeIDs, otherContents, writingReply, setWritingReply, onlyQuotes=false}) => {
+    
+    console.log("otherContents", otherContents)
     function inActiveIDs({id}: {id: string}) {
         return (!activeIDs || activeIDs.length == 0) || activeIDs.includes(id)
     }
@@ -71,13 +75,21 @@ const CommentSection: React.FC<CommentSectionProps> = ({content, activeIDs, othe
     let contentsWithScore = contents.map((comment) => ({comment: comment, score: commentScore(comment)}))
     contentsWithScore = contentsWithScore.sort(order)
     
-    return <div className="space-y-2">
-        {contentsWithScore.map(({comment}) => (
-            <div key={comment.id}>
-                <ContentWithComments contentId={comment.id}/>
-            </div>
-        ))}
-    </div>
+    return <>
+        {
+        contentsWithScore.length > 0 && 
+        <div className="space-y-2 mt-2">
+            {contentsWithScore.map(({comment}) => (
+                <div key={comment.id}>
+                    <ContentWithComments contentId={comment.id}/>
+                </div>
+            ))}
+        </div>
+        }
+        {(contentsWithScore.length == 0 && !writingReply) && <div className="text-center text-gray-800 py-2">
+            No hay comentarios todavía. <button className="hover:underline text-[var(--primary)]" onClick={() => {setWritingReply(true)}}>Agregá uno</button>.
+        </div>}
+    </>
 }
 
 export default CommentSection

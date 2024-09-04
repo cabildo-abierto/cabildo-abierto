@@ -13,11 +13,10 @@ type ReactionButtonProps = {
 
 export const ReactionButton = ({onClick, count, icon1, icon2, active=true, disabled=false, title}: ReactionButtonProps) => {
     
-    return <div className="" >
+    return <div className="" title={title}>
         <button onClick={stopPropagation(onClick)}
             disabled={disabled}
             className="reaction-btn"
-            title={title}
         >
             <div className="flex items-end">
                 <span className="px-[2px]">{active ? icon1 : icon2 }</span>

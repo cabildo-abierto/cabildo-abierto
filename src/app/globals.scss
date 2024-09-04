@@ -669,3 +669,25 @@ i.cabildo {
 	border-color: $accent;
     width: calc(20px + 6.8px * var(--authors-width)); /* Increase height on hover */
 }
+
+
+.filter-btn {
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	padding-left: 1rem; 
+	padding-right: 1rem;
+	border-radius: 0.25rem; 
+	background-color: transparent; 
+	cursor: pointer; 
+	color: var(--text-light);
+}
+
+
+.filter-btn:hover {
+	background-color: var(--secondary-light);
+}
+
+
+.filter-btn.toggled {
+	background-color: var(--secondary-light)
+}

@@ -1,15 +1,20 @@
+"use client"
 import { useDrafts } from "../app/hooks/contents"
 import { DraftButton } from "src/components/draft-button"
-import { UserProps } from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
  
-export const DraftsPreview = ({user}: {user: UserProps}) => {
-    const {drafts, isLoading, isError} = useDrafts(user.id)
+export const DraftsPreview = () => {
+    const {drafts, isLoading, isError} = useDrafts()
     if(isLoading){
         return <LoadingSpinner/>
     }
     if(isError || !drafts){
         return <></>
+    }
+    if(drafts.length == 0){
+        return <div className="text-center mt-32 text-[var(--text-light)]">
+            Todavía no tenés borradores.
+        </div>
     }
     return <div>
         {drafts.map(({id}, index: number) => {

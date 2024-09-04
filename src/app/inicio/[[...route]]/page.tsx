@@ -1,5 +1,5 @@
 "use client"
-import React from "react"
+import React, { useState } from "react"
 import { ThreeColumnsLayout } from "src/components/three-columns";
 import { WikiCategories } from "src/components/wiki-categories";
 import { CategoryArticles } from "src/components/category-articles";
@@ -7,6 +7,9 @@ import SelectionComponent from "src/components/search-selection-component";
 import { useRouter } from "next/navigation";
 import { RouteFeed } from "src/components/route-feed";
 import { CategoryUsers } from "src/components/category-users";
+import { useEntities } from "src/app/hooks/entities";
+import { useUsers } from "src/app/hooks/user";
+import { useFeed, useFollowingFeed } from "src/app/hooks/contents";
 
 
 
@@ -15,13 +18,17 @@ const TopicsPage: React.FC<{
     searchParams: { [key: string]: string }
 }> = ({params, searchParams}) => {
     const decodedRoute = params.route ? params.route.map(decodeURIComponent) : []
-    let selected = searchParams.selected ? searchParams.selected : "General"
+    const [selected, setSelected] = useState(searchParams.selected ? searchParams.selected : "General")
 
+    const preloadEntities = useEntities()
+    const preloadUsers = useUsers()
+    const preloadFeed = useFeed()
+    const preloadFollowingFeed = useFollowingFeed()
     const router = useRouter()
 
-    function setSelected(value: string) {
-        router.push("/inicio/"+decodedRoute.join("/")+"?selected="+value)
-    }
+    /*function setSelected(value: string) {
+        //router.push("/inicio/"+decodedRoute.join("/")+"?selected="+value)
+    }*/
 
     const center = <div className="w-full">
         <div className="content-container py-2 mt-2">

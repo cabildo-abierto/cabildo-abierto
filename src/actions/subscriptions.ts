@@ -2,7 +2,7 @@
 
 import { cache } from './cache';
 import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, unstable_cache } from 'next/cache';
 import { db } from '../db';
 
 
@@ -57,7 +57,7 @@ export async function getDonatedSubscription(userId: string) {
     }
 }
 
-export const getSubscriptionPoolSize = cache(async () => {
+export const getSubscriptionPoolSize = unstable_cache(async () => {
     const available = await db.subscription.findMany({
         select: {id: true},
         where: {usedAt: null}

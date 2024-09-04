@@ -15,6 +15,7 @@ import { useCategories, useEntities } from "src/app/hooks/entities";
 import { getNextCategories, isPrefix } from "./wiki-categories";
 import InfoPanel from "./info-panel";
 import LoadingSpinner from "./loading-spinner";
+import { EntityCategoriesTitle } from "./categories";
 
 function validCategoryElement(e: string){
     return e.length > 0
@@ -148,14 +149,9 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
         }
     }
 
-    const info = "Cada artículo puede estar en una o más categorías y subcategorías. Al asignar un artículo a una categoría que no existe todavía (borde azul) se crea automáticamente esa categoría."
-
     return <div className="">
         <div className="py-3"><hr/></div>
-        <div className="ml-1 flex justify-between">
-            <h3>Categorías</h3>
-            <InfoPanel text={info} className="w-96"/>
-        </div>
+        <EntityCategoriesTitle name={entity.name}/>
         <div className="flex">
             <div className="w-72">
                 {categories.length > 0 ? categories.map((cat: string[], i: number) => {

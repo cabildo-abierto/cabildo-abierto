@@ -13,12 +13,12 @@ type ViewsCounterProps = {
 export const ViewsCounter: React.FC<ViewsCounterProps> = ({
     contentId
 }) => {
-    const {views, isLoading} = useViews(contentId)
-
+    const {views, isLoading, isError} = useViews(contentId)
     return <ReactionButton
         onClick={() => {}}
         icon1={<VisibilityIcon fontSize="small"/>}
         disabled={true}
-        count={isLoading ? "?" : views}
+        count={views === undefined ? "?" : views}
+        title="La cantidad de personas distintas que vieron este contenido. No se cuentan segundas vistas."
     />
 }

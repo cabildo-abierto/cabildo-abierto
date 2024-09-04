@@ -15,24 +15,27 @@ const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-ed
 const EditButton = ({onClick, isEmpty}: {onClick: () => void, isEmpty: boolean}) => {
     return <button className="small-btn" onClick={onClick}>
         {isEmpty ? "Agregar una descripción" : "Editar descripción"}
-
     </button>
 }
 
 const DescriptionEditor = ({setEditing}: {setEditing: (arg0: boolean) => void}) => {
     const settings = {...commentEditorSettings}
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [changed, setChanged] = useState(false)
+    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const {user} = useUser()
     const {mutate} = useSWRConfig()
+    const router = useRouter()
 
     settings.placeholder = "Tu descripción personal..."
+    settings.initialData = user.description
+    settings.isAutofocus = true
 
     async function onSubmit() {
         if(editor){
             await updateDescription(JSON.stringify(editor.getEditorState()), user.id)
-            mutate("/api/user/"+user.id)
+            mutate("/api/user")
             setEditing(false)
+            window.location.reload()
         }
     }
 
@@ -40,7 +43,7 @@ const DescriptionEditor = ({setEditing}: {setEditing: (arg0: boolean) => void}) 
         <MyLexicalEditor
             settings={settings}
             setEditor={setEditor}
-            setChanged={setChanged}
+            setEditorState={setEditorState}
         />
         <div className="flex justify-end px-1 mb-1">
             <button className="small-btn mr-1" onClick={() => {setEditing(false)}}>Cancelar</button>
