@@ -230,7 +230,7 @@ const WikiEditor = ({
                 if(editor){
                     editor.read(async () => {
                         if(content.categories && user.user){
-                            await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user.id)
+                            await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user.id, true)
                             mutate("/api/entities")
                             mutate("/api/entity/"+entity.id)
                             router.push("/articulo/"+entity.id)

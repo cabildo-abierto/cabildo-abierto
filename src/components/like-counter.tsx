@@ -5,11 +5,11 @@ import { stopPropagation } from "./utils";
 import { ContentProps } from 'src/app/lib/definitions';
 import { useUser, useUserLikesContent } from "src/app/hooks/user";
 import useSWR, { useSWRConfig } from "swr";
-import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import { ReactionButton } from "./reaction-button";
 import { fetcher } from "src/app/hooks/utils";
 import { addLike, removeLike } from "src/actions/actions";
+import { ActiveLikeIcon, InactiveLikeIcon } from "./icons";
+import { useContent } from "src/app/hooks/contents";
 
 type LikeCounterProps = {
     contentId: string
@@ -22,29 +22,32 @@ type LikeCounterProps = {
 export const LikeCounter: React.FC<LikeCounterProps> = ({
     contentId,
     disabled=false,
-    icon1=<ThumbUpAltIcon fontSize="small"/>,
-    icon2=<ThumbUpOffAltIcon fontSize="small"/>
+    icon1=<ActiveLikeIcon/>,
+    icon2=<InactiveLikeIcon/>
 }) => {
     const {user} = useUser()
     const userLikesContent = useSWR("/api/user-like-content/"+contentId+"/"+user.id, fetcher)
-    
-    if(userLikesContent.isLoading){
+    const content = useContent(contentId)
+
+    if(userLikesContent.isLoading || content.isLoading){
         return <></>
     }
+
+    const entityId = content.content.parentEntityId
     
     const [liked, likeCount] = userLikesContent.data
-
+    
     const onLikeClick = async () => {
         if(!user) return
         if(liked){
-            await userLikesContent.mutate(removeLike(contentId, user.id), {
+            await userLikesContent.mutate(removeLike(contentId, user.id, entityId), {
                 optimisticData: [false, likeCount-1],
                 rollbackOnError: true,
                 populateCache: true,
                 revalidate: false
             });
         } else {
-            await userLikesContent.mutate(addLike(contentId, user.id), {
+            await userLikesContent.mutate(addLike(contentId, user.id, entityId), {
                 optimisticData: [true, likeCount+1],
                 rollbackOnError: true,
                 populateCache: true,
@@ -60,5 +63,18 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
         icon2={icon2}
         disabled={!user || disabled}
         count={likeCount}
+    />
+}
+
+
+export const FixedLikeCounter = ({count}: {count: number}) => {
+    
+    return <ReactionButton
+        onClick={() => {}}
+        active={true}
+        icon1={<ActiveLikeIcon/>}
+        icon2={<InactiveLikeIcon/>}
+        disabled={true}
+        count={count}
     />
 }

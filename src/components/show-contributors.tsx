@@ -2,6 +2,7 @@ import Link from "next/link";
 import { EntityProps } from "src/app/lib/definitions";
 import { diff, nodesCharDiff } from "./diff";
 import { editorStateFromJSON } from "./editor/wiki-editor";
+import { useContributions, useEntity } from "src/app/hooks/entities";
 
 
 function round2(x: number){
@@ -9,38 +10,28 @@ function round2(x: number){
 }
 
 
-export const ShowContributors = ({entity, version}: {entity: EntityProps, version: number}) => {
-
-    const charsContributed = new Map<string, number>()
+export const ShowContributors = ({entityId, version, userId}: 
+    {entityId: string, version?: number, userId?: string}) => {
+    const contributions = useContributions(entityId)
+    if(contributions.isLoading) return <></>
     
-    let prevNodes = []
-    for(let i = 0; i <= version; i++){
-        const parsedVersion = editorStateFromJSON(entity.versions[i].text)
-        if(!parsedVersion) continue
+    if(!version) version = contributions.contributions.length-1
+    let versionContr = contributions.contributions[version]
 
-        const nodes = parsedVersion.root.children
-        const {newChars} = nodesCharDiff(prevNodes, nodes)
-
-        const author = entity.versions[i].authorId
-
-        if(charsContributed.has(author)){
-            charsContributed.set(author, charsContributed.get(author) + newChars)
-        } else {
-            charsContributed.set(author, newChars)
-        }
-
-        prevNodes = [...nodes]
-    }
-
-    const contributionArray = Array.from(charsContributed)
-    
     let total = 0
-    contributionArray.forEach(([author, count]) => {total += count})
+    versionContr.forEach(([authorId, chars]) => {total += chars})
+
+    if(userId)
+        versionContr = versionContr.filter(([authorId, _]) => (authorId == userId))
+
+    if(userId){
+        return <span>Contribución: {round2(versionContr[0][1] / total * 100)}%</span>
+    }
 
     return <div className="flex">
         <span className="mr-1">Escrito por</span>
     <div className="flex space-x-2 link">
-        {contributionArray.map(([authorId, chars], index) => {
+        {versionContr.map(([authorId, chars], index) => {
             return <span key={index}><Link href={"/perfil/"+authorId}>@{authorId}</Link> ({round2(chars / total * 100)}%)</span>
         })}
     </div>

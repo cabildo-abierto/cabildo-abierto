@@ -28,14 +28,14 @@ const TopicsPage: React.FC<{
             <WikiCategories route={decodedRoute} selected={selected}/>
             <SelectionComponent
                 onSelection={setSelected}
-                options={["General", "Siguiendo", "Artículos colaborativos", "Usuarios"]}
+                options={["General", "Siguiendo", "Artículos públicos", "Usuarios"]}
                 selected={selected}
                 className="main-feed"
             />
         </div>
         
         <div className="pt-2">
-        {selected == "Artículos colaborativos" && 
+        {selected == "Artículos públicos" && 
         <CategoryArticles route={decodedRoute}/>}
 
         {(selected == "General" || selected == "Siguiendo") && 

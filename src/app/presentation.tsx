@@ -24,7 +24,7 @@ export const Presentation: React.FC = () => {
     const className="flex flex-col"
     const informacion = <>
         <div className="py-1 text-gray-600">Tres formas de contenido</div>
-        <div className={className}><span className="font-bold"><ArticleIcon/>Artículos colaborativos</span>Tienen información y cualquier usuario puede editarlos. <span className="text-gray-600">El cepo, las SAD, Lijo, Alberto, etc.</span></div>
+        <div className={className}><span className="font-bold"><ArticleIcon/>Artículos públicos</span>Tienen información y son de edición pública: <br/> cualquier usuario puede editarlos. <span className="text-gray-600">El cepo, las SAD, Lijo, Alberto, etc.</span></div>
         <div className={className}><span className="font-bold"><PostIcon/>Publicaciones individuales elaboradas</span>Con título y sin límite de caracteres.<span className="text-gray-600">Noticias, análisis, relato, o lo que sea.</span></div>
         <div className={className}><span className="font-bold"><FastPostIcon/>Publicaciones rápidas</span>A lo sumo 281 caracteres.<br/><span className="text-gray-600">Ráfagas comunicacionales.</span></div>
     </>
@@ -36,7 +36,7 @@ export const Presentation: React.FC = () => {
 
     const escrita = <>
       <p className="">Explicá algo que sepas, contá una noticia o analizá la realidad argentina, y te pagamos.</p> 
-      <p>Todos los usuarios pueden editar artículos colaborativos y escribir publicaciones, elaboradas o rápidas.</p>
+      <p>Todos los usuarios pueden editar artículos públicos y escribir publicaciones individuales, elaboradas o rápidas.</p>
       <p className="">Si escribís, vas a ser remunerado en función del valor que otros usuarios encuentren en lo que escribiste.</p>
     </>
 
@@ -98,10 +98,9 @@ export const Presentation: React.FC = () => {
         </div>
 
         <div className="flex justify-center">
-            <SignupButton className="w-64 h-12 gray-btn font-bold" text="Empezar"/>
+            <SignupButton className="w-64 h-12 gray-btn font-bold mt-8" text="Empezar"/>
         </div>
-
-        <div className="flex flex-col items-center mt-8">
+        <div className="flex flex-col items-center mt-16">
           <Explanation id="Información" content={informacion}/>
           <Explanation id="abierta a discusión" content={abierta}/>
           <Explanation id="Escrita" content={escrita}/>

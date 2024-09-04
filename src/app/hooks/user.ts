@@ -14,6 +14,17 @@ export function useUser(): {user: UserProps, isLoading: boolean, isError: boolea
 }
 
 
+export function useUserContents(userId: string): {userContents: {id: string, type: string, parentEntityId: string}[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/userContents/'+userId, fetcher)
+  
+    return {
+        userContents: data ? data : undefined,
+        isLoading: isLoading,
+        isError: error
+    }
+}
+
+
 export function useUserLikesContent(contentId: string, userId: string): {userLikesContent: boolean, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/user-like-content/'+contentId+"/"+userId, fetcher)
   

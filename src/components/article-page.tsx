@@ -132,7 +132,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             </div>
         </div>
         <div className="ml-2">
-            <ShowContributors entity={entity} version={version}/>
+            <ShowContributors entityId={entityId} version={version}/>
         </div>
         <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
             <ViewHistoryButton/>

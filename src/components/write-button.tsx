@@ -32,7 +32,7 @@ const Modal = ({ onClose }: { onClose: any }) => {
                 </div>
 
                 <div className="space-y-3 p-6">
-                    <h3>Nuevo artículo colaborativo</h3>
+                    <h3>Nuevo artículo público</h3>
                     <div>
                         <input
                             className="custom-input"
@@ -140,7 +140,7 @@ const WriteButton = () => {
                             }}
                             className="create-btn w-64 flex justify-center items-center"
                         >
-                            <span className="px-1"><ArticleIcon /></span> Artículo Colaborativo
+                            <span className="px-1"><ArticleIcon /></span> Artículo público
                         </button>
                     </div>
                 </div>,
