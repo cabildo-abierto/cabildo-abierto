@@ -17,6 +17,7 @@ export const ShowContributors = ({entityId, version, userId}:
     
     if(!version) version = contributions.contributions.length-1
     let versionContr = contributions.contributions[version]
+    if(version == 0){return <></>}
 
     let total = 0
     versionContr.forEach(([authorId, chars]) => {total += chars})

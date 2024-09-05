@@ -7,6 +7,10 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import GradeOutlinedIcon from '@mui/icons-material/GradeOutlined';
+import GradeIcon from '@mui/icons-material/Grade';
 
 export const RedFlag = () => {
     return <FlagIcon fontSize="small" className="text-red-600"/>
@@ -40,11 +44,19 @@ export const DashboardIcon = () => {
 }
 
 export const ActiveLikeIcon = () => {
-    return <ThumbUpAltIcon fontSize="small" className="text-[var(--text-light)]"/>
+    return <FavoriteIcon fontSize="small" className="text-[var(--text-light)]"/>
 }
 
 export const InactiveLikeIcon = () => {
-    return <ThumbUpOffAltIcon fontSize="small"/>
+    return <FavoriteBorderIcon fontSize="small" className="text-[var(--text-light)]"/>
+}
+
+export const ActivePraiseIcon = () => {
+    return <GradeIcon fontSize="small" className="text-[var(--text-light)]"/>
+}
+
+export const InactivePraiseIcon = () => {
+    return <GradeOutlinedIcon fontSize="small" className="text-[var(--text-light)]"/>
 }
 
 

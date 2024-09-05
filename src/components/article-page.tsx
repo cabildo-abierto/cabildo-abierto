@@ -21,6 +21,7 @@ import { LikeCounter } from "./like-counter";
 import { ViewsCounter } from "./views-counter";
 import { DateSince } from "./date";
 import { ShowContributors } from "./show-contributors";
+import { ActivePraiseIcon, InactivePraiseIcon } from "./icons";
 
 
 
@@ -122,11 +123,12 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
                 </div>
             <div className="flex flex-col items-end">
                 <div className="border rounded p-1 flex">
-                    <span className="px-1 flex items-center">Te sirvió el artículo?</span>
+                    <span className="px-1 flex items-center">Te sirvió?</span>
                     <LikeCounter
                         contentId={contentId}
+                        icon1={<ActivePraiseIcon/>} icon2={<InactivePraiseIcon/>}
                     />
-                    </div>
+                </div>
                 <ViewsCounter contentId={contentId}/>
             </div>
         </div>

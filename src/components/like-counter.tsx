@@ -26,7 +26,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
     icon2=<InactiveLikeIcon/>
 }) => {
     const {user} = useUser()
-    const userLikesContent = useSWR("/api/user-like-content/"+contentId+"/"+user.id, fetcher)
+    const userLikesContent = useSWR("/api/user-like-content/"+contentId, fetcher)
     const content = useContent(contentId)
 
     if(userLikesContent.isLoading || content.isLoading){
