@@ -3,7 +3,7 @@
 import React, { ReactNode, useOptimistic, useState } from "react"
 import { stopPropagation } from "./utils";
 import { ContentProps } from 'src/app/lib/definitions';
-import { useUser, useUserLikesContent } from "src/app/hooks/user";
+import { useUser } from "src/app/hooks/user";
 import useSWR, { useSWRConfig } from "swr";
 import { ReactionButton } from "./reaction-button";
 import { fetcher } from "src/app/hooks/utils";

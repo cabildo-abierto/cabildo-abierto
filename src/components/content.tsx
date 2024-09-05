@@ -163,7 +163,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     parentContentId,
 }) => {
     const {user} = useUser()
-    const reactions = useUserLikesContent(content.id, user.id)
+    const reactions = useUserLikesContent(content.id)
     const comments = useContentComments(content.id)
     const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
     const views = useViews(content.id)

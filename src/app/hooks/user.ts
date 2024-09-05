@@ -25,8 +25,8 @@ export function useUserContents(userId: string): {userContents: {id: string, typ
 }
 
 
-export function useUserLikesContent(contentId: string, userId: string): {userLikesContent: boolean, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/user-like-content/'+contentId+"/"+userId, fetcher)
+export function useUserLikesContent(contentId: string): {userLikesContent: boolean, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/user-like-content/'+contentId, fetcher)
   
     return {
         userLikesContent: data,
