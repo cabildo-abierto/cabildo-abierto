@@ -49,30 +49,38 @@ type TopbarLoggedInProps = {
 
 function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) {
     const [searchBarOpen, setSearchBarOpen] = useState(false)
+    const [wideScreen, setWideScreen] = useState(false)
     const router = useRouter()
     const path = usePathname()
+
+    useEffect(() => {
+        if (window.innerWidth >= 640) {
+            setSearchBarOpen(true)
+            setWideScreen(true)
+        }
+    }, [])
     
-    return <div className="flex items-center w-screen">
-        <OpenSidebarButton onClick={onOpenSidebar} />
-        {!searchBarOpen &&
-            <>
-            <FeedButton />
-            <WriteButton />
-            {path.includes("/inicio") && <SearchButton onClick={() => {
+    return <div className="flex items-center w-screen justify-between">
+        <div className="flex items-center sm:w-32 w-16">
+            <OpenSidebarButton onClick={onOpenSidebar}/>
+            {(!searchBarOpen || wideScreen) && <FeedButton />}
+            {(!searchBarOpen || wideScreen) && <WriteButton />}
+            {!searchBarOpen && path.includes("/inicio") && <SearchButton onClick={() => {
                 if(path.includes("/inicio"))
                     setSearchBarOpen(true)
                 else
                     router.push("/inicio")
             }} />}
-            </>
-        }
+        </div>
 
-        {searchBarOpen && 
+        {searchBarOpen && <div className="">
             <SearchBar 
                 onClose={() => {setSearchBarOpen(false)}}
                 setSearchValue={ setSearchValue }
+                wideScreen={wideScreen}
             />
-        }
+        </div>}
+        <div className="sm:w-32 w-16"></div>
     </div>
 }
 
