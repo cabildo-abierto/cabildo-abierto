@@ -834,7 +834,7 @@ export default function ToolbarPlugin({
     activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
   };
 
-  const canViewerSeeInsertDropdown = !isImageCaption;
+  const canViewerSeeInsertDropdown = false // !isImageCaption;
   const canViewerSeeInsertCodeButton = !isImageCaption;
 
   return (
@@ -1056,7 +1056,7 @@ export default function ToolbarPlugin({
                   }}
                   className="item">
                   <i className="icon horizontal-rule" />
-                  <span className="text">Regla horizontal</span>
+                  <span className="text">Línea horizontal</span>
                 </DropDownItem>
                 {false && <DropDownItem
                   onClick={() => {

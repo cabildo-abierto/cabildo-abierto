@@ -26,10 +26,6 @@ const TopicsPage: React.FC<{
     const preloadFollowingFeed = useFollowingFeed()
     const router = useRouter()
 
-    /*function setSelected(value: string) {
-        //router.push("/inicio/"+decodedRoute.join("/")+"?selected="+value)
-    }*/
-
     const center = <div className="w-full">
         <div className="content-container py-2 mt-2">
             <WikiCategories route={decodedRoute} selected={selected}/>

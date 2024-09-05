@@ -6,12 +6,11 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
 import { useUser } from "src/app/hooks/user";
-import { Logo } from "./home-page";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useSWRConfig } from "swr";
 import StateButton from "./state-button";
 import { id2url } from "./content";
-import { CabildoIcon, DashboardIcon } from "./icons";
+import {CabildoIcon, DashboardIcon, ScoreboardIcon} from "./icons";
 
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
@@ -33,7 +32,8 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
                     {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={id2url(user.user.id)}/>}
                     <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Panel personal" href="/panel"/>
-                
+                    <SidebarButton icon={<ScoreboardIcon/>} onClick={onClose} text="Ranking" href="/ranking"/>
+
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/articulo/Cabildo_Abierto"/>
                 </div>
                 {user.user && <div className="flex flex-col items-center">
