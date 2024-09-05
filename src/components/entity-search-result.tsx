@@ -5,7 +5,7 @@ import { ArticleIcon } from "./icons"
 
 export const EntitySearchResult: React.FC<{entity: {id: string, name: string}}> = ({ entity }) => {
     
-    return <div className="flex justify-center">
+    return <div className="flex justify-center content-container">
         <Link href={"/articulo/" + entity.id}>
             <button className="search-result">
                 <div className="flex w-full items-center">

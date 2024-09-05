@@ -7,19 +7,21 @@ import CloseIcon from '@mui/icons-material/Close';
 import { SearchButton } from "./top-bar";
 import { id2url } from "./content";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import { ArticleIcon } from "./icons";
 
 export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = ({ result }) => {
-    return (
-        <div className="flex justify-center">
-            <Link href={id2url(result.id)}>
-                <button className="search-result items-center">
-                  <div className="w-full flex">
-                    <AccountBoxIcon/> <div className="w-full text-center">{result.name}</div>
-                  </div>
-                </button>
-            </Link>
-        </div>
-    )
+    return <div className="flex justify-center content-container">
+        <Link href={id2url(result.id)}>
+            <button className="search-result">
+                <div className="flex w-full items-center">
+                    <AccountBoxIcon fontSize="small"/>
+                    <div className="text-center w-full px-1">
+                        {result.name}
+                    </div>
+                </div>                  
+            </button>
+        </Link>
+    </div>
 }
 
 
@@ -34,7 +36,7 @@ export const SearchInput: React.FC<{onChange: (arg: string) => void}> = ({ onCha
 
   return <input
     ref={inputRef}
-    className="bg-[var(--background)] w-full focus:outline-none"
+    className="bg-transparent w-full focus:outline-none"
     placeholder="buscar"
     onChange={(e) => {onChange(e.target.value)}}
   />
@@ -50,17 +52,27 @@ const CloseSearchButton = ({ onClick }: any) => {
 }
 
 
-const SearchBar: React.FC<{onClose: any, setSearchValue: any}> = ({onClose, setSearchValue}) => {
+const SearchBar: React.FC<{onClose: any, setSearchValue: any, wideScreen: boolean}> = ({onClose, setSearchValue, wideScreen}) => {
 
-  return <>
-    <div className="flex">
-        <SearchButton disabled={true}/>
+
+  return wideScreen ?
+      <div className="flex border pl-3 pr-1">
         <div className="flex w-full">
           <SearchInput onChange={setSearchValue}/>
-          <CloseSearchButton onClick={() => {onClose(); setSearchValue("")}}/>
         </div>
-    </div>
-  </>
+        <div className="text-[var(--text-light)]">
+          <SearchButton disabled={true}/>
+        </div>
+      </div> : 
+      <div className="flex border pl-1 pr-1">
+        <div className="text-[var(--text-light)] flex">
+          <SearchButton disabled={true}/>
+          <div className="flex w-full">
+            <SearchInput onChange={setSearchValue}/>
+            <CloseSearchButton onClick={() => {onClose(); setSearchValue("")}}/>
+          </div>
+        </div>
+      </div>
 }
 
 export default SearchBar;
