@@ -297,7 +297,6 @@ export async function createComment(text: string, parentContentId: string, userI
     let references = await findReferences(text)
 
     const parentEntityId = (await getContentById(parentContentId)).parentEntityId
-
     const comment = await db.content.create({
         data: {
             text: text,

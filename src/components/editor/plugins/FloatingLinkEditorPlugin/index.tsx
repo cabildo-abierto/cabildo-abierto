@@ -240,16 +240,15 @@ function FloatingLinkEditor({
   const SearchResults = ({results, setValue}: any) => {
     return <div className="mb-2">
       {results.map((entity: EntityProps) => {
-          return <div key={entity.id}>
-            <button 
-              className="w-72 mt-1 ml-8 px-2 flex items-center cursor-pointer hover:bg-gray-100 rounded"
+          return <button
+              key={entity.id}
+              className="w-96 mx-[12px] flex justify-center items-center mt-1 hover:bg-gray-100 rounded"
               onClick={() => {setValue("/articulo/"+entity.id)}}
             >
-              <div className="py-1">
+              <div className="py-1 px-2 text-center">
                 {entity.name}
               </div>
-            </button>
-          </div>
+        </button>
       })}
     </div>
   }

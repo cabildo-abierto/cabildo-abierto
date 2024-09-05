@@ -22,3 +22,11 @@ export const ViewsCounter: React.FC<ViewsCounterProps> = ({
         title="La cantidad de personas distintas que vieron este contenido. No se cuentan segundas vistas."
     />
 }
+
+
+export const TextViewsCounter: React.FC<ViewsCounterProps> = ({
+    contentId
+}) => {
+    const {views, isLoading, isError} = useViews(contentId)
+    return <span title="La cantidad de personas distintas que vieron este contenido, sin contar segundas vistas.">visto por {views}</span>
+}
