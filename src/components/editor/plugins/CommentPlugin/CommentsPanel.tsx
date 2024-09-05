@@ -1,5 +1,5 @@
 import { NodeKey } from "lexical";
-import CommentSection from "src/components/comment-section";
+import {CommentSection} from "src/components/comment-section";
 import { ContentProps } from "src/app/lib/definitions";
 
 

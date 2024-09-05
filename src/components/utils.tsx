@@ -53,3 +53,8 @@ export function sumFromFirstEdit(values: number[], entity: EntityProps, userId: 
     for(let i = firstEdit; i < values.length; i++) total += values[i]
     return total
 }
+
+
+export function arraySum(a: any[]) {
+    return a.reduce((acc, curr) => acc + curr, 0)
+}

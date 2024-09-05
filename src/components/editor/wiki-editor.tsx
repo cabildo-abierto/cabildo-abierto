@@ -126,10 +126,8 @@ function showAuthors(entity: EntityProps, version: number){
                 if(matches[k] && matches[k].y == j){
                     const prevNodeAuthors = prevAuthors[matches[k].x]
                     if(getAllText(prevNodes[matches[k].x]) == getAllText(nodes[matches[k].y])){
-                        console.log(j, "is perfect match")
                         authors = prevNodeAuthors
                     } else {
-                        console.log(j, "is imperfect match")
                         if(!prevNodeAuthors.includes(versionAuthor)){
                             authors = [...prevNodeAuthors, versionAuthor]
                         } else {
@@ -142,7 +140,6 @@ function showAuthors(entity: EntityProps, version: number){
             if(authors === null) authors = [versionAuthor]
             nodeAuthors.push(authors)
         }
-        console.log("authors", nodeAuthors)
         prevAuthors = [...nodeAuthors]
         prevNodes = [...nodes]
     }
@@ -155,8 +152,7 @@ function showAuthors(entity: EntityProps, version: number){
     return r
 }
 
-const WikiEditor = ({
-    entity, version, readOnly=false, showingChanges=false, showingAuthors=false, setEditing}: WikiEditorProps) => {
+const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, showingAuthors=false, setEditing}: WikiEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)

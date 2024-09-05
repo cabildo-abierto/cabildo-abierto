@@ -1,5 +1,5 @@
 import React from "react"
-import { ContentWithComments } from "./content-with-comments";
+import { ContentWithComments, ContentWithCommentsFromId } from "./content-with-comments";
 import { useUser } from "src/app/hooks/user";
 import LoadingSpinner from "./loading-spinner";
 import { NoResults } from "./category-users";
@@ -23,7 +23,7 @@ const Feed: React.FC<{feed: FeedProps, noResultsText?: string}> = ({feed, noResu
     return <div className="h-full w-full flex flex-col items-center space-y-2">
         {feed.feed.length > 0 ? feed.feed.map(({id}, index: number) => {
             return <div key={index} className="w-full">
-                <ContentWithComments
+                <ContentWithCommentsFromId
                     contentId={id}
                 />
             </div>

@@ -7,7 +7,7 @@ import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
 import { ContentProps, EntityProps, UserStats } from "src/app/lib/definitions";
 import { nodesCharDiff } from "src/components/diff";
-import { sumFromFirstEdit } from "src/components/utils";
+import { arraySum, sumFromFirstEdit } from "src/components/utils";
 
 
 export async function getContentById(id: string) {
@@ -510,7 +510,6 @@ export const getUserById = (userId: string) => {
 
 export const getUserContents = (userId: string) => {
     return unstable_cache(async () => {
-        console.log("computing them")
         const contents = (await db.user.findUnique(
             {
                 select: {
@@ -730,13 +729,18 @@ export async function createEntity(name: string, userId: string){
   
   
 export const updateEntity = async (text: string, categories: string, entityId: string, userId: string, changingContent: boolean) => {
+    let references = await findReferences(text)
+
     await db.content.create({
         data: {
             text: text,
             authorId: userId,
             type: "EntityContent",
             parentEntityId: entityId,
-            categories: categories
+            categories: categories,
+            entityReferences: {
+                connect: references
+            }
         }
     })
 
@@ -959,10 +963,6 @@ export async function getUserStats(userId: string) {
     const postReactions = await Promise.all(postsIds.map(getContentReactions))
     const entityContributions = await Promise.all(Array.from(editedEntitiesIds).map(getEntityContributions))
 
-    function arraySum(a: any[]) {
-        return a.reduce((acc, curr) => acc + curr, 0)
-    }
-
     function getAddedChars(entityContrArray: [string, number][][]){
         const lastVersion = entityContrArray[entityContrArray.length-1]
         for(let i = 0; i < lastVersion.length; i++){
@@ -1001,4 +1001,21 @@ export async function getUserStats(userId: string) {
         viewsInEntities: arraySum(entityViews)
     }
     return stats
+}
+
+
+export const getTopKEntitiesByViews = async (k: number) => {
+    
+    return unstable_cache(async () => {
+    const entities = await getEntities()
+    const views = await Promise.all(entities.map(async ({id}) => {return arraySum(await getEntityViews(id))}))
+    
+    function comp(a: {views: number}, b: {views: number}){
+        return b.views - a.views
+    }
+    
+    const sorted = entities.map(({name}, index) => ({name: name, views: views[index]})).sort(comp)
+    
+    return sorted.slice(0, 3).map(({name}) => (name))
+    }, ["topkentities", k.toString()], {revalidate: 3600})()
 }

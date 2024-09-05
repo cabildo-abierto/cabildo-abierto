@@ -137,46 +137,45 @@ export const Authorship = ({content, onlyAuthor=false}: any) => {
 
 
 type ContentComponentProps = {
-    contentId: string
+    content: ContentProps
     onViewComments: () => void
-    entity?: EntityProps
-    version?: number
-    isPostPage?: boolean
+    isMainPage?: boolean
     viewingComments: boolean
     onStartReply: () => void
     showingChanges?: boolean
     showingAuthors?: boolean
     editing?: boolean
     setEditing: (arg0: boolean) => void
+    parentContentId?: string
 }
 
 
 const ContentComponent: React.FC<ContentComponentProps> = ({
-    contentId,
+    content,
     onViewComments,
     viewingComments,
-    entity,
-    version,
     onStartReply,
-    isPostPage=false,
+    isMainPage=false,
     showingChanges=false,
     showingAuthors=false,
     editing=false,
-    setEditing
+    setEditing,
+    parentContentId,
 }) => {
     const {user} = useUser()
-    const {content, isLoading, isError} = useContent(contentId)
-    const reactions = useUserLikesContent(contentId, user.id)
-    const comments = useContentComments(contentId)
+    const reactions = useUserLikesContent(content.id, user.id)
+    const comments = useContentComments(content.id)
     const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
-    const views = useViews(contentId)
+    const views = useViews(content.id)
+    
+    const requiresMainPage = content.type == "Post" || content.type == "EntityContent"
 
     useEffect(() => {
         const recordView = async () => {
             if (user && !viewRecordedRef.current && content && views.views) {
-                if(content.type == "Post" && isPostPage || content.type != "Post"){
+                if(requiresMainPage && isMainPage || !requiresMainPage){
                     viewRecordedRef.current = true;
-                    await views.mutate(addView(contentId, user.id), {
+                    await views.mutate(addView(content.id, user.id), {
                         optimisticData: views.views,
                         rollbackOnError: true,
                         populateCache: true,
@@ -186,21 +185,25 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
             }
         };
         recordView();
-    }, [user, contentId, content, views.isLoading]);
+    }, [user, content.id, content, views.isLoading]);
 
-    if(isLoading || reactions.isLoading || views.isLoading){
+    if(reactions.isLoading || views.isLoading){
         return <LoadingSpinner/>
     }
-    if(isError || !content){
-        return <></>
-    }
     let element = null
-    if(content.type == "Post" && isPostPage){
+    if(content.type == "Post" && isMainPage){
         element = <Post content={content}/>
     } else if(content.type == "EntityContent"){
         element = <EntityComponent
             setEditing={setEditing}
-            version={version} entity={entity} showingChanges={showingChanges} editing={editing} showingAuthors={showingAuthors}/>
+            contentId={content.id}
+            entityId={content.parentEntityId}
+            showingChanges={showingChanges}
+            editing={editing}
+            showingAuthors={showingAuthors}
+            isMainPage={isMainPage}
+            parentContentId={parentContentId}
+        />
     } else if(content.type == "Post"){
         element = <PostOnFeed content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
     } else if(content.type == "FastPost"){

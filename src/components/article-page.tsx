@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from "react"
 
-import { ContentWithComments } from "src/components/content-with-comments";
+import { ContentWithCommentsFromId } from "src/components/content-with-comments";
 import PaywallChecker from "src/components/paywall-checker";
 import { SetProtectionButton } from "src/components/protection-button";
 import { useUser } from "src/app/hooks/user";
@@ -104,7 +104,6 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
     const contentId = entity.versions[version].id
 
     const lastUpdated = entity.versions[entity.versions.length-1].createdAt
-
     const center = <div className="bg-[var(--background)] h-full">
         <h1 className="ml-2 py-8">
             {entity.name}
@@ -158,23 +157,21 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             <EditHistory entity={entity} viewing={version}/>
         </div>
         }
-        {editing && <ContentWithComments
+        {editing && <ContentWithCommentsFromId
             contentId={contentId}
-            entity={entity} 
-            version={version}
             showingChanges={showingChanges}
             showingAuthors={showingAuthors}
             editing={true}
             setEditing={setEditing}
+            isMainPage={true}
         />}
-        {!editing && <ContentWithComments
+        {!editing && <ContentWithCommentsFromId
             contentId={contentId}
-            entity={entity} 
-            version={version}
             showingChanges={showingChanges}
             showingAuthors={showingAuthors}
             editing={false}
             setEditing={setEditing}
+            isMainPage={true}
         />}
 
     </div>

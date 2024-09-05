@@ -1,5 +1,3 @@
-"use client"
-
 import Link from "next/link"
 import Footer from "./footer"
 import Image from 'next/image'
