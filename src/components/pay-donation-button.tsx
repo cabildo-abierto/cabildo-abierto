@@ -16,7 +16,7 @@ export const PayDonationButton = ({amount, oneForYou}: {amount: number, oneForYo
         await donateSubscriptions(amount, user.id)
 
         if(oneForYou){
-            await buyAndUseSubscription(user.id, false)
+            await buyAndUseSubscription(user.id)
             await mutate("/api/user")
         }
         router.push("/suscripciones")

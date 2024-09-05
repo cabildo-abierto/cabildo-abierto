@@ -151,7 +151,7 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
 
     return <div className="">
         <div className="py-3"><hr/></div>
-        <EntityCategoriesTitle name={entity.name}/>
+        <EntityCategoriesTitle name={entity.name} editing={true}/>
         <div className="flex">
             <div className="w-72">
                 {categories.length > 0 ? categories.map((cat: string[], i: number) => {

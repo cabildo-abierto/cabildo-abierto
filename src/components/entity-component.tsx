@@ -22,7 +22,7 @@ type EntityComponentProps = {
 }
 
 
-function getVersionInEntity(contentId: string, entity: EntityProps){
+export function getVersionInEntity(contentId: string, entity: EntityProps){
     for(let i = 0; i < entity.versions.length; i++){
         if(entity.versions[i].id == contentId){
             return i
@@ -48,11 +48,16 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
     const version = getVersionInEntity(contentId, entity.entity)
 
     if(parentContentId){
-        return <EntityMentionInCommentSection
-            entity={entity.entity}
-            mentioningContentId={contentId}
-            parentContentId={parentContentId}
-        />
+        const version = getVersionInEntity(contentId, entity.entity)
+        if(version != entity.entity.versions.length-1){
+            return <></>
+        } else {
+            return <EntityMentionInCommentSection
+                entity={entity.entity}
+                mentioningContentId={contentId}
+                parentContentId={parentContentId}
+            />
+        }
     } else {
         return <div className="px-2 min-h-64">
             <WikiEditor 
