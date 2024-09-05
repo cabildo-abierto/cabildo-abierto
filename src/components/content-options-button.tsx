@@ -76,7 +76,7 @@ const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string 
 export const ContentOptionsDropdown = ({onFlagFalse}: {onFlagFalse: () => void}) => {
     return <button className="py-2 hover:bg-[var(--secondary-light)] px-2 rounded" onClick={onFlagFalse}>
         <div className="flex items-center">
-            <RedFlag/> <span className="ml-2">Reportar que incluye información falsa</span>
+            <RedFlag/> <span className="ml-2">Reportar información falsa</span>
         </div>
     </button>
 }

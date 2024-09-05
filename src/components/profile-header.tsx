@@ -12,7 +12,6 @@ export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user
     const [following, setFollowing] = useState(false)
     const {mutate} = useSWRConfig()
 
-    console.log("User description", profileUser.description)
     useEffect(() => {
         if(user)
             setFollowing(user.following.some((u) => u.id === profileUser.id))

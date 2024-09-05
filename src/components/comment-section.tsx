@@ -1,13 +1,15 @@
-import { ContentProps } from "src/app/lib/definitions"
-import { ContentWithComments } from "src/components/content-with-comments"
+import { ContentProps, EntityProps } from "src/app/lib/definitions"
+import { ContentWithCommentsFromId } from "src/components/content-with-comments"
 import LoadingSpinner from "./loading-spinner"
 import useSWR from "swr"
 import { fetcher } from "src/app/hooks/utils"
 import { SmallContentProps } from "src/app/api/feed/route"
 import { getAllQuoteIds } from "./comment"
+import { useEntity } from "src/app/hooks/entities"
 
 type CommentSectionProps = {
     content: ContentProps
+    entity?: EntityProps
     activeIDs?: string[]
     otherContents?: SmallContentProps[]
     onlyQuotes?: boolean
@@ -22,10 +24,9 @@ type CommentSectionProps = {
     Si no:
         Todos los comentarios hechos sobre alguna versión del contenido. Eventualmente con una marca de a qué versión pertenecen
 */
-const CommentSection: React.FC<CommentSectionProps> = ({
+export const CommentSection: React.FC<CommentSectionProps> = ({
     content, activeIDs, otherContents, writingReply, setWritingReply, onlyQuotes=false}) => {
     
-    console.log("otherContents", otherContents)
     function inActiveIDs({id}: {id: string}) {
         return (!activeIDs || activeIDs.length == 0) || activeIDs.includes(id)
     }
@@ -56,6 +57,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     }
 
     const contents = otherContents ? filteredComments.concat(otherContents) : filteredComments
+    
 
     function order(a: {score: number[]}, b: {score: number[]}){
         for(let i = 0; i < a.score.length; i++){
@@ -81,7 +83,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         <div className="space-y-2 mt-2">
             {contentsWithScore.map(({comment}) => (
                 <div key={comment.id}>
-                    <ContentWithComments contentId={comment.id}/>
+                    <ContentWithCommentsFromId contentId={comment.id} isMainPage={false} parentContentId={content.id}/>
                 </div>
             ))}
         </div>
@@ -92,4 +94,24 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     </>
 }
 
-export default CommentSection
+
+type EntityCommentSectionProps = {
+    content: ContentProps
+    writingReply: boolean
+    setWritingReply: (arg0: boolean) => void
+}
+
+
+export const EntityCommentSection = ({content, writingReply, setWritingReply}: EntityCommentSectionProps) => {
+    const entity = useEntity(content.parentEntityId)
+    if(entity.isLoading){
+        return <LoadingSpinner/>
+    }
+
+    return <CommentSection
+        content={content}
+        writingReply={writingReply}
+        setWritingReply={setWritingReply}
+        otherContents={entity.entity.referencedBy}
+    />
+}
