@@ -626,7 +626,7 @@ export const removeLike = async (id: string, userId: string, entityId?: string) 
 }
 
 
-export const addView = async (id: string, userId: string) => {
+export const addView = async (id: string, userId: string, entityId?: string) => {
     const exists = await db.view.findMany({
         select: {
             createdAt: true
@@ -653,8 +653,9 @@ export const addView = async (id: string, userId: string) => {
                 userById: userId,
                 contentId: id
             },
-        });
+        })
         revalidateTag("views:"+id)
+        if(entityId) revalidateTag("entityViews:"+entityId)
     }
     return await getContentViews(id)
 }

@@ -226,6 +226,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
                             await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user.id, true)
                             mutate("/api/entities")
                             mutate("/api/entity/"+entity.id)
+                            mutate("/api/contributions/"+entity.id)
                             router.push("/articulo/"+entity.id)
                         }
                     })

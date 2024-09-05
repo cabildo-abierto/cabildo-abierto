@@ -175,7 +175,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
             if (user && !viewRecordedRef.current && content && views.views) {
                 if(requiresMainPage && isMainPage || !requiresMainPage){
                     viewRecordedRef.current = true;
-                    await views.mutate(addView(content.id, user.id), {
+                    await views.mutate(addView(content.id, user.id, content.parentEntityId), {
                         optimisticData: views.views,
                         rollbackOnError: true,
                         populateCache: true,

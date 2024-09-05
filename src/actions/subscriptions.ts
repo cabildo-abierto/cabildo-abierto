@@ -1,12 +1,10 @@
 'use server';
 
-import { cache } from './cache';
-import { redirect } from 'next/navigation';
 import { revalidateTag, unstable_cache } from 'next/cache';
 import { db } from '../db';
 
 
-export async function buyAndUseSubscription(userId: string, redirect_on_done: boolean = true) { 
+export async function buyAndUseSubscription(userId: string) { 
     const result = await db.subscription.create({
         data: {
             userId: userId,
