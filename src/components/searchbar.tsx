@@ -16,7 +16,7 @@ export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = 
                 <div className="flex w-full items-center">
                     <AccountBoxIcon fontSize="small"/>
                     <div className="text-center w-full px-1">
-                        {result.name}
+                        {result.name} @{result.id}
                     </div>
                 </div>                  
             </button>
@@ -25,11 +25,11 @@ export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = 
 }
 
 
-export const SearchInput: React.FC<{onChange: (arg: string) => void}> = ({ onChange }) => {
+export const SearchInput: React.FC<{onChange: (arg: string) => void, autoFocus: boolean}> = ({ onChange, autoFocus }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && autoFocus) {
       inputRef.current.focus();
     }
   }, []);
@@ -58,7 +58,7 @@ const SearchBar: React.FC<{onClose: any, setSearchValue: any, wideScreen: boolea
   return wideScreen ?
       <div className="flex border pl-3 pr-1">
         <div className="flex w-full">
-          <SearchInput onChange={setSearchValue}/>
+          <SearchInput onChange={setSearchValue} autoFocus={false}/>
         </div>
         <div className="text-[var(--text-light)]">
           <SearchButton disabled={true}/>
@@ -68,7 +68,7 @@ const SearchBar: React.FC<{onClose: any, setSearchValue: any, wideScreen: boolea
         <div className="text-[var(--text-light)] flex">
           <SearchButton disabled={true}/>
           <div className="flex w-full">
-            <SearchInput onChange={setSearchValue}/>
+            <SearchInput onChange={setSearchValue} autoFocus={true}/>
             <CloseSearchButton onClick={() => {onClose(); setSearchValue("")}}/>
           </div>
         </div>

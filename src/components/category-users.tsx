@@ -21,6 +21,10 @@ export const CategoryUsers = ({route}: {route: string[]}) => {
         return <></>
     }
 
+    if(searchValue.length == 0){
+        return <div className="text-center mt-8">Buscá un usuario...</div>
+    }
+
     //const routeUsers = users.users.filter((user) => (entityInRoute(user, route)))
 
     function isMatch(user: SmallUserProps){
@@ -28,12 +32,6 @@ export const CategoryUsers = ({route}: {route: string[]}) => {
     }
 
     let filteredUsers = users.users.filter(isMatch)
-
-    function order(a: SmallUserProps, b: SmallUserProps){
-        return a.name.length - b.name.length
-    }
-
-    filteredUsers = filteredUsers.sort(order)
 
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center">

@@ -479,6 +479,26 @@ export const getUsers = unstable_cache(async () => {
 )
 
 
+export const getUsersWithStats = unstable_cache(async () => {
+    const users = await getUsers()
+
+    return await Promise.all(users.map(async (user) => (
+                {
+                    user: user,
+                    stats: await getUserStats(user.id)
+                }
+            )
+        )
+    )
+},
+    ["usersWithStats"],
+    {
+        revalidate: 10,
+        tags: ["users", "usersWithStats"]
+    }
+)
+
+
 export const getUserById = (userId: string) => {
     return unstable_cache(async () => {
         const user = await db.user.findUnique(
@@ -946,10 +966,10 @@ export async function getEntityViews(id: string) {
 
 export async function getUserStats(userId: string) {
     const userContents = await getUserContents(userId)
-
     let entityEdits = 0
     let editedEntitiesIds = new Set()
     const postsIds = []
+
     userContents.forEach((content) => {
         if(content.type == "EntityContent"){
             entityEdits ++
@@ -966,10 +986,11 @@ export async function getUserStats(userId: string) {
     function getAddedChars(entityContrArray: [string, number][][]){
         const lastVersion = entityContrArray[entityContrArray.length-1]
         for(let i = 0; i < lastVersion.length; i++){
-            if(lastVersion[i][0] === userId){
+            if(lastVersion[i][0] == userId){
                 return lastVersion[i][1]
             }
         }
+        return 0 // esto pasa si creás la entidad y no le agregás nada
     }
 
     async function getReactionsFromFirstEdit(entityId: string){

@@ -11,6 +11,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import GradeOutlinedIcon from '@mui/icons-material/GradeOutlined';
 import GradeIcon from '@mui/icons-material/Grade';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard'
 
 export const RedFlag = () => {
     return <FlagIcon fontSize="small" className="text-red-600"/>
@@ -62,4 +63,9 @@ export const InactivePraiseIcon = () => {
 
 export const StatsIcon = () => {
     return <ShowChartIcon fontSize="small"/>
+}
+
+
+export const ScoreboardIcon = () => {
+    return <LeaderboardIcon fontSize="small"/>
 }

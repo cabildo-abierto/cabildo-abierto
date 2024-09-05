@@ -210,7 +210,9 @@ function Editor({ settings, setEditor, setEditorState }:
         {isAutofocus && <AutoFocusPlugin />}
         <ClearEditorPlugin />
         <ComponentPickerPlugin />
+        <EmojisPlugin />
         <EmojiPickerPlugin />
+
         <AutoEmbedPlugin />
 
         <BeautifulMentionsPlugin
@@ -227,9 +229,7 @@ function Editor({ settings, setEditor, setEditorState }:
             setEditorState(editorState)
           }}
         />
-        <EmojisPlugin />
         <HashtagPlugin />
-        <KeywordsPlugin />
         <AutoLinkPlugin />
         {isComments && content && <CommentPlugin
           parentContent={content}
@@ -247,29 +247,13 @@ function Editor({ settings, setEditor, setEditorState }:
               }
               ErrorBoundary={LexicalErrorBoundary}
             />
-            <CodeHighlightPlugin />
             <ListPlugin />
             <CheckListPlugin />
             <ListMaxIndentLevelPlugin maxDepth={7} />
-            <TablePlugin
-              hasCellMerge={tableCellMerge}
-              hasCellBackgroundColor={tableCellBackgroundColor}
-            />
-            <TableCellResizer />
-            <TableHoverActionsPlugin />
-            <ImagesPlugin />
-            <InlineImagePlugin />
+
             <LinkPlugin />
-            <PollPlugin />
-            <TwitterPlugin />
-            <YouTubePlugin />
             <ClickableLinkPlugin disabled={isEditable} newTab={false}/>
-            <HorizontalRulePlugin />
-            <EquationsPlugin />
-            <TabFocusPlugin />
-            <TabIndentationPlugin />
-            <CollapsiblePlugin />
-            <PageBreakPlugin />
+
             <LayoutPlugin />
 
             {!isReadOnly && floatingAnchorElem && !isSmallWidthViewport && (
