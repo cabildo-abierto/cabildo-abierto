@@ -1,14 +1,12 @@
 "use client"
 
 import React, { ReactNode, useOptimistic, useState } from "react"
-import { stopPropagation } from "./utils";
-import { ContentProps } from 'src/app/lib/definitions';
 import { useUser } from "src/app/hooks/user";
-import useSWR, { useSWRConfig } from "swr";
+import useSWR from "swr";
 import { ReactionButton } from "./reaction-button";
 import { fetcher } from "src/app/hooks/utils";
 import { addLike, removeLike } from "src/actions/actions";
-import { ActiveLikeIcon, InactiveLikeIcon } from "./icons";
+import { ActiveLikeIcon, InactiveCommentIcon, InactiveLikeIcon, ViewsIcon } from "./icons";
 import { useContent } from "src/app/hooks/contents";
 
 type LikeCounterProps = {
@@ -80,13 +78,12 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
 }
 
 
-export const FixedLikeCounter = ({count}: {count: number}) => {
+export const FixedCounter = ({count, icon}: {count: number, icon: ReactNode}) => {
     
     return <ReactionButton
         onClick={() => {}}
         active={true}
-        icon1={<ActiveLikeIcon/>}
-        icon2={<InactiveLikeIcon/>}
+        icon1={icon}
         disabled={true}
         count={count}
     />

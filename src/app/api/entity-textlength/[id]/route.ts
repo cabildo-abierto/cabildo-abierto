@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEntityById } from 'src/actions/actions';
+import { getEntityTextLength } from 'src/actions/actions';
 
 export async function GET(req: NextRequest,
   { params }: { params: { id: string } }
 ) {
 
-    let entity = await getEntityById(params.id)
+    let entity = await getEntityTextLength(params.id)
 
     return NextResponse.json(entity);
 }

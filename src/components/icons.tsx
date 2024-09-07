@@ -12,7 +12,11 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import GradeOutlinedIcon from '@mui/icons-material/GradeOutlined';
 import GradeIcon from '@mui/icons-material/Grade';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard'
+import CommentIcon from '@mui/icons-material/Comment';
+import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
+import AbcIcon from '@mui/icons-material/Abc';
 
+import VisibilityIcon from '@mui/icons-material/Visibility';
 export const RedFlag = () => {
     return <FlagIcon fontSize="small" className="text-red-600"/>
 }
@@ -68,4 +72,24 @@ export const StatsIcon = () => {
 
 export const ScoreboardIcon = () => {
     return <LeaderboardIcon fontSize="small"/>
+}
+
+
+export const ActiveCommentIcon = () => {
+    return <CommentIcon fontSize="small"/>
+}
+
+
+export const InactiveCommentIcon = () => {
+    return <CommentOutlinedIcon fontSize="small"/>
+}
+
+
+export const ViewsIcon = () => {
+    return <VisibilityIcon fontSize="small"/>
+}
+
+
+export const TextLengthIcon = () => {
+    return <AbcIcon fontSize="small"/>
 }

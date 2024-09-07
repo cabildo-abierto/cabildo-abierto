@@ -3,7 +3,6 @@
 import React, { ReactNode, useEffect, useRef } from "react";
 import Link from "next/link";
 
-import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 
 import { stopPropagation } from "./utils";
 import { DateSince } from "./date";
@@ -16,7 +15,6 @@ import { FastPost } from "./fast-post";
 import { Comment } from "./comment"
 import { ContentProps, EntityProps } from "src/app/lib/definitions";
 import { ReactionButton } from "./reaction-button";
-import CommentIcon from '@mui/icons-material/Comment';
 import LoadingSpinner from "./loading-spinner";
 import { useUser, useUserLikesContent } from "src/app/hooks/user";
 import { ViewsCounter } from "./views-counter";
@@ -25,6 +23,7 @@ import { ContentOptionsButton } from "./content-options-button";
 import { FakeNewsCounter } from "./fake-news-counter";
 import { addView } from "src/actions/actions";
 import { CommentInContext } from "./comment-in-context";
+import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
 
 
 export function id2url(id: string){
@@ -100,8 +99,8 @@ export const CommentCounter = ({viewingComments, disabled, contentId, onViewComm
 
     return <div className="flex items-center px-2">
         <ReactionButton
-            icon1={<CommentIcon fontSize="small"/>}
-            icon2={<CommentOutlinedIcon fontSize="small"/>}
+            icon1={<ActiveCommentIcon/>}
+            icon2={<InactiveCommentIcon/>}
             count={commentCount.isLoading ? "?" : commentCount.count}
             disabled={disabled}
             active={viewingComments}
@@ -116,12 +115,20 @@ type CommentCounterProps = {
     viewingComments: boolean,
     disabled?: boolean
     likeCounterTitle?: string
+    isPost?: boolean
 }
 
-export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({contentId, onViewComments, viewingComments, disabled=false, likeCounterTitle}) => {
+export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({contentId, onViewComments, viewingComments, disabled=false, likeCounterTitle, isPost=false}) => {
+    const icon1 = isPost ? <ActivePraiseIcon/> : <ActiveLikeIcon/>
+    const icon2 = isPost ? <InactivePraiseIcon/> : <InactiveLikeIcon/>
     return <div className="flex">
         <ViewsCounter contentId={contentId}/>
-        <LikeCounter contentId={contentId} disabled={disabled} title={likeCounterTitle}/>
+        <LikeCounter
+            icon1={icon1}
+            icon2={icon2}
+            contentId={contentId}
+            disabled={disabled}
+            title={likeCounterTitle}/>
         <CommentCounter contentId={contentId} disabled={disabled} viewingComments={viewingComments} onViewComments={onViewComments}/>
     </div>
 }
@@ -174,7 +181,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
 
     useEffect(() => {
         const recordView = async () => {
-            if (user && !viewRecordedRef.current && content && views.views) {
+            if (user && !viewRecordedRef.current && content && views.views != null) {
                 if(requiresMainPage && isMainPage || !requiresMainPage){
                     viewRecordedRef.current = true;
                     await views.mutate(addView(content.id, user.id, content.parentEntityId), {

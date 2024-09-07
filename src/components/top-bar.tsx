@@ -73,7 +73,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
             }} />}
         </div>
 
-        {searchBarOpen && <div className="">
+        {searchBarOpen && path.includes("/inicio") && <div className="">
             <SearchBar 
                 onClose={() => {setSearchBarOpen(false)}}
                 setSearchValue={ setSearchValue }

@@ -3,14 +3,14 @@ import { ThreeColumnsLayout } from "src/components/three-columns"
 import { useUser, useUserContents } from "../hooks/user"
 import { useContent, useReactions, useUserStats } from "../hooks/contents"
 import LoadingSpinner from "src/components/loading-spinner"
-import { ArticleIcon, PostIcon, StatsIcon } from "src/components/icons"
-import { FixedLikeCounter } from "src/components/like-counter"
+import { ActiveLikeIcon, ArticleIcon, PostIcon, StatsIcon } from "src/components/icons"
 import { PostTitleOnFeed } from "src/components/post-on-feed"
 import { useRouter } from "next/navigation"
 import { DateSince } from "src/components/date"
 import { useContributions, useEntity, useEntityReactions } from "../hooks/entities"
 import { ShowContributors } from "src/components/show-contributors"
 import { sumFromFirstEdit } from "src/components/utils"
+import { FixedCounter } from "src/components/like-counter"
 
 const EntityIncome = ({entityId}: {entityId: string}) => {
     const {user} = useUser()
@@ -30,7 +30,7 @@ const EntityIncome = ({entityId}: {entityId: string}) => {
         onClick={() => {router.push("/articulo/"+encodeURIComponent(entityId))}}>
         <div className="flex justify-between">
             <PostTitleOnFeed title={entity.entity.name}/>
-            <FixedLikeCounter count={reactionsCount}/>
+            <FixedCounter count={reactionsCount} icon={<ActiveLikeIcon/>}/>
         </div>
 
         <div className="flex justify-between px-1">
@@ -53,7 +53,7 @@ const PostIncome = ({postId}: {postId: string}) => {
         onClick={() => {router.push("/contenido/"+postId)}}>
         <div className="flex justify-between">
             <PostTitleOnFeed title={content.content.title}/>
-            <FixedLikeCounter count={reactions.reactions}/>
+            <FixedCounter count={reactions.reactions} icon={<ActiveLikeIcon/>}/>
         </div>
         <div className="flex justify-end mr-1">
         <DateSince date={content.content.createdAt}/>

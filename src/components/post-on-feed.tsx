@@ -45,6 +45,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
                 onViewComments={onViewComments}
                 viewingComments={viewingComments}
                 likeCounterTitle="Entrá a la publicación para reaccionar."
+                isPost={true}
             />
         </div>
     </div>
