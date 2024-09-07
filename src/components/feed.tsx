@@ -1,5 +1,5 @@
 import React from "react"
-import { ContentWithComments, ContentWithCommentsFromId } from "./content-with-comments";
+import { ContentWithCommentsFromId } from "./content-with-comments";
 import { useUser } from "src/app/hooks/user";
 import LoadingSpinner from "./loading-spinner";
 import { NoResults } from "./category-users";
@@ -25,6 +25,7 @@ const Feed: React.FC<{feed: FeedProps, noResultsText?: string}> = ({feed, noResu
             return <div key={index} className="w-full">
                 <ContentWithCommentsFromId
                     contentId={id}
+                    inCommentSection={false}
                 />
             </div>
         }) : 

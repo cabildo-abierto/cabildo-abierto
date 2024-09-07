@@ -97,7 +97,7 @@ model Content {
   createdAt        DateTime    @default(now()) @map("created_at")
   type             ContentType
   authorId         String
-  isDraft          Boolean?
+  isDraft          Boolean?    @default(false)
   visible          Boolean     @default(true)
   text             String
   title            String?

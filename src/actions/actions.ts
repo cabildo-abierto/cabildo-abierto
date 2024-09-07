@@ -6,7 +6,7 @@ import { ContentType } from "@prisma/client";
 import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
 import { ContentProps, EntityProps, UserStats } from "src/app/lib/definitions";
-import { nodesCharDiff } from "src/components/diff";
+import { getAllText, nodesCharDiff } from "src/components/diff";
 import { arraySum, sumFromFirstEdit } from "src/components/utils";
 
 
@@ -38,6 +38,30 @@ export async function getContentById(id: string) {
         return content ? content : undefined
     }, ["content", id], {tags: ["content", "content:"+id]})()
 }
+
+
+export async function getRootContent(id: string) {
+    return unstable_cache(async () => {
+        let content = await getContentById(id)
+        while(content.parentContents.length > 0){
+            content = await getContentById(content.parentContents[0].id)
+        }
+        return content
+    }, ["rootContent", id], {tags: ["rootContent", "rootContent:"+id]})()
+}
+
+
+export async function getChildrenCount(id: string) {
+    return unstable_cache(async () => {
+        let comments = await getContentComments(id)
+        let count = 0
+        for(let i = 0; i < comments.length; i++){
+            count += await getChildrenCount(comments[i].id) + 1
+        }
+        return count
+    }, ["childrenCount", id], {tags: ["childrenCount", "childrenCount:"+id]})()
+}
+
 
 
 export async function getContentComments(id: string) {
@@ -147,7 +171,6 @@ export const getProfileFeed = (userId: string) => {
             select: {
                 id: true,
                 type: true,
-                text: true,
             },
             where: {
                 AND: [
@@ -166,6 +189,57 @@ export const getProfileFeed = (userId: string) => {
         return feed
     }, ["profileFeed", userId], {tags: ["profileFeed", "profileFeed:"+userId]})()  
 }
+
+
+export const getRepliesFeed = (userId: string) => {
+    return unstable_cache(async () => {
+        const feed = await db.content.findMany({
+            select: {
+                id: true,
+                type: true,
+            },
+            where: {
+                AND: [
+                    {type: {
+                            in: ["Comment", "FakeNewsReport"]
+                        }},
+                    {visible: true},
+                    {authorId: userId}
+                ]
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
+        return feed
+    }, ["repliesFeed", userId], {tags: ["repliesFeed", "repliesFeed:"+userId]})()
+}
+
+
+export const getEditsFeed = (userId: string) => {
+    return unstable_cache(async () => {
+        const feed = await db.content.findMany({
+            select: {
+                id: true,
+                type: true,
+            },
+            where: {
+                AND: [
+                    {type: {
+                            in: ["EntityContent"]
+                        }},
+                    {visible: true},
+                    {authorId: userId}
+                ]
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
+        return feed
+    }, ["editsFeed", userId], {tags: ["editsFeed", "editsFeed:"+userId]})()
+}
+
 
 
 export const getFollowingFeed = (userId: string) => {
@@ -315,6 +389,17 @@ export async function createComment(text: string, parentContentId: string, userI
         revalidateTag("comments:"+parentEntityId)
     }
     revalidateTag("comments:"+parentContentId)
+    revalidateTag("repliesFeed:"+userId)
+
+    while(true){
+        revalidateTag("childrenCount:"+parentContentId)
+        let parent = await getContentById(parentContentId)
+        if(parent.parentContents.length > 0)
+            parentContentId = parent.parentContents[0].id
+        else
+            break
+    }
+
     return comment
 }
 
@@ -444,6 +529,8 @@ export async function createFakeNewsReport(text: string, parentContentId: string
         },
     })
     revalidateTag("content:"+parentContentId)
+    revalidateTag("comments:"+parentContentId)
+    revalidateTag("repliesFeed:"+userId)
     return report
 }
 
@@ -744,6 +831,7 @@ export async function createEntity(name: string, userId: string){
     })
   
     revalidateTag("entities")
+    revalidateTag("editsFeed:"+userId)
     return {id: entityId}
 }
   
@@ -768,6 +856,7 @@ export const updateEntity = async (text: string, categories: string, entityId: s
     revalidateTag("entities")
     revalidateTag("userContents:"+userId)
     revalidateTag("entityContributions:"+entityId)
+    revalidateTag("editsFeed:"+userId)
 }
   
   
@@ -916,8 +1005,8 @@ export async function getEntityContributions(id: string) {
             const parsedVersion = editorStateFromJSON(entity.versions[i].text)
             if(!parsedVersion) continue
 
-            const nodes = parsedVersion.root.children
-            const {newChars} = nodesCharDiff(prevNodes, nodes)
+            const nodes = parsedVersion.root.children.map(getAllText)
+            const {newChars, removedChars} = nodesCharDiff(prevNodes, nodes)
 
             const author = entity.versions[i].authorId
             

@@ -15,6 +15,28 @@ export function useContent(id: string): {content: ContentProps | undefined, isLo
 }
 
 
+export function useRootContent(id: string): {content: ContentProps | undefined, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/root/'+id, fetcher)
+  
+    return {
+        content: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useChildrenCount(id: string): {count: number, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/children-count/'+id, fetcher)
+  
+    return {
+        count: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
 export function useEntityCategories(id: string): {categories: string, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/entity-categories/'+id, fetcher)
   
@@ -118,6 +140,28 @@ export function useFollowingFeed(): {feed: SmallContentProps[], isLoading: boole
 export function useProfileFeed(id: string): {feed: {id: string}[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/profile-feed/'+id, fetcher)
   
+    return {
+        feed: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useEditsFeed(id: string): {feed: {id: string}[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/edits-feed/'+id, fetcher)
+  
+    return {
+        feed: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useRepliesFeed(id: string): {feed: {id: string}[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/replies-feed/'+id, fetcher)
+
     return {
         feed: data,
         isLoading,

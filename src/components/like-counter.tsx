@@ -16,6 +16,7 @@ type LikeCounterProps = {
     disabled?: boolean
     icon1?: ReactNode
     icon2?: ReactNode
+    title?: string
 }
 
 
@@ -23,7 +24,8 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
     contentId,
     disabled=false,
     icon1=<ActiveLikeIcon/>,
-    icon2=<InactiveLikeIcon/>
+    icon2=<InactiveLikeIcon/>,
+    title
 }) => {
     const {user} = useUser()
     const userLikesContent = useSWR("/api/user-like-content/"+contentId, fetcher)
@@ -57,6 +59,14 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
     }
 
     const isAuthor = user.id == content.content.author.id
+
+    if(!title){
+        if(isAuthor){
+            title = "No podés reaccionar a tus propias publicaciones."
+        } else if(!user){
+            title = "Necesitás una cuenta para poder reaccionar."
+        }
+    }
     
     return <ReactionButton
         onClick={onLikeClick}
@@ -65,7 +75,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
         icon2={icon2}
         disabled={!user || disabled || isAuthor}
         count={likeCount}
-        title={isAuthor ? "No podés reaccionar a tus propias publicaciones." : undefined}
+        title={title}
     />
 }
 

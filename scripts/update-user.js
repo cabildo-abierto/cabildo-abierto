@@ -10,7 +10,6 @@ async function updateUsername(currentId, newId) {
       id: newId
     }
   })
-  console.log("Usuario actualizado:", currentId, "->", newId)
 }
 
 async function main() {

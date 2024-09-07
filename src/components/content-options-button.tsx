@@ -57,13 +57,14 @@ const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string 
                                     await createFakeNewsReport(JSON.stringify(editor.getEditorState()), contentId, user.user.id)
                                     
                                     mutate("/api/comments/"+contentId)
+                                    mutate("/api/replies-feed/"+user.user.id)
                                     onClose()
                                 }
                             }}
                             className="gray-btn w-64"
                             text1="Confirmar"
                             text2="Enviando..."
-                            disabled={validFakeNewsReport(editorState)}
+                            disabled={!validFakeNewsReport(editorState)}
                         />
                     </div>
                 </div>

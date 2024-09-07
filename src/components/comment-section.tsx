@@ -83,7 +83,12 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         <div className="space-y-2 mt-2">
             {contentsWithScore.map(({comment}) => (
                 <div key={comment.id}>
-                    <ContentWithCommentsFromId contentId={comment.id} isMainPage={false} parentContentId={content.id}/>
+                    <ContentWithCommentsFromId
+                        contentId={comment.id}
+                        isMainPage={false}
+                        parentContentId={content.id}
+                        inCommentSection={true}
+                    />
                 </div>
             ))}
         </div>

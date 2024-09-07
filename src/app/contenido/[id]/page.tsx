@@ -10,6 +10,7 @@ const ContentPage: React.FC<{params: any}> = ({params}) => {
                 <ContentWithCommentsFromId
                     contentId={params.id}
                     isMainPage={true}
+                    inCommentSection={false}
                 />
             </div>
         </div>

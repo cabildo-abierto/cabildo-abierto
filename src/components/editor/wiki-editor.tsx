@@ -260,14 +260,17 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
         <div className="py-4">
             <RoutesEditor entity={entity}/>
         </div>}
+        
+        <div className="text-center">
         {showingChanges && readOnly && version > 0 && <ChangesCounter
             id1={entity.versions[version-1].id}
             id2={entity.versions[version].id}/>}
-        {showingChanges && readOnly && version == 0 && <div className="text-center">Estás viendo la primera versión</div>}
+        {showingChanges && readOnly && version == 0 && <>Estás viendo la primera versión</>}
         {showingChanges && !readOnly && editor && <ChangesCounter
             id1={entity.versions[version].id}
             editor={editor}
         />}
+        </div>
         <div id="editor">
             {!showingChanges && !showingAuthors && <MyLexicalEditor
                 settings={settings}
