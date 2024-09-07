@@ -39,7 +39,13 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
                 <Authorship/>
             </div>}
             <div></div>
-            <LikeAndCommentCounter disabled={true} contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
+            <LikeAndCommentCounter
+                disabled={true}
+                contentId={content.id}
+                onViewComments={onViewComments}
+                viewingComments={viewingComments}
+                likeCounterTitle="Entrá a la publicación para reaccionar."
+            />
         </div>
     </div>
 }

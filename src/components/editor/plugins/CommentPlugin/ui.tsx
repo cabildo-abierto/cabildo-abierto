@@ -161,7 +161,7 @@ export function CommentInputBox({
                     }
                 })
                 mutate("/api/content/"+comment.id)
-                mutate("/api/user/"+user.user.id)
+                mutate("/api/replies-feed/"+user.user.id)
             }
         })
         

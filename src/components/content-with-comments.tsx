@@ -19,6 +19,7 @@ type ContentWithCommentsProps = {
     showingAuthors?: boolean
     setEditing?: (arg0: boolean) => void
     parentContentId?: string
+    inCommentSection: boolean
 }
 
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
@@ -28,6 +29,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     showingAuthors=false,
     editing=false,
     parentContentId,
+    inCommentSection,
     setEditing}) => {
     
     const {mutate} = useSWRConfig()
@@ -36,7 +38,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const isEntity = content.type == "EntityContent"
     const startsOpen = isMainPage
     const [viewComments, setViewComments] = useState(startsOpen) 
-    const [writingReply, setWritingReply] = useState(startsOpen)
+    const [writingReply, setWritingReply] = useState(startsOpen && ["Post", "EntityContent"].includes(content.type))
     
     const handleNewComment = async (text: string) => {
         if(user.user){
@@ -44,6 +46,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             mutate("/api/comments/"+content.id)
             if(content.parentEntityId)
                 mutate("/api/entity-comments/"+content.parentEntityId)
+            mutate("/api/replies-feed/"+user.user.id)
             setViewComments(true)
 
             // para que se resetee el contenido del editor
@@ -68,8 +71,9 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             editing={editing}
             setEditing={setEditing}
             parentContentId={parentContentId}
+            inCommentSection={inCommentSection}
         />
-        {isMainPage && <hr className="mt-12"/>}
+        {isMainPage && ["Post", "EntityContent"].includes(content.type) && <hr className="mt-12"/>}
         <div className={isMainPage ? "" : "ml-2"}>
             {writingReply && <div className="py-2">
                 {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 
@@ -101,6 +105,7 @@ type ContentWithCommentsFromIdProps = {
     showingAuthors?: boolean
     setEditing?: (arg0: boolean) => void
     parentContentId?: string
+    inCommentSection?: boolean
 }
 
 
@@ -111,11 +116,11 @@ export const ContentWithCommentsFromId = ({
     showingAuthors=false,
     editing=false,
     parentContentId,
+    inCommentSection=false,
     setEditing}: ContentWithCommentsFromIdProps) => {
 
     const content = useContent(contentId)
     if(content.isLoading) return <LoadingSpinner/>
-    
 
     return <ContentWithComments
         content={content.content}
@@ -124,6 +129,7 @@ export const ContentWithCommentsFromId = ({
         showingAuthors={showingAuthors}
         editing={editing}
         setEditing={setEditing}
+        inCommentSection={inCommentSection}
         parentContentId={parentContentId}
     />
 }

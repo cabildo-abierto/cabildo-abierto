@@ -13,6 +13,7 @@ import { useContent } from 'src/app/hooks/contents';
 import assert from 'assert';
 import { ContentProps } from 'src/app/lib/definitions';
 import LoadingSpinner from './loading-spinner';
+import { RedFlag } from './icons';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -46,11 +47,13 @@ export function getAllQuoteIds(node: any): any {
 }
 
 
-type CommentProps = {
+export type CommentProps = {
     content: ContentProps,
     onViewComments: () => void
     viewingComments: boolean
     onStartReply: () => void
+    inCommentSection?: boolean
+    isFakeNewsReport?: boolean
 }
 
 
@@ -58,7 +61,9 @@ export const Comment = ({
     content,
     onViewComments,
     viewingComments,
-    onStartReply}: CommentProps) => {
+    onStartReply,
+    inCommentSection=false,
+    isFakeNewsReport}: CommentProps) => {
 
     const parentId = content.parentContents[0].id
     let snode = null
@@ -96,8 +101,10 @@ export const Comment = ({
         })
     }
 
+    const icon = isFakeNewsReport ? <RedFlag/> : <></>
+
     return <div className="content-container">
-        <ContentTopRow content={content} icon={null} showOptions={false}/>
+        <ContentTopRow content={content} icon={icon} showOptions={false}/>
         <div className="px-2 mt-2 ml-2 content">
             {snode && <div className="content">
                 <ReadOnlyEditor initialData={initializeQuote}/>

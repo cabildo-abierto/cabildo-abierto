@@ -8,6 +8,9 @@ import { EntitySearchResult } from "./entity-search-result";
 import Link from "next/link";
 import { useContent } from "src/app/hooks/contents";
 import { getAllText } from "./diff";
+import { ChangesCounter } from "./changes-counter";
+import { ContentTopRow } from "./content";
+import { ArticleIcon } from "./icons";
 
 
 type EntityComponentProps = {
@@ -58,7 +61,7 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
                 parentContentId={parentContentId}
             />
         }
-    } else {
+    } else if(isMainPage){
         return <div className="px-2 min-h-64">
             <WikiEditor 
                 version={version}
@@ -69,6 +72,8 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
                 setEditing={setEditing}
             />
         </div>
+    } else {
+        return <EntityEditInFeed entity={entity.entity} version={version}/>
     }
     
 }
@@ -140,6 +145,27 @@ const EntityMentionInCommentSection = ({parentContentId, entity, mentioningConte
             </div>
         </div>
     </Link>
+}
+
+
+const EntityEditInFeed = ({entity, version}: {entity: EntityProps, version: number}) => {
+    const content = useContent(entity.versions[version].id)
+    if(content.isLoading) return <LoadingSpinner/>
+
+    const name = <Link href={"/articulo/"+entity.id+"/"+version} className="content">{entity.name}</Link>
+
+    let text = null
+    if(version == 0){
+        text = <>Creó el artículo {name}</>
+    } else if(entity.versions[version].categories != entity.versions[version].categories){
+        text = <>Modificó las categorías de {name}</>
+    } else {
+        text = <>Modificó {name} (<ChangesCounter id1={entity.versions[version].id} id2={entity.versions[version-1].id}/> caracteres)</>
+    }
+    return <div className="content-container">
+        <ContentTopRow content={content.content} icon={<></>}/>
+        <div className="link px-4 py-4">{text}</div>
+    </div>
 }
 
 export default EntityComponent

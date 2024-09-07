@@ -114,10 +114,10 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
                 <span>
                     Últ. actualización <DateSince date={lastUpdated}/>
                 </span>
-                {version != entity.versions.length-1 && <>
-                    <span className="">Estás viendo la versión {version} (publicada <DateSince date={entity.versions[version].createdAt}/>)</span>
-                    <Link href={"/articulo/"+entityId}>Ir a la versión actual</Link>
-                    </>
+                {version != entity.versions.length-1 && <div className="flex">
+                    <span className="mr-1">Estás viendo la versión {version} (publicada <DateSince date={entity.versions[version].createdAt}/>).</span>
+                    <span><Link href={"/articulo/"+entityId}>Versión actual</Link>.</span>
+                    </div>
                 }
 
                 </div>
@@ -166,6 +166,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             editing={true}
             setEditing={setEditing}
             isMainPage={true}
+            inCommentSection={false}
         />}
         {!editing && <ContentWithCommentsFromId
             contentId={contentId}
@@ -174,6 +175,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             editing={false}
             setEditing={setEditing}
             isMainPage={true}
+            inCommentSection={false}
         />}
 
     </div>

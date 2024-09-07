@@ -1,8 +1,5 @@
 import Link from "next/link";
-import { EntityProps } from "src/app/lib/definitions";
-import { diff, nodesCharDiff } from "./diff";
-import { editorStateFromJSON } from "./editor/wiki-editor";
-import { useContributions, useEntity } from "src/app/hooks/entities";
+import { useContributions } from "src/app/hooks/entities";
 
 
 function round2(x: number){
@@ -15,10 +12,12 @@ export const ShowContributors = ({entityId, version, userId}:
     const contributions = useContributions(entityId)
     if(contributions.isLoading) return <></>
     
-    if(!version) version = contributions.contributions.length-1
+    if(contributions.contributions.length == 0) return <></>
+    if(version == undefined) version = contributions.contributions.length-1
+    if(version >= contributions.contributions.length) return <></>
     let versionContr = contributions.contributions[version]
-    if(version == 0){return <></>}
-
+    if(version == 0) return <></>
+    
     let total = 0
     versionContr.forEach(([authorId, chars]) => {total += chars})
 

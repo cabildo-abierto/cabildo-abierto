@@ -11,7 +11,7 @@ import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
 import EntityComponent from "src/components/entity-component";
 import { PostOnFeed } from "./post-on-feed";
-import { useContent, useContentComments, useReactions, useViews } from "src/app/hooks/contents";
+import { useChildrenCount, useContent, useContentComments, useReactions, useViews } from "src/app/hooks/contents";
 import { FastPost } from "./fast-post";
 import { Comment } from "./comment"
 import { ContentProps, EntityProps } from "src/app/lib/definitions";
@@ -22,10 +22,9 @@ import { useUser, useUserLikesContent } from "src/app/hooks/user";
 import { ViewsCounter } from "./views-counter";
 import useSWR, { useSWRConfig } from "swr";
 import { ContentOptionsButton } from "./content-options-button";
-import { FakeNewsReport } from "./fake-news-report";
 import { FakeNewsCounter } from "./fake-news-counter";
 import { addView } from "src/actions/actions";
-import { fetcher } from "src/app/hooks/utils";
+import { CommentInContext } from "./comment-in-context";
 
 
 export function id2url(id: string){
@@ -96,21 +95,14 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
     </button>
 }
 
-type CommentCounterProps = {
-    contentId: string,
-    onViewComments: () => void,
-    viewingComments: boolean,
-    disabled?: boolean
-}
-
 export const CommentCounter = ({viewingComments, disabled, contentId, onViewComments}: CommentCounterProps) => {
-    const comments = useContentComments(contentId)
+    const commentCount = useChildrenCount(contentId)
 
     return <div className="flex items-center px-2">
         <ReactionButton
             icon1={<CommentIcon fontSize="small"/>}
             icon2={<CommentOutlinedIcon fontSize="small"/>}
-            count={comments.comments ? comments.comments.length : "?"}
+            count={commentCount.isLoading ? "?" : commentCount.count}
             disabled={disabled}
             active={viewingComments}
             onClick={onViewComments}
@@ -118,10 +110,18 @@ export const CommentCounter = ({viewingComments, disabled, contentId, onViewComm
     </div>
 }
 
-export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({contentId, onViewComments, viewingComments, disabled=false}) => {
+type CommentCounterProps = {
+    contentId: string,
+    onViewComments: () => void,
+    viewingComments: boolean,
+    disabled?: boolean
+    likeCounterTitle?: string
+}
+
+export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({contentId, onViewComments, viewingComments, disabled=false, likeCounterTitle}) => {
     return <div className="flex">
         <ViewsCounter contentId={contentId}/>
-        <LikeCounter contentId={contentId} disabled={disabled}/>
+        <LikeCounter contentId={contentId} disabled={disabled} title={likeCounterTitle}/>
         <CommentCounter contentId={contentId} disabled={disabled} viewingComments={viewingComments} onViewComments={onViewComments}/>
     </div>
 }
@@ -147,6 +147,7 @@ type ContentComponentProps = {
     editing?: boolean
     setEditing: (arg0: boolean) => void
     parentContentId?: string
+    inCommentSection: boolean
 }
 
 
@@ -161,6 +162,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     editing=false,
     setEditing,
     parentContentId,
+    inCommentSection,
 }) => {
     const {user} = useUser()
     const reactions = useUserLikesContent(content.id)
@@ -208,10 +210,15 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
         element = <PostOnFeed content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
     } else if(content.type == "FastPost"){
         element = <FastPost content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
-    } else if(content.type == "Comment"){
-        element = <Comment content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/> 
-    } else if(content.type == "FakeNewsReport"){
-        element = <FakeNewsReport content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
+    } else if(content.type == "Comment" || content.type == "FakeNewsReport"){
+        element = <CommentInContext
+            content={content}
+            viewingComments={viewingComments}
+            onViewComments={onViewComments}
+            onStartReply={onStartReply}
+            inCommentSection={inCommentSection}
+            isFakeNewsReport={content.type == "FakeNewsReport"}
+        /> 
     }
     return <>{element}</>
 };

@@ -7,8 +7,9 @@ import { UserProps } from "src/app/lib/definitions"
 import { useSWRConfig } from "swr"
 import { addAt } from "./content"
 import { Description } from "./description"
+import SelectionComponent from "./search-selection-component";
 
-export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user?: UserProps }) {
+export function ProfileHeader({profileUser, user, setSelected}: {profileUser: UserProps, user?: UserProps, setSelected: any }) {
     const [following, setFollowing] = useState(false)
     const {mutate} = useSWRConfig()
 
@@ -44,32 +45,32 @@ export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user
 
     return <div className="content-container mt-2">
         <div className="flex justify-between">
-        <div className="ml-2 py-2">
-            <h3>
-                {profileUser.name}
-            </h3>
-            <div className="text-gray-600">
-                {addAt(profileUser.id)}
+            <div className="ml-2 py-2">
+                <h3>
+                    {profileUser.name}
+                </h3>
+                <div className="text-gray-600">
+                    {addAt(profileUser.id)}
+                </div>
+            </div>
+            <div className="flex items-center mr-2">
+                {!isLoggedInUser &&
+                    (following ? <button
+                        onClick={onUnfollow}
+                        className="gray-btn"
+                    >
+                        Dejar de seguir
+                    </button>
+                    :
+                    <button
+                        onClick={onFollow}
+                        className="gray-btn"
+                    >
+                        Seguir
+                    </button>)
+                }
             </div>
         </div>
-        <div className="flex items-center mr-2">
-            {!isLoggedInUser &&
-                (following ? <button 
-                    onClick={onUnfollow} 
-                    className="gray-btn"
-                >
-                    Dejar de seguir
-                </button>
-                :
-                <button
-                    onClick={onFollow}
-                    className="gray-btn"
-                >
-                    Seguir
-                </button>)
-            }
-        </div>
-    </div>
         <div className="ml-2">
             <Description
                 text={profileUser.description}
@@ -83,6 +84,13 @@ export function ProfileHeader({profileUser, user}: {profileUser: UserProps, user
             <div className="px-4">
             <span className="font-bold">{followingCount}</span> siguiendo
             </div>
+        </div>
+        <div>
+            <SelectionComponent
+                onSelection={setSelected}
+                options={["Publicaciones", "Respuestas", "Ediciones en artículos públicos"]}
+                className="main-feed"
+            />
         </div>
     </div>
 }
