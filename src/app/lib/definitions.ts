@@ -48,8 +48,17 @@ export type ContributionsArray = [string, number][][]
 export type SmallEntityProps = {
     id: string,
     name: string,
-    versions: {id: string, categories: string, createdAt: string}[]
-    _count: {reactions: number, referencedBy: number}
+    versions: {
+        id: string,
+        categories: string,
+        createdAt: Date | string,
+        isUndo: boolean,
+        undoMessage: string}[]
+    _count: {referencedBy: number},
+    views?: number,
+    textLength?: number,
+    childrenCount?: number,
+    reactions?: number
 }
 
 

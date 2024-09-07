@@ -27,6 +27,7 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
   const { error } = await supabase.auth.signInWithPassword(validatedFields.data as {email: string, password: string})
 
   if (error) {
+    console.log("error was", error)
     return { error: "invalid auth" }
   }
 

@@ -78,7 +78,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
 }
 
 
-export const FixedCounter = ({count, icon}: {count: number, icon: ReactNode}) => {
+export const FixedCounter = ({count, icon, title}: {count: number, icon: ReactNode, title?: string}) => {
     
     return <ReactionButton
         onClick={() => {}}
@@ -86,5 +86,6 @@ export const FixedCounter = ({count, icon}: {count: number, icon: ReactNode}) =>
         icon1={icon}
         disabled={true}
         count={count}
+        title={title}
     />
 }

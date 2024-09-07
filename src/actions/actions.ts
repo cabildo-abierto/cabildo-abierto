@@ -5,7 +5,7 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { ContentType } from "@prisma/client";
 import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
-import { ContentProps, EntityProps, UserStats } from "src/app/lib/definitions";
+import { ContentProps, EntityProps, SmallEntityProps, UserStats } from "src/app/lib/definitions";
 import { getAllText, nodesCharDiff } from "src/components/diff";
 import { arraySum, sumFromFirstEdit } from "src/components/utils";
 
@@ -120,7 +120,9 @@ export async function getContentComments(id: string) {
 
 export async function getEntityComments(id: string) {
     return unstable_cache(async () => {
-        let versions = (await getEntityById(id)).versions
+        const entity = await getEntityById(id)
+        if(!entity) return null
+        let versions = entity.versions
         let comments = []
         for(let i = 0; i < versions.length; i++){
             const versionComments = await getContentComments(versions[i].id)
@@ -137,11 +139,20 @@ export async function getEntityComments(id: string) {
 export async function getEntityTextLength(id: string) {
     return unstable_cache(async () => {
         const entity = await getEntityById(id)
+        if(!entity) return null
+        if(entity.versions.length <= 1) return 0
         const content = await getContentById(entity.versions[entity.versions.length-1].id)
-        const text = JSON.parse(content.text).root
-        return getAllText(text).length
+        let text = null
+        try {
+            text = JSON.parse(content.text)
+        } catch {
+            ;
+        }
+        if(!text) return 0
+        const length = getAllText(text.root).split(" ").length
+        return length
     }, ["entityTextLength", id], {
-        revalidate: 3600*6,
+        revalidate: 10,
         tags: ["entityTextLength", "entityTextLength:"+id]})()
 }
 
@@ -806,8 +817,11 @@ export const addView = async (id: string, userId: string, entityId?: string) => 
             createdAt: true
         },
         where: {
-            userById: userId,
-            contentId: id
+            AND: [{
+                userById: userId
+            },{
+                contentId: id
+            }]
         },
         orderBy: {
             createdAt: "asc"
@@ -964,7 +978,7 @@ export const deleteEntity = async (entityId: string, userId: string) => {
 
 
 export const getEntities = cache(async () => {
-    let entities = await db.entity.findMany({
+    let entities: SmallEntityProps[] = await db.entity.findMany({
         select: {
             id: true,
             name: true,
@@ -997,9 +1011,16 @@ export const getEntities = cache(async () => {
             name: "asc"
         }
     })
+    entities = await Promise.all(entities.map(async (entity) => {
+        entity.views = arraySum(await getEntityViews(entity.id))
+        entity.childrenCount = await getEntityChildrenCount(entity.id)
+        entity.reactions = arraySum(await getEntityReactions(entity.id))
+        entity.textLength = await getEntityTextLength(entity.id)
+        return entity
+    }))
     return entities
 }, ["entities"], {
-    revalidate: 3600*6,
+    revalidate: 10,
     tags: ["entities"]})
 
 
@@ -1196,13 +1217,12 @@ export const getTopKEntitiesByViews = async (k: number) => {
     
     return unstable_cache(async () => {
     const entities = await getEntities()
-    const views = await Promise.all(entities.map(async ({id}) => {return arraySum(await getEntityViews(id))}))
-    
-    function comp(a: {views: number}, b: {views: number}){
+
+    function comp(a: {views?: number}, b: {views?: number}){
         return b.views - a.views
     }
     
-    const sorted = entities.map(({name}, index) => ({name: name, views: views[index]})).sort(comp)
+    const sorted = entities.sort(comp)
     
     return sorted.slice(0, 3).map(({name}) => (name))
     }, ["topkentities", k.toString()], {revalidate: 3600})()

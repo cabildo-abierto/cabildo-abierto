@@ -1,16 +1,14 @@
 "use client"
 import React from "react"
-import { ContentProps, EntityProps } from "src/app/lib/definitions";
+import { EntityProps } from "src/app/lib/definitions";
 import WikiEditor from "./editor/wiki-editor";
 import { useEntity } from "src/app/hooks/entities";
 import LoadingSpinner from "./loading-spinner";
-import { EntitySearchResult } from "./entity-search-result";
 import Link from "next/link";
 import { useContent } from "src/app/hooks/contents";
 import { getAllText } from "./diff";
 import { ChangesCounter } from "./changes-counter";
 import { ContentTopRow } from "./content";
-import { ArticleIcon } from "./icons";
 
 
 type EntityComponentProps = {

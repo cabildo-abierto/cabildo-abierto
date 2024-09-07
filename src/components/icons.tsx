@@ -15,6 +15,7 @@ import LeaderboardIcon from '@mui/icons-material/Leaderboard'
 import CommentIcon from '@mui/icons-material/Comment';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 import AbcIcon from '@mui/icons-material/Abc';
+import MuiLinkIcon from '@mui/icons-material/Link';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 export const RedFlag = () => {
@@ -92,4 +93,9 @@ export const ViewsIcon = () => {
 
 export const TextLengthIcon = () => {
     return <AbcIcon fontSize="small"/>
+}
+
+
+export const LinkIcon = () => {
+    return <MuiLinkIcon fontSize="small"/>
 }
