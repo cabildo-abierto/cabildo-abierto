@@ -33,6 +33,26 @@ export function useEntityReactions(id: string): {reactions: number[], isLoading:
 }
 
 
+export function useEntityViews(id: string): {views: number[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/entity-views/'+id, fetcher)
+    return {
+        views: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useEntityTextLength(id: string): {length: number, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/entity-textlength/'+id, fetcher)
+    return {
+        length: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
 export function useEntities(): {entities: SmallEntityProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/entities', fetcher)
   

@@ -36,7 +36,10 @@ export async function getContentById(id: string) {
             }
         })
         return content ? content : undefined
-    }, ["content", id], {tags: ["content", "content:"+id]})()
+    }, ["content", id], {
+        tags: ["content", "content:"+id],
+        revalidate: 3600*6,
+    })()
 }
 
 
@@ -47,7 +50,10 @@ export async function getRootContent(id: string) {
             content = await getContentById(content.parentContents[0].id)
         }
         return content
-    }, ["rootContent", id], {tags: ["rootContent", "rootContent:"+id]})()
+    }, ["rootContent", id], {
+        tags: ["rootContent", "rootContent:"+id],
+        revalidate: 3600*6
+    })()
 }
 
 
@@ -59,8 +65,30 @@ export async function getChildrenCount(id: string) {
             count += await getChildrenCount(comments[i].id) + 1
         }
         return count
-    }, ["childrenCount", id], {tags: ["childrenCount", "childrenCount:"+id]})()
+    }, ["childrenCount", id], {
+        tags: ["childrenCount", "childrenCount:"+id],
+        revalidate: 3600*6
+    })()
 }
+
+
+// TO DO: Revalidate
+export async function getEntityChildrenCount(id: string) {
+    return unstable_cache(async () => {
+        let comments = await getEntityComments(id)
+        if(comments == null) return null
+
+        let count = 0
+        for(let i = 0; i < comments.length; i++){
+            count += 1 + await getChildrenCount(comments[i].id)
+        }
+        return count
+    }, ["entityChildrenCount", id], {
+        tags: ["entityChildrenCount", "entityChildrenCount:"+id],
+        revalidate: 10
+    })()
+}
+
 
 
 
@@ -84,7 +112,9 @@ export async function getContentComments(id: string) {
             }
         })
         return content?.childrenContents
-    }, ["comments", id], {tags: ["comments", "comments:"+id]})()
+    }, ["comments", id], {
+        revalidate: 3600*6,
+        tags: ["comments", "comments:"+id]})()
 }
 
 
@@ -97,7 +127,22 @@ export async function getEntityComments(id: string) {
             comments = [...comments, ...versionComments]
         }
         return comments
-    }, ["comments", id], {tags: ["comments", "comments:"+id]})()
+    }, ["comments", id], {
+        revalidate: 3600*6,
+        tags: ["comments", "comments:"+id]})()
+}
+
+
+// TO DO: Revalidate
+export async function getEntityTextLength(id: string) {
+    return unstable_cache(async () => {
+        const entity = await getEntityById(id)
+        const content = await getContentById(entity.versions[entity.versions.length-1].id)
+        const text = JSON.parse(content.text).root
+        return getAllText(text).length
+    }, ["entityTextLength", id], {
+        revalidate: 3600*6,
+        tags: ["entityTextLength", "entityTextLength:"+id]})()
 }
 
 
@@ -161,7 +206,9 @@ export const getDrafts = (userId: string) => {
             }
         })
         return drafts
-    }, ["drafts", userId], {tags: ["drafts", "drafts:"+userId]})() 
+    }, ["drafts", userId], {
+        revalidate: 3600*6,
+        tags: ["drafts", "drafts:"+userId]})() 
 }
 
 
@@ -187,7 +234,9 @@ export const getProfileFeed = (userId: string) => {
             }
         })
         return feed
-    }, ["profileFeed", userId], {tags: ["profileFeed", "profileFeed:"+userId]})()  
+    }, ["profileFeed", userId], {
+        revalidate: 3600*6,
+        tags: ["profileFeed", "profileFeed:"+userId]})()  
 }
 
 
@@ -212,7 +261,9 @@ export const getRepliesFeed = (userId: string) => {
             }
         })
         return feed
-    }, ["repliesFeed", userId], {tags: ["repliesFeed", "repliesFeed:"+userId]})()
+    }, ["repliesFeed", userId], {
+        revalidate: 3600*6,
+        tags: ["repliesFeed", "repliesFeed:"+userId]})()
 }
 
 
@@ -237,7 +288,9 @@ export const getEditsFeed = (userId: string) => {
             }
         })
         return feed
-    }, ["editsFeed", userId], {tags: ["editsFeed", "editsFeed:"+userId]})()
+    }, ["editsFeed", userId], {
+        revalidate: 3600*6,
+        tags: ["editsFeed", "editsFeed:"+userId]})()
 }
 
 
@@ -285,7 +338,9 @@ export const getFollowingFeed = (userId: string) => {
             }
         })
         return feed
-    }, ["followingFeed", userId], {tags: ["followingFeed", "followingFeed:"+userId]})()    
+    }, ["followingFeed", userId], {
+        revalidate: 3600*6,
+        tags: ["followingFeed", "followingFeed:"+userId]})()    
 }
 
 
@@ -305,7 +360,9 @@ export const getContentViews = (contentId: string) => {
             }
         })
         return content?.views.length
-    }, ["views", contentId], {tags: ["views", "views:"+contentId]})()    
+    }, ["views", contentId], {
+        revalidate: 3600*6,
+        tags: ["views", "views:"+contentId]})()    
 }
 
 
@@ -328,7 +385,9 @@ export const getFakeNewsCount = (contentId: string) => {
             }
         })
         return content?._count.childrenContents
-    }, ["fake-news", contentId], {tags: ["fake-news", "views:"+contentId]})()    
+    }, ["fake-news", contentId], {
+        revalidate: 3600*6,
+        tags: ["fake-news", "views:"+contentId]})()    
 }
 
 
@@ -347,7 +406,9 @@ export const getContentReactions = (contentId: string) => {
             }
         })
         return content?._count.reactions
-    }, ["reactions", contentId], {tags: ["reactions", "reactions:"+contentId]})()    
+    }, ["reactions", contentId], {
+        revalidate: 3600*6,
+        tags: ["reactions", "reactions:"+contentId]})()    
 }
 
 
@@ -363,7 +424,9 @@ export const userLikesContent = (contentId: string, userId: string) => {
             }
         })
         return [content !== null, await getContentReactions(contentId)]
-    }, ["userLikesContent", contentId, userId], {tags: ["userLikesContent", "userLikesContent:"+contentId+":"+userId]})()    
+    }, ["userLikesContent", contentId, userId], {
+        revalidate: 3600*6,
+        tags: ["userLikesContent", "userLikesContent:"+contentId+":"+userId]})()    
 }
 
 
@@ -561,6 +624,7 @@ export const getUsers = unstable_cache(async () => {
 },
     ["users"],
     {
+        revalidate: 3600*6,
         tags: ["users"]
     }
 )
@@ -580,7 +644,7 @@ export const getUsersWithStats = unstable_cache(async () => {
 },
     ["usersWithStats"],
     {
-        revalidate: 10,
+        revalidate: 3600,
         tags: ["users", "usersWithStats"]
     }
 )
@@ -642,7 +706,9 @@ export const getUserContents = (userId: string) => {
         )).contents
 
         return contents ? contents : undefined
-    }, ["userContents", userId], {tags: ["userContents:"+userId]})()    
+    }, ["userContents", userId], {
+        revalidate: 3600*6,
+        tags: ["userContents:"+userId]})()    
 }
 
 
@@ -659,7 +725,9 @@ export const getUserIdByAuthId = (authId: string) => {
             }
         )
         return userId?.id
-    }, ["userIdByAuthId", authId], {tags: ["userIdByAuthId", "userIdByAuthId:"+authId]})()    
+    }, ["userIdByAuthId", authId], {
+        revalidate: 3600*6,
+        tags: ["userIdByAuthId", "userIdByAuthId:"+authId]})()    
 }
 
 
@@ -930,7 +998,9 @@ export const getEntities = cache(async () => {
         }
     })
     return entities
-}, ["entities"], {tags: ["entities"]})
+}, ["entities"], {
+    revalidate: 3600*6,
+    tags: ["entities"]})
 
 
 export async function getEntityById(id: string) {
@@ -981,7 +1051,9 @@ export const getCategories = cache(async () => {
         },
     })
     return entities.map(({categories}) => (categories))
-}, ["categories"], {tags: ["categories"]})
+}, ["categories"], {
+    revalidate: 3600*6,
+    tags: ["categories"]})
 
 
 export async function getEntityContributions(id: string) {
@@ -1025,7 +1097,9 @@ export async function getEntityContributions(id: string) {
         
         return charsContributed.map((m) => Array.from(m))
 
-    }, ["entityContributions", id], {tags: ["entityContributions", "entityContributions:"+id]})()
+    }, ["entityContributions", id], {
+        revalidate: 3600*6,
+        tags: ["entityContributions", "entityContributions:"+id]})()
 }
 
 
@@ -1037,7 +1111,9 @@ export async function getEntityReactions(id: string) {
         const reactions = await Promise.all(entity.versions.map(async (content) => {return await getContentReactions(content.id)}))
 
         return reactions
-    }, ["entityReactions", id], {tags: ["entityReactions", "entityReactions:"+id]})()
+    }, ["entityReactions", id], {
+        revalidate: 3600*6,
+        tags: ["entityReactions", "entityReactions:"+id]})()
 }
 
 
@@ -1049,7 +1125,9 @@ export async function getEntityViews(id: string) {
         const views = await Promise.all(entity.versions.map(async (content) => {return await getContentViews(content.id)}))
 
         return views
-    }, ["entityViews", id], {tags: ["entityViews", "entityViews:"+id]})()
+    }, ["entityViews", id], {
+        revalidate: 3600*6,
+        tags: ["entityViews", "entityViews:"+id]})()
 }
 
 

@@ -2,9 +2,8 @@
 
 import React from "react"
 import { ReactionButton } from "./reaction-button";
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useViews } from "src/app/hooks/contents";
-import LoadingSpinner from "./loading-spinner";
+import { ViewsIcon } from "./icons";
 
 type ViewsCounterProps = {
     contentId: string
@@ -16,7 +15,7 @@ export const ViewsCounter: React.FC<ViewsCounterProps> = ({
     const {views, isLoading, isError} = useViews(contentId)
     return <ReactionButton
         onClick={() => {}}
-        icon1={<VisibilityIcon fontSize="small"/>}
+        icon1={<ViewsIcon/>}
         disabled={true}
         count={views === undefined ? "?" : views}
         title="La cantidad de personas distintas que vieron este contenido. No se cuentan segundas vistas."

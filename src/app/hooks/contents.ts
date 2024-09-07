@@ -37,6 +37,17 @@ export function useChildrenCount(id: string): {count: number, isLoading: boolean
 }
 
 
+export function useEntityChildrenCount(id: string): {count: number, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/entity-children-count/'+id, fetcher)
+  
+    return {
+        count: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
 export function useEntityCategories(id: string): {categories: string, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/entity-categories/'+id, fetcher)
   

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEntityReactions } from 'src/actions/actions';
+import { getEntityViews } from 'src/actions/actions';
 
 export async function GET(req: NextRequest,
   { params }: { params: { id: string } }
 ) {
 
-    let reactions = await getEntityReactions(params.id)
+    let reactions = await getEntityViews(params.id)
 
     return NextResponse.json(reactions);
 }
