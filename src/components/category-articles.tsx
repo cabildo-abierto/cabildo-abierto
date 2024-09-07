@@ -9,7 +9,7 @@ import { NoResults } from "./category-users"
 
 
 function popularityScore(entity: SmallEntityProps){
-    return entity._count.reactions + entity._count.referencedBy + (entity.versions.length != 0 ? 1 : 0)
+    return entity.reactions*2 + entity.views + entity._count.referencedBy + (entity.textLength > 0 ? 1: 0)
 }
 
 
@@ -28,7 +28,6 @@ const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
 
     let entitiesWithScore = filteredEntities.map((entity) => ({entity: entity, score: popularityScore(entity)}))
     entitiesWithScore = entitiesWithScore.sort(order)
-    
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center">
             {entitiesWithScore.length > 0 ? entitiesWithScore.map((entity, index) => (
@@ -50,7 +49,6 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
     if(!entities.entities || entities.isError){
         return <></>
     }
-    
     const routeEntities = entities.entities.filter((entity) => (entityInRoute(entity, route)))
 
     return <>
