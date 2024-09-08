@@ -1,9 +1,8 @@
-import { ContentProps, EntityProps } from "src/app/lib/definitions"
+import { ContentProps, EntityProps, SmallContentProps } from "src/app/lib/definitions"
 import { ContentWithCommentsFromId } from "src/components/content-with-comments"
 import LoadingSpinner from "./loading-spinner"
 import useSWR from "swr"
 import { fetcher } from "src/app/hooks/utils"
-import { SmallContentProps } from "src/app/api/feed/route"
 import { getAllQuoteIds } from "./comment"
 import { useEntity } from "src/app/hooks/entities"
 

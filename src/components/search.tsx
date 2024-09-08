@@ -1,6 +1,5 @@
 import diceCoefficientDistance from "src/actions/dice-coefficient";
-import { SmallContentProps } from "src/app/api/feed/route";
-import { EntityProps, SmallEntityProps } from "src/app/lib/definitions";
+import { EntityProps, SmallContentProps, SmallEntityProps } from "src/app/lib/definitions";
 
 function included(a: string, b: string){
     return b.toLowerCase().includes(a.toLowerCase())

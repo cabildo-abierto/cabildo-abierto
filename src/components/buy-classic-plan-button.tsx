@@ -1,10 +1,10 @@
 "use client"
 
-import { buyAndUseSubscription } from "src/actions/subscriptions";
 import PayButton from "./pay-button";
 import { useUser } from "src/app/hooks/user";
 import { useRouter } from "next/navigation";
 import { useSWRConfig } from "swr";
+import { buyAndUseSubscription } from "src/actions/actions";
 
 export const BuyClassicPlanButton = () => {
     const {user} = useUser()

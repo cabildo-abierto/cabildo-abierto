@@ -467,7 +467,8 @@ ol {
 	border-radius: 8px;
 	z-index: 10;
 	border-width: 1px;
-	border-color: var(--accent)
+	border-color: var(--accent);
+	color: $text;
 }
 
 .auth-btn {

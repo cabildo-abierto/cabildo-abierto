@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 
-export const InfoPanel = ({text, className}: {text: string, className?: string}) => {
+export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {text: string, className?: string, iconClassName?: string}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -9,7 +9,7 @@ export const InfoPanel = ({text, className}: {text: string, className?: string})
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="text-gray-600"
+        className={iconClassName}
       >
         <InfoIcon fontSize="small"/>
       </div>
