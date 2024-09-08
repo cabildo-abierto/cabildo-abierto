@@ -5,7 +5,7 @@ export async function GET(req: NextRequest,
   { params }: { params: { id: string } }
 ) {
 
-    let entity = await getEntityById(params.id)
+    let entity = await getEntityById(encodeURIComponent(params.id))
 
     return NextResponse.json(entity);
 }

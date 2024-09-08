@@ -7,5 +7,5 @@ import Feed from "src/components/feed"
 
 export const WikiFeed = ({profileUser}: {profileUser: UserProps}) => {
     let feed = useEditsFeed(profileUser.id)
-    return <Feed feed={feed} noResultsText={profileUser.name + " todavía no hizo ninguna edición."}/>
+    return <Feed feed={feed} maxSize={10} noResultsText={profileUser.name + " todavía no hizo ninguna edición."}/>
 }

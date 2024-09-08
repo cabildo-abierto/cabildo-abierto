@@ -3,7 +3,11 @@ import { getAllText, nodesCharDiff } from "./diff"
 import { LexicalEditor } from "lexical"
 
 function textNodesFromJSONStr(s: string){
-    return JSON.parse(s).root.children.map(getAllText)
+    try {
+        return JSON.parse(s).root.children.map(getAllText)
+    } catch {
+        return []
+    }
 }
 
 export const ChangesCounter = ({id1, id2, editor}: {id1: string, id2?: string, editor?: LexicalEditor}) => {
