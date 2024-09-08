@@ -43,7 +43,7 @@ const Modal = ({ onClose }: { onClose: any }) => {
                     </div>
                     <div className="flex items-center space-x-2 px-2">
                         <TickButton onClick={(v: boolean) => setGoToArticle(v)} size={20} color="#455dc0" />
-                        <span className="text-gray-800 text-sm">Ir al artículo</span>
+                        <span className="text-gray-800 text-sm">Ir al artículo después de crearlo</span>
                     </div>
                     <div className="py-4">
                         <StateButton

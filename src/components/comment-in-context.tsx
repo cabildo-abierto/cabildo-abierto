@@ -38,6 +38,10 @@ export const CommentInContext = ({
     onStartReply,
     isFakeNewsReport,
     inCommentSection=false}: CommentProps) => {
+    if(!content.parentContents[0]){
+        console.log("content with error is", content)
+        return <>Error :(</>
+    }
     const parentId = content.parentContents[0].id
     const parentContent = useContent(parentId)
     const rootContent = useRootContent(content.id)

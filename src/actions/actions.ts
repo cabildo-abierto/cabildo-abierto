@@ -744,7 +744,9 @@ export const getUserById = (userId: string) => {
             }
         )
         return user ? user : undefined
-    }, ["user", userId], {tags: ["user:"+userId]})()    
+    }, ["user", userId], {
+        revalidate: 6*3600,
+        tags: ["user:"+userId]})()    
 }
 
 
@@ -1120,7 +1122,9 @@ export async function getEntityById(id: string) {
             }
         )
         return entity
-    }, ["entity", id], {tags: ["entity", "entity:"+id]})()
+    }, ["entity", id], {
+        revalidate: 6*3600,
+        tags: ["entity", "entity:"+id]})()
 }
 
 
@@ -1349,6 +1353,7 @@ export const getSubscriptionPoolSize = unstable_cache(async () => {
 },
     ["poolsize"],
     {
+        revalidate: 6*3600,
         tags: ["poolsize"]
     }
 )

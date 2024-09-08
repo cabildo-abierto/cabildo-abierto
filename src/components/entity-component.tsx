@@ -46,6 +46,9 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
     if(entity.isLoading){
         return <LoadingSpinner/>
     }
+    if(!entity.entity){
+        return <>Error :( {entityId}</>
+    }
     const version = getVersionInEntity(contentId, entity.entity)
 
     if(parentContentId){
