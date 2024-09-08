@@ -1,6 +1,5 @@
 import { ContentType } from '@prisma/client';
 import { z } from 'zod'
-import { SmallContentProps } from '../api/feed/route';
 
 
 export type SmallUserProps = {
@@ -140,4 +139,16 @@ export type UserStats = {
     entityAddedChars: number
     viewsInPosts: number
     viewsInEntities: number
+}
+
+
+
+
+export type SmallContentProps = {
+    id: string
+    type: ContentType
+    text?: string
+    title?: string
+    createdAt?: string | Date
+    entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
 }

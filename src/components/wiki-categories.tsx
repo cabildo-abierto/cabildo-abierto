@@ -1,55 +1,17 @@
 "use client"
 
-import { areArraysEqual } from "@mui/base"
 import Link from "next/link"
-import { useEntities } from "src/app/hooks/entities"
-import { ContentProps, EntityProps, SmallEntityProps } from "src/app/lib/definitions";
-import { useState } from "react";
+import { ContentProps } from "src/app/lib/definitions";
 import { SubcategoriesDropDown } from "./subcategories-dropdown";
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import LoadingSpinner from "./loading-spinner";
+import { getNextCategories } from "./utils";
+import { useRouteEntities } from "src/app/hooks/contents";
 
-function currentCategories(entity: {versions: {id: string, categories: string}[]}){
-    return JSON.parse(entity.versions[entity.versions.length-1].categories)
-}
-
-export function isPrefix(p: any[], q: any[]){
-    if(p.length > q.length) return false
-    return areArraysEqual(p, q.slice(0, p.length))
-}
-
-export function getNextCategories(route: string[], entities: SmallEntityProps[]){
-    const nextCategories = new Set<string>()
-    
-    entities.forEach((entity: SmallEntityProps) => {
-        const categories: string[][] = currentCategories(entity)
-        if(!categories) return
-        categories.forEach((category: string[]) => {
-            if(isPrefix(route, category)){
-                if(category.length > route.length){
-                    nextCategories.add(category[route.length])
-                }
-            }
-        })
-    })
-
-    return nextCategories
-}
 
 export type LoadingContent = {
     content: ContentProps,
     isLoading: boolean,
     isError: boolean
-}
-
-export function entityInRoute(entity: {versions: {id: string, categories: string}[]}, route: string[]){
-    const categories = currentCategories(entity)
-    if(route.length == 0) return true
-    if(!categories) return false // esto no debería pasar
-    return categories.some((c: string[]) => {
-        return isPrefix(route, c)
-    })
 }
 
 
@@ -78,7 +40,7 @@ export const Route = ({route, nextCategories, selected}: {route: string[], nextC
 
 export const WikiCategories = ({route, selected}: {route: string[], selected: string}) => {
 
-    const entities = useEntities()
+    const entities = useRouteEntities([])
 
     if(entities.isLoading){
         return <></>
