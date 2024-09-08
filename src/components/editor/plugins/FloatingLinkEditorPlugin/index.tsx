@@ -32,8 +32,8 @@ import {createPortal} from 'react-dom';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl, SUPPORTED_URL_PROTOCOLS} from '../../utils/url';
-import { useEntities } from 'src/app/hooks/entities';
 import { EntityProps, SmallEntityProps } from 'src/app/lib/definitions';
+import { useRouteEntities } from 'src/app/hooks/contents';
 
 function FloatingLinkEditor({
   editor,
@@ -59,7 +59,7 @@ function FloatingLinkEditor({
   );
   const [results, setResults] = useState<SmallEntityProps[]>([])
   const [currentUrl, setCurrentUrl] = useState('');
-  const entities = useEntities()
+  const entities = useRouteEntities([])
 
   useEffect(() => {
     // Check if the code is running on the client side

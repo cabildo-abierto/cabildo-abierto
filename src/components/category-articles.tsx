@@ -1,11 +1,10 @@
 import { SmallEntityProps } from "src/app/lib/definitions"
 import { EntitySearchResult } from "./entity-search-result"
 import InfoPanel from "./info-panel"
-import { entityInRoute } from "./wiki-categories"
 import LoadingSpinner from "./loading-spinner"
-import { useEntities } from "src/app/hooks/entities"
 import { useSearch } from "./search-context"
 import { NoResults } from "./category-users"
+import { useRouteEntities } from "src/app/hooks/contents"
 
 
 function popularityScore(entity: SmallEntityProps){
@@ -41,7 +40,7 @@ const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
 
 
 export const CategoryArticles = ({route}: {route: string[]}) => {
-    const entities = useEntities()
+    const entities = useRouteEntities(route)
     
     if(entities.isLoading){
         return <LoadingSpinner/>
@@ -49,15 +48,14 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
     if(!entities.entities || entities.isError){
         return <></>
     }
-    const routeEntities = entities.entities.filter((entity) => (entityInRoute(entity, route)))
 
     return <>
         {false && <div className="flex items-center">
             <h3 className="flex ml-2 py-4 mr-1">Artículos públicos</h3>
             <InfoPanel text="Artículos informativos que cualquier usuario puede editar."/>
         </div>}
-        {routeEntities.length > 0 ? 
-            <ArticlesWithSearch entities={routeEntities}/>
+        {entities.entities.length > 0 ? 
+            <ArticlesWithSearch entities={entities.entities}/>
              : 
             <div className="flex justify-center">No hay artículos en esta categoría</div>}
     </>

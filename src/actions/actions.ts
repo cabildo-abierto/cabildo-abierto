@@ -2,12 +2,12 @@
 
 import { cache } from "./cache";
 import { revalidateTag, unstable_cache } from "next/cache";
-import { ContentType } from "@prisma/client";
+import { ContentType, ProtectionLevel } from "@prisma/client";
 import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
 import { ContentProps, EntityProps, SmallEntityProps, UserStats } from "src/app/lib/definitions";
 import { getAllText, nodesCharDiff } from "src/components/diff";
-import { arraySum, sumFromFirstEdit } from "src/components/utils";
+import { arraySum, entityInRoute, sumFromFirstEdit } from "src/components/utils";
 
 
 export async function getContentById(id: string) {
@@ -72,7 +72,6 @@ export async function getChildrenCount(id: string) {
 }
 
 
-// TO DO: Revalidate
 export async function getEntityChildrenCount(id: string) {
     return unstable_cache(async () => {
         let comments = await getEntityComments(id)
@@ -85,7 +84,7 @@ export async function getEntityChildrenCount(id: string) {
         return count
     }, ["entityChildrenCount", id], {
         tags: ["entityChildrenCount", "entityChildrenCount:"+id],
-        revalidate: 10
+        revalidate: 6*3600
     })()
 }
 
@@ -135,7 +134,6 @@ export async function getEntityComments(id: string) {
 }
 
 
-// TO DO: Revalidate
 export async function getEntityTextLength(id: string) {
     return unstable_cache(async () => {
         const entity = await getEntityById(id)
@@ -152,7 +150,7 @@ export async function getEntityTextLength(id: string) {
         const length = getAllText(text.root).split(" ").length
         return length
     }, ["entityTextLength", id], {
-        revalidate: 10,
+        revalidate: 10*3600,
         tags: ["entityTextLength", "entityTextLength:"+id]})()
 }
 
@@ -163,6 +161,7 @@ export const getFeed = unstable_cache(async () => {
             id: true,
             type: true,
             text: true,
+            title: true,
             entityReferences: {
                 select: {
                     id: true,
@@ -195,6 +194,58 @@ export const getFeed = unstable_cache(async () => {
     })
     return feed
 }, ["feed"], {tags: ["feed"]})
+
+
+export const getRouteFeed = (route: string[]) => {
+    return unstable_cache(async () => {
+        const feed = await getFeed()
+        if(route.length == 0) return feed
+        let routeFeed = feed.filter(({entityReferences}) => {
+            return entityReferences.some((entity) => {
+                return entityInRoute(entity, route)
+            })
+        })
+        return routeFeed
+    }, ["routeFeed", route.join("/")], {
+        revalidate: 3600*6,
+        tags: ["routeFeed", "routeFeed:"+route.join("/")]})() 
+}
+
+
+export const getRouteFollowingFeed = (route: string[], userId: string) => {
+    return unstable_cache(async () => {
+        const feed = await getFollowingFeed(userId)
+
+        if(route.length == 0) return feed
+        
+        let routeFeed = feed.filter(({entityReferences}) => {
+            return entityReferences.some((entity) => {
+                return entityInRoute(entity, route)
+            })
+        })
+
+        return routeFeed
+    }, ["routeFollowingFeed", route.join("/")], {
+        revalidate: 3600*6,
+        tags: ["routeFollowingFeed", "routeFollowingFeed:"+route.join("/")]})() 
+}
+
+
+export const getRouteEntities = (route: string[]) => {
+    return unstable_cache(async () => {
+        const entities = await getEntities()
+
+        if(route.length == 0) return entities
+
+        let routeEntities = entities.filter((entity) => {
+            return entityInRoute(entity, route)
+        })
+
+        return routeEntities
+    }, ["routeEntities", route.join("/")], {
+        revalidate: 3600*6,
+        tags: ["routeEntities", "routeEntities:"+route.join("/")]})() 
+}
 
 
 export const getDrafts = (userId: string) => {
@@ -461,6 +512,7 @@ export async function createComment(text: string, parentContentId: string, userI
 
     if(parentEntityId){
         revalidateTag("comments:"+parentEntityId)
+        revalidateTag("entityChildrenCount:"+parentEntityId)
     }
     revalidateTag("comments:"+parentContentId)
     revalidateTag("repliesFeed:"+userId)
@@ -473,6 +525,13 @@ export async function createComment(text: string, parentContentId: string, userI
         else
             break
     }
+
+    if(parentContentId){
+        const rootContent = await getContentById(parentContentId)
+
+        revalidateTag("entityChildrenCount:"+rootContent.parentEntityId)
+    }
+
 
     return comment
 }
@@ -939,6 +998,7 @@ export const updateEntity = async (text: string, categories: string, entityId: s
     revalidateTag("userContents:"+userId)
     revalidateTag("entityContributions:"+entityId)
     revalidateTag("editsFeed:"+userId)
+    revalidateTag("entityTextLength:"+entityId)
 }
   
   
@@ -1020,7 +1080,7 @@ export const getEntities = cache(async () => {
     }))
     return entities
 }, ["entities"], {
-    revalidate: 10,
+    revalidate: 6*3600,
     tags: ["entities"]})
 
 
@@ -1226,4 +1286,80 @@ export const getTopKEntitiesByViews = async (k: number) => {
     
     return sorted.slice(0, 3).map(({name}) => (name))
     }, ["topkentities", k.toString()], {revalidate: 3600})()
+}
+
+
+export async function buyAndUseSubscription(userId: string) { 
+    const result = await db.subscription.create({
+        data: {
+            userId: userId,
+            boughtByUserId: userId,
+            usedAt: new Date()
+        }
+    })
+    revalidateTag("user:"+userId)
+}
+
+export async function donateSubscriptions(n: number, userId: string) {
+    const queries = []
+    
+    for(let i = 0; i < n; i++){
+        queries.push({
+            boughtByUserId: userId
+        })
+    }
+
+    await db.subscription.createMany({
+        data: queries
+    })
+    revalidateTag("user:"+userId)
+    revalidateTag("poolsize")
+}
+
+export async function getDonatedSubscription(userId: string) {
+    const subscription = await db.subscription.findFirst({
+        where: {
+            usedAt: null
+        }
+    })
+
+    if(!subscription){
+        return null
+    } else {
+        const result = await db.subscription.update({
+            data: {
+                usedAt: new Date(),
+                userId: userId
+            },
+            where: {
+                id: subscription.id
+            }
+        })
+        revalidateTag("user:"+userId)
+        revalidateTag("poolsize")
+    }
+}
+
+export const getSubscriptionPoolSize = unstable_cache(async () => {
+    const available = await db.subscription.findMany({
+        select: {id: true},
+        where: {usedAt: null}
+    })
+    return available.length
+},
+    ["poolsize"],
+    {
+        tags: ["poolsize"]
+    }
+)
+
+
+export async function setProtection(entityId: string, level: ProtectionLevel) {
+    const result = await db.entity.update({
+      where: { id: entityId },
+      data: { protection: level },
+    });
+    revalidateTag("entities")
+    revalidateTag("entity")
+    return result
 }

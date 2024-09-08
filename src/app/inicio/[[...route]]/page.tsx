@@ -7,9 +7,9 @@ import SelectionComponent from "src/components/search-selection-component";
 import { useRouter } from "next/navigation";
 import { RouteFeed } from "src/components/route-feed";
 import { CategoryUsers } from "src/components/category-users";
-import { useEntities } from "src/app/hooks/entities";
 import { useUsers } from "src/app/hooks/user";
-import { useFeed, useFollowingFeed } from "src/app/hooks/contents";
+import { useRouteFeed, useRouteFollowingFeed, useRouteEntities } from "src/app/hooks/contents";
+import { RouteContent } from "src/components/route-content";
 
 
 
@@ -20,36 +20,13 @@ const TopicsPage: React.FC<{
     const decodedRoute = params.route ? params.route.map(decodeURIComponent) : []
     const [selected, setSelected] = useState(searchParams.selected ? searchParams.selected : "General")
 
-    const preloadEntities = useEntities()
+    const preloadEntities = useRouteEntities(decodedRoute)
     const preloadUsers = useUsers()
-    const preloadFeed = useFeed()
-    const preloadFollowingFeed = useFollowingFeed()
+    const preloadFeed = useRouteFeed(decodedRoute)
+    const preloadFollowingFeed = useRouteFollowingFeed(decodedRoute)
     const router = useRouter()
 
-    const center = <div className="w-full">
-        <div className="content-container py-2 mt-2">
-            <WikiCategories route={decodedRoute} selected={selected}/>
-            <SelectionComponent
-                onSelection={setSelected}
-                options={["General", "Siguiendo", "Artículos públicos", "Usuarios"]}
-                selected={selected}
-                className="main-feed"
-            />
-        </div>
-        
-        <div className="pt-2">
-        {selected == "Artículos públicos" && 
-        <CategoryArticles route={decodedRoute}/>}
-
-        {(selected == "General" || selected == "Siguiendo") && 
-        <RouteFeed
-        route={decodedRoute}
-        following={selected == "Siguiendo"}
-        />}
-
-        {selected == "Usuarios" && <CategoryUsers route={decodedRoute}/>}
-        </div>
-    </div>
+    const center = <RouteContent route={decodedRoute}/>
 
     return <ThreeColumnsLayout center={center} />
 }

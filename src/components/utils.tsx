@@ -1,4 +1,4 @@
-import { EntityProps, UserProps } from "src/app/lib/definitions"
+import { EntityProps, SmallEntityProps, UserProps } from "src/app/lib/definitions"
 import assert from "assert"
 
 
@@ -57,4 +57,51 @@ export function sumFromFirstEdit(values: number[], entity: EntityProps, userId: 
 
 export function arraySum(a: any[]) {
     return a.reduce((acc, curr) => acc + curr, 0)
+}
+
+
+function currentCategories(entity: {versions: {id: string, categories: string}[]}){
+    return JSON.parse(entity.versions[entity.versions.length-1].categories)
+}
+
+
+function areArraysEqual(a: any[], b: any[]){
+    if(a.length != b.length) return false
+    for(let i = 0; i < a.length; i++){
+        if(a[i] != b[i]) return false
+    }
+    return true
+}
+
+
+export function isPrefix(p: any[], q: any[]){
+    if(p.length > q.length) return false
+    return areArraysEqual(p, q.slice(0, p.length))
+}
+
+export function getNextCategories(route: string[], entities: SmallEntityProps[]){
+    const nextCategories = new Set<string>()
+    
+    entities.forEach((entity: SmallEntityProps) => {
+        const categories: string[][] = currentCategories(entity)
+        if(!categories) return
+        categories.forEach((category: string[]) => {
+            if(isPrefix(route, category)){
+                if(category.length > route.length){
+                    nextCategories.add(category[route.length])
+                }
+            }
+        })
+    })
+
+    return nextCategories
+}
+
+export function entityInRoute(entity: {versions: {id: string, categories: string}[]}, route: string[]){
+    const categories = currentCategories(entity)
+    if(route.length == 0) return true
+    if(!categories) return false // esto no debería pasar
+    return categories.some((c: string[]) => {
+        return isPrefix(route, c)
+    })
 }

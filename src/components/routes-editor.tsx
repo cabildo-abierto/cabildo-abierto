@@ -5,17 +5,15 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
-import { entityLastVersionId } from "./utils";
-import { useContent } from "src/app/hooks/contents";
+import { entityLastVersionId, getNextCategories } from "./utils";
+import { useContent, useRouteEntities } from "src/app/hooks/contents";
 import { updateEntity } from "src/actions/actions";
 import { EntityProps, SmallEntityProps } from "src/app/lib/definitions";
-import { useUser } from "src/app/hooks/user";
 import { useSWRConfig } from "swr";
-import { useCategories, useEntities } from "src/app/hooks/entities";
-import { getNextCategories, isPrefix } from "./wiki-categories";
 import InfoPanel from "./info-panel";
 import LoadingSpinner from "./loading-spinner";
 import { EntityCategoriesTitle } from "./categories";
+import { useUser } from "src/app/hooks/user";
 
 function validCategoryElement(e: string){
     return e.length > 0
@@ -39,7 +37,7 @@ type RouteEditorProps = {
 const RouteEditor = ({category, removeCategory, updateCategory}: 
     RouteEditorProps
 ) => {
-    const entities = useEntities()
+    const entities = useRouteEntities([])
 
     function updateCategoryAt(i: number, value: string){
         updateCategory([...category.slice(0, i), value, ...category.slice(i+1)])

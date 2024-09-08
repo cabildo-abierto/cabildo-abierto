@@ -4,8 +4,6 @@ import React, { useState } from "react"
 import { ContentWithCommentsFromId } from "src/components/content-with-comments";
 import PaywallChecker from "src/components/paywall-checker";
 import { SetProtectionButton } from "src/components/protection-button";
-import { useUser } from "src/app/hooks/user";
-import { useEntities, useEntity } from "src/app/hooks/entities";
 import { ThreeColumnsLayout } from "src/components/three-columns";
 import { useSWRConfig } from "swr";
 import Link from "next/link";
@@ -22,6 +20,8 @@ import { ViewsCounter } from "./views-counter";
 import { DateSince } from "./date";
 import { ShowContributors } from "./show-contributors";
 import { ActivePraiseIcon, InactivePraiseIcon } from "./icons";
+import { useUser } from "src/app/hooks/user";
+import { useEntity } from "src/app/hooks/entities";
 
 
 

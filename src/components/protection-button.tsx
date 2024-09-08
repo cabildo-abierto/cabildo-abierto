@@ -1,7 +1,7 @@
 "use client"
 
+import { setProtection } from "src/actions/actions";
 import StateButton from "./state-button";
-import { setProtection } from "src/actions/protection";
 
 function protectionToName(protection: string){
     if(protection == "Administrator") {
@@ -17,11 +17,16 @@ function otherProtection(protection: string) {
 
 export const SetProtectionButton = ({entity} : any) => {
     const protection = entity.protection
+    
+    async function onClick(){
+        await setProtection(entity.id, otherProtection(protection))
+    }
+
     return <StateButton
         text1={"Cambiar protección a " + protectionToName(otherProtection(protection))}
         text2={"Cambiando..."}
         className="gray-btn"
-        onClick={async () => {await setProtection(entity.id, otherProtection(protection));}}
+        onClick={onClick}
         reUsable={true}
     />
 }

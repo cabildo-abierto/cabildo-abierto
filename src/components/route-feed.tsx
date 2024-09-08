@@ -1,7 +1,6 @@
-import { useFeed, useFollowingFeed } from "src/app/hooks/contents"
+import { useRouteFeed, useRouteFollowingFeed } from "src/app/hooks/contents"
 import { useUser } from "src/app/hooks/user"
 import LoadingSpinner from "./loading-spinner"
-import { entityInRoute } from "./wiki-categories"
 import Feed, { FeedProps } from "./feed"
 import { searchContents } from "./search"
 import { useSearch } from "./search-context"
@@ -9,9 +8,8 @@ import { useSearch } from "./search-context"
 
 
 export const RouteFeed = ({route, following}: {route: string[], following: boolean}) => {
-    let {user} = useUser()
-    let feed = useFeed()
-    let followingFeed = useFollowingFeed()
+    let feed = useRouteFeed(route)
+    let followingFeed = useRouteFollowingFeed(route)
     const {searchValue} = useSearch()
 
     let selectedFeed = !following ? feed : followingFeed
@@ -24,14 +22,9 @@ export const RouteFeed = ({route, following}: {route: string[], following: boole
         return <></>
     }
 
-    let filteredFeed: {id: string}[] = selectedFeed.feed.filter(({entityReferences}) => {
-        return route.length == 0 || entityReferences.some((entity) => {
-            return entityInRoute(entity, route)
-        })
-    })
-
+    // TO DO: Debería ser la versión parseada del texto y no diferencias mayus y min
     if(searchValue.length > 0)
-        filteredFeed = searchContents(searchValue, selectedFeed.feed)
+        selectedFeed.feed = selectedFeed.feed.filter((content) => (content.text.includes(searchValue) || (content.title && content.title.includes(searchValue))))
 
-    return <Feed feed={{feed: filteredFeed, isLoading: false, isError: false}}/>
+    return <Feed feed={selectedFeed}/>
 }

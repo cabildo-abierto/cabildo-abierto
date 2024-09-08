@@ -1,6 +1,5 @@
 import useSWR, { KeyedMutator } from "swr"
-import { SmallContentProps } from "../api/feed/route"
-import { ContentProps, UserStats } from "../lib/definitions"
+import { ContentProps, SmallContentProps, SmallEntityProps, UserStats } from "../lib/definitions"
 import { fetcher } from "./utils"
 
 
@@ -126,8 +125,8 @@ export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: 
 }
 
 
-export function useFeed(): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/feed', fetcher)
+export function useRouteFeed(route: string[]): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/feed/'+route.join("/"), fetcher)
   
     return {
         feed: data,
@@ -137,11 +136,22 @@ export function useFeed(): {feed: SmallContentProps[], isLoading: boolean, isErr
 }
 
 
-export function useFollowingFeed(): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/following-feed', fetcher)
+export function useRouteFollowingFeed(route: string[]): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/following-feed/'+route.join("/"), fetcher)
   
     return {
         feed: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useRouteEntities(route: string[]): {entities: SmallEntityProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/entities/'+route.join("/"), fetcher)
+  
+    return {
+        entities: data,
         isLoading,
         isError: error
     }
