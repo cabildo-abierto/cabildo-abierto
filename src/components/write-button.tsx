@@ -10,6 +10,7 @@ import { useUser } from 'src/app/hooks/user';
 import { useSWRConfig } from 'swr';
 import CloseIcon from '@mui/icons-material/Close';
 import { ArticleIcon, FastPostIcon, PostIcon } from './icons';
+import InfoPanel from './info-panel';
 
 export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100;
@@ -117,32 +118,26 @@ const WriteButton = () => {
             </div>
 
             {isDropdownOpen && createPortal(
-                <div ref={dropdownRef} style={dropdownStyles} className="z-10 mt-4 bg-[var(--background)] rounded border border-[var(--accent)] px-2 py-2">
-                    <div className="">
-                        <Link href="/escribir/rapida">
-                            <button className="create-btn w-64 flex justify-center items-center" onClick={() => setIsDropdownOpen(false)}>
-                                <span className="px-1"><FastPostIcon/></span> Publicación rápida
-                            </button>
-                        </Link>
-                    </div>
-                    <div className="py-2">
-                        <Link href="/escribir/publicacion">
-                            <button className="create-btn w-64 flex justify-center items-center" onClick={() => setIsDropdownOpen(false)}>
-                                <span className="px-1"><PostIcon /></span> Publicación
-                            </button>
-                        </Link>
-                    </div>
-                    <div className="">
-                        <button
-                            onClick={() => {
-                                setIsModalOpen(true);
-                                setIsDropdownOpen(false);
-                            }}
-                            className="create-btn w-64 flex justify-center items-center"
-                        >
-                            <span className="px-1"><ArticleIcon /></span> Artículo público
+                <div ref={dropdownRef} style={dropdownStyles} className="z-10 mt-4 bg-[var(--background)] rounded border border-[var(--accent)] px-2 py-2 flex flex-col items-center space-y-2">
+                    <Link href="/escribir/rapida">
+                        <button className="create-btn w-64 flex justify-between items-center" onClick={() => setIsDropdownOpen(false)}>
+                            <div className="flex"><span className="px-1"><FastPostIcon/></span> Publicación rápida</div> <InfoPanel iconClassName="text-white" className="w-64" text="Caracteres y formato limitados. Sin título."/>
                         </button>
-                    </div>
+                    </Link>
+                    <Link href="/escribir/publicacion">
+                        <button className="create-btn w-64 flex justify-between items-center" onClick={() => setIsDropdownOpen(false)}>
+                            <div className="flex"><span className="px-1"><PostIcon /></span> Publicación</div> <InfoPanel iconClassName="text-white" className="w-64" text="Con título y sin límite de caracteres."/>
+                        </button>
+                    </Link>
+                    <button
+                        onClick={() => {
+                            setIsModalOpen(true);
+                            setIsDropdownOpen(false);
+                        }}
+                        className="create-btn w-64 flex justify-between items-center"
+                    >
+                        <div className="flex"><span className="px-1"><ArticleIcon /></span> Artículo público</div> <InfoPanel iconClassName="text-white" className="w-64" text="Un artículo sobre algún tema de interés público. Cualquiera lo puede editar."/>
+                    </button>
                 </div>,
                 document.body
             )}

@@ -1,5 +1,5 @@
-import { getSubscriptionPoolSize } from 'src/actions/subscriptions';
 import { NextRequest, NextResponse } from 'next/server';
+import { getSubscriptionPoolSize } from 'src/actions/actions';
 
 export async function GET(req: NextRequest) {
 
