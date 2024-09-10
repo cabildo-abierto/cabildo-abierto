@@ -16,16 +16,19 @@ export const ShowContributors = ({entityId, version, userId}:
     if(version == undefined) version = contributions.contributions.length-1
     if(version >= contributions.contributions.length) return <></>
     let versionContr = contributions.contributions[version]
-    if(version == 0) return <></>
     
     let total = 0
     versionContr.forEach(([authorId, chars]) => {total += chars})
 
-    if(userId)
+    if(userId) // para el panel de estadísticas
         versionContr = versionContr.filter(([authorId, _]) => (authorId == userId))
 
     if(userId){
-        return <span>Contribución: {round2(versionContr[0][1] / total * 100)}%</span>
+        if(versionContr.length > 0)
+            return <span>Contribución: {round2(versionContr[0][1] / total * 100)}%</span>
+        else {
+            return <span>Contribución: Artículo vacío</span>
+        }
     }
 
     return <div className="flex">

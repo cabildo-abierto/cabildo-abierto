@@ -22,10 +22,11 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import * as React from 'react';
 import useLayoutEffect from '../../shared/useLayoutEffect';
 import Button from '../../ui/Button';
-import { emptyOutput } from '../../comment-editor';
+import { commentEditorSettings, emptyOutput } from '../../comment-editor';
 import { ContentProps } from 'src/app/lib/definitions';
 import { useUser } from 'src/app/hooks/user';
 import { useSWRConfig } from 'swr';
+import StateButton from 'src/components/state-button';
 
 
 export function CommentInputBox({
@@ -175,39 +176,9 @@ export function CommentInputBox({
     }
   };
 
-  const isDevPlayground = false
-  const settings: SettingsProps = {
-      disableBeforeInput: false,
-      emptyEditor: isDevPlayground,
-      isAutocomplete: false,
-      isCharLimit: false,
-      isCharLimitUtf8: false,
-      isCollab: false,
-      isMaxLength: false,
-      isRichText: true,
-      measureTypingPerf: false,
-      shouldPreserveNewLinesInMarkdown: true,
-      shouldUseLexicalContextMenu: false,
-      showNestedEditorTreeView: false,
-      showTableOfContents: false,
-      showTreeView: false,
-      tableCellBackgroundColor: false,
-      tableCellMerge: false,
-      showActions: false,
-      showToolbar: false,
-      isComments: false,
-      isDraggableBlock: false,
-      useSuperscript: false,
-      useStrikethrough: false,
-      useSubscript: false,
-      useCodeblock: false,
-      placeholder: "Agregá un comentario...",
-      isAutofocus: false,
-      editorClassName: "link",
-      initialData: null,
-      isReadOnly: false,
-      placeholderClassName: ""
-  }
+  const settings = {...commentEditorSettings}
+
+  if(!user.user) settings.placeholder = "Necesitás una cuenta para agregar un comentario." 
 
   return (
     <div className="CommentPlugin_CommentInputBox px-2" ref={boxRef}>
@@ -224,12 +195,13 @@ export function CommentInputBox({
           className="gray-btn w-full mr-1">
           Cancelar
         </Button>
-        <Button
-          onClick={submitComment}
-          disabled={emptyOutput(editor.getEditorState()) || !user}
-          className="gray-btn w-full ml-1">
-          Comentar
-        </Button>
+        <StateButton
+          onClick={async () => {await submitComment()}}
+          disabled={emptyOutput(editor.getEditorState()) || !user.user}
+          className="gray-btn w-full ml-1"
+          text1="Comentar"
+          text2="Enviando..."
+        />
       </div>
     </div>
   );

@@ -38,6 +38,7 @@ export type EntityProps = {
         authorId: string
     }[]
     referencedBy: SmallContentProps[]
+    deleted: boolean
 }
 
 

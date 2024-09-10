@@ -15,8 +15,12 @@ export type LoadingContent = {
 }
 
 
-export const Route = ({route, nextCategories, selected}: {route: string[], nextCategories?: Set<string>, selected?: string}) => {
-    return <div className="flex items-center">
+export const Route = ({route, selected}: {route: string[], selected?: string}) => {
+    const entities = useRouteEntities(route)
+
+    const nextCategories = entities.entities != null ? getNextCategories(route, entities.entities) : []
+
+    return <><div className="flex items-center">
         {["Inicio"].concat(route).map((c: string, index: number) => {
             return <div className="flex items-center" key={index}>
             
@@ -27,7 +31,7 @@ export const Route = ({route, nextCategories, selected}: {route: string[], nextC
                     {c}
                 </Link>
 
-                {(index != route.length || (nextCategories && nextCategories.size > 0)) && 
+                {(index != route.length || (nextCategories && nextCategories.length > 0)) && 
                 <span className="px-1 text-2xl font-bold content text-[var(--primary)] mb-1">
                     <KeyboardArrowRightIcon/>
                 </span>}
@@ -35,32 +39,24 @@ export const Route = ({route, nextCategories, selected}: {route: string[], nextC
             </div>
         })}
     </div>
+
+    {nextCategories.length > 0 && 
+    <SubcategoriesDropDown
+        nextCategories={nextCategories}
+        route={route}
+        selected={selected}
+    />}
+
+    </>
 }
 
 
 export const WikiCategories = ({route, selected}: {route: string[], selected: string}) => {
 
-    const entities = useRouteEntities([])
-
-    if(entities.isLoading){
-        return <></>
-    }
-
-    if(!entities || entities.isError){
-        return <></>
-    }
-
-    const nextCategories = getNextCategories(route, entities.entities)
     return <div className="flex flex-col">
         <span className="ml-2 text-sm text-[var(--text-light)]">Estás viendo:</span>
         <div className="flex pb-2 items-center px-2">
-        <Route route={route} nextCategories={nextCategories} selected={selected}/>
-        {nextCategories.size > 0 && 
-        <SubcategoriesDropDown
-            nextCategories={nextCategories}
-            route={route}
-            selected={selected}
-        />}
+            <Route route={route} selected={selected}/>
         </div>
     </div>
     

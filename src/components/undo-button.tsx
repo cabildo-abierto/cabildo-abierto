@@ -76,9 +76,9 @@ export const UndoButton = ({entity, version}: {entity: EntityProps, version: num
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return <div className="relative">
-        <div className="px-2">
+        <div className="px-2 flex justify-ceter">
             <button className="small-btn" onClick={() => {setIsModalOpen(true)}}>
-                Deshacer cambio
+                Deshacer
             </button>
         </div>
 

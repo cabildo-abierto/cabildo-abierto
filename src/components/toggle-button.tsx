@@ -6,11 +6,22 @@ type ToggleButtonProps = {
     toggled: boolean
     setToggled: (arg0: boolean) => void
     toggledText?: string
+    disabled?: boolean
+    title?: string
 }
 
-export const ToggleButton = ({text, toggled, setToggled, className="gray-btn", toggledText}: ToggleButtonProps) => {
+export const ToggleButton = ({
+    text,
+    toggled,
+    setToggled,
+    className="gray-btn",
+    toggledText,
+    disabled=false,
+    title}: ToggleButtonProps) => {
     return <button className={className + (toggled ? " toggled" : "")}
-        onClick={() => {setToggled(!toggled)}}    
+        onClick={() => {setToggled(!toggled)}}
+        disabled={disabled}
+        title={title}
     >
         {(toggled && toggledText !== undefined) ? toggledText : text}
     </button>

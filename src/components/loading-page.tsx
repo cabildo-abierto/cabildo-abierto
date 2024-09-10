@@ -1,11 +1,9 @@
 "use client"
 
 import React, { ReactNode } from 'react';
-import styles from './LoadingPage.module.css'; // Adjust the path as necessary
-import Image from 'next/image'
 import { useUser } from 'src/app/hooks/user';
-import { Logo } from './home-page';
 import ReadOnlyEditor from './editor/read-only-editor';
+import { Logo } from './logo';
 
 
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {

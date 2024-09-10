@@ -94,7 +94,7 @@ export function getNextCategories(route: string[], entities: SmallEntityProps[])
         })
     })
 
-    return nextCategories
+    return Array.from(nextCategories)
 }
 
 export function entityInRoute(entity: {versions: {id: string, categories: string}[]}, route: string[]){

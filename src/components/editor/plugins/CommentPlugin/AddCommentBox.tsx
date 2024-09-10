@@ -33,7 +33,7 @@ export function AddCommentBox({
 
     const top = anchorRect.top
     const right = editorRect.right
-    boxElement.style.position = 'absolute';
+    boxElement.style.position = 'fixed';
     boxElement.style.top = `${top-25}px`;
     boxElement.style.left = `${right-50}px`;
 
@@ -41,9 +41,11 @@ export function AddCommentBox({
 
   useEffect(() => {
     window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition);
 
     return () => {
       window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition);
     };
   }, [editor, updatePosition]);
 

@@ -46,7 +46,7 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
     let newIndex = 0
     if(!entities.isLoading){
         let next = getNextCategories(category.slice(0, newIndex), entities.entities)
-        while(newIndex < category.length && next.has(category[newIndex])){
+        while(newIndex < category.length && next.some((c) => (c == category[newIndex]))){
             newIndex ++
             next = getNextCategories(category.slice(0, newIndex), entities.entities)
         }

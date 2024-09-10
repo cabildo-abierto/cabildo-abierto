@@ -19,7 +19,7 @@ export const EntityCategories = ({categories, name}: {categories: string, name: 
 
     const parsedCategories: string[][] = JSON.parse(categories)
 
-    return <div className="flex flex-col border-t border-b py-4 my-6">
+    return <div className="flex flex-col py-4">
         <EntityCategoriesTitle name={name} editing={false}/>
         {parsedCategories.length > 0 ? parsedCategories.map((category: string[], index: number) => {
             return <div key={index}>

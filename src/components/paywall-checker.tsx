@@ -4,6 +4,7 @@ import Link from "next/link"
 import LoadingPage from "./loading-page"
 import { validSubscription } from "./utils"
 import { useUser } from "src/app/hooks/user";
+import { ReactNode } from "react";
 
 
 const NeedAccountPaywall: React.FC<any> = ({ children }) => {
@@ -54,7 +55,7 @@ const NeedSubscriptionPaywall: React.FC<any> = ({ children }) => {
 
 
 
-const PaywallChecker: React.FC<{children: any}> = ({children}) => {
+const PaywallChecker: React.FC<{children: ReactNode, requireSubscription?: boolean}> = ({children, requireSubscription=true}) => {
     const user = useUser()
     if(user.isLoading){
         return <LoadingPage>
@@ -65,7 +66,7 @@ const PaywallChecker: React.FC<{children: any}> = ({children}) => {
             {children}
         </NeedAccountPaywall>
     } else {
-        if(validSubscription(user.user)){
+        if(!requireSubscription || validSubscription(user.user)){
             return <>{children}</>
         } else {
             return <NeedSubscriptionPaywall>

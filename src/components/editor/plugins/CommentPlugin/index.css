@@ -41,7 +41,7 @@ i.add-comment {
 .CommentPlugin_CommentInputBox {
   display: block;
   position: absolute;
-  width: 250px;
+  width: 24rem;
   min-height: 80px;
   background-color: var(--background);
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);

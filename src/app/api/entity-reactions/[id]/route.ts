@@ -5,7 +5,7 @@ export async function GET(req: NextRequest,
   { params }: { params: { id: string } }
 ) {
 
-    let reactions = await getEntityReactions(params.id)
+    let reactions = await getEntityReactions(encodeURIComponent(params.id))
 
     return NextResponse.json(reactions);
 }

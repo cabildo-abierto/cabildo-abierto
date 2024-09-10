@@ -5,6 +5,6 @@ export async function GET(req: NextRequest,
   { params }: { params: { id: string } }
 ) {
 
-    let content = await getEntityChildrenCount(params.id)
+    let content = await getEntityChildrenCount(encodeURIComponent(params.id))
     return NextResponse.json(content);
 }

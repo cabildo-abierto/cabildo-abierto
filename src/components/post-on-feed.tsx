@@ -15,11 +15,9 @@ type PostOnFeedProps = {
 
 
 export const PostTitleOnFeed = ({title}: {title: string}) => {
-    return <div className="flex items-center px-2 py-2">
-        <div className="px-1 font-bold content">
-            {title}
-        </div>
-    </div>
+    return <h4 className="px-1">
+        {title}
+    </h4>
 }
 
 
@@ -33,7 +31,9 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
             icon={<PostIcon/>}
             showEnterLink={false}
         />
-        <PostTitleOnFeed title={content.title}/>
+        <div className="p-2">
+            <PostTitleOnFeed title={content.title}/>
+        </div>
         <div className="flex justify-between mb-1">
             {false &&<div className="px-2 flex justify-between text-sm">
                 <Authorship/>

@@ -56,7 +56,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
         }
     }
 
-    const isAuthor = user.id == content.content.author.id
+    const isAuthor = user && user.id == content.content.author.id
 
     if(!title){
         if(isAuthor){

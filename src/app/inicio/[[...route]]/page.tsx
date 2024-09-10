@@ -1,12 +1,7 @@
 "use client"
 import React, { useState } from "react"
 import { ThreeColumnsLayout } from "src/components/three-columns";
-import { WikiCategories } from "src/components/wiki-categories";
-import { CategoryArticles } from "src/components/category-articles";
-import SelectionComponent from "src/components/search-selection-component";
 import { useRouter } from "next/navigation";
-import { RouteFeed } from "src/components/route-feed";
-import { CategoryUsers } from "src/components/category-users";
 import { useUsers } from "src/app/hooks/user";
 import { useRouteFeed, useRouteFollowingFeed, useRouteEntities } from "src/app/hooks/contents";
 import { RouteContent } from "src/components/route-content";

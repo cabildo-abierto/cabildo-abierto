@@ -11,6 +11,7 @@ import { useContributions, useEntity, useEntityReactions } from "../hooks/entiti
 import { ShowContributors } from "src/components/show-contributors"
 import { sumFromFirstEdit } from "src/components/utils"
 import { FixedCounter } from "src/components/like-counter"
+import Link from "next/link"
 
 const EntityIncome = ({entityId}: {entityId: string}) => {
     const {user} = useUser()
@@ -23,11 +24,21 @@ const EntityIncome = ({entityId}: {entityId: string}) => {
         return <LoadingSpinner/>
     }
 
-    const reactionsCount = sumFromFirstEdit(reactions.reactions, entity.entity, user.id)
+    if(!entity.entity){
+        return <></>
+    }
 
-    return <div
+    let reactionsCount = 0
+    if(reactions.reactions == null){
+    } else {
+        reactionsCount = sumFromFirstEdit(reactions.reactions, entity.entity, user.id)
+    }
+
+
+    return <Link
         className="content-container p-1 flex flex-col w-full cursor-pointer"
-        onClick={() => {router.push("/articulo/"+encodeURIComponent(entityId))}}>
+        href={"/articulo/"+encodeURIComponent(entityId)}
+        >
         <div className="flex justify-between">
             <PostTitleOnFeed title={entity.entity.name}/>
             <FixedCounter count={reactionsCount} icon={<ActiveLikeIcon/>}/>
@@ -37,7 +48,7 @@ const EntityIncome = ({entityId}: {entityId: string}) => {
             <ShowContributors entityId={entityId} userId={user.id}/>
             <DateSince date={entity.entity.versions[0].createdAt}/>
         </div>
-    </div>
+    </Link>
 }
 
 const PostIncome = ({postId}: {postId: string}) => {
@@ -48,9 +59,10 @@ const PostIncome = ({postId}: {postId: string}) => {
     if(reactions.isLoading || content.isLoading){
         return <LoadingSpinner/>
     }
-    return <button
+    return <Link
+        href={"/contenido/"+postId}
         className="content-container p-1 flex flex-col w-full"
-        onClick={() => {router.push("/contenido/"+postId)}}>
+    >
         <div className="flex justify-between">
             <PostTitleOnFeed title={content.content.title}/>
             <FixedCounter count={reactions.reactions} icon={<ActiveLikeIcon/>}/>
@@ -58,7 +70,7 @@ const PostIncome = ({postId}: {postId: string}) => {
         <div className="flex justify-end mr-1">
         <DateSince date={content.content.createdAt}/>
         </div>
-    </button>
+    </Link>
 }
 
 const UserStat = ({name, value}: {name: string, value: number}) => {
@@ -99,7 +111,7 @@ const Page = () => {
     }
     let entities = userContents.userContents.filter((({type}) => (type == "EntityContent"))).map((content) => (content.parentEntityId))
     entities = Array.from(new Set(entities))
-
+    
     let posts = Array.from(new Set(userContents.userContents.filter((({type}) => (type == "Post"))))).map((post) => (post.id))
 
     const center = <>
