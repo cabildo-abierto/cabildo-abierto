@@ -702,12 +702,10 @@ export const getUsers = unstable_cache(async () => {
 
 
 export const getUsersWithStats = unstable_cache(async () => {
-    console.log("getting user stats")
     const users = await getUsers()
 
     const withStats = []
     for(let i = 0; i < users.length; i++){
-        console.log("getting stats for", users[i].id)
         withStats.push({
             user: users[i],
             stats: await getUserStats(users[i].id)
@@ -762,7 +760,13 @@ export const getUserContents = (userId: string) => {
                         select: {
                             id: true,
                             type: true,
-                            parentEntityId: true
+                            parentEntityId: true,
+                            _count: {
+                                select: {
+                                    reactions: true,
+                                    views: true
+                                }
+                            }
                         },
                         where: {
                             type: {
@@ -771,7 +775,7 @@ export const getUserContents = (userId: string) => {
                         },
                         orderBy: {
                             createdAt: "desc"
-                        }
+                        },
                     },
                 },
                 where: {
@@ -1258,7 +1262,9 @@ export const getUserStats = async (userId: string) => {
         let entityEdits = 0
         let editedEntitiesIds = new Set()
         const postsIds = []
-    
+        
+        let reactionsInPosts = 0
+        let viewsInPosts = 0
         userContents.forEach((content) => {
             if(content.type == "EntityContent"){
                 entityEdits ++
@@ -1266,11 +1272,10 @@ export const getUserStats = async (userId: string) => {
                     editedEntitiesIds.add(content.parentEntityId)
             } else if(content.type == "Post"){
                 postsIds.push(content.id)
+                reactionsInPosts += content._count.reactions
+                viewsInPosts += content._count.views
             }
         })
-    
-        const postReactions = await Promise.all(postsIds.map(getContentReactions))
-        const entityContributions = await Promise.all(Array.from(editedEntitiesIds).map(getEntityContributions))
     
         function getAddedChars(entityContrArray: [string, number][][]){
             const lastVersion = entityContrArray[entityContrArray.length-1]
@@ -1294,28 +1299,24 @@ export const getUserStats = async (userId: string) => {
             return sumFromFirstEdit(views, entity, userId)
         }
     
-        const entityReactions = await Promise.all(Array.from(editedEntitiesIds).map(getReactionsFromFirstEdit))
-        
-        const postViews = await Promise.all(postsIds.map(getContentViews))
-    
-        const entityViews = await Promise.all(Array.from(editedEntitiesIds).map(getViewsFromFirstEdit))
+        //const entityReactions = await Promise.all(Array.from(editedEntitiesIds).map(getReactionsFromFirstEdit))
+        //const entityViews = await Promise.all(Array.from(editedEntitiesIds).map(getViewsFromFirstEdit))
     
         const stats: UserStats = {
             posts: postsIds.length,
             entityEdits: entityEdits,
             editedEntities: editedEntitiesIds.size,
-            reactionsInPosts: arraySum(postReactions),
-            reactionsInEntities: arraySum(entityReactions),
+            reactionsInPosts: reactionsInPosts,
+            reactionsInEntities: 0,
             income: 0,
-            entityAddedChars: arraySum(entityContributions.map(getAddedChars)),
-            viewsInPosts: arraySum(postViews),
-            viewsInEntities: arraySum(entityViews)
+            entityAddedChars: 0,
+            viewsInPosts: viewsInPosts,
+            viewsInEntities: 0
         }
         return stats
     }, ["userStats", userId], {
         revalidate: 3600,
         tags: ["userStats", "userStats:"+userId, ""]})()
-    
 }
 
 
