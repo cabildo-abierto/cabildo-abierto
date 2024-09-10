@@ -14,6 +14,7 @@ import { useUser } from "src/app/hooks/user"
 
 import dynamic from 'next/dynamic'
 import LoadingSpinner from "../loading-spinner"
+import { getAllText } from "../diff"
 const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
 
 
@@ -44,7 +45,7 @@ export const commentEditorSettings: SettingsProps = {
     useCodeblock: false,
     placeholder: "Agregá un comentario...",
     isAutofocus: false,
-    editorClassName: "link",
+    editorClassName: "link h-16",
     initialData: null,
     isReadOnly: false,
     placeholderClassName: ""
@@ -98,8 +99,34 @@ export function validFastPost(state: EditorState | undefined, charLimit: number)
 }
 
 
+export function nodesEqual(node1: any, node2: any){
+    if(node1.type != node2.type){
+        return false
+    }
+    if(((node1.children == undefined) != (node2.children == undefined))){
+        return false
+    }
+    if(node1.children == undefined){
+        const text1 = getAllText(node1)
+        const text2 = getAllText(node2)
+        return text1 == text2
+    }
+    if(node1.children.length != node2.children.length){
+        return false
+    }
+    for(let i = 0; i < node1.children.length; i++){
+        if(!nodesEqual(node1.children[i], node2.children[i])){
+            return false
+        }
+    }
+    return true
+}
+
+
 export function hasChanged(state: EditorState | undefined, initialData: string){
-    return JSON.stringify(state) !== initialData
+    const json1 = state.toJSON()
+    const json2 = JSON.parse(initialData)
+    return !nodesEqual(json1.root, json2.root)
 }
 
 
@@ -117,7 +144,6 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
         return <LoadingSpinner/>
     }
     
-
     async function handleSubmit(){
         if(editor){
             await onSubmit(JSON.stringify(editor.getEditorState()))
@@ -131,14 +157,17 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
             className="small-btn"
             text1="Enviar"
             text2="Enviando..."
-            disabled={!editor || emptyOutput(editorState)}
+            disabled={!editor || emptyOutput(editorState) || !user.user}
         />
 	}
+
+    const settings = {...commentEditorSettings}
+    if(!user.user) settings.placeholder = "Necesitás una cuenta para agregar un comentario."
 
     return <div className="content-container p-1">
         <div className="ml-3 mr-2 mt-2">
             <MyLexicalEditor
-            settings={commentEditorSettings}
+            settings={settings}
             setEditor={setEditor}
             setEditorState={setEditorState}/>
         </div>

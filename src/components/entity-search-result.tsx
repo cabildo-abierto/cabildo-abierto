@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ActivePraiseIcon, ArticleIcon, InactiveCommentIcon, LinkIcon, TextLengthIcon, ViewsIcon } from "./icons"
 import { FixedCounter } from "./like-counter"
 import { SmallEntityProps } from "src/app/lib/definitions"
+import { PostTitleOnFeed } from "./post-on-feed"
 
 
 export const EntitySearchResult: React.FC<{entity: SmallEntityProps}> = ({ entity }) => {
@@ -15,8 +16,8 @@ export const EntitySearchResult: React.FC<{entity: SmallEntityProps}> = ({ entit
             <ArticleIcon/>
             </div>
             <div className="w-full">
-                <div className="text-center w-full px-1 content font-bold">
-                    {entity.name}
+                <div className="text-center">
+                <PostTitleOnFeed title={entity.name}/>
                 </div>
                 <div className="flex justify-center">
                     <FixedCounter count={entity.reactions} icon={<ActivePraiseIcon/>}/>

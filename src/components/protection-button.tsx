@@ -25,7 +25,7 @@ export const SetProtectionButton = ({entity} : any) => {
     return <StateButton
         text1={"Cambiar protección a " + protectionToName(otherProtection(protection))}
         text2={"Cambiando..."}
-        className="gray-btn"
+        className="article-btn"
         onClick={onClick}
         reUsable={true}
     />

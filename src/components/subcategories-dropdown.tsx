@@ -10,7 +10,7 @@ function routeToUrl(route: string[]){
     return "/inicio/" + route.map(encodeURIComponent).join("/")
 }
 
-export const SubcategoriesDropDown = ({ nextCategories, route, selected }: { nextCategories: Set<string>, route: string[], selected: string }) => {
+export const SubcategoriesDropDown = ({ nextCategories, route, selected }: { nextCategories: string[], route: string[], selected: string }) => {
     const [viewSubcategories, setViewSubcategories] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -41,7 +41,7 @@ export const SubcategoriesDropDown = ({ nextCategories, route, selected }: { nex
                 text="Filtrar"
             />
             {viewSubcategories && (
-                nextCategories.size > 0 ?
+                nextCategories.length > 0 ?
                     <div className="w-64 absolute top-full mt-2 left-0 z-10"> {/* Position the dropdown absolutely */}
                         {[...nextCategories].map((nextCategory: string, index: number) => (
                             <div key={index}>

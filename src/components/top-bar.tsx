@@ -96,7 +96,7 @@ const TopBarGuest = () => {
         <div className="px-4 w-1/4 flex justify-end">
             <Link href="/">
                 <button
-                    className="hover:bg-gray-200 rounded cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 text-gray-600 px-2"
+                    className="auth-btn px-3 py-2"
                 >
                     Crear cuenta o iniciar sesión
                 </button>

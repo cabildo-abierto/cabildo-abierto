@@ -202,7 +202,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
         editorClassName: "content mt-4",
         isReadOnly: readOnly,
         content: content,
-        isAutofocus: true,
+        isAutofocus: false,
         placeholderClassName: "",
     }
 
@@ -216,7 +216,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
 
     const SaveEditButton = () => {
         return <StateButton
-            className="gray-btn"
+            className="article-btn"
             text1="Guardar edición"
             text2="Guardando..."
             onClick={async () => {
@@ -227,7 +227,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
                             mutate("/api/entities")
                             mutate("/api/entity/"+entity.id)
                             mutate("/api/contributions/"+entity.id)
-                            router.push("/articulo/"+entity.id)
+                            setEditing(false)
                         }
                     })
                 }
@@ -240,14 +240,14 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
         return <StateButton
             text1="Cancelar edición"
             onClick={() => {setEditing(false)}}
-            className="gray-btn"
+            className="article-btn"
         />
     }
 
     return <>
-        {!readOnly && <div className="flex flex-wrap items-center px-2 py-2 space-x-2">
+        {!readOnly && <div className="flex flex-wrap items-center px-2 space-x-2 border-b">
             <ToggleButton
-                className="gray-btn"
+                className="article-btn"
                 toggled={editingRoutes}
                 setToggled={setEditingRoutes}
                 text="Editar categorías"

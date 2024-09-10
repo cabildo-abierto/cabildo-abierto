@@ -138,7 +138,7 @@ export async function getEntityTextLength(id: string) {
     return unstable_cache(async () => {
         const entity = await getEntityById(id)
         if(!entity) return null
-        if(entity.versions.length <= 1) return 0
+        if(entity.versions.length < 1) return 0
         const content = await getContentById(entity.versions[entity.versions.length-1].id)
         let text = null
         try {
@@ -150,7 +150,7 @@ export async function getEntityTextLength(id: string) {
         const length = getAllText(text.root).split(" ").length
         return length
     }, ["entityTextLength", id], {
-        revalidate: 10*3600,
+        revalidate: 6*3600,
         tags: ["entityTextLength", "entityTextLength:"+id]})()
 }
 
@@ -208,7 +208,7 @@ export const getRouteFeed = (route: string[]) => {
         return routeFeed
     }, ["routeFeed", route.join("/")], {
         revalidate: 3600*6,
-        tags: ["routeFeed", "routeFeed:"+route.join("/")]})() 
+        tags: ["routeFeed", "routeFeed:"+route.join("/"), "feed"]})() 
 }
 
 
@@ -227,7 +227,7 @@ export const getRouteFollowingFeed = (route: string[], userId: string) => {
         return routeFeed
     }, ["routeFollowingFeed", route.join("/")], {
         revalidate: 3600*6,
-        tags: ["routeFollowingFeed", "routeFollowingFeed:"+route.join("/")]})() 
+        tags: ["routeFollowingFeed", "routeFollowingFeed:"+route.join("/"), "feed"]})() 
 }
 
 
@@ -244,7 +244,7 @@ export const getRouteEntities = (route: string[]) => {
         return routeEntities
     }, ["routeEntities", route.join("/")], {
         revalidate: 3600*6,
-        tags: ["routeEntities", "routeEntities:"+route.join("/")]})() 
+        tags: ["routeEntities", "routeEntities:"+route.join("/"), "entities"]})() 
 }
 
 
@@ -474,8 +474,9 @@ export const getContentReactions = (contentId: string) => {
 }
 
 
-export const userLikesContent = (contentId: string, userId: string) => {
-    return unstable_cache(async () => {
+export const userLikesContent = async (contentId: string, userId: string | null) => {
+    if(!userId) return [false, await getContentReactions(contentId)]
+    return await unstable_cache(async () => {
         let content = await db.reaction.findFirst({
             select: {
                 id: true
@@ -805,7 +806,7 @@ export const getUserIdByAuthId = (authId: string) => {
 
 export async function getUser() {
     const userId = await getUserId()
-    if(!userId) return undefined
+    if(!userId) return null
 
     return await getUserById(userId)
 }
@@ -813,7 +814,7 @@ export async function getUser() {
 
 export async function getUserId() {
     const userAuthId = await getUserAuthId()
-    if(!userAuthId) return undefined
+    if(!userAuthId) return null
 
     return await getUserIdByAuthId(userAuthId)
 }
@@ -1039,6 +1040,39 @@ export const deleteEntity = async (entityId: string, userId: string) => {
 }
 
 
+export const renameEntity = async (entityId: string, userId: string, newName: string) => {
+    const newEntityId = encodeURIComponent(newName.replaceAll(" ", "_"))
+    await db.entity.update({
+        data: {
+            name: newName,
+            id: newEntityId
+        },
+        where: {
+            id: entityId
+        }
+    })
+  
+    revalidateTag("entities")
+    revalidateTag("entity:"+entityId)
+}
+
+
+
+export const makeEntityPublic = async (entityId: string, value: boolean) => {
+    await db.entity.update({
+        data: {
+            isPublic: value,
+        },
+        where: {
+            id: entityId
+        }
+    })
+  
+    revalidateTag("entity:"+entityId)
+}
+
+
+
 export const getEntities = cache(async () => {
     let entities: SmallEntityProps[] = await db.entity.findMany({
         select: {
@@ -1065,9 +1099,7 @@ export const getEntities = cache(async () => {
             },
         },
         where: {
-            NOT: {
-                deleted: true
-            }
+            deleted: false
         },
         orderBy: {
             name: "asc"
@@ -1094,6 +1126,7 @@ export async function getEntityById(id: string) {
                 name: true,
                 protection: true,
                 isPublic: true,
+                deleted: true,
                 versions: {
                     select: {
                         id: true,
@@ -1155,6 +1188,7 @@ export async function getEntityContributions(id: string) {
     return unstable_cache(async () => {
         const entity = await getEntityById(id)
         if(!entity) return null
+        if(entity.versions.length == 0) return []
 
         const charsContributed: Map<string, number>[] = Array.from({length: entity.versions.length}, (_, i) => new Map<string, number>())
         let prevNodes = []
@@ -1197,7 +1231,7 @@ export async function getEntityReactions(id: string) {
 
         return reactions
     }, ["entityReactions", id], {
-        revalidate: 3600*6,
+        revalidate: 6*3600,
         tags: ["entityReactions", "entityReactions:"+id]})()
 }
 

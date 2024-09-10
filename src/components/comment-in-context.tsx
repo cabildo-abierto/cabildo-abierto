@@ -3,7 +3,6 @@ import { useContent, useRootContent } from 'src/app/hooks/contents';
 import { CommentProps, Comment } from './comment';
 import Link from 'next/link';
 import LoadingSpinner from './loading-spinner';
-import { PostTitleOnFeed } from './post-on-feed';
 import { ContentProps } from 'src/app/lib/definitions';
 
 

@@ -93,7 +93,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         </div>
         }
         {(contentsWithScore.length == 0 && !writingReply) && <div className="text-center text-gray-800 py-2">
-            No hay comentarios todavía. <button className="hover:underline text-[var(--primary)]" onClick={() => {setWritingReply(true)}}>Agregá uno</button>.
+            No hay comentarios todavía.
         </div>}
     </>
 }

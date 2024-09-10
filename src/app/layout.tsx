@@ -4,13 +4,32 @@ import { Metadata } from 'next'
 //import { Bodoni_Moda, Lora, Inter, Source_Serif_4, PT_Serif } from 'next/font/google'
 //import { PT_Serif } from 'next/font/google'
 //import { Oswald, Roboto_Serif } from 'next/font/google'
-import { Noto_Serif } from 'next/font/google'
+//import { Noto_Serif, Noto_Sans_SC, Inter, Playfair_Display, Ubuntu_Condensed, Ubuntu, Ubuntu_Mono } from 'next/font/google'
+//import { Roboto, Merriweather, Merriweather_Sans } from 'next/font/google'
+import { Merriweather } from 'next/font/google'
 
-/*const pt_serif = PT_Serif({
+
+
+const merriweather = Merriweather({
+  subsets: ['latin'],
+  variable: '--font-merriweather',
+  display: 'swap',
+  weight: ["400", "700", "900"]
+})
+
+
+/*const merriweather_sans = Merriweather_Sans({
+  subsets: ['latin'],
+  variable: '--font-merriweather-sans',
+  display: 'swap',
+  weight: ["300", "400", "500", "600", "700", "800"]
+})
+
+const roboto = Roboto({
     subsets: ['latin'],
-    variable: '--font-pt-serif',
+    variable: '--font-roboto',
     display: 'swap',
-    weight: ["400", "700"]
+    weight: ["400", "700", "900"]
 })
 
 const oswald = Oswald({
@@ -18,14 +37,22 @@ const oswald = Oswald({
   variable: '--font-oswald',
   display: 'swap',
   weight: ["400", "700"]
-})*/
+})
 
 const noto_serif = Noto_Serif({
   subsets: ['latin'],
   variable: '--font-noto-serif',
   display: 'swap',
-  weight: ['400', '600', '700', '800', '900'],
+  weight: ['400'],
 })
+
+
+const playfair = Inter({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
+  weight: ['300', '400', '500', '700'],
+})*/
 
 /*const inter = Inter({
   subsets: ['latin'],
@@ -87,7 +114,11 @@ const fonts = [
     lora.variable,
     inter.variable,
     pt_serif.variable,*/
-    noto_serif.variable
+    //noto_serif.variable,
+    //playfair.variable,
+    merriweather.variable,
+    //roboto.variable,
+    //merriweather_sans.variable
 ]
 
 

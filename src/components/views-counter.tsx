@@ -18,7 +18,7 @@ export const ViewsCounter: React.FC<ViewsCounterProps> = ({
         icon1={<ViewsIcon/>}
         disabled={true}
         count={views === undefined ? "?" : views}
-        title="La cantidad de personas distintas que vieron este contenido. No se cuentan segundas vistas."
+        title="La cantidad de personas distintas que vieron este contenido. No se cuentan segundas vistas y tampoco personas sin cuenta."
     />
 }
 
