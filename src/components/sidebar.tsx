@@ -11,15 +11,20 @@ import { useSWRConfig } from "swr";
 import StateButton from "./state-button";
 import { id2url } from "./content";
 import {CabildoIcon, DashboardIcon, ScoreboardIcon} from "./icons";
+import { useRouter } from "next/navigation";
 
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
     const user = useUser()
     const {mutate} = useSWRConfig()
+    const router = useRouter()
     
     const onLogout = async () => {
-        await signOut()
-        mutate("/api/user")
+        const {error} = await signOut()
+        if(!error){
+            router.push("/")
+            await mutate("/api/user", null)
+        }
     }
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-20">

@@ -6,7 +6,7 @@ import {ThreeColumnsLayout} from "../../components/three-columns";
 
 const Page = async () => {
     let usersWithStats = await getUsersWithStats();
-
+    
     function compChars(a: {stats: UserStats}, b: {stats: UserStats}){
         return b.stats.entityAddedChars - a.stats.entityAddedChars;
     }

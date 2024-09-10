@@ -14,6 +14,17 @@ export function useUser(): {user: UserProps | null, isLoading: boolean, isError:
 }
 
 
+export function useUserId(): {userId: string | null, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/userid', fetcher)
+  
+    return {
+        userId: data,
+        isLoading: isLoading,
+        isError: error
+    }
+}
+
+
 export function useUserContents(userId: string): {userContents: {id: string, type: string, parentEntityId: string}[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/userContents/'+userId, fetcher)
   
