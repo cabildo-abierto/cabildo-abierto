@@ -2,21 +2,27 @@ const { PrismaClient } = require('@prisma/client');
 const db = new PrismaClient();
 
 (async () => {
-  const usernames = ["fdelgado", "fundar", "jdelgado", "magustoni", "prueba", "prueba2", "prueba345"]
+  const usernames = ["guest2", "guest3", "guest4"]
 
   usernames.forEach(async (user) => {
     await db.content.updateMany({
-      where: { authorId: "@"+user},
-      data: { authorId: "@tdelgado"}
+      where: { authorId: user},
+      data: { authorId: "tomas"}
     })
 
     await db.subscription.updateMany({
-      where: { boughtByUserId: "@"+user},
-      data: { boughtByUserId: "@tdelgado"}
+      where: { boughtByUserId: user},
+      data: { boughtByUserId: "tomas"}
     })
 
-    await db.content.delete({
-      where: { id: "@"+user}
+    try {
+      await db.view.deleteMany({
+        where: {userById: user}
+      })
+    } catch {}
+
+    await db.user.delete({
+      where: { id: user}
     })
   })
 })();

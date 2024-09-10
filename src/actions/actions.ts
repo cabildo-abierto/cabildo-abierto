@@ -702,16 +702,18 @@ export const getUsers = unstable_cache(async () => {
 
 
 export const getUsersWithStats = unstable_cache(async () => {
+    console.log("getting user stats")
     const users = await getUsers()
 
-    return await Promise.all(users.map(async (user) => (
-                {
-                    user: user,
-                    stats: await getUserStats(user.id)
-                }
-            )
-        )
-    )
+    const withStats = []
+    for(let i = 0; i < users.length; i++){
+        console.log("getting stats for", users[i].id)
+        withStats.push({
+            user: users[i],
+            stats: await getUserStats(users[i].id)
+        })
+    }
+    return withStats
 },
     ["usersWithStats"],
     {
@@ -1250,64 +1252,70 @@ export async function getEntityViews(id: string) {
 }
 
 
-export async function getUserStats(userId: string) {
-    const userContents = await getUserContents(userId)
-    let entityEdits = 0
-    let editedEntitiesIds = new Set()
-    const postsIds = []
-
-    userContents.forEach((content) => {
-        if(content.type == "EntityContent"){
-            entityEdits ++
-            if(content.parentEntityId)
-                editedEntitiesIds.add(content.parentEntityId)
-        } else if(content.type == "Post"){
-            postsIds.push(content.id)
-        }
-    })
-
-    const postReactions = await Promise.all(postsIds.map(getContentReactions))
-    const entityContributions = await Promise.all(Array.from(editedEntitiesIds).map(getEntityContributions))
-
-    function getAddedChars(entityContrArray: [string, number][][]){
-        const lastVersion = entityContrArray[entityContrArray.length-1]
-        for(let i = 0; i < lastVersion.length; i++){
-            if(lastVersion[i][0] == userId){
-                return lastVersion[i][1]
-            }
-        }
-        return 0 // esto pasa si creás la entidad y no le agregás nada
-    }
-
-    async function getReactionsFromFirstEdit(entityId: string){
-        const reactions = await getEntityReactions(entityId)
-        const entity = await getEntityById(entityId)
-        return sumFromFirstEdit(reactions, entity, userId)
-    }
-
-    async function getViewsFromFirstEdit(entityId: string){
-        const views = await getEntityViews(entityId)
-        const entity = await getEntityById(entityId)
-        return sumFromFirstEdit(views, entity, userId)
-    }
-
-    const entityReactions = await Promise.all(Array.from(editedEntitiesIds).map(getReactionsFromFirstEdit))
+export const getUserStats = async (userId: string) => {
+    return unstable_cache(async () => {
+        const userContents = await getUserContents(userId)
+        let entityEdits = 0
+        let editedEntitiesIds = new Set()
+        const postsIds = []
     
-    const postViews = await Promise.all(postsIds.map(getContentViews))
-    const entityViews = await Promise.all(Array.from(editedEntitiesIds).map(getViewsFromFirstEdit))
-
-    const stats: UserStats = {
-        posts: postsIds.length,
-        entityEdits: entityEdits,
-        editedEntities: editedEntitiesIds.size,
-        reactionsInPosts: arraySum(postReactions),
-        reactionsInEntities: arraySum(entityReactions),
-        income: 0,
-        entityAddedChars: arraySum(entityContributions.map(getAddedChars)),
-        viewsInPosts: arraySum(postViews),
-        viewsInEntities: arraySum(entityViews)
-    }
-    return stats
+        userContents.forEach((content) => {
+            if(content.type == "EntityContent"){
+                entityEdits ++
+                if(content.parentEntityId)
+                    editedEntitiesIds.add(content.parentEntityId)
+            } else if(content.type == "Post"){
+                postsIds.push(content.id)
+            }
+        })
+    
+        const postReactions = await Promise.all(postsIds.map(getContentReactions))
+        const entityContributions = await Promise.all(Array.from(editedEntitiesIds).map(getEntityContributions))
+    
+        function getAddedChars(entityContrArray: [string, number][][]){
+            const lastVersion = entityContrArray[entityContrArray.length-1]
+            for(let i = 0; i < lastVersion.length; i++){
+                if(lastVersion[i][0] == userId){
+                    return lastVersion[i][1]
+                }
+            }
+            return 0 // esto pasa si creás la entidad y no le agregás nada
+        }
+    
+        async function getReactionsFromFirstEdit(entityId: string){
+            const reactions = await getEntityReactions(entityId)
+            const entity = await getEntityById(entityId)
+            return sumFromFirstEdit(reactions, entity, userId)
+        }
+    
+        async function getViewsFromFirstEdit(entityId: string){
+            const views = await getEntityViews(entityId)
+            const entity = await getEntityById(entityId)
+            return sumFromFirstEdit(views, entity, userId)
+        }
+    
+        const entityReactions = await Promise.all(Array.from(editedEntitiesIds).map(getReactionsFromFirstEdit))
+        
+        const postViews = await Promise.all(postsIds.map(getContentViews))
+    
+        const entityViews = await Promise.all(Array.from(editedEntitiesIds).map(getViewsFromFirstEdit))
+    
+        const stats: UserStats = {
+            posts: postsIds.length,
+            entityEdits: entityEdits,
+            editedEntities: editedEntitiesIds.size,
+            reactionsInPosts: arraySum(postReactions),
+            reactionsInEntities: arraySum(entityReactions),
+            income: 0,
+            entityAddedChars: arraySum(entityContributions.map(getAddedChars)),
+            viewsInPosts: arraySum(postViews),
+            viewsInEntities: arraySum(entityViews)
+        }
+        return stats
+    }, ["userStats", userId], {
+        revalidate: 3600,
+        tags: ["userStats", "userStats:"+userId, ""]})()
+    
 }
 
 

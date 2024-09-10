@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ContentProps } from "src/app/lib/definitions";
+import { ContentProps, SmallEntityProps } from "src/app/lib/definitions";
 import { SubcategoriesDropDown } from "./subcategories-dropdown";
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { getNextCategories } from "./utils";
@@ -9,16 +9,16 @@ import { useRouteEntities } from "src/app/hooks/contents";
 
 
 export type LoadingContent = {
-    content: ContentProps,
-    isLoading: boolean,
+    content: ContentProps
+    isLoading: boolean
     isError: boolean
+    routeEntities: SmallEntityProps[]
 }
 
 
-export const Route = ({route, selected}: {route: string[], selected?: string}) => {
-    const entities = useRouteEntities(route)
+export const Route = ({route, selected, routeEntities}: {route: string[], selected?: string, routeEntities: SmallEntityProps[]}) => {
 
-    const nextCategories = entities.entities != null ? getNextCategories(route, entities.entities) : []
+    const nextCategories = getNextCategories(route, routeEntities)
 
     return <><div className="flex items-center">
         {["Inicio"].concat(route).map((c: string, index: number) => {
@@ -51,12 +51,14 @@ export const Route = ({route, selected}: {route: string[], selected?: string}) =
 }
 
 
-export const WikiCategories = ({route, selected}: {route: string[], selected: string}) => {
+type WikiCategoriesProps = {route: string[], selected: string, routeEntities: SmallEntityProps[]}
+
+export const WikiCategories = ({route, selected, routeEntities}: WikiCategoriesProps) => {
 
     return <div className="flex flex-col">
         <span className="ml-2 text-sm text-[var(--text-light)]">Estás viendo:</span>
         <div className="flex pb-2 items-center px-2">
-            <Route route={route} selected={selected}/>
+            <Route route={route} selected={selected} routeEntities={routeEntities}/>
         </div>
     </div>
     

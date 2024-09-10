@@ -4,27 +4,16 @@ import LoadingSpinner from "./loading-spinner"
 import Feed, { FeedProps } from "./feed"
 import { searchContents } from "./search"
 import { useSearch } from "./search-context"
+import { SmallContentProps } from "src/app/lib/definitions"
 
 
 
-export const RouteFeed = ({route, following}: {route: string[], following: boolean}) => {
-    let feed = useRouteFeed(route)
-    let followingFeed = useRouteFollowingFeed(route)
+export const RouteFeed = ({feed}: {feed: SmallContentProps[]}) => {
     const {searchValue} = useSearch()
-
-    let selectedFeed = !following ? feed : followingFeed
-    
-    if(selectedFeed.isLoading){
-        return <LoadingSpinner/>
-    }
-
-    if(!selectedFeed){
-        return <></>
-    }
 
     // TO DO: Debería ser la versión parseada del texto y no diferencias mayus y min
     if(searchValue.length > 0)
-        selectedFeed.feed = selectedFeed.feed.filter((content) => (content.text.includes(searchValue) || (content.title && content.title.includes(searchValue))))
+        feed = feed.filter((content) => (content.text.includes(searchValue) || (content.title && content.title.includes(searchValue))))
 
-    return <Feed feed={selectedFeed}/>
+    return <Feed feed={{feed: feed, isLoading: false, isError: false}}/>
 }

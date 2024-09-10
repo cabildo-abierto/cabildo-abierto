@@ -10,16 +10,8 @@ export const NoResults = ({text="No se encontraron resultados..."}: {text?: stri
 }
 
 
-export const CategoryUsers = ({route}: {route: string[]}) => {
-    const users = useUsers()
+export const CategoryUsers = ({route, users}: {route: string[], users: SmallUserProps[]}) => {
     const {searchValue} = useSearch()
-    
-    if(users.isLoading){
-        return <LoadingSpinner/>
-    }
-    if(!users.users || users.isError){
-        return <></>
-    }
 
     if(searchValue.length == 0){
         return <div className="text-center mt-8">Buscá un usuario...</div>
@@ -31,7 +23,7 @@ export const CategoryUsers = ({route}: {route: string[]}) => {
         return user.name.toLowerCase().includes(searchValue.toLowerCase())
     }
 
-    let filteredUsers = users.users.filter(isMatch)
+    let filteredUsers = users.filter(isMatch)
 
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center">

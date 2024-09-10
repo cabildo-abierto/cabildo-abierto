@@ -39,23 +39,15 @@ const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
 }
 
 
-export const CategoryArticles = ({route}: {route: string[]}) => {
-    const entities = useRouteEntities(route)
-    
-    if(entities.isLoading){
-        return <LoadingSpinner/>
-    }
-    if(!entities.entities || entities.isError){
-        return <></>
-    }
+export const CategoryArticles = ({route, routeEntities}: {route: string[], routeEntities: SmallEntityProps[]}) => {
 
     return <>
         {false && <div className="flex items-center">
             <h3 className="flex ml-2 py-4 mr-1">Artículos públicos</h3>
             <InfoPanel text="Artículos informativos que cualquier usuario puede editar."/>
         </div>}
-        {entities.entities.length > 0 ? 
-            <ArticlesWithSearch entities={entities.entities}/>
+        {routeEntities.length > 0 ? 
+            <ArticlesWithSearch entities={routeEntities}/>
              : 
             <div className="flex justify-center">No hay artículos en esta categoría</div>}
     </>

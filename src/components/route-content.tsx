@@ -6,15 +6,20 @@ import SelectionComponent from "src/components/search-selection-component";
 import { useRouter } from "next/navigation";
 import { RouteFeed } from "src/components/route-feed";
 import { CategoryUsers } from "src/components/category-users";
+import { SmallContentProps, SmallEntityProps, SmallUserProps } from "src/app/lib/definitions";
 
 
 type RouteContentProps = {
     route: string[], 
     paramsSelected?: string
+    feed: SmallContentProps[]
+    followingFeed: SmallContentProps[]
+    routeEntities: SmallEntityProps[]
+    users: SmallUserProps[]
 }
 
 
-export const RouteContent = ({route, paramsSelected}: RouteContentProps) => {
+export const RouteContent = ({route, paramsSelected, feed, followingFeed, routeEntities, users}: RouteContentProps) => {
     const router = useRouter()
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "General")
 
@@ -25,7 +30,7 @@ export const RouteContent = ({route, paramsSelected}: RouteContentProps) => {
 
     return <div className="w-full">
         <div className="content-container py-2 mt-2">
-            <WikiCategories route={route} selected={selected}/>
+            <WikiCategories route={route} selected={selected} routeEntities={routeEntities}/>
             <SelectionComponent
                 onSelection={onSelection}
                 options={["General", "Siguiendo", "Artículos públicos", "Usuarios"]}
@@ -36,15 +41,14 @@ export const RouteContent = ({route, paramsSelected}: RouteContentProps) => {
         
         <div className="pt-2">
         {selected == "Artículos públicos" && 
-        <CategoryArticles route={route}/>}
+        <CategoryArticles route={route} routeEntities={routeEntities}/>}
 
         {(selected == "General" || selected == "Siguiendo") && 
         <RouteFeed
-            route={route}
-            following={selected == "Siguiendo"}
+            feed={selected == "Siguiendo" ? followingFeed : feed}
         />}
 
-        {selected == "Usuarios" && <CategoryUsers route={route}/>}
+        {selected == "Usuarios" && <CategoryUsers route={route} users={users}/>}
         </div>
     </div>
 }

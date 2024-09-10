@@ -121,6 +121,7 @@ export const ContentWithCommentsFromId = ({
 
     const content = useContent(contentId)
     if(content.isLoading) return <LoadingSpinner/>
+    if(!content.content) return <>Error :(</>
 
     return <ContentWithComments
         content={content.content}
