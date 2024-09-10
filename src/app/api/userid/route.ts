@@ -1,0 +1,9 @@
+import { getUserId } from 'src/actions/actions';
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(req: NextRequest) {
+
+    const user = await getUserId()
+    return NextResponse.json(user ? user : null)
+    
+}

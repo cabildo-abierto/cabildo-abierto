@@ -210,11 +210,11 @@ export default function SignupForm() {
     const router = useRouter();
 
     if(state && !state.errors && !state.authError){
-        router.push("/");
+        router.push("/suscripciones");
     }
 
     return (
-        <div className="flex flex-col items-center">
+        <div className="w-96">
             <div className="mb-2 mt-2">
                 <PeriodoDePrueba/>
             </div>

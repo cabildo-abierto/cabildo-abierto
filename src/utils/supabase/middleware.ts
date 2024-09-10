@@ -39,8 +39,6 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-
-
   if (
     !user && !isNewUserRoute(request)
   ) {

@@ -22,7 +22,7 @@ const SubscriptionOptions = () => {
             </div>
 
             <div className="flex justify-center mt-8">
-                <p className="lg:w-96 w-64 link">
+                <p className="lg:w-96 w-64 link text-center">
                     Cabildo Abierto <Link href="/articulo/Cabildo_Abierto:_Suscripciones">se financia</Link> exclusivamente con suscripciones.
                 </p>
             </div>
@@ -51,7 +51,7 @@ const SubscriptionOptions = () => {
             <div className="flex justify-center py-2">
                 <SubscriptionOptionButton
                     title="Hacer crecer Cabildo Abierto"
-                    description="Comprar y donar"
+                    description="Comprar y donar suscripciones"
                     price={`Desde $${2*getSubscriptionPrice()}`}
                     href={"/suscripciones/donar"}
                 />

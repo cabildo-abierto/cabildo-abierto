@@ -4,7 +4,7 @@ import { Logo } from './logo';
 
 export const Presentation: React.FC = async () => {
 
-    return <div className="flex flex-col justify-center items-center h-screen">
+    return <div className="flex flex-col justify-center items-center mt-32 lg:mt-0">
       <div className="mb-16 flex h-28">
         <div className="">
           <Logo className="w-28 h-28"/>
@@ -14,6 +14,6 @@ export const Presentation: React.FC = async () => {
           <h3 className="text-gray-600 text-3xl mt-2">Discutí lo público</h3>
         </div>
       </div>
-      <Link href="/articulo/Cabildo_Abierto" className="text-lg link2">¿Qué es Cabildo Abierto?</Link>
+      <Link href="/articulo/Cabildo_Abierto" className="text-lg link2 mb-16">¿Qué es Cabildo Abierto?</Link>
     </div>
 };

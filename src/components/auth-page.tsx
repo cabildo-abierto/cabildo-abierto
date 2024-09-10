@@ -8,7 +8,7 @@ import { useState } from "react"
 export const AuthPage = () => {
     const [hasAccount, setHasAccount] = useState(false)
     
-    return <div className="flex flex-col items-center h-full justify-center">
+    return <div className="flex flex-col items-center justify-center h-screen">
         {
             !hasAccount ? <>
             <SignupForm/>
@@ -16,7 +16,7 @@ export const AuthPage = () => {
                 Ya tenés una cuenta? <button className="link2" onClick={() => {setHasAccount(true)}}>Iniciá sesión</button>.
             </div>
             </>
-            :<div className="mt-20">
+            :<div className="">
             <LoginForm/>
             <div className='mt-4 text-center'>
                 No tenés una cuenta? <button className="link2" onClick={() => {setHasAccount(false)}}>Registrate</button>.
