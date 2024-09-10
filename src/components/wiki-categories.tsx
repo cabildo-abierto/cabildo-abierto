@@ -16,9 +16,9 @@ export type LoadingContent = {
 }
 
 
-export const Route = ({route, selected, routeEntities}: {route: string[], selected?: string, routeEntities: SmallEntityProps[]}) => {
+export const Route = ({route, selected, routeEntities}: {route: string[], selected?: string, routeEntities?: SmallEntityProps[]}) => {
 
-    const nextCategories = getNextCategories(route, routeEntities)
+    const nextCategories = routeEntities ? getNextCategories(route, routeEntities) : null
 
     return <><div className="flex items-center">
         {["Inicio"].concat(route).map((c: string, index: number) => {
@@ -40,7 +40,7 @@ export const Route = ({route, selected, routeEntities}: {route: string[], select
         })}
     </div>
 
-    {nextCategories.length > 0 && 
+    {nextCategories && nextCategories.length > 0 && 
     <SubcategoriesDropDown
         nextCategories={nextCategories}
         route={route}
