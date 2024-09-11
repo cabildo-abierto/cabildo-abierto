@@ -7,7 +7,7 @@ import { ActiveLikeIcon, ArticleIcon, PostIcon, StatsIcon } from "src/components
 import { PostTitleOnFeed } from "src/components/post-on-feed"
 import { useRouter } from "next/navigation"
 import { DateSince } from "src/components/date"
-import { useContributions, useEntity, useEntityReactions } from "../hooks/entities"
+import { useEntity, useEntityReactions } from "../hooks/entities"
 import { ShowContributors } from "src/components/show-contributors"
 import { sumFromFirstEdit } from "src/components/utils"
 import { FixedCounter } from "src/components/like-counter"
@@ -16,11 +16,9 @@ import Link from "next/link"
 const EntityIncome = ({entityId}: {entityId: string}) => {
     const {user} = useUser()
     const entity = useEntity(entityId)
-    const router = useRouter()
-    const contributions = useContributions(entityId)
     const reactions = useEntityReactions(entityId)
 
-    if(entity.isLoading || contributions.isLoading || reactions.isLoading){
+    if(entity.isLoading || reactions.isLoading){
         return <LoadingSpinner/>
     }
 
@@ -45,7 +43,7 @@ const EntityIncome = ({entityId}: {entityId: string}) => {
         </div>
 
         <div className="flex justify-between px-1">
-            <ShowContributors entityId={entityId} userId={user.id}/>
+            <ShowContributors contentId={entity.entity.versions[entity.entity.versions.length-1].id} userId={user.id}/>
             <DateSince date={entity.entity.versions[0].createdAt}/>
         </div>
     </Link>

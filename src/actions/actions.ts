@@ -6,7 +6,7 @@ import { ContentType, ProtectionLevel } from "@prisma/client";
 import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
 import { ContentProps, EntityProps, SmallEntityProps, UserStats } from "src/app/lib/definitions";
-import { getAllText, nodesCharDiff } from "src/components/diff";
+import { charDiffFromJSONString, getAllText, nodesCharDiff } from "src/components/diff";
 import { arraySum, entityInRoute, sumFromFirstEdit } from "src/components/utils";
 
 
@@ -29,7 +29,11 @@ export async function getContentById(id: string) {
                 categories: true,
                 isUndo: true,
                 undoMessage: true,
-                parentEntityId: true
+                parentEntityId: true,
+                charsAdded: true,
+                charsDeleted: true,
+                accCharsAdded: true,
+                contribution: true,
             },
             where: {
                 id: id,
@@ -38,7 +42,7 @@ export async function getContentById(id: string) {
         return content ? content : undefined
     }, ["content", id], {
         tags: ["content", "content:"+id],
-        revalidate: 3600*6,
+        revalidate: 5,
     })()
 }
 
@@ -984,11 +988,54 @@ export async function createEntity(name: string, userId: string){
     revalidateTag("editsFeed:"+userId)
     return {id: entityId}
 }
+
+
+const recomputeEntityContributions = async (entityId: string) => {
+    const entity = await getEntityById(entityId)
+    
+    for(let i = 0; i < entity.versions.length; i++){
+        const versionContent = await getContentById(entity.versions[i].id)
+        const newData = await getNewVersionContribution(entityId, versionContent.text, versionContent.author.id)
+        
+        await db.content.update({
+            data: newData,
+            where: {
+                id: versionContent.id
+            }
+        })
+    }
+}
+
+
+const getNewVersionContribution = async (entityId: string, text: string, userId: string, afterVersion?: number) => {
+    const entity = await getEntityById(entityId)
+    if(!afterVersion) afterVersion = entity.versions.length-1
+    const lastVersionId = entity.versions[afterVersion].id
+    const lastVersion = await getContentById(lastVersionId)
+
+    const {charsAdded, charsDeleted} = charDiffFromJSONString(lastVersion.text, text)
+    const accCharsAdded = lastVersion.accCharsAdded + charsAdded
+    const contribution: [string, number][] = JSON.parse(lastVersion.contribution)
+    
+    let wasAuthor = false
+    for(let i = 0; i < contribution.length; i++){
+        if(contribution[i][0] == userId){
+            wasAuthor = true
+            contribution[i][1] += charsAdded
+        }
+    }
+    if(!wasAuthor){
+        contribution.push([userId, charsAdded])
+    }
+
+    return {accCharsAdded: accCharsAdded, charsAdded: charsAdded, charsDeleted: charsDeleted, contribution: JSON.stringify(contribution)}
+}
   
   
 export const updateEntity = async (text: string, categories: string, entityId: string, userId: string, changingContent: boolean) => {
     let references = await findReferences(text)
 
+    const {accCharsAdded, charsAdded, charsDeleted, contribution} = await getNewVersionContribution(entityId, text, userId)
     await db.content.create({
         data: {
             text: text,
@@ -998,7 +1045,11 @@ export const updateEntity = async (text: string, categories: string, entityId: s
             categories: categories,
             entityReferences: {
                 connect: references
-            }
+            },
+            accCharsAdded: accCharsAdded,
+            charsAdded: charsAdded,
+            charsDeleted: charsDeleted,
+            contribution: contribution
         }
     })
 
@@ -1046,6 +1097,48 @@ export const deleteEntity = async (entityId: string, userId: string) => {
 }
 
 
+export const deleteContent = async (contentId: string) => {
+    await db.view.deleteMany({
+        where: {
+            contentId: contentId
+        }
+    })
+
+    await db.reaction.deleteMany({
+        where: {
+            contentId: contentId
+        }
+    })
+
+    const comments = await getContentComments(contentId)
+
+    for(let i = 0; i < comments.length; i++){
+        await deleteContent(comments[i].id)
+    }
+
+    await db.content.delete({
+        where: {
+            id: contentId
+        }
+    })
+    revalidateTag("content:"+contentId)
+}
+
+
+export const deleteEntityHistory = async (entityId: string) => {
+    const entity = await getEntityById(entityId)
+
+    for(let i = 1; i < entity.versions.length-1; i++){
+        await deleteContent(entity.versions[i].id)
+    }
+    
+    revalidateTag("entity:"+entityId)
+
+    await recomputeEntityContributions(entityId)
+}
+
+
+// TO DO: Terminar de implementar
 export const renameEntity = async (entityId: string, userId: string, newName: string) => {
     const newEntityId = encodeURIComponent(newName.replaceAll(" ", "_"))
     await db.entity.update({
@@ -1162,7 +1255,7 @@ export async function getEntityById(id: string) {
         )
         return entity
     }, ["entity", id], {
-        revalidate: 6*3600,
+        revalidate: 5,
         tags: ["entity", "entity:"+id]})()
 }
 
@@ -1203,7 +1296,7 @@ export async function getEntityContributions(id: string) {
             if(!parsedVersion) continue
 
             const nodes = parsedVersion.root.children.map(getAllText)
-            const {newChars, removedChars} = nodesCharDiff(prevNodes, nodes)
+            const {charsAdded, charsDeleted} = nodesCharDiff(prevNodes, nodes)
 
             const author = entity.versions[i].authorId
             
@@ -1212,9 +1305,9 @@ export async function getEntityContributions(id: string) {
             }
 
             if(charsContributed[i].has(author)){
-                charsContributed[i].set(author, charsContributed[i].get(author) + newChars)
+                charsContributed[i].set(author, charsContributed[i].get(author) + charsAdded)
             } else {
-                charsContributed[i].set(author, newChars)
+                charsContributed[i].set(author, charsDeleted)
             }
 
             prevNodes = [...nodes]

@@ -114,7 +114,12 @@ model Content {
   reactions        Reaction[]
 
   views            View[]
-   
+  
+  charsAdded       Int?
+  charsDeleted     Int?
+  accCharsAdded    Int?
+  contribution     String?
+
   @@schema("public")
 }
 

@@ -13,16 +13,6 @@ export function useEntity(id: string): {entity: EntityProps, isLoading: boolean,
 }
 
 
-export function useContributions(id: string): {contributions: ContributionsArray, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/contributions/'+id, fetcher)
-    return {
-        contributions: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
 export function useEntityReactions(id: string): {reactions: number[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/entity-reactions/'+id, fetcher)
     return {

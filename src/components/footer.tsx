@@ -1,16 +1,12 @@
 
 export default function Footer() {
-    return (
-        <div className="lg:fixed bottom-0 border-t">
-        <footer className="px-2 w-screen text-gray-800">
-            <div className="flex justify-end items-center">
-                <a href="mailto:contacto@cabildoabierto.com.ar">contacto@cabildoabierto.com.ar</a>
-                {false && <div className="flex space-x-4">
-                    <a href="#" className="hover:text-blue-500">Política de privacidad</a>
-                    <a href="#" className="hover:text-blue-500">Términos de servicio</a>
-                </div>}
-            </div>
-        </footer>
+    return <footer className="lg:fixed bottom-0 border-t border-gray-300 px-2 w-screen text-gray-800">
+        <div className="flex justify-end items-center text-[var(--accent-dark)]">
+            <a href="mailto:contacto@cabildoabierto.com.ar">contacto@cabildoabierto.com.ar</a>
+            {false && <div className="flex space-x-4">
+                <a href="#" className="hover:text-blue-500">Política de privacidad</a>
+                <a href="#" className="hover:text-blue-500">Términos de servicio</a>
+            </div>}
         </div>
-    );
+    </footer>
 }

@@ -26,6 +26,23 @@ export function charDiff(str1: string, str2: string){
     }
 }
 
+
+export function textNodesFromJSONStr(s: string){
+    try {
+        return JSON.parse(s).root.children.map(getAllText)
+    } catch {
+        return []
+    }
+}
+
+
+export function charDiffFromJSONString(str1: string, str2: string){
+    const nodes1 = textNodesFromJSONStr(str1)
+    const nodes2 = textNodesFromJSONStr(str2)
+
+    return nodesCharDiff(nodes1, nodes2)
+}
+
 export function makeMatrix(n, m, v){
     let M = new Array<Array<number>>(n)
     for(let i = 0; i < n; i++) M[i] = new Array<number>(m).fill(v)
@@ -122,17 +139,17 @@ export function diff(nodes1: string[], nodes2: string[]){
 export function nodesCharDiff(nodes1, nodes2) {
     const {common, matches} = diff(nodes1, nodes2)
     
-    let removedChars = 0
-    let newChars = 0
+    let charsDeleted = 0
+    let charsAdded = 0
     for(let i = 0; i < nodes1.length; i++){
         if(!matches.some(({x, y}) => (i == x))){
-            removedChars += nodes1[i].length
+            charsDeleted += nodes1[i].length
         }
     }
 
     for(let i = 0; i < nodes2.length; i++){
         if(!matches.some(({x, y}) => (i == y))){
-            newChars += nodes2[i].length
+            charsAdded += nodes2[i].length
         }
     }
 
@@ -141,9 +158,9 @@ export function nodesCharDiff(nodes1, nodes2) {
             const node1 = nodes1[matches[i].x]
             const node2 = nodes2[matches[i].y]
             const matchDiff = charDiff(node1, node2)
-            removedChars += matchDiff.deletions
-            newChars += matchDiff.insertions
+            charsDeleted += matchDiff.deletions
+            charsAdded += matchDiff.insertions
         }
     }
-    return {newChars: newChars, removedChars: removedChars}
+    return {charsAdded: charsAdded, charsDeleted: charsDeleted}
 }

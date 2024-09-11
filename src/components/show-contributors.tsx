@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useContributions } from "src/app/hooks/entities";
+import { useContent } from "src/app/hooks/contents";
 
 
 function round2(x: number){
@@ -7,35 +7,39 @@ function round2(x: number){
 }
 
 
-export const ShowContributors = ({entityId, version, userId}: 
-    {entityId: string, version?: number, userId?: string}) => {
-    const contributions = useContributions(entityId)
-    if(contributions.isLoading) return <></>
-    
-    if(contributions.contributions.length == 0) return <></>
-    if(version == undefined) version = contributions.contributions.length-1
-    if(version >= contributions.contributions.length) return <></>
-    let versionContr = contributions.contributions[version]
-    
-    let total = 0
-    versionContr.forEach(([authorId, chars]) => {total += chars})
+export const ShowContributors = ({contentId, userId}: 
+    {contentId: string, userId?: string}) => {
+    const content = useContent(contentId)
+    if(content.isLoading) return <></>
+    if(!content.content.contribution){
+        return <></>
+    }
 
+    let contributions: [string, number][] = JSON.parse(content.content.contribution)
+    
+    const total = content.content.accCharsAdded
+    
     if(userId) // para el panel de estadísticas
-        versionContr = versionContr.filter(([authorId, _]) => (authorId == userId))
+        contributions = contributions.filter(([authorId, _]) => (authorId == userId))
 
     if(userId){
-        if(versionContr.length > 0)
-            return <span>Contribución: {round2(versionContr[0][1] / total * 100)}%</span>
+        if(contributions.length > 0)
+            return <span>Contribución: {round2(contributions[0][1] / total * 100)}%</span>
         else {
             return <span>Contribución: Artículo vacío</span>
         }
     }
 
+    function toPercentage(chars: number, total: number){
+        if(total == 0) return <></>
+        return <span>({round2(chars / total * 100)}%)</span>
+    }
+
     return <div className="flex">
         <span className="mr-1">Escrito por</span>
     <div className="flex space-x-2 link">
-        {versionContr.map(([authorId, chars], index) => {
-            return <span key={index}><Link href={"/perfil/"+authorId}>@{authorId}</Link> ({round2(chars / total * 100)}%)</span>
+        {contributions.map(([authorId, chars], index) => {
+            return <span key={index}><Link href={"/perfil/"+authorId}>@{authorId}</Link> {toPercentage(chars, total)}</span>
         })}
     </div>
     </div>
