@@ -16,12 +16,12 @@ export const AuthPage = () => {
                 Ya tenés una cuenta? <button className="link2" onClick={() => {setHasAccount(true)}}>Iniciá sesión</button>.
             </div>
             </>
-            :<div className="">
+            :<>
             <LoginForm/>
             <div className='mt-4 text-center'>
                 No tenés una cuenta? <button className="link2" onClick={() => {setHasAccount(false)}}>Registrate</button>.
             </div>
-            </div>
+            </>
         }
     </div>
 }
