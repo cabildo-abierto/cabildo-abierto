@@ -1,14 +1,6 @@
 import { useContent } from "src/app/hooks/contents"
-import { getAllText, nodesCharDiff } from "./diff"
+import { getAllText, nodesCharDiff, textNodesFromJSONStr } from "./diff"
 import { LexicalEditor } from "lexical"
-
-function textNodesFromJSONStr(s: string){
-    try {
-        return JSON.parse(s).root.children.map(getAllText)
-    } catch {
-        return []
-    }
-}
 
 export const ChangesCounter = ({id1, id2, editor}: {id1: string, id2?: string, editor?: LexicalEditor}) => {
     const content1 = useContent(id1)
@@ -29,7 +21,7 @@ export const ChangesCounter = ({id1, id2, editor}: {id1: string, id2?: string, e
         parsed2 = textNodesFromJSONStr(JSON.stringify(editor.getEditorState()))
     }
 
-    const {newChars, removedChars} = nodesCharDiff(parsed1, parsed2)
+    const {charsAdded, charsDeleted} = nodesCharDiff(parsed1, parsed2)
 
-    return <><span className="text-red-600">-{removedChars}</span> <span className="text-green-600">+{newChars}</span></>
+    return <><span className="text-red-600">-{charsDeleted}</span> <span className="text-green-600">+{charsAdded}</span></>
 }

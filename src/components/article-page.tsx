@@ -13,7 +13,7 @@ import { EntityCategories } from "src/components/categories";
 import NoEntityPage from "./no-entity-page";
 import StateButton from "./state-button";
 import { useRouter } from "next/navigation";
-import { deleteEntity, makeEntityPublic, renameEntity } from "src/actions/actions";
+import { deleteEntity, deleteEntityHistory, makeEntityPublic, renameEntity } from "src/actions/actions";
 import LoadingSpinner from "./loading-spinner";
 import { LikeCounter } from "./like-counter";
 import { ViewsCounter } from "./views-counter";
@@ -115,6 +115,20 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         />
     }
 
+    const RemoveHistoryButton = () => {
+        return <StateButton
+            className="article-btn"
+            text1="Eliminar historial"
+            text2="Eliminando..."
+            onClick={async () => {
+                if(user.user){
+                    await deleteEntityHistory(entity.id); 
+                    mutate("/api/entity/"+entity.id)
+                }
+            }}
+        />
+    }
+
     const MakePublicButton = () => {
         return <StateButton
             className="article-btn"
@@ -177,7 +191,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
                     <span><Link href={"/articulo/"+entityId}>Versión actual</Link>.</span>
                     </div>
                 }
-                <ShowContributors entityId={entityId} version={version}/>
+                <ShowContributors contentId={contentId}/>
 
                 </div>
             <div className="flex flex-col items-end">
@@ -205,6 +219,11 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             {(user.user && user.user.editorStatus == "Administrator") &&
             <div className="flex justify-center py-2">
                 <DeleteArticleButton/>
+            </div>
+            }
+            {(user.user && user.user.editorStatus == "Administrator") &&
+            <div className="flex justify-center py-2">
+                <RemoveHistoryButton/>
             </div>
             }
             {(user.user && user.user.editorStatus == "Administrator") &&

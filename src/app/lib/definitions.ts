@@ -20,6 +20,10 @@ export type ContentProps = {
     isUndo: boolean
     undoMessage: string | null
     parentEntityId: string | null
+    charsAdded?: number,
+    charsDeleted?: number,
+    accCharsAdded?: number,
+    contribution?: string
 }
 
 

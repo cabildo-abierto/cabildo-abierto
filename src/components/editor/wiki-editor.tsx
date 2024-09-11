@@ -15,7 +15,7 @@ import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
 import LoadingSpinner from "../loading-spinner"
 import { SettingsProps } from "src/components/editor/lexical-editor"
-import { diff, getAllText } from "../diff"
+import { diff, getAllText, textNodesFromJSONStr } from "../diff"
 import { SerializedDiffNode } from "./nodes/DiffNode"
 import { ChangesCounter } from "../changes-counter"
 import { SerializedAuthorNode } from "./nodes/AuthorNode"
@@ -35,9 +35,10 @@ type WikiEditorProps = {
 
 
 function showChanges(initialData: string, withRespectToContent: string){
-    const parsed1 = JSON.parse(withRespectToContent)
+    const nodes1 = textNodesFromJSONStr(withRespectToContent)
     const parsed2 = JSON.parse(initialData)
-    const {common, matches} = diff(parsed1.root.children, parsed2.root.children)
+    const nodes2 = parsed2.root.children
+    const {common, matches} = diff(nodes1, nodes2)
     
     function newDiffNode(kind: string, childNode){
         const diffNode: SerializedDiffNode = {
@@ -58,23 +59,23 @@ function showChanges(initialData: string, withRespectToContent: string){
     for(let k = 0; k < common.length; k++){
         const {x, y} = common[k]
         while(i < x){
-            newChildren.push(newDiffNode("removed", parsed1.root.children[i]))
+            newChildren.push(newDiffNode("removed", nodes1[i]))
             i++
         }
         while(j < y){
-            newChildren.push(newDiffNode("new", parsed2.root.children[j]))
+            newChildren.push(newDiffNode("new", nodes2[j]))
             j++
         }
-        newChildren.push(newDiffNode("no dif", parsed1.root.children[x]))
+        newChildren.push(newDiffNode("no dif", nodes1[x]))
         i++
         j++
     }
-    while(i < parsed1.root.children.length){
-        newChildren.push(newDiffNode("removed", parsed1.root.children[i]))
+    while(i < nodes1.length){
+        newChildren.push(newDiffNode("removed", nodes1[i]))
         i++
     }
-    while(j < parsed2.root.children.length){
-        newChildren.push(newDiffNode("new", parsed2.root.children[j]))
+    while(j < nodes2.length){
+        newChildren.push(newDiffNode("new", nodes2[j]))
         j++
     }
     parsed2.root.children = newChildren
