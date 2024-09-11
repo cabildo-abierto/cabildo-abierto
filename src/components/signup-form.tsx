@@ -8,6 +8,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import InfoPanel from './info-panel';
+import { statSync } from 'node:fs';
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
@@ -43,13 +44,13 @@ function SignupButton() {
 
 
 export const PeriodoDePrueba = () => {
-    return <div className="flex justify-center">
+    return <div className="flex justify-center w-80">
         <div className="px-4">
-            <div className="text-[var(--accent-dark)] flex items-center border p-2 rounded-lg">
+            <div className="text-[var(--accent-dark)] flex items-center border p-2">
                 <div className="mr-2">
                     <ConstructionIcon fontSize="large" />
                 </div>
-                <div className="flex justify-center w-72">
+                <div className="text-sm">
                     Por ahora necesitás una clave para registrarte.
                     Abrimos pronto :)
                 </div>
@@ -60,7 +61,34 @@ export const PeriodoDePrueba = () => {
 
 const inputClassName = "custom-input"
 
+function selectErrors(state: any){
+    if(!state){
+        return state
+    }
+    if(!state.errors){
+        return state
+    }
+    if(state.errors.email){
+        return {errors: {email: state.errors.email}}
+    }
+    if(state.errors.password){
+        return {errors: {password: state.errors.password}}
+    }
+    if(state.errors.username){
+        return {errors: {username: state.errors.username}}
+    }
+    if(state.errors.name){
+        return {errors: {name: state.errors.name}}
+    }
+    if(state.errors.betakey){
+        return {errors: {betakey: state.errors.betakey}}
+    }
+    return state
+}
+
 export const EmailInput = ({state}) => {
+    state = selectErrors(state)
+
     const handleEmailInput = (e: any) => {
         const email = e.target;
         email.setCustomValidity('');
@@ -92,6 +120,7 @@ export const EmailInput = ({state}) => {
 }
 
 export const PasswordInput = ({state}: {state: SignUpFormState}) => {
+    state = selectErrors(state)
     const [showPassword, setShowPassword] = useState(false);
 
     return <div>
@@ -121,6 +150,7 @@ export const PasswordInput = ({state}: {state: SignUpFormState}) => {
 }
 
 const UsernameInput = ({state}) => {
+    state = selectErrors(state)
     return <div>
         <div className="flex items-center justify-between">
         <AuthenticationFormLabel text="Nombre de usuario" label="username"/>
@@ -148,6 +178,7 @@ const UsernameInput = ({state}) => {
 }
 
 const NameInput = ({state}: {state: SignUpFormState}) => {
+    state = selectErrors(state)
     return <div>
         <div className="flex items-center justify-between">
             <AuthenticationFormLabel text="Nombre" label="name"/>
@@ -174,6 +205,7 @@ const NameInput = ({state}: {state: SignUpFormState}) => {
 }
 
 const BetaPWInput = ({state}: {state: SignUpFormState}) => {
+    state = selectErrors(state)
     return <div>
         <AuthenticationFormLabel text="Clave del período de prueba" label="betakey"/>
         <input
@@ -193,8 +225,8 @@ const BetaPWInput = ({state}: {state: SignUpFormState}) => {
 
 export const AuthForm = ({children, action, state, title}: {children: ReactNode, action: any, state: any, title: string}) => {
 
-    return <form action={action} className="flex justify-center items-center">
-        <div className="flex-1 rounded-lg bg-[var(--secondary-light)] mx-3 p-3 w-90 border">
+    return <form action={action} className="flex justify-center items-center lg:w-90 min-w-80">
+        <div className="flex-1 bg-[var(--secondary-light)] p-3 border">
             <h2 className='flex justify-center mb-2'>
                 {title}
             </h2>
@@ -214,7 +246,7 @@ export default function SignupForm() {
     }
 
     return (
-        <div className="w-96">
+        <>
             <div className="mb-2 mt-2">
                 <PeriodoDePrueba/>
             </div>
@@ -226,6 +258,6 @@ export default function SignupForm() {
                 <BetaPWInput state={state}/>
                 <SignupButton/>
             </AuthForm>
-        </div>
+        </>
     )
 }

@@ -6,6 +6,7 @@ import { createClient } from '../utils/supabase/server'
 import { LoginFormSchema, SignupFormSchema, UserProps } from '../app/lib/definitions'
 import { db } from '../db'
 import { getUser, getUserId } from './actions'
+import { AuthRetryableFetchError } from '@supabase/supabase-js'
 
 
 type LoginFormState = {
@@ -22,13 +23,17 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
   })
 
   if(!validatedFields.data) {
-    return { error: "invalid auth "}
+    return { error: "invalid fields"}
   }
 
   const { error } = await supabase.auth.signInWithPassword(validatedFields.data as {email: string, password: string})
 
   if (error) {
-    return { error: "invalid auth" }
+    if(error instanceof AuthRetryableFetchError){
+      return { error: "no connection" }
+    } else {
+      return { error: "invalid auth" }
+    }
   }
 
   return {user: await getUser()}

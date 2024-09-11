@@ -20,8 +20,17 @@ export default function LoginForm() {
     }
     const [state, action] = useFormState(origAction, undefined)
 
+    let error = <div className="h-6"></div>
+
+    if(state && state.error == "invalid auth"){
+        error = <div className="flex items-center text-red-600 h-6 px-2">Usuario o contraseña incorrectos.</div>
+    }
+    if(state && state.error == "no connection"){
+        error = <div className="flex items-center text-red-600 h-6 px-2">Ocurrió un error en la conexión.</div>   
+    }
+
     return (
-        <div className="w-96">
+        <>
             <AuthForm
                 title="Iniciar sesión"
                 state={state}
@@ -29,13 +38,9 @@ export default function LoginForm() {
             >
                 <EmailInput state={state}/>
                 <PasswordInput state={state}/>
-                {(state && state.error == "invalid auth") ? 
-                    <div className="flex items-center text-red-600 h-6 px-2">Usuario o contraseña incorrectos.</div>
-                    :
-                    <div className="h-6"></div>
-                }
+                {error}
                 <LoginButton/>
             </AuthForm>
-        </div>
+        </>
     )
 }
