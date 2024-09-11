@@ -42,7 +42,7 @@ export async function getContentById(id: string) {
         return content ? content : undefined
     }, ["content", id], {
         tags: ["content", "content:"+id],
-        revalidate: 5,
+        revalidate: 6*3600,
     })()
 }
 
@@ -1255,7 +1255,7 @@ export async function getEntityById(id: string) {
         )
         return entity
     }, ["entity", id], {
-        revalidate: 5,
+        revalidate: 6*3600,
         tags: ["entity", "entity:"+id]})()
 }
 
