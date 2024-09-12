@@ -56,7 +56,7 @@ const db = new PrismaClient();
                 }
             })
         }
-    }*/
+    }
 
 
     for(let i = 0; i < entities.length; i++) {
@@ -72,5 +72,5 @@ const db = new PrismaClient();
                 }
             })
         }
-    }
+    }*/
 })();

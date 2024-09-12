@@ -193,16 +193,16 @@ export const ArticlePage = ({entity, content, version}: {entity: EntityProps, co
 
                 </div>
             <div className="flex flex-col items-end">
-                <div className="border rounded p-1 flex">
-                    <span className="px-1 flex items-center">Te sirvió?</span>
+                <div className="p-1 flex flex-col items-center">
                     <LikeCounter
                         content={content}
                         icon1={<ActivePraiseIcon/>} icon2={<InactivePraiseIcon/>}
                     />
+                    <ViewsCounter content={content}/>
                 </div>
-                <ViewsCounter content={content}/>
             </div>
         </div>
+        <div className="hidden lg:block">
         {!editing && <div className="flex flex-wrap items-center px-2 space-x-2 border-b">
             {<ViewHistoryButton/>}
             {<ViewCategoriesButton/>}
@@ -230,6 +230,7 @@ export const ArticlePage = ({entity, content, version}: {entity: EntityProps, co
             </div>
             }
         </div>}
+        </div>
         {showingCategories && <div className="px-4 content-container my-2">
             <EntityCategories categories={entity.versions[version].categories} name={entity.name}/>
         </div>}

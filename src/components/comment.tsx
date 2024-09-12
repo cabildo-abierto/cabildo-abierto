@@ -101,10 +101,10 @@ export const Comment = ({
 
     const icon = isFakeNewsReport ? <RedFlag/> : <></>
 
-    return <div className="content-container">
+    return <div className="content-container bg-[var(--background)]">
         <ContentTopRow content={content} icon={icon} showOptions={false}/>
         <div className="px-2 mt-2 ml-2 content">
-            {snode && <div className="content">
+            {snode && <div>
                 <ReadOnlyEditor initialData={initializeQuote}/>
             </div>}
             <ReadOnlyEditor initialData={content.text}/>

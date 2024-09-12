@@ -30,7 +30,7 @@ const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center">
             {entitiesWithScore.length > 0 ? entitiesWithScore.map((entity, index) => (
-                <div key={index} className="p-1">
+                <div key={index} className="py-1">
                     <EntitySearchResult entity={entity.entity}/>
                 </div>
             )) : <NoResults text="No se encontró ningún artículo."/>}
