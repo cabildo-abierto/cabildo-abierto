@@ -65,13 +65,11 @@ const recomputeEntityContributions = async (entityId: string) => {
 
 
 const getNewVersionContribution = async (entityId: string, text: string, userId: string, afterVersion?: number) => {
-    console.log("getting new version contribution")
     const entity = await getEntityById(entityId)
     if(!afterVersion) afterVersion = entity.versions.length-1
     const lastVersionId = entity.versions[afterVersion].id
     const lastVersion = await getContentStaticById(lastVersionId)
 
-    console.log("computing diff")
     const {charsAdded, charsDeleted} = charDiffFromJSONString(lastVersion.text, text)
     const accCharsAdded = lastVersion.accCharsAdded + charsAdded
     const contribution: [string, number][] = JSON.parse(lastVersion.contribution)
@@ -86,7 +84,6 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
     if(!wasAuthor){
         contribution.push([userId, charsAdded])
     }
-    console.log("done")
 
     return {accCharsAdded: accCharsAdded, charsAdded: charsAdded, charsDeleted: charsDeleted, contribution: JSON.stringify(contribution)}
 }

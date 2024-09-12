@@ -5,6 +5,6 @@ import { getUserId } from '../../../actions/users';
 export async function GET(req: NextRequest) {
 
     const user = await getUserId()
-    return NextResponse.json(user ? user : null)
+    return NextResponse.json(user ? user : "no user")
     
 }
