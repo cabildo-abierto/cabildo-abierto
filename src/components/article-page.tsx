@@ -31,7 +31,7 @@ export const ArticlePage = ({entity, content, version}: {entity: EntityProps, co
     const user = useUser()
     const [editing, setEditing] = useState(false)
     const [showingCategories, setShowingCategories] = useState(false)
-    const [showingHistory, setShowingHistory] = useState(version !== undefined)
+    const [showingHistory, setShowingHistory] = useState(version != entity.versions.length-1)
     const [showingChanges, setShowingChanges] = useState(false)
     const [showingAuthors, setShowingAuthors] = useState(false)
     const router = useRouter()
