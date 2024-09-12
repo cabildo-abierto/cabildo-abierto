@@ -32,7 +32,7 @@ export type ContentProps = {
     _count?: {reactions: number, childrenTree: number},
     uniqueViewsCount: number,
 
-    childrenContents?: {id: string, createdAt: Date | string, type: string}[],
+    childrenContents?: {id: string, createdAt: Date | string, type: ContentType}[],
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
 
     rootContentId: string
@@ -52,7 +52,12 @@ export type EntityProps = {
         undoMessage: string,
         createdAt: string | Date,
         text: string,
-        authorId: string
+        authorId: string,
+        childrenContents: {
+            id: string
+            type: ContentType
+            _count: {childrenTree: number}
+        }[]
     }[]
     referencedBy: SmallContentProps[]
     deleted: boolean
@@ -70,7 +75,9 @@ export type SmallEntityProps = {
         categories: string,
         createdAt: Date | string,
         isUndo: boolean,
-        undoMessage: string}[]
+        undoMessage: string,
+        _count: {childrenTree: number}
+    }[]
     _count: {referencedBy: number, reactions: number},
     views?: number,
     textLength?: number,

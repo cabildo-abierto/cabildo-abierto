@@ -14,28 +14,6 @@ export function useContent(id: string): {content: ContentProps | undefined, isLo
 }
 
 
-export function useEntityChildrenCount(id: string): {count: number, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/entity-children-count/'+id, fetcher)
-  
-    return {
-        count: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useEntityCategories(id: string): {categories: string, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/entity-categories/'+id, fetcher)
-  
-    return {
-        categories: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
 export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/user-stats', fetcher)
   

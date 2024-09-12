@@ -1,7 +1,7 @@
 "use client"
 import { CommentSection, EntityCommentSection } from "./comment-section"
-import { ReactNode, useState } from "react"
-import { useSWRConfig } from "swr"
+import { ReactNode, useEffect, useState } from "react"
+import { preload, useSWRConfig } from "swr"
 import LoadingSpinner from "./loading-spinner"
 import ContentComponent from "./content"
 import CommentEditor from "./editor/comment-editor"
@@ -9,6 +9,7 @@ import { ContentProps } from "../app/lib/definitions"
 import { useUser } from "../app/hooks/user"
 import { useContent } from "../app/hooks/contents"
 import { createComment } from "../actions/contents"
+import { fetcher } from "../app/hooks/utils"
 
 
 type ContentWithCommentsProps = {
@@ -40,6 +41,10 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen && ["Post", "EntityContent"].includes(content.type))
     
+    useEffect(() => {
+        //
+    }, [])
+
     const handleNewComment = async (text: string) => {
         if(user.user){
             await createComment(text, content.id, user.user.id)
