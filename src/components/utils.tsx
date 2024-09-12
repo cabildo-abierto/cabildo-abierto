@@ -105,3 +105,15 @@ export function entityInRoute(entity: {versions: {id: string, categories: string
         return isPrefix(route, c)
     })
 }
+
+
+export function listOrder(a: {score: number[]}, b: {score: number[]}){
+    for(let i = 0; i < a.score.length; i++){
+        if(a.score[i] > b.score[i]){
+            return 1
+        } else if(a.score[i] < b.score[i]){
+            return -1
+        }
+    }
+    return 0
+}

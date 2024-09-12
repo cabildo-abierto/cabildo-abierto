@@ -1,22 +1,10 @@
-import useSWR from "swr"
 import { useEntity } from "../app/hooks/entities"
-import { fetcher } from "../app/hooks/utils"
 import { ContentProps, EntityProps, SmallContentProps } from "../app/lib/definitions"
 import { getAllQuoteIds } from "./comment"
 import { ContentWithCommentsFromId } from "./content-with-comments"
 import LoadingSpinner from "./loading-spinner"
+import { listOrder } from "./utils"
 
-
-function order(a: {score: number[]}, b: {score: number[]}){
-    for(let i = 0; i < a.score.length; i++){
-        if(a.score[i] > b.score[i]){
-            return 1
-        } else if(a.score[i] < b.score[i]){
-            return -1
-        }
-    }
-    return 0
-}
 
 function commentScore(comment: SmallContentProps): number[]{
     return [-Number(comment.type == "FakeNewsReport"), -new Date(comment.createdAt).getTime()]
@@ -45,7 +33,7 @@ export const SidebarCommentSection = ({content, entity, activeIDs}: {content: Co
     const filteredComments = comments.filter(({id}) => (allIds.includes(id) && inActiveIDs({id})))
 
     let contentsWithScore = filteredComments.map((comment) => ({comment: comment, score: commentScore(comment)}))
-    contentsWithScore = contentsWithScore.sort(order)
+    contentsWithScore = contentsWithScore.sort(listOrder)
     
     return <>
         {
@@ -102,7 +90,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     const comments = entity ? [...getEntityComments(entity), ...entity.referencedBy] : content.childrenContents
 
     let contentsWithScore = comments.map((comment) => ({comment: comment, score: commentScore(comment)}))
-    contentsWithScore = contentsWithScore.sort(order)
+    contentsWithScore = contentsWithScore.sort(listOrder)
     
     return <>
         {
