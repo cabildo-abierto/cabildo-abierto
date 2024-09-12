@@ -86,19 +86,9 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
 
 const TopBarGuest = () => {
     return <>
-        <div className="w-1/4"></div>
-        <div className="text-gray-600 flex justify-center w-1/2">
-            {false && <div>
-                Estás viendo esta página como invitado
-            </div>}
-        </div>
-        <div className="px-4 w-1/4 flex justify-end">
-            <Link href="/">
-                <button
-                    className="auth-btn px-3 py-2"
-                >
-                    Crear cuenta o iniciar sesión
-                </button>
+        <div className="flex w-screen justify-end px-2">
+            <Link href="/" className="auth-btn px-3 py-2">
+                Crear cuenta o iniciar sesión
             </Link>
         </div>
     </>

@@ -14,7 +14,7 @@ export const EntitySearchResult: React.FC<{entity: SmallEntityProps}> = ({ entit
     <FixedCounter count={entity.textLength} icon={<TextLengthIcon/>} title="Cantidad de palabras en el contenido."/>*/
 
     return <Link href={"/articulo/" + entity.id}
-        className="w-96 py-6 px-2 flex justify-center content-container hover:bg-[var(--secondary-light)]"
+        className="max-w-96 py-6 px-2 flex justify-center content-container hover:bg-[var(--secondary-light)]"
     >
         <div className="flex w-full items-center">
             <div className="px-2">

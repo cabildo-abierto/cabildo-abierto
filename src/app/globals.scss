@@ -389,7 +389,7 @@ ol {
     position: fixed;
 	top: 4rem;
     right: 0;
-    width: 400px;
+    max-width: 400px;
     height: calc(100vh - 4rem);
     background-color: rgba($background, 0.6);
     overflow-y: auto; /* Enable vertical scrolling */

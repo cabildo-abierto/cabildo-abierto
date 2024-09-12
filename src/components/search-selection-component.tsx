@@ -21,7 +21,7 @@ const SelectionComponent: React.FC<SelectionComponentProps> = ({ onSelection, op
       {options.map((option, index) => {
         return <button key={index}
         className={className + " " + `${selectedButton === option ? 'selected-option' : 'not-selected-option'
-          } py-2 px-4 focus:outline-none flex-1`}
+          } py-2 lg:px-4 px-2 focus:outline-none flex-1`}
         onClick={() => handleButtonClick(option)}
       >
         <span className={className + " " + (selectedButton == option ? 'selected-option-text' : 'non-selected-option-text')}>{option}</span>
