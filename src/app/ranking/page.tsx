@@ -1,7 +1,7 @@
-import {getUsersWithStats} from "../../actions/actions";
 import {UserStats} from "../lib/definitions";
 import {UserScoreboard} from "../../components/users-scoreboard";
 import {ThreeColumnsLayout} from "../../components/three-columns";
+import { getUsersWithStats } from "../../actions/users";
 
 
 const Page = async () => {

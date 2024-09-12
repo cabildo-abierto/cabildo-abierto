@@ -2,10 +2,8 @@
 import { useRouter } from "next/navigation";
 import { Authorship, ContentTopRow, LikeAndCommentCounter } from "./content"
 
-import { ContentProps } from 'src/app/lib/definitions';
 import { PostIcon } from "./icons";
-import { useState } from "react";
-
+import { ContentProps } from "../app/lib/definitions";
 
 type PostOnFeedProps = {
     content: ContentProps,
@@ -41,7 +39,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
             <div></div>
             <LikeAndCommentCounter
                 disabled={true}
-                contentId={content.id}
+                content={content}
                 onViewComments={onViewComments}
                 viewingComments={viewingComments}
                 likeCounterTitle="Entrá a la publicación para reaccionar."

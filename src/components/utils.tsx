@@ -1,5 +1,5 @@
-import { EntityProps, SmallEntityProps, UserProps } from "src/app/lib/definitions"
 import assert from "assert"
+import { UserProps, EntityProps, SmallEntityProps } from "../app/lib/definitions"
 
 
 export const splitPost = (text: string) => {

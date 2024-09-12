@@ -3,12 +3,12 @@ import { useState } from "react"
 import ReadOnlyEditor from "./editor/read-only-editor"
 import dynamic from "next/dynamic";
 import { commentEditorSettings } from "./editor/comment-editor";
-import { useUser } from "src/app/hooks/user";
 import { useRouter } from "next/navigation";
 import { EditorState, LexicalEditor } from "lexical";
-import { updateDescription } from "src/actions/actions";
 import { useSWRConfig } from "swr";
-const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
+import { updateDescription } from "../actions/users";
+import { useUser } from "../app/hooks/user";
+const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 
 

@@ -1,11 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { ContentProps, SmallEntityProps } from "src/app/lib/definitions";
 import { SubcategoriesDropDown } from "./subcategories-dropdown";
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { getNextCategories } from "./utils";
-import { useRouteEntities } from "src/app/hooks/contents";
+import { ContentProps, SmallEntityProps } from "../app/lib/definitions";
+import { useRouteEntities } from "../app/hooks/contents";
+import LoadingSpinner from "./loading-spinner";
 
 
 export type LoadingContent = {
@@ -16,9 +17,9 @@ export type LoadingContent = {
 }
 
 
-export const Route = ({route, selected, routeEntities}: {route: string[], selected?: string, routeEntities?: SmallEntityProps[]}) => {
-
-    const nextCategories = routeEntities ? getNextCategories(route, routeEntities) : null
+export const Route = ({route, selected}: {route: string[], selected?: string}) => {
+    const routeEntities = useRouteEntities(route)
+    const nextCategories = routeEntities.entities ? getNextCategories(route, routeEntities.entities) : null
 
     return <><div className="flex items-center">
         {["Inicio"].concat(route).map((c: string, index: number) => {
@@ -35,7 +36,6 @@ export const Route = ({route, selected, routeEntities}: {route: string[], select
                 <span className="px-1 text-2xl font-bold content text-[var(--primary)] mb-1">
                     <KeyboardArrowRightIcon/>
                 </span>}
-            
             </div>
         })}
     </div>
@@ -51,16 +51,14 @@ export const Route = ({route, selected, routeEntities}: {route: string[], select
 }
 
 
-type WikiCategoriesProps = {route: string[], selected: string, routeEntities: SmallEntityProps[]}
+type WikiCategoriesProps = {route: string[], selected: string}
 
-export const WikiCategories = ({route, selected, routeEntities}: WikiCategoriesProps) => {
+export const WikiCategories = ({route, selected}: WikiCategoriesProps) => {
 
     return <div className="flex flex-col">
         <span className="ml-2 text-sm text-[var(--text-light)]">Estás viendo:</span>
         <div className="flex pb-2 items-center px-2">
-            <Route route={route} selected={selected} routeEntities={routeEntities}/>
+            <Route route={route} selected={selected}/>
         </div>
     </div>
-    
-    
 }

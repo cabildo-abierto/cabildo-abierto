@@ -1,13 +1,12 @@
 "use client"
 
-import { follow, unfollow } from "src/actions/actions"
 import { useEffect, useState } from "react"
-import { useUser } from "src/app/hooks/user"
-import { UserProps } from "src/app/lib/definitions"
 import { useSWRConfig } from "swr"
 import { addAt } from "./content"
 import { Description } from "./description"
 import SelectionComponent from "./search-selection-component";
+import { unfollow, follow } from "../actions/users"
+import { UserProps } from "../app/lib/definitions"
 
 export function ProfileHeader({profileUser, user, setSelected}: {profileUser: UserProps, user?: UserProps, setSelected: any }) {
     const [following, setFollowing] = useState(false)

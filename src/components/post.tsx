@@ -1,10 +1,10 @@
-import { DateSince } from "src/components/date";
 import { Authorship } from "./content";
 import ReadOnlyEditor from "./editor/read-only-editor";
-import { ContentProps } from 'src/app/lib/definitions';
 import { LikeCounter } from "./like-counter";
 import { TextViewsCounter, ViewsCounter } from "./views-counter";
 import { ActivePraiseIcon, InactivePraiseIcon } from "./icons";
+import { ContentProps } from "../app/lib/definitions";
+import { DateSince } from "./date";
 
 export const Post: React.FC<{
     content: ContentProps
@@ -16,13 +16,13 @@ export const Post: React.FC<{
         </div>
         <div className="flex justify-between">
             <div className="flex items-center space-x-1">
-                <span className="mr-1"><Authorship content={content}/></span><span>·</span><span><DateSince date={content.createdAt}/></span><span>·</span><TextViewsCounter contentId={content.id}/>
+                <span className="mr-1"><Authorship content={content}/></span><span>·</span><span><DateSince date={content.createdAt}/></span><span>·</span><TextViewsCounter content={content}/>
             </div>
             <div className="flex items-center">
                 <div className="border rounded p-1 flex flex-col items-center">
                     <span className="px-1 flex items-center text-sm text-[var(--text-light)]">Te sirvió?</span>
                     <LikeCounter
-                        contentId={content.id}
+                        content={content}
                         icon1={<ActivePraiseIcon/>} icon2={<InactivePraiseIcon/>}
                     />
                 </div>

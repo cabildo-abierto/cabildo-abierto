@@ -4,13 +4,13 @@ import CreateIcon from '@mui/icons-material/Create';
 import Link from 'next/link';
 import TickButton from './tick-button';
 import StateButton from './state-button';
-import { createEntity } from 'src/actions/actions';
 import { useRouter } from 'next/navigation';
-import { useUser } from 'src/app/hooks/user';
 import { useSWRConfig } from 'swr';
 import CloseIcon from '@mui/icons-material/Close';
 import { ArticleIcon, FastPostIcon, PostIcon } from './icons';
 import InfoPanel from './info-panel';
+import { useUser } from '../app/hooks/user';
+import { createEntity } from '../actions/entities';
 
 export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100;

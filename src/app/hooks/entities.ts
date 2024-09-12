@@ -1,6 +1,6 @@
-import { fetcher } from "src/app/hooks/utils"
 import useSWR from "swr"
-import { ContributionsArray, EntityProps, SmallEntityProps } from "../lib/definitions"
+import { EntityProps } from "../lib/definitions"
+import { fetcher } from "./utils"
 
 
 export function useEntity(id: string): {entity: EntityProps, isLoading: boolean, isError: boolean}{

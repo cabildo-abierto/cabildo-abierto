@@ -3,25 +3,24 @@
 import React from "react"
 import { ReactionButton } from "./reaction-button";
 import { RedFlag } from "./icons";
-import { useFakeNewsCount } from "src/app/hooks/contents";
+import { ContentProps } from "../app/lib/definitions";
 
 type FakeCounterProps = {
-    contentId: string
+    content: ContentProps
     onClick?: () => void
 }
 
 export const FakeNewsCounter: React.FC<FakeCounterProps> = ({
-    contentId,
+    content,
     onClick
 }) => {
-    const {fakeNewsCount, isLoading} = useFakeNewsCount(contentId)
-    if(isLoading || fakeNewsCount == 0)
+    if(content.fakeReportsCount == 0){
         return <></>
-    
+    }
     return <ReactionButton
         onClick={onClick ? onClick : (() => {})}
         icon1={<RedFlag/>}
-        count={fakeNewsCount}
+        count={content.fakeReportsCount}
         disabled={false}
         title="Reportes de falsedad"
     />

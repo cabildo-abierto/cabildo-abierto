@@ -1,8 +1,8 @@
 "use client"
 import { getSubscriptionPrice } from "./utils"
 import SubscriptionOptionButton from "./subscription-option-button"
-import { useSubscriptionPoolSize } from "src/app/hooks/subscriptions"
 import Link from "next/link"
+import { useSubscriptionPoolSize } from "../app/hooks/subscriptions"
 
 const SubscriptionOptions = () => {
     const poolSize = useSubscriptionPoolSize()

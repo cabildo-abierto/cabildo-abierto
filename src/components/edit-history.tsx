@@ -1,10 +1,10 @@
 import Link from "next/link"
 import { Authorship } from "./content"
 import { DateSince } from "./date"
-import { useContent } from "src/app/hooks/contents"
-import { ContentProps, EntityProps } from "src/app/lib/definitions"
 import { UndoButton } from "./undo-button"
 import LoadingSpinner from "./loading-spinner"
+import { ContentProps, EntityProps } from "../app/lib/definitions"
+import { useContent } from "../app/hooks/contents"
 
 const EditDetails = ({content, prev}: {content: ContentProps, prev: ContentProps | undefined}) => {
     if(!prev){

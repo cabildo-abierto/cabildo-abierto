@@ -1,27 +1,25 @@
 "use client"
 import React, { useState } from "react"
 
-import { ContentWithCommentsFromId } from "src/components/content-with-comments";
-import PaywallChecker from "src/components/paywall-checker";
-import { SetProtectionButton } from "src/components/protection-button";
-import { ThreeColumnsLayout } from "src/components/three-columns";
 import { useSWRConfig } from "swr";
 import Link from "next/link";
-import { ToggleButton } from "src/components/toggle-button";
-import { currentVersion, EditHistory } from "src/components/edit-history";
-import { EntityCategories } from "src/components/categories";
-import NoEntityPage from "./no-entity-page";
 import StateButton from "./state-button";
 import { useRouter } from "next/navigation";
-import { deleteEntity, deleteEntityHistory, makeEntityPublic, renameEntity } from "src/actions/actions";
-import LoadingSpinner from "./loading-spinner";
 import { LikeCounter } from "./like-counter";
 import { ViewsCounter } from "./views-counter";
 import { DateSince } from "./date";
 import { ShowContributors } from "./show-contributors";
 import { ActivePraiseIcon, InactivePraiseIcon } from "./icons";
-import { useUser } from "src/app/hooks/user";
-import { useEntity } from "src/app/hooks/entities";
+import { ToggleButton } from "./toggle-button";
+import { deleteEntity, deleteEntityHistory, makeEntityPublic, renameEntity } from "../actions/entities";
+import { useUser } from "../app/hooks/user";
+import { EntityProps, ContentProps } from "../app/lib/definitions";
+import { EntityCategories } from "./categories";
+import { ContentWithCommentsFromId } from "./content-with-comments";
+import { currentVersion, EditHistory } from "./edit-history";
+import PaywallChecker from "./paywall-checker";
+import { SetProtectionButton } from "./protection-button";
+import { ThreeColumnsLayout } from "./three-columns";
 
 
 const DeletedEntity = () => {
@@ -29,9 +27,8 @@ const DeletedEntity = () => {
 }
 
 
-export const ArticlePage = ({entityId, version}: {entityId: string, version?: number}) => {
+export const ArticlePage = ({entity, content, version}: {entity: EntityProps, content: ContentProps, version?: number}) => {
     const user = useUser()
-    const {entity, isLoading, isError} = useEntity(entityId)
     const [editing, setEditing] = useState(false)
     const [showingCategories, setShowingCategories] = useState(false)
     const [showingHistory, setShowingHistory] = useState(version !== undefined)
@@ -40,16 +37,17 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
     const router = useRouter()
     const {mutate} = useSWRConfig()
 
-    if(isLoading){
-        return <LoadingSpinner/>
-    }
-
-    if(isError || !entity){
-        return <ThreeColumnsLayout center={<NoEntityPage id={entityId}/>}/>
-    }
-
     if(entity.deleted){
         return <DeletedEntity/>
+    }
+
+    async function onEdit(v){
+        setEditing(v); 
+        if(v) {
+            setShowingChanges(false)
+            setShowingAuthors(false)
+            setShowingHistory(false)
+        }
     }
 
     const EditButton = () => {
@@ -57,7 +55,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
             text="Editar"
             toggledText="Cancelar edición"
             className="article-btn"
-            setToggled={(v) => {setEditing(v); if(v) {setShowingChanges(false); setShowingAuthors(false)}}}
+            setToggled={onEdit}
             toggled={editing}
             disabled={user.user == null}
             title={user.user == null ? "Necesitás una cuenta para hacer ediciones." : undefined}
@@ -77,7 +75,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
         return <ToggleButton
             text="Ver cambios"
             className="article-btn"
-            setToggled={(v) => {setShowingChanges(v); if(v) {setEditing(false); setShowingAuthors(false)}}}
+            setToggled={(v) => {console.log("toggle value", v); setShowingChanges(v); if(v) {setEditing(false); setShowingAuthors(false)}}}
             toggled={showingChanges}
         />
     }
@@ -188,7 +186,7 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
                 </span>
                 {version != entity.versions.length-1 && <div className="flex">
                     <span className="mr-1">Estás viendo la versión {version} (publicada <DateSince date={entity.versions[version].createdAt}/>).</span>
-                    <span><Link href={"/articulo/"+entityId}>Versión actual</Link>.</span>
+                    <span><Link href={"/articulo/"+entity.id}>Versión actual</Link>.</span>
                     </div>
                 }
                 <ShowContributors contentId={contentId}/>
@@ -198,11 +196,11 @@ export const ArticlePage = ({entityId, version}: {entityId: string, version?: nu
                 <div className="border rounded p-1 flex">
                     <span className="px-1 flex items-center">Te sirvió?</span>
                     <LikeCounter
-                        contentId={contentId}
+                        content={content}
                         icon1={<ActivePraiseIcon/>} icon2={<InactivePraiseIcon/>}
                     />
                 </div>
-                <ViewsCounter contentId={contentId}/>
+                <ViewsCounter content={content}/>
             </div>
         </div>
         {!editing && <div className="flex flex-wrap items-center px-2 space-x-2 border-b">

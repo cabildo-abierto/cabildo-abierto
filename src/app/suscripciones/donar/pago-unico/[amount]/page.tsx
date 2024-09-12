@@ -1,9 +1,9 @@
-import { ThreeColumnsLayout } from "src/components/three-columns";
-import { PayDonationButton } from "src/components/pay-donation-button";
-import { validSubscription } from "src/components/utils";
 import Link from "next/link";
 import React from "react";
-import { getUser } from "src/actions/actions";
+import { getUser } from "../../../../../actions/users";
+import { PayDonationButton } from "../../../../../components/pay-donation-button";
+import { ThreeColumnsLayout } from "../../../../../components/three-columns";
+import { validSubscription } from "../../../../../components/utils";
 
 
 export default async function PagoUnico({params}: any) {

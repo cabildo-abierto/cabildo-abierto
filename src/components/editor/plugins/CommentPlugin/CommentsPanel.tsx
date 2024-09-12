@@ -1,7 +1,6 @@
 import { NodeKey } from "lexical";
-import {CommentSection} from "src/components/comment-section";
-import { ContentProps } from "src/app/lib/definitions";
-
+import { ContentProps } from "../../../../app/lib/definitions";
+import { CommentSection } from "../../../comment-section";
 
 export function CommentsPanel({
     activeIDs,

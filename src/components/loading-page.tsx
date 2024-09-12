@@ -1,9 +1,9 @@
 "use client"
 
 import React, { ReactNode } from 'react';
-import { useUser } from 'src/app/hooks/user';
 import ReadOnlyEditor from './editor/read-only-editor';
 import { Logo } from './logo';
+import { useUser } from '../app/hooks/user';
 
 
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {

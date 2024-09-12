@@ -5,12 +5,11 @@ import React, { useEffect, useState } from "react";
 import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
-import HomeIcon from '@mui/icons-material/Home';
-import { useUser } from "src/app/hooks/user";
 import WriteButton from "./write-button";
 import { usePathname, useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { CabildoIcon } from "./icons";
+import { useUser } from "../app/hooks/user";
 
 function FeedButton() {
     return <Link href="/inicio" className="px-1">

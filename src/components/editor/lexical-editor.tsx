@@ -74,11 +74,11 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 
 import {MarkNode} from '@lexical/mark';
 import { CustomMarkNode } from './nodes/CustomMarkNode';
-import { ContentProps } from 'src/app/lib/definitions';
 import { $createParagraphNode, $createTextNode, $getRoot, DecoratorNode, LexicalNodeReplacement, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 import { DiffNode } from './nodes/DiffNode';
 import { AuthorNode } from './nodes/AuthorNode';
 import { emptyOutput } from './comment-editor';
+import { ContentProps } from '../../app/lib/definitions';
 
 
 const CharLimitComponent = ({remainingCharacters} : {remainingCharacters: number}) => {
@@ -309,7 +309,7 @@ const initializeEmpty = (editor: OriginalLexicalEditor) => {
 }
 
 const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorProps) => {
-  let {isReadOnly, initialData, showingChanges} = settings
+  let {isReadOnly, initialData} = settings
 
   if(typeof initialData === 'string'){
       try {

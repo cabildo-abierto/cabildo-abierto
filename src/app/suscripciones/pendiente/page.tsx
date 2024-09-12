@@ -1,10 +1,10 @@
 "use client"
 
-import { useSubscriptionPoolSize } from "src/app/hooks/subscriptions";
-import { FreeSubscriptionButton } from "src/components/free-subcription-button"
-import LoadingSpinner from "src/components/loading-spinner";
-import { ThreeColumnsLayout } from "src/components/three-columns";
 import Link from "next/link"
+import { FreeSubscriptionButton } from "../../../components/free-subcription-button"
+import LoadingSpinner from "../../../components/loading-spinner"
+import { ThreeColumnsLayout } from "../../../components/three-columns"
+import { useSubscriptionPoolSize } from "../../hooks/subscriptions"
 
 
 export default function PlanGratuito() {

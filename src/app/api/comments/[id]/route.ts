@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getContentComments } from 'src/actions/actions';
+import { getContentComments } from '../../../../actions/contents';
 
 export async function GET(req: NextRequest,
   { params }: { params: { id: string } }

@@ -1,6 +1,6 @@
+import { AuthPage } from "../components/auth-page"
 import Footer from "../components/footer"
-import { Presentation } from "src/components/presentation"
-import { AuthPage } from "src/components/auth-page"
+import { Presentation } from "../components/presentation"
 
 
 export default function Page() {

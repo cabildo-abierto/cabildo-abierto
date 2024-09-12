@@ -28,8 +28,13 @@ export function charDiff(str1: string, str2: string){
 
 
 export function textNodesFromJSONStr(s: string){
+    return nodesFromJSONStr(s).map(getAllText)
+}
+
+
+export function nodesFromJSONStr(s: string){
     try {
-        return JSON.parse(s).root.children.map(getAllText)
+        return JSON.parse(s).root.children
     } catch {
         return []
     }

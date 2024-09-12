@@ -1,10 +1,11 @@
-import { ContentProps, EntityProps, SmallContentProps } from "src/app/lib/definitions"
-import { ContentWithCommentsFromId } from "src/components/content-with-comments"
-import LoadingSpinner from "./loading-spinner"
 import useSWR from "swr"
-import { fetcher } from "src/app/hooks/utils"
+import { useEntity } from "../app/hooks/entities"
+import { fetcher } from "../app/hooks/utils"
+import { ContentProps, EntityProps, SmallContentProps } from "../app/lib/definitions"
 import { getAllQuoteIds } from "./comment"
-import { useEntity } from "src/app/hooks/entities"
+import { ContentWithCommentsFromId } from "./content-with-comments"
+import LoadingSpinner from "./loading-spinner"
+
 
 type CommentSectionProps = {
     content: ContentProps
@@ -111,6 +112,7 @@ export const EntityCommentSection = ({content, writingReply, setWritingReply}: E
     if(entity.isLoading){
         return <LoadingSpinner/>
     }
+    console.log("content", content)
 
     return <CommentSection
         content={content}

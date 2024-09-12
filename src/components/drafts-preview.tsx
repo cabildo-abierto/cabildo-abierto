@@ -1,6 +1,6 @@
 "use client"
 import { useDrafts } from "../app/hooks/contents"
-import { DraftButton } from "src/components/draft-button"
+import { DraftButton } from "./draft-button"
 import LoadingSpinner from "./loading-spinner"
  
 export const DraftsPreview = () => {

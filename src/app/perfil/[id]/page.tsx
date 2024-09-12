@@ -1,10 +1,8 @@
 import React from "react";
-import { ThreeColumnsLayout } from "src/components/three-columns";
-import { ProfileHeader } from "src/components/profile-header";
-import { ErrorPage } from "src/components/error-page";
-import { ProfileFeed } from "../../../components/profile-feed";
-import { getUser, getUserById } from "src/actions/actions";
 import {ProfilePage} from "../../../components/profile-page";
+import { getUserById } from "../../../actions/users";
+import { ErrorPage } from "../../../components/error-page";
+import { ThreeColumnsLayout } from "../../../components/three-columns";
 
 
 const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
@@ -16,7 +14,9 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
         return <ErrorPage>El usuario @{username} no existe</ErrorPage>
     }
 
-    const center = <ProfilePage profileUser={user}/>
+    const center = <ProfilePage
+        profileUser={user}
+    />
 
     return <ThreeColumnsLayout center={center}/>
 }

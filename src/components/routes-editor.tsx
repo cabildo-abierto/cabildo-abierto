@@ -1,19 +1,18 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
 import { entityLastVersionId, getNextCategories } from "./utils";
-import { useContent, useRouteEntities } from "src/app/hooks/contents";
-import { updateEntity } from "src/actions/actions";
-import { EntityProps, SmallEntityProps } from "src/app/lib/definitions";
 import { useSWRConfig } from "swr";
-import InfoPanel from "./info-panel";
 import LoadingSpinner from "./loading-spinner";
 import { EntityCategoriesTitle } from "./categories";
-import { useUser } from "src/app/hooks/user";
+import { updateEntity } from "../actions/entities";
+import { useRouteEntities, useContent } from "../app/hooks/contents";
+import { useUser } from "../app/hooks/user";
+import { EntityProps } from "../app/lib/definitions";
 
 function validCategoryElement(e: string){
     return e.length > 0

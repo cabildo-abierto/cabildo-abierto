@@ -1,10 +1,10 @@
 "use client"
-import { useContent } from "src/app/hooks/contents"
 import Link from "next/link"
 import LoadingSpinner from "./loading-spinner"
 import dynamic from "next/dynamic";
 import ReadOnlyEditor from "./editor/read-only-editor";
 import { PostTitleOnFeed } from "./post-on-feed";
+import { useContent } from "../app/hooks/contents";
 
 
 

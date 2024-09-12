@@ -3,12 +3,15 @@ import {ProfileHeader} from "./profile-header";
 import {ProfileFeed} from "./profile-feed";
 import React, {useState} from "react";
 import {useUser} from "../app/hooks/user";
-import {UserProps} from "../app/lib/definitions";
+import {ContentProps, SmallContentProps, UserProps} from "../app/lib/definitions";
 import {RepliesFeed} from "./replies-feed";
 import {WikiFeed} from "./wiki-feed";
 
+type ProfilePageProps = {
+    profileUser: UserProps
+}
 
-export const ProfilePage = ({profileUser}: {profileUser: UserProps}) => {
+export const ProfilePage = ({profileUser}: ProfilePageProps) => {
     const loggedInUser = useUser()
     const [selected, setSelected] = useState("Publicaciones")
     return <div>

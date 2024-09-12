@@ -1,18 +1,18 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useEffect, useRef, useState } from 'react';
-import { useUser } from 'src/app/hooks/user';
 import { useSWRConfig } from 'swr';
 import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import StateButton from './state-button';
 import { commentEditorSettings, emptyOutput } from './editor/comment-editor';
-import { createFakeNewsReport } from 'src/actions/actions';
 
 import dynamic from 'next/dynamic'
 import { RedFlag } from './icons';
 import { EditorState, LexicalEditor } from 'lexical';
-const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
+import { createFakeNewsReport } from '../actions/contents';
+import { useUser } from '../app/hooks/user';
+const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 
 function validFakeNewsReport(editorState: EditorState) {

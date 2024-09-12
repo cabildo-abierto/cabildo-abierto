@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDrafts, getUserId } from 'src/actions/actions';
+import { getDrafts } from '../../../actions/feed';
+import { getUserId } from '../../../actions/users';
 
 export async function GET(req: NextRequest) {
 

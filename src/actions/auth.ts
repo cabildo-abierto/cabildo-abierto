@@ -5,8 +5,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '../utils/supabase/server'
 import { LoginFormSchema, SignupFormSchema, UserProps } from '../app/lib/definitions'
 import { db } from '../db'
-import { getUser, getUserId } from './actions'
 import { AuthRetryableFetchError } from '@supabase/supabase-js'
+import { getUser } from './users'
 
 
 type LoginFormState = {

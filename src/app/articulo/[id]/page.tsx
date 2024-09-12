@@ -1,11 +1,22 @@
-import { ArticlePage } from "src/components/article-page"
+import { getContentById } from "../../../actions/contents"
+import { getEntityById } from "../../../actions/entities"
+import { getUserId } from "../../../actions/users"
+import { ArticlePage } from "../../../components/article-page"
+import NoEntityPage from "../../../components/no-entity-page"
+import { ThreeColumnsLayout } from "../../../components/three-columns"
 
 
-const Page: React.FC<{
-    params: {id: string}
-}> = ({params}) => {
+const Page = async ({params}: {params: {id: string}}) => {
+    const entity = await getEntityById(params.id)
+    if(!entity){
+        return <ThreeColumnsLayout center={<NoEntityPage id={params.id}/>}/>
+    }
+    
+    const userId = await getUserId()
+    const version = entity.versions.length-1
+    const content = await getContentById(entity.versions[version].id, userId)
 
-    return <ArticlePage entityId={params.id}/>
+    return <ArticlePage entity={entity} content={content} version={version}/>
 }
 
 export default Page

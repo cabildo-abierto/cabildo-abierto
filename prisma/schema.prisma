@@ -4,10 +4,10 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-  schemas   = ["auth", "public"]
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+    schemas   = ["auth", "public"]
 }
 
 model User {
@@ -47,6 +47,9 @@ model View {
 
     content             Content?       @relation(fields: [contentId], references: [id])
     contentId           String?
+
+    entity              Entity?        @relation("entityViews", fields: [entityId], references: [id])
+    entityId            String?
         
     @@schema("public")
 }
@@ -62,7 +65,9 @@ model Reaction {
     content             Content?       @relation(fields: [contentId], references: [id])
     contentId           String?
 
-    @@unique(fields: [userById, contentId])
+    entity              Entity?        @relation("entityReactions", fields: [entityId], references: [id])
+    entityId            String?
+
     @@schema("public")
 }
 
@@ -89,6 +94,10 @@ model Entity {
   deletedBy    User?           @relation("entityDelete", fields: [deletedById], references: [id])
   referencedBy Content[]       @relation("entityReferences")
 
+  reactions    Reaction[]      @relation("entityReactions")
+  views        View[]          @relation("entityViews")
+
+  uniqueViewsCount Int?
   @@schema("public")
 }
 
@@ -119,6 +128,16 @@ model Content {
   charsDeleted     Int?
   accCharsAdded    Int?
   contribution     String?
+
+  rootContentId    String?
+  rootContent      Content?     @relation("rootContent", fields: [rootContentId], references: [id])
+  rootOf           Content[]    @relation("rootContent")
+  
+  ancestorContent  Content[]    @relation("ancestorContent")
+  childrenTree     Content[]    @relation("ancestorContent")
+
+  uniqueViewsCount Int?
+  fakeReportsCount Int?
 
   @@schema("public")
 }

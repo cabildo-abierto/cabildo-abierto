@@ -13,17 +13,30 @@ export type ContentProps = {
     text: string
     author: SmallUserProps
     type: ContentType
-    isDraft: boolean | null
     parentContents: {id: string}[]
+
     title: string | null
-    categories: string | null
-    isUndo: boolean
-    undoMessage: string | null
-    parentEntityId: string | null
+
+    categories?: string | null
+    isUndo?: boolean
+    undoMessage?: string | null
+    parentEntityId?: string | null
     charsAdded?: number,
     charsDeleted?: number,
     accCharsAdded?: number,
-    contribution?: string
+    contribution?: string,
+
+    fakeReportsCount?: number,
+    reactions?: {id: string}[],
+    views?: {id: string}[],
+    _count?: {reactions: number, childrenTree: number},
+    uniqueViewsCount: number,
+
+    childrenContents?: {id: string, createdAt: Date | string, type: string}[],
+    entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
+
+    rootContentId: string
+    ancestorContent?: {id: string}[]
 }
 
 
@@ -58,11 +71,12 @@ export type SmallEntityProps = {
         createdAt: Date | string,
         isUndo: boolean,
         undoMessage: string}[]
-    _count: {referencedBy: number},
+    _count: {referencedBy: number, reactions: number},
     views?: number,
     textLength?: number,
     childrenCount?: number,
-    reactions?: number
+    reactions?: number,
+    uniqueViewsCount: number
 }
 
 
@@ -151,7 +165,7 @@ export type UserStats = {
 
 export type SmallContentProps = {
     id: string
-    type: ContentType
+    type?: ContentType
     text?: string
     title?: string
     createdAt?: string | Date

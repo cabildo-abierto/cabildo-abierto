@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEntityById, getUserContents } from 'src/actions/actions';
+import { getUserContents } from '../../../../actions/users';
 
 export async function GET(req: NextRequest,
   { params }: { params: { id: string } }

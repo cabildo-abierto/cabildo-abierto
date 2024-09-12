@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCategories, getUserId, getUserStats } from 'src/actions/actions';
+import { getUserId, getUserStats } from '../../../actions/users';
 
 export async function GET(req: NextRequest) {
 

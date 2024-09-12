@@ -1,5 +1,5 @@
-import { ContentProps } from "src/app/lib/definitions";
-import PostEditor from "src/components/editor/post-editor";
+import PostEditor from "../../../components/editor/post-editor";
+import { ContentProps } from "../../lib/definitions";
 
 
 export default function EditDraftPage({content}: {content: ContentProps}) {

@@ -1,7 +1,8 @@
 "use client"
 
-import { ThreeColumnsLayout } from "src/components/three-columns";
-import PostEditor from 'src/components/editor/post-editor';
+import PostEditor from "../../../components/editor/post-editor"
+import { ThreeColumnsLayout } from "../../../components/three-columns"
+
 
 
 const Publicacion: React.FC = () => {

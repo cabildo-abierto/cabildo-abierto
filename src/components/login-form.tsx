@@ -2,9 +2,9 @@
 import { useFormState } from "react-dom";
 import { LoginButton } from "./login-button";
 import { AuthForm, EmailInput, PasswordInput } from "./signup-form";
-import { login } from "src/actions/auth";
 import { useSWRConfig } from "swr";
 import { useRouter } from "next/navigation";
+import { login } from "../actions/auth";
 
 export default function LoginForm() {
     const {mutate} = useSWRConfig()

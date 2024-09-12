@@ -8,22 +8,18 @@ import { stopPropagation } from "./utils";
 import { DateSince } from "./date";
 import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
-import EntityComponent from "src/components/entity-component";
 import { PostOnFeed } from "./post-on-feed";
-import { useChildrenCount, useContent, useContentComments, useReactions, useViews } from "src/app/hooks/contents";
 import { FastPost } from "./fast-post";
-import { Comment } from "./comment"
-import { ContentProps, EntityProps } from "src/app/lib/definitions";
 import { ReactionButton } from "./reaction-button";
-import LoadingSpinner from "./loading-spinner";
-import { useUser, useUserLikesContent } from "src/app/hooks/user";
 import { ViewsCounter } from "./views-counter";
-import useSWR, { useSWRConfig } from "swr";
 import { ContentOptionsButton } from "./content-options-button";
 import { FakeNewsCounter } from "./fake-news-counter";
-import { addView } from "src/actions/actions";
 import { CommentInContext } from "./comment-in-context";
 import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
+import { addView, addViewToEntityContent } from "../actions/contents";
+import { useUser } from "../app/hooks/user";
+import { ContentProps } from "../app/lib/definitions";
+import EntityComponent from "./entity-component";
 
 
 export function id2url(id: string){
@@ -78,7 +74,7 @@ export const ContentTopRow: React.FC<ContentTopRowProps> = ({
         </div>
         {false && <Link className="gray-btn mr-2 mt-1" href={"/contenido/"+content.id}>Entrar a leer</Link>}
         {showOptions && <div className="flex">
-            <FakeNewsCounter contentId={content.id} onClick={onShowFakeNews}/>
+            <FakeNewsCounter content={content} onClick={onShowFakeNews}/>
             <ContentOptionsButton contentId={content.id}/>
         </div>}
     </div>
@@ -94,14 +90,13 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
     </button>
 }
 
-export const CommentCounter = ({viewingComments, disabled, contentId, onViewComments}: CommentCounterProps) => {
-    const commentCount = useChildrenCount(contentId)
-
+export const CommentCounter = ({viewingComments, disabled, content, onViewComments}: CommentCounterProps) => {
+    // TO DO: Contar también los hijos de los hijos
     return <div className="flex items-center px-2">
         <ReactionButton
             icon1={<ActiveCommentIcon/>}
             icon2={<InactiveCommentIcon/>}
-            count={commentCount.isLoading ? "?" : commentCount.count}
+            count={content._count.childrenTree}
             disabled={disabled}
             active={viewingComments}
             onClick={onViewComments}
@@ -110,7 +105,7 @@ export const CommentCounter = ({viewingComments, disabled, contentId, onViewComm
 }
 
 type CommentCounterProps = {
-    contentId: string,
+    content: ContentProps,
     onViewComments: () => void,
     viewingComments: boolean,
     disabled?: boolean
@@ -118,18 +113,18 @@ type CommentCounterProps = {
     isPost?: boolean
 }
 
-export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({contentId, onViewComments, viewingComments, disabled=false, likeCounterTitle, isPost=false}) => {
+export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false, likeCounterTitle, isPost=false}) => {
     const icon1 = isPost ? <ActivePraiseIcon/> : <ActiveLikeIcon/>
     const icon2 = isPost ? <InactivePraiseIcon/> : <InactiveLikeIcon/>
     return <div className="flex">
-        <ViewsCounter contentId={contentId}/>
+        <ViewsCounter content={content}/>
         <LikeCounter
             icon1={icon1}
             icon2={icon2}
-            contentId={contentId}
+            content={content}
             disabled={disabled}
             title={likeCounterTitle}/>
-        <CommentCounter contentId={contentId} disabled={disabled} viewingComments={viewingComments} onViewComments={onViewComments}/>
+        <CommentCounter content={content} disabled={disabled} viewingComments={viewingComments} onViewComments={onViewComments}/>
     </div>
 }
 
@@ -172,40 +167,33 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     inCommentSection,
 }) => {
     const {user} = useUser()
-    const reactions = useUserLikesContent(content.id)
-    const comments = useContentComments(content.id)
     const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
-    const views = useViews(content.id)
     
     const requiresMainPage = content.type == "Post" || content.type == "EntityContent"
 
     useEffect(() => {
         const recordView = async () => {
-            if (user && !viewRecordedRef.current && content && views.views != null) {
+            if (user && !viewRecordedRef.current && content) {
                 if(requiresMainPage && isMainPage || !requiresMainPage){
                     viewRecordedRef.current = true;
-                    await views.mutate(addView(content.id, user.id, content.parentEntityId), {
-                        optimisticData: views.views,
-                        rollbackOnError: true,
-                        populateCache: true,
-                        revalidate: false
-                    })
+                    if(content.type == "EntityContent"){
+                        await addViewToEntityContent(content.id, user.id, content.parentEntityId)
+                    } else {
+                        await addView(content.id, user.id)
+                    }
                 }
             }
         };
         recordView();
-    }, [user, content.id, content, views.isLoading]);
+    }, [user, content.id, content]);
 
-    if(reactions.isLoading || views.isLoading){
-        return <LoadingSpinner/>
-    }
     let element = null
     if(content.type == "Post" && isMainPage){
         element = <Post content={content}/>
     } else if(content.type == "EntityContent"){
         element = <EntityComponent
             setEditing={setEditing}
-            contentId={content.id}
+            content={content}
             entityId={content.parentEntityId}
             showingChanges={showingChanges}
             editing={editing}

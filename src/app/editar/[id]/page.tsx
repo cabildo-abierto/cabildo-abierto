@@ -1,11 +1,11 @@
 "use client"
 
 import React from "react";
-import { ThreeColumnsLayout } from "src/components/three-columns";
 import EditDraftPage from "./edit-draft";
-import { ErrorPage } from "src/components/error-page";
-import { useContent } from "src/app/hooks/contents";
-import LoadingSpinner from "src/components/loading-spinner";
+import { useContent } from "../../hooks/contents";
+import LoadingSpinner from "../../../components/loading-spinner";
+import { ErrorPage } from "../../../components/error-page";
+import { ThreeColumnsLayout } from "../../../components/three-columns";
 
 
 const Editar: React.FC<any> = ({params}) => {
