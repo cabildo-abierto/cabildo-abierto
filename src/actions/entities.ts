@@ -244,7 +244,12 @@ export const getEntities = unstable_cache(async () => {
                     categories: true,
                     isUndo: true,
                     undoMessage: true,
-                    createdAt: true
+                    createdAt: true,
+                    _count: {
+                        select: {
+                            childrenTree: true
+                        }
+                    }
                 },
                 orderBy: {
                     createdAt: "asc"
@@ -293,7 +298,18 @@ export async function getEntityById(id: string) {
                         undoMessage: true,
                         createdAt: true,
                         text: true,
-                        authorId: true
+                        authorId: true,
+                        childrenContents: {
+                            select: {
+                                id: true,
+                                type: true,
+                                _count: {
+                                    select: {
+                                        childrenTree: true
+                                    }
+                                }
+                            },
+                        },
                     },
                     orderBy: {
                         createdAt: "asc"
@@ -309,7 +325,8 @@ export async function getEntityById(id: string) {
                 _count: {
                     select: {reactions: true},
                 },
-                uniqueViewsCount: true
+                uniqueViewsCount: true,
+                
             },
                 where: {
                     id: id,
@@ -320,39 +337,6 @@ export async function getEntityById(id: string) {
     }, ["entity", id], {
         revalidate: revalidateEverythingTime,
         tags: ["entity", "entity:"+id]})()
-}
-
-
-export async function getEntityChildrenCount(id: string) {
-    return unstable_cache(async () => {
-        let comments = await getEntityComments(id)
-        if(comments == null) return null
-
-        let count = 0
-        for(let i = 0; i < comments.length; i++){
-            count += 1 + await getChildrenCount(comments[i].id)
-        }
-        return count
-    }, ["entityChildrenCount", id], {
-        tags: ["entityChildrenCount", "entityChildrenCount:"+id],
-        revalidate: revalidateEverythingTime
-    })()
-}
-
-export async function getEntityComments(id: string) {
-    return unstable_cache(async () => {
-        const entity = await getEntityById(id)
-        if(!entity) return null
-        let versions = entity.versions
-        let comments = []
-        for(let i = 0; i < versions.length; i++){
-            const versionComments = await getContentComments(versions[i].id)
-            comments = [...comments, ...versionComments]
-        }
-        return comments
-    }, ["comments", id], {
-        revalidate: revalidateEverythingTime,
-        tags: ["comments", "comments:"+id]})()
 }
 
 

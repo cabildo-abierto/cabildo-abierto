@@ -3,6 +3,11 @@ import { useSearch } from "./search-context"
 import { SmallUserProps } from "../app/lib/definitions"
 import { useUsers } from "../app/hooks/user"
 import LoadingSpinner from "./loading-spinner"
+import { preload } from "swr"
+import { fetcher } from "../app/hooks/utils"
+
+
+preload("/api/users", fetcher)
 
 
 export const NoResults = ({text="No se encontraron resultados..."}: {text?: string}) => {
@@ -14,11 +19,11 @@ export const CategoryUsers = ({route}: {route: string[]}) => {
     const users = useUsers()
     const {searchValue} = useSearch()
 
-    if(users.isLoading){
-        return <LoadingSpinner/>
-    }
     if(searchValue.length == 0){
         return <div className="text-center mt-8">Buscá un usuario...</div>
+    }
+    if(users.isLoading){
+        return <LoadingSpinner/>
     }
 
     //const routeUsers = users.users.filter((user) => (entityInRoute(user, route)))

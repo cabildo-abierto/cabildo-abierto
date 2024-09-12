@@ -13,6 +13,7 @@
     "update-contrs": "tsx scripts/update-contrs.js",
     "remove-children-tree": "tsx scripts/remove-children-tree.js",
     "remove-entity-reactions": "tsx scripts/remove-entity-reactions.js",
+    "update-unique-views": "tsx scripts/update-unique-views.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {

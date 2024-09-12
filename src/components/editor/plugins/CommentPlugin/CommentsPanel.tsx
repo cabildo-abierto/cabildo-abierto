@@ -1,6 +1,6 @@
 import { NodeKey } from "lexical";
 import { ContentProps } from "../../../../app/lib/definitions";
-import { CommentSection } from "../../../comment-section";
+import { CommentSection, EntitySidebarCommentSection, SidebarCommentSection } from "../../../comment-section";
 
 export function CommentsPanel({
     activeIDs,
@@ -12,12 +12,14 @@ export function CommentsPanel({
     markNodeMap: Map<string, Set<NodeKey>>
 }): JSX.Element {
     return <div className="comments-panel">
-        <CommentSection
+        {parentContent.type == "EntityContent" ? <SidebarCommentSection
             content={parentContent}
             activeIDs={activeIDs}
-            onlyQuotes={true}
-            writingReply={false}
-            setWritingReply={(arg0: boolean) => {}}
+        /> : 
+        <EntitySidebarCommentSection
+            content={parentContent}
+            activeIDs={activeIDs}
         />
+        }
     </div>
 }

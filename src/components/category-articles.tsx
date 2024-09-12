@@ -1,4 +1,4 @@
-import { EntitySearchResult } from "./entity-search-result"
+import { EntitySearchResult, getEntityChildrenCount } from "./entity-search-result"
 import InfoPanel from "./info-panel"
 import { useSearch } from "./search-context"
 import { NoResults } from "./category-users"
@@ -8,7 +8,7 @@ import LoadingSpinner from "./loading-spinner"
 
 
 function popularityScore(entity: SmallEntityProps){
-    return entity.reactions*2 + entity.views + entity._count.referencedBy + (entity.textLength > 0 ? 1: 0)
+    return getEntityChildrenCount(entity) + entity.uniqueViewsCount + entity._count.referencedBy + entity._count.reactions
 }
 
 
@@ -42,7 +42,7 @@ const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
 export const CategoryArticles = ({route}: {route: string[]}) => {
     const routeEntities = useRouteEntities(route)
     if(routeEntities.isLoading) return <LoadingSpinner/>
-
+    
     return <>
         {false && <div className="flex items-center">
             <h3 className="flex ml-2 py-4 mr-1">Artículos públicos</h3>

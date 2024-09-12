@@ -4,9 +4,7 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
 import { revalidateEverythingTime } from "./utils";
-import { getEntityById } from "./entities";
 import { UserStats } from "../app/lib/definitions";
-import { sumFromFirstEdit } from "../components/utils";
 
 
 export async function updateDescription(text: string, userId: string) {

@@ -19,13 +19,10 @@ export const Post: React.FC<{
                 <span className="mr-1"><Authorship content={content}/></span><span>·</span><span><DateSince date={content.createdAt}/></span><span>·</span><TextViewsCounter content={content}/>
             </div>
             <div className="flex items-center">
-                <div className="border rounded p-1 flex flex-col items-center">
-                    <span className="px-1 flex items-center text-sm text-[var(--text-light)]">Te sirvió?</span>
-                    <LikeCounter
-                        content={content}
-                        icon1={<ActivePraiseIcon/>} icon2={<InactivePraiseIcon/>}
-                    />
-                </div>
+                <LikeCounter
+                    content={content}
+                    icon1={<ActivePraiseIcon/>} icon2={<InactivePraiseIcon/>}
+                />
             </div>
         </div>
         <div className="min-h-64 mt-4">
