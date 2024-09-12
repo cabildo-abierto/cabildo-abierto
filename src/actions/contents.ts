@@ -34,22 +34,22 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                 rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
-                reactions: {
+                reactions: userId ? {
                     select: {
                         id: true
                     },
                     where: {
                         userById: userId
                     }
-                },
-                views: {
+                } : false,
+                views: userId ? {
                     select: {
                         id: true
                     },
                     where: {
                         userById: userId
                     }
-                },
+                } : false,
                 childrenContents: {
                     select: {
                         id: true,
@@ -85,6 +85,8 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                 id: id,
             }
         })
+        if(!content.reactions) content.reactions = []
+        if(!content.views) content.views = []
 
         return content ? content : undefined
     }, ["content", id, userId], {
