@@ -64,7 +64,7 @@ export const ArticlePage = ({entity, content, version}: {entity: EntityProps, co
 
     const ViewHistoryButton = () => {
         return <ToggleButton
-            text="Ver historial"
+            text="Historial"
             className="article-btn"
             setToggled={(v) => {setShowingHistory(v)}}
             toggled={showingHistory}
@@ -73,16 +73,16 @@ export const ArticlePage = ({entity, content, version}: {entity: EntityProps, co
 
     const ViewLastChangesButton = () => {
         return <ToggleButton
-            text="Ver cambios"
+            text="Cambios"
             className="article-btn"
-            setToggled={(v) => {console.log("toggle value", v); setShowingChanges(v); if(v) {setEditing(false); setShowingAuthors(false)}}}
+            setToggled={(v) => {setShowingChanges(v); if(v) {setEditing(false); setShowingAuthors(false)}}}
             toggled={showingChanges}
         />
     }
 
     const ViewAuthorsButton = () => {
         return <ToggleButton
-            text="Ver autores"
+            text="Autores"
             className="article-btn"
             setToggled={(v) => {setShowingAuthors(v); if(v) {setEditing(false); setShowingChanges(false)}}}
             toggled={showingAuthors}
@@ -91,7 +91,7 @@ export const ArticlePage = ({entity, content, version}: {entity: EntityProps, co
 
     const ViewCategoriesButton = () => {
         return <ToggleButton
-            text="Ver categorías"
+            text="Categorías"
             className="article-btn"
             setToggled={(v) => {setShowingCategories(v)}}
             toggled={showingCategories}

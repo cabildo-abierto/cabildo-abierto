@@ -43,9 +43,8 @@ function showChanges(initialData: string, withRespectToContent: string){
         return initialData // first version where content is ""
     }
     const nodes2 = parsed2.root.children
-    console.log(nodes1, nodes2)
     const {common, matches} = diff(nodes1.map(getAllText), nodes2.map(getAllText))
-    console.log(common)
+
     function newDiffNode(kind: string, childNode){
         const diffNode: SerializedDiffNode = {
             children: [childNode],
@@ -84,8 +83,7 @@ function showChanges(initialData: string, withRespectToContent: string){
         newChildren.push(newDiffNode("new", nodes2[j]))
         j++
     }
-    console.log("newChildren", newChildren)
-    console.log("parsed2", parsed2)
+
     parsed2.root.children = newChildren
     const r = JSON.stringify(parsed2)
     return r
@@ -226,7 +224,6 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
     if(showingAuthors)
         settingsAuthors.initialData = showAuthors(entity, version)
 
-    console.log("initialData", settingsChanges.initialData)
     const SaveEditButton = () => {
         return <StateButton
             className="article-btn"

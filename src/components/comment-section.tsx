@@ -112,7 +112,6 @@ export const EntityCommentSection = ({content, writingReply, setWritingReply}: E
     if(entity.isLoading){
         return <LoadingSpinner/>
     }
-    console.log("content", content)
 
     return <CommentSection
         content={content}
