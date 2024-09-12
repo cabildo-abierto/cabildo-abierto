@@ -1,8 +1,8 @@
 "use client"
-import { getUsers } from "src/actions/actions";
 import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, BeautifulMentionsMenuProps } from "lexical-beautiful-mentions";
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
+import { getUsers } from "../../actions/users";
 
 export const EmptyMentionResults = () => (
   <div className="top-[2px] m-0 min-w-[10rem] overflow-hidden ...">

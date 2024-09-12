@@ -1,7 +1,6 @@
-
-import { ThreeColumnsLayout } from "src/components/three-columns";
-import SubscriptionPage from "src/components/subscription-page"
 import Link from "next/link"
+import SubscriptionPage from "../../components/subscription-page"
+import { ThreeColumnsLayout } from "../../components/three-columns"
 
 
 export default function Suscripciones() {

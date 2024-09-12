@@ -1,18 +1,18 @@
 "use client"
 import React from "react"
-import { EntityProps } from "src/app/lib/definitions";
 import WikiEditor from "./editor/wiki-editor";
-import { useEntity } from "src/app/hooks/entities";
 import LoadingSpinner from "./loading-spinner";
 import Link from "next/link";
-import { useContent } from "src/app/hooks/contents";
 import { getAllText } from "./diff";
 import { ChangesCounter } from "./changes-counter";
 import { ContentTopRow } from "./content";
+import { useEntity } from "../app/hooks/entities";
+import { useContent } from "../app/hooks/contents";
+import { ContentProps, EntityProps } from "../app/lib/definitions";
 
 
 type EntityComponentProps = {
-    contentId: string
+    content: ContentProps
     entityId: string
     showingChanges?: boolean
     editing?: boolean
@@ -33,7 +33,7 @@ export function getVersionInEntity(contentId: string, entity: EntityProps){
 }
 
 const EntityComponent: React.FC<EntityComponentProps> = ({
-    contentId,
+    content,
     entityId,
     showingChanges=false,
     editing=false, 
@@ -49,16 +49,16 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
     if(!entity.entity){
         return <>Error :( {entityId}</>
     }
-    const version = getVersionInEntity(contentId, entity.entity)
+    const version = getVersionInEntity(content.id, entity.entity)
 
     if(parentContentId){
-        const version = getVersionInEntity(contentId, entity.entity)
+        const version = getVersionInEntity(content.id, entity.entity)
         if(version != entity.entity.versions.length-1){
             return <></>
         } else {
             return <EntityMentionInCommentSection
                 entity={entity.entity}
-                mentioningContentId={contentId}
+                mentioningContentId={content.id}
                 parentContentId={parentContentId}
             />
         }
@@ -74,7 +74,7 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
             />
         </div>
     } else {
-        return <EntityEditInFeed entity={entity.entity} version={version}/>
+        return <EntityEditInFeed content={content} entity={entity.entity} version={version}/>
     }
     
 }
@@ -149,10 +149,7 @@ const EntityMentionInCommentSection = ({parentContentId, entity, mentioningConte
 }
 
 
-const EntityEditInFeed = ({entity, version}: {entity: EntityProps, version: number}) => {
-    const content = useContent(entity.versions[version].id)
-    if(content.isLoading) return <LoadingSpinner/>
-
+const EntityEditInFeed = ({entity, content, version}: {content: ContentProps, entity: EntityProps, version: number}) => {
     const name = <Link href={"/articulo/"+entity.id+"/"+version} className="content">{entity.name}</Link>
 
     let text = null
@@ -164,7 +161,7 @@ const EntityEditInFeed = ({entity, version}: {entity: EntityProps, version: numb
         text = <>Modificó {name} (<ChangesCounter id1={entity.versions[version].id} id2={entity.versions[version-1].id}/> caracteres)</>
     }
     return <div className="content-container">
-        <ContentTopRow content={content.content} icon={<></>}/>
+        <ContentTopRow content={content} icon={<></>}/>
         <div className="link px-4 py-4">{text}</div>
     </div>
 }

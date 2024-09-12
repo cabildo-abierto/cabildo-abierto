@@ -1,6 +1,6 @@
 import React from "react";
-import { ThreeColumnsLayout } from "src/components/three-columns";
 import { DraftsPreview } from "../../components/drafts-preview";
+import { ThreeColumnsLayout } from "../../components/three-columns";
 
 
 const Drafts: React.FC = () => {

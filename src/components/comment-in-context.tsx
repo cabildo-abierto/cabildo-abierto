@@ -1,9 +1,9 @@
 "use client"
-import { useContent, useRootContent } from 'src/app/hooks/contents';
 import { CommentProps, Comment } from './comment';
 import Link from 'next/link';
 import LoadingSpinner from './loading-spinner';
-import { ContentProps } from 'src/app/lib/definitions';
+import { useContent } from '../app/hooks/contents';
+import { ContentProps } from '../app/lib/definitions';
 
 
 
@@ -39,7 +39,8 @@ export const CommentInContext = ({
     inCommentSection=false}: CommentProps) => {
     const parentId = content.parentContents[0].id
     const parentContent = useContent(parentId)
-    const rootContent = useRootContent(content.id)
+    const rootContent = useContent(content.rootContentId)
+
     if(parentContent.isLoading || rootContent.isLoading){
         return <LoadingSpinner/>
     }

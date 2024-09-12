@@ -1,16 +1,14 @@
 "use client"
 
 import React, { ReactNode, useOptimistic, useState } from "react"
-import { useUser } from "src/app/hooks/user";
-import useSWR from "swr";
 import { ReactionButton } from "./reaction-button";
-import { fetcher } from "src/app/hooks/utils";
-import { addLike, removeLike } from "src/actions/actions";
 import { ActiveLikeIcon, InactiveCommentIcon, InactiveLikeIcon, ViewsIcon } from "./icons";
-import { useContent } from "src/app/hooks/contents";
+import { ContentProps } from "../app/lib/definitions";
+import { useUser } from "../app/hooks/user";
+import { addLike, removeLike } from "../actions/contents";
 
 type LikeCounterProps = {
-    contentId: string
+    content: ContentProps
     disabled?: boolean
     icon1?: ReactNode
     icon2?: ReactNode
@@ -19,44 +17,31 @@ type LikeCounterProps = {
 
 
 export const LikeCounter: React.FC<LikeCounterProps> = ({
-    contentId,
+    content,
     disabled=false,
     icon1=<ActiveLikeIcon/>,
     icon2=<InactiveLikeIcon/>,
     title
 }) => {
     const {user} = useUser()
-    const userLikesContent = useSWR("/api/user-like-content/"+contentId, fetcher)
-    const content = useContent(contentId)
-
-    if(userLikesContent.isLoading || content.isLoading){
-        return <></>
-    }
-
-    const entityId = content.content.parentEntityId
-    
-    const [liked, likeCount] = userLikesContent.data
+    const entityId = content.parentEntityId
+    const [liked, setLiked] = useState(content.reactions.length > 0)
+    const [likeCount, setLikeCount] = useState(content._count.reactions)
     
     const onLikeClick = async () => {
         if(!user) return
         if(liked){
-            await userLikesContent.mutate(removeLike(contentId, user.id, entityId), {
-                optimisticData: [false, likeCount-1],
-                rollbackOnError: true,
-                populateCache: true,
-                revalidate: false
-            });
+            removeLike(content.id, user.id, entityId)
+            setLiked(false)
+            setLikeCount(likeCount-1)
         } else {
-            await userLikesContent.mutate(addLike(contentId, user.id, entityId), {
-                optimisticData: [true, likeCount+1],
-                rollbackOnError: true,
-                populateCache: true,
-                revalidate: false
-            });
+            addLike(content.id, user.id, entityId)
+            setLiked(true)
+            setLikeCount(likeCount+1)
         }
     }
 
-    const isAuthor = user && user.id == content.content.author.id
+    const isAuthor = user && user.id == content.author.id
 
     if(!title){
         if(isAuthor){

@@ -1,5 +1,5 @@
-import { fetcher } from "src/app/hooks/utils"
 import useSWR from "swr"
+import { fetcher } from "./utils"
 
 
 export function useSubscriptionPoolSize(): {poolSize: number, isLoading: boolean, isError: boolean}{

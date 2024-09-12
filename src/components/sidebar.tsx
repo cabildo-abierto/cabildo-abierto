@@ -1,17 +1,17 @@
 import React from "react";
 import { SidebarButton } from "./sidebar-button";
 import Link from "next/link";
-import { signOut } from "src/actions/auth";
 import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
-import { useUser } from "src/app/hooks/user";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useSWRConfig } from "swr";
 import StateButton from "./state-button";
 import { id2url } from "./content";
 import {CabildoIcon, DashboardIcon, ScoreboardIcon} from "./icons";
 import { useRouter } from "next/navigation";
+import { signOut } from "../actions/auth";
+import { useUser } from "../app/hooks/user";
 
 
 export default function Sidebar({onClose}: {onClose: () => void}) {

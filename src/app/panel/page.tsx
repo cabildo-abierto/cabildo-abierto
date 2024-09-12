@@ -1,17 +1,17 @@
 "use client"
-import { ThreeColumnsLayout } from "src/components/three-columns"
 import { useUser, useUserContents } from "../hooks/user"
-import { useContent, useReactions, useUserStats } from "../hooks/contents"
-import LoadingSpinner from "src/components/loading-spinner"
-import { ActiveLikeIcon, ArticleIcon, PostIcon, StatsIcon } from "src/components/icons"
-import { PostTitleOnFeed } from "src/components/post-on-feed"
+import { useContent, useUserStats } from "../hooks/contents"
 import { useRouter } from "next/navigation"
-import { DateSince } from "src/components/date"
 import { useEntity, useEntityReactions } from "../hooks/entities"
-import { ShowContributors } from "src/components/show-contributors"
-import { sumFromFirstEdit } from "src/components/utils"
-import { FixedCounter } from "src/components/like-counter"
 import Link from "next/link"
+import { DateSince } from "../../components/date"
+import { ActiveLikeIcon, StatsIcon, ArticleIcon, PostIcon } from "../../components/icons"
+import { FixedCounter } from "../../components/like-counter"
+import LoadingSpinner from "../../components/loading-spinner"
+import { PostTitleOnFeed } from "../../components/post-on-feed"
+import { ShowContributors } from "../../components/show-contributors"
+import { ThreeColumnsLayout } from "../../components/three-columns"
+import { sumFromFirstEdit } from "../../components/utils"
 
 const EntityIncome = ({entityId}: {entityId: string}) => {
     const {user} = useUser()
@@ -50,11 +50,9 @@ const EntityIncome = ({entityId}: {entityId: string}) => {
 }
 
 const PostIncome = ({postId}: {postId: string}) => {
-    const reactions = useReactions(postId)
     const content = useContent(postId)
-    const router = useRouter()
 
-    if(reactions.isLoading || content.isLoading){
+    if(content.isLoading){
         return <LoadingSpinner/>
     }
     return <Link
@@ -63,7 +61,7 @@ const PostIncome = ({postId}: {postId: string}) => {
     >
         <div className="flex justify-between">
             <PostTitleOnFeed title={content.content.title}/>
-            <FixedCounter count={reactions.reactions} icon={<ActiveLikeIcon/>}/>
+            <FixedCounter count={content.content._count.reactions} icon={<ActiveLikeIcon/>}/>
         </div>
         <div className="flex justify-end mr-1">
         <DateSince date={content.content.createdAt}/>

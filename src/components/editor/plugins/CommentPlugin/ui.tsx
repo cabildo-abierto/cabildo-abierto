@@ -6,10 +6,9 @@ import type {
     RangeSelection,
   } from 'lexical';
   
-  import MyLexicalEditor, { SettingsProps } from 'src/components/editor/lexical-editor'
   import './index.css';
   
-  import {createComment as createCommentDB, updateContent} from "src/actions/actions"
+  import {createComment as createCommentDB, updateContent} from "../../../../actions/contents"
   import {
     $wrapSelectionInMarkNode,
   } from '@lexical/mark';
@@ -23,10 +22,12 @@ import * as React from 'react';
 import useLayoutEffect from '../../shared/useLayoutEffect';
 import Button from '../../ui/Button';
 import { commentEditorSettings, emptyOutput } from '../../comment-editor';
-import { ContentProps } from 'src/app/lib/definitions';
-import { useUser } from 'src/app/hooks/user';
 import { useSWRConfig } from 'swr';
-import StateButton from 'src/components/state-button';
+import { useUser } from '../../../../app/hooks/user';
+import { ContentProps } from '../../../../app/lib/definitions';
+import StateButton from '../../../state-button';
+
+import MyLexicalEditor from '../../lexical-editor'
 
 
 export function CommentInputBox({

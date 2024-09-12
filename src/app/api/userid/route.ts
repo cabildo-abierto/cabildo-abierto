@@ -1,5 +1,6 @@
-import { getUserId } from 'src/actions/actions';
+
 import { NextRequest, NextResponse } from 'next/server';
+import { getUserId } from '../../../actions/users';
 
 export async function GET(req: NextRequest) {
 

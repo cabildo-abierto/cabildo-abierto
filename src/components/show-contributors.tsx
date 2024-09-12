@@ -1,5 +1,6 @@
-import Link from "next/link";
-import { useContent } from "src/app/hooks/contents";
+import Link from "next/link"
+import { useContent } from "../app/hooks/contents"
+
 
 
 function round2(x: number){

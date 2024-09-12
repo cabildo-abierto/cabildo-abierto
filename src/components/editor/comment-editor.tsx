@@ -6,16 +6,15 @@ import Popup from "../popup"
 import NeedAccountPopupPanel from "../need-account-popup"
 import StateButton from "../state-button"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, CLEAR_EDITOR_COMMAND, EditorState, ElementNode, LexicalEditor } from "lexical"
-import { $generateHtmlFromNodes } from '@lexical/html';
 
-import { SettingsProps } from "src/components/editor/lexical-editor"
-import { UserProps } from "src/app/lib/definitions"
-import { useUser } from "src/app/hooks/user"
 
 import dynamic from 'next/dynamic'
 import LoadingSpinner from "../loading-spinner"
 import { getAllText } from "../diff"
-const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
+import { SettingsProps } from "./lexical-editor"
+import { UserProps } from "../../app/lib/definitions"
+import { useUser } from "../../app/hooks/user"
+const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
 export const commentEditorSettings: SettingsProps = {
@@ -125,8 +124,12 @@ export function nodesEqual(node1: any, node2: any){
 
 export function hasChanged(state: EditorState | undefined, initialData: string){
     const json1 = state.toJSON()
-    const json2 = JSON.parse(initialData)
-    return !nodesEqual(json1.root, json2.root)
+    try {
+        const json2 = JSON.parse(initialData)
+        return !nodesEqual(json1.root, json2.root)
+    } catch {
+        return !emptyOutput(state)
+    }
 }
 
 

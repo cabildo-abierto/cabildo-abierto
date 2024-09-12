@@ -1,6 +1,6 @@
-import { fetcher } from "src/app/hooks/utils"
 import useSWR from "swr"
-import {UserProps, UserStats} from "../lib/definitions"
+import { UserProps } from "../lib/definitions"
+import { fetcher } from "./utils"
 
 
 export function useUser(): {user: UserProps | null, isLoading: boolean, isError: boolean}{

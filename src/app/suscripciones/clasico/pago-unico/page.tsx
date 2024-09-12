@@ -1,6 +1,7 @@
-import { BuyClassicPlanButton } from "src/components/buy-classic-plan-button";
-import { ThreeColumnsLayout } from "src/components/three-columns";
-import { getSubscriptionPrice } from "src/components/utils";
+import { BuyClassicPlanButton } from "../../../../components/buy-classic-plan-button"
+import { ThreeColumnsLayout } from "../../../../components/three-columns"
+import { getSubscriptionPrice } from "../../../../components/utils"
+
 
 export default function PlanClasicoPagoUnico() {
     const price = getSubscriptionPrice()

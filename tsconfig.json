@@ -20,11 +20,7 @@
       {
         "name": "next"
       }
-    ],
-    "baseUrl": ".",
-    "target": "es5",
-    "experimentalDecorators": true,
-    "downlevelIteration": true,
+    ]
   },
   "include": [
     "next-env.d.ts",

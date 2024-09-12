@@ -1,8 +1,8 @@
-import { SmallUserProps } from "src/app/lib/definitions"
 import { UserSearchResult } from "./searchbar"
-import LoadingSpinner from "./loading-spinner"
 import { useSearch } from "./search-context"
-import { useUsers } from "src/app/hooks/user"
+import { SmallUserProps } from "../app/lib/definitions"
+import { useUsers } from "../app/hooks/user"
+import LoadingSpinner from "./loading-spinner"
 
 
 export const NoResults = ({text="No se encontraron resultados..."}: {text?: string}) => {
@@ -10,9 +10,13 @@ export const NoResults = ({text="No se encontraron resultados..."}: {text?: stri
 }
 
 
-export const CategoryUsers = ({route, users}: {route: string[], users: SmallUserProps[]}) => {
+export const CategoryUsers = ({route}: {route: string[]}) => {
+    const users = useUsers()
     const {searchValue} = useSearch()
 
+    if(users.isLoading){
+        return <LoadingSpinner/>
+    }
     if(searchValue.length == 0){
         return <div className="text-center mt-8">Buscá un usuario...</div>
     }
@@ -23,7 +27,7 @@ export const CategoryUsers = ({route, users}: {route: string[], users: SmallUser
         return user.name.toLowerCase().includes(searchValue.toLowerCase())
     }
 
-    let filteredUsers = users.filter(isMatch)
+    let filteredUsers = users.users.filter(isMatch)
 
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center">

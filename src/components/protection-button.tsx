@@ -1,6 +1,6 @@
 "use client"
 
-import { setProtection } from "src/actions/actions";
+import { setProtection } from "../actions/entities";
 import StateButton from "./state-button";
 
 function protectionToName(protection: string){

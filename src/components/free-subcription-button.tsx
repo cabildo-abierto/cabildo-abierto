@@ -1,9 +1,9 @@
 "use client"
 import StateButton from "./state-button"
-import { useUser } from "src/app/hooks/user"
 import { useRouter } from "next/navigation"
 import { useSWRConfig } from "swr"
-import { getDonatedSubscription } from "src/actions/actions"
+import { getDonatedSubscription } from "../actions/users"
+import { useUser } from "../app/hooks/user"
 
 
 export const FreeSubscriptionButton = () => {

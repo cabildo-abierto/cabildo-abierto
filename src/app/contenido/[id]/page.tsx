@@ -1,14 +1,17 @@
 import React from "react";
-import { ThreeColumnsLayout } from "src/components/three-columns";
-import { ContentWithCommentsFromId } from "src/components/content-with-comments";
+import { getContentById } from "../../../actions/contents";
+import { ContentWithComments } from "../../../components/content-with-comments";
+import { ThreeColumnsLayout } from "../../../components/three-columns";
 
 
-const ContentPage: React.FC<{params: any}> = ({params}) => {
+const ContentPage: React.FC<{params: any}> = async ({params}) => {
+    const content = await getContentById(params.id)
+
     const center = <div className="">
         <div className="flex flex-col h-full">
             <div className="mt-8">
-                <ContentWithCommentsFromId
-                    contentId={params.id}
+                <ContentWithComments
+                    content={content}
                     isMainPage={true}
                     inCommentSection={false}
                 />

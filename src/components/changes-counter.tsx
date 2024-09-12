@@ -1,5 +1,5 @@
-import { useContent } from "src/app/hooks/contents"
-import { getAllText, nodesCharDiff, textNodesFromJSONStr } from "./diff"
+import { useContent } from "../app/hooks/contents"
+import { nodesCharDiff, textNodesFromJSONStr } from "./diff"
 import { LexicalEditor } from "lexical"
 
 export const ChangesCounter = ({id1, id2, editor}: {id1: string, id2?: string, editor?: LexicalEditor}) => {

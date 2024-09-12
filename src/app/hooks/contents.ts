@@ -14,28 +14,6 @@ export function useContent(id: string): {content: ContentProps | undefined, isLo
 }
 
 
-export function useRootContent(id: string): {content: ContentProps | undefined, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/root/'+id, fetcher)
-  
-    return {
-        content: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useChildrenCount(id: string): {count: number, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/children-count/'+id, fetcher)
-  
-    return {
-        count: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
 export function useEntityChildrenCount(id: string): {count: number, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/entity-children-count/'+id, fetcher)
   
@@ -52,62 +30,6 @@ export function useEntityCategories(id: string): {categories: string, isLoading:
   
     return {
         categories: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useContentComments(id: string): {comments: SmallContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/comments/'+id, fetcher)
-  
-    return {
-        comments: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useEntityComments(id: string): {comments: SmallContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/entity-comments/'+id, fetcher)
-  
-    return {
-        comments: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useViews(id: string): {views: number, isLoading: boolean, isError: boolean, mutate: KeyedMutator<any>}{
-    const { data, error, isLoading, mutate } = useSWR('/api/views/'+id, fetcher)
-  
-    return {
-        views: data,
-        isLoading,
-        isError: error,
-        mutate: mutate
-    }
-}
-
-
-export function useFakeNewsCount(id: string): {fakeNewsCount: number, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/fake-news/'+id, fetcher)
-  
-    return {
-        fakeNewsCount: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useReactions(id: string): {reactions: number, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/reactions/'+id, fetcher)
-  
-    return {
-        reactions: data,
         isLoading,
         isError: error
     }

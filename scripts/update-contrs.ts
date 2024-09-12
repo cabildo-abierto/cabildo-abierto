@@ -1,4 +1,5 @@
-import { charDiffFromJSONString } from "src/components/diff";
+import { charDiffFromJSONString } from "../src/components/diff";
+
 const { PrismaClient } = require('@prisma/client');
 const db = new PrismaClient();
 

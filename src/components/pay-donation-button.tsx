@@ -1,13 +1,13 @@
 "use client"
 
-import PayButton from "src/components/pay-button";
-import { useUser } from "src/app/hooks/user";
 import { useRouter } from "next/navigation";
 import { useSWRConfig } from "swr";
-import { buyAndUseSubscription, donateSubscriptions } from "src/actions/actions";
+import { useUser } from "../app/hooks/user";
+import { donateSubscriptions, buyAndUseSubscription } from "../actions/users";
+import PayButton from "./pay-button";
 
 export const PayDonationButton = ({amount, oneForYou}: {amount: number, oneForYou: boolean}) => {
-    const {user, isLoading, isError} = useUser()
+    const {user} = useUser()
     const router = useRouter()
     const {mutate} = useSWRConfig()
 

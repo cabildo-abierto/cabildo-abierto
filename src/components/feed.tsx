@@ -1,25 +1,16 @@
 import React, { useState } from "react"
 import { ContentWithCommentsFromId } from "./content-with-comments";
-import { useUser } from "src/app/hooks/user";
-import LoadingSpinner from "./loading-spinner";
 import { NoResults } from "./category-users";
+import { SmallContentProps } from "../app/lib/definitions";
+import LoadingSpinner from "./loading-spinner";
 
+export type LoadingFeed = {feed: SmallContentProps[], isLoading: boolean, isError: boolean}
 
-export type FeedProps = {
-    feed: {id: string}[],
-    isLoading: boolean,
-    isError: boolean
-}
-
-
-const Feed: React.FC<{feed: FeedProps, noResultsText?: string, maxSize?: number}> = ({feed, maxSize, noResultsText="No se encontró ninguna publicación."}) => {
-    const user = useUser()
+const Feed: React.FC<{feed: LoadingFeed, noResultsText?: string, maxSize?: number}> = ({feed, maxSize, noResultsText="No se encontró ninguna publicación."}) => {
     const [range, setRange] = useState(maxSize)
-    if(feed.isLoading || user.isLoading){
+
+    if(feed.isLoading){
         return <LoadingSpinner/>
-    }
-    if(feed.isError){
-        return <></>
     }
 
     let content = null
@@ -27,10 +18,10 @@ const Feed: React.FC<{feed: FeedProps, noResultsText?: string, maxSize?: number}
         content = <NoResults text={noResultsText}/>
     } else {
         content = <>
-            {feed.feed.slice(0, range ? range : feed.feed.length).map(({id}, index: number) => {
+            {feed.feed.slice(0, range ? range : feed.feed.length).map((feedContent, index: number) => {
                 return <div key={index} className="w-full">
                     <ContentWithCommentsFromId
-                        contentId={id}
+                        contentId={feedContent.id}
                         inCommentSection={false}
                     />
                 </div>

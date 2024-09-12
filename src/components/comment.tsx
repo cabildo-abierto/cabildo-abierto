@@ -2,18 +2,16 @@
 "use client"
 
 import { AddCommentButton, ContentTopRow, LikeAndCommentCounter } from './content';
-import { stopPropagation } from './utils';
 import {MarkNode} from '@lexical/mark';
 import {$getRoot, LexicalEditor} from 'lexical'
 import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
 import {$createQuoteNode} from '@lexical/rich-text';
 import {$unwrapMarkNode} from '@lexical/mark'
 import ReadOnlyEditor from './editor/read-only-editor';
-import { useContent } from 'src/app/hooks/contents';
-import assert from 'assert';
-import { ContentProps } from 'src/app/lib/definitions';
 import LoadingSpinner from './loading-spinner';
 import { RedFlag } from './icons';
+import { ContentProps } from '../app/lib/definitions';
+import { useContent } from '../app/hooks/contents';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -115,7 +113,7 @@ export const Comment = ({
             <button className="reply-btn" onClick={onStartReply}>
                 Responder
             </button>
-            <LikeAndCommentCounter contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
+            <LikeAndCommentCounter content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
         </div>
     </div>
 }

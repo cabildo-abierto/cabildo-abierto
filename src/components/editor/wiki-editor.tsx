@@ -5,22 +5,22 @@ import { EditorState, LexicalEditor } from "lexical"
 import StateButton from "../state-button"
 
 import { RoutesEditor } from "../routes-editor"
-import { useContent } from "src/app/hooks/contents"
-import { updateEntity } from "src/actions/actions"
-import { useUser } from "src/app/hooks/user"
-import { EntityProps } from "src/app/lib/definitions"
 import { useSWRConfig } from "swr"
 
 import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
 import LoadingSpinner from "../loading-spinner"
-import { SettingsProps } from "src/components/editor/lexical-editor"
-import { diff, getAllText, textNodesFromJSONStr } from "../diff"
+import { diff, getAllText, nodesFromJSONStr, textNodesFromJSONStr } from "../diff"
 import { SerializedDiffNode } from "./nodes/DiffNode"
 import { ChangesCounter } from "../changes-counter"
 import { SerializedAuthorNode } from "./nodes/AuthorNode"
 import { hasChanged } from "./comment-editor"
-const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
+import { EntityProps } from "../../app/lib/definitions"
+import { updateEntity } from "../../actions/entities"
+import { useContent } from "../../app/hooks/contents"
+import { useUser } from "../../app/hooks/user"
+import { SettingsProps } from "./lexical-editor"
+const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
 
@@ -35,18 +35,24 @@ type WikiEditorProps = {
 
 
 function showChanges(initialData: string, withRespectToContent: string){
-    const nodes1 = textNodesFromJSONStr(withRespectToContent)
-    const parsed2 = JSON.parse(initialData)
+    const nodes1 = nodesFromJSONStr(withRespectToContent)
+    let parsed2 = null
+    try {
+        parsed2 = JSON.parse(initialData)
+    } catch {
+        return initialData // first version where content is ""
+    }
     const nodes2 = parsed2.root.children
-    const {common, matches} = diff(nodes1, nodes2)
-    
+    console.log(nodes1, nodes2)
+    const {common, matches} = diff(nodes1.map(getAllText), nodes2.map(getAllText))
+    console.log(common)
     function newDiffNode(kind: string, childNode){
         const diffNode: SerializedDiffNode = {
             children: [childNode],
             type: "diff",
             kind: kind,
             direction: 'ltr',
-            version: childNode.version,
+            version: 1,
             format: 'left',
             indent: 0
         }
@@ -78,6 +84,8 @@ function showChanges(initialData: string, withRespectToContent: string){
         newChildren.push(newDiffNode("new", nodes2[j]))
         j++
     }
+    console.log("newChildren", newChildren)
+    console.log("parsed2", parsed2)
     parsed2.root.children = newChildren
     const r = JSON.stringify(parsed2)
     return r
@@ -112,6 +120,9 @@ function showAuthors(entity: EntityProps, version: number){
     // los nodos "perfectMatches" preservan su autor entre versiones
     // y el resto toman el autor de la versión
     const parsed = editorStateFromJSON(entity.versions[version].text)
+    if(!parsed) {
+        return entity.versions[version].text
+    }
     let prevNodes = []
     let prevAuthors = []
     for(let i = 0; i <= version; i++){
@@ -215,6 +226,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
     if(showingAuthors)
         settingsAuthors.initialData = showAuthors(entity, version)
 
+    console.log("initialData", settingsChanges.initialData)
     const SaveEditButton = () => {
         return <StateButton
             className="article-btn"
@@ -223,7 +235,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
             onClick={async () => {
                 if(editor){
                     editor.read(async () => {
-                        if(content.categories && user.user){
+                        if(user.user){
                             await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user.id, true)
                             mutate("/api/entities")
                             mutate("/api/entity/"+entity.id)

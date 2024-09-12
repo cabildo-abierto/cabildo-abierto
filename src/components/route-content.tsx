@@ -1,27 +1,25 @@
 "use client"
 import React, { useState } from "react"
-import { WikiCategories } from "src/components/wiki-categories";
-import { CategoryArticles } from "src/components/category-articles";
-import SelectionComponent from "src/components/search-selection-component";
 import { useRouter } from "next/navigation";
-import { RouteFeed } from "src/components/route-feed";
-import { CategoryUsers } from "src/components/category-users";
-import { SmallContentProps, SmallEntityProps, SmallUserProps } from "src/app/lib/definitions";
+import { CategoryArticles } from "./category-articles";
+import { CategoryUsers } from "./category-users";
+import { RouteFeed } from "./route-feed";
+import SelectionComponent from "./search-selection-component";
+import { WikiCategories } from "./wiki-categories";
+import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents";
 
 
 type RouteContentProps = {
     route: string[], 
     paramsSelected?: string
-    feed: SmallContentProps[]
-    followingFeed: SmallContentProps[]
-    routeEntities: SmallEntityProps[]
-    users: SmallUserProps[]
 }
 
 
-export const RouteContent = ({route, paramsSelected, feed, followingFeed, routeEntities, users}: RouteContentProps) => {
+export const RouteContent = ({route, paramsSelected}: RouteContentProps) => {
     const router = useRouter()
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "General")
+    const feed = useRouteFeed(route)
+    const followingFeed = useRouteFollowingFeed(route)
 
     function onSelection(v: string){
         setSelected(v)
@@ -30,7 +28,7 @@ export const RouteContent = ({route, paramsSelected, feed, followingFeed, routeE
 
     return <div className="w-full">
         <div className="content-container py-2 mt-2">
-            <WikiCategories route={route} selected={selected} routeEntities={routeEntities}/>
+            <WikiCategories route={route} selected={selected}/>
             <SelectionComponent
                 onSelection={onSelection}
                 options={["General", "Siguiendo", "Artículos públicos", "Usuarios"]}
@@ -41,14 +39,14 @@ export const RouteContent = ({route, paramsSelected, feed, followingFeed, routeE
         
         <div className="pt-2">
         {selected == "Artículos públicos" && 
-        <CategoryArticles route={route} routeEntities={routeEntities}/>}
+        <CategoryArticles route={route}/>}
 
         {(selected == "General" || selected == "Siguiendo") && 
         <RouteFeed
             feed={selected == "Siguiendo" ? followingFeed : feed}
         />}
 
-        {selected == "Usuarios" && <CategoryUsers route={route} users={users}/>}
+        {selected == "Usuarios" && <CategoryUsers route={route}/>}
         </div>
     </div>
 }

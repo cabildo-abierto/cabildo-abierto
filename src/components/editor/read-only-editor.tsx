@@ -4,11 +4,11 @@ import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 
 import { SettingsProps } from "./lexical-editor"
 
-import { useUser } from "src/app/hooks/user";
-import { ContentProps } from "src/app/lib/definitions";
 import dynamic from "next/dynamic";
 import { EditorState, LexicalEditor } from "lexical";
-const MyLexicalEditor = dynamic( () => import( 'src/components/editor/lexical-editor' ), { ssr: false } );
+import { ContentProps } from "../../app/lib/definitions";
+import { useUser } from "../../app/hooks/user";
+const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
 const ReadOnlyEditor = ({

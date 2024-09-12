@@ -4,8 +4,8 @@
 import { AddCommentButton, ContentTopRow, LikeAndCommentCounter } from './content';
 import { stopPropagation } from './utils';
 import ReadOnlyEditor from './editor/read-only-editor';
-import { ContentProps } from 'src/app/lib/definitions';
 import { FastPostIcon } from './icons';
+import { ContentProps } from '../app/lib/definitions';
 
 
 type FastPostProps = {
@@ -36,7 +36,7 @@ export const FastPost = ({
         </div>
         <div className="flex justify-between mb-1">
             <button className="reply-btn" onClick={onStartReply}>Responder</button>
-            <LikeAndCommentCounter contentId={content.id} onViewComments={onViewComments} viewingComments={viewingComments}/>
+            <LikeAndCommentCounter content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
         </div>
     </div>
 }

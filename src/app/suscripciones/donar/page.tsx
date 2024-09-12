@@ -1,7 +1,6 @@
-
-import { ThreeColumnsLayout } from "src/components/three-columns";
-import { NewDonation } from "src/components/new-donation"
 import Link from "next/link"
+import { NewDonation } from "../../../components/new-donation"
+import { ThreeColumnsLayout } from "../../../components/three-columns"
 
 
 export default function DonationPage() {

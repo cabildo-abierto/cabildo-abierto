@@ -1,14 +1,13 @@
 'use client'
 
 import React, { ReactNode, useState } from 'react';
-import { signup, SignUpFormState } from "src/actions/auth";
 import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import InfoPanel from './info-panel';
-import { statSync } from 'node:fs';
+import { signup, SignUpFormState } from '../actions/auth';
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label

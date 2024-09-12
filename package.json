@@ -11,6 +11,8 @@
     "delete-user": "tsx scripts/delete-user.js",
     "update-user": "tsx scripts/update-user.js",
     "update-contrs": "tsx scripts/update-contrs.js",
+    "remove-children-tree": "tsx scripts/remove-children-tree.js",
+    "remove-entity-reactions": "tsx scripts/remove-entity-reactions.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {

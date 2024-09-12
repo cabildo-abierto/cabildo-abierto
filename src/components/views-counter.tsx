@@ -2,32 +2,30 @@
 
 import React from "react"
 import { ReactionButton } from "./reaction-button";
-import { useViews } from "src/app/hooks/contents";
 import { ViewsIcon } from "./icons";
+import { ContentProps } from "../app/lib/definitions";
 
 type ViewsCounterProps = {
-    contentId: string
+    content: ContentProps
 }
 
 const title = "La cantidad de personas distintas que vieron este contenido. No se cuentan segundas visitas y tampoco personas sin cuenta."
 
 export const ViewsCounter: React.FC<ViewsCounterProps> = ({
-    contentId
+    content
 }) => {
-    const {views, isLoading, isError} = useViews(contentId)
     return <ReactionButton
         onClick={() => {}}
         icon1={<ViewsIcon/>}
         disabled={true}
-        count={views === undefined ? "?" : views}
+        count={content.uniqueViewsCount}
         title={title}
     />
 }
 
 
 export const TextViewsCounter: React.FC<ViewsCounterProps> = ({
-    contentId
+    content
 }) => {
-    const {views, isLoading, isError} = useViews(contentId)
-    return <span title={title}>visto por {views}</span>
+    return <span title={title}>visto por {content.uniqueViewsCount}</span>
 }

@@ -10,8 +10,8 @@ import Link from "next/link"
 import { TitleInput } from "./title-input"
 import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 import { useSWRConfig } from "swr"
-import { useUser } from "src/app/hooks/user"
-import { createPost, publishDraft, updateContent } from "src/actions/actions"
+import { useUser } from "../../app/hooks/user"
+import { createPost, publishDraft, updateContent } from "../../actions/contents"
 
 type PostEditorProps = {
     initialData?: string,

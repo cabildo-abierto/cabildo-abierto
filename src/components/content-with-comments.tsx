@@ -1,14 +1,14 @@
 "use client"
 import { CommentSection, EntityCommentSection } from "./comment-section"
 import { ReactNode, useState } from "react"
-import { createComment } from "src/actions/actions"
-import { useUser } from "src/app/hooks/user"
 import { useSWRConfig } from "swr"
-import { ContentProps, EntityProps } from "src/app/lib/definitions"
-import { useContent } from "src/app/hooks/contents"
 import LoadingSpinner from "./loading-spinner"
 import ContentComponent from "./content"
 import CommentEditor from "./editor/comment-editor"
+import { ContentProps } from "../app/lib/definitions"
+import { useUser } from "../app/hooks/user"
+import { useContent } from "../app/hooks/contents"
+import { createComment } from "../actions/contents"
 
 
 type ContentWithCommentsProps = {

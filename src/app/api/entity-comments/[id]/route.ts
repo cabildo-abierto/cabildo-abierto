@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEntityComments } from 'src/actions/actions';
+import { getEntityComments } from '../../../../actions/entities';
 
 export async function GET(req: NextRequest,
   { params }: { params: { id: string } }

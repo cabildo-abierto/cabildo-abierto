@@ -32,8 +32,8 @@ import {createPortal} from 'react-dom';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl, SUPPORTED_URL_PROTOCOLS} from '../../utils/url';
-import { EntityProps, SmallEntityProps } from 'src/app/lib/definitions';
-import { useRouteEntities } from 'src/app/hooks/contents';
+import { useRouteEntities } from '../../../../app/hooks/contents';
+import { SmallEntityProps, EntityProps } from '../../../../app/lib/definitions';
 
 function FloatingLinkEditor({
   editor,

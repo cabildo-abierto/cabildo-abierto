@@ -1,5 +1,5 @@
 import { ReactNode } from "react"
-import { ThreeColumnsLayout } from "src/components/three-columns";
+import { ThreeColumnsLayout } from "./three-columns"
 
 export const ErrorPage: React.FC<{children: ReactNode}> = ({children}) => {
     const center = <div className="flex flex-col justify-center">
