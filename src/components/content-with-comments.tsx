@@ -42,7 +42,9 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const [writingReply, setWritingReply] = useState(startsOpen && ["Post", "EntityContent"].includes(content.type))
     
     useEffect(() => {
-        //
+        for(let i = 0; i < content.childrenContents.length; i++){
+            preload("/api/content/"+content.childrenContents[i].id, fetcher)
+        }
     }, [])
 
     const handleNewComment = async (text: string) => {

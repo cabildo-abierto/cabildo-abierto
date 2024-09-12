@@ -1,13 +1,9 @@
+"use client"
 import { UserSearchResult } from "./searchbar"
 import { useSearch } from "./search-context"
 import { SmallUserProps } from "../app/lib/definitions"
 import { useUsers } from "../app/hooks/user"
 import LoadingSpinner from "./loading-spinner"
-import { preload } from "swr"
-import { fetcher } from "../app/hooks/utils"
-
-
-preload("/api/users", fetcher)
 
 
 export const NoResults = ({text="No se encontraron resultados..."}: {text?: string}) => {

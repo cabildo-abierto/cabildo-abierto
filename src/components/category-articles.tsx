@@ -5,10 +5,11 @@ import { NoResults } from "./category-users"
 import { SmallEntityProps } from "../app/lib/definitions"
 import { useRouteEntities } from "../app/hooks/contents"
 import LoadingSpinner from "./loading-spinner"
+import { listOrder } from "./utils"
 
 
 function popularityScore(entity: SmallEntityProps){
-    return getEntityChildrenCount(entity) + entity.uniqueViewsCount + entity._count.referencedBy + entity._count.reactions
+    return [entity.versions.length > 1 ? 1: 0, getEntityChildrenCount(entity) + entity.uniqueViewsCount + entity._count.referencedBy + entity._count.reactions]
 }
 
 
@@ -21,12 +22,8 @@ const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
 
     let filteredEntities = entities.filter(isMatch)
 
-    function order(a: {score: number}, b: {score: number}){
-        return b.score - a.score // score descending
-    }
-
     let entitiesWithScore = filteredEntities.map((entity) => ({entity: entity, score: popularityScore(entity)}))
-    entitiesWithScore = entitiesWithScore.sort(order)
+    entitiesWithScore = entitiesWithScore.sort(listOrder)
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center">
             {entitiesWithScore.length > 0 ? entitiesWithScore.map((entity, index) => (
