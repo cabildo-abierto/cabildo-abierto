@@ -1,3 +1,3 @@
 
 
-export const revalidateEverythingTime = 5
+export const revalidateEverythingTime = 5*3600
