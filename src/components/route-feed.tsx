@@ -1,10 +1,10 @@
-import { LoadingFeed } from "./feed"
+import { LoadingFeed, LoadingFeedWithData } from "./feed"
 import { useSearch } from "./search-context"
 import { FeedWithConfig } from "./sorted-feed"
 
 
 
-export const RouteFeed = ({feed, defaultOrder="Populares"}: {feed: LoadingFeed, defaultOrder?: string}) => {
+export const RouteFeed = ({feed, defaultOrder="Populares"}: {feed: LoadingFeedWithData, defaultOrder?: string}) => {
     const {searchValue} = useSearch()
 
     if(feed.feed && searchValue.length > 0){

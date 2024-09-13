@@ -245,9 +245,11 @@ export const getEntities = unstable_cache(async () => {
                     isUndo: true,
                     undoMessage: true,
                     createdAt: true,
+                    authorId: true,
                     _count: {
                         select: {
-                            childrenTree: true
+                            childrenTree: true,
+                            reactions: true
                         }
                     }
                 },
@@ -319,7 +321,13 @@ export async function getEntityById(id: string) {
                     select: {
                         id: true,
                         createdAt: true,
-                        type: true
+                        type: true,
+                        _count: {
+                            select: {
+                                reactions: true,
+                                childrenTree: true
+                            }
+                        }
                     }
                 },
                 _count: {

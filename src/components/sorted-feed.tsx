@@ -1,11 +1,11 @@
 import { useState } from "react"
-import { LoadingFeed } from "./feed"
+import { LoadingFeed, LoadingFeedWithData } from "./feed"
 import SelectionComponent from "./search-selection-component"
 import { ConfiguredFeed } from "./sorted-and-filtered-feed"
 
 
 export type SortedFeedProps = {
-    feed: LoadingFeed,
+    feed: LoadingFeedWithData,
     noResultsText?: string,
     maxSize?: number
     defaultOrder: string

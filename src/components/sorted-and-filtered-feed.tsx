@@ -1,5 +1,5 @@
 import { SmallContentProps } from "../app/lib/definitions"
-import Feed, { LoadingFeed } from "./feed"
+import Feed, { LoadingFeed, LoadingFeedWithData } from "./feed"
 import LoadingSpinner from "./loading-spinner"
 
 // TO DO: Agregar la cantidad de personas distintas que comentaron
@@ -13,7 +13,7 @@ function comp(a: {score: number}, b: {score: number}){
 }
 
 export type ConfiguredFeedProps = {
-    feed: LoadingFeed,
+    feed: LoadingFeedWithData,
     noResultsText?: string,
     maxSize?: number
     order: string

@@ -76,7 +76,8 @@ export type SmallEntityProps = {
         createdAt: Date | string,
         isUndo: boolean,
         undoMessage: string,
-        _count: {childrenTree: number}
+        authorId: string,
+        _count: {childrenTree: number, reactions: number}
     }[]
     _count: {referencedBy: number, reactions: number},
     views?: number,
