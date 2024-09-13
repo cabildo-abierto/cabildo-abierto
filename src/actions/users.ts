@@ -5,6 +5,7 @@ import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
 import { revalidateEverythingTime } from "./utils";
 import { UserStats } from "../app/lib/definitions";
+import { getEntities } from "./entities";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -104,7 +105,8 @@ export const getUserContents = (userId: string) => {
                                     reactions: true,
                                     views: true
                                 }
-                            }
+                            },
+                            charsAdded: true
                         },
                         where: {
                             type: {
@@ -234,21 +236,46 @@ export const getUserStats = async (userId: string) => {
                 viewsInPosts += content._count.views
             }
         })
-    
-        //const entityReactions = await Promise.all(Array.from(editedEntitiesIds).map(getReactionsFromFirstEdit))
-        //const entityViews = await Promise.all(Array.from(editedEntitiesIds).map(getViewsFromFirstEdit))
-    
+        
+        const entities = await getEntities()
+
+        let entityReactions = 0
+        let entityViews = 0
+        let entityAddedChars = 0
+        for(let i = 0; i < entities.length; i++){
+            const entity = entities[i]
+            if(editedEntitiesIds.has(entity.id)){
+                let isAuthor = false
+                for(let j = 0; j < entity.versions.length; j++){
+                    if(entity.versions[j].authorId == userId){
+                        isAuthor = true
+                    }
+                    if(isAuthor){
+                        for(let k = 0; k < userContents.length; k++){
+                            if(userContents[k].id == entity.versions[j].id){
+                                entityAddedChars += userContents[k].charsAdded
+                                entityReactions += userContents[k]._count.reactions
+                                entityViews += userContents[k]._count.views
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         const stats: UserStats = {
             posts: postsIds.length,
             entityEdits: entityEdits,
             editedEntities: editedEntitiesIds.size,
             reactionsInPosts: reactionsInPosts,
-            reactionsInEntities: 0,
+            reactionsInEntities: entityReactions,
             income: 0,
-            entityAddedChars: 0,
+            entityAddedChars: entityAddedChars,
             viewsInPosts: viewsInPosts,
             viewsInEntities: 0
         }
+        
         return stats
     }, ["userStats", userId], {
         revalidate: Math.min(revalidateEverythingTime, 3600),

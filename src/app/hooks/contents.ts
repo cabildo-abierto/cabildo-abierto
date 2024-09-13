@@ -58,7 +58,7 @@ export function useRouteEntities(route: string[]): {entities: SmallEntityProps[]
 }
 
 
-export function useProfileFeed(id: string): {feed: {id: string}[], isLoading: boolean, isError: boolean}{
+export function useProfileFeed(id: string): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/profile-feed/'+id, fetcher)
   
     return {
@@ -69,7 +69,7 @@ export function useProfileFeed(id: string): {feed: {id: string}[], isLoading: bo
 }
 
 
-export function useEditsFeed(id: string): {feed: {id: string}[], isLoading: boolean, isError: boolean}{
+export function useEditsFeed(id: string): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/edits-feed/'+id, fetcher)
   
     return {
@@ -80,7 +80,7 @@ export function useEditsFeed(id: string): {feed: {id: string}[], isLoading: bool
 }
 
 
-export function useRepliesFeed(id: string): {feed: {id: string}[], isLoading: boolean, isError: boolean}{
+export function useRepliesFeed(id: string): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/replies-feed/'+id, fetcher)
 
     return {

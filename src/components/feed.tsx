@@ -5,7 +5,9 @@ import { SmallContentProps } from "../app/lib/definitions";
 import LoadingSpinner from "./loading-spinner";
 import { ToggleButton } from "./toggle-button";
 
-export type LoadingFeed = {feed: SmallContentProps[], isLoading: boolean, isError: boolean}
+export type LoadingFeed = {feed: {id: string}[], isLoading: boolean, isError: boolean}
+export type LoadingFeedWithData = {feed: SmallContentProps[], isLoading: boolean, isError: boolean}
+
 
 export type FeedProps = {
     feed: LoadingFeed,
