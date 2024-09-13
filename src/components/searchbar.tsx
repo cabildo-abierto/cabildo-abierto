@@ -7,16 +7,18 @@ import CloseIcon from '@mui/icons-material/Close';
 import { SearchButton } from "./top-bar";
 import { id2url } from "./content";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import { ArticleIcon } from "./icons";
+
 
 export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = ({ result }) => {
+    const className = "px-2 py-1 w-72 text-center hover:bg-[var(--secondary-light)]"
+
     return <div className="flex justify-center content-container">
         <Link href={id2url(result.id)}>
-            <button className="search-result">
+            <button className={className}>
                 <div className="flex w-full items-center">
                     <AccountBoxIcon fontSize="small"/>
                     <div className="text-center w-full px-1">
-                        {result.name} @{result.id}
+                        {result.name} <span className="text-[var(--text-light)]">@{result.id}</span>
                     </div>
                 </div>                  
             </button>

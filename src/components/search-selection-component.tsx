@@ -7,9 +7,10 @@ type SelectionComponentProps = {
     options: string[]
     selected?: string
     className?: string
+    optionExpl?: (string | undefined)[]
 }
 
-const SelectionComponent: React.FC<SelectionComponentProps> = ({ onSelection, options, selected, className="search" }) => {
+const SelectionComponent: React.FC<SelectionComponentProps> = ({ onSelection, options, selected, className="search", optionExpl }) => {
   const [selectedButton, setSelectedButton] = useState(selected ? selected : options[0]);
 
   const handleButtonClick = (button: string) => {
@@ -17,14 +18,25 @@ const SelectionComponent: React.FC<SelectionComponentProps> = ({ onSelection, op
     onSelection(button);
   };
 
-  return <div className="flex w-full">
+  const buttonClassName = (option: string) => (
+    className + " flex-1 " + (selectedButton === option ? 'selected-option' : 'not-selected-option')
+  )
+
+  const textClassName = (option: string) => (
+    className + " " + (selectedButton == option ? 'selected-option-text' : 'non-selected-option-text')
+  )
+
+  return <div className={"flex w-full " + className}>
       {options.map((option, index) => {
-        return <button key={index}
-        className={className + " " + `${selectedButton === option ? 'selected-option' : 'not-selected-option'
-          } py-2 lg:px-4 px-2 focus:outline-none flex-1`}
+        return <button
+        key={index}
+        className={buttonClassName(option)}
         onClick={() => handleButtonClick(option)}
+        title={optionExpl ? optionExpl[index] : undefined}
       >
-        <span className={className + " " + (selectedButton == option ? 'selected-option-text' : 'non-selected-option-text')}>{option}</span>
+        <span className={textClassName(option)}>
+          {option}
+        </span>
       </button>
       })}
   </div>
