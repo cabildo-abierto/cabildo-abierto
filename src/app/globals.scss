@@ -325,22 +325,21 @@ ol {
 	background-color: var(--secondary-light);
 }
 
-.search-result {
-	padding-left: 0.5rem; 
-	padding-right: 0.5rem; 
-	width: 16rem;
-	padding-top: 0.25rem;
-	padding-bottom: 0.25rem;
-	text-align: center;
-}
-
-.search-result:hover {
-	background-color: var(--secondary-light);
+.main-feed span {
+	padding-bottom: 3px;
 }
 
 .main-feed.selected-option-text {
 	border-bottom: 4px solid var(--primary);
 	border-radius: 2px
+}
+
+.filter-feed.selected-option-text {
+	font-weight: 600;
+}
+
+.filter-feed.non-selected-option:hover {
+	background: var(--secondary-light);
 }
 
 .search.selected-option {

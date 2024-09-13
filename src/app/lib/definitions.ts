@@ -177,4 +177,5 @@ export type SmallContentProps = {
     title?: string
     createdAt?: string | Date
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
+    _count: {reactions: number, childrenTree: number}
 }

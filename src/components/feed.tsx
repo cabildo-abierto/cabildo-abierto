@@ -3,16 +3,23 @@ import { ContentWithCommentsFromId } from "./content-with-comments";
 import { NoResults } from "./category-users";
 import { SmallContentProps } from "../app/lib/definitions";
 import LoadingSpinner from "./loading-spinner";
+import { ToggleButton } from "./toggle-button";
 
 export type LoadingFeed = {feed: SmallContentProps[], isLoading: boolean, isError: boolean}
 
-const Feed: React.FC<{feed: LoadingFeed, noResultsText?: string, maxSize?: number}> = ({feed, maxSize, noResultsText="No se encontró ninguna publicación."}) => {
+export type FeedProps = {
+    feed: LoadingFeed,
+    noResultsText?: string,
+    maxSize?: number
+}
+
+const Feed: React.FC<FeedProps> = ({feed, maxSize, noResultsText="No se encontró ninguna publicación."}) => {
     const [range, setRange] = useState(maxSize)
 
     if(feed.isLoading){
         return <LoadingSpinner/>
     }
-
+    
     let content = null
     if(feed.feed.length == 0){
         content = <NoResults text={noResultsText}/>
