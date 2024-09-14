@@ -17,6 +17,12 @@ import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 import AbcIcon from '@mui/icons-material/Abc';
 import MuiLinkIcon from '@mui/icons-material/Link';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import HomeIcon from '@mui/icons-material/Home';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
+import CottageOutlinedIcon from '@mui/icons-material/CottageOutlined';
+import NotificationsIconMui from '@mui/icons-material/Notifications';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 export const RedFlag = () => {
@@ -40,7 +46,8 @@ export const ArticleIcon = () => {
 
 
 export const CabildoIcon = ({className}: {className?: string}) => {
-    return <i className={"icon cabildo "+className}/>
+    return <HomeIcon/>
+    //return <i className={"icon cabildo "+className}/>
     /*return <div className={className}>
         <CabildoSVG height={23} width={23}/>
     </div>*/
@@ -51,19 +58,19 @@ export const DashboardIcon = () => {
 }
 
 export const ActiveLikeIcon = () => {
-    return <FavoriteIcon fontSize="small" className="text-[var(--text-light)]"/>
+    return <FavoriteIcon fontSize="small"/>
 }
 
 export const InactiveLikeIcon = () => {
-    return <FavoriteBorderIcon fontSize="small" className="text-[var(--text-light)]"/>
+    return <FavoriteBorderIcon fontSize="small"/>
 }
 
 export const ActivePraiseIcon = () => {
-    return <GradeIcon fontSize="small" className="text-[var(--text-light)]"/>
+    return <GradeIcon fontSize="small"/>
 }
 
 export const InactivePraiseIcon = () => {
-    return <GradeOutlinedIcon fontSize="small" className="text-[var(--text-light)]"/>
+    return <GradeOutlinedIcon fontSize="small"/>
 }
 
 
@@ -78,12 +85,12 @@ export const ScoreboardIcon = () => {
 
 
 export const ActiveCommentIcon = () => {
-    return <CommentIcon fontSize="small"/>
+    return <ChatBubbleIcon fontSize="small"/>
 }
 
 
 export const InactiveCommentIcon = () => {
-    return <CommentOutlinedIcon fontSize="small"/>
+    return <ChatBubbleOutlineIcon fontSize="small"/>
 }
 
 
@@ -106,7 +113,7 @@ export const NotificationsIcon = ({ count }: { count?: number }) => {
     translate-x-1/2 -translate-y-1/2 bg-red-500 text-white\
      rounded-full text-xs w-4 h-4 flex items-center justify-center"
     return <div className="relative flex">
-        <NotificationsNoneIcon />
+        <NotificationsIconMui />
         {(count && count > 0) ?
           <span className={className}>
             {count}

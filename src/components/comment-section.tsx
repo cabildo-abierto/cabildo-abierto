@@ -52,7 +52,7 @@ export const SidebarCommentSection = ({content, entity, activeIDs}: {content: Co
         </div>
         }
         {contentsWithScore.length == 0 && <div className="text-center text-gray-800 py-2">
-            No hay comentarios todavía.
+            Ningún comentario todavía.
         </div>}
     </>
 }
@@ -77,6 +77,7 @@ type CommentSectionProps = {
     onlyQuotes?: boolean
     writingReply: boolean
     setWritingReply: (arg0: boolean) => void
+    depthParity?: boolean
 }
 /* En una sección de comentarios muestro: 
     Si es sidebar:
@@ -85,7 +86,7 @@ type CommentSectionProps = {
         Todos los comentarios hechos sobre alguna versión del contenido. Eventualmente con una marca de a qué versión pertenecen
 */
 export const CommentSection: React.FC<CommentSectionProps> = ({
-    content, entity, writingReply, setWritingReply}) => {
+    content, entity, writingReply, setWritingReply, depthParity=false}) => {
 
     const comments = entity ? [...getEntityComments(entity), ...entity.referencedBy] : content.childrenContents
 
@@ -95,7 +96,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     return <>
         {
         contentsWithScore.length > 0 && 
-        <div className="space-y-2 mt-2">
+        <div className="space-y-2 pl-2 pr-1 pb-1">
             {contentsWithScore.map(({comment}) => (
                 <div key={comment.id}>
                     <ContentWithCommentsFromId
@@ -103,13 +104,14 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                         isMainPage={false}
                         parentContentId={content.id}
                         inCommentSection={true}
+                        depthParity={depthParity}
                     />
                 </div>
             ))}
         </div>
         }
-        {(contentsWithScore.length == 0 && !writingReply) && <div className="text-center text-gray-800 py-2">
-            No hay comentarios todavía.
+        {(contentsWithScore.length == 0 && !writingReply) && <div className="text-center text-[var(--text-light)] py-2">
+            Ningún comentario todavía.
         </div>}
     </>
 }
@@ -119,10 +121,11 @@ type EntityCommentSectionProps = {
     content: ContentProps
     writingReply: boolean
     setWritingReply: (arg0: boolean) => void
+    depthParity?: boolean
 }
 
 
-export const EntityCommentSection = ({content, writingReply, setWritingReply}: EntityCommentSectionProps) => {
+export const EntityCommentSection = ({content, writingReply, setWritingReply, depthParity}: EntityCommentSectionProps) => {
     const entity = useEntity(content.parentEntityId)
     if(entity.isLoading){
         return <LoadingSpinner/>
@@ -133,5 +136,6 @@ export const EntityCommentSection = ({content, writingReply, setWritingReply}: E
         entity={entity.entity}
         writingReply={writingReply}
         setWritingReply={setWritingReply}
+        depthParity={depthParity}
     />
 }

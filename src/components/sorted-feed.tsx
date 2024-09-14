@@ -22,6 +22,7 @@ export const FeedWithConfig = ({feed, noResultsText, maxSize, defaultOrder}: Sor
             <SelectionComponent
                 className="filter-feed"
                 onSelection={setFilter}
+                selected={filter}
                 options={["Todas", "Rápidas", "Elaboradas"]}
                 optionExpl={["Todas las publicaciones", "Solo publicaciones rápidas", "Solo publicaciones con título"]}
             />
@@ -30,6 +31,7 @@ export const FeedWithConfig = ({feed, noResultsText, maxSize, defaultOrder}: Sor
             <SelectionComponent
                 className="filter-feed"
                 onSelection={setOrder}
+                selected={order}
                 options={["Recientes", "Populares"]}
                 optionExpl={["Publicaciones ordenadas por fecha de publicación", "Publicaciones ordenadas por cantidad de reacciones positivas."]}
             />

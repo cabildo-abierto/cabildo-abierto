@@ -18,13 +18,13 @@ export function shortDescription(content: ContentProps){
     if(content.type == "Comment"){
         desc = <>un <Link href={parentUrl}>comentario</Link> de <Link href={authorUrl}>@{parentAuthor}</Link>.</>
     } else if(content.type == "Post"){
-        desc = <><Link href={parentUrl}><span className="font-bold content">{'"'+content.title+'"'}</span></Link>, publicación de <Link href={authorUrl}>@{parentAuthor}</Link>.</>
+        desc = <><Link href={parentUrl}><span className="">{content.title}</span></Link>, publicación de <Link href={authorUrl}>@{parentAuthor}</Link>.</>
     } else if(content.type == "FastPost"){
         desc = <>una <Link href={parentUrl}>publicación rápida</Link> de <Link href={authorUrl}>@{parentAuthor}</Link>.</>
     } else if(content.type == "EntityContent"){
-        desc = <><Link href={parentUrl}><span className="font-bold content">{parentEntityName}</span></Link> (artículo público).</>
+        desc = <><Link href={parentUrl}><span className="">{parentEntityName}</span></Link> (artículo público).</>
     } else if(content.type == "FakeNewsReport"){
-        desc = <><Link href={parentUrl}>reporte de noticia falsa</Link> de <Link href={authorUrl}>@{parentAuthor}</Link>.</>
+        desc = <>un <Link href={parentUrl}>reporte de noticia falsa</Link> de <Link href={authorUrl}>@{parentAuthor}</Link>.</>
     }
     return desc
 }
@@ -36,7 +36,8 @@ export const CommentInContext = ({
     viewingComments,
     onStartReply,
     isFakeNewsReport,
-    inCommentSection=false}: CommentProps) => {
+    inCommentSection=false,
+    depthParity=false}: CommentProps) => {
     const parentId = content.parentContents[0].id
     const parentContent = useContent(parentId)
     const rootContent = useContent(content.rootContentId)
@@ -59,7 +60,9 @@ export const CommentInContext = ({
 
     if(!inCommentSection){
         return <div>
-            <div className=" ml-1 link text-[var(--text-light)]">{replyTo} {rootIs}</div>
+            <div className="bg-[var(--secondary-light)] px-2 text-sm mx-1 mt-1 link text-[var(--text-light)]">
+                {replyTo} {rootIs}
+            </div>
             {comment}
         </div>
     } else {

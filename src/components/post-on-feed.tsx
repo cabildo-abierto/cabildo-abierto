@@ -9,20 +9,22 @@ type PostOnFeedProps = {
     content: ContentProps,
     onViewComments: () => void,
     viewingComments: boolean
+    depthParity?: boolean
 }
 
 
 export const PostTitleOnFeed = ({title}: {title: string}) => {
-    return <h4 className="px-1">
+    return <h4 className="">
         {title}
     </h4>
 }
 
 
-export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFeedProps) => {
+export const PostOnFeed = ({content, onViewComments, viewingComments, depthParity=false}: PostOnFeedProps) => {
     const router = useRouter()
 
-    return <div className="content-container w-full cursor-pointer" onClick={() => {router.push("/contenido/"+content.id)}}>
+    return <div className="w-full cursor-pointer hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out"
+        onClick={() => {router.push("/contenido/"+content.id)}}>
         <ContentTopRow
             content={content}
             author={true}
@@ -32,7 +34,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
         <div className="p-2">
             <PostTitleOnFeed title={content.title}/>
         </div>
-        <div className="flex justify-between mb-1">
+        <div className="flex justify-between">
             {false &&<div className="px-2 flex justify-between text-sm">
                 <Authorship/>
             </div>}

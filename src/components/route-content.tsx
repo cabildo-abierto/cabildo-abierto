@@ -44,6 +44,7 @@ export const RouteContent = ({route, paramsSelected}: RouteContentProps) => {
         {(selected == "General" || selected == "Siguiendo") && 
         <RouteFeed
             feed={selected == "Siguiendo" ? followingFeed : feed}
+            defaultOrder={selected == "General" ? "Populares" : "Recientes"}
         />}
 
         {selected == "Usuarios" && <CategoryUsers route={route}/>}
