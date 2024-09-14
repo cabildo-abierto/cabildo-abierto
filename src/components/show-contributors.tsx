@@ -16,10 +16,19 @@ export const ShowContributors = ({contentId, userId}:
         return <></>
     }
 
+    if(content.content.accCharsAdded == 0){
+        return <div className="flex">
+        <span className="mr-1">Creado por</span>
+            <div className="flex space-x-2 link">
+                <Link href={"/perfil/"+content.content.author.id}>@{content.content.author.id}</Link>
+            </div>
+        </div>
+    }
+
     let contributions: [string, number][] = JSON.parse(content.content.contribution)
     
     const total = content.content.accCharsAdded
-    
+
     if(userId) // para el panel de estadísticas
         contributions = contributions.filter(([authorId, _]) => (authorId == userId))
 
