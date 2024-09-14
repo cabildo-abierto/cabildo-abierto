@@ -29,7 +29,7 @@ export const TitleInput = ({ onChange, title }: any) => {
             ref={textareaRef}
             onChange={handleChange}
             placeholder="Título"
-            className="content"
+            className="content title"
             value={title}
             onInput={(e) => {
                 if (textareaRef.current) {
@@ -43,7 +43,6 @@ export const TitleInput = ({ onChange, title }: any) => {
             }}
             style={{
                 width: '100%',
-                padding: '10px',
                 fontSize: '32px',
                 borderRadius: '5px',
                 outline: 'none',

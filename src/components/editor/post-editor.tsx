@@ -1,6 +1,6 @@
 "use client"
 
-import MyLexicalEditor, { SettingsProps } from "./lexical-editor"
+import MyLexicalEditor, { initializeEmpty, SettingsProps } from "./lexical-editor"
 import { useState } from "react"
 import StateButton from "../state-button"
 import { $getRoot, EditorState, LexicalEditor } from "lexical"
@@ -64,7 +64,7 @@ const PostEditor = ({
         useSubscript: false,
         useCodeblock: false,
         placeholder: "Escribí tu publicación acá...",
-        initialData: initialData,
+        initialData: initialData ? initialData : initializeEmpty(""),
         editorClassName: "content mt-4",
         isReadOnly: false,
         isAutofocus: true,
@@ -150,7 +150,7 @@ const PostEditor = ({
                 <SaveDraftButton onClick={handleSaveDraft}/>
 			</div>
 		</div>
-        {!isFast && <div className="mt-4 ml-4">
+        {!isFast && <div className="mt-6">
             <TitleInput onChange={setTitle} title={title}/>
         </div>}
         <div className={isFast ? "mt-12" : "mt-4"}>

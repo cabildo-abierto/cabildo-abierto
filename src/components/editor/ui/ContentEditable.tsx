@@ -27,10 +27,10 @@ export default function LexicalContentEditable({
   return (
     <ContentEditable
       spellCheck={false}
-      className={className ?? ('ContentEditable__root' + ((settings && settings.isDraggableBlock) ? " " : ""))}
+      className={className ?? 'ContentEditable__root'}
       aria-placeholder={placeholder}
       placeholder={
-        <div className={placeholderClassName + " " + (('ContentEditable__placeholder' + ((settings && settings.isDraggableBlock) ? " left-6" : "")))}>
+        <div className={placeholderClassName + " ContentEditable__placeholder"}>
           {placeholder}
         </div>
       }

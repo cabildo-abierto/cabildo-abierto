@@ -282,11 +282,11 @@ function Editor({ settings, setEditor, setEditorState }:
 }
 
 
-const initializeEmpty = (editor: OriginalLexicalEditor) => {
+export const initializeEmpty = (initialText: string) => (editor: OriginalLexicalEditor) => {
     editor.update(() => {
         const root = $getRoot()
         const node = $createParagraphNode()
-        node.append($createTextNode("Este artículo está vacío!"))
+        node.append($createTextNode(initialText))
         root.append(node)
     })
 }
@@ -298,7 +298,7 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
       try {
           JSON.parse(initialData)
       } catch {
-          initialData = initializeEmpty
+          initialData = initializeEmpty("Este artículo está vacío!")
       }
   }
   const initialConfig: InitialConfigType = {
