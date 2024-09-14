@@ -12,7 +12,7 @@ type SelectionComponentProps = {
 
 const SelectionComponent: React.FC<SelectionComponentProps> = ({ onSelection, options, selected, className="search", optionExpl }) => {
   const [selectedButton, setSelectedButton] = useState(selected ? selected : options[0]);
-
+  
   const handleButtonClick = (button: string) => {
     setSelectedButton(button);
     onSelection(button);

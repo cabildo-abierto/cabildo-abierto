@@ -52,6 +52,7 @@ export type CommentProps = {
     onStartReply: () => void
     inCommentSection?: boolean
     isFakeNewsReport?: boolean
+    depthParity?: boolean
 }
 
 
@@ -61,7 +62,8 @@ export const Comment = ({
     viewingComments,
     onStartReply,
     inCommentSection=false,
-    isFakeNewsReport}: CommentProps) => {
+    isFakeNewsReport,
+    depthParity=false}: CommentProps) => {
 
     const parentId = content.parentContents[0].id
     let snode = null
@@ -101,15 +103,15 @@ export const Comment = ({
 
     const icon = isFakeNewsReport ? <RedFlag/> : <></>
 
-    return <div className="content-container bg-[var(--background)]">
+    return <div className="">
         <ContentTopRow content={content} icon={icon} showOptions={false}/>
-        <div className="px-2 mt-2 ml-2 content">
+        <div className="px-2 my-2 ml-2 content">
             {snode && <div>
                 <ReadOnlyEditor initialData={initializeQuote}/>
             </div>}
             <ReadOnlyEditor initialData={content.text}/>
         </div>
-        <div className="flex justify-between mb-1">
+        <div className="flex justify-between">
             <button className="reply-btn" onClick={onStartReply}>
                 Responder
             </button>

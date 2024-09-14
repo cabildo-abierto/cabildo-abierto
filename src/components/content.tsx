@@ -53,22 +53,28 @@ export const ContentTopRow: React.FC<ContentTopRowProps> = ({
     const url = content.author  ? id2url(content.author.id) : ""
     const onClick = stopPropagation(() => {})
 
-    return <div className="flex justify-between mt-1">
-        <div className="text-gray-600 px-2 blue-links flex items-center">
-            {icon && <div className="mb-1">{icon}</div>}
-            <div>
+    return <div className="flex justify-between pt-1">
+        <div className="px-2 blue-links flex items-center w-full">
+            {icon && <div className="mb-1 text-gray-800">{icon}</div>}
+            <div className="flex justify-between w-full">
                 {author && 
-                    <span className="px-1">
-                        <Link 
-                        href={url} 
-                        className="hover:text-gray-900 lg:text-sm text-xs"
-                        onClick={onClick}>
-                            {content.author?.name + " " + addAt(content.author?.id)}
+                    <div className="">
+                        <span className="px-1 font-bold text-gray-800">
+                            <Link 
+                            href={url} 
+                            className="hover:underline"
+                            onClick={onClick}>
+                                {content.author?.name}
+                            </Link>
+                        </span>
+                        <Link href={url} className="text-[var(--text-light)]">
+                            @{content.author?.id}
                         </Link>
-                    </span>
+                    </div>
+
                 }
-                <span className="text-gray-600 lg:text-sm text-xs">
-                    · <DateSince date={content.createdAt}/>
+                <span className="text-gray-600">
+                    <DateSince date={content.createdAt}/>
                 </span>
             </div>
         </div>
@@ -116,7 +122,7 @@ type CommentCounterProps = {
 export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false, likeCounterTitle, isPost=false}) => {
     const icon1 = isPost ? <ActivePraiseIcon/> : <ActiveLikeIcon/>
     const icon2 = isPost ? <InactivePraiseIcon/> : <InactiveLikeIcon/>
-    return <div className="flex">
+    return <div className="flex mb-1">
         <ViewsCounter content={content}/>
         <LikeCounter
             icon1={icon1}
@@ -150,6 +156,7 @@ type ContentComponentProps = {
     setEditing: (arg0: boolean) => void
     parentContentId?: string
     inCommentSection: boolean
+    depthParity?: boolean
 }
 
 
@@ -165,6 +172,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     setEditing,
     parentContentId,
     inCommentSection,
+    depthParity,
 }) => {
     const {user} = useUser()
     const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
@@ -189,7 +197,8 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
 
     let element = null
     if(content.type == "Post" && isMainPage){
-        element = <Post content={content}/>
+        element = <Post content={content}
+        />
     } else if(content.type == "EntityContent"){
         element = <EntityComponent
             setEditing={setEditing}
@@ -202,9 +211,20 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
             parentContentId={parentContentId}
         />
     } else if(content.type == "Post"){
-        element = <PostOnFeed content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
+        element = <PostOnFeed
+        content={content}
+        onViewComments={onViewComments}
+        viewingComments={viewingComments}
+        depthParity={depthParity}
+        />
     } else if(content.type == "FastPost"){
-        element = <FastPost content={content} viewingComments={viewingComments} onViewComments={onViewComments} onStartReply={onStartReply}/>
+        element = <FastPost 
+            content={content}
+            viewingComments={viewingComments}
+            onViewComments={onViewComments}
+            onStartReply={onStartReply}
+            depthParity={depthParity}
+            />
     } else if(content.type == "Comment" || content.type == "FakeNewsReport"){
         element = <CommentInContext
             content={content}
@@ -213,6 +233,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
             onStartReply={onStartReply}
             inCommentSection={inCommentSection}
             isFakeNewsReport={content.type == "FakeNewsReport"}
+            depthParity={depthParity}
         /> 
     }
     return <>{element}</>

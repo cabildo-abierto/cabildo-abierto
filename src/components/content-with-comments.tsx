@@ -21,6 +21,7 @@ type ContentWithCommentsProps = {
     setEditing?: (arg0: boolean) => void
     parentContentId?: string
     inCommentSection: boolean
+    depthParity?: boolean
 }
 
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
@@ -31,6 +32,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     editing=false,
     parentContentId,
     inCommentSection,
+    depthParity=false,
     setEditing}) => {
     
     const {mutate} = useSWRConfig()
@@ -67,7 +69,10 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         setWritingReply(false)
     }
     
-    return <>
+    const className = (depthParity ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]") +
+        (isMainPage ? "" : " content-container")
+
+    return <div className={className}>
         <ContentComponent
             content={content}
             onViewComments={() => {setViewComments(!viewComments)}}
@@ -80,10 +85,11 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             setEditing={setEditing}
             parentContentId={parentContentId}
             inCommentSection={inCommentSection}
+            depthParity={depthParity}
         />
         {isMainPage && ["Post", "EntityContent"].includes(content.type) && <hr className="mt-12"/>}
-        <div className={isMainPage ? "" : "ml-2"}>
-            {writingReply && <div className="py-2">
+        <div className={isMainPage ? "" : ""}>
+            {writingReply && <div className={"mb-1 " + (!depthParity ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]")}>
                 {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 
                     <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
                 }
@@ -93,15 +99,17 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
                 content={content}
                 setWritingReply={setWritingReply}
                 writingReply={writingReply}
+                depthParity={["Post", "EntityContent"].includes(content.type) ? false : !depthParity}
             /> : 
             <EntityCommentSection
                 content={content}
                 setWritingReply={setWritingReply}
                 writingReply={writingReply}
+                depthParity={["Post", "EntityContent"].includes(content.type) ? false : !depthParity}
             />
             )}
         </div>
-    </>
+    </div>
 }
 
 
@@ -114,6 +122,7 @@ type ContentWithCommentsFromIdProps = {
     setEditing?: (arg0: boolean) => void
     parentContentId?: string
     inCommentSection?: boolean
+    depthParity?: boolean
 }
 
 
@@ -125,6 +134,7 @@ export const ContentWithCommentsFromId = ({
     editing=false,
     parentContentId,
     inCommentSection=false,
+    depthParity=false,
     setEditing}: ContentWithCommentsFromIdProps) => {
 
     const content = useContent(contentId)
@@ -143,5 +153,6 @@ export const ContentWithCommentsFromId = ({
         setEditing={setEditing}
         inCommentSection={inCommentSection}
         parentContentId={parentContentId}
+        depthParity={depthParity}
     />
 }

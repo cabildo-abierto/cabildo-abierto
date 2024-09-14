@@ -14,7 +14,7 @@
 }
 
 .editor-shell .editor-container {
-  background: var(--background);
+  background: transparent;
   position: relative;
   display: block;
 }

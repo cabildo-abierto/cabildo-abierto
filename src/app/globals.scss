@@ -18,10 +18,12 @@ $accent: #8790b0;
   --primary-dark: #{darken($primary, 20%)};
   --secondary-light: #{lighten($secondary, 20%)};
   --secondary-xlight: #{lighten($secondary, 23%)};
+  --secondary-lighter: #{lighten($secondary, 25%)};
   --primary-light: #{lighten($primary, 20%)};
   --accent-dark: #{darken($accent, 20%)};
   --accent-light: #{lighten($accent, 20%)};
   --text-light: #{lighten($text, 20%)};
+  --text-lighter: #{lighten($text, 50%)};
   font-optical-sizing: auto;
   font-style: normal;
 }
@@ -339,8 +341,12 @@ ol {
 	border-radius: 2px
 }
 
+.filter-feed button {
+	padding-bottom: 3px
+}
+
 .filter-feed.selected-option-text {
-	border-bottom-width: 1px;
+	border-bottom-width: 2px;
 	border-color: $primary
 }
 
@@ -359,7 +365,7 @@ ol {
 
 .reaction-btn {
 	font-size: small;
-	color: var(--text-light);
+	color: var(--text-lighter);
 	padding: 5px;
 }
 
@@ -370,7 +376,7 @@ ol {
 }
 
 .reaction-btn:disabled:hover {
-	color: var(--text-light);
+	color: var(--text-lighter);
 	background: transparent;
 }
 
@@ -492,7 +498,7 @@ ol {
 }
 
 .reply-btn {
-	color: var(--text-light);
+	color: var(--text-lighter);
 	font-size: small;
 	margin-left: 0.5rem;
 }
