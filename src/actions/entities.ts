@@ -37,7 +37,8 @@ export async function createEntity(name: string, userId: string){
         contribution: JSON.stringify([]),
         charsAdded: 0,
         charsDeleted: 0,
-        accCharsAdded: 0
+        accCharsAdded: 0,
+        diff: JSON.stringify([{matches: [], common: [], perfectMatches: []}])
       }
     })
   

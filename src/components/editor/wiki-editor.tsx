@@ -185,9 +185,11 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
     
     useEffect(() => {
         if(!content) return
-        let newSettingsChanges = {...settings}
-        newSettingsChanges.initialData = showChanges(content.text, changesContent.content.text, JSON.parse(content.diff))
-        setSettingsChanges(newSettingsChanges)
+        if(version > 0){
+            let newSettingsChanges = {...settings}
+            newSettingsChanges.initialData = showChanges(content.text, changesContent.content.text, JSON.parse(content.diff))
+            setSettingsChanges(newSettingsChanges)
+        }
     }, [content])
     
     useEffect(() => {

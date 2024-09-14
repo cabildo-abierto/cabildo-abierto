@@ -72,6 +72,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const className = (depthParity ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]") +
         (isMainPage ? "" : " content-container")
 
+    const depthParityComments = ["Post", "EntityContent"].includes(content.type) ? false : !depthParity
+
     return <div className={className}>
         <ContentComponent
             content={content}
@@ -87,9 +89,9 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             inCommentSection={inCommentSection}
             depthParity={depthParity}
         />
-        {isMainPage && ["Post", "EntityContent"].includes(content.type) && <hr className="mt-12"/>}
-        <div className={isMainPage ? "" : ""}>
-            {writingReply && <div className={"mb-1 " + (!depthParity ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]")}>
+        {isMainPage && ["Post", "EntityContent"].includes(content.type) && <hr className="mt-12 mb-2"/>}
+        <div>
+            {writingReply && <div className={"mb-1 " + (depthParityComments ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]")}>
                 {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 
                     <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
                 }
@@ -99,13 +101,13 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
                 content={content}
                 setWritingReply={setWritingReply}
                 writingReply={writingReply}
-                depthParity={["Post", "EntityContent"].includes(content.type) ? false : !depthParity}
+                depthParity={depthParityComments}
             /> : 
             <EntityCommentSection
                 content={content}
                 setWritingReply={setWritingReply}
                 writingReply={writingReply}
-                depthParity={["Post", "EntityContent"].includes(content.type) ? false : !depthParity}
+                depthParity={depthParityComments}
             />
             )}
         </div>
