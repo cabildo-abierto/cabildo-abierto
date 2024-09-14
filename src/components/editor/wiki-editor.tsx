@@ -134,7 +134,7 @@ function showAuthors(entity: EntityProps, version: number){
         const parsedVersion = editorStateFromJSON(entity.versions[i].text)
         if(!parsedVersion) continue
         const nodes = parsedVersion.root.children
-        const {matches} = diff(prevNodes, nodes)
+        const {matches} = JSON.parse(entity.versions[i].diff)
         const versionAuthor = entity.versions[i].authorId
         let nodeAuthors: string[] = []
         for(let j = 0; j < nodes.length; j++){

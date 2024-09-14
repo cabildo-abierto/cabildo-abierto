@@ -6,13 +6,13 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = (
     {left=null, center=null, right=null, centerWidth=800}) => {
     
     return <div className="flex justify-center">
-        <div className="hidden lg:block lg:flex-1">
+        <div className="flex-1">
             {left}
         </div>
-        <div className="w-full md:w-[700px] px-1">
+        <div className="max-w-[800px] w-full px-1">
             {center}
         </div>
-        <div className="hidden lg:block lg:flex-1">
+        <div className="flex-1">
             {right}
         </div>
     </div>
