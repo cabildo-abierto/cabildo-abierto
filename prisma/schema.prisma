@@ -133,6 +133,7 @@ model Content {
   charsDeleted     Int?
   accCharsAdded    Int?
   contribution     String?
+  diff             String?
 
   rootContentId    String?
   rootContent      Content?     @relation("rootContent", fields: [rootContentId], references: [id])

@@ -70,7 +70,7 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
     const lastVersionId = entity.versions[afterVersion].id
     const lastVersion = await getContentStaticById(lastVersionId)
 
-    const {charsAdded, charsDeleted} = charDiffFromJSONString(lastVersion.text, text)
+    const {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(lastVersion.text, text)
     const accCharsAdded = lastVersion.accCharsAdded + charsAdded
     const contribution: [string, number][] = JSON.parse(lastVersion.contribution)
     
@@ -85,14 +85,19 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
         contribution.push([userId, charsAdded])
     }
 
-    return {accCharsAdded: accCharsAdded, charsAdded: charsAdded, charsDeleted: charsDeleted, contribution: JSON.stringify(contribution)}
+    return {accCharsAdded: accCharsAdded, 
+        charsAdded: charsAdded, 
+        charsDeleted: charsDeleted, 
+        contribution: JSON.stringify(contribution),
+        diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches})
+    }
 }
   
   
 export const updateEntity = async (text: string, categories: string, entityId: string, userId: string, changingContent: boolean) => {
     let references = await findReferences(text)
 
-    const {accCharsAdded, charsAdded, charsDeleted, contribution} = await getNewVersionContribution(entityId, text, userId)
+    const {accCharsAdded, charsAdded, charsDeleted, contribution, diff} = await getNewVersionContribution(entityId, text, userId)
     await db.content.create({
         data: {
             text: text,
@@ -107,6 +112,7 @@ export const updateEntity = async (text: string, categories: string, entityId: s
             charsAdded: charsAdded,
             charsDeleted: charsDeleted,
             contribution: contribution,
+            diff: diff,
             uniqueViewsCount: 0,
             fakeReportsCount: 0
         }

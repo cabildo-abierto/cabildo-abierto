@@ -24,14 +24,13 @@ const db = new PrismaClient();
 
     for(let i = 0; i < entities.length; i++) {
         const entity = entities[i]
-        if(entity.name != "Cabildo Abierto") continue
         console.log("updating", entity.id, "number", i, "out of", entities.length)
 
         let accCharsAdded = 0
         const authorAccCharsAdded = new Map<string, number>()
 
         for(let j = 0; j < entity.versions.length; j++){
-            const {charsAdded, charsDeleted} = j == 0 ? {charsAdded: 0, charsDeleted: 0} :
+            const {charsAdded, charsDeleted, matches, common, perfectMatches} = j == 0 ? {charsAdded: 0, charsDeleted: 0, matches: [], common: [], perfectMatches: []} :
                 charDiffFromJSONString(entity.versions[j-1].text, entity.versions[j].text)
             
             accCharsAdded += charsAdded
@@ -43,12 +42,14 @@ const db = new PrismaClient();
                 authorAccCharsAdded.set(author, charsAdded)
             }
             
+            const diff = JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches})
             await db.content.update({
                 data: {
                     contribution: JSON.stringify(Array.from(authorAccCharsAdded)),
                     accCharsAdded: accCharsAdded,
                     charsAdded: charsAdded,
                     charsDeleted: charsDeleted,
+                    diff: diff
                 },
                 where: {
                     id: entity.versions[j].id

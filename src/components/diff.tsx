@@ -148,7 +148,7 @@ export function diff(nodes1: string[], nodes2: string[]){
 
 
 export function nodesCharDiff(nodes1, nodes2) {
-    const {common, matches} = diff(nodes1, nodes2)
+    const {common, matches, perfectMatches} = diff(nodes1, nodes2)
     
     let charsDeleted = 0
     let charsAdded = 0
@@ -173,5 +173,6 @@ export function nodesCharDiff(nodes1, nodes2) {
             charsAdded += matchDiff.insertions
         }
     }
-    return {charsAdded: charsAdded, charsDeleted: charsDeleted}
+    return {charsAdded: charsAdded, charsDeleted: charsDeleted, 
+        matches: matches, common: common, perfectMatches: perfectMatches}
 }

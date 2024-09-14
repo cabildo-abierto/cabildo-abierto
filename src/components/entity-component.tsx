@@ -158,7 +158,7 @@ const EntityEditInFeed = ({entity, content, version}: {content: ContentProps, en
     } else if(entity.versions[version].categories != entity.versions[version].categories){
         text = <>Modificó las categorías de {name}</>
     } else {
-        text = <>Modificó {name} (<ChangesCounter id1={entity.versions[version].id} id2={entity.versions[version-1].id}/> caracteres)</>
+        text = <>Modificó {name} (<ChangesCounter charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}/> caracteres)</>
     }
     return <div className="content-container">
         <ContentTopRow content={content} icon={<></>}/>
