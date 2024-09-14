@@ -318,6 +318,7 @@ export async function getEntityById(id: string) {
                                 }
                             },
                         },
+                        diff: true
                     },
                     orderBy: {
                         createdAt: "asc"

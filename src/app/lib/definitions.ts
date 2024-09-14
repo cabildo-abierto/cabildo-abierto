@@ -59,6 +59,7 @@ export type EntityProps = {
             type: ContentType
             _count: {childrenTree: number}
         }[]
+        diff?: string
     }[]
     referencedBy: SmallContentProps[]
     deleted: boolean
