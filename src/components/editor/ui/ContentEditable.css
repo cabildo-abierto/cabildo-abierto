@@ -18,7 +18,7 @@
 .ContentEditable__placeholder {
   position: absolute;
   top: 0;
-  padding: 0 2px; 
-  color: #999;
+  margin-top: 10px; /* lo mismo que el paragraph de content*/
+  color: var(--text-lighter);
   pointer-events: none;
 }

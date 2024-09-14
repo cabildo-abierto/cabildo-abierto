@@ -36,11 +36,13 @@ $accent: #8790b0;
 	font-size: 1.05em;
 }
 
+.title {
+	font-family: var(--font-merriweather);
+	font-weight: 700;
+}
 
 h1, h2, h3, h4, h5, h6 {
 	font-family: var(--font-merriweather);
-	font-optical-sizing: auto;
-	font-style: normal;
 	font-weight: 700;
 }
 
