@@ -33,10 +33,14 @@ type WikiEditorProps = {
     setEditing: (arg0: boolean) => void
 }
 
+type MatchesType = {
+    matches: {x: number, y: number}[]
+    common: {x: number, y: number}[]
+    perfectMatches: {x: number, y: number}[]
+}
 
-function showChanges(initialData: string, withRespectToContent: string){
-    console.log("computing show changes")
-    const t1 = Date.now()
+function showChanges(initialData: string, withRespectToContent: string, diff: MatchesType){
+    const {common} = diff
     const nodes1 = nodesFromJSONStr(withRespectToContent)
     let parsed2 = null
     try {
@@ -44,11 +48,8 @@ function showChanges(initialData: string, withRespectToContent: string){
     } catch {
         return initialData // first version where content is ""
     }
-    const t2 = Date.now()
+    
     const nodes2 = parsed2.root.children
-
-    const {common, matches} = diff(nodes1.map(getAllText), nodes2.map(getAllText))
-    const t3 = Date.now()
 
     function newDiffNode(kind: string, childNode){
         const diffNode: SerializedDiffNode = {
@@ -88,18 +89,10 @@ function showChanges(initialData: string, withRespectToContent: string){
         newChildren.push(newDiffNode("new", nodes2[j]))
         j++
     }
-    const t4 = Date.now()
 
     parsed2.root.children = newChildren
     const r = JSON.stringify(parsed2)
-    const t5 = Date.now()
 
-    console.log("Times")
-    console.log("stringify", t5-t4)
-    console.log("push", t4-t3)
-    console.log("diff", t3-t2)
-    console.log("parse", t2-t1)
-    console.log("total", t5-t1)
     return r
 }
 
@@ -193,7 +186,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
     useEffect(() => {
         if(!content) return
         let newSettingsChanges = {...settings}
-        newSettingsChanges.initialData = showChanges(content.text, changesContent.content.text)
+        newSettingsChanges.initialData = showChanges(content.text, changesContent.content.text, JSON.parse(content.diff))
         setSettingsChanges(newSettingsChanges)
     }, [content])
     
@@ -294,13 +287,8 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
         
         <div className="text-center">
         {showingChanges && readOnly && version > 0 && <ChangesCounter
-            id1={entity.versions[version-1].id}
-            id2={entity.versions[version].id}/>}
+            charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}/>}
         {showingChanges && readOnly && version == 0 && <>Estás viendo la primera versión</>}
-        {showingChanges && !readOnly && editor && <ChangesCounter
-            id1={entity.versions[version].id}
-            editor={editor}
-        />}
         </div>
         <div id="editor">
             {!showingChanges && !showingAuthors && <MyLexicalEditor

@@ -25,6 +25,7 @@ export type ContentProps = {
     charsDeleted?: number,
     accCharsAdded?: number,
     contribution?: string,
+    diff?: string
 
     fakeReportsCount?: number,
     reactions?: {id: string}[],

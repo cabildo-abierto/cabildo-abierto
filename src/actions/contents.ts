@@ -79,7 +79,12 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                         }
                     }
                 },
-                parentEntityId: true
+                parentEntityId: true,
+                accCharsAdded: true,
+                contribution: true,
+                charsAdded: true,
+                charsDeleted: true,
+                diff: true,
             },
             where: {
                 id: id,
