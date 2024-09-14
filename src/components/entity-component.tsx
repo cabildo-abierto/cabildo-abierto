@@ -135,7 +135,7 @@ const EntityMentionInCommentSection = ({parentContentId, entity, mentioningConte
     const fragment = findFragment(mentioningContent.content.text, parentContent.content.parentEntityId)
 
     return <Link className="" href={"/articulo/"+entity.id}>
-        <div className="content-container px-2 py-4 w-full flex flex-col">
+        <div className="px-2 py-4 w-full flex flex-col">
             <div>
                 Mencionado en <span className="content font-bold">{entity.name}</span>.
             </div>
@@ -160,7 +160,7 @@ const EntityEditInFeed = ({entity, content, version}: {content: ContentProps, en
     } else {
         text = <>Modificó {name} (<ChangesCounter charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}/> caracteres)</>
     }
-    return <div className="content-container">
+    return <div className="">
         <ContentTopRow content={content} icon={<></>}/>
         <div className="link px-4 py-4">{text}</div>
     </div>
