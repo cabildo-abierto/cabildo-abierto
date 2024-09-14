@@ -110,9 +110,15 @@ function lcs(s1: any[], s2: any[]) {
 
 
 export function diff(nodes1: string[], nodes2: string[]){
+    const t1 = Date.now()
     const common: {x: number, y: number}[] = lcs(nodes1, nodes2)
+    const t2 = Date.now()
 
     let matches: {x: number, y: number}[] = minMatch(nodes1, nodes2)
+    const t3 = Date.now()
+
+    console.log("lcs", t2-t1)
+    console.log("minmatch", t3-t2)
 
     let perfectMatches = matches.filter(({x, y}) => {
         return nodes1[x] == nodes2[y]

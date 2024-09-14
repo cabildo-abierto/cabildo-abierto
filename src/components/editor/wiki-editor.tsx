@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { EditorState, LexicalEditor } from "lexical"
 import StateButton from "../state-button"
@@ -35,6 +35,8 @@ type WikiEditorProps = {
 
 
 function showChanges(initialData: string, withRespectToContent: string){
+    console.log("computing show changes")
+    const t1 = Date.now()
     const nodes1 = nodesFromJSONStr(withRespectToContent)
     let parsed2 = null
     try {
@@ -42,8 +44,11 @@ function showChanges(initialData: string, withRespectToContent: string){
     } catch {
         return initialData // first version where content is ""
     }
+    const t2 = Date.now()
     const nodes2 = parsed2.root.children
+
     const {common, matches} = diff(nodes1.map(getAllText), nodes2.map(getAllText))
+    const t3 = Date.now()
 
     function newDiffNode(kind: string, childNode){
         const diffNode: SerializedDiffNode = {
@@ -83,9 +88,18 @@ function showChanges(initialData: string, withRespectToContent: string){
         newChildren.push(newDiffNode("new", nodes2[j]))
         j++
     }
+    const t4 = Date.now()
 
     parsed2.root.children = newChildren
     const r = JSON.stringify(parsed2)
+    const t5 = Date.now()
+
+    console.log("Times")
+    console.log("stringify", t5-t4)
+    console.log("push", t4-t3)
+    console.log("diff", t3-t2)
+    console.log("parse", t2-t1)
+    console.log("total", t5-t1)
     return r
 }
 
@@ -166,14 +180,29 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
-    const router = useRouter()
     const {mutate} = useSWRConfig()
+    const [settingsChanges, setSettingsChanges] = useState<SettingsProps | undefined>()
+    const [settingsAuthors, setSettingsAuthors] = useState<SettingsProps | undefined>()
     
     const user = useUser()
     
     const contentId = entity.versions[version].id
     const {content, isLoading, isError} = useContent(contentId)
     const changesContent = useContent(showingChanges && version > 0 ? entity.versions[version-1].id : contentId)
+    
+    useEffect(() => {
+        if(!content) return
+        let newSettingsChanges = {...settings}
+        newSettingsChanges.initialData = showChanges(content.text, changesContent.content.text)
+        setSettingsChanges(newSettingsChanges)
+    }, [content])
+    
+    useEffect(() => {
+        let newSettingsAuthors = {...settings}
+        newSettingsAuthors.initialData = showAuthors(entity, version)
+        setSettingsAuthors(newSettingsAuthors)
+    }, [entity, version])
+    
     if(isLoading || user.isLoading || changesContent.isLoading){
         return <LoadingSpinner/>
     }
@@ -209,20 +238,12 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
         useCodeblock: false,
         placeholder: "Este artículo está vacío!",
         initialData: content.text,
-        editorClassName: "content mt-4",
+        editorClassName: "content mt-4 text-justify",
         isReadOnly: readOnly,
         content: content,
         isAutofocus: false,
         placeholderClassName: "",
     }
-
-    const settingsChanges = {...settings}
-    if(showingChanges)
-        settingsChanges.initialData = showChanges(content.text, changesContent.content.text)
-    
-    const settingsAuthors = {...settings}
-    if(showingAuthors)
-        settingsAuthors.initialData = showAuthors(entity, version)
 
     const SaveEditButton = () => {
         return <StateButton

@@ -8,7 +8,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import WriteButton from "./write-button";
 import { usePathname, useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
-import { CabildoIcon } from "./icons";
+import { CabildoIcon, NotificationsIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
 
 function FeedButton() {
@@ -41,6 +41,16 @@ export const SearchButton = ({ onClick=null, disabled=false }: any) => {
 }
 
 
+const NotificationsButton = () => {
+    const user = useUser()
+    return <Link href="/notificaciones" className="hover:bg-[var(--secondary-light)] rounded-lg">
+        <div className="p-1">
+            <NotificationsIcon count={user.user ? user.user._count.notifications : undefined}/>
+        </div>
+    </Link>
+}
+
+
 type TopbarLoggedInProps = {
     onOpenSidebar: () => void,
     setSearchValue: (arg0: string) => void
@@ -70,6 +80,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
                 else
                     router.push("/inicio")
             }} />}
+            <NotificationsButton/>
         </div>
 
         {searchBarOpen && path.includes("/inicio") && <div className="">

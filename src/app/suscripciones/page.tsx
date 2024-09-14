@@ -13,5 +13,5 @@ export default function Suscripciones() {
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center} centerWidth={800}/>
+    return <ThreeColumnsLayout center={center}/>
 }

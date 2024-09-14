@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag, unstable_cache } from "next/cache";
-import { ContentType } from "@prisma/client";
+import { ContentType, NotificationType } from "@prisma/client";
 import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
 import { getEntities } from "./entities";
@@ -90,7 +90,7 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
 
         return content ? content : undefined
     }, ["content", id, userId], {
-        tags: ["content", "content:"+id+":"+userId],
+        tags: ["content", "content:"+id+":"+userId, "content:"+id],
         revalidate: revalidateEverythingTime,
     })()
 }
@@ -218,30 +218,32 @@ export async function createComment(text: string, parentContentId: string, userI
         },
     })
 
-    if(parentEntityId){
-        revalidateTag("comments:"+parentEntityId)
-        revalidateTag("entityChildrenCount:"+parentEntityId)
-    }
-    revalidateTag("comments:"+parentContentId)
     revalidateTag("repliesFeed:"+userId)
+    revalidateTag("content:"+parentContentId)
+    if(parentEntityId)
+        revalidateTag("entity:"+parentEntityId)
 
-    while(true){
-        revalidateTag("childrenCount:"+parentContentId)
-        let parent = await getContentStaticById(parentContentId)
-        if(parent.parentContents.length > 0)
-            parentContentId = parent.parentContents[0].id
-        else
-            break
+    if(parentContent.author.id != userId){
+        createNotification(userId, parentContent.author.id, "Comment", comment.id, undefined)
     }
-
-    if(parentContentId){
-        const rootContent = await getContentStaticById(parentContentId)
-
-        revalidateTag("entityChildrenCount:"+rootContent.parentEntityId)
-    }
-
-
     return comment
+}
+
+export async function createNotification(
+    userById: string, userNotifiedId: string, notificationType: NotificationType,
+    contentId?: string, reactionId?: string){
+        
+    await db.notification.create({
+        data: {
+            userById: userById,
+            userNotifiedId: userNotifiedId,
+            contentId: contentId,
+            reactionId: reactionId,
+            type: notificationType
+        }
+    })
+    revalidateTag("notifications:"+userNotifiedId)
+    revalidateTag("user:"+userNotifiedId)
 }
 
 export async function findReferences(text: string){
@@ -379,7 +381,7 @@ export async function createFakeNewsReport(text: string, parentContentId: string
 }
 
 
-// Esto debería ser atómico
+// TO DO: Esto debería ser atómico
 export const addLike = async (id: string, userId: string, entityId?: string) => {
     const exists = await db.reaction.findFirst({
         where: {
@@ -388,8 +390,9 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
         }
     })
     if(!exists){
+        let reaction = null
         if(entityId){
-            await db.reaction.create({
+            reaction = await db.reaction.create({
                 data: {
                     userById: userId,
                     contentId: id,
@@ -397,17 +400,22 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
                 },
             })
         } else {
-            await db.reaction.create({
+            reaction = await db.reaction.create({
                 data: {
                     userById: userId,
                     contentId: id
                 },
             })
         }
+
+        revalidateTag("content:"+id)
+        if(entityId)
+            revalidateTag("entity:"+entityId)
+        const content = await getContentById(id)
+        
+        createNotification(userId, content.author.id, "Reaction", content.id, reaction.id)
+        return {liked: true, likeCount: content._count.reactions}
     }
-    revalidateTag("content:"+id)
-    if(entityId)
-        revalidateTag("entity:"+entityId)
     const content = await getContentById(id)
     return {liked: true, likeCount: content._count.reactions}
 }
@@ -556,4 +564,55 @@ export const addViewToEntityContent = async (id: string, userId: string, entityI
     }
     revalidateTag("content:"+id)
     revalidateTag("entity:"+entityId)
+}
+
+
+export async function getLastKNotifications(k: number){
+    const userId = await getUserId()
+
+    return await unstable_cache(async () => {
+        const notifications = await db.notification.findMany({
+            select: {
+                id: true,
+                viewed: true,
+                contentId: true,
+                reactionId: true,
+                userById: true,
+                userNotifiedId: true,
+                type: true,
+                createdAt: true
+            },
+            where: {
+                userNotifiedId: userId
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+        let unseen = 0
+        for(let i = 0; i < notifications.length; i++){
+            if(!notifications[i].viewed) unseen ++
+        }
+        return notifications.slice(0, Math.max(unseen, k))
+    }, ["notifications", userId], {
+        tags: ["notifications", "notifications:"+userId],
+        revalidate: revalidateEverythingTime,
+    })()
+}
+
+
+export async function markNotificationViewed(id: string){
+    const {userNotifiedId} = await db.notification.update({
+        data: {
+            viewed: true
+        },
+        select: {
+            userNotifiedId: true
+        },
+        where: {
+            id: id
+        }
+    })
+    revalidateTag("notifications:"+userNotifiedId)
+    revalidateTag("user:"+userNotifiedId)
 }

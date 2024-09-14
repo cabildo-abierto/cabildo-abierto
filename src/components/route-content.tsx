@@ -27,7 +27,7 @@ export const RouteContent = ({route, paramsSelected}: RouteContentProps) => {
     }
 
     return <div className="w-full">
-        <div className="content-container py-2 mt-2">
+        <div className="content-container pt-2 mt-2">
             <WikiCategories route={route} selected={selected}/>
             <SelectionComponent
                 onSelection={onSelection}

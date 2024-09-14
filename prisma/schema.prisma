@@ -33,6 +33,9 @@ model User {
 
     views               View[]
 
+    notificationsGenerated Notification[] @relation("notificationBy")
+    notifications       Notification[] @relation("notificationTo")
+
     @@map("users")
     @@schema("public")
 }
@@ -67,6 +70,8 @@ model Reaction {
 
     entity              Entity?        @relation("entityReactions", fields: [entityId], references: [id])
     entityId            String?
+
+    notifications       Notification[]
 
     @@schema("public")
 }
@@ -138,6 +143,40 @@ model Content {
 
   uniqueViewsCount Int?
   fakeReportsCount Int?
+
+  notifications    Notification[]
+
+  @@schema("public")
+}
+
+enum NotificationType {
+  Comment
+  Reaction
+  Follow
+  Edit
+
+  @@schema("public")
+}
+
+model Notification {
+  id               String      @id @default(cuid())
+  createdAt        DateTime    @default(now()) @map("created_at")
+  type             NotificationType
+
+  // Comment, EntityContent, o contenido al que se reaccionó
+  content          Content?    @relation(fields: [contentId], references: [id])
+  contentId        String?
+
+  reaction         Reaction?   @relation(fields: [reactionId], references: [id])
+  reactionId       String?
+
+  userBy           User        @relation("notificationBy", fields: [userById], references: [id])
+  userById         String
+
+  userNotified     User        @relation("notificationTo", fields: [userNotifiedId], references: [id])
+  userNotifiedId   String
+
+  viewed           Boolean     @default(false)
 
   @@schema("public")
 }

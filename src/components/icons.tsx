@@ -16,6 +16,7 @@ import CommentIcon from '@mui/icons-material/Comment';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 import AbcIcon from '@mui/icons-material/Abc';
 import MuiLinkIcon from '@mui/icons-material/Link';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 export const RedFlag = () => {
@@ -98,4 +99,18 @@ export const TextLengthIcon = () => {
 
 export const LinkIcon = () => {
     return <MuiLinkIcon fontSize="small"/>
+}
+
+export const NotificationsIcon = ({ count }: { count?: number }) => {
+    const className = "font-bold absolute top-0 right-0 transform \
+    translate-x-1/2 -translate-y-1/2 bg-red-500 text-white\
+     rounded-full text-xs w-4 h-4 flex items-center justify-center"
+    return <div className="relative flex">
+        <NotificationsNoneIcon />
+        {(count && count > 0) ?
+          <span className={className}>
+            {count}
+          </span> : <></>
+        }
+    </div>
 }

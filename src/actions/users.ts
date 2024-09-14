@@ -6,6 +6,7 @@ import { createClient } from "../utils/supabase/server";
 import { revalidateEverythingTime } from "./utils";
 import { UserStats } from "../app/lib/definitions";
 import { getEntities } from "./entities";
+import { createNotification } from "./contents";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -78,7 +79,16 @@ export const getUserById = (userId: string) => {
                             email: true,
                         }
                     },
-                    description: true
+                    description: true,
+                    _count: {
+                        select: {
+                            notifications: {
+                                where: {
+                                    viewed: false
+                                }
+                            }
+                        }
+                    }
                 },
                 where: {id:userId}
             }
@@ -192,6 +202,7 @@ export async function follow(userToFollowId: string, userId: string) {
     });
     revalidateTag("user:"+userToFollowId)
     revalidateTag("user:"+userId)
+    createNotification(userId, userToFollowId, "Follow")
     return updatedUser;
 }
 
