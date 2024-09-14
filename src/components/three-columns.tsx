@@ -9,7 +9,7 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = (
         <div className="hidden lg:block lg:flex-1">
             {left}
         </div>
-        <div className="w-full lg:w-[800px] px-1">
+        <div className="w-full md:w-[700px] px-1">
             {center}
         </div>
         <div className="hidden lg:block lg:flex-1">

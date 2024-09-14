@@ -24,6 +24,7 @@ const DonationInput: React.FC<any> = ({onChange, oneForYou=true}) => {
         id="integer-input"
         type="text"
         value={value}
+        autoFocus={true}
         onChange={handleChange}
         className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />

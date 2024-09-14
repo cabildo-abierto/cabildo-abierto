@@ -326,7 +326,12 @@ ol {
 }
 
 .main-feed span {
-	padding-bottom: 3px;
+	padding-bottom: 2px;
+}
+
+.main-feed button {
+	padding-bottom: 8px;
+	padding-top: 8px;
 }
 
 .main-feed.selected-option-text {
@@ -335,10 +340,15 @@ ol {
 }
 
 .filter-feed.selected-option-text {
-	font-weight: 600;
+	border-bottom-width: 1px;
+	border-color: $primary
 }
 
-.filter-feed.non-selected-option:hover {
+.main-feed.not-selected-option:hover {
+	background: var(--secondary-light);
+}
+
+.filter-feed.not-selected-option:hover {
 	background: var(--secondary-light);
 }
 

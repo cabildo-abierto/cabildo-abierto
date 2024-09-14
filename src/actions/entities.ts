@@ -382,7 +382,7 @@ export const getRouteEntities = (route: string[]) => {
         return routeEntities
     }, ["routeEntities", route.join("/")], {
         revalidate: revalidateEverythingTime,
-        tags: ["routeEntities", "routeEntities:"+route.join("/"), "entities"]})() 
+        tags: ["entities", "routeEntities", "routeEntities:"+route.join("/"), "entities"]})() 
 }
 
 

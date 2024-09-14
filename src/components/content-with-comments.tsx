@@ -50,7 +50,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const handleNewComment = async (text: string) => {
         if(user.user){
             await createComment(text, content.id, user.user.id)
-            mutate("/api/comments/"+content.id)
+            mutate("/api/content/"+content.id)
+
             if(content.parentEntityId)
                 mutate("/api/entity-comments/"+content.parentEntityId)
             mutate("/api/replies-feed/"+user.user.id)
@@ -130,7 +131,6 @@ export const ContentWithCommentsFromId = ({
     if(content.isLoading) return <LoadingSpinner/>
     
     if(!content.content) {
-        console.log(contentId, content.content, "not found")
         return <>Error :(</>
     }
 

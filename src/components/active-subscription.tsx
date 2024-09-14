@@ -2,6 +2,7 @@
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import LoadingSpinner from './loading-spinner';
 import { useSubscriptionPoolSize } from '../app/hooks/subscriptions';
+import Link from 'next/link';
 
 
 const ActiveSubscription: React.FC = () => {
@@ -27,9 +28,9 @@ const ActiveSubscription: React.FC = () => {
 
         <div className="flex justify-center mt-8">
             <div className="flex justify-center">
-                <button className="gray-btn font-bold w-32 h-12 mb-8">
-                    <span className="">Donar</span>
-                </button>
+                <Link className="gray-btn font-bold w-32 h-12 mb-8 flex justify-center items-center" href="/suscripciones/donar">
+                    Donar
+                </Link>
             </div>
         </div>
     </div>
