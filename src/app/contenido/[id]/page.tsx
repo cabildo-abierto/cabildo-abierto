@@ -9,9 +9,10 @@ const ContentPage: React.FC<{params: any}> = async ({params}) => {
     const content = await getContentById(params.id)
     const header = headers()
     const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
-    console.log("IP", ip, "read content", params.id)
-
     const center = <div className="">
+        <div>
+            IP: {ip}
+        </div>
         <div className="flex flex-col h-full">
             <div className="mt-8">
                 <ContentWithComments
