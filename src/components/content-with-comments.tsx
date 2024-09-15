@@ -34,7 +34,6 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     inCommentSection,
     depthParity=false,
     setEditing}) => {
-    
     const {mutate} = useSWRConfig()
 
     const user = useUser()
