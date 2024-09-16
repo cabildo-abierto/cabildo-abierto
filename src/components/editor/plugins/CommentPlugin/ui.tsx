@@ -140,7 +140,7 @@ export function CommentInputBox({
   }, [updateLocation]);
 
   const submitComment = async () => {
-    if (!emptyOutput(editor.getEditorState()) && user) {
+    if (!emptyOutput(editor.getEditorState())) {
         let quote = editor.getEditorState().read(() => {
             const selection = selectionRef.current;
             return selection ? selection.getTextContent() : '';

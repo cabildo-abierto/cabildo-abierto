@@ -117,3 +117,19 @@ export function listOrder(a: {score: number[]}, b: {score: number[]}){
     }
     return 0
 }
+
+
+export const monthly_visits_limit = 0
+
+
+export function visitsThisMonth(visits: {createdAt: Date}[]){
+    let c = 0
+    for(let i = 0; i < visits.length; i++){
+        const date = visits[i].createdAt
+        const curDate = new Date()
+        if(date.getMonth() == curDate.getMonth() && date.getFullYear() == curDate.getFullYear()){
+            c ++
+        }
+    }
+    return c
+}

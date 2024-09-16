@@ -237,7 +237,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
         isReadOnly: readOnly,
         content: content,
         isAutofocus: false,
-        placeholderClassName: "",
+        placeholderClassName: "ContentEditable__placeholder",
     }
 
     const SaveEditButton = () => {

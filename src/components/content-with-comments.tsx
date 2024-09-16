@@ -89,7 +89,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             depthParity={depthParity}
         />
         {isMainPage && ["Post", "EntityContent"].includes(content.type) && <hr className="mt-12 mb-2"/>}
-        <div>
+        <div className={isMainPage ? "" : "ml-2 mr-1"}>
             {writingReply && <div className={"mb-1 " + (depthParityComments ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]")}>
                 {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 
                     <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
@@ -101,6 +101,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
                 setWritingReply={setWritingReply}
                 writingReply={writingReply}
                 depthParity={depthParityComments}
+                padding={!isMainPage}
             /> : 
             <EntityCommentSection
                 content={content}

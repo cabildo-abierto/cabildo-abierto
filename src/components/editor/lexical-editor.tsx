@@ -181,7 +181,6 @@ function Editor({ settings, setEditor, setEditorState }:
     };
   }, [isSmallWidthViewport]);
 
-
   return (
     <>
       {(isRichText && showToolbar) && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />}
