@@ -87,7 +87,6 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
 
   revalidatePath('/', 'layout')
   revalidateTag("users")
-  redirect('/suscripciones')
 }
 
 export async function signOut() {
