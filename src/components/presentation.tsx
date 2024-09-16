@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Logo } from './logo';
 
 
-export const Presentation: React.FC = async () => {
+export const Presentation: React.FC = () => {
 
     return <div className="flex flex-col justify-center items-center mt-32 lg:mt-0 px-2">
       <div className="mb-16 flex lg:h-28 h-16">

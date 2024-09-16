@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -236,16 +236,31 @@ export const AuthForm = ({children, action, state, title}: {children: ReactNode,
     </form>
 }
 
+
+const ConfirmLinkSentPopup = ({onClose}: {onClose: any}) => {
+    return (
+        <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
+            
+            <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
+                <div className="py-4 text-lg">¡Gracias por registrarte! Te debería haber llegado un mail de confirmación.</div>
+                <div className="flex justify-center items-center py-8 space-x-4">
+                    <button onClick={onClose} className="gray-btn">
+                        Ok
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
 export default function SignupForm() {
     const [state, action] = useFormState(signup, undefined);
-    const router = useRouter();
-
-    if(state && !state.errors && !state.authError){
-        router.push("/suscripciones");
-    }
+    const [showingSignupOK, setShowingSignupOK] = useState(false)
 
     return (
         <>
+            {showingSignupOK && <ConfirmLinkSentPopup onClose={() => {setShowingSignupOK(false)}}/>}
             <div className="mb-2 mt-2">
                 <PeriodoDePrueba/>
             </div>

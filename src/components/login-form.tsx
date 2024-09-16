@@ -28,6 +28,9 @@ export default function LoginForm() {
     if(state && state.error == "no connection"){
         error = <div className="flex items-center text-red-600 h-6 px-2">Ocurrió un error en la conexión.</div>   
     }
+    if(state && state.error == "not confirmed"){
+        error = <div className="flex items-center text-red-600 h-6 px-2">Confirmá tu mail para iniciar sesión.</div>   
+    }
 
     return (
         <>
