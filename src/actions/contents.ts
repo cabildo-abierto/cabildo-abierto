@@ -90,10 +90,11 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                 id: id,
             }
         })
+        if(!content) return undefined
         if(!content.reactions) content.reactions = []
         if(!content.views) content.views = []
 
-        return content ? content : undefined
+        return content
     }, ["content", id, userId], {
         tags: ["content", "content:"+id+":"+userId, "content:"+id],
         revalidate: revalidateEverythingTime,

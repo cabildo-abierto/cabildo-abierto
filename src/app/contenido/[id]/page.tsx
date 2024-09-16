@@ -7,10 +7,15 @@ import { getUserId, logVisit } from "../../../actions/users";
 import { userAgent } from "next/server";
 import { NoVisitsAvailablePopup } from "../../../components/no-visits-popup";
 import { monthly_visits_limit, visitsThisMonth } from "../../../components/utils";
+import NotFound from "../../not-found";
 
 
 const ContentPage: React.FC<{params: any}> = async ({params}) => {
     const content = await getContentById(params.id)
+    if(!content){
+        return <NotFound/>
+    }
+
     const header = headers()
     const user = userAgent({headers: header})
 
