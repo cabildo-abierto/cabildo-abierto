@@ -5,8 +5,8 @@ import SignupForm from "./signup-form"
 import { useState } from "react"
 
 
-export const AuthPage = () => {
-    const [hasAccount, setHasAccount] = useState(false)
+export const AuthPage = ({startInLogin}: {startInLogin?: boolean}) => {
+    const [hasAccount, setHasAccount] = useState(startInLogin)
     
     return <div className="flex flex-col items-center justify-center h-screen">
         {
