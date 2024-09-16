@@ -147,6 +147,8 @@ model Content {
 
   notifications    Notification[]
 
+  noAccountVisits  NoAccountVisit[]
+
   @@schema("public")
 }
 
@@ -178,6 +180,38 @@ model Notification {
   userNotifiedId   String
 
   viewed           Boolean     @default(false)
+
+  @@schema("public")
+}
+
+
+model NoAccountUser {
+  id               String      @id @default(cuid())
+  createdAt        DateTime    @default(now()) @map("created_at")
+
+  ip               String
+  ua               String
+  browser          String
+  engine           String
+  os               String
+  device           String
+  cpu              String
+  isBot            Boolean
+
+  visits           NoAccountVisit[]
+
+  @@schema("public")
+}
+
+
+model NoAccountVisit {
+  id               String      @id @default(cuid())
+  createdAt        DateTime    @default(now()) @map("created_at")
+  user             NoAccountUser  @relation(fields: [userId], references: [id])
+  userId           String
+
+  contentId        String
+  content          Content  @relation(fields: [contentId], references: [id])
 
   @@schema("public")
 }

@@ -7,6 +7,7 @@ import { revalidateEverythingTime } from "./utils";
 import { UserStats } from "../app/lib/definitions";
 import { getEntities } from "./entities";
 import { createNotification } from "./contents";
+import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -359,3 +360,90 @@ export const getSubscriptionPoolSize = unstable_cache(async () => {
         tags: ["poolsize"]
     }
 )
+
+
+const min_time_between_visits = 60*60*1000
+
+
+export const logVisit = async (header: ReadonlyHeaders, agent: any, contentId: string) => {
+    const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
+
+    let user = await db.noAccountUser.findFirst({
+        where: {
+            ip: ip,
+            browser: JSON.stringify(agent.browser),
+            engine: JSON.stringify(agent.engine),
+            os: JSON.stringify(agent.os),
+            device: JSON.stringify(agent.device),
+            cpu: JSON.stringify(agent.cpu),
+            isBot: agent.isBot
+        }
+    })
+    const newUser = user == null
+    if(newUser){
+        user = await db.noAccountUser.create({
+            data: {
+                ip: ip,
+                ua: agent.ua,
+                browser: JSON.stringify(agent.browser),
+                engine: JSON.stringify(agent.engine),
+                os: JSON.stringify(agent.os),
+                device: JSON.stringify(agent.device),
+                cpu: JSON.stringify(agent.cpu),
+                isBot: agent.isBot
+            }
+        })
+    }
+
+    let recentVisit = false
+    if(!newUser){
+        const visit = await db.noAccountVisit.findFirst({
+            where: {
+                userId: user.id,
+                contentId: contentId
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+        if(visit && new Date().getTime() - visit.createdAt.getTime() <= min_time_between_visits){ 
+            recentVisit = true
+        }
+    }
+    if(!recentVisit){
+        await db.noAccountVisit.create({
+            data: {
+                userId: user.id,
+                contentId: contentId,
+            }
+        })
+    }
+    return await getNoAccountUser(header, agent)
+}
+
+
+export const getNoAccountUser = async (header: ReadonlyHeaders, agent: any) => {
+    const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
+
+    let user = await db.noAccountUser.findFirst({
+        where: {
+            ip: ip,
+            browser: JSON.stringify(agent.browser),
+            engine: JSON.stringify(agent.engine),
+            os: JSON.stringify(agent.os),
+            device: JSON.stringify(agent.device),
+            cpu: JSON.stringify(agent.cpu),
+            isBot: agent.isBot
+        },
+        select: {
+            id: true,
+            visits: {
+                select: {
+                    createdAt: true
+                }
+            }
+        }
+    })
+
+    return user
+}

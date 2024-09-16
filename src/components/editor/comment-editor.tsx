@@ -47,7 +47,7 @@ export const commentEditorSettings: SettingsProps = {
     editorClassName: "link h-16",
     initialData: null,
     isReadOnly: false,
-    placeholderClassName: ""
+    placeholderClassName: "absolute top-0 text-[var(--text-lighter)] pointer-events-none"
 }
 
 

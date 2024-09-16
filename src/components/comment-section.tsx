@@ -78,6 +78,7 @@ type CommentSectionProps = {
     writingReply: boolean
     setWritingReply: (arg0: boolean) => void
     depthParity?: boolean
+    padding?: boolean
 }
 /* En una sección de comentarios muestro: 
     Si es sidebar:
@@ -86,7 +87,7 @@ type CommentSectionProps = {
         Todos los comentarios hechos sobre alguna versión del contenido. Eventualmente con una marca de a qué versión pertenecen
 */
 export const CommentSection: React.FC<CommentSectionProps> = ({
-    content, entity, writingReply, setWritingReply, depthParity=false}) => {
+    content, entity, writingReply, setWritingReply, depthParity=false, padding=true}) => {
 
     const comments = entity ? [...getEntityComments(entity), ...entity.referencedBy] : content.childrenContents
 
@@ -96,7 +97,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     return <>
         {
         contentsWithScore.length > 0 && 
-        <div className="space-y-2 pl-2 pr-1 pb-1">
+        <div className={"space-y-2 pt-1"}>
             {contentsWithScore.map(({comment}) => (
                 <div key={comment.id}>
                     <ContentWithCommentsFromId
@@ -137,5 +138,6 @@ export const EntityCommentSection = ({content, writingReply, setWritingReply, de
         writingReply={writingReply}
         setWritingReply={setWritingReply}
         depthParity={depthParity}
+        padding={false}
     />
 }

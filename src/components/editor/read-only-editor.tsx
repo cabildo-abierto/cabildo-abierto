@@ -41,7 +41,7 @@ const ReadOnlyEditor = ({
         tableCellMerge: false,
         showActions: false,
         showToolbar: false,
-        isComments: user.user != null,
+        isComments: content && (content.type == "EntityContent" || content.type == "Post"),
         isDraggableBlock: false,
         useSuperscript: false,
         useStrikethrough: false,

@@ -20,6 +20,7 @@ import { currentVersion, EditHistory } from "./edit-history";
 import PaywallChecker from "./paywall-checker";
 import { SetProtectionButton } from "./protection-button";
 import { ThreeColumnsLayout } from "./three-columns";
+import { NoVisitsAvailablePopup } from "./no-visits-popup";
 
 
 const DeletedEntity = () => {
@@ -27,7 +28,8 @@ const DeletedEntity = () => {
 }
 
 
-export const ArticlePage = ({entity, content, version}: {entity: EntityProps, content: ContentProps, version?: number}) => {
+export const ArticlePage = ({entity, content, version, visitOK}: {
+    entity: EntityProps, content: ContentProps, version?: number, visitOK: boolean}) => {
     const user = useUser()
     const [editing, setEditing] = useState(false)
     const [showingCategories, setShowingCategories] = useState(false)
@@ -264,8 +266,9 @@ export const ArticlePage = ({entity, content, version}: {entity: EntityProps, co
     if(entity.isPublic){
         return <ThreeColumnsLayout center={center}/>
     } else {
-        return <PaywallChecker>
+        return <>
+            {!visitOK && <NoVisitsAvailablePopup/>}
             <ThreeColumnsLayout center={center}/>
-        </PaywallChecker>
+        </>
     }
 }

@@ -68,7 +68,7 @@ const PostEditor = ({
         editorClassName: "content mt-4",
         isReadOnly: false,
         isAutofocus: true,
-        placeholderClassName: ""
+        placeholderClassName: "ContentEditable__placeholder"
     }
 
     async function handleSubmit(){
