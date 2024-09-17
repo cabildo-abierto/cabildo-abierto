@@ -83,8 +83,9 @@ const WriteButton = () => {
             const rect = buttonRef.current.getBoundingClientRect();
             const dropdownRect = dropdownRef.current.getBoundingClientRect();
             let leftPosition = rect.left + window.scrollX;
-    
-            if (leftPosition + dropdownRect.width > window.innerWidth) {
+            
+            // la primera condición es porque en el primer render dropdownRect.width es muy grande por algún motivo
+            if (window.innerWidth > dropdownRect.width && leftPosition + dropdownRect.width > window.innerWidth) {
                 leftPosition = window.innerWidth - dropdownRect.width - 5;
             }
     

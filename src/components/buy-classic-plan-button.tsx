@@ -6,6 +6,8 @@ import { useSWRConfig } from "swr";
 import { buyAndUseSubscription } from "../actions/users";
 import { useUser } from "../app/hooks/user";
 
+
+
 export const BuyClassicPlanButton = () => {
     const {user} = useUser()
     const router = useRouter()
