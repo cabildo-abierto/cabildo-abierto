@@ -9,6 +9,7 @@ import { getEntities } from "./entities";
 import { createNotification } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import MercadoPagoConfig, { Customer, CustomerCard, Payment, Preference } from "mercadopago";
+import { getSubscriptionPrice } from "../components/utils";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -477,11 +478,11 @@ export const getNoAccountUser = async (header: ReadonlyHeaders, agent: any) => {
 
 
 
-export async function createPreference() {
+export async function createPreference(userId: string) {
     const client = new MercadoPagoConfig({ accessToken: accessToken });
     const preference = new Preference(client);
 
-    preference.create({
+    const result = await preference.create({
       body: {
         back_urls: {
             success: "https://www.cabildoabierto.com.ar/suscripciones/pago-exitoso",
@@ -495,11 +496,14 @@ export async function createPreference() {
             id: "0",
             title: 'Un mes de suscripción en Cabildo Abierto',
             quantity: 1,
-            unit_price: 500
+            unit_price: getSubscriptionPrice()
           }
         ],
+        metadata: {
+            userId: userId
+        }
       }
     })
-    .then(console.log)
-    .catch(console.log);
+
+    return result.id
 }

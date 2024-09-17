@@ -3,12 +3,50 @@ import Link from "next/link"
 import SubscriptionOptionButton from "../../../components/subscription-option-button"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
 import { getSubscriptionPrice } from "../../../components/utils"
+import { buyAndUseSubscription, createPreference } from "../../../actions/users"
+import { useUser } from "../../hooks/user"
+import { useState } from "react"
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react'
+initMercadoPago('APP_USR-1ddae427-daf5-49b9-b3bb-e1d5b5245f30');
+
+
+function PagoUnico({preferenceId}: {preferenceId: string}) {
+    const price = getSubscriptionPrice()
+
+    const center = <div className="flex flex-col items-center text-center">
+        <div className="mt-16">Vas a comprar una suscripción mensual.</div>
+        <div className="mt-8">Total: ${price}</div>
+        <div className="mt-8">
+            <div className="w-64">
+                <Wallet
+                    initialization={{ preferenceId: preferenceId }}
+                />
+            </div>
+        </div>
+    </div>
+
+    return <ThreeColumnsLayout center={center}/>
+}
 
 
 export default function PlanClasico() {
+    const user = useUser()
+    const [preferenceId, setPreferenceId] = useState<string | undefined>()
+    const [choice, setChoice] = useState("none")
 
-    const center = 
-        <div className="flex justify-center"><div className="mt-8 w-72 lg:w-96">
+    async function onUniquePayment(){
+        if(user.user){
+            const id = await createPreference(user.user.id)
+            setPreferenceId(id)
+            setChoice("unique")
+        }
+    }
+
+    if(choice == "unique"){
+        return <PagoUnico preferenceId={preferenceId}/>
+    }
+
+    const center = <div className="flex justify-center"><div className="mt-8 w-72 lg:w-96">
             <div className="flex justify-center items-center">
                 <h2>
                     El plan clásico
@@ -29,7 +67,7 @@ export default function PlanClasico() {
                     <SubscriptionOptionButton
                         title="Pago único"
                         description="Pagá un solo mes. Sin compromisos."
-                        href={"/suscripciones/clasico/pago-unico"}
+                        onClick={onUniquePayment}
                     />
                 </div>
             
