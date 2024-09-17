@@ -1,6 +1,8 @@
 import { BuyClassicPlanButton } from "../../../../components/buy-classic-plan-button"
 import { ThreeColumnsLayout } from "../../../../components/three-columns"
 import { getSubscriptionPrice } from "../../../../components/utils"
+import { MercadoPagoConfig, Payment } from 'mercadopago';
+
 
 
 export default function PlanClasicoPagoUnico() {

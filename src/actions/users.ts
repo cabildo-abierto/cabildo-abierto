@@ -8,6 +8,7 @@ import { UserStats } from "../app/lib/definitions";
 import { getEntities } from "./entities";
 import { createNotification } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
+import MercadoPagoConfig, { Customer, CustomerCard, Payment, Preference } from "mercadopago";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -295,16 +296,42 @@ export const getUserStats = async (userId: string) => {
 }
 
 
+const accessToken = "APP_USR-8751944294701489-091623-00cbcdbdbb328be11bd3e67a76ff0369-536751662"
 
-export async function buyAndUseSubscription(userId: string) { 
-    const result = await db.subscription.create({
+export async function buyAndUseSubscription(userId: string) {
+    const client = new MercadoPagoConfig({ accessToken: accessToken });
+    const customer = new Customer(client);
+
+    const email = "joaquindelgado2802@gmail.com"
+    const body = {
+        email: email
+    };
+    
+    const result = await customer.search({ options: { email: email } })
+
+    console.log(result)
+    console.log(result.results[0].address)
+    /*customer.create({ body: body }).then((result) => {
+        const customerCard = new CustomerCard(client);
+
+        console.log("user", result)
+        console.log("user", result.token)
+        const body = {
+            token : result.token,
+        };
+
+        customerCard.create({ customerId: 'customer_id', body })
+            .then((result) => console.log(result));
+    })*/
+    
+    /*const result = await db.subscription.create({
         data: {
             userId: userId,
             boughtByUserId: userId,
             usedAt: new Date()
         }
     })
-    revalidateTag("user:"+userId)
+    revalidateTag("user:"+userId)*/
 }
 
 export async function donateSubscriptions(n: number, userId: string) {
@@ -446,4 +473,33 @@ export const getNoAccountUser = async (header: ReadonlyHeaders, agent: any) => {
     })
 
     return user
+}
+
+
+
+export async function createPreference() {
+    const client = new MercadoPagoConfig({ accessToken: accessToken });
+    const preference = new Preference(client);
+
+    preference.create({
+      body: {
+        back_urls: {
+            success: "https://www.cabildoabierto.com.ar/suscripciones/pago-exitoso",
+            pending: "https://www.cabildoabierto.com.ar/suscripciones/pago-pendiente",
+            failure: "https://www.cabildoabierto.com.ar/suscripciones/pago-fallido"
+        },
+        notification_url: "https://www.cabildoabierto.com.ar/api/pago?source_news=webhooks",
+        items: [
+          {
+            picture_url: "https://www.cabildoabierto.com.ar/favicon.ico",
+            id: "0",
+            title: 'Un mes de suscripción en Cabildo Abierto',
+            quantity: 1,
+            unit_price: 500
+          }
+        ],
+      }
+    })
+    .then(console.log)
+    .catch(console.log);
 }
