@@ -18,7 +18,10 @@ export const AuthPage = ({startInLogin}: {startInLogin?: boolean}) => {
             </>
             :<>
             <LoginForm/>
-            <div className='mt-4 text-center'>
+            <div className='mt-2 text-center'>
+                <Link href="/recuperar" className="link2">Recuperar contraseña</Link>.
+            </div>
+            <div className='text-center'>
                 No tenés una cuenta? <button className="link2" onClick={() => {setHasAccount(false)}}>Registrate</button>.
             </div>
             </>

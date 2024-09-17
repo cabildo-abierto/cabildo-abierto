@@ -22,7 +22,10 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import CottageOutlinedIcon from '@mui/icons-material/CottageOutlined';
 import NotificationsIconMui from '@mui/icons-material/Notifications';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 export const RedFlag = () => {
@@ -120,4 +123,19 @@ export const NotificationsIcon = ({ count }: { count?: number }) => {
           </span> : <></>
         }
     </div>
+}
+
+
+export const ManageAccountIcon = () => {
+    return <ManageAccountsIcon/>
+}
+
+
+export const RecentIcon = () => {
+    return <ScheduleIcon fontSize="small"/>
+}
+
+
+export const PopularIcon = () => {
+    return <ActivePraiseIcon/>
 }

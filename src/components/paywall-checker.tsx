@@ -7,7 +7,7 @@ import { ReactNode } from "react";
 import { useUser } from "../app/hooks/user";
 
 
-const NeedAccountPaywall: React.FC<any> = ({ children }) => {
+export const NeedAccountPaywall: React.FC<any> = ({ children }) => {
     return (
         <>
             <div className="relative z-0">

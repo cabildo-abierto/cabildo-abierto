@@ -2,6 +2,7 @@ import { useState } from "react"
 import { LoadingFeed, LoadingFeedWithData } from "./feed"
 import SelectionComponent from "./search-selection-component"
 import { ConfiguredFeed } from "./sorted-and-filtered-feed"
+import { FastPostIcon, PopularIcon, PostIcon, RecentIcon } from "./icons"
 
 
 export type SortedFeedProps = {
@@ -24,6 +25,7 @@ export const FeedWithConfig = ({feed, noResultsText, maxSize, defaultOrder}: Sor
                 onSelection={setFilter}
                 selected={filter}
                 options={["Todas", "Rápidas", "Elaboradas"]}
+                optionsNodes={[<span key={0}><FastPostIcon/> <PostIcon/></span>, <span key={1}><FastPostIcon/></span>, <span key={2}><PostIcon/></span>]}
                 optionExpl={["Todas las publicaciones", "Solo publicaciones rápidas", "Solo publicaciones con título"]}
             />
             </div>
@@ -33,6 +35,7 @@ export const FeedWithConfig = ({feed, noResultsText, maxSize, defaultOrder}: Sor
                 onSelection={setOrder}
                 selected={order}
                 options={["Recientes", "Populares"]}
+                optionsNodes={[<span key={0}><RecentIcon/></span>, <span key={1}><PopularIcon/></span>]}
                 optionExpl={["Publicaciones ordenadas por fecha de publicación", "Publicaciones ordenadas por cantidad de reacciones positivas."]}
             />
             </div>

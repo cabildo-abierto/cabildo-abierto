@@ -85,7 +85,7 @@ function selectErrors(state: any){
     return state
 }
 
-export const EmailInput = ({state}) => {
+export const EmailInput = ({state, label="Email"}) => {
     state = selectErrors(state)
 
     const handleEmailInput = (e: any) => {
@@ -97,7 +97,7 @@ export const EmailInput = ({state}) => {
     };
 
     return <div>
-        <AuthenticationFormLabel text="Email" label="email"/>
+        <AuthenticationFormLabel text={label} label="email"/>
         <input
             className={inputClassName}
             placeholder=""
@@ -118,12 +118,12 @@ export const EmailInput = ({state}) => {
     </div>
 }
 
-export const PasswordInput = ({state}: {state: SignUpFormState}) => {
+export const PasswordInput = ({state, label="Contraseña"}: {state: SignUpFormState, label?: string}) => {
     state = selectErrors(state)
     const [showPassword, setShowPassword] = useState(false);
 
     return <div>
-        <AuthenticationFormLabel text="Contraseña" label="password"/>
+        <AuthenticationFormLabel text={label} label="password"/>
         <div className="relative">
             <input
                 className={inputClassName}

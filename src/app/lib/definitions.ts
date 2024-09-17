@@ -118,7 +118,7 @@ export const SignupFormSchema = z.object({
         .string()
         .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
         .trim(),
-    email: z.string().email({ message: 'Ingresá un email válido.' }).trim(),
+    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim(),
     username: z
         .string()
         .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
@@ -138,11 +138,26 @@ export const SignupFormSchema = z.object({
 });
 
 export const LoginFormSchema = z.object({
-    email: z.string().email({ message: 'Ingresá un email válido.' }).trim(),
+    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim(),
     password: z
         .string()
         .min(1, { message: 'Ingresá tu contraseña' })
 })
+
+
+export const RecoverPwFormSchema = z.object({
+    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim()
+});
+
+
+export const UpdatePwFormSchema = z.object({
+    password: z
+        .string()
+        .min(8, { message: 'Tiene que tener al menos 8 caracteres.' })
+        .regex(/[a-zA-Z]/, { message: 'Tiene que tener al menos una letra.' })
+        .regex(/[0-9]/, { message: 'Tiene que tener al menos un número.' })
+        .trim(),
+});
 
 
 export type LoadingUser = {
