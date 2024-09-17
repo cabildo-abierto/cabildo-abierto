@@ -81,12 +81,19 @@ const WriteButton = () => {
     useEffect(() => {
         if (isDropdownOpen && buttonRef.current && dropdownRef.current) {
             const rect = buttonRef.current.getBoundingClientRect();
+            const dropdownRect = dropdownRef.current.getBoundingClientRect();
+            let leftPosition = rect.left + window.scrollX;
+    
+            if (leftPosition + dropdownRect.width > window.innerWidth) {
+                leftPosition = window.innerWidth - dropdownRect.width - 5;
+            }
+    
             setDropdownStyles({
                 position: 'absolute',
                 top: `${rect.bottom + window.scrollY}px`,
-                left: `${rect.left + window.scrollX}px`,
+                left: `${leftPosition}px`,
                 zIndex: 10,
-                width: 'max-content', // Optional: Adjust based on your design
+                width: 'max-content',
             });
         }
     }, [isDropdownOpen]);
