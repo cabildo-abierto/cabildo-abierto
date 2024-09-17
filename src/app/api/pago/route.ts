@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req) {
+export async function POST(req) {
     console.log("got a payment!");
     console.log("request is", req)
     if (req.method === 'POST') {
