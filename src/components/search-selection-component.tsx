@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 type SelectionComponentProps = { 
     onSelection: (arg: string) => void
@@ -8,9 +8,12 @@ type SelectionComponentProps = {
     selected?: string
     className?: string
     optionExpl?: (string | undefined)[]
+    optionsNodes?: ReactNode[]
 }
 
-const SelectionComponent: React.FC<SelectionComponentProps> = ({ onSelection, options, selected, className="search", optionExpl }) => {
+const SelectionComponent: React.FC<SelectionComponentProps> = ({
+  onSelection, options, selected, className="search", optionExpl, optionsNodes
+}) => {
   const [selectedButton, setSelectedButton] = useState(selected ? selected : options[0]);
   
   const handleButtonClick = (button: string) => {
@@ -35,7 +38,7 @@ const SelectionComponent: React.FC<SelectionComponentProps> = ({ onSelection, op
         title={optionExpl ? optionExpl[index] : undefined}
       >
         <span className={textClassName(option)}>
-          {option}
+          {optionsNodes ? optionsNodes[index] : option}
         </span>
       </button>
       })}

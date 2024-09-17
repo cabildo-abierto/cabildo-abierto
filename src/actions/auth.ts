@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { createClient } from '../utils/supabase/server'
-import { LoginFormSchema, SignupFormSchema, UserProps } from '../app/lib/definitions'
+import { LoginFormSchema, RecoverPwFormSchema, SignupFormSchema, UpdatePwFormSchema, UserProps } from '../app/lib/definitions'
 import { db } from '../db'
 import { AuthRetryableFetchError } from '@supabase/supabase-js'
 import { getUser } from './users'
@@ -100,4 +100,44 @@ export async function signOut() {
   } else {
       return {}
   }
+}
+
+
+export async function recoverPw(state: any, formData: FormData) {
+    const validatedFields = RecoverPwFormSchema.safeParse({
+      email: formData.get('email')
+    })
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+        }
+    }
+
+    const supabase = createClient()
+    const { data, error } = await supabase.auth.resetPasswordForEmail(validatedFields.data.email, {redirectTo: "/recuperar"})
+    
+    return {errors: error}
+}
+
+
+export async function updatePw(state: any, formData: FormData) {
+    const validatedFields = UpdatePwFormSchema.safeParse({
+      password: formData.get('password')
+    })
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+        }
+    }
+
+    const supabase = createClient()
+    const { data, error } = await supabase.auth.updateUser({password: validatedFields.data.password})
+    
+    if(error){
+      return {errors: error.code}
+    }
+    
+    return {}
 }

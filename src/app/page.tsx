@@ -1,9 +1,10 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthPage } from "../components/auth-page"
 import Footer from "../components/footer"
 import { Presentation } from "../components/presentation"
 import { useRouter } from "next/navigation";
+import { createClient } from "../utils/supabase/client";
 
 
 const InvalidConfirmLinkPopup = ({onClose}: {onClose: any}) => {
@@ -26,6 +27,7 @@ const InvalidConfirmLinkPopup = ({onClose}: {onClose: any}) => {
 export default function Page({searchParams}: {searchParams: {code?: string, error_description?: string}}) {
     const [invalidLink, setInvalidLink] = useState(searchParams.error_description == "Email link is invalid or has expired")
     const router = useRouter()
+
     return <div className="flex lg:flex-row flex-col">
         {invalidLink &&
         <InvalidConfirmLinkPopup onClose={() => {setInvalidLink(false); router.push("/")}}/>}

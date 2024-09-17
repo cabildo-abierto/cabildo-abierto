@@ -8,7 +8,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useSWRConfig } from "swr";
 import StateButton from "./state-button";
 import { id2url } from "./content";
-import {CabildoIcon, DashboardIcon, NotificationsIcon, ScoreboardIcon} from "./icons";
+import {CabildoIcon, DashboardIcon, ManageAccountIcon, NotificationsIcon, ScoreboardIcon} from "./icons";
 import { useRouter } from "next/navigation";
 import { signOut } from "../actions/auth";
 import { useUser } from "../app/hooks/user";
@@ -39,6 +39,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Panel personal" href="/panel"/>
                     <SidebarButton icon={<ScoreboardIcon/>} onClick={onClose} text="Ranking" href="/ranking"/>
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/articulo/Cabildo_Abierto"/>
+                    <SidebarButton icon={<ManageAccountIcon/>} onClick={onClose} text="Cuenta" href="/cuenta"/>
                 </div>
                 {user.user && <div className="flex flex-col items-center">
                     <Link href={`/perfil/${user.user.id}`}

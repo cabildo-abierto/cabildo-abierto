@@ -343,18 +343,22 @@ ol {
 	border-radius: 2px
 }
 
-.filter-feed button {
-	padding-bottom: 3px
-}
-
-.filter-feed.selected-option-text {
-	border-bottom-width: 2px;
-	border-color: $primary
-}
-
 .main-feed.not-selected-option:hover {
 	background: var(--secondary-light);
 }
+
+.filter-feed button {
+	padding-bottom: 3px;
+	padding-top: 3px;
+	border-bottom-width: 2px;
+	border-color: transparent;
+}
+
+
+.filter-feed.selected-option {
+	border-color: $primary;
+}
+
 
 .filter-feed.not-selected-option:hover {
 	background: var(--secondary-light);
