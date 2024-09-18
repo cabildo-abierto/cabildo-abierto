@@ -297,42 +297,16 @@ export const getUserStats = async (userId: string) => {
 }
 
 
-const accessToken = "APP_USR-8751944294701489-091623-00cbcdbdbb328be11bd3e67a76ff0369-536751662"
 
 export async function buyAndUseSubscription(userId: string) {
-    const client = new MercadoPagoConfig({ accessToken: accessToken });
-    const customer = new Customer(client);
-
-    const email = "joaquindelgado2802@gmail.com"
-    const body = {
-        email: email
-    };
-    
-    const result = await customer.search({ options: { email: email } })
-
-    console.log(result)
-    console.log(result.results[0].address)
-    /*customer.create({ body: body }).then((result) => {
-        const customerCard = new CustomerCard(client);
-
-        console.log("user", result)
-        console.log("user", result.token)
-        const body = {
-            token : result.token,
-        };
-
-        customerCard.create({ customerId: 'customer_id', body })
-            .then((result) => console.log(result));
-    })*/
-    
-    /*const result = await db.subscription.create({
+    const result = await db.subscription.create({
         data: {
             userId: userId,
             boughtByUserId: userId,
             usedAt: new Date()
         }
     })
-    revalidateTag("user:"+userId)*/
+    revalidateTag("user:"+userId)
 }
 
 export async function donateSubscriptions(n: number, userId: string) {
@@ -476,7 +450,8 @@ export const getNoAccountUser = async (header: ReadonlyHeaders, agent: any) => {
     return user
 }
 
-
+//const accessToken = "APP_USR-8751944294701489-091623-00cbcdbdbb328be11bd3e67a76ff0369-536751662"
+const accessToken = "TEST-8751944294701489-091623-4f6d3596d15c9b3fd4c1308124c73f6e-536751662"
 
 export async function createPreference(userId: string) {
     const client = new MercadoPagoConfig({ accessToken: accessToken });
@@ -501,7 +476,7 @@ export async function createPreference(userId: string) {
         ],
         metadata: {
             userId: userId
-        }
+        },
       }
     })
 

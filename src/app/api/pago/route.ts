@@ -3,10 +3,10 @@ import { buyAndUseSubscription } from '../../../actions/users';
 
 export async function POST(req) {
     const json = await req.json()
+    console.log("pago notificado con data", json)
 
     const userId = json.metadata.userId
 
-    console.log("pago notificado con data", json)
 
     await buyAndUseSubscription(userId)
 
