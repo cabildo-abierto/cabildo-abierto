@@ -9,7 +9,7 @@ import { getEntities } from "./entities";
 import { createNotification } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import MercadoPagoConfig, { Customer, CustomerCard, Payment, Preference } from "mercadopago";
-import { getSubscriptionPrice } from "../components/utils";
+import { accessToken, getSubscriptionPrice } from "../components/utils";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -450,8 +450,8 @@ export const getNoAccountUser = async (header: ReadonlyHeaders, agent: any) => {
     return user
 }
 
-//const accessToken = "APP_USR-8751944294701489-091623-00cbcdbdbb328be11bd3e67a76ff0369-536751662"
-const accessToken = "TEST-8751944294701489-091623-4f6d3596d15c9b3fd4c1308124c73f6e-536751662"
+const baseUrl = "https://www.cabildoabierto.com.ar"
+//const baseUrl = "localhost:3000"
 
 export async function createPreference(userId: string) {
     const client = new MercadoPagoConfig({ accessToken: accessToken });
@@ -460,14 +460,14 @@ export async function createPreference(userId: string) {
     const result = await preference.create({
       body: {
         back_urls: {
-            success: "https://www.cabildoabierto.com.ar/suscripciones/pago-exitoso",
-            pending: "https://www.cabildoabierto.com.ar/suscripciones/pago-pendiente",
-            failure: "https://www.cabildoabierto.com.ar/suscripciones/pago-fallido"
+            success: baseUrl+"/suscripciones/pago-exitoso",
+            pending: baseUrl+"/suscripciones/pago-pendiente",
+            failure: baseUrl+"/suscripciones/pago-fallido"
         },
-        notification_url: "https://www.cabildoabierto.com.ar/api/pago?source_news=webhooks",
+        notification_url: baseUrl+"/api/pago?source_news=webhooks",
         items: [
           {
-            picture_url: "https://www.cabildoabierto.com.ar/favicon.ico",
+            picture_url: baseUrl+"/favicon.ico",
             id: "0",
             title: 'Un mes de suscripción en Cabildo Abierto',
             quantity: 1,
