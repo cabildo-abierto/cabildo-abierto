@@ -10,7 +10,6 @@ import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, CLEAR_EDITOR_C
 
 import dynamic from 'next/dynamic'
 import LoadingSpinner from "../loading-spinner"
-import { getAllText } from "../diff"
 import { SettingsProps } from "./lexical-editor"
 import { UserProps } from "../../app/lib/definitions"
 import { useUser } from "../../app/hooks/user"

@@ -1,11 +1,7 @@
 import Link from 'next/link'
- 
+import { NotFoundPage } from '../components/not-found-page'
+
+
 export default function NotFound() {
-  return (
-    <div className="text-center">
-      <h2 className="py-16">Error 404</h2>
-      <p className="mb-16">No pudimos encontrar la página.</p>
-      <Link className="gray-btn" href="/">Volver al inicio</Link>
-    </div>
-  )
+  return <NotFoundPage/>
 }

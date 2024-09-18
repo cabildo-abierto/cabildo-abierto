@@ -3,7 +3,7 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { ProtectionLevel } from "@prisma/client";
 import { db } from "../db";
-import { findReferences, getChildrenCount, getContentComments, getContentStaticById } from "./contents";
+import { findReferences, getContentById, getContentStaticById } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString, getAllText } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
@@ -51,9 +51,10 @@ export async function createEntity(name: string, userId: string){
 const recomputeEntityContributions = async (entityId: string) => {
     const entity = await getEntityById(entityId)
     
-    for(let i = 0; i < entity.versions.length; i++){
+    // no actualizamos la primera versión porque no suele cambiar
+    for(let i = 1; i < entity.versions.length; i++){
         const versionContent = await getContentStaticById(entity.versions[i].id)
-        const newData = await getNewVersionContribution(entityId, versionContent.text, versionContent.author.id)
+        const newData = await getNewVersionContribution(entityId, versionContent.text, versionContent.author.id, i-1)
         
         await db.content.update({
             data: newData,
@@ -61,13 +62,15 @@ const recomputeEntityContributions = async (entityId: string) => {
                 id: versionContent.id
             }
         })
+        revalidateTag("content:"+versionContent.id)
     }
+    revalidateTag("entity:"+entityId)
 }
 
 
 const getNewVersionContribution = async (entityId: string, text: string, userId: string, afterVersion?: number) => {
     const entity = await getEntityById(entityId)
-    if(!afterVersion) afterVersion = entity.versions.length-1
+    if(afterVersion == undefined) afterVersion = entity.versions.length-1
     const lastVersionId = entity.versions[afterVersion].id
     const lastVersion = await getContentStaticById(lastVersionId)
 
@@ -170,16 +173,22 @@ export const deleteContent = async (contentId: string) => {
         }
     })
 
+    await db.noAccountVisit.deleteMany({
+        where: {
+            contentId: contentId
+        }
+    })
+
     await db.reaction.deleteMany({
         where: {
             contentId: contentId
         }
     })
 
-    const comments = await getContentComments(contentId)
+    const content = await getContentById(contentId)
 
-    for(let i = 0; i < comments.length; i++){
-        await deleteContent(comments[i].id)
+    for(let i = 0; i < content.childrenContents.length; i++){
+        await deleteContent(content.childrenContents[i].id)
     }
 
     await db.content.delete({
@@ -187,6 +196,8 @@ export const deleteContent = async (contentId: string) => {
             id: contentId
         }
     })
+
+    // habría que revalidar más tags en realidad
     revalidateTag("content:"+contentId)
 }
 
@@ -197,10 +208,10 @@ export const deleteEntityHistory = async (entityId: string) => {
     for(let i = 1; i < entity.versions.length-1; i++){
         await deleteContent(entity.versions[i].id)
     }
-    
-    revalidateTag("entity:"+entityId)
 
+    revalidateTag("entity:"+entityId)
     await recomputeEntityContributions(entityId)
+    
 }
 
 
@@ -402,4 +413,10 @@ export async function setProtection(entityId: string, level: ProtectionLevel) {
     revalidateTag("entities")
     revalidateTag("entity")
     return result
+}
+
+
+export async function revalidateEntities(){
+    revalidateTag("entity")
+    revalidateTag("entities")
 }
