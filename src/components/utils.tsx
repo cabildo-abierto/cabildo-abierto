@@ -37,7 +37,6 @@ export function getSubscriptionPrice() {
 
 export const entityLastVersionId = (entity: EntityProps) => {
     return entity.versions[entity.versions.length-1].id
-    assert(false)
 }
 
 

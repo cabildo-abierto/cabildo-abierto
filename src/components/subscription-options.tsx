@@ -7,11 +7,28 @@ import { useSubscriptionPoolSize } from "../app/hooks/subscriptions"
 const SubscriptionOptions = () => {
     const poolSize = useSubscriptionPoolSize()
 
-    const desc2 = <div>
+    let desc2 = <div>
         <span>
-            Hay <span className="font-bold">{poolSize.isLoading ? "?" : poolSize.poolSize}</span> suscripciones disponibles.
+            Cargando suscripciones disponibles...
         </span>
     </div>
+
+    if(!poolSize.isLoading){
+        if(poolSize.poolSize != 1){
+            desc2 = <div>
+                <span>
+                    Hay <span className="font-bold">{poolSize.poolSize}</span> suscripciones disponibles.
+                </span>
+            </div>
+        } else {
+            desc2 = <div>
+                <span>
+                    Hay <span className="font-bold">{poolSize.poolSize}</span> suscripción disponible.
+                </span>
+            </div>
+        }
+        
+    }
 
     return <>
         <div className="px-4 w-full">
@@ -52,7 +69,6 @@ const SubscriptionOptions = () => {
                 <SubscriptionOptionButton
                     title="Hacer crecer Cabildo Abierto"
                     description="Comprar y donar suscripciones"
-                    disabled={true}
                     price={`Desde $${2*getSubscriptionPrice()}`}
                     href={"/suscripciones/donar"}
                 />

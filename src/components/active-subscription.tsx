@@ -30,7 +30,7 @@ const ActiveSubscription: React.FC = () => {
         <div className="flex justify-center mt-8">
             <div className="flex justify-center">
                 <Link className="gray-btn font-bold w-32 h-12 mb-8 flex justify-center items-center" href="/suscripciones/donar">
-                    Donar
+                    <h4>Donar</h4>
                 </Link>
             </div>
         </div>
