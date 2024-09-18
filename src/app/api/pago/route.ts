@@ -27,7 +27,7 @@ export async function POST(req) {
     const paymentDetails = await getPaymentDetails(paymentId)
     console.log("detalles", paymentDetails)
 
-    await buyAndUseSubscription(paymentDetails.metadata.userId)
+    await buyAndUseSubscription(paymentDetails.metadata.user_id)
 
     return NextResponse.json({ status: 200 });
 }

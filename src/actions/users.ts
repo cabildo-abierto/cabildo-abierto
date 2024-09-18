@@ -475,7 +475,7 @@ export async function createPreference(userId: string) {
           }
         ],
         metadata: {
-            userId: userId
+            user_id: userId
         },
       }
     })
