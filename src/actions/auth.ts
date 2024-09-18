@@ -10,6 +10,7 @@ import { getUser } from './users'
 
 type LoginFormState = {
   error?: string
+  data?: any
   user?: UserProps
 }
 
@@ -31,7 +32,7 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
     if(error instanceof AuthRetryableFetchError){
       return { error: "no connection" }
     } else if(error.message == "Email not confirmed"){
-      return { error: "not confirmed"}
+      return { error: "not confirmed", data: validatedFields.data}
     } else {
       return { error: "invalid auth" }
     }
@@ -42,7 +43,8 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
 
 export type SignUpFormState = {
   errors?: any,
-  authError?: any
+  authError?: any,
+  data?: {email: string}
 }
 
 export async function signup(state: any, formData: FormData): Promise<SignUpFormState> {
@@ -88,6 +90,7 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
 
     revalidatePath('/', 'layout')
     revalidateTag("users")
+    return {data: {email: validatedFields.data.email}}
 }
 
 export async function signOut() {
@@ -140,4 +143,14 @@ export async function updatePw(state: any, formData: FormData) {
     }
     
     return {}
+}
+
+
+export async function resendConfirmationEmail(email: string){
+    const supabase = createClient()
+    const result = await supabase.auth.resend({
+      type: "signup",
+      email: email
+    })
+    console.log("result", result)
 }

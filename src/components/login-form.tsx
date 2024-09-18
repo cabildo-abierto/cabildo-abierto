@@ -5,6 +5,8 @@ import { AuthForm, EmailInput, PasswordInput } from "./signup-form";
 import { useSWRConfig } from "swr";
 import { useRouter } from "next/navigation";
 import { login } from "../actions/auth";
+import ResendEmailButton from "./resend-email-button";
+
 
 export default function LoginForm() {
     const {mutate} = useSWRConfig()
@@ -29,7 +31,12 @@ export default function LoginForm() {
         error = <div className="flex items-center text-red-600 h-6 px-2">Ocurrió un error en la conexión.</div>   
     }
     if(state && state.error == "not confirmed"){
-        error = <div className="flex items-center text-red-600 h-6 px-2">Confirmá tu mail para iniciar sesión.</div>   
+        error = <div className="flex items-center px-2">
+            <div>
+            <span className="text-red-600">Confirmá tu mail para iniciar sesión.</span>
+            <ResendEmailButton email={state.data.email}/>
+            </div>
+        </div>   
     }
 
     return (

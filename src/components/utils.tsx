@@ -31,7 +31,7 @@ export function validSubscription(user: UserProps | undefined){
 }
 
 export function getSubscriptionPrice() {
-    return 1000
+    return 500
 }
 
 
