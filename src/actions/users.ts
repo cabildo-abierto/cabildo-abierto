@@ -364,7 +364,7 @@ export const getSubscriptionPoolSize = unstable_cache(async () => {
 },
     ["poolsize"],
     {
-        revalidate: 5,
+        revalidate: revalidateEverythingTime,
         tags: ["poolsize"]
     }
 )

@@ -22,7 +22,7 @@ export const FreeSubscriptionButton = () => {
         onClick={handlePayment}
         className="gray-btn"
         text1="Usar una suscripción pendiente"
-        text2="Agarrando una suscripción..."
+        text2="Adquiriendo suscripción..."
     />
         
 }

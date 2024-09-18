@@ -14,7 +14,7 @@ function PagoUnico({preferenceId}: {preferenceId: string}) {
     const price = getSubscriptionPrice()
 
     const center = <div className="flex flex-col items-center text-center">
-        <div className="mt-16">Vas a comprar una suscripción mensual.</div>
+        <div className="mt-16">Estás comprando una suscripción mensual.</div>
         <div className="mt-8">Total: ${price}</div>
         <div className="mt-8">
             <div className="w-64">
@@ -57,9 +57,6 @@ export default function PlanClasico() {
                 ${getSubscriptionPrice()} por mes.
             </div>
 
-            <div className="mt-32 flex justify-center text-gray-600">
-                Pagá con Mercado Pago o tarjeta de débito y crédito de cualquier banco.
-            </div>
             <div className="flex justify-center items-center mt-2">
                 <div className="w-full">
                 
