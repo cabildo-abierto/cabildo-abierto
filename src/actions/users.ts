@@ -298,12 +298,14 @@ export const getUserStats = async (userId: string) => {
 
 
 
-export async function buyAndUseSubscription(userId: string) {
+export async function buyAndUseSubscription(userId: string, paymentId: string, price: number) {
     const result = await db.subscription.create({
         data: {
             userId: userId,
             boughtByUserId: userId,
-            usedAt: new Date()
+            usedAt: new Date(),
+            paymentId: paymentId,
+            price: price
         }
     })
     revalidateTag("user:"+userId)
@@ -467,7 +469,7 @@ export async function createPreference(userId: string) {
         notification_url: baseUrl+"/api/pago?source_news=webhooks",
         items: [
           {
-            picture_url: baseUrl+"/favicon.ico",
+            picture_url: baseUrl+"/cabildo-icono.png",
             id: "0",
             title: 'Un mes de suscripción en Cabildo Abierto',
             quantity: 1,
