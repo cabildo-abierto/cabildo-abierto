@@ -133,47 +133,6 @@ export async function getContentStaticById(id: string): Promise<ContentProps> {
 }
 
 
-export async function getChildrenCount(id: string) {
-    return unstable_cache(async () => {
-        let comments = await getContentComments(id)
-        let count = 0
-        for(let i = 0; i < comments.length; i++){
-            count += await getChildrenCount(comments[i].id) + 1
-        }
-        return count
-    }, ["childrenCount", id], {
-        tags: ["childrenCount", "childrenCount:"+id],
-        revalidate: revalidateEverythingTime
-    })()
-}
-
-
-export async function getContentComments(id: string) {
-    return unstable_cache(async () => {
-        let content = await db.content.findUnique({
-            select: {
-                childrenContents: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-            },
-            where: {
-                id: id,
-            }
-        })
-        return content?.childrenContents
-    }, ["comments", id], {
-        revalidate: revalidateEverythingTime,
-        tags: ["comments", "comments:"+id]})()
-}
-
-
 export const getContentFakeNewsCount = (contentId: string) => {
     return unstable_cache(async () => {
         let content = await db.content.findUnique({

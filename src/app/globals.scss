@@ -118,8 +118,12 @@ h4 {
   	margin-top: 10px
 }
 
-.content p, ul {
+.content p, ul, li {
 	margin-top: 10px;
+}
+
+.content li {
+	margin-left: 32px;
 }
 
 .content blockquote {

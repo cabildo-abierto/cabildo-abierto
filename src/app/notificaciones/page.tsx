@@ -1,14 +1,11 @@
 import { getLastKNotifications, markNotificationViewed } from "../../actions/contents"
+import { getUser } from "../../actions/users"
 import { NotificationComponent } from "../../components/notification"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 
 
 const Page = async () => {
     const notifications = await getLastKNotifications(10)
-
-    for(let i = 0; i < notifications.length; i++){
-        markNotificationViewed(notifications[i].id)
-    }
     
     const center = <>
         <h1 className="py-8 text-2xl">Últimas notificaciones</h1>

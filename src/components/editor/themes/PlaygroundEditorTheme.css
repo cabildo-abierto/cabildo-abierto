@@ -264,14 +264,8 @@
   list-style-type: lower-roman;
   list-style-position: outside;
 }
-.PlaygroundEditorTheme__ul {
-  padding: 0;
-  margin: 0;
-  list-style-position: outside;
-  margin-bottom: 10px;
-}
+
 .PlaygroundEditorTheme__listItem {
-  margin: 0 32px;
 }
 .PlaygroundEditorTheme__listItemChecked,
 .PlaygroundEditorTheme__listItemUnchecked {

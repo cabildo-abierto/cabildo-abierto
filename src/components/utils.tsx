@@ -1,5 +1,7 @@
 import assert from "assert"
 import { UserProps, EntityProps, SmallEntityProps } from "../app/lib/definitions"
+import { charDiffFromJSONString } from "./diff"
+import { db } from "../db"
 
 
 export const splitPost = (text: string) => {
@@ -136,3 +138,37 @@ export function visitsThisMonth(visits: {createdAt: Date}[]){
 
 //export const accessToken = "TEST-8751944294701489-091623-4f6d3596d15c9b3fd4c1308124c73f6e-536751662"
 export const accessToken = "APP_USR-8751944294701489-091623-00cbcdbdbb328be11bd3e67a76ff0369-536751662"
+
+
+export async function updateEntityContributions(entity: EntityProps){
+    let accCharsAdded = 0
+    const authorAccCharsAdded = new Map<string, number>()
+
+    for(let j = 0; j < entity.versions.length; j++){
+        const {charsAdded, charsDeleted, matches, common, perfectMatches} = j == 0 ? {charsAdded: 0, charsDeleted: 0, matches: [], common: [], perfectMatches: []} :
+            charDiffFromJSONString(entity.versions[j-1].text, entity.versions[j].text)
+        
+        accCharsAdded += charsAdded
+        
+        const author = entity.versions[j].authorId
+        if(authorAccCharsAdded.has(author)){
+            authorAccCharsAdded.set(author, authorAccCharsAdded.get(author) + charsAdded)
+        } else {
+            authorAccCharsAdded.set(author, charsAdded)
+        }
+        
+        const diff = JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches})
+        await db.content.update({
+            data: {
+                contribution: JSON.stringify(Array.from(authorAccCharsAdded)),
+                accCharsAdded: accCharsAdded,
+                charsAdded: charsAdded,
+                charsDeleted: charsDeleted,
+                diff: diff
+            },
+            where: {
+                id: entity.versions[j].id
+            }
+        })
+    }
+}

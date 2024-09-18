@@ -1,10 +1,25 @@
+"use client"
+import { useEffect } from "react"
+import { useUser } from "../app/hooks/user"
 import { NotificationProps } from "../app/lib/definitions"
 import { DateSince } from "./date"
 import { CommentNotification, FollowNotification, ReactionNotification } from "./notification-components"
+import { markNotificationViewed } from "../actions/contents"
+import { useSWRConfig } from "swr"
 
 
 
-export const NotificationComponent = async ({notification}: {notification: NotificationProps}) => {
+export const NotificationComponent = ({notification}: {notification: NotificationProps}) => {
+    const user = useUser()
+    const {mutate} = useSWRConfig()
+
+    useEffect(() => {
+        if(!notification.viewed){
+            markNotificationViewed(notification.id)
+            mutate("/api/user")
+        }
+    }, [])
+    
     let content = null
     if(notification.type == "Comment"){
         content = <CommentNotification notification={notification}/>
