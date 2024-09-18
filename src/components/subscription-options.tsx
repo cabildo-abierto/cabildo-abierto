@@ -43,7 +43,7 @@ const SubscriptionOptions = () => {
                     title="Continuar gratis"
                     description={desc2}
                     price="$0"
-                    disabled={true || poolSize.poolSize == 0}
+                    disabled={poolSize.poolSize == 0}
                     href={"/suscripciones/pendiente"}
                 />
             </div>
