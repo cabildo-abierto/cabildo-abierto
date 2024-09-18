@@ -311,12 +311,14 @@ export async function buyAndUseSubscription(userId: string, paymentId: string, p
     revalidateTag("user:"+userId)
 }
 
-export async function donateSubscriptions(n: number, userId: string) {
+export async function donateSubscriptions(n: number, userId: string, paymentId: string, price: number) {
     const queries = []
     
     for(let i = 0; i < n; i++){
         queries.push({
-            boughtByUserId: userId
+            boughtByUserId: userId,
+            price: price,
+            paymentId: paymentId
         })
     }
 
@@ -327,6 +329,8 @@ export async function donateSubscriptions(n: number, userId: string) {
     revalidateTag("poolsize")
 }
 
+
+// TO DO: esto debería ser atómico
 export async function getDonatedSubscription(userId: string) {
     const subscription = await db.subscription.findFirst({
         where: {
@@ -360,7 +364,7 @@ export const getSubscriptionPoolSize = unstable_cache(async () => {
 },
     ["poolsize"],
     {
-        revalidate: revalidateEverythingTime,
+        revalidate: 5,
         tags: ["poolsize"]
     }
 )
@@ -455,9 +459,14 @@ export const getNoAccountUser = async (header: ReadonlyHeaders, agent: any) => {
 const baseUrl = "https://www.cabildoabierto.com.ar"
 //const baseUrl = "localhost:3000"
 
-export async function createPreference(userId: string) {
+export async function createPreference(userId: string, amount: number) {
     const client = new MercadoPagoConfig({ accessToken: accessToken });
     const preference = new Preference(client);
+
+    let title = 'Un mes de suscripción en Cabildo Abierto'
+    if(amount > 1){
+        title = amount + " meses de suscripción en Cabildo Abierto"
+    }
 
     const result = await preference.create({
       body: {
@@ -471,13 +480,14 @@ export async function createPreference(userId: string) {
           {
             picture_url: baseUrl+"/cabildo-icono.png",
             id: "0",
-            title: 'Un mes de suscripción en Cabildo Abierto',
+            title: title,
             quantity: 1,
-            unit_price: getSubscriptionPrice()
+            unit_price: getSubscriptionPrice()*amount
           }
         ],
         metadata: {
-            user_id: userId
+            user_id: userId,
+            amount: amount
         },
       }
     })

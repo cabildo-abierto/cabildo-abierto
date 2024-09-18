@@ -85,7 +85,7 @@ model Subscription {
   boughtBy       User      @relation("bought", fields: [boughtByUserId], references: [id])
   user           User?     @relation(fields: [userId], references: [id])
   price          Int
-  paymentId      String
+  paymentId      String?
 
   @@schema("public")
 }

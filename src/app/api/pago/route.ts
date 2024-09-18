@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { buyAndUseSubscription } from '../../../actions/users';
-import { accessToken } from '../../../components/utils';
+import { buyAndUseSubscription, donateSubscriptions, getUserById } from '../../../actions/users';
+import { accessToken, validSubscription } from '../../../components/utils';
 
 
 const getPaymentDetails = async (paymentId) => {
@@ -25,7 +25,19 @@ export async function POST(req) {
     
     const paymentDetails = await getPaymentDetails(paymentId)
 
-    await buyAndUseSubscription(paymentDetails.metadata.user_id, paymentId, paymentDetails.transaction_amount)
+    const amount = paymentDetails.metadata.amount
+
+    const userId = paymentDetails.metadata.user_id
+    const user = await getUserById(userId)
+    const valid = validSubscription(user)
+    const price = paymentDetails.transaction_amount / amount
+
+    if(amount > 1){
+      await donateSubscriptions(valid ? amount : amount-1, userId, paymentId, price)
+    }
+    if(!valid){
+      await buyAndUseSubscription(userId, paymentId, price)
+    }
 
     return NextResponse.json({ status: 200 });
 }
