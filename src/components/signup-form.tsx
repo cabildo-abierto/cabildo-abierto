@@ -8,6 +8,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import InfoPanel from './info-panel';
 import { signup, SignUpFormState } from '../actions/auth';
+import ResendEmailButton from './resend-email-button';
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
@@ -237,12 +238,14 @@ export const AuthForm = ({children, action, state, title}: {children: ReactNode,
 }
 
 
-const ConfirmLinkSentPopup = ({onClose}: {onClose: any}) => {
+const ConfirmLinkSentPopup = ({onClose, email}: {onClose: any, email: string}) => {
     return (
         <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
             
             <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
-                <div className="py-4 text-lg">¡Gracias por registrarte! Te debería haber llegado un mail de confirmación.</div>
+                <div className="mt-4 text-lg">¡Gracias por registrarte!</div>
+                <div className="mb-4 text-lg">En breve debería llegarte un mail de confirmación.</div>
+                <ResendEmailButton email={email} initializeSent={true}/>
                 <div className="flex justify-center items-center py-8 space-x-4">
                     <button onClick={onClose} className="gray-btn">
                         Ok
@@ -258,9 +261,18 @@ export default function SignupForm() {
     const [state, action] = useFormState(signup, undefined);
     const [showingSignupOK, setShowingSignupOK] = useState(false)
 
+    useEffect(() => {
+        if(state && !state.errors){
+            setShowingSignupOK(true)
+        }
+    }, [state])
+
     return (
         <>
-            {showingSignupOK && <ConfirmLinkSentPopup onClose={() => {setShowingSignupOK(false)}}/>}
+            {showingSignupOK && <ConfirmLinkSentPopup
+                onClose={() => {setShowingSignupOK(false)}}
+                email={state.data.email}
+            />}
             <div className="mb-2 mt-2">
                 <PeriodoDePrueba/>
             </div>
