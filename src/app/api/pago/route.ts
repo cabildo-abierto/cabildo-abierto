@@ -20,14 +20,12 @@ const getPaymentDetails = async (paymentId) => {
 
 export async function POST(req) {
     const json = await req.json()
-    console.log("pago notificado con data", json)
 
     const paymentId = json.data.id
     
     const paymentDetails = await getPaymentDetails(paymentId)
-    console.log("detalles", paymentDetails)
 
-    await buyAndUseSubscription(paymentDetails.metadata.user_id)
+    await buyAndUseSubscription(paymentDetails.metadata.user_id, paymentId, paymentDetails.transaction_amount)
 
     return NextResponse.json({ status: 200 });
 }

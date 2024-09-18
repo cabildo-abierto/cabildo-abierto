@@ -3,12 +3,12 @@ import Link from "next/link"
 import SubscriptionOptionButton from "../../../components/subscription-option-button"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
 import { getSubscriptionPrice } from "../../../components/utils"
-import { buyAndUseSubscription, createPreference } from "../../../actions/users"
+import { createPreference } from "../../../actions/users"
 import { useUser } from "../../hooks/user"
 import { useState } from "react"
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react'
-//initMercadoPago('APP_USR-1ddae427-daf5-49b9-b3bb-e1d5b5245f30');
-initMercadoPago('TEST-2f374e57-81aa-4e88-a554-d7e8128eb773')
+initMercadoPago('APP_USR-1ddae427-daf5-49b9-b3bb-e1d5b5245f30');
+//initMercadoPago('TEST-2f374e57-81aa-4e88-a554-d7e8128eb773')
 
 function PagoUnico({preferenceId}: {preferenceId: string}) {
     const price = getSubscriptionPrice()
@@ -76,7 +76,6 @@ export default function PlanClasico() {
                     title="Pago automático"
                     description={"Próximamente."/*"Poné la tarjeta (o cualquier medio de pago) y olvidate."*/}
                     disabled={true}
-                    href={"/suscripciones/clasico/pago-automatico"}
                 />
                 </div>
                 </div>

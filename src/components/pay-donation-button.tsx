@@ -13,14 +13,14 @@ export const PayDonationButton = ({amount, oneForYou}: {amount: number, oneForYo
 
     const handlePayment = async () => {
         if(!user) return
-        await donateSubscriptions(amount, user.id)
+        //await donateSubscriptions(amount, user.id)
 
         if(oneForYou){
-            await buyAndUseSubscription(user.id)
+            //await buyAndUseSubscription(user.id)
             await mutate("/api/user")
         }
         router.push("/suscripciones")
     }
-
-    return <PayButton onClick={handlePayment}/>
+    
+    return <PayButton onClick={() => {}}/>
 }

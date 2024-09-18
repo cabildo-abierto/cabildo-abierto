@@ -84,6 +84,8 @@ model Subscription {
   usedAt         DateTime?
   boughtBy       User      @relation("bought", fields: [boughtByUserId], references: [id])
   user           User?     @relation(fields: [userId], references: [id])
+  price          Int
+  paymentId      String
 
   @@schema("public")
 }

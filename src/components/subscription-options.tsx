@@ -43,7 +43,7 @@ const SubscriptionOptions = () => {
                     title="Continuar gratis"
                     description={desc2}
                     price="$0"
-                    disabled={poolSize.poolSize == 0}
+                    disabled={true || poolSize.poolSize == 0}
                     href={"/suscripciones/pendiente"}
                 />
             </div>
@@ -52,6 +52,7 @@ const SubscriptionOptions = () => {
                 <SubscriptionOptionButton
                     title="Hacer crecer Cabildo Abierto"
                     description="Comprar y donar suscripciones"
+                    disabled={true}
                     price={`Desde $${2*getSubscriptionPrice()}`}
                     href={"/suscripciones/donar"}
                 />
