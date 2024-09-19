@@ -14,7 +14,7 @@ export const FreeSubscriptionButton = () => {
         if(user){
             await getDonatedSubscription(user.id)
             await mutate("/api/user")
-            router.push("/suscripciones")
+            router.push("/inicio")
         }
     }
 

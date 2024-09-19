@@ -118,7 +118,9 @@ export async function recoverPw(state: any, formData: FormData) {
     }
 
     const supabase = createClient()
-    const { data, error } = await supabase.auth.resetPasswordForEmail(validatedFields.data.email, {redirectTo: "/recuperar"})
+    const { data, error } = await supabase.auth.resetPasswordForEmail(
+      validatedFields.data.email, {redirectTo: "https://www.cabildoabierto.com.ar/recuperar"}
+    )
     
     return {errors: error}
 }
