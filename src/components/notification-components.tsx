@@ -20,7 +20,7 @@ function PostDescription({contentId}: {contentId: string}){
     const href = "/contenido/"+contentId
 
     if(content.type == "EntityContent"){
-        post = <>el <Link href={href}>artículo</Link> que publicaste</>
+        post = <>el <Link href={href}>artículo público</Link> que editaste.</>
     } else if(content.type == "Comment"){
         post = <>tu <Link href={href}>comentario</Link>.</>
     } else if(content.type == "Post" || content.type == "FastPost"){

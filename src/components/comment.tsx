@@ -31,7 +31,6 @@ function getQuoteFromContent(node: any, id: string): any {
 
 
 export function getAllQuoteIds(node: any): any {
-    console.log("getting all quote ids")
     let quoteIds = []
     if(node.type === "custom-mark"){
         quoteIds = node.ids
@@ -42,7 +41,6 @@ export function getAllQuoteIds(node: any): any {
             quoteIds = [...quoteIds, ...childrenIds]
         }
     }
-    console.log("returning", quoteIds)
     return quoteIds
 }
 
