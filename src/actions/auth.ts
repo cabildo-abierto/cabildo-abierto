@@ -119,7 +119,7 @@ export async function recoverPw(state: any, formData: FormData) {
 
     const supabase = createClient()
     const { data, error } = await supabase.auth.resetPasswordForEmail(
-      validatedFields.data.email, {redirectTo: "https://www.cabildoabierto.com.ar/recuperar"}
+      validatedFields.data.email, {redirectTo: "https://www.cabildoabierto.com.ar/recuperar/nueva"}
     )
     
     return {errors: error}
@@ -154,5 +154,4 @@ export async function resendConfirmationEmail(email: string){
       type: "signup",
       email: email
     })
-    console.log("result", result)
 }

@@ -107,7 +107,6 @@ export function editorStateFromJSON(text: string){
 }
 
 function showAuthors(entity: EntityProps, version: number){
-    console.log("computing show authors")
     function newAuthorNode(authors: string[], childNode){
         const authorNode: SerializedAuthorNode = {
             children: [childNode],
@@ -132,8 +131,6 @@ function showAuthors(entity: EntityProps, version: number){
     let prevNodes = []
     let prevAuthors = []
 
-    console.log("versions", entity.versions.length)
-    console.log("version", version)
     for(let i = 0; i <= version; i++){
         const parsedVersion = editorStateFromJSON(entity.versions[i].text)
         if(!parsedVersion) continue
@@ -141,11 +138,7 @@ function showAuthors(entity: EntityProps, version: number){
         const {matches} = JSON.parse(entity.versions[i].diff)
         const versionAuthor = entity.versions[i].authorId
         let nodeAuthors: string[] = []
-        console.log("version", i, "nodes", nodes.length)
         for(let j = 0; j < nodes.length; j++){
-            console.log("nodes", nodes)
-            console.log("prevNodes", prevNodes)
-            console.log("matches", matches)
             let authors = null
             for(let k = 0; k < matches.length; k++){
                 if(matches[k] && matches[k].y == j){
@@ -174,7 +167,6 @@ function showAuthors(entity: EntityProps, version: number){
     }
     parsed.root.children = newChildren
     const r = JSON.stringify(parsed)
-    console.log("done computing show authors")
     return r
 }
 

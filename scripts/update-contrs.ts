@@ -25,7 +25,7 @@ const db = new PrismaClient();
 
     for(let i = 0; i < entities.length; i++) {
         const entity = entities[i]
-        if(entity.id != "Cabildo_Abierto") continue
+        if(entity.id != "Cabildo_Abierto%3A_Suscripciones") continue
         console.log("updating", entity.id, "number", i, "out of", entities.length)
         
         await updateEntityContributions(entity)

@@ -3,11 +3,14 @@ import Link from "next/link"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
 import { useUser } from "../../hooks/user"
 import { getSubscriptionPrice, validSubscription } from "../../../components/utils"
-import { initMercadoPago, Wallet } from '@mercadopago/sdk-react'
+import { initMercadoPago } from '@mercadopago/sdk-react'
 import { useState } from "react"
 import DonationInput from "../../../components/donation-input"
 import SubscriptionOptionButton from "../../../components/subscription-option-button"
 import { createPreference } from "../../../actions/users"
+import dynamic from 'next/dynamic'
+
+const Wallet = dynamic(() => import('@mercadopago/sdk-react').then(mod => mod.Wallet), { ssr: false });
 initMercadoPago('APP_USR-1ddae427-daf5-49b9-b3bb-e1d5b5245f30');
 
 

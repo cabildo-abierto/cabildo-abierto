@@ -63,6 +63,7 @@ const recomputeEntityContributions = async (entityId: string) => {
             }
         })
         revalidateTag("content:"+versionContent.id)
+        revalidateTag("contentStatic:"+versionContent.id)
     }
     revalidateTag("entity:"+entityId)
 }
@@ -199,6 +200,7 @@ export const deleteContent = async (contentId: string) => {
 
     // habría que revalidar más tags en realidad
     revalidateTag("content:"+contentId)
+    revalidateTag("contentStatic:"+contentId)
 }
 
 
