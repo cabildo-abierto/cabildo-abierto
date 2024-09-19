@@ -8,11 +8,11 @@ import { useState } from "react"
 export const AuthPage = ({startInLogin}: {startInLogin?: boolean}) => {
     const [hasAccount, setHasAccount] = useState(startInLogin)
     
-    return <div className="flex flex-col items-center justify-center h-screen">
+    return <div className="flex flex-col items-center justify-center min-h-screen-minus-footer">
         {
             !hasAccount ? <>
             <SignupForm/>
-            <div className='mt-4 text-center'>
+            <div className='mt-4 text-center pb-4'>
                 Ya tenés una cuenta? <button className="link2" onClick={() => {setHasAccount(true)}}>Iniciá sesión</button>.
             </div>
             </>

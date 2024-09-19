@@ -52,7 +52,7 @@ export const PeriodoDePrueba = () => {
                 </div>
                 <div className="text-sm">
                     Por ahora necesitás una clave para registrarte.
-                    Abrimos pronto :)
+                    Abrimos pronto.
                 </div>
             </div>
         </div>
