@@ -89,26 +89,37 @@ type CommentSectionProps = {
 export const CommentSection: React.FC<CommentSectionProps> = ({
     content, entity, writingReply, setWritingReply, depthParity=false, padding=true}) => {
 
-    const comments = entity ? [...getEntityComments(entity), ...entity.referencedBy] : content.childrenContents
+    let comments = entity ? 
+        [...getEntityComments(entity), ...entity.referencedBy] : 
+        content.childrenContents
+
+    console.log("comments", comments)
+    if(entity){
+        comments = comments.filter((comment) => {
+            return comment.type != "EntityContent" || (comment.currentVersionOf && comment.currentVersionOf.id)
+        })
+    }
 
     let contentsWithScore = comments.map((comment) => ({comment: comment, score: commentScore(comment)}))
     contentsWithScore = contentsWithScore.sort(listOrder)
-    
+
     return <>
         {
         contentsWithScore.length > 0 && 
-        <div className={"space-y-2 pt-1"}>
-            {contentsWithScore.map(({comment}) => (
-                <div key={comment.id}>
+        <div className={"space-y-2 pt-1 mb-1"}>
+            {contentsWithScore.map(({comment}) => {
+                const isRef = entity && entity.referencedBy.some((content) => (content.id == comment.id))
+
+                return <div key={comment.id}>
                     <ContentWithCommentsFromId
                         contentId={comment.id}
                         isMainPage={false}
                         parentContentId={content.id}
-                        inCommentSection={true}
+                        inCommentSection={!isRef}
                         depthParity={depthParity}
                     />
                 </div>
-            ))}
+            })}
         </div>
         }
         {(contentsWithScore.length == 0 && !writingReply) && <div className="text-center text-[var(--text-light)] py-2">

@@ -105,6 +105,10 @@ model Entity {
   views        View[]          @relation("entityViews")
 
   uniqueViewsCount Int?
+
+  currentVersionId String?     @unique
+  currentVersion Content?  @relation("currentVersion", fields: [currentVersionId], references: [id])
+
   @@schema("public")
 }
 
@@ -150,6 +154,8 @@ model Content {
   notifications    Notification[]
 
   noAccountVisits  NoAccountVisit[]
+
+  currentVersionOf Entity? @relation("currentVersion")
 
   @@schema("public")
 }

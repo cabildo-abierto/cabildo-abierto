@@ -4,7 +4,7 @@ import LoadingSpinner from "./loading-spinner"
 
 // TO DO: Agregar la cantidad de personas distintas que comentaron
 function popularityScore(content: SmallContentProps){
-    return content._count.reactions
+    return content._count.reactions + content._count.childrenTree
 }
 
 

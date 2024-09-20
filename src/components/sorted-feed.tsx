@@ -40,11 +40,21 @@ export const FeedWithConfig = ({feed, noResultsText, maxSize, defaultOrder}: Sor
             />
             </div>
         </div>
+
+        {order == "Recientes" &&
         <ConfiguredFeed
         feed={feed}
         noResultsText={noResultsText}
         maxSize={maxSize}
-        order={order}
-        filter={filter}/>
+        order="Recientes"
+        filter={filter}/>}
+
+        {order == "Populares" &&
+        <ConfiguredFeed
+        feed={feed}
+        noResultsText={noResultsText}
+        maxSize={maxSize}
+        order="Populares"
+        filter={filter}/>}
     </div>
 }

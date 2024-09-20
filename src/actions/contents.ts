@@ -54,7 +54,12 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                     select: {
                         id: true,
                         createdAt: true,
-                        type: true
+                        type: true,
+                        currentVersionOf: {
+                            select: {
+                                id: true
+                            }
+                        }
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -85,6 +90,11 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                 charsAdded: true,
                 charsDeleted: true,
                 diff: true,
+                currentVersionOf: {
+                    select: {
+                        id: true
+                    }
+                }
             },
             where: {
                 id: id,

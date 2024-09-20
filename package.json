@@ -15,6 +15,7 @@
     "remove-entity-reactions": "tsx scripts/remove-entity-reactions.js",
     "update-unique-views": "tsx scripts/update-unique-views.js",
     "free-subscriptions": "tsx scripts/free-subscriptions.js",
+    "update-is-last": "tsx scripts/update-is-last.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {

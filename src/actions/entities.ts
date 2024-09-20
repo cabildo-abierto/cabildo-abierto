@@ -329,6 +329,11 @@ export async function getEntityById(id: string) {
                                     select: {
                                         childrenTree: true
                                     }
+                                },
+                                currentVersionOf: {
+                                    select: {
+                                        id: true
+                                    }
                                 }
                             },
                         },
@@ -347,6 +352,11 @@ export async function getEntityById(id: string) {
                             select: {
                                 reactions: true,
                                 childrenTree: true
+                            }
+                        },
+                        currentVersionOf: {
+                            select: {
+                                id: true
                             }
                         }
                     }
@@ -421,4 +431,8 @@ export async function setProtection(entityId: string, level: ProtectionLevel) {
 export async function revalidateEntities(){
     revalidateTag("entity")
     revalidateTag("entities")
+}
+
+export async function revalidateContents(){
+    revalidateTag("content")
 }

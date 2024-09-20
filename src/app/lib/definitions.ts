@@ -33,11 +33,18 @@ export type ContentProps = {
     _count?: {reactions: number, childrenTree: number},
     uniqueViewsCount: number,
 
-    childrenContents?: {id: string, createdAt: Date | string, type: ContentType}[],
+    childrenContents?: {
+        id: string
+        createdAt: Date | string
+        type: ContentType
+        currentVersionOf?: {id: string} | null
+    }[],
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
 
     rootContentId: string
     ancestorContent?: {id: string}[]
+
+    currentVersionOf?: {id: string} | null
 }
 
 
@@ -58,6 +65,7 @@ export type EntityProps = {
             id: string
             type: ContentType
             _count: {childrenTree: number}
+            currentVersionOf: {id: (string | null)}
         }[]
         diff?: string
     }[]
@@ -186,9 +194,6 @@ export type UserStats = {
     viewsInEntities: number
 }
 
-
-
-
 export type SmallContentProps = {
     id: string
     type?: ContentType
@@ -197,6 +202,7 @@ export type SmallContentProps = {
     createdAt?: string | Date
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
     _count: {reactions: number, childrenTree: number}
+    currentVersionOf?: {id: (string | null)}
 }
 
 export type NotificationProps = {
