@@ -24,7 +24,7 @@ const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
 
     let entitiesWithScore = filteredEntities.map((entity) => ({entity: entity, score: popularityScore(entity)}))
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc)
-    console.log(entitiesWithScore.map(({entity, score}) => (entity.id, score)))
+    
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center">
             {entitiesWithScore.length > 0 ? entitiesWithScore.map((entity, index) => (

@@ -36,6 +36,11 @@ export const getRouteFeed = (route: string[], userId: string) => {
                         reactions: true,
                         childrenTree: true,
                     }
+                },
+                currentVersionOf: {
+                    select: {
+                        id: true
+                    }
                 }
             },
             where: {
@@ -95,6 +100,11 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                 _count: {
                     select: {
                         reactions: true
+                    }
+                },
+                currentVersionOf: {
+                    select: {
+                        id: true
                     }
                 }
             },
