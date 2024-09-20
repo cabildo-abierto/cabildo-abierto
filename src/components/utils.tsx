@@ -120,6 +120,11 @@ export function listOrder(a: {score: number[]}, b: {score: number[]}){
 }
 
 
+export function listOrderDesc(a: {score: number[]}, b: {score: number[]}){
+    return -listOrder(a, b)
+}
+
+
 export const monthly_visits_limit = 0
 
 
