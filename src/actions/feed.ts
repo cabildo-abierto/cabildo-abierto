@@ -172,6 +172,7 @@ export const getProfileFeed = async (userId: string) => {
         const feed = await db.content.findMany({
             select: {
                 id: true,
+                fakeReportsCount: true
             },
             where: {
                 AND: [

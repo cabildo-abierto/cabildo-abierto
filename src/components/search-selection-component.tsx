@@ -14,19 +14,17 @@ type SelectionComponentProps = {
 const SelectionComponent: React.FC<SelectionComponentProps> = ({
   onSelection, options, selected, className="search", optionExpl, optionsNodes
 }) => {
-  const [selectedButton, setSelectedButton] = useState(selected ? selected : options[0]);
-  
+
   const handleButtonClick = (button: string) => {
-    setSelectedButton(button);
     onSelection(button);
   };
 
   const buttonClassName = (option: string) => (
-    className + " flex-1 " + (selectedButton === option ? 'selected-option' : 'not-selected-option')
+    className + " flex-1 " + (selected === option ? 'selected-option' : 'not-selected-option')
   )
 
   const textClassName = (option: string) => (
-    className + " " + (selectedButton == option ? 'selected-option-text' : 'non-selected-option-text')
+    className + " " + (selected == option ? 'selected-option-text' : 'non-selected-option-text')
   )
 
   return <div className={"flex w-full " + className}>

@@ -7,8 +7,9 @@ import { Description } from "./description"
 import SelectionComponent from "./search-selection-component";
 import { unfollow, follow } from "../actions/users"
 import { UserProps } from "../app/lib/definitions"
+import { FakeNewsCounter, FixedFakeNewsCounter } from "./fake-news-counter"
 
-export function ProfileHeader({profileUser, user, setSelected}: {profileUser: UserProps, user?: UserProps, setSelected: any }) {
+export function ProfileHeader({profileUser, user, selected, setSelected, setShowingFakeNews }: {profileUser: UserProps, user?: UserProps, selected: string, setSelected: any, setShowingFakeNews: any }) {
     const [following, setFollowing] = useState(false)
     const {mutate} = useSWRConfig()
 
@@ -27,7 +28,7 @@ export function ProfileHeader({profileUser, user, setSelected}: {profileUser: Us
     const followingCount = profileUser.following.length
     
     const onUnfollow = async () => {
-        if(!user) return; 
+        if(!user) return; 1
         setFollowing(false);
         await unfollow(profileUser.id, user.id);
         mutate("/api/following-feed/"+user.id)
@@ -76,17 +77,21 @@ export function ProfileHeader({profileUser, user, setSelected}: {profileUser: Us
                 isOwner={isLoggedInUser !== undefined ? isLoggedInUser : false}
             />
         </div>
-        <div className="ml-2 flex mb-1">
+        <div className="ml-2 flex mb-1 items-center">
             <div>
             <span className="font-bold">{updatedFollowerCount}</span> {updatedFollowerCount == 1 ? "seguidor" : "seguidores"}
             </div>
             <div className="px-4">
             <span className="font-bold">{followingCount}</span> siguiendo
             </div>
+            <div className="px-4 mb-1">
+                <FixedFakeNewsCounter count={profileUser._count.contents} onClick={() => {setSelected("Publicaciones"); setShowingFakeNews(true)}}/>
+            </div>
         </div>
         <div>
             <SelectionComponent
-                onSelection={setSelected}
+                selected={selected}
+                onSelection={(v) => {setSelected(v); setShowingFakeNews(false)}}
                 options={["Publicaciones", "Respuestas", "Ediciones en artículos públicos"]}
                 className="main-feed"
             />
