@@ -16,6 +16,8 @@ type ProfilePageProps = {
 export const ProfilePage = ({profileUser}: ProfilePageProps) => {
     const loggedInUser = useUser()
     const [selected, setSelected] = useState("Publicaciones")
+    const [showingFakeNews, setShowingFakeNews] = useState(false)
+
     useEffect(() => {
         preload("/api/replies-feed/"+profileUser.id, fetcher)
         preload("/api/profile-feed/"+profileUser.id, fetcher)
@@ -25,11 +27,14 @@ export const ProfilePage = ({profileUser}: ProfilePageProps) => {
     return <div>
         <div className="mb-4">
             <ProfileHeader
+                setShowingFakeNews={setShowingFakeNews}
+                selected={selected}
                 profileUser={profileUser} user={loggedInUser.user}
                 setSelected={setSelected}
             />
         </div>
-        {selected == "Publicaciones" && <ProfileFeed profileUser={profileUser}/>}
+        {selected == "Publicaciones" && !showingFakeNews && <ProfileFeed profileUser={profileUser} showingFakeNews={false}/>}
+        {selected == "Publicaciones" && showingFakeNews && <ProfileFeed profileUser={profileUser} showingFakeNews={true}/>}
         {selected == "Respuestas" && <RepliesFeed profileUser={profileUser}/>}
         {selected == "Ediciones en artículos públicos" && <WikiFeed profileUser={profileUser}/>}
     </div>

@@ -117,7 +117,7 @@ export type UserProps = {
     followedBy: {id: string}[]
     authUser: {email: string | null} | null
     description: string | null
-    _count: {notifications: number}
+    _count: {notifications: number, contents: number}
 };
 
 
@@ -203,6 +203,7 @@ export type SmallContentProps = {
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
     _count: {reactions: number, childrenTree: number}
     currentVersionOf?: {id: (string | null)}
+    fakeReportsCount: number;
 }
 
 export type NotificationProps = {

@@ -89,6 +89,15 @@ export const getUserById = (userId: string) => {
                                 where: {
                                     viewed: false
                                 }
+                            },
+                            contents: {
+                                where: {
+                                    NOT: {
+                                        fakeReportsCount: {
+                                            equals: 0
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

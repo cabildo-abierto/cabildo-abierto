@@ -22,6 +22,23 @@ export const FakeNewsCounter: React.FC<FakeCounterProps> = ({
         icon1={<RedFlag/>}
         count={content.fakeReportsCount}
         disabled={false}
-        title="Reportes de falsedad"
+        title="Reportes de información falsa"
+    />
+}
+
+
+export const FixedFakeNewsCounter = ({
+    count,
+    onClick
+}: {
+    count: number,
+    onClick?: () => void
+}) => {
+    return <ReactionButton
+        onClick={onClick ? onClick : (() => {})}
+        icon1={<RedFlag/>}
+        count={count}
+        disabled={false}
+        title="Reportes de información falsa"
     />
 }
