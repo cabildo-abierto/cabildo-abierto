@@ -36,6 +36,9 @@ model User {
     notificationsGenerated Notification[] @relation("notificationBy")
     notifications       Notification[] @relation("notificationTo")
 
+    messagesSent        ChatMessage[]  @relation("messagesSent")
+    messagesReceived    ChatMessage[]  @relation("messagesReceived")
+
     @@map("users")
     @@schema("public")
 }
@@ -220,6 +223,23 @@ model NoAccountVisit {
 
   contentId        String
   content          Content  @relation(fields: [contentId], references: [id])
+
+  @@schema("public")
+}
+
+
+model ChatMessage {
+  id               String      @id @default(cuid())
+  createdAt        DateTime    @default(now()) @map("created_at")
+  fromUser         User  @relation("messagesSent", fields: [fromUserId], references: [id])
+  fromUserId       String
+
+  toUser           User  @relation("messagesReceived", fields: [toUserId], references: [id])
+  toUserId         String
+
+  text             String
+
+  seen             Boolean @default(false)
 
   @@schema("public")
 }

@@ -93,7 +93,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         [...getEntityComments(entity), ...entity.referencedBy] : 
         content.childrenContents
 
-    console.log("comments", comments)
     if(entity){
         comments = comments.filter((comment) => {
             return comment.type != "EntityContent" || (comment.currentVersionOf && comment.currentVersionOf.id)

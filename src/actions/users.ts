@@ -44,6 +44,78 @@ export const getUsers = unstable_cache(async () => {
 )
 
 
+export const getConversations = (userId: string) => {
+    return unstable_cache(async () => {
+        const user = await db.user.findUnique(
+            {
+                select: {
+                    id: true,
+                    name: true,
+                    following: {
+                        select: {
+                            id: true
+                        }
+                    },
+                    messagesSent: {
+                        select: {
+                            id: true,
+                            createdAt: true,
+                            fromUserId: true,
+                            toUserId: true,
+                            text: true,
+                            seen: true
+                        },
+                    },
+                    messagesReceived: {
+                        select: {
+                            id: true,
+                            createdAt: true,
+                            fromUserId: true,
+                            toUserId: true,
+                            text: true,
+                            seen: true
+                        }
+                    }
+                },
+                where: {
+                    id: userId
+                }
+            }
+        )
+
+        let users = new Map<string, {date: Date, seen: boolean}>()
+
+        function addMessage(from: string, date: Date, seen: boolean){
+            if(users.has(from)){
+                if(users.get(from).date.getTime() < date.getTime()){
+                    users.set(from, {date: date, seen: seen})
+                }
+            } else {
+                users.set(from, {date: date, seen: seen})
+            }
+        }
+
+        user.messagesReceived.forEach((m) => {
+            addMessage(m.fromUserId, m.createdAt, m.seen)
+        })
+
+        user.messagesSent.forEach((m) => {
+            addMessage(m.toUserId, m.createdAt, m.seen)
+        })
+
+        const usersArray = Array.from(users).map(([u, d]) => ({id: u, date: d.date, seen: d.seen}))
+
+        return [...usersArray, ...user.following.map(({id}) => ({id: id, date: null, seen: null}))]
+    },
+        ["conversations", userId],
+        {
+            revalidate: revalidateEverythingTime,
+            tags: ["conversations:"+userId]
+        }
+    )()
+}
+
+
 export const getUsersWithStats = unstable_cache(async () => {
     const users = await getUsers()
 
@@ -502,4 +574,67 @@ export async function createPreference(userId: string, amount: number) {
     })
 
     return result.id
+}
+
+
+export const getChatBetween = (userId: string, anotherUserId: string) => {
+    return unstable_cache(async () => {
+        const messages = await db.chatMessage.findMany({
+            select: {
+                createdAt: true,
+                id: true,
+                text: true,
+                fromUserId: true,
+                toUserId: true,
+                seen: true
+            },
+            where: {
+                OR: [{
+                    fromUserId: userId,
+                    toUserId: anotherUserId
+                },
+                {
+                    fromUserId: anotherUserId,
+                    toUserId: userId
+                }
+                ]
+            },
+            orderBy: {
+                createdAt: "asc"
+            }
+        })
+        return messages
+    }, ["chat", userId, anotherUserId], {
+        revalidate: revalidateEverythingTime,
+        tags: ["chat:"+userId+":"+anotherUserId, "chat:"+anotherUserId+":"+userId]})()    
+}
+
+
+export async function sendMessage(message: string, userFrom: string, userTo: string){
+    await db.chatMessage.create({
+        data: {
+            text: message,
+            fromUserId: userFrom,
+            toUserId: userTo
+        }
+    })
+    revalidateTag("chat:"+userFrom+":"+userTo)
+    revalidateTag("conversations:"+userFrom)
+    revalidateTag("conversations:"+userTo)
+}
+
+
+export async function setMessageSeen(id: string, userFrom: string, userTo: string){
+    await db.chatMessage.update({
+        data: {
+            seen: true
+        },
+        where: {
+            id: id
+        }
+    })
+    console.log("message", id, "is seen", userFrom, userTo)
+    revalidateTag("chat:"+userFrom+":"+userTo)
+    revalidateTag("conversations:"+userFrom)
+    revalidateTag("conversations:"+userTo)
 }

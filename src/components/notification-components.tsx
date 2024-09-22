@@ -36,7 +36,7 @@ export const CommentNotification = ({notification}: {notification: NotificationP
     if(content.isLoading){
         return <LoadingSpinner/>
     }
-
+    
     const post = <PostDescription contentId={content.content.parentContents[0].id}/>
     if(!post) return <LoadingSpinner/>
 

@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 
 type StateButtonProps = {
     onClick: () => void
     className: string
-    text1: string
-    text2?: string
+    text1: ReactNode
+    text2?: ReactNode
     disabled?: boolean
     reUsable?: boolean
 }
@@ -22,7 +22,6 @@ const StateButton: React.FC<StateButtonProps> = (
             setSubmitting(false)
         }
     }
-
 
     return <button 
         className={className}

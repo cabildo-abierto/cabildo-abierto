@@ -1,6 +1,7 @@
 import useSWR from "swr"
 import { UserProps } from "../lib/definitions"
 import { fetcher } from "./utils"
+import { ChatMessage } from "@prisma/client"
 
 
 export function useUser(): {user: UserProps | null, isLoading: boolean, isError: boolean}{
@@ -53,6 +54,17 @@ export function useUsers(): {users: UserProps[], isLoading: boolean, isError: bo
   
     return {
         users: data,
+        isLoading: isLoading,
+        isError: error
+    }
+}
+
+
+export function useChat(fromUserId: string, toUserId: string): {chat: ChatMessage[] | null, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/chat/'+fromUserId+'/'+toUserId, fetcher, { refreshInterval: 1000 })
+  
+    return {
+        chat: data,
         isLoading: isLoading,
         isError: error
     }
