@@ -10,7 +10,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { CabildoIcon, NotificationsIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
-import { LogoWithName } from "./logo";
 import Image from "next/image"
 
 
