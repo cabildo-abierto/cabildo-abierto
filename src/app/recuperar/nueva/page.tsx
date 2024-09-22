@@ -49,7 +49,6 @@ export default function NewPassword(){
     const [state, action] = useFormState(initialAction, undefined);
     const [showingOk, setShowingOk] = useState(false)
     const user = useUser()
-    const router = useRouter()
 
     useEffect(() => {
         if(state && !state.errors){
@@ -59,10 +58,6 @@ export default function NewPassword(){
 
     if(user.isLoading){
         return <LoadingSpinner/>
-    }
-
-    if(!user.user){
-        router.push("/recuperar")
     }
 
     let center = <div className="mt-32 flex flex-col items-center">
