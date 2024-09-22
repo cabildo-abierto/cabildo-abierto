@@ -25,6 +25,8 @@ import NotificationsIconMui from '@mui/icons-material/Notifications';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import ScheduleIcon from '@mui/icons-material/Schedule';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import SendIconMui from '@mui/icons-material/Send';
 
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -138,4 +140,24 @@ export const RecentIcon = () => {
 
 export const PopularIcon = () => {
     return <ActivePraiseIcon/>
+}
+
+
+export const SupportIcon = ({newCount}: {newCount?: number}) => {
+    const className = "font-bold absolute top-0 right-0 transform \
+    translate-x-1/2 -translate-y-1/2 bg-red-500 text-white\
+     rounded-full text-xs w-4 h-4 flex items-center justify-center"
+    return <div className="relative flex">
+        <SupportAgentIcon />
+        {(newCount && newCount > 0) ?
+          <span className={className}>
+            {newCount}
+          </span> : <></>
+        }
+    </div>
+}
+
+
+export const SendIcon = () => {
+    return <SendIconMui/>
 }

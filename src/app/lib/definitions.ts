@@ -203,7 +203,7 @@ export type SmallContentProps = {
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
     _count: {reactions: number, childrenTree: number}
     currentVersionOf?: {id: (string | null)}
-    fakeReportsCount: number;
+    fakeReportsCount?: number;
 }
 
 export type NotificationProps = {

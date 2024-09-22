@@ -2,7 +2,8 @@ const { PrismaClient } = require('@prisma/client');
 const db = new PrismaClient();
 
 (async () => {
-  const usernames = ["guest25", "prueba", "prueba2", "prueba4", "prueba5", "prueba6", "prueba7", "prueba8"]
+  await db.chatMessage.deleteMany()
+  /*const usernames = ["guest25", "prueba", "prueba2", "prueba4", "prueba5", "prueba6", "prueba7", "prueba8"]
 
   usernames.forEach(async (user) => {
     await db.content.updateMany({
@@ -24,5 +25,5 @@ const db = new PrismaClient();
     await db.user.delete({
       where: { id: user}
     })
-  })
+  })*/
 })();

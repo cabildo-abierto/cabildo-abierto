@@ -8,16 +8,28 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useSWRConfig } from "swr";
 import StateButton from "./state-button";
 import { id2url } from "./content";
-import {CabildoIcon, DashboardIcon, ManageAccountIcon, NotificationsIcon, ScoreboardIcon} from "./icons";
+import {CabildoIcon, DashboardIcon, ManageAccountIcon, NotificationsIcon, ScoreboardIcon, SupportIcon} from "./icons";
 import { useRouter } from "next/navigation";
 import { signOut } from "../actions/auth";
-import { useUser } from "../app/hooks/user";
+import { useChat, useUser } from "../app/hooks/user";
+import { ChatMessage } from "@prisma/client";
+
+
+function unseenCount(chat: ChatMessage[]){
+    let count = 0
+    for(let i = chat.length-1; i >= 0; i--){
+        if(!chat[i].seen) count ++
+        else break
+    }
+    return count
+}
 
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
     const user = useUser()
     const {mutate} = useSWRConfig()
     const router = useRouter()
+    const chat = useChat(user.user.id, "soporte")
     
     const onLogout = async () => {
         const {error} = await signOut()
@@ -26,6 +38,8 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
             await mutate("/api/user", null)
         }
     }
+
+    const newSupportCount = chat.chat ? unseenCount(chat.chat) : 0
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-20">
         <div className="flex">
@@ -40,6 +54,8 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     <SidebarButton icon={<ScoreboardIcon/>} onClick={onClose} text="Ranking" href="/ranking"/>
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/articulo/Cabildo_Abierto"/>
                     <SidebarButton icon={<ManageAccountIcon/>} onClick={onClose} text="Cuenta" href="/cuenta"/>
+                    <SidebarButton icon={<SupportIcon newCount={newSupportCount}/>} onClick={onClose} text="Soporte" href="/soporte"/>
+                    {user.user.editorStatus == "Administrator" && <SidebarButton icon={<SupportIcon/>} onClick={onClose} text="Responder" href="/soporte/responder"/>}
                 </div>
                 {user.user && <div className="flex flex-col items-center">
                     <Link href={`/perfil/${user.user.id}`}

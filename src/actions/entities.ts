@@ -365,7 +365,6 @@ export async function getEntityById(id: string) {
                     select: {reactions: true},
                 },
                 uniqueViewsCount: true,
-                
             },
                 where: {
                     id: id,
