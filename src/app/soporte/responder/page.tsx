@@ -8,5 +8,8 @@ export default async function Page() {
     if(conversations.length == 0){
         return <NoConversationsChatPage/>
     }
-    return <ChatPage fromUser="soporte" conversations={conversations}/>
+    return <ChatPage
+        fromUser="soporte"
+        conversations={conversations}
+    />
 }

@@ -10,6 +10,31 @@ import { usePathname, useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { CabildoIcon, NotificationsIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
+import { LogoWithName } from "./logo";
+import Image from "next/image"
+
+
+function TopbarLogo() {
+    return <div className="hover:bg-[var(--secondary-light)] rounded-lg h-10 py-1 px-2 w-24 flex justify-center items-center">
+        <Link href="/">
+            <div className="flex items-center">
+                <Image
+                    src="/cabildo-icono.png"
+                    alt="Loading..."
+                    width={320}
+                    height={320}
+                    priority={true}
+                    className="w-8 h-8"
+                />
+                <div className="ml-1 text-xs text-gray-900">
+                    <div>Cabildo</div>
+                    <div>Abierto</div>
+                </div>
+            </div>
+        </Link>
+    </div>
+}
+
 
 function FeedButton() {
     return <Link href="/inicio" className="px-1">
@@ -70,8 +95,9 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
     }, [])
     
     return <div className="flex items-center w-screen justify-between">
-        <div className="flex items-center sm:w-32 w-16">
-            <OpenSidebarButton onClick={onOpenSidebar}/>
+        <div className="flex items-center sm:w-72">
+            <TopbarLogo/>
+            {(!searchBarOpen || wideScreen) && <OpenSidebarButton onClick={onOpenSidebar}/>}
             {(!searchBarOpen || wideScreen) && <FeedButton />}
             {(!searchBarOpen || wideScreen) && <WriteButton />}
             {!searchBarOpen && path.includes("/inicio") && <SearchButton onClick={() => {
@@ -80,17 +106,17 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
                 else
                     router.push("/inicio")
             }} />}
-            <NotificationsButton/>
+            {(!searchBarOpen || wideScreen) && <NotificationsButton/>}
         </div>
 
-        {searchBarOpen && path.includes("/inicio") && <div className="">
+        {searchBarOpen && path.includes("/inicio") && <div className="mx-2">
             <SearchBar 
                 onClose={() => {setSearchBarOpen(false)}}
                 setSearchValue={ setSearchValue }
                 wideScreen={wideScreen}
             />
         </div>}
-        <div className="sm:w-32 w-16"></div>
+        <div className="sm:w-72 sm:block hidden"></div>
     </div>
 }
 
