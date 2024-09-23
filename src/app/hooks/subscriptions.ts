@@ -10,3 +10,13 @@ export function useSubscriptionPoolSize(): {poolSize: number, isLoading: boolean
         isError: error
     }
 }
+
+
+export function useSubscriptionPrice(): {price: {price: number, remaining: number}, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/subscription-price', fetcher)
+    return {
+        price: data,
+        isLoading,
+        isError: error
+    }
+}

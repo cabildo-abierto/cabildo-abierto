@@ -32,10 +32,6 @@ export function validSubscription(user: UserProps | undefined){
     return nextSubscriptionEnd > new Date()
 }
 
-export function getSubscriptionPrice() {
-    return 15
-}
-
 
 export const entityLastVersionId = (entity: EntityProps) => {
     return entity.versions[entity.versions.length-1].id

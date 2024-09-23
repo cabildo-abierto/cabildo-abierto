@@ -2,13 +2,14 @@
 import Link from "next/link"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
 import { useUser } from "../../hooks/user"
-import { getSubscriptionPrice, validSubscription } from "../../../components/utils"
+import { validSubscription } from "../../../components/utils"
 import { initMercadoPago } from '@mercadopago/sdk-react'
 import { useState } from "react"
 import DonationInput from "../../../components/donation-input"
 import SubscriptionOptionButton from "../../../components/subscription-option-button"
 import { createPreference } from "../../../actions/users"
 import dynamic from 'next/dynamic'
+import { useSubscriptionPrice } from "../../hooks/subscriptions"
 
 const Wallet = dynamic(() => import('@mercadopago/sdk-react').then(mod => mod.Wallet), { ssr: false });
 initMercadoPago('APP_USR-1ddae427-daf5-49b9-b3bb-e1d5b5245f30');
@@ -17,7 +18,8 @@ initMercadoPago('APP_USR-1ddae427-daf5-49b9-b3bb-e1d5b5245f30');
 function DonacionUnica({amount, preferenceId}: {amount: number, preferenceId: string}) {
     const {user} = useUser()
     const activeSubscription = validSubscription(user)
-
+    const price = useSubscriptionPrice()
+    
     const donations = activeSubscription ? amount : amount-1
 
     const center = <>
@@ -26,7 +28,7 @@ function DonacionUnica({amount, preferenceId}: {amount: number, preferenceId: st
          : <div className="flex justify-center mt-16">Estás por donar
             {donations == 1 ? " una suscripción" : " " + (donations).toString() + " suscripciones"}</div>
         }
-        <div className="flex justify-center mt-8">{"Total: $"+getSubscriptionPrice()*amount}</div>
+        {price.price && <div className="flex justify-center mt-8">{"Total: $"+price.price.price*amount}</div>}
         
         <div className="flex mt-8 flex-col items-center">
             <div className="px-2 mb-16">
@@ -51,7 +53,7 @@ export default function DonationPage() {
     const activeSubscription = validSubscription(user)
 
     const minAmount = activeSubscription ? 1 : 2
-    const validAmount = donationAmount >= minAmount && donationAmount <= 100
+    const validAmount = donationAmount >= minAmount && donationAmount <= 200
 
     if(choice == "unique"){
         return <div className="flex flex-col items-center">
@@ -79,8 +81,8 @@ export default function DonationPage() {
                     <DonationInput onChange={setDonationAmount} oneForYou={!activeSubscription}/>
                 </div>
                 
-                {donationAmount > 100 && <div className="flex justify-center text-red-600 py-2">
-                    Si querés donar más de 100 suscripciones contactate con nosotros.
+                {donationAmount > 200 && <div className="flex justify-center text-red-600 py-2">
+                    Si querés donar más de 200 suscripciones contactate con nosotros.
                 </div>}
 
                 <div className="mt-32 flex justify-center items-center">

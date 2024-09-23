@@ -27,7 +27,8 @@ import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import SendIconMui from '@mui/icons-material/Send';
-
+import PersonIcon from '@mui/icons-material/Person';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 export const RedFlag = () => {
@@ -160,4 +161,14 @@ export const SupportIcon = ({newCount}: {newCount?: number}) => {
 
 export const SendIcon = () => {
     return <SendIconMui/>
+}
+
+
+export const AuthorshipClaimIcon = () => {
+    return <PersonIcon/>
+}
+
+
+export const NoAuthorshipClaimIcon = () => {
+    return <PersonOutlineIcon/>
 }

@@ -1,6 +1,6 @@
 import { getContentById } from "../../../actions/contents"
 import { getEntityById } from "../../../actions/entities"
-import { getNoAccountUser, getUserId, logVisit } from "../../../actions/users"
+import { getUserId, logVisit } from "../../../actions/users"
 import { ArticlePage } from "../../../components/article-page"
 import NoEntityPage from "../../../components/no-entity-page"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
@@ -31,7 +31,7 @@ const Page = async ({params}: {params: {id: string}}) => {
         }
     }
 
-    return <ArticlePage entity={entity} content={content} version={version} visitOK={visitOK}/>
+    return <ArticlePage entity={entity} content={content} version={undefined} visitOK={visitOK}/>
 }
 
 export default Page

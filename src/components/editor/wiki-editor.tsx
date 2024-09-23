@@ -10,7 +10,7 @@ import { useSWRConfig } from "swr"
 import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
 import LoadingSpinner from "../loading-spinner"
-import { diff, getAllText, nodesFromJSONStr, textNodesFromJSONStr } from "../diff"
+import { charDiffFromJSONString, diff, getAllText, nodesFromJSONStr, textNodesFromJSONStr } from "../diff"
 import { SerializedDiffNode } from "./nodes/DiffNode"
 import { ChangesCounter } from "../changes-counter"
 import { SerializedAuthorNode } from "./nodes/AuthorNode"
@@ -20,6 +20,9 @@ import { updateEntity } from "../../actions/entities"
 import { useContent } from "../../app/hooks/contents"
 import { useUser } from "../../app/hooks/user"
 import { SettingsProps } from "./lexical-editor"
+import Link from "next/link"
+import TickButton from "../tick-button"
+import InfoPanel from "../info-panel"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
@@ -170,6 +173,51 @@ function showAuthors(entity: EntityProps, version: number){
     return r
 }
 
+
+export const SaveEditPopup = ({ editorState, currentVersion, onClose, onSave }: {editorState: EditorState, currentVersion: string, onClose: () => void, onSave: (v: boolean) => void}) => {
+    const [claimsAuthorship, setClaimsAuthorship] = useState(true)
+    //const d = charDiffFromJSONString(currentVersion, JSON.stringify(editorState))
+    
+    const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al artículo el texto de una Ley, o algo escrito por otra persona. Si lo desactivás no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href="/articulo/Cabildo_Abierto:_Derechos_de_autor">Más información</Link>
+    </span>
+
+    return (
+        <>
+            <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
+                
+                <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg">
+                    <h2 className="py-4 text-lg">Confirmar cambios</h2>
+                    <div className="mb-8">
+                        Estás agregando <span className="text-green-600">{0}</span> caracteres y eliminando <span className="text-red-600">{0}</span> caracteres.
+                    </div>
+                    {true && <div className="flex justify-center">
+                        <TickButton
+                            ticked={claimsAuthorship}
+                            setTicked={setClaimsAuthorship}
+                            text={<span className="text-sm text-gray-700">Soy autor/a de los caracteres agregados. <InfoPanel text={infoAuthorship} className="w-72"/></span>}
+                        />
+                        </div>}
+                    <div className="flex justify-center items-center space-x-4 mt-4">
+                        <button
+                            className="gray-btn w-48"
+                            onClick={async () => {onClose()}}
+                        >
+                            Volver
+                        </button>
+                        <StateButton
+                            className="gray-btn w-48"
+                            onClick={async (e) => {await onSave(claimsAuthorship); onClose()}}
+                            text1="Confirmar"
+                            text2="Guardando..."
+                        />
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
+
+
 const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, showingAuthors=false, setEditing}: WikiEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
@@ -177,6 +225,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
     const {mutate} = useSWRConfig()
     const [settingsChanges, setSettingsChanges] = useState<SettingsProps | undefined>()
     const [settingsAuthors, setSettingsAuthors] = useState<SettingsProps | undefined>()
+    const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     
     const user = useUser()
     
@@ -241,24 +290,26 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
         placeholderClassName: "ContentEditable__placeholder",
     }
 
+    async function saveEdit(claimsAuthorship: boolean){
+        if(editor){
+            editor.read(async () => {
+                if(user.user){
+                    setEditing(false)
+                    await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user.id, true, claimsAuthorship)
+                    mutate("/api/entities")
+                    mutate("/api/entity/"+entity.id)
+                    mutate("/api/contributions/"+entity.id)
+                }
+            })
+        }
+    }
+
     const SaveEditButton = () => {
         return <StateButton
             className="article-btn"
             text1="Guardar edición"
             text2="Guardando..."
-            onClick={async () => {
-                if(editor){
-                    editor.read(async () => {
-                        if(user.user){
-                            await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user.id, true)
-                            mutate("/api/entities")
-                            mutate("/api/entity/"+entity.id)
-                            mutate("/api/contributions/"+entity.id)
-                            setEditing(false)
-                        }
-                    })
-                }
-            }}
+            onClick={() => {setShowingSaveEditPopup(true)}}
             disabled={!editorState || !hasChanged(editorState, content.text)}
         />
     }
@@ -282,6 +333,12 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
             <CancelEditButton/>
             <SaveEditButton/>
         </div>}
+        {showingSaveEditPopup && <SaveEditPopup
+            editorState={editorState}
+            currentVersion={content.text}
+            onSave={saveEdit}
+            onClose={() => {setShowingSaveEditPopup(false)}}
+        />}
 
         {editingRoutes &&
         <div className="py-4">

@@ -9,7 +9,7 @@ import { getEntities } from "./entities";
 import { createNotification } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import MercadoPagoConfig, { Customer, CustomerCard, Payment, Preference } from "mercadopago";
-import { accessToken, getSubscriptionPrice } from "../components/utils";
+import { accessToken } from "../components/utils";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -180,7 +180,7 @@ export const getUserById = (userId: string) => {
         return user ? user : undefined
     }, ["user", userId], {
         revalidate: revalidateEverythingTime,
-        tags: ["user:"+userId]})()    
+        tags: ["user:"+userId, "user"]})()    
 }
 
 
@@ -379,7 +379,7 @@ export const getUserStats = async (userId: string) => {
 
 
 
-export async function buyAndUseSubscription(userId: string, paymentId: string, price: number) {
+export async function buyAndUseSubscription(userId: string, price: number, paymentId?: string) {
     const result = await db.subscription.create({
         data: {
             userId: userId,
@@ -549,6 +549,8 @@ export async function createPreference(userId: string, amount: number) {
         title = amount + " meses de suscripción en Cabildo Abierto"
     }
 
+    const price = await getSubscriptionPrice()
+
     const result = await preference.create({
       body: {
         back_urls: {
@@ -563,7 +565,7 @@ export async function createPreference(userId: string, amount: number) {
             id: "0",
             title: title,
             quantity: 1,
-            unit_price: getSubscriptionPrice()*amount
+            unit_price: price.price*amount
           }
         ],
         metadata: {
@@ -633,8 +635,26 @@ export async function setMessageSeen(id: string, userFrom: string, userTo: strin
             id: id
         }
     })
-    console.log("message", id, "is seen", userFrom, userTo)
+    
     revalidateTag("chat:"+userFrom+":"+userTo)
     revalidateTag("conversations:"+userFrom)
     revalidateTag("conversations:"+userTo)
+}
+
+
+export async function getSubscriptionPrice() {
+    return unstable_cache(async () => {
+        const count = await db.subscription.count({
+            where: {
+                price: {
+                    gte: 500
+                }
+            }
+        })
+        if(count < 100){
+            return {price: 500, remaining: 100-count}
+        } else {
+            return {price: 1000, remaining: 1000-count}
+        }
+    }, ["subscriptionPrice"], {tags: ["subscriptionPrice"]})()
 }

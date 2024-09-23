@@ -4,7 +4,6 @@ import LoadingPage from "./loading-page";
 import { SearchProvider } from "./search-context";
 import { SearchPage } from "./search-page";
 
-
 const MainLayout: React.FC<{children: ReactNode}> = ({children}) => {
     return <>
         <LoadingPage>

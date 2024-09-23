@@ -5,6 +5,7 @@ import LoadingPage from "./loading-page"
 import { validSubscription } from "./utils"
 import { ReactNode } from "react";
 import { useUser } from "../app/hooks/user";
+import { useRouter } from "next/navigation";
 
 
 export const NeedAccountPaywall: React.FC<any> = ({ children }) => {
@@ -30,14 +31,36 @@ export const NeedAccountPaywall: React.FC<any> = ({ children }) => {
 
 
 const NeedSubscriptionPaywall: React.FC<any> = ({ children }) => {
-    return (
-        <>
-            <div className="relative z-0">
+    const router = useRouter()
+    const {user} = useUser()
+
+    if(user.subscriptionsUsed.length == 0){
+        return <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
+            <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
+                <div className="py-4 text-lg">¡Bienvenido/a a Cabildo Abierto!</div>
+                <div className="text-justify text-gray-700">
+                    Cabildo Abierto tiene como objetivo conectar al país y abrir la discusión de lo público.
+                </div>
+                <div className="text-justify text-gray-700">
+                    Esto recién empieza. Si algo no funciona avisanos y si tenés ideas o sugerencias, te escuchamos. Gracias por ser de los primeros/as en sumarte.
+                </div>
+                <div className="flex justify-center items-center mt-8 space-x-4">
+                    <Link href="/suscripciones" className="gray-btn">
+                        Conseguir mi primera suscripción
+                    </Link>
+                </div>
+                <div className="text-center text-sm text-gray-700 mt-1">
+                    La primera es gratis. Después también si lo necesitás.
+                </div>
+            </div>
+        </div>
+    } else {
+        return <><div className="relative z-0">
                 {children}
             </div>
             <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
                 <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
-                    <div className="py-4 text-lg">Necesitás una suscripción activa para ver esta página</div>
+                    <div className="py-4 text-lg">No tenés una suscripción activa</div>
                     <div className="flex justify-center items-center py-8 space-x-4">
                         <Link href="/suscripciones" className="gray-btn">
                             Obtener una suscripción
@@ -46,7 +69,7 @@ const NeedSubscriptionPaywall: React.FC<any> = ({ children }) => {
                 </div>
             </div>
         </>
-    );
+    }    
 };
 
 

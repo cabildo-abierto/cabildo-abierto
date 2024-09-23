@@ -42,10 +42,7 @@ const Modal = ({ onClose }: { onClose: any }) => {
                             placeholder="Título"
                         />
                     </div>
-                    <div className="flex items-center space-x-2 px-2">
-                        <TickButton onClick={(v: boolean) => setGoToArticle(v)} size={20} color="#455dc0" />
-                        <span className="text-gray-800 text-sm">Ir al artículo después de crearlo</span>
-                    </div>
+                    <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir al artículo después de crearlo</span>}/>
                     <div className="py-4">
                         <StateButton
                             onClick={async () => {

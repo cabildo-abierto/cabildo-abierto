@@ -9,6 +9,7 @@ import { undoChange } from '../actions/entities';
 import { useContent } from '../app/hooks/contents';
 import { useUser } from '../app/hooks/user';
 import { EntityProps } from '../app/lib/definitions';
+import InfoPanel from './info-panel';
 
 export function validExplanation(text: string) {
     return text.length > 0
@@ -22,6 +23,10 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
 
     const {mutate} = useSWRConfig()
 
+    const infoPanelVandalism = <span>Marcá la modificación como vandalismo si te parece que fue una modificación que intencionalmente empeoró la calidad del artículo. La situación va a ser revisada por un administrador.</span>
+
+    const vandalismInfo = <span className="text-gray-800 text-sm">Marcar como vandalismo <InfoPanel text={infoPanelVandalism} className="w-72"/></span>
+
     const modalContent = <div className="space-y-3 p-6">
         <h3>Deshacer el último cambio en {entity.name}</h3>
         <div>
@@ -33,10 +38,7 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
                 placeholder="Explicá el motivo por el que te parece necesario deshacer este cambio. Deshacer cambios sin justificación podría ser motivo de sanción."
             />
         </div>
-        {false && <div className="flex items-center space-x-2 px-2">
-            <TickButton onClick={setVandalism} size={20} color="#455dc0" />
-            <span className="text-gray-800 text-sm">Es vandalismo</span>
-        </div>}
+        {<TickButton text={vandalismInfo} setTicked={setVandalism} ticked={vandalism} size={20} color="#455dc0" />}
         <div className="py-4">
             <StateButton
                 onClick={async () => {
@@ -60,7 +62,7 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
             <div className="bg-[var(--background)] rounded-lg shadow-lg text-center">
                 <div className="flex justify-end px-1">
                     <button
-                        onClick={onClose}
+                        onClick={(e) => {e.preventDefault(); e.stopPropagation(); onClose();}}
                     >
                         <CloseIcon/>
                     </button>
@@ -81,7 +83,7 @@ export const UndoButton = ({entity, version}: {entity: EntityProps, version: num
 
     return <div className="relative">
         <div className="px-2 flex justify-ceter">
-            <button disabled={!user.user} className="small-btn" onClick={() => {setIsModalOpen(true)}}>
+            <button disabled={!user.user} className="underline hover:text-[var(--primary)] text-sm" onClick={(e) => {e.stopPropagation(); e.preventDefault(); setIsModalOpen(true)}}>
                 Deshacer
             </button>
         </div>

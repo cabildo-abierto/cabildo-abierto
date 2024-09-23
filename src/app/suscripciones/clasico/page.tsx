@@ -2,23 +2,23 @@
 import Link from "next/link"
 import SubscriptionOptionButton from "../../../components/subscription-option-button"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
-import { getSubscriptionPrice } from "../../../components/utils"
 import { createPreference } from "../../../actions/users"
 import { useUser } from "../../hooks/user"
 import { useState } from "react"
 import { initMercadoPago } from '@mercadopago/sdk-react'
 import dynamic from 'next/dynamic'
+import { useSubscriptionPrice } from "../../hooks/subscriptions"
 
 const Wallet = dynamic(() => import('@mercadopago/sdk-react').then(mod => mod.Wallet), { ssr: false });
 initMercadoPago('APP_USR-1ddae427-daf5-49b9-b3bb-e1d5b5245f30');
 //initMercadoPago('TEST-2f374e57-81aa-4e88-a554-d7e8128eb773')
 
 function PagoUnico({preferenceId}: {preferenceId: string}) {
-    const price = getSubscriptionPrice()
+    const price = useSubscriptionPrice()
 
     const center = <div className="flex flex-col items-center text-center">
         <div className="mt-16">Estás comprando una suscripción mensual.</div>
-        <div className="mt-8">Total: ${price}</div>
+        {price.price ? <div className="mt-8">Total: ${price.price.price}</div> : <></>}
         <div className="mt-8">
             <div className="w-64">
                 <Wallet
@@ -36,6 +36,7 @@ export default function PlanClasico() {
     const user = useUser()
     const [preferenceId, setPreferenceId] = useState<string | undefined>()
     const [choice, setChoice] = useState("none")
+    const price = useSubscriptionPrice()
 
     async function onUniquePayment(){
         if(user.user){
@@ -57,7 +58,7 @@ export default function PlanClasico() {
             </div>
 
             <div className="mt-16 flex justify-center items-center">
-                ${getSubscriptionPrice()} por mes.
+                {price.price ? <>${price.price.price} por mes.</> : <></>}
             </div>
 
             <div className="flex justify-center items-center mt-2">

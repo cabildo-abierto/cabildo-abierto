@@ -44,6 +44,7 @@ export async function createEntity(name: string, userId: string){
   
     revalidateTag("entities")
     revalidateTag("editsFeed:"+userId)
+    revalidateTag("entity:"+entityId)
     return {id: entityId}
 }
 
@@ -54,7 +55,7 @@ const recomputeEntityContributions = async (entityId: string) => {
     // no actualizamos la primera versión porque no suele cambiar
     for(let i = 1; i < entity.versions.length; i++){
         const versionContent = await getContentStaticById(entity.versions[i].id)
-        const newData = await getNewVersionContribution(entityId, versionContent.text, versionContent.author.id, i-1)
+        const newData = await getNewVersionContribution(entityId, versionContent.text, versionContent.author.id, entity.versions[i].claimsAuthorship, i-1)
         
         await db.content.update({
             data: newData,
@@ -69,14 +70,14 @@ const recomputeEntityContributions = async (entityId: string) => {
 }
 
 
-const getNewVersionContribution = async (entityId: string, text: string, userId: string, afterVersion?: number) => {
+const getNewVersionContribution = async (entityId: string, text: string, userId: string, claimsAuthorship: boolean, afterVersion?: number) => {
     const entity = await getEntityById(entityId)
     if(afterVersion == undefined) afterVersion = entity.versions.length-1
     const lastVersionId = entity.versions[afterVersion].id
     const lastVersion = await getContentStaticById(lastVersionId)
 
     const {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(lastVersion.text, text)
-    const accCharsAdded = lastVersion.accCharsAdded + charsAdded
+    const accCharsAdded = claimsAuthorship ? (lastVersion.accCharsAdded + charsAdded) : lastVersion.accCharsAdded
     const contribution: [string, number][] = JSON.parse(lastVersion.contribution)
     
     let wasAuthor = false
@@ -93,16 +94,16 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
     return {accCharsAdded: accCharsAdded, 
         charsAdded: charsAdded, 
         charsDeleted: charsDeleted, 
-        contribution: JSON.stringify(contribution),
+        contribution: claimsAuthorship ? JSON.stringify(contribution) : lastVersion.contribution,
         diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches})
     }
 }
   
   
-export const updateEntity = async (text: string, categories: string, entityId: string, userId: string, changingContent: boolean) => {
+export const updateEntity = async (text: string, categories: string, entityId: string, userId: string, changingContent: boolean, claimsAuthorship: boolean) => {
     let references = await findReferences(text)
 
-    const {accCharsAdded, charsAdded, charsDeleted, contribution, diff} = await getNewVersionContribution(entityId, text, userId)
+    const {accCharsAdded, charsAdded, charsDeleted, contribution, diff} = await getNewVersionContribution(entityId, text, userId, claimsAuthorship)
     await db.content.create({
         data: {
             text: text,
@@ -119,7 +120,8 @@ export const updateEntity = async (text: string, categories: string, entityId: s
             contribution: contribution,
             diff: diff,
             uniqueViewsCount: 0,
-            fakeReportsCount: 0
+            fakeReportsCount: 0,
+            claimsAuthorship: claimsAuthorship
         }
     })
 
@@ -337,6 +339,7 @@ export async function getEntityById(id: string) {
                                 }
                             },
                         },
+                        claimsAuthorship: true,
                         diff: true
                     },
                     orderBy: {
@@ -434,4 +437,25 @@ export async function revalidateEntities(){
 
 export async function revalidateContents(){
     revalidateTag("content")
+}
+
+export async function revalidateUsers(){
+    revalidateTag("user")
+    revalidateTag("users")
+    revalidateTag("userStats")
+    revalidateTag("usersWithStats")
+}
+
+
+export async function removeEntityAuthorship(contentId: string, entityId: string){
+    await db.content.update({
+        data: {
+            claimsAuthorship: false,
+        },
+        where: {
+            id: contentId
+        }
+    })
+    revalidateTag("entity:"+entityId)
+    revalidateTag("content:"+contentId)
 }
