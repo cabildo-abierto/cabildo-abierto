@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 
-export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {text: string, className?: string, iconClassName?: string}) => {
+export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {text: ReactNode, className?: string, iconClassName?: string}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -14,7 +14,9 @@ export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {tex
         <InfoIcon fontSize="small"/>
       </div>
       {isHovered && (
-        <div className={"info-panel " + (className ? className : "")}>
+        <div className={"info-panel " + (className ? className : "")}
+          onMouseEnter={() => {setIsHovered(true)}}
+        >
           <p>
             {text}
           </p>

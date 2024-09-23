@@ -25,6 +25,11 @@ export async function POST(req) {
     
     const paymentDetails = await getPaymentDetails(paymentId)
 
+    if(paymentDetails.status != "approved"){
+      console.log("notification of payment failed with details", paymentDetails)
+      return Response.json({status: 200})
+    }
+
     const amount = paymentDetails.metadata.amount
 
     const userId = paymentDetails.metadata.user_id
@@ -32,11 +37,12 @@ export async function POST(req) {
     const valid = validSubscription(user)
     const price = paymentDetails.transaction_amount / amount
 
+
     if(amount > 1){
       await donateSubscriptions(valid ? amount : amount-1, userId, paymentId, price)
     }
     if(!valid){
-      await buyAndUseSubscription(userId, paymentId, price)
+      await buyAndUseSubscription(userId, price, paymentId)
     }
 
     return NextResponse.json({ status: 200 });

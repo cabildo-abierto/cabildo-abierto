@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 
-export const TickButton = ({ onClick, size = 24, color = '#455dc0' }: any) => {
-  const [isTicked, setIsTicked] = useState(false);
+type TickButtonProps = {
+  ticked: boolean
+  setTicked: (v: boolean) => void
+  size?: number
+  color?: string
+  text: ReactNode
+}
 
-  const handleClick = () => {
-    setIsTicked(!isTicked);
-    if (onClick) {
-      onClick(!isTicked);
-    }
-  };
+export const TickButton = ({ text, ticked, setTicked, size = 24, color = '#455dc0' }: TickButtonProps) => {
 
-  return (
+  const tick = (
     <button
-      onClick={handleClick}
+      onClick={() => {setTicked(!ticked)}}
       style={{
         width: size,
         height: size,
-        backgroundColor: isTicked ? color : '#f8f8f9',
+        backgroundColor: ticked ? color : '#f8f8f9',
         border: `2px solid ${color}`,
         borderRadius: '50%',
         display: 'flex',
@@ -27,7 +27,7 @@ export const TickButton = ({ onClick, size = 24, color = '#455dc0' }: any) => {
       }}
       aria-label="Tick button"
     >
-      {isTicked && (
+      {ticked && (
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -44,6 +44,11 @@ export const TickButton = ({ onClick, size = 24, color = '#455dc0' }: any) => {
       )}
     </button>
   );
+
+  return <div className="flex items-center space-x-2 px-2">
+      {tick}
+      {text}
+  </div>
 };
 
 export default TickButton;

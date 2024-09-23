@@ -45,6 +45,8 @@ export type ContentProps = {
     ancestorContent?: {id: string}[]
 
     currentVersionOf?: {id: string} | null
+
+    claimsAuthorship?: boolean
 }
 
 
@@ -68,6 +70,7 @@ export type EntityProps = {
             currentVersionOf: {id: (string | null)}
         }[]
         diff?: string
+        claimsAuthorship: boolean
     }[]
     referencedBy: SmallContentProps[]
     deleted: boolean

@@ -1,5 +1,5 @@
 "use client"
-import { revalidateContents, revalidateEntities } from "../../actions/entities";
+import { revalidateContents, revalidateEntities, revalidateUsers } from "../../actions/entities";
 import { NotFoundPage } from "../../components/not-found-page";
 import { ThreeColumnsLayout } from "../../components/three-columns";
 import { useUser } from "../hooks/user";
@@ -23,6 +23,9 @@ export default function Page(){
         </button>
         <button className="gray-btn" onClick={async () => {await revalidateContents()}}>
             Contenidos
+        </button>
+        <button className="gray-btn" onClick={async () => {await revalidateUsers()}}>
+            Usuarios
         </button>
         </div>
         </div>
