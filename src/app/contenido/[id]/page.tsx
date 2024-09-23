@@ -10,6 +10,40 @@ import { monthly_visits_limit, visitsThisMonth } from "../../../components/utils
 import NotFound from "../../not-found";
 
 
+export async function generateMetadata({params}: {params: {id: string}}){
+    const content = await getContentById(params.id)
+    if(!content){
+        return {
+            title: "Contenido no encontrado"
+        }
+    }
+
+    if(content.type == "Post"){
+        return {title: content.title}
+    }
+
+    if(content.type == "FastPost"){
+        return {
+            title: "Publicación rápida de @" + content.author.id
+        }
+    }
+
+    if(content.type == "Comment"){
+        return {
+            title: "Comentario de @" + content.author.id
+        }
+    }
+
+    if(content.type == "FakeNewsReport"){
+        return {
+            title: "Reporte de @" + content.author.id
+        }
+    }
+
+    return {}
+}
+
+
 const ContentPage: React.FC<{params: any}> = async ({params}) => {
     const content = await getContentById(params.id)
     if(!content){

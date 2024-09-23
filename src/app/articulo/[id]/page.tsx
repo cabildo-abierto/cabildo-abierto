@@ -9,6 +9,19 @@ import { userAgent } from 'next/server'
 import { monthly_visits_limit, visitsThisMonth } from "../../../components/utils"
 
 
+export async function generateMetadata({params}: {params: {id: string, version: string}}){
+    const entity = await getEntityById(params.id)
+    if(!entity){
+        return {
+            title: "Entidad no encontrada"
+        }
+    }
+
+    return {
+        title: entity.name
+    }
+}
+
 const Page = async ({params}: {params: {id: string}}) => {
     const entity = await getEntityById(params.id)
     if(!entity){

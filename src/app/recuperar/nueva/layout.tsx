@@ -1,13 +1,12 @@
-import MainLayout from "../../components/main-layout";
 import { Metadata } from "next"
 
 
 export const metadata: Metadata = {
-    title: 'Recuperar contraseña'
+    title: 'Nueva contraseña'
 }
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  return <MainLayout>
+  return <>
       {children}
-    </MainLayout>
+    </>
 }

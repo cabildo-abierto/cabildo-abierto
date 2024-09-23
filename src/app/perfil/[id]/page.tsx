@@ -4,6 +4,18 @@ import { getUserById } from "../../../actions/users";
 import { ErrorPage } from "../../../components/error-page";
 import { ThreeColumnsLayout } from "../../../components/three-columns";
 
+export async function generateMetadata({params}: {params: {id: string}}){
+    const user = await getUserById(params.id)
+
+    if(!user){
+        return {title: "Usuario no encontrado"}
+    }
+
+    return {
+        title: "Perfil de " + user.name
+    }
+}
+
 
 const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
     const username = decodeURIComponent(params?.id)
