@@ -1,5 +1,9 @@
+import { Metadata } from "next";
 import Link from "next/link";
 
+export const metadata: Metadata = {
+    title: 'Pago exitoso'
+}
 
 export default function Page(){
     return <div className="text-center">

@@ -10,7 +10,7 @@ import { updatePw } from "../../../actions/auth";
 import Link from "next/link";
 import NotFound from "../../not-found";
 import { NotFoundPage } from "../../../components/not-found-page";
-
+import { Metadata } from "next"
 
 function NewPwButton() {
     const {pending} = useFormStatus()

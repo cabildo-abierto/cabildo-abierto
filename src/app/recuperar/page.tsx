@@ -8,7 +8,6 @@ import { useUser } from "../hooks/user";
 import LoadingSpinner from "../../components/loading-spinner";
 import { useRouter } from "next/navigation";
 
-
 function RecoverPwButton() {
     const {pending} = useFormStatus()
 
