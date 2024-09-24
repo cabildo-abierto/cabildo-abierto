@@ -658,3 +658,12 @@ export async function getSubscriptionPrice() {
         }
     }, ["subscriptionPrice"], {tags: ["subscriptionPrice"]})()
 }
+
+
+export async function newContactMail(mail: string){
+    await db.contactEmails.create({
+        data: {
+          mail: mail
+        }
+    })
+}

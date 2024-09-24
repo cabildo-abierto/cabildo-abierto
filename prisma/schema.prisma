@@ -93,6 +93,15 @@ model Subscription {
   @@schema("public")
 }
 
+
+model ContactEmails {
+  id             String    @id @default(cuid())
+  mail           String
+  createdAt      DateTime  @default(now()) @map("created_at")
+  @@schema("public")
+}
+
+
 model Entity {
   id           String          @id
   name         String          @unique @db.VarChar(255)

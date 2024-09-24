@@ -43,16 +43,24 @@ function SignupButton() {
 }
 
 
-export const PeriodoDePrueba = () => {
-    return <div className="flex justify-center w-80">
+export const PeriodoDePrueba = ({setOpenMailInput}) => {
+    return <div className="flex justify-center max-w-[400px] px-2">
         <div className="px-4">
             <div className="text-[var(--accent-dark)] flex items-center border p-2">
                 <div className="mr-2">
                     <ConstructionIcon fontSize="large" />
                 </div>
-                <div className="text-sm">
+                <div className="text-base text-justify">
+                    <p>
                     Por ahora necesitás una clave para registrarte.
                     Abrimos pronto.
+                    </p>
+                    <p>
+                    Si querés que te avisemos cuando la página esté abierta al público, dejanos tu mail <button 
+                    className="text-[var(--primary)] hover:underline"
+                    onClick={() => {setOpenMailInput(true)}}
+                    >haciendo click acá</button>.
+                    </p>
                 </div>
             </div>
         </div>
@@ -273,9 +281,6 @@ export default function SignupForm() {
                 onClose={() => {setShowingSignupOK(false)}}
                 email={state.data.email}
             />}
-            <div className="mb-2 mt-2">
-                <PeriodoDePrueba/>
-            </div>
             <AuthForm action={action} state={state} title="Crear cuenta">
                 <EmailInput state={state}/>
                 <PasswordInput state={state}/>
