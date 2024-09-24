@@ -5,6 +5,27 @@ import { useState } from 'react';
 import { newContactMail } from '../actions/users';
 
 
+export const ThanksForSubscribing = ({onClose}: {onClose: () => void}) => {
+
+  return (
+      <>
+          <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
+              <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
+                  <div className="text-lg mb-16">
+                      ¡Gracias! Cuando haya novedades te escribimos.
+                  </div>
+                  <button
+                    onClick={onClose}
+                  className="gray-btn w-32">
+                      Aceptar
+                  </button>
+              </div>
+          </div>
+      </>
+  );
+};
+
+
 export const MailInput = ({onClose}: {onClose: () => void}) => {
   const [mail, updateMail] = useState("")
 
@@ -21,7 +42,7 @@ export const MailInput = ({onClose}: {onClose: () => void}) => {
               <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
                   <h2 className="py-4 text-lg">Mail de contacto</h2>
                   <div className="text-[var(--text-light)]">
-                    Para enterarte cuando haya novedades de Cabildo Abierto
+                    Para enterarte cuando haya novedades de Cabildo Abierto.
                   </div>
                   <div className="py-8">
                     <input 
@@ -53,6 +74,7 @@ export const MailInput = ({onClose}: {onClose: () => void}) => {
 export const Presentation: React.FC = () => {
 
     const [openMailInput, setOpenMailInput] = useState(false)
+    const [openThanks, setOpenThanks] = useState(false)
 
     return <div className="flex flex-col justify-center items-center mt-32 lg:mt-0 px-2">
       <div className="mb-16 flex lg:h-28 h-16">
@@ -66,6 +88,7 @@ export const Presentation: React.FC = () => {
       </div>
       <Link href="/articulo/Cabildo_Abierto" className="text-lg link2 mb-16">¿Qué es Cabildo Abierto?</Link>
       <PeriodoDePrueba setOpenMailInput={setOpenMailInput}/>
-      {openMailInput && <MailInput onClose={() => {setOpenMailInput(false)}}/>}
+      {openMailInput && <MailInput onClose={() => {setOpenMailInput(false); setOpenThanks(true)}}/>}
+      {openThanks && <ThanksForSubscribing onClose={() => {setOpenThanks(false)}}/>}
     </div>
 };
