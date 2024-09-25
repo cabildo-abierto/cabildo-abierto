@@ -26,13 +26,13 @@ export const ThanksForSubscribing = ({onClose}: {onClose: () => void}) => {
 };
 
 
-export const MailInput = ({onClose}: {onClose: () => void}) => {
+export const ContactMailInput = ({onClose}: {onClose: (accept: boolean) => void}) => {
   const [mail, updateMail] = useState("")
 
 
   async function onSend() {
     await newContactMail(mail)
-    onClose()
+    onClose(true)
   }
 
   return (
@@ -45,16 +45,21 @@ export const MailInput = ({onClose}: {onClose: () => void}) => {
                     Para enterarte cuando haya novedades de Cabildo Abierto.
                   </div>
                   <div className="py-8">
-                    <input 
-                      className="border rounded p-2 w-72 bg-[var(--background)]"
+                  <input
+                      className="custom-input bg-[var(--background)]"
+                      placeholder=""
+                      type="email"
+                      id="email"
+                      name="email"
                       value={mail}
-                      placeholder="cosmefulanito@gmail.com"
+                      autoFocus={true}
+                      defaultValue=''
                       onChange={(e) => {updateMail(e.target.value)}}
-                    />
+                  />
                   </div>
                   <div className="space-x-2">
                   <button
-                    onClick={onClose}
+                    onClick={() => {onClose(false)}}
                   className="gray-btn w-32">
                       Cancelar
                   </button>
@@ -88,7 +93,7 @@ export const Presentation: React.FC = () => {
       </div>
       <Link href="/articulo/Cabildo_Abierto" className="text-lg link2 mb-16">¿Qué es Cabildo Abierto?</Link>
       <PeriodoDePrueba setOpenMailInput={setOpenMailInput}/>
-      {openMailInput && <MailInput onClose={() => {setOpenMailInput(false); setOpenThanks(true)}}/>}
+      {openMailInput && <ContactMailInput onClose={(accept: boolean) => {setOpenMailInput(false); if(accept) setOpenThanks(true)}}/>}
       {openThanks && <ThanksForSubscribing onClose={() => {setOpenThanks(false)}}/>}
     </div>
 };

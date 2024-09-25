@@ -52,11 +52,11 @@ export const PeriodoDePrueba = ({setOpenMailInput}) => {
                 </div>
                 <div className="text-base text-justify">
                     <p>
-                    Por ahora necesitás una clave para registrarte.
-                    Abrimos pronto.
+                    Por ahora necesitás una clave para registrarte,
+                    abrimos pronto.
                     </p>
                     <p>
-                    Si querés que te avisemos cuando la página esté abierta al público, dejanos tu mail <button 
+                    Si querés que te avisemos cuando la página esté abierta al público dejanos tu mail <button 
                     className="text-[var(--primary)] hover:underline"
                     onClick={() => {setOpenMailInput(true)}}
                     >haciendo click acá</button>.
