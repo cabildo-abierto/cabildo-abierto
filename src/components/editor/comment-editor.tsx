@@ -2,8 +2,6 @@
 
 import { validSubscription } from "../utils"
 import { useState } from "react"
-import Popup from "../popup"
-import NeedAccountPopupPanel from "../need-account-popup"
 import StateButton from "../state-button"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, CLEAR_EDITOR_COMMAND, EditorState, ElementNode, LexicalEditor } from "lexical"
 
@@ -188,12 +186,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
         <div className="flex justify-end">
 			<div className="flex justify-end mt-3">
                 <div className="px-1">
-                    {canComment(user.user) ? <SendCommentButton onClick={handleSubmit}/> :
-                        <Popup 
-                            Trigger={SendCommentButton}
-                            Panel={NeedAccountPopupPanel}
-                        />
-                    }
+                    <SendCommentButton onClick={handleSubmit}/>
                 </div>
 				{onCancel &&
 					<div className="px-1">

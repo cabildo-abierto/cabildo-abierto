@@ -2,7 +2,23 @@ const { PrismaClient } = require('@prisma/client');
 const db = new PrismaClient();
 
 (async () => {
-  await db.chatMessage.deleteMany()
+  await db.noAccountVisit.deleteMany({
+    where: {
+      contentId: "cm1iikid6001dnykyvubtwvld"
+    }
+  })
+
+  await db.view.deleteMany({
+    where: {
+      contentId: "cm1iikid6001dnykyvubtwvld"
+    }
+  })
+
+  await db.content.delete({
+    where: {
+      id: "cm1iikid6001dnykyvubtwvld"
+    }
+  })
   /*const usernames = ["guest25", "prueba", "prueba2", "prueba4", "prueba5", "prueba6", "prueba7", "prueba8"]
 
   usernames.forEach(async (user) => {

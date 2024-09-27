@@ -74,6 +74,7 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
 
     const { error, data } = await supabase.auth.signUp(validatedFields.data as {email: string, password: string, username: string, name: string, betakey: string})
     
+    console.log("signup error", error)
     if (error || !data || !data.user) {
         return {
             authError: error?.code

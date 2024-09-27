@@ -12,7 +12,7 @@ function protectionToName(protection: string){
 }
 
 function otherProtection(protection: string) {
-    return protection == "Administrator" ? "Unprotected" : "Administrator"
+    return protection == "Administrator" ? "Beginner" : "Administrator"
 }
 
 export const SetProtectionButton = ({entity} : any) => {

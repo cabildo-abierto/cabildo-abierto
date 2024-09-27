@@ -757,6 +757,8 @@ th {
 	padding-left: 1rem; 
 	padding-right: 1rem;
 	cursor: pointer;
+	border-bottom-width: 2px;
+	border-color: transparent;
 }
   
 .article-btn:hover {
@@ -774,7 +776,7 @@ th {
 }
 
 .article-btn.toggled {
-	border-bottom-width: 2px;
+	border-color: $accent
 }
 
 .min-h-screen-minus-footer {

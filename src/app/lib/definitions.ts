@@ -18,8 +18,6 @@ export type ContentProps = {
     title: string | null
 
     categories?: string | null
-    isUndo?: boolean
-    undoMessage?: string | null
     parentEntityId?: string | null
     charsAdded?: number,
     charsDeleted?: number,
@@ -59,10 +57,15 @@ export type EntityProps = {
         id: string,
         categories: string,
         isUndo: boolean,
+        undoById: string,
         undoMessage: string,
+        isVandalism: boolean,
         createdAt: string | Date,
+        confirmedById?: string,
+        rejectedById?: string,
         text: string,
         authorId: string,
+        editPermission: boolean,
         childrenContents: {
             id: string
             type: ContentType
@@ -73,7 +76,8 @@ export type EntityProps = {
         claimsAuthorship: boolean
     }[]
     referencedBy: SmallContentProps[]
-    deleted: boolean
+    deleted: boolean,
+    currentVersionId: string
 }
 
 

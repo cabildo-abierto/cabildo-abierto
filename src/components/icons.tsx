@@ -29,6 +29,12 @@ import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import SendIconMui from '@mui/icons-material/Send';
 import PersonIcon from '@mui/icons-material/Person';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import UndoIconMui from '@mui/icons-material/Undo';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIconMui from '@mui/icons-material/Cancel';
+
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 export const RedFlag = () => {
@@ -165,10 +171,25 @@ export const SendIcon = () => {
 
 
 export const AuthorshipClaimIcon = () => {
-    return <PersonIcon/>
+    return <AttachMoneyIcon/>
 }
 
 
 export const NoAuthorshipClaimIcon = () => {
-    return <PersonOutlineIcon/>
+    return <MoneyOffIcon/>
+}
+
+
+export const UndoIcon = () => {
+    return <UndoIconMui/>
+}
+
+
+export const ConfirmEditIcon = () => {
+    return <span className="text-green-400"><CheckCircleIcon/></span>
+}
+
+
+export const RejectEditIcon = () => {
+    return <span className="text-red-400"><CancelIconMui/></span>
 }

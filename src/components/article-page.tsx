@@ -16,15 +16,34 @@ import { useUser } from "../app/hooks/user";
 import { EntityProps, ContentProps } from "../app/lib/definitions";
 import { EntityCategories } from "./categories";
 import { ContentWithCommentsFromId } from "./content-with-comments";
-import { currentVersion, EditHistory } from "./edit-history";
+import { EditHistory } from "./edit-history";
 import PaywallChecker from "./paywall-checker";
 import { SetProtectionButton } from "./protection-button";
 import { ThreeColumnsLayout } from "./three-columns";
 import { NoVisitsAvailablePopup } from "./no-visits-popup";
+import { currentVersion } from "./utils";
+import { UndoDiscussion } from "./undo-discussion";
 
 
 const DeletedEntity = () => {
     return <div className="flex justify-center mt-16">Esta entidad existía pero fue borrada.</div>
+}
+
+
+const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
+    return <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
+        <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
+            <div className="py-4 text-lg">Necesitás una cuenta para hacer ediciones.</div>
+            <div className="flex justify-center items-center space-x-4 mt-12">
+                <button className="gray-btn" onClick={onClose}>
+                    Seguir leyendo
+                </button>
+                <Link className="gray-btn" href="/">
+                    Crear una cuenta o iniciar sesión
+                </Link>
+            </div>
+        </div>
+    </div>
 }
 
 
@@ -36,6 +55,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     const [showingHistory, setShowingHistory] = useState(version != undefined)
     const [showingChanges, setShowingChanges] = useState(false)
     const [showingAuthors, setShowingAuthors] = useState(false)
+    const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
 
@@ -44,11 +64,16 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     }
 
     async function onEdit(v){
-        setEditing(v); 
-        if(v) {
-            setShowingChanges(false)
-            setShowingAuthors(false)
-            setShowingHistory(false)
+        if(!v || user.user != null){
+            setEditing(v); 
+            if(v) {
+                setShowingChanges(false)
+                setShowingAuthors(false)
+                setShowingHistory(false)
+                setShowingCategories(false)
+            }
+        } else if(user.user == null){
+            setShowingNeedAccountPopup(true)
         }
     }
 
@@ -59,8 +84,6 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             className="article-btn"
             setToggled={onEdit}
             toggled={editing}
-            disabled={user.user == null}
-            title={user.user == null ? "Necesitás una cuenta para hacer ediciones." : undefined}
         />
     }
 
@@ -178,6 +201,8 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
 
     const lastUpdated = entity.versions[entity.versions.length-1].createdAt
     const center = <div className="bg-[var(--background)] h-full px-2">
+        {showingNeedAccountPopup && <NeedAccountToEditPopup 
+        onClose={() => {setShowingNeedAccountPopup(false)}}/>}
         <h1 className="py-8">
             {entity.name}
         </h1>
@@ -205,7 +230,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             </div>
         </div>
         <div className="hidden lg:block">
-        {!editing && <div className="flex flex-wrap items-center px-2 space-x-2 border-b">
+        {!editing && <div className="flex flex-wrap items-center px-2 space-x-2 border-b mt-4">
             {<ViewHistoryButton/>}
             {<ViewCategoriesButton/>}
             {<ViewLastChangesButton/>}
@@ -236,10 +261,13 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
         {showingCategories && <div className="px-2 content-container my-2">
             <EntityCategories categories={entity.versions[version].categories} name={entity.name}/>
         </div>}
-        {showingHistory && <div className="px-2 content-container my-2">
+        {showingHistory && <div className="content-container my-2">
             <EditHistory entity={entity} viewing={version}/>
         </div>
         }
+
+        {entity.versions[version].isUndo && <UndoDiscussion content={content} entity={entity} version={version}/>}
+
         <div className="mt-6">
         {editing && <ContentWithCommentsFromId
             contentId={contentId}

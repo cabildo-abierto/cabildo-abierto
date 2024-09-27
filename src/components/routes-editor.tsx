@@ -102,7 +102,7 @@ function areCategoriesEqual(cat1: string[][], cat2: string[][]){
 }
 
 
-export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
+export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEditing: (v: boolean) => void}) => {
     const user = useUser()
     const {content, isLoading, isError} = useContent(entityLastVersionId(entity))
     const entityCategories = (content && content.categories) ? JSON.parse(content.categories) : null
@@ -110,6 +110,8 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
     const {mutate} = useSWRConfig()
 
     if(!content || !content.categories){
+        console.log(content)
+        console.log(content?.categories)
         return <>Ocurrió un error</>
     }
 
@@ -143,6 +145,7 @@ export const RoutesEditor = ({entity}: {entity: EntityProps}) => {
             await updateEntity(content.text, JSON.stringify(categories), entity.id, user.user.id, false, true)
             mutate("/api/entitiy/"+entity.id)
             mutate("/api/entities")
+            setEditing(false)
         }
     }
 

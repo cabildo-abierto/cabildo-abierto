@@ -1,13 +1,14 @@
 'use server'
 
 import { revalidateTag, unstable_cache } from "next/cache";
-import { ProtectionLevel } from "@prisma/client";
 import { db } from "../db";
 import { findReferences, getContentById, getContentStaticById } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString, getAllText } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { arraySum, entityInRoute } from "../components/utils";
+import { arraySum, currentVersion, entityInRoute, hasEditPermission } from "../components/utils";
+import { EditorStatus } from "@prisma/client";
+import { getUserById } from "./users";
 
 
 
@@ -26,7 +27,7 @@ export async function createEntity(name: string, userId: string){
       }
     })
   
-    await db.content.create({
+    const content = await db.content.create({
       data: {
         text: "",
         authorId: userId,
@@ -40,6 +41,14 @@ export async function createEntity(name: string, userId: string){
         accCharsAdded: 0,
         diff: JSON.stringify([{matches: [], common: [], perfectMatches: []}])
       }
+    })
+
+    await db.entity.update({
+        data: {
+            currentVersionId: content.id,
+        }, where: {
+            id: entityId
+        }
     })
   
     revalidateTag("entities")
@@ -103,13 +112,21 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
 export const updateEntity = async (text: string, categories: string, entityId: string, userId: string, changingContent: boolean, claimsAuthorship: boolean) => {
     let references = await findReferences(text)
 
+    const entity = await getEntityById(entityId)
+
+    const permission = hasEditPermission(await getUserById(userId), entity.protection)
+
     const {accCharsAdded, charsAdded, charsDeleted, contribution, diff} = await getNewVersionContribution(entityId, text, userId, claimsAuthorship)
     await db.content.create({
         data: {
             text: text,
-            authorId: userId,
+            author: {
+                connect: {id: userId}
+            },
             type: "EntityContent",
-            parentEntityId: entityId,
+            parentEntity: {
+                connect: {id: entityId}
+            },
             categories: categories,
             entityReferences: {
                 connect: references
@@ -121,7 +138,13 @@ export const updateEntity = async (text: string, categories: string, entityId: s
             diff: diff,
             uniqueViewsCount: 0,
             fakeReportsCount: 0,
-            claimsAuthorship: claimsAuthorship
+            editPermission: permission,
+            claimsAuthorship: claimsAuthorship,
+            currentVersionOf: permission ? {
+                connect: {
+                    id: entityId
+                }
+            } : undefined
         }
     })
 
@@ -132,22 +155,48 @@ export const updateEntity = async (text: string, categories: string, entityId: s
     revalidateTag("editsFeed:"+userId)
     revalidateTag("entityTextLength:"+entityId)
 }
+
+
+export const updateEntityCurrentVersion = async (entityId: string) => {
+    const entity = await getEntityById(entityId)
+
+    let index = 0
+    for(let i = 0; i < entity.versions.length; i++){
+        if(!entity.versions[i].isUndo && (entity.versions[i].editPermission || entity.versions[i].confirmedById != null)){
+            index = i
+        }
+    }
+    await db.entity.update({
+        data: {
+            currentVersionId: entity.versions[index].id
+        },
+        where: {
+            id: entityId
+        }
+    })
+    revalidateTag("entity:"+entityId)
+}
   
   
-export const undoChange = async (entityId: string, contentId: string, versionNumber: number, message: string) => {
+export const undoChange = async (entityId: string, contentId: string, versionNumber: number, message: string, userId: string, isVandalism: boolean) => {
     const entity = await getEntityById(entityId)
     if(entity){
-      await db.content.update({
-          data: {
-              isUndo: true,
-              undoMessage: message
-          },
-          where: {
-            id: contentId
-          }
-      })
+        await db.content.update({
+            data: {
+                isUndo: true,
+                undoMessage: message,
+                undoById: userId,
+                isVandalism: isVandalism,
+            },
+            where: {
+                id: contentId
+            }
+        })
+        revalidateTag("entity:"+entityId)
+        revalidateTag("content:"+contentId)
+        await updateEntityCurrentVersion(entityId)
     }
-  
+    
     revalidateTag("entities")
     revalidateTag("entity:"+entityId)
 }
@@ -320,9 +369,14 @@ export async function getEntityById(id: string) {
                         categories: true,
                         isUndo: true,
                         undoMessage: true,
+                        isVandalism: true,
+                        confirmedById: true,
+                        rejectedById: true,
+                        undoById: true,
                         createdAt: true,
                         text: true,
                         authorId: true,
+                        editPermission: true,
                         childrenContents: {
                             select: {
                                 id: true,
@@ -336,7 +390,8 @@ export async function getEntityById(id: string) {
                                     select: {
                                         id: true
                                     }
-                                }
+                                },
+                                editPermission: true
                             },
                         },
                         claimsAuthorship: true,
@@ -368,6 +423,7 @@ export async function getEntityById(id: string) {
                     select: {reactions: true},
                 },
                 uniqueViewsCount: true,
+                currentVersionId: true
             },
                 where: {
                     id: id,
@@ -419,7 +475,7 @@ export const getRouteEntities = (route: string[]) => {
 }
 
 
-export async function setProtection(entityId: string, level: ProtectionLevel) {
+export async function setProtection(entityId: string, level: EditorStatus) {
     const result = await db.entity.update({
       where: { id: entityId },
       data: { protection: level },
@@ -458,4 +514,32 @@ export async function removeEntityAuthorship(contentId: string, entityId: string
     })
     revalidateTag("entity:"+entityId)
     revalidateTag("content:"+contentId)
+}
+
+
+export async function confirmChanges(entityId: string, contentId: string, userId: string){
+    await db.content.update({
+        data: {
+            confirmedById: userId
+        },
+        where: {
+            id: contentId
+        }
+    })
+    await updateEntityCurrentVersion(entityId)
+    revalidateTag("content:" + contentId)
+}
+
+
+export async function rejectChanges(entityId: string, contentId: string, userId: string){
+    await db.content.update({
+        data: {
+            rejectedById: userId
+        },
+        where: {
+            id: contentId
+        }
+    })
+    await updateEntityCurrentVersion(entityId)
+    revalidateTag("content:" + contentId)
 }

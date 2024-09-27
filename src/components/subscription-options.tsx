@@ -50,7 +50,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
     </div>
 
     const desc0 = <div>
-        <div>Probá la plataforma con un mes gratis</div>
+        <div>Empezá a usar la plataforma con un mes gratis</div>
         <div className="text-gray-300 text-sm">Disponible para la primera suscripción de cada usuario</div>
     </div>
 
@@ -62,7 +62,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
 
     const desc1 = <div>
         <div>Comprar una suscripción mensual</div>
-        <div className="text-gray-300 text-sm">Quedan {price.price ? price.price.remaining : "?"} suscripciones a este precio. Luego $1000 por mes.</div>
+        <div className="text-gray-300 text-sm">Quedan {price.price ? price.price.remaining : "?"} suscripciones a este precio. Luego van a pasar a costar $1000 por mes</div>
     </div>
 
     return <>

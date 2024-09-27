@@ -29,7 +29,7 @@ const ResendEmailButton = ({ email, initializeSent=false }: { email: string, ini
           setSeconds(0); // Reset the seconds counter when the email is resent
         }}
       >
-        Reenviar mail.
+        Reenviar mail
       </span>
     );
   } else {
