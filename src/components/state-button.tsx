@@ -16,6 +16,8 @@ const StateButton: React.FC<StateButtonProps> = (
     const [submitting, setSubmitting] = useState(false)
 
     const handleClick = async (e) => {
+        e.stopPropagation()
+        e.preventDefault()
         setSubmitting(true)
         await onClick(e)
         if(reUsable){

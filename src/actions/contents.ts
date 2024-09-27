@@ -94,7 +94,8 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                     select: {
                         id: true
                     }
-                }
+                },
+                categories: true,
             },
             where: {
                 id: id,
@@ -238,7 +239,10 @@ export async function findReferences(text: string){
         }
         return references
     }
-
+    
+    if(text.length == 0){
+        return []
+    }
     const json  = JSON.parse(text)
 
     let references: {id: string}[] = findReferencesInNode(json.root)

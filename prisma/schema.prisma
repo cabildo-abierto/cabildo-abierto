@@ -20,7 +20,7 @@ model User {
 
     authenticated       Boolean        @default(false)
     editorStatus        EditorStatus   @default(Beginner)
-    contents            Content[]
+    contents            Content[]      @relation("author")
     deletedEntities     Entity[]       @relation("entityDelete")
 
     subscriptionsBought Subscription[] @relation("bought")
@@ -38,6 +38,11 @@ model User {
 
     messagesSent        ChatMessage[]  @relation("messagesSent")
     messagesReceived    ChatMessage[]  @relation("messagesReceived")
+
+    undos               Content[]      @relation("undo")
+
+    confirmed           Content[]       @relation("confirmChange")
+    rejected            Content[]       @relation("rejectChange")
 
     @@map("users")
     @@schema("public")
@@ -105,7 +110,7 @@ model ContactEmails {
 model Entity {
   id           String          @id
   name         String          @unique @db.VarChar(255)
-  protection   ProtectionLevel @default(Unprotected)
+  protection   EditorStatus    @default(Beginner)
   isPublic     Boolean         @default(false)
   deleted      Boolean         @default(false)
   deletedById  String?
@@ -135,9 +140,19 @@ model Content {
   title            String?
   categories       String      @default("[]")
   parentEntityId   String?
+  
   isUndo           Boolean     @default(false)
   undoMessage      String?
-  author           User        @relation(fields: [authorId], references: [id])
+  undoById         String?
+  undoBy           User?       @relation("undo", fields: [undoById], references: [id])
+  isVandalism      Boolean     @default(false)
+
+  confirmedBy      User?       @relation("confirmChange", fields: [confirmedById], references: [id])
+  confirmedById    String?
+  rejectedBy       User?       @relation("rejectChange", fields: [rejectedById], references: [id])
+  rejectedById     String?
+
+  author           User        @relation("author", fields: [authorId], references: [id])
   parentEntity     Entity?     @relation(fields: [parentEntityId], references: [id])
   childrenContents Content[]   @relation("ContentToContent")
   parentContents   Content[]   @relation("ContentToContent")
@@ -170,6 +185,7 @@ model Content {
   currentVersionOf Entity? @relation("currentVersion")
 
   claimsAuthorship Boolean @default(true)
+  editPermission   Boolean @default(true)
 
   @@schema("public")
 }
@@ -572,13 +588,6 @@ model users {
 enum EditorStatus {
   Beginner
   Editor
-  Administrator
-
-  @@schema("public")
-}
-
-enum ProtectionLevel {
-  Unprotected
   Administrator
 
   @@schema("public")

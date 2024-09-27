@@ -135,6 +135,15 @@ export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, o
 }
 
 
+export const UserIdLink = ({id}: {id:string}) => {
+    return <span className="link">
+        <Link href={"/perfil/"+id}>
+            @{id}
+        </Link>
+    </span>
+}
+
+
 export const Authorship = ({content, onlyAuthor=false}: any) => {
     return <span className="link">
         {onlyAuthor ? "" : "Por "}<Link href={"/perfil/"+content.author?.id}>

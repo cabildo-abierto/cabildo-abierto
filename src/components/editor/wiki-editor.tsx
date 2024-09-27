@@ -23,6 +23,7 @@ import { SettingsProps } from "./lexical-editor"
 import Link from "next/link"
 import TickButton from "../tick-button"
 import InfoPanel from "../info-panel"
+import { hasEditPermission, permissionToPrintable } from "../utils"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
@@ -174,8 +175,39 @@ function showAuthors(entity: EntityProps, version: number){
 }
 
 
-export const SaveEditPopup = ({ editorState, currentVersion, onClose, onSave }: {editorState: EditorState, currentVersion: string, onClose: () => void, onSave: (v: boolean) => void}) => {
+export const PermissionLevel = ({level}: {level: string}) => {
+    return <span className="text-[var(--primary)]">
+        {permissionToPrintable(level)}
+    </span>
+}
+
+
+
+const NotEnoughPermissionsWarning = ({entity}: {entity: EntityProps}) => {
+    const user = useUser()
+
+    const status = user.user.editorStatus
+    const info = <div className="w-72">
+        <p>Tu nivel de permisos de edición es <PermissionLevel level={status}/> y este artículo requiere nivel <PermissionLevel level={entity.protection}/>.</p>
+        <p>Al quedar pendiente de confirmación otros usuarios la pueden ver y comentar, pero no es la versión oficial del artículo hasta que la acepte un editor con suficientes permisos y no va a aparecer por defecto.</p>
+    </div>
+    return <div className="">
+        Tu edición va a quedar pendiente de confirmación. <InfoPanel text={info}/>
+    </div>
+}
+
+
+
+export const SaveEditPopup = ({ 
+    editorState, currentVersion, onClose, onSave, entity }: {
+        editorState: EditorState,
+        currentVersion: string
+        onClose: () => void,
+        onSave: (v: boolean) => void,
+        entity: EntityProps
+}) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
+    const {user} = useUser()
     //const d = charDiffFromJSONString(currentVersion, JSON.stringify(editorState))
     
     const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al artículo el texto de una Ley, o algo escrito por otra persona. Si lo desactivás no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href="/articulo/Cabildo_Abierto:_Derechos_de_autor">Más información</Link>
@@ -183,13 +215,16 @@ export const SaveEditPopup = ({ editorState, currentVersion, onClose, onSave }: 
 
     return (
         <>
-            <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
+            <div className="fixed inset-0 z-10 flex justify-center items-center">
                 
                 <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg">
                     <h2 className="py-4 text-lg">Confirmar cambios</h2>
                     <div className="mb-8">
                         Estás agregando <span className="text-green-600">{0}</span> caracteres y eliminando <span className="text-red-600">{0}</span> caracteres.
                     </div>
+                    {!hasEditPermission(user, entity.protection) && <div className="mb-8">
+                    <NotEnoughPermissionsWarning entity={entity}/>
+                    </div>}
                     {true && <div className="flex justify-center">
                         <TickButton
                             ticked={claimsAuthorship}
@@ -338,11 +373,12 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
             currentVersion={content.text}
             onSave={saveEdit}
             onClose={() => {setShowingSaveEditPopup(false)}}
+            entity={entity}
         />}
 
         {editingRoutes &&
         <div className="py-4">
-            <RoutesEditor entity={entity}/>
+            <RoutesEditor entity={entity} setEditing={setEditing}/>
         </div>}
         
         <div className="text-center">
@@ -351,17 +387,17 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
         {showingChanges && readOnly && version == 0 && <>Estás viendo la primera versión</>}
         </div>
         <div id="editor">
-            {!showingChanges && !showingAuthors && <MyLexicalEditor
+            {((!showingChanges && !showingAuthors) || version == 0) && <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}
                 setEditorState={setEditorState}
             />}
-            {showingChanges && <MyLexicalEditor
+            {(showingChanges && version > 0) && <MyLexicalEditor
                 settings={settingsChanges}
                 setEditor={setEditor}
                 setEditorState={setEditorState}
             />}
-            {showingAuthors && <MyLexicalEditor
+            {(showingAuthors && version > 0) && <MyLexicalEditor
                 settings={settingsAuthors}
                 setEditor={setEditor}
                 setEditorState={setEditorState}

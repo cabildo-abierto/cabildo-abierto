@@ -279,7 +279,7 @@ export default function SignupForm() {
         <>
             {showingSignupOK && <ConfirmLinkSentPopup
                 onClose={() => {setShowingSignupOK(false)}}
-                email={state.data.email}
+                email={state?.data?.email}
             />}
             <AuthForm action={action} state={state} title="Crear cuenta">
                 <EmailInput state={state}/>

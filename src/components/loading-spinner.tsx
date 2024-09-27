@@ -26,4 +26,22 @@ const LoadingSpinner = () => {
   </div>
 }
 
+
+export const SmallLoadingSpinner = () => {
+  return <div className="">
+    <LineWave
+        visible={true}
+        height="40"
+        width="40"
+        color="var(--primary)"
+        ariaLabel="line-wave-loading"
+        wrapperStyle={{}}
+        wrapperClass=""
+        firstLineColor=""
+        middleLineColor=""
+        lastLineColor=""
+    />
+  </div>
+}
+
 export default LoadingSpinner;

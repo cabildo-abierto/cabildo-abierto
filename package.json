@@ -15,6 +15,7 @@
     "remove-entity-reactions": "tsx scripts/remove-entity-reactions.js",
     "update-unique-views": "tsx scripts/update-unique-views.js",
     "free-subscriptions": "tsx scripts/free-subscriptions.js",
+    "update-entity-current": "tsx scripts/update-entity-current.js",
     "update-is-last": "tsx scripts/update-is-last.js",
     "postinstall": "prisma generate"
   },
@@ -64,6 +65,7 @@
     "server-only": "^0.0.1",
     "sharp": "^0.33.4",
     "style-loader": "^4.0.0",
+    "supabase": "^1.200.3",
     "superjson": "^2.2.1",
     "swr": "^2.2.5",
     "zod": "^3.23.8"

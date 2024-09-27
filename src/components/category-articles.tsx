@@ -25,14 +25,12 @@ const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
     let entitiesWithScore = filteredEntities.map((entity) => ({entity: entity, score: popularityScore(entity)}))
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc)
     
-    return <div className="flex flex-col items-center">
-        <div className="flex flex-col justify-center">
-            {entitiesWithScore.length > 0 ? entitiesWithScore.map((entity, index) => (
-                <div key={index} className="py-1">
-                    <EntitySearchResult entity={entity.entity}/>
-                </div>
-            )) : <NoResults text="No se encontró ningún artículo."/>}
-        </div>
+    return <div className="flex flex-col items-center w-full">
+        {entitiesWithScore.length > 0 ? entitiesWithScore.map((entity, index) => (
+            <div key={index} className="py-1 w-full flex justify-center">
+                <EntitySearchResult entity={entity.entity}/>
+            </div>
+        )) : <NoResults text="No se encontró ningún artículo."/>}
     </div>
 }
 

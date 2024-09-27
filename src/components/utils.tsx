@@ -38,6 +38,33 @@ export const entityLastVersionId = (entity: EntityProps) => {
 }
 
 
+export const permissionToPrintable = (level: string) => {
+    if(level == "Administrator"){
+        return "Administrador"
+    } else if(level == "Beginner"){
+        return "Editor aprendiz"
+    } else if(level == "Editor"){
+        return "Editor"
+    }
+}
+
+
+export const permissionToNumber = (level: string) => {
+    if(level == "Administrator"){
+        return 2
+    } else if(level == "Beginner"){
+        return 0
+    } else if(level == "Editor"){
+        return 1
+    }
+}
+
+
+export const hasEditPermission = (user: UserProps | null, level: string) => {
+    return user && permissionToNumber(user.editorStatus) >= permissionToNumber(level)
+}
+
+
 export function sumFromFirstEdit(values: number[], entity: EntityProps, userId: string) {
     let total = 0
     let firstEdit = 0
@@ -172,4 +199,15 @@ export async function updateEntityContributions(entity: EntityProps){
             }
         })
     }
+}
+
+
+export function currentVersion(entity: EntityProps){
+    for(let i = 0; i < entity.versions.length; i++){
+        if(entity.versions[i].id == entity.currentVersionId){
+            return i
+        }
+    }
+    console.log("current version was null", entity.id, entity.currentVersionId)
+    return entity.versions.length-1
 }

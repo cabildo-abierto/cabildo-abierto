@@ -2,16 +2,20 @@ import Link from "next/link"
 import { Authorship } from "./content"
 import { DateSince } from "./date"
 import { UndoButton } from "./undo-button"
-import LoadingSpinner from "./loading-spinner"
-import { ContentProps, EntityProps } from "../app/lib/definitions"
+import LoadingSpinner, { SmallLoadingSpinner } from "./loading-spinner"
+import { ContentProps, EntityProps, UserProps } from "../app/lib/definitions"
 import { useContent } from "../app/hooks/contents"
 import { useRouter } from "next/navigation"
-import { AuthorshipClaimIcon, NoAuthorshipClaimIcon } from "./icons"
+import { ActiveCommentIcon, AuthorshipClaimIcon, ConfirmEditIcon, InactiveCommentIcon, NoAuthorshipClaimIcon, RejectEditIcon, ViewsIcon } from "./icons"
 import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
-import { removeEntityAuthorship } from "../actions/entities"
+import { confirmChanges, rejectChanges, removeEntityAuthorship } from "../actions/entities"
 import { User } from "mercadopago"
+import { currentVersion, hasEditPermission } from "./utils"
+import { useSWRConfig } from "swr"
+import { AcceptButtonPanel } from "./accept-button-panel"
+import { NoEditPermissionsMsg } from "./no-edit-permissions-msg"
 
 const EditDetails = ({content, prev}: {content: ContentProps, prev: ContentProps | undefined}) => {
     if(!prev){
@@ -36,20 +40,66 @@ type EditElementProps = {
 
 
 const AuthorshipClaim = ({entity, version, setShowingRemoveAuthorshipPanel}: {entity: EntityProps, version: number, setShowingRemoveAuthorshipPanel: (v: boolean) => void}) => {
-    const {user} = useUser()
-    if(version == 0) return <div className="w-32"></div>
-    if(entity.versions[version].categories != entity.versions[version-1].categories){
-        return <div className="w-32"></div>
-    }
-    if(entity.versions[version].claimsAuthorship && user.id == entity.versions[version].authorId){
+    if(entity.versions[version].claimsAuthorship){
         return <button className="underline hover:text-[var(--primary)] text-xs"
             onClick={(e) => {e.preventDefault(); e.stopPropagation(); setShowingRemoveAuthorshipPanel(true)}}
         >
-            Remover autoría
+            <AuthorshipClaimIcon/>
         </button>
     } else {
-        return <span className="text-xs text-center">No reclama autoría</span>
+        return <NoAuthorshipClaimIcon/>
     }
+}
+
+
+const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: EntityProps, contentId: string, user: UserProps, editPermission: boolean}) => {
+    const {mutate} = useSWRConfig()
+    const [showingNoPermissions, setShowingNoPermissions] = useState(false)
+
+    async function confirm(){
+        if(editPermission){
+            await confirmChanges(entity.id, contentId, user.id)
+            mutate("/api/entity/"+entity.id)
+            mutate("/api/content/"+contentId)
+        } else {
+            setShowingNoPermissions(true)
+        }
+    }
+
+    async function reject(){
+        if(editPermission){
+            await rejectChanges(entity.id, contentId, user.id)
+            mutate("/api/entity/"+entity.id)
+            mutate("/api/content/"+contentId)
+        } else {
+            setShowingNoPermissions(true)
+        }
+    }
+
+    return <div className="flex items-center">
+        {showingNoPermissions && 
+        <AcceptButtonPanel
+            text={<div>
+                <p>Necesitás permisos de edición para confirmar cambios.</p>
+                <NoEditPermissionsMsg user={user} level={entity.protection}/>
+            </div>}
+            onClose={() => {setShowingNoPermissions(false)}}
+        />}
+        <StateButton
+            className="hover:scale-105"
+            onClick={confirm}
+            text1={<ConfirmEditIcon/>}
+            text2={<SmallLoadingSpinner/>}
+            reUsable={!editPermission}
+        />
+        <StateButton
+            className="hover:scale-105"
+            onClick={reject}
+            text1={<RejectEditIcon/>}
+            text2={<SmallLoadingSpinner/>}
+            reUsable={!editPermission}
+        />
+    </div>
 }
 
 
@@ -58,63 +108,98 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     const content = useContent(entity.versions[index].id)
     let prev = useContent(entity.versions[Math.max(index-1, 0)].id)
     const router = useRouter()
+    const user = useUser()
 
     if(content.isLoading || prev.isLoading) return <LoadingSpinner/>
     if(!content.content) return <></>
-
-    const selected = viewing == index
-
-    const isUndo = content.content.isUndo
-
-    const className = "flex flex-col article-edit my-2 w-full px-2 pb-2 link hover:bg-[var(--secondary-light)] cursor-pointer " + (selected ? " selected" : "")
 
     async function onRemoveAuthorship(){
         await removeEntityAuthorship(entity.versions[index].id, entity.id)
     }
 
-    return <div className={className}
-        onClick={() => {router.push("/articulo/"+entity.id+"/"+index)}}
-    >
-        {showingRemoveAuthorshipPanel && <RemoveAuthorshipPanel
-            entity={entity}
-            version={index}
-            onRemove={onRemoveAuthorship}
-            onClose={() => {setShowingRemoveAuthorshipPanel(false)}}
-        />}
-        <div className="flex justify-center mt-2 items-center">
-            <div className="text-sm font-bold mr-2 w-32">
-                {isUndo ? <span>(Deshecho)</span> : 
-                isCurrent ? <span>(Versión actual)</span> : <></>
-                }
+    const selected = viewing == index
+    const isUndo = entity.versions[index].isUndo
+    const isRejected = entity.versions[index].rejectedById != null
+    const isConfirmed = entity.versions[index].confirmedById != null
+    const isPending = !entity.versions[index].editPermission && !isConfirmed && !isRejected
+    const isContentChange = index > 0 && entity.versions[index].categories == entity.versions[index-1].categories
+    const hasAuthorshipClaim = isContentChange && !isUndo && !isRejected
+    const editPermission = hasEditPermission(user.user, entity.protection)
+
+    let baseMsg = null
+
+    if(isUndo){
+        baseMsg = <span>Deshecho </span>
+    } else if(isCurrent){
+        baseMsg = <span>Versión oficial</span>
+    } else if(isPending){
+        baseMsg = <ConfirmEditButtons editPermission={editPermission} entity={entity} contentId={content.content.id} user={user.user}/>
+    } else if(isRejected){
+        baseMsg = <span>Rechazado</span>
+    } else {
+        baseMsg = <span>Versión anterior</span>
+    }
+
+    let className = "w-full px-2 py-2 link cursor-pointer mr-1 " + (selected ? "border-2" : "border")
+
+    className = className + ((isUndo || isRejected) ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
+    return <div className="flex items-center w-full pb-1">
+        {<div className={"px-2 " + (selected ? "text-gray-400" : "text-transparent")}>
+            <ViewsIcon/>
+        </div>}
+        <div 
+            className={className}
+            onClick={() => {router.push("/articulo/"+entity.id+"/"+index)}}
+        >
+            {showingRemoveAuthorshipPanel && <RemoveAuthorshipPanel
+                entity={entity}
+                version={index}
+                onRemove={onRemoveAuthorship}
+                onClose={() => {setShowingRemoveAuthorshipPanel(false)}}
+            />}
+            
+            <div className="flex items-center space-x-2 w-full">
+                
+                <div className="text-sm font-bold w-32">
+                    {baseMsg}
+                </div>
+
+                <div className="w-32 text-sm">
+                    <DateSince date={content.content.createdAt}/>
+                </div>
+                
+                <div className="w-32 text-sm">
+                    <Authorship content={content.content} onlyAuthor={true}/>
+                </div>
+                
+                <div className="w-32 text-sm">
+                    <EditDetails content={content.content} prev={index > 0 ? prev.content : undefined}/>
+                </div>
+                
+                <div className="w-32 flex items-center space-x-2">
+                    {(isCurrent && index > 0) ? <UndoButton entity={entity} version={index}/> : <></>}
+                    
+                    {isUndo && <button className="hover:scale-105" onClick={(e) => {e.preventDefault(); e.stopPropagation(); router.push("/articulo/"+entity.id+"/"+index)}}>
+                        <ActiveCommentIcon/>
+                    </button>}
+
+                    {hasAuthorshipClaim && <AuthorshipClaim entity={entity} version={index} setShowingRemoveAuthorshipPanel={setShowingRemoveAuthorshipPanel}/>}
+                </div>
             </div>
-            <div className="mr-2 w-24 text-sm">(<DateSince date={content.content.createdAt}/>)</div>
-            <div className="mr-2 w-32 text-sm"><Authorship content={content.content} onlyAuthor={true}/></div>
-            <div className="w-32 text-sm">
-            <EditDetails content={content.content} prev={index > 0 ? prev.content : undefined}/>
-            </div>
-            <div className="w-32 ml-2">
-                {isCurrent && index > 0 ? <UndoButton entity={entity} version={index}/> : <></>}
-            </div>
-            <AuthorshipClaim entity={entity} version={index} setShowingRemoveAuthorshipPanel={setShowingRemoveAuthorshipPanel}/>
         </div>
     </div>
-}
-
-export function currentVersion(entity: EntityProps){
-    let currentIndex = entity.versions.length-1
-    while(entity.versions[currentIndex].isUndo){
-        currentIndex --
-    }
-    return currentIndex
 }
 
 
 export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {entity: EntityProps, onClose: () => void, version: number, onRemove: () => void}) => {
     const {user} = useUser()
 
+    if(!user){
+        return <AcceptButtonPanel text="Necesitás una cuenta para remover la autoría de una edición." onClose={onClose}/>
+    }
     return (
         <>
-            <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
+            <div className="cursor-default fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
                 
                 <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg">
                     <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
@@ -146,10 +231,10 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
 export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: number}) => {
     const currentIndex = currentVersion(entity)
 
-    return <>
+    return <div className="mt-1">
         {entity.versions.map((version, index) => {
         const versionIndex = entity.versions.length-1-index
-        return <div key={index}>
+        return <div key={index} className="w-full">
             <EditElement
                 entity={entity}
                 index={versionIndex}
@@ -157,5 +242,5 @@ export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: n
                 isCurrent={versionIndex == currentIndex}
             />
         </div>
-    })}</>
+    })}</div>
 }
