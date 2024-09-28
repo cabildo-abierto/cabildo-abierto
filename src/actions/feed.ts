@@ -12,7 +12,7 @@ export const getRouteFeed = (route: string[], userId: string) => {
         let feed = await db.content.findMany({
             select: {
                 id: true,
-                text: true,
+                plainText: true,
                 title: true,
                 type: true,
                 entityReferences: {

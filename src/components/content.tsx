@@ -97,7 +97,6 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
 }
 
 export const CommentCounter = ({viewingComments, disabled, content, onViewComments}: CommentCounterProps) => {
-    // TO DO: Contar también los hijos de los hijos
     return <div className="flex items-center px-2">
         <ReactionButton
             icon1={<ActiveCommentIcon/>}

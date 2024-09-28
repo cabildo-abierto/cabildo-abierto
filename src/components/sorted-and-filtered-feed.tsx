@@ -26,7 +26,6 @@ export const ConfiguredFeed = ({feed, noResultsText, maxSize, order, filter}: Co
     }
 
     let filteredFeed = feed.feed
-    // TO DO: Debería ser la versión parseada del texto y no diferencias mayus y min
     if(filteredFeed && filter == "Rápidas"){
         filteredFeed = filteredFeed.filter((content) => (content.type == "FastPost"))
     }

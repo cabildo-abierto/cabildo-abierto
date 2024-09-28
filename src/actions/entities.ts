@@ -322,7 +322,8 @@ export const getEntities = unstable_cache(async () => {
                             childrenTree: true,
                             reactions: true
                         }
-                    }
+                    },
+                    numWords: true
                 },
                 orderBy: {
                     createdAt: "asc"
@@ -342,11 +343,6 @@ export const getEntities = unstable_cache(async () => {
         orderBy: {
             name: "asc"
         }
-    })
-    entities = entities.map((entity) => {
-        entity.childrenCount = 0
-        entity.textLength = 0
-        return entity
     })
     return entities
 }, ["entities"], {

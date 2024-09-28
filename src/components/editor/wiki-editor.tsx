@@ -208,7 +208,7 @@ export const SaveEditPopup = ({
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useUser()
-    //const d = charDiffFromJSONString(currentVersion, JSON.stringify(editorState))
+    const d = charDiffFromJSONString(currentVersion, JSON.stringify(editorState))
     
     const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al artículo el texto de una Ley, o algo escrito por otra persona. Si lo desactivás no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href="/articulo/Cabildo_Abierto:_Derechos_de_autor">Más información</Link>
     </span>
@@ -220,7 +220,7 @@ export const SaveEditPopup = ({
                 <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg">
                     <h2 className="py-4 text-lg">Confirmar cambios</h2>
                     <div className="mb-8">
-                        Estás agregando <span className="text-green-600">{0}</span> caracteres y eliminando <span className="text-red-600">{0}</span> caracteres.
+                        Estás agregando <span className="text-green-600">{d.charsAdded}</span> caracteres y eliminando <span className="text-red-600">{d.charsDeleted}</span> caracteres.
                     </div>
                     {!hasEditPermission(user, entity.protection) && <div className="mb-8">
                     <NotEnoughPermissionsWarning entity={entity}/>

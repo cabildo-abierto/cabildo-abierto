@@ -137,6 +137,11 @@ model Content {
   isDraft          Boolean?    @default(false)
   visible          Boolean     @default(true)
   text             String
+  plainText        String      @default("")
+  numChars         Int         @default(0)
+  numWords         Int         @default(0)
+  numNodes         Int         @default(0)
+  
   title            String?
   categories       String      @default("[]")
   parentEntityId   String?

@@ -8,7 +8,7 @@ export const RouteFeed = ({feed, defaultOrder="Populares"}: {feed: LoadingFeedWi
     const {searchValue} = useSearch()
 
     if(feed.feed && searchValue.length > 0){
-        feed.feed = feed.feed.filter((content) => (content.text.includes(searchValue) || (content.title && content.title.includes(searchValue))))
+        feed.feed = feed.feed.filter((content) => (content.plainText.toLowerCase().includes(searchValue.toLowerCase()) || (content.title && content.title.toLowerCase().includes(searchValue.toLowerCase()))))
     }
     return <FeedWithConfig feed={feed} defaultOrder={defaultOrder}/>
 }

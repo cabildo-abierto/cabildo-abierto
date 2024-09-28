@@ -27,6 +27,19 @@ export function charDiff(str1: string, str2: string){
 }
 
 
+export function wordDiff(str1: string, str2: string){
+    const common = lcs(str1.split(" "), str2.split(" "))
+
+    const insertions = str2.length - common.length
+    const deletions = str1.length - common.length
+    return {
+        total: insertions+deletions,
+        insertions: insertions,
+        deletions: deletions
+    }
+}
+
+
 export function textNodesFromJSONStr(s: string){
     return nodesFromJSONStr(s).map(getAllText)
 }
@@ -54,24 +67,63 @@ export function makeMatrix(n, m, v){
     return M
 }
 
-export function minMatch(nodes1, nodes2){
+export function minMatch(nodes1, nodes2, common: {x: number, y: number}[]){
     if(nodes1.length == 0 || nodes2.length == 0) return []
-    let a = makeMatrix(nodes1.length, nodes2.length, 0)
+    
+    const commonNodes1 = new Set(common.map(({x, y}) => (x)))
+    const commonNodes2 = new Set(common.map(({x, y}) => (y)))
+    
+    let uncommonNodes1 = []
+    nodes1.forEach((x, index) => {
+        if(!commonNodes1.has(index)){
+            uncommonNodes1.push({node: x, index: index})
+        }
+    })
+    let uncommonNodes2 = []
+    nodes1.forEach((x, index) => {
+        if(!commonNodes2.has(index)){
+            uncommonNodes2.push({node: x, index: index})
+        }
+    })
 
-    for(let i = 0; i < nodes1.length; i++){
-        for(let j = 0; j < nodes2.length; j++){
-            a[i][j] = charDiff(nodes1[i], nodes2[j]).total
+    let a = makeMatrix(uncommonNodes1.length, uncommonNodes2.length, 0)
+
+    for(let i = 0; i < uncommonNodes1.length; i++){
+        for(let j = 0; j < uncommonNodes2.length; j++){
+            a[i][j] = charDiff(uncommonNodes1[i].node, uncommonNodes2[j].node).total
         }
     }
+    const t2 = Date.now()
 
-    const res = assignment(a)
-    return res.map((y, x) => ({x: x, y: y}))
+    let res = assignment(a)
+    const t3 = Date.now()
+
+    let resDicts = res.map((y, x) => ({x: x, y: y}))
+    resDicts = resDicts.map(({x, y}) => ({x: uncommonNodes1[x].index, y: uncommonNodes2[y].index}))
+
+    return [...common, ...resDicts]
+}
+
+
+function areArraysEqual(s1: any[], s2: any[]){
+    if(s1.length != s2.length) return false
+
+    for(let i = 0; i < s1.length; i++){
+        if(s1[i] !== s2[i]){
+            return false
+        }
+    }
+    return true
 }
 
 
 function lcs(s1: any[], s2: any[]) {
     const n = s1.length;
     const m = s2.length;
+
+    if(areArraysEqual(s1, s2)){
+        return s1
+    }
 
     // dp[i][j] = la mayor subcadena incluyendo hasta i-1 y j-1
     const dp = Array.from({length : n+1}, () => Array(m+1).fill(0));
@@ -110,15 +162,9 @@ function lcs(s1: any[], s2: any[]) {
 
 
 export function diff(nodes1: string[], nodes2: string[]){
-    //const t1 = Date.now()
     const common: {x: number, y: number}[] = lcs(nodes1, nodes2)
-    //const t2 = Date.now()
 
-    let matches: {x: number, y: number}[] = minMatch(nodes1, nodes2)
-    //const t3 = Date.now()
-
-    //console.log("lcs", t2-t1)
-    //console.log("minmatch", t3-t2)
+    let matches: {x: number, y: number}[] = minMatch(nodes1, nodes2, common)
 
     let perfectMatches = matches.filter(({x, y}) => {
         return nodes1[x] == nodes2[y]
@@ -173,6 +219,7 @@ export function nodesCharDiff(nodes1, nodes2) {
             charsAdded += matchDiff.insertions
         }
     }
+
     return {charsAdded: charsAdded, charsDeleted: charsDeleted, 
         matches: matches, common: common, perfectMatches: perfectMatches}
 }
