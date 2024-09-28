@@ -1,6 +1,6 @@
 import assert from "assert"
 import { UserProps, EntityProps, SmallEntityProps } from "../app/lib/definitions"
-import { charDiffFromJSONString } from "./diff"
+import { charDiffFromJSONString, getAllText } from "./diff"
 import { db } from "../db"
 
 
@@ -210,4 +210,22 @@ export function currentVersion(entity: EntityProps){
     }
     console.log("current version was null", entity.id, entity.currentVersionId)
     return entity.versions.length-1
+}
+
+
+export function getPlainText(jsonStr: string){
+    if(jsonStr.length == 0 || jsonStr == "Este artículo está vacío!") return {
+        numChars: 0,
+        numWords: 0,
+        numNodes: 0,
+        plainText: ""
+    }
+    const json = JSON.parse(jsonStr)
+    const text = getAllText(json.root)
+    return {
+        numChars: text.length,
+        numWords: text.split(" ").length,
+        numNodes: json.root.children.length,
+        plainText: text
+    }
 }

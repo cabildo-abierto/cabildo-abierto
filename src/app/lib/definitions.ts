@@ -94,12 +94,11 @@ export type SmallEntityProps = {
         isUndo: boolean,
         undoMessage: string,
         authorId: string,
-        _count: {childrenTree: number, reactions: number}
+        _count: {childrenTree: number, reactions: number},
+        numWords: number
     }[]
     _count: {referencedBy: number, reactions: number},
     views?: number,
-    textLength?: number,
-    childrenCount?: number,
     reactions?: number,
     uniqueViewsCount: number
 }
@@ -204,7 +203,7 @@ export type UserStats = {
 export type SmallContentProps = {
     id: string
     type?: ContentType
-    text?: string
+    plainText?: string
     title?: string
     createdAt?: string | Date
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]

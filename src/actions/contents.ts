@@ -7,6 +7,7 @@ import { revalidateEverythingTime } from "./utils";
 import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
 import { getUserId } from "./users";
+import { getPlainText } from "../components/utils";
 
 
 export async function getContentById(id: string, userId?: string): Promise<ContentProps> {
@@ -174,6 +175,9 @@ export async function createComment(text: string, parentContentId: string, userI
 
     const parentContent = await getContentStaticById(parentContentId)
     const parentEntityId = parentContent.parentEntityId
+
+    const {numChars, numWords, numNodes, plainText} = getPlainText(text)
+
     const comment = await db.content.create({
         data: {
             text: text,
@@ -190,7 +194,11 @@ export async function createComment(text: string, parentContentId: string, userI
                 connect: [...parentContent.ancestorContent, {id: parentContent.id}]
             },
             uniqueViewsCount: 0,
-            fakeReportsCount: 0
+            fakeReportsCount: 0,
+            numChars: numChars,
+            numWords: numWords,
+            numNodes: numNodes,
+            plainText: plainText
         },
     })
 
@@ -258,6 +266,8 @@ export async function findReferences(text: string){
 export async function createPost(text: string, postType: ContentType, isDraft: boolean, userId: string, title?: string) {
     let references = await findReferences(text)
 
+    const {numChars, numWords, numNodes, plainText} = getPlainText(text)
+
     const result = await db.content.create({
         data: {
             text: text,
@@ -269,7 +279,11 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
                 connect: references
             },
             fakeReportsCount: 0,
-            uniqueViewsCount: 0
+            uniqueViewsCount: 0,
+            numChars: numChars,
+            numWords: numWords,
+            numNodes: numNodes,
+            plainText: plainText
         },
     })
 
@@ -338,6 +352,8 @@ export async function publishDraft(text: string, contentId: string, userId: stri
 export async function createFakeNewsReport(text: string, parentContentId: string, userId: string) {
     let references = await findReferences(text)
 
+    const {numChars, numWords, numNodes, plainText} = getPlainText(text)
+
     const report = await db.content.create({
         data: {
             text: text,
@@ -350,7 +366,11 @@ export async function createFakeNewsReport(text: string, parentContentId: string
                 connect: references
             },
             uniqueViewsCount: 0,
-            fakeReportsCount: 0
+            fakeReportsCount: 0,
+            numChars: numChars,
+            numWords: numWords,
+            numNodes: numNodes,
+            plainText: plainText
         },
     })
     revalidateTag("content:"+parentContentId)
@@ -360,7 +380,7 @@ export async function createFakeNewsReport(text: string, parentContentId: string
 }
 
 
-// TO DO: Esto debería ser atómico
+// TO DO: Atómico
 export const addLike = async (id: string, userId: string, entityId?: string) => {
     const exists = await db.reaction.findFirst({
         where: {
@@ -466,7 +486,7 @@ export const addView = async (id: string, userId: string) => {
 }
 
 
-// TO DO: Esto debería ser atómico
+// TO DO: Atómico
 export const addViewToEntityContent = async (id: string, userId: string, entityId: string) => {
     const exists = await db.view.findMany({
         select: {

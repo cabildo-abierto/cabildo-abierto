@@ -16,6 +16,7 @@
     "update-unique-views": "tsx scripts/update-unique-views.js",
     "free-subscriptions": "tsx scripts/free-subscriptions.js",
     "update-entity-current": "tsx scripts/update-entity-current.js",
+    "update-text-length": "tsx scripts/update-text-length.js",
     "update-is-last": "tsx scripts/update-is-last.js",
     "postinstall": "prisma generate"
   },

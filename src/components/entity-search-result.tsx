@@ -18,10 +18,6 @@ export function getEntityChildrenCount(entity: SmallEntityProps){
 
 export const EntitySearchResult: React.FC<{entity: SmallEntityProps}> = ({ entity }) => {
 
-    // TO DO
-    /*<FixedCounter count={entity.childrenCount} icon={<InactiveCommentIcon/>}/>
-    <FixedCounter count={entity.textLength} icon={<TextLengthIcon/>} title="Cantidad de palabras en el contenido."/>*/
-
 
     return (
         <Link
@@ -48,6 +44,7 @@ export const EntitySearchResult: React.FC<{entity: SmallEntityProps}> = ({ entit
                   count={getEntityChildrenCount(entity)}
                   icon={<InactiveCommentIcon />}
                 />
+                <FixedCounter count={entity.versions[entity.versions.length-1].numWords} icon={<TextLengthIcon/>} title="Cantidad de palabras."/>
               </div>
             </div>
           </div>

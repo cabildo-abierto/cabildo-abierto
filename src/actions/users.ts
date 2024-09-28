@@ -411,7 +411,7 @@ export async function donateSubscriptions(n: number, userId: string, paymentId: 
 }
 
 
-// TO DO: esto debería ser atómico
+// TO DO: Atómico
 export async function getDonatedSubscription(userId: string) {
     const subscription = await db.subscription.findFirst({
         where: {
