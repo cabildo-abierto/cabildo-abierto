@@ -6,7 +6,7 @@ import { findReferences, getContentById, getContentStaticById } from "./contents
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString, getAllText } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { arraySum, currentVersion, entityInRoute, hasEditPermission } from "../components/utils";
+import { arraySum, currentVersion, entityInRoute, hasEditPermission, isUndo } from "../components/utils";
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
 
@@ -162,7 +162,7 @@ export const updateEntityCurrentVersion = async (entityId: string) => {
 
     let index = 0
     for(let i = 0; i < entity.versions.length; i++){
-        if(!entity.versions[i].isUndo && (entity.versions[i].editPermission || entity.versions[i].confirmedById != null)){
+        if(!isUndo(entity.versions[i]) && (entity.versions[i].editPermission || entity.versions[i].confirmedById != null)){
             index = i
         }
     }
@@ -176,22 +176,36 @@ export const updateEntityCurrentVersion = async (entityId: string) => {
     })
     revalidateTag("entity:"+entityId)
 }
+
+
+export async function extendContentStallPaymentDate(contentId: string){
+    const content = await getContentById(contentId)
+    await db.content.update({
+        data: {
+            stallPaymentUntil: content.stallPaymentDate
+        },
+        where: {
+            id: contentId
+        }
+    })
+    revalidateTag("content:"+contentId)
+}
   
   
-export const undoChange = async (entityId: string, contentId: string, versionNumber: number, message: string, userId: string, isVandalism: boolean) => {
+export const undoChange = async (entityId: string, contentId: string, versionNumber: number, message: string, userId: string, isVandalism: boolean, isOportunism: boolean) => {
     const entity = await getEntityById(entityId)
     if(entity){
-        await db.content.update({
+        await db.content.create({
             data: {
-                isUndo: true,
-                undoMessage: message,
-                undoById: userId,
-                isVandalism: isVandalism,
-            },
-            where: {
-                id: contentId
+                type: "UndoEntityContent",
+                text: message,
+                authorId: userId,
+                reportsVandalism: isVandalism,
+                reportsOportunism: isOportunism,
+                contentUndoneId: contentId
             }
         })
+        await extendContentStallPaymentDate(contentId)
         revalidateTag("entity:"+entityId)
         revalidateTag("content:"+contentId)
         await updateEntityCurrentVersion(entityId)
@@ -264,7 +278,6 @@ export const deleteEntityHistory = async (entityId: string) => {
 
     revalidateTag("entity:"+entityId)
     await recomputeEntityContributions(entityId)
-    
 }
 
 
@@ -313,8 +326,6 @@ export const getEntities = unstable_cache(async () => {
                 select: {
                     id: true,
                     categories: true,
-                    isUndo: true,
-                    undoMessage: true,
                     createdAt: true,
                     authorId: true,
                     _count: {
@@ -363,12 +374,27 @@ export async function getEntityById(id: string) {
                     select: {
                         id: true,
                         categories: true,
-                        isUndo: true,
-                        undoMessage: true,
-                        isVandalism: true,
                         confirmedById: true,
                         rejectedById: true,
-                        undoById: true,
+                        undos: {
+                            select: {
+                                id: true,
+                                reportsOportunism: true,
+                                reportsVandalism: true,
+                                authorId: true,
+                                createdAt: true,
+                                text: true
+                            },
+                            orderBy: {
+                                createdAt: "desc"
+                            }
+                        },
+                        uniqueViewsCount: true,
+                        _count: {
+                            select: {
+                                reactions: true
+                            }
+                        },
                         createdAt: true,
                         text: true,
                         authorId: true,
@@ -516,7 +542,8 @@ export async function removeEntityAuthorship(contentId: string, entityId: string
 export async function confirmChanges(entityId: string, contentId: string, userId: string){
     await db.content.update({
         data: {
-            confirmedById: userId
+            confirmedById: userId,
+            confirmedAt: new Date()
         },
         where: {
             id: contentId
@@ -530,7 +557,8 @@ export async function confirmChanges(entityId: string, contentId: string, userId
 export async function rejectChanges(entityId: string, contentId: string, userId: string){
     await db.content.update({
         data: {
-            rejectedById: userId
+            rejectedById: userId,
+            rejectedAt: new Date()
         },
         where: {
             id: contentId

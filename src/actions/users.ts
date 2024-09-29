@@ -4,12 +4,13 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
 import { revalidateEverythingTime } from "./utils";
-import { UserStats } from "../app/lib/definitions";
-import { getEntities } from "./entities";
-import { createNotification } from "./contents";
+import { SubscriptionProps, UserProps, UserStats } from "../app/lib/definitions";
+import { getEntities, getEntityById } from "./entities";
+import { createNotification, getContentById } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import MercadoPagoConfig, { Customer, CustomerCard, Payment, Preference } from "mercadopago";
-import { accessToken } from "../components/utils";
+import { accessToken, contributionsToProportionsMap, getVersionInEntity, isDemonetized, subscriptionEnds } from "../components/utils";
+import { ViewsCounter } from "../components/views-counter";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -311,6 +312,34 @@ export async function unfollow(userToUnfollowId: string, userId: string) {
 }
 
 
+export const getUserIncome = async (userId: string) => {
+    let income = 0
+    let pendingConfirmationIncome = 0
+
+    const promises = await db.paymentPromise.findMany({
+        select: {
+            amount: true,
+            status: true
+        },
+        where: {
+            authorId: userId
+        }
+    })
+    
+    for(let i = 0; i < promises.length; i++){
+        const p = promises[i]
+        if(p.status == "Canceled") continue
+        if(p.status == "Pending"){
+            pendingConfirmationIncome += p.amount
+        } else {
+            income += p.amount
+        }
+    }
+
+    return {income: income, pendingPayIncome: income, pendingConfirmationIncome: pendingConfirmationIncome}
+}
+
+
 export const getUserStats = async (userId: string) => {
     return unstable_cache(async () => {
         const userContents = await getUserContents(userId)
@@ -359,13 +388,17 @@ export const getUserStats = async (userId: string) => {
             }
         }
 
+        const {income, pendingConfirmationIncome, pendingPayIncome} = await getUserIncome(userId)
+
         const stats: UserStats = {
             posts: postsIds.length,
             entityEdits: entityEdits,
             editedEntities: editedEntitiesIds.size,
             reactionsInPosts: reactionsInPosts,
             reactionsInEntities: entityReactions,
-            income: 0,
+            income: income,
+            pendingConfirmationIncome: pendingConfirmationIncome,
+            pendingPayIncome: pendingPayIncome,
             entityAddedChars: entityAddedChars,
             viewsInPosts: viewsInPosts,
             viewsInEntities: 0
@@ -380,11 +413,15 @@ export const getUserStats = async (userId: string) => {
 
 
 export async function buyAndUseSubscription(userId: string, price: number, paymentId?: string) {
+    
+    const usedAt = new Date()
+    const endsAt = subscriptionEnds(usedAt)
     const result = await db.subscription.create({
         data: {
             userId: userId,
             boughtByUserId: userId,
-            usedAt: new Date(),
+            usedAt: usedAt,
+            endsAt: endsAt,
             paymentId: paymentId,
             price: price
         }
@@ -422,9 +459,12 @@ export async function getDonatedSubscription(userId: string) {
     if(!subscription){
         return null
     } else {
+        const usedAt = new Date()
+        const endsAt = subscriptionEnds(usedAt)
         const result = await db.subscription.update({
             data: {
-                usedAt: new Date(),
+                usedAt: usedAt,
+                endsAt: endsAt,
                 userId: userId
             },
             where: {
@@ -666,4 +706,208 @@ export async function newContactMail(mail: string){
           mail: mail
         }
     })
+}
+
+
+export async function createPaymentPromisesForEntityView(view: {content: {id: string, authorId: string, createdAt: Date}}, viewValue: number, subscriptionId: string){
+
+    console.log("creating payment promises for entity view")
+
+    const content = await getContentById(view.content.id)
+    
+    const contributions = contributionsToProportionsMap(JSON.parse(content.contribution))
+
+    const authors = Object.keys(contributions)
+    console.log("contributions map", contributions)
+
+    for(let i = 0; i < authors.length; i++){
+        console.log("creating promise for", authors[i], "with contribution", contributions[authors[i]], "and value", viewValue)
+        await db.paymentPromise.create({
+            data: {
+                authorId: authors[i],
+                subscriptionId: subscriptionId,
+                contentId: view.content.id,
+                amount: viewValue * contributions[authors[i]]
+            }
+        })
+    }
+}
+
+
+export async function createPaymentPromisesForEntityViews(user: UserProps, amount: number, start: Date, end: Date, subscriptionId: string){
+    const entityViews = await db.view.findMany({
+        select: {
+            content: {
+                select: {
+                    id: true,
+                    authorId: true,
+                    createdAt: true
+                }
+            }
+        },
+        where: {
+            userById: user.id,
+            content: {
+                type: "EntityContent"
+            },
+            createdAt: {
+                gte: start
+            }
+        }
+    })
+
+    const viewValue = amount / entityViews.length
+
+    for(let i = 0; i < entityViews.length; i++){
+        const view = entityViews[i]
+        await createPaymentPromisesForEntityView(view, viewValue, subscriptionId)
+    }
+}
+
+
+export async function createPaymentPromisesForContentReactions(user: UserProps, amount: number, start: Date, end: Date, subscriptionId: string){
+    const contentReactions = await db.reaction.findMany({
+        select: {
+            content: {
+                select: {
+                    id: true,
+                    authorId: true,
+                    createdAt: true
+                }
+            }
+        },
+        where: {
+            userById: user.id,
+            content: {
+                type: "Post"
+            },
+            createdAt: {
+                gte: start
+            }
+        }
+    })
+
+    const reactionValue = amount / contentReactions.length
+
+    for(let i = 0; i < contentReactions.length; i++){
+        const reaction = contentReactions[i]
+        console.log("creating payment promise for post reaction", reaction.content.id, "with value", reactionValue)
+        await db.paymentPromise.create({
+            data: {
+                authorId: reaction.content.authorId,
+                subscriptionId: subscriptionId,
+                contentId: reaction.content.id,
+                amount: reactionValue
+            }
+        })
+    }
+}
+
+
+export async function createPaymentPromises(){
+    const curDate = new Date()
+
+    const subscriptions = await db.subscription.findMany({
+        select: {
+            id: true,
+            usedAt: true,
+            endsAt: true,
+            userId: true,
+            boughtByUserId: true,
+            createdAt: true,
+            price: true
+        },
+        where: {
+            price: {
+                gt: 0
+            },
+            usedAt: {
+                not: null
+            },
+            endsAt: {
+                lt: curDate
+            },
+            promisesCreated: false
+        }
+    })
+
+    console.log("ended subscriptions found", subscriptions.length)
+    for(let i = 0; i < subscriptions.length; i++){
+        const s = subscriptions[i]
+        await createPromises(s.userId, s.price*0.64, s.usedAt, s.endsAt, s.id)
+    }
+}
+
+
+export async function createPromises(userId: string, amount: number, start: Date, end: Date, subscriptionId: string){
+    const user = await getUserById(userId)
+
+    console.log("creating promises by user", user.id, "with total value", amount, "between", start, "and", end)
+    await createPaymentPromisesForEntityViews(user, amount*0.5, start, end, subscriptionId)
+    await createPaymentPromisesForContentReactions(user, amount*0.5, start, end, subscriptionId)
+}
+
+
+export async function reassignPromise(p: {id: string, amount: number, subscription: {id: string, userId: string, usedAt: Date, endsAt: Date}}) {
+    await db.paymentPromise.update({
+        data: {
+            status: "Canceled"
+        },
+        where: {
+            id: p.id
+        }
+    })
+    await createPromises(p.subscription.userId, p.amount, p.subscription.usedAt, p.subscription.endsAt, p.subscription.id)
+}
+
+
+export async function confirmPayments() {
+    const promises = await db.paymentPromise.findMany({
+        select: {
+            id: true,
+            amount: true,
+            subscription: {
+                select: {
+                    price: true,
+                    userId: true,
+                    usedAt: true,
+                    endsAt: true,
+                    id: true
+                }
+            },
+            content: {
+                select: {
+                    stallPaymentUntil: true,
+                    undos: {
+                        select: {
+                            id: true
+                        }
+                    }
+                }
+            }
+        },
+        where: {
+            status: "Pending"
+        }
+    })
+
+    console.log("unconfirmed promises found", promises.length)
+    const curDate = new Date()
+    for(let i = 0; i < promises.length; i++){
+        const p = promises[i]
+        if(p.content.stallPaymentUntil < curDate){
+            if(isDemonetized(p.content)){
+                await reassignPromise(p)
+            } else {
+                await db.paymentPromise.update({
+                    data: {
+                        status: "Confirmed"
+                    },
+                    where: {
+                        id: p.id
+                    }
+                })
+            }
+        }
+    }
 }

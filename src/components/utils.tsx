@@ -229,3 +229,48 @@ export function getPlainText(jsonStr: string){
         plainText: text
     }
 }
+
+
+export function subscriptionEnds(start: Date): Date {
+    const endDate = new Date(start);
+
+    endDate.setMonth(endDate.getMonth() + 1);
+
+    return endDate;
+}
+
+
+export function isUndo(entityVersion: {undos: {id: string}[]}) {
+    return entityVersion.undos.length > 0
+}
+
+
+export function isDemonetized(content: {undos: {id: string}[]}){
+    return isUndo(content)
+}
+
+
+export function getVersionInEntity(contentId: string, entity: EntityProps){
+    for(let i = 0; i < entity.versions.length; i++){
+        if(entity.versions[i].id == contentId){
+            return i
+        }
+    }
+    return null
+}
+
+
+export function contributionsToProportionsMap(contributions: [string, number][]){
+    let total = 0
+    let map = {}
+    for(let i = 0; i < contributions.length; i++){
+        const [author, charCount] = contributions[i]
+        total += charCount 
+    }
+    for(let i = 0; i < contributions.length; i++){
+        const [author, charCount] = contributions[i]
+        map[author] = charCount / total 
+    }
+
+    return map
+}

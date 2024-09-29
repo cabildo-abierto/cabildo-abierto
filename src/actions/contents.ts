@@ -13,7 +13,7 @@ import { getPlainText } from "../components/utils";
 export async function getContentById(id: string, userId?: string): Promise<ContentProps> {
     if(!userId) userId = await getUserId()
     return unstable_cache(async () => {
-        let content: any = await db.content.findUnique({
+        let content: ContentProps = await db.content.findUnique({
             select: {
                 id: true,
                 type: true,
@@ -75,9 +75,7 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                         versions: {
                             select: {
                                 id: true,
-                                categories: true,
-                                isUndo: true,
-                                undoMessage: true
+                                categories: true
                             },
                             orderBy: {
                                 createdAt: "asc"
@@ -97,6 +95,7 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                     }
                 },
                 categories: true,
+                stallPaymentUntil: true
             },
             where: {
                 id: id,

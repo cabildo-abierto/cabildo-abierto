@@ -21,7 +21,7 @@ import PaywallChecker from "./paywall-checker";
 import { SetProtectionButton } from "./protection-button";
 import { ThreeColumnsLayout } from "./three-columns";
 import { NoVisitsAvailablePopup } from "./no-visits-popup";
-import { currentVersion } from "./utils";
+import { currentVersion, isUndo } from "./utils";
 import { UndoDiscussion } from "./undo-discussion";
 
 
@@ -266,7 +266,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
         </div>
         }
 
-        {entity.versions[version].isUndo && <UndoDiscussion content={content} entity={entity} version={version}/>}
+        {isUndo(entity.versions[version]) && <UndoDiscussion content={content} entity={entity} version={version}/>}
 
         <div className="mt-6">
         {editing && <ContentWithCommentsFromId

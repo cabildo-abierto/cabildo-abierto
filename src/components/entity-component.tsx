@@ -9,6 +9,7 @@ import { ContentTopRow } from "./content";
 import { useEntity } from "../app/hooks/entities";
 import { useContent } from "../app/hooks/contents";
 import { ContentProps, EntityProps } from "../app/lib/definitions";
+import { getVersionInEntity } from "./utils";
 
 
 type EntityComponentProps = {
@@ -20,16 +21,6 @@ type EntityComponentProps = {
     setEditing: (arg0: boolean) => void
     isMainPage?: boolean
     parentContentId?: string
-}
-
-
-export function getVersionInEntity(contentId: string, entity: EntityProps){
-    for(let i = 0; i < entity.versions.length; i++){
-        if(entity.versions[i].id == contentId){
-            return i
-        }
-    }
-    return null
 }
 
 const EntityComponent: React.FC<EntityComponentProps> = ({

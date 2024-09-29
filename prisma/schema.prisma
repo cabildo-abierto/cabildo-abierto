@@ -39,10 +39,10 @@ model User {
     messagesSent        ChatMessage[]  @relation("messagesSent")
     messagesReceived    ChatMessage[]  @relation("messagesReceived")
 
-    undos               Content[]      @relation("undo")
-
     confirmed           Content[]       @relation("confirmChange")
     rejected            Content[]       @relation("rejectChange")
+
+    paymentPromises     PaymentPromise[]   @relation("authorPromises")
 
     @@map("users")
     @@schema("public")
@@ -94,6 +94,40 @@ model Subscription {
   user           User?     @relation(fields: [userId], references: [id])
   price          Int
   paymentId      String?
+  endsAt         DateTime?
+
+  paymentPromises PaymentPromise[]
+  promisesCreated Boolean  @default(false)
+
+  @@schema("public")
+}
+
+
+enum PromiseStatus {
+  Pending
+  Confirmed
+  Canceled
+  @@schema("public")
+}
+
+
+model PaymentPromise {
+  id             String    @id @default(cuid())
+
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  author         User      @relation("authorPromises", fields: [authorId], references: [id])
+  authorId       String
+
+  subscription   Subscription  @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String
+
+  amount         Float // quizás hay que tener cuidado con errores numéricos
+
+  contentId      String
+  content        Content  @relation(fields: [contentId], references: [id])
+
+  status      PromiseStatus  @default(Pending) // true cuando el contenido pasó su período de gracia
 
   @@schema("public")
 }
@@ -146,16 +180,19 @@ model Content {
   categories       String      @default("[]")
   parentEntityId   String?
   
-  isUndo           Boolean     @default(false)
-  undoMessage      String?
-  undoById         String?
-  undoBy           User?       @relation("undo", fields: [undoById], references: [id])
-  isVandalism      Boolean     @default(false)
+  undos            Content[]  @relation("undo")
+
+  contentUndone    Content?   @relation("undo", fields: [contentUndoneId], references: [id])
+  contentUndoneId  String? 
+  reportsVandalism  Boolean?
+  reportsOportunism Boolean?
 
   confirmedBy      User?       @relation("confirmChange", fields: [confirmedById], references: [id])
   confirmedById    String?
   rejectedBy       User?       @relation("rejectChange", fields: [rejectedById], references: [id])
   rejectedById     String?
+  confirmedAt      DateTime?
+  rejectedAt       DateTime?
 
   author           User        @relation("author", fields: [authorId], references: [id])
   parentEntity     Entity?     @relation(fields: [parentEntityId], references: [id])
@@ -191,6 +228,10 @@ model Content {
 
   claimsAuthorship Boolean @default(true)
   editPermission   Boolean @default(true)
+
+  paymentPromises  PaymentPromise[]
+
+  stallPaymentUntil  DateTime?
 
   @@schema("public")
 }
@@ -604,6 +645,7 @@ enum ContentType {
   FastPost
   EntityContent
   FakeNewsReport
+  UndoEntityContent
 
   @@schema("public")
 }

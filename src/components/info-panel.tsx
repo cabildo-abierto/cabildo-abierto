@@ -14,8 +14,9 @@ export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {tex
         <InfoIcon fontSize="small"/>
       </div>
       {isHovered && (
-        <div className={"info-panel " + (className ? className : "")}
+        <div className={"info-panel " + (className ? className : "w-72")}
           onMouseEnter={() => {setIsHovered(true)}}
+          onMouseLeave={() => {setIsHovered(false)}}
         >
           <p>
             {text}
