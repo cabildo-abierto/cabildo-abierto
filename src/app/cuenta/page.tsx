@@ -5,6 +5,7 @@ import { ThreeColumnsLayout } from "../../components/three-columns";
 import { useUser } from "../hooks/user";
 import Link from "next/link";
 import { validSubscription } from "../../components/utils";
+import { PermissionLevel } from "../../components/editor/wiki-editor";
 
 
 const Cuenta: React.FC = () => {
@@ -36,12 +37,21 @@ const Cuenta: React.FC = () => {
                         {validSubscription(user) ? "Activa" : "Sin suscripción"}
                     </div>
                 </div>
+                <div className="mb-4">
+                    <div className="text-gray-600 font-medium">Nivel de permisos de edición:</div>
+                    <div className="text-lg">
+                        <PermissionLevel level={user.editorStatus}/>
+                    </div>
+                </div>
                 <div className="mt-6 space-y-4">
                     <Link href="/recuperar/nueva" className="block text-blue-600 hover:underline">
                         Cambiar contraseña
                     </Link>
                     <Link href={`/perfil/${user.id}`} className="block text-blue-600 hover:underline">
                         Ir a mi perfil
+                    </Link>
+                    <Link href="/panel" className="block text-blue-600 hover:underline">
+                        Ver mis estadísticas
                     </Link>
                 </div>
             </div>

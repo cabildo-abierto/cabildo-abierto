@@ -20,6 +20,7 @@ import { addView, addViewToEntityContent } from "../actions/contents";
 import { useUser } from "../app/hooks/user";
 import { ContentProps } from "../app/lib/definitions";
 import EntityComponent from "./entity-component";
+import { UndoDiscussionContent } from "./undo-discussion";
 
 
 export function id2url(id: string){
@@ -243,6 +244,13 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
             isFakeNewsReport={content.type == "FakeNewsReport"}
             depthParity={depthParity}
         /> 
+    } else if(content.type == "UndoEntityContent"){
+        element = <UndoDiscussionContent
+            content={content}
+            onStartReply={onStartReply}
+            onViewComments={onViewComments}
+            viewingComments={viewingComments}
+        />
     }
     return <>{element}</>
 };

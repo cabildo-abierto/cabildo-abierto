@@ -35,6 +35,8 @@ import UndoIconMui from '@mui/icons-material/Undo';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIconMui from '@mui/icons-material/Cancel';
 
+import CloseIcon from '@mui/icons-material/Close';
+
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 export const RedFlag = () => {
@@ -192,4 +194,9 @@ export const ConfirmEditIcon = () => {
 
 export const RejectEditIcon = () => {
     return <span className="text-red-400"><CancelIconMui/></span>
+}
+
+
+export const CloseButtonIcon = () => {
+    return <div className="rounded-lg hover:bg-[var(--secondary-light)]"><CloseIcon/></div>
 }

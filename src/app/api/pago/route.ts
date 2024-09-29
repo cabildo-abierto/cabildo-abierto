@@ -26,7 +26,6 @@ export async function POST(req) {
     const paymentDetails = await getPaymentDetails(paymentId)
 
     if(paymentDetails.status != "approved"){
-      console.log("notification of payment failed with details", paymentDetails)
       return Response.json({status: 200})
     }
 

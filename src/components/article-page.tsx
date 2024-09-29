@@ -266,7 +266,9 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
         </div>
         }
 
+        <div className="mt-2">
         {isUndo(entity.versions[version]) && <UndoDiscussion content={content} entity={entity} version={version}/>}
+        </div>
 
         <div className="mt-6">
         {editing && <ContentWithCommentsFromId

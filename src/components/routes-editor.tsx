@@ -110,8 +110,6 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
     const {mutate} = useSWRConfig()
 
     if(!content || !content.categories){
-        console.log(content)
-        console.log(content?.categories)
         return <>Ocurrió un error</>
     }
 

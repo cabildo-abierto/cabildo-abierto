@@ -126,6 +126,14 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     const hasAuthorshipClaim = isContentChange && !isUndone && !isRejected
     const editPermission = hasEditPermission(user.user, entity.protection)
 
+    async function onDiscussionClick(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(!selected){
+            router.push("/articulo/"+entity.id+"/"+index)
+        }
+    }
+
     let baseMsg = null
 
     if(isUndone){
@@ -179,7 +187,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                 <div className="w-32 flex items-center space-x-2">
                     {(isCurrent && index > 0) ? <UndoButton entity={entity} version={index}/> : <></>}
                     
-                    {isUndone && <button className="hover:scale-105" onClick={(e) => {e.preventDefault(); e.stopPropagation(); router.push("/articulo/"+entity.id+"/"+index)}}>
+                    {isUndone && <button className="hover:scale-105" onClick={onDiscussionClick}>
                         <ActiveCommentIcon/>
                     </button>}
 

@@ -95,7 +95,23 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                     }
                 },
                 categories: true,
-                stallPaymentUntil: true
+                stallPaymentUntil: true,
+                undos: {
+                    select: {
+                        id: true,
+                        reportsOportunism: true,
+                        reportsVandalism: true,
+                        authorId: true,
+                        createdAt: true,
+                        text: true
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                contentUndoneId: true,
+                reportsOportunism: true,
+                reportsVandalism: true
             },
             where: {
                 id: id,

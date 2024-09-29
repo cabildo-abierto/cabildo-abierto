@@ -85,7 +85,7 @@ export function minMatch(nodes1, nodes2, common: {x: number, y: number}[]){
             uncommonNodes2.push({node: x, index: index})
         }
     })
-
+    
     let a = makeMatrix(uncommonNodes1.length, uncommonNodes2.length, 0)
 
     for(let i = 0; i < uncommonNodes1.length; i++){
