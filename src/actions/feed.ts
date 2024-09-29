@@ -21,9 +21,7 @@ export const getRouteFeed = (route: string[], userId: string) => {
                         versions: {
                             select: {
                                 id: true,
-                                categories: true,
-                                isUndo: true,
-                                undoMessage: true
+                                categories: true
                             },
                             orderBy: {
                                 createdAt: "asc"
@@ -88,8 +86,6 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                             select: {
                                 id: true,
                                 categories: true,
-                                isUndo: true,
-                                undoMessage: true
                             },
                             orderBy: {
                                 createdAt: "asc"

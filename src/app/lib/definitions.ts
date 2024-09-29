@@ -45,6 +45,8 @@ export type ContentProps = {
     currentVersionOf?: {id: string} | null
 
     claimsAuthorship?: boolean
+
+    stallPaymentDate?: Date | string
 }
 
 
@@ -56,10 +58,6 @@ export type EntityProps = {
     versions: {
         id: string,
         categories: string,
-        isUndo: boolean,
-        undoById: string,
-        undoMessage: string,
-        isVandalism: boolean,
         createdAt: string | Date,
         confirmedById?: string,
         rejectedById?: string,
@@ -73,7 +71,19 @@ export type EntityProps = {
             currentVersionOf: {id: (string | null)}
         }[]
         diff?: string
-        claimsAuthorship: boolean
+        claimsAuthorship: boolean,
+        undos: {
+            id: string
+            reportsVandalism: boolean
+            reportsOportunism: boolean
+            authorId: string
+            createdAt: Date | string
+            text: string
+        }[]
+        _count: {
+            reactions: number
+        }
+        uniqueViewsCount: number
     }[]
     referencedBy: SmallContentProps[]
     deleted: boolean,
@@ -91,8 +101,6 @@ export type SmallEntityProps = {
         id: string,
         categories: string,
         createdAt: Date | string,
-        isUndo: boolean,
-        undoMessage: string,
         authorId: string,
         _count: {childrenTree: number, reactions: number},
         numWords: number
@@ -106,9 +114,12 @@ export type SmallEntityProps = {
 
 export type SubscriptionProps = {
     id: string
+    userId?: string
     createdAt: string | Date
     boughtByUserId: string
     usedAt: string | Date | null
+    endsAt: string | Date | null
+    price: number
 }
 
 
@@ -195,6 +206,8 @@ export type UserStats = {
     reactionsInPosts: number
     reactionsInEntities: number
     income: number
+    pendingConfirmationIncome: number
+    pendingPayIncome: number
     entityAddedChars: number
     viewsInPosts: number
     viewsInEntities: number

@@ -12,7 +12,7 @@ import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
 import { confirmChanges, rejectChanges, removeEntityAuthorship } from "../actions/entities"
 import { User } from "mercadopago"
-import { currentVersion, hasEditPermission } from "./utils"
+import { currentVersion, hasEditPermission, isUndo } from "./utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./accept-button-panel"
 import { NoEditPermissionsMsg } from "./no-edit-permissions-msg"
@@ -118,17 +118,17 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     }
 
     const selected = viewing == index
-    const isUndo = entity.versions[index].isUndo
+    const isUndone = isUndo(entity.versions[index])
     const isRejected = entity.versions[index].rejectedById != null
     const isConfirmed = entity.versions[index].confirmedById != null
     const isPending = !entity.versions[index].editPermission && !isConfirmed && !isRejected
     const isContentChange = index > 0 && entity.versions[index].categories == entity.versions[index-1].categories
-    const hasAuthorshipClaim = isContentChange && !isUndo && !isRejected
+    const hasAuthorshipClaim = isContentChange && !isUndone && !isRejected
     const editPermission = hasEditPermission(user.user, entity.protection)
 
     let baseMsg = null
 
-    if(isUndo){
+    if(isUndone){
         baseMsg = <span>Deshecho </span>
     } else if(isCurrent){
         baseMsg = <span>Versión oficial</span>
@@ -142,7 +142,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 
     let className = "w-full px-2 py-2 link cursor-pointer mr-1 " + (selected ? "border-2" : "border")
 
-    className = className + ((isUndo || isRejected) ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
+    className = className + ((isUndone || isRejected) ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
     return <div className="flex items-center w-full pb-1">
         {<div className={"px-2 " + (selected ? "text-gray-400" : "text-transparent")}>
             <ViewsIcon/>
@@ -179,7 +179,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                 <div className="w-32 flex items-center space-x-2">
                     {(isCurrent && index > 0) ? <UndoButton entity={entity} version={index}/> : <></>}
                     
-                    {isUndo && <button className="hover:scale-105" onClick={(e) => {e.preventDefault(); e.stopPropagation(); router.push("/articulo/"+entity.id+"/"+index)}}>
+                    {isUndone && <button className="hover:scale-105" onClick={(e) => {e.preventDefault(); e.stopPropagation(); router.push("/articulo/"+entity.id+"/"+index)}}>
                         <ActiveCommentIcon/>
                     </button>}
 

@@ -24,6 +24,7 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
     const user = useUser()
     const [explanation, setExplanation] = useState("")
     const [vandalism, setVandalism] = useState(false)
+    const [oportunism, setOportunism] = useState(false)
     const {content} = useContent(entity.versions[version].id)
 
     const {mutate} = useSWRConfig()
@@ -54,7 +55,7 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
                 <StateButton
                     onClick={async () => {
                         if(user.user && content){
-                            await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism)
+                            await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
                             mutate("/api/entity/"+entity.id)
                             mutate("/api/entities")
                             onClose()

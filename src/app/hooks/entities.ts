@@ -11,13 +11,3 @@ export function useEntity(id: string): {entity: EntityProps, isLoading: boolean,
         isError: error
     }
 }
-
-
-export function useEntityReactions(id: string): {reactions: number[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/entity-reactions/'+id, fetcher)
-    return {
-        reactions: data,
-        isLoading,
-        isError: error
-    }
-}
