@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import TickButton from './tick-button';
 import StateButton from './state-button';
-import CloseIcon from '@mui/icons-material/Close';
 import { useSWRConfig } from 'swr';
 import { userAgent } from 'next/server';
 import { undoChange } from '../actions/entities';
@@ -10,7 +9,7 @@ import { useContent } from '../app/hooks/contents';
 import { useUser } from '../app/hooks/user';
 import { EntityProps } from '../app/lib/definitions';
 import InfoPanel from './info-panel';
-import { UndoIcon } from './icons';
+import { CloseButtonIcon, UndoIcon } from './icons';
 import { hasEditPermission, permissionToPrintable } from './utils';
 import { PermissionLevel } from './editor/wiki-editor';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
@@ -29,9 +28,13 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
 
     const {mutate} = useSWRConfig()
 
-    const infoPanelVandalism = <span>Marcá la modificación como vandalismo si te parece que fue una modificación que intencionalmente empeoró la calidad del artículo. La situación va a ser revisada por un administrador.</span>
+    const infoPanelVandalism = <div>Si te parece que empeoró la calidad del artículo intencionalmente. La situación va a ser revisada por un administrador.</div>
+
+    const infoPanelOportunism = <div>Si te parece que intentó obtener un rédito económico desproporcionado con respecto a la mejora que representa en el artículo.</div>
 
     const vandalismInfo = <span className="text-gray-800 text-sm">Marcar como vandalismo <InfoPanel text={infoPanelVandalism} className="w-72"/></span>
+
+    const oportunismInfo = <span className="text-gray-800 text-sm">Marcar como oportunismo <InfoPanel text={infoPanelOportunism} className="w-72"/></span>
 
     let modalContent = null
 
@@ -40,18 +43,19 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
     }
     if(hasEditPermission(user.user, entity.protection)){
         modalContent = <div className="space-y-3 p-6">
-            <h3>Deshacer el último cambio en {entity.name}</h3>
+            <h3>Deshacer el último cambio en "{entity.name}"</h3>
             <div>
                 <textarea
                     rows={4}
                     className="resize-none w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"
                     value={explanation}
                     onChange={(e) => {setExplanation(e.target.value)}}
-                    placeholder="Explicá el motivo por el que te parece necesario deshacer este cambio. Deshacer cambios sin justificación podría ser motivo de sanción."
+                    placeholder="Explicá el motivo por el que te parece necesario deshacer este cambio. Deshacer cambios sin justificación podría ser motivo de sanción. El reporte va a estar abierto a discusión y va a ser revisado por un administrador."
                 />
             </div>
             {<TickButton text={vandalismInfo} setTicked={setVandalism} ticked={vandalism} size={20} color="#455dc0" />}
-            <div className="py-4">
+            {<TickButton text={oportunismInfo} setTicked={setOportunism} ticked={oportunism} size={20} color="#455dc0" />}
+            <div className="mt-4">
                 <StateButton
                     onClick={async () => {
                         if(user.user && content){
@@ -86,7 +90,7 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
                     <button
                         onClick={(e) => {e.preventDefault(); e.stopPropagation(); onClose();}}
                     >
-                        <CloseIcon/>
+                        <CloseButtonIcon/>
                     </button>
                 </div>
                 

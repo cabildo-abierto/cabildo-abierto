@@ -77,7 +77,7 @@ const ShowUserStats = () => {
     
     const incomeDesc = <span>
         Ingresos acumulados totales ($)
-        <InfoPanel iconClassName="ml-2 text-gray-600" text='El total de ingresos confirmados que te corresponden. No necesariamente recibiste un pago por todos ellos (ver "Pendientes de pago").'/>
+        <InfoPanel iconClassName="ml-2 text-gray-600" text='El total de ingresos confirmados que recibiste. No necesariamente recibiste un pago por todos ellos todavía (ver "Pendientes de pago").'/>
     </span>
 
     const confirmationPendingDesc = <span>
@@ -91,7 +91,7 @@ const ShowUserStats = () => {
     </span>
 
 
-    return <div className="mx-6 text-lg flex flex-col border-t">
+    return <div className="mx-6 text-lg flex flex-col">
         <UserStat name="Publicaciones individuales" value={stats.stats.posts}/>
         <UserStat name="Artículos públicos editados" value={stats.stats.editedEntities}/>
         <UserStat name="Ediciones totales en artículos públicos" value={stats.stats.entityEdits}/>
@@ -122,9 +122,9 @@ const Page = () => {
     
     let posts = Array.from(new Set(userContents.userContents.filter((({type}) => (type == "Post"))))).map((post) => (post.id))
 
-    const center = <div className="mt-8 content-container shadow rounded px-4 py-4">
-        <h3 className="mb-8">Tus estadísticas <StatsIcon/></h3>
-        <div>
+    const center = <div className="mt-8 flex flex-col items-center">
+        <h2 className="mb-8">Tus estadísticas <StatsIcon/></h2>
+        <div className="bg-white shadow rounded-lg px-4 py-4 w-full">
             <ShowUserStats/>
         </div>
     </div>

@@ -47,6 +47,18 @@ export type ContentProps = {
     claimsAuthorship?: boolean
 
     stallPaymentDate?: Date | string
+
+    undos: {
+        id: string
+        reportsVandalism: boolean
+        reportsOportunism: boolean
+        authorId: string
+        createdAt: Date | string
+        text: string
+    }[]
+    contentUndoneId?: string
+    reportsOportunism?: boolean
+    reportsVandalism?: boolean
 }
 
 

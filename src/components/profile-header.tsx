@@ -8,6 +8,8 @@ import SelectionComponent from "./search-selection-component";
 import { unfollow, follow } from "../actions/users"
 import { UserProps } from "../app/lib/definitions"
 import { FakeNewsCounter, FixedFakeNewsCounter } from "./fake-news-counter"
+import { PermissionLevel } from "./editor/wiki-editor"
+import { ArticleIcon } from "./icons"
 
 export function ProfileHeader({profileUser, user, selected, setSelected, setShowingFakeNews }: {profileUser: UserProps, user?: UserProps, selected: string, setSelected: any, setShowingFakeNews: any }) {
     const [following, setFollowing] = useState(false)
@@ -76,6 +78,9 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                 text={profileUser.description}
                 isOwner={isLoggedInUser !== undefined ? isLoggedInUser : false}
             />
+        </div>
+        <div className="ml-2 flex items-center">
+            <div className="text-gray-600 mb-1"><ArticleIcon/></div><div><PermissionLevel level={profileUser.editorStatus}/></div>
         </div>
         <div className="ml-2 flex mb-1 items-center">
             <div>

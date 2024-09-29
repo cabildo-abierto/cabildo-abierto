@@ -208,7 +208,6 @@ export function currentVersion(entity: EntityProps){
             return i
         }
     }
-    console.log("current version was null", entity.id, entity.currentVersionId)
     return entity.versions.length-1
 }
 
