@@ -17,7 +17,6 @@ import { EntityProps, ContentProps } from "../app/lib/definitions";
 import { EntityCategories } from "./categories";
 import { ContentWithCommentsFromId } from "./content-with-comments";
 import { EditHistory } from "./edit-history";
-import PaywallChecker from "./paywall-checker";
 import { SetProtectionButton } from "./protection-button";
 import { ThreeColumnsLayout } from "./three-columns";
 import { NoVisitsAvailablePopup } from "./no-visits-popup";
@@ -26,7 +25,7 @@ import { UndoDiscussion } from "./undo-discussion";
 
 
 const DeletedEntity = () => {
-    return <div className="flex justify-center mt-16">Esta entidad existía pero fue borrada.</div>
+    return <div className="flex justify-center mt-32">Este artículo existía pero fue borrado.</div>
 }
 
 

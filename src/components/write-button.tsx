@@ -19,6 +19,7 @@ export function validEntityName(name: string) {
 const Modal = ({ onClose }: { onClose: any }) => {
     const user = useUser();
     const [entityName, setEntityName] = useState("");
+    const [alreadyExists, setAlreadyExists] = useState(false)
     const { mutate } = useSWRConfig();
     const router = useRouter();
     const [goToArticle, setGoToArticle] = useState(false);
@@ -42,12 +43,19 @@ const Modal = ({ onClose }: { onClose: any }) => {
                             placeholder="Título"
                         />
                     </div>
+                    {alreadyExists && <div className="text-red-600 text-sm">Ya existe un artículo con ese nombre.</div>}
+
                     <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir al artículo después de crearlo</span>}/>
                     <div className="py-4">
                         <StateButton
                             onClick={async () => {
                                 if (user.user) {
-                                    const { id } = await createEntity(entityName, user.user.id);
+                                    setAlreadyExists(false)
+                                    const { id, error } = await createEntity(entityName, user.user.id);
+                                    if(error){
+                                        setAlreadyExists(true)
+                                        return
+                                    }
                                     mutate("/api/entities");
                                     mutate("/api/entity/"+id);
                                     if (goToArticle) router.push("/articulo/" + id);
@@ -58,6 +66,7 @@ const Modal = ({ onClose }: { onClose: any }) => {
                             className="gray-btn w-full"
                             text1="Crear"
                             text2="Creando..."
+                            reUsable={true}
                         />
                     </div>
                 </div>
