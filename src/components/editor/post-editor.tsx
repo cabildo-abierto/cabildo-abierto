@@ -86,7 +86,9 @@ const PostEditor = ({
             mutate("/api/feed")
             mutate("/api/profile-feed/"+user.id)
             router.push("/")
+            return true
         }
+        return false
 	}
 
     async function handleSaveDraft(){
@@ -102,7 +104,9 @@ const PostEditor = ({
             }
             mutate("/api/drafts")
             router.push("/borradores")
+            return true
         }
+        return false
     }
 
     let disabled = !editor || 
@@ -111,7 +115,7 @@ const PostEditor = ({
         (isFast && !validFastPost(editorState, settings.charLimit)) ||
         (isDraft && !hasChanged(editorState, initialData)) || submitting
 
-	const PublishButton = ({onClick}: any) => {
+	const PublishButton = ({onClick}: {onClick: (e) => Promise<boolean>}) => {
         return <StateButton
             onClick={onClick}
             className="gray-btn"
@@ -121,7 +125,7 @@ const PostEditor = ({
         />
 	}
 
-    const SaveDraftButton = ({onClick}: any) => {
+    const SaveDraftButton = ({onClick}: {onClick: (e) => Promise<boolean>}) => {
         return <StateButton
             onClick={onClick}
             className="gray-btn"

@@ -3,24 +3,28 @@
 import { ReactNode, useState } from "react"
 
 type StateButtonProps = {
-    onClick: (e?: any) => void
+    onClick: (e?: any) => Promise<boolean>
     className: string
     text1: ReactNode
     text2?: ReactNode
     disabled?: boolean
-    reUsable?: boolean
 }
 
-const StateButton: React.FC<StateButtonProps> = (
-    {onClick, className, text1, text2, disabled=false, reUsable=false}) => {
+const StateButton: React.FC<StateButtonProps> = ({
+    onClick,
+    className,
+    text1,
+    text2,
+    disabled=false
+}) => {
     const [submitting, setSubmitting] = useState(false)
 
     const handleClick = async (e) => {
         e.stopPropagation()
         e.preventDefault()
         setSubmitting(true)
-        await onClick(e)
-        if(reUsable){
+        const stopResubmit = await onClick(e)
+        if(!stopResubmit){
             setSubmitting(false)
         }
     }

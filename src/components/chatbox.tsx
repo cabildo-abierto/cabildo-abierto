@@ -50,6 +50,7 @@ export const Chatbox = ({fromUser, toUser}: {fromUser?: string, toUser: string})
         await sendMessage(message, fromUser, toUser);
         setMessage("");
         mutate("/api/chat/"+fromUser+"/"+toUser)
+        return false
     }
 
     useEffect(() => {
@@ -99,7 +100,6 @@ export const Chatbox = ({fromUser, toUser}: {fromUser?: string, toUser: string})
                         onClick={onClickSend}
                         text1={<SendIcon/>}
                         text2={<SendIcon/>}
-                        reUsable={true}
                     />
                 </div>
             </div>
