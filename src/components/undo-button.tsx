@@ -43,7 +43,7 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
     }
     if(hasEditPermission(user.user, entity.protection)){
         modalContent = <div className="space-y-3 p-6">
-            <h3>Deshacer el último cambio en "{entity.name}"</h3>
+            <h3>Deshacer el último cambio en {entity.name}</h3>
             <div>
                 <textarea
                     rows={4}

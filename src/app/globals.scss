@@ -413,8 +413,9 @@ ol {
     position: fixed;
 	top: 4rem;
     right: 0;
-    max-width: 400px;
-    height: calc(100vh - 4rem);
+	width: 100%;
+    max-width: 350px;
+    height: calc(100vh - 3.5rem);
     background-color: rgba($background, 0.6);
     overflow-y: auto; /* Enable vertical scrolling */
     padding: 1rem; /* Add some padding */

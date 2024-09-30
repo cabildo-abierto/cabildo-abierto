@@ -227,6 +227,8 @@ model Content {
   currentVersionOf Entity? @relation("currentVersion")
 
   claimsAuthorship Boolean @default(true)
+  removedAuthorshipAt DateTime?
+  
   editPermission   Boolean @default(true)
 
   paymentPromises  PaymentPromise[]

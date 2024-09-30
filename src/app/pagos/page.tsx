@@ -1,5 +1,6 @@
 "use client"
 
+import { recomputeAllContributions } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
@@ -22,6 +23,9 @@ export default function Page() {
             </button>
             <button className="gray-btn" onClick={async () => {await confirmPayments()}}>
                 Confirmar pagos
+            </button>
+            <button className="gray-btn" onClick={async () => {await recomputeAllContributions()}}>
+                Recalcular contribuciones
             </button>
         </div>
     </div>

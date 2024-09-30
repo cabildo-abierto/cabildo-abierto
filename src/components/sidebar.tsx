@@ -11,14 +11,16 @@ import { id2url } from "./content";
 import {CabildoIcon, DashboardIcon, ManageAccountIcon, NotificationsIcon, ScoreboardIcon, SupportIcon} from "./icons";
 import { useRouter } from "next/navigation";
 import { signOut } from "../actions/auth";
-import { useChat, useUser } from "../app/hooks/user";
+import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user";
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
+import LoadingSpinner from "./loading-spinner";
 
 
-function unseenCount(chat: ChatMessage[]){
+function unseenCount(chat: ChatMessage[], userId: string){
     let count = 0
     for(let i = chat.length-1; i >= 0; i--){
+        if(chat[i].fromUserId == userId) break
         if(!chat[i].seen) count ++
         else break
     }
@@ -28,10 +30,20 @@ function unseenCount(chat: ChatMessage[]){
 
 const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () => void}) => {
     const chat = useChat(user.id, "soporte")
-    const newSupportCount = chat.chat ? unseenCount(chat.chat) : 0
+    const newSupportCount = chat.chat ? unseenCount(chat.chat, user.id) : 0
     return <SidebarButton icon={<SupportIcon newCount={newSupportCount}/>} onClick={onClose} text="Soporte" href="/soporte"/>
 }
 
+
+const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}) => {
+    const count = useSupportNotRespondedCount()
+
+    if(count.isLoading){
+        return <LoadingSpinner/>
+    }
+
+    return <SidebarButton icon={<SupportIcon newCount={count.count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
+}
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
     const user = useUser()
@@ -61,7 +73,8 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/articulo/Cabildo_Abierto"/>
                     <SidebarButton icon={<ManageAccountIcon/>} onClick={onClose} text="Cuenta" href="/cuenta"/>
                     <SupportButton user={user.user} onClose={onClose}/>
-                    {user.user.editorStatus == "Administrator" && <SidebarButton icon={<SupportIcon/>} onClick={onClose} text="Responder" href="/soporte/responder"/>}
+                    {user.user.editorStatus == "Administrator" && 
+                    <HelpDeskButton user={user.user} onClose={onClose}/>}
                 </div>
                 {user.user && <div className="flex flex-col items-center">
                     <Link href={`/perfil/${user.user.id}`}

@@ -69,3 +69,14 @@ export function useChat(fromUserId: string, toUserId: string): {chat: ChatMessag
         isError: error
     }
 }
+
+
+export function useSupportNotRespondedCount(): {count: number, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/support-pending-count', fetcher, { refreshInterval: 1000 })
+  
+    return {
+        count: data,
+        isLoading: isLoading,
+        isError: error
+    }
+}

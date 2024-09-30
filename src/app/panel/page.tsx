@@ -8,7 +8,7 @@ import { ActiveLikeIcon, StatsIcon, ArticleIcon, PostIcon } from "../../componen
 import { FixedCounter } from "../../components/like-counter"
 import LoadingSpinner from "../../components/loading-spinner"
 import { PostTitleOnFeed } from "../../components/post-on-feed"
-import { ShowContributors } from "../../components/show-contributors"
+import { ShowContributors, ShowUserContribution } from "../../components/show-contributors"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import InfoPanel from "../../components/info-panel"
 import { ReactNode } from "react"
@@ -35,7 +35,7 @@ const EntityIncome = ({entityId}: {entityId: string}) => {
         </div>
 
         <div className="flex justify-between px-1">
-            <ShowContributors contentId={entity.entity.versions[entity.entity.versions.length-1].id} userId={user.id}/>
+            <ShowUserContribution entityId={entityId} userId={user.id}/>
             <DateSince date={entity.entity.versions[0].createdAt}/>
         </div>
     </Link>

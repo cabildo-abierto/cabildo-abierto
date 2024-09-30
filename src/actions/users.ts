@@ -5,12 +5,11 @@ import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
 import { revalidateEverythingTime } from "./utils";
 import { SubscriptionProps, UserProps, UserStats } from "../app/lib/definitions";
-import { getEntities, getEntityById } from "./entities";
+import { getEntities } from "./entities";
 import { createNotification, getContentById } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import MercadoPagoConfig, { Customer, CustomerCard, Payment, Preference } from "mercadopago";
-import { accessToken, contributionsToProportionsMap, getVersionInEntity, isDemonetized, subscriptionEnds } from "../components/utils";
-import { ViewsCounter } from "../components/views-counter";
+import { accessToken, contributionsToProportionsMap, isDemonetized, subscriptionEnds } from "../components/utils";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -648,7 +647,9 @@ export const getChatBetween = (userId: string, anotherUserId: string) => {
         return messages
     }, ["chat", userId, anotherUserId], {
         revalidate: revalidateEverythingTime,
-        tags: ["chat:"+userId+":"+anotherUserId, "chat:"+anotherUserId+":"+userId]})()    
+        tags: [
+            "chat:"+userId+":"+anotherUserId
+        ]})()    
 }
 
 
@@ -661,8 +662,10 @@ export async function sendMessage(message: string, userFrom: string, userTo: str
         }
     })
     revalidateTag("chat:"+userFrom+":"+userTo)
+    revalidateTag("chat:"+userTo+":"+userFrom)
     revalidateTag("conversations:"+userFrom)
     revalidateTag("conversations:"+userTo)
+    revalidateTag("not-responded-count")
 }
 
 
@@ -677,6 +680,7 @@ export async function setMessageSeen(id: string, userFrom: string, userTo: strin
     })
     
     revalidateTag("chat:"+userFrom+":"+userTo)
+    revalidateTag("chat:"+userTo+":"+userFrom)
     revalidateTag("conversations:"+userFrom)
     revalidateTag("conversations:"+userTo)
 }
@@ -911,3 +915,42 @@ export async function confirmPayments() {
         }
     }
 }
+
+
+export const getSupportNotRespondedCount = unstable_cache(async () => {
+    const messages = await db.chatMessage.findMany(
+        {
+            select: {
+                id: true,
+                fromUserId: true,
+                toUserId: true
+            },
+            where: {
+                OR: [{toUserId: "soporte"}, {fromUserId: "soporte"}]
+            },
+            orderBy: {
+                createdAt: "asc"
+            }
+        }
+    )
+    const c = new Set()
+
+    for(let i = 0; i < messages.length; i++){
+        const m = messages[i]
+        if(m.fromUserId == "soporte"){
+            c.delete(m.toUserId)
+        } else {
+            c.add(m.fromUserId)
+        }
+    }
+
+    console.log("not responded", c)
+
+    return c.size
+},
+    ["not-responded-count"],
+    {
+        revalidate: revalidateEverythingTime,
+        tags: ["not-responded-count"]
+    }
+)

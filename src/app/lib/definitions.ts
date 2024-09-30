@@ -76,6 +76,8 @@ export type EntityProps = {
         text: string,
         authorId: string,
         editPermission: boolean,
+        accCharsAdded: number,
+        contribution: string
         childrenContents: {
             id: string
             type: ContentType
