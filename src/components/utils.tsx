@@ -244,8 +244,13 @@ export function isUndo(entityVersion: {undos: {id: string}[]}) {
 }
 
 
-export function isDemonetized(content: {undos: {id: string}[]}){
-    return isUndo(content)
+export function isRejected(content: {rejectedById?: string}) {
+    return content.rejectedById != null
+}
+
+
+export function isDemonetized(content: {undos: {id: string}[], rejectedById?: string, claimsAuthorship?: boolean}){
+    return isUndo(content) || isRejected(content) || !content.claimsAuthorship
 }
 
 

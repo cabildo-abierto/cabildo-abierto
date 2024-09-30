@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { useContent } from "../app/hooks/contents"
+import { useEntity } from "../app/hooks/entities"
 
 
 
@@ -8,49 +8,70 @@ function round2(x: number){
 }
 
 
-export const ShowContributors = ({contentId, userId}: 
-    {contentId: string, userId?: string}) => {
-    const content = useContent(contentId)
-    if(content.isLoading) return <></>
-    if(!content.content.contribution){
-        return <></>
-    }
+function toPercentage(chars: number, total: number){
+    if(total == 0) return <></>
+    return <span>({round2(chars / total * 100)}%)</span>
+}
 
-    if(content.content.accCharsAdded == 0){
+
+export const ShowUserContribution = ({entityId, userId}: 
+    {entityId: string, userId?: string}) => {
+    const {entity, isLoading} = useEntity(entityId)
+
+    if(isLoading) return <></>
+
+    const lastVersion = entity.versions[entity.versions.length-1]
+
+    if(lastVersion.accCharsAdded == 0){
         return <div className="flex">
-        <span className="mr-1">Creado por</span>
+            <span className="mr-1">Creado por</span>
             <div className="flex space-x-2 link">
-                <Link href={"/perfil/"+content.content.author.id}>@{content.content.author.id}</Link>
+                <Link href={"/perfil/"+lastVersion.authorId}>@{lastVersion.authorId}</Link>
             </div>
         </div>
     }
 
-    let contributions: [string, number][] = JSON.parse(content.content.contribution)
+    let contributions: [string, number][] = JSON.parse(lastVersion.contribution)
     
-    const total = content.content.accCharsAdded
+    const total = lastVersion.accCharsAdded
 
-    if(userId) // para el panel de estadísticas
-        contributions = contributions.filter(([authorId, _]) => (authorId == userId))
+    contributions = contributions.filter(([authorId, _]) => (authorId == userId))
 
-    if(userId){
-        if(contributions.length > 0)
-            return <span>Contribución: {round2(contributions[0][1] / total * 100)}%</span>
-        else {
-            return <span>Contribución: Artículo vacío</span>
-        }
+    if(contributions.length > 0)
+        return <span>Contribución: {round2(contributions[0][1] / total * 100)}%</span>
+    else {
+        return <span>Contribución: Artículo vacío</span>
+    }
+}
+
+
+export const ShowContributors = ({entityId, userId}: 
+    {entityId: string, userId?: string}) => {
+    const {entity, isLoading} = useEntity(entityId)
+
+    if(isLoading) return <></>
+
+    const lastVersion = entity.versions[entity.versions.length-1]
+
+    if(lastVersion.accCharsAdded == 0){
+        return <div className="flex">
+            <span className="mr-1">Creado por</span>
+            <div className="flex space-x-2 link">
+                <Link href={"/perfil/"+lastVersion.authorId}>@{lastVersion.authorId}</Link>
+            </div>
+        </div>
     }
 
-    function toPercentage(chars: number, total: number){
-        if(total == 0) return <></>
-        return <span>({round2(chars / total * 100)}%)</span>
-    }
+    let contributions: [string, number][] = JSON.parse(lastVersion.contribution)
+    
+    const total = lastVersion.accCharsAdded
 
     return <div className="flex">
         <span className="mr-1">Escrito por</span>
-    <div className="flex space-x-2 link">
-        {contributions.map(([authorId, chars], index) => {
-            return <span key={index}><Link href={"/perfil/"+authorId}>@{authorId}</Link> {toPercentage(chars, total)}</span>
-        })}
-    </div>
+        <div className="flex space-x-2 link">
+            {contributions.map(([authorId, chars], index) => {
+                return <span key={index}><Link href={"/perfil/"+authorId}>@{authorId}</Link> {toPercentage(chars, total)}</span>
+            })}.
+        </div>
     </div>
 }

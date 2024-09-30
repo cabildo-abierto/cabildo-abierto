@@ -123,7 +123,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     const isConfirmed = entity.versions[index].confirmedById != null
     const isPending = !entity.versions[index].editPermission && !isConfirmed && !isRejected
     const isContentChange = index > 0 && entity.versions[index].categories == entity.versions[index-1].categories
-    const hasAuthorshipClaim = isContentChange && !isUndone && !isRejected
+    const hasAuthorshipClaim = isContentChange && !isUndone && !isPending && !isRejected
     const editPermission = hasEditPermission(user.user, entity.protection)
 
     async function onDiscussionClick(e){
@@ -148,9 +148,10 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
         baseMsg = <span>Versión anterior</span>
     }
 
-    let className = "w-full px-2 py-2 link cursor-pointer mr-1 " + (selected ? "border-2" : "border")
+    let className = "w-full h-10 px-2 py-2 link cursor-pointer mr-1 flex items-center " + (selected ? "border-2" : "border")
 
     className = className + ((isUndone || isRejected) ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
+
     return <div className="flex items-center w-full pb-1">
         {<div className={"px-2 " + (selected ? "text-gray-400" : "text-transparent")}>
             <ViewsIcon/>
@@ -187,7 +188,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                 <div className="w-32 flex items-center space-x-2">
                     {(isCurrent && index > 0) ? <UndoButton entity={entity} version={index}/> : <></>}
                     
-                    {isUndone && <button className="hover:scale-105" onClick={onDiscussionClick}>
+                    {(isUndone || isRejected) && <button className="hover:scale-105" onClick={onDiscussionClick}>
                         <ActiveCommentIcon/>
                     </button>}
 

@@ -6,7 +6,7 @@ import { findReferences, getContentById, getContentStaticById } from "./contents
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString, getAllText } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { arraySum, currentVersion, entityInRoute, hasEditPermission, isUndo } from "../components/utils";
+import { arraySum, currentVersion, entityInRoute, hasEditPermission, isDemonetized, isUndo, updateEntityContributions } from "../components/utils";
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
 
@@ -58,14 +58,33 @@ export async function createEntity(name: string, userId: string){
 }
 
 
+// las contribuciones se calculan excluyendo todo lo que no esté monetizado o 
 const recomputeEntityContributions = async (entityId: string) => {
     const entity = await getEntityById(entityId)
     
     // no actualizamos la primera versión porque no suele cambiar
+    let prevMonetizedVersion = 0
     for(let i = 1; i < entity.versions.length; i++){
         const versionContent = await getContentStaticById(entity.versions[i].id)
-        const newData = await getNewVersionContribution(entityId, versionContent.text, versionContent.author.id, entity.versions[i].claimsAuthorship, i-1)
         
+        let newData = null
+        if(isDemonetized(entity.versions[i]) || entity.versions[i].categories !== entity.versions[prevMonetizedVersion].categories){
+            newData = {
+                accCharsAdded: entity.versions[prevMonetizedVersion].accCharsAdded, 
+                charsAdded: 0, 
+                charsDeleted: 0, 
+                contribution: entity.versions[prevMonetizedVersion].contribution,
+                diff: JSON.stringify({matches: [], common: [], bestMatches: []})
+            }
+        } else {
+            newData = await getNewVersionContribution(
+                entityId,
+                versionContent.text,
+                versionContent.author.id,
+                prevMonetizedVersion)
+            prevMonetizedVersion = i
+        }
+
         await db.content.update({
             data: newData,
             where: {
@@ -79,14 +98,15 @@ const recomputeEntityContributions = async (entityId: string) => {
 }
 
 
-const getNewVersionContribution = async (entityId: string, text: string, userId: string, claimsAuthorship: boolean, afterVersion?: number) => {
+const getNewVersionContribution = async (entityId: string, text: string, userId: string, afterVersion?: number) => {
     const entity = await getEntityById(entityId)
     if(afterVersion == undefined) afterVersion = entity.versions.length-1
+    console.log("after version", afterVersion)
     const lastVersionId = entity.versions[afterVersion].id
     const lastVersion = await getContentStaticById(lastVersionId)
-
+    console.log("last version text", lastVersion.text)
     const {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(lastVersion.text, text)
-    const accCharsAdded = claimsAuthorship ? (lastVersion.accCharsAdded + charsAdded) : lastVersion.accCharsAdded
+    const accCharsAdded = lastVersion.accCharsAdded + charsAdded
     const contribution: [string, number][] = JSON.parse(lastVersion.contribution)
     
     let wasAuthor = false
@@ -100,23 +120,23 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
         contribution.push([userId, charsAdded])
     }
 
-    return {accCharsAdded: accCharsAdded, 
+    return {
+        accCharsAdded: accCharsAdded, 
         charsAdded: charsAdded, 
         charsDeleted: charsDeleted, 
-        contribution: claimsAuthorship ? JSON.stringify(contribution) : lastVersion.contribution,
+        contribution: JSON.stringify(contribution),
         diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches})
     }
 }
   
   
-export const updateEntity = async (text: string, categories: string, entityId: string, userId: string, changingContent: boolean, claimsAuthorship: boolean) => {
+export const updateEntity = async (text: string, categories: string, entityId: string, userId: string, claimsAuthorship: boolean) => {
     let references = await findReferences(text)
 
     const entity = await getEntityById(entityId)
 
     const permission = hasEditPermission(await getUserById(userId), entity.protection)
 
-    const {accCharsAdded, charsAdded, charsDeleted, contribution, diff} = await getNewVersionContribution(entityId, text, userId, claimsAuthorship)
     await db.content.create({
         data: {
             text: text,
@@ -131,11 +151,6 @@ export const updateEntity = async (text: string, categories: string, entityId: s
             entityReferences: {
                 connect: references
             },
-            accCharsAdded: accCharsAdded,
-            charsAdded: charsAdded,
-            charsDeleted: charsDeleted,
-            contribution: contribution,
-            diff: diff,
             uniqueViewsCount: 0,
             fakeReportsCount: 0,
             editPermission: permission,
@@ -149,6 +164,8 @@ export const updateEntity = async (text: string, categories: string, entityId: s
     })
 
     revalidateTag("entity:"+entityId)
+    await recomputeEntityContributions(entityId)
+
     revalidateTag("entities")
     revalidateTag("userContents:"+userId)
     revalidateTag("entityContributions:"+entityId)
@@ -209,6 +226,7 @@ export const undoChange = async (entityId: string, contentId: string, versionNum
         revalidateTag("entity:"+entityId)
         revalidateTag("content:"+contentId)
         await updateEntityCurrentVersion(entityId)
+        await recomputeEntityContributions(entityId)
     }
     
     revalidateTag("entities")
@@ -376,6 +394,8 @@ export async function getEntityById(id: string) {
                         categories: true,
                         confirmedById: true,
                         rejectedById: true,
+                        accCharsAdded: true,
+                        contribution: true,
                         undos: {
                             select: {
                                 id: true,
@@ -529,6 +549,7 @@ export async function removeEntityAuthorship(contentId: string, entityId: string
     await db.content.update({
         data: {
             claimsAuthorship: false,
+            removedAuthorshipAt: new Date()
         },
         where: {
             id: contentId
@@ -536,6 +557,7 @@ export async function removeEntityAuthorship(contentId: string, entityId: string
     })
     revalidateTag("entity:"+entityId)
     revalidateTag("content:"+contentId)
+    await recomputeEntityContributions(entityId)
 }
 
 
@@ -550,6 +572,7 @@ export async function confirmChanges(entityId: string, contentId: string, userId
         }
     })
     await updateEntityCurrentVersion(entityId)
+    await recomputeEntityContributions(entityId)
     revalidateTag("content:" + contentId)
 }
 
@@ -565,5 +588,16 @@ export async function rejectChanges(entityId: string, contentId: string, userId:
         }
     })
     await updateEntityCurrentVersion(entityId)
+    await recomputeEntityContributions(entityId)
     revalidateTag("content:" + contentId)
+}
+
+
+export async function recomputeAllContributions(){
+    const entities = await getEntities()
+
+    for(let i = 0; i < entities.length; i++){
+        console.log("recomputing contributions for", entities[i].name)
+        await recomputeEntityContributions(entities[i].id)
+    }
 }

@@ -208,15 +208,15 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
         </h1>
         <div className="flex justify-between">
             <div className="flex flex-col link">
-                <span className="">
-                    Últ. actualización <DateSince date={lastUpdated}/>
-                </span>
-                {version != entity.versions.length-1 && <div className="flex">
+                <ShowContributors entityId={entity.id}/>
+                {version == entity.versions.length-1 && <span className="">
+                    Últ. actualización <DateSince date={lastUpdated}/>.
+                </span>}
+                {version != entity.versions.length-1 && <div className="flex text-[var(--text-light)]">
                     <span className="mr-1">Estás viendo la versión {version} (publicada <DateSince date={entity.versions[version].createdAt}/>).</span>
-                    <span><Link href={"/articulo/"+entity.id}>Versión actual</Link>.</span>
+                    <span><Link href={"/articulo/"+entity.id}>Ir a la versión actual</Link>.</span>
                     </div>
                 }
-                <ShowContributors contentId={contentId}/>
 
                 </div>
             <div className="flex flex-col items-end">
