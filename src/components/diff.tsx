@@ -85,7 +85,7 @@ export function minMatch(nodes1, nodes2, common: {x: number, y: number}[]){
             uncommonNodes2.push({node: x, index: index})
         }
     })
-    
+
     let a = makeMatrix(uncommonNodes1.length, uncommonNodes2.length, 0)
 
     for(let i = 0; i < uncommonNodes1.length; i++){
@@ -122,7 +122,8 @@ function lcs(s1: any[], s2: any[]) {
     const m = s2.length;
 
     if(areArraysEqual(s1, s2)){
-        return s1
+        // todos los índices
+        return Array.from({ length: s1.length }, (_, index) => ({x: index, y: index}));
     }
 
     // dp[i][j] = la mayor subcadena incluyendo hasta i-1 y j-1
@@ -169,11 +170,6 @@ export function diff(nodes1: string[], nodes2: string[]){
     let perfectMatches = matches.filter(({x, y}) => {
         return nodes1[x] == nodes2[y]
     })
-    /*matches = matches.filter(({x, y}) => {
-        const d = charDiff(nodes1[x], nodes2[y]).total
-        const maxDist = nodes1[x].length + nodes2.length 
-        return d < maxDist/2 // tienen al menos la mitad en común
-    })*/
 
     const removedNodes = []
     for(let i = 0; i < nodes1.length; i++){
