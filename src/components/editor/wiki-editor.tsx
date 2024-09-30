@@ -241,7 +241,7 @@ export const SaveEditPopup = ({
                         </button>
                         <StateButton
                             className="gray-btn w-48"
-                            onClick={async (e) => {await onSave(claimsAuthorship); onClose()}}
+                            onClick={async (e) => {await onSave(claimsAuthorship); onClose(); return true}}
                             text1="Confirmar"
                             text2="Guardando..."
                         />
@@ -344,17 +344,18 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
             className="article-btn"
             text1="Guardar edición"
             text2="Guardando..."
-            onClick={() => {setShowingSaveEditPopup(true)}}
+            onClick={async (e) => {setShowingSaveEditPopup(true); return false}}
             disabled={!editorState || !hasChanged(editorState, content.text)}
         />
     }
     
     const CancelEditButton = () => {
-        return <StateButton
-            text1="Cancelar edición"
+        return <button
             onClick={() => {setEditing(false)}}
             className="article-btn"
-        />
+        >
+            Cancelar edición
+        </button>
     }
 
     return <>

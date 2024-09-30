@@ -58,6 +58,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
             router.push("/")
             await mutate("/api/user", null)
         }
+        return true
     }
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-20">

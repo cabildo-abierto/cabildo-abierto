@@ -127,12 +127,14 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             className="article-btn"
             text1="Eliminar artículo"
             text2="Eliminando..."
-            onClick={async () => {
+            onClick={async (e) => {
                 if(user.user){
-                    await deleteEntity(entity.id, user.user.id); 
+                    await deleteEntity(entity.id, user.user.id)
                     mutate("/api/entities")
-                    router.push("/inicio");
+                    router.push("/inicio")
+                    return true
                 }
+                return false
             }}
         />
     }
@@ -142,11 +144,13 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             className="article-btn"
             text1="Eliminar historial"
             text2="Eliminando..."
-            onClick={async () => {
+            onClick={async (e) => {
                 if(user.user){
                     await deleteEntityHistory(entity.id); 
                     mutate("/api/entity/"+entity.id)
+                    return true
                 }
+                return false
             }}
         />
     }
@@ -156,11 +160,13 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             className="article-btn"
             text1="Hacer público"
             text2="Haciendo público..."
-            onClick={async () => {
+            onClick={async (e) => {
                 if(user.user){
                     await makeEntityPublic(entity.id, true); 
                     mutate("/api/entity/"+entity.id)
+                    return true
                 }
+                return false
             }}
         />
     }
@@ -170,11 +176,13 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             className="article-btn"
             text1="Hacer privado"
             text2="Haciendo privado..."
-            onClick={async () => {
+            onClick={async (e) => {
                 if(user.user){
                     await makeEntityPublic(entity.id, false); 
                     mutate("/api/entity/"+entity.id)
+                    return true
                 }
+                return false
             }}
         />
     }
@@ -184,11 +192,13 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
         return <StateButton
             className="article-btn"
             text1="Renombrar"
-            onClick={async () => {
+            onClick={async (e) => {
                 if(user.user){
                     await renameEntity(entity.id, user.user.id, "new name"); 
                     mutate("/api/entity/"+entity.id)
+                    return true
                 }
+                return false
             }}
         />
     }

@@ -48,25 +48,26 @@ const Modal = ({ onClose }: { onClose: any }) => {
                     <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir al artículo después de crearlo</span>}/>
                     <div className="py-4">
                         <StateButton
-                            onClick={async () => {
+                            onClick={async (e) => {
                                 if (user.user) {
                                     setAlreadyExists(false)
                                     const { id, error } = await createEntity(entityName, user.user.id);
                                     if(error){
                                         setAlreadyExists(true)
-                                        return
+                                        return false
                                     }
                                     mutate("/api/entities");
                                     mutate("/api/entity/"+id);
                                     if (goToArticle) router.push("/articulo/" + id);
                                     else onClose();
+                                    return true
                                 }
+                                return false
                             }}
                             disabled={!validEntityName(entityName)}
                             className="gray-btn w-full"
                             text1="Crear"
                             text2="Creando..."
-                            reUsable={true}
                         />
                     </div>
                 </div>

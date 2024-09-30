@@ -56,13 +56,15 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
     const {mutate} = useSWRConfig()
     const [showingNoPermissions, setShowingNoPermissions] = useState(false)
 
-    async function confirm(){
+    async function confirm(e){
         if(editPermission){
             await confirmChanges(entity.id, contentId, user.id)
             mutate("/api/entity/"+entity.id)
             mutate("/api/content/"+contentId)
+            return true
         } else {
             setShowingNoPermissions(true)
+            return false
         }
     }
 
@@ -71,8 +73,10 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
             await rejectChanges(entity.id, contentId, user.id)
             mutate("/api/entity/"+entity.id)
             mutate("/api/content/"+contentId)
+            return true
         } else {
             setShowingNoPermissions(true)
+            return false
         }
     }
 
@@ -90,14 +94,12 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
             onClick={confirm}
             text1={<ConfirmEditIcon/>}
             text2={<SmallLoadingSpinner/>}
-            reUsable={!editPermission}
         />
         <StateButton
             className="hover:scale-105"
             onClick={reject}
             text1={<RejectEditIcon/>}
             text2={<SmallLoadingSpinner/>}
-            reUsable={!editPermission}
         />
     </div>
 }
@@ -224,7 +226,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
                         </button>
                         <StateButton
                             className="gray-btn w-48"
-                            onClick={async (e) => {e.preventDefault(); e.stopPropagation(); await onRemove(); onClose()}}
+                            onClick={async (e) => {e.preventDefault(); e.stopPropagation(); await onRemove(); onClose(); return true}}
                             text1="Confirmar"
                             text2="Removiendo..."
                         />

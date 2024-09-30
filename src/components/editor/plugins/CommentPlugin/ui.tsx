@@ -175,6 +175,7 @@ export function CommentInputBox({
         submitAddComment()
         selectionRef.current = null;
     }
+    return true
   };
 
   const settings = {...commentEditorSettings}
@@ -197,7 +198,7 @@ export function CommentInputBox({
           Cancelar
         </Button>
         <StateButton
-          onClick={async () => {await submitComment()}}
+          onClick={submitComment}
           disabled={emptyOutput(editor.getEditorState()) || !user.user}
           className="gray-btn w-full ml-1"
           text1="Comentar"

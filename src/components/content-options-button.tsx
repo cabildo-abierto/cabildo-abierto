@@ -59,7 +59,9 @@ const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string 
                                     mutate("/api/comments/"+contentId)
                                     mutate("/api/replies-feed/"+user.user.id)
                                     onClose()
+                                    return true
                                 }
+                                return false
                             }}
                             className="gray-btn w-64"
                             text1="Confirmar"

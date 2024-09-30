@@ -33,6 +33,43 @@ type RouteEditorProps = {
     updateCategory: (a: string[]) => void
 }
 
+
+const CategoryInput = ({
+    isNew,
+    update,
+    category,
+    availableCategories
+  }: {
+    isNew: boolean;
+    update: (v: string) => void;
+    category: string;
+    availableCategories: string[];
+  }) => {
+    return (
+      <div>
+        <input
+          list="category-options"
+          className={
+            "border px-2 mx-1 py-1 rounded outline-none w-48 bg-[var(--background)]" +
+            (isNew ? " border-[var(--primary)] border-2" : " border-[var(--accent)]")
+          }
+          placeholder={category}
+          value={category}
+          onChange={(e) => {
+            update(e.target.value);
+          }}
+        />
+        <datalist id="category-options">
+          {availableCategories.map((cat, index) => (
+            <option key={index} value={cat} />
+          ))}
+        </datalist>
+      </div>
+    );
+};
+
+
+
 const RouteEditor = ({category, removeCategory, updateCategory}: 
     RouteEditorProps
 ) => {
@@ -41,6 +78,8 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
     function updateCategoryAt(i: number, value: string){
         updateCategory([...category.slice(0, i), value, ...category.slice(i+1)])
     }
+
+    console.log("route editor for category", category)
 
     let newIndex = 0
     if(!entities.isLoading){
@@ -62,13 +101,14 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
         <div className="flex">
             {category.map((c, i) => {
                 const isNew = i >= newIndex
-                return <input
-                    key={i}
-                    className={"border px-2 mx-1 py-1 rounded outline-none w-48 bg-[var(--background)]" + (isNew ? " border-[var(--primary)] border-2":" border-[var(--accent)]")}
-                    placeholder={c}
-                    value={c}
-                    onChange={(e) => {updateCategoryAt(i, e.target.value)}}
-                />
+                return <div key={i}>
+                    <CategoryInput
+                        isNew={isNew}
+                        update={(v) => {updateCategoryAt(i, v)}}
+                        category={c}
+                        availableCategories={getNextCategories(category.slice(0, category.length-1), entities.entities)}
+                    />
+                </div>
             })}
             <button className="route-edit-btn px-1 py-1" onClick={() => {updateCategory(category.concat([""]))}}>
                 <AddCircleOutlineIcon fontSize="small"/>
@@ -145,6 +185,7 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
             mutate("/api/entities")
             setEditing(false)
         }
+        return false
     }
 
     return <div className="">
@@ -178,7 +219,6 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
                 onClick={onSubmitCategories}
                 text1="Confirmar"
                 text2="Guardando..."
-                reUsable={true}
             />
         </div>
         <div className="py-3"><hr/></div>

@@ -160,10 +160,12 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
         if(editor){
             await onSubmit(JSON.stringify(editor.getEditorState()))
             editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined)
+            return true
         }
+        return false
 	}
 
-	const SendCommentButton = ({onClick}: any) => {
+	const SendCommentButton = ({onClick}: {onClick: (e: any) => Promise<boolean>}) => {
         return <StateButton
             onClick={onClick}
             className="small-btn"

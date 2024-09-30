@@ -63,7 +63,9 @@ const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: 
                             mutate("/api/entity/"+entity.id)
                             mutate("/api/entities")
                             onClose()
+                            return true
                         }
+                        return false
                     }}
                     disabled={!validExplanation(explanation)}
                     className="gray-btn w-full"

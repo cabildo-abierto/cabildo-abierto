@@ -20,6 +20,7 @@ export const SetProtectionButton = ({entity} : any) => {
     
     async function onClick(){
         await setProtection(entity.id, otherProtection(protection))
+        return false
     }
 
     return <StateButton
@@ -27,6 +28,5 @@ export const SetProtectionButton = ({entity} : any) => {
         text2={"Cambiando..."}
         className="article-btn"
         onClick={onClick}
-        reUsable={true}
     />
 }
