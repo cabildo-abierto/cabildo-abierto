@@ -32,6 +32,12 @@ $accent: #8790b0;
 	border-color: $accent;
 }
 
+.experimental-font {
+	font-family: var(--font-merriweather);
+	font-weight: 700;
+	text-transform: uppercase
+}
+
 .content {
 	font-size: 1.05em;
 }
@@ -351,20 +357,18 @@ ol {
 }
 
 .filter-feed button {
-	padding-bottom: 3px;
-	padding-top: 3px;
-	border-bottom-width: 2px;
-	border-color: transparent;
+	padding-bottom: 2px;
+	padding-top: 2px;
 }
 
 
 .filter-feed.selected-option {
-	border-color: $primary;
+	background-color: var(--secondary-light);
 }
 
 
 .filter-feed.not-selected-option:hover {
-	background: var(--secondary-light);
+	background-color: var(--secondary-light);
 }
 
 .search.selected-option {

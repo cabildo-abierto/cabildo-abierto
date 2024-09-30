@@ -6,7 +6,6 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { getNextCategories } from "./utils";
 import { ContentProps, SmallEntityProps } from "../app/lib/definitions";
 import { useRouteEntities } from "../app/hooks/contents";
-import LoadingSpinner from "./loading-spinner";
 
 
 export type LoadingContent = {
@@ -21,7 +20,8 @@ export const Route = ({route, selected}: {route: string[], selected?: string}) =
     const routeEntities = useRouteEntities(route)
     const nextCategories = routeEntities.entities ? getNextCategories(route, routeEntities.entities) : null
 
-    return <><div className="flex items-center">
+    return <>
+    <div className="flex items-center">
         {["Inicio"].concat(route).map((c: string, index: number) => {
             return <div className="flex items-center" key={index}>
             
@@ -48,17 +48,4 @@ export const Route = ({route, selected}: {route: string[], selected?: string}) =
     />}
 
     </>
-}
-
-
-type WikiCategoriesProps = {route: string[], selected: string}
-
-export const WikiCategories = ({route, selected}: WikiCategoriesProps) => {
-
-    return <div className="flex flex-col">
-        <span className="ml-2 text-sm text-[var(--text-light)]">Estás viendo:</span>
-        <div className="flex pb-2 items-center px-2">
-            <Route route={route} selected={selected}/>
-        </div>
-    </div>
 }

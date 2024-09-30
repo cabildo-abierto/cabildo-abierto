@@ -278,3 +278,23 @@ export function contributionsToProportionsMap(contributions: [string, number][])
 
     return map
 }
+
+
+export function getPreviewFromJSONStr(str: string, maxChars: number = 100){
+    const json = JSON.parse(str)
+
+    const root = json.root
+    let last = 1
+    let charCount = getAllText(root.children[0]).length
+    while(last < root.children.length){
+        charCount += getAllText(root.children[last]).length
+        last ++
+        if(charCount > maxChars){
+            break
+        }
+    }
+
+    json.root.children = root.children.slice(0, last)
+
+    return JSON.stringify(json)
+}

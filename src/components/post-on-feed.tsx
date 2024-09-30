@@ -1,9 +1,13 @@
 "use client"
 import { useRouter } from "next/navigation";
-import { Authorship, ContentTopRow, LikeAndCommentCounter } from "./content"
+import { Authorship, ContentTopRow, ContentTopRowAuthor, LikeAndCommentCounter } from "./content"
 
 import { PostIcon } from "./icons";
 import { ContentProps } from "../app/lib/definitions";
+import ReadOnlyEditor from "./editor/read-only-editor";
+import { getPreviewFromJSONStr } from "./utils";
+import Link from "next/link";
+import { DateSince } from "./date";
 
 type PostOnFeedProps = {
     content: ContentProps,
@@ -14,31 +18,28 @@ type PostOnFeedProps = {
 
 
 export const PostTitleOnFeed = ({title}: {title: string}) => {
-    return <h4 className="">
+    return <span className="text-lg font-bold title">
         {title}
-    </h4>
+    </span>
 }
 
 
 export const PostOnFeed = ({content, onViewComments, viewingComments, depthParity=false}: PostOnFeedProps) => {
     const router = useRouter()
 
-    return <div className="w-full cursor-pointer hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out"
-        onClick={() => {router.push("/contenido/"+content.id)}}>
-        <ContentTopRow
-            content={content}
-            author={true}
-            icon={<PostIcon/>}
-            showEnterLink={false}
-        />
-        <div className="p-2">
-            <PostTitleOnFeed title={content.title}/>
+    return <Link
+        href={"/contenido/"+content.id}
+        className="flex flex-col hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out">
+        
+        <div className="flex justify-between px-2 py-2 mb-4">
+            <span className="title text-xl py-2">{content.title}</span>
+            <span className="text-[var(--text-light)] text-sm">
+                <DateSince date={content.createdAt}/>
+            </span>
         </div>
-        <div className="flex justify-between">
-            {false &&<div className="px-2 flex justify-between text-sm">
-                <Authorship/>
-            </div>}
-            <div></div>
+
+        <div className="flex justify-between ml-2 items-center">
+            <ContentTopRowAuthor content={content}/>
             <LikeAndCommentCounter
                 disabled={true}
                 content={content}
@@ -48,5 +49,5 @@ export const PostOnFeed = ({content, onViewComments, viewingComments, depthParit
                 isPost={true}
             />
         </div>
-    </div>
+    </Link>
 }

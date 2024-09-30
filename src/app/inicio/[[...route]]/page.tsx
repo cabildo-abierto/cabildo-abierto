@@ -12,13 +12,6 @@ const TopicsPage: React.FC<{
 }> = ({params, searchParams}) => {
     const decodedRoute = params.route ? params.route.map(decodeURIComponent) : []
 
-    useEffect(() => {
-        preload("/api/users", fetcher)
-        preload("/api/entities", fetcher)
-        preload("/api/feed/", fetcher)
-        preload("/api/following-feed/", fetcher)
-    }, [])
-
     const center = <RouteContent
         route={decodedRoute}
     />

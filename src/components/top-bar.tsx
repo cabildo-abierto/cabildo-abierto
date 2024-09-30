@@ -37,8 +37,8 @@ function TopbarLogo() {
 
 function FeedButton() {
     return <Link href="/inicio" className="px-1">
-        <button className="topbar-btn">
-            <div className="flex pt-1">
+        <button className="hover:bg-[var(--secondary-light)] rounded-lg px-1">
+            <div className="flex py-1 mt-1">
                 <CabildoIcon/>
             </div>
         </button>
@@ -56,8 +56,8 @@ function OpenSidebarButton({ onClick }: any) {
 
 
 export const SearchButton = ({ onClick=null, disabled=false }: any) => {
-    return <div className="px-1">
-        <button className="topbar-btn"
+    return <div className="p-1">
+        <button className={!disabled ? "p-1 hover:bg-[var(--secondary-light)] rounded-lg " : ""}
             onClick={onClick} disabled={disabled}>
         <SearchIcon />
     </button>
@@ -68,7 +68,7 @@ export const SearchButton = ({ onClick=null, disabled=false }: any) => {
 const NotificationsButton = () => {
     const user = useUser()
     return <Link href="/notificaciones" className="hover:bg-[var(--secondary-light)] rounded-lg">
-        <div className="p-1">
+        <div className="px-1 py-[5px]">
             <NotificationsIcon count={user.user ? user.user._count.notifications : undefined}/>
         </div>
     </Link>
@@ -99,16 +99,13 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
             {(!searchBarOpen || wideScreen) && <OpenSidebarButton onClick={onOpenSidebar}/>}
             {(!searchBarOpen || wideScreen) && <FeedButton />}
             {(!searchBarOpen || wideScreen) && <WriteButton />}
-            {!searchBarOpen && path.includes("/inicio") && <SearchButton onClick={() => {
-                if(path.includes("/inicio"))
-                    setSearchBarOpen(true)
-                else
-                    router.push("/inicio")
+            {!searchBarOpen && <SearchButton onClick={() => {
+                setSearchBarOpen(true)
             }} />}
             {(!searchBarOpen || wideScreen) && <NotificationsButton/>}
         </div>
 
-        {searchBarOpen && path.includes("/inicio") && <div className="mx-2">
+        {searchBarOpen && <div className="mx-2">
             <SearchBar 
                 onClose={() => {setSearchBarOpen(false)}}
                 setSearchValue={ setSearchValue }

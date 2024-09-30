@@ -19,8 +19,8 @@ const SelectionComponent: React.FC<SelectionComponentProps> = ({
     onSelection(button);
   };
 
-  const buttonClassName = (option: string) => (
-    className + " flex-1 " + (selected === option ? 'selected-option' : 'not-selected-option')
+  const buttonClassName = (option: string, index: number) => (
+    className + " flex-1 " + (selected === option ? 'selected-option' : 'not-selected-option') + (optionsNodes ? ((index == 0 ? " rounded-l " : "") + (index == optionsNodes.length-1 ? " rounded-r " : "")): "")
   )
 
   const textClassName = (option: string) => (
@@ -31,13 +31,23 @@ const SelectionComponent: React.FC<SelectionComponentProps> = ({
       {options.map((option, index) => {
         return <button
         key={index}
-        className={buttonClassName(option)}
+        className={buttonClassName(option, index)}
         onClick={() => handleButtonClick(option)}
         title={optionExpl ? optionExpl[index] : undefined}
       >
-        <span className={textClassName(option)}>
-          {optionsNodes ? optionsNodes[index] : option}
-        </span>
+        {!optionsNodes && <span className={textClassName(option)}>
+          {option}
+        </span>}
+        {optionsNodes && 
+          <div className={textClassName(option)+" flex flex-col"}>
+            <span>
+              {optionsNodes[index]}
+            </span>
+            <span className="text-[0.7rem] text-[var(--text-light)]">
+              {option}
+            </span>
+          </div>
+        }
       </button>
       })}
   </div>
