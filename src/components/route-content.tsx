@@ -1,56 +1,73 @@
 "use client"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
 import { CategoryArticles } from "./category-articles";
 import { CategoryUsers } from "./category-users";
 import { RouteFeed } from "./route-feed";
-import SelectionComponent from "./search-selection-component";
-import { WikiCategories } from "./wiki-categories";
 import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents";
+import { preload } from "swr";
+import { fetcher } from "../app/hooks/utils";
+import { MainFeedHeader } from "./main-feed-header";
 
 
 type RouteContentProps = {
     route: string[], 
     paramsSelected?: string
+    showRoute?: boolean
 }
 
 
-export const RouteContent = ({route, paramsSelected}: RouteContentProps) => {
+export const RouteContent = ({route, paramsSelected, showRoute=true}: RouteContentProps) => {
     const router = useRouter()
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "General")
     const feed = useRouteFeed(route)
     const followingFeed = useRouteFollowingFeed(route)
+    const [order, setOrder] = useState(selected == "General" ? "Populares" : "Siguiendo")
+    const [filter, setFilter] = useState("Todas")
+
+    useEffect(() => {
+        preload("/api/users", fetcher)
+        preload("/api/entities", fetcher)
+
+        // probablemente estos dos no tenga sentido ponerlos acá
+        preload("/api/feed/", fetcher)
+        preload("/api/following-feed/", fetcher)
+    }, [])
 
     function onSelection(v: string){
         setSelected(v)
-        router.push("/inicio/"+route.join("/")+"?selected="+v, {scroll: false})
+        if(v == "Siguiendo" && order != "Recientes") setOrder("Recientes")
+        if(v == "General" && order != "Populares") setOrder("Populares")
     }
 
     return <div className="w-full">
-        <div className="content-container pt-2 mt-2">
-            <WikiCategories route={route} selected={selected}/>
-            <SelectionComponent
-                onSelection={onSelection}
-                options={["General", "Siguiendo", "Artículos públicos", "Usuarios"]}
-                selected={selected}
-                className="main-feed"
-            />
-        </div>
+        <MainFeedHeader
+            route={route}
+            selected={selected}
+            onSelection={onSelection}
+            showRoute={showRoute}
+            order={order}
+            setOrder={setOrder}
+            filter={filter}
+            setFilter={setFilter}
+        />
         
-        <div className="pt-2">
-        {selected == "Artículos públicos" && 
-        <CategoryArticles route={route}/>}
+        <div className="pt-1">
+            {selected == "Artículos públicos" && 
+            <CategoryArticles route={route}/>}
 
         {selected == "General" &&
         <RouteFeed
             feed={feed}
-            defaultOrder="Populares"
+            order={order}
+            filter={filter}
         />}
 
         {selected == "Siguiendo" &&
         <RouteFeed
             feed={followingFeed}
-            defaultOrder="Recientes"
+            order={order}
+            filter={filter}
         />}
 
         {selected == "Usuarios" && <CategoryUsers route={route}/>}

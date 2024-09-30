@@ -143,7 +143,7 @@ export const ContentOptionsButton = ({contentId}: {contentId: string}) => {
     return <div style={{ position: 'relative', display: 'inline-block' }}>
         <button
             ref={buttonRef}
-            className="px-1 mr-1 mt-1 hover:bg-[var(--background-dark)] rounded"
+            className="p-1 mr-1 mt-1 flex items-center hover:bg-[var(--background-dark)] rounded"
             onClick={() => setIsDropdownOpen(prev => !prev)}
         >
             <MoreHorizIcon fontSize="small" />

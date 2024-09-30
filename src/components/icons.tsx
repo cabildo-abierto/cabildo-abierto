@@ -54,6 +54,20 @@ export const PostIcon = () => {
 }
 
 
+export const FastAndPostIcon = () => {
+    return (
+        <span className="relative inline-block">
+            <span className="absolute bottom-[-4px] right-[-5px]">
+                <PostIcon />
+            </span>
+            <span className="absolute top-[-12px] left-[-3px] z-1">
+                <FastPostIcon />
+            </span>
+        </span>
+    );
+};
+
+
 export const ArticleIcon = () => {
     return <BookIcon fontSize={"small"}/>
 }

@@ -7,6 +7,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { SearchButton } from "./top-bar";
 import { id2url } from "./content";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import { useSearch } from "./search-context";
 
 
 export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = ({ result }) => {
@@ -27,7 +28,11 @@ export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = 
 }
 
 
-export const SearchInput: React.FC<{onChange: (arg: string) => void, autoFocus: boolean}> = ({ onChange, autoFocus }) => {
+export const SearchInput = ({ onChange, autoFocus, searchValue }: {
+  onChange: (arg: string) => void,
+  autoFocus: boolean,
+  searchValue: string
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -40,14 +45,15 @@ export const SearchInput: React.FC<{onChange: (arg: string) => void, autoFocus: 
     ref={inputRef}
     className="bg-transparent w-full focus:outline-none"
     placeholder="buscar"
+    value={searchValue}
     onChange={(e) => {onChange(e.target.value)}}
   />
 }
 
 
 const CloseSearchButton = ({ onClick }: any) => {
-  return <div className="text-l text-gray-900 px-1">
-      <button className="topbar-btn" onClick={onClick}>
+  return <div className="text-l text-gray-900 p-1 flex justify-center items-center">
+      <button className="hover:bg-[var(--secondary-light)] rounded-lg" onClick={onClick}>
           <CloseIcon/>
       </button>
   </div>
@@ -55,22 +61,23 @@ const CloseSearchButton = ({ onClick }: any) => {
 
 
 const SearchBar: React.FC<{onClose: any, setSearchValue: any, wideScreen: boolean}> = ({onClose, setSearchValue, wideScreen}) => {
-
+  const {searchValue} = useSearch()
 
   return wideScreen ?
       <div className="flex border pl-3 pr-1">
         <div className="flex w-full">
-          <SearchInput onChange={setSearchValue} autoFocus={false}/>
+          <SearchInput searchValue={searchValue} onChange={setSearchValue} autoFocus={false}/>
         </div>
         <div className="text-[var(--text-light)]">
-          <SearchButton disabled={true}/>
+          {searchValue.length == 0 ? <SearchButton disabled={true}/> : 
+          <CloseSearchButton onClick={() => {setSearchValue("")}}/>}
         </div>
       </div> : 
       <div className="flex border pl-1 pr-1">
         <div className="text-[var(--text-light)] flex">
           <SearchButton disabled={true}/>
           <div className="flex w-full">
-            <SearchInput onChange={setSearchValue} autoFocus={true}/>
+            <SearchInput onChange={setSearchValue} autoFocus={true} searchValue={searchValue}/>
             <CloseSearchButton onClick={() => {onClose(); setSearchValue("")}}/>
           </div>
         </div>

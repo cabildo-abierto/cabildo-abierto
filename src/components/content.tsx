@@ -40,46 +40,49 @@ type ContentTopRowProps = {
     icon: ReactNode
     showOptions?: boolean
     onShowFakeNews?: () => void
-    showEnterLink?: boolean
 }
+
+
+export const ContentTopRowAuthor = ({content} :{content: ContentProps}) => {
+    const url = content.author  ? id2url(content.author.id) : ""
+    const onClick = stopPropagation(() => {})
+
+    return <div className="text-sm mb-1">
+        <span className="mr-1 font-bold text-gray-800">
+            <Link 
+            href={url} 
+            className="hover:underline"
+            onClick={onClick}>
+                {content.author?.name}
+            </Link>
+        </span>
+        <Link href={url} className="text-[var(--text-light)]">
+            @{content.author?.id}
+        </Link>
+    </div>
+}
+
 
 export const ContentTopRow: React.FC<ContentTopRowProps> = ({
     content,
     author=true,
     icon=null,
     showOptions=false,
-    onShowFakeNews,
-    showEnterLink=false
+    onShowFakeNews
 }) => {
-    const url = content.author  ? id2url(content.author.id) : ""
-    const onClick = stopPropagation(() => {})
 
     return <div className="flex justify-between pt-1">
         <div className="px-2 blue-links flex items-center w-full">
-            {icon && <div className="mb-1 text-gray-800">{icon}</div>}
-            <div className="flex justify-between w-full">
+            <div className="flex w-full text-sm">
                 {author && 
-                    <div className="">
-                        <span className="px-1 font-bold text-gray-800">
-                            <Link 
-                            href={url} 
-                            className="hover:underline"
-                            onClick={onClick}>
-                                {content.author?.name}
-                            </Link>
-                        </span>
-                        <Link href={url} className="text-[var(--text-light)]">
-                            @{content.author?.id}
-                        </Link>
-                    </div>
-
+                    <ContentTopRowAuthor content={content}/>
                 }
+                <span className="px-1 text-gray-600">•</span>
                 <span className="text-gray-600">
                     <DateSince date={content.createdAt}/>
                 </span>
             </div>
         </div>
-        {false && <Link className="gray-btn mr-2 mt-1" href={"/contenido/"+content.id}>Entrar a leer</Link>}
         {showOptions && <div className="flex">
             <FakeNewsCounter content={content} onClick={onShowFakeNews}/>
             <ContentOptionsButton contentId={content.id}/>
