@@ -79,8 +79,6 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
         updateCategory([...category.slice(0, i), value, ...category.slice(i+1)])
     }
 
-    console.log("route editor for category", category)
-
     let newIndex = 0
     if(!entities.isLoading){
         let next = getNextCategories(category.slice(0, newIndex), entities.entities)

@@ -61,14 +61,13 @@ export async function createEntity(name: string, userId: string){
 // las contribuciones se calculan excluyendo todo lo que no esté monetizado o 
 const recomputeEntityContributions = async (entityId: string) => {
     const entity = await getEntityById(entityId)
-    
     // no actualizamos la primera versión porque no suele cambiar
     let prevMonetizedVersion = 0
     for(let i = 1; i < entity.versions.length; i++){
         const versionContent = await getContentStaticById(entity.versions[i].id)
-        
+        console.log("recomputing version", i, "at", entity.name)
         let newData = null
-        if(isDemonetized(entity.versions[i]) || entity.versions[i].categories !== entity.versions[prevMonetizedVersion].categories){
+        if(isDemonetized(entity.versions[i]) || entity.versions[i].categories !== entity.versions[i-1].categories){
             newData = {
                 accCharsAdded: entity.versions[prevMonetizedVersion].accCharsAdded, 
                 charsAdded: 0, 
@@ -597,6 +596,7 @@ export async function recomputeAllContributions(){
     const entities = await getEntities()
 
     for(let i = 0; i < entities.length; i++){
+        if(entities[i].name != "Ley 25.326: Protección de los datos personales") continue
         console.log("recomputing contributions for", entities[i].name)
         await recomputeEntityContributions(entities[i].id)
     }

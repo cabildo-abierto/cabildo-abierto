@@ -264,6 +264,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
     
     const user = useUser()
     
+    console.log(entity, version)
     const contentId = entity.versions[version].id
     const {content, isLoading, isError} = useContent(contentId)
     const changesContent = useContent(showingChanges && version > 0 ? entity.versions[version-1].id : contentId)
