@@ -10,6 +10,7 @@ import { useUser } from "../app/hooks/user"
 import { useContent } from "../app/hooks/contents"
 import { createComment } from "../actions/contents"
 import { fetcher } from "../app/hooks/utils"
+import { compress } from "./compression"
 
 
 type ContentWithCommentsProps = {
@@ -50,7 +51,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
 
     const handleNewComment = async (text: string) => {
         if(user.user){
-            await createComment(text, content.id, user.user.id)
+            await createComment(compress(text), content.id, user.user.id)
             mutate("/api/content/"+content.id)
 
             if(content.parentEntityId)

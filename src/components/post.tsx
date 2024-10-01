@@ -1,10 +1,11 @@
 import { Authorship } from "./content";
 import ReadOnlyEditor from "./editor/read-only-editor";
 import { LikeCounter } from "./like-counter";
-import { TextViewsCounter, ViewsCounter } from "./views-counter";
+import { TextViewsCounter } from "./views-counter";
 import { ActivePraiseIcon, InactivePraiseIcon } from "./icons";
 import { ContentProps } from "../app/lib/definitions";
 import { DateSince } from "./date";
+import { decompress } from "./compression";
 
 export const Post: React.FC<{
     content: ContentProps
@@ -27,7 +28,7 @@ export const Post: React.FC<{
         </div>
         <div className="min-h-64 mt-4">
             <ReadOnlyEditor 
-                initialData={content.text}
+                initialData={decompress(content.compressedText)}
                 content={content}
                 editorClassName="content"
             />

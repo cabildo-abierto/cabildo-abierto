@@ -10,6 +10,7 @@ import { useEntity } from "../app/hooks/entities";
 import { useContent } from "../app/hooks/contents";
 import { ContentProps, EntityProps } from "../app/lib/definitions";
 import { getVersionInEntity } from "./utils";
+import { decompress } from "./compression";
 
 
 type EntityComponentProps = {
@@ -123,7 +124,7 @@ const EntityMentionInCommentSection = ({parentContentId, entity, mentioningConte
     if(mentioningContent.isLoading) return <LoadingSpinner/>
     if(parentContent.isLoading) return <LoadingSpinner/>
     
-    const fragment = findFragment(mentioningContent.content.text, parentContent.content.parentEntityId)
+    const fragment = findFragment(decompress(mentioningContent.content.compressedText), parentContent.content.parentEntityId)
 
     return <Link className="" href={"/articulo/"+entity.id}>
         <div className="px-2 py-4 w-full flex flex-col">

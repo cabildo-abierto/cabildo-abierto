@@ -12,6 +12,7 @@ import LoadingSpinner from './loading-spinner';
 import { RedFlag } from './icons';
 import { ContentProps } from '../app/lib/definitions';
 import { useContent } from '../app/hooks/contents';
+import { decompress } from './compression';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -75,7 +76,7 @@ export const Comment = ({
 
     if(parentContent.content){
         try {
-            let parentText = JSON.parse(parentContent.content.text)
+            let parentText = JSON.parse(decompress(parentContent.content.compressedText))
             snode = getQuoteFromContent(parentText.root, content.id)
         } catch { 
             // falla si text no es un editorState de Lexical, 
@@ -109,7 +110,7 @@ export const Comment = ({
             {snode && <div>
                 <ReadOnlyEditor initialData={initializeQuote}/>
             </div>}
-            <ReadOnlyEditor initialData={content.text}/>
+            <ReadOnlyEditor initialData={decompress(content.compressedText)}/>
         </div>
         <div className="flex justify-between">
             <button className="reply-btn" onClick={onStartReply}>

@@ -10,7 +10,7 @@ import SubscriptionOptionButton from "../../../components/subscription-option-bu
 import { createPreference } from "../../../actions/users"
 import dynamic from 'next/dynamic'
 import { useSubscriptionPrice } from "../../hooks/subscriptions"
-import { Metadata } from "next"
+
 
 const Wallet = dynamic(() => import('@mercadopago/sdk-react').then(mod => mod.Wallet), { ssr: false });
 initMercadoPago('APP_USR-1ddae427-daf5-49b9-b3bb-e1d5b5245f30')

@@ -2,6 +2,7 @@ import assert from "assert"
 import { UserProps, EntityProps, SmallEntityProps } from "../app/lib/definitions"
 import { charDiffFromJSONString, getAllText } from "./diff"
 import { db } from "../db"
+import { decompress } from "./compression"
 
 
 export const splitPost = (text: string) => {
@@ -174,7 +175,7 @@ export async function updateEntityContributions(entity: EntityProps){
 
     for(let j = 0; j < entity.versions.length; j++){
         const {charsAdded, charsDeleted, matches, common, perfectMatches} = j == 0 ? {charsAdded: 0, charsDeleted: 0, matches: [], common: [], perfectMatches: []} :
-            charDiffFromJSONString(entity.versions[j-1].text, entity.versions[j].text)
+            charDiffFromJSONString(decompress(entity.versions[j-1].compressedText), decompress(entity.versions[j].compressedText))
         
         accCharsAdded += charsAdded
         

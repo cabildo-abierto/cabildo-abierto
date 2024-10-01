@@ -2,6 +2,7 @@
 
 import { useContent } from "../app/hooks/contents"
 import { ContentProps, EntityProps } from "../app/lib/definitions"
+import { decompress } from "./compression"
 import { Authorship, CommentCounter, UserIdLink } from "./content"
 import { ContentWithComments, ContentWithCommentsFromId } from "./content-with-comments"
 import LoadingSpinner from "./loading-spinner"
@@ -39,7 +40,7 @@ export const UndoDiscussionContent = ({content, onStartReply, onViewComments, vi
         </div>
         <div className="content">
         <blockquote>
-            {content.text}
+            {decompress(content.compressedText)}
         </blockquote>
         <div className="flex justify-between">
         <button className="reply-btn" onClick={onStartReply}>

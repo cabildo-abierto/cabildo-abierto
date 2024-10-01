@@ -1,4 +1,5 @@
 import { useContent } from "../app/hooks/contents"
+import { decompress } from "./compression"
 import { nodesCharDiff, textNodesFromJSONStr } from "./diff"
 import { LexicalEditor } from "lexical"
 
@@ -9,13 +10,14 @@ export const ChangesCounterCalc = ({id1, id2, editor}: {id1: string, id2?: strin
         return <></>
     }
 
-    const parsed1 = textNodesFromJSONStr(content1.content.text)
+    const parsed1 = textNodesFromJSONStr(decompress(content1.content.compressedText))
     let parsed2 = null
     if(id2){
-        if(content2.content.text.length == 0){
+        const content2Text = decompress(content2.content.compressedText)
+        if(content2Text.length == 0){
             parsed2 = []
         } else {
-            parsed2 = textNodesFromJSONStr(content2.content.text)
+            parsed2 = textNodesFromJSONStr(content2Text)
         }
     } else {
         parsed2 = textNodesFromJSONStr(JSON.stringify(editor.getEditorState()))

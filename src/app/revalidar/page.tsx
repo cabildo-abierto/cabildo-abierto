@@ -1,9 +1,9 @@
 "use client"
+import { compressContent, compressContents } from "../../actions/contents";
 import { revalidateContents, revalidateEntities, revalidateUsers } from "../../actions/entities";
 import { NotFoundPage } from "../../components/not-found-page";
 import { ThreeColumnsLayout } from "../../components/three-columns";
 import { useUser } from "../hooks/user";
-
 
 
 export default function Page(){
@@ -26,6 +26,12 @@ export default function Page(){
         </button>
         <button className="gray-btn" onClick={async () => {await revalidateUsers()}}>
             Usuarios
+        </button>
+        <button className="gray-btn" onClick={async () => {await compressContents()}}>
+            Comprimir
+        </button>
+        <button className="gray-btn" onClick={async () => {await compressContent("clzxg9qsa001hk6cv8e0ypjg3")}}>
+            Comprimir uno
         </button>
         </div>
         </div>
