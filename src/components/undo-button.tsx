@@ -3,15 +3,13 @@ import { createPortal } from 'react-dom';
 import TickButton from './tick-button';
 import StateButton from './state-button';
 import { useSWRConfig } from 'swr';
-import { userAgent } from 'next/server';
 import { undoChange } from '../actions/entities';
 import { useContent } from '../app/hooks/contents';
 import { useUser } from '../app/hooks/user';
 import { EntityProps } from '../app/lib/definitions';
 import InfoPanel from './info-panel';
 import { CloseButtonIcon, UndoIcon } from './icons';
-import { hasEditPermission, permissionToPrintable } from './utils';
-import { PermissionLevel } from './editor/wiki-editor';
+import { hasEditPermission } from './utils';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
 import { AcceptButtonPanel } from './accept-button-panel';
 

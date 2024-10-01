@@ -59,6 +59,7 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
             <WikiEditor 
                 version={version}
                 entity={entity.entity}
+                content={content}
                 showingChanges={showingChanges}
                 readOnly={!editing}
                 showingAuthors={showingAuthors}

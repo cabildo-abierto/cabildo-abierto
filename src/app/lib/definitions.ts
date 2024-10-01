@@ -230,7 +230,7 @@ export type UserStats = {
 export type SmallContentProps = {
     id: string
     type?: ContentType
-    plainText?: string
+    compressedPlainText?: string
     title?: string
     createdAt?: string | Date
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
@@ -248,4 +248,11 @@ export type NotificationProps = {
     userNotifiedId: string
     viewed: boolean
     type: string
+}
+
+
+export type MatchesType = {
+    matches: {x: number, y: number}[]
+    common: {x: number, y: number}[]
+    perfectMatches: {x: number, y: number}[]
 }

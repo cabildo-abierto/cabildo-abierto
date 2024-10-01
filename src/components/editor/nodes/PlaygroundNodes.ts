@@ -17,7 +17,6 @@ import {HeadingNode, QuoteNode} from '@lexical/rich-text';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 
 import {EmojiNode} from './EmojiNode';
-import {EquationNode} from './EquationNode';
 import {ImageNode} from './ImageNode';
 import {InlineImageNode} from './InlineImageNode/InlineImageNode';
 import {KeywordNode} from './KeywordNode';
@@ -42,7 +41,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   ImageNode,
   InlineImageNode,
   EmojiNode,
-  EquationNode,
   KeywordNode,
   HorizontalRuleNode,
   LayoutContainerNode,

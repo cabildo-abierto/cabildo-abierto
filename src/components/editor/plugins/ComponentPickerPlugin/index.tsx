@@ -34,7 +34,6 @@ import {useCallback, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
 
 import useModal from '../../hooks/useModal';
-import {InsertEquationDialog} from '../EquationsPlugin';
 import {InsertImageDialog} from '../ImagesPlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import {InsertTableDialog} from '../TablePlugin';
@@ -225,14 +224,6 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       keywords: ['horizontal rule', 'divider', 'hr'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined),
-    }),
-    new ComponentPickerOption('Equation', {
-      icon: <i className="icon equation" />,
-      keywords: ['equation', 'latex', 'math'],
-      onSelect: () =>
-        showModal('Insert Equation', (onClose) => (
-          <InsertEquationDialog activeEditor={editor} onClose={onClose} />
-        )),
     }),
     new ComponentPickerOption('Image', {
       icon: <i className="icon image" />,

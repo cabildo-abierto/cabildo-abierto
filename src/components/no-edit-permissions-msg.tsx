@@ -1,5 +1,5 @@
 import { UserProps } from "../app/lib/definitions";
-import { PermissionLevel } from "./editor/wiki-editor";
+import { PermissionLevel } from "./permission-level";
 
 
 

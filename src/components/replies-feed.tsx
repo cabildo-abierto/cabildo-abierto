@@ -1,7 +1,7 @@
 "use client"
 
 import { useRepliesFeed } from "../app/hooks/contents"
-import { UserProps, SmallContentProps } from "../app/lib/definitions"
+import { UserProps } from "../app/lib/definitions"
 import Feed from "./feed"
 
 

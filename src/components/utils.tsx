@@ -1,4 +1,3 @@
-import assert from "assert"
 import { UserProps, EntityProps, SmallEntityProps } from "../app/lib/definitions"
 import { charDiffFromJSONString, getAllText } from "./diff"
 import { db } from "../db"
@@ -298,4 +297,24 @@ export function getPreviewFromJSONStr(str: string, maxChars: number = 100){
     json.root.children = root.children.slice(0, last)
 
     return JSON.stringify(json)
+}
+
+
+export function editorStateFromJSON(text: string){
+    let res = null
+    try {
+        res = JSON.parse(text)
+    } catch {
+
+    }
+    return res
+}
+
+
+function removeAccents(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+export function cleanText(s: string){
+    return removeAccents(s.toLowerCase())
 }

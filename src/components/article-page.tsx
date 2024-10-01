@@ -11,7 +11,7 @@ import { DateSince } from "./date";
 import { ShowContributors } from "./show-contributors";
 import { ActivePraiseIcon, InactivePraiseIcon } from "./icons";
 import { ToggleButton } from "./toggle-button";
-import { deleteEntity, deleteEntityHistory, makeEntityPublic, renameEntity } from "../actions/entities";
+import { deleteEntity, deleteEntityHistory, makeEntityPublic, recomputeEntityContributions, renameEntity } from "../actions/entities";
 import { useUser } from "../app/hooks/user";
 import { EntityProps, ContentProps } from "../app/lib/definitions";
 import { EntityCategories } from "./categories";
@@ -139,6 +139,18 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
         />
     }
 
+    const RecomputeContributionsButton = () => {
+        return <StateButton
+            className="article-btn"
+            text1="Recalcular contribuciones"
+            text2="Recalculando..."
+            onClick={async (e) => {
+                await recomputeEntityContributions(entity.id)
+                return false
+            }}
+        />
+    }
+
     const RemoveHistoryButton = () => {
         return <StateButton
             className="article-btn"
@@ -146,7 +158,24 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             text2="Eliminando..."
             onClick={async (e) => {
                 if(user.user){
-                    await deleteEntityHistory(entity.id); 
+                    await deleteEntityHistory(entity.id, false); 
+                    mutate("/api/entity/"+entity.id)
+                    return true
+                }
+                return false
+            }}
+        />
+    }
+
+
+    const RebootArticleButton = () => {
+        return <StateButton
+            className="article-btn"
+            text1="Reiniciar"
+            text2="Reiniciando..."
+            onClick={async (e) => {
+                if(user.user){
+                    await deleteEntityHistory(entity.id, true); 
                     mutate("/api/entity/"+entity.id)
                     return true
                 }
@@ -258,6 +287,16 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             {(user.user && user.user.editorStatus == "Administrator") &&
             <div className="flex justify-center py-2">
                 <RemoveHistoryButton/>
+            </div>
+            }
+            {(user.user && user.user.editorStatus == "Administrator") &&
+            <div className="flex justify-center py-2">
+                <RebootArticleButton/>
+            </div>
+            }
+            {(user.user && user.user.editorStatus == "Administrator") &&
+            <div className="flex justify-center py-2">
+                <RecomputeContributionsButton/>
             </div>
             }
             {(user.user && user.user.editorStatus == "Administrator") &&

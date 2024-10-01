@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 
 type SelectionComponentProps = { 
     onSelection: (arg: string) => void
