@@ -10,7 +10,7 @@ export type SmallUserProps = {
 export type ContentProps = {
     id: string
     createdAt: string | Date
-    text: string
+    compressedText?: string
     author: SmallUserProps
     type: ContentType
     parentContents: {id: string}[]
@@ -54,7 +54,7 @@ export type ContentProps = {
         reportsOportunism: boolean
         authorId: string
         createdAt: Date | string
-        text: string
+        compressedText?: string
     }[]
     contentUndoneId?: string
     reportsOportunism?: boolean
@@ -73,7 +73,7 @@ export type EntityProps = {
         createdAt: string | Date,
         confirmedById?: string,
         rejectedById?: string,
-        text: string,
+        compressedText?: string
         authorId: string,
         editPermission: boolean,
         accCharsAdded: number,
@@ -92,7 +92,7 @@ export type EntityProps = {
             reportsOportunism: boolean
             authorId: string
             createdAt: Date | string
-            text: string
+            compressedText?: string
         }[]
         _count: {
             reactions: number

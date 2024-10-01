@@ -170,8 +170,11 @@ model Content {
   authorId         String
   isDraft          Boolean?    @default(false)
   visible          Boolean     @default(true)
-  text             String
-  plainText        String      @default("")
+  text             String?
+  plainText        String?      @default("")
+  compressedText      String      @default("")
+  compressedPlainText String      @default("")
+
   numChars         Int         @default(0)
   numWords         Int         @default(0)
   numNodes         Int         @default(0)
@@ -217,8 +220,8 @@ model Content {
   ancestorContent  Content[]    @relation("ancestorContent")
   childrenTree     Content[]    @relation("ancestorContent")
 
-  uniqueViewsCount Int?
-  fakeReportsCount Int?
+  uniqueViewsCount Int          @default(0)
+  fakeReportsCount Int          @default(0)
 
   notifications    Notification[]
 

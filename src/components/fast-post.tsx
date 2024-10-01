@@ -6,6 +6,7 @@ import { stopPropagation } from './utils';
 import ReadOnlyEditor from './editor/read-only-editor';
 import { FastPostIcon } from './icons';
 import { ContentProps } from '../app/lib/definitions';
+import { decompress } from './compression';
 
 
 type FastPostProps = {
@@ -34,7 +35,7 @@ export const FastPost = ({
     return <div className="">
         <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews}/>
         <div className="px-2 py-2 content">
-            <ReadOnlyEditor initialData={content.text}/>
+            <ReadOnlyEditor initialData={decompress(content.compressedText)}/>
         </div>
         <div className="flex justify-between">
             <button className="reply-btn" onClick={onStartReply}>Responder</button>

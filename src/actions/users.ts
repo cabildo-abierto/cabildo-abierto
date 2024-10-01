@@ -4,11 +4,11 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
 import { revalidateEverythingTime } from "./utils";
-import { SubscriptionProps, UserProps, UserStats } from "../app/lib/definitions";
+import { UserProps, UserStats } from "../app/lib/definitions";
 import { getEntities } from "./entities";
 import { createNotification, getContentById } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-import MercadoPagoConfig, { Customer, CustomerCard, Payment, Preference } from "mercadopago";
+import MercadoPagoConfig, { Preference } from "mercadopago";
 import { accessToken, contributionsToProportionsMap, isDemonetized, subscriptionEnds } from "../components/utils";
 
 

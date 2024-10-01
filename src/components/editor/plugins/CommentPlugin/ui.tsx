@@ -28,6 +28,7 @@ import { ContentProps } from '../../../../app/lib/definitions';
 import StateButton from '../../../state-button';
 
 import MyLexicalEditor from '../../lexical-editor'
+import { compress } from '../../../compression';
 
 
 export function CommentInputBox({
@@ -151,7 +152,9 @@ export function CommentInputBox({
 
         if(commentEditor) await commentEditor.read(async () => {
             if(!user.user) return
-            const comment = await createCommentDB(JSON.stringify(commentEditor.getEditorState()), parentContent.id, user.user.id)
+            const comment = await createCommentDB(
+              compress(JSON.stringify(commentEditor.getEditorState())), parentContent.id,
+              user.user.id)
 
             if(comment){
                 editor.update(async () => {
@@ -169,7 +172,7 @@ export function CommentInputBox({
         
         if(editor){
             editor.getEditorState().read(async () => {
-                await updateContent(JSON.stringify(editor.getEditorState()), parentContent.id)
+                await updateContent(compress(JSON.stringify(editor.getEditorState())), parentContent.id)
             })
         }
         submitAddComment()

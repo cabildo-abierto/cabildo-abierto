@@ -80,7 +80,6 @@ import DropdownColorPicker from '../../ui/DropdownColorPicker';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {sanitizeUrl} from '../../utils/url';
 import {EmbedConfigs} from '../AutoEmbedPlugin';
-import {INSERT_COLLAPSIBLE_COMMAND} from '../CollapsiblePlugin';
 import {InsertEquationDialog} from '../EquationsPlugin';
 import {
   INSERT_IMAGE_COMMAND,
@@ -1060,71 +1059,6 @@ export default function ToolbarPlugin({
                   <i className="icon table" />
                   <span className="text">Tabla</span>
                 </DropDownItem>
-                {false && <DropDownItem
-                  onClick={() => {
-                    showModal('Insert Poll', (onClose: any) => (
-                      <InsertPollDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
-                  }}
-                  className="item">
-                  <i className="icon poll" />
-                  <span className="text">Poll</span>
-                </DropDownItem>}
-                {false && <DropDownItem
-                  onClick={() => {
-                    showModal('Insert Columns Layout', (onClose: any) => (
-                      <InsertLayoutDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
-                  }}
-                  className="item">
-                  <i className="icon columns" />
-                  <span className="text">Columns Layout</span>
-                </DropDownItem>}
-
-                {false && <DropDownItem
-                  onClick={() => {
-                    showModal('Insert Equation', (onClose: any) => (
-                      <InsertEquationDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
-                  }}
-                  className="item">
-                  <i className="icon equation" />
-                  <span className="text">Equation</span>
-                </DropDownItem>}
-                {false && <DropDownItem
-                  onClick={() => {
-                    editor.dispatchCommand(
-                      INSERT_COLLAPSIBLE_COMMAND,
-                      undefined,
-                    );
-                  }}
-                  className="item">
-                  <i className="icon caret-right" />
-                  <span className="text">Collapsible container</span>
-                </DropDownItem>}
-                {false && EmbedConfigs.map((embedConfig) => (
-                  <DropDownItem
-                    key={embedConfig.type}
-                    onClick={() => {
-                      activeEditor.dispatchCommand(
-                        INSERT_EMBED_COMMAND,
-                        embedConfig.type,
-                      );
-                    }}
-                    className="item">
-                    {embedConfig.icon}
-                    <span className="text">{embedConfig.contentName}</span>
-                  </DropDownItem>
-                ))}
               </DropDown>
             </>
           )}

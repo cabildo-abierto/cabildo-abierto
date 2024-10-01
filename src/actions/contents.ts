@@ -8,6 +8,7 @@ import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
 import { getUserId } from "./users";
 import { getPlainText } from "../components/utils";
+import { compress, decompress } from "../components/compression";
 
 
 export async function getContentById(id: string, userId?: string): Promise<ContentProps> {
@@ -17,7 +18,7 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
             select: {
                 id: true,
                 type: true,
-                text: true,
+                compressedText: true,
                 title: true,
                 author: {
                     select: {
@@ -103,7 +104,7 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                         reportsVandalism: true,
                         authorId: true,
                         createdAt: true,
-                        text: true
+                        compressedText: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -120,41 +121,10 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
         if(!content) return undefined
         if(!content.reactions) content.reactions = []
         if(!content.views) content.views = []
-
+        
         return content
     }, ["content", id, userId], {
         tags: ["content", "content:"+id+":"+userId, "content:"+id],
-        revalidate: revalidateEverythingTime,
-    })()
-}
-
-
-export async function getContentStaticById(id: string): Promise<ContentProps> {
-    return unstable_cache(async () => {
-        let content: any = await db.content.findUnique({
-            select: {
-                id: true,
-                text: true,
-                parentEntityId: true,
-                parentContents: {
-                    select: {id: true}
-                },
-                accCharsAdded: true,
-                contribution: true,
-                charsAdded: true,
-                charsDeleted: true,
-                author: {select: {id: true, name: true}},
-                rootContentId: true,
-                ancestorContent: {select: {id: true}}
-            },
-            where: {
-                id: id,
-            }
-        })
-
-        return content ? content : undefined
-    }, ["contentStatic", id], {
-        tags: ["contentStatic", "contentStatic:"+id],
         revalidate: revalidateEverythingTime,
     })()
 }
@@ -185,17 +155,18 @@ export const getContentFakeNewsCount = (contentId: string) => {
 }
 
 
-export async function createComment(text: string, parentContentId: string, userId: string) {
+export async function createComment(compressedText: string, parentContentId: string, userId: string) {
+    const text = decompress(compressedText)
     let references = await findReferences(text)
 
-    const parentContent = await getContentStaticById(parentContentId)
+    const parentContent = await getContentById(parentContentId)
     const parentEntityId = parentContent.parentEntityId
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
 
     const comment = await db.content.create({
         data: {
-            text: text,
+            compressedText: compressedText,
             authorId: userId,
             type: "Comment",
             parentContents: {
@@ -213,7 +184,7 @@ export async function createComment(text: string, parentContentId: string, userI
             numChars: numChars,
             numWords: numWords,
             numNodes: numNodes,
-            plainText: plainText
+            compressedPlainText: compress(plainText)
         },
     })
 
@@ -278,14 +249,15 @@ export async function findReferences(text: string){
 }
 
 
-export async function createPost(text: string, postType: ContentType, isDraft: boolean, userId: string, title?: string) {
+export async function createPost(compressedText: string, postType: ContentType, isDraft: boolean, userId: string, title?: string) {
+    const text = decompress(compressedText)
     let references = await findReferences(text)
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
 
     const result = await db.content.create({
         data: {
-            text: text,
+            compressedText: compressedText,
             authorId: userId,
             type: postType,
             isDraft: isDraft,
@@ -293,12 +265,10 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
             entityReferences: {
                 connect: references
             },
-            fakeReportsCount: 0,
-            uniqueViewsCount: 0,
             numChars: numChars,
             numWords: numWords,
             numNodes: numNodes,
-            plainText: plainText
+            compressedPlainText: compress(plainText)
         },
     })
 
@@ -316,16 +286,22 @@ export async function createPost(text: string, postType: ContentType, isDraft: b
 }
 
 
-export async function updateContent(text: string, contentId: string, title?: string) {
-
+export async function updateContent(compressedText: string, contentId: string, title?: string) {
+    const text = decompress(compressedText)
     let references = await findReferences(text)
+
+    const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const result = await db.content.update({
         where: {
             id: contentId
         },
         data: {
-            text: text,
+            compressedText: compressedText,
+            compressedPlainText: compress(plainText),
             title: title,
+            numChars: numChars,
+            numWords: numWords,
+            numNodes: numNodes,
             entityReferences: {
                 connect: references
             }
@@ -337,22 +313,29 @@ export async function updateContent(text: string, contentId: string, title?: str
 }
 
 
-export async function publishDraft(text: string, contentId: string, userId: string, title?: string) {
-
+export async function publishDraft(compressedText: string, contentId: string, userId: string, title?: string) {
+    const text = decompress(compressedText)
     let references = await findReferences(text)
     
+    const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const result = await db.content.update({
         where: {
             id: contentId
         },
         data: {
-            text: text,
+            compressedText: compressedText,
+            compressedPlainText: compress(plainText),
             isDraft: false,
             createdAt: new Date(),
             title: title,
             entityReferences: {
                 connect: references
-            }
+            },
+            uniqueViewsCount: 0,
+            fakeReportsCount: 0,
+            numChars: numChars,
+            numWords: numWords,
+            numNodes: numNodes,
         }
     })
     revalidateTag("content:"+contentId)
@@ -364,14 +347,16 @@ export async function publishDraft(text: string, contentId: string, userId: stri
 }
 
 
-export async function createFakeNewsReport(text: string, parentContentId: string, userId: string) {
+export async function createFakeNewsReport(compressedText: string, parentContentId: string, userId: string) {
+    const text = decompress(compressedText)
     let references = await findReferences(text)
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
 
     const report = await db.content.create({
         data: {
-            text: text,
+            compressedText: compressedText,
+            compressedPlainText: compress(plainText),
             authorId: userId,
             type: "FakeNewsReport",
             parentContents: {
@@ -385,7 +370,6 @@ export async function createFakeNewsReport(text: string, parentContentId: string
             numChars: numChars,
             numWords: numWords,
             numNodes: numNodes,
-            plainText: plainText
         },
     })
     revalidateTag("content:"+parentContentId)
@@ -629,4 +613,76 @@ export async function markNotificationViewed(id: string){
     })
     revalidateTag("notifications:"+userNotifiedId)
     revalidateTag("user:"+userNotifiedId)
+}
+
+
+export async function compressContents(){
+    const contents = await db.content.findMany({
+        select: {
+            id: true,
+            text: true,
+            plainText: true
+        }
+    })
+    console.log("got the contents")
+    for(let i = 0; i < contents.length; i++){
+        console.log("updating content", i)
+        const c = contents[i]
+        try {
+            const compressedText = compress(c.text)
+            const compressedPlainText = compress(c.plainText)
+            await db.content.update({
+                data: {
+                    compressedText: compressedText,
+                    compressedPlainText: compressedPlainText
+                },
+                where: {
+                    id: c.id
+                }
+            })
+        } catch {
+            console.log("couldn't compress", c.id)
+        }
+    }
+}
+
+
+export async function compressContent(id: string){
+    const c = await db.content.findUnique({
+        select: {
+            id: true,
+            text: true,
+            plainText: true
+        },
+        where: {
+            id: id
+        }
+    })
+    const t1 = Date.now()
+    const compressedText = compress(c.text)
+    const t2 = Date.now()
+
+    console.log("compression time", t2-t1)
+    //const compressedPlainText = compress(compress(c.plainText))
+
+    const t3 = Date.now()
+    const decompressedText = decompress(compressedText)
+    const t4 = Date.now()
+
+    console.log("decompression time", t4-t3)
+
+    console.log("equal", decompressedText == c.text)
+    console.log("lengths", decompressedText.length, c.text.length)
+    console.log("compressed length", compressedText.length)
+
+    console.log("plain text length", c.plainText.length)
+    /*await db.content.update({
+        data: {
+            compressedText: compressedText,
+            compressedPlainText: compressedPlainText
+        },
+        where: {
+            id: c.id
+        }
+    })*/
 }

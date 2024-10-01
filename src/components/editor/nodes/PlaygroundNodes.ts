@@ -16,9 +16,6 @@ import {HorizontalRuleNode} from '@lexical/react/LexicalHorizontalRuleNode';
 import {HeadingNode, QuoteNode} from '@lexical/rich-text';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 
-import {CollapsibleContainerNode} from '../plugins/CollapsiblePlugin/CollapsibleContainerNode';
-import {CollapsibleContentNode} from '../plugins/CollapsiblePlugin/CollapsibleContentNode';
-import {CollapsibleTitleNode} from '../plugins/CollapsiblePlugin/CollapsibleTitleNode';
 import {EmojiNode} from './EmojiNode';
 import {EquationNode} from './EquationNode';
 import {ImageNode} from './ImageNode';
@@ -55,9 +52,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   HorizontalRuleNode,
   TweetNode,
   YouTubeNode,
-  CollapsibleContainerNode,
-  CollapsibleContentNode,
-  CollapsibleTitleNode,
   PageBreakNode,
   LayoutContainerNode,
   LayoutItemNode,

@@ -24,6 +24,8 @@ import Link from "next/link"
 import TickButton from "../tick-button"
 import InfoPanel from "../info-panel"
 import { hasEditPermission, permissionToPrintable } from "../utils"
+import { AcceptButtonPanel } from "../accept-button-panel"
+import { compress, decompress } from "../compression"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
@@ -128,15 +130,16 @@ function showAuthors(entity: EntityProps, version: number){
     // el autor es el último que lo modificó
     // los nodos "perfectMatches" preservan su autor entre versiones
     // y el resto toman el autor de la versión
-    const parsed = editorStateFromJSON(entity.versions[version].text)
+    const versionText = decompress(entity.versions[version].compressedText)
+    const parsed = editorStateFromJSON(versionText)
     if(!parsed) {
-        return entity.versions[version].text
+        return versionText
     }
     let prevNodes = []
     let prevAuthors = []
 
     for(let i = 0; i <= version; i++){
-        const parsedVersion = editorStateFromJSON(entity.versions[i].text)
+        const parsedVersion = editorStateFromJSON(decompress(entity.versions[i].compressedText))
         if(!parsedVersion) continue
         const nodes = parsedVersion.root.children
         const {matches} = JSON.parse(entity.versions[i].diff)
@@ -208,10 +211,20 @@ export const SaveEditPopup = ({
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useUser()
-    const d = charDiffFromJSONString(currentVersion, JSON.stringify(editorState))
+    const jsonState = JSON.stringify(editorState)
+    const d = charDiffFromJSONString(currentVersion, jsonState)
     
     const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al artículo el texto de una Ley, o algo escrito por otra persona. Si lo desactivás no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href="/articulo/Cabildo_Abierto:_Derechos_de_autor">Más información</Link>
     </span>
+
+    const newVersionSize = getAllText(JSON.parse(jsonState).root).length
+
+    if(newVersionSize > 100000){
+        return <AcceptButtonPanel
+            text={<span>No se pueden guardar los cambios porque el artículo supera el límite de 100.000 caracteres (con <span className="text-red-600">{newVersionSize}</span> caracteres). Te sugerimos que separes el contenido en secciones en distintos artículos.</span>}
+            onClose={onClose}
+        />
+    }
 
     return (
         <>
@@ -264,16 +277,20 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
     
     const user = useUser()
     
-    console.log(entity, version)
     const contentId = entity.versions[version].id
     const {content, isLoading, isError} = useContent(contentId)
     const changesContent = useContent(showingChanges && version > 0 ? entity.versions[version-1].id : contentId)
+
+    const contentText = decompress(content.compressedText)
+    const changesContentText = decompress(changesContent.content.compressedText)
     
     useEffect(() => {
         if(!content) return
         if(version > 0){
             let newSettingsChanges = {...settings}
-            newSettingsChanges.initialData = showChanges(content.text, changesContent.content.text, JSON.parse(content.diff))
+            newSettingsChanges.initialData = showChanges(
+                contentText, changesContentText, JSON.parse(content.diff)
+            )
             setSettingsChanges(newSettingsChanges)
         }
     }, [content])
@@ -318,7 +335,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
         useSubscript: false,
         useCodeblock: false,
         placeholder: "Este artículo está vacío!",
-        initialData: content.text,
+        initialData: contentText,
         editorClassName: "content mt-4 text-justify",
         isReadOnly: readOnly,
         content: content,
@@ -331,7 +348,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
             editor.read(async () => {
                 if(user.user){
                     setEditing(false)
-                    await updateEntity(JSON.stringify(editor.getEditorState()), content.categories, entity.id, user.user.id, claimsAuthorship)
+                    await updateEntity(compress(JSON.stringify(editor.getEditorState())), content.categories, entity.id, user.user.id, claimsAuthorship)
                     mutate("/api/entities")
                     mutate("/api/entity/"+entity.id)
                     mutate("/api/contributions/"+entity.id)
@@ -346,7 +363,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
             text1="Guardar edición"
             text2="Guardando..."
             onClick={async (e) => {setShowingSaveEditPopup(true); return false}}
-            disabled={!editorState || !hasChanged(editorState, content.text)}
+            disabled={!editorState || !hasChanged(editorState, contentText)}
         />
     }
     
@@ -372,7 +389,7 @@ const WikiEditor = ({entity, version, readOnly=false, showingChanges=false, show
         </div>}
         {showingSaveEditPopup && <SaveEditPopup
             editorState={editorState}
-            currentVersion={content.text}
+            currentVersion={contentText}
             onSave={saveEdit}
             onClose={() => {setShowingSaveEditPopup(false)}}
             entity={entity}

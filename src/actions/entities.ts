@@ -2,13 +2,14 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findReferences, getContentById, getContentStaticById } from "./contents";
+import { findReferences, getContentById } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString, getAllText } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
 import { arraySum, currentVersion, entityInRoute, hasEditPermission, isDemonetized, isUndo, updateEntityContributions } from "../components/utils";
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
+import { decompress } from "../components/compression";
 
 
 
@@ -64,7 +65,7 @@ const recomputeEntityContributions = async (entityId: string) => {
     // no actualizamos la primera versión porque no suele cambiar
     let prevMonetizedVersion = 0
     for(let i = 1; i < entity.versions.length; i++){
-        const versionContent = await getContentStaticById(entity.versions[i].id)
+        const versionContent = await getContentById(entity.versions[i].id)
         console.log("recomputing version", i, "at", entity.name)
         let newData = null
         if(isDemonetized(entity.versions[i]) || entity.versions[i].categories !== entity.versions[i-1].categories){
@@ -78,7 +79,7 @@ const recomputeEntityContributions = async (entityId: string) => {
         } else {
             newData = await getNewVersionContribution(
                 entityId,
-                versionContent.text,
+                decompress(versionContent.compressedText),
                 versionContent.author.id,
                 prevMonetizedVersion)
             prevMonetizedVersion = i
@@ -100,11 +101,10 @@ const recomputeEntityContributions = async (entityId: string) => {
 const getNewVersionContribution = async (entityId: string, text: string, userId: string, afterVersion?: number) => {
     const entity = await getEntityById(entityId)
     if(afterVersion == undefined) afterVersion = entity.versions.length-1
-    console.log("after version", afterVersion)
+
     const lastVersionId = entity.versions[afterVersion].id
-    const lastVersion = await getContentStaticById(lastVersionId)
-    console.log("last version text", lastVersion.text)
-    const {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(lastVersion.text, text)
+    const lastVersion = await getContentById(lastVersionId)
+    const {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(decompress(lastVersion.compressedText), text)
     const accCharsAdded = lastVersion.accCharsAdded + charsAdded
     const contribution: [string, number][] = JSON.parse(lastVersion.contribution)
     
@@ -129,16 +129,17 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
 }
   
   
-export const updateEntity = async (text: string, categories: string, entityId: string, userId: string, claimsAuthorship: boolean) => {
-    let references = await findReferences(text)
+export const updateEntity = async (compressedText: string, categories: string, entityId: string, userId: string, claimsAuthorship: boolean) => {
+    let references = await findReferences(decompress(compressedText))
 
     const entity = await getEntityById(entityId)
 
     const permission = hasEditPermission(await getUserById(userId), entity.protection)
 
+    console.log("updating entity creating content")
     await db.content.create({
         data: {
-            text: text,
+            compressedText: compressedText,
             author: {
                 connect: {id: userId}
             },
@@ -163,7 +164,9 @@ export const updateEntity = async (text: string, categories: string, entityId: s
     })
 
     revalidateTag("entity:"+entityId)
+    console.log("done, now recomputing contributions")
     await recomputeEntityContributions(entityId)
+    console.log("done")
 
     revalidateTag("entities")
     revalidateTag("userContents:"+userId)
@@ -402,7 +405,7 @@ export async function getEntityById(id: string) {
                                 reportsVandalism: true,
                                 authorId: true,
                                 createdAt: true,
-                                text: true
+                                compressedText: true
                             },
                             orderBy: {
                                 createdAt: "desc"
@@ -415,7 +418,7 @@ export async function getEntityById(id: string) {
                             }
                         },
                         createdAt: true,
-                        text: true,
+                        compressedText: true,
                         authorId: true,
                         editPermission: true,
                         childrenContents: {
@@ -471,31 +474,12 @@ export async function getEntityById(id: string) {
                 }
             }
         )
+        if(!entity) return undefined
+
         return entity
     }, ["entity", id], {
         revalidate: revalidateEverythingTime,
         tags: ["entity", "entity:"+id]})()
-}
-
-
-export async function getEntityTextLength(id: string) {
-    return unstable_cache(async () => {
-        const entity = await getEntityById(id)
-        if(!entity) return null
-        if(entity.versions.length < 1) return 0
-        const content = await getContentStaticById(entity.versions[entity.versions.length-1].id)
-        let text = null
-        try {
-            text = JSON.parse(content.text)
-        } catch {
-            ;
-        }
-        if(!text) return 0
-        const length = getAllText(text.root).split(" ").length
-        return length
-    }, ["entityTextLength", id], {
-        revalidate: revalidateEverythingTime,
-        tags: ["entityTextLength", "entityTextLength:"+id]})()
 }
 
 
@@ -596,7 +580,7 @@ export async function recomputeAllContributions(){
     const entities = await getEntities()
 
     for(let i = 0; i < entities.length; i++){
-        if(entities[i].name != "Ley 25.326: Protección de los datos personales") continue
+        if(entities[i].name != "Decreto 1558/2001: Protección de los datos personales") continue
         console.log("recomputing contributions for", entities[i].name)
         await recomputeEntityContributions(entities[i].id)
     }

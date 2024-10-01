@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import ReadOnlyEditor from "./editor/read-only-editor";
 import { PostTitleOnFeed } from "./post-on-feed";
 import { useContent } from "../app/hooks/contents";
+import { decompress } from "./compression";
 
 
 
@@ -19,7 +20,7 @@ export const DraftButton: React.FC<{draftId: string}> = ({draftId}) => {
         <div className="content-container w-full">
             <div className="px-2 py-2 content flex flex-col">
                 {content.type == "Post" && <PostTitleOnFeed title={content.title}/>}
-                <ReadOnlyEditor initialData={content.text} content={content}/>
+                <ReadOnlyEditor initialData={decompress(content.compressedText)} content={content}/>
             </div>
         </div>
         <div className="flex justify-end mt-1 mr-1">

@@ -1,6 +1,7 @@
 import { useEntity } from "../app/hooks/entities"
 import { ContentProps, EntityProps, SmallContentProps } from "../app/lib/definitions"
 import { getAllQuoteIds } from "./comment"
+import { decompress } from "./compression"
 import { ContentWithCommentsFromId } from "./content-with-comments"
 import LoadingSpinner from "./loading-spinner"
 import { listOrder } from "./utils"
@@ -25,7 +26,7 @@ export const SidebarCommentSection = ({content, entity, activeIDs}: {content: Co
 
     let allIds: string[] = []
     try {
-        let parentText = JSON.parse(content.text)
+        let parentText = JSON.parse(decompress(content.compressedText))
         allIds = getAllQuoteIds(parentText.root)
     } catch {}
     

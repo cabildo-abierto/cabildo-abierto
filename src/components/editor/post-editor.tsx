@@ -12,6 +12,7 @@ import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 import { useSWRConfig } from "swr"
 import { useUser } from "../../app/hooks/user"
 import { createPost, publishDraft, updateContent } from "../../actions/contents"
+import { compress } from "../compression"
 
 type PostEditorProps = {
     initialData?: string,
@@ -75,11 +76,12 @@ const PostEditor = ({
         if(editor && user){
             setSubmitting(true)
             const text = JSON.stringify(editor.getEditorState())
+            const compressedText = compress(text)
             const type = isFast ? "FastPost" : "Post"
             if(!isDraft){ 
-                createPost(text, type, isDraft, user.id, !isFast ? title : undefined)
+                createPost(compressedText, type, isDraft, user.id, !isFast ? title : undefined)
             } else {
-                publishDraft(text, contentId, user.id, !isFast ? title : undefined)
+                publishDraft(compressedText, contentId, user.id, !isFast ? title : undefined)
                 mutate("/api/content/"+contentId)
                 mutate("/api/drafts/"+user.id)
             }
@@ -95,11 +97,12 @@ const PostEditor = ({
         if(editor && user){
             setSubmitting(true)
             const text = JSON.stringify(editor.getEditorState())
+            const compressedText = compress(text)
             const type = isFast ? "FastPost" : "Post"
             if(!isDraft){
-                await createPost(text, type, true, user.id, !isFast ? title : undefined)
+                await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
             } else {
-                await updateContent(text, contentId, title)
+                await updateContent(compressedText, contentId, title)
                 await mutate("/api/content/" + contentId)
             }
             mutate("/api/drafts")

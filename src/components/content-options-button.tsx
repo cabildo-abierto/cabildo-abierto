@@ -12,6 +12,7 @@ import { RedFlag } from './icons';
 import { EditorState, LexicalEditor } from 'lexical';
 import { createFakeNewsReport } from '../actions/contents';
 import { useUser } from '../app/hooks/user';
+import { compress } from './compression';
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 
@@ -54,7 +55,11 @@ const Modal = ({ onClose, contentId }: { onClose: () => void, contentId: string 
                         <StateButton
                             onClick={async () => {
                                 if(user.user && editor){
-                                    await createFakeNewsReport(JSON.stringify(editor.getEditorState()), contentId, user.user.id)
+                                    await createFakeNewsReport(
+                                        compress(JSON.stringify(editor.getEditorState())),
+                                        contentId,
+                                        user.user.id
+                                    )
                                     
                                     mutate("/api/comments/"+contentId)
                                     mutate("/api/replies-feed/"+user.user.id)

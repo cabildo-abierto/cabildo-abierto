@@ -36,11 +36,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 import useModal from '../../hooks/useModal';
-import catTypingGif from '../../images/cat-typing.gif';
 import {EmbedConfigs} from '../AutoEmbedPlugin';
-import {INSERT_COLLAPSIBLE_COMMAND} from '../CollapsiblePlugin';
 import {InsertEquationDialog} from '../EquationsPlugin';
-import {INSERT_IMAGE_COMMAND, InsertImageDialog} from '../ImagesPlugin';
+import {InsertImageDialog} from '../ImagesPlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
 import {InsertPollDialog} from '../PollPlugin';
@@ -270,12 +268,6 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         showModal('Insert Image', (onClose) => (
           <InsertImageDialog activeEditor={editor} onClose={onClose} />
         )),
-    }),
-    new ComponentPickerOption('Collapsible', {
-      icon: <i className="icon caret-right" />,
-      keywords: ['collapse', 'collapsible', 'toggle'],
-      onSelect: () =>
-        editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined),
     }),
     new ComponentPickerOption('Columns Layout', {
       icon: <i className="icon columns" />,

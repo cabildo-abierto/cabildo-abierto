@@ -11,7 +11,6 @@ import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
 import { confirmChanges, rejectChanges, removeEntityAuthorship } from "../actions/entities"
-import { User } from "mercadopago"
 import { currentVersion, hasEditPermission, isUndo } from "./utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./accept-button-panel"
@@ -21,7 +20,7 @@ const EditDetails = ({content, prev}: {content: ContentProps, prev: ContentProps
     if(!prev){
         return <span>Creación</span>
     } else {
-        if(content.text != prev.text){
+        if(content.compressedText != prev.compressedText){
             return <span>Contenido</span>
         } else if(content.categories != prev.categories){
             return <span>Categorías</span>
