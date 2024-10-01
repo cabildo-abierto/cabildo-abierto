@@ -9,7 +9,7 @@ export const LogoWithName = ({showName}: {showName: boolean}) => {
           width={314}
           height={314}
           priority={true}
-          className="w-10 h-10"
+          className="w-10 h-10 rounded-sm"
         />
         {showName && <div className="ml-1 items-end text-lg text-gray-900 hidden sm:flex">
             <div>Cabildo Abierto</div>
@@ -26,7 +26,7 @@ export const Logo = ({className, opacity=1}: {className: string, opacity?: numbe
           width={397}
           height={397}
           priority={true}
-          className={"object-contain "+className}
+          className={"object-contain rounded-sm "+className}
           style={{opacity: opacity}}
     />
 }
