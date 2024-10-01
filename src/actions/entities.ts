@@ -66,7 +66,6 @@ const recomputeEntityContributions = async (entityId: string) => {
     let prevMonetizedVersion = 0
     for(let i = 1; i < entity.versions.length; i++){
         const versionContent = await getContentById(entity.versions[i].id)
-        console.log("recomputing version", i, "at", entity.name)
         let newData = null
         if(isDemonetized(entity.versions[i]) || entity.versions[i].categories !== entity.versions[i-1].categories){
             newData = {
@@ -136,7 +135,6 @@ export const updateEntity = async (compressedText: string, categories: string, e
 
     const permission = hasEditPermission(await getUserById(userId), entity.protection)
 
-    console.log("updating entity creating content")
     await db.content.create({
         data: {
             compressedText: compressedText,
@@ -164,9 +162,7 @@ export const updateEntity = async (compressedText: string, categories: string, e
     })
 
     revalidateTag("entity:"+entityId)
-    console.log("done, now recomputing contributions")
     await recomputeEntityContributions(entityId)
-    console.log("done")
 
     revalidateTag("entities")
     revalidateTag("userContents:"+userId)

@@ -80,11 +80,15 @@ export function minMatch(nodes1, nodes2, common: {x: number, y: number}[]){
         }
     })
     let uncommonNodes2 = []
-    nodes1.forEach((x, index) => {
+    nodes2.forEach((x, index) => {
         if(!commonNodes2.has(index)){
             uncommonNodes2.push({node: x, index: index})
         }
     })
+
+    if(uncommonNodes1.length == 0 || uncommonNodes2.length == 0){
+        return [...common]
+    }
 
     let a = makeMatrix(uncommonNodes1.length, uncommonNodes2.length, 0)
 
@@ -93,10 +97,8 @@ export function minMatch(nodes1, nodes2, common: {x: number, y: number}[]){
             a[i][j] = charDiff(uncommonNodes1[i].node, uncommonNodes2[j].node).total
         }
     }
-    const t2 = Date.now()
 
     let res = assignment(a)
-    const t3 = Date.now()
 
     let resDicts = res.map((y, x) => ({x: x, y: y}))
     resDicts = resDicts.map(({x, y}) => ({x: uncommonNodes1[x].index, y: uncommonNodes2[y].index}))
@@ -191,7 +193,7 @@ export function diff(nodes1: string[], nodes2: string[]){
 
 export function nodesCharDiff(nodes1, nodes2) {
     const {common, matches, perfectMatches} = diff(nodes1, nodes2)
-    
+
     let charsDeleted = 0
     let charsAdded = 0
     for(let i = 0; i < nodes1.length; i++){
