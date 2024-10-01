@@ -179,8 +179,6 @@ export async function createComment(compressedText: string, parentContentId: str
             ancestorContent: {
                 connect: [...parentContent.ancestorContent, {id: parentContent.id}]
             },
-            uniqueViewsCount: 0,
-            fakeReportsCount: 0,
             numChars: numChars,
             numWords: numWords,
             numNodes: numNodes,

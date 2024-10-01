@@ -6,10 +6,10 @@ import { findReferences, getContentById } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString, getAllText } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { arraySum, currentVersion, entityInRoute, hasEditPermission, isDemonetized, isUndo, updateEntityContributions } from "../components/utils";
+import { arraySum, currentVersion, entityInRoute, getPlainText, hasEditPermission, isDemonetized, isUndo, updateEntityContributions } from "../components/utils";
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
-import { decompress } from "../components/compression";
+import { compress, decompress } from "../components/compression";
 
 
 
@@ -60,7 +60,7 @@ export async function createEntity(name: string, userId: string){
 
 
 // las contribuciones se calculan excluyendo todo lo que no esté monetizado o 
-const recomputeEntityContributions = async (entityId: string) => {
+export const recomputeEntityContributions = async (entityId: string) => {
     const entity = await getEntityById(entityId)
     // no actualizamos la primera versión porque no suele cambiar
     let prevMonetizedVersion = 0
@@ -129,15 +129,22 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
   
   
 export const updateEntity = async (compressedText: string, categories: string, entityId: string, userId: string, claimsAuthorship: boolean) => {
-    let references = await findReferences(decompress(compressedText))
+    const text = decompress(compressedText)
+    let references = await findReferences(text)
 
     const entity = await getEntityById(entityId)
 
     const permission = hasEditPermission(await getUserById(userId), entity.protection)
 
+    const {numChars, numWords, numNodes, plainText} = getPlainText(text)
+
     await db.content.create({
         data: {
             compressedText: compressedText,
+            compressedPlainText: compress(plainText),
+            numChars: numChars,
+            numWords: numWords,
+            numNodes: numNodes,
             author: {
                 connect: {id: userId}
             },
@@ -149,8 +156,6 @@ export const updateEntity = async (compressedText: string, categories: string, e
             entityReferences: {
                 connect: references
             },
-            uniqueViewsCount: 0,
-            fakeReportsCount: 0,
             editPermission: permission,
             claimsAuthorship: claimsAuthorship,
             currentVersionOf: permission ? {
