@@ -7,9 +7,9 @@ import { Description } from "./description"
 import SelectionComponent from "./search-selection-component";
 import { unfollow, follow } from "../actions/users"
 import { UserProps } from "../app/lib/definitions"
-import { FakeNewsCounter, FixedFakeNewsCounter } from "./fake-news-counter"
-import { PermissionLevel } from "./editor/wiki-editor"
+import { FixedFakeNewsCounter } from "./fake-news-counter"
 import { ArticleIcon } from "./icons"
+import { PermissionLevel } from "./permission-level"
 
 export function ProfileHeader({profileUser, user, selected, setSelected, setShowingFakeNews }: {profileUser: UserProps, user?: UserProps, selected: string, setSelected: any, setShowingFakeNews: any }) {
     const [following, setFollowing] = useState(false)

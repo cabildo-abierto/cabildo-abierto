@@ -27,7 +27,7 @@ export const ShowUserContribution = ({entityId, userId}:
             <span className="mr-1">Creado por</span>
             <div className="flex space-x-2 link">
                 <Link href={"/perfil/"+lastVersion.authorId}>@{lastVersion.authorId}</Link>
-            </div>
+            </div>.
         </div>
     }
 
@@ -58,13 +58,18 @@ export const ShowContributors = ({entityId, userId}:
             <span className="mr-1">Creado por</span>
             <div className="flex space-x-2 link">
                 <Link href={"/perfil/"+lastVersion.authorId}>@{lastVersion.authorId}</Link>
-            </div>
+            </div>.
         </div>
     }
 
+    console.log("last version contribution is", lastVersion.contribution)
     let contributions: [string, number][] = JSON.parse(lastVersion.contribution)
     
     const total = lastVersion.accCharsAdded
+
+    if(contributions == null){
+        return <></>
+    }
 
     return <div className="flex">
         <span className="mr-1">Escrito por</span>

@@ -1,8 +1,6 @@
 "use client"
 
 import React, { ReactNode, useState } from 'react';
-import ReadOnlyEditor from './editor/read-only-editor';
-import { Logo } from './logo';
 import { useUser } from '../app/hooks/user';
 import { useRouter } from 'next/navigation';
 

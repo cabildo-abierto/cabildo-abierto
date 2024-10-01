@@ -5,7 +5,7 @@ import { ThreeColumnsLayout } from "../../components/three-columns";
 import { useUser } from "../hooks/user";
 import Link from "next/link";
 import { validSubscription } from "../../components/utils";
-import { PermissionLevel } from "../../components/editor/wiki-editor";
+import { PermissionLevel } from "../../components/permission-level";
 
 
 const Cuenta: React.FC = () => {

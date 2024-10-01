@@ -1,7 +1,7 @@
 "use client"
 import { useProfileFeed } from "../app/hooks/contents"
-import { UserProps, SmallContentProps } from "../app/lib/definitions"
-import Feed, { LoadingFeed } from "./feed"
+import { UserProps } from "../app/lib/definitions"
+import Feed from "./feed"
 import LoadingSpinner from "./loading-spinner"
 
 

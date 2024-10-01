@@ -3,11 +3,11 @@ import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
 import { CategoryArticles } from "./category-articles";
 import { CategoryUsers } from "./category-users";
-import { RouteFeed } from "./route-feed";
 import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents";
 import { preload } from "swr";
 import { fetcher } from "../app/hooks/utils";
 import { MainFeedHeader } from "./main-feed-header";
+import { ConfiguredFeed } from "./sorted-and-filtered-feed";
 
 
 type RouteContentProps = {
@@ -54,17 +54,18 @@ export const RouteContent = ({route, paramsSelected, showRoute=true}: RouteConte
         
         <div className="pt-1">
             {selected == "Artículos públicos" && 
-            <CategoryArticles route={route}/>}
+                <CategoryArticles route={route}/>
+            }
 
         {selected == "General" &&
-        <RouteFeed
+        <ConfiguredFeed
             feed={feed}
             order={order}
             filter={filter}
         />}
 
         {selected == "Siguiendo" &&
-        <RouteFeed
+        <ConfiguredFeed
             feed={followingFeed}
             order={order}
             filter={filter}

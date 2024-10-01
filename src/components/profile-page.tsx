@@ -3,7 +3,7 @@ import {ProfileHeader} from "./profile-header";
 import {ProfileFeed} from "./profile-feed";
 import React, {useEffect, useState} from "react";
 import {useUser} from "../app/hooks/user";
-import {ContentProps, SmallContentProps, UserProps} from "../app/lib/definitions";
+import {UserProps} from "../app/lib/definitions";
 import {RepliesFeed} from "./replies-feed";
 import {WikiFeed} from "./wiki-feed";
 import { preload } from "swr";

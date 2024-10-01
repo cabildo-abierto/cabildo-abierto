@@ -1,0 +1,83 @@
+import dynamic from "next/dynamic"
+import { ContentProps, EntityProps } from "../app/lib/definitions"
+import { decompress } from "./compression"
+import { getAllText } from "./diff"
+import { SerializedAuthorNode } from "./editor/nodes/AuthorNode"
+import { editorStateFromJSON } from "./utils"
+import { wikiEditorSettings } from "./editor/wiki-editor"
+
+const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
+
+function showAuthors(entity: EntityProps, version: number, versionText: string){
+    function newAuthorNode(authors: string[], childNode){
+        const authorNode: SerializedAuthorNode = {
+            children: [childNode],
+            type: "author",
+            authors: authors,
+            direction: 'ltr',
+            version: childNode.version,
+            format: 'left',
+            indent: 0
+        }
+        return authorNode
+    }
+
+    const parsed = editorStateFromJSON(versionText)
+    if(!parsed) {
+        return versionText
+    }
+    let prevNodes = []
+    let prevAuthors = []
+
+    for(let i = 0; i <= version; i++){
+        const parsedVersion = editorStateFromJSON(decompress(entity.versions[i].compressedText))
+        if(!parsedVersion) continue
+        const nodes = parsedVersion.root.children
+        const {matches} = JSON.parse(entity.versions[i].diff)
+        const versionAuthor = entity.versions[i].authorId
+        let nodeAuthors: string[] = []
+        for(let j = 0; j < nodes.length; j++){
+            let authors = null
+            for(let k = 0; k < matches.length; k++){
+                if(matches[k] && matches[k].y == j){
+                    const prevNodeAuthors = prevAuthors[matches[k].x]
+                    if(getAllText(prevNodes[matches[k].x]) == getAllText(nodes[matches[k].y])){
+                        authors = prevNodeAuthors
+                    } else {
+                        if(!prevNodeAuthors.includes(versionAuthor)){
+                            authors = [...prevNodeAuthors, versionAuthor]
+                        } else {
+                            authors = prevNodeAuthors
+                        }
+                    }
+                    break
+                }
+            }
+            if(authors === null) authors = [versionAuthor]
+            nodeAuthors.push(authors)
+        }
+        prevAuthors = [...nodeAuthors]
+        prevNodes = [...nodes]
+    }
+    const newChildren = []
+    for(let i = 0; i < prevNodes.length; i++){
+        newChildren.push(newAuthorNode(prevAuthors[i], prevNodes[i]))
+    }
+    parsed.root.children = newChildren
+    const r = JSON.stringify(parsed)
+    return r
+}
+
+
+export const ShowArticleAuthors = ({originalContent, originalContentText, entity, version}: {originalContent: ContentProps, originalContentText: string, entity: EntityProps, version: number}) => {
+    
+    const contentText = showAuthors(entity, version, originalContentText)
+
+    let settings = wikiEditorSettings(true, originalContent, contentText)
+
+    return <MyLexicalEditor
+        settings={settings}
+        setEditor={(e) => {}}
+        setEditorState={() => {}}
+    />
+}

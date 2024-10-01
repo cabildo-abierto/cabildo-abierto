@@ -13,7 +13,6 @@ type PostOnFeedProps = {
     content: ContentProps,
     onViewComments: () => void,
     viewingComments: boolean
-    depthParity?: boolean
 }
 
 
@@ -24,18 +23,19 @@ export const PostTitleOnFeed = ({title}: {title: string}) => {
 }
 
 
-export const PostOnFeed = ({content, onViewComments, viewingComments, depthParity=false}: PostOnFeedProps) => {
-    const router = useRouter()
+export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFeedProps) => {
 
     return <Link
         href={"/contenido/"+content.id}
         className="flex flex-col hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out">
-        
-        <div className="flex justify-between px-2 py-2 mb-4">
-            <span className="title text-xl py-2">{content.title}</span>
+        <div className="flex justify-between px-2 mt-1">
+            <span className="text-sm text-gray-400">Publicación</span>
             <span className="text-[var(--text-light)] text-sm">
                 <DateSince date={content.createdAt}/>
             </span>
+        </div>
+        <div className="flex justify-between px-2 py-2 mb-4">
+            <span className="title text-xl py-2">{content.title}</span>
         </div>
 
         <div className="flex justify-between ml-2 items-center">

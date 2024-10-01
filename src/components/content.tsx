@@ -227,7 +227,6 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
         content={content}
         onViewComments={onViewComments}
         viewingComments={viewingComments}
-        depthParity={depthParity}
         />
     } else if(content.type == "FastPost"){
         element = <FastPost 

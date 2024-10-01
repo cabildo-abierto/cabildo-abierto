@@ -4,9 +4,9 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { findReferences, getContentById } from "./contents";
 import { revalidateEverythingTime } from "./utils";
-import { charDiffFromJSONString, getAllText } from "../components/diff";
+import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { arraySum, currentVersion, entityInRoute, getPlainText, hasEditPermission, isDemonetized, isUndo, updateEntityContributions } from "../components/utils";
+import { entityInRoute, getPlainText, hasEditPermission, isDemonetized, isUndo } from "../components/utils";
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
@@ -60,11 +60,13 @@ export async function createEntity(name: string, userId: string){
 
 
 // las contribuciones se calculan excluyendo todo lo que no esté monetizado o 
-export const recomputeEntityContributions = async (entityId: string) => {
-    const entity = await getEntityById(entityId)
+export const recomputeEntityContributions = async (entityId: string, useCacheEntity: boolean = true) => {
+    const entity = await getEntityById(entityId, useCacheEntity)
+
     // no actualizamos la primera versión porque no suele cambiar
     let prevMonetizedVersion = 0
     for(let i = 1; i < entity.versions.length; i++){
+        console.log("updating versions 1 to", entity.versions.length-1, "in", entityId)
         const versionContent = await getContentById(entity.versions[i].id)
         let newData = null
         if(isDemonetized(entity.versions[i]) || entity.versions[i].categories !== entity.versions[i-1].categories){
@@ -166,9 +168,10 @@ export const updateEntity = async (compressedText: string, categories: string, e
         }
     })
 
-    revalidateTag("entity:"+entityId)
-    await recomputeEntityContributions(entityId)
+    console.log("added version", entity.versions.length, "to entity", entityId)
+    await recomputeEntityContributions(entityId, false)
 
+    revalidateTag("entity:" + entityId)
     revalidateTag("entities")
     revalidateTag("userContents:"+userId)
     revalidateTag("entityContributions:"+entityId)
@@ -286,19 +289,19 @@ export const deleteContent = async (contentId: string) => {
 
     // habría que revalidar más tags en realidad
     revalidateTag("content:"+contentId)
-    revalidateTag("contentStatic:"+contentId)
 }
 
 
-export const deleteEntityHistory = async (entityId: string) => {
+export const deleteEntityHistory = async (entityId: string, includeLast: boolean) => {
     const entity = await getEntityById(entityId)
 
-    for(let i = 1; i < entity.versions.length-1; i++){
+    for(let i = 1; i < entity.versions.length-(includeLast ? 0 : 1); i++){
         await deleteContent(entity.versions[i].id)
     }
-
+    await recomputeEntityContributions(entityId, false)
+    
     revalidateTag("entity:"+entityId)
-    await recomputeEntityContributions(entityId)
+    revalidateTag("entities")
 }
 
 
@@ -382,105 +385,115 @@ export const getEntities = unstable_cache(async () => {
     tags: ["entities"]})
 
 
-export async function getEntityById(id: string) {
-    return unstable_cache(async () => {
-        const entity: EntityProps | null = await db.entity.findUnique(
-            {select: {
-                id: true,
-                name: true,
-                protection: true,
-                isPublic: true,
-                deleted: true,
-                versions: {
-                    select: {
-                        id: true,
-                        categories: true,
-                        confirmedById: true,
-                        rejectedById: true,
-                        accCharsAdded: true,
-                        contribution: true,
-                        undos: {
-                            select: {
-                                id: true,
-                                reportsOportunism: true,
-                                reportsVandalism: true,
-                                authorId: true,
-                                createdAt: true,
-                                compressedText: true
-                            },
-                            orderBy: {
-                                createdAt: "desc"
-                            }
+export async function getEntityByIdNoCache(id: string){
+    const entity: EntityProps | null = await db.entity.findUnique(
+        {select: {
+            id: true,
+            name: true,
+            protection: true,
+            isPublic: true,
+            deleted: true,
+            versions: {
+                select: {
+                    id: true,
+                    categories: true,
+                    confirmedById: true,
+                    rejectedById: true,
+                    accCharsAdded: true,
+                    contribution: true,
+                    undos: {
+                        select: {
+                            id: true,
+                            reportsOportunism: true,
+                            reportsVandalism: true,
+                            authorId: true,
+                            createdAt: true,
+                            compressedText: true
                         },
-                        uniqueViewsCount: true,
-                        _count: {
-                            select: {
-                                reactions: true
-                            }
-                        },
-                        createdAt: true,
-                        compressedText: true,
-                        authorId: true,
-                        editPermission: true,
-                        childrenContents: {
-                            select: {
-                                id: true,
-                                type: true,
-                                _count: {
-                                    select: {
-                                        childrenTree: true
-                                    }
-                                },
-                                currentVersionOf: {
-                                    select: {
-                                        id: true
-                                    }
-                                },
-                                editPermission: true
-                            },
-                        },
-                        claimsAuthorship: true,
-                        diff: true
+                        orderBy: {
+                            createdAt: "desc"
+                        }
                     },
-                    orderBy: {
-                        createdAt: "asc"
-                    }
-                },
-                referencedBy: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true,
-                        _count: {
-                            select: {
-                                reactions: true,
-                                childrenTree: true
-                            }
+                    uniqueViewsCount: true,
+                    _count: {
+                        select: {
+                            reactions: true
+                        }
+                    },
+                    createdAt: true,
+                    compressedText: true,
+                    authorId: true,
+                    editPermission: true,
+                    childrenContents: {
+                        select: {
+                            id: true,
+                            type: true,
+                            _count: {
+                                select: {
+                                    childrenTree: true
+                                }
+                            },
+                            currentVersionOf: {
+                                select: {
+                                    id: true
+                                }
+                            },
+                            editPermission: true
                         },
-                        currentVersionOf: {
-                            select: {
-                                id: true
-                            }
+                    },
+                    claimsAuthorship: true,
+                    diff: true
+                },
+                orderBy: {
+                    createdAt: "asc"
+                }
+            },
+            referencedBy: {
+                select: {
+                    id: true,
+                    createdAt: true,
+                    type: true,
+                    _count: {
+                        select: {
+                            reactions: true,
+                            childrenTree: true
+                        }
+                    },
+                    currentVersionOf: {
+                        select: {
+                            id: true
                         }
                     }
-                },
-                _count: {
-                    select: {reactions: true},
-                },
-                uniqueViewsCount: true,
-                currentVersionId: true
-            },
-                where: {
-                    id: id,
                 }
+            },
+            _count: {
+                select: {reactions: true},
+            },
+            uniqueViewsCount: true,
+            currentVersionId: true
+        },
+            where: {
+                id: id,
             }
-        )
-        if(!entity) return undefined
+        }
+    )
+    return entity
+}
 
-        return entity
-    }, ["entity", id], {
-        revalidate: revalidateEverythingTime,
-        tags: ["entity", "entity:"+id]})()
+
+export async function getEntityById(id: string, useCache: boolean = true) {
+    if(!useCache){
+        return await getEntityByIdNoCache(id)
+    } else {
+        return unstable_cache(
+            async () => {return await getEntityByIdNoCache(id)},
+            ["entity", id], 
+            {
+                revalidate: revalidateEverythingTime,
+                tags: ["entity", "entity:"+id]
+            }
+        )()
+    }
 }
 
 

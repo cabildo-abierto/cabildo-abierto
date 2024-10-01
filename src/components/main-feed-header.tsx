@@ -19,8 +19,8 @@ type MainFeedHeaderProps = {
 export const MainFeedHeader = ({
     route, selected, onSelection, showRoute, order, setOrder, filter, setFilter
 }: MainFeedHeaderProps) => {
-    return <div className="pt-1 mt-2">
-        <div className="content-container mb-1">
+    return <div className="mt-2">
+        <div className="content-container pt-1 mb-1">
         {showRoute && 
             <div className="flex flex-col">
                 <span className="ml-2 text-sm text-[var(--text-light)]">
@@ -45,7 +45,7 @@ export const MainFeedHeader = ({
                 className="filter-feed"
                 onSelection={setFilter}
                 selected={filter}
-                options={["Todas", "Rápidas", "Elaboradas"]}
+                options={["Todas", "Rápidas", "Publicaciones"]}
                 optionsNodes={[<div key={0}><FastAndPostIcon/></div>, <div key={1}><FastPostIcon/></div>, <div key={2}><PostIcon/></div>]}
                 optionExpl={["Todas las publicaciones", "Solo publicaciones rápidas", "Solo publicaciones con título"]}
             />

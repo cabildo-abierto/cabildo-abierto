@@ -17,7 +17,12 @@ const Page = async ({params}: {params: {id: string, version: string}}) => {
     }
     
     const userId = await getUserId()
-    const version = Number(params.version)
+    let version = Number(params.version)
+
+    if(version >= entity.versions.length || version < 0){
+        version = entity.versions.length-1
+    }
+
     const content = await getContentById(entity.versions[version].id, userId)
 
     const header = headers()

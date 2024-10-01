@@ -3,7 +3,7 @@ import { ContentWithCommentsFromId } from "./content-with-comments";
 import { NoResults } from "./category-users";
 import { SmallContentProps } from "../app/lib/definitions";
 import LoadingSpinner from "./loading-spinner";
-import { ToggleButton } from "./toggle-button";
+
 
 export type LoadingFeed = {feed: {id: string}[], isLoading: boolean, isError: boolean}
 export type LoadingFeedWithData = {feed: SmallContentProps[], isLoading: boolean, isError: boolean}
@@ -28,7 +28,7 @@ const Feed: React.FC<FeedProps> = ({feed, maxSize, noResultsText="No se encontr√
     } else {
         content = <>
             {feed.feed.slice(0, range ? range : feed.feed.length).map((feedContent, index: number) => {
-                return <div key={index} className="w-full">
+                return <div key={feedContent.id} className="w-full">
                     <ContentWithCommentsFromId
                         contentId={feedContent.id}
                         inCommentSection={false}
