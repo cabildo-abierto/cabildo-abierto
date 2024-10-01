@@ -220,8 +220,8 @@ model Content {
   ancestorContent  Content[]    @relation("ancestorContent")
   childrenTree     Content[]    @relation("ancestorContent")
 
-  uniqueViewsCount Int          @default(0)
-  fakeReportsCount Int          @default(0)
+  uniqueViewsCount Int?         @default(0)
+  fakeReportsCount Int?         @default(0)
 
   notifications    Notification[]
 
