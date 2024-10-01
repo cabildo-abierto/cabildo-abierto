@@ -18,12 +18,12 @@ function TopbarLogo() {
         <Link href="/">
             <div className="flex items-center">
                 <Image
-                    src="/cabildo-icono.png"
+                    src="/cabildo-icono.svg"
                     alt="Loading..."
                     width={320}
                     height={320}
                     priority={true}
-                    className="w-8 h-8"
+                    className="w-8 h-8 rounded-sm"
                 />
                 <div className="ml-1 text-xs text-gray-900">
                     <div>Cabildo</div>

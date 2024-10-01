@@ -33,7 +33,7 @@ const urlRegExp = new RegExp(
 );
 export function validateUrl(url: string): boolean {
   return true
-  // TODO Fix UI for link insertion; it should never default to an invalid URL such as https://.
+  // TO DO: Fix UI for link insertion; it should never default to an invalid URL such as https://.
   // Maybe show a dialog where they user can type the URL before inserting it.
-  return url === 'https://' || urlRegExp.test(url) || url.startsWith("/articulo/");
+  //return url === 'https://' || urlRegExp.test(url) || url.startsWith("/articulo/");
 }

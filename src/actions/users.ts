@@ -600,7 +600,7 @@ export async function createPreference(userId: string, amount: number) {
         notification_url: baseUrl+"/api/pago?source_news=webhooks",
         items: [
           {
-            picture_url: baseUrl+"/cabildo-icono.png",
+            picture_url: baseUrl+"/cabildo-icono.svg",
             id: "0",
             title: title,
             quantity: 1,

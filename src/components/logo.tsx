@@ -4,7 +4,7 @@ import Image from 'next/image'
 export const LogoWithName = ({showName}: {showName: boolean}) => {
     return <div><Link href="/"><div className="flex items-center ml-1">
         <Image
-          src="/cabildo-icono.png"
+          src="/cabildo-icono.svg"
           alt="Loading..."
           width={314}
           height={314}
@@ -21,7 +21,7 @@ export const LogoWithName = ({showName}: {showName: boolean}) => {
 
 export const Logo = ({className, opacity=1}: {className: string, opacity?: number}) => {
     return <Image
-          src="/cabildo-icono.png"
+          src="/cabildo-icono.svg"
           alt="Loading..."
           width={397}
           height={397}
