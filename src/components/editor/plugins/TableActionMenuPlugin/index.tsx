@@ -46,7 +46,6 @@ import {createPortal} from 'react-dom';
 import invariant from '../../shared/invariant';
 
 import useModal from '../../hooks/useModal';
-import ColorPicker from '../../ui/ColorPicker';
 
 function computeSelectionCount(selection: TableSelection): {
   columns: number;
@@ -523,21 +522,6 @@ function TableActionMenu({
         e.stopPropagation();
       }}>
       {mergeCellButton}
-      <button
-        type="button"
-        className="item"
-        onClick={() =>
-          showColorPickerModal('Cell background color', () => (
-            <ColorPicker
-              color={backgroundColor}
-              onChange={handleCellBackgroundColor}
-            />
-          ))
-        }
-        data-test-id="table-background-color">
-        <span className="text">Background color</span>
-      </button>
-      <hr />
       <button
         type="button"
         className="item"

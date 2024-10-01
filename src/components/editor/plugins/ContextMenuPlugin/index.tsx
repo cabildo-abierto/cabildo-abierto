@@ -20,10 +20,9 @@ import {
   type LexicalNode,
   PASTE_COMMAND,
 } from 'lexical';
-import {useCallback, useMemo} from 'react';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import {useCallback, useMemo, useState} from 'react';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+import { createPortal } from 'react-dom';
 
 function ContextMenuItem({
   index,
@@ -187,7 +186,7 @@ export default function ContextMenuPlugin(): JSX.Element {
     ];
   }, [editor]);
 
-  const [options, setOptions] = React.useState(defaultOptions);
+  const [options, setOptions] = useState(defaultOptions);
 
   const onSelectOption = useCallback(
     (
@@ -240,7 +239,7 @@ export default function ContextMenuPlugin(): JSX.Element {
         {setMenuRef},
       ) =>
         anchorElementRef.current
-          ? ReactDOM.createPortal(
+          ? createPortal(
               <div
                 className="typeahead-popover auto-embed-menu"
                 style={{

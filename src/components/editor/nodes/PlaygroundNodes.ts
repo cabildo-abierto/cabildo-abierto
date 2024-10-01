@@ -23,10 +23,6 @@ import {InlineImageNode} from './InlineImageNode/InlineImageNode';
 import {KeywordNode} from './KeywordNode';
 import {LayoutContainerNode} from './LayoutContainerNode';
 import {LayoutItemNode} from './LayoutItemNode';
-import {PageBreakNode} from './PageBreakNode';
-import {PollNode} from './PollNode';
-import {TweetNode} from './TweetNode';
-import {YouTubeNode} from './YouTubeNode';
 import {LinkNode, AutoLinkNode} from '@lexical/link'
 
 const PlaygroundNodes: Array<Klass<LexicalNode>> = [
@@ -43,16 +39,12 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   OverflowNode,
   LinkNode,
   AutoLinkNode,
-  PollNode,
   ImageNode,
   InlineImageNode,
   EmojiNode,
   EquationNode,
   KeywordNode,
   HorizontalRuleNode,
-  TweetNode,
-  YouTubeNode,
-  PageBreakNode,
   LayoutContainerNode,
   LayoutItemNode,
 ];
