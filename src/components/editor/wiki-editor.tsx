@@ -219,9 +219,9 @@ export const SaveEditPopup = ({
 
     const newVersionSize = getAllText(JSON.parse(jsonState).root).length
 
-    if(newVersionSize > 100000){
+    if(newVersionSize > 500000){
         return <AcceptButtonPanel
-            text={<span>No se pueden guardar los cambios porque el artículo supera el límite de 100.000 caracteres (con <span className="text-red-600">{newVersionSize}</span> caracteres). Te sugerimos que separes el contenido en secciones en distintos artículos.</span>}
+            text={<span>No se pueden guardar los cambios porque el artículo supera el límite de 500.000 caracteres (con <span className="text-red-600">{newVersionSize}</span> caracteres). Te sugerimos que separes el contenido en secciones en distintos artículos.</span>}
             onClose={onClose}
         />
     }
