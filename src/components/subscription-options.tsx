@@ -46,12 +46,12 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
 
     const desc3 = <div>
         <div>Comprar y donar suscripciones</div>
-        <div className="text-gray-300 text-sm">Para que no le falte a quien lo necesite</div>
+        <div className="text-gray-300 text-sm">Para que no le falte a quien lo necesite.</div>
     </div>
 
     const desc0 = <div>
         <div>Empezá a usar la plataforma con un mes gratis</div>
-        <div className="text-gray-300 text-sm">Disponible para la primera suscripción de cada usuario</div>
+        <div className="text-gray-300 text-sm">Disponible para la primera suscripción de cada usuario.</div>
     </div>
 
     async function getFreeTrial(){
@@ -62,7 +62,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
 
     const desc1 = <div>
         <div>Comprar una suscripción mensual</div>
-        <div className="text-gray-300 text-sm">Quedan {price.price ? price.price.remaining : "?"} suscripciones a este precio. Luego van a pasar a costar $1000 por mes</div>
+        <div className="text-gray-300 text-sm">Quedan {price.price ? price.price.remaining : "?"} suscripciones a este precio. Luego van a pasar a costar $1000 por mes.</div>
     </div>
 
     return <>
@@ -75,7 +75,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
 
             <div className="flex justify-center mt-4">
                 <p className="lg:w-96 w-64 link text-center">
-                    Cabildo Abierto <Link href="/articulo/Cabildo_Abierto:_Suscripciones">se financia</Link> exclusivamente con suscripciones.
+                    Cabildo Abierto está hecha para sus usuarios. Por eso, se financia exclusivamente con suscripciones.
                 </p>
             </div>
         </div>
@@ -99,16 +99,6 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
                 />
             </div>
 
-            {user.subscriptionsUsed.length > 0 && <div className="flex justify-center py-2">
-                <SubscriptionOptionButton
-                    title="Continuar gratis"
-                    description={desc2}
-                    price="$0"
-                    disabled={poolSize.poolSize == 0}
-                    href={"/suscripciones/pendiente"}
-                />
-            </div>}
-
             <div className="flex justify-center py-2">
                 <SubscriptionOptionButton
                     title="Hacer crecer Cabildo Abierto"
@@ -117,6 +107,20 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
                     href={"/suscripciones/donar"}
                 />
             </div>
+
+            {<div className="flex flex-col items-center justify-center py-2">
+                {user.subscriptionsUsed.length == 0 && 
+                <div className="text-sm text-[var(--text-light)]">
+                    Opción disponible cuando hayas usado tu prueba gratuita.
+                </div>}
+                <SubscriptionOptionButton
+                    title="Continuar gratis"
+                    description={desc2}
+                    price="$0"
+                    disabled={poolSize.poolSize == 0 || user.subscriptionsUsed.length == 0}
+                    href={"/suscripciones/pendiente"}
+                />
+            </div>}
         </div>
     </>
 }

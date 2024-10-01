@@ -251,15 +251,13 @@ ol {
 }
 
 .subscription-btn:disabled {
-	background-color: var(--background-dark);
-	color: var(--accent);
-	opacity: 0.6;
+	background-color: var(--primary-light);
+	opacity: 0.7;
 }
 
 .subscription-btn:disabled:hover {
-	background-color: var(--background-dark);
-	color: var(--accent);
-	opacity: 0.6;
+	background-color: var(--primary-light);
+	opacity: 0.7;
 }
 
 .article-edit {

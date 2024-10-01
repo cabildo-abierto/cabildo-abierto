@@ -5,13 +5,8 @@ import { ThreeColumnsLayout } from "../../../components/three-columns"
 import { createPreference } from "../../../actions/users"
 import { useUser } from "../../hooks/user"
 import { useState } from "react"
-import { initMercadoPago } from '@mercadopago/sdk-react'
-import dynamic from 'next/dynamic'
 import { useSubscriptionPrice } from "../../hooks/subscriptions"
-
-const Wallet = dynamic(() => import('@mercadopago/sdk-react').then(mod => mod.Wallet), { ssr: false });
-initMercadoPago('APP_USR-1ddae427-daf5-49b9-b3bb-e1d5b5245f30');
-//initMercadoPago('TEST-2f374e57-81aa-4e88-a554-d7e8128eb773')
+import { MPWallet } from "../../../components/mp-wallet"
 
 function PagoUnico({preferenceId}: {preferenceId: string}) {
     const price = useSubscriptionPrice()
@@ -21,9 +16,7 @@ function PagoUnico({preferenceId}: {preferenceId: string}) {
         {price.price ? <div className="mt-8">Total: ${price.price.price}</div> : <></>}
         <div className="mt-8">
             <div className="w-64">
-                <Wallet
-                    initialization={{ preferenceId: preferenceId }}
-                />
+                <MPWallet preferenceId={preferenceId}/>
             </div>
         </div>
     </div>

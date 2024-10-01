@@ -30,22 +30,28 @@ export const NeedAccountPaywall: React.FC<any> = ({ children }) => {
 };
 
 
+export const UserName = ({name}: {name: string}) => {
+    return <span className="text-[var(--primary)]">{name}</span>
+}
+
+
 const NeedSubscriptionPaywall: React.FC<any> = ({ children }) => {
-    const router = useRouter()
     const {user} = useUser()
 
     if(user.subscriptionsUsed.length == 0){
         return <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
             <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
-                <div className="py-4 text-lg">¡Bienvenido/a a Cabildo Abierto!</div>
-                <div className="text-left text-gray-700">
-                    Cabildo Abierto es una plataforma pensada para la discusión pública argentina.
-                </div>
-                <div className="text-left text-gray-700">
-                    Estamos empezando, así que si algo no funciona avisanos y si tenés ideas o sugerencias, te escuchamos.
-                </div>
-                <div className="text-left text-gray-700">
+                <div className="py-4 text-lg">¡Bienvenido/a <UserName name={user.name}/> a Cabildo Abierto!</div>
+                <div className="text-justify text-gray-700">
+                <p>
+                    Cabildo Abierto es una plataforma para la discusión pública argentina.
+                </p>
+                <p>
+                    Estamos empezando, así que si algo no funciona avisanos y si tenés ideas o sugerencias, son muy bienvenidas.
+                </p>
+                <p>
                     ¡Esperamos que disfrutes de la plataforma!
+                </p>
                 </div>
                 <div className="flex justify-center items-center mt-8 space-x-4">
                     <Link href="/suscripciones" className="gray-btn">
@@ -53,7 +59,7 @@ const NeedSubscriptionPaywall: React.FC<any> = ({ children }) => {
                     </Link>
                 </div>
                 <div className="text-center text-sm text-gray-700 mt-1">
-                    La primera es gratis. Después también si lo necesitás.
+                    La primera es gratis. Si lo necesitás, después también.
                 </div>
             </div>
         </div>
