@@ -38,7 +38,7 @@ const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () => void})
 const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}) => {
     const count = useSupportNotRespondedCount()
 
-    return <SidebarButton icon={<SupportIcon newCount={count.isLoading ? <></> : count.count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
+    return <SidebarButton icon={<SupportIcon newCount={count.count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
 }
 
 export default function Sidebar({onClose}: {onClose: () => void}) {

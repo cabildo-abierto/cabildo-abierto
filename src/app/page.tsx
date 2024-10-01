@@ -1,10 +1,9 @@
 "use client"
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AuthPage } from "../components/auth-page"
 import Footer from "../components/footer"
 import { Presentation } from "../components/presentation"
 import { useRouter } from "next/navigation";
-import { createClient } from "../utils/supabase/client";
 
 
 const InvalidConfirmLinkPopup = ({onClose}: {onClose: any}) => {

@@ -31,6 +31,8 @@ const DonationInput: React.FC<any> = ({onChange, oneForYou=true}) => {
         className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       {price.price && <div className="text-[var(--text-light)] mt-2">Cada suscripción cuesta ${price.price.price}.</div>}
+
+      {price.price && <div className="text-[var(--text-light)] mt-2">Total ${price.price.price * Number(value.length > 0 ? value : "0")}.</div>}
     </div>
   );
 };

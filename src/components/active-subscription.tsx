@@ -23,7 +23,7 @@ const ActiveSubscription: React.FC = () => {
         </div>
 
         <div className="flex flex-col items-center text-center mt-8 max-w-96 px-2">
-            <p>Hay <span className="font-bold">{poolSize.poolSize}</span> suscripciones gratuitas disponibles.</p>
+            <p>Hay <span className="font-bold">{poolSize.poolSize}</span> suscripciones gratuitas disponibles en la página.</p>
             <p className="py-4">Si te gusta la plataforma y querés que más personas participen, podés ayudar donando suscripciones.</p>
         </div>
 

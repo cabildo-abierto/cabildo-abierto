@@ -22,17 +22,16 @@ export const EntitySearchResult: React.FC<{entity: SmallEntityProps}> = ({ entit
     return (
         <Link
           href={"/articulo/" + entity.id}
-          className="max-w-[384px] w-full py-6 px-2 flex justify-center content-container hover:bg-[var(--secondary-light)]"
+          className="max-w-[384px] w-full px-2 content-container hover:bg-[var(--secondary-light)]"
         >
           <div className="flex w-full items-center">
-            <div className="px-2">
-              <ArticleIcon />
-            </div>
             <div className="w-full">
-              <div className="text-center w-full">
+
+              <div className="w-full py-2 px-1">
                 <PostTitleOnFeed title={entity.name} />
               </div>
-              <div className="flex justify-center">
+
+              <div className="flex justify-end">
                 <FixedCounter count={entity._count.reactions} icon={<ActivePraiseIcon />} />
                 <FixedCounter count={entity.uniqueViewsCount} icon={<ViewsIcon />} />
                 <FixedCounter
