@@ -237,7 +237,7 @@ export async function findReferences(text: string){
         return references
     }
     
-    if(text.length == 0){
+    if(text.length == 0 || text == "Este artículo está vacío!"){
         return []
     }
     const json  = JSON.parse(text)

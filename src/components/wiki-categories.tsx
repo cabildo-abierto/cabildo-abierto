@@ -55,7 +55,7 @@ export const Route = ({route, setRoute, selected}: {route: string[], setRoute?: 
             
                 <RouteElement route={route} setRoute={setRoute} c={c} index={index}/>
 
-                {(index != route.length || (nextCategories && nextCategories.length > 0)) && 
+                {(index != route.length || (nextCategories && nextCategories.length > 0 && setRoute != undefined)) && 
                 <span className="px-1 text-2xl font-bold content text-[var(--primary)] mb-1">
                     <KeyboardArrowRightIcon/>
                 </span>}
@@ -63,7 +63,7 @@ export const Route = ({route, setRoute, selected}: {route: string[], setRoute?: 
         })}
     </div>
 
-    {nextCategories && nextCategories.length > 0 && 
+    {nextCategories && nextCategories.length > 0 && setRoute != undefined && 
     <SubcategoriesDropDown
         nextCategories={nextCategories}
         route={route}

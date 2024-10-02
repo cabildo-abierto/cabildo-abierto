@@ -124,6 +124,7 @@ export type SmallEntityProps = {
     views?: number,
     reactions?: number,
     uniqueViewsCount: number
+    currentVersionId: string
 }
 
 

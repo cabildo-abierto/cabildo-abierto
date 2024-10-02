@@ -371,7 +371,8 @@ export const getEntities = unstable_cache(async () => {
                     reactions: true
                 }
             },
-            uniqueViewsCount: true
+            uniqueViewsCount: true,
+            currentVersionId: true
         },
         where: {
             deleted: false
