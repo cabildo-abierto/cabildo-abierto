@@ -23,6 +23,10 @@ import { fetcher } from "../../app/hooks/utils"
 
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
+
+export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:px-2"
+
+
 export const wikiEditorSettings = (
     readOnly: boolean, content: ContentProps, contentText: string) => ({
     disableBeforeInput: false,
@@ -51,7 +55,7 @@ export const wikiEditorSettings = (
     useCodeblock: false,
     placeholder: "Este artículo está vacío!",
     initialData: contentText,
-    editorClassName: "content text-justify",
+    editorClassName: "content",
     isReadOnly: readOnly,
     content: content,
     isAutofocus: false,
@@ -112,7 +116,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
 
     const SaveEditButton = () => {
         return <StateButton
-            className="article-btn"
+            className={articleButtonClassname}
             text1="Guardar edición"
             text2="Guardando..."
             onClick={async (e) => {setShowingSaveEditPopup(true); return false}}
@@ -123,16 +127,16 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
     const CancelEditButton = () => {
         return <button
             onClick={() => {setEditing(false)}}
-            className="article-btn"
+            className={articleButtonClassname}
         >
             Cancelar edición
         </button>
     }
 
     return <>
-        {!readOnly && <div className="flex flex-wrap items-center px-2 space-x-2 border-b">
+        {!readOnly && <div className="flex flex-wrap items-center space-x-2 border-b">
             <ToggleButton
-                className="article-btn"
+                className={articleButtonClassname}
                 toggled={editingRoutes}
                 setToggled={setEditingRoutes}
                 text="Editar categorías"
@@ -159,11 +163,14 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         {showingChanges && readOnly && version == 0 && <>Estás viendo la primera versión</>}
         </div>
         <div id="editor">
-            {((!showingChanges && !showingAuthors) || version == 0) && <MyLexicalEditor
+            {((!showingChanges && !showingAuthors) || version == 0) && 
+            <div className="px-2 min-h-64">
+                <MyLexicalEditor
                 settings={wikiEditorSettings(readOnly, content, contentText)}
                 setEditor={setEditor}
                 setEditorState={setEditorState}
-            />}
+            />
+            </div>}
             {(showingChanges && version > 0) &&
                 <ShowArticleChanges
                     originalContent={content}

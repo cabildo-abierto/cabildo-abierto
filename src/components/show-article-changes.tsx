@@ -93,9 +93,17 @@ export const ShowArticleChanges = ({
 
     let settings = wikiEditorSettings(true, originalContent, contentText)
 
-    return <MyLexicalEditor
-        settings={settings}
-        setEditor={(e) => {}}
-        setEditorState={() => {}}
-    />
+    return <>
+        <div className="text-gray-800 text-sm text-center block lg:hidden content-container p-1 w-full">
+            <p>Para ver qué cambió en esta versión del artículo entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
+            <p>Estamos trabajando para agregar esta funcionalidad en celulares.</p>
+        </div>
+        <div className="lg:block hidden">
+        <MyLexicalEditor
+            settings={settings}
+            setEditor={(e) => {}}
+            setEditorState={() => {}}
+        />
+        </div>
+    </>
 }

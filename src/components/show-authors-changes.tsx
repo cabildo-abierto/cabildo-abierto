@@ -75,9 +75,17 @@ export const ShowArticleAuthors = ({originalContent, originalContentText, entity
 
     let settings = wikiEditorSettings(true, originalContent, contentText)
 
-    return <MyLexicalEditor
-        settings={settings}
-        setEditor={(e) => {}}
-        setEditorState={() => {}}
-    />
+    return <>
+        <div className="text-gray-800 text-sm text-center block lg:hidden content-container p-1">
+            <p>Para ver qué usuario es autor de cada parte de este artículo entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
+            <p>Estamos trabajando para agregar esta funcionalidad en celulares.</p>
+        </div>
+        <div className="hidden lg:block">
+            <MyLexicalEditor
+                settings={settings}
+                setEditor={(e) => {}}
+                setEditorState={() => {}}
+            />
+        </div>
+    </>
 }

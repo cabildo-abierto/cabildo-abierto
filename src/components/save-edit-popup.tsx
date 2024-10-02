@@ -54,9 +54,9 @@ export const SaveEditPopup = ({
 
     return (
         <>
-            <div className="fixed inset-0 z-10 flex justify-center items-center">
+            <div className="fixed inset-0 z-10 flex justify-center items-center px-1">
                 
-                <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg">
+                <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg w-full">
                     <h2 className="py-4 text-lg">Confirmar cambios</h2>
                     <div className="mb-8">
                         Estás agregando <span className="text-green-600">{d.charsAdded}</span> caracteres y eliminando <span className="text-red-600">{d.charsDeleted}</span> caracteres.

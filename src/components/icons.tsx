@@ -38,18 +38,22 @@ export const RedFlag = () => {
 
 
 export const FastPostIcon = () => {
-    return <BoltIcon fontSize={"small"}/>
+    return <span className="text-gray-900">
+        <BoltIcon fontSize={"small"}/>
+    </span>
 }
 
 
 export const PostIcon = () => {
-    return <MuiArticleIcon fontSize={"small"}/>
+    return <span className="text-gray-900">
+        <MuiArticleIcon fontSize={"small"}/>
+    </span>
 }
 
 
 export const FastAndPostIcon = () => {
     return (
-        <span className="relative inline-block">
+        <span className="relative inline-block text-gray-900">
             <span className="absolute bottom-[-4px] right-[-5px]">
                 <PostIcon />
             </span>

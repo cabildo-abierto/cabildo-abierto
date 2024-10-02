@@ -258,7 +258,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
 export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: number}) => {
     const currentIndex = currentVersion(entity)
 
-    return <div className="mt-1">
+    const history = <div className="mt-1 hidden lg:block">
         {entity.versions.map((version, index) => {
         const versionIndex = entity.versions.length-1-index
         return <div key={index} className="w-full">
@@ -270,4 +270,12 @@ export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: n
             />
         </div>
     })}</div>
+
+    return <>
+        {history}
+        <div className="text-gray-800 text-sm text-center block lg:hidden">
+            <p>Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
+            <p>Estamos trabajando para agregar esta funcionalidad en celulares.</p>
+        </div>
+    </>
 }

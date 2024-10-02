@@ -40,14 +40,14 @@ const NeedSubscriptionPaywall: React.FC<any> = ({ children }) => {
 
     if(user.subscriptionsUsed.length == 0){
         return <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
-            <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
+            <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg mx-1">
                 <div className="py-4 text-lg">¡Bienvenido/a <UserName name={user.name}/> a Cabildo Abierto!</div>
                 <div className="text-justify text-gray-700">
                 <p>
                     Cabildo Abierto es una plataforma para la discusión pública argentina.
                 </p>
                 <p>
-                    Estamos empezando, así que si algo no funciona avisanos y si tenés ideas o sugerencias, son muy bienvenidas.
+                    Estamos empezando, así que si algo no funciona avisanos y si tenés ideas o sugerencias son muy bienvenidas.
                 </p>
                 <p className="text-center">
                     ¡Esperamos que disfrutes la plataforma!

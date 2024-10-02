@@ -113,8 +113,10 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
 
             {<div className="flex flex-col items-center justify-center py-2">
                 {user.subscriptionsUsed.length == 0 && 
-                <div className="text-sm text-[var(--text-light)]">
-                    Opción disponible cuando hayas usado tu prueba gratuita.
+                <div className="flex flex-col justify-center mt-4 lg:w-96 w-72 link text-center space-y-3 text-sm text-[var(--text-light)] mb-1">
+                    <p>
+                        Opción disponible cuando hayas usado tu prueba gratuita.
+                    </p>
                 </div>}
                 <SubscriptionOptionButton
                     title="Usar una suscripción donada"

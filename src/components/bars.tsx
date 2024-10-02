@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ReactNode, useState } from "react";
+import React, { useState } from "react";
 import { useSearch } from "./search-context";
 import Sidebar from "./sidebar";
 import Topbar from "./top-bar";
