@@ -28,11 +28,9 @@ import { CAN_USE_DOM } from './shared/canUseDOM';
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CommentPlugin from './plugins/CommentPlugin';
-import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
-import EmojisPlugin from './plugins/EmojisPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
 import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
@@ -190,8 +188,6 @@ function Editor({ settings, setEditor, setEditorState }:
         <DragDropPaste />
         {isAutofocus && <AutoFocusPlugin />}
         <ClearEditorPlugin />
-        <ComponentPickerPlugin />
-        <EmojisPlugin />
 
         <BeautifulMentionsPlugin
           triggers={["@"]}
