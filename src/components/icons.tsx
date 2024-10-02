@@ -4,37 +4,29 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import MuiArticleIcon from '@mui/icons-material/Article';
 import BookIcon from '@mui/icons-material/Book';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import GradeOutlinedIcon from '@mui/icons-material/GradeOutlined';
 import GradeIcon from '@mui/icons-material/Grade';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard'
-import CommentIcon from '@mui/icons-material/Comment';
-import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 import AbcIcon from '@mui/icons-material/Abc';
 import MuiLinkIcon from '@mui/icons-material/Link';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import HomeIcon from '@mui/icons-material/Home';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
-import CottageOutlinedIcon from '@mui/icons-material/CottageOutlined';
 import NotificationsIconMui from '@mui/icons-material/Notifications';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import SendIconMui from '@mui/icons-material/Send';
-import PersonIcon from '@mui/icons-material/Person';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import UndoIconMui from '@mui/icons-material/Undo';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIconMui from '@mui/icons-material/Cancel';
 
+import CreateIcon from '@mui/icons-material/Create';
 import CloseIcon from '@mui/icons-material/Close';
 
 
@@ -214,4 +206,9 @@ export const RejectEditIcon = () => {
 
 export const CloseButtonIcon = () => {
     return <div className="rounded-lg hover:bg-[var(--secondary-light)]"><CloseIcon/></div>
+}
+
+
+export const WriteButtonIcon = () => {
+    return <CreateIcon/>
 }

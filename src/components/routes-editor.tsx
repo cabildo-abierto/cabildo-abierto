@@ -178,7 +178,7 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
         // TO DO: Pedir confirmación si crea una nueva categoría
         // TO DO: Chequear que otro no haya editado en el medio
         if(user.user) {
-            await updateEntity(content.compressedText, JSON.stringify(categories), entity.id, user.user.id, true)
+            await updateEntity(content.compressedText, JSON.stringify(categories), entity.id, user.user.id, true, "")
             mutate("/api/entitiy/"+entity.id)
             mutate("/api/entities")
             setEditing(false)
