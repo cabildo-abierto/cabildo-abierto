@@ -25,7 +25,7 @@ export const SubcategoriesDropDown = ({ nextCategories, route, setRoute, selecte
     }, [viewSubcategories]);
 
     return (
-        <div className="relative ml-2" ref={dropdownRef}> {/* Make the parent div relative */}
+        <div className="relative ml-2" ref={dropdownRef}>
             <ToggleButton 
                 className="filter-btn"
                 setToggled={setViewSubcategories}

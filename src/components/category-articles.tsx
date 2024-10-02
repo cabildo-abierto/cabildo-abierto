@@ -12,7 +12,7 @@ function popularityScore(entity: SmallEntityProps){
 }
 
 
-const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
+const ArticlesWithSearch = ({entities, route}: {entities: SmallEntityProps[], route: string[]}) => {
     const {searchValue} = useSearch()
 
     function isMatch(entity: SmallEntityProps){
@@ -27,7 +27,7 @@ const ArticlesWithSearch = ({entities}: {entities: SmallEntityProps[]}) => {
     return <div className="flex flex-col items-center w-full">
         {entitiesWithScore.length > 0 ? entitiesWithScore.map((entity, index) => (
             <div key={entity.entity.id} className="py-1 w-full flex justify-center">
-                <EntitySearchResult entity={entity.entity}/>
+                <EntitySearchResult route={route} entity={entity.entity}/>
             </div>
         )) : 
         <NoResults text="No se encontró ningún artículo."/>}
@@ -41,7 +41,10 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
     
     return <>
         {routeEntities.entities.length > 0 ? 
-            <ArticlesWithSearch entities={routeEntities.entities}/>
+            <ArticlesWithSearch
+                entities={routeEntities.entities}
+                route={route}
+            />
              : 
         <div className="flex justify-center">
             No se encontraron artículos.
