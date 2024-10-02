@@ -1,6 +1,5 @@
 "use client"
 import React, { useEffect, useState } from "react"
-import { useRouter } from "next/navigation";
 import { CategoryArticles } from "./category-articles";
 import { CategoryUsers } from "./category-users";
 import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents";
@@ -11,14 +10,14 @@ import { ConfiguredFeed } from "./sorted-and-filtered-feed";
 
 
 type RouteContentProps = {
-    route: string[], 
+    route: string[],
+    setRoute: (v: string[]) => void
     paramsSelected?: string
     showRoute?: boolean
 }
 
 
-export const RouteContent = ({route, paramsSelected, showRoute=true}: RouteContentProps) => {
-    const router = useRouter()
+export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: RouteContentProps) => {
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "General")
     const feed = useRouteFeed(route)
     const followingFeed = useRouteFollowingFeed(route)
@@ -43,6 +42,7 @@ export const RouteContent = ({route, paramsSelected, showRoute=true}: RouteConte
     return <div className="w-full">
         <MainFeedHeader
             route={route}
+            setRoute={setRoute}
             selected={selected}
             onSelection={onSelection}
             showRoute={showRoute}

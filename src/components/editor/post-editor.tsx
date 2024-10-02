@@ -3,12 +3,11 @@
 import MyLexicalEditor, { initializeEmpty, SettingsProps } from "./lexical-editor"
 import { useState } from "react"
 import StateButton from "../state-button"
-import { $getRoot, EditorState, LexicalEditor } from "lexical"
-import { emptyOutput, hasChanged, validFastPost } from "./comment-editor"
+import { EditorState, LexicalEditor } from "lexical"
+import { emptyOutput, hasChanged, validPost } from "../utils"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { TitleInput } from "./title-input"
-import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 import { useSWRConfig } from "swr"
 import { useUser } from "../../app/hooks/user"
 import { createPost, publishDraft, updateContent } from "../../actions/contents"
@@ -43,7 +42,7 @@ const PostEditor = ({
         emptyEditor: false,
         isAutocomplete: false,
         isCharLimit: true,
-        charLimit: isFast ? 281 : undefined,
+        charLimit: isFast ? 500 : 500000,
         isCharLimitUtf8: false,
         isCollab: false,
         isMaxLength: false,
@@ -115,7 +114,7 @@ const PostEditor = ({
     let disabled = !editor || 
         emptyOutput(editorState) ||
         (!isFast && title.length == 0) ||
-        (isFast && !validFastPost(editorState, settings.charLimit)) ||
+        (!validPost(editorState, settings.charLimit)) ||
         (isDraft && !hasChanged(editorState, initialData)) || submitting
 
 	const PublishButton = ({onClick}: {onClick: (e) => Promise<boolean>}) => {

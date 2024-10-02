@@ -21,7 +21,7 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import * as React from 'react';
 import useLayoutEffect from '../../shared/useLayoutEffect';
 import Button from '../../ui/Button';
-import { commentEditorSettings, emptyOutput } from '../../comment-editor';
+import { commentEditorSettings } from '../../comment-editor';
 import { useSWRConfig } from 'swr';
 import { useUser } from '../../../../app/hooks/user';
 import { ContentProps } from '../../../../app/lib/definitions';
@@ -29,6 +29,7 @@ import StateButton from '../../../state-button';
 
 import MyLexicalEditor from '../../lexical-editor'
 import { compress } from '../../../compression';
+import { emptyOutput } from '../../../utils';
 
 
 export function CommentInputBox({

@@ -49,8 +49,8 @@ const NeedSubscriptionPaywall: React.FC<any> = ({ children }) => {
                 <p>
                     Estamos empezando, así que si algo no funciona avisanos y si tenés ideas o sugerencias, son muy bienvenidas.
                 </p>
-                <p>
-                    ¡Esperamos que disfrutes de la plataforma!
+                <p className="text-center">
+                    ¡Esperamos que disfrutes la plataforma!
                 </p>
                 </div>
                 <div className="flex justify-center items-center mt-8 space-x-4">

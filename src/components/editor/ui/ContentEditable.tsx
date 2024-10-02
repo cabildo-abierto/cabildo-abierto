@@ -27,7 +27,7 @@ export default function LexicalContentEditable({
   return (
     <ContentEditable
       spellCheck={false}
-      className={className ?? 'ContentEditable__root'}
+      className={className ?? ('ContentEditable__root ' + settings.editorClassName)}
       aria-placeholder={placeholder}
       placeholder={
         <div className={placeholderClassName}>

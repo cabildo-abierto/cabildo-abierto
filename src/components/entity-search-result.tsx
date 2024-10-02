@@ -27,8 +27,10 @@ export const EntitySearchResult: React.FC<{entity: SmallEntityProps}> = ({ entit
           <div className="flex w-full items-center">
             <div className="w-full">
 
-              <div className="w-full py-2 px-1">
-                <PostTitleOnFeed title={entity.name} />
+              <div className="w-full mt-1 mb-2 px-1">
+                <span className="text-lg text-gray-900">
+                  {entity.name}
+                </span>
               </div>
 
               <div className="flex justify-end">

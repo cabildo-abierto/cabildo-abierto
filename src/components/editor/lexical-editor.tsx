@@ -63,9 +63,13 @@ import { ContentProps } from '../../app/lib/definitions';
 
 
 const CharLimitComponent = ({remainingCharacters} : {remainingCharacters: number}) => {
-  return <div className="flex justify-end text-sm text-[var(--text-light)]">
+  if(remainingCharacters < 100){
+    return <div className="flex justify-end text-sm text-[var(--text-light)]">
     Caracteres restantes: {remainingCharacters}
   </div>
+  } else {
+    return <></>
+  }
 }
 
 
@@ -134,8 +138,6 @@ function Editor({ settings, setEditor, setEditorState }:
     showTreeView,
     showTableOfContents,
     shouldUseLexicalContextMenu,
-    tableCellMerge,
-    tableCellBackgroundColor,
     showToolbar,
     isComments,
     isDraggableBlock,
@@ -145,7 +147,6 @@ function Editor({ settings, setEditor, setEditorState }:
     editorClassName,
     content,
     placeholderClassName,
-    initialData,
     charLimit
   } = settings
 
@@ -216,7 +217,7 @@ function Editor({ settings, setEditor, setEditorState }:
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
               contentEditable={
-                <div className={"editor-scroller " + editorClassName}>
+                <div className={"editor-scroller"}>
                   <div className="editor" ref={onRef}>
                     <ContentEditable placeholder={placeholder} placeholderClassName={settings.placeholderClassName} settings={settings}/>
                   </div>

@@ -66,16 +66,19 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
     </div>
 
     return <>
-        <div className="px-4 w-full">
+        <div className="px-4 w-full flex flex-col justify-center items-center">
             <div className="flex justify-center">
                 <h2>
                     Elegí tu suscripción
                 </h2>
             </div>
 
-            <div className="flex justify-center mt-4">
-                <p className="lg:w-96 w-64 link text-center">
+            <div className="flex flex-col justify-center mt-4 lg:w-96 w-64 link text-justify space-y-3">
+                <p className="">
                     Cabildo Abierto está hecha para sus usuarios. Por eso, se financia exclusivamente con suscripciones.
+                </p>
+                <p>
+                    Las suscripciones se usan para financiar el desarrollo de la plataforma y a los autores de los contenidos que leas. <Link href="/articulo/Cabildo_Abierto:_Suscripciones">Más información.</Link>
                 </p>
             </div>
         </div>
@@ -114,7 +117,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
                     Opción disponible cuando hayas usado tu prueba gratuita.
                 </div>}
                 <SubscriptionOptionButton
-                    title="Continuar gratis"
+                    title="Usar una suscripción donada"
                     description={desc2}
                     price="$0"
                     disabled={poolSize.poolSize == 0 || user.subscriptionsUsed.length == 0}
