@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
 import LoadingSpinner from "../loading-spinner"
 import { ChangesCounter } from "../changes-counter"
-import { hasChanged } from "./comment-editor"
+import { hasChanged } from "../utils"
 import { ContentProps, EntityProps } from "../../app/lib/definitions"
 import { updateEntity } from "../../actions/entities"
 import { useUser } from "../../app/hooks/user"

@@ -50,7 +50,7 @@ export default function PlanClasico() {
                 </h2>
             </div>
 
-            <div className="mt-16 flex justify-center items-center">
+            <div className="mt-16 mb-16 flex justify-center items-center">
                 {price.price ? <>${price.price.price} por mes.</> : <></>}
             </div>
 

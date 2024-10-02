@@ -8,7 +8,7 @@ import { ActiveLikeIcon, StatsIcon, ArticleIcon, PostIcon } from "../../componen
 import { FixedCounter } from "../../components/like-counter"
 import LoadingSpinner from "../../components/loading-spinner"
 import { PostTitleOnFeed } from "../../components/post-on-feed"
-import { ShowContributors, ShowUserContribution } from "../../components/show-contributors"
+import { ShowUserContribution } from "../../components/show-contributors"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import InfoPanel from "../../components/info-panel"
 import { ReactNode } from "react"

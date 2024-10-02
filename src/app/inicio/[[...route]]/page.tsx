@@ -1,9 +1,7 @@
 "use client"
-import React, { useEffect } from "react"
+import React, { useState } from "react"
 import { RouteContent } from "../../../components/route-content"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
-import { preload } from "swr"
-import { fetcher } from "../../hooks/utils"
 
 
 const TopicsPage: React.FC<{
@@ -12,8 +10,11 @@ const TopicsPage: React.FC<{
 }> = ({params, searchParams}) => {
     const decodedRoute = params.route ? params.route.map(decodeURIComponent) : []
 
+    const [route, setRoute] = useState(decodedRoute)
+
     const center = <RouteContent
-        route={decodedRoute}
+        route={route}
+        setRoute={setRoute}
     />
 
     return <ThreeColumnsLayout center={center} />

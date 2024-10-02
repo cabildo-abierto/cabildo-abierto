@@ -1,16 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import Link from "next/link";
-import AddIcon from '@mui/icons-material/Add';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { ToggleButton } from "./toggle-button";
 
-function routeToUrl(route: string[]){
-    return "/inicio/" + route.map(encodeURIComponent).join("/")
-}
 
-export const SubcategoriesDropDown = ({ nextCategories, route, selected }: { nextCategories: string[], route: string[], selected: string }) => {
+export const SubcategoriesDropDown = ({ nextCategories, route, setRoute, selected }: { nextCategories: string[], route: string[], setRoute: (v: string[]) => void, selected: string }) => {
     const [viewSubcategories, setViewSubcategories] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -45,13 +37,13 @@ export const SubcategoriesDropDown = ({ nextCategories, route, selected }: { nex
                     <div className="w-64 absolute top-full mt-2 left-0 z-10"> {/* Position the dropdown absolutely */}
                         {[...nextCategories].map((nextCategory: string, index: number) => (
                             <div key={index}>
-                                <Link href={routeToUrl([...route, nextCategory])+"?selected="+selected}>
-                                    <button className="subcategories-dropdown w-full bg-[var(--background)] py-1 mt-1 px-2">
-                                        <span className="flex justify-center w-full content text-[var(--primary)]">
-                                            {nextCategory}
-                                        </span>
-                                    </button>
-                                </Link>
+                                <button
+                                    onClick={() => {setRoute([...route, nextCategory])}}
+                                    className="subcategories-dropdown w-full bg-[var(--background)] py-1 mt-1 px-2">
+                                    <span className="flex justify-center w-full content text-[var(--primary)]">
+                                        {nextCategory}
+                                    </span>
+                                </button>
                             </div>
                         ))}
                     </div>

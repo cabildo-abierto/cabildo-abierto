@@ -6,6 +6,7 @@ import { Route } from "./wiki-categories"
 
 type MainFeedHeaderProps = {
     route: string[]
+    setRoute: (v: string[]) => void
     selected: string
     onSelection: (v: string) => void
     showRoute: boolean
@@ -17,7 +18,7 @@ type MainFeedHeaderProps = {
 
 
 export const MainFeedHeader = ({
-    route, selected, onSelection, showRoute, order, setOrder, filter, setFilter
+    route, setRoute, selected, onSelection, showRoute, order, setOrder, filter, setFilter
 }: MainFeedHeaderProps) => {
     return <div className="mt-2">
         <div className="content-container pt-1 mb-1">
@@ -27,7 +28,7 @@ export const MainFeedHeader = ({
                     Estás viendo:
                 </span>
                 <div className="flex pb-2 items-center px-2">
-                    <Route route={route} selected={selected}/>
+                    <Route route={route} setRoute={setRoute} selected={selected}/>
                 </div>
             </div>
         }
