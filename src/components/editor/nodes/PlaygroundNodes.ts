@@ -16,7 +16,6 @@ import {HorizontalRuleNode} from '@lexical/react/LexicalHorizontalRuleNode';
 import {HeadingNode, QuoteNode} from '@lexical/rich-text';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 
-import {EmojiNode} from './EmojiNode';
 import {ImageNode} from './ImageNode';
 import {InlineImageNode} from './InlineImageNode/InlineImageNode';
 import {KeywordNode} from './KeywordNode';
@@ -40,7 +39,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   AutoLinkNode,
   ImageNode,
   InlineImageNode,
-  EmojiNode,
   KeywordNode,
   HorizontalRuleNode,
   LayoutContainerNode,
