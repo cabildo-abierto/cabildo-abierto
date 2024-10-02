@@ -130,7 +130,7 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
 }
   
   
-export const updateEntity = async (compressedText: string, categories: string, entityId: string, userId: string, claimsAuthorship: boolean) => {
+export const updateEntity = async (compressedText: string, categories: string, entityId: string, userId: string, claimsAuthorship: boolean, editMsg: string) => {
     const text = decompress(compressedText)
     let references = await findReferences(text)
 
@@ -164,7 +164,8 @@ export const updateEntity = async (compressedText: string, categories: string, e
                 connect: {
                     id: entityId
                 }
-            } : undefined
+            } : undefined,
+            editMsg: editMsg
         }
     })
 
@@ -401,6 +402,7 @@ export async function getEntityByIdNoCache(id: string){
                     rejectedById: true,
                     accCharsAdded: true,
                     contribution: true,
+                    editMsg: true,
                     undos: {
                         select: {
                             id: true,

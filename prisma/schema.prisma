@@ -238,6 +238,8 @@ model Content {
 
   stallPaymentUntil  DateTime?
 
+  editMsg          String?
+
   @@schema("public")
 }
 

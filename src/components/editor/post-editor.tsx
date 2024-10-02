@@ -65,7 +65,7 @@ const PostEditor = ({
         useCodeblock: false,
         placeholder: "Escribí tu publicación acá...",
         initialData: initialData ? initialData : initializeEmpty(""),
-        editorClassName: "content mt-4",
+        editorClassName: "content",
         isReadOnly: false,
         isAutofocus: true,
         placeholderClassName: "ContentEditable__placeholder"

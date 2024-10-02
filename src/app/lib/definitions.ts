@@ -98,6 +98,7 @@ export type EntityProps = {
             reactions: number
         }
         uniqueViewsCount: number
+        editMsg?: string
     }[]
     referencedBy: SmallContentProps[]
     deleted: boolean,

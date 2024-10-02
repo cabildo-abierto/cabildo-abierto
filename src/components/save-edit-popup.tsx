@@ -13,17 +13,31 @@ import StateButton from "./state-button";
 import TickButton from "./tick-button";
 import { hasEditPermission } from "./utils";
 
+
+const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: string) => void}) => {
+    return <input
+        className="custom-input"
+        value={value}
+        onChange={(e) => {setValue(e.target.value)}}
+        placeholder="Una descripción de lo que cambiaste (opcional)"
+        maxLength={50}
+    />
+}
+
+
 export const SaveEditPopup = ({ 
     editorState, currentVersion, onClose, onSave, entity }: {
         editorState: EditorState,
         currentVersion: string
         onClose: () => void,
-        onSave: (v: boolean) => void,
+        onSave: (v: boolean, editMsg: string) => void,
         entity: EntityProps
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useUser()
     const jsonState = JSON.stringify(editorState)
+    const [editMsg, setEditMsg] = useState("")
+
     const d = charDiffFromJSONString(currentVersion, jsonState)
     
     const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al artículo el texto de una Ley, o algo escrito por otra persona. Si lo desactivás no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href="/articulo/Cabildo_Abierto:_Derechos_de_autor">Más información</Link>
@@ -47,16 +61,19 @@ export const SaveEditPopup = ({
                     <div className="mb-8">
                         Estás agregando <span className="text-green-600">{d.charsAdded}</span> caracteres y eliminando <span className="text-red-600">{d.charsDeleted}</span> caracteres.
                     </div>
+                    <div className="flex justify-center mb-8">
+                        <EditMessageInput value={editMsg} setValue={setEditMsg}/>
+                    </div>
                     {!hasEditPermission(user, entity.protection) && <div className="mb-8">
                     <NotEnoughPermissionsWarning entity={entity}/>
                     </div>}
-                    {true && <div className="flex justify-center">
+                    <div className="flex justify-center">
                         <TickButton
                             ticked={claimsAuthorship}
                             setTicked={setClaimsAuthorship}
                             text={<span className="text-sm text-gray-700">Soy autor/a de los caracteres agregados. <InfoPanel text={infoAuthorship} className="w-72"/></span>}
                         />
-                        </div>}
+                    </div>
                     <div className="flex justify-center items-center space-x-4 mt-4">
                         <button
                             className="gray-btn w-48"
@@ -66,7 +83,7 @@ export const SaveEditPopup = ({
                         </button>
                         <StateButton
                             className="gray-btn w-48"
-                            onClick={async (e) => {await onSave(claimsAuthorship); onClose(); return true}}
+                            onClick={async (e) => {await onSave(claimsAuthorship, editMsg); onClose(); return true}}
                             text1="Confirmar"
                             text2="Guardando..."
                         />

@@ -51,7 +51,7 @@ export const wikiEditorSettings = (
     useCodeblock: false,
     placeholder: "Este artículo está vacío!",
     initialData: contentText,
-    editorClassName: "content mt-4 text-justify",
+    editorClassName: "content text-justify",
     isReadOnly: readOnly,
     content: content,
     isAutofocus: false,
@@ -96,12 +96,12 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         return <LoadingSpinner/>
     }
 
-    async function saveEdit(claimsAuthorship: boolean){
+    async function saveEdit(claimsAuthorship: boolean, editMsg: string){
         if(editor){
             editor.read(async () => {
                 if(user.user){
                     setEditing(false)
-                    await updateEntity(compress(JSON.stringify(editor.getEditorState())), content.categories, entity.id, user.user.id, claimsAuthorship)
+                    await updateEntity(compress(JSON.stringify(editor.getEditorState())), content.categories, entity.id, user.user.id, claimsAuthorship, editMsg)
                     mutate("/api/entities")
                     mutate("/api/entity/"+entity.id)
                     mutate("/api/contributions/"+entity.id)

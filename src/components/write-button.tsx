@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import CreateIcon from '@mui/icons-material/Create';
 import Link from 'next/link';
 import TickButton from './tick-button';
 import StateButton from './state-button';
 import { useRouter } from 'next/navigation';
 import { useSWRConfig } from 'swr';
 import CloseIcon from '@mui/icons-material/Close';
-import { ArticleIcon, FastPostIcon, PostIcon } from './icons';
+import { ArticleIcon, FastPostIcon, PostIcon, WriteButtonIcon } from './icons';
 import InfoPanel from './info-panel';
 import { useUser } from '../app/hooks/user';
 import { createEntity } from '../actions/entities';
@@ -128,7 +127,7 @@ const WriteButton = () => {
                     className="topbar-btn"
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
-                    <CreateIcon />
+                    <WriteButtonIcon />
                 </button>
             </div>
 

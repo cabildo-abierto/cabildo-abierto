@@ -62,7 +62,6 @@ export const ShowContributors = ({entityId, userId}:
         </div>
     }
 
-    console.log("last version contribution is", lastVersion.contribution)
     let contributions: [string, number][] = JSON.parse(lastVersion.contribution)
     
     const total = lastVersion.accCharsAdded

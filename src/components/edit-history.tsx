@@ -6,7 +6,7 @@ import LoadingSpinner, { SmallLoadingSpinner } from "./loading-spinner"
 import { ContentProps, EntityProps, UserProps } from "../app/lib/definitions"
 import { useContent } from "../app/hooks/contents"
 import { useRouter } from "next/navigation"
-import { ActiveCommentIcon, AuthorshipClaimIcon, ConfirmEditIcon, InactiveCommentIcon, NoAuthorshipClaimIcon, RejectEditIcon, ViewsIcon } from "./icons"
+import { ActiveCommentIcon, AuthorshipClaimIcon, ConfirmEditIcon, NoAuthorshipClaimIcon, RejectEditIcon, UndoIcon, ViewsIcon, WriteButtonIcon } from "./icons"
 import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
@@ -15,17 +15,17 @@ import { currentVersion, hasEditPermission, isUndo } from "./utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./accept-button-panel"
 import { NoEditPermissionsMsg } from "./no-edit-permissions-msg"
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 
-const EditDetails = ({content, prev}: {content: ContentProps, prev: ContentProps | undefined}) => {
-    if(!prev){
-        return <span>Creación</span>
+
+const EditDetails = ({type}: {type: string}) => {
+    if(type == "Creación"){
+        return <span className=""></span>
     } else {
-        if(content.compressedText != prev.compressedText){
-            return <span>Contenido</span>
-        } else if(content.categories != prev.categories){
-            return <span>Categorías</span>
+        if(type == "Categorías"){
+            return <span className="text-sm">Categorías</span>
         } else {
-            return <span>Sin cambios</span>
+            return <span className="text-sm">Contenido</span>
         }
     }
 }
@@ -104,6 +104,13 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
 }
 
 
+const EditMessage = ({msg, type}: {msg?: string, type: string}) => {
+    return <span className="text-sm">
+        {(msg != null && msg.length > 0) ? msg : (type == "Contenido" ? "sin descripción" : "")}
+    </span>
+}
+
+
 const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     const [showingRemoveAuthorshipPanel, setShowingRemoveAuthorshipPanel] = useState(false)
     const content = useContent(entity.versions[index].id)
@@ -138,20 +145,23 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     let baseMsg = null
 
     if(isUndone){
-        baseMsg = <span>Deshecho </span>
+        baseMsg = <span><UndoIcon/> </span>
     } else if(isCurrent){
-        baseMsg = <span>Versión oficial</span>
+        baseMsg = <span><DoubleArrowIcon/></span>
     } else if(isPending){
         baseMsg = <ConfirmEditButtons editPermission={editPermission} entity={entity} contentId={content.content.id} user={user.user}/>
     } else if(isRejected){
-        baseMsg = <span>Rechazado</span>
+        baseMsg = <span><RejectEditIcon/></span>
     } else {
-        baseMsg = <span>Versión anterior</span>
+        baseMsg = <span></span>
     }
 
-    let className = "w-full h-10 px-2 py-2 link cursor-pointer mr-1 flex items-center " + (selected ? "border-2" : "border")
+    let className = "w-full h-12 px-2 py-2 link cursor-pointer mr-1 flex items-center " + (selected ? "border-2" : "border")
 
     className = className + ((isUndone || isRejected) ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
+
+    const prevContent = index > 0 ? prev.content : undefined
+    const type = index == 0 ? "Creación" : (prevContent.categories != content.content.categories ? "Categorías" : "Contenido")
 
     return <div className="flex items-center w-full pb-1">
         {<div className={"px-2 " + (selected ? "text-gray-400" : "text-transparent")}>
@@ -170,11 +180,11 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
             
             <div className="flex items-center space-x-2 w-full">
                 
-                <div className="text-sm font-bold w-32">
+                <div className="text-sm w-16">
                     {baseMsg}
                 </div>
 
-                <div className="w-32 text-sm">
+                <div className="w-16 text-sm text-gray-900">
                     <DateSince date={content.content.createdAt}/>
                 </div>
                 
@@ -182,11 +192,18 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                     <Authorship content={content.content} onlyAuthor={true}/>
                 </div>
                 
-                <div className="w-32 text-sm">
-                    <EditDetails content={content.content} prev={index > 0 ? prev.content : undefined}/>
+                <div className="w-24 text-sm text-gray-900">
+                    <EditDetails type={type}/>
                 </div>
                 
-                <div className="w-32 flex items-center space-x-2">
+                <div className="w-48 text-sm text-center text-gray-900">
+                    <EditMessage
+                        msg={entity.versions[index].editMsg}
+                        type={type}
+                    />
+                </div>
+
+                <div className="w-32 flex items-center space-x-2 text-gray-900">
                     {(isCurrent && index > 0) ? <UndoButton entity={entity} version={index}/> : <></>}
                     
                     {(isUndone || isRejected) && <button className="hover:scale-105" onClick={onDiscussionClick}>
