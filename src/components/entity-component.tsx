@@ -55,17 +55,15 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
             />
         }
     } else if(isMainPage){
-        return <div className="px-2 min-h-64">
-            <WikiEditor 
-                version={version}
-                entity={entity.entity}
-                content={content}
-                showingChanges={showingChanges}
-                readOnly={!editing}
-                showingAuthors={showingAuthors}
-                setEditing={setEditing}
-            />
-        </div>
+        return <WikiEditor 
+            version={version}
+            entity={entity.entity}
+            content={content}
+            showingChanges={showingChanges}
+            readOnly={!editing}
+            showingAuthors={showingAuthors}
+            setEditing={setEditing}
+        />
     } else {
         return <EntityEditInFeed content={content} entity={entity.entity} version={version}/>
     }

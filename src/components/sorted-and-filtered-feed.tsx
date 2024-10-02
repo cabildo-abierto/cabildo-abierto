@@ -5,9 +5,9 @@ import LoadingSpinner from "./loading-spinner"
 import { useSearch } from "./search-context"
 import { cleanText } from "./utils"
 
-// TO DO: Agregar la cantidad de personas distintas que comentaron
+// TO DO: Agregar la cantidad de personas distintas que comentaron, sin contar al autor
 function popularityScore(content: SmallContentProps){
-    return content._count.reactions + content._count.childrenTree
+    return content._count.reactions
 }
 
 function comp(a: {score: number}, b: {score: number}){

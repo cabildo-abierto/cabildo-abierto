@@ -90,30 +90,28 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
         return <LoadingSpinner/>
     }
 
-    return <div className="flex items-center py-2">
-        <button className="flex items-center route-edit-btn" onClick={removeCategory}>
+    return <div className="flex items-center py-2 flex-wrap">
+        <button className="flex items-center" onClick={removeCategory}
+            title="Remover categoría"
+        >
             <div className="px-1 py-1 flex items-center">
             <RemoveCircleOutlineIcon fontSize="small"/>
             </div>
         </button>
-        <div className="flex">
-            {category.map((c, i) => {
-                const isNew = i >= newIndex
-                return <div key={i}>
-                    <CategoryInput
-                        isNew={isNew}
-                        update={(v) => {updateCategoryAt(i, v)}}
-                        category={c}
-                        availableCategories={getNextCategories(category.slice(0, category.length-1), entities.entities)}
-                    />
-                </div>
-            })}
-            <button className="route-edit-btn px-1 py-1" onClick={() => {updateCategory(category.concat([""]))}}>
-                <AddCircleOutlineIcon fontSize="small"/>
-            </button>
-        </div>
-        <div className="ml-2">
-        </div>
+        {category.map((c, i) => {
+            const isNew = i >= newIndex
+            return <div key={i}>
+                <CategoryInput
+                    isNew={isNew}
+                    update={(v) => {updateCategoryAt(i, v)}}
+                    category={c}
+                    availableCategories={getNextCategories(category.slice(0, category.length-1), entities.entities)}
+                />
+            </div>
+        })}
+        <button className="px-1 py-1" onClick={() => {updateCategory(category.concat([""]))}} title="Nueva subcategoría">
+            <AddCircleOutlineIcon fontSize="small"/>
+        </button>
     </div>
 }
 
@@ -121,7 +119,7 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
 const NewCategory = ({addCategory}: any) => {
 
     return <div className="flex items-center py-2">
-        <button className="route-edit-btn" onClick={addCategory}>
+        <button className="" onClick={addCategory} title="Nueva categoría">
             <div className="px-1 py-1 flex items-center">
                 <AddCircleOutlineIcon fontSize="small"/>
             </div>
@@ -186,23 +184,24 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
         return false
     }
 
-    return <div className="">
-        <div className="py-3"><hr/></div>
-        <EntityCategoriesTitle name={entity.name} editing={true}/>
-        <div className="flex">
-            <div className="w-72">
-                {categories.length > 0 ? categories.map((cat: string[], i: number) => {
-                    return <div key={i}><RouteEditor
-                        category={cat}
-                        removeCategory={removeCategory(i)}
-                        updateCategory={updateCategory(i)}
-                    /></div>
-                }) : 
-                <></>}
-                <NewCategory
-                    addCategory={addCategory}
-                />
-            </div>
+    return <div className="w-full">
+        <hr className="py-3"/>
+        <EntityCategoriesTitle
+            name={entity.name}
+            editing={true}
+        />
+        <div className="flex flex-col w-full">
+            {categories.length > 0 ? categories.map((cat: string[], i: number) => {
+                return <div key={i}><RouteEditor
+                    category={cat}
+                    removeCategory={removeCategory(i)}
+                    updateCategory={updateCategory(i)}
+                /></div>
+            }) : 
+            <></>}
+            <NewCategory
+                addCategory={addCategory}
+            />
         </div>
         <div className="flex justify-end">
             <button

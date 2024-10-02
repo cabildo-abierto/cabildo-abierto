@@ -10,7 +10,7 @@ export const EntityCategoriesTitle = ({name, editing}: {name: string, editing: b
     }
     
     return <div className="ml-1 mb-4 flex items-center">
-        <h3 className="mr-1">Categorías de {name}</h3>
+        <span className="mr-1 text-lg">Categorías de {name}</span>
         <InfoPanel text={info} className="w-96"/>
     </div>
 }

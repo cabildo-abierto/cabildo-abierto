@@ -57,7 +57,7 @@ export const MainFeedHeader = ({
                 onSelection={setOrder}
                 selected={order}
                 options={["Recientes", "Populares"]}
-                optionsNodes={[<span key={0}><RecentIcon/></span>, <span key={1}><PopularIcon/></span>]}
+                optionsNodes={[<span className="text-gray-900" key={0}><RecentIcon/></span>, <span className="text-gray-900" key={1}><PopularIcon/></span>]}
                 optionExpl={["Publicaciones ordenadas por fecha de publicación", "Publicaciones ordenadas por cantidad de reacciones positivas."]}
             />
             </div>

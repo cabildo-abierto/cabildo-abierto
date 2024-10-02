@@ -22,6 +22,7 @@ import { ThreeColumnsLayout } from "./three-columns";
 import { NoVisitsAvailablePopup } from "./no-visits-popup";
 import { currentVersion, isUndo } from "./utils";
 import { UndoDiscussion } from "./undo-discussion";
+import { articleButtonClassname } from "./editor/wiki-editor";
 
 
 const DeletedEntity = () => {
@@ -80,7 +81,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
         return <ToggleButton
             text="Editar"
             toggledText="Cancelar edición"
-            className="article-btn"
+            className={articleButtonClassname}
             setToggled={onEdit}
             toggled={editing}
         />
@@ -89,7 +90,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     const ViewHistoryButton = () => {
         return <ToggleButton
             text="Historial"
-            className="article-btn"
+            className={articleButtonClassname}
             setToggled={(v) => {setShowingHistory(v)}}
             toggled={showingHistory}
         />
@@ -98,7 +99,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     const ViewLastChangesButton = () => {
         return <ToggleButton
             text="Cambios"
-            className="article-btn"
+            className={articleButtonClassname}
             setToggled={(v) => {setShowingChanges(v); if(v) {setEditing(false); setShowingAuthors(false)}}}
             toggled={showingChanges}
         />
@@ -107,7 +108,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     const ViewAuthorsButton = () => {
         return <ToggleButton
             text="Autores"
-            className="article-btn"
+            className={articleButtonClassname}
             setToggled={(v) => {setShowingAuthors(v); if(v) {setEditing(false); setShowingChanges(false)}}}
             toggled={showingAuthors}
         />
@@ -116,7 +117,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     const ViewCategoriesButton = () => {
         return <ToggleButton
             text="Categorías"
-            className="article-btn"
+            className={articleButtonClassname}
             setToggled={(v) => {setShowingCategories(v)}}
             toggled={showingCategories}
         />
@@ -124,7 +125,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
 
     const DeleteArticleButton = () => {
         return <StateButton
-            className="article-btn"
+            className={articleButtonClassname}
             text1="Eliminar artículo"
             text2="Eliminando..."
             onClick={async (e) => {
@@ -141,7 +142,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
 
     const RecomputeContributionsButton = () => {
         return <StateButton
-            className="article-btn"
+            className={articleButtonClassname}
             text1="Recalcular contribuciones"
             text2="Recalculando..."
             onClick={async (e) => {
@@ -153,7 +154,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
 
     const RemoveHistoryButton = () => {
         return <StateButton
-            className="article-btn"
+            className={articleButtonClassname}
             text1="Eliminar historial"
             text2="Eliminando..."
             onClick={async (e) => {
@@ -170,7 +171,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
 
     const RebootArticleButton = () => {
         return <StateButton
-            className="article-btn"
+            className={articleButtonClassname}
             text1="Reiniciar"
             text2="Reiniciando..."
             onClick={async (e) => {
@@ -186,7 +187,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
 
     const MakePublicButton = () => {
         return <StateButton
-            className="article-btn"
+            className={articleButtonClassname}
             text1="Hacer público"
             text2="Haciendo público..."
             onClick={async (e) => {
@@ -202,7 +203,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
 
     const MakePrivateButton = () => {
         return <StateButton
-            className="article-btn"
+            className={articleButtonClassname}
             text1="Hacer privado"
             text2="Haciendo privado..."
             onClick={async (e) => {
@@ -219,7 +220,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     // TO DO: Terminar de implementar
     const RenameEntityButton = () => {
         return <StateButton
-            className="article-btn"
+            className={articleButtonClassname}
             text1="Renombrar"
             onClick={async (e) => {
                 if(user.user){
@@ -267,13 +268,13 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
                 </div>
             </div>
         </div>
-        <div className="hidden lg:block">
+        <div className="">
         {!editing && <div className="flex flex-wrap items-center px-2 space-x-2 border-b mt-4">
-            {<ViewHistoryButton/>}
-            {<ViewCategoriesButton/>}
-            {<ViewLastChangesButton/>}
-            {<ViewAuthorsButton/>}
-            {<EditButton/>}
+            <ViewHistoryButton/>
+            <ViewCategoriesButton/>
+            <ViewLastChangesButton/>
+            <ViewAuthorsButton/>
+            <EditButton/>
             {(user.user && user.user.editorStatus == "Administrator") &&
             <div className="flex justify-center py-2">
                 <SetProtectionButton entity={entity}/>
