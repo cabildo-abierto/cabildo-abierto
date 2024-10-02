@@ -3,10 +3,10 @@ import { Metadata } from 'next'
 //import { Roboto_Mono, Roboto, Roboto_Condensed, , Roboto_Slab, Roboto_Flex } from 'next/font/google'
 //import { Bodoni_Moda, Lora, Inter, Source_Serif_4, PT_Serif } from 'next/font/google'
 //import { PT_Serif } from 'next/font/google'
-import { Oswald, Roboto_Serif } from 'next/font/google'
+//import { Oswald, Roboto_Serif } from 'next/font/google'
 //import { Noto_Serif, Noto_Sans_SC, Inter, Playfair_Display, Ubuntu_Condensed, Ubuntu, Ubuntu_Mono } from 'next/font/google'
 //import { Roboto, Merriweather, Merriweather_Sans } from 'next/font/google'
-import { Merriweather, Playfair_Display, Halant, EB_Garamond } from 'next/font/google'
+import { Merriweather } from 'next/font/google'
 
 
 
@@ -17,7 +17,7 @@ const merriweather = Merriweather({
   weight: ["400", "700", "900"]
 })
 
-
+/*
 const halant = Halant({
   subsets: ['latin'],
   variable: '--font-halant',
@@ -49,7 +49,7 @@ const playfair = Playfair_Display({
   display: 'swap',
   weight: ["400", "500", "600", "700", "800", "900"]
 })
-
+*/
 
 /*const merriweather_sahalantns = Merriweather_Sans({
   subsets: ['latin'],
@@ -150,10 +150,6 @@ const fonts = [
     //noto_serif.variable,
     //playfair.variable,
     merriweather.variable,
-    oswald.variable,
-    playfair.variable,
-    halant.variable,
-    garamond.variable
     //roboto.variable,
     //merriweather_sans.variable
 ]

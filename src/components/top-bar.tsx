@@ -10,29 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { CabildoIcon, NotificationsIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
-import Image from "next/image"
-
-
-function TopbarLogo() {
-    return <div className="hover:bg-[var(--secondary-light)] rounded-lg h-10 py-1 px-2 w-24 flex justify-center items-center">
-        <Link href="/">
-            <div className="flex items-center">
-                <Image
-                    src="/cabildo-icono.svg"
-                    alt="Loading..."
-                    width={320}
-                    height={320}
-                    priority={true}
-                    className="w-8 h-8 rounded-sm"
-                />
-                <div className="ml-1 text-xs text-gray-900">
-                    <div>Cabildo</div>
-                    <div>Abierto</div>
-                </div>
-            </div>
-        </Link>
-    </div>
-}
+import { TopbarLogo } from "./logo";
 
 
 function FeedButton() {
@@ -83,8 +61,6 @@ type TopbarLoggedInProps = {
 function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) {
     const [searchBarOpen, setSearchBarOpen] = useState(false)
     const [wideScreen, setWideScreen] = useState(false)
-    const router = useRouter()
-    const path = usePathname()
 
     useEffect(() => {
         if (window.innerWidth >= 640) {

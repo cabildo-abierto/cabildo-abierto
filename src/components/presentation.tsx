@@ -86,7 +86,7 @@ export const Presentation: React.FC = () => {
         <div className="">
           <Logo className="lg:w-28 lg:h-28 h-16 w-16"/>
         </div>
-        <div className="ml-4 h-full flex justify-center flex-col">
+        <div className="ml-4 flex h-full justify-center flex-col">
           <h1 className="lg:text-5xl text-2xl">Cabildo Abierto</h1>
           <h3 className="text-gray-600 text-lg lg:text-3xl mt-2">Discutí lo público</h3>
         </div>

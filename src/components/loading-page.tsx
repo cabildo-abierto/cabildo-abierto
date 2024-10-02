@@ -3,7 +3,7 @@
 import React, { ReactNode } from 'react';
 import ReadOnlyEditor from './editor/read-only-editor';
 import { Logo } from './logo';
-import { useUser, useUserId } from '../app/hooks/user';
+import { useUser } from '../app/hooks/user';
 
 
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
