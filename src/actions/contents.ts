@@ -112,7 +112,12 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                 },
                 contentUndoneId: true,
                 reportsOportunism: true,
-                reportsVandalism: true
+                reportsVandalism: true,
+                ancestorContent: {
+                    select: {
+                        id: true
+                    }
+                }
             },
             where: {
                 id: id,

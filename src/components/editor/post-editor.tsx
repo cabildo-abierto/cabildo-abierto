@@ -42,7 +42,7 @@ const PostEditor = ({
         emptyEditor: false,
         isAutocomplete: false,
         isCharLimit: true,
-        charLimit: isFast ? 500 : 500000,
+        charLimit: isFast ? 500 : 1200000,
         isCharLimitUtf8: false,
         isCollab: false,
         isMaxLength: false,
