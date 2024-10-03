@@ -1,4 +1,4 @@
-import { UserProps, EntityProps, SmallEntityProps } from "../app/lib/definitions"
+import { UserProps, EntityProps, SmallEntityProps, EntityVersionProps } from "../app/lib/definitions"
 import { charDiffFromJSONString, getAllText } from "./diff"
 import { db } from "../db"
 import { decompress } from "./compression"
@@ -31,11 +31,6 @@ export function validSubscription(user: UserProps | undefined){
     nextSubscriptionEnd?.setMonth(lastPaymentDate.getMonth()+1)
     
     return nextSubscriptionEnd > new Date()
-}
-
-
-export const entityLastVersionId = (entity: EntityProps) => {
-    return entity.versions[entity.versions.length-1].id
 }
 
 
@@ -211,6 +206,12 @@ export function currentVersion(entity: {versions: {id: string}[], currentVersion
     }
     return entity.versions.length-1
 }
+
+
+export function currentVersionContent(entity: {versions: EntityVersionProps[], currentVersionId: string}){
+    return entity.versions[currentVersion(entity)]
+}
+
 
 
 export function getPlainText(jsonStr: string){

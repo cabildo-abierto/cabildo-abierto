@@ -105,7 +105,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
             editor.read(async () => {
                 if(user.user){
                     setEditing(false)
-                    await updateEntity(compress(JSON.stringify(editor.getEditorState())), content.categories, entity.id, user.user.id, claimsAuthorship, editMsg)
+                    await updateEntity(entity.id, user.user.id, claimsAuthorship, editMsg, compress(JSON.stringify(editor.getEditorState())), content.categories)
                     mutate("/api/entities")
                     mutate("/api/entity/"+entity.id)
                     mutate("/api/contributions/"+entity.id)

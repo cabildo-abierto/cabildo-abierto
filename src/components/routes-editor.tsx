@@ -5,7 +5,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
-import { entityLastVersionId, getNextCategories } from "./utils";
+import { currentVersion, currentVersionContent, getNextCategories } from "./utils";
 import { useSWRConfig } from "swr";
 import LoadingSpinner from "./loading-spinner";
 import { EntityCategoriesTitle } from "./categories";
@@ -31,6 +31,7 @@ type RouteEditorProps = {
     category: string[],
     removeCategory: () => void,
     updateCategory: (a: string[]) => void
+    routeIndex: number
 }
 
 
@@ -38,19 +39,21 @@ const CategoryInput = ({
     isNew,
     update,
     category,
-    availableCategories
+    availableCategories,
+    id
   }: {
     isNew: boolean;
     update: (v: string) => void;
     category: string;
-    availableCategories: string[];
+    availableCategories: string[]
+    id: string
   }) => {
     return (
       <div>
         <input
-          list="category-options"
+          list={id}
           className={
-            "border px-2 mx-1 py-1 rounded outline-none w-48 bg-[var(--background)]" +
+            "border px-2 mx-1 py-1 rounded outline-none w-48 bg-[var(--background)] my-1" +
             (isNew ? " border-[var(--primary)] border-2" : " border-[var(--accent)]")
           }
           placeholder={category}
@@ -59,10 +62,11 @@ const CategoryInput = ({
             update(e.target.value);
           }}
         />
-        <datalist id="category-options">
-          {availableCategories.map((cat, index) => (
+        <datalist id={id}>
+          {availableCategories.map((cat, index) => {
+            return (
             <option key={index} value={cat} />
-          ))}
+          )})}
         </datalist>
       </div>
     );
@@ -70,7 +74,7 @@ const CategoryInput = ({
 
 
 
-const RouteEditor = ({category, removeCategory, updateCategory}: 
+const RouteEditor = ({category, removeCategory, updateCategory, routeIndex}: 
     RouteEditorProps
 ) => {
     const entities = useRouteEntities([])
@@ -100,12 +104,15 @@ const RouteEditor = ({category, removeCategory, updateCategory}:
         </button>
         {category.map((c, i) => {
             const isNew = i >= newIndex
+            const next = getNextCategories(category.slice(0, i),entities.entities)
+            const id = i + " " + routeIndex + " " + category.slice(0, i).join("/")
             return <div key={i}>
                 <CategoryInput
                     isNew={isNew}
                     update={(v) => {updateCategoryAt(i, v)}}
                     category={c}
-                    availableCategories={getNextCategories(category.slice(0, category.length-1), entities.entities)}
+                    availableCategories={next}
+                    id={id}
                 />
             </div>
         })}
@@ -140,11 +147,12 @@ function areCategoriesEqual(cat1: string[][], cat2: string[][]){
 
 export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEditing: (v: boolean) => void}) => {
     const user = useUser()
-    const {content, isLoading, isError} = useContent(entityLastVersionId(entity))
+    const {content, isLoading} = useContent(currentVersionContent(entity).id)
     const entityCategories = (content && content.categories) ? JSON.parse(content.categories) : null
     const [categories, setCategories] = useState<string[][]>(entityCategories)
     const {mutate} = useSWRConfig()
 
+    if(isLoading) return <LoadingSpinner/>
     if(!content || !content.categories){
         return <>Ocurrió un error</>
     }
@@ -176,7 +184,7 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
         // TO DO: Pedir confirmación si crea una nueva categoría
         // TO DO: Chequear que otro no haya editado en el medio
         if(user.user) {
-            await updateEntity(content.compressedText, JSON.stringify(categories), entity.id, user.user.id, true, "")
+            await updateEntity(entity.id, user.user.id, true, "", undefined, JSON.stringify(categories))
             mutate("/api/entitiy/"+entity.id)
             mutate("/api/entities")
             setEditing(false)
@@ -192,11 +200,14 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
         />
         <div className="flex flex-col w-full">
             {categories.length > 0 ? categories.map((cat: string[], i: number) => {
-                return <div key={i}><RouteEditor
-                    category={cat}
-                    removeCategory={removeCategory(i)}
-                    updateCategory={updateCategory(i)}
-                /></div>
+                return <div key={i}>
+                    <RouteEditor
+                        category={cat}
+                        removeCategory={removeCategory(i)}
+                        updateCategory={updateCategory(i)}
+                        routeIndex={i}
+                    />
+                </div>
             }) : 
             <></>}
             <NewCategory
