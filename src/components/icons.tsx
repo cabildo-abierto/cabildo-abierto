@@ -25,27 +25,25 @@ import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import UndoIconMui from '@mui/icons-material/Undo';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIconMui from '@mui/icons-material/Cancel';
-
 import CreateIcon from '@mui/icons-material/Create';
 import CloseIcon from '@mui/icons-material/Close';
-
-
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { ReactNode } from 'react';
+
+
 export const RedFlag = () => {
     return <FlagIcon fontSize="small" className="text-red-600"/>
 }
 
 
 export const FastPostIcon = () => {
-    return <span className="text-gray-900">
+    return <span className="">
         <BoltIcon fontSize={"small"}/>
     </span>
 }
 
 
 export const PostIcon = () => {
-    return <span className="text-gray-900">
+    return <span className="">
         <MuiArticleIcon fontSize={"small"}/>
     </span>
 }

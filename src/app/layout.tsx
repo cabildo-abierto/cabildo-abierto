@@ -170,7 +170,7 @@ export default function RootLayout({
             <script defer src="https://cloud.umami.is/script.js" data-website-id="49c00411-610e-4f0c-ae51-3fe9e37aded3">
             </script>
 
-            <link rel="icon" href="/cabildo-icono.svg" />
+            <link rel="icon" href="/logo.svg" />
         </head>
         <body className="bg-[var(--background)]">
             {children}
