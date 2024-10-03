@@ -413,10 +413,10 @@ ol {
     max-width: 350px;
     height: calc(100vh - 3.5rem);
     background-color: rgba($background, 0.6);
-    overflow-y: auto; /* Enable vertical scrolling */
-    padding: 1rem; /* Add some padding */
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow to separate from main content */
-    z-index: 50; /* Ensure it stays on top of other content */
+    overflow-y: auto;
+    padding: 1rem;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    z-index: 50;
 }
 
 
