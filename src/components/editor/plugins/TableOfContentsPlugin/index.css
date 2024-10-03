@@ -6,6 +6,61 @@
  *
  */
 
+.table-of-contents {
+  color: #65676b;
+  position: fixed;
+  top: 15vh;
+  left: 10px; /* Moved from -35px to 10px */
+  padding: 10px;
+  width: 250px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  z-index: 1;
+  height: 70vh;
+}
+
+.headings {
+  list-style: none;
+  margin-top: 0;
+  margin-left: 0; /* Adjusted to align with the new position */
+  padding: 0;
+  overflow: scroll;
+  width: 100%; /* Updated width to use full width of parent */
+  height: 60vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.headings::before {
+  content: ' ';
+  position: absolute;
+  height: 60vh;
+  width: 4px;
+  left: 15px; /* Adjusted to keep the vertical line aligned */
+  margin-top: 5px;
+  background-color: #ccd0d5;
+  border-radius: 2px;
+  z-index: 0;
+}
+
+.selected-heading-wrapper::before {
+  content: ' ';
+  position: absolute;
+  left: -31px; /* Adjust this value if necessary */
+  top: 4px;
+  height: 4px;
+  width: 4px;
+  padding: 3px;
+  background-color: #3578e5;
+  border: solid 4px white;
+  border-radius: 50%;
+  z-index: 1001; /* Ensure it's above the scrollbar */
+}
+
+
 .table-of-contents .heading2 {
   margin-left: 10px;
 }
@@ -14,23 +69,21 @@
   margin-left: 20px;
 }
 
+.table-of-contents .heading4 {
+  margin-left: 30px;
+}
+
+.table-of-contents .heading5 {
+  margin-left: 40px;
+}
+
+.table-of-contents .heading6 {
+  margin-left: 50px;
+}
+
 .selected-heading {
   color: #3578e5;
   position: relative;
-}
-
-.selected-heading-wrapper::before {
-  content: ' ';
-  position: absolute;
-  display: inline-block;
-  left: -30px;
-  top: 4px;
-  z-index: 10;
-  height: 4px;
-  width: 4px;
-  background-color: #3578e5;
-  border: solid 4px white;
-  border-radius: 50%;
 }
 
 .normal-heading {
@@ -39,54 +92,15 @@
   font-size: 16px;
 }
 
-.table-of-contents {
-  color: #65676b;
-  position: fixed;
-  top: 200px;
-  right: -35px;
-  padding: 10px;
-  width: 250px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  z-index: 1;
-  height: 300px;
-}
-
 .first-heading {
   color: black;
   font-weight: bold;
   cursor: pointer;
 }
 
-.headings {
-  list-style: none;
-  margin-top: 0;
-  margin-left: 10px;
-  padding: 0;
-  overflow: scroll;
-  width: 200px;
-  height: 220px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
 /* Hide scrollbar for Chrome, Safari and Opera */
 .headings::-webkit-scrollbar {
   display: none;
-}
-
-.headings::before {
-  content: ' ';
-  position: absolute;
-  height: 220px;
-  width: 4px;
-  right: 240px;
-  margin-top: 5px;
-  background-color: #ccd0d5;
-  border-radius: 2px;
 }
 
 .normal-heading-wrapper {

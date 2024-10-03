@@ -15,53 +15,90 @@ import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {TableOfContentsPlugin as LexicalTableOfContentsPlugin} from '@lexical/react/LexicalTableOfContentsPlugin';
 import {useEffect, useRef, useState} from 'react';
 import * as React from 'react';
+import { ContentProps } from '../../../../app/lib/definitions';
+import { entityIdToName } from '../../../utils';
 
-const MARGIN_ABOVE_EDITOR = 624;
-const HEADING_WIDTH = 9;
+
+const HEADING_WIDTH = 30;
 
 function indent(tagName: HeadingTagType) {
   if (tagName === 'h2') {
     return 'heading2';
   } else if (tagName === 'h3') {
     return 'heading3';
+  } else if (tagName === 'h4') {
+    return 'heading4'
+  } else if (tagName === 'h5') {
+    return 'heading5'
+  } else if (tagName === 'h6') {
+    return 'heading6'
   }
-}
-
-function isHeadingAtTheTopOfThePage(element: HTMLElement): boolean {
-  const elementYPosition = element?.getClientRects()[0].y;
-  return (
-    elementYPosition >= MARGIN_ABOVE_EDITOR &&
-    elementYPosition <= MARGIN_ABOVE_EDITOR + HEADING_WIDTH
-  );
-}
-function isHeadingAboveViewport(element: HTMLElement): boolean {
-  const elementYPosition = element?.getClientRects()[0].y;
-  return elementYPosition < MARGIN_ABOVE_EDITOR;
-}
-function isHeadingBelowTheTopOfThePage(element: HTMLElement): boolean {
-  const elementYPosition = element?.getClientRects()[0].y;
-  return elementYPosition >= MARGIN_ABOVE_EDITOR + HEADING_WIDTH;
 }
 
 function TableOfContentsList({
   tableOfContents,
+  title,
+  marginAboveEditor
 }: {
-  tableOfContents: Array<TableOfContentsEntry>;
+  tableOfContents: Array<TableOfContentsEntry>
+  title?: string
+  marginAboveEditor: number
 }): JSX.Element {
   const [selectedKey, setSelectedKey] = useState('');
   const selectedIndex = useRef(0);
   const [editor] = useLexicalComposerContext();
 
+  function isHeadingAtTheTopOfThePage(element: HTMLElement): boolean {
+    const elementYPosition = element?.getClientRects()[0].y;
+    return (
+      elementYPosition >= marginAboveEditor &&
+      elementYPosition <= marginAboveEditor + HEADING_WIDTH
+    );
+  }
+  function isHeadingAboveViewport(element: HTMLElement): boolean {
+    const elementYPosition = element?.getClientRects()[0].y;
+    return elementYPosition < marginAboveEditor;
+  }
+  function isHeadingBelowTheTopOfThePage(element: HTMLElement): boolean {
+    const elementYPosition = element?.getClientRects()[0].y;
+    return elementYPosition >= marginAboveEditor + HEADING_WIDTH;
+  }
+
+  function smoothScrollTo(target, duration = 600) {
+    const start = window.scrollY; // Current scroll position
+    const targetPosition = typeof target === 'number' ? target : target.getBoundingClientRect().top + start - 40; // Target scroll position
+    const startTime = performance.now(); // Get the current time
+
+    function scroll(currentTime) {
+        const elapsed = currentTime - startTime; // Calculate elapsed time
+        const progress = Math.min(elapsed / duration, 1); // Calculate progress
+
+        // Apply an easing function for smoother effect
+        const easing = progress * (2 - progress); // Ease out function
+        window.scrollTo(0, start + (targetPosition - start) * easing); // Scroll to the current position
+
+        if (progress < 1) {
+            requestAnimationFrame(scroll); // Continue scrolling
+        }
+    }
+
+    requestAnimationFrame(scroll); // Start the animation
+  }
+
   function scrollToNode(key: NodeKey, currIndex: number) {
     editor.getEditorState().read(() => {
-      const domElement = editor.getElementByKey(key);
-      if (domElement !== null) {
-        domElement.scrollIntoView();
-        setSelectedKey(key);
-        selectedIndex.current = currIndex;
-      }
+        const domElement = editor.getElementByKey(key);
+        if (domElement !== null) {
+            smoothScrollTo(domElement); // Use the smooth scrolling function
+            selectedIndex.current = currIndex;
+        }
     });
   }
+
+  function scrollToTop() {
+    smoothScrollTo(0); // Scroll to the top of the page
+  }
+
 
   useEffect(() => {
     function scrollCallback() {
@@ -73,6 +110,7 @@ function TableOfContentsList({
           tableOfContents[selectedIndex.current][0],
         );
         if (currentHeading !== null) {
+
           if (isHeadingBelowTheTopOfThePage(currentHeading)) {
             //On natural scroll, user is scrolling up
             while (
@@ -139,59 +177,67 @@ function TableOfContentsList({
   return (
     <div className="table-of-contents">
       <ul className="headings">
+        <div className="normal-heading-wrapper" key="title">
+          <div
+            className="first-heading"
+            onClick={() => {scrollToTop()}}
+            role="button"
+            tabIndex={0}>
+            {('' + title).length > 40
+              ? title.substring(0, 40) + '...'
+              : title}
+          </div>
+          <br />
+        </div>
         {tableOfContents.map(([key, text, tag], index) => {
-          if (index === 0) {
-            return (
-              <div className="normal-heading-wrapper" key={key}>
-                <div
-                  className="first-heading"
-                  onClick={() => scrollToNode(key, index)}
-                  role="button"
-                  tabIndex={0}>
-                  {('' + text).length > 20
-                    ? text.substring(0, 20) + '...'
-                    : text}
-                </div>
-                <br />
-              </div>
-            );
-          } else {
-            return (
+          return (
+            <div
+              className={`normal-heading-wrapper ${
+                selectedKey === key ? 'selected-heading-wrapper' : ''
+              }`}
+              key={key}>
               <div
-                className={`normal-heading-wrapper ${
-                  selectedKey === key ? 'selected-heading-wrapper' : ''
-                }`}
-                key={key}>
-                <div
-                  onClick={() => scrollToNode(key, index)}
-                  role="button"
-                  className={indent(tag)}
-                  tabIndex={0}>
-                  <li
-                    className={`normal-heading ${
-                      selectedKey === key ? 'selected-heading' : ''
-                    }
-                    `}>
-                    {('' + text).length > 27
-                      ? text.substring(0, 27) + '...'
-                      : text}
-                  </li>
-                </div>
+                onClick={() => scrollToNode(key, index)}
+                role="button"
+                className={indent(tag)}
+                tabIndex={0}>
+                <li
+                  className={`normal-heading ${
+                    selectedKey === key ? 'selected-heading' : ''
+                  }
+                  `}>
+                  {('' + text).length > 40
+                    ? text.substring(0, 40) + '...'
+                    : text}
+                </li>
               </div>
-            );
-          }
+            </div>
+          );
         })}
       </ul>
     </div>
   );
 }
 
-export default function TableOfContentsPlugin() {
-  return (
-    <LexicalTableOfContentsPlugin>
+
+
+
+
+export default function TableOfContentsPlugin({content, marginAboveEditor}: {content: ContentProps, marginAboveEditor: number}) {
+
+  return <LexicalTableOfContentsPlugin>
       {(tableOfContents) => {
-        return <TableOfContentsList tableOfContents={tableOfContents} />;
+        let title = undefined
+        if(content.type == "Post"){
+          title = content.title
+        } else if(content.type == "EntityContent"){
+          title = entityIdToName(content.parentEntityId) 
+        }
+        return <TableOfContentsList
+        tableOfContents={tableOfContents}
+        title={title}
+        marginAboveEditor={marginAboveEditor-100}
+        />;
       }}
-    </LexicalTableOfContentsPlugin>
-  );
+  </LexicalTableOfContentsPlugin>
 }

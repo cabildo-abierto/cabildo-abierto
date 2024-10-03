@@ -82,5 +82,5 @@ export default function PlanClasico() {
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center} centerWidth={600}/>
+    return <ThreeColumnsLayout center={center}/>
 }

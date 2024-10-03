@@ -212,6 +212,9 @@ export function currentVersionContent(entity: {versions: EntityVersionProps[], c
     return entity.versions[currentVersion(entity)]
 }
 
+export function entityIdToName(s: string){
+    return decodeURIComponent(s).replaceAll("_", " ")
+}
 
 
 export function getPlainText(jsonStr: string){

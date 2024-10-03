@@ -299,6 +299,18 @@ function BlockFormatDropDown({
         <span className="text">Encabezado 3</span>
       </DropDownItem>
       <DropDownItem
+        className={'item ' + dropDownActiveClass(blockType === 'h4')}
+        onClick={() => formatHeading('h4')}>
+        <i className="icon h4" />
+        <span className="text">Encabezado 4</span>
+      </DropDownItem>
+      <DropDownItem
+        className={'item ' + dropDownActiveClass(blockType === 'h5')}
+        onClick={() => formatHeading('h5')}>
+        <i className="icon h5" />
+        <span className="text">Encabezado 5</span>
+      </DropDownItem>
+      <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'bullet')}
         onClick={formatBulletList}>
         <i className="icon bullet-list" />

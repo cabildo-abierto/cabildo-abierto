@@ -41,7 +41,7 @@ export const wikiEditorSettings = (
     shouldPreserveNewLinesInMarkdown: true,
     shouldUseLexicalContextMenu: false,
     showNestedEditorTreeView: false,
-    showTableOfContents: false,
+    showTableOfContents: true,
     showTreeView: false,
     tableCellBackgroundColor: false,
     tableCellMerge: false,
@@ -87,6 +87,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         version = entity.versions.length-1
     }
 
+    console.log("contnet", content)
     const contentText = decompress(content.compressedText)
     
     useEffect(() => {

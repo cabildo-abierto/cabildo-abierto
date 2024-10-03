@@ -169,8 +169,10 @@ export function diff(nodes1: string[], nodes2: string[]){
 
     let matches: {x: number, y: number}[] = minMatch(nodes1, nodes2, common)
 
+    matches = matches.filter((m) => (m != undefined))
+
     let perfectMatches = matches.filter(({x, y}) => {
-        return nodes1[x] == nodes2[y]
+        return x != undefined && y != undefined && nodes1[x] == nodes2[y]
     })
 
     const removedNodes = []

@@ -234,6 +234,7 @@ export type UserStats = {
 
 export type SmallContentProps = {
     id: string
+    author: {name: string, id: string}
     type?: ContentType
     compressedPlainText?: string
     title?: string

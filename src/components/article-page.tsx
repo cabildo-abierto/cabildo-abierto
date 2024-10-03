@@ -343,11 +343,11 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     </div>
     
     if(entity.isPublic){
-        return <ThreeColumnsLayout center={center}/>
+        return <ThreeColumnsLayout center={center} leftMinWidth="250px"/>
     } else {
         return <>
             {!visitOK && <NoVisitsAvailablePopup/>}
-            <ThreeColumnsLayout center={center}/>
+            <ThreeColumnsLayout center={center} leftMinWidth="250px"/>
         </>
     }
 }

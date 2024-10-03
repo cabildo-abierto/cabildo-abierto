@@ -15,6 +15,12 @@ export const getRouteFeed = (route: string[], userId: string) => {
                 compressedPlainText: true,
                 title: true,
                 type: true,
+                author: {
+                    select: {
+                        name: true,
+                        id: true
+                    }
+                },
                 entityReferences: {
                     select: {
                         id: true,
@@ -79,6 +85,12 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                 id: true,
                 compressedPlainText: true,
                 title: true,
+                author: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                },
                 entityReferences: {
                     select: {
                         id: true,
