@@ -89,5 +89,5 @@ export default function DonationPage() {
         {choice != "unique" && donationInput}
     </>
 
-    return <ThreeColumnsLayout center={center} centerWidth={600}/>
+    return <ThreeColumnsLayout center={center}/>
 }

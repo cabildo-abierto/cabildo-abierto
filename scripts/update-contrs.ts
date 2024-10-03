@@ -1,4 +1,3 @@
-import { charDiffFromJSONString } from "../src/components/diff";
 import { updateEntityContributions } from "../src/components/utils";
 
 const { PrismaClient } = require('@prisma/client');

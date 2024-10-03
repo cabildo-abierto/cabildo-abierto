@@ -22,7 +22,7 @@ import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CAN_USE_DOM } from './shared/canUseDOM';
 
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
@@ -116,16 +116,17 @@ type LexicalEditorProps = {
 }
 
 
-function Editor({ settings, setEditor, setEditorState }: 
-  LexicalEditorProps): JSX.Element {
+function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JSX.Element {
   const { historyState } = useSharedHistoryContext();
-  const [editor] = useLexicalComposerContext()
+  const [editor] = useLexicalComposerContext();
+  
+  const editorContainerRef = useRef<HTMLDivElement | null>(null);
+  const [marginAboveEditor, setMarginAboveEditor] = useState<number>(0);
 
   useEffect(() => {
     if (setEditor) {
       setEditor(editor);
     }
-    
   }, [editor, setEditor]);
 
   const {
@@ -145,14 +146,12 @@ function Editor({ settings, setEditor, setEditorState }:
     editorClassName,
     content,
     placeholderClassName,
-    charLimit
-  } = settings
+    charLimit,
+  } = settings;
 
   const isEditable = useLexicalEditable();
-  const [floatingAnchorElem, setFloatingAnchorElem] =
-    useState<HTMLDivElement | null>(null);
-  const [isSmallWidthViewport, setIsSmallWidthViewport] =
-    useState<boolean>(false);
+  const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
+  const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
@@ -178,19 +177,27 @@ function Editor({ settings, setEditor, setEditorState }:
     };
   }, [isSmallWidthViewport]);
 
+  useEffect(() => {
+    if (editorContainerRef.current) {
+      const editorTop = editorContainerRef.current.getBoundingClientRect().top;
+      setMarginAboveEditor(editorTop);
+    }
+  }, [editorContainerRef]);
+
   return (
     <>
-      {(isRichText && showToolbar) && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />}
+      {isRichText && showToolbar && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />}
       <div
-        className={`editor-container ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''
-          }`}>
+        ref={editorContainerRef}
+        className={`editor-container ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
+      >
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <DragDropPaste />
         {isAutofocus && <AutoFocusPlugin />}
         <ClearEditorPlugin />
 
         <BeautifulMentionsPlugin
-          triggers={["@"]}
+          triggers={['@']}
           onSearch={queryMentions}
           emptyComponent={EmptyMentionResults}
           menuComponent={CustomMenuMentions}
@@ -199,23 +206,20 @@ function Editor({ settings, setEditor, setEditorState }:
 
         <OnChangePlugin
           onChange={(editorState) => {
-            setEditor(editor)
-            setEditorState(editorState)
+            setEditorState(editorState);
           }}
         />
         <HashtagPlugin />
         <AutoLinkPlugin />
-        {isComments && content && <CommentPlugin
-          parentContent={content}
-        />}
+        {isComments && content && <CommentPlugin parentContent={content} />}
         {isRichText ? (
           <>
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
               contentEditable={
-                <div className={"editor-scroller"}>
+                <div className={'editor-scroller'}>
                   <div className="editor" ref={onRef}>
-                    <ContentEditable placeholder={placeholder} placeholderClassName={settings.placeholderClassName} settings={settings}/>
+                    <ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} settings={settings} />
                   </div>
                 </div>
               }
@@ -226,51 +230,44 @@ function Editor({ settings, setEditor, setEditorState }:
             <ListMaxIndentLevelPlugin maxDepth={7} />
 
             <LinkPlugin />
-            <ClickableLinkPlugin disabled={isEditable} newTab={false}/>
+            <ClickableLinkPlugin disabled={isEditable} newTab={false} />
 
             <LayoutPlugin />
 
             {!isReadOnly && floatingAnchorElem && !isSmallWidthViewport && (
               <>
-                {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem}/>}
+                {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
                 <FloatingLinkEditorPlugin
                   isLinkEditMode={isLinkEditMode}
                   setIsLinkEditMode={setIsLinkEditMode}
                 />
-                <TableCellActionMenuPlugin
-                  cellMerge={true}
-                />
-                <FloatingTextFormatToolbarPlugin
-                  setIsLinkEditMode={setIsLinkEditMode}
-                  settings={settings}
-                />
+                <TableCellActionMenuPlugin cellMerge={true} />
+                <FloatingTextFormatToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} settings={settings} />
               </>
             )}
           </>
         ) : (
           <>
             <PlainTextPlugin
-              contentEditable={
-              <ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} />}
+              contentEditable={<ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} />}
               ErrorBoundary={LexicalErrorBoundary}
             />
             <HistoryPlugin externalHistoryState={historyState} />
           </>
         )}
         {(isCharLimit || isCharLimitUtf8) && charLimit && (
-          <CharacterLimitPlugin
-            charset={isCharLimit ? 'UTF-16' : 'UTF-8'}
-            maxLength={charLimit}
-            renderer={CharLimitComponent}
-          />
+          <CharacterLimitPlugin charset={isCharLimit ? 'UTF-16' : 'UTF-8'} maxLength={charLimit} renderer={CharLimitComponent} />
         )}
-        <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
+        <div>
+          {showTableOfContents && <TableOfContentsPlugin content={content} marginAboveEditor={marginAboveEditor} />}
+        </div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
       </div>
       {showTreeView && <TreeViewPlugin />}
     </>
   );
 }
+
 
 
 export const initializeEmpty = (initialText: string) => (editor: OriginalLexicalEditor) => {

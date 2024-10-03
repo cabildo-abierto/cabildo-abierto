@@ -463,6 +463,12 @@ export async function getEntityByIdNoCache(id: string){
                     id: true,
                     createdAt: true,
                     type: true,
+                    author: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
                     _count: {
                         select: {
                             reactions: true,

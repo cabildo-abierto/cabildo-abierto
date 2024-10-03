@@ -33,7 +33,10 @@ export const ConfiguredFeed = ({feed, noResultsText, maxSize, order, filter}: Co
         
         const text = cleanText(decompress(c.compressedPlainText))
 
-        return text.includes(value) || (c.title && cleanText(c.title).includes(value))
+        return text.includes(value) || 
+            (c.title && cleanText(c.title).includes(value)) ||
+            cleanText(c.author.name).includes(value) || 
+            cleanText(c.author.id).includes(value)
     }
 
     let filteredFeed = searchValue.length > 0 ? feed.feed.filter(satisfiesSearch) : feed.feed
