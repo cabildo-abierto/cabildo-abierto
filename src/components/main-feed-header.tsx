@@ -47,7 +47,10 @@ export const MainFeedHeader = ({
                 onSelection={setFilter}
                 selected={filter}
                 options={["Todas", "Rápidas", "Publicaciones"]}
-                optionsNodes={[<div key={0}><FastAndPostIcon/></div>, <div key={1}><FastPostIcon/></div>, <div key={2}><PostIcon/></div>]}
+                optionsNodes={[
+                <div className="text-gray-900" key={0}><FastAndPostIcon/></div>,
+                <div className="text-gray-900" key={1}><FastPostIcon/></div>,
+                <div className="text-gray-900" key={2}><PostIcon/></div>]}
                 optionExpl={["Todas las publicaciones", "Solo publicaciones rápidas", "Solo publicaciones con título"]}
             />
             </div>
@@ -57,7 +60,8 @@ export const MainFeedHeader = ({
                 onSelection={setOrder}
                 selected={order}
                 options={["Recientes", "Populares"]}
-                optionsNodes={[<span className="text-gray-900" key={0}><RecentIcon/></span>, <span className="text-gray-900" key={1}><PopularIcon/></span>]}
+                optionsNodes={[
+                <span className="text-gray-900" key={0}><RecentIcon/></span>, <span className="text-gray-900" key={1}><PopularIcon/></span>]}
                 optionExpl={["Publicaciones ordenadas por fecha de publicación", "Publicaciones ordenadas por cantidad de reacciones positivas."]}
             />
             </div>
