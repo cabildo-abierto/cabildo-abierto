@@ -67,42 +67,45 @@ export type EntityProps = {
     name: string
     protection: string
     isPublic: boolean,
-    versions: {
-        id: string,
-        categories: string,
-        createdAt: string | Date,
-        confirmedById?: string,
-        rejectedById?: string,
-        compressedText?: string
-        authorId: string,
-        editPermission: boolean,
-        accCharsAdded: number,
-        contribution: string
-        childrenContents: {
-            id: string
-            type: ContentType
-            _count: {childrenTree: number}
-            currentVersionOf: {id: (string | null)}
-        }[]
-        diff?: string
-        claimsAuthorship: boolean,
-        undos: {
-            id: string
-            reportsVandalism: boolean
-            reportsOportunism: boolean
-            authorId: string
-            createdAt: Date | string
-            compressedText?: string
-        }[]
-        _count: {
-            reactions: number
-        }
-        uniqueViewsCount: number
-        editMsg?: string
-    }[]
+    versions: EntityVersionProps[]
     referencedBy: SmallContentProps[]
     deleted: boolean,
     currentVersionId: string
+}
+
+
+export type EntityVersionProps = {
+    id: string,
+    categories: string,
+    createdAt: string | Date,
+    confirmedById?: string,
+    rejectedById?: string,
+    compressedText?: string
+    authorId: string,
+    editPermission: boolean,
+    accCharsAdded: number,
+    contribution: string
+    childrenContents: {
+        id: string
+        type: ContentType
+        _count: {childrenTree: number}
+        currentVersionOf: {id: (string | null)}
+    }[]
+    diff?: string
+    claimsAuthorship: boolean,
+    undos: {
+        id: string
+        reportsVandalism: boolean
+        reportsOportunism: boolean
+        authorId: string
+        createdAt: Date | string
+        compressedText?: string
+    }[]
+    _count: {
+        reactions: number
+    }
+    uniqueViewsCount: number
+    editMsg?: string
 }
 
 

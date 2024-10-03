@@ -6,7 +6,7 @@ import { findReferences, getContentById } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { entityInRoute, getPlainText, hasEditPermission, isDemonetized, isUndo } from "../components/utils";
+import { currentVersionContent, entityInRoute, getPlainText, hasEditPermission, isDemonetized, isUndo } from "../components/utils";
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
@@ -66,7 +66,6 @@ export const recomputeEntityContributions = async (entityId: string, useCacheEnt
     // no actualizamos la primera versión porque no suele cambiar
     let prevMonetizedVersion = 0
     for(let i = 1; i < entity.versions.length; i++){
-        console.log("updating versions 1 to", entity.versions.length-1, "in", entityId)
         const versionContent = await getContentById(entity.versions[i].id)
         let newData = null
         if(isDemonetized(entity.versions[i]) || entity.versions[i].categories !== entity.versions[i-1].categories){
@@ -130,11 +129,22 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
 }
   
   
-export const updateEntity = async (compressedText: string, categories: string, entityId: string, userId: string, claimsAuthorship: boolean, editMsg: string) => {
-    const text = decompress(compressedText)
-    let references = await findReferences(text)
-
+export const updateEntity = async (entityId: string, userId: string, claimsAuthorship: boolean, editMsg: string, compressedText?: string, categories?: string) => {
     const entity = await getEntityById(entityId)
+    const current = currentVersionContent(entity)
+
+    let references = null
+    let text = null
+    if(compressedText != undefined){
+        text = decompress(compressedText)
+        references = await findReferences(text)
+        categories = current.categories
+    } else {
+        const currentContent = await getContentById(current.id)
+        compressedText = currentContent.compressedText
+        references = currentContent.entityReferences
+        text = decompress(compressedText)
+    }
 
     const permission = hasEditPermission(await getUserById(userId), entity.protection)
 
@@ -169,15 +179,12 @@ export const updateEntity = async (compressedText: string, categories: string, e
         }
     })
 
-    console.log("added version", entity.versions.length, "to entity", entityId)
     await recomputeEntityContributions(entityId, false)
 
     revalidateTag("entity:" + entityId)
     revalidateTag("entities")
     revalidateTag("userContents:"+userId)
-    revalidateTag("entityContributions:"+entityId)
     revalidateTag("editsFeed:"+userId)
-    revalidateTag("entityTextLength:"+entityId)
 }
 
 
