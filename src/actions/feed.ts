@@ -77,7 +77,7 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
         let feed: any[] = await db.content.findMany({
             select: {
                 id: true,
-                text: true,
+                compressedPlainText: true,
                 title: true,
                 entityReferences: {
                     select: {
@@ -143,7 +143,7 @@ export const getDrafts = (userId: string) => {
             select: {
                 id: true,
                 type: true,
-                text: true,
+                compressedText: true,
             },
             where: {
                 AND: [
