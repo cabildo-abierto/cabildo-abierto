@@ -35,6 +35,10 @@ function indent(tagName: HeadingTagType) {
   }
 }
 
+function dist(x: number, y: number){
+  return Math.abs(x-y)
+}
+
 function TableOfContentsList({
   tableOfContents,
   title,
@@ -46,6 +50,7 @@ function TableOfContentsList({
 }): JSX.Element {
   const [selectedKey, setSelectedKey] = useState('');
   const selectedIndex = useRef(0);
+  const [lastClickedIndex, setLastClickedIndex] = useState(undefined)
   const [editor] = useLexicalComposerContext();
 
   function isHeadingAtTheTopOfThePage(element: HTMLElement): boolean {
@@ -65,24 +70,27 @@ function TableOfContentsList({
   }
 
   function smoothScrollTo(target, duration = 600) {
-    const start = window.scrollY; // Current scroll position
-    const targetPosition = typeof target === 'number' ? target : target.getBoundingClientRect().top + start - 40; // Target scroll position
-    const startTime = performance.now(); // Get the current time
+    const start = window.scrollY;
+    const targetPosition = typeof target === 'number' ? target : target.getBoundingClientRect().top + start - 60;
+    const startTime = performance.now();
 
     function scroll(currentTime) {
-        const elapsed = currentTime - startTime; // Calculate elapsed time
-        const progress = Math.min(elapsed / duration, 1); // Calculate progress
+        const elapsed = currentTime - startTime;
+        const progress = Math.max(Math.min(elapsed / duration, 1), 0); 
 
-        // Apply an easing function for smoother effect
-        const easing = progress * (2 - progress); // Ease out function
-        window.scrollTo(0, start + (targetPosition - start) * easing); // Scroll to the current position
+        const easing = progress * (2 - progress);
+
+        const stepDestination = start + (targetPosition - start) * easing
+        if(dist(start, targetPosition) > dist(stepDestination, targetPosition)){
+          window.scrollTo(0, stepDestination);
+        }
 
         if (progress < 1) {
-            requestAnimationFrame(scroll); // Continue scrolling
+            requestAnimationFrame(scroll);
         }
     }
 
-    requestAnimationFrame(scroll); // Start the animation
+    requestAnimationFrame(scroll);
   }
 
   function scrollToNode(key: NodeKey, currIndex: number) {
@@ -158,6 +166,14 @@ function TableOfContentsList({
       } else {
         selectedIndex.current = 0;
       }
+      if(lastClickedIndex != undefined && lastClickedIndex != selectedIndex){
+        const heading = editor.getElementByKey(
+          tableOfContents[lastClickedIndex][0],
+        );
+        if(!isHeadingBelowTheTopOfThePage(heading) && !isHeadingAtTheTopOfThePage(heading)){
+          setSelectedKey(tableOfContents[lastClickedIndex][0])
+        }
+      }
     }
     let timerId: ReturnType<typeof setTimeout>;
 
@@ -172,7 +188,7 @@ function TableOfContentsList({
 
     document.addEventListener('scroll', onScroll);
     return () => document.removeEventListener('scroll', onScroll);
-  }, [tableOfContents, editor]);
+  }, [tableOfContents, editor, lastClickedIndex]);
 
   return (
     <div className="table-of-contents">
@@ -180,7 +196,7 @@ function TableOfContentsList({
         <div className="normal-heading-wrapper" key="title">
           <div
             className="first-heading"
-            onClick={() => {scrollToTop()}}
+            onClick={() => {setLastClickedIndex(undefined); scrollToTop();}}
             role="button"
             tabIndex={0}>
             {('' + title).length > 40
@@ -197,7 +213,7 @@ function TableOfContentsList({
               }`}
               key={key}>
               <div
-                onClick={() => scrollToNode(key, index)}
+                onClick={() => {setLastClickedIndex(index); scrollToNode(key, index)}}
                 role="button"
                 className={indent(tag)}
                 tabIndex={0}>
