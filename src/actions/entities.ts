@@ -438,6 +438,7 @@ export async function getEntityByIdNoCache(id: string){
                         select: {
                             id: true,
                             type: true,
+                            createdAt: true,
                             _count: {
                                 select: {
                                     childrenTree: true

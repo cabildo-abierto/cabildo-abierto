@@ -1,5 +1,5 @@
 "use client"
-import { CommentProps, Comment } from './comment';
+import { Comment, CommentComponentProps } from './comment';
 import Link from 'next/link';
 import LoadingSpinner from './loading-spinner';
 import { useContent } from '../app/hooks/contents';
@@ -37,7 +37,7 @@ export const CommentInContext = ({
     onStartReply,
     isFakeNewsReport,
     inCommentSection=false,
-    depthParity=false}: CommentProps) => {
+    depthParity=false}: CommentComponentProps) => {
     const parentId = content.parentContents[0].id
     const parentContent = useContent(parentId)
     const rootContent = useContent(content.rootContentId)

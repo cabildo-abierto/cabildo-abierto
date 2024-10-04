@@ -1,7 +1,8 @@
 "use client"
 import { CommentSection, EntityCommentSection } from "./comment-section"
-import { ReactNode, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { preload, useSWRConfig } from "swr"
+import useSWRMutation from 'swr/mutation'
 import LoadingSpinner from "./loading-spinner"
 import ContentComponent from "./content"
 import CommentEditor from "./editor/comment-editor"
@@ -25,6 +26,7 @@ type ContentWithCommentsProps = {
     depthParity?: boolean
 }
 
+
 export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     content,
     isMainPage=false,
@@ -35,27 +37,31 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     inCommentSection,
     depthParity=false,
     setEditing}) => {
-    const {mutate} = useSWRConfig()
 
+    const {mutate} = useSWRConfig()
     const user = useUser()
     const isEntity = content.type == "EntityContent"
     const startsOpen = isMainPage
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen && ["Post", "EntityContent"].includes(content.type))
+    const [comments, setComments] = useState(content.childrenContents)
     
     useEffect(() => {
         for(let i = 0; i < content.childrenContents.length; i++){
             preload("/api/content/"+content.childrenContents[i].id, fetcher)
         }
-    }, [])
+        if(!comments || content.childrenContents.length == comments.length){
+            setComments(content.childrenContents)
+        }
+    }, [content])
 
     const handleNewComment = async (text: string) => {
         if(user.user){
-            await createComment(compress(text), content.id, user.user.id)
-            mutate("/api/content/"+content.id)
+            const compressedText = compress(text)
+            const newComment = await createComment(compressedText, content.id, user.user.id)
 
-            if(content.parentEntityId)
-                mutate("/api/entity-comments/"+content.parentEntityId)
+            setComments([newComment, ...comments])
+
             mutate("/api/replies-feed/"+user.user.id)
             setViewComments(true)
 
@@ -92,21 +98,25 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         {isMainPage && ["Post", "EntityContent"].includes(content.type) && <hr className="mt-12 mb-2"/>}
         <div className={isMainPage ? "" : "ml-2 mr-1"}>
             {writingReply && <div className={"mb-1 " + (depthParityComments ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]")}>
-                {startsOpen ? <CommentEditor onSubmit={handleNewComment}/> : 
-                    <CommentEditor onSubmit={handleNewComment} onCancel={handleCancelComment}/>
+                {startsOpen ? <CommentEditor
+                        onSubmit={handleNewComment}
+                    /> : 
+                    <CommentEditor
+                        onSubmit={handleNewComment}
+                        onCancel={handleCancelComment}
+                    />
                 }
             </div>}
             {viewComments &&  
             (!isEntity ? <CommentSection
                 content={content}
-                setWritingReply={setWritingReply}
+                comments={comments}
                 writingReply={writingReply}
                 depthParity={depthParityComments}
-                padding={!isMainPage}
             /> : 
             <EntityCommentSection
                 content={content}
-                setWritingReply={setWritingReply}
+                comments={comments}
                 writingReply={writingReply}
                 depthParity={depthParityComments}
             />

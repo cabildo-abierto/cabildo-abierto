@@ -1,5 +1,5 @@
 import { useEntity } from "../app/hooks/entities"
-import { ContentProps, EntityProps, SmallContentProps } from "../app/lib/definitions"
+import { CommentProps, ContentProps, EntityProps, SmallContentProps } from "../app/lib/definitions"
 import { getAllQuoteIds } from "./comment"
 import { decompress } from "./compression"
 import { ContentWithCommentsFromId } from "./content-with-comments"
@@ -7,19 +7,27 @@ import LoadingSpinner from "./loading-spinner"
 import { listOrder } from "./utils"
 
 
-function commentScore(comment: SmallContentProps): number[]{
+function commentScore(comment: {type: string, createdAt: Date | string}): number[]{
     return [-Number(comment.type == "FakeNewsReport"), -new Date(comment.createdAt).getTime()]
 }
 
-function getEntityComments(entity: EntityProps){
-    let comments = []
+export function getEntityComments(entity: EntityProps, comments: CommentProps[]){
     for(let i = 0; i < entity.versions.length; i++){
         comments = [...comments, ...entity.versions[i].childrenContents]
     }
-    return comments
+    const ids = new Set()
+    const uniqueComments = []
+    for(let i = 0; i < comments.length; i++){
+        if(ids.has(comments[i].id)) continue
+        ids.add(comments[i].id)
+        uniqueComments.push(comments[i])
+    }
+    return [...uniqueComments, ...entity.referencedBy]
 }
 
-export const SidebarCommentSection = ({content, entity, activeIDs}: {content: ContentProps, entity?: EntityProps, activeIDs: string[]}) => {
+export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
+    content: ContentProps, entity?: EntityProps, activeIDs: string[], comments: CommentProps[]}) => {
+
     function inActiveIDs({id}: {id: string}) {
         return (!activeIDs || activeIDs.length == 0) || activeIDs.includes(id)
     }
@@ -30,12 +38,20 @@ export const SidebarCommentSection = ({content, entity, activeIDs}: {content: Co
         allIds = getAllQuoteIds(parentText.root)
     } catch {}
     
-    const comments = entity ? getEntityComments(entity) : content.childrenContents
-    const filteredComments = comments.filter(({id}) => (allIds.includes(id) && inActiveIDs({id})))
+    const originalComments = entity ? getEntityComments(entity, []) : content.childrenContents
+    const newComments = comments.filter((c) => (!originalComments.some(({id}) => (id == c.id))))
+
+    const filteredComments = originalComments.filter(({id}) => ((allIds.includes(id) && inActiveIDs({id}))))
+
+    for(let i = 0; i < newComments.length; i++){
+        if(!filteredComments.some(({id}) => (newComments[i].id == id)) && inActiveIDs({id: newComments[i].id})){
+            filteredComments.push(newComments[i])
+        }
+    }
 
     let contentsWithScore = filteredComments.map((comment) => ({comment: comment, score: commentScore(comment)}))
     contentsWithScore = contentsWithScore.sort(listOrder)
-    
+
     return <>
         {
         contentsWithScore.length > 0 && 
@@ -58,7 +74,9 @@ export const SidebarCommentSection = ({content, entity, activeIDs}: {content: Co
     </>
 }
 
-export const EntitySidebarCommentSection = ({content, activeIDs}: {content: ContentProps, activeIDs: string[]}) => {
+export const EntitySidebarCommentSection = ({content, activeIDs, comments}: {
+    content: ContentProps, activeIDs: string[], comments: CommentProps[]}) => {
+    
     const entity = useEntity(content.parentEntityId)
     if(entity.isLoading){
         return <LoadingSpinner/>
@@ -68,48 +86,53 @@ export const EntitySidebarCommentSection = ({content, activeIDs}: {content: Cont
         content={content}
         entity={entity.entity}
         activeIDs={activeIDs}
+        comments={comments}
     />
 }
 
 type CommentSectionProps = {
     content: ContentProps
+    comments: CommentProps[]
     entity?: EntityProps
     activeIDs?: string[]
     onlyQuotes?: boolean
     writingReply: boolean
-    setWritingReply: (arg0: boolean) => void
     depthParity?: boolean
-    padding?: boolean
 }
-/* En una sección de comentarios muestro: 
-    Si es sidebar:
-        Todos los comentarios hechos sobre el texto actual y solo sobre este contenido
-    Si no:
-        Todos los comentarios hechos sobre alguna versión del contenido. Eventualmente con una marca de a qué versión pertenecen
-*/
-export const CommentSection: React.FC<CommentSectionProps> = ({
-    content, entity, writingReply, setWritingReply, depthParity=false, padding=true}) => {
 
-    let comments = entity ? 
-        [...getEntityComments(entity), ...entity.referencedBy] : 
-        content.childrenContents
+type CommentSectionElementProps = {
+    id: string
+    type: string
+    createdAt: string | Date
+    _count: {childrenTree: number}
+    currentVersionOf?: {id: string}
+}
+
+export const CommentSection: React.FC<CommentSectionProps> = ({
+    content, comments, entity, writingReply, depthParity=false}) => {
+    
+    if(!comments) return <></>
+
+    let feed: CommentSectionElementProps[] = entity ? 
+        getEntityComments(entity, comments) : 
+        comments
 
     if(entity){
-        comments = comments.filter((comment) => {
+        feed = feed.filter((comment) => {
             return comment.type != "EntityContent" || (comment.currentVersionOf && comment.currentVersionOf.id)
         })
     }
 
-    let contentsWithScore = comments.map((comment) => ({comment: comment, score: commentScore(comment)}))
+    let contentsWithScore = feed.map((comment) => ({comment: comment, score: commentScore(comment)}))
     contentsWithScore = contentsWithScore.sort(listOrder)
+    
 
     return <>
         {
         contentsWithScore.length > 0 && 
         <div className={"space-y-2 pt-1 mb-1"}>
-            {contentsWithScore.map(({comment}) => {
+            {contentsWithScore.map(({comment}, index) => {
                 const isRef = entity && entity.referencedBy.some((content) => (content.id == comment.id))
-
                 return <div key={comment.id}>
                     <ContentWithCommentsFromId
                         contentId={comment.id}
@@ -131,13 +154,13 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
 type EntityCommentSectionProps = {
     content: ContentProps
+    comments: CommentProps[]
     writingReply: boolean
-    setWritingReply: (arg0: boolean) => void
     depthParity?: boolean
 }
 
 
-export const EntityCommentSection = ({content, writingReply, setWritingReply, depthParity}: EntityCommentSectionProps) => {
+export const EntityCommentSection = ({content, comments, writingReply, depthParity}: EntityCommentSectionProps) => {
     const entity = useEntity(content.parentEntityId)
     if(entity.isLoading){
         return <LoadingSpinner/>
@@ -145,10 +168,9 @@ export const EntityCommentSection = ({content, writingReply, setWritingReply, de
 
     return <CommentSection
         content={content}
-        entity={entity.entity}
+        comments={comments}
         writingReply={writingReply}
-        setWritingReply={setWritingReply}
+        entity={entity.entity}
         depthParity={depthParity}
-        padding={false}
     />
 }

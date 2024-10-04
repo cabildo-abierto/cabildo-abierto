@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { NodeKey } from "lexical";
-import { ContentProps } from "../../../../app/lib/definitions";
+import { CommentProps, ContentProps } from "../../../../app/lib/definitions";
 import { EntitySidebarCommentSection, SidebarCommentSection } from "../../../comment-section";
 
 export function CommentsPanel({
     activeIDs,
     parentContent,
-    markNodeMap
+    markNodeMap,
+    comments
 }: {
     activeIDs: string[],
     parentContent: ContentProps,
     markNodeMap: Map<string, Set<NodeKey>>
+    comments: CommentProps[]
 }): JSX.Element {
     const [width, setWidth] = useState(350); // Set initial width
     const panelRef = useRef<HTMLDivElement>(null);
@@ -52,9 +54,9 @@ export function CommentsPanel({
             style={{ width: `${width}px` }} // Set dynamic width
         >
             {parentContent.type == "EntityContent" ? (
-                <EntitySidebarCommentSection content={parentContent} activeIDs={activeIDs} />
+                <EntitySidebarCommentSection content={parentContent} activeIDs={activeIDs} comments={comments}/>
             ) : (
-                <SidebarCommentSection content={parentContent} activeIDs={activeIDs} />
+                <SidebarCommentSection content={parentContent} activeIDs={activeIDs} comments={comments}/>
             )}
 
             {/* Resizable Handler */}

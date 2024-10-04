@@ -31,12 +31,6 @@ export type ContentProps = {
     _count?: {reactions: number, childrenTree: number},
     uniqueViewsCount: number,
 
-    childrenContents?: {
-        id: string
-        createdAt: Date | string
-        type: ContentType
-        currentVersionOf?: {id: string} | null
-    }[],
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
 
     rootContentId: string
@@ -59,6 +53,16 @@ export type ContentProps = {
     contentUndoneId?: string
     reportsOportunism?: boolean
     reportsVandalism?: boolean
+
+    childrenContents: CommentProps[]
+}
+
+
+export type CommentProps = {
+    id: string | null
+    createdAt: Date | string
+    type: ContentType
+    _count: {childrenTree: number}
 }
 
 
@@ -85,12 +89,7 @@ export type EntityVersionProps = {
     editPermission: boolean,
     accCharsAdded: number,
     contribution: string
-    childrenContents: {
-        id: string
-        type: ContentType
-        _count: {childrenTree: number}
-        currentVersionOf: {id: (string | null)}
-    }[]
+    childrenContents: CommentProps[]
     diff?: string
     claimsAuthorship: boolean,
     undos: {

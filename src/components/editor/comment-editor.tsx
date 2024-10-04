@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic'
 import LoadingSpinner from "../loading-spinner"
 import { SettingsProps } from "./lexical-editor"
 import { useUser } from "../../app/hooks/user"
+import { useSWRConfig } from "swr"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
@@ -57,6 +58,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const user = useUser()
+    const {mutate} = useSWRConfig()
 
     if(user.isLoading){
         return <LoadingSpinner/>

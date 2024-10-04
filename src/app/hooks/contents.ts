@@ -1,5 +1,5 @@
 import useSWR, { KeyedMutator } from "swr"
-import { ContentProps, SmallContentProps, SmallEntityProps, UserStats } from "../lib/definitions"
+import { CommentProps, ContentProps, SmallContentProps, SmallEntityProps, UserStats } from "../lib/definitions"
 import { fetcher } from "./utils"
 
 

@@ -19,6 +19,7 @@ import { ShowArticleChanges } from "../show-article-changes"
 import { ShowArticleAuthors } from "../show-authors-changes"
 import { SaveEditPopup } from "../save-edit-popup"
 import { fetcher } from "../../app/hooks/utils"
+import { getEntityComments } from "../comment-section"
 
 
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
@@ -104,11 +105,12 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         if(editor){
             editor.read(async () => {
                 if(user.user){
-                    setEditing(false)
                     await updateEntity(entity.id, user.user.id, claimsAuthorship, editMsg, compress(JSON.stringify(editor.getEditorState())), content.categories)
                     mutate("/api/entities")
                     mutate("/api/entity/"+entity.id)
                     mutate("/api/contributions/"+entity.id)
+                    setShowingSaveEditPopup(false)
+                    setEditing(false)
                 }
             })
         }
