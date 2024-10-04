@@ -4,6 +4,7 @@ import { useSearch } from "./search-context";
 import { RouteContent } from "./route-content";
 import { ThreeColumnsLayout } from "./three-columns";
 import { usePathname } from "next/navigation";
+import { createPortal } from "react-dom";
 
 
 export const SearchPage = ({children}: {children: ReactNode}) => {
@@ -11,14 +12,18 @@ export const SearchPage = ({children}: {children: ReactNode}) => {
     const path = usePathname()
     const [route, setRoute] = useState([])
 
-    if(searchValue.length > 0 && !path.includes("/inicio")){
-        const center = <RouteContent
-            setRoute={setRoute}
-            route={route}
-        showRoute={true}/>
-
-        return <ThreeColumnsLayout center={center}/>
-    } else {
-        return <>{children}</>
-    }
+    const showSearch = searchValue.length > 0 && !path.includes("/inicio")
+    return <>
+        {showSearch && 
+        <ThreeColumnsLayout
+            center={
+                <RouteContent
+                    setRoute={setRoute}
+                    route={route}
+                    showRoute={true}
+                />
+            }
+        />}
+        {!showSearch && children}
+    </>
 }

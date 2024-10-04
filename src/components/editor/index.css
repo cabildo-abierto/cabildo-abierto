@@ -530,7 +530,7 @@ i.page-break,
   margin: 12px 12px;
   padding: 8px 12px;
   border-radius: 15px;
-  background-color: #eee;
+  background-color: var(--background);
   font-size: 15px;
   color: rgb(5, 5, 5);
   border: 0;
