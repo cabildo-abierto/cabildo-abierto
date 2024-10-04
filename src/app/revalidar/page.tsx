@@ -1,5 +1,5 @@
 "use client"
-import { compressContent, compressContents } from "../../actions/contents";
+import { compressContent, compressContents, decompressContents } from "../../actions/contents";
 import { revalidateContents, revalidateEntities, revalidateUsers } from "../../actions/entities";
 import { NotFoundPage } from "../../components/not-found-page";
 import { ThreeColumnsLayout } from "../../components/three-columns";
@@ -32,6 +32,9 @@ export default function Page(){
         </button>
         <button className="gray-btn" onClick={async () => {await compressContent("clzxg9qsa001hk6cv8e0ypjg3")}}>
             Comprimir uno
+        </button>
+        <button className="gray-btn" onClick={async () => {await decompressContents()}}>
+            Descomprimir contenidos
         </button>
         </div>
         </div>

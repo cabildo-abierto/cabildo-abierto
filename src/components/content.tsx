@@ -187,7 +187,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     depthParity,
 }) => {
     const {user} = useUser()
-    const viewRecordedRef = useRef(false);  // Tracks if view has been recorded
+    const viewRecordedRef = useRef(false);
     
     const requiresMainPage = content.type == "Post" || content.type == "EntityContent"
 

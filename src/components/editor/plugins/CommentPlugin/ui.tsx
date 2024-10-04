@@ -24,7 +24,7 @@ import Button from '../../ui/Button';
 import { commentEditorSettings } from '../../comment-editor';
 import { useSWRConfig } from 'swr';
 import { useUser } from '../../../../app/hooks/user';
-import { ContentProps } from '../../../../app/lib/definitions';
+import { CommentProps, ContentProps } from '../../../../app/lib/definitions';
 import StateButton from '../../../state-button';
 
 import MyLexicalEditor from '../../lexical-editor'
@@ -37,11 +37,14 @@ export function CommentInputBox({
   parentContent,
   cancelAddComment,
   submitAddComment,
+  comments, setComments
 }: {
-  cancelAddComment: () => void;
-  editor: LexicalEditor;
-  parentContent: ContentProps;
-  submitAddComment: () => void;
+  cancelAddComment: () => void
+  editor: LexicalEditor
+  parentContent: ContentProps
+  submitAddComment: () => void
+  comments: CommentProps[]
+  setComments: (c: CommentProps[]) => void
 }) {
   const [commentEditor, setCommentEditor] = useState<LexicalEditor | undefined>(undefined)
   const [commentEditorState, setCommentEditorState] = useState<EditorState | undefined>(undefined)
@@ -158,6 +161,7 @@ export function CommentInputBox({
               user.user.id)
 
             if(comment){
+                setComments([...comments, comment])
                 editor.update(async () => {
                     if ($isRangeSelection(selectionRef.current)) {
                         const isBackward = selectionRef.current.isBackward();

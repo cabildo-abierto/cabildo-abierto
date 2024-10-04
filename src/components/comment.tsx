@@ -46,7 +46,7 @@ export function getAllQuoteIds(node: any): any {
 }
 
 
-export type CommentProps = {
+export type CommentComponentProps = {
     content: ContentProps,
     onViewComments: () => void
     viewingComments: boolean
@@ -64,7 +64,7 @@ export const Comment = ({
     onStartReply,
     inCommentSection=false,
     isFakeNewsReport,
-    depthParity=false}: CommentProps) => {
+    depthParity=false}: CommentComponentProps) => {
 
     const parentId = content.parentContents[0].id
     let snode = null

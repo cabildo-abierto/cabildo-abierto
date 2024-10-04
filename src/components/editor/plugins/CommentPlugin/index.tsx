@@ -35,7 +35,7 @@ import { AddCommentBox } from './AddCommentBox';
 import { CommentInputBox } from './ui';
 import { CommentsPanel } from './CommentsPanel';
 import { $createMarkNode, $isMarkNode, CustomMarkNode } from '../../nodes/CustomMarkNode';
-import { ContentProps } from '../../../../app/lib/definitions';
+import { CommentProps, ContentProps } from '../../../../app/lib/definitions';
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -53,6 +53,13 @@ export default function CommentPlugin({parentContent}: {
   const [activeIDs, setActiveIDs] = useState<Array<string>>([]);
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState(parentContent.childrenContents)
+
+  useEffect(() => {
+      if(!comments || parentContent.childrenContents.length == comments.length){
+          setComments(parentContent.childrenContents)
+      }
+  }, [parentContent])
 
   const cancelAddComment = useCallback(() => {
     editor.update(() => {
@@ -63,7 +70,7 @@ export default function CommentPlugin({parentContent}: {
       }
     });
     setShowCommentInput(false);
-  }, [editor]);
+  }, [editor])
 
   useEffect(() => {
     const changedElems: Array<HTMLElement> = [];
@@ -217,6 +224,8 @@ export default function CommentPlugin({parentContent}: {
             cancelAddComment={cancelAddComment}
             submitAddComment={submitAddComment}
             parentContent={parentContent}
+            comments={comments}
+            setComments={setComments}
           />,
           document.body,
         )}
@@ -246,6 +255,7 @@ export default function CommentPlugin({parentContent}: {
             activeIDs={activeIDs}
             parentContent={parentContent}
             markNodeMap={markNodeMap}
+            comments={comments}
           />,
           document.body,
       )}

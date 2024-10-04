@@ -57,7 +57,7 @@ import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { $createParagraphNode, $createTextNode, $getRoot, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 import { DiffNode } from './nodes/DiffNode';
 import { AuthorNode } from './nodes/AuthorNode';
-import { ContentProps } from '../../app/lib/definitions';
+import { CommentProps, ContentProps } from '../../app/lib/definitions';
 
 
 const CharLimitComponent = ({remainingCharacters} : {remainingCharacters: number}) => {
@@ -211,7 +211,9 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
         />
         <HashtagPlugin />
         <AutoLinkPlugin />
-        {isComments && content && <CommentPlugin parentContent={content} />}
+        {isComments && content && <CommentPlugin
+          parentContent={content}
+        />}
         {isRichText ? (
           <>
             <HistoryPlugin externalHistoryState={historyState} />

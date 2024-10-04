@@ -29,8 +29,8 @@ export const SaveEditPopup = ({
     editorState, currentVersion, onClose, onSave, entity }: {
         editorState: EditorState,
         currentVersion: string
-        onClose: () => void,
-        onSave: (v: boolean, editMsg: string) => void,
+        onClose: () => void
+        onSave: (v: boolean, editMsg: string) => Promise<void>,
         entity: EntityProps
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
@@ -83,7 +83,8 @@ export const SaveEditPopup = ({
                         </button>
                         <StateButton
                             className="gray-btn w-48"
-                            onClick={async (e) => {await onSave(claimsAuthorship, editMsg); onClose(); return true}}
+                            onClick={async (e) => {
+                                await onSave(claimsAuthorship, editMsg); return true}}
                             text1="Confirmar"
                             text2="Guardando..."
                         />

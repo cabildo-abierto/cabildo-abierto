@@ -52,21 +52,6 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                         userById: userId
                     }
                 } : false,
-                childrenContents: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true,
-                        currentVersionOf: {
-                            select: {
-                                id: true
-                            }
-                        }
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
                 parentContents: {
                     select: {id: true}
                 },
@@ -117,7 +102,22 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
                     select: {
                         id: true
                     }
-                }
+                },
+                childrenContents: {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        type: true,
+                        _count: {
+                            select: {
+                                childrenTree: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
             },
             where: {
                 id: id,
@@ -126,7 +126,6 @@ export async function getContentById(id: string, userId?: string): Promise<Conte
         if(!content) return undefined
         if(!content.reactions) content.reactions = []
         if(!content.views) content.views = []
-        
         return content
     }, ["content", id, userId], {
         tags: ["content", "content:"+id+":"+userId, "content:"+id],
@@ -161,6 +160,8 @@ export const getContentFakeNewsCount = (contentId: string) => {
 
 
 export async function createComment(compressedText: string, parentContentId: string, userId: string) {
+    console.log("creating comment start")
+    const t1 = Date.now()
     const text = decompress(compressedText)
     let references = await findReferences(text)
 
@@ -191,15 +192,28 @@ export async function createComment(compressedText: string, parentContentId: str
         },
     })
 
+    if(parentContent.author.id != userId){
+        createNotification(
+            userId,
+            parentContent.author.id,
+            "Comment",
+            comment.id,
+            undefined
+        )
+    }
+    const t2 = Date.now()
+    console.log("creating comment end", t2-t1)
     revalidateTag("repliesFeed:"+userId)
     revalidateTag("content:"+parentContentId)
+    revalidateTag("contentComments:"+parentContentId)
     if(parentEntityId)
         revalidateTag("entity:"+parentEntityId)
-
-    if(parentContent.author.id != userId){
-        createNotification(userId, parentContent.author.id, "Comment", comment.id, undefined)
+    return {
+        id: comment.id,
+        type: comment.type,
+        createdAt: comment.createdAt,
+        _count: {childrenTree: 0}
     }
-    return comment
 }
 
 export async function createNotification(
@@ -688,4 +702,44 @@ export async function compressContent(id: string){
             id: c.id
         }
     })*/
+}
+
+
+export async function decompressContents(){
+    const contents = await db.content.findMany({
+        select: {
+            id: true,
+            text: true,
+            plainText: true,
+            compressedText: true,
+            compressedPlainText: true
+        },
+        where: {
+            numWords: {
+                lte: 30
+            }
+        }
+    })
+    console.log("got the contents")
+    for(let i = 0; i < contents.length; i++){
+        console.log("updating content", i)
+        const c = contents[i]
+        console.log("plain text", c.plainText)
+        if(c.plainText != null && c.plainText.length > 0) continue
+        try {
+            const decompressedText = decompress(c.compressedText)
+            const decompressedPlainText = decompress(c.compressedPlainText)
+            await db.content.update({
+                data: {
+                    text: decompressedText,
+                    plainText: decompressedPlainText
+                },
+                where: {
+                    id: c.id
+                }
+            })
+        } catch {
+            console.log("couldn't decompress", c.id)
+        }
+    }
 }
