@@ -87,7 +87,6 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         version = entity.versions.length-1
     }
 
-    console.log("contnet", content)
     const contentText = decompress(content.compressedText)
     
     useEffect(() => {
