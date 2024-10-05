@@ -7,11 +7,13 @@ import { useRouter } from "next/navigation";
 import { InvalidConfirmLinkPopup } from "./invalid-confirm-link-popup";
 import { preload } from "swr";
 import { fetcher } from "./hooks/utils";
+import { useUser } from "./hooks/user";
 
 
 export default function Page({searchParams}: {searchParams: {code?: string, error_description?: string}}) {
     const [invalidLink, setInvalidLink] = useState(searchParams.error_description == "Email link is invalid or has expired")
     const router = useRouter()
+    const user = useUser()
     
     useEffect(() => {
         preload("/api/entity/Cabildo_Abierto", fetcher)

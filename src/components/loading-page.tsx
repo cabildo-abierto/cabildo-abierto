@@ -8,7 +8,9 @@ import { useUser } from '../app/hooks/user';
 
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
   const user = useUser()
-  
+  if(user.isLoading){
+    console.log("user is loading")
+  }
   return <>{(user.isLoading) ? 
     <div className="flex flex-col justify-center items-center w-screen h-screen">
       <div className="relative">
