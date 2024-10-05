@@ -453,7 +453,12 @@ export async function getEntityByIdNoCache(id: string){
                         },
                     },
                     claimsAuthorship: true,
-                    diff: true
+                    diff: true,
+                    entityReferences: {
+                        select: {
+                            id: true
+                        }
+                    }
                 },
                 orderBy: {
                     createdAt: "asc"

@@ -1,7 +1,7 @@
 "use client"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
-import { useSWRConfig } from "swr";
+import { preload, useSWRConfig } from "swr";
 import Link from "next/link";
 import StateButton from "./state-button";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ import { NoVisitsAvailablePopup } from "./no-visits-popup";
 import { currentVersion, isUndo } from "./utils";
 import { UndoDiscussion } from "./undo-discussion";
 import { articleButtonClassname } from "./editor/wiki-editor";
+import { fetcher } from "../app/hooks/utils";
 
 
 const DeletedEntity = () => {
@@ -58,6 +59,13 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
+
+    useEffect(() => {
+        const references = entity.versions[currentVersion(entity)].entityReferences
+        for(let i = 0; i < references.length; i++){
+            preload("/api/entity/"+references[i].id, fetcher)
+        }
+    }, [])
 
     if(entity.deleted){
         return <DeletedEntity/>

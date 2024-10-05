@@ -6,6 +6,8 @@ import { FixedCounter } from "./like-counter"
 import { PostTitleOnFeed } from "./post-on-feed"
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions"
 import { currentVersion } from "./utils"
+import { fetcher } from "../app/hooks/utils"
+import { preload } from "swr"
 
 
 export function getEntityChildrenCount(entity: SmallEntityProps){
@@ -39,10 +41,15 @@ const EntityCategoriesSmall = ({route, entity}: {
 
 export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityProps}> = ({ route, entity }) => {
 
-    return (
-        <Link
+
+    function onMouseEnter(){
+      preload("/api/entity/"+entity.id, fetcher)
+    }
+
+    return <Link
           href={"/articulo/" + entity.id}
           className="max-w-[384px] w-full px-2 content-container hover:bg-[var(--secondary-light)]"
+          onMouseEnter={onMouseEnter}
         >
           <div className="flex w-full items-center">
             <div className="w-full">
@@ -72,6 +79,5 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
             </div>
           </div>
         </Link>
-    );
       
 }

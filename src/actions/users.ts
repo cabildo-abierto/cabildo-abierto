@@ -944,8 +944,6 @@ export const getSupportNotRespondedCount = unstable_cache(async () => {
         }
     }
 
-    console.log("not responded", c)
-
     return c.size
 },
     ["not-responded-count"],
