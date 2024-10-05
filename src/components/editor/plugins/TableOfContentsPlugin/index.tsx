@@ -249,6 +249,9 @@ export default function TableOfContentsPlugin({content, marginAboveEditor}: {con
         } else if(content.type == "EntityContent"){
           title = entityIdToName(content.parentEntityId) 
         }
+        if(tableOfContents.length == 0){
+          return <></>
+        }
         return <TableOfContentsList
         tableOfContents={tableOfContents}
         title={title}
