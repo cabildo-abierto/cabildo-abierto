@@ -30,7 +30,7 @@ export default function Page(){
         <button className="gray-btn" onClick={async () => {await compressContents()}}>
             Comprimir
         </button>
-        <button className="gray-btn" onClick={async () => {await compressContent("clzxg9qsa001hk6cv8e0ypjg3")}}>
+        <button className="gray-btn" onClick={async () => {await compressContent("cm1wa7d6c000o8wntc23olh1g")}}>
             Comprimir uno
         </button>
         <button className="gray-btn" onClick={async () => {await decompressContents()}}>

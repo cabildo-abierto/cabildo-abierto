@@ -9,10 +9,9 @@
 .table-of-contents {
   color: #65676b;
   position: fixed;
-  top: 15vh;
-  left: 10px; /* Moved from -35px to 10px */
-  padding: 10px;
-  width: 250px;
+  top: 20vh;
+  left: 5px; /* Moved from -35px to 10px */
+  width: 230px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -39,7 +38,7 @@
   position: absolute;
   height: 60vh;
   width: 4px;
-  left: 15px; /* Adjusted to keep the vertical line aligned */
+  left: 5px;
   margin-top: 5px;
   background-color: #ccd0d5;
   border-radius: 2px;
@@ -49,7 +48,7 @@
 .selected-heading-wrapper::before {
   content: ' ';
   position: absolute;
-  left: -31px; /* Adjust this value if necessary */
+  left: -32px;
   top: 4px;
   height: 4px;
   width: 4px;

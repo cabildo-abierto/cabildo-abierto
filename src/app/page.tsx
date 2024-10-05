@@ -15,6 +15,7 @@ export default function Page({searchParams}: {searchParams: {code?: string, erro
     
     useEffect(() => {
         preload("/api/entity/Cabildo_Abierto", fetcher)
+        preload("/api/user", fetcher)
     }, [])
 
     return <div><div className="flex lg:flex-row flex-col">

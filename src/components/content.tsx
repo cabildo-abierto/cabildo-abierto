@@ -147,7 +147,7 @@ export const UserIdLink = ({id}: {id:string}) => {
 }
 
 
-export const Authorship = ({content, onlyAuthor=false}: any) => {
+export const Authorship = ({content, onlyAuthor=false}: {content: {author: {id: string, name: string}}, onlyAuthor?: boolean}) => {
     return <span className="link">
         {onlyAuthor ? "" : "Por "}<Link href={"/perfil/"+content.author?.id}>
             {content.author?.name}
