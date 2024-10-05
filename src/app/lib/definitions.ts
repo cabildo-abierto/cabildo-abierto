@@ -105,6 +105,7 @@ export type EntityVersionProps = {
     }
     uniqueViewsCount: number
     editMsg?: string
+    entityReferences: {id: string}[]
 }
 
 
