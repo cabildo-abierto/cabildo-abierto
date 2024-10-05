@@ -250,7 +250,8 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     const center = <div className="bg-[var(--background)] h-full px-2">
         {showingNeedAccountPopup && <NeedAccountToEditPopup 
         onClose={() => {setShowingNeedAccountPopup(false)}}/>}
-        <h1 className="py-8">
+        <div className="text-[var(--text-light)] text-sm mt-8 mb-2">Artículo público</div>
+        <h1 className="mb-8">
             {entity.name}
         </h1>
         <div className="flex justify-between">
@@ -318,7 +319,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
         {showingCategories && <div className="px-2 content-container my-2">
             <EntityCategories categories={entity.versions[version].categories} name={entity.name}/>
         </div>}
-        {showingHistory && <div className="content-container my-2">
+        {showingHistory && <div className="my-2">
             <EditHistory entity={entity} viewing={version}/>
         </div>
         }

@@ -26,7 +26,7 @@ export const ShowUserContribution = ({entityId, userId}:
         return <div className="flex">
             <span className="mr-1">Creado por</span>
             <div className="flex space-x-2 link">
-                <Link href={"/perfil/"+lastVersion.authorId}>@{lastVersion.authorId}</Link>
+                <Link href={"/perfil/"+lastVersion.author.id}>@{lastVersion.author.id}</Link>
             </div>.
         </div>
     }
@@ -57,7 +57,7 @@ export const ShowContributors = ({entityId, userId}:
         return <div className="flex">
             <span className="mr-1">Creado por</span>
             <div className="flex space-x-2 link">
-                <Link href={"/perfil/"+lastVersion.authorId}>@{lastVersion.authorId}</Link>
+                <Link href={"/perfil/"+lastVersion.author.id}>@{lastVersion.author.id}</Link>
             </div>.
         </div>
     }

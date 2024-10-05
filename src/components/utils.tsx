@@ -65,7 +65,7 @@ export function sumFromFirstEdit(values: number[], entity: EntityProps, userId: 
     let total = 0
     let firstEdit = 0
     for(let i = 0; i < entity.versions.length; i++){
-        if(entity.versions[i].authorId == userId){
+        if(entity.versions[i].author.id == userId){
             firstEdit = i
             break
         }
@@ -174,7 +174,7 @@ export async function updateEntityContributions(entity: EntityProps){
         
         accCharsAdded += charsAdded
         
-        const author = entity.versions[j].authorId
+        const author = entity.versions[j].author.id
         if(authorAccCharsAdded.has(author)){
             authorAccCharsAdded.set(author, authorAccCharsAdded.get(author) + charsAdded)
         } else {

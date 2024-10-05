@@ -85,7 +85,10 @@ export type EntityVersionProps = {
     confirmedById?: string,
     rejectedById?: string,
     compressedText?: string
-    authorId: string,
+    author: {
+        id: string
+        name: string
+    }
     editPermission: boolean,
     accCharsAdded: number,
     contribution: string

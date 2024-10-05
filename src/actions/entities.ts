@@ -189,7 +189,7 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
 
 
 export const updateEntityCurrentVersion = async (entityId: string) => {
-    const entity = await getEntityById(entityId)
+    const entity = await getEntityByIdNoCache(entityId)
 
     let index = 0
     for(let i = 0; i < entity.versions.length; i++){
@@ -225,11 +225,13 @@ export async function extendContentStallPaymentDate(contentId: string){
   
 export const undoChange = async (entityId: string, contentId: string, versionNumber: number, message: string, userId: string, isVandalism: boolean, isOportunism: boolean) => {
     const entity = await getEntityById(entityId)
+    const compressedText = compress(message)
     if(entity){
         await db.content.create({
             data: {
                 type: "UndoEntityContent",
-                text: message,
+                compressedText: compressedText,
+                compressedPlainText: compressedText,
                 authorId: userId,
                 reportsVandalism: isVandalism,
                 reportsOportunism: isOportunism,
@@ -237,10 +239,10 @@ export const undoChange = async (entityId: string, contentId: string, versionNum
             }
         })
         await extendContentStallPaymentDate(contentId)
-        revalidateTag("entity:"+entityId)
-        revalidateTag("content:"+contentId)
         await updateEntityCurrentVersion(entityId)
         await recomputeEntityContributions(entityId)
+        revalidateTag("entity:"+entityId)
+        revalidateTag("content:"+contentId)
     }
     
     revalidateTag("entities")
@@ -432,7 +434,12 @@ export async function getEntityByIdNoCache(id: string){
                     },
                     createdAt: true,
                     compressedText: true,
-                    authorId: true,
+                    author: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
                     editPermission: true,
                     childrenContents: {
                         select: {
