@@ -57,7 +57,7 @@ import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { $createParagraphNode, $createTextNode, $getRoot, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 import { DiffNode } from './nodes/DiffNode';
 import { AuthorNode } from './nodes/AuthorNode';
-import { CommentProps, ContentProps } from '../../app/lib/definitions';
+import { ContentProps } from '../../app/lib/definitions';
 
 
 const CharLimitComponent = ({remainingCharacters} : {remainingCharacters: number}) => {
@@ -260,7 +260,7 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
         {(isCharLimit || isCharLimitUtf8) && charLimit && (
           <CharacterLimitPlugin charset={isCharLimit ? 'UTF-16' : 'UTF-8'} maxLength={charLimit} renderer={CharLimitComponent} />
         )}
-        <div>
+        <div className="lg:block hidden">
           {showTableOfContents && <TableOfContentsPlugin content={content} marginAboveEditor={marginAboveEditor} />}
         </div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
