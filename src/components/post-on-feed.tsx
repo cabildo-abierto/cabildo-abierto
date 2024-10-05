@@ -8,6 +8,8 @@ import ReadOnlyEditor from "./editor/read-only-editor";
 import { getPreviewFromJSONStr } from "./utils";
 import Link from "next/link";
 import { DateSince } from "./date";
+import { fetcher } from "../app/hooks/utils";
+import { preload } from "swr";
 
 type PostOnFeedProps = {
     content: ContentProps,
@@ -25,9 +27,15 @@ export const PostTitleOnFeed = ({title}: {title: string}) => {
 
 export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFeedProps) => {
 
+    function onMouseEnter(){
+        preload("/api/content/"+content.id, fetcher)
+    }
+
     return <Link
         href={"/contenido/"+content.id}
-        className="flex flex-col hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out">
+        className="flex flex-col hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out"
+        onMouseEnter={onMouseEnter}
+    >
         <div className="flex justify-between px-2 mt-1">
             <span className="text-sm text-gray-400">Publicación</span>
             <span className="text-[var(--text-light)] text-sm">
