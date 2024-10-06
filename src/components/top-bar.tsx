@@ -95,10 +95,12 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
 
 const TopBarGuest = () => {
     return <>
-        <div className="flex w-screen justify-between px-2">
+        <div className="flex w-screen justify-between items-center px-2">
             <TopbarLogo/>
-            <Link href="/" className="auth-btn px-3 py-2">
+            <Link href="/" className="">
+                <button className="gray-btn">
                 Crear cuenta o iniciar sesión
+                </button>
             </Link>
         </div>
     </>

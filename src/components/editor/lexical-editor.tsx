@@ -260,7 +260,7 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
         {(isCharLimit || isCharLimitUtf8) && charLimit && (
           <CharacterLimitPlugin charset={isCharLimit ? 'UTF-16' : 'UTF-8'} maxLength={charLimit} renderer={CharLimitComponent} />
         )}
-        <div className="lg:block hidden">
+        <div className="hidden lg:block">
           {showTableOfContents && <TableOfContentsPlugin content={content} marginAboveEditor={marginAboveEditor} />}
         </div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}

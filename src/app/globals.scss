@@ -519,15 +519,12 @@ ol {
 
 .topbar-container {
 	border-bottom: 1px solid;
-	border-color: $accent;
 	background-color: var(--background);
 	height: 3rem;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	z-index: 10;
-	padding-top: 2px;
-	padding-bottom: 2px;
 }
 
 .topbar-container-transparent {

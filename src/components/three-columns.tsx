@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { ReactNode, useEffect, useState } from "react";
 
@@ -15,9 +15,9 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = ({
     left = null,
     center = null,
     right = null,
-    leftMinWidth = "0px", // default min width
-    maxWidthCenter = "800px", // default max width
-    centerMinWidth = "400px", // default min width for center
+    leftMinWidth = "0px", // default min width for side columns
+    maxWidthCenter = "800px", // default max width for the center
+    centerMinWidth = "524px", // default min width for the center
 }) => {
     const [showSides, setShowSides] = useState(true);
 
@@ -27,21 +27,20 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = ({
             const leftMin = parseInt(leftMinWidth.replace("px", ""), 10);
             const centerMin = parseInt(centerMinWidth.replace("px", ""), 10);
 
-            // If the screen is smaller than centerMinWidth + 2 * leftMinWidth, hide sides
             if (screenWidth < centerMin + 2 * leftMin) {
-                setShowSides(false);
+                setShowSides(false); // hide side columns if too narrow
             } else {
-                setShowSides(true);
+                setShowSides(true); // show side columns if wide enough
             }
         };
 
-        // Initial check
+        // Initial layout check
         updateLayout();
 
         // Add resize listener
         window.addEventListener("resize", updateLayout);
 
-        // Clean up the event listener on unmount
+        // Cleanup event listener on unmount
         return () => {
             window.removeEventListener("resize", updateLayout);
         };
@@ -51,10 +50,7 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = ({
         <div className="flex justify-center w-full">
             {/* Left Column */}
             {showSides && (
-                <div
-                    className="flex-shrink-0"
-                    style={{ minWidth: leftMinWidth }}
-                >
+                <div className="flex-shrink-0" style={{ minWidth: leftMinWidth }}>
                     {left}
                 </div>
             )}
@@ -62,17 +58,17 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = ({
             {/* Center Column */}
             <div
                 className="flex-grow px-1 lg:px-0"
-                style={{ maxWidth: maxWidthCenter, minWidth: centerMinWidth }}
+                style={{
+                    minWidth: "0", // Allow center column to shrink as needed
+                    maxWidth: maxWidthCenter,
+                }}
             >
                 {center}
             </div>
 
             {/* Right Column */}
             {showSides && (
-                <div
-                    className="flex-shrink-0"
-                    style={{ minWidth: leftMinWidth }}
-                >
+                <div className="flex-shrink-0" style={{ minWidth: leftMinWidth }}>
                     {right}
                 </div>
             )}

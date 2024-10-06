@@ -583,6 +583,10 @@ export async function createPreference(userId: string, amount: number) {
     const client = new MercadoPagoConfig({ accessToken: accessToken });
     const preference = new Preference(client);
 
+    const methods = await fetch("https://api.mercadopago.com/v1/payment_methods")
+
+    console.log("methods", methods)
+
     let title = 'Un mes de suscripción en Cabildo Abierto'
     if(amount > 1){
         title = amount + " meses de suscripción en Cabildo Abierto"
@@ -611,6 +615,11 @@ export async function createPreference(userId: string, amount: number) {
             user_id: userId,
             amount: amount
         },
+        payment_methods: {
+            excluded_payment_methods: [
+                {}
+            ]
+        }
       }
     })
 
