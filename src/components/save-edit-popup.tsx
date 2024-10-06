@@ -2,7 +2,7 @@
 
 import { EditorState } from "lexical";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
 import { AcceptButtonPanel } from "./accept-button-panel";
@@ -35,15 +35,24 @@ export const SaveEditPopup = ({
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useUser()
-    const jsonState = JSON.stringify(editorState)
     const [editMsg, setEditMsg] = useState("")
+    const [diff, setDiff] = useState(undefined)
+    const [newVersionSize, setNewVersionSize] = useState(undefined)
 
-    const d = charDiffFromJSONString(currentVersion, jsonState)
+    useEffect(() => {
+        const jsonState = JSON.stringify(editorState)
+        const d = charDiffFromJSONString(currentVersion, jsonState)
+        setDiff(d)
+        setNewVersionSize(getAllText(JSON.parse(jsonState).root).length)
+    }, [])
     
     const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al artículo el texto de una Ley, o algo escrito por otra persona. Si lo desactivás no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href="/articulo/Cabildo_Abierto:_Derechos_de_autor">Más información</Link>
     </span>
 
-    const newVersionSize = getAllText(JSON.parse(jsonState).root).length
+    if(!newVersionSize){
+        return null
+    }
+
 
     if(newVersionSize > 1200000){
         return <AcceptButtonPanel
@@ -58,9 +67,9 @@ export const SaveEditPopup = ({
                 
                 <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg w-full">
                     <h2 className="py-4 text-lg">Confirmar cambios</h2>
-                    <div className="mb-8">
-                        Estás agregando <span className="text-green-600">{d.charsAdded}</span> caracteres y eliminando <span className="text-red-600">{d.charsDeleted}</span> caracteres.
-                    </div>
+                    {diff && <div className="mb-8">
+                        Estás agregando <span className="text-green-600">{diff.charsAdded}</span> caracteres y eliminando <span className="text-red-600">{diff.charsDeleted}</span> caracteres.
+                    </div>}
                     <div className="flex justify-center mb-8">
                         <EditMessageInput value={editMsg} setValue={setEditMsg}/>
                     </div>
