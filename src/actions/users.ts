@@ -10,6 +10,7 @@ import { createNotification, getContentById } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import MercadoPagoConfig, { Preference } from "mercadopago";
 import { accessToken, contributionsToProportionsMap, isDemonetized, subscriptionEnds } from "../components/utils";
+import assert from "assert";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -579,20 +580,42 @@ export const getNoAccountUser = async (header: ReadonlyHeaders, agent: any) => {
 const baseUrl = "https://www.cabildoabierto.com.ar"
 //const baseUrl = "localhost:3000"
 
-export async function createPreference(userId: string, amount: number) {
+export async function createPreference(userId: string, amount: number, donationsAmount) {
     const client = new MercadoPagoConfig({ accessToken: accessToken });
     const preference = new Preference(client);
 
-    const methods = await fetch("https://api.mercadopago.com/v1/payment_methods")
+    const price = await getSubscriptionPrice()
 
-    console.log("methods", methods)
+    /*const methods = await fetch(
+        "https://api.mercadopago.com/v1/payment_methods", {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+            },
+        }
+    )*/
 
-    let title = 'Un mes de suscripción en Cabildo Abierto'
-    if(amount > 1){
-        title = amount + " meses de suscripción en Cabildo Abierto"
+    let title = null
+    if(amount == 0){
+        title = donationsAmount + " suscripciones donadas en Cabildo Abierto"
+    } else if(donationsAmount == 0){
+        assert(amount == 1)
+        title = "Una suscripción mensual en Cabildo Abierto"
+    } else if(amount == 1 && donationsAmount > 1){
+        title = "Una suscripción mensual para vos y " + donationsAmount + " donaciones"
+    } else {
+        assert(amount == 1 && donationsAmount == 1)
+        title = "Una suscripción mensual para vos y una donación"
     }
 
-    const price = await getSubscriptionPrice()
+    let items = [{
+        picture_url: baseUrl+"/logo.svg",
+        id: "0",
+        title: title,
+        quantity: 1,
+        unit_price: (donationsAmount + amount) * price.price,
+        currencyId: "ARS"
+    }]
 
     const result = await preference.create({
       body: {
@@ -602,22 +625,14 @@ export async function createPreference(userId: string, amount: number) {
             failure: baseUrl+"/suscripciones/pago-fallido"
         },
         notification_url: baseUrl+"/api/pago?source_news=webhooks",
-        items: [
-          {
-            picture_url: baseUrl+"/cabildo-icono.svg",
-            id: "0",
-            title: title,
-            quantity: 1,
-            unit_price: price.price*amount
-          }
-        ],
+        items: items,
         metadata: {
             user_id: userId,
             amount: amount
         },
         payment_methods: {
-            excluded_payment_methods: [
-                {}
+            excluded_payment_types: [
+                {id: "ticket"}
             ]
         }
       }

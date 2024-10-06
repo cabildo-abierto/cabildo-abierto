@@ -24,7 +24,7 @@ export default function DonationPage() {
 
     async function onUniqueChosen(){
         setChoice("unique")
-        const id = await createPreference(user.id, donationAmount)
+        const id = activeSubscription ? await createPreference(user.id, 0, donationAmount) : await createPreference(user.id, 1, donationAmount-1)
         setPreferenceId(id)
     }
 
