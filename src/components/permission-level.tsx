@@ -2,8 +2,8 @@ import { permissionToPrintable } from "./utils"
 
 
 
-export const PermissionLevel = ({level}: {level: string}) => {
-    return <span className="text-[var(--primary)]">
+export const PermissionLevel = ({level, className="text-[var(--primary)]"}: {level: string, className?: string}) => {
+    return <span className={className}>
         {permissionToPrintable(level)}
     </span>
 }

@@ -241,7 +241,10 @@ export const getEditsFeed = (userId: string) => {
                             in: ["EntityContent"]
                         }},
                     {visible: true},
-                    {authorId: userId}
+                    {authorId: userId},
+                    {parentEntity: {
+                        deleted: false
+                    }}
                 ]
             },
             orderBy: {
