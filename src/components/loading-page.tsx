@@ -10,9 +10,7 @@ import { fetcher } from '../app/hooks/utils';
 
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
   const user = useUser()
-  if(user.isLoading){
-    console.log("user is loading")
-  }
+  
   useEffect(() => {
       preload("/api/users", fetcher)
       preload("/api/entities", fetcher)

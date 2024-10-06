@@ -33,7 +33,7 @@ export default function PlanClasico() {
 
     async function onUniquePayment(){
         if(user.user){
-            const id = await createPreference(user.user.id, 1)
+            const id = await createPreference(user.user.id, 1, 0)
             setPreferenceId(id)
             setChoice("unique")
         }
