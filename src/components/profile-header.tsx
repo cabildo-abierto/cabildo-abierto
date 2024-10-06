@@ -45,7 +45,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
         mutate("/api/user")
     }
 
-    return <div className="content-container mt-2">
+    return <div className="content-container mt-2 flex flex-col">
         <div className="flex justify-between">
             <div className="ml-2 py-2">
                 <h3>
@@ -79,8 +79,16 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                 isOwner={isLoggedInUser !== undefined ? isLoggedInUser : false}
             />
         </div>
-        <div className="ml-2 flex items-center">
-            <div className="text-gray-600 mb-1"><ArticleIcon/></div><div><PermissionLevel level={profileUser.editorStatus}/></div>
+        <div className="flex">
+            <div className="ml-2 text-sm rounded-lg bg-[var(--secondary-light)] px-2 py-1 items-center justify-center">
+                <span className="text-gray-600 mb-1">
+                    <ArticleIcon/>
+                </span>
+                <PermissionLevel
+                    level={profileUser.editorStatus}
+                    className=""
+                />
+            </div>
         </div>
         <div className="ml-2 flex mb-1 items-center">
             <div>
