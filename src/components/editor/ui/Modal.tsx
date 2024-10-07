@@ -11,6 +11,7 @@ import './Modal.css';
 import * as React from 'react';
 import {ReactNode, useEffect, useRef} from 'react';
 import {createPortal} from 'react-dom';
+import { CloseButtonIcon } from '../../icons';
 
 function PortalImpl({
   onClose,
@@ -75,7 +76,7 @@ function PortalImpl({
           aria-label="Close modal"
           type="button"
           onClick={onClose}>
-          X
+          <CloseButtonIcon/>
         </button>
         <div className="Modal__content">{children}</div>
       </div>

@@ -177,27 +177,6 @@ function TableActionMenu({
   });
   const [canMergeCells, setCanMergeCells] = useState(false);
   const [canUnmergeCell, setCanUnmergeCell] = useState(false);
-  const [backgroundColor, setBackgroundColor] = useState(
-    () => currentCellBackgroundColor(editor) || '',
-  );
-
-  useEffect(() => {
-    return editor.registerMutationListener(
-      TableCellNode,
-      (nodeMutations) => {
-        const nodeUpdated =
-          nodeMutations.get(tableCellNode.getKey()) === 'updated';
-
-        if (nodeUpdated) {
-          editor.getEditorState().read(() => {
-            updateTableCellNode(tableCellNode.getLatest());
-          });
-          setBackgroundColor(currentCellBackgroundColor(editor) || '');
-        }
-      },
-      {skipInitialization: true},
-    );
-  }, [editor, tableCellNode]);
 
   useEffect(() => {
     editor.getEditorState().read(() => {
@@ -216,41 +195,6 @@ function TableActionMenu({
       setCanUnmergeCell($canUnmerge());
     });
   }, [editor]);
-
-  useEffect(() => {
-    const menuButtonElement = contextRef.current;
-    const dropDownElement = dropDownRef.current;
-    const rootElement = editor.getRootElement();
-
-    if (
-      menuButtonElement != null &&
-      dropDownElement != null &&
-      rootElement != null
-    ) {
-      const rootEleRect = rootElement.getBoundingClientRect();
-      const menuButtonRect = menuButtonElement.getBoundingClientRect();
-      dropDownElement.style.opacity = '1';
-      const dropDownElementRect = dropDownElement.getBoundingClientRect();
-      const margin = 5;
-      let leftPosition = menuButtonRect.right + margin;
-      if (
-        leftPosition + dropDownElementRect.width > window.innerWidth ||
-        leftPosition + dropDownElementRect.width > rootEleRect.right
-      ) {
-        const position =
-          menuButtonRect.left - dropDownElementRect.width - margin;
-        leftPosition = (position < 0 ? margin : position) + window.pageXOffset;
-      }
-      dropDownElement.style.left = `${leftPosition + window.pageXOffset}px`;
-
-      let topPosition = menuButtonRect.top;
-      if (topPosition + dropDownElementRect.height > window.innerHeight) {
-        const position = menuButtonRect.bottom - dropDownElementRect.height;
-        topPosition = (position < 0 ? margin : position) + window.pageYOffset;
-      }
-      dropDownElement.style.top = `${topPosition + +window.pageYOffset}px`;
-    }
-  }, [contextRef, dropDownRef, editor]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -462,32 +406,6 @@ function TableActionMenu({
     });
   }, [editor, tableCellNode, clearTableSelection, onClose]);
 
-  const handleCellBackgroundColor = useCallback(
-    (value: string) => {
-      editor.update(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection) || $isTableSelection(selection)) {
-          const [cell] = $getNodeTriplet(selection.anchor);
-          if ($isTableCellNode(cell)) {
-            cell.setBackgroundColor(value);
-          }
-
-          if ($isTableSelection(selection)) {
-            const nodes = selection.getNodes();
-
-            for (let i = 0; i < nodes.length; i++) {
-              const node = nodes[i];
-              if ($isTableCellNode(node)) {
-                node.setBackgroundColor(value);
-              }
-            }
-          }
-        }
-      });
-    },
-    [editor],
-  );
-
   let mergeCellButton: null | JSX.Element = null;
   if (cellMerge) {
     if (canMergeCells) {
@@ -513,10 +431,49 @@ function TableActionMenu({
     }
   }
 
+  useEffect(() => {
+    const menuButtonElement = contextRef.current;
+    const dropDownElement = dropDownRef.current;
+    const rootElement = editor.getRootElement();
+
+    if (
+      menuButtonElement != null &&
+      dropDownElement != null &&
+      rootElement != null
+    ) {
+      const rootEleRect = rootElement.getBoundingClientRect();
+      const menuButtonRect = menuButtonElement.getBoundingClientRect();
+      dropDownElement.style.opacity = '1';
+      const dropDownElementRect = dropDownElement.getBoundingClientRect();
+      const margin = 5;
+      console.log("menuButtonRect", menuButtonRect)
+      console.log("d")
+      let leftPosition = menuButtonRect.right + margin;
+      if (
+        leftPosition + dropDownElementRect.width > window.innerWidth ||
+        leftPosition + dropDownElementRect.width > rootEleRect.right
+      ) {
+        const position =
+          menuButtonRect.left - dropDownElementRect.width - margin;
+        leftPosition = (position < 0 ? margin : position) + window.pageXOffset;
+      }
+      dropDownElement.style.left = `${leftPosition + window.pageXOffset}px`;
+
+      let topPosition = menuButtonRect.top;
+      if (topPosition + dropDownElementRect.height > window.innerHeight) {
+        const position = menuButtonRect.bottom - dropDownElementRect.height;
+        topPosition = (position < 0 ? margin : position) + window.pageYOffset;
+      }
+      dropDownElement.style.top = `${topPosition + +window.pageYOffset}px`;
+    }
+  }, [contextRef, dropDownRef, editor]);
+
+  const buttonClassName = "hover:bg-[var(--secondary-light)] rounded px-1"
+
   return createPortal(
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
-      className="dropdown"
+      className="absolute border rounded-lg shadow-md p-2 space-y-1 bg-white flex flex-col"
       ref={dropDownRef}
       onClick={(e) => {
         e.stopPropagation();
@@ -524,100 +481,74 @@ function TableActionMenu({
       {mergeCellButton}
       <button
         type="button"
-        className="item"
+        className={buttonClassName}
         onClick={() => insertTableRowAtSelection(false)}
         data-test-id="table-insert-row-above">
         <span className="text">
-          Insert{' '}
-          {selectionCounts.rows === 1 ? 'row' : `${selectionCounts.rows} rows`}{' '}
-          above
+          Insertar{' '}
+          {selectionCounts.rows === 1 ? 'fila' : `${selectionCounts.rows} filas`}{' '}
+          arriba
         </span>
       </button>
       <button
         type="button"
-        className="item"
+        className={buttonClassName}
         onClick={() => insertTableRowAtSelection(true)}
         data-test-id="table-insert-row-below">
         <span className="text">
-          Insert{' '}
-          {selectionCounts.rows === 1 ? 'row' : `${selectionCounts.rows} rows`}{' '}
-          below
+          Insertar{' '}
+          {selectionCounts.rows === 1 ? 'fila' : `${selectionCounts.rows} filas`}{' '}
+          debajo
         </span>
       </button>
       <hr />
       <button
         type="button"
-        className="item"
+        className={buttonClassName}
         onClick={() => insertTableColumnAtSelection(false)}
         data-test-id="table-insert-column-before">
         <span className="text">
-          Insert{' '}
+          Insertar{' '}
           {selectionCounts.columns === 1
-            ? 'column'
-            : `${selectionCounts.columns} columns`}{' '}
-          left
+            ? 'columna'
+            : `${selectionCounts.columns} columnas`}{' '}
+          a la izquierda
         </span>
       </button>
       <button
         type="button"
-        className="item"
+        className={buttonClassName}
         onClick={() => insertTableColumnAtSelection(true)}
         data-test-id="table-insert-column-after">
         <span className="text">
-          Insert{' '}
+          Insertar{' '}
           {selectionCounts.columns === 1
-            ? 'column'
-            : `${selectionCounts.columns} columns`}{' '}
-          right
+            ? 'columna'
+            : `${selectionCounts.columns} columnas`}{' '}
+          a la derecha
         </span>
       </button>
       <hr />
       <button
         type="button"
-        className="item"
+        className={buttonClassName}
         onClick={() => deleteTableColumnAtSelection()}
         data-test-id="table-delete-columns">
-        <span className="text">Delete column</span>
+        <span className="text">Eliminar columna</span>
       </button>
       <button
         type="button"
-        className="item"
+        className={buttonClassName}
         onClick={() => deleteTableRowAtSelection()}
         data-test-id="table-delete-rows">
-        <span className="text">Delete row</span>
+        <span className="text">Eliminar fila</span>
       </button>
       <button
         type="button"
-        className="item"
+        className={buttonClassName}
         onClick={() => deleteTableAtSelection()}
         data-test-id="table-delete">
-        <span className="text">Delete table</span>
-      </button>
-      <hr />
-      <button
-        type="button"
-        className="item"
-        onClick={() => toggleTableRowIsHeader()}>
-        <span className="text">
-          {(tableCellNode.__headerState & TableCellHeaderStates.ROW) ===
-          TableCellHeaderStates.ROW
-            ? 'Remove'
-            : 'Add'}{' '}
-          row header
-        </span>
-      </button>
-      <button
-        type="button"
-        className="item"
-        onClick={() => toggleTableColumnIsHeader()}
-        data-test-id="table-column-header">
-        <span className="text">
-          {(tableCellNode.__headerState & TableCellHeaderStates.COLUMN) ===
-          TableCellHeaderStates.COLUMN
-            ? 'Remove'
-            : 'Add'}{' '}
-          column header
-        </span>
+        <span className="text">Eliminar tabla</span>
       </button>
     </div>,
     document.body,
@@ -734,7 +665,7 @@ function TableCellActionMenuContainer({
         <>
           <button
             type="button"
-            className="table-cell-action-button chevron-down"
+            className="table-cell-action-button chevron-down bg-[var(--secondary-light)] rounded-lg px-1"
             onClick={(e) => {
               e.stopPropagation();
               setIsMenuOpen(!isMenuOpen);
@@ -743,7 +674,7 @@ function TableCellActionMenuContainer({
             <i className="chevron-down" />
           </button>
           {colorPickerModal}
-          {isMenuOpen && (
+          {isMenuOpen && <div className="relative">
             <TableActionMenu
               contextRef={menuRootRef}
               setIsMenuOpen={setIsMenuOpen}
@@ -752,7 +683,8 @@ function TableCellActionMenuContainer({
               cellMerge={cellMerge}
               showColorPickerModal={showColorPickerModal}
             />
-          )}
+            </div>
+          }
         </>
       )}
     </div>

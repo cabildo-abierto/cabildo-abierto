@@ -206,8 +206,13 @@ export const RejectEditIcon = () => {
 }
 
 
-export const CloseButtonIcon = () => {
+export const CloseButtonIconWithHover = () => {
     return <div className="rounded-lg hover:bg-[var(--secondary-light)]"><CloseIcon/></div>
+}
+
+
+export const CloseButtonIcon = () => {
+    return <CloseIcon/>
 }
 
 

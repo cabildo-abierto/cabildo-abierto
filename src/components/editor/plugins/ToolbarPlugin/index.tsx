@@ -872,19 +872,6 @@ export default function ToolbarPlugin({
             }`}>
             <i className="format underline" />
           </button>
-          {(canViewerSeeInsertCodeButton && false) && (
-            <button
-              disabled={!isEditable}
-              onClick={() => {
-                activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
-              }}
-              className={'toolbar-item spaced ' + (isCode ? 'active' : '')}
-              title="Insert code block"
-              type="button"
-              aria-label="Insert code block">
-              <i className="format code" />
-            </button>
-          )}
           <button
             disabled={!isEditable}
             onClick={insertLink}
@@ -946,13 +933,29 @@ export default function ToolbarPlugin({
         </>
       )}
       
-      <Divider /><ElementFormatDropdown
+      <Divider />
+      <button
+        onClick={() => {
+          showModal('Insertar tabla', (onClose: any) => (
+            <InsertTableDialog
+              activeEditor={activeEditor}
+              onClose={onClose}
+            />
+          ));
+        }}
+        type="button"
+        title="Insertar tabla"
+        className="toolbar-item spaced"
+        aria-label="Insertar tabla">
+        <i className="format table" />
+      </button>
+      <ElementFormatDropdown
         disabled={!isEditable}
         value={elementFormat}
         editor={activeEditor}
         isRTL={isRTL}
       />
-
+      
       {modal}
     </div>
   );

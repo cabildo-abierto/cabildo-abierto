@@ -25,6 +25,7 @@ import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { CAN_USE_DOM } from './shared/canUseDOM';
 
+import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CommentPlugin from './plugins/CommentPlugin';
@@ -45,7 +46,6 @@ import ContentEditable from './ui/ContentEditable';
 import { InitialConfigType, InitialEditorStateType, LexicalComposer } from '@lexical/react/LexicalComposer';
 import PlaygroundNodes from './nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
-import { TableContext } from './plugins/TablePlugin';
 
 import { BeautifulMentionsPlugin, createBeautifulMentionNode } from 'lexical-beautiful-mentions';
 import { CustomMentionComponent, CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './custom-mention-component';
@@ -58,6 +58,9 @@ import { $createParagraphNode, $createTextNode, $getRoot, LexicalEditor as Origi
 import { DiffNode } from './nodes/DiffNode';
 import { AuthorNode } from './nodes/AuthorNode';
 import { ContentProps } from '../../app/lib/definitions';
+import TableCellResizer from './plugins/TableCellResizer';
+import TableHoverActionsPlugin from './plugins/TableHoverActionsPlugin';
+import { TableContext } from './plugins/TablePlugin';
 
 
 const CharLimitComponent = ({remainingCharacters} : {remainingCharacters: number}) => {
@@ -203,6 +206,11 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
           menuComponent={CustomMenuMentions}
           menuItemComponent={CustomMenuItemMentions}
         />
+        <TablePlugin
+          hasCellMerge={true}
+          hasCellBackgroundColor={false}
+        />
+        <TableCellResizer />
 
         <OnChangePlugin
           onChange={(editorState) => {
@@ -236,14 +244,16 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
 
             <LayoutPlugin />
 
-            {!isReadOnly && floatingAnchorElem && !isSmallWidthViewport && (
+            {!isReadOnly && floatingAnchorElem && (
               <>
                 {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
                 <FloatingLinkEditorPlugin
                   isLinkEditMode={isLinkEditMode}
                   setIsLinkEditMode={setIsLinkEditMode}
                 />
-                <TableCellActionMenuPlugin cellMerge={true} />
+                <TableCellActionMenuPlugin
+                  anchorElem={floatingAnchorElem}
+                  cellMerge={true} />
                 <FloatingTextFormatToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} settings={settings} />
               </>
             )}

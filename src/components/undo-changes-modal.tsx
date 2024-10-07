@@ -8,7 +8,7 @@ import { useContent } from '../app/hooks/contents';
 import { useUser } from '../app/hooks/user';
 import { EntityProps } from '../app/lib/definitions';
 import InfoPanel from './info-panel';
-import { CloseButtonIcon } from './icons';
+import { CloseButtonIcon, CloseButtonIconWithHover } from './icons';
 import { hasEditPermission } from './utils';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
 import { AcceptButtonPanel } from './accept-button-panel';
@@ -92,7 +92,7 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, e
                     <button
                         onClick={(e) => {e.preventDefault(); e.stopPropagation(); onClose();}}
                     >
-                        <CloseButtonIcon/>
+                        <CloseButtonIconWithHover/>
                     </button>
                 </div>
                 
