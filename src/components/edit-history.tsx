@@ -82,7 +82,7 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
     return <div className="flex items-center">
         {showingNoPermissions && 
         <AcceptButtonPanel
-            text={<div>
+            text={<div className="text-base">
                 <p>Necesitás permisos de edición para confirmar cambios.</p>
                 <NoEditPermissionsMsg user={user} level={entity.protection}/>
             </div>}
@@ -179,14 +179,17 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
             
             <div className="flex items-center space-x-2 w-full">
                 
-                <div className="text-sm w-8">
+                <div className="text-sm w-12">
                     {baseMsg}
                 </div>
                 
-                <div className="flex flex-col w-full">
+                <div className="flex flex-col w-full mb-1">
                     <div className="text-xs text-gray-900 flex justify-between w-full items-center">
                         <div className="text-sm">
-                            <Authorship content={entityVersion} onlyAuthor={true}/>
+                            <Authorship
+                                content={entityVersion}
+                                onlyAuthor={true}
+                            />
                         </div>
                         <DateSince date={entityVersion.createdAt}/>
                     </div>
