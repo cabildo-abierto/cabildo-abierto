@@ -26,7 +26,6 @@ import {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import * as React from 'react';
 import invariant from '../shared/invariant';
 
-import Button from '../ui/Button';
 import {DialogActions} from '../ui/Dialog';
 import TextInput from '../ui/TextInput';
 
@@ -122,25 +121,25 @@ export function InsertTableDialog({
   return (
     <>
       <TextInput
-        placeholder={'# of rows (1-500)'}
-        label="Rows"
+        placeholder={'1 a 500'}
+        label="Filas"
         onChange={setRows}
         value={rows}
         data-test-id="table-modal-rows"
         type="number"
       />
       <TextInput
-        placeholder={'# of columns (1-50)'}
-        label="Columns"
+        placeholder={'1 a 50'}
+        label="Columnas"
         onChange={setColumns}
         value={columns}
         data-test-id="table-modal-columns"
         type="number"
       />
       <DialogActions data-test-id="table-model-confirm-insert">
-        <Button disabled={isDisabled} onClick={onClick}>
-          Confirm
-        </Button>
+        <button disabled={isDisabled} onClick={onClick} className="gray-btn">
+          Insertar
+        </button>
       </DialogActions>
     </>
   );
