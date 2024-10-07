@@ -257,7 +257,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
         <div className="flex justify-between">
             <div className="flex flex-col link">
                 <ShowContributors entityId={entity.id}/>
-                {version == entity.versions.length-1 && <span className="">
+                {version == entity.versions.length-1 && <span className="text-[var(--text-light)]">
                     Últ. actualización <DateSince date={lastUpdated}/>.
                 </span>}
                 {version != entity.versions.length-1 && <div className="flex text-[var(--text-light)]">

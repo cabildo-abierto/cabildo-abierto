@@ -628,7 +628,7 @@ export async function createPreference(userId: string, amount: number, donations
         items: items,
         metadata: {
             user_id: userId,
-            amount: amount
+            amount: (amount+donationsAmount)
         },
         payment_methods: {
             excluded_payment_types: [
@@ -976,3 +976,21 @@ export const getSupportNotRespondedCount = unstable_cache(async () => {
         tags: ["not-responded-count"]
     }
 )
+
+
+export async function addDonatedSubscriptionsManually(boughtByUserId: string, amount: number, price: number, paymentId?: string){
+
+    const data = []
+    for(let i = 0; i < amount; i++){
+        data.push({
+            boughtByUserId: boughtByUserId,
+            price: price,
+            paymentId: paymentId
+        })
+    }
+
+    await db.subscription.createMany({
+        data: data
+    })
+    
+}
