@@ -21,6 +21,7 @@ import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
+import {TableNode} from '@lexical/table';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { CAN_USE_DOM } from './shared/canUseDOM';
@@ -61,6 +62,7 @@ import { ContentProps } from '../../app/lib/definitions';
 import TableCellResizer from './plugins/TableCellResizer';
 import TableHoverActionsPlugin from './plugins/TableHoverActionsPlugin';
 import { TableContext } from './plugins/TablePlugin';
+import { CustomTableNode } from './nodes/CustomTableNode';
 
 
 const CharLimitComponent = ({remainingCharacters} : {remainingCharacters: number}) => {
@@ -315,7 +317,9 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
         }
       },
       DiffNode,
-      AuthorNode
+      AuthorNode,
+      CustomTableNode,
+      { replace: TableNode, with: (node: TableNode) => new CustomTableNode(), withKlass: CustomTableNode } 
     ],
     onError: (error: Error) => {
       throw error;

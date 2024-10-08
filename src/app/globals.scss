@@ -737,8 +737,6 @@ th {
 
 
 .link2 {
-	text-decoration: none;
-	transition: text-decoration 0.3s ease-in-out, color 0.3s ease-in-out;
 	text-decoration: underline;
 }
   
@@ -746,6 +744,9 @@ th {
 	color: $primary; /* Equivalent to Tailwind's blue-500 */
 }
   
+.link3:hover {
+	color: $primary; /* Equivalent to Tailwind's blue-500 */
+}
 
 
 

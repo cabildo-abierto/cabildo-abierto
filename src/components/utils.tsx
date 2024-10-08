@@ -198,6 +198,11 @@ export async function updateEntityContributions(entity: EntityProps){
 }
 
 
+export function route2Text(route: string[]){
+    return ["Inicio", ...route].join("/")
+}
+
+
 export function currentVersion(entity: {versions: {id: string}[], currentVersionId: string}){
     for(let i = 0; i < entity.versions.length; i++){
         if(entity.versions[i].id == entity.currentVersionId){

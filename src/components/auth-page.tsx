@@ -8,7 +8,7 @@ import { useState } from "react"
 export const AuthPage = ({startInLogin}: {startInLogin?: boolean}) => {
     const [hasAccount, setHasAccount] = useState(startInLogin)
     
-    return <div className="flex flex-col items-center justify-center min-h-screen-minus-footer">
+    return <div className="flex flex-col items-center justify-center py-12 h-full">
         {
             !hasAccount ? <>
             <SignupForm/>

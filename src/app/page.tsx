@@ -20,16 +20,18 @@ export default function Page({searchParams}: {searchParams: {code?: string, erro
         preload("/api/user", fetcher)
     }, [])
 
-    return <div><div className="flex lg:flex-row flex-col">
-        {invalidLink &&
-        <InvalidConfirmLinkPopup onClose={() => {setInvalidLink(false); router.push("/")}}/>}
-        <div className="lg:w-1/2 lg:mb-8 lg:flex lg:justify-center lg:items-center">
-            <Presentation/>
+    return <div>
+        <div className="flex lg:flex-row flex-col min-h-screen-minus-footer">
+            {invalidLink &&
+                <InvalidConfirmLinkPopup onClose={() => {setInvalidLink(false); router.push("/")}}/>
+            }
+            <div className="lg:w-1/2 lg:mb-8 lg:flex lg:justify-center lg:items-center">
+                <Presentation/>
+            </div>
+            <div className="lg:w-1/2">
+                <AuthPage startInLogin={searchParams.code != undefined}/>
+            </div>
         </div>
-        <div className="lg:w-1/2">
-            <AuthPage startInLogin={searchParams.code != undefined}/>
-        </div>
-    </div>
         <Footer/>
     </div>
 }

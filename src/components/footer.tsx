@@ -1,12 +1,18 @@
+import Link from "next/link";
 
 export default function Footer() {
-    return <footer className="h-5 border-t border-gray-300 px-2 w-screen text-gray-800">
-        <div className="flex justify-center text-sm items-center text-[var(--accent-dark)]">
-            <a href="mailto:contacto@cabildoabierto.com.ar">contacto@cabildoabierto.com.ar</a>
-            {false && <div className="flex space-x-4">
-                <a href="#" className="hover:text-blue-500">Política de privacidad</a>
-                <a href="#" className="hover:text-blue-500">Términos de servicio</a>
-            </div>}
-        </div>
+    return <footer className="border-t border-gray-300 px-2 w-screen text-gray-800 flex flex-col lg:flex-row items-center justify-center text-center text-[var(--text-light)] space-x-4 text-sm">
+        <Link className="link3" href="mailto:contacto@cabildoabierto.com.ar">
+        contacto@cabildoabierto.com.ar
+        </Link>
+        <Link href="/articulo/Cabildo_Abierto%3A_Política_de_privacidad" className="link3">
+        Política de privacidad
+        </Link>
+        <Link
+            href="/articulo/Cabildo_Abierto%3A_Términos_y_condiciones"
+            className="link3"
+        >
+        Términos de servicio
+        </Link>
     </footer>
 }
