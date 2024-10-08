@@ -41,43 +41,51 @@ const EntityCategoriesSmall = ({route, entity}: {
 
 export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityProps}> = ({ route, entity }) => {
 
+  function onMouseEnter(){
+    preload("/api/entity/"+entity.id, fetcher)
+  }
 
-    function onMouseEnter(){
-      preload("/api/entity/"+entity.id, fetcher)
-    }
+  const numWords = entity.versions[currentVersion(entity)].numWords
 
-    return <Link
-          href={"/articulo/" + entity.id}
-          className="max-w-[384px] w-full px-2 content-container hover:bg-[var(--secondary-light)]"
-          onMouseEnter={onMouseEnter}
-        >
-          <div className="flex w-full items-center">
-            <div className="w-full">
+  return (
+    <div className="relative flex flex-col max-w-[384px] w-full">
+      {numWords == 0 && (
+        <div className="absolute top-[-9px] right-2 z-10">
+          <span className="text-xs rounded border px-1 text-[var(--text-light)] bg-[var(--background)]">
+            ¡Artículo vacío! Completalo
+          </span>
+        </div>
+      )}
+      <Link
+        href={"/articulo/" + entity.id}
+        className={"px-2 content-container hover:bg-[var(--secondary-light)] " + (numWords == 0 ? "mt-1" : "")}
+        onMouseEnter={onMouseEnter}
+      >
+        <div className="flex w-full items-center">
+          <div className="w-full">
+            <div className="w-full mt-1 mb-2 px-1">
+              <span className="text-lg text-gray-900">{entity.name}</span>
+            </div>
 
-              <div className="w-full mt-1 mb-2 px-1">
-                <span className="text-lg text-gray-900">
-                  {entity.name}
-                </span>
-              </div>
+            <EntityCategoriesSmall entity={entity} route={route}/>
 
-              <EntityCategoriesSmall entity={entity} route={route}/>
-
-              <div className="flex justify-end">
-                <FixedCounter count={entity._count.reactions} icon={<ActivePraiseIcon />} />
-                <FixedCounter count={entity.uniqueViewsCount} icon={<ViewsIcon />} />
-                <FixedCounter
-                  count={entity._count.referencedBy}
-                  icon={<LinkIcon />}
-                  title="Cantidad de veces que fue referenciado."
-                />
-                <FixedCounter
-                  count={getEntityChildrenCount(entity)}
-                  icon={<InactiveCommentIcon />}
-                />
-                <FixedCounter count={entity.versions[entity.versions.length-1].numWords} icon={<TextLengthIcon/>} title="Cantidad de palabras."/>
-              </div>
+            <div className="flex justify-end">
+              <FixedCounter count={entity._count.reactions} icon={<ActivePraiseIcon />} />
+              <FixedCounter count={entity.uniqueViewsCount} icon={<ViewsIcon />} />
+              <FixedCounter
+                count={entity._count.referencedBy}
+                icon={<LinkIcon />}
+                title="Cantidad de veces que fue referenciado."
+              />
+              <FixedCounter
+                count={getEntityChildrenCount(entity)}
+                icon={<InactiveCommentIcon />}
+              />
+              <FixedCounter count={numWords} icon={<TextLengthIcon/>} title="Cantidad de palabras."/>
             </div>
           </div>
-        </Link>
-      
+        </div>
+      </Link>
+    </div>
+  );
 }
