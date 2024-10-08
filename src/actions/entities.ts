@@ -64,16 +64,17 @@ export const recomputeEntityContributions = async (entityId: string, useCacheEnt
     const entity = await getEntityById(entityId, useCacheEntity)
 
     // no actualizamos la primera versión porque no suele cambiar
-    let prevMonetizedVersion = 0
+    let lastContribution = "[]"
+    let lastCharsAdded = 0
     for(let i = 1; i < entity.versions.length; i++){
         const versionContent = await getContentById(entity.versions[i].id)
         let newData = null
         if(isDemonetized(entity.versions[i]) || entity.versions[i].categories !== entity.versions[i-1].categories){
             newData = {
-                accCharsAdded: entity.versions[prevMonetizedVersion].accCharsAdded, 
+                accCharsAdded: lastCharsAdded, 
                 charsAdded: 0, 
                 charsDeleted: 0, 
-                contribution: entity.versions[prevMonetizedVersion].contribution,
+                contribution: lastContribution,
                 diff: JSON.stringify({matches: [], common: [], bestMatches: []})
             }
         } else {
@@ -81,8 +82,8 @@ export const recomputeEntityContributions = async (entityId: string, useCacheEnt
                 entityId,
                 decompress(versionContent.compressedText),
                 versionContent.author.id,
-                prevMonetizedVersion)
-            prevMonetizedVersion = i
+                i-1
+            )
         }
 
         await db.content.update({
@@ -91,6 +92,8 @@ export const recomputeEntityContributions = async (entityId: string, useCacheEnt
                 id: versionContent.id
             }
         })
+        lastContribution = newData.contribution
+        lastCharsAdded = newData.accCharsAdded
         revalidateTag("content:"+versionContent.id)
         revalidateTag("contentStatic:"+versionContent.id)
     }
