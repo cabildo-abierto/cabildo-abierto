@@ -745,6 +745,37 @@ export async function decompressContents(){
 }
 
 
+export async function decompressContent(contentId: string){
+    const c = await db.content.findUnique({
+        select: {
+            id: true,
+            text: true,
+            plainText: true,
+            compressedText: true,
+            compressedPlainText: true
+        },
+        where: {
+            id: contentId
+        }
+    })
+    try {
+        const decompressedText = decompress(c.compressedText)
+        const decompressedPlainText = decompress(c.compressedPlainText)
+        await db.content.update({
+            data: {
+                text: decompressedText,
+                plainText: decompressedPlainText
+            },
+            where: {
+                id: c.id
+            }
+        })
+    } catch {
+        console.log("couldn't decompress", c.id)
+    }
+}
+
+
 export async function takeAuthorship(contentId: string) {
     const content = await getContentById(contentId)
     const user = await getUser()
