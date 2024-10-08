@@ -4,7 +4,8 @@ import { NoResults } from "./category-users"
 import { SmallEntityProps } from "../app/lib/definitions"
 import { useRouteEntities } from "../app/hooks/contents"
 import LoadingSpinner from "./loading-spinner"
-import { cleanText, listOrderDesc } from "./utils"
+import { cleanText, listOrderDesc, route2Text } from "./utils"
+import InfoPanel from "./info-panel"
 
 
 function popularityScore(entity: SmallEntityProps){
@@ -39,7 +40,12 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
     const routeEntities = useRouteEntities(route)
     if(routeEntities.isLoading) return <LoadingSpinner/>
     
+    const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de estrellas que recibió. Los artículos vacíos se muestran al final. Solo se muestran artículos de la categoría seleccionada ({route2Text(route)}).</span>
+
     return <>
+        <div className="text-center mt-1 mb-2">
+            <span className="text-[var(--text-light)] text-sm">Artículos ordenados por popularidad. <InfoPanel text={infoText}/></span>
+        </div>
         {routeEntities.entities.length > 0 ? 
             <ArticlesWithSearch
                 entities={routeEntities.entities}

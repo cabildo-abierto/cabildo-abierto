@@ -396,7 +396,8 @@ export const getEntities = unstable_cache(async () => {
     return entities
 }, ["entities"], {
     revalidate: revalidateEverythingTime,
-    tags: ["entities"]})
+    tags: ["entities"]
+})
 
 
 export async function getEntityByIdNoCache(id: string){
