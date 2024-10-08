@@ -194,12 +194,12 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                         <DateSince date={entityVersion.createdAt}/>
                     </div>
                     
-                    {entity.versions[index].editMsg && <div className="text-sm text-center text-gray-900">
+                    {entity.versions[index].editMsg ? <div className="text-sm text-gray-900">
                         <EditMessage
                             msg={entity.versions[index].editMsg}
                             type={type}
                         />
-                    </div>}
+                    </div> : <div>&nbsp;</div>}
                     
                     <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-900">

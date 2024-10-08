@@ -6,7 +6,7 @@ import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
 import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
-import { getUserId } from "./users";
+import { getUser, getUserId } from "./users";
 import { getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
 
@@ -741,5 +741,32 @@ export async function decompressContents(){
         } catch {
             console.log("couldn't decompress", c.id)
         }
+    }
+}
+
+
+export async function takeAuthorship(contentId: string) {
+    const content = await getContentById(contentId)
+    const user = await getUser()
+    if(!user || user.editorStatus != "Administrator" || user.id == content.author.id){
+        return null
+    }
+    await db.content.update({
+        data: {
+            authorId: user.id
+        },
+        where: {
+            id: contentId
+        }
+    })
+    revalidateTag("content:"+contentId)
+    revalidateTag("repliesFeed:"+user.id)
+    revalidateTag("repliesFeed:"+content.author.id)
+    revalidateTag("profileFeed:"+user.id)
+    revalidateTag("profileFeed:"+content.author.id)
+    revalidateTag("editsFeed:"+user.id)
+    revalidateTag("editsFeed:"+content.author.id)
+    if(content.parentEntityId){
+        revalidateTag("entity:"+content.parentEntityId)
     }
 }

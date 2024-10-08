@@ -16,7 +16,7 @@ import { ContentOptionsButton } from "./content-options-button";
 import { FakeNewsCounter } from "./fake-news-counter";
 import { CommentInContext } from "./comment-in-context";
 import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
-import { addView, addViewToEntityContent } from "../actions/contents";
+import { addView, addViewToEntityContent, takeAuthorship } from "../actions/contents";
 import { useUser } from "../app/hooks/user";
 import { ContentProps } from "../app/lib/definitions";
 import EntityComponent from "./entity-component";
@@ -70,7 +70,6 @@ export const ContentTopRow: React.FC<ContentTopRowProps> = ({
     showOptions=false,
     onShowFakeNews
 }) => {
-
     return <div className="flex justify-between pt-1">
         <div className="px-2 blue-links flex items-center w-full">
             <div className="flex w-full text-sm">
@@ -254,7 +253,15 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
             viewingComments={viewingComments}
         />
     }
-    return <>{element}</>
+    return <>
+        {(user && user.editorStatus == "Administrator" && user.id != content.author.id) && <button
+            className="border mx-1 text-xs hover:bg-[var(--secondary-light)]"
+            onClick={async () => {await takeAuthorship(content.id)}}
+        >
+            Tomar autoría
+        </button>}
+        {element}
+    </>
 };
 
 export default ContentComponent;
