@@ -60,13 +60,14 @@ export async function createEntity(name: string, userId: string){
 
 
 // las contribuciones se calculan excluyendo todo lo que no esté monetizado o 
-export const recomputeEntityContributions = async (entityId: string, useCacheEntity: boolean = true) => {
+export const recomputeEntityContributions = async (entityId: string, useCacheEntity: boolean = true, onlyLast: boolean = false) => {
     const entity = await getEntityById(entityId, useCacheEntity)
 
     // no actualizamos la primera versión porque no suele cambiar
     let lastContribution = "[]"
     let lastCharsAdded = 0
     for(let i = 1; i < entity.versions.length; i++){
+        if(onlyLast && i != entity.versions.length-1) continue
         const versionContent = await getContentById(entity.versions[i].id)
         let newData = null
         if(isDemonetized(entity.versions[i]) || entity.versions[i].categories !== entity.versions[i-1].categories){
@@ -182,7 +183,7 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
         }
     })
 
-    await recomputeEntityContributions(entityId, false)
+    await recomputeEntityContributions(entityId, false, true)
 
     revalidateTag("entity:" + entityId)
     revalidateTag("entities")
