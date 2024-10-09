@@ -21,16 +21,21 @@ export function stopPropagation(func: () => void) {
 }
 
 
+export function nextSubscriptionEnd(user: UserProps){
+    const lastPaymentDate = new Date(user.subscriptionsUsed[user.subscriptionsUsed.length-1].usedAt as Date | string)
+    const nextEnd = new Date(lastPaymentDate)
+    nextEnd?.setMonth(lastPaymentDate.getMonth()+1)
+
+    return nextEnd
+}
+
+
 export function validSubscription(user: UserProps | undefined){
     if(!user) return false
     if(user.subscriptionsUsed.length == 0) return false
 
-    const lastPaymentDate = new Date(user.subscriptionsUsed[user.subscriptionsUsed.length-1].usedAt as Date | string)
-    const nextSubscriptionEnd = new Date(lastPaymentDate)
-    
-    nextSubscriptionEnd?.setMonth(lastPaymentDate.getMonth()+1)
-    
-    return nextSubscriptionEnd > new Date()
+    const nextEnd = nextSubscriptionEnd(user)
+    return nextEnd > new Date()
 }
 
 

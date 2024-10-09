@@ -148,7 +148,20 @@ export const getUserById = (userId: string) => {
                     createdAt: true,
                     authenticated: true,
                     editorStatus: true,
-                    subscriptionsUsed: true,
+                    subscriptionsUsed: {
+                        orderBy: {
+                            createdAt: "asc"
+                        }
+                    },
+                    subscriptionsBought: {
+                        select: {
+                            id: true
+                        }, 
+                        where: {
+                            userId: null,
+                            isDonation: false
+                        }
+                    },
                     following: {select: {id: true}},
                     followedBy: {select: {id: true}},
                     authUser: {
@@ -612,6 +625,7 @@ export async function createPreference(userId: string, amount: number, donations
 
     const price = await getSubscriptionPrice()
 
+    console.log("creating preference with", amount, donationsAmount)
     /*const methods = await fetch(
         "https://api.mercadopago.com/v1/payment_methods", {
             method: 'GET',
@@ -620,18 +634,31 @@ export async function createPreference(userId: string, amount: number, donations
             },
         }
     )*/
+    if(amount + donationsAmount == 0) return null
 
     let title = null
     if(amount == 0){
-        title = donationsAmount + " suscripciones donadas en Cabildo Abierto"
-    } else if(donationsAmount == 0){
-        assert(amount == 1)
-        title = "Una suscripción mensual en Cabildo Abierto"
-    } else if(amount == 1 && donationsAmount > 1){
-        title = "Una suscripción mensual para vos y " + donationsAmount + " donaciones"
-    } else {
-        assert(amount == 1 && donationsAmount == 1)
-        title = "Una suscripción mensual para vos y una donación"
+        if(donationsAmount == 1){
+            title = "Un mes de suscripción donado"
+        } else {
+            title = donationsAmount + " suscripciones donadas"
+        }
+    } else if(amount == 1){
+        if(donationsAmount == 0){
+            title = "Un mes de suscripción"
+        } else if(donationsAmount == 1){
+            title = "Un mes para vos y uno donado"
+        } else {
+            title = "Un mes para vos y " + donationsAmount + " donados"
+        }
+    } else if(amount > 1){
+        if(donationsAmount == 0){
+            title = amount + " meses de suscripción"
+        } else if(donationsAmount == 1){
+            title = amount + " meses para vos y uno donado"
+        } else {
+            title = amount + " meses para vos y " + donationsAmount + " meses donados"
+        }
     }
 
     let items = [{
@@ -741,10 +768,11 @@ export async function getSubscriptionPrice() {
         const count = await db.subscription.count({
             where: {
                 price: {
-                    gte: 500
+                    gte: 500,
                 }
             }
         })
+        console.log("count", count)
         if(count < 100){
             return {price: 500, remaining: 100-count}
         } else {

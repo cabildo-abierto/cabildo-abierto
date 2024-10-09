@@ -152,6 +152,7 @@ export type UserProps = {
     authenticated: Boolean
     editorStatus: string
     subscriptionsUsed: SubscriptionProps[]
+    subscriptionsBought: {id: string}[]
     following: {id: string}[]
     followedBy: {id: string}[]
     authUser: {email: string | null} | null

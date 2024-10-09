@@ -126,9 +126,7 @@ export default function Topbar({ onOpenSidebar, setSearchValue, searching }: Top
     useEffect(() => {
         const handleScroll = (e) => {
             const currentScrollPos = window.scrollY;
-            const scrollUp = currentScrollPos < prevScrollPos;
-            console.log("scroll up", currentScrollPos, prevScrollPos)
-            console.log("event", e)
+            const scrollUp = currentScrollPos < prevScrollPos
             if (currentScrollPos == 0) {
                 setBarState("top")
             } else if (scrollUp) {

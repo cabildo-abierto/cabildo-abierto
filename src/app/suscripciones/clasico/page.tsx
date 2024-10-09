@@ -7,18 +7,41 @@ import { useUser } from "../../hooks/user"
 import { useState } from "react"
 import { useSubscriptionPrice } from "../../hooks/subscriptions"
 import { MPWallet } from "../../../components/mp-wallet"
+import LoadingSpinner from "../../../components/loading-spinner"
+import { IntegerInputPlusMinus } from "./integer-input-plus-minus"
+import { validSubscription } from "../../../components/utils"
 
-function PagoUnico({preferenceId}: {preferenceId: string}) {
-    const price = useSubscriptionPrice()
+
+export function nextPrice(p: number){
+    if(p == 500){
+        return 1000
+    } else if(p == 1000){
+        return 1500
+    } else {
+        return "Error"
+    }
+}
+
+
+function PagoUnico({preferenceId, months, total, onBack}: {preferenceId: string, months: number, total: number, onBack: () => void}) {
 
     const center = <div className="flex flex-col items-center text-center">
-        <div className="mt-16">Estás comprando una suscripción mensual.</div>
-        {price.price ? <div className="mt-8">Total: ${price.price.price}</div> : <></>}
+        <div className="mt-8">Total: ${total}</div>
         <div className="mt-8">
             <div className="w-64">
                 <MPWallet preferenceId={preferenceId}/>
             </div>
         </div>
+
+        <div className="flex justify-end items-center mt-4">
+            <div>
+                <button className="gray-btn" onClick={onBack}>
+                    Volver
+                </button>
+                
+            </div>
+        </div>
+
     </div>
 
     return <ThreeColumnsLayout center={center}/>
@@ -30,57 +53,90 @@ export default function PlanClasico() {
     const [preferenceId, setPreferenceId] = useState<string | undefined>()
     const [choice, setChoice] = useState("none")
     const price = useSubscriptionPrice()
+    const [months, setMonths] = useState(1)
+
+    const activeSubscription = validSubscription(user.user)
 
     async function onUniquePayment(){
         if(user.user){
-            const id = await createPreference(user.user.id, 1, 0)
+            const id = await createPreference(user.user.id, months, 0)
             setPreferenceId(id)
             setChoice("unique")
         }
     }
 
-    if(choice == "unique"){
-        return <PagoUnico preferenceId={preferenceId}/>
+    function onChange(val){
+      if(val === ''){
+        setMonths(0)
+      } else if(Number.isInteger(+val)){
+        setMonths(val)
+      }
     }
 
-    const center = <div className="flex justify-center"><div className="mt-8 w-72 lg:w-96">
-            <div className="flex justify-center items-center">
-                <h2>
-                    El plan clásico
-                </h2>
-            </div>
+    if(!price.price){
+        return <LoadingSpinner/>
+    }
 
-            <div className="mt-16 mb-16 flex justify-center items-center">
-                {price.price ? <>${price.price.price} por mes.</> : <></>}
-            </div>
+    let center = null
+    if(choice == "unique"){
+        center = <PagoUnico preferenceId={preferenceId} months={months} total={months*price.price.price} onBack={() => {setChoice("none")}}/>
+    } else {
+        center = <div className="flex justify-center">
+            <div className="mt-8 w-72 lg:w-96">
+                <div className="flex justify-center items-center">
+                    <h2>
+                        Comprar suscripciones
+                    </h2>
+                </div>
 
-            <div className="flex justify-center items-center mt-2">
-                <div className="w-full">
-                
-                <div className="py-2">
-                    <SubscriptionOptionButton
-                        title="Pago único"
-                        description="Pagá un solo mes. Sin compromisos."
-                        onClick={onUniquePayment}
-                    />
+                <div className="mt-16 mb-16 flex justify-center items-center text-center">
+                    ${price.price.price} por mes para obtener acceso ilimitado a toda la plataforma. Sin publicidad, sin algoritmos, sin bots, etc.
                 </div>
-            
-                <div className="py-2">
-                <SubscriptionOptionButton
-                    title="Pago automático"
-                    description={"Próximamente."/*"Poné la tarjeta (o cualquier medio de pago) y olvidate."*/}
-                    disabled={true}
-                />
+
+                <div className="flex flex-col items-center content-container rounded bg-[var(--secondary-light)] py-2">
+                    <label htmlFor="integer-input" className="text-gray-800 text-center">
+                        {activeSubscription ? "Elegí la cantidad de meses para agregar a tu suscripción" : "Elegí la cantidad de meses de tu suscripción"}
+                    </label>
+
+                    <div className="py-4 flex flex-col items-center">
+                        <IntegerInputPlusMinus value={months} onChange={onChange}/>
+                    {price.price.remaining < months && <div className="text-center text-sm mt-2 text-red-600">
+                        Solo quedan {price.price.remaining} suscripciones disponibles a este precio.
+                    </div>
+                    }
+                    </div>
+
+        
+                    <div className="flex justify-center p-2 min-w-48">
+                        Total: ${months*price.price.price}
+                    </div>
                 </div>
+
+                <div className="text-center mt-8 text-[var(--text-light)]">
+                    <p className="mt-8">Quedan <span className="">{price.price.remaining}</span> suscripciones a este precio. Podés comprar meses por adelantado para aprovechar el descuento (luego pasan a costar ${nextPrice(price.price.price)}).</p>
                 </div>
-            </div>
-            <div className="flex justify-end items-center mt-4">
-                <div>
-                    <Link href="/suscripciones"><button className="gray-btn">Volver</button></Link>
+
+                <div className="flex justify-center items-center mt-10">
+                    <div className="w-full">
+                        <div className="py-2">
+                            <SubscriptionOptionButton
+                                title="Continuar"
+                                description=""
+                                onClick={onUniquePayment}
+                                disabled={!(0 < months && months < price.price.remaining)}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex justify-end items-center mt-4">
+                    <div>
+                        <Link href="/suscripciones"><button className="gray-btn">Volver</button></Link>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
 
     return <ThreeColumnsLayout center={center}/>
 }
