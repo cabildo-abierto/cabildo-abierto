@@ -13,15 +13,17 @@ import { useUser } from "./hooks/user";
 export default function Page({searchParams}: {searchParams: {code?: string, error_description?: string}}) {
     const [invalidLink, setInvalidLink] = useState(searchParams.error_description == "Email link is invalid or has expired")
     const router = useRouter()
-    const user = useUser()
+    const user = useUser() // para prefetchearlo
     
     useEffect(() => {
         preload("/api/entity/Cabildo_Abierto", fetcher)
+        preload("/api/entity/Cabildo_Abierto%3A_Términos_y_condiciones", fetcher)
+        preload("/api/entity/Cabildo_Abierto%3A_Política_de_privacidad", fetcher)
         preload("/api/user", fetcher)
     }, [])
 
     return <div>
-        <div className="flex lg:flex-row flex-col min-h-screen-minus-footer">
+        <div className="flex lg:flex-row flex-col min-h-screen-minus-footer px-1">
             {invalidLink &&
                 <InvalidConfirmLinkPopup onClose={() => {setInvalidLink(false); router.push("/")}}/>
             }
