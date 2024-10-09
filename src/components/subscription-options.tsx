@@ -4,10 +4,9 @@ import Link from "next/link"
 import { useSubscriptionPoolSize, useSubscriptionPrice } from "../app/hooks/subscriptions"
 import { useUser } from "../app/hooks/user"
 import { buyAndUseSubscription } from "../actions/users"
-import { useState } from "react"
 import { useSWRConfig } from "swr"
-import { nextPrice } from "../app/suscripciones/clasico/page"
 import LoadingSpinner from "./loading-spinner"
+import { nextPrice } from "./utils"
 
 
 

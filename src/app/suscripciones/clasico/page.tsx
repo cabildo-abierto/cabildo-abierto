@@ -9,18 +9,7 @@ import { useSubscriptionPrice } from "../../hooks/subscriptions"
 import { MPWallet } from "../../../components/mp-wallet"
 import LoadingSpinner from "../../../components/loading-spinner"
 import { IntegerInputPlusMinus } from "./integer-input-plus-minus"
-import { validSubscription } from "../../../components/utils"
-
-
-export function nextPrice(p: number){
-    if(p == 500){
-        return 1000
-    } else if(p == 1000){
-        return 1500
-    } else {
-        return "Error"
-    }
-}
+import { nextPrice, validSubscription } from "../../../components/utils"
 
 
 function PagoUnico({preferenceId, months, total, onBack}: {preferenceId: string, months: number, total: number, onBack: () => void}) {
