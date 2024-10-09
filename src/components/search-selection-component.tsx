@@ -39,11 +39,11 @@ const SelectionComponent: React.FC<SelectionComponentProps> = ({
           {option}
         </span>}
         {optionsNodes && 
-          <div className={textClassName(option)+" flex flex-col"}>
+          <div className={textClassName(option)+" flex flex-col px-1"}>
             <span>
               {optionsNodes[index]}
             </span>
-            <span className="text-[0.7rem] text-[var(--text-light)]">
+            <span className="text-[0.6rem] sm:text-[0.7rem] text-[var(--text-light)]">
               {option}
             </span>
           </div>

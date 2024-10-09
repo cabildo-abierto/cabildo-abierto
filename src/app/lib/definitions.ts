@@ -179,11 +179,9 @@ export const SignupFormSchema = z.object({
         .min(8, { message: 'Tiene que tener al menos 8 caracteres.' })
         .regex(/[a-zA-Z]/, { message: 'Tiene que tener al menos una letra.' })
         .regex(/[0-9]/, { message: 'Tiene que tener al menos un número.' })
-        .trim(),
-    betakey: z.literal("cabildo24", {
-        errorMap: () => ({ message: "Clave incorrecta." })
-    })
+        .trim()
 });
+
 
 export const LoginFormSchema = z.object({
     email: z.string().email({ message: 'Ingresá un mail válido.' }).trim(),

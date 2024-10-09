@@ -43,31 +43,6 @@ function SignupButton() {
     )
 }
 
-
-export const PeriodoDePrueba = ({setOpenMailInput}) => {
-    return <div className="flex justify-center max-w-[400px] px-2">
-        <div className="px-4">
-            <div className="text-[var(--accent-dark)] flex items-center border p-2">
-                <div className="mr-2">
-                    <ConstructionIcon fontSize="large" />
-                </div>
-                <div className="text-base text-justify">
-                    <p>
-                    Por ahora necesitás una clave para registrarte,
-                    abrimos pronto.
-                    </p>
-                    <p>
-                    Si querés que te avisemos cuando la página esté abierta al público dejanos tu mail <button 
-                    className="text-[var(--primary)] hover:underline"
-                    onClick={() => {setOpenMailInput(true)}}
-                    >haciendo click acá</button>.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
 const inputClassName = "custom-input"
 
 function selectErrors(state: any){
@@ -213,24 +188,6 @@ const NameInput = ({state}: {state: SignUpFormState}) => {
     </div>
 }
 
-const BetaPWInput = ({state}: {state: SignUpFormState}) => {
-    state = selectErrors(state)
-    return <div>
-        <AuthenticationFormLabel text="Clave del período de prueba" label="betakey"/>
-        <input
-            className={inputClassName}
-            type="text"
-            id="betakey"
-            name="betakey"
-            placeholder=""
-        />
-        {
-            state?.errors?.betakey
-            && <FormErrors errors={state?.errors?.betakey}/>
-        }
-    </div>
-}
-
 
 export const AuthForm = ({children, action, state, title}: {children: ReactNode, action: any, state: any, title: string}) => {
 
@@ -287,7 +244,6 @@ export default function SignupForm() {
                 <PasswordInput state={state}/>
                 <UsernameInput state={state}/>
                 <NameInput state={state}/>
-                <BetaPWInput state={state}/>
                 <SignupButton/>
                 <div className="text-sm leading-tight mt-1 text-justify text-[var(--text-light)]">
                     Al crear una cuenta aceptás nuestros <Link href="/articulo/Cabildo_Abierto%3A_Términos_y_condiciones" className="link3">Términos y condiciones</Link> y <Link href="/articulo/Cabildo_Abierto%3A_Política_de_privacidad" className="link3">
