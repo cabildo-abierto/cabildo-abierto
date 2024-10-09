@@ -423,3 +423,14 @@ export function hasChanged(state: EditorState | undefined, initialData: string){
         return !emptyOutput(state)
     }
 }
+
+
+export function nextPrice(p: number){
+    if(p == 500){
+        return 1000
+    } else if(p == 1000){
+        return 1500
+    } else {
+        return "Error"
+    }
+}
