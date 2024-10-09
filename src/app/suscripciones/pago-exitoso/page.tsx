@@ -1,16 +1,21 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { ThreeColumnsLayout } from "../../../components/three-columns";
 
 export const metadata: Metadata = {
     title: 'Pago exitoso'
 }
 
 export default function Page(){
-    return <div className="text-center">
+    const center = <div className="text-center">
         <h3 className="py-16">¡Gracias por tu compra!</h3>
-        <div className="text-gray-600">
-            Tu pago se registró exitosamente. Podés empezar a navegar...
+        <div className="text-lg">
+            Tu pago se registró correctamente.
+        </div>
+        <div className="text-[var(--text-light)] text-sm py-16">Ante cualquier duda o inconveniente con tu pago podés escribirnos por la <Link href="/soporte" className="link2">pestaña de soporte</Link> o por mail a <Link href="mailto:soporte@cabildoabierto.com.ar" className="link3">soporte@cabildoabierto.com.ar</Link>
         </div>
         <Link href="/suscripciones" className="gray-btn">Ir al inicio</Link>
     </div>
+
+    return <ThreeColumnsLayout center={center} maxWidthCenter="400px"/>
 }

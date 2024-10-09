@@ -159,7 +159,10 @@ export const getUserById = (userId: string) => {
                         }, 
                         where: {
                             userId: null,
-                            isDonation: false
+                            isDonation: false,
+                            price: {
+                                gte: 500
+                            }
                         }
                     },
                     following: {select: {id: true}},
