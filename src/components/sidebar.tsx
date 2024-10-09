@@ -41,12 +41,41 @@ const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}
     return <SidebarButton icon={<SupportIcon newCount={count.count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
 }
 
+const SidebarUsername = ({user, onLogout}: {user: UserProps, onLogout: () => Promise<boolean>}) => {
+    return <div className="flex flex-col items-center">
+        <Link href={`/perfil/${user.id}`}
+            className="py-2 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)]">
+            {user.name}
+        </Link>
+
+        <div className="py-4">
+            <StateButton
+                className="gray-btn"
+                onClick={onLogout}
+                text1="Cerrar sesión"
+                text2="Cerrando sesión"
+            />
+        </div>
+    </div>
+}
+
+
+const SidebarUsernameNoUser = () => {
+    return <div className="flex flex-col items-center">
+        <span className="text-center text-[var(--text-light)] px-1">Creá una cuenta o iniciá sesión para acceder a todas las funcionalidades del sitio</span>
+        <Link href="/" className="mx-1 py-2">
+        <button className="bg-[var(--primary)] px-2 py-1 hover:bg-[var(--primary-dark)] rounded text-[var(--background)]">
+            Crear cuenta o iniciar sesión
+        </button>
+        </Link>
+    </div>
+}
+
+
 export default function Sidebar({onClose}: {onClose: () => void}) {
     const user = useUser()
     const {mutate} = useSWRConfig()
     const router = useRouter()
-    
-    if(!user.user) return <></>
 
     const onLogout = async () => {
         const {error} = await signOut()
@@ -69,33 +98,20 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Panel personal" href="/panel"/>
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/articulo/Cabildo_Abierto"/>
                     <SidebarButton icon={<ManageAccountIcon/>} onClick={onClose} text="Cuenta" href="/cuenta"/>
-                    <SupportButton user={user.user} onClose={onClose}/>
-                    {user.user.editorStatus == "Administrator" && 
+                    {user.user && <SupportButton user={user.user} onClose={onClose}/>}
+                    {user.user && user.user.editorStatus == "Administrator" && 
                     <HelpDeskButton user={user.user} onClose={onClose}/>}
                 </div>
-                {user.user && <div className="flex flex-col items-center">
-                    <Link href={`/perfil/${user.user.id}`}
-                        className="py-2 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)]">
-                        {user.user.name}
-                    </Link>
-
-                    <div className="py-4">
-                        <StateButton
-                            className="gray-btn"
-                            onClick={onLogout}
-                            text1="Cerrar sesión"
-                            text2="Cerrando sesión"
-                        />
-                    </div>
-                </div>
-                }
+                {user.user && <SidebarUsername
+                user={user.user}
+                onLogout={onLogout}/>}
+                {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
             </div>
             <button
                 className="h-screen w-full"
                 onClick={onClose}
             >
             </button>
-            
         </div>
     </div>
 }

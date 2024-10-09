@@ -61,6 +61,7 @@ type TopbarLoggedInProps = {
 function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) {
     const [searchBarOpen, setSearchBarOpen] = useState(false)
     const [wideScreen, setWideScreen] = useState(false)
+    const user = useUser()
 
     useEffect(() => {
         if (window.innerWidth >= 640) {
@@ -71,14 +72,14 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
     
     return <div className="flex items-center w-screen justify-between">
         <div className="flex items-center sm:w-72 text-gray-900">
-            <TopbarLogo/>
+            {((!searchBarOpen) || wideScreen) && <TopbarLogo/>}
             {(!searchBarOpen || wideScreen) && <OpenSidebarButton onClick={onOpenSidebar}/>}
             {(!searchBarOpen || wideScreen) && <FeedButton />}
-            {(!searchBarOpen || wideScreen) && <WriteButton />}
+            {((!searchBarOpen && user.user) || wideScreen) && <WriteButton />}
             {!searchBarOpen && <SearchButton onClick={() => {
                 setSearchBarOpen(true)
             }} />}
-            {(!searchBarOpen || wideScreen) && <NotificationsButton/>}
+            {((!searchBarOpen && user.user) || wideScreen) && <NotificationsButton/>}
         </div>
 
         {searchBarOpen && <div className="mx-2">
@@ -88,28 +89,17 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
                 wideScreen={wideScreen}
             />
         </div>}
-        <div className="sm:w-72 sm:block hidden"></div>
-    </div>
-}
-
-
-const TopBarGuest = () => {
-    return <>
-        <div className="flex w-screen justify-between items-center px-2">
-            <TopbarLogo/>
-            <Link href="/" className="">
-                <button className="gray-btn">
-                Crear cuenta o iniciar sesión
+        {(user.isLoading || user.user) && 
+            <div className="sm:w-72 sm:block hidden"></div>
+        }
+        {(!user.isLoading && !user.user) &&
+            <Link href="/" className="mr-2">
+                <button className="bg-[var(--primary)] px-2 py-1 hover:bg-[var(--primary-dark)] rounded text-[var(--background)] text-xs lg:text-base">
+                    Crear cuenta o iniciar sesión
                 </button>
             </Link>
-        </div>
-    </>
-}
-
-
-const TopBarLoading = () => {
-    return <>
-    </>
+        }
+    </div>
 }
 
 type TopBarProps = {
@@ -154,11 +144,7 @@ export default function Topbar({ onOpenSidebar, setSearchValue, searching }: Top
     }
 
     let bar = <></>
-    if(user.isLoading){
-        bar = <TopBarLoading/>
-    } else if(user.isError || !user.user){
-        bar = <TopBarGuest/>
-    } else {
+    if(!user.isLoading){
         bar = <TopbarLoggedIn
             onOpenSidebar={onOpenSidebar}
             setSearchValue={(value: string) => {setSearchValue(value); onSearchUpdate()}}

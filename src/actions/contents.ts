@@ -584,6 +584,7 @@ export const addViewToEntityContent = async (id: string, userId: string, entityI
 
 export async function getLastKNotifications(k: number){
     const userId = await getUserId()
+    if(!userId) return null
 
     return await unstable_cache(async () => {
         const notifications = await db.notification.findMany({

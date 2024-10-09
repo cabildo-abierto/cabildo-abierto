@@ -30,14 +30,13 @@ export const Author = ({content} :{content: ContentProps}) => {
     const router = useRouter()
     const onClick = stopPropagation(() => {router.push(url)})
 
-    return <div className="text-sm mb-1 flex">
-        <div className="mr-1 font-bold text-gray-800">
-            <span
-            className="hover:underline"
-            onClick={onClick}>
-                {content.author?.name}
-            </span>
-        </div>
+    return <div className="text-sm">
+        <span
+            className="hover:underline mr-1 font-bold text-gray-800"
+            onClick={onClick}
+        >
+            {content.author?.name}
+        </span>
         <span
             onClick={onClick}
             className="text-[var(--text-light)]"

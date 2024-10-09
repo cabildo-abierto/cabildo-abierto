@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { FastAndPostIcon, FastPostIcon, PopularIcon, PostIcon, RecentIcon } from "./icons"
 import SelectionComponent from "./search-selection-component"
 import { Route } from "./wiki-categories"
@@ -36,7 +35,7 @@ export const MainFeedHeader = ({
             onSelection={onSelection}
             options={["General", "Siguiendo", "Artículos públicos", "Usuarios"]}
             selected={selected}
-            className="main-feed"
+            className="main-feed text-sm sm:text-base"
         />
         </div>
 

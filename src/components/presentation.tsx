@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Logo } from './logo';
-import { PeriodoDePrueba } from './signup-form';
 import { useState } from 'react';
 import { newContactMail } from '../actions/users';
 
@@ -94,7 +93,6 @@ export const Presentation: React.FC = () => {
       <Link href="/articulo/Cabildo_Abierto" className="text-lg title mb-16 gray-btn">
         <div className="m-1">¿Qué es Cabildo Abierto?</div>
       </Link>
-      <PeriodoDePrueba setOpenMailInput={setOpenMailInput}/>
       {openMailInput && <ContactMailInput onClose={(accept: boolean) => {setOpenMailInput(false); if(accept) setOpenThanks(true)}}/>}
       {openThanks && <ThanksForSubscribing onClose={() => {setOpenThanks(false)}}/>}
     </div>

@@ -47,19 +47,19 @@ export const ContentTopRowAuthor = ({content} :{content: ContentProps}) => {
     const url = content.author  ? id2url(content.author.id) : ""
     const onClick = stopPropagation(() => {})
 
-    return <div className="text-sm mb-1">
-        <span className="mr-1 font-bold text-gray-800">
-            <Link 
+    return <>
+        <Link 
             href={url} 
-            className="hover:underline"
-            onClick={onClick}>
-                {content.author?.name}
-            </Link>
-        </span>
-        <Link href={url} className="text-[var(--text-light)]">
-            @{content.author?.id}
+            className=""
+            onClick={onClick}
+        >
+            <span className="hover:underline font-bold text-gray-800 mr-1">  {content.author?.name}
+            </span>
+            <span className="text-[var(--text-light)]">
+                @{content.author?.id}
+            </span>
         </Link>
-    </div>
+    </>
 }
 
 
@@ -72,12 +72,12 @@ export const ContentTopRow: React.FC<ContentTopRowProps> = ({
 }) => {
     return <div className="flex justify-between pt-1">
         <div className="px-2 blue-links flex items-center w-full">
-            <div className="flex w-full text-sm">
+            <div className="text-sm">
                 {author && 
                     <ContentTopRowAuthor content={content}/>
                 }
-                <span className="px-1 text-gray-600">•</span>
-                <span className="text-gray-600">
+                <span className="px-1 text-[var(--text-light)]">•</span>
+                <span className="">
                     <DateSince date={content.createdAt}/>
                 </span>
             </div>

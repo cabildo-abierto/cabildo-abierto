@@ -1,6 +1,6 @@
 
-import {TableNode} from '@lexical/table';
-import { EditorConfig, LexicalEditor } from 'lexical';
+import {SerializedTableNode, TableNode} from '@lexical/table';
+import { EditorConfig, LexicalEditor, SerializedElementNode } from 'lexical';
 
 export class CustomTableNode extends TableNode {
     static getType(): string {
@@ -26,4 +26,13 @@ export class CustomTableNode extends TableNode {
 
         return wrapper;  // Return the wrapper as the DOM element
     }
+
+    static importJSON(_serializedNode: SerializedTableNode): TableNode {
+        return super.importJSON(_serializedNode)
+    }
+    
+    exportJSON(): SerializedElementNode {
+        return super.exportJSON()
+    }
+
 }

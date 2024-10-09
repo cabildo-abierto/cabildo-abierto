@@ -54,8 +54,7 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
         email: formData.get('email'),
         password: formData.get('password'),
         username: formData.get('username'),
-        name: formData.get('name'),
-        betakey: formData.get('betakey')
+        name: formData.get('name')
     })
 
     if (!validatedFields.success) {

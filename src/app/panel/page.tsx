@@ -1,65 +1,11 @@
 "use client"
 import { useUser, useUserContents } from "../hooks/user"
 import { useContent, useUserStats } from "../hooks/contents"
-import { useEntity } from "../hooks/entities"
-import Link from "next/link"
-import { DateSince } from "../../components/date"
-import { ActiveLikeIcon, StatsIcon, ArticleIcon, PostIcon } from "../../components/icons"
-import { FixedCounter } from "../../components/like-counter"
 import LoadingSpinner from "../../components/loading-spinner"
-import { PostTitleOnFeed } from "../../components/post-on-feed"
-import { ShowUserContribution } from "../../components/show-contributors"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import InfoPanel from "../../components/info-panel"
 import { ReactNode } from "react"
-
-const EntityIncome = ({entityId}: {entityId: string}) => {
-    const {user} = useUser()
-    const entity = useEntity(entityId)
-
-    if(entity.isLoading){
-        return <LoadingSpinner/>
-    }
-
-    if(!entity.entity){
-        return <></>
-    }
-
-    return <Link
-        className="content-container p-1 flex flex-col w-full cursor-pointer"
-        href={"/articulo/"+encodeURIComponent(entityId)}
-        >
-        <div className="flex justify-between">
-            <PostTitleOnFeed title={entity.entity.name}/>
-            <FixedCounter count={0} icon={<ActiveLikeIcon/>}/>
-        </div>
-
-        <div className="flex justify-between px-1">
-            <ShowUserContribution entityId={entityId} userId={user.id}/>
-            <DateSince date={entity.entity.versions[0].createdAt}/>
-        </div>
-    </Link>
-}
-
-const PostIncome = ({postId}: {postId: string}) => {
-    const content = useContent(postId)
-
-    if(content.isLoading){
-        return <LoadingSpinner/>
-    }
-    return <Link
-        href={"/contenido/"+postId}
-        className="content-container p-1 flex flex-col w-full"
-    >
-        <div className="flex justify-between">
-            <PostTitleOnFeed title={content.content.title}/>
-            <FixedCounter count={content.content._count.reactions} icon={<ActiveLikeIcon/>}/>
-        </div>
-        <div className="flex justify-end mr-1">
-        <DateSince date={content.content.createdAt}/>
-        </div>
-    </Link>
-}
+import { StatsIcon } from "../../components/icons"
 
 const UserStat = ({name, value}: {name: ReactNode, value: number}) => {
     return <div className="flex justify-between border-b py-2">
@@ -69,12 +15,23 @@ const UserStat = ({name, value}: {name: ReactNode, value: number}) => {
 }
 
 const ShowUserStats = () => {
+    const {user} = useUser()
+
+    const userContents = useUserContents(user.id)
+    let entities = userContents.userContents.filter((({type}) => (type == "EntityContent"))).map((content) => (content.parentEntityId))
+    entities = Array.from(new Set(entities))
+    
+    //let posts = Array.from(new Set(userContents.userContents.filter((({type}) => (type == "Post"))))).map((post) => (post.id))
+    
     const stats = useUserStats()
     if(stats.isLoading){
         return <LoadingSpinner/>
     }
 
-    
+    if(userContents.isLoading){
+        return <LoadingSpinner/>
+    }
+
     const incomeDesc = <span>
         Ingresos acumulados totales ($)
         <InfoPanel iconClassName="ml-2 text-gray-600" text='El total de ingresos confirmados que recibiste. No necesariamente recibiste un pago por todos ellos todavía (ver "Pendientes de pago").'/>
@@ -113,20 +70,11 @@ const ShowUserStats = () => {
 const Page = () => {
     const {user} = useUser()
 
-    const userContents = useUserContents(user.id)
-    if(userContents.isLoading){
-        return <LoadingSpinner/>
-    }
-    let entities = userContents.userContents.filter((({type}) => (type == "EntityContent"))).map((content) => (content.parentEntityId))
-    entities = Array.from(new Set(entities))
-    
-    let posts = Array.from(new Set(userContents.userContents.filter((({type}) => (type == "Post"))))).map((post) => (post.id))
-
     const center = <div className="mt-8 flex flex-col items-center">
         <h2 className="mb-8">Tus estadísticas <StatsIcon/></h2>
-        <div className="bg-white shadow rounded-lg px-4 py-4 w-full">
+        {user && <div className="bg-white shadow rounded-lg px-4 py-4 w-full">
             <ShowUserStats/>
-        </div>
+        </div>}
     </div>
 
     return <ThreeColumnsLayout center={center}/>

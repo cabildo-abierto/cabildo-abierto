@@ -25,7 +25,7 @@ const Modal = ({ onClose }: { onClose: any }) => {
 
     return createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-[var(--background)] rounded-lg shadow-lg text-center w-96">
+            <div className="bg-[var(--background)] rounded-lg shadow-lg text-center w-96 mx-1">
                 <div className="flex justify-end px-1">
                     <button onClick={onClose}>
                         <CloseIcon />
@@ -63,11 +63,12 @@ const Modal = ({ onClose }: { onClose: any }) => {
                                 }
                                 return false
                             }}
-                            disabled={!validEntityName(entityName)}
+                            disabled={!user.user || !validEntityName(entityName)}
                             className="gray-btn w-full"
                             text1="Crear"
                             text2="Creando..."
                         />
+                        {!user.isLoading && !user.user && <div className="mt-2"><Link href="/" className="link3 text-sm text-[var(--text-light)] text-center">Creá una cuenta o iniciá sesión para crear artículos públicos</Link></div>}
                     </div>
                 </div>
             </div>

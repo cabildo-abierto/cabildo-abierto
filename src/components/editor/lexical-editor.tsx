@@ -60,7 +60,6 @@ import { DiffNode } from './nodes/DiffNode';
 import { AuthorNode } from './nodes/AuthorNode';
 import { ContentProps } from '../../app/lib/definitions';
 import TableCellResizer from './plugins/TableCellResizer';
-import TableHoverActionsPlugin from './plugins/TableHoverActionsPlugin';
 import { TableContext } from './plugins/TablePlugin';
 import { CustomTableNode } from './nodes/CustomTableNode';
 

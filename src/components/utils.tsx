@@ -158,7 +158,7 @@ export function listOrderDesc(a: {score: number[]}, b: {score: number[]}){
 }
 
 
-export const monthly_visits_limit = 0
+export const monthly_visits_limit = 25
 
 
 export function visitsThisMonth(visits: {createdAt: Date}[]){
