@@ -19,9 +19,8 @@ function dateToText(date: Date){
 
 
 function getSubscriptionEndDate(user: UserProps){
-    console.log(user.subscriptionsUsed)
-    const nextEnd = nextSubscriptionEnd(user)
-    console.log("nextEnd", nextEnd, nextEnd.getMonth())
+    const extraMonths = user.subscriptionsBought.length
+    const nextEnd = nextSubscriptionEnd(user, extraMonths)
     return dateToText(nextEnd)
 }
 

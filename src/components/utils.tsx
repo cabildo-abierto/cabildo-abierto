@@ -21,10 +21,19 @@ export function stopPropagation(func: () => void) {
 }
 
 
-export function nextSubscriptionEnd(user: UserProps){
-    const lastPaymentDate = new Date(user.subscriptionsUsed[user.subscriptionsUsed.length-1].usedAt as Date | string)
-    const nextEnd = new Date(lastPaymentDate)
-    nextEnd?.setMonth(lastPaymentDate.getMonth()+1)
+export function subscriptionEnds(start: Date): Date {
+    const endDate = new Date(start);
+
+    endDate.setMonth(endDate.getMonth() + 1);
+
+    return endDate;
+}
+
+
+export function nextSubscriptionEnd(user: UserProps, extraMonths: number = 0){
+    const currentSubscriptionEnd = new Date(user.subscriptionsUsed[user.subscriptionsUsed.length-1].endsAt as Date | string)
+    const nextEnd = new Date(currentSubscriptionEnd)
+    nextEnd?.setMonth(nextEnd.getMonth()+extraMonths)
 
     return nextEnd
 }
@@ -242,15 +251,6 @@ export function getPlainText(jsonStr: string){
         numNodes: json.root.children.length,
         plainText: text
     }
-}
-
-
-export function subscriptionEnds(start: Date): Date {
-    const endDate = new Date(start);
-
-    endDate.setMonth(endDate.getMonth() + 1);
-
-    return endDate;
 }
 
 
