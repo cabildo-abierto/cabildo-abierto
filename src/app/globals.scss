@@ -518,7 +518,7 @@ ol {
 }
 
 .topbar-container {
-	border-bottom: 1px solid;
+	border-bottom-width: 1px;
 	background-color: var(--background);
 	height: 3rem;
 	display: flex;
@@ -778,4 +778,12 @@ th {
 
 .min-h-screen-minus-footer {
 	min-height: calc(100vh - 1.5rem - 1px)
+}
+
+.min-h-screen-minus-topbar {
+	min-height: calc(100vh - 3rem - 1px)
+}
+
+.h-screen-minus-topbar {
+	height: calc(100vh - 3rem - 1px)
 }

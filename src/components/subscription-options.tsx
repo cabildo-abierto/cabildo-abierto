@@ -6,6 +6,8 @@ import { useUser } from "../app/hooks/user"
 import { buyAndUseSubscription } from "../actions/users"
 import { useState } from "react"
 import { useSWRConfig } from "swr"
+import { nextPrice } from "../app/suscripciones/clasico/page"
+import LoadingSpinner from "./loading-spinner"
 
 
 
@@ -60,9 +62,13 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
         mutate("/api/user")
     }
 
+    if(!price.price){
+        return <LoadingSpinner/>
+    }
+
     const desc1 = <div>
-        <div>Comprar una suscripción mensual</div>
-        <div className="text-gray-300 text-sm">Quedan {price.price ? price.price.remaining : "?"} suscripciones a este precio. Luego van a pasar a costar $1000 por mes.</div>
+        <div>Comprá uno o más meses de suscripción</div>
+        <div className="text-gray-300 text-sm">Quedan {price.price.remaining} suscripciones con este descuento (luego costarán ${nextPrice(price.price.price)}).</div>
     </div>
 
     return <>
@@ -78,7 +84,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
                     Cabildo Abierto está hecha para sus usuarios. Por eso, se financia exclusivamente con suscripciones.
                 </p>
                 <p>
-                    Las suscripciones se usan para financiar el desarrollo de la plataforma y a los autores de los contenidos que leas. <Link href="/articulo/Cabildo_Abierto:_Suscripciones">Más información.</Link>
+                    Las suscripciones se usan para financiar el desarrollo de la plataforma y a los autores de los contenidos que leas. <Link href="/articulo/Cabildo_Abierto:_Suscripciones">Leer más.</Link>
                 </p>
             </div>
         </div>
@@ -95,9 +101,9 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
 
             <div className="flex justify-center py-2">
                 <SubscriptionOptionButton
-                    title="El plan clásico"
+                    title="Comprar tu suscripción"
                     description={desc1}
-                    price={price.price ? `$${price.price.price}` : ""}
+                    price={price.price ? `$${price.price.price} por mes` : ""}
                     href={"/suscripciones/clasico"}
                 />
             </div>
@@ -113,7 +119,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
 
             {<div className="flex flex-col items-center justify-center py-2">
                 {user.subscriptionsUsed.length == 0 && 
-                <div className="flex flex-col justify-center mt-4 lg:w-96 w-72 link text-center space-y-3 text-sm text-[var(--text-light)] mb-1">
+                <div className="flex flex-col justify-center lg:w-96 w-72 link text-center space-y-3 text-sm text-[var(--text-light)] mb-1">
                     <p>
                         Opción disponible cuando hayas usado tu prueba gratuita.
                     </p>
