@@ -279,7 +279,6 @@ export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: n
         {history}
         <div className="text-gray-800 text-sm text-center block lg:hidden">
             <p>Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
-            <p>Estamos trabajando para agregar esta funcionalidad en celulares.</p>
         </div>
     </>
 }

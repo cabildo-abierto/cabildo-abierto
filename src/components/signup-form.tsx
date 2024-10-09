@@ -9,6 +9,7 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import InfoPanel from './info-panel';
 import { signup, SignUpFormState } from '../actions/auth';
 import ResendEmailButton from './resend-email-button';
+import Link from 'next/link';
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
@@ -288,6 +289,11 @@ export default function SignupForm() {
                 <NameInput state={state}/>
                 <BetaPWInput state={state}/>
                 <SignupButton/>
+                <div className="text-sm leading-tight mt-1 text-justify text-[var(--text-light)]">
+                    Al crear una cuenta aceptás nuestros <Link href="/articulo/Cabildo_Abierto%3A_Términos_y_condiciones" className="link3">Términos y condiciones</Link> y <Link href="/articulo/Cabildo_Abierto%3A_Política_de_privacidad" className="link3">
+                    Política de privacidad.
+                </Link> ¡Leelos!
+                </div>
             </AuthForm>
         </>
     )

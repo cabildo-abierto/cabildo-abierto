@@ -11,6 +11,7 @@ import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/he
 import MercadoPagoConfig, { Preference } from "mercadopago";
 import { accessToken, contributionsToProportionsMap, isDemonetized, subscriptionEnds } from "../components/utils";
 import assert from "assert";
+import { pathLogo } from "../components/logo";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -423,10 +424,33 @@ export async function buyAndUseSubscription(userId: string, price: number, payme
             usedAt: usedAt,
             endsAt: endsAt,
             paymentId: paymentId,
-            price: price
+            price: price,
+            isDonation: false
         }
     })
     revalidateTag("user:"+userId)
+}
+
+
+export async function stockSubscriptions(userId: string, price: number, n: number, paymentId?: string) {
+    
+    const queries = []
+    
+    for(let i = 0; i < n; i++){
+        queries.push({
+            boughtByUserId: userId,
+            price: price,
+            paymentId: paymentId,
+            isDonation: false
+        })
+    }
+
+    await db.subscription.createMany({
+        data: queries
+    })
+
+    revalidateTag("user:"+userId)
+    revalidateTag("poolsize")
 }
 
 export async function donateSubscriptions(n: number, userId: string, paymentId: string, price: number) {
@@ -436,7 +460,8 @@ export async function donateSubscriptions(n: number, userId: string, paymentId: 
         queries.push({
             boughtByUserId: userId,
             price: price,
-            paymentId: paymentId
+            paymentId: paymentId,
+            isDonation: true
         })
     }
 
@@ -452,7 +477,8 @@ export async function donateSubscriptions(n: number, userId: string, paymentId: 
 export async function getDonatedSubscription(userId: string) {
     const subscription = await db.subscription.findFirst({
         where: {
-            usedAt: null
+            usedAt: null,
+            isDonation: true
         }
     })
 
@@ -479,7 +505,7 @@ export async function getDonatedSubscription(userId: string) {
 export const getSubscriptionPoolSize = unstable_cache(async () => {
     const available = await db.subscription.findMany({
         select: {id: true},
-        where: {usedAt: null}
+        where: {usedAt: null, isDonation: true}
     })
     return available.length
 },
@@ -609,7 +635,7 @@ export async function createPreference(userId: string, amount: number, donations
     }
 
     let items = [{
-        picture_url: baseUrl+"/logo.svg",
+        picture_url: baseUrl+pathLogo,
         id: "0",
         title: title,
         quantity: 1,
@@ -985,7 +1011,8 @@ export async function addDonatedSubscriptionsManually(boughtByUserId: string, am
         data.push({
             boughtByUserId: boughtByUserId,
             price: price,
-            paymentId: paymentId
+            paymentId: paymentId,
+            isDonation: true
         })
     }
 

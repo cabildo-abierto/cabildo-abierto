@@ -7,6 +7,7 @@ import { Metadata } from 'next'
 //import { Noto_Serif, Noto_Sans_SC, Inter, Playfair_Display, Ubuntu_Condensed, Ubuntu, Ubuntu_Mono } from 'next/font/google'
 //import { Roboto, Merriweather, Merriweather_Sans } from 'next/font/google'
 import { Merriweather } from 'next/font/google'
+import { pathLogo } from '../components/logo'
 
 
 
@@ -170,7 +171,7 @@ export default function RootLayout({
             <script defer src="https://cloud.umami.is/script.js" data-website-id="49c00411-610e-4f0c-ae51-3fe9e37aded3">
             </script>
 
-            <link rel="icon" href="/logo.svg" />
+            <link rel="icon" href={pathLogo} />
         </head>
         <body className="bg-[var(--background)]">
             {children}

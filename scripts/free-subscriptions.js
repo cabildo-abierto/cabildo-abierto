@@ -7,7 +7,8 @@ const db = new PrismaClient();
         await db.subscription.create({
             data: {
                 boughtByUserId: "tomas",
-                price: 0
+                price: 0,
+                isDonation: true
             }
         })
     }

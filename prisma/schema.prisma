@@ -96,6 +96,8 @@ model Subscription {
   paymentId      String?
   endsAt         DateTime?
 
+  isDonation     Boolean   @default(true)
+
   paymentPromises PaymentPromise[]
   promisesCreated Boolean  @default(false)
 
