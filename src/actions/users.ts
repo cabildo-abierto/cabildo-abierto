@@ -967,7 +967,12 @@ export async function confirmPayments() {
                         select: {
                             id: true
                         }
-                    }
+                    },
+                    claimsAuthorship: true,
+                    rejectedById: true,
+                    charsAdded: true,
+                    confirmedById: true,
+                    editPermission: true
                 }
             }
         },

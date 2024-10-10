@@ -12,7 +12,7 @@ export function shortDescription(content: ContentProps){
     const authorUrl = "/perfil/"+parentAuthor
     const parentUrl = (content.type == "EntityContent" ? "/articulo/" : "/contenido/") + content.id
     const parentEntityId = content.parentEntityId
-    const parentEntityName = decodeURIComponent(parentEntityId).replace("_", " ")
+    const parentEntityName = decodeURIComponent(parentEntityId).replaceAll("_", " ")
 
     let desc = null
     if(content.type == "Comment"){

@@ -264,8 +264,20 @@ export function isRejected(content: {rejectedById?: string}) {
 }
 
 
-export function isDemonetized(content: {undos: {id: string}[], rejectedById?: string, claimsAuthorship?: boolean}){
-    return isUndo(content) || isRejected(content) || !content.claimsAuthorship
+export function isDemonetized(content: {undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, charsAdded: number, confirmedById?: string, editPermission: boolean}){
+    return !isPartOfContent(content) || !content.claimsAuthorship || content.charsAdded == 0
+}
+
+
+export function isPartOfContent(
+    content: {
+        undos: {id: string}[]
+        rejectedById?: string
+        claimsAuthorship: boolean
+        editPermission: boolean
+        confirmedById?: string
+    }){
+    return !isUndo(content) && (content.editPermission || content.confirmedById)
 }
 
 
