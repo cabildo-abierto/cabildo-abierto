@@ -9,9 +9,9 @@ function round2(x: number){
 }
 
 
-function toPercentage(chars: number, total: number){
+export function toPercentage(chars: number, total: number){
     if(total == 0) return <></>
-    return <span>({round2(chars / total * 100)}%)</span>
+    return round2(chars / total * 100)
 }
 
 
@@ -40,7 +40,9 @@ export const ShowUserContribution = ({entityId, userId}:
     contributions = contributions.filter(([authorId, _]) => (authorId == userId))
 
     if(contributions.length > 0)
-        return <span>Contribución: {round2(contributions[0][1] / total * 100)}%</span>
+        return <span>
+            Contribución: {toPercentage(contributions[0][1], total)}%
+        </span>
     else {
         return <span>Contribución: Artículo vacío</span>
     }
@@ -77,7 +79,7 @@ export const ShowContributors = ({entityId, userId}:
         <span className="mr-1">Escrito por</span>
         <div className="flex space-x-2 link">
             {contributions.map(([authorId, chars], index) => {
-                return <span key={index}><Link href={"/perfil/"+authorId}>@{authorId}</Link> {toPercentage(chars, total)}</span>
+                return <span key={index}><Link href={"/perfil/"+authorId}>@{authorId}</Link> ({toPercentage(chars, total)}%)</span>
             })}.
         </div>
     </div>

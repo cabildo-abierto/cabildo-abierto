@@ -11,11 +11,15 @@ import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
 import { confirmChanges, rejectChanges, removeEntityAuthorship } from "../actions/entities"
-import { currentVersion, hasEditPermission, isUndo } from "./utils"
+import { currentVersion, hasEditPermission, isDemonetized, isUndo } from "./utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./accept-button-panel"
 import { NoEditPermissionsMsg } from "./no-edit-permissions-msg"
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import { toPercentage } from "./show-contributors"
+import { ChangesCounter } from "./changes-counter"
+import { charDiffFromJSONString } from "./diff"
+import { decompress } from "./compression"
 
 
 const EditDetails = ({type}: {type: string}) => {
@@ -105,10 +109,29 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
 
 
 const EditMessage = ({msg, type}: {msg?: string, type: string}) => {
-    return <span className="text-sm">
+    return <span className="text-sm text-gray-900">
         {(msg != null && msg.length > 0) ? msg : (type == "Contenido" ? "sin descripción" : "")}
     </span>
 }
+
+
+
+const MonetizationPortion = ({entity, index}: {entity: EntityProps, index: number}) => {
+
+    const charsAdded = entity.versions[index].charsAdded
+
+    let monetizedCharsAdded = 0
+    for(let i = 0; i < entity.versions.length; i++){
+        if(!isDemonetized(entity.versions[i])){
+            monetizedCharsAdded += entity.versions[i].charsAdded
+        }
+    }
+
+    return <span title="Porcentaje sobre las contribuciones monetizadas">
+        {toPercentage(charsAdded, monetizedCharsAdded)}%
+    </span>
+}
+
 
 
 const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
@@ -194,12 +217,22 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                         <DateSince date={entityVersion.createdAt}/>
                     </div>
                     
-                    {entity.versions[index].editMsg ? <div className="text-sm text-gray-900">
-                        <EditMessage
-                            msg={entity.versions[index].editMsg}
-                            type={type}
-                        />
-                    </div> : <div>&nbsp;</div>}
+                    <div className="text-sm space-x-2 flex">
+
+                        <div>
+                            <ChangesCounter
+                                charsAdded={entity.versions[index].charsAdded} charsDeleted={entity.versions[index].charsDeleted}
+                            />
+                        </div>
+
+                        {entity.versions[index].editMsg && 
+                            <EditMessage
+                                msg={entity.versions[index].editMsg}
+                                type={type}
+                            />
+                        }
+                    </div>
+
                     
                     <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-900">
@@ -213,6 +246,11 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                             </button>}
 
                             {hasAuthorshipClaim && <AuthorshipClaim entity={entity} version={index} setShowingRemoveAuthorshipPanel={setShowingRemoveAuthorshipPanel}/>}
+
+                            {(hasAuthorshipClaim && entity.versions[index].claimsAuthorship) && <MonetizationPortion
+                                entity={entity}
+                                index={index}
+                            />}
                         </div>
                     </div>
                 </div>
@@ -261,6 +299,9 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
 
 export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: number}) => {
     const currentIndex = currentVersion(entity)
+
+    const lastDiff = JSON.parse(entity.versions[entity.versions.length-1].diff)
+    console.log(lastDiff)
 
     const history = <div className="mt-1 hidden lg:block">
         {entity.versions.map((version, index) => {

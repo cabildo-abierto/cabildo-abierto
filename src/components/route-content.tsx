@@ -60,12 +60,12 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
                 <CategoryArticles route={route}/>
             }
 
-            {selected == "General" &&
+            {/*selected == "General" &&
                 <div className="text-center mt-1 mb-2">
                     <span className="text-[var(--text-light)] text-sm">
                         Un muro con lo que está pasando en Cabildo Abierto, sin personalización
                     </span>
-                </div>
+                </div>*/
             }
             
             {selected == "General" &&

@@ -92,6 +92,8 @@ export type EntityVersionProps = {
     }
     editPermission: boolean,
     accCharsAdded: number,
+    charsAdded: number
+    charsDeleted: number
     contribution: string
     childrenContents: CommentProps[]
     diff?: string

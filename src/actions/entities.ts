@@ -6,7 +6,7 @@ import { findReferences, getContentById } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { currentVersionContent, entityInRoute, getPlainText, hasEditPermission, isDemonetized, isUndo } from "../components/utils";
+import { currentVersionContent, entityInRoute, getPlainText, hasEditPermission, isPartOfContent, isUndo } from "../components/utils";
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
@@ -59,86 +59,97 @@ export async function createEntity(name: string, userId: string){
 }
 
 
-// las contribuciones se calculan excluyendo todo lo que no esté monetizado o 
-export const recomputeEntityContributions = async (entityId: string, useCacheEntity: boolean = true, onlyLast: boolean = false) => {
-    const entity = await getEntityById(entityId, useCacheEntity)
+function updateContribution(contribution: [string, number][], charsAdded: number, newAuthor: string){
+    let wasAuthor = false
+    for(let i = 0; i < contribution.length; i++){
+        if(contribution[i][0] == newAuthor){
+            wasAuthor = true
+            contribution[i][1] += charsAdded
+        }
+    }
+    
+    if(!wasAuthor){
+        contribution.push([newAuthor, charsAdded])
+    }
+    return contribution
+}
 
-    let lastContribution = JSON.stringify([[entity.versions[0].author.id, 0]])
-    let lastCharsAdded = 0
+
+export const recomputeEntityContributions = async (entityId: string) => {
+
+    const entity = await db.entity.findUnique({
+        select: {
+            versions: {
+                select: {
+                    compressedText: true,
+                    authorId: true,
+                    id: true,
+                    undos: {
+                        select: {
+                            id: true
+                        }
+                    },
+                    rejectedById: true,
+                    confirmedById: true,
+                    claimsAuthorship: true,
+                    editPermission: true
+                },
+                orderBy: {
+                    createdAt: "asc"
+                }
+            }
+        },
+        where: {
+            id: entityId
+        }
+    })
+
+    const texts = entity.versions.map((t) => (decompress(t.compressedText)))
+
+    let lastContribution = JSON.stringify([[entity.versions[0].authorId, 0]])
+    let lastAccCharsAdded = 0
+
     for(let i = 0; i < entity.versions.length; i++){
-        if(onlyLast && i != entity.versions.length-1) continue
-        const versionContent = await getContentById(entity.versions[i].id, undefined, useCacheEntity)
         let newData = null
-        if(i == 0 || isDemonetized(entity.versions[i]) || 
-        entity.versions[i].compressedText === entity.versions[i-1].compressedText){
+        if(i == 0 || entity.versions[i].compressedText == entity.versions[i-1].compressedText || !isPartOfContent(entity.versions[i])){
             newData = {
-                accCharsAdded: lastCharsAdded, 
+                accCharsAdded: lastAccCharsAdded, 
                 charsAdded: 0, 
                 charsDeleted: 0, 
                 contribution: lastContribution,
                 diff: JSON.stringify({matches: [], common: [], bestMatches: []})
             }
         } else {
-            newData = await getNewVersionContribution(
-                entityId,
-                decompress(versionContent.compressedText),
-                versionContent.author.id,
-                i-1
-            )
+            const {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(texts[i-1], texts[i])
+
+            const accCharsAdded = lastAccCharsAdded + charsAdded
+
+            const contribution: [string, number][] = JSON.parse(lastContribution)
+            
+            const newContribution = updateContribution(contribution, charsAdded, entity.versions[i].authorId)
+        
+            newData = {
+                accCharsAdded: accCharsAdded, 
+                charsAdded: charsAdded, 
+                charsDeleted: charsDeleted, 
+                contribution: JSON.stringify(newContribution),
+                diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches})
+            }
         }
 
         await db.content.update({
             data: newData,
             where: {
-                id: versionContent.id
+                id: entity.versions[i].id
             }
         })
         lastContribution = newData.contribution
-        lastCharsAdded = newData.accCharsAdded
-        revalidateTag("content:"+versionContent.id)
-        revalidateTag("contentStatic:"+versionContent.id)
+        lastAccCharsAdded = newData.accCharsAdded
+        revalidateTag("content:"+entity.versions[i].id)
     }
     revalidateTag("entity:"+entityId)
 }
 
-
-const getNewVersionContribution = async (entityId: string, text: string, userId: string, afterVersion?: number) => {
-    const entity = await getEntityById(entityId)
-    if(afterVersion == undefined) afterVersion = entity.versions.length-1
-
-    console.log("userId", userId)
-
-    const lastVersionId = entity.versions[afterVersion].id
-    const lastVersion = await getContentById(lastVersionId)
-    const {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(decompress(lastVersion.compressedText), text)
-    const accCharsAdded = lastVersion.accCharsAdded + charsAdded
-    const contribution: [string, number][] = JSON.parse(lastVersion.contribution)
-    
-    console.log("last version contribution", lastVersion.contribution)
-
-    let wasAuthor = false
-    for(let i = 0; i < contribution.length; i++){
-        if(contribution[i][0] == userId){
-            wasAuthor = true
-            contribution[i][1] += charsAdded
-        }
-    }
-
-    if(!wasAuthor){
-        contribution.push([userId, charsAdded])
-    }
-
-    console.log("resulting contribution", contribution)
-
-    return {
-        accCharsAdded: accCharsAdded, 
-        charsAdded: charsAdded, 
-        charsDeleted: charsDeleted, 
-        contribution: JSON.stringify(contribution),
-        diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches})
-    }
-}
-  
   
 export const updateEntity = async (entityId: string, userId: string, claimsAuthorship: boolean, editMsg: string, compressedText?: string, categories?: string) => {
     const entity = await getEntityById(entityId)
@@ -146,20 +157,33 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
 
     let references = null
     let text = null
-    if(compressedText != undefined){
+    let prevText = null
+    const categoriesChange = compressedText != undefined
+    const currentContent = await getContentById(current.id)
+    if(categoriesChange){
         text = decompress(compressedText)
         references = await findReferences(text)
         categories = current.categories
+        prevText = decompress(currentContent.compressedText)
     } else {
-        const currentContent = await getContentById(current.id)
         compressedText = currentContent.compressedText
         references = currentContent.entityReferences
         text = decompress(compressedText)
+        prevText = text
     }
 
     const permission = hasEditPermission(await getUserById(userId), entity.protection)
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
+
+    let {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(prevText, text)
+
+    let contribution = null
+    if(!permission){
+        contribution = JSON.parse(currentContent.contribution)
+    } else {
+        contribution = updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId)
+    }
 
     await db.content.create({
         data: {
@@ -186,11 +210,14 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
                     id: entityId
                 }
             } : undefined,
-            editMsg: editMsg
+            editMsg: editMsg,
+            accCharsAdded: currentContent.accCharsAdded + charsAdded,
+            contribution: JSON.stringify(contribution),
+            diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches}),
+            charsAdded: charsAdded,
+            charsDeleted: charsDeleted
         }
     })
-
-    await recomputeEntityContributions(entityId, false, true)
 
     revalidateTag("entity:" + entityId)
     revalidateTag("entities")
@@ -319,7 +346,7 @@ export const deleteEntityHistory = async (entityId: string, includeLast: boolean
     for(let i = 1; i < entity.versions.length-(includeLast ? 0 : 1); i++){
         await deleteContent(entity.versions[i].id)
     }
-    await recomputeEntityContributions(entityId, false)
+    await recomputeEntityContributions(entityId)
     
     revalidateTag("entity:"+entityId)
     revalidateTag("entities")
@@ -423,6 +450,8 @@ export async function getEntityByIdNoCache(id: string){
                     confirmedById: true,
                     rejectedById: true,
                     accCharsAdded: true,
+                    charsAdded: true,
+                    charsDeleted: true,
                     contribution: true,
                     editMsg: true,
                     undos: {
@@ -635,9 +664,10 @@ export async function recomputeAllContributions(){
     const entities = await getEntities()
 
     for(let i = 0; i < entities.length; i++){
-        if(entities[i].name != "Decreto 1558/2001: Protección de los datos personales") continue
         console.log("recomputing contributions for", entities[i].name)
+        const t1 = Date.now()
         await recomputeEntityContributions(entities[i].id)
+        console.log("Done in ", Date.now()-t1)
     }
 }
 
