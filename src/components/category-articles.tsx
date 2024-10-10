@@ -27,13 +27,18 @@ const ArticlesWithSearch = ({ entities, route }: { entities: SmallEntityProps[],
     let entitiesWithScore = filteredEntities.map((entity) => ({ entity: entity, score: popularityScore(entity) }));
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
 
+    function generator(index: number){
+        const entity = entitiesWithScore[index]?.entity;
+        return {
+            c: entity ? <EntitySearchResult route={route} entity={entity} /> : null,
+            key: entity.id
+        }
+    }
+
     return (
         <div className="flex flex-col items-center w-full">
             {entitiesWithScore.length > 0 ? (
-                <LazyLoadFeed maxSize={entitiesWithScore.length} generator={(index) => {
-                    const entity = entitiesWithScore[index]?.entity;
-                    return entity ? <EntitySearchResult route={route} entity={entity} /> : null;
-                }} />
+                <LazyLoadFeed maxSize={entitiesWithScore.length} generator={generator} />
             ) : (
                 <NoResults text="No se encontró ningún artículo." />
             )}

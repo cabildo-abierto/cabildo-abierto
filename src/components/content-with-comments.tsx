@@ -75,7 +75,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         setWritingReply(false)
     }
     
-    const className = (depthParity ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]") +
+    const className = "w-full " + (depthParity ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]") +
         (isMainPage ? "" : " content-container")
 
     const depthParityComments = ["Post", "EntityContent"].includes(content.type) ? false : !depthParity

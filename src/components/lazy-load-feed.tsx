@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState, useRef, useCallback } from 'react';
 
 interface LazyLoadFeedProps {
-    generator: (index: number) => ReactNode
+    generator: (index: number) => {c: ReactNode, key: string}
     maxSize: number
     initialCount?: number
     loadMoreCount?: number
@@ -39,12 +39,13 @@ export const LazyLoadFeed = ({ generator, maxSize, initialCount = 10, loadMoreCo
     }, [handleObserver]);
 
     return (
-        <div className="lazy-load-feed space-y-2">
-            {Array.from({ length: visibleCount }, (_, index) => (
-                <div key={index} className="feed-item">
-                    {generator(index)}
+        <div className="w-full flex flex-col items-center space-y-2">
+            {Array.from({ length: Math.min(visibleCount, maxSize) }, (_, index) => {
+                const {c, key} = generator(index)
+                return <div key={key} className="w-full flex justify-center">
+                    {c}
                 </div>
-            ))}
+            })}
 
             <div ref={observerRef} className="w-full h-1" />
         </div>

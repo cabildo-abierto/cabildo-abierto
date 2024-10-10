@@ -19,20 +19,26 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
     if(feed.isLoading){
         return <LoadingSpinner/>
     }
+
+    function generator(index: number){
+        return {
+            c: <ContentWithCommentsFromId
+                contentId={feed.feed[index].id}
+                inCommentSection={false}
+            />,
+            key: feed.feed[index].id
+        }
+    }
     
     let content = null
     if(feed.feed.length == 0){
         content = <NoResults text={noResultsText}/>
     } else {
         content = <>
-            <LazyLoadFeed maxSize={feed.feed.length} generator={(index) => {
-                return <div key={feed.feed[index].id} className="w-full">
-                    <ContentWithCommentsFromId
-                        contentId={feed.feed[index].id}
-                        inCommentSection={false}
-                    />
-                </div>
-            }} />
+            <LazyLoadFeed
+                maxSize={feed.feed.length}
+                generator={generator}
+            />
         </>
     }
 
