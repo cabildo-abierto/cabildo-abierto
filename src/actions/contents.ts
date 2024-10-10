@@ -11,122 +11,129 @@ import { getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
 
 
-export async function getContentById(id: string, userId?: string): Promise<ContentProps> {
+
+export async function getContentByIdNoCache(id: string, userId?: string){
+    if(!userId) userId = await getUserId()
+    let content: ContentProps = await db.content.findUnique({
+        select: {
+            id: true,
+            type: true,
+            compressedText: true,
+            title: true,
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
+            createdAt: true,
+            _count: {
+                select: {
+                    reactions: true,
+                    childrenTree: true
+                }
+            },
+            rootContentId: true,
+            fakeReportsCount: true,
+            uniqueViewsCount: true,
+            reactions: userId ? {
+                select: {
+                    id: true
+                },
+                where: {
+                    userById: userId
+                }
+            } : false,
+            views: userId ? {
+                select: {
+                    id: true
+                },
+                where: {
+                    userById: userId
+                }
+            } : false,
+            parentContents: {
+                select: {id: true}
+            },
+            entityReferences: {
+                select: {
+                    id: true,
+                    versions: {
+                        select: {
+                            id: true,
+                            categories: true
+                        },
+                        orderBy: {
+                            createdAt: "asc"
+                        }
+                    }
+                }
+            },
+            parentEntityId: true,
+            accCharsAdded: true,
+            contribution: true,
+            charsAdded: true,
+            charsDeleted: true,
+            diff: true,
+            currentVersionOf: {
+                select: {
+                    id: true
+                }
+            },
+            categories: true,
+            stallPaymentUntil: true,
+            undos: {
+                select: {
+                    id: true,
+                    reportsOportunism: true,
+                    reportsVandalism: true,
+                    authorId: true,
+                    createdAt: true,
+                    compressedText: true
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            },
+            contentUndoneId: true,
+            reportsOportunism: true,
+            reportsVandalism: true,
+            ancestorContent: {
+                select: {
+                    id: true
+                }
+            },
+            childrenContents: {
+                select: {
+                    id: true,
+                    createdAt: true,
+                    type: true,
+                    _count: {
+                        select: {
+                            childrenTree: true
+                        }
+                    }
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            },
+        },
+        where: {
+            id: id,
+        }
+    })
+    if(!content) return undefined
+    if(!content.reactions) content.reactions = []
+    if(!content.views) content.views = []
+    return content
+}
+
+export async function getContentById(id: string, userId?: string, useCache: boolean = false): Promise<ContentProps> {
+    if(!useCache) return await getContentByIdNoCache(id, userId)
     if(!userId) userId = await getUserId()
     return unstable_cache(async () => {
-        let content: ContentProps = await db.content.findUnique({
-            select: {
-                id: true,
-                type: true,
-                compressedText: true,
-                title: true,
-                author: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
-                },
-                createdAt: true,
-                _count: {
-                    select: {
-                        reactions: true,
-                        childrenTree: true
-                    }
-                },
-                rootContentId: true,
-                fakeReportsCount: true,
-                uniqueViewsCount: true,
-                reactions: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                views: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                parentContents: {
-                    select: {id: true}
-                },
-                entityReferences: {
-                    select: {
-                        id: true,
-                        versions: {
-                            select: {
-                                id: true,
-                                categories: true
-                            },
-                            orderBy: {
-                                createdAt: "asc"
-                            }
-                        }
-                    }
-                },
-                parentEntityId: true,
-                accCharsAdded: true,
-                contribution: true,
-                charsAdded: true,
-                charsDeleted: true,
-                diff: true,
-                currentVersionOf: {
-                    select: {
-                        id: true
-                    }
-                },
-                categories: true,
-                stallPaymentUntil: true,
-                undos: {
-                    select: {
-                        id: true,
-                        reportsOportunism: true,
-                        reportsVandalism: true,
-                        authorId: true,
-                        createdAt: true,
-                        compressedText: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                contentUndoneId: true,
-                reportsOportunism: true,
-                reportsVandalism: true,
-                ancestorContent: {
-                    select: {
-                        id: true
-                    }
-                },
-                childrenContents: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true,
-                        _count: {
-                            select: {
-                                childrenTree: true
-                            }
-                        }
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-            },
-            where: {
-                id: id,
-            }
-        })
-        if(!content) return undefined
-        if(!content.reactions) content.reactions = []
-        if(!content.views) content.views = []
-        return content
+        return await getContentByIdNoCache(id, userId)
     }, ["content", id, userId], {
         tags: ["content", "content:"+id+":"+userId, "content:"+id],
         revalidate: revalidateEverythingTime,

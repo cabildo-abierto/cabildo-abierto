@@ -36,7 +36,6 @@ export const ModalBelow = ({children, open, setOpen, className, hoverOnly=false}
         if (open && panelRef.current) {
             const panel = panelRef.current;
             const boundingRect = panel.getBoundingClientRect();
-            console.log(boundingRect, window.innerWidth) 
             if (boundingRect.right > window.innerWidth) {
                 panel.style.left = `${window.innerWidth - boundingRect.width - boundingRect.left}px`;
             } else if (boundingRect.left < 0) {

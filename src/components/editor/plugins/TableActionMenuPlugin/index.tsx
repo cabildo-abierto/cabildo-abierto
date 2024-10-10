@@ -446,8 +446,6 @@ function TableActionMenu({
       dropDownElement.style.opacity = '1';
       const dropDownElementRect = dropDownElement.getBoundingClientRect();
       const margin = 5;
-      console.log("menuButtonRect", menuButtonRect)
-      console.log("d")
       let leftPosition = menuButtonRect.right + margin;
       if (
         leftPosition + dropDownElementRect.width > window.innerWidth ||
