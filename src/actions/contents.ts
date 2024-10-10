@@ -167,8 +167,6 @@ export const getContentFakeNewsCount = (contentId: string) => {
 
 
 export async function createComment(compressedText: string, parentContentId: string, userId: string) {
-    console.log("creating comment start")
-    const t1 = Date.now()
     const text = decompress(compressedText)
     let references = await findReferences(text)
 
@@ -200,7 +198,7 @@ export async function createComment(compressedText: string, parentContentId: str
     })
 
     if(parentContent.author.id != userId){
-        createNotification(
+        await createNotification(
             userId,
             parentContent.author.id,
             "Comment",
@@ -208,8 +206,6 @@ export async function createComment(compressedText: string, parentContentId: str
             undefined
         )
     }
-    const t2 = Date.now()
-    console.log("creating comment end", t2-t1)
     revalidateTag("repliesFeed:"+userId)
     revalidateTag("content:"+parentContentId)
     revalidateTag("contentComments:"+parentContentId)
@@ -435,7 +431,14 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
             revalidateTag("entity:"+entityId)
         const content = await getContentById(id)
         
-        createNotification(userId, content.author.id, "Reaction", content.id, reaction.id)
+        await createNotification(
+            userId,
+            content.author.id,
+            "Reaction",
+            content.id,
+            reaction.id
+        )
+
         return {liked: true, likeCount: content._count.reactions}
     }
     const content = await getContentById(id)

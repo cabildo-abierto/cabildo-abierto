@@ -45,6 +45,7 @@ export const SearchButton = ({ onClick=null, disabled=false }: any) => {
 
 const NotificationsButton = () => {
     const user = useUser()
+
     return <Link href="/notificaciones" className="hover:bg-[var(--secondary-light)] rounded-lg">
         <div className="px-1 py-[5px]">
             <NotificationsIcon count={user.user ? user.user._count.notifications : undefined}/>
