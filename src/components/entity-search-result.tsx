@@ -46,7 +46,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
   }
 
   const numWords = entity.versions[currentVersion(entity)].numWords
-
+  
   return (
     <div className="relative flex flex-col max-w-[384px] w-full">
       {numWords == 0 && (

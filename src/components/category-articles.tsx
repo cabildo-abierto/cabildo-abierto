@@ -4,14 +4,13 @@ import { NoResults } from "./category-users"
 import { SmallEntityProps } from "../app/lib/definitions"
 import { useRouteEntities } from "../app/hooks/contents"
 import LoadingSpinner from "./loading-spinner"
-import { cleanText, listOrderDesc, route2Text } from "./utils"
+import { cleanText, currentVersion, listOrderDesc, route2Text } from "./utils"
 import InfoPanel from "./info-panel"
-import { useEffect, useState, useRef, useCallback } from 'react';
 import { LazyLoadFeed } from "./lazy-load-feed"
 
 
 function popularityScore(entity: SmallEntityProps){
-    return [(entity.versions[entity.versions.length-1].numWords > 0 ? 1 : 0), getEntityChildrenCount(entity) + entity.uniqueViewsCount + entity._count.referencedBy + entity._count.reactions]
+    return [(entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0), getEntityChildrenCount(entity) + entity.uniqueViewsCount + entity._count.referencedBy + entity._count.reactions]
 }
 
 
@@ -51,7 +50,7 @@ const ArticlesWithSearch = ({ entities, route }: { entities: SmallEntityProps[],
 export const CategoryArticles = ({route}: {route: string[]}) => {
     const routeEntities = useRouteEntities(route)
     if(routeEntities.isLoading) return <LoadingSpinner/>
-    
+
     const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de estrellas que recibió. Los artículos vacíos se muestran al final. Solo se muestran artículos de la categoría seleccionada ({route2Text(route)}).</span>
 
     return <>

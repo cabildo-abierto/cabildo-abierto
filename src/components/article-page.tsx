@@ -154,7 +154,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             text1="Recalcular contribuciones"
             text2="Recalculando..."
             onClick={async (e) => {
-                await recomputeEntityContributions(entity.id)
+                await recomputeEntityContributions(entity.id, false)
                 return false
             }}
         />

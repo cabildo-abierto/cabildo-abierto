@@ -158,7 +158,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 
     className = className + ((isUndone || isRejected) ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
 
-    const type = index == 0 ? "Creación" : (entity.versions[index].categories != entity.versions[index-1].categories ? "Categorías" : "Contenido")
+    const type = index == 0 ? "Creación" : (entity.versions[index].compressedText == entity.versions[index-1].compressedText ? "Categorías" : "Contenido")
 
     const entityVersion = entity.versions[index]
 

@@ -63,14 +63,14 @@ export async function createEntity(name: string, userId: string){
 export const recomputeEntityContributions = async (entityId: string, useCacheEntity: boolean = true, onlyLast: boolean = false) => {
     const entity = await getEntityById(entityId, useCacheEntity)
 
-    // no actualizamos la primera versión porque no suele cambiar
-    let lastContribution = "[]"
+    let lastContribution = JSON.stringify([[entity.versions[0].author.id, 0]])
     let lastCharsAdded = 0
-    for(let i = 1; i < entity.versions.length; i++){
+    for(let i = 0; i < entity.versions.length; i++){
         if(onlyLast && i != entity.versions.length-1) continue
-        const versionContent = await getContentById(entity.versions[i].id)
+        const versionContent = await getContentById(entity.versions[i].id, undefined, useCacheEntity)
         let newData = null
-        if(isDemonetized(entity.versions[i]) || entity.versions[i].categories !== entity.versions[i-1].categories){
+        if(i == 0 || isDemonetized(entity.versions[i]) || 
+        entity.versions[i].compressedText === entity.versions[i-1].compressedText){
             newData = {
                 accCharsAdded: lastCharsAdded, 
                 charsAdded: 0, 
@@ -106,12 +106,16 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
     const entity = await getEntityById(entityId)
     if(afterVersion == undefined) afterVersion = entity.versions.length-1
 
+    console.log("userId", userId)
+
     const lastVersionId = entity.versions[afterVersion].id
     const lastVersion = await getContentById(lastVersionId)
     const {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(decompress(lastVersion.compressedText), text)
     const accCharsAdded = lastVersion.accCharsAdded + charsAdded
     const contribution: [string, number][] = JSON.parse(lastVersion.contribution)
     
+    console.log("last version contribution", lastVersion.contribution)
+
     let wasAuthor = false
     for(let i = 0; i < contribution.length; i++){
         if(contribution[i][0] == userId){
@@ -119,9 +123,12 @@ const getNewVersionContribution = async (entityId: string, text: string, userId:
             contribution[i][1] += charsAdded
         }
     }
+
     if(!wasAuthor){
         contribution.push([userId, charsAdded])
     }
+
+    console.log("resulting contribution", contribution)
 
     return {
         accCharsAdded: accCharsAdded, 
@@ -360,6 +367,7 @@ export const getEntities = unstable_cache(async () => {
             name: true,
             protection: true,
             isPublic: true,
+            uniqueViewsCount: true,
             versions: {
                 select: {
                     id: true,
@@ -384,7 +392,6 @@ export const getEntities = unstable_cache(async () => {
                     reactions: true
                 }
             },
-            uniqueViewsCount: true,
             currentVersionId: true
         },
         where: {
@@ -631,5 +638,29 @@ export async function recomputeAllContributions(){
         if(entities[i].name != "Decreto 1558/2001: Protección de los datos personales") continue
         console.log("recomputing contributions for", entities[i].name)
         await recomputeEntityContributions(entities[i].id)
+    }
+}
+
+
+export async function updateUniqueViewsCount(){
+    const entities = await db.entity.findMany({
+        select: {
+            id: true,
+            views: true
+        },
+        where: {
+            uniqueViewsCount: null
+        }
+    })
+    for(let i = 0; i < entities.length; i++){
+        const s = new Set(entities[i].views.map((v) => (v.userById))).size
+        await db.entity.update({
+            data: {
+                uniqueViewsCount: s
+            },
+            where: {
+                id: entities[i].id
+            }
+        })
     }
 }

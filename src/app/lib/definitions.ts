@@ -75,6 +75,7 @@ export type EntityProps = {
     referencedBy: SmallContentProps[]
     deleted: boolean,
     currentVersionId: string
+    uniqueViewsCount: number
 }
 
 
