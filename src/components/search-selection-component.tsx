@@ -1,6 +1,7 @@
 "use client"
 
 import { ReactNode } from "react";
+import InfoPanel from "./info-panel";
 
 type SelectionComponentProps = { 
     onSelection: (arg: string) => void
@@ -9,10 +10,11 @@ type SelectionComponentProps = {
     className?: string
     optionExpl?: (string | undefined)[]
     optionsNodes?: ReactNode[]
+    infoPanelTexts?: (ReactNode | null)[]
 }
 
 const SelectionComponent: React.FC<SelectionComponentProps> = ({
-  onSelection, options, selected, className="search", optionExpl, optionsNodes
+  onSelection, options, selected, className="search", optionExpl, optionsNodes, infoPanelTexts
 }) => {
 
   const handleButtonClick = (button: string) => {
@@ -36,8 +38,9 @@ const SelectionComponent: React.FC<SelectionComponentProps> = ({
         title={optionExpl ? optionExpl[index] : undefined}
       >
         {!optionsNodes && <span className={textClassName(option)}>
-          {option}
+          {option} 
         </span>}
+        {infoPanelTexts && infoPanelTexts[index] && <InfoPanel iconClassName="text-[var(--accent-light)] ml-1" text={infoPanelTexts[index]}/>}
         {optionsNodes && 
           <div className={textClassName(option)+" flex flex-col px-1"}>
             <span>

@@ -484,12 +484,12 @@ ol {
 	top: 100%;
 	left: 50%;
 	transform: translateX(-50%);
+	z-index: 10;
 	margin-top: 2px;
 	padding: 6px;
 	background-color: var(--background);
 	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 	border-radius: 8px;
-	z-index: 10;
 	border-width: 1px;
 	border-color: var(--accent);
 	color: $text;

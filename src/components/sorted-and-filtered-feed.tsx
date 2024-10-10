@@ -15,14 +15,13 @@ function comp(a: {score: number}, b: {score: number}){
 }
 
 export type ConfiguredFeedProps = {
-    feed: LoadingFeedWithData,
-    noResultsText?: string,
-    maxSize?: number
+    feed: LoadingFeedWithData
+    noResultsText?: string
     order: string
     filter: string
 }
 
-export const ConfiguredFeed = ({feed, noResultsText, maxSize, order, filter}: ConfiguredFeedProps) => {
+export const ConfiguredFeed = ({feed, noResultsText, order, filter}: ConfiguredFeedProps) => {
     const {searchValue} = useSearch()
     if(feed.isLoading){
         return <LoadingSpinner/>
@@ -51,9 +50,9 @@ export const ConfiguredFeed = ({feed, noResultsText, maxSize, order, filter}: Co
     
     const byPopularityFeed = feedWithScore.sort(comp).map(({content}) => (content))
 
-    const popularityFeedComponent = <Feed feed={{feed: byPopularityFeed, isLoading: false, isError: false}} noResultsText={noResultsText} maxSize={maxSize}/>
+    const popularityFeedComponent = <Feed feed={{feed: byPopularityFeed, isLoading: false, isError: false}} noResultsText={noResultsText}/>
 
-    const recentFeedComponent = <Feed feed={{feed: filteredFeed, isLoading: false, isError: false}} noResultsText={noResultsText} maxSize={maxSize}/>
+    const recentFeedComponent = <Feed feed={{feed: filteredFeed, isLoading: false, isError: false}} noResultsText={noResultsText}/>
 
     return <>
         {order == "Populares" && popularityFeedComponent}

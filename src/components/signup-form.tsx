@@ -191,7 +191,7 @@ const NameInput = ({state}: {state: SignUpFormState}) => {
 
 export const AuthForm = ({children, action, state, title}: {children: ReactNode, action: any, state: any, title: string}) => {
 
-    return <form action={action} className="flex justify-center items-center lg:w-90 min-w-80">
+    return <form action={action} className="flex justify-center items-center lg:w-90 min-w-80 px-1">
         <div className="flex-1 bg-[var(--secondary-light)] p-3 border">
             <h2 className='flex justify-center mb-2'>
                 {title}

@@ -10,6 +10,7 @@ import { ArticleIcon, FastPostIcon, PostIcon, WriteButtonIcon } from './icons';
 import InfoPanel from './info-panel';
 import { useUser } from '../app/hooks/user';
 import { createEntity } from '../actions/entities';
+import { CreateAccountLink } from './create-account-link';
 
 export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100;
@@ -68,7 +69,9 @@ const Modal = ({ onClose }: { onClose: any }) => {
                             text1="Crear"
                             text2="Creando..."
                         />
-                        {!user.isLoading && !user.user && <div className="mt-2"><Link href="/" className="link3 text-sm text-[var(--text-light)] text-center">Creá una cuenta o iniciá sesión para crear artículos públicos</Link></div>}
+                        {!user.isLoading && !user.user && <CreateAccountLink
+                            text="Creá una cuenta o iniciá sesión para crear artículos públicos"
+                        />}
                     </div>
                 </div>
             </div>

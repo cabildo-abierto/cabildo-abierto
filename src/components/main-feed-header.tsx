@@ -1,4 +1,5 @@
 import { FastAndPostIcon, FastPostIcon, PopularIcon, PostIcon, RecentIcon } from "./icons"
+import InfoPanel from "./info-panel"
 import SelectionComponent from "./search-selection-component"
 import { Route } from "./wiki-categories"
 
@@ -19,6 +20,9 @@ type MainFeedHeaderProps = {
 export const MainFeedHeader = ({
     route, setRoute, selected, onSelection, showRoute, order, setOrder, filter, setFilter
 }: MainFeedHeaderProps) => {
+
+    const generalInfo = <>Un muro con lo que está pasando en Cabildo Abierto, sin personalización.</>
+
     return <div className="mt-2">
         <div className="content-container pt-1 mb-1">
         {showRoute && 
@@ -34,6 +38,7 @@ export const MainFeedHeader = ({
         <SelectionComponent
             onSelection={onSelection}
             options={["General", "Siguiendo", "Artículos públicos", "Usuarios"]}
+            infoPanelTexts={[generalInfo, null, null, null]}
             selected={selected}
             className="main-feed text-sm sm:text-base"
         />

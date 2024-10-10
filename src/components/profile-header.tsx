@@ -55,7 +55,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                     {addAt(profileUser.id)}
                 </div>
             </div>
-            <div className="flex items-center mr-2">
+            {user && <div className="flex items-center mr-2">
                 {!isLoggedInUser &&
                     (following ? <button
                         onClick={onUnfollow}
@@ -71,7 +71,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                         Seguir
                     </button>)
                 }
-            </div>
+            </div>}
         </div>
         <div className="ml-2">
             <Description

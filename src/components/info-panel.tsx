@@ -1,5 +1,6 @@
 import { ReactNode, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
+import { ModalBelow } from './modal-below';
 
 export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {text: ReactNode, className?: string, iconClassName?: string}) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -13,16 +14,16 @@ export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {tex
       >
         <InfoIcon fontSize="small"/>
       </div>
-      {isHovered && (
-        <div className={"info-panel text-justify text-sm " + (className ? className : "w-72")}
-          onMouseEnter={() => {setIsHovered(true)}}
-          onMouseLeave={() => {setIsHovered(false)}}
+      {isHovered && 
+        <ModalBelow
+          className={"text-justify text-sm bg-[var(--background)] rounded border " + (className ? className : "w-72")}
+          open={isHovered}
+          setOpen={setIsHovered}
+          hoverOnly={true}
         >
-          <p>
-            {text}
-          </p>
-        </div>
-      )}
+          <div className="p-1">{text}</div>
+        </ModalBelow>
+      }
     </div>
   );
 };

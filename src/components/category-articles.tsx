@@ -6,6 +6,8 @@ import { useRouteEntities } from "../app/hooks/contents"
 import LoadingSpinner from "./loading-spinner"
 import { cleanText, listOrderDesc, route2Text } from "./utils"
 import InfoPanel from "./info-panel"
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { LazyLoadFeed } from "./lazy-load-feed"
 
 
 function popularityScore(entity: SmallEntityProps){
@@ -13,27 +15,32 @@ function popularityScore(entity: SmallEntityProps){
 }
 
 
-const ArticlesWithSearch = ({entities, route}: {entities: SmallEntityProps[], route: string[]}) => {
-    const {searchValue} = useSearch()
+const ArticlesWithSearch = ({ entities, route }: { entities: SmallEntityProps[], route: string[] }) => {
+    const { searchValue } = useSearch();
 
-    function isMatch(entity: SmallEntityProps){
-        return cleanText(entity.name).includes(cleanText(searchValue))
+    function isMatch(entity: SmallEntityProps) {
+        return cleanText(entity.name).includes(cleanText(searchValue));
     }
 
-    let filteredEntities = searchValue.length > 0 ? entities.filter(isMatch) : entities
+    let filteredEntities = searchValue.length > 0 ? entities.filter(isMatch) : entities;
 
-    let entitiesWithScore = filteredEntities.map((entity) => ({entity: entity, score: popularityScore(entity)}))
-    entitiesWithScore = entitiesWithScore.sort(listOrderDesc)
-    
-    return <div className="flex flex-col items-center w-full">
-        {entitiesWithScore.length > 0 ? entitiesWithScore.map((entity, index) => (
-            <div key={entity.entity.id} className="py-1 w-full flex justify-center">
-                <EntitySearchResult route={route} entity={entity.entity}/>
-            </div>
-        )) : 
-        <NoResults text="No se encontró ningún artículo."/>}
-    </div>
-}
+    let entitiesWithScore = filteredEntities.map((entity) => ({ entity: entity, score: popularityScore(entity) }));
+    entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
+
+    return (
+        <div className="flex flex-col items-center w-full">
+            {entitiesWithScore.length > 0 ? (
+                <LazyLoadFeed maxSize={entitiesWithScore.length} generator={(index) => {
+                    const entity = entitiesWithScore[index]?.entity;
+                    return entity ? <EntitySearchResult route={route} entity={entity} /> : null;
+                }} />
+            ) : (
+                <NoResults text="No se encontró ningún artículo." />
+            )}
+        </div>
+    );
+};
+
 
 
 export const CategoryArticles = ({route}: {route: string[]}) => {
