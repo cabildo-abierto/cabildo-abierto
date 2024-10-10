@@ -148,7 +148,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     const isRejected = entity.versions[index].rejectedById != null
     const isConfirmed = entity.versions[index].confirmedById != null
     const isPending = !entity.versions[index].editPermission && !isConfirmed && !isRejected
-    const isContentChange = index > 0 && entity.versions[index].categories == entity.versions[index-1].categories
+    const isContentChange = index > 0 && (entity.versions[index].charsAdded != 0 || entity.versions[index].charsDeleted != 0)
     const hasAuthorshipClaim = isContentChange && !isUndone && !isPending && !isRejected
     const editPermission = hasEditPermission(user.user, entity.protection)
 
