@@ -36,8 +36,15 @@ export const CommentNotification = ({notification}: {notification: NotificationP
     if(content.isLoading){
         return <LoadingSpinner/>
     }
+
+    if(!content.content){
+        return <>Error con {notification.contentId}</>
+    }
     
-    const post = <PostDescription contentId={content.content.parentContents[0].id}/>
+    const post = <PostDescription
+        contentId={content.content.parentContents[0].id}
+    />
+
     if(!post) return <LoadingSpinner/>
 
     return <><UserMention id={notification.userById}/> comentó {post}</>

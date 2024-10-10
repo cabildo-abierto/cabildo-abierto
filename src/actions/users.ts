@@ -304,7 +304,7 @@ export async function follow(userToFollowId: string, userId: string) {
     });
     revalidateTag("user:"+userToFollowId)
     revalidateTag("user:"+userId)
-    createNotification(userId, userToFollowId, "Follow")
+    await createNotification(userId, userToFollowId, "Follow")
     return updatedUser;
 }
 
