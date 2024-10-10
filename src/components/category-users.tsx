@@ -16,7 +16,7 @@ export const CategoryUsers = ({route}: {route: string[]}) => {
     const {searchValue} = useSearch()
 
     if(searchValue.length == 0){
-        return <div className="text-center mt-8">Buscá un usuario...</div>
+        return <div className="text-center mt-8 text-[var(--text-light)]">Buscá un usuario</div>
     }
     if(users.isLoading){
         return <LoadingSpinner/>

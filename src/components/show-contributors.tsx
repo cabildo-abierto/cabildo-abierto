@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { useEntity } from "../app/hooks/entities"
+import { currentVersion } from "./utils"
 
 
 
@@ -20,13 +21,14 @@ export const ShowUserContribution = ({entityId, userId}:
 
     if(isLoading) return <></>
 
-    const lastVersion = entity.versions[entity.versions.length-1]
-
+    const lastVersion = entity.versions[currentVersion(entity)]
+    const firstVersion = entity.versions[0]
+    
     if(lastVersion.accCharsAdded == 0){
         return <div className="flex">
             <span className="mr-1">Creado por</span>
             <div className="flex space-x-2 link">
-                <Link href={"/perfil/"+lastVersion.author.id}>@{lastVersion.author.id}</Link>
+                <Link href={"/perfil/"+firstVersion.author.id}>@{firstVersion.author.id}</Link>
             </div>.
         </div>
     }
@@ -52,12 +54,13 @@ export const ShowContributors = ({entityId, userId}:
     if(isLoading) return <></>
 
     const lastVersion = entity.versions[entity.versions.length-1]
+    const firstVersion = entity.versions[0]
 
     if(lastVersion.accCharsAdded == 0){
         return <div className="flex">
             <span className="mr-1">Creado por</span>
             <div className="flex space-x-2 link">
-                <Link href={"/perfil/"+lastVersion.author.id}>@{lastVersion.author.id}</Link>
+                <Link href={"/perfil/"+firstVersion.author.id}>@{firstVersion.author.id}</Link>
             </div>.
         </div>
     }

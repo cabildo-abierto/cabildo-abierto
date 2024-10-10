@@ -7,6 +7,8 @@ import { preload } from "swr";
 import { fetcher } from "../app/hooks/utils";
 import { MainFeedHeader } from "./main-feed-header";
 import { ConfiguredFeed } from "./sorted-and-filtered-feed";
+import { useUser } from "../app/hooks/user";
+import { CreateAccountLink } from "./create-account-link";
 
 
 type RouteContentProps = {
@@ -23,6 +25,7 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
     const followingFeed = useRouteFollowingFeed(route)
     const [order, setOrder] = useState(selected == "General" ? "Populares" : "Siguiendo")
     const [filter, setFilter] = useState("Todas")
+    const user = useUser()
 
     useEffect(() => {
         preload("/api/users", fetcher)
@@ -57,21 +60,31 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
                 <CategoryArticles route={route}/>
             }
 
-        {selected == "General" &&
-        <ConfiguredFeed
-            feed={feed}
-            order={order}
-            filter={filter}
-        />}
+            {selected == "General" &&
+                <div className="text-center mt-1 mb-2">
+                    <span className="text-[var(--text-light)] text-sm">
+                        Un muro con lo que está pasando en Cabildo Abierto, sin personalización
+                    </span>
+                </div>
+            }
+            
+            {selected == "General" &&
+                <ConfiguredFeed
+                feed={feed}
+                order={order}
+                filter={filter}
+            />}
 
-        {selected == "Siguiendo" &&
-        <ConfiguredFeed
-            feed={followingFeed}
-            order={order}
-            filter={filter}
-        />}
+            {selected == "Siguiendo" &&
+            ((user.isLoading || user.user) ? <ConfiguredFeed
+                feed={followingFeed}
+                order={order}
+                filter={filter}
+            /> : <div className="flex justify-center mt-8"><CreateAccountLink
+                text="Creá una cuenta o iniciá sesión para tener tu muro personal"
+            /></div>)}
 
-        {selected == "Usuarios" && <CategoryUsers route={route}/>}
+            {selected == "Usuarios" && <CategoryUsers route={route}/>}
         </div>
     </div>
 }

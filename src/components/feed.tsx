@@ -1,8 +1,9 @@
-import React, { useState } from "react"
+import React from "react"
 import { ContentWithCommentsFromId } from "./content-with-comments";
 import { NoResults } from "./category-users";
 import { SmallContentProps } from "../app/lib/definitions";
 import LoadingSpinner from "./loading-spinner";
+import { LazyLoadFeed } from "./lazy-load-feed";
 
 
 export type LoadingFeed = {feed: {id: string}[], isLoading: boolean, isError: boolean}
@@ -11,13 +12,10 @@ export type LoadingFeedWithData = {feed: SmallContentProps[], isLoading: boolean
 
 export type FeedProps = {
     feed: LoadingFeed,
-    noResultsText?: string,
-    maxSize?: number
+    noResultsText?: string
 }
 
-const Feed: React.FC<FeedProps> = ({feed, maxSize, noResultsText="No se encontró ninguna publicación."}) => {
-    const [range, setRange] = useState(maxSize)
-
+const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación."}) => {
     if(feed.isLoading){
         return <LoadingSpinner/>
     }
@@ -27,17 +25,14 @@ const Feed: React.FC<FeedProps> = ({feed, maxSize, noResultsText="No se encontr�
         content = <NoResults text={noResultsText}/>
     } else {
         content = <>
-            {feed.feed.slice(0, range ? range : feed.feed.length).map((feedContent, index: number) => {
-                return <div key={feedContent.id} className="w-full">
+            <LazyLoadFeed maxSize={feed.feed.length} generator={(index) => {
+                return <div key={feed.feed[index].id} className="w-full">
                     <ContentWithCommentsFromId
-                        contentId={feedContent.id}
+                        contentId={feed.feed[index].id}
                         inCommentSection={false}
                     />
                 </div>
-            })}
-            {maxSize && <div className="flex justify-center">
-                <button className="hover:text-[var(--primary)]" onClick={() => {setRange(range+maxSize)}}>Ver más</button>
-            </div>}
+            }} />
         </>
     }
 
