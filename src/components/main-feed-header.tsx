@@ -38,7 +38,6 @@ export const MainFeedHeader = ({
         <SelectionComponent
             onSelection={onSelection}
             options={["General", "Siguiendo", "Artículos públicos", "Usuarios"]}
-            infoPanelTexts={[generalInfo, null, null, null]}
             selected={selected}
             className="main-feed text-sm sm:text-base"
         />
