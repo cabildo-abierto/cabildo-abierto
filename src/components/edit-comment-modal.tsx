@@ -28,10 +28,10 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
     settings.initialData = decompress(content.content.compressedText)
 
     return <BaseFullscreenPopup onClose={onClose} closeButton={true}>
-        <div className="w-screen sm:w-128">
+        <div className="px-4 sm:w-96 lg:w-128">
             <h3>Editar comentario</h3>
 
-            <div className="border rounded p-1 mx-2 mt-6">
+            <div className="border rounded p-1 mt-6">
                 <MyLexicalEditor
                     settings={settings}
                     setEditorState={setEditorState}
@@ -42,7 +42,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
             <StateButton
                 text1={"Confirmar cambios"}
                 text2={"Enviando..."}
-                className="gray-btn my-2"
+                className="gray-btn my-2 w-64"
                 disabled={!validComment(editorState)}
                 onClick={async (e) => {
                     await updateComment(contentId, compress(JSON.stringify(editorState)))
