@@ -1,38 +1,37 @@
-
 import {SerializedTableNode, TableNode} from '@lexical/table';
-import { EditorConfig, LexicalEditor, SerializedElementNode } from 'lexical';
+import { EditorConfig } from 'lexical';
+
+export interface SerializedCustomTableNode extends SerializedTableNode {
+  type: 'custom-table';
+}
 
 export class CustomTableNode extends TableNode {
     static getType(): string {
         return "custom-table";
     }
-  
+
     static clone(node: CustomTableNode): CustomTableNode {
         return new CustomTableNode(node.__key);
     }
-  
+
     createDOM(config: EditorConfig): HTMLElement {
-        // Create a wrapper element to contain the table
         const wrapper = document.createElement('div');
-        wrapper.style.maxWidth = "100vw";    // Constrain the width to the viewport
-        wrapper.style.overflowX = "auto";    // Add horizontal scroll when needed
-
-        wrapper.style.fontSize = "0.78rem";  // Set the font size to be smaller
-        // Create the actual table element
+        wrapper.style.maxWidth = "100vw";
+        wrapper.style.overflowX = "auto";
+        wrapper.style.fontSize = "0.78rem";
         const tableElement = super.createDOM(config);
-        
-        // Append the table into the wrapper
         wrapper.appendChild(tableElement);
-
-        return wrapper;  // Return the wrapper as the DOM element
+        return wrapper;
     }
 
-    static importJSON(_serializedNode: SerializedTableNode): TableNode {
-        return super.importJSON(_serializedNode)
-    }
-    
-    exportJSON(): SerializedElementNode {
-        return super.exportJSON()
+    static importJSON(serializedNode: SerializedCustomTableNode) {
+        return super.importJSON(serializedNode);
     }
 
+    exportJSON(): SerializedCustomTableNode {
+        return {
+            ...super.exportJSON(),
+            type: 'custom-table',  // Ensure the correct type is set
+        };
+    }
 }
