@@ -23,10 +23,8 @@ function routeUrl(route: string[]){
 
 
 const RouteElement = ({route, c, index, setRoute}: {route: string[], c: string, index: number, setRoute?: (v: string[]) => void}) => {
-    const router = useRouter()
-
     if(setRoute){
-        return <button className="text-2xl font-bold content text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2"
+        return <button className="sm:text-lg text-base font-bold content text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2"
         onClick={() => {setRoute(route.slice(0, index))}}
     >
         {c}
@@ -35,7 +33,7 @@ const RouteElement = ({route, c, index, setRoute}: {route: string[], c: string, 
         return <Link href={routeUrl(route.slice(0, index))}
         >
             <button 
-                className="text-2xl font-bold content text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2"
+                className="sm:text-lg text-base font-bold content text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2"
             >
             {c}
         </button>
@@ -48,8 +46,7 @@ export const Route = ({route, setRoute, selected}: {route: string[], setRoute?: 
     const routeEntities = useRouteEntities(route)
     const nextCategories = routeEntities.entities ? getNextCategories(route, routeEntities.entities) : null
 
-    return <>
-    <div className="flex items-center">
+    return <div className="flex items-center flex-wrap">
         {["Inicio"].concat(route).map((c: string, index: number) => {
             return <div className="flex items-center" key={index}>
             
@@ -61,15 +58,14 @@ export const Route = ({route, setRoute, selected}: {route: string[], setRoute?: 
                 </span>}
             </div>
         })}
+
+        {nextCategories && nextCategories.length > 0 && setRoute != undefined && 
+        <SubcategoriesDropDown
+            nextCategories={nextCategories}
+            route={route}
+            setRoute={setRoute}
+            selected={selected}
+        />}
+
     </div>
-
-    {nextCategories && nextCategories.length > 0 && setRoute != undefined && 
-    <SubcategoriesDropDown
-        nextCategories={nextCategories}
-        route={route}
-        setRoute={setRoute}
-        selected={selected}
-    />}
-
-    </>
 }

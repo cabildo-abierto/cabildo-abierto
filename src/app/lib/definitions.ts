@@ -55,6 +55,8 @@ export type ContentProps = {
     reportsVandalism?: boolean
 
     childrenContents: CommentProps[]
+
+    isContentEdited: boolean
 }
 
 

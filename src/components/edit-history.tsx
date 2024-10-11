@@ -301,8 +301,7 @@ export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: n
     const currentIndex = currentVersion(entity)
 
     const lastDiff = JSON.parse(entity.versions[entity.versions.length-1].diff)
-    console.log(lastDiff)
-
+    
     const history = <div className="mt-1 hidden lg:block">
         {entity.versions.map((version, index) => {
         const versionIndex = entity.versions.length-1-index

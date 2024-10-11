@@ -620,6 +620,11 @@ export async function revalidateFeed(){
 }
 
 
+export async function revalidateDrafts(){
+    revalidateTag("drafts")
+}
+
+
 export async function removeEntityAuthorship(contentId: string, entityId: string){
     await db.content.update({
         data: {

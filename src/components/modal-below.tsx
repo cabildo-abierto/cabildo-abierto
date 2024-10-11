@@ -1,7 +1,5 @@
 import { ReactNode, useEffect, useRef } from "react";
-
-
-
+import { createPortal } from "react-dom";
 
 
 export const ModalBelow = ({children, open, setOpen, className, hoverOnly=false}: 
@@ -15,41 +13,30 @@ export const ModalBelow = ({children, open, setOpen, className, hoverOnly=false}
     const panelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-                setOpen(false);
-            }
-        };
-
-        if (open) {
-            document.addEventListener("mousedown", handleClickOutside);
-        } else {
-            document.removeEventListener("mousedown", handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [open]);
-
-    useEffect(() => {
         if (open && panelRef.current) {
             const panel = panelRef.current;
             const boundingRect = panel.getBoundingClientRect();
-            if (boundingRect.right > window.innerWidth) {
-                panel.style.left = `${window.innerWidth - boundingRect.width - boundingRect.left}px`;
+            const screenWidth = window.innerWidth
+            if (boundingRect.right > screenWidth) {
+                panel.style.left = `${screenWidth - boundingRect.width - boundingRect.left - 5}px`;
             } else if (boundingRect.left < 0) {
                 panel.style.left = `${0}px`;
             }
         }
     }, [open]);
 
-    return <div
-        ref={panelRef}
-        className={"absolute text-gray-900 top-full left-0 z-10 sm:px-0 px-2 " + className}
-        onMouseEnter={() => {if(hoverOnly) setOpen(true)}}
-        onMouseLeave={() => {if(hoverOnly) setOpen(false)}}
-    >
-        {children}
-    </div>
+    return <><div
+            className="fixed left-0 top-0 h-screen w-screen z-10"
+            onClick={() => {setOpen(false)}}
+        >
+        </div>
+        {<div
+            ref={panelRef}
+            className={"absolute top-full left-0 z-10 sm:px-0 px-2 " + className}
+            onMouseEnter={() => {if(hoverOnly) setOpen(true)}}
+            onMouseLeave={() => {if(hoverOnly) setOpen(false)}}
+        >
+            {children}
+        </div>}
+    </>
 }

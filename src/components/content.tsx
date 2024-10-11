@@ -34,15 +34,6 @@ export function addAt(id: string){
 }
 
 
-type ContentTopRowProps = {
-    content: ContentProps
-    author?: boolean
-    icon: ReactNode
-    showOptions?: boolean
-    onShowFakeNews?: () => void
-}
-
-
 export const ContentTopRowAuthor = ({content} :{content: ContentProps}) => {
     const url = content.author  ? id2url(content.author.id) : ""
     const onClick = stopPropagation(() => {})
@@ -63,28 +54,44 @@ export const ContentTopRowAuthor = ({content} :{content: ContentProps}) => {
 }
 
 
+type ContentTopRowProps = {
+    content: ContentProps
+    author?: boolean
+    icon: ReactNode
+    showOptions?: boolean
+    onShowFakeNews?: () => void
+    showFakeNewsCounter?: boolean
+    optionList?: string[]
+}
+
+
 export const ContentTopRow: React.FC<ContentTopRowProps> = ({
     content,
     author=true,
     icon=null,
     showOptions=false,
-    onShowFakeNews
+    optionList,
+    onShowFakeNews,
+    showFakeNewsCounter=false,
 }) => {
     return <div className="flex justify-between pt-1">
         <div className="px-2 blue-links flex items-center w-full">
-            <div className="text-sm">
+            <div className="text-sm space-x-1 text-[var(--text-light)]">
                 {author && 
                     <ContentTopRowAuthor content={content}/>
                 }
-                <span className="px-1 text-[var(--text-light)]">•</span>
+                <span className="">•</span>
                 <span className="">
                     <DateSince date={content.createdAt}/>
                 </span>
+                {content.isContentEdited && <span className="">(editado)</span>}
             </div>
         </div>
-        {showOptions && <div className="flex">
+        {showFakeNewsCounter && 
             <FakeNewsCounter content={content} onClick={onShowFakeNews}/>
-            <ContentOptionsButton contentId={content.id}/>
+        }
+        {showOptions && optionList.length > 0 && <div className="flex">
+            <ContentOptionsButton contentId={content.id} optionList={optionList}/>
         </div>}
     </div>
 }

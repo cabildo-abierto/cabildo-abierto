@@ -1,7 +1,7 @@
 "use client"
 
 import { compressContents, compressContent, decompressContents, decompressContent } from "../../actions/contents"
-import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateEntities, revalidateFeed, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
+import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
@@ -46,6 +46,9 @@ export default function Page() {
             </button>
             <button className="gray-btn" onClick={async () => {await revalidateFeed()}}>
                 Revalidar feed
+            </button>
+            <button className="gray-btn" onClick={async () => {await revalidateDrafts()}}>
+                Revalidar drafts
             </button>
             <button className="gray-btn" onClick={async () => {await compressContents()}}>
                 Comprimir

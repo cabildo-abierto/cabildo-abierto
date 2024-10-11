@@ -118,6 +118,7 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                     createdAt: "desc"
                 }
             },
+            isContentEdited: true
         },
         where: {
             id: id,
@@ -811,4 +812,18 @@ export async function takeAuthorship(contentId: string) {
     if(content.parentEntityId){
         revalidateTag("entity:"+content.parentEntityId)
     }
+}
+
+
+export async function updateComment(contentId: string, compressedText: string){
+    await db.content.update({
+        data: {
+            compressedText: compressedText,
+            isContentEdited: true
+        },
+        where: {
+            id: contentId
+        }
+    })
+    revalidateTag("content:"+contentId)
 }

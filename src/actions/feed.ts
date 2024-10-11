@@ -215,6 +215,9 @@ export const getRepliesFeed = async (userId: string) => {
                             in: ["Comment", "FakeNewsReport"]
                         }},
                     {visible: true},
+                    {rootContent: {
+                        isDraft: false
+                    }},
                     {authorId: userId}
                 ]
             },

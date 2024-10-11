@@ -33,7 +33,7 @@ export const FastPost = ({
     }
 
     return <div className="">
-        <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews}/>
+        <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews} showFakeNewsCounter={true} optionList={["reportFake"]}/>
         <div className="px-2 py-2 content">
             <ReadOnlyEditor initialData={decompress(content.compressedText)}/>
         </div>

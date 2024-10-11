@@ -23,7 +23,7 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "General")
     const feed = useRouteFeed(route)
     const followingFeed = useRouteFollowingFeed(route)
-    const [order, setOrder] = useState(selected == "General" ? "Populares" : "Siguiendo")
+    const [order, setOrder] = useState(selected == "General" ? "Recientes" : "Recientes")
     const [filter, setFilter] = useState("Todas")
     const user = useUser()
 
@@ -39,7 +39,7 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
     function onSelection(v: string){
         setSelected(v)
         if(v == "Siguiendo" && order != "Recientes") setOrder("Recientes")
-        if(v == "General" && order != "Populares") setOrder("Populares")
+        if(v == "General" && order != "Recientes") setOrder("Recientes")
     }
 
     return <div className="w-full">
