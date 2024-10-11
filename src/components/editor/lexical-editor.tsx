@@ -62,6 +62,7 @@ import { ContentProps } from '../../app/lib/definitions';
 import TableCellResizer from './plugins/TableCellResizer';
 import { TableContext } from './plugins/TablePlugin';
 import { CustomTableNode } from './nodes/CustomTableNode';
+import { findMentions } from '../../actions/contents';
 
 
 const CharLimitComponent = ({remainingCharacters} : {remainingCharacters: number}) => {

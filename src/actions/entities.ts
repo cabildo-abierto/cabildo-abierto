@@ -2,7 +2,7 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findReferences, getContentById } from "./contents";
+import { findMentions, findReferences, getContentById } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
@@ -155,14 +155,16 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
     const entity = await getEntityById(entityId)
     const current = currentVersionContent(entity)
 
-    let references = null
+    let references = []
     let text = null
     let prevText = null
+    let mentions = []
     const categoriesChange = compressedText != undefined
     const currentContent = await getContentById(current.id)
     if(categoriesChange){
         text = decompress(compressedText)
         references = await findReferences(text)
+        mentions = await findMentions(text)
         categories = current.categories
         prevText = decompress(currentContent.compressedText)
     } else {
@@ -202,6 +204,9 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
             categories: categories,
             entityReferences: {
                 connect: references
+            },
+            usersMentioned: {
+                connect: mentions
             },
             editPermission: permission,
             claimsAuthorship: claimsAuthorship,
@@ -602,6 +607,10 @@ export async function revalidateEntities(){
 
 export async function revalidateContents(){
     revalidateTag("content")
+}
+
+export async function revalidateNotifications(){
+    revalidateTag("notifications")
 }
 
 export async function revalidateUsers(){

@@ -44,6 +44,8 @@ model User {
 
     paymentPromises     PaymentPromise[]   @relation("authorPromises")
 
+    mentionedIn         Content[]       @relation("userMention")
+
     @@map("users")
     @@schema("public")
 }
@@ -139,6 +141,8 @@ model ContactEmails {
   id             String    @id @default(cuid())
   mail           String
   createdAt      DateTime  @default(now()) @map("created_at")
+
+
   @@schema("public")
 }
 
@@ -244,6 +248,8 @@ model Content {
 
   isContentEdited  Boolean   @default(false)
 
+  usersMentioned  User[]    @relation("userMention")
+
   @@schema("public")
 }
 
@@ -252,6 +258,7 @@ enum NotificationType {
   Reaction
   Follow
   Edit
+  Mention
 
   @@schema("public")
 }

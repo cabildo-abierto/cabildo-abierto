@@ -6,7 +6,7 @@ import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
 import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
-import { getUser, getUserId } from "./users";
+import { getUser, getUserId, getUsers } from "./users";
 import { getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
 
@@ -167,9 +167,22 @@ export const getContentFakeNewsCount = (contentId: string) => {
 }
 
 
+export async function notifyMentions(mentions: {id: string}[], contentId: string, userById: string){
+    for(let i = 0; i < mentions.length; i++){
+        await createNotification(
+            userById,
+            mentions[i].id,
+            "Mention",
+            contentId
+        )
+    }
+}
+
+
 export async function createComment(compressedText: string, parentContentId: string, userId: string) {
     const text = decompress(compressedText)
     let references = await findReferences(text)
+    const mentions = await findMentions(text)
 
     const parentContent = await getContentById(parentContentId)
     const parentEntityId = parentContent.parentEntityId
@@ -186,6 +199,9 @@ export async function createComment(compressedText: string, parentContentId: str
             },
             entityReferences: {
                 connect: references
+            },
+            usersMentioned: {
+                connect: mentions
             },
             rootContentId: parentContent.rootContentId ? parentContent.rootContentId : parentContent.id,
             ancestorContent: {
@@ -206,6 +222,7 @@ export async function createComment(compressedText: string, parentContentId: str
             comment.id,
             undefined
         )
+        await notifyMentions(mentions, comment.id, userId)
     }
     revalidateTag("repliesFeed:"+userId)
     revalidateTag("content:"+parentContentId)
@@ -270,9 +287,46 @@ export async function findReferences(text: string){
 }
 
 
+export async function findMentions(text: string){
+    function findMentionsInNode(node: any): {id: string}[] {
+        let references: {id: string}[] = []
+        if(node.type === "custom-beautifulMention"){
+            references.push({id: node.data.id})
+        }
+        if(node.children){
+            for(let i = 0; i < node.children.length; i++) {
+                const childRefs = findMentionsInNode(node.children[i])
+                childRefs.forEach((x) => {references.push(x)})
+            }
+        }
+        return references
+    }
+    
+    if(text.length == 0 || text == "Este artículo está vacío!"){
+        return []
+    }
+    let json = null
+    try {
+        json = JSON.parse(text)
+    } catch {
+        console.log("failed parsing", text)
+    }
+    if(!json) return null
+
+    let references: {id: string}[] = findMentionsInNode(json.root)
+    
+    const users = await getUsers()
+
+    references = references.filter(({id}) => (users.some((e) => (e.id == id))))
+
+    return references
+}
+
+
 export async function createPost(compressedText: string, postType: ContentType, isDraft: boolean, userId: string, title?: string) {
     const text = decompress(compressedText)
     let references = await findReferences(text)
+    const mentions = await findMentions(text)
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
 
@@ -289,7 +343,10 @@ export async function createPost(compressedText: string, postType: ContentType, 
             numChars: numChars,
             numWords: numWords,
             numNodes: numNodes,
-            compressedPlainText: compress(plainText)
+            compressedPlainText: compress(plainText),
+            usersMentioned: {
+                connect: mentions
+            }
         },
     })
 
@@ -310,6 +367,7 @@ export async function createPost(compressedText: string, postType: ContentType, 
 export async function updateContent(compressedText: string, contentId: string, title?: string) {
     const text = decompress(compressedText)
     let references = await findReferences(text)
+    const mentions = await findMentions(text)
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const result = await db.content.update({
@@ -325,6 +383,9 @@ export async function updateContent(compressedText: string, contentId: string, t
             numNodes: numNodes,
             entityReferences: {
                 connect: references
+            },
+            usersMentioned: {
+                connect: mentions
             }
         }
     })
@@ -337,6 +398,7 @@ export async function updateContent(compressedText: string, contentId: string, t
 export async function publishDraft(compressedText: string, contentId: string, userId: string, title?: string) {
     const text = decompress(compressedText)
     let references = await findReferences(text)
+    const mentions = await findMentions(text)
     
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const result = await db.content.update({
@@ -351,6 +413,9 @@ export async function publishDraft(compressedText: string, contentId: string, us
             title: title,
             entityReferences: {
                 connect: references
+            },
+            usersMentioned: {
+                connect: mentions
             },
             uniqueViewsCount: 0,
             fakeReportsCount: 0,
@@ -371,6 +436,7 @@ export async function publishDraft(compressedText: string, contentId: string, us
 export async function createFakeNewsReport(compressedText: string, parentContentId: string, userId: string) {
     const text = decompress(compressedText)
     let references = await findReferences(text)
+    const mentions = await findMentions(text)
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
 
@@ -385,6 +451,9 @@ export async function createFakeNewsReport(compressedText: string, parentContent
             },
             entityReferences: {
                 connect: references
+            },
+            usersMentioned: {
+                connect: mentions
             },
             uniqueViewsCount: 0,
             fakeReportsCount: 0,
@@ -826,4 +895,75 @@ export async function updateComment(contentId: string, compressedText: string){
         }
     })
     revalidateTag("content:"+contentId)
+}
+
+
+export async function notifyAllMentions(){
+    const notifications = await db.notification.findMany({
+        where: {
+            type: "Mention"
+        }
+    })
+
+    const contents = await db.content.findMany({
+        select: {
+            id: true,
+            authorId: true,
+            usersMentioned: {
+                select: {
+                    id: true
+                }
+            },
+            compressedText: true
+        },
+        where: {
+            isDraft: false,
+            visible: true,
+            type: {
+                notIn: ["UndoEntityContent"]
+            }
+        }
+    })
+
+    for(let i = 0; i < contents.length; i++){
+        const mentions = await findMentions(decompress(contents[i].compressedText))
+        if(!mentions){
+            return null
+        }
+        if(mentions.length != contents[i].usersMentioned.length){
+            console.log("actualizando menciones de", contents[i].id, "escrito por", contents[i].authorId)
+            console.log("nuevas menciones", mentions)
+            await db.content.update({
+                data: {
+                    usersMentioned: {
+                        connect: mentions
+                    }
+                },
+                where: {
+                    id: contents[i].id
+                }
+            })
+        }
+        if(mentions.length > 0){
+            
+            console.log("actualizando notificaciones de", contents[i].id, "escrito por", contents[i].authorId)
+            console.log("nuevas menciones", mentions)
+            for(let j = 0; j < mentions.length; j++){
+                if(!notifications.some((n) => (n.contentId == contents[i].id && n.userNotifiedId == mentions[j].id))){
+                    await createNotification(
+                        contents[i].authorId,
+                        mentions[j].id,
+                        "Mention",
+                        contents[i].id
+                    )
+                    console.log("notificando a", mentions[j].id, "por", contents[i].id, "escrito por", contents[i].authorId)
+                }
+            }
+        }
+    }
+}
+
+
+export async function deleteUser(userId: string){
+
 }
