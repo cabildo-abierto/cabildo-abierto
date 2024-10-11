@@ -116,8 +116,9 @@ export type EntityVersionProps = {
     entityReferences: {id: string}[]
 }
 
+export type ContributionsProps = [string, number][]
 
-export type ContributionsArray = [string, number][][]
+export type ContributionsArray = ContributionsProps[]
 
 
 export type SmallEntityProps = {

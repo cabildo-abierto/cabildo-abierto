@@ -1,7 +1,7 @@
 "use client"
 
-import { compressContents, compressContent, decompressContents, decompressContent } from "../../actions/contents"
-import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
+import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions } from "../../actions/contents"
+import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateNotifications, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
@@ -41,6 +41,9 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await revalidateContents()}}>
                 Revalidar contenidos
             </button>
+            <button className="gray-btn" onClick={async () => {await revalidateNotifications()}}>
+                Revalidar notificaciones
+            </button>
             <button className="gray-btn" onClick={async () => {await revalidateUsers()}}>
                 Revalidar usuarios
             </button>
@@ -64,6 +67,9 @@ export default function Page() {
             </button>
             <button className="gray-btn" onClick={async () => {await updateUniqueViewsCount()}}>
                 Actualizar unique views
+            </button>
+            <button className="gray-btn" onClick={async () => {await notifyAllMentions()}}>
+                Notificar menciones
             </button>
         </div>
     </div>

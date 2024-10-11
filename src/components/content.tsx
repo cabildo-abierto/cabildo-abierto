@@ -261,7 +261,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
         />
     }
     return <>
-        {(user && user.editorStatus == "Administrator" && user.id != content.author.id) && <button
+        {(user && user.id == "soporte" && user.id != content.author.id) && <button
             className="border mx-1 text-xs hover:bg-[var(--secondary-light)]"
             onClick={async () => {await takeAuthorship(content.id)}}
         >

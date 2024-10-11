@@ -1,10 +1,13 @@
 "use client"
 import Link from "next/link"
-import { ContentProps, NotificationProps } from "../app/lib/definitions"
+import { ContentProps, ContributionsArray, ContributionsProps, NotificationProps } from "../app/lib/definitions"
 import { DateSince } from "./date"
 import { follow } from "../actions/users"
 import { useContent } from "../app/hooks/contents"
 import LoadingSpinner from "./loading-spinner"
+import { useEntity } from "../app/hooks/entities"
+import { useUser } from "../app/hooks/user"
+import { userAgent } from "next/server"
 
 
 const UserMention = ({id}: {id: string}) => {
@@ -12,24 +15,50 @@ const UserMention = ({id}: {id: string}) => {
 }
 
 
+const EditDescriptionInNotification = ({content}: {content: ContentProps}) => {
+    const href = "/articulo/" + content.parentEntityId
+    const {user} = useUser()
+
+    const c: ContributionsProps = JSON.parse(content.contribution)
+
+    if(user && c.some(([a, n]) => (a == user.id))){
+        return <>
+            el <Link href={href}>artículo público</Link> que editaste.
+        </>
+    }
+
+    return <>
+        el <Link href={href}>artículo público</Link>.
+    </>
+}
+
+
 function PostDescription({contentId}: {contentId: string}){
     const {content, isLoading} = useContent(contentId)
+    const {user} = useUser()
     if(isLoading) return null
 
-    let post = null
-    const href = "/contenido/"+contentId
+    if(!content){
+        return <></>
+    }
 
+    let post = null
     if(content.type == "EntityContent"){
-        post = <>el <Link href={href}>artículo público</Link> que editaste.</>
-    } else if(content.type == "Comment"){
-        post = <>tu <Link href={href}>comentario</Link>.</>
-    } else if(content.type == "Post" || content.type == "FastPost"){
-        post = <>tu <Link href={href}>publicación</Link>.</>
-    } else if(content.type == "FakeNewsReport"){
-        post = <>tu <Link href={href}>reporte de noticia falsa</Link>.</>
+        post = <EditDescriptionInNotification content={content}/>
+    } else {
+        const href = "/contenido/"+contentId
+        const isAuthor = user && content.author.id == user.id
+        if(content.type == "Comment"){
+            post = <>{isAuthor ? "tu" : "un"} <Link href={href}>comentario</Link>.</>
+        } else if(content.type == "Post" || content.type == "FastPost"){
+            post = <>{isAuthor ? "tu" : "la"} <Link href={href}>publicación</Link>.</>
+        } else if(content.type == "FakeNewsReport"){
+            post = <>{isAuthor ? "tu" : "un"} <Link href={href}>reporte de noticia falsa</Link>.</>
+        }
     }
     return post
 }
+
 
 export const CommentNotification = ({notification}: {notification: NotificationProps}) => {
     const content = useContent(notification.contentId)
@@ -41,6 +70,10 @@ export const CommentNotification = ({notification}: {notification: NotificationP
         return <>Error con {notification.contentId}</>
     }
     
+    if(!content.content.parentContents[0].id){
+        return null
+    }
+
     const post = <PostDescription
         contentId={content.content.parentContents[0].id}
     />
@@ -51,6 +84,7 @@ export const CommentNotification = ({notification}: {notification: NotificationP
 }
 
 export const ReactionNotification = ({notification}: {notification: NotificationProps}) => {
+
     const post = <PostDescription contentId={notification.contentId}/>
 
     return <>A <UserMention id={notification.userById}/> le gustó {post}</>
@@ -66,4 +100,15 @@ export const FollowNotification = ({notification}: {notification: NotificationPr
     return <>
         <UserMention id={notification.userById}/> empezó a seguirte.
     </>
+}
+
+
+export const MentionNotification = ({notification}: {notification: NotificationProps}) => {
+    const post = <PostDescription
+        contentId={notification.contentId}
+    />
+
+    if(!post) return <LoadingSpinner/>
+
+    return <><UserMention id={notification.userById}/> te mencionó en {post}</>
 }
