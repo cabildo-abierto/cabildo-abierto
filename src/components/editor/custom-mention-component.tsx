@@ -43,7 +43,7 @@ export const CustomMentionComponent = forwardRef<
 
   return (
     <button className="text-link" onClick={handleClick}>
-      {myData.id}
+      @{myData.id}
     </button>
   );
 });
