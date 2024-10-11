@@ -18,10 +18,6 @@ const ShowUserStats = () => {
     const {user} = useUser()
 
     const userContents = useUserContents(user.id)
-    let entities = userContents.userContents.filter((({type}) => (type == "EntityContent"))).map((content) => (content.parentEntityId))
-    entities = Array.from(new Set(entities))
-    
-    //let posts = Array.from(new Set(userContents.userContents.filter((({type}) => (type == "Post"))))).map((post) => (post.id))
     
     const stats = useUserStats()
     if(stats.isLoading){
@@ -31,6 +27,11 @@ const ShowUserStats = () => {
     if(userContents.isLoading){
         return <LoadingSpinner/>
     }
+    
+    let entities = userContents.userContents.filter((({type}) => (type == "EntityContent"))).map((content) => (content.parentEntityId))
+    entities = Array.from(new Set(entities))
+    
+    //let posts = Array.from(new Set(userContents.userContents.filter((({type}) => (type == "Post"))))).map((post) => (post.id))
 
     const incomeDesc = <span>
         Ingresos acumulados totales ($)
