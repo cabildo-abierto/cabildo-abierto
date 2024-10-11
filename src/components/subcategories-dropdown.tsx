@@ -29,7 +29,7 @@ export const SubcategoriesDropDown = ({ nextCategories, route, setRoute, selecte
                 text="Filtrar"
             />
             {viewSubcategories && (
-                <ModalBelow className="w-64 space-y-1" open={viewSubcategories} setOpen={setViewSubcategories}>
+                <ModalBelow className="w-64 space-y-1 mt-1" open={viewSubcategories} setOpen={setViewSubcategories}>
                     <SubcategoriesList
                         route={route}
                         setRoute={setRoute}

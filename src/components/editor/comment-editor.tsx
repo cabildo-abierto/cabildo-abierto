@@ -3,7 +3,7 @@
 import { emptyOutput, validPost } from "../utils"
 import { useState } from "react"
 import StateButton from "../state-button"
-import { CLEAR_EDITOR_COMMAND, EditorState, LexicalEditor } from "lexical"
+import { CLEAR_EDITOR_COMMAND, EditorState, LexicalEditor, SerializedEditorState, SerializedLexicalNode } from "lexical"
 
 
 import dynamic from 'next/dynamic'
@@ -11,6 +11,8 @@ import LoadingSpinner from "../loading-spinner"
 import { SettingsProps } from "./lexical-editor"
 import { useUser } from "../../app/hooks/user"
 import { useSWRConfig } from "swr"
+import { updateComment } from "../../actions/contents"
+import { compress } from "../compression"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
@@ -54,12 +56,15 @@ type CommentEditorProps = {
     onCancel?: () => void
 }
 
+export function validComment(editorState: EditorState) {
+    return !emptyOutput(editorState) && validPost(editorState, 500)
+}
+
 const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const user = useUser()
-    const {mutate} = useSWRConfig()
-
+    
     if(user.isLoading){
         return <LoadingSpinner/>
     }
@@ -75,16 +80,12 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
 
 	const SendCommentButton = ({onClick}: {onClick: (e: any) => Promise<boolean>}) => {
 
-        function canSendComment(editorState: EditorState) {
-            return !editor || emptyOutput(editorState) || !user.user || !validPost(editorState, 500)
-        }
-
         return <StateButton
             onClick={onClick}
             className="small-btn"
             text1="Enviar"
             text2="Enviando..."
-            disabled={canSendComment(editorState)}
+            disabled={!validComment(editorState)}
         />
 	}
 

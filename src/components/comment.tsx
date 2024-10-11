@@ -13,6 +13,7 @@ import { RedFlag } from './icons';
 import { ContentProps } from '../app/lib/definitions';
 import { useContent } from '../app/hooks/contents';
 import { decompress } from './compression';
+import { useUser } from '../app/hooks/user';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -65,7 +66,7 @@ export const Comment = ({
     inCommentSection=false,
     isFakeNewsReport,
     depthParity=false}: CommentComponentProps) => {
-
+    const {user} = useUser()
     const parentId = content.parentContents[0].id
     let snode = null
     const parentContent = useContent(parentId)
@@ -103,9 +104,10 @@ export const Comment = ({
     }
 
     const icon = isFakeNewsReport ? <RedFlag/> : <></>
+    const isAuthor: boolean = user && user.id == content.author.id
 
     return <div className="">
-        <ContentTopRow content={content} icon={icon} showOptions={false}/>
+        <ContentTopRow content={content} icon={icon} showOptions={true} optionList={isAuthor ? ["edit"] : []}/>
         <div className="px-2 my-2 ml-2 content">
             {snode && <div>
                 <ReadOnlyEditor initialData={initializeQuote}/>

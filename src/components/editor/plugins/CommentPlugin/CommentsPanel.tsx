@@ -51,7 +51,11 @@ export function CommentsPanel({
         <div
             ref={panelRef}
             className="fixed top-16 right-0 h-[calc(100vh-3.5rem)] bg-background/60 overflow-y-auto p-4 shadow-lg z-50"
-            style={{ width: `${width}px` }} // Set dynamic width
+            style={{
+                width: `${width}px`, // Set dynamic width
+                maxWidth: `${width}px`, // Prevent the panel from growing beyond this width
+                overflowX: "hidden" // Prevent horizontal scrolling
+            }}
         >
             {parentContent.type == "EntityContent" ? (
                 <EntitySidebarCommentSection content={parentContent} activeIDs={activeIDs} comments={comments}/>
@@ -59,7 +63,6 @@ export function CommentsPanel({
                 <SidebarCommentSection content={parentContent} activeIDs={activeIDs} comments={comments}/>
             )}
 
-            {/* Resizable Handler */}
             <div
                 className="absolute top-0 left-0 h-full w-2 cursor-ew-resize"
                 onMouseDown={handleMouseDown}
