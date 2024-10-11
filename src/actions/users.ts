@@ -418,7 +418,7 @@ export const getUserStats = async (userId: string) => {
             pendingPayIncome: pendingPayIncome,
             entityAddedChars: entityAddedChars,
             viewsInPosts: viewsInPosts,
-            viewsInEntities: 0
+            viewsInEntities: entityViews
         }
         
         return stats

@@ -19,7 +19,7 @@ export const ChatSelector = ({users, selected, setSelected}: ChatSelectorProps) 
     }
 
     users = users.sort(comp)
-    return <div className="y-space-1">
+    return <div className="space-y-1 flex flex-col">
         {users.map(({id}, index) => {
             const className = "content-container px-4 py-1 " + (selected == id ? "bg-[var(--secondary-light)]" : "")
 
