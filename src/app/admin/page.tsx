@@ -1,7 +1,7 @@
 "use client"
 
 import { compressContents, compressContent, decompressContents, decompressContent } from "../../actions/contents"
-import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateEntities, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
+import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateEntities, revalidateFeed, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
@@ -34,14 +34,18 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await addDonatedSubscriptionsManually("Fer1974", 9, 500, "89515361127")}}>
                 Asignar suscripciones
             </button>
+            
             <button className="gray-btn" onClick={async () => {await revalidateEntities()}}>
-                Artículos
+                Revalidar artículos
             </button>
             <button className="gray-btn" onClick={async () => {await revalidateContents()}}>
-                Contenidos
+                Revalidar contenidos
             </button>
             <button className="gray-btn" onClick={async () => {await revalidateUsers()}}>
-                Usuarios
+                Revalidar usuarios
+            </button>
+            <button className="gray-btn" onClick={async () => {await revalidateFeed()}}>
+                Revalidar feed
             </button>
             <button className="gray-btn" onClick={async () => {await compressContents()}}>
                 Comprimir

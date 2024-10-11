@@ -242,6 +242,8 @@ model Content {
 
   editMsg          String?
 
+  isContentEdited  Boolean   @default(false)
+
   @@schema("public")
 }
 

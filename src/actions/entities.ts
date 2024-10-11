@@ -611,6 +611,14 @@ export async function revalidateUsers(){
     revalidateTag("usersWithStats")
 }
 
+export async function revalidateFeed(){
+    revalidateTag("feed")
+    revalidateTag("followingFeed")
+    revalidateTag("repliesFeed")
+    revalidateTag("editsFeed")
+    revalidateTag("profileFeed")
+}
+
 
 export async function removeEntityAuthorship(contentId: string, entityId: string){
     await db.content.update({
