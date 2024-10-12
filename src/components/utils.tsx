@@ -458,6 +458,11 @@ export function contentUrl(id: string){
 }
 
 
+export function editContentUrl(id: string){
+    return "/editar/" + id
+}
+
+
 export function inRange(i, n){
     return i >= 0 && i < n
 }

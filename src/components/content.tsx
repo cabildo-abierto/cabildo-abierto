@@ -93,7 +93,7 @@ export const ContentTopRow: React.FC<ContentTopRowProps> = ({
             <FakeNewsCounter content={content} onClick={onShowFakeNews}/>
         }
         {showOptions && optionList.length > 0 && <div className="flex">
-            <ContentOptionsButton contentId={content.id} optionList={optionList}/>
+            <ContentOptionsButton content={content} optionList={optionList}/>
         </div>}
     </div>
 }

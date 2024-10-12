@@ -1,6 +1,6 @@
 "use client"
 
-import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions } from "../../actions/contents"
+import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions, deleteUser } from "../../actions/contents"
 import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateNotifications, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
@@ -15,6 +15,8 @@ export default function Page() {
     if(!user || user.editorStatus != "Administrator"){
         return <NotFoundPage/>
     }
+
+    const userId = "prueba2"
 
     const center = <div className="flex flex-col items-center mt-8">
         <h1>Panel de administrador</h1>
@@ -70,6 +72,9 @@ export default function Page() {
             </button>
             <button className="gray-btn" onClick={async () => {await notifyAllMentions()}}>
                 Notificar menciones
+            </button>
+            <button className="gray-btn" onClick={async () => {await deleteUser(userId)}}>
+                Eliminar usuario {userId}
             </button>
         </div>
     </div>

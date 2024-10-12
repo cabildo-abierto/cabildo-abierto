@@ -1,15 +1,37 @@
 "use client"
 
 import React from "react";
-import EditDraftPage from "./edit-draft";
 import { useContent } from "../../hooks/contents";
 import LoadingSpinner from "../../../components/loading-spinner";
 import { ErrorPage } from "../../../components/error-page";
 import { ThreeColumnsLayout } from "../../../components/three-columns";
+import { decompress } from "../../../components/compression";
+import PostEditor from "../../../components/editor/post-editor";
+import { useUser } from "../../hooks/user";
+import { ContentProps } from "../../lib/definitions";
+import Error from "next/error";
+
+
+function canEdit(content: ContentProps){
+    if(content.type == "EntityContent"){
+        return false
+    } else if(content.type == "Comment"){
+        return false
+    } else if(content.type == "FakeNewsReport"){
+        return false
+    } else if(content.type == "UndoEntityContent"){
+        return false
+    } else if(content.type == "FastPost"){
+        return true
+    } else if(content.type == "Post"){
+        return true
+    }
+}
 
 
 const Editar: React.FC<any> = ({params}) => {
     const {content, isLoading, isError} = useContent(params.id)
+    const {user} = useUser()
 
     if(isLoading){
         return <LoadingSpinner/>
@@ -17,8 +39,23 @@ const Editar: React.FC<any> = ({params}) => {
     if(isError || !content){
         return <ErrorPage>No se encontró el contenido</ErrorPage>
     }
+    
+    if(!user || content.author.id != user.id){
+        return <ErrorPage>No sos el autor de este contenido</ErrorPage>
+    }
 
-    const center = <EditDraftPage content={content}/>
+    if(!canEdit(content)){
+        return <ErrorPage>No es posible editar este contenido</ErrorPage>
+    }
+
+    const center = <PostEditor
+        initialData={decompress(content.compressedText)}
+        initialTitle={content.title ? content.title : undefined}
+        isFast={content.type == "FastPost"}
+        isDraft={content.isDraft}
+        contentId={content.id}
+        isPublished={!content.isDraft}
+    />
 
     return <ThreeColumnsLayout center={center}/>
 };

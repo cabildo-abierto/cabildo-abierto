@@ -3,16 +3,13 @@
 import { emptyOutput, validPost } from "../utils"
 import { useState } from "react"
 import StateButton from "../state-button"
-import { CLEAR_EDITOR_COMMAND, EditorState, LexicalEditor, SerializedEditorState, SerializedLexicalNode } from "lexical"
+import { CLEAR_EDITOR_COMMAND, EditorState, LexicalEditor } from "lexical"
 
 
 import dynamic from 'next/dynamic'
 import LoadingSpinner from "../loading-spinner"
 import { SettingsProps } from "./lexical-editor"
 import { useUser } from "../../app/hooks/user"
-import { useSWRConfig } from "swr"
-import { updateComment } from "../../actions/contents"
-import { compress } from "../compression"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 

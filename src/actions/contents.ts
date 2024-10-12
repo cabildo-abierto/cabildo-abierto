@@ -123,7 +123,8 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                     createdAt: "desc"
                 }
             },
-            isContentEdited: true
+            isContentEdited: true,
+            isDraft: true
         },
         where: {
             id: id,
@@ -374,6 +375,11 @@ export async function updateContent(compressedText: string, contentId: string, t
     let references = await findReferences(text)
     const mentions = await findMentions(text)
 
+    const currentContent = await getContentById(contentId)
+
+    console.log("updating", contentId)
+    console.log(currentContent && !currentContent.isDraft)
+
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const result = await db.content.update({
         where: {
@@ -391,7 +397,8 @@ export async function updateContent(compressedText: string, contentId: string, t
             },
             usersMentioned: {
                 connect: mentions
-            }
+            },
+            isContentEdited: currentContent && !currentContent.isDraft
         }
     })
 
@@ -889,20 +896,6 @@ export async function takeAuthorship(contentId: string) {
 }
 
 
-export async function updateComment(contentId: string, compressedText: string){
-    await db.content.update({
-        data: {
-            compressedText: compressedText,
-            isContentEdited: true
-        },
-        where: {
-            id: contentId
-        }
-    })
-    revalidateTag("content:"+contentId)
-}
-
-
 export async function notifyAllMentions(){
     const notifications = await db.notification.findMany({
         where: {
@@ -970,7 +963,16 @@ export async function notifyAllMentions(){
 
 
 export async function deleteUser(userId: string){
-
+    await db.view.deleteMany({
+        where: {
+            userById: userId
+        }
+    })
+    await db.user.delete({
+        where: {
+            id: userId
+        }
+    })
 }
 
 

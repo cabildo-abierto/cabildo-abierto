@@ -8,7 +8,7 @@ import { useContent } from "../app/hooks/contents";
 import LoadingSpinner from "./loading-spinner";
 import { compress, decompress } from "./compression";
 import StateButton from "./state-button";
-import { updateComment } from "../actions/contents";
+import { updateContent } from "../actions/contents";
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClose: () => void}) => {
@@ -45,7 +45,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
                 className="gray-btn my-2 w-64"
                 disabled={!validComment(editorState)}
                 onClick={async (e) => {
-                    await updateComment(contentId, compress(JSON.stringify(editorState)))
+                    await updateContent(contentId, compress(JSON.stringify(editorState)))
                     return true
                 }}
             />
