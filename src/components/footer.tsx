@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { AcceptButtonPanel } from "./accept-button-panel";
+import { articleUrl } from "./utils";
 
 export default function Footer() {
     const [showingContactUs, setShowingContactUs] = useState(false)
@@ -14,14 +15,14 @@ export default function Footer() {
                 Contacto
             </button>
             </div>
-            <Link href="/articulo/Cabildo_Abierto%3A_Política_de_privacidad" className="link3">
+            <Link href={articleUrl("Cabildo_Abierto%3A_Política_de_privacidad")} className="link3">
                 Política de privacidad
             </Link>
             <Link
-                href="/articulo/Cabildo_Abierto%3A_Términos_y_condiciones"
+                href={articleUrl("Cabildo_Abierto%3A_Términos_y_condiciones")}
                 className="link3"
             >
-            Términos y condiciones
+                Términos y condiciones
             </Link>
         </div>
         {showingContactUs && createPortal(<AcceptButtonPanel

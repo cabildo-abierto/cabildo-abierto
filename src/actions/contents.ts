@@ -70,6 +70,11 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                 }
             },
             parentEntityId: true,
+            parentEntity: {
+                select: {
+                    isPublic: true
+                }
+            },
             accCharsAdded: true,
             contribution: true,
             charsAdded: true,
@@ -258,8 +263,8 @@ export async function findReferences(text: string){
     function findReferencesInNode(node: any): {id: string}[] {
         let references: {id: string}[] = []
         if(node.type === "link"){
-            if(node.url.startsWith("/articulo/")){
-                const id = node.url.split("/articulo/")[1]
+            if(node.url.startsWith("/articulo")){
+                const id = node.url.split("/articulo")[1]
                 references.push({id: id})
             }
         }
@@ -966,4 +971,9 @@ export async function notifyAllMentions(){
 
 export async function deleteUser(userId: string){
 
+}
+
+
+export async function updateContentLinks(){
+    
 }

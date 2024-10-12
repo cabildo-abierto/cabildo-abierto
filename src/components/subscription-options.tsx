@@ -6,7 +6,7 @@ import { useUser } from "../app/hooks/user"
 import { buyAndUseSubscription } from "../actions/users"
 import { useSWRConfig } from "swr"
 import LoadingSpinner from "./loading-spinner"
-import { nextPrice } from "./utils"
+import { articleUrl, nextPrice } from "./utils"
 
 
 
@@ -83,7 +83,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
                     Cabildo Abierto está hecha para sus usuarios. Por eso, se financia exclusivamente con suscripciones.
                 </p>
                 <p>
-                    Las suscripciones se usan para financiar el desarrollo de la plataforma y a los autores de los contenidos que leas. <Link href="/articulo/Cabildo_Abierto:_Suscripciones">Leer más.</Link>
+                    Las suscripciones se usan para financiar el desarrollo de la plataforma y a los autores de los contenidos que leas. <Link href={articleUrl("Cabildo_Abierto:_Suscripciones")}>Leer más.</Link>
                 </p>
             </div>
         </div>

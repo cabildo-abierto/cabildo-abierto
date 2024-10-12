@@ -49,14 +49,15 @@ const ArticlesWithSearch = ({ entities, route }: { entities: SmallEntityProps[],
 
 export const CategoryArticles = ({route}: {route: string[]}) => {
     const routeEntities = useRouteEntities(route)
+    const {searchValue} = useSearch()
     if(routeEntities.isLoading) return <LoadingSpinner/>
 
     const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de estrellas que recibió. Los artículos vacíos se muestran al final. Solo se muestran artículos de la categoría seleccionada ({route2Text(route)}).</span>
 
     return <>
-        <div className="text-center mt-1 mb-2">
+        {searchValue.length == 0 && <div className="text-center mt-1 mb-2">
             <span className="text-[var(--text-light)] text-sm">Artículos ordenados por popularidad. <InfoPanel text={infoText}/></span>
-        </div>
+        </div>}
         {routeEntities.entities.length > 0 ? 
             <ArticlesWithSearch
                 entities={routeEntities.entities}

@@ -47,7 +47,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
         if(isAuthor){
             title = "No podés reaccionar a tus propias publicaciones."
         } else if(!user){
-            title = "Necesitás una cuenta para poder reaccionar."
+            title = "Necesitás una cuenta para reaccionar."
         }
     }
     

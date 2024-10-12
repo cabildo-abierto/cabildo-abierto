@@ -11,7 +11,7 @@ import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
 import { confirmChanges, rejectChanges, removeEntityAuthorship } from "../actions/entities"
-import { currentVersion, hasEditPermission, isDemonetized, isUndo } from "./utils"
+import { articleUrl, currentVersion, hasEditPermission, isDemonetized, isUndo } from "./utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./accept-button-panel"
 import { NoEditPermissionsMsg } from "./no-edit-permissions-msg"
@@ -191,7 +191,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
         </div>}
         <div 
             className={className}
-            onClick={() => {router.push("/articulo/"+entity.id+"/"+index)}}
+            onClick={() => {router.push(articleUrl(entity.id, index))}}
         >
             {showingRemoveAuthorshipPanel && <RemoveAuthorshipPanel
                 entity={entity}

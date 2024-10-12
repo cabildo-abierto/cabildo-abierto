@@ -34,6 +34,7 @@ import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemP
 import {sanitizeUrl, SUPPORTED_URL_PROTOCOLS} from '../../utils/url';
 import { useRouteEntities } from '../../../../app/hooks/contents';
 import { SmallEntityProps, EntityProps } from '../../../../app/lib/definitions';
+import { articleUrl } from '../../../utils';
 
 function FloatingLinkEditor({
   editor,
@@ -243,7 +244,7 @@ function FloatingLinkEditor({
           return <button
               key={entity.id}
               className="w-96 mx-[12px] flex justify-center items-center mt-1 hover:bg-gray-100 rounded"
-              onClick={() => {setValue("/articulo/"+entity.id)}}
+              onClick={() => {setValue(articleUrl(entity.id))}}
             >
               <div className="py-1 px-2 text-center">
                 {entity.name}

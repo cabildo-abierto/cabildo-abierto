@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Logo } from './logo';
 import { useState } from 'react';
 import { newContactMail } from '../actions/users';
+import { articleUrl } from './utils';
 
 
 export const ThanksForSubscribing = ({onClose}: {onClose: () => void}) => {
@@ -90,7 +91,7 @@ export const Presentation: React.FC = () => {
           <h3 className="text-gray-600 text-xl lg:text-3xl mt-2">Discutí lo público</h3>
         </div>
       </div>
-      <Link href="/articulo/Cabildo_Abierto" className="text-lg title mb-16 gray-btn">
+      <Link href={articleUrl("Cabildo_Abierto")} className="text-lg title mb-16 gray-btn">
         <div className="m-1">¿Qué es Cabildo Abierto?</div>
       </Link>
       {openMailInput && <ContactMailInput onClose={(accept: boolean) => {setOpenMailInput(false); if(accept) setOpenThanks(true)}}/>}

@@ -5,7 +5,7 @@ import { ActivePraiseIcon, ArticleIcon, InactiveCommentIcon, LinkIcon, TextLengt
 import { FixedCounter } from "./like-counter"
 import { PostTitleOnFeed } from "./post-on-feed"
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions"
-import { currentVersion } from "./utils"
+import { articleUrl, currentVersion } from "./utils"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 
@@ -57,7 +57,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
         </div>
       )}
       <Link
-        href={"/articulo/" + entity.id}
+        href={articleUrl(entity.id)}
         className={"px-2 content-container hover:bg-[var(--secondary-light)] " + (numWords == 0 ? "mt-1" : "")}
         onMouseEnter={onMouseEnter}
       >

@@ -7,7 +7,7 @@ import { createEntity } from "../actions/entities"
 import { useUser } from "../app/hooks/user"
 import NeedSubscriptionPopupPanel from "./need-subscription-popup"
 import Popup from "./popup"
-import { validSubscription } from "./utils"
+import { articleUrl, validSubscription } from "./utils"
 
 const CreateEntityButton: React.FC<any> = ({onClick}) => {
     return <button 
@@ -20,7 +20,7 @@ const CreateEntityButton: React.FC<any> = ({onClick}) => {
 
 export default function NoEntityPage({id}: {id: string}){
     const name = decodeURIComponent(id).replaceAll("_", " ")
-    const url = "/articulo/"+id
+    const url = articleUrl(id)
     const router = useRouter()
     const {user} = useUser()
     const {mutate} = useSWRConfig()

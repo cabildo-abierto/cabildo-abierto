@@ -12,6 +12,8 @@ import MercadoPagoConfig, { Preference } from "mercadopago";
 import { accessToken, contributionsToProportionsMap, isDemonetized, subscriptionEnds } from "../components/utils";
 import assert from "assert";
 import { pathLogo } from "../components/logo";
+import { headers } from "next/headers";
+import { userAgent } from "next/server";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -533,10 +535,13 @@ export const getSubscriptionPoolSize = unstable_cache(async () => {
 )
 
 
-const min_time_between_visits = 60*60*1000
+const min_time_between_visits = 60*60*1000 // una hora
 
 
-export const logVisit = async (header: ReadonlyHeaders, agent: any, contentId: string) => {
+export const logVisit = async (contentId: string) => {
+    const header = headers()
+    const agent = userAgent({headers: header})
+
     const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
 
     let user = await db.noAccountUser.findFirst({

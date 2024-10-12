@@ -15,6 +15,7 @@ import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
 import LoadingSpinner from "./loading-spinner";
+import { articleUrl } from "./utils";
 
 
 function unseenCount(chat: ChatMessage[], userId: string){
@@ -96,7 +97,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
                     {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={id2url(user.user.id)}/>}
                     <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Panel personal" href="/panel"/>
-                    <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href="/articulo/Cabildo_Abierto"/>
+                    <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href={articleUrl("Cabildo_Abierto")}/>
                     <SidebarButton icon={<ManageAccountIcon/>} onClick={onClose} text="Cuenta" href="/cuenta"/>
                     {user.user && <SupportButton user={user.user} onClose={onClose}/>}
                     {user.user && user.user.editorStatus == "Administrator" && 
