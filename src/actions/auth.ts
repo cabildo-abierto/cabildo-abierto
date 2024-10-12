@@ -63,23 +63,38 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
         }
     }
 
-    const user = await db.user.findFirst({where: {id: validatedFields.data.username}})
+    const user = await db.user.findFirst({
+      where: {
+        id: validatedFields.data.username
+      }
+    })
 
     if(user){
         return {
-            errors: {username: ["El nombre de usuario ya existe."]}
+            errors: {username: ["El nombre de usuario ya está en uso."]}
+        }
+    }
+
+    const supaUser = await db.users.findFirst({
+      where: {
+        email: validatedFields.data.email
+      }
+    })
+
+    if(supaUser){
+        return {
+            errors: {email: ["Ya existe una cuenta con ese email."]}
         }
     }
 
     const { error, data } = await supabase.auth.signUp(validatedFields.data as {email: string, password: string, username: string, name: string, betakey: string})
     
-    console.log("signup error", error)
     if (error || !data || !data.user) {
         return {
             authError: error?.code
         }
     }
-
+    
     await db.user.create({
         data: {
             authUserId: data.user.id,
