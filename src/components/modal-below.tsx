@@ -1,5 +1,4 @@
 import { ReactNode, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
 
 
 export const ModalBelow = ({children, open, setOpen, className, hoverOnly=false}: 
@@ -25,16 +24,15 @@ export const ModalBelow = ({children, open, setOpen, className, hoverOnly=false}
         }
     }, [open]);
 
-    return <><div
+    return <>{!hoverOnly && <div
             className="fixed left-0 top-0 h-screen w-screen z-10"
             onClick={() => {setOpen(false)}}
         >
-        </div>
+        </div>}
         {<div
             ref={panelRef}
             className={"absolute top-full left-0 z-10 sm:px-0 px-2 " + className}
-            onMouseEnter={() => {if(hoverOnly) setOpen(true)}}
-            onMouseLeave={() => {if(hoverOnly) setOpen(false)}}
+            onMouseLeave={() => {if(hoverOnly) {setOpen(false);}}}
         >
             {children}
         </div>}

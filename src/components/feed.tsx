@@ -1,4 +1,4 @@
-import React from "react"
+import React, { ReactNode } from "react"
 import { ContentWithCommentsFromId } from "./content-with-comments";
 import { NoResults } from "./category-users";
 import { SmallContentProps } from "../app/lib/definitions";
@@ -12,7 +12,7 @@ export type LoadingFeedWithData = {feed: SmallContentProps[], isLoading: boolean
 
 export type FeedProps = {
     feed: LoadingFeed,
-    noResultsText?: string
+    noResultsText?: ReactNode
 }
 
 const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación."}) => {
