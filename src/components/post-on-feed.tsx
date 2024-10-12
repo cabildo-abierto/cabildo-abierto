@@ -10,6 +10,8 @@ import Link from "next/link";
 import { DateSince } from "./date";
 import { fetcher } from "../app/hooks/utils";
 import { preload } from "swr";
+import { useUser } from "../app/hooks/user";
+import { ContentOptionsButton } from "./content-options-button";
 
 type PostOnFeedProps = {
     content: ContentProps,
@@ -48,21 +50,32 @@ export const Author = ({content} :{content: ContentProps}) => {
 
 
 export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFeedProps) => {
+    const {user} = useUser()
+    const router = useRouter()
 
     function onMouseEnter(){
         preload("/api/content/"+content.id, fetcher)
     }
 
-    return <Link
-        href={contentUrl(content.id)}
-        className="flex flex-col hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out"
+    const optionList = user && content.author.id == user.id ? ["edit"] : []
+
+    return <div
+        onClick={() => {router.push(contentUrl(content.id))}}
+        className="flex flex-col hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out cursor-pointer"
         onMouseEnter={onMouseEnter}
     >
-        <div className="flex justify-between px-2 mt-1">
-            <span className="text-sm text-gray-400">Publicación</span>
-            <span className="text-[var(--text-light)] text-sm">
-                <DateSince date={content.createdAt}/>
-            </span>
+        <div className="flex justify-between items-center mt-1">
+            <span className="text-sm text-gray-400 ml-2">Publicación</span>
+
+            <div className="flex items-center space-x-1">
+                <span className="text-[var(--text-light)] text-sm">
+                    <DateSince date={content.createdAt}/>
+                </span>
+                {content.isContentEdited && <span className="text-[var(--text-light)] text-sm">(editado)</span>}
+                {optionList.length > 0 && <div className="flex">
+                    <ContentOptionsButton content={content} optionList={optionList}/>
+                </div>}
+            </div>
         </div>
 
         <div className="flex justify-between px-2 py-2 mb-4">
@@ -80,5 +93,5 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
                 isPost={true}
             />
         </div>
-    </Link>
+    </div>
 }

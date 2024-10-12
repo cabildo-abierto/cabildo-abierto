@@ -12,6 +12,7 @@ import { useSWRConfig } from "swr"
 import { useUser } from "../../app/hooks/user"
 import { createPost, publishDraft, updateContent } from "../../actions/contents"
 import { compress } from "../compression"
+import { useContent } from "../../app/hooks/contents"
 
 type PostEditorProps = {
     initialData?: string,
@@ -19,6 +20,7 @@ type PostEditorProps = {
     isFast?: boolean
     isDraft?: boolean
     contentId?: string
+    isPublished?: boolean
 }
 
 
@@ -27,7 +29,8 @@ const PostEditor = ({
     initialTitle="", 
     isFast=false,
     isDraft=false,
-    contentId
+    contentId,
+    isPublished=false
 }: PostEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
@@ -78,7 +81,11 @@ const PostEditor = ({
             const compressedText = compress(text)
             const type = isFast ? "FastPost" : "Post"
             if(!isDraft){ 
-                createPost(compressedText, type, isDraft, user.id, !isFast ? title : undefined)
+                if(!isPublished){
+                    createPost(compressedText, type, isDraft, user.id, !isFast ? title : undefined)
+                } else {
+                    updateContent(compressedText, contentId, !isFast ? title : undefined)
+                }
             } else {
                 publishDraft(compressedText, contentId, user.id, !isFast ? title : undefined)
                 mutate("/api/content/"+contentId)
@@ -99,7 +106,11 @@ const PostEditor = ({
             const compressedText = compress(text)
             const type = isFast ? "FastPost" : "Post"
             if(!isDraft){
-                await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
+                if(!isPublished){
+                    await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
+                } else {
+                    await updateContent(compressedText, contentId, !isFast ? title : undefined)
+                }
             } else {
                 await updateContent(compressedText, contentId, title)
                 await mutate("/api/content/" + contentId)
@@ -121,8 +132,8 @@ const PostEditor = ({
         return <StateButton
             onClick={onClick}
             className="gray-btn"
-            text1="Publicar"
-            text2="Publicando..."
+            text1={isPublished ? "Guardar cambios" : "Publicar"}
+            text2={isPublished ? "Guardando..." : "Publicando..."}
             disabled={disabled}
         />
 	}
@@ -146,14 +157,13 @@ const PostEditor = ({
     }
 
     return <div className="p-1 rounded">
-        
         <div className="flex justify-between mt-3">
-            <DraftsButton/>
+            {isPublished ? <div></div> : <DraftsButton/>}
 			<div className="flex justify-end">
                 <div className="px-1">
                     <PublishButton onClick={handleSubmit}/>
                 </div>
-                <SaveDraftButton onClick={handleSaveDraft}/>
+                {!isPublished && <SaveDraftButton onClick={handleSaveDraft}/>}
 			</div>
 		</div>
         {!isFast && <div className="mt-6">

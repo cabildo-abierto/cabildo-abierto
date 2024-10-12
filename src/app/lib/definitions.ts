@@ -58,6 +58,8 @@ export type ContentProps = {
     childrenContents: CommentProps[]
 
     isContentEdited: boolean
+
+    isDraft: boolean
 }
 
 
