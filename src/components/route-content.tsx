@@ -80,6 +80,9 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
                 feed={followingFeed}
                 order={order}
                 filter={filter}
+                noResultsText={<div className="text-sm"><div>No se encontró ninguna publicación.</div>
+                    <div>Seguí a más personas para encontrar más contenidos en esta sección.</div>
+                </div>}
             /> : <div className="flex justify-center mt-8"><CreateAccountLink
                 text="Creá una cuenta o iniciá sesión para tener tu muro personal"
             /></div>)}

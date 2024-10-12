@@ -4,10 +4,11 @@ import { useSearch } from "./search-context"
 import { SmallUserProps } from "../app/lib/definitions"
 import { useUsers } from "../app/hooks/user"
 import LoadingSpinner from "./loading-spinner"
+import { ReactNode } from "react"
 
 
-export const NoResults = ({text="No se encontraron resultados..."}: {text?: string}) => {
-    return <div className="mt-8">{text}</div>
+export const NoResults = ({text="No se encontraron resultados..."}: {text?: ReactNode}) => {
+    return <div className="mt-8 text-center max-w-128 text-[var(--text-light)]">{text}</div>
 }
 
 

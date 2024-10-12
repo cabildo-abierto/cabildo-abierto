@@ -1,3 +1,4 @@
+import { ReactNode } from "react"
 import { SmallContentProps } from "../app/lib/definitions"
 import { decompress } from "./compression"
 import Feed, { LoadingFeedWithData } from "./feed"
@@ -16,7 +17,7 @@ function comp(a: {score: number}, b: {score: number}){
 
 export type ConfiguredFeedProps = {
     feed: LoadingFeedWithData
-    noResultsText?: string
+    noResultsText?: ReactNode
     order: string
     filter: string
 }

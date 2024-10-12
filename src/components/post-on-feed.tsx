@@ -68,10 +68,10 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
             <span className="text-sm text-gray-400 ml-2">Publicación</span>
 
             <div className="flex items-center space-x-1">
-                <span className="text-[var(--text-light)] text-sm">
+                <span className="text-[var(--text-light)] text-sm mr-1">
                     <DateSince date={content.createdAt}/>
                 </span>
-                {content.isContentEdited && <span className="text-[var(--text-light)] text-sm">(editado)</span>}
+                {content.isContentEdited && <span className="text-[var(--text-light)] text-sm mr-1">(editado)</span>}
                 {optionList.length > 0 && <div className="flex">
                     <ContentOptionsButton content={content} optionList={optionList}/>
                 </div>}
