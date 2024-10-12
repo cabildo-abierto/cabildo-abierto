@@ -13,17 +13,24 @@ import { ActivePraiseIcon, InactivePraiseIcon } from "./icons";
 import { ToggleButton } from "./toggle-button";
 import { deleteEntity, deleteEntityHistory, makeEntityPublic, recomputeEntityContributions, renameEntity } from "../actions/entities";
 import { useUser } from "../app/hooks/user";
-import { EntityProps, ContentProps } from "../app/lib/definitions";
+import { EntityProps } from "../app/lib/definitions";
 import { EntityCategories } from "./categories";
 import { ContentWithCommentsFromId } from "./content-with-comments";
 import { EditHistory } from "./edit-history";
 import { SetProtectionButton } from "./protection-button";
 import { ThreeColumnsLayout } from "./three-columns";
 import { NoVisitsAvailablePopup } from "./no-visits-popup";
-import { currentVersion, isUndo } from "./utils";
+import { articleUrl, currentVersion, inRange, isUndo, monthly_visits_limit, visitsThisMonth } from "./utils";
 import { UndoDiscussion } from "./undo-discussion";
 import { articleButtonClassname } from "./editor/wiki-editor";
 import { fetcher } from "../app/hooks/utils";
+import { logVisit } from "../actions/users";
+import { useContent } from "../app/hooks/contents";
+import { LoadingScreen } from "./loading-screen";
+import NoEntityPage from "./no-entity-page";
+import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
+import { useEntity } from "../app/hooks/entities";
+import { EntityLikesAndViewsCounter } from "./entity-likes-and-views-counter";
 
 
 const DeletedEntity = () => {
@@ -48,9 +55,14 @@ const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
 }
 
 
-export const ArticlePage = ({entity, content, version, visitOK}: {
-    entity: EntityProps, content: ContentProps, version?: number, visitOK: boolean}) => {
+export const ArticlePage = ({entityId, version, header, userHeaders}: {
+    entityId: string,
+    version?: number,
+    userHeaders: any,
+    header: ReadonlyHeaders
+}) => {
     const user = useUser()
+    const entity = useEntity(entityId)
     const [editing, setEditing] = useState(false)
     const [showingCategories, setShowingCategories] = useState(false)
     const [showingHistory, setShowingHistory] = useState(version != undefined)
@@ -59,16 +71,23 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
+    const [validVisit, setValidVisit] = useState(true)
 
     useEffect(() => {
-        const references = entity.versions[currentVersion(entity)].entityReferences
-        for(let i = 0; i < references.length; i++){
-            preload("/api/entity/"+references[i].id, fetcher)
+        if(entity.entity){
+            const references = entity.entity.versions[currentVersion(entity.entity)].entityReferences
+            for(let i = 0; i < references.length; i++){
+                preload("/api/entity/"+references[i].id, fetcher)
+            }
         }
-    }, [])
+    }, [entity])
 
-    if(entity.deleted){
-        return <DeletedEntity/>
+    if(entity.isLoading){
+        return <LoadingScreen/>
+    }
+
+    if(!entity.entity || entity.isError || entity.entity.deleted){
+        return <NoEntityPage id={entityId}/>
     }
 
     async function onEdit(v){
@@ -138,7 +157,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             text2="Eliminando..."
             onClick={async (e) => {
                 if(user.user){
-                    await deleteEntity(entity.id, user.user.id)
+                    await deleteEntity(entityId, user.user.id)
                     mutate("/api/entities")
                     router.push("/inicio")
                     return true
@@ -154,7 +173,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             text1="Recalcular contribuciones"
             text2="Recalculando..."
             onClick={async (e) => {
-                await recomputeEntityContributions(entity.id)
+                await recomputeEntityContributions(entityId)
                 return false
             }}
         />
@@ -167,8 +186,8 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             text2="Eliminando..."
             onClick={async (e) => {
                 if(user.user){
-                    await deleteEntityHistory(entity.id, false); 
-                    mutate("/api/entity/"+entity.id)
+                    await deleteEntityHistory(entityId, false); 
+                    mutate("/api/entity/"+entityId)
                     return true
                 }
                 return false
@@ -184,8 +203,8 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             text2="Reiniciando..."
             onClick={async (e) => {
                 if(user.user){
-                    await deleteEntityHistory(entity.id, true); 
-                    mutate("/api/entity/"+entity.id)
+                    await deleteEntityHistory(entityId, true); 
+                    mutate("/api/entity/"+entityId)
                     return true
                 }
                 return false
@@ -200,8 +219,8 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             text2="Haciendo público..."
             onClick={async (e) => {
                 if(user.user){
-                    await makeEntityPublic(entity.id, true); 
-                    mutate("/api/entity/"+entity.id)
+                    await makeEntityPublic(entityId, true); 
+                    mutate("/api/entity/"+entityId)
                     return true
                 }
                 return false
@@ -216,8 +235,8 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             text2="Haciendo privado..."
             onClick={async (e) => {
                 if(user.user){
-                    await makeEntityPublic(entity.id, false); 
-                    mutate("/api/entity/"+entity.id)
+                    await makeEntityPublic(entityId, false); 
+                    mutate("/api/entity/"+entityId)
                     return true
                 }
                 return false
@@ -232,8 +251,8 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             text1="Renombrar"
             onClick={async (e) => {
                 if(user.user){
-                    await renameEntity(entity.id, user.user.id, "new name"); 
-                    mutate("/api/entity/"+entity.id)
+                    await renameEntity(entityId, user.user.id, "new name"); 
+                    mutate("/api/entity/"+entityId)
                     return true
                 }
                 return false
@@ -241,41 +260,43 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
         />
     }
 
-    if(version === undefined){
-        version = currentVersion(entity)
+    const versions = entity.entity.versions
+    const currentIndex = currentVersion(entity.entity)
+    if(version == undefined || !inRange(version, versions.length)){
+        version = currentIndex
     }
-    const contentId = entity.versions[version].id
+    const isCurrent = version == currentIndex
 
-    const lastUpdated = entity.versions[entity.versions.length-1].createdAt
+    const contentId = entity.entity.versions[version].id
+
+    const lastUpdated = entity.entity.versions[entity.entity.versions.length-1].createdAt
+
     const center = <div className="bg-[var(--background)] h-full px-2">
         {showingNeedAccountPopup && <NeedAccountToEditPopup 
         onClose={() => {setShowingNeedAccountPopup(false)}}/>}
         <div className="text-[var(--text-light)] text-sm mt-8 mb-2">Artículo público</div>
         <h1 className="mb-8">
-            {entity.name}
+            {entity.entity.name}
         </h1>
         <div className="flex justify-between">
             <div className="flex flex-col link">
-                <ShowContributors entityId={entity.id}/>
-                {version == entity.versions.length-1 && <span className="text-[var(--text-light)]">
+
+                <ShowContributors entityId={entityId}/>
+                
+                {isCurrent && <span className="text-[var(--text-light)]">
                     Últ. actualización <DateSince date={lastUpdated}/>.
                 </span>}
-                {version != entity.versions.length-1 && <div className="flex text-[var(--text-light)]">
-                    <span className="mr-1">Estás viendo la versión {version} (publicada <DateSince date={entity.versions[version].createdAt}/>).</span>
-                    <span><Link href={"/articulo/"+entity.id}>Ir a la versión actual</Link>.</span>
+
+                {!isCurrent && <div className="flex text-[var(--text-light)]">
+                    <span className="mr-1">Estás viendo la versión {version} (publicada <DateSince date={entity.entity.versions[version].createdAt}/>).</span>
+                    <span><Link href={articleUrl(entityId)}>Ir a la versión actual</Link>.</span>
                     </div>
                 }
 
-                </div>
-            <div className="flex flex-col items-end">
-                <div className="p-1 flex flex-col items-center">
-                    <LikeCounter
-                        content={content}
-                        icon1={<ActivePraiseIcon/>} icon2={<InactivePraiseIcon/>}
-                    />
-                    <ViewsCounter content={content}/>
-                </div>
             </div>
+            <EntityLikesAndViewsCounter 
+                contentId={contentId}
+            />
         </div>
         <div className="">
         {!editing && <div className="flex flex-wrap items-center px-2 space-x-2 border-b mt-4">
@@ -311,21 +332,31 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
             }
             {(user.user && user.user.editorStatus == "Administrator") &&
             <div className="flex justify-center py-2">
-                {entity.isPublic ? <MakePrivateButton/> : <MakePublicButton/>}
+                {entity.entity.isPublic ? <MakePrivateButton/> : <MakePublicButton/>}
             </div>
             }
         </div>}
         </div>
         {showingCategories && <div className="px-2 content-container my-2">
-            <EntityCategories categories={entity.versions[version].categories} name={entity.name}/>
+            <EntityCategories
+                categories={versions[version].categories}
+                name={entity.entity.name}
+            />
         </div>}
         {showingHistory && <div className="my-2">
-            <EditHistory entity={entity} viewing={version}/>
+            <EditHistory
+                entity={entity.entity}
+                viewing={version}
+            />
         </div>
         }
 
         <div className="mt-2">
-        {isUndo(entity.versions[version]) && <UndoDiscussion content={content} entity={entity} version={version}/>}
+        {isUndo(versions[version]) &&
+            <UndoDiscussion
+                entity={entity.entity}
+                version={version}
+            />}
         </div>
 
         <div className="mt-6">
@@ -351,12 +382,7 @@ export const ArticlePage = ({entity, content, version, visitOK}: {
 
     </div>
     
-    if(entity.isPublic){
-        return <ThreeColumnsLayout center={center} leftMinWidth="250px"/>
-    } else {
-        return <>
-            {!visitOK && <NoVisitsAvailablePopup/>}
-            <ThreeColumnsLayout center={center} leftMinWidth="250px"/>
-        </>
-    }
+    return <>
+        <ThreeColumnsLayout center={center} leftMinWidth="250px"/>
+    </>
 }

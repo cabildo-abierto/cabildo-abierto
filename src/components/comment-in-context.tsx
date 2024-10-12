@@ -4,14 +4,16 @@ import Link from 'next/link';
 import LoadingSpinner from './loading-spinner';
 import { useContent } from '../app/hooks/contents';
 import { ContentProps } from '../app/lib/definitions';
+import { articleUrl, contentUrl } from './utils';
 
 
 
 export function shortDescription(content: ContentProps){
     const parentAuthor = content.author.id
     const authorUrl = "/perfil/"+parentAuthor
-    const parentUrl = (content.type == "EntityContent" ? "/articulo/" : "/contenido/") + content.id
     const parentEntityId = content.parentEntityId
+    const parentUrl = content.type == "EntityContent" ? articleUrl(parentEntityId) : contentUrl(content.id)
+    
     const parentEntityName = decodeURIComponent(parentEntityId).replaceAll("_", " ")
 
     let desc = null

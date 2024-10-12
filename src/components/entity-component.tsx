@@ -9,7 +9,7 @@ import { ContentTopRow } from "./content";
 import { useEntity } from "../app/hooks/entities";
 import { useContent } from "../app/hooks/contents";
 import { ContentProps, EntityProps } from "../app/lib/definitions";
-import { getVersionInEntity } from "./utils";
+import { articleUrl, getVersionInEntity } from "./utils";
 import { decompress } from "./compression";
 
 
@@ -125,7 +125,7 @@ const EntityMentionInCommentSection = ({parentContentId, entity, mentioningConte
     
     const fragment = findFragment(decompress(mentioningContent.content.compressedText), parentContent.content.parentEntityId)
 
-    return <Link className="" href={"/articulo/"+entity.id}>
+    return <Link className="" href={articleUrl(entity.id)}>
         <div className="px-2 py-4 w-full flex flex-col hover:bg-[var(--secondary-light)]">
             <div>
                 Mencionado en <span className="content font-bold">{entity.name}</span>.
@@ -141,7 +141,7 @@ const EntityMentionInCommentSection = ({parentContentId, entity, mentioningConte
 
 
 const EntityEditInFeed = ({entity, content, version}: {content: ContentProps, entity: EntityProps, version: number}) => {
-    const name = <Link href={"/articulo/"+entity.id+"/"+version} className="content">{entity.name}</Link>
+    const name = <Link href={articleUrl(entity.id, version)} className="content">{entity.name}</Link>
 
     let text = null
     if(version == 0){

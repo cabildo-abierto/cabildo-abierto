@@ -1,13 +1,10 @@
 "use client"
 import Link from "next/link"
-import { ContentProps, ContributionsArray, ContributionsProps, NotificationProps } from "../app/lib/definitions"
-import { DateSince } from "./date"
-import { follow } from "../actions/users"
+import { ContentProps, ContributionsProps, NotificationProps } from "../app/lib/definitions"
 import { useContent } from "../app/hooks/contents"
 import LoadingSpinner from "./loading-spinner"
-import { useEntity } from "../app/hooks/entities"
 import { useUser } from "../app/hooks/user"
-import { userAgent } from "next/server"
+import { articleUrl, contentUrl } from "./utils"
 
 
 const UserMention = ({id}: {id: string}) => {
@@ -16,7 +13,7 @@ const UserMention = ({id}: {id: string}) => {
 
 
 const EditDescriptionInNotification = ({content}: {content: ContentProps}) => {
-    const href = "/articulo/" + content.parentEntityId
+    const href = articleUrl(content.parentEntityId)
     const {user} = useUser()
 
     const c: ContributionsProps = JSON.parse(content.contribution)
@@ -46,7 +43,7 @@ function PostDescription({contentId}: {contentId: string}){
     if(content.type == "EntityContent"){
         post = <EditDescriptionInNotification content={content}/>
     } else {
-        const href = "/contenido/"+contentId
+        const href = contentUrl(contentId)
         const isAuthor = user && content.author.id == user.id
         if(content.type == "Comment"){
             post = <>{isAuthor ? "tu" : "un"} <Link href={href}>comentario</Link>.</>

@@ -9,6 +9,7 @@ import { ShowUserContribution } from "../../components/show-contributors"
 import { useUser } from "../hooks/user"
 import { useContent } from "../hooks/contents"
 import LoadingSpinner from "../../components/loading-spinner"
+import { articleUrl, contentUrl } from "../../components/utils"
 
 const EntityIncome = ({entityId}: {entityId: string}) => {
     const {user} = useUser()
@@ -24,7 +25,7 @@ const EntityIncome = ({entityId}: {entityId: string}) => {
 
     return <Link
         className="content-container p-1 flex flex-col w-full cursor-pointer"
-        href={"/articulo/"+encodeURIComponent(entityId)}
+        href={articleUrl(entityId)}
         >
         <div className="flex justify-between">
             <PostTitleOnFeed title={entity.entity.name}/>
@@ -45,7 +46,7 @@ const PostIncome = ({postId}: {postId: string}) => {
         return <LoadingSpinner/>
     }
     return <Link
-        href={"/contenido/"+postId}
+        href={contentUrl(postId)}
         className="content-container p-1 flex flex-col w-full"
     >
         <div className="flex justify-between">

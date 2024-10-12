@@ -1,10 +1,10 @@
 "use client"
 
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 
-import { stopPropagation } from "./utils";
+import { isPublic, monthly_visits_limit, stopPropagation, visitsThisMonth } from "./utils";
 import { DateSince } from "./date";
 import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
@@ -21,6 +21,8 @@ import { useUser } from "../app/hooks/user";
 import { ContentProps } from "../app/lib/definitions";
 import EntityComponent from "./entity-component";
 import { UndoDiscussionContent } from "./undo-discussion";
+import { logVisit } from "../actions/users";
+import { NoVisitsAvailablePopup } from "./no-visits-popup";
 
 
 export function id2url(id: string){
@@ -194,6 +196,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
 }) => {
     const {user} = useUser()
     const viewRecordedRef = useRef(false);
+    const [validVisit, setValidVisit] = useState(true)
     
     const requiresMainPage = content.type == "Post" || content.type == "EntityContent"
 
@@ -212,6 +215,21 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
         };
         recordView();
     }, [user, content.id, content]);
+
+    useEffect(() => {
+        async function checkVisit(){
+            if(!isPublic(content, isMainPage) && !user){
+                const noAccountUser = await logVisit(content.id)
+    
+                const visits = visitsThisMonth(noAccountUser.visits)
+                if(visits >= monthly_visits_limit){
+                    setValidVisit(false)
+                }
+            }
+        }
+        
+        checkVisit()
+    }, [user, content])
 
     let element = null
     if(content.type == "Post" && isMainPage){
@@ -267,6 +285,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
         >
             Tomar autoría
         </button>}
+        {!validVisit && <NoVisitsAvailablePopup/>}
         {element}
     </>
 };

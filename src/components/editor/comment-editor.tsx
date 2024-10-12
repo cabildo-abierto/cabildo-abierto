@@ -85,7 +85,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
             className="small-btn"
             text1="Enviar"
             text2="Enviando..."
-            disabled={!validComment(editorState)}
+            disabled={!user.user || !validComment(editorState)}
         />
 	}
 

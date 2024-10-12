@@ -1,4 +1,4 @@
-import { UserProps, EntityProps, SmallEntityProps, EntityVersionProps } from "../app/lib/definitions"
+import { UserProps, EntityProps, SmallEntityProps, EntityVersionProps, ContentProps } from "../app/lib/definitions"
 import { charDiffFromJSONString, getAllText } from "./diff"
 import { db } from "../db"
 import { decompress } from "./compression"
@@ -445,4 +445,30 @@ export function nextPrice(p: number){
     } else {
         return "Error"
     }
+}
+
+
+export function articleUrl(id: string, index?: number){
+    return "/articulo?i=" + id + (index ? "&v=" + index : "")
+}
+
+
+export function contentUrl(id: string){
+    return "/contenido?i=" + id
+}
+
+
+export function inRange(i, n){
+    return i >= 0 && i < n
+}
+
+
+export function isPublic(content: ContentProps, isMainPage: boolean){
+    if(content.type == "EntityContent"){
+        return content.parentEntity.isPublic
+    }
+    if(content.type == "Post" && isMainPage){
+        return false
+    }
+    return true
 }

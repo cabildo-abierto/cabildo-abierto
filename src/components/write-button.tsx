@@ -11,6 +11,7 @@ import InfoPanel from './info-panel';
 import { useUser } from '../app/hooks/user';
 import { createEntity } from '../actions/entities';
 import { CreateAccountLink } from './create-account-link';
+import { articleUrl } from './utils';
 
 export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100;
@@ -58,7 +59,7 @@ const Modal = ({ onClose }: { onClose: any }) => {
                                     }
                                     mutate("/api/entities");
                                     mutate("/api/entity/"+id);
-                                    if (goToArticle) router.push("/articulo/" + id);
+                                    if (goToArticle) router.push(articleUrl(id));
                                     else onClose();
                                     return true
                                 }

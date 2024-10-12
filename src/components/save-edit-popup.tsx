@@ -11,7 +11,7 @@ import InfoPanel from "./info-panel";
 import { NotEnoughPermissionsWarning } from "./permissions-warning";
 import StateButton from "./state-button";
 import TickButton from "./tick-button";
-import { hasEditPermission } from "./utils";
+import { articleUrl, hasEditPermission } from "./utils";
 
 
 const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: string) => void}) => {
@@ -46,7 +46,7 @@ export const SaveEditPopup = ({
         setNewVersionSize(getAllText(JSON.parse(jsonState).root).length)
     }, [])
     
-    const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al artículo el texto de una Ley, o algo escrito por otra persona. Si lo desactivás no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href="/articulo/Cabildo_Abierto:_Derechos_de_autor">Más información</Link>
+    const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al artículo el texto de una Ley, o algo escrito por otra persona. Si lo desactivás no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href={articleUrl("Cabildo_Abierto:_Derechos_de_autor")}>Más información</Link>
     </span>
 
     if(!newVersionSize){

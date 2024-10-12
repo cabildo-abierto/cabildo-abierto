@@ -5,7 +5,7 @@ import { Authorship, ContentTopRow, ContentTopRowAuthor, id2url, LikeAndCommentC
 import { PostIcon } from "./icons";
 import { ContentProps } from "../app/lib/definitions";
 import ReadOnlyEditor from "./editor/read-only-editor";
-import { getPreviewFromJSONStr, stopPropagation } from "./utils";
+import { contentUrl, getPreviewFromJSONStr, stopPropagation } from "./utils";
 import Link from "next/link";
 import { DateSince } from "./date";
 import { fetcher } from "../app/hooks/utils";
@@ -54,7 +54,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
     }
 
     return <Link
-        href={"/contenido/"+content.id}
+        href={contentUrl(content.id)}
         className="flex flex-col hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out"
         onMouseEnter={onMouseEnter}
     >

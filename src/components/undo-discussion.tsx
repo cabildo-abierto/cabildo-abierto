@@ -9,7 +9,7 @@ import LoadingSpinner from "./loading-spinner"
 
 
 
-export const UndoDiscussion = ({content, entity, version}: {content: ContentProps, entity: EntityProps, version: number}) => {
+export const UndoDiscussion = ({entity, version}: {entity: EntityProps, version: number}) => {
 
     return <ContentWithCommentsFromId
         contentId={entity.versions[version].undos[0].id}

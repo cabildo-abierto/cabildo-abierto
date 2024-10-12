@@ -19,6 +19,7 @@ export type ContentProps = {
 
     categories?: string | null
     parentEntityId?: string | null
+    parentEntity: {isPublic: boolean}
     charsAdded?: number,
     charsDeleted?: number,
     accCharsAdded?: number,
