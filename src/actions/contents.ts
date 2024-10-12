@@ -974,6 +974,45 @@ export async function deleteUser(userId: string){
 }
 
 
+/*function updateLinksFromNode(node: any){
+
+}
+
+
+function getUpdatedLinksText(text: string){
+    let json = null
+    try {
+        json = JSON.parse(text)
+    } catch {
+        return text
+    }
+
+    const newRoot = updateLinksFromNode(json.root)
+
+    json.root = newRoot
+
+    return JSON.stringify(json)
+}*/
+
+
 export async function updateContentLinks(){
-    
+    /*const contents = await db.content.findMany({
+        select: {
+            id: true,
+            compressedText: true
+        }
+    })
+
+    for(let i = 0; i < contents.length; i++){
+        const newText = getUpdatedLinksText(decompress(contents[i].compressedText))
+
+        await db.content.update({
+            data: {
+                compressedText : compress(newText)
+            },
+            where: {
+                id: contents[i].id
+            }
+        })
+    }*/
 }

@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { NextURL } from 'next/dist/server/web/next-url'
 import { NextResponse, type NextRequest } from 'next/server'
 
 function isNewUserRoute(request: NextRequest){
@@ -38,6 +39,33 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  const url = request.nextUrl.clone()
+
+  if(url.pathname.startsWith("/wiki/")){
+      const id = url.pathname.split("/wiki/")[1]
+      
+      const articleUrl = new URL('/articulo', request.url)
+
+      articleUrl.searchParams.set('i', id)
+      return NextResponse.redirect(articleUrl)
+  }
+
+  if(url.pathname.startsWith("/articulo/")){
+    const id = url.pathname.split("/articulo/")[1]
+    const articleUrl = new URL('/articulo', request.url)
+
+    articleUrl.searchParams.set('i', id)
+    return NextResponse.redirect(articleUrl)
+  }
+
+  if(url.pathname.startsWith("/contenido/")){
+    const id = url.pathname.split("/contenido/")[1]
+    const articleUrl = new URL('/contenido', request.url)
+
+    articleUrl.searchParams.set('i', id)
+    return NextResponse.redirect(articleUrl)
+  }
 
   if (
     !user && !isNewUserRoute(request)
