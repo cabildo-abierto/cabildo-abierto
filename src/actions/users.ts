@@ -10,7 +10,6 @@ import { createNotification, getContentById } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import MercadoPagoConfig, { Preference } from "mercadopago";
 import { accessToken, contributionsToProportionsMap, isDemonetized, subscriptionEnds } from "../components/utils";
-import assert from "assert";
 import { pathLogo } from "../components/logo";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
