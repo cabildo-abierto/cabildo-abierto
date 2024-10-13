@@ -15,6 +15,12 @@ export default function Footer() {
                 Contacto
             </button>
             </div>
+            <Link
+                href="/sumate"
+                className="link3"
+            >
+                Trabajá con nosotros
+            </Link>
             <Link href={articleUrl("Cabildo_Abierto%3A_Política_de_privacidad")} className="link3">
                 Política de privacidad
             </Link>

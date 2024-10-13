@@ -248,7 +248,7 @@ export default function SignupForm() {
                 <SignupButton/>
                 <div className="text-sm leading-tight mt-1 text-justify text-[var(--text-light)]">
                     Al crear una cuenta aceptás nuestros <Link href={articleUrl("Cabildo_Abierto%3A_Términos_y_condiciones")}
-                    className="link3">Términos y condiciones</Link> y <Link href={articleUrl("Cabildo_Abierto%3A_Política_de_privacidad")} className="link3">
+                    className="link2">Términos y condiciones</Link> y <Link href={articleUrl("Cabildo_Abierto%3A_Política_de_privacidad")} className="link2">
                     Política de privacidad.
                 </Link> ¡Leelos!
                 </div>
