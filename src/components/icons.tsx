@@ -90,10 +90,15 @@ export const InactiveLikeIcon = () => {
 }
 
 export const ActivePraiseIcon = () => {
-    return <GradeIcon fontSize="small"/>
+    return <FavoriteIcon fontSize="small"/>
 }
 
 export const InactivePraiseIcon = () => {
+    return <FavoriteBorderIcon fontSize="small"/>
+}
+
+
+export const PopularIcon = () => {
     return <GradeOutlinedIcon fontSize="small"/>
 }
 
@@ -156,11 +161,6 @@ export const ManageAccountIcon = () => {
 
 export const RecentIcon = () => {
     return <ScheduleIcon fontSize="small"/>
-}
-
-
-export const PopularIcon = () => {
-    return <ActivePraiseIcon/>
 }
 
 

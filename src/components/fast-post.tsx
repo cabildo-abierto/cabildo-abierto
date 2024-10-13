@@ -44,7 +44,13 @@ export const FastPost = ({
         </div>
         <div className="flex justify-between">
             <button className="reply-btn" onClick={onStartReply}>Responder</button>
-            <LikeAndCommentCounter content={content} onViewComments={onViewComments} viewingComments={viewingComments}/>
+            <LikeAndCommentCounter
+            content={content}
+            onViewComments={onViewComments}
+            viewingComments={viewingComments}
+            commentCounterTitle="Cantidad de comentarios (contando los comentarios de los comentarios)"
+            likeCounterTitle={'Cantidad de "me gustas" que recibió.'}
+            />
         </div>
     </div>
 }

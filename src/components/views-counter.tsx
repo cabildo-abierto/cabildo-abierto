@@ -9,7 +9,7 @@ type ViewsCounterProps = {
     content: ContentProps
 }
 
-const title = "La cantidad de personas distintas que vieron este contenido. No se cuentan segundas visitas y tampoco personas sin cuenta."
+const title = "Cantidad de personas distintas que vieron este contenido. No se cuentan segundas visitas y tampoco personas sin cuenta."
 
 export const ViewsCounter: React.FC<ViewsCounterProps> = ({
     content

@@ -46,7 +46,7 @@ const Modal = ({ onClose }: { onClose: any }) => {
                     </div>
                     {alreadyExists && <div className="text-red-600 text-sm">Ya existe un artículo con ese nombre.</div>}
 
-                    <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir al artículo después de crearlo</span>}/>
+                    <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir a la página del artículo después de crearlo</span>}/>
                     <div className="py-4">
                         <StateButton
                             onClick={async (e) => {

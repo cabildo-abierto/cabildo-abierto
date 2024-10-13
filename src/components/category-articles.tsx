@@ -4,9 +4,11 @@ import { NoResults } from "./category-users"
 import { SmallEntityProps } from "../app/lib/definitions"
 import { useRouteEntities } from "../app/hooks/contents"
 import LoadingSpinner from "./loading-spinner"
-import { cleanText, currentVersion, listOrderDesc, route2Text } from "./utils"
+import { articleUrl, cleanText, currentVersion, listOrderDesc, route2Text } from "./utils"
 import InfoPanel from "./info-panel"
 import { LazyLoadFeed } from "./lazy-load-feed"
+import Link from "next/link"
+import { DidYouKnow } from "./did-you-know"
 
 
 function popularityScore(entity: SmallEntityProps){
@@ -55,6 +57,7 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
     const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de estrellas que recibió. Los artículos vacíos se muestran al final. Solo se muestran artículos de la categoría seleccionada ({route2Text(route)}).</span>
 
     return <>
+        {searchValue.length == 0 && <DidYouKnow text={<span>¿Sabías que si editás un artículo público Cabildo Abierto <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>te paga</Link> por cada persona que entre a leerlo en el futuro?</span>}/>}
         {searchValue.length == 0 && <div className="text-center mt-1 mb-2">
             <span className="text-[var(--text-light)] text-sm">Artículos ordenados por popularidad. <InfoPanel text={infoText}/></span>
         </div>}

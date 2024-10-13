@@ -108,7 +108,7 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
     </button>
 }
 
-export const CommentCounter = ({viewingComments, disabled, content, onViewComments}: CommentCounterProps) => {
+export const CommentCounter = ({viewingComments, disabled, content, onViewComments, commentCounterTitle}: CommentCounterProps) => {
     return <div className="flex items-center px-2">
         <ReactionButton
             icon1={<ActiveCommentIcon/>}
@@ -117,6 +117,7 @@ export const CommentCounter = ({viewingComments, disabled, content, onViewCommen
             disabled={disabled}
             active={viewingComments}
             onClick={onViewComments}
+            title={commentCounterTitle}
         />
     </div>
 }
@@ -128,9 +129,10 @@ type CommentCounterProps = {
     disabled?: boolean
     likeCounterTitle?: string
     isPost?: boolean
+    commentCounterTitle?: string
 }
 
-export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false, likeCounterTitle, isPost=false}) => {
+export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false, likeCounterTitle, commentCounterTitle, isPost=false}) => {
     const icon1 = isPost ? <ActivePraiseIcon/> : <ActiveLikeIcon/>
     const icon2 = isPost ? <InactivePraiseIcon/> : <InactiveLikeIcon/>
     return <div className="flex mb-1">
@@ -141,7 +143,13 @@ export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, o
             content={content}
             disabled={disabled}
             title={likeCounterTitle}/>
-        <CommentCounter content={content} disabled={disabled} viewingComments={viewingComments} onViewComments={onViewComments}/>
+        <CommentCounter
+            content={content}
+            disabled={disabled}
+            viewingComments={viewingComments}
+            onViewComments={onViewComments}
+            commentCounterTitle={commentCounterTitle}
+        />
     </div>
 }
 

@@ -15,10 +15,13 @@ export const EntityLikesAndViewsCounter = ({contentId}: {contentId: string}) => 
 
     return <div className="flex flex-col items-end">
         <div className="p-1 flex flex-col items-center">
+            <div>
             <LikeCounter
                 content={content.content}
                 icon1={<ActivePraiseIcon/>} icon2={<InactivePraiseIcon/>}
             />
+            <span className="relative top-[-7px] text-[0.65rem] text-[var(--text-light)]">Me sirvió</span>
+            </div>
             <ViewsCounter content={content.content}/>
         </div>
     </div>
