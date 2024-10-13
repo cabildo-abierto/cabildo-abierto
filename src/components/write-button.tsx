@@ -33,7 +33,7 @@ const WriteButton = () => {
             </div>
 
             <ModalBelow open={isDropdownOpen} setOpen={setIsDropdownOpen} className="">
-                <div className="z-10 mt-4 bg-[var(--background)] rounded border border-[var(--accent)] px-2 py-2 flex flex-col items-center space-y-2">
+                <div className="z-10 bg-[var(--background)] rounded border border-[var(--accent)] px-2 py-2 mt-1 flex flex-col items-center space-y-2">
                     <Link href="/escribir/rapida">
                         <button className="create-btn w-64 flex justify-between items-center" onClick={() => setIsDropdownOpen(false)}>
                             <div className="flex"><span className="px-1"><FastPostIcon/></span> Publicación rápida</div> <InfoPanel iconClassName="text-white" className="w-64" text="Caracteres y formato limitados. Sin título."/>
