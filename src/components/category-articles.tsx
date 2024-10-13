@@ -76,7 +76,7 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
     return <>
         {searchValue.length == 0 && <DidYouKnow text={<><p>¿Sabías que si editás un artículo público Cabildo Abierto <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>te paga</Link> por cada persona que entre a leerlo en el futuro?</p> <p>Incluso si otras personas lo siguen editando después.</p></>}/>}
         
-        <div className="flex justify-center mt-4">
+        {searchValue.length == 0 && <div className="flex justify-center mt-4">
             <NewPublicArticleButton
                 onClick={() => {}}
                 className="gray-btn"
@@ -84,7 +84,7 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
                 text="Nuevo artículo público"
                 showInfoPanel={false}
             />
-        </div>
+        </div>}
 
         {searchValue.length == 0 && 
             <div className="flex justify-center text-sm space-x-1 py-4">
