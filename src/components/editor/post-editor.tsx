@@ -30,7 +30,7 @@ const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsPro
         emptyEditor: false,
         isAutocomplete: false,
         isCharLimit: true,
-        charLimit: isFast ? 500 : 1200000,
+        charLimit: isFast ? 800 : 1200000,
         isCharLimitUtf8: false,
         isCollab: false,
         isMaxLength: false,

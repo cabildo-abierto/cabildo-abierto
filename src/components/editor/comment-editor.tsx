@@ -1,6 +1,6 @@
 "use client"
 
-import { emptyOutput, validPost } from "../utils"
+import { charCount, emptyOutput, validPost } from "../utils"
 import { useState } from "react"
 import StateButton from "../state-button"
 import { CLEAR_EDITOR_COMMAND, EditorState, LexicalEditor } from "lexical"
@@ -18,7 +18,7 @@ export const commentEditorSettings: SettingsProps = {
     emptyEditor: false,
     isAutocomplete: false,
     isCharLimit: true,
-    charLimit: 500,
+    charLimit: 800,
     isCharLimitUtf8: false,
     isCollab: false,
     isMaxLength: false,
@@ -53,8 +53,8 @@ type CommentEditorProps = {
     onCancel?: () => void
 }
 
-export function validComment(editorState: EditorState) {
-    return !emptyOutput(editorState) && validPost(editorState, 500)
+export function validComment(editorState: EditorState, charLimit: number) {
+    return !emptyOutput(editorState) && validPost(editorState, charLimit)
 }
 
 const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
@@ -82,12 +82,14 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
             className="small-btn"
             text1="Enviar"
             text2="Enviando..."
-            disabled={!user.user || !validComment(editorState)}
+            disabled={!user.user || !validComment(editorState, settings.charLimit)}
         />
 	}
 
     const settings = {...commentEditorSettings}
     if(!user.user) settings.placeholder = "Necesitás una cuenta para agregar un comentario."
+    
+    const count = editor && editorState ? charCount(editorState) : 0
 
     return <div className="content-container p-1">
         <div className="ml-3 mr-2 mt-2">
@@ -95,6 +97,9 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
             settings={settings}
             setEditor={setEditor}
             setEditorState={setEditorState}/>
+            {settings.charLimit && settings.charLimit-count < 100 && <div className="flex justify-end text-sm text-[var(--text-light)] mt-2">
+                Caracteres restantes: {settings.charLimit-count}
+            </div>}
         </div>
         <div className="flex justify-end">
 			<div className="flex justify-end mt-3">
