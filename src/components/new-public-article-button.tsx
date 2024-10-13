@@ -5,7 +5,7 @@ import { CreateArticleModal } from "./create-article-modal";
 
 
 
-export const NewPublicArticleButton = ({onClick, className="", textClassName="", infoPanelIconClassName="text-white", showInfoPanel=true}: {onClick: () => void, className?: string, textClassName?: string, infoPanelIconClassName?: string, showInfoPanel?: boolean}) => {
+export const NewPublicArticleButton = ({onClick, className="", textClassName="", infoPanelIconClassName="text-white", showInfoPanel=true, text}: {onClick: () => void, className?: string, textClassName?: string, infoPanelIconClassName?: string, showInfoPanel?: boolean, text?: string}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     
     return <>
@@ -19,12 +19,14 @@ export const NewPublicArticleButton = ({onClick, className="", textClassName="",
             }
         >
         <div className={"flex " + textClassName} >
-            <span className="px-1">
+            
+            {text ? <span>{text}</span> : <><span className="px-1">
                 <ArticleIcon />
             </span>
             
             <span>Artículo público</span>
-            
+            </>
+            }
         </div>
 
         {showInfoPanel && <InfoPanel

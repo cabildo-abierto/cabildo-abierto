@@ -8,6 +8,7 @@ import { EntityProps, SmallEntityProps } from "../app/lib/definitions"
 import { articleUrl, currentVersion } from "./utils"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
+import { DateSince } from "./date"
 
 
 export function getEntityChildrenCount(entity: SmallEntityProps){
@@ -35,6 +36,23 @@ const EntityCategoriesSmall = ({route, entity}: {
       <div key={index}>
         <EntityCategorySmall c={cat} route={route}/>
       </div>))}
+  </div>
+}
+
+
+const DateLastEdit = ({entity}: {entity: SmallEntityProps}) => {
+  const lastVersion = entity.versions[entity.versions.length-1]
+
+  const className = "text-[var(--text-light)] text-sm px-1"
+
+  if(entity.versions.length == 1){
+    return <div className={className}>
+      Creado <DateSince date={lastVersion.createdAt}/>
+    </div>
+  }
+
+  return <div className={className}>
+    Última edición <DateSince date={lastVersion.createdAt}/>
   </div>
 }
 
@@ -68,6 +86,10 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
             </div>
 
             <EntityCategoriesSmall entity={entity} route={route}/>
+
+            <div>
+              <DateLastEdit entity={entity}/>
+            </div>
 
             <div className="flex justify-end">
               {/* TO DO: Debería ser active si le diste like y inactive si no */}

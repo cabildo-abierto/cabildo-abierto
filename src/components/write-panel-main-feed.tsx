@@ -46,7 +46,7 @@ export const WritePanelMainFeed = () => {
     return <div className="w-full content-container rounded px-3 pb-2 pt-1">
         <div className="text-sm text-gray-400 flex items-center mt-1">
             <FastPostIcon fontSize="inherit" /> <span className="text-xs">Publicación rápida</span></div>
-        <div className="text-lg py-2" key={editorKey}>
+        <div className="sm:text-lg py-2" key={editorKey}>
             <MyLexicalEditor
                 settings={settings}
                 setEditorState={setEditorState}
@@ -55,18 +55,19 @@ export const WritePanelMainFeed = () => {
         </div>
         <hr className="border-gray-200"/>
         <div className="flex justify-between mt-2">
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 mr-2">
                 <Link
                     href="/escribir/publicacion"
-                    className="text-sm flex items-center title hover:bg-[var(--secondary-light)] text-[var(--text-light)] px-2 rounded"
+                    className="sm:text-sm text-xs flex items-center title hover:bg-[var(--secondary-light)] text-[var(--text-light)] px-1 sm:px-2 rounded"
                 >
-                    <div className="mb-1 mr-2"><PostIcon/></div> Publicación
+                    <div className="mb-1 mr-2 hidden"><PostIcon/></div> Publicación
                 </Link>
                 <NewPublicArticleButton
                     onClick={() => {}}
-                    textClassName="title text-sm"
+                    textClassName="title sm:text-sm text-xs"
                     className="hover:bg-[var(--secondary-light)] text-[var(--text-light)] px-2 rounded"
                     showInfoPanel={false}
+                    text={"Artículo público"}
                 />
             </div>
             <StateButton

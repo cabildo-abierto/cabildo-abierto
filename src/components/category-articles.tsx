@@ -9,6 +9,9 @@ import InfoPanel from "./info-panel"
 import { LazyLoadFeed } from "./lazy-load-feed"
 import Link from "next/link"
 import { DidYouKnow } from "./did-you-know"
+import { useState } from "react"
+import SelectionComponent from "./search-selection-component"
+import { NewPublicArticleButton } from "./new-public-article-button"
 
 
 function popularityScore(entity: SmallEntityProps){
@@ -16,7 +19,16 @@ function popularityScore(entity: SmallEntityProps){
 }
 
 
-const ArticlesWithSearch = ({ entities, route }: { entities: SmallEntityProps[], route: string[] }) => {
+function recentEditScore(entity: SmallEntityProps){
+    return [new Date(entity.versions[entity.versions.length-1].createdAt).getTime()]
+}
+
+
+const ArticlesWithSearch = ({ entities, route, sortBy }: { 
+    entities: SmallEntityProps[], 
+    route: string[],
+    sortBy: string
+ }) => {
     const { searchValue } = useSearch();
 
     function isMatch(entity: SmallEntityProps) {
@@ -25,7 +37,10 @@ const ArticlesWithSearch = ({ entities, route }: { entities: SmallEntityProps[],
 
     let filteredEntities = searchValue.length > 0 ? entities.filter(isMatch) : entities;
 
-    let entitiesWithScore = filteredEntities.map((entity) => ({ entity: entity, score: popularityScore(entity) }));
+    const scoreFunc = sortBy == "Populares" ? popularityScore : recentEditScore
+
+    let entitiesWithScore = filteredEntities.map((entity) => ({ entity: entity, score: scoreFunc(entity) }));
+
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
 
     function generator(index: number){
@@ -52,19 +67,44 @@ const ArticlesWithSearch = ({ entities, route }: { entities: SmallEntityProps[],
 export const CategoryArticles = ({route}: {route: string[]}) => {
     const routeEntities = useRouteEntities(route)
     const {searchValue} = useSearch()
+    const [sortBy, setSortBy] = useState("Populares")
+
     if(routeEntities.isLoading) return <LoadingSpinner/>
 
-    const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de estrellas que recibió. Los artículos vacíos se muestran al final. Solo se muestran artículos de la categoría seleccionada ({route2Text(route)}).</span>
+    const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de reacciones positivas que recibió. Los artículos vacíos se muestran al final. Solo se muestran artículos de la categoría seleccionada ({route2Text(route)}).</span>
 
     return <>
-        {searchValue.length == 0 && <DidYouKnow text={<span>¿Sabías que si editás un artículo público Cabildo Abierto <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>te paga</Link> por cada persona que entre a leerlo en el futuro?</span>}/>}
-        {searchValue.length == 0 && <div className="text-center mt-1 mb-2">
-            <span className="text-[var(--text-light)] text-sm">Artículos ordenados por popularidad. <InfoPanel text={infoText}/></span>
-        </div>}
+        {searchValue.length == 0 && <DidYouKnow text={<><p>¿Sabías que si editás un artículo público Cabildo Abierto <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>te paga</Link> por cada persona que entre a leerlo en el futuro?</p> <p>Incluso si otras personas lo siguen editando después.</p></>}/>}
+        
+        <div className="flex justify-center mt-4">
+            <NewPublicArticleButton
+                onClick={() => {}}
+                className="gray-btn"
+                textClassName="title text-sm"
+                text="Nuevo artículo público"
+                showInfoPanel={false}
+            />
+        </div>
+
+        {searchValue.length == 0 && 
+            <div className="flex justify-center text-sm space-x-1 py-4">
+                <div className="border-r rounded border-t border-b border-l">
+            <SelectionComponent
+                onSelection={setSortBy}
+                selected={sortBy}
+                options={["Populares", "Ediciones recientes"]}
+                infoPanelTexts={[infoText, null]}
+                className="filter-feed"
+            />
+                </div>
+            </div>
+        }
+
         {routeEntities.entities.length > 0 ? 
             <ArticlesWithSearch
                 entities={routeEntities.entities}
                 route={route}
+                sortBy={sortBy}
             />
              : 
         <div className="flex justify-center">
