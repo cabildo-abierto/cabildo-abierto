@@ -6,7 +6,7 @@ export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {tex
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
+    <div className=" relative inline-block">
       <div
         onMouseEnter={() => {setIsHovered(true);}}
         onMouseLeave={() => {setIsHovered(false);}}
@@ -16,12 +16,12 @@ export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {tex
       </div>
       {isHovered && 
         <ModalBelow
-          className={"text-justify text-sm bg-[var(--background)] text-gray-900 rounded border " + (className ? className : "w-72")}
+          className={"text-justify text-sm bg-[var(--background)] text-gray-900 rounded border z-50 " + (className ? className : "w-72")}
           open={isHovered}
           setOpen={setIsHovered}
           hoverOnly={true}
         >
-          <div className="p-1">{text}</div>
+          <div className="p-1 z-50">{text}</div>
         </ModalBelow>
       }
     </div>

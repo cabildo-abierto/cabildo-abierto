@@ -25,16 +25,17 @@ export const ModalBelow = ({children, open, setOpen, className, hoverOnly=false}
     }, [open]);
 
     return <>{!hoverOnly && open && <div
-            className="fixed left-0 top-0 h-screen w-screen z-100"
+            className="fixed left-0 top-0 h-screen w-screen z-1000"
             onClick={() => {setOpen(false)}}
         >
         </div>}
-        <div
+        {<div
             ref={panelRef}
-            className={"absolute top-full left-0 z-100 sm:px-0 px-2 " + className + (open ? "" : "hidden")}
+            className={"absolute top-full left-0 z-1000 sm:px-0 px-2 bg-[var(--background)] " + className + (open ? "" : "hidden")}
             onMouseLeave={() => {if(hoverOnly) {setOpen(false);}}}
+            onMouseEnter={() => {if(hoverOnly) {setOpen(true);}}}
         >
             {children}
-        </div>
+        </div>}
     </>
 }
