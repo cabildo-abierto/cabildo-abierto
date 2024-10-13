@@ -43,7 +43,7 @@ const EntityCategoriesSmall = ({route, entity}: {
 const DateLastEdit = ({entity}: {entity: SmallEntityProps}) => {
   const lastVersion = entity.versions[entity.versions.length-1]
 
-  const className = "text-[var(--text-light)] text-sm px-1"
+  const className = "text-[var(--text-light)] text-xs px-1"
 
   if(entity.versions.length == 1){
     return <div className={className}>
@@ -87,7 +87,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
 
             <EntityCategoriesSmall entity={entity} route={route}/>
 
-            <div>
+            <div className="mt-1">
               <DateLastEdit entity={entity}/>
             </div>
 
