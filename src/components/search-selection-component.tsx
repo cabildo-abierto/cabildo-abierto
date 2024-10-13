@@ -11,10 +11,11 @@ type SelectionComponentProps = {
     optionExpl?: (string | undefined)[]
     optionsNodes?: ReactNode[]
     infoPanelTexts?: (ReactNode | null)[]
+    showExplanations: boolean
 }
 
 const SelectionComponent: React.FC<SelectionComponentProps> = ({
-  onSelection, options, selected, className="search", optionExpl, optionsNodes, infoPanelTexts
+  onSelection, options, selected, className="search", optionExpl, optionsNodes, infoPanelTexts, showExplanations
 }) => {
 
   const handleButtonClick = (button: string) => {
@@ -40,15 +41,16 @@ const SelectionComponent: React.FC<SelectionComponentProps> = ({
         {!optionsNodes && <span className={textClassName(option)}>
           {option} 
         </span>}
-        {infoPanelTexts && infoPanelTexts[index] && <InfoPanel iconClassName="text-[var(--accent-light)] ml-1" text={infoPanelTexts[index]}/>}
+        {infoPanelTexts && showExplanations && infoPanelTexts[index] && <InfoPanel iconClassName="text-[var(--accent-light)] ml-1" text={infoPanelTexts[index]}/>}
         {optionsNodes && 
           <div className={textClassName(option)+" flex flex-col px-1"}>
             <span>
               {optionsNodes[index]}
             </span>
-            <span className="text-[0.6rem] sm:text-[0.7rem] text-[var(--text-light)]">
+            {infoPanelTexts && !showExplanations && infoPanelTexts[index] && <InfoPanel iconClassName="text-[var(--accent-light)] ml-1" text={infoPanelTexts[index]}/>}
+            {showExplanations && <span className="text-[0.6rem] sm:text-[0.7rem] text-[var(--text-light)]">
               {option}
-            </span>
+            </span>}
           </div>
         }
       </button>
