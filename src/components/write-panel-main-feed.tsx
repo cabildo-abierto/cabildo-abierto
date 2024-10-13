@@ -9,12 +9,10 @@ import Link from "next/link";
 import { FastPostIcon, PostIcon } from "./icons";
 import { NewPublicArticleButton } from "./new-public-article-button";
 import { useUser } from "../app/hooks/user";
-import router from "next/router";
-import { title } from "process";
 import { mutate } from "swr";
-import { createPost, updateContent, publishDraft } from "../actions/contents";
+import { createPost } from "../actions/contents";
 import { compress } from "./compression";
-import { emptyOutput, validPost, validSubscription } from "./utils";
+import { charCount, emptyOutput, validPost } from "./utils";
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 
@@ -38,6 +36,7 @@ export const WritePanelMainFeed = () => {
         }
         return false
 	}
+    const count = editor && editorState ? charCount(editorState) : 0
 
     let disabled = !editor || 
         emptyOutput(editorState) ||
@@ -52,6 +51,9 @@ export const WritePanelMainFeed = () => {
                 setEditorState={setEditorState}
                 setEditor={setEditor}
             />
+            {settings.charLimit && settings.charLimit-count < 100 && <div className="flex justify-end text-sm text-[var(--text-light)] mt-2">
+                Caracteres restantes: {settings.charLimit-count}
+            </div>}
         </div>
         <hr className="border-gray-200"/>
         <div className="flex justify-between mt-2">
