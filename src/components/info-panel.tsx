@@ -5,7 +5,7 @@ import { ModalBelow } from './modal-below';
 export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {text: ReactNode, className?: string, iconClassName?: string}) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  return <div className=" relative inline-block">
+  return <div className="relative inline-block">
       <div
         onMouseEnter={() => {setIsHovered(true);}}
         onMouseLeave={() => {setIsHovered(false);}}
