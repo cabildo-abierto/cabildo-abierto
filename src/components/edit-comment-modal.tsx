@@ -9,6 +9,7 @@ import LoadingSpinner from "./loading-spinner";
 import { compress, decompress } from "./compression";
 import StateButton from "./state-button";
 import { updateContent } from "../actions/contents";
+import { charCount } from "./utils";
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClose: () => void}) => {
@@ -27,6 +28,8 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
     settings.content = content.content
     settings.initialData = decompress(content.content.compressedText)
 
+    const count = editor && editorState ? charCount(editorState) : 0
+    
     return <BaseFullscreenPopup onClose={onClose} closeButton={true}>
         <div className="px-4 sm:w-96 lg:w-128">
             <h3>Editar comentario</h3>
@@ -37,13 +40,16 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
                     setEditorState={setEditorState}
                     setEditor={setEditor}
                 />
+                {settings.charLimit && settings.charLimit-count < 100 && <div className="flex justify-end text-sm text-[var(--text-light)] mt-2">
+                    Caracteres restantes: {settings.charLimit-count}
+                </div>}
             </div>
 
             <StateButton
                 text1={"Confirmar cambios"}
                 text2={"Enviando..."}
                 className="gray-btn my-2 w-64"
-                disabled={!validComment(editorState)}
+                disabled={!validComment(editorState, settings.charLimit)}
                 onClick={async (e) => {
                     await updateContent(contentId, compress(JSON.stringify(editorState)))
                     return true
