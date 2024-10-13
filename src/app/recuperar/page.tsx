@@ -47,7 +47,9 @@ export default function Recover({searchParams}: {searchParams: {token_hash: stri
                 <EmailInput state={state} label="Ingresá el mail con el que te registraste"/>
                 <RecoverPwButton/>
             </AuthForm>
-            {showingOk && <div className="text-center">Se envió un mail de recuperación a tu casilla.</div>}
+            {showingOk && <div className="text-center">
+                Si hay una cuenta registrada con ese email, se envió un mail de recuperación a tu casilla.
+            </div>}
         </div>
 
     return <ThreeColumnsLayout center={center}/>

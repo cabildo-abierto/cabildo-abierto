@@ -59,8 +59,8 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
 
     const optionList = user && content.author.id == user.id ? ["edit"] : []
 
-    return <div
-        onClick={() => {router.push(contentUrl(content.id))}}
+    return <Link
+        href={contentUrl(content.id)}
         className="flex flex-col hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out cursor-pointer"
         onMouseEnter={onMouseEnter}
     >
@@ -94,5 +94,5 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
                 commentCounterTitle="Cantidad de comentarios. Entrá a la publicación para leerlos."
             />
         </div>
-    </div>
+    </Link>
 }
