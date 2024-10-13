@@ -379,14 +379,21 @@ export function emptyOutput(editorState: EditorState | undefined){
     return isEmpty;
 }
 
+
+export function charCount(state: EditorState | undefined){
+    let count = state.read(() => {
+        const root = $getRoot()
+        return root.getTextContentSize()
+    })
+    return count
+}
+
+
 export function validPost(state: EditorState | undefined, charLimit: number){
     if(!state) return false
     if(!charLimit) return true
-    let isValid = state.read(() => {
-        const root = $getRoot()
-        return root.getTextContentSize() <= charLimit
-    })
-    return isValid
+    const count = charCount(state)
+    return count <= charLimit
 }
 
 

@@ -4,7 +4,7 @@ import MyLexicalEditor, { initializeEmpty, SettingsProps } from "./lexical-edito
 import { useState } from "react"
 import StateButton from "../state-button"
 import { EditorState, LexicalEditor } from "lexical"
-import { emptyOutput, hasChanged, validPost } from "../utils"
+import { charCount, emptyOutput, hasChanged, validPost } from "../utils"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { TitleInput } from "./title-input"
@@ -127,6 +127,8 @@ const PostEditor = ({
         return false
     }
 
+    const count = charCount(editorState)
+
     let disabled = !editor || 
         emptyOutput(editorState) ||
         (!isFast && title.length == 0) ||
@@ -181,6 +183,9 @@ const PostEditor = ({
                 setEditorState={setEditorState}
             />
         </div>
+        {settings.charLimit && settings.charLimit-count < 100 && <div className="flex justify-end text-sm text-[var(--text-light)] mt-2">
+            Caracteres restantes: {settings.charLimit-count}
+        </div>}
     </div>
 }
 

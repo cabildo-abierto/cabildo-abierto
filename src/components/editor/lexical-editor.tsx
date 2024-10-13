@@ -62,7 +62,6 @@ import { ContentProps } from '../../app/lib/definitions';
 import TableCellResizer from './plugins/TableCellResizer';
 import { TableContext } from './plugins/TablePlugin';
 import { CustomTableNode } from './nodes/CustomTableNode';
-import { findMentions } from '../../actions/contents';
 
 
 const CharLimitComponent = ({remainingCharacters} : {remainingCharacters: number}) => {
@@ -268,9 +267,6 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
             />
             <HistoryPlugin externalHistoryState={historyState} />
           </>
-        )}
-        {(isCharLimit || isCharLimitUtf8) && charLimit && (
-          <CharacterLimitPlugin charset={isCharLimit ? 'UTF-16' : 'UTF-8'} maxLength={charLimit} renderer={CharLimitComponent} />
         )}
         <div className="hidden lg:block">
           {showTableOfContents && <TableOfContentsPlugin content={content} marginAboveEditor={marginAboveEditor} />}
