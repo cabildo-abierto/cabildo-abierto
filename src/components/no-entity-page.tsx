@@ -8,6 +8,7 @@ import { useUser } from "../app/hooks/user"
 import NeedSubscriptionPopupPanel from "./need-subscription-popup"
 import Popup from "./popup"
 import { articleUrl, validSubscription } from "./utils"
+import { validEntityName } from "./write-button"
 
 const CreateEntityButton: React.FC<any> = ({onClick}) => {
     return <button 
@@ -41,13 +42,13 @@ export default function NoEntityPage({id}: {id: string}){
         <div className="flex justify-center py-8 text-lg">
             {'"'+name+'"'}
         </div>
-        <div className="flex justify-center py-16">
+        {validEntityName(name) ? <div className="flex justify-center py-16">
             {validSubscription(user) ? <CreateEntityButton onClick={handleCreateEntity}/> :
                 <Popup
                     Panel={NeedSubscriptionPopupPanel}
                     Trigger={CreateEntityButton}
                 />
             }
-        </div>
+        </div> : <div className="py-16 flex justify-center text-center">Tampoco se puede crear el artículo porque su nombre no es válido.</div>}
     </>
 }
