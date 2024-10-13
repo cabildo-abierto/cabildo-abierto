@@ -93,8 +93,10 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
                 onSelection={setSortBy}
                 selected={sortBy}
                 options={["Populares", "Ediciones recientes"]}
+                optionsNodes={[<div key={0}>Populares</div>, <div key={1}>Ediciones recientes</div>]}
                 infoPanelTexts={[infoText, null]}
                 className="filter-feed"
+                showExplanations={false}
             />
                 </div>
             </div>

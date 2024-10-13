@@ -1,12 +1,12 @@
 import { ReactNode, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import { ModalBelow } from './modal-below';
+import { createPortal } from 'react-dom';
 
 export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {text: ReactNode, className?: string, iconClassName?: string}) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  return (
-    <div className=" relative inline-block">
+  return <div className=" relative inline-block">
       <div
         onMouseEnter={() => {setIsHovered(true);}}
         onMouseLeave={() => {setIsHovered(false);}}
@@ -16,16 +16,15 @@ export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {tex
       </div>
       {isHovered && 
         <ModalBelow
-          className={"text-justify text-sm bg-[var(--background)] text-gray-900 rounded border z-50 " + (className ? className : "w-72")}
+          className={"text-justify text-sm bg-[var(--background)] text-gray-900 rounded border z-[1010] " + (className ? className : "w-72")}
           open={isHovered}
           setOpen={setIsHovered}
           hoverOnly={true}
         >
-          <div className="p-1 z-50">{text}</div>
+          <div className="p-1 z-[1010]">{text}</div>
         </ModalBelow>
       }
     </div>
-  );
 };
 
 export default InfoPanel
