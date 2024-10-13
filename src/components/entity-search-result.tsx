@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ActivePraiseIcon, ArticleIcon, InactiveCommentIcon, LinkIcon, TextLengthIcon, ViewsIcon } from "./icons"
+import { ActivePraiseIcon, ArticleIcon, InactiveCommentIcon, InactivePraiseIcon, LinkIcon, TextLengthIcon, ViewsIcon } from "./icons"
 import { FixedCounter } from "./like-counter"
 import { PostTitleOnFeed } from "./post-on-feed"
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions"
@@ -70,8 +70,17 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
             <EntityCategoriesSmall entity={entity} route={route}/>
 
             <div className="flex justify-end">
-              <FixedCounter count={entity._count.reactions} icon={<ActivePraiseIcon />} />
-              <FixedCounter count={entity.uniqueViewsCount} icon={<ViewsIcon />} />
+              {/* TO DO: Debería ser active si le diste like y inactive si no */}
+              <FixedCounter
+              count={entity._count.reactions}
+              icon={<InactivePraiseIcon />}
+              title='Cantidad de "me gustas" que recibió'
+              />
+              <FixedCounter
+              count={entity.uniqueViewsCount}
+              icon={<ViewsIcon />}
+              title="Cantidad de personas distintas que lo vieron."
+              />
               <FixedCounter
                 count={entity._count.referencedBy}
                 icon={<LinkIcon />}
@@ -80,6 +89,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
               <FixedCounter
                 count={getEntityChildrenCount(entity)}
                 icon={<InactiveCommentIcon />}
+                title="Cantidad de comentarios (y comentarios de los comentarios)."
               />
               <FixedCounter count={numWords} icon={<TextLengthIcon/>} title="Cantidad de palabras."/>
             </div>
