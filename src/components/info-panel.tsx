@@ -1,7 +1,6 @@
 import { ReactNode, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import { ModalBelow } from './modal-below';
-import { createPortal } from 'react-dom';
 
 export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {text: ReactNode, className?: string, iconClassName?: string}) => {
   const [isHovered, setIsHovered] = useState(false);

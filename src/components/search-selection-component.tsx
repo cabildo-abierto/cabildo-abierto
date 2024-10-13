@@ -11,11 +11,11 @@ type SelectionComponentProps = {
     optionExpl?: (string | undefined)[]
     optionsNodes?: ReactNode[]
     infoPanelTexts?: (ReactNode | null)[]
-    showExplanations: boolean
+    showExplanations?: boolean
 }
 
 const SelectionComponent: React.FC<SelectionComponentProps> = ({
-  onSelection, options, selected, className="search", optionExpl, optionsNodes, infoPanelTexts, showExplanations
+  onSelection, options, selected, className="search", optionExpl, optionsNodes, infoPanelTexts, showExplanations=true
 }) => {
 
   const handleButtonClick = (button: string) => {
