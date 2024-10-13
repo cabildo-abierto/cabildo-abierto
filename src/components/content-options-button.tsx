@@ -25,6 +25,7 @@ export const ContentOptionsDropdown = ({
 
     function onReportFake(){
         setIsFakeNewsModalOpen(true)
+        onClose()
     }
 
     function onEdit(e){
@@ -35,6 +36,7 @@ export const ContentOptionsDropdown = ({
         } else {
             router.push(editContentUrl(content.id))
         }
+        onClose()
     }
 
     return <div className="text-base border rounded bg-[var(--background)] mt-1 p-2">
@@ -63,35 +65,25 @@ export const ContentOptionsDropdown = ({
 
 export const ContentOptionsButton = ({content, optionList}: {content: ContentProps, optionList: string[]}) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
-    const buttonRef = useRef<HTMLButtonElement>(null);
 
     return <div style={{ position: 'relative', display: 'inline-block' }}>
-        
         <button
-            ref={buttonRef}
             className="p-1 mr-1 mt-1 flex items-center hover:bg-[var(--background-dark)] rounded"
             onClick={(e) => {e.stopPropagation(); e.preventDefault(); setIsDropdownOpen(prev => !prev)}}
         >
             <MoreHorizIcon fontSize="small" />
         </button>
 
-        {isDropdownOpen && (
-            <div
-                ref={dropdownRef}
-            >
-                <ModalBelow
-                    open={isDropdownOpen}
-                    setOpen={setIsDropdownOpen}
-                    className=""
-                >
-                    <ContentOptionsDropdown
-                        content={content}
-                        onClose={() => {setIsDropdownOpen(false)}}
-                        optionsList={optionList}
-                    />
-                </ModalBelow>
-            </div>
-        )}
+        <ModalBelow
+            open={isDropdownOpen}
+            setOpen={setIsDropdownOpen}
+            className=""
+        >
+            <ContentOptionsDropdown
+                content={content}
+                onClose={() => {setIsDropdownOpen(false)}}
+                optionsList={optionList}
+            />
+        </ModalBelow>
     </div>
 };

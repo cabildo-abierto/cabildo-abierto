@@ -9,6 +9,8 @@ import { MainFeedHeader } from "./main-feed-header";
 import { ConfiguredFeed } from "./sorted-and-filtered-feed";
 import { useUser } from "../app/hooks/user";
 import { CreateAccountLink } from "./create-account-link";
+import { WritePanelMainFeed } from "./write-panel-main-feed";
+import { useSearch } from "./search-context";
 
 
 type RouteContentProps = {
@@ -26,6 +28,7 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
     const [order, setOrder] = useState(selected == "General" ? "Recientes" : "Recientes")
     const [filter, setFilter] = useState("Todas")
     const user = useUser()
+    const {searchValue} = useSearch()
 
     useEffect(() => {
         preload("/api/users", fetcher)
@@ -67,6 +70,13 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
                     </span>
                 </div>*/
             }
+
+            {(selected == "General" || selected == "Siguiendo") && searchValue.length == 0 && 
+                <div className="mb-2 mt-1">
+                <WritePanelMainFeed/>
+                </div>
+            }
+
             
             {selected == "General" &&
                 <ConfiguredFeed

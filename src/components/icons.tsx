@@ -36,10 +36,8 @@ export const RedFlag = () => {
 }
 
 
-export const FastPostIcon = () => {
-    return <span className="">
-        <BoltIcon fontSize={"small"}/>
-    </span>
+export const FastPostIcon = ({fontSize="small"}: {fontSize?: "small" | "inherit"}) => {
+    return <BoltIcon fontSize={fontSize}/>
 }
 
 

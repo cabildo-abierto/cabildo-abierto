@@ -24,23 +24,8 @@ type PostEditorProps = {
 }
 
 
-const PostEditor = ({
-    initialData=null,
-    initialTitle="", 
-    isFast=false,
-    isDraft=false,
-    contentId,
-    isPublished=false
-}: PostEditorProps) => {
-    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
-    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
-    const router = useRouter()
-    const [title, setTitle] = useState(initialTitle)
-    const [submitting, setSubmitting] = useState(false)
-    const {user} = useUser()
-    const {mutate} = useSWRConfig()
-
-    const settings: SettingsProps = {
+const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsProps = (isFast, initialData) => {
+    return {
         disableBeforeInput: false,
         emptyEditor: false,
         isAutocomplete: false,
@@ -73,6 +58,26 @@ const PostEditor = ({
         isAutofocus: true,
         placeholderClassName: "ContentEditable__placeholder"
     }
+}
+
+
+const PostEditor = ({
+    initialData=null,
+    initialTitle="", 
+    isFast=false,
+    isDraft=false,
+    contentId,
+    isPublished=false
+}: PostEditorProps) => {
+    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
+    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
+    const router = useRouter()
+    const [title, setTitle] = useState(initialTitle)
+    const [submitting, setSubmitting] = useState(false)
+    const {user} = useUser()
+    const {mutate} = useSWRConfig()
+
+    const settings = postEditorSettings(isFast, initialData)
 
     async function handleSubmit(){
         if(editor && user){

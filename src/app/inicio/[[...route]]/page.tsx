@@ -27,7 +27,7 @@ const TopicsPage: React.FC<{
         route={route}
         setRoute={setRoute}
     />
-
+    
     return <ThreeColumnsLayout center={center} />
 }
 export default TopicsPage
