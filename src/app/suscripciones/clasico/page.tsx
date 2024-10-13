@@ -15,9 +15,8 @@ import { nextPrice, validSubscription } from "../../../components/utils"
 function PagoUnico({preferenceId, months, total, onBack}: {preferenceId: string, months: number, total: number, onBack: () => void}) {
 
     const center = <div className="flex flex-col items-center text-center">
-        <div className="mt-8">Total: ${total}</div>
-        <div className="mt-8">
-            <div className="w-64">
+        <div className="mt-32">
+            <div className="">
                 <MPWallet preferenceId={preferenceId}/>
             </div>
         </div>

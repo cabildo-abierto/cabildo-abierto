@@ -20,13 +20,17 @@ const LoadingWallet = () => {
 
 export const MPWallet = ({preferenceId}: {preferenceId: string}) => {
     const [walletReady, setWalletReady] = useState(false)
-    return <>
+    return <div className="flex flex-col items-center">
 
         {!walletReady && <LoadingWallet/>}
-    
+
+        <div className="text-sm text-[var(--text-light)] text-center w-72">
+            No necesitás una cuenta de Mercado Pago y vas a poder pagar con tarjeta de crédito o débito.
+        </div>
+
         <Wallet
             onReady={() => {setWalletReady(true)}}
             initialization={{ preferenceId: preferenceId }}
         />
-    </>
+    </div>
 }
