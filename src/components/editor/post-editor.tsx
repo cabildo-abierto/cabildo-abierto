@@ -127,8 +127,8 @@ const PostEditor = ({
         return false
     }
 
-    const count = charCount(editorState)
-
+    const count = editor && editorState ? charCount(editorState) : 0
+    
     let disabled = !editor || 
         emptyOutput(editorState) ||
         (!isFast && title.length == 0) ||
