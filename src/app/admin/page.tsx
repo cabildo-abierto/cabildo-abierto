@@ -79,8 +79,11 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await deleteUser(userId)}}>
                 Eliminar usuario {userId}
             </button>
-            <button className="gray-btn" onClick={async () => {await computeSubscriptorsByDay()}}>
+            <button className="gray-btn" onClick={async () => {await computeSubscriptorsByDay(500)}}>
                 Calcular suscriptores por día
+            </button>
+            <button className="gray-btn" onClick={async () => {await computeSubscriptorsByDay(0)}}>
+                Calcular cuentas por día
             </button>
         </div>
     </div>

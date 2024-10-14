@@ -9,7 +9,7 @@ import { getEntities } from "./entities";
 import { createNotification, getContentById } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import MercadoPagoConfig, { Preference } from "mercadopago";
-import { accessToken, contributionsToProportionsMap, isDemonetized, subscriptionEnds } from "../components/utils";
+import { accessToken, contributionsToProportionsMap, isDemonetized, subscriptionEnds, validSubscription } from "../components/utils";
 import { pathLogo } from "../components/logo";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
@@ -1071,7 +1071,7 @@ export async function addDonatedSubscriptionsManually(boughtByUserId: string, am
 }
 
 
-export async function computeSubscriptorsByDay() {
+export async function computeSubscriptorsByDay(minPrice: number) {
     const s = await db.subscription.findMany({
         select: {
             usedAt: true,
@@ -1083,8 +1083,14 @@ export async function computeSubscriptorsByDay() {
                 not: null
             },
             price: {
-                gte: 500
+                gte: minPrice
             }
+        }
+    })
+    const accounts = await db.user.findMany({
+        select: {
+            id: true,
+            subscriptionsUsed: true
         }
     })
 
@@ -1101,8 +1107,18 @@ export async function computeSubscriptorsByDay() {
             }
         }
 
-        console.log(day.getDate(), "/", day.getMonth()+1, "-->", Array.from(users))
+        console.log(day.getDate(), "/", day.getMonth()+1, "-->", Array.from(users), users.size)
 
         day.setTime(day.getTime()+dayMillis)
     }
+
+    console.log("all accounts", accounts.map(({id}) => (id)), accounts.length)
+
+    const unsubscribedAccounts = []
+    for(let i = 0; i < accounts.length; i++){
+        if(!validSubscription(accounts[i])){
+            unsubscribedAccounts.push(accounts[i].id)
+        }
+    }
+    console.log("unsuscribed accounts", unsubscribedAccounts, unsubscribedAccounts.length)
 }
