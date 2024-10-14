@@ -94,8 +94,8 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
             <div className="sm:w-72 sm:block hidden"></div>
         }
         {(!user.isLoading && !user.user) &&
-            <Link href="/" className="mr-2">
-                <button className="bg-[var(--primary)] px-2 py-1 hover:bg-[var(--primary-dark)] rounded text-[var(--background)] text-xs lg:text-base">
+            <Link href="/" className="sm:w-72 flex justify-end">
+                <button className="mr-2 bg-[var(--primary)] px-2 py-1 hover:bg-[var(--primary-dark)] rounded text-[var(--background)] text-xs lg:text-base">
                     Crear cuenta o iniciar sesión
                 </button>
             </Link>

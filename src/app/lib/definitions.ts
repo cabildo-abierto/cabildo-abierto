@@ -166,7 +166,7 @@ export type UserProps = {
     followedBy: {id: string}[]
     authUser: {email: string | null} | null
     description: string | null
-    _count: {notifications: number, contents: number}
+    _count: {notifications: number, contents: number, views: number}
 };
 
 
