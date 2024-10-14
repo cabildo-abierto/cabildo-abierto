@@ -1069,3 +1069,40 @@ export async function addDonatedSubscriptionsManually(boughtByUserId: string, am
     })
     
 }
+
+
+export async function computeSubscriptorsByDay() {
+    const s = await db.subscription.findMany({
+        select: {
+            usedAt: true,
+            endsAt: true,
+            userId: true,
+        },
+        where: {
+            usedAt: {
+                not: null
+            },
+            price: {
+                gte: 500
+            }
+        }
+    })
+
+    const dayMillis = 24*60*60*1000
+    let day = new Date(new Date().getTime() - dayMillis*7)
+    const tomorrow = new Date(new Date().getTime() + dayMillis)
+    
+    while(day < tomorrow){
+
+        let users = new Set()
+        for(let i = 0; i < s.length; i++){
+            if(s[i].endsAt >= day && s[i].usedAt <= day){
+                users.add(s[i].userId)
+            }
+        }
+
+        console.log(day.getDate(), "/", day.getMonth()+1, "-->", Array.from(users))
+
+        day.setTime(day.getTime()+dayMillis)
+    }
+}
