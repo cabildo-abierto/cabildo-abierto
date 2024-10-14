@@ -30,7 +30,7 @@ export function subscriptionEnds(start: Date): Date {
 }
 
 
-export function nextSubscriptionEnd(user: UserProps, extraMonths: number = 0){
+export function nextSubscriptionEnd(user: {subscriptionsUsed: {endsAt: string | Date}[]}, extraMonths: number = 0){
     const currentSubscriptionEnd = new Date(user.subscriptionsUsed[user.subscriptionsUsed.length-1].endsAt as Date | string)
     const nextEnd = new Date(currentSubscriptionEnd)
     nextEnd?.setMonth(nextEnd.getMonth()+extraMonths)
@@ -39,7 +39,7 @@ export function nextSubscriptionEnd(user: UserProps, extraMonths: number = 0){
 }
 
 
-export function validSubscription(user: UserProps | undefined){
+export function validSubscription(user: {subscriptionsUsed: {endsAt: string | Date}[]} | undefined){
     if(!user) return false
     if(user.subscriptionsUsed.length == 0) return false
 

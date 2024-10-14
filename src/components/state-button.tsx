@@ -23,8 +23,8 @@ const StateButton: React.FC<StateButtonProps> = ({
         e.stopPropagation()
         e.preventDefault()
         setSubmitting(true)
-        const stopResubmit = await onClick(e)
-        if(!stopResubmit){
+        const resubmit = !await onClick(e)
+        if(resubmit){
             setSubmitting(false)
         }
     }

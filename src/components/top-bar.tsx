@@ -11,6 +11,7 @@ import { createPortal } from "react-dom";
 import { CabildoIcon, NotificationsIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
 import { TopbarLogo } from "./logo";
+import { validSubscription } from "./utils";
 
 
 function FeedButton() {
@@ -70,6 +71,8 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
             setWideScreen(true)
         }
     }, [])
+
+    const searchBarAvailable = !user.user || validSubscription(user.user)
     
     return <div className="flex items-center w-screen justify-between">
         <div className="flex items-center sm:w-72 text-gray-900">
@@ -83,7 +86,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
             {((!searchBarOpen && user.user) || wideScreen) && <NotificationsButton/>}
         </div>
 
-        {searchBarOpen && <div className="mx-2">
+        {searchBarOpen && searchBarAvailable && <div className="mx-2">
             <SearchBar 
                 onClose={() => {setSearchBarOpen(false)}}
                 setSearchValue={ setSearchValue }

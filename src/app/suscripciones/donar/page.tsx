@@ -128,7 +128,7 @@ export default function DonationPage() {
 
     const uniqueChosen = <div className="flex flex-col items-center">
         <UniqueDonationCheckout amount={donationAmount} preferenceId={preferenceId}/>
-        <button className="gray-btn" onClick={() => {setChoice("none"); setDonationAmount(0); setAmount(0)}}>Volver</button>
+        <button className="gray-btn" onClick={() => {setChoice("none"); }}>Volver</button>
     </div>
 
     const center = <>
