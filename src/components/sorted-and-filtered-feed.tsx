@@ -8,7 +8,7 @@ import { cleanText } from "./utils"
 
 // TO DO: Agregar la cantidad de personas distintas que comentaron, sin contar al autor
 function popularityScore(content: SmallContentProps){
-    return content._count.reactions
+    return (content._count.reactions + content.uniqueCommentators) / content.uniqueViewsCount
 }
 
 function comp(a: {score: number}, b: {score: number}){
