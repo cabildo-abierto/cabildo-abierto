@@ -2,7 +2,7 @@
 
 import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions, deleteUser, updateAllUniqueCommentators } from "../../actions/contents"
 import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateNotifications, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
-import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually } from "../../actions/users"
+import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually, computeSubscriptorsByDay } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
@@ -78,6 +78,9 @@ export default function Page() {
             </button>
             <button className="gray-btn" onClick={async () => {await deleteUser(userId)}}>
                 Eliminar usuario {userId}
+            </button>
+            <button className="gray-btn" onClick={async () => {await computeSubscriptorsByDay()}}>
+                Calcular suscriptores por día
             </button>
         </div>
     </div>
