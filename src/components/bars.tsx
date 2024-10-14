@@ -10,13 +10,13 @@ const Bars: React.FC = () => {
     const [openSidebar, setOpenSidebar] = useState(false);
     const searching = searchValue.length > 0;
     return (
-        <>
+        <div className="">
             <Topbar onOpenSidebar={() => setOpenSidebar(true)}
                     setSearchValue={setSearchValue}
                     searching={searching}
             />
             {openSidebar && <Sidebar onClose={() => setOpenSidebar(false)} />}
-        </>
+        </div>
     );
 };
 

@@ -212,8 +212,8 @@ export const CloseButtonIconWithHover = () => {
 }
 
 
-export const CloseButtonIcon = () => {
-    return <CloseIcon/>
+export const CloseButtonIcon = ({fontSize="medium"}: {fontSize?: "medium" | "small" | "inherit"}) => {
+    return <CloseIcon fontSize={fontSize}/>
 }
 
 
