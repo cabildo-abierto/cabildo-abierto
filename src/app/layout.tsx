@@ -158,7 +158,7 @@ const fonts = [
 
 export const metadata: Metadata = {
   title: 'Cabildo Abierto',
-  description: 'Un nuevo medio para la discusión pública argentina. Sumate a leer artículos escritos colectivamente y noticias o análisis individuales y discutir, o contribuí con contenido y te pagamos.'
+  description: 'Un nuevo medio para la discusión pública argentina. Abrimos la información a discusión. Sin algoritmo, bots, ni noticias falsas.'
 }
 
 export default function RootLayout({
