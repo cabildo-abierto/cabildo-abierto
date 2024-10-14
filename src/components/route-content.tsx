@@ -13,6 +13,8 @@ import { WritePanelMainFeed } from "./write-panel-main-feed";
 import { useSearch } from "./search-context";
 import { articleUrl } from "./utils";
 import Link from "next/link";
+import { CloseButtonIcon } from "./icons";
+import { addView } from "../actions/contents";
 
 
 type RouteContentProps = {
@@ -31,6 +33,7 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
     const [filter, setFilter] = useState("Todas")
     const user = useUser()
     const {searchValue} = useSearch()
+    const [closedIntroPopup, setClosedIntroPopup] = useState(false)
 
     useEffect(() => {
         preload("/api/users", fetcher)
@@ -48,15 +51,17 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
     }
 
     return <div className="w-full">
-        {(!user.user || user.user._count.views == 0) && <div className="flex justify-center mt-2">
-            <Link
-                href={articleUrl("Cabildo_Abierto")}
-                className="gray-btn text-[var(--background)] title text-sm"
-            >
-                <div className="py-2 text-center">
+        {(!user.user || user.user._count.views == 0) && searchValue.length == 0 && !closedIntroPopup && <div className="flex justify-center mt-2">
+            <div className="bg-[var(--secondary-light)] rounded content-container p-2 text-sm flex flex-col">
+                <div className="py-2 text-center title">
                     Introducción a Cabildo Abierto
                 </div>
-            </Link>
+                <div className="flex space-x-2 justify-center">
+                    <Link className="gray-btn title" href="/articulo?i=Cabildo_Abierto">
+                        Leer
+                    </Link>
+                </div>
+            </div>
         </div>}
         <MainFeedHeader
             route={route}
