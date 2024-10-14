@@ -4,7 +4,6 @@ import { useSearch } from "./search-context";
 import { RouteContent } from "./route-content";
 import { ThreeColumnsLayout } from "./three-columns";
 import { usePathname } from "next/navigation";
-import { createPortal } from "react-dom";
 
 
 export const SearchPage = ({children}: {children: ReactNode}) => {

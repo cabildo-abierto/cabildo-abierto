@@ -54,7 +54,7 @@ export const FastAndPostIcon = () => {
             <span className="absolute bottom-[-4px] right-[-5px]">
                 <PostIcon />
             </span>
-            <span className="absolute top-[-12px] left-[-3px] z-1">
+            <span className="absolute top-[-12px] left-[-3px]">
                 <FastPostIcon />
             </span>
         </span>
