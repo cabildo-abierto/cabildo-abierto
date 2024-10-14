@@ -164,6 +164,7 @@ const PostEditor = ({
     }
 
     return <div className="p-1 rounded">
+        <div className="text-sm text-gray-400 text-center">{isFast ? "Publicación rápida" : "Publicación"}</div>
         <div className="flex justify-between mt-3">
             {isPublished ? <div></div> : <DraftsButton/>}
 			<div className="flex justify-end">

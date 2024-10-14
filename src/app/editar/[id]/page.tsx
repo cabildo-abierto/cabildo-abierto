@@ -9,7 +9,6 @@ import { decompress } from "../../../components/compression";
 import PostEditor from "../../../components/editor/post-editor";
 import { useUser } from "../../hooks/user";
 import { ContentProps } from "../../lib/definitions";
-import Error from "next/error";
 
 
 function canEdit(content: ContentProps){
