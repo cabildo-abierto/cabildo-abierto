@@ -10,12 +10,14 @@ import { compress, decompress } from "./compression";
 import StateButton from "./state-button";
 import { updateContent } from "../actions/contents";
 import { charCount } from "./utils";
+import { useSWRConfig } from "swr";
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClose: () => void}) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const content = useContent(contentId)
+    const {mutate} = useSWRConfig()
 
     if(content.isLoading){
         return <LoadingSpinner/>
@@ -51,8 +53,10 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
                 className="gray-btn my-2 w-64"
                 disabled={!validComment(editorState, settings.charLimit)}
                 onClick={async (e) => {
-                    await updateContent(contentId, compress(JSON.stringify(editorState)))
-                    return true
+                    await updateContent(compress(JSON.stringify(editorState)), contentId)
+                    mutate("/api/content/"+contentId)
+                    onClose()
+                    return false
                 }}
             />
         </div>

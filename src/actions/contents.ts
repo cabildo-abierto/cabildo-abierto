@@ -377,9 +377,6 @@ export async function updateContent(compressedText: string, contentId: string, t
 
     const currentContent = await getContentById(contentId)
 
-    console.log("updating", contentId)
-    console.log(currentContent && !currentContent.isDraft)
-
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const result = await db.content.update({
         where: {

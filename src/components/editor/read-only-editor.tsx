@@ -56,11 +56,13 @@ const ReadOnlyEditor = ({
         placeholderClassName: ""
     }
     
-    return <MyLexicalEditor
-        settings={settings}
-        setEditor={(editor: LexicalEditor) => {}}
-        setEditorState={(state: EditorState) => {}}
-    />
+    return <div key={content ? (content.id + content.isContentEdited) : 0}>
+        <MyLexicalEditor
+            settings={settings}
+            setEditor={(editor: LexicalEditor) => {}}
+            setEditorState={(state: EditorState) => {}}
+        />
+    </div>
 }
 
 export default ReadOnlyEditor
