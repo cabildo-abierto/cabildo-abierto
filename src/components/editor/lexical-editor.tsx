@@ -296,7 +296,7 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
       try {
           JSON.parse(initialData)
       } catch {
-          initialData = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este artículo está vacío! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión. Cabildo Abierto te va a ","type":"text","version":1},{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"pagar","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"link","version":1,"rel":"","target":"","title":null,"url":"/articulo?i=Cabildo_Abierto%3A_Remuneraciones"},{"detail":0,"format":0,"mode":"normal","style":"","text":" por tu contribución durante toda la vida del artículo.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
+          initialData = undefined
       }
   }
   const initialConfig: InitialConfigType = {

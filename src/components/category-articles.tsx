@@ -74,9 +74,9 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
     const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de reacciones positivas que recibió. Los artículos vacíos se muestran al final. Solo se muestran artículos de la categoría seleccionada ({route2Text(route)}).</span>
 
     return <>
-        {searchValue.length == 0 && <DidYouKnow text={<><p>¿Sabías que si editás un artículo público Cabildo Abierto <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>te paga</Link> por cada persona que entre a leerlo en el futuro?</p> <p>Incluso si otras personas lo siguen editando después.</p></>}/>}
+        {searchValue.length == 0 && <div className="mt-2"><DidYouKnow text={<><p>¿Sabías que si editás un artículo público Cabildo Abierto <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>te paga</Link> por cada persona que entre a leerlo en el futuro?</p> <p>Incluso si otras personas lo siguen editando después.</p></>}/></div>}
         
-        {searchValue.length == 0 && <div className="flex justify-center mt-4">
+        {searchValue.length == 0 && <div className="flex justify-center py-4">
             <NewPublicArticleButton
                 onClick={() => {}}
                 className="gray-btn"
@@ -87,7 +87,7 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
         </div>}
 
         {searchValue.length == 0 && 
-            <div className="flex justify-center text-sm space-x-1 py-4">
+            <div className="flex justify-center text-sm space-x-1 mb-4">
                 <div className="border-r rounded border-t border-b border-l">
             <SelectionComponent
                 onSelection={setSortBy}
@@ -95,7 +95,7 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
                 options={["Populares", "Ediciones recientes"]}
                 optionsNodes={[<div key={0}>Populares</div>, <div key={1}>Ediciones recientes</div>]}
                 infoPanelTexts={[infoText, null]}
-                className="filter-feed"
+                className="filter-feed w-48"
                 showExplanations={false}
             />
                 </div>

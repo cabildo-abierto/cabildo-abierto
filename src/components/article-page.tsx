@@ -101,7 +101,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         return <ToggleButton
             text="Editar artículo"
             toggledText="Cancelar edición"
-            className={articleButtonClassname}
+            className={"article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--primary-dark)]"}
             setToggled={onEdit}
             toggled={editing}
         />
@@ -292,12 +292,13 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             />
         </div>
         <div className="">
-        {!editing && <div className="flex flex-wrap items-center px-2 space-x-2 border-b mt-4">
+        {!editing && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">
+            <EditButton/>
             <ViewHistoryButton/>
             <ViewCategoriesButton/>
             <ViewLastChangesButton/>
             <ViewAuthorsButton/>
-            <EditButton/>
+            
             {(user.user && user.user.editorStatus == "Administrator") &&
             <div className="flex justify-center py-2">
                 <SetProtectionButton entity={entity}/>
@@ -344,15 +345,15 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         </div>
         }
 
-        <div className="mt-2">
         {isUndo(versions[version]) &&
+        <div className="mt-2">
             <UndoDiscussion
                 entity={entity.entity}
                 version={version}
-            />}
-        </div>
+            />
+        </div>}
 
-        <div className="mt-6">
+        <div className="mt-4">
         {editing && <ContentWithCommentsFromId
             contentId={contentId}
             showingChanges={showingChanges}

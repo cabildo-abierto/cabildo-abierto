@@ -19,7 +19,6 @@ import { ShowArticleChanges } from "../show-article-changes"
 import { ShowArticleAuthors } from "../show-authors-changes"
 import { SaveEditPopup } from "../save-edit-popup"
 import { fetcher } from "../../app/hooks/utils"
-import { getEntityComments } from "../comment-section"
 
 
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
@@ -28,40 +27,53 @@ const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: fals
 export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:px-2"
 
 
-export const wikiEditorSettings = (
-    readOnly: boolean, content: ContentProps, contentText: string) => ({
-    disableBeforeInput: false,
-    emptyEditor: false,
-    isAutocomplete: false,
-    isCharLimit: false,
-    isCharLimitUtf8: false,
-    isCollab: false,
-    isMaxLength: false,
-    isRichText: true,
-    measureTypingPerf: false,
-    shouldPreserveNewLinesInMarkdown: true,
-    shouldUseLexicalContextMenu: false,
-    showNestedEditorTreeView: false,
-    showTableOfContents: true,
-    showTreeView: false,
-    tableCellBackgroundColor: false,
-    tableCellMerge: false,
-    showActions: false,
-    showToolbar: !readOnly,
-    isComments: readOnly,
-    isDraggableBlock: !readOnly,
-    useSuperscript: false,
-    useStrikethrough: false,
-    useSubscript: false,
-    useCodeblock: false,
-    placeholder: "Este artículo está vacío!",
-    initialData: contentText,
-    editorClassName: "content",
-    isReadOnly: readOnly,
-    content: content,
-    isAutofocus: false,
-    placeholderClassName: "ContentEditable__placeholder",
-})
+const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este artículo está vacío! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión. Cabildo Abierto te va a ","type":"text","version":1},{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"pagar","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"link","version":1,"rel":"","target":"","title":null,"url":"/articulo?i=Cabildo_Abierto%3A_Remuneraciones"},{"detail":0,"format":0,"mode":"normal","style":"","text":" por tu contribución durante toda la vida del artículo.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
+
+
+export const wikiEditorSettings = (readOnly: boolean, content: ContentProps, contentText: string) => {
+    
+    let initialData = null
+    let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
+    if(readOnly && emptyContent){
+        initialData = initialValue
+    } else {
+        initialData = contentText
+    }
+        
+    return {
+        disableBeforeInput: false,
+        emptyEditor: false,
+        isAutocomplete: false,
+        isCharLimit: false,
+        isCharLimitUtf8: false,
+        isCollab: false,
+        isMaxLength: false,
+        isRichText: true,
+        measureTypingPerf: false,
+        shouldPreserveNewLinesInMarkdown: true,
+        shouldUseLexicalContextMenu: false,
+        showNestedEditorTreeView: false,
+        showTableOfContents: true,
+        showTreeView: false,
+        tableCellBackgroundColor: false,
+        tableCellMerge: false,
+        showActions: false,
+        showToolbar: !readOnly,
+        isComments: readOnly,
+        isDraggableBlock: !readOnly,
+        useSuperscript: false,
+        useStrikethrough: false,
+        useSubscript: false,
+        useCodeblock: false,
+        placeholder: "Explicá el tema del título o agregá información...",
+        initialData: initialData,
+        editorClassName: "content",
+        isReadOnly: readOnly,
+        content: content,
+        isAutofocus: false,
+        placeholderClassName: "ContentEditable__placeholder",
+    }
+}
 
 
 type WikiEditorProps = {

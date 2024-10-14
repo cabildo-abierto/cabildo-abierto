@@ -44,10 +44,10 @@ const SelectionComponent: React.FC<SelectionComponentProps> = ({
         {infoPanelTexts && showExplanations && infoPanelTexts[index] && <InfoPanel iconClassName="text-[var(--accent-light)] ml-1" text={infoPanelTexts[index]}/>}
         {optionsNodes && 
           <div className={textClassName(option)+" flex flex-col px-1"}>
-            <span>
+            <div className="flex justify-center">
               {optionsNodes[index]}
-            </span>
-            {infoPanelTexts && !showExplanations && infoPanelTexts[index] && <InfoPanel iconClassName="text-[var(--accent-light)] ml-1" text={infoPanelTexts[index]}/>}
+              {infoPanelTexts && !showExplanations && infoPanelTexts[index] && <InfoPanel iconClassName="text-[var(--accent-light)] ml-1" text={infoPanelTexts[index]}/>}
+            </div>
             {showExplanations && <span className="text-[0.6rem] sm:text-[0.7rem] text-[var(--text-light)]">
               {option}
             </span>}
