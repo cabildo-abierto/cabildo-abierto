@@ -11,6 +11,8 @@ import { useUser } from "../app/hooks/user";
 import { CreateAccountLink } from "./create-account-link";
 import { WritePanelMainFeed } from "./write-panel-main-feed";
 import { useSearch } from "./search-context";
+import { articleUrl } from "./utils";
+import Link from "next/link";
 
 
 type RouteContentProps = {
@@ -46,6 +48,16 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
     }
 
     return <div className="w-full">
+        {(!user.user || user.user._count.views == 0) && <div className="flex justify-center mt-2">
+            <Link
+                href={articleUrl("Cabildo_Abierto")}
+                className="gray-btn text-[var(--background)] title text-sm"
+            >
+                <div className="py-2 text-center">
+                    Introducción a Cabildo Abierto
+                </div>
+            </Link>
+        </div>}
         <MainFeedHeader
             route={route}
             setRoute={setRoute}
@@ -59,6 +71,7 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
         />
         
         <div className="pt-1">
+
             {selected == "Artículos públicos" && 
                 <CategoryArticles route={route}/>
             }

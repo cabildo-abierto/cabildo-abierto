@@ -99,7 +99,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
 
     const EditButton = () => {
         return <ToggleButton
-            text="Editar"
+            text="Editar artículo"
             toggledText="Cancelar edición"
             className={articleButtonClassname}
             setToggled={onEdit}

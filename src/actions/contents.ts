@@ -546,6 +546,8 @@ export const removeLike = async (id: string, userId: string, entityId?: string) 
 
 
 export const addView = async (id: string, userId: string) => {
+    const content = await getContentById(id)
+
     const exists = await db.view.findMany({
         select: {
             createdAt: true
@@ -590,6 +592,11 @@ export const addView = async (id: string, userId: string) => {
             }
         })
     }
+    
+    if(content.parentEntityId == "Cabildo_Abierto"){ // && !exists
+        revalidateTag("user:"+userId)
+    }
+
     revalidateTag("content:"+id)
 }
 
@@ -668,6 +675,9 @@ export const addViewToEntityContent = async (id: string, userId: string, entityI
                 id: entityId
             }
         })
+    }
+    if(entityId == "Cabildo_Abierto"){
+        revalidateTag("user:"+userId)
     }
     revalidateTag("content:"+id)
     revalidateTag("entity:"+entityId)

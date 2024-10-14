@@ -181,6 +181,13 @@ export const getUserById = (userId: string) => {
                                     viewed: false
                                 }
                             },
+                            views: {
+                                where: {
+                                    content: {
+                                        parentEntityId: "Cabildo_Abierto"
+                                    }
+                                }
+                            },
                             contents: {
                                 where: {
                                     NOT: {
@@ -191,7 +198,8 @@ export const getUserById = (userId: string) => {
                                 }
                             }
                         }
-                    }
+                    },
+
                 },
                 where: {id:userId}
             }
