@@ -1121,4 +1121,17 @@ export async function computeSubscriptorsByDay(minPrice: number) {
         }
     }
     console.log("unsuscribed accounts", unsubscribedAccounts, unsubscribedAccounts.length)
+
+    const allSubscriptions = await db.subscription.findMany({
+        select: {
+            id: true
+        },
+        where: {
+            price: {
+                gte: minPrice
+            }
+        }
+    })
+
+    console.log("suscripciones vendidas totales", allSubscriptions.length)
 }
