@@ -707,11 +707,11 @@ export async function getLastKNotifications(k: number){
                 createdAt: "desc"
             }
         })
-        let unseen = 0
+        let lastUnseen = 0
         for(let i = 0; i < notifications.length; i++){
-            if(!notifications[i].viewed) unseen ++
+            if(!notifications[i].viewed) lastUnseen = i
         }
-        return notifications.slice(0, Math.max(unseen, k))
+        return notifications.slice(0, Math.max(lastUnseen+1, k))
     }, ["notifications", userId], {
         tags: ["notifications", "notifications:"+userId],
         revalidate: revalidateEverythingTime,
@@ -1027,4 +1027,36 @@ export async function updateContentLinks(){
             }
         })
     }*/
+}
+
+
+export async function updateAllUniqueCommentators() {
+    const contents = await db.content.findMany({
+        select: {
+            id: true,
+            childrenTree: {
+                select: {
+                    authorId: true
+                },
+                where: {
+                    type: {
+                        in: ["Comment", "FakeNewsReport"]
+                    }
+                }
+            }
+        }
+    })
+
+    for(let i = 0; i < contents.length; i++){
+        const n = new Set(contents[i].childrenTree.map((c) => (c.authorId))).size
+        console.log("unique comentators of", contents[i].id, n)
+        await db.content.update({
+            data: {
+                uniqueCommentators: n
+            },
+            where: {
+                id: contents[i].id
+            }
+        })
+    }
 }

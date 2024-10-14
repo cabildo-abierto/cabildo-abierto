@@ -254,6 +254,8 @@ export type SmallContentProps = {
     _count: {reactions: number, childrenTree: number}
     currentVersionOf?: {id: (string | null)}
     fakeReportsCount?: number;
+    uniqueViewsCount?: number
+    uniqueCommentators?: number
 }
 
 export type NotificationProps = {
