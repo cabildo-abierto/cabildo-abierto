@@ -47,7 +47,7 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
     function onSelection(v: string){
         setSelected(v)
         if(v == "Siguiendo" && order != "Recientes") setOrder("Recientes")
-        if(v == "General" && order != "Recientes") setOrder("Populares")
+        if(v == "General" && order != "Populares") setOrder("Populares")
     }
 
     return <div className="w-full">
