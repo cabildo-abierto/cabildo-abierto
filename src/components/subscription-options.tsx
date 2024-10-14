@@ -47,7 +47,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
 
     const desc3 = <div>
         <div>Comprar y donar suscripciones</div>
-        <div className="text-gray-300 text-sm">Para que no le falte a quien lo necesite.</div>
+        <div className="text-gray-300 text-sm">Para que no le falte una suscripción a quien lo necesite.</div>
     </div>
 
     const desc0 = <div>
@@ -84,6 +84,9 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
                 </p>
                 <p>
                     Las suscripciones se usan para financiar el desarrollo de la plataforma y a los autores de los contenidos que leas. <Link href={articleUrl("Cabildo_Abierto:_Suscripciones")}>Leer más.</Link>
+                </p>
+                <p>
+                    De todas formas, podés empezar con un mes gratis. Además, hay suscripciones que fueron donadas por otros usuarios y podés usarlas si lo necesitás.
                 </p>
             </div>
         </div>
