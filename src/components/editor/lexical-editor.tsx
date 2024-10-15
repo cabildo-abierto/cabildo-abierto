@@ -64,17 +64,6 @@ import { TableContext } from './plugins/TablePlugin';
 import { CustomTableNode } from './nodes/CustomTableNode';
 
 
-const CharLimitComponent = ({remainingCharacters} : {remainingCharacters: number}) => {
-  if(remainingCharacters < 100){
-    return <div className="flex justify-end text-sm text-[var(--text-light)]">
-    Caracteres restantes: {remainingCharacters}
-  </div>
-  } else {
-    return <></>
-  }
-}
-
-
 export type SettingsProps = {
   disableBeforeInput: boolean,
   emptyEditor: boolean,
