@@ -1,6 +1,6 @@
 "use client"
 
-import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions, deleteUser, updateAllUniqueCommentators } from "../../actions/contents"
+import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions, deleteUser, updateAllUniqueCommentators, updateAllReferences } from "../../actions/contents"
 import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateNotifications, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually, computeSubscriptorsByDay } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
@@ -72,6 +72,9 @@ export default function Page() {
             </button>
             <button className="gray-btn" onClick={async () => {await updateUniqueViewsCount()}}>
                 Actualizar unique views
+            </button>
+            <button className="gray-btn" onClick={async () => {await updateAllReferences()}}>
+                Actualizar referencias
             </button>
             <button className="gray-btn" onClick={async () => {await notifyAllMentions()}}>
                 Notificar menciones

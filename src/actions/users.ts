@@ -787,9 +787,8 @@ export async function getSubscriptionPrice() {
                 }
             }
         })
-        console.log("count", count)
-        if(count < 100){
-            return {price: 500, remaining: 100-count}
+        if(count < 200){
+            return {price: 500, remaining: 200-count}
         } else {
             return {price: 1000, remaining: 1000-count}
         }
