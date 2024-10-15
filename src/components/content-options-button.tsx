@@ -68,7 +68,7 @@ export const ContentOptionsButton = ({content, optionList}: {content: ContentPro
 
     return <div style={{ position: 'relative', display: 'inline-block' }}>
         <button
-            className="p-1 mr-1 mt-1 flex items-center hover:bg-[var(--background-dark)] rounded"
+            className="p-1 mt-1 flex items-center hover:bg-[var(--background-dark)] rounded"
             onClick={(e) => {e.stopPropagation(); e.preventDefault(); setIsDropdownOpen(prev => !prev)}}
         >
             <MoreHorizIcon fontSize="small" />

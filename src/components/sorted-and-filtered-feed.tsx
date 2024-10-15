@@ -7,7 +7,9 @@ import { useSearch } from "./search-context"
 import { cleanText } from "./utils"
 
 function popularityScore(content: SmallContentProps){
-    return (content._count.reactions + content.uniqueCommentators) / Math.max(content.uniqueViewsCount, 1)
+    const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
+    commentators.delete(content.author.id)
+    return (content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount, 1)
 }
 
 function comp(a: {score: number}, b: {score: number}){

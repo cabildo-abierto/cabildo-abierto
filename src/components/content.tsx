@@ -76,7 +76,7 @@ export const ContentTopRow: React.FC<ContentTopRowProps> = ({
     onShowFakeNews,
     showFakeNewsCounter=false,
 }) => {
-    return <div className="flex justify-between pt-1">
+    return <div className="flex justify-between pt-1 pr-1">
         <div className="px-2 blue-links flex items-center w-full">
             <div className="text-sm space-x-1 text-[var(--text-light)]">
                 {author && 

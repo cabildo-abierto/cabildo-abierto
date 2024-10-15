@@ -67,7 +67,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
         <div className="flex justify-between items-center mt-1">
             <span className="text-sm text-gray-400 ml-2">Publicación</span>
 
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 mr-1">
                 <span className="text-[var(--text-light)] text-sm mr-1">
                     <DateSince date={content.createdAt}/>
                 </span>

@@ -22,7 +22,11 @@ export const getRouteFeed = (route: string[], userId: string) => {
                     }
                 },
                 uniqueViewsCount: true,
-                uniqueCommentators: true,
+                childrenTree: {
+                    select: {
+                        authorId: true
+                    }
+                },
                 entityReferences: {
                     select: {
                         id: true,
@@ -94,7 +98,11 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                     }
                 },
                 uniqueViewsCount: true,
-                uniqueCommentators: true,
+                childrenTree: {
+                    select: {
+                        authorId: true
+                    }
+                },
                 entityReferences: {
                     select: {
                         id: true,

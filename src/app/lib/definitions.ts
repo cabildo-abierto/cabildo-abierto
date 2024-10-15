@@ -71,13 +71,31 @@ export type CommentProps = {
 }
 
 
+export type ReferenceProps = {
+    id: string
+    createdAt: string | Date
+    type: string
+    author: {
+        id: string
+        name: string
+    },
+    _count: {
+        reactions: number
+        childrenTree: number
+    },
+    currentVersionOf: {
+        id: string
+    }
+}
+
+
 export type EntityProps = {
     id: string
     name: string
     protection: string
     isPublic: boolean,
     versions: EntityVersionProps[]
-    referencedBy: SmallContentProps[]
+    referencedBy: ReferenceProps[]
     deleted: boolean,
     currentVersionId: string
     uniqueViewsCount: number
@@ -255,7 +273,7 @@ export type SmallContentProps = {
     currentVersionOf?: {id: (string | null)}
     fakeReportsCount?: number;
     uniqueViewsCount?: number
-    uniqueCommentators?: number
+    childrenTree: {authorId: string}[]
 }
 
 export type NotificationProps = {
