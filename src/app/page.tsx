@@ -14,6 +14,7 @@ export default function Page({searchParams}: {searchParams: {code?: string, erro
     const [invalidLink, setInvalidLink] = useState(searchParams.error_description == "Email link is invalid or has expired")
     const router = useRouter()
     const user = useUser() // para prefetchearlo
+    const [loggingIn, setLoggingIn] = useState(searchParams.code != undefined)
     
     useEffect(() => {
         preload("/api/entity/Cabildo_Abierto", fetcher)
@@ -28,10 +29,13 @@ export default function Page({searchParams}: {searchParams: {code?: string, erro
                 <InvalidConfirmLinkPopup onClose={() => {setInvalidLink(false); router.push("/")}}/>
             }
             <div className="lg:w-1/2 lg:mb-8 lg:flex lg:justify-center lg:items-center">
-                <Presentation/>
+                <Presentation loggingIn={loggingIn} setLoggingIn={setLoggingIn}/>
             </div>
             <div className="lg:w-1/2">
-                <AuthPage startInLogin={searchParams.code != undefined}/>
+                <AuthPage
+                    loggingIn={loggingIn}
+                    setLoggingIn={setLoggingIn}
+                />
             </div>
         </div>
         <Footer/>

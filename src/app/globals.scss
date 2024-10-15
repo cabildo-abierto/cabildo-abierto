@@ -189,6 +189,22 @@ ol {
 	background-color: var(--primary-dark)
 }
 
+
+.green-btn {
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	padding-left: 1rem; 
+	padding-right: 1rem;
+	border-radius: 0.25rem; 
+	cursor: pointer; 
+	background-color: #68cd51;
+	color: var(--background);
+}
+  
+.green-btn:hover {
+	background-color: #46a332
+}
+
 .create-btn {
 	padding-top: 0.25rem;
 	padding-bottom: 0.25rem;

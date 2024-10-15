@@ -76,7 +76,7 @@ export const ContactMailInput = ({onClose}: {onClose: (accept: boolean) => void}
 };
 
 
-export const Presentation: React.FC = () => {
+export const Presentation = ({loggingIn, setLoggingIn}: {loggingIn: boolean, setLoggingIn: (v: boolean) => void}) => {
 
     const [openMailInput, setOpenMailInput] = useState(false)
     const [openThanks, setOpenThanks] = useState(false)
@@ -91,8 +91,14 @@ export const Presentation: React.FC = () => {
           <h3 className="text-gray-600 text-xl lg:text-3xl mt-2">Discutí lo público</h3>
         </div>
       </div>
-      <Link href={articleUrl("Cabildo_Abierto")} className="text-lg title mb-16 gray-btn">
+      <Link href={articleUrl("Cabildo_Abierto")} className="text-lg title mb-3 w-72 gray-btn flex justify-center text-center">
         <div className="m-1">¿Qué es Cabildo Abierto?</div>
+      </Link>
+      <button onClick={() => {setLoggingIn(!loggingIn)}} className="w-72 text-lg title mb-3 green-btn">
+        <div className="m-1">{loggingIn ? "Crear cuenta" : "Iniciar sesión"}</div>
+      </button>
+      <Link href="/inicio" className="link2 mb-16 text-[var(--text-light)] text-sm">
+        Entrar como invitado/a
       </Link>
       {openMailInput && <ContactMailInput onClose={(accept: boolean) => {setOpenMailInput(false); if(accept) setOpenThanks(true)}}/>}
       {openThanks && <ThanksForSubscribing onClose={() => {setOpenThanks(false)}}/>}
