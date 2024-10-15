@@ -237,8 +237,8 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         />
     }
 
-    // TO DO: Terminar de implementar
-    const RenameEntityButton = () => {
+
+    /*const RenameEntityButton = () => {
         return <StateButton
             className={articleButtonClassname}
             text1="Renombrar"
@@ -251,7 +251,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
                 return false
             }}
         />
-    }
+    }*/
 
     const versions = entity.entity.versions
     const currentIndex = currentVersion(entity.entity)

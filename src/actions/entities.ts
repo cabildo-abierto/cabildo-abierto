@@ -2,7 +2,7 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findMentions, findReferences, getContentById } from "./contents";
+import { findMentions, findReferences, getContentById, notifyMentions } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
@@ -187,7 +187,7 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
         contribution = updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId)
     }
 
-    await db.content.create({
+    const newContent = await db.content.create({
         data: {
             compressedText: compressedText,
             compressedPlainText: compress(plainText),
@@ -223,6 +223,7 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
             charsDeleted: charsDeleted
         }
     })
+    notifyMentions(mentions, newContent.id, userId, true)
 
     revalidateTag("entity:" + entityId)
     revalidateTag("entities")

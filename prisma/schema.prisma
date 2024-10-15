@@ -257,10 +257,12 @@ model Content {
 
 enum NotificationType {
   Comment
+  CommentToComment
   Reaction
   Follow
   Edit
   Mention
+  EditMention
 
   @@schema("public")
 }
