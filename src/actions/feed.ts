@@ -7,6 +7,9 @@ import { getUserById, getUserId } from "./users";
 import { entityInRoute } from "../components/utils";
 
 
+const revalidateFeedTime = 10*60
+
+
 export const getRouteFeed = (route: string[], userId: string) => {
     return unstable_cache(async () => {
         let feed = await db.content.findMany({
@@ -75,7 +78,7 @@ export const getRouteFeed = (route: string[], userId: string) => {
         })
         return routeFeed
     }, ["routeFeed", route.join("/"), userId], {
-        revalidate: revalidateEverythingTime,
+        revalidate: revalidateFeedTime,
         tags: ["routeFeed", "routeFeed:"+route.join("/"), "feed"]})() 
 }
 
@@ -155,7 +158,7 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
 
         return routeFeed
     }, ["routeFollowingFeed", route.join("/"), userId], {
-        revalidate: revalidateEverythingTime,
+        revalidate: revalidateFeedTime,
         tags: ["routeFollowingFeed", "routeFollowingFeed:"+route.join("/")+":"+userId, "feed"]})() 
 }
 

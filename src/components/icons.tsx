@@ -29,6 +29,8 @@ import CreateIcon from '@mui/icons-material/Create';
 import CloseIcon from '@mui/icons-material/Close';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useState } from 'react';
+import { BiUpvote } from "react-icons/bi";
+import { BiSolidUpvote } from "react-icons/bi";
 
 
 export const RedFlag = () => {
@@ -80,19 +82,19 @@ export const DashboardIcon = () => {
 }
 
 export const ActiveLikeIcon = () => {
-    return <FavoriteIcon fontSize="small"/>
+    return <BiSolidUpvote fontSize="1.3rem"/>
 }
 
 export const InactiveLikeIcon = () => {
-    return <FavoriteBorderIcon fontSize="small"/>
+    return <BiUpvote fontSize="1.3rem"/>
 }
 
 export const ActivePraiseIcon = () => {
-    return <FavoriteIcon fontSize="small"/>
+    return <BiSolidUpvote fontSize="1.3rem"/>
 }
 
 export const InactivePraiseIcon = () => {
-    return <FavoriteBorderIcon fontSize="small"/>
+    return <BiUpvote fontSize="1.3rem"/>
 }
 
 

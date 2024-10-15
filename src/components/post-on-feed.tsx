@@ -89,7 +89,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
                 content={content}
                 onViewComments={onViewComments}
                 viewingComments={viewingComments}
-                likeCounterTitle='Cantidad de "me gustas" que recibió. Entrá a la publicación para sumar uno.'
+                likeCounterTitle='Cantidad de votos hacia arriba que recibió. Entrá a la publicación para sumar uno.'
                 isPost={true}
                 commentCounterTitle="Cantidad de comentarios. Entrá a la publicación para leerlos."
             />
