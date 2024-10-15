@@ -10,6 +10,7 @@ import { UserProps } from "../app/lib/definitions"
 import { FixedFakeNewsCounter } from "./fake-news-counter"
 import { ArticleIcon } from "./icons"
 import { PermissionLevel } from "./permission-level"
+import InfoPanel from "./info-panel"
 
 export function ProfileHeader({profileUser, user, selected, setSelected, setShowingFakeNews }: {profileUser: UserProps, user?: UserProps, selected: string, setSelected: any, setShowingFakeNews: any }) {
     const [following, setFollowing] = useState(false)
@@ -80,13 +81,13 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
             />
         </div>
         <div className="flex">
-            <div className="ml-2 text-sm rounded-lg bg-[var(--secondary-light)] px-2 py-1 items-center justify-center">
+            <div className="ml-2 text-sm rounded-lg bg-[var(--secondary-light)] px-2 py-1 items-center justify-center hover:bg-[var(--secondary-slight)] cursor-default" title="Nivel de permisos en la edición de artículos públicos. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
                 <span className="text-gray-600 mb-1">
                     <ArticleIcon/>
                 </span>
                 <PermissionLevel
                     level={profileUser.editorStatus}
-                    className=""
+                    className="text-[var(--text-light)]"
                 />
             </div>
         </div>

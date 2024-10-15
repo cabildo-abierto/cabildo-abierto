@@ -20,7 +20,7 @@ export const EntityLikesAndViewsCounter = ({contentId}: {contentId: string}) => 
                 content={content.content}
                 icon1={<ActivePraiseIcon/>} icon2={<InactivePraiseIcon/>}
             />
-            <span className="relative top-[-7px] text-[0.65rem] text-[var(--text-light)]">Me sirvió</span>
+            {/*<span className="relative top-[-7px] text-[0.65rem] text-[var(--text-light)]">Me sirvió</span>*/}
             </div>
             <ViewsCounter content={content.content}/>
         </div>

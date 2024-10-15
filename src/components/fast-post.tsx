@@ -49,7 +49,7 @@ export const FastPost = ({
             onViewComments={onViewComments}
             viewingComments={viewingComments}
             commentCounterTitle="Cantidad de comentarios (contando los comentarios de los comentarios)"
-            likeCounterTitle={'Cantidad de "me gustas" que recibió.'}
+            likeCounterTitle={'Cantidad de votos hacia arriba que recibió.'}
             />
         </div>
     </div>

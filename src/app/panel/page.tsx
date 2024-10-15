@@ -54,9 +54,9 @@ const ShowUserStats = () => {
         <UserStat name="Artículos públicos editados" value={stats.stats.editedEntities}/>
         <UserStat name="Ediciones totales en artículos públicos" value={stats.stats.entityEdits}/>
         <UserStat name='Caracteres agregados en artículos públicos' value={stats.stats.entityAddedChars}/>
-        <UserStat name='"Me sirvió" totales' value={stats.stats.reactionsInEntities + stats.stats.reactionsInPosts}/>
-        <UserStat name='"Me sirvió" en publicaciones' value={stats.stats.reactionsInPosts}/>
-        <UserStat name='"Me sirvió" en artículos públicos' value={stats.stats.reactionsInEntities}/>
+        <UserStat name='Votos hacia arriba totales' value={stats.stats.reactionsInEntities + stats.stats.reactionsInPosts}/>
+        <UserStat name='Votos hacia arriba en publicaciones' value={stats.stats.reactionsInPosts}/>
+        <UserStat name='Votos hacia arriba en artículos públicos' value={stats.stats.reactionsInEntities}/>
         <UserStat name='Vistas totales' value={stats.stats.viewsInPosts+stats.stats.viewsInEntities}/>
         <UserStat name='Vistas en publicaciones' value={stats.stats.viewsInPosts}/>
         <UserStat name='Vistas en entidades' value={stats.stats.viewsInEntities}/>

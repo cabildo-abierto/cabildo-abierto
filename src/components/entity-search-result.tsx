@@ -96,7 +96,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
               <FixedCounter
               count={entity._count.reactions}
               icon={<InactivePraiseIcon />}
-              title='Cantidad de "me gustas" que recibió'
+              title='Cantidad de votos hacia arriba que recibió'
               />
               <FixedCounter
               count={entity.uniqueViewsCount}

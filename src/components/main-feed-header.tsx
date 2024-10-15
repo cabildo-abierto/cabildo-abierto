@@ -65,7 +65,7 @@ export const MainFeedHeader = ({
                 options={["Recientes", "Populares"]}
                 optionsNodes={[
                 <span className="text-gray-900" key={0}><RecentIcon/></span>, <span className="text-gray-900" key={1}><PopularIcon/></span>]}
-                optionExpl={["Publicaciones ordenadas por fecha de publicación", "Se suman la cantidad de reacciones positivas y la cantidad de comentarios hechos por personas distintas y se los divide por la cantidad de vistas."]}
+                optionExpl={["Publicaciones ordenadas por fecha de publicación", "Se suman la cantidad de votos hacia arriba y la cantidad de comentarios hechos por personas distintas y se los divide por la cantidad de vistas."]}
             />
             </div>
         </div>}

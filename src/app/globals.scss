@@ -16,6 +16,7 @@ $accent: #8790b0;
   --accent: #{$accent};
   --background-dark: #{darken($background, 20%)};
   --primary-dark: #{darken($primary, 20%)};
+  --secondary-slight: #{lighten($secondary, 17%)};
   --secondary-light: #{lighten($secondary, 20%)};
   --secondary-xlight: #{lighten($secondary, 23%)};
   --secondary-lighter: #{lighten($secondary, 25%)};
