@@ -284,8 +284,14 @@ export async function findReferences(text: string){
     function findReferencesInNode(node: any): {id: string}[] {
         let references: {id: string}[] = []
         if(node.type === "link"){
-            if(node.url.startsWith("/articulo")){
-                const id = node.url.split("/articulo")[1]
+            if(node.url.startsWith("/articulo?i=")){
+                const id = node.url.split("/articulo?i=")[1]
+                references.push({id: id})
+            } else if(node.url.startsWith("/articulo/")){
+                const id = node.url.split("/articulo/")[1]
+                references.push({id: id})
+            } else if(node.url.startsWith("/wiki/")){
+                const id = node.url.split("/wiki/")[1]
                 references.push({id: id})
             }
         }
@@ -301,7 +307,13 @@ export async function findReferences(text: string){
     if(text.length == 0 || text == "Este artículo está vacío!"){
         return []
     }
-    const json  = JSON.parse(text)
+    let json = null
+    try {
+        json  = JSON.parse(text)
+    } catch {
+        console.log("failed to parse", text)
+    }
+    if(!json) return []
 
     let references: {id: string}[] = findReferencesInNode(json.root)
     
@@ -1098,4 +1110,41 @@ export async function updateAllUniqueCommentators() {
             }
         })
     }
+}
+
+
+export async function updateAllReferences(){
+    const contents = await db.content.findMany({
+        select: {
+            id: true,
+            compressedText: true,
+            entityReferences: {
+                select: {
+                    id: true
+                }
+            }
+        },
+        where: {
+            type: {
+                not: "UndoEntityContent"
+            }
+        }
+    })
+    for(let i = 0; i < contents.length; i++){
+        const c = contents[i]
+        const text = decompress(c.compressedText)
+        console.log("updating references for", i, contents[i].id)
+        const ref = await findReferences(text)
+        await db.content.update({
+            data: {
+                entityReferences: {
+                    connect: ref
+                }
+            },
+            where: {
+                id: c.id
+            }
+        })
+    }
+    revalidateTag("content")
 }
