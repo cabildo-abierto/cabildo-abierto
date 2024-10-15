@@ -6,11 +6,11 @@ import { DateSince } from "./date"
 import { CommentNotification, FollowNotification, MentionNotification, ReactionNotification } from "./notification-components"
 import { markNotificationViewed } from "../actions/contents"
 import { useSWRConfig } from "swr"
+import Link from "next/link"
 
 
 
 export const NotificationComponent = ({notification}: {notification: NotificationProps}) => {
-    const user = useUser()
     const {mutate} = useSWRConfig()
 
     useEffect(() => {
@@ -21,14 +21,16 @@ export const NotificationComponent = ({notification}: {notification: Notificatio
     }, [])
     
     let content = null
-    if(notification.type == "Comment"){
+    if(notification.type == "Comment" || notification.type == "CommentToComment"){
         content = <CommentNotification notification={notification}/>
     } else if(notification.type == "Reaction"){
         content = <ReactionNotification notification={notification}/>
     } else if(notification.type == "Follow"){
         content = <FollowNotification notification={notification}/>
-    } else if(notification.type == "Mention"){
+    } else if(notification.type == "Mention" || notification.type == "EditMention"){
         content = <MentionNotification notification={notification}/>
+    } else {
+        content = <>Error n01. Si podés, avisale al <Link href="/soporte">soporte</Link>.</>
     }
 
     const className = "content-container flex flex-col space-y-2 p-2 " + (notification.viewed ? "" : "bg-[var(--secondary-light)]")

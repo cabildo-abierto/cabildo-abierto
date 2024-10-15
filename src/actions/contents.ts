@@ -105,7 +105,8 @@ export async function getContentByIdNoCache(id: string, userId?: string){
             reportsVandalism: true,
             ancestorContent: {
                 select: {
-                    id: true
+                    id: true,
+                    authorId: true
                 }
             },
             childrenContents: {
@@ -173,12 +174,12 @@ export const getContentFakeNewsCount = (contentId: string) => {
 }
 
 
-export async function notifyMentions(mentions: {id: string}[], contentId: string, userById: string){
+export async function notifyMentions(mentions: {id: string}[], contentId: string, userById: string, isEdit: boolean = false){
     for(let i = 0; i < mentions.length; i++){
         await createNotification(
             userById,
             mentions[i].id,
-            "Mention",
+            (isEdit ? "EditMention" : "Mention"),
             contentId
         )
     }
@@ -219,7 +220,27 @@ export async function createComment(compressedText: string, parentContentId: str
             compressedPlainText: compress(plainText)
         },
     })
+    notifyMentions(mentions, comment.id, userId)
 
+    let ancestorAuthors = new Set<string>()
+
+    for(let i = 0; i < parentContent.ancestorContent.length; i++){
+        ancestorAuthors.add(parentContent.ancestorContent[i].authorId)
+    }
+    ancestorAuthors.delete(parentContent.author.id)
+    ancestorAuthors.delete(userId)
+
+    const ancestorAuthorsArray = Array.from(ancestorAuthors)
+
+    for(let i = 0; i < ancestorAuthorsArray.length; i++){
+        await createNotification(
+            userId,
+            ancestorAuthorsArray[i],
+            "CommentToComment",
+            comment.id,
+            undefined
+        )
+    }
     if(parentContent.author.id != userId){
         await createNotification(
             userId,
@@ -228,7 +249,6 @@ export async function createComment(compressedText: string, parentContentId: str
             comment.id,
             undefined
         )
-        await notifyMentions(mentions, comment.id, userId)
     }
     revalidateTag("repliesFeed:"+userId)
     revalidateTag("content:"+parentContentId)
@@ -355,6 +375,7 @@ export async function createPost(compressedText: string, postType: ContentType, 
             }
         },
     })
+    notifyMentions(mentions, result.id, userId)
 
     revalidateTag("feed")
     revalidateTag("followingFeed")
@@ -374,6 +395,7 @@ export async function updateContent(compressedText: string, contentId: string, t
     const text = decompress(compressedText)
     let references = await findReferences(text)
     const mentions = await findMentions(text)
+    const userId = await getUserId()
 
     const currentContent = await getContentById(contentId)
 
@@ -399,6 +421,8 @@ export async function updateContent(compressedText: string, contentId: string, t
         }
     })
 
+    notifyMentions(mentions, contentId, userId, true)
+    
     revalidateTag("content:"+contentId)
     return result
 }
@@ -433,6 +457,7 @@ export async function publishDraft(compressedText: string, contentId: string, us
             numNodes: numNodes,
         }
     })
+    notifyMentions(mentions, contentId, userId)
     revalidateTag("content:"+contentId)
     revalidateTag("feed")
     revalidateTag("followingFeed")
@@ -690,7 +715,24 @@ export async function getLastKNotifications(k: number){
             select: {
                 id: true,
                 viewed: true,
-                contentId: true,
+                content: {
+                    select: {
+                        id: true,
+                        parentContents: {
+                            select: {
+                                id: true,
+                                authorId: true,
+                                type: true,
+                                contribution: true,
+                                parentEntityId: true
+                            }
+                        },
+                        authorId: true,
+                        type: true,
+                        contribution: true,
+                        parentEntityId: true
+                    }
+                },
                 reactionId: true,
                 userById: true,
                 userNotifiedId: true,

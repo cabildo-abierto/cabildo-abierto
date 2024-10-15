@@ -2,7 +2,6 @@
 import { CommentSection, EntityCommentSection } from "./comment-section"
 import { useEffect, useState } from "react"
 import { preload, useSWRConfig } from "swr"
-import useSWRMutation from 'swr/mutation'
 import LoadingSpinner from "./loading-spinner"
 import ContentComponent from "./content"
 import CommentEditor from "./editor/comment-editor"

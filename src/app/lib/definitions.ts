@@ -35,7 +35,7 @@ export type ContentProps = {
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
 
     rootContentId: string
-    ancestorContent?: {id: string}[]
+    ancestorContent?: {id: string, authorId: string}[]
 
     currentVersionOf?: {id: string} | null
 
@@ -260,7 +260,20 @@ export type SmallContentProps = {
 
 export type NotificationProps = {
     id: string
-    contentId?: string
+    content: {
+        id: string,
+        authorId: string,
+        type: string,
+        contribution: string,
+        parentEntityId: string
+        parentContents: {
+            id: string
+            authorId: string,
+            type: string,
+            contribution: string,
+            parentEntityId: string
+        }[]
+    }
     reactionId?: string
     createdAt: string | Date
     userById: string
