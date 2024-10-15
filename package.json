@@ -49,6 +49,8 @@
     "jose": "^5.6.3",
     "lexical": "0.17.0",
     "lexical-beautiful-mentions": "0.1.38",
+    "loadash": "^1.0.0",
+    "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "material-symbols": "^0.21.2",
     "mercadopago": "^2.0.15",

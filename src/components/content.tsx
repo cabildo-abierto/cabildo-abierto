@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ReactNode, useEffect, useRef, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 
@@ -16,14 +16,14 @@ import { ContentOptionsButton } from "./content-options-button";
 import { FakeNewsCounter } from "./fake-news-counter";
 import { CommentInContext } from "./comment-in-context";
 import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
-import { addView, addViewToEntityContent, takeAuthorship } from "../actions/contents";
+import { addView, addViewToEntityContent, recordBatchViews, takeAuthorship } from "../actions/contents";
 import { useUser } from "../app/hooks/user";
 import { ContentProps } from "../app/lib/definitions";
 import EntityComponent from "./entity-component";
 import { UndoDiscussionContent } from "./undo-discussion";
 import { logVisit } from "../actions/users";
 import { NoVisitsAvailablePopup } from "./no-visits-popup";
-
+import { debounce } from 'lodash'; // You may need to install this if not installed
 
 export function id2url(id: string){
     return "/perfil/" + id.replace("@", "")
@@ -193,109 +193,160 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     onViewComments,
     viewingComments,
     onStartReply,
-    isMainPage=false,
-    showingChanges=false,
-    showingAuthors=false,
-    editing=false,
+    isMainPage = false,
+    showingChanges = false,
+    showingAuthors = false,
+    editing = false,
     setEditing,
     parentContentId,
     inCommentSection,
     depthParity,
 }) => {
-    const {user} = useUser()
+    const { user } = useUser();
     const viewRecordedRef = useRef(false);
-    const [validVisit, setValidVisit] = useState(true)
-    
-    const requiresMainPage = content.type == "Post" || content.type == "EntityContent"
+    const viewsToRecordRef = useRef([]);
+    const [validVisit, setValidVisit] = useState(true);
+    const contentRef = useRef(null); // For Intersection Observer
+    const requiresMainPage = content.type === 'Post' || content.type === 'EntityContent';
 
+    
+    const useVisibility = (ref) => {
+        const [isVisible, setIsVisible] = useState(false);
+
+        useEffect(() => {
+            const observer = new IntersectionObserver(([entry]) => {
+                setIsVisible(entry.isIntersecting);
+            });
+            if (ref.current) observer.observe(ref.current);
+
+            return () => {
+                if (ref.current) observer.unobserve(ref.current);
+            };
+        }, [ref]);
+
+        return isVisible;
+    };
+
+    const isVisible = useVisibility(contentRef);
+
+    // Batch the recording of views
+    const batchRecordViews = useCallback(debounce(async () => {
+        if (viewsToRecordRef.current.length > 0) {
+            const views = [...viewsToRecordRef.current];
+            viewsToRecordRef.current = [];
+            await recordBatchViews(views); // Call your API with the batched views
+        }
+    }, 2000), []);
+
+    // Record view function
+    const recordView = (contentId, userId, parentEntityId = null, contentType) => {
+        viewsToRecordRef.current.push({ contentId, userId, parentEntityId, contentType });
+    };
+
+    // Trigger view recording when content is visible and valid
     useEffect(() => {
-        const recordView = async () => {
-            if (user && !viewRecordedRef.current && content) {
-                if(requiresMainPage && isMainPage || !requiresMainPage){
-                    viewRecordedRef.current = true;
-                    if(content.type == "EntityContent"){
-                        await addViewToEntityContent(content.id, user.id, content.parentEntityId)
-                    } else {
-                        await addView(content.id, user.id)
-                    }
-                }
+        if (isVisible && user && !viewRecordedRef.current && content) {
+            if (requiresMainPage && isMainPage || !requiresMainPage) {
+                viewRecordedRef.current = true; // Mark that the view has been recorded
+                recordView(content.id, user.id, content.parentEntityId, content.type);
             }
-        };
-        recordView();
-    }, [user, content.id, content]);
+        }
+    }, [isVisible, user, content]);
 
+    // Batch the views every 2 seconds
     useEffect(() => {
-        async function checkVisit(){
-            if(!isPublic(content, isMainPage) && !user){
-                const noAccountUser = await logVisit(content.id)
-    
-                const visits = visitsThisMonth(noAccountUser.visits)
-                if(visits >= monthly_visits_limit){
-                    setValidVisit(false)
+        const intervalId = setInterval(batchRecordViews, 2000); // Send batched views every 2 seconds
+        return () => clearInterval(intervalId); // Cleanup interval on unmount
+    }, [batchRecordViews]);
+
+    // Check visit count and valid visit status
+    useEffect(() => {
+        async function checkVisit() {
+            if (!isPublic(content, isMainPage) && !user) {
+                const noAccountUser = await logVisit(content.id);
+                const visits = visitsThisMonth(noAccountUser.visits);
+                if (visits >= monthly_visits_limit) {
+                    setValidVisit(false);
                 }
             }
         }
-        
-        checkVisit()
-    }, [user, content])
+        checkVisit();
+    }, [user, content]);
 
-    let element = null
-    if(content.type == "Post" && isMainPage){
-        element = <Post content={content}
-        />
-    } else if(content.type == "EntityContent"){
-        element = <EntityComponent
-            setEditing={setEditing}
-            content={content}
-            entityId={content.parentEntityId}
-            showingChanges={showingChanges}
-            editing={editing}
-            showingAuthors={showingAuthors}
-            isMainPage={isMainPage}
-            parentContentId={parentContentId}
-        />
-    } else if(content.type == "Post"){
-        element = <PostOnFeed
-        content={content}
-        onViewComments={onViewComments}
-        viewingComments={viewingComments}
-        />
-    } else if(content.type == "FastPost"){
-        element = <FastPost 
-            content={content}
-            viewingComments={viewingComments}
-            onViewComments={onViewComments}
-            onStartReply={onStartReply}
-            depthParity={depthParity}
+    // Component rendering logic
+    let element = null;
+    if (content.type === 'Post' && isMainPage) {
+        element = <Post content={content} />;
+    } else if (content.type === 'EntityContent') {
+        element = (
+            <EntityComponent
+                setEditing={setEditing}
+                content={content}
+                entityId={content.parentEntityId}
+                showingChanges={showingChanges}
+                editing={editing}
+                showingAuthors={showingAuthors}
+                isMainPage={isMainPage}
+                parentContentId={parentContentId}
             />
-    } else if(content.type == "Comment" || content.type == "FakeNewsReport"){
-        element = <CommentInContext
-            content={content}
-            viewingComments={viewingComments}
-            onViewComments={onViewComments}
-            onStartReply={onStartReply}
-            inCommentSection={inCommentSection}
-            isFakeNewsReport={content.type == "FakeNewsReport"}
-            depthParity={depthParity}
-        /> 
-    } else if(content.type == "UndoEntityContent"){
-        element = <UndoDiscussionContent
-            content={content}
-            onStartReply={onStartReply}
-            onViewComments={onViewComments}
-            viewingComments={viewingComments}
-        />
+        );
+    } else if (content.type === 'Post') {
+        element = (
+            <PostOnFeed
+                content={content}
+                onViewComments={onViewComments}
+                viewingComments={viewingComments}
+            />
+        );
+    } else if (content.type === 'FastPost') {
+        element = (
+            <FastPost
+                content={content}
+                viewingComments={viewingComments}
+                onViewComments={onViewComments}
+                onStartReply={onStartReply}
+                depthParity={depthParity}
+            />
+        );
+    } else if (content.type === 'Comment' || content.type === 'FakeNewsReport') {
+        element = (
+            <CommentInContext
+                content={content}
+                viewingComments={viewingComments}
+                onViewComments={onViewComments}
+                onStartReply={onStartReply}
+                inCommentSection={inCommentSection}
+                isFakeNewsReport={content.type === 'FakeNewsReport'}
+                depthParity={depthParity}
+            />
+        );
+    } else if (content.type === 'UndoEntityContent') {
+        element = (
+            <UndoDiscussionContent
+                content={content}
+                onStartReply={onStartReply}
+                onViewComments={onViewComments}
+                viewingComments={viewingComments}
+            />
+        );
     }
-    return <>
-        {(user && user.id == "soporte" && user.id != content.author.id) && <button
-            className="border mx-1 text-xs hover:bg-[var(--secondary-light)]"
-            onClick={async () => {await takeAuthorship(content.id)}}
-        >
-            Tomar autoría
-        </button>}
-        {!validVisit && <NoVisitsAvailablePopup/>}
-        {element}
-    </>
+
+    return (
+        <>
+            {(user && user.id === 'soporte' && user.id !== content.author.id) && (
+                <button
+                    className="border mx-1 text-xs hover:bg-[var(--secondary-light)]"
+                    onClick={async () => {
+                        await takeAuthorship(content.id);
+                    }}
+                >
+                    Tomar autoría
+                </button>
+            )}
+            {!validVisit && <NoVisitsAvailablePopup />}
+            <div ref={contentRef}>{element}</div>
+        </>
+    );
 };
 
 export default ContentComponent;
