@@ -31,7 +31,8 @@ export const WritePanelMainFeed = () => {
         "¿Qué está pasando?",
         "Compartí tus reflexiones más profundas.",
         "¿Tenés la solución para algún problema?",
-        "¿Cuál creés que es el mayor problema de nuestro país?"
+        "¿Cuál creés que es el mayor problema de nuestro país?",
+        "¿Sabías que este mensaje es distinto cada vez que recargás la página?"
     ];
 
     useEffect(() => {

@@ -52,15 +52,10 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
 
     return <div className="w-full">
         {(!user.user || user.user._count.views == 0) && searchValue.length == 0 && !closedIntroPopup && <div className="flex justify-center mt-2">
-            <div className="bg-[var(--secondary-light)] rounded content-container p-2 text-sm flex flex-col">
-                <div className="py-2 text-center title">
-                    Introducción a Cabildo Abierto
-                </div>
-                <div className="flex space-x-2 justify-center">
-                    <Link className="gray-btn title" href="/articulo?i=Cabildo_Abierto">
-                        Leer
-                    </Link>
-                </div>
+            <div className="flex justify-center">
+                <Link className="gray-btn" href="/articulo?i=Cabildo_Abierto">
+                    Leer la presentación de Cabildo Abierto
+                </Link>
             </div>
         </div>}
         <MainFeedHeader
