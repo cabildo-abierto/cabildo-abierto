@@ -622,8 +622,8 @@ export async function revalidateUsers(){
 }
 
 export async function revalidateFeed(){
-    revalidateTag("feed")
-    revalidateTag("followingFeed")
+    revalidateTag("routeFeed")
+    revalidateTag("routeFollowingFeed")
     revalidateTag("repliesFeed")
     revalidateTag("editsFeed")
     revalidateTag("profileFeed")

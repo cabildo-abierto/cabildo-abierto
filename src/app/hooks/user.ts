@@ -61,7 +61,7 @@ export function useUsers(): {users: UserProps[], isLoading: boolean, isError: bo
 
 
 export function useChat(fromUserId: string, toUserId: string): {chat: ChatMessage[] | null, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/chat/'+fromUserId+'/'+toUserId, fetcher, { refreshInterval: 1000 })
+    const { data, error, isLoading } = useSWR('/api/chat/'+fromUserId+'/'+toUserId, fetcher, { refreshInterval: 30*60*1000 })
   
     return {
         chat: data,
@@ -72,7 +72,7 @@ export function useChat(fromUserId: string, toUserId: string): {chat: ChatMessag
 
 
 export function useSupportNotRespondedCount(): {count: number, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/support-pending-count', fetcher, { refreshInterval: 1000 })
+    const { data, error, isLoading } = useSWR('/api/support-pending-count', fetcher, { refreshInterval: 5*60*1000 })
   
     return {
         count: data,

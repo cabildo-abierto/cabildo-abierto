@@ -48,7 +48,7 @@ export const WritePanelMainFeed = () => {
             const text = JSON.stringify(editor.getEditorState());
             const compressedText = compress(text);
             await createPost(compressedText, "FastPost", false, user.id, undefined);
-            mutate("/api/feed");
+            mutate("/api/feed/");
             mutate("/api/profile-feed/" + user.id);
             setEditorKey(editorKey + 1);
         }

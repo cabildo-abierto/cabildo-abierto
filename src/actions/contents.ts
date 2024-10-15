@@ -137,7 +137,7 @@ export async function getContentByIdNoCache(id: string, userId?: string){
     return content
 }
 
-export async function getContentById(id: string, userId?: string, useCache: boolean = false): Promise<ContentProps> {
+export async function getContentById(id: string, userId?: string, useCache: boolean = true): Promise<ContentProps> {
     if(!useCache) return await getContentByIdNoCache(id, userId)
     if(!userId) userId = await getUserId()
     return unstable_cache(async () => {
@@ -387,10 +387,10 @@ export async function createPost(compressedText: string, postType: ContentType, 
             }
         },
     })
-    notifyMentions(mentions, result.id, userId)
+    await notifyMentions(mentions, result.id, userId)
 
-    revalidateTag("feed")
-    revalidateTag("followingFeed")
+    revalidateTag("routeFeed")
+    revalidateTag("routeFollowingFeed")
     revalidateTag("profileFeed:"+userId)
     if(postType == "Post")
         revalidateTag("userContents:"+userId)
@@ -471,8 +471,8 @@ export async function publishDraft(compressedText: string, contentId: string, us
     })
     notifyMentions(mentions, contentId, userId)
     revalidateTag("content:"+contentId)
-    revalidateTag("feed")
-    revalidateTag("followingFeed")
+    revalidateTag("routeFeed")
+    revalidateTag("routeFollowingFeed")
     revalidateTag("profileFeed:"+userId)
     revalidateTag("drafts:"+userId)
     return result
@@ -715,6 +715,17 @@ export const addViewToEntityContent = async (id: string, userId: string, entityI
     }
     revalidateTag("content:"+id)
     revalidateTag("entity:"+entityId)
+}
+
+
+export async function recordBatchViews(views){
+    for(let i = 0; i < views.length; i++){
+        if(views[i].contentType == "FastPost"){
+            await addView(views[i].contentId, views[i].userId)
+        } else {
+            await addViewToEntityContent(views[i].contentId, views[i].userId, views[i].parentEntityId)
+        }
+    }
 }
 
 

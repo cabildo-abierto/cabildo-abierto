@@ -5,6 +5,7 @@ import Feed, { LoadingFeedWithData } from "./feed"
 import LoadingSpinner from "./loading-spinner"
 import { useSearch } from "./search-context"
 import { cleanText } from "./utils"
+import { WritePanelMainFeed } from "./write-panel-main-feed"
 
 function popularityScore(content: SmallContentProps){
     const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
@@ -57,6 +58,12 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter}: ConfiguredF
     const recentFeedComponent = <Feed feed={{feed: filteredFeed, isLoading: false, isError: false}} noResultsText={noResultsText}/>
 
     return <>
+        {searchValue.length == 0 && 
+            <div className="mb-2 mt-1">
+            <WritePanelMainFeed
+            />
+            </div>
+        }
         {order == "Populares" && popularityFeedComponent}
         {order == "Recientes" && recentFeedComponent}
     </>

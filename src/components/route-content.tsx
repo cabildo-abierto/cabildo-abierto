@@ -84,12 +84,6 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
                 </div>*/
             }
 
-            {(selected == "General" || selected == "Siguiendo") && searchValue.length == 0 && 
-                <div className="mb-2 mt-1">
-                <WritePanelMainFeed/>
-                </div>
-            }
-
             
             {selected == "General" &&
                 <ConfiguredFeed
