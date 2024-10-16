@@ -13,6 +13,7 @@ import { useUser } from "../../app/hooks/user"
 import { createPost, publishDraft, updateContent } from "../../actions/contents"
 import { compress } from "../compression"
 import { useContent } from "../../app/hooks/contents"
+import { ExtraChars } from "../extra-chars"
 
 type PostEditorProps = {
     initialData?: string,
@@ -137,7 +138,7 @@ const PostEditor = ({
 
 	const PublishButton = ({onClick}: {onClick: (e) => Promise<boolean>}) => {
         return <StateButton
-            onClick={onClick}
+            handleClick={onClick}
             className="gray-btn"
             text1={isPublished ? "Guardar cambios" : "Publicar"}
             text2={isPublished ? "Guardando..." : "Publicando..."}
@@ -147,7 +148,7 @@ const PostEditor = ({
 
     const SaveDraftButton = ({onClick}: {onClick: (e) => Promise<boolean>}) => {
         return <StateButton
-            onClick={onClick}
+            handleClick={onClick}
             className="gray-btn"
             text1="Guardar borrador"
             text2="Guardando..."
@@ -184,9 +185,7 @@ const PostEditor = ({
                 setEditorState={setEditorState}
             />
         </div>
-        {settings.charLimit && settings.charLimit-count < 100 && <div className="flex justify-end text-sm text-[var(--text-light)] mt-2">
-            Caracteres restantes: {settings.charLimit-count}
-        </div>}
+        {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
     </div>
 }
 

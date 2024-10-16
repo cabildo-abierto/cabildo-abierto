@@ -93,6 +93,8 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const {mutate} = useSWRConfig()
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
+    const [errorOnSubmit, setErrorOnSubmit] = useState(false)
+    const [editingSearchkeys, setEditingSearchkeys] = useState(false)
 
     const user = useUser()
     
@@ -113,19 +115,38 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         return <LoadingSpinner/>
     }
 
-    async function saveEdit(claimsAuthorship: boolean, editMsg: string){
+    async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<boolean>{
         if(editor){
-            editor.read(async () => {
+            const result = editor.read(async () => {
+                setErrorOnSubmit(false)
                 if(user.user){
-                    await updateEntity(entity.id, user.user.id, claimsAuthorship, editMsg, compress(JSON.stringify(editor.getEditorState())), content.categories)
+                    const newContent = await updateEntity(
+                        entity.id, 
+                        user.user.id,
+                        claimsAuthorship,
+                        editMsg,
+                        compress(JSON.stringify(editor.getEditorState())),
+                        content.categories
+                    )
                     mutate("/api/entities")
                     mutate("/api/entity/"+entity.id)
                     mutate("/api/contributions/"+entity.id)
-                    setShowingSaveEditPopup(false)
-                    setEditing(false)
+                    if(newContent){
+                        setShowingSaveEditPopup(false)
+                        setEditing(false)
+                        return true
+                    } else {
+                        setErrorOnSubmit(true)
+                        return false
+                    }
+                } else {
+                    setErrorOnSubmit(true)
+                    return false
                 }
             })
+            return result
         }
+        return false
     }
 
     const SaveEditButton = () => {
@@ -133,7 +154,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
             className={articleButtonClassname}
             text1="Guardar edición"
             text2="Guardando..."
-            onClick={async (e) => {setShowingSaveEditPopup(true); return false}}
+            handleClick={async (e) => {setShowingSaveEditPopup(true); return false}}
             disabled={!editorState || !hasChanged(editorState, contentText)}
         />
     }
@@ -155,6 +176,12 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
                 setToggled={setEditingRoutes}
                 text="Editar categorías"
             />
+            {/*<ToggleButton
+                className={articleButtonClassname}
+                toggled={editingSearchkeys}
+                setToggled={setEditingSearchkeys}
+                text="Editar sinónimos"
+            />*/}
             <CancelEditButton/>
             <SaveEditButton/>
         </div>}
@@ -162,8 +189,9 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
             editorState={editorState}
             currentVersion={contentText}
             onSave={saveEdit}
-            onClose={() => {setShowingSaveEditPopup(false)}}
+            onClose={() => {setShowingSaveEditPopup(false); setErrorOnSubmit(false)}}
             entity={entity}
+            errorOnSubmit={errorOnSubmit}
         />}
 
         {editingRoutes &&

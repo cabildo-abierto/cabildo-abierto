@@ -1,23 +1,20 @@
 "use client"
-import React, { useEffect, useState } from "react"
-import { CategoryArticles } from "./category-articles";
-import { CategoryUsers } from "./category-users";
-import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents";
-import { preload } from "swr";
-import { fetcher } from "../app/hooks/utils";
-import { MainFeedHeader } from "./main-feed-header";
-import { ConfiguredFeed } from "./sorted-and-filtered-feed";
-import { useUser } from "../app/hooks/user";
-import { CreateAccountLink } from "./create-account-link";
-import { WritePanelMainFeed } from "./write-panel-main-feed";
-import { useSearch } from "./search-context";
-import { articleUrl } from "./utils";
-import Link from "next/link";
-import { CloseButtonIcon } from "./icons";
-import { addView } from "../actions/contents";
+
+import Link from "next/link"
+import { useState, useEffect } from "react"
+import { CreateAccountLink } from "./create-account-link"
+import { MainFeedHeader } from "./main-feed-header"
+import { useSearch } from "./search-context"
+import { ConfiguredFeed } from "./sorted-and-filtered-feed"
+import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents"
+import { useUser } from "../app/hooks/user"
+import { fetcher } from "../app/hooks/utils"
+import { preload } from "swr"
+import { WritePanelMainFeed } from "./write-panel-main-feed"
+import { TrendingArticles } from "./trending-articles"
 
 
-type RouteContentProps = {
+type MainPageProps = {
     route: string[],
     setRoute: (v: string[]) => void
     paramsSelected?: string
@@ -25,15 +22,16 @@ type RouteContentProps = {
 }
 
 
-export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: RouteContentProps) => {
-    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "General")
+export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: MainPageProps) => {
+    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "En discusión")
     const feed = useRouteFeed(route)
     const followingFeed = useRouteFollowingFeed(route)
-    const [order, setOrder] = useState(selected == "General" ? "Populares" : "Recientes")
+    const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
     const [filter, setFilter] = useState("Todas")
     const user = useUser()
     const {searchValue} = useSearch()
     const [closedIntroPopup, setClosedIntroPopup] = useState(false)
+    const [writingFastPost, setWritingFastPost] = useState(false)
 
     useEffect(() => {
         preload("/api/users", fetcher)
@@ -47,8 +45,13 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
     function onSelection(v: string){
         setSelected(v)
         if(v == "Siguiendo" && order != "Recientes") setOrder("Recientes")
-        if(v == "General" && order != "Populares") setOrder("Populares")
+        if(v == "En discusión" && order != "Populares") setOrder("Populares")
     }
+
+    const noResultsTextFollowing = <div className="text-sm">
+        <div>No se encontró ninguna publicación.</div>
+        <div>Seguí a más personas para encontrar más contenidos en esta sección.</div>
+    </div>
 
     return <div className="w-full">
         {(!user.user || user.user._count.views == 0) && searchValue.length == 0 && !closedIntroPopup && <div className="flex justify-center mt-2">
@@ -58,6 +61,7 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
                 </Link>
             </div>
         </div>}
+        
         <MainFeedHeader
             route={route}
             setRoute={setRoute}
@@ -71,25 +75,26 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
         />
         
         <div className="pt-1">
-
-            {selected == "Artículos públicos" && 
-                <CategoryArticles route={route}/>
-            }
-
-            {/*selected == "General" &&
-                <div className="text-center mt-1 mb-2">
-                    <span className="text-[var(--text-light)] text-sm">
-                        Un muro con lo que está pasando en Cabildo Abierto, sin personalización
-                    </span>
-                </div>*/
-            }
-
             
-            {selected == "General" &&
+            {writingFastPost && searchValue.length == 0 && 
+                <div className="mb-2">
+                <WritePanelMainFeed
+                />
+                </div>
+            }
+
+            {selected == "En discusión" && 
+                <div className="mb-2">
+                <TrendingArticles/>
+                </div>
+            }
+
+            {selected == "En discusión" &&
                 <ConfiguredFeed
                 feed={feed}
                 order={order}
                 filter={filter}
+                setFilter={setFilter}
             />}
 
             {selected == "Siguiendo" &&
@@ -97,14 +102,11 @@ export const RouteContent = ({route, setRoute, paramsSelected, showRoute=true}: 
                 feed={followingFeed}
                 order={order}
                 filter={filter}
-                noResultsText={<div className="text-sm"><div>No se encontró ninguna publicación.</div>
-                    <div>Seguí a más personas para encontrar más contenidos en esta sección.</div>
-                </div>}
+                setFilter={setFilter}
+                noResultsText={noResultsTextFollowing}
             /> : <div className="flex justify-center mt-8"><CreateAccountLink
                 text="Creá una cuenta o iniciá sesión para tener tu muro personal"
             /></div>)}
-
-            {selected == "Usuarios" && <CategoryUsers route={route}/>}
         </div>
     </div>
 }

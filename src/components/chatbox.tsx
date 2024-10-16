@@ -97,7 +97,7 @@ export const Chatbox = ({fromUser, toUser}: {fromUser?: string, toUser: string})
                     <StateButton
                         className="gray-btn h-full"
                         disabled={message.length === 0}
-                        onClick={onClickSend}
+                        handleClick={onClickSend}
                         text1={<SendIcon/>}
                         text2={<SendIcon/>}
                     />

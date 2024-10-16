@@ -43,7 +43,7 @@ export const CreateFakeNewsReportModal = ({ contentId, onClose }: { contentId: s
             </div>
             <div className="py-4">
                 <StateButton
-                    onClick={async () => {
+                    handleClick={async () => {
                         if(user.user && editor){
                             await createFakeNewsReport(
                                 compress(JSON.stringify(editor.getEditorState())),

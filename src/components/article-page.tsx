@@ -23,8 +23,8 @@ import { LoadingScreen } from "./loading-screen";
 import NoEntityPage from "./no-entity-page";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import { useEntity } from "../app/hooks/entities";
-import { EntityLikesAndViewsCounter } from "./entity-likes-and-views-counter";
-
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
 
 const DeletedEntity = () => {
     return <div className="flex justify-center mt-32">Este artículo existía pero fue borrado.</div>
@@ -64,7 +64,6 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
-    const [validVisit, setValidVisit] = useState(true)
 
     useEffect(() => {
         if(entity.entity){
@@ -148,7 +147,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             className={articleButtonClassname}
             text1="Eliminar artículo"
             text2="Eliminando..."
-            onClick={async (e) => {
+            handleClick={async (e) => {
                 if(user.user){
                     await deleteEntity(entityId, user.user.id)
                     mutate("/api/entities")
@@ -165,7 +164,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             className={articleButtonClassname}
             text1="Recalcular contribuciones"
             text2="Recalculando..."
-            onClick={async (e) => {
+            handleClick={async (e) => {
                 await recomputeEntityContributions(entityId)
                 return false
             }}
@@ -177,7 +176,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             className={articleButtonClassname}
             text1="Eliminar historial"
             text2="Eliminando..."
-            onClick={async (e) => {
+            handleClick={async (e) => {
                 if(user.user){
                     await deleteEntityHistory(entityId, false); 
                     mutate("/api/entity/"+entityId)
@@ -194,7 +193,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             className={articleButtonClassname}
             text1="Reiniciar"
             text2="Reiniciando..."
-            onClick={async (e) => {
+            handleClick={async (e) => {
                 if(user.user){
                     await deleteEntityHistory(entityId, true); 
                     mutate("/api/entity/"+entityId)
@@ -210,7 +209,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             className={articleButtonClassname}
             text1="Hacer público"
             text2="Haciendo público..."
-            onClick={async (e) => {
+            handleClick={async (e) => {
                 if(user.user){
                     await makeEntityPublic(entityId, true); 
                     mutate("/api/entity/"+entityId)
@@ -226,7 +225,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             className={articleButtonClassname}
             text1="Hacer privado"
             text2="Haciendo privado..."
-            onClick={async (e) => {
+            handleClick={async (e) => {
                 if(user.user){
                     await makeEntityPublic(entityId, false); 
                     mutate("/api/entity/"+entityId)
@@ -253,6 +252,12 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         />
     }*/
 
+    function onGoToDiscussion() {
+        const targetElement = document.getElementById('discussion-start');
+
+        return smoothScrollTo(targetElement, 300)
+    }
+
     const versions = entity.entity.versions
     const currentIndex = currentVersion(entity.entity)
     if(version == undefined || !inRange(version, versions.length)){
@@ -267,10 +272,19 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
     const center = <div className="bg-[var(--background)] h-full px-2">
         {showingNeedAccountPopup && <NeedAccountToEditPopup 
         onClose={() => {setShowingNeedAccountPopup(false)}}/>}
-        <div className="text-[var(--text-light)] text-sm mt-8 mb-2">Artículo público</div>
-        <h1 className="mb-8">
-            {entity.entity.name}
-        </h1>
+        <div className="flex justify-between items-center">
+            <div className="">
+            <div className="text-[var(--text-light)] text-sm mt-8 mb-2">
+                Artículo público
+            </div>
+            <h1 className="mb-8">
+                {entity.entity.name}
+            </h1>
+            </div>
+            <button className="gray-btn sm:text-base text-sm" onClick={onGoToDiscussion}>
+                Ir a la discusión <ArrowDownwardIcon fontSize="inherit"/>
+            </button>
+        </div>
         <div className="flex justify-between">
             <div className="flex flex-col link">
 
@@ -287,9 +301,6 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
                 }
 
             </div>
-            <EntityLikesAndViewsCounter 
-                contentId={contentId}
-            />
         </div>
         <div className="">
         {!editing && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">

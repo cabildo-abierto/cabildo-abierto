@@ -57,7 +57,7 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, e
             {<TickButton text={oportunismInfo} setTicked={setOportunism} ticked={oportunism} size={20} color="#455dc0" />}
             <div className="mt-4">
                 <StateButton
-                    onClick={async () => {
+                    handleClick={async () => {
                         if(user.user && content){
                             await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
                             mutate("/api/entity/"+entity.id)

@@ -26,12 +26,13 @@ const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: strin
 
 
 export const SaveEditPopup = ({ 
-    editorState, currentVersion, onClose, onSave, entity }: {
+    editorState, currentVersion, onClose, onSave, entity, errorOnSubmit }: {
         editorState: EditorState,
         currentVersion: string
         onClose: () => void
-        onSave: (v: boolean, editMsg: string) => Promise<void>,
+        onSave: (v: boolean, editMsg: string) => Promise<boolean>,
         entity: EntityProps
+        errorOnSubmit: boolean
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useUser()
@@ -92,12 +93,13 @@ export const SaveEditPopup = ({
                         </button>
                         <StateButton
                             className="gray-btn w-48"
-                            onClick={async (e) => {
-                                await onSave(claimsAuthorship, editMsg); return true}}
+                            handleClick={async (e) => {
+                                return await onSave(claimsAuthorship, editMsg)}}
                             text1="Confirmar"
                             text2="Guardando..."
                         />
                     </div>
+                    {errorOnSubmit && <div className="text-center text-red-600 text-sm">Ocurrió un error al guardar los cambios. Intentá nuevamente.</div>}
                 </div>
             </div>
         </>

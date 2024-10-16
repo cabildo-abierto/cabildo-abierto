@@ -20,7 +20,6 @@ export async function createEntity(name: string, userId: string){
     })
     if(exists) return {error: "Ya existe un artículo con ese nombre"}
   
-  
     await db.entity.create({
       data: {
         name: name,
@@ -223,12 +222,14 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
             charsDeleted: charsDeleted
         }
     })
-    notifyMentions(mentions, newContent.id, userId, true)
+    await notifyMentions(mentions, newContent.id, userId, true)
 
     revalidateTag("entity:" + entityId)
     revalidateTag("entities")
     revalidateTag("userContents:"+userId)
     revalidateTag("editsFeed:"+userId)
+
+    return true
 }
 
 
@@ -407,10 +408,14 @@ export const getEntities = unstable_cache(async () => {
                     categories: true,
                     createdAt: true,
                     authorId: true,
-                    _count: {
+                    childrenTree: {
                         select: {
-                            childrenTree: true,
-                            reactions: true
+                            authorId: true
+                        }
+                    },
+                    reactions: {
+                        select: {
+                            userById: true
                         }
                     },
                     numWords: true
@@ -419,10 +424,23 @@ export const getEntities = unstable_cache(async () => {
                     createdAt: "asc"
                 }
             },
-            _count: {
+            referencedBy: {
                 select: {
-                    referencedBy: true,
-                    reactions: true
+                    authorId: true
+                },
+                where: {
+                    isDraft: false
+                }
+            },
+            reactions: {
+                select: {userById: true}
+            },
+            weakReferences: {
+                select: {authorId: true},
+                where: {
+                    isDraft: {
+                        not: true
+                    }
                 }
             },
             currentVersionId: true
@@ -539,6 +557,40 @@ export async function getEntityByIdNoCache(id: string){
                         select: {
                             id: true
                         }
+                    }
+                },
+                where: {
+                    isDraft: {
+                        not: true
+                    }
+                }
+            },
+            weakReferences: {
+                select: {
+                    id: true,
+                    createdAt: true,
+                    type: true,
+                    author: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    },
+                    _count: {
+                        select: {
+                            reactions: true,
+                            childrenTree: true
+                        }
+                    },
+                    currentVersionOf: {
+                        select: {
+                            id: true
+                        }
+                    }
+                },
+                where: {
+                    isDraft: {
+                        not: true // false o null
                     }
                 }
             },
@@ -715,5 +767,28 @@ export async function updateUniqueViewsCount(){
                 id: entities[i].id
             }
         })
+    }
+}
+
+
+export async function updateIsDraft(){
+    const contents = await db.content.findMany({
+        select: {
+            id: true,
+            isDraft: true
+        }
+    })
+    for(let i = 0; i < contents.length; i++){
+        if(contents[i].isDraft == null){
+            console.log("updating", i)
+            await db.content.update({
+                data: {
+                    isDraft: false
+                },
+                where: {
+                    id: contents[i].id
+                }
+            })
+        }
     }
 }

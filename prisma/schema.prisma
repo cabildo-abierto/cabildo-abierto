@@ -166,6 +166,10 @@ model Entity {
   currentVersionId String?     @unique
   currentVersion Content?  @relation("currentVersion", fields: [currentVersionId], references: [id])
 
+  weakReferences  Content[]   @relation("weakReferences")
+
+  searchkeys String[]
+
   @@schema("public")
 }
 
@@ -251,6 +255,8 @@ model Content {
   usersMentioned  User[]    @relation("userMention")
 
   uniqueCommentators Int    @default(0)
+
+  weakReferences  Entity[]   @relation("weakReferences")
 
   @@schema("public")
 }

@@ -206,7 +206,7 @@ export function CommentInputBox({
           Cancelar
         </Button>
         <StateButton
-          onClick={submitComment}
+          handleClick={submitComment}
           disabled={emptyOutput(editor.getEditorState()) || !user.user}
           className="gray-btn w-full ml-1"
           text1="Comentar"

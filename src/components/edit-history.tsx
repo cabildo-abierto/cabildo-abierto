@@ -94,13 +94,13 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
         />}
         <StateButton
             className="hover:scale-105"
-            onClick={confirm}
+            handleClick={confirm}
             text1={<ConfirmEditIcon/>}
             text2={<SmallLoadingSpinner/>}
         />
         <StateButton
             className="hover:scale-105"
-            onClick={reject}
+            handleClick={reject}
             text1={<RejectEditIcon/>}
             text2={<SmallLoadingSpinner/>}
         />
@@ -284,7 +284,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
                         </button>
                         <StateButton
                             className="gray-btn w-48"
-                            onClick={async (e) => {e.preventDefault(); e.stopPropagation(); await onRemove(); onClose(); return true}}
+                            handleClick={async (e) => {e.preventDefault(); e.stopPropagation(); await onRemove(); onClose(); return true}}
                             text1="Confirmar"
                             text2="Removiendo..."
                         />

@@ -21,6 +21,31 @@ import { entityIdToName } from '../../../utils';
 
 const HEADING_WIDTH = 30;
 
+
+export function smoothScrollTo(target, duration = 600) {
+  const start = window.scrollY;
+  const targetPosition = typeof target === 'number' ? target : target.getBoundingClientRect().top + start - 60;
+  const startTime = performance.now();
+
+  function scroll(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.max(Math.min(elapsed / duration, 1), 0); 
+
+      const easing = progress * (2 - progress);
+
+      const stepDestination = start + (targetPosition - start) * easing
+      if(dist(start, targetPosition) > dist(stepDestination, targetPosition)){
+        window.scrollTo(0, stepDestination);
+      }
+
+      if (progress < 1) {
+          requestAnimationFrame(scroll);
+      }
+  }
+
+  requestAnimationFrame(scroll);
+}
+
 function indent(tagName: HeadingTagType) {
   if (tagName === 'h2') {
     return 'heading2';
@@ -67,30 +92,6 @@ function TableOfContentsList({
   function isHeadingBelowTheTopOfThePage(element: HTMLElement): boolean {
     const elementYPosition = element?.getClientRects()[0].y;
     return elementYPosition >= marginAboveEditor + HEADING_WIDTH;
-  }
-
-  function smoothScrollTo(target, duration = 600) {
-    const start = window.scrollY;
-    const targetPosition = typeof target === 'number' ? target : target.getBoundingClientRect().top + start - 60;
-    const startTime = performance.now();
-
-    function scroll(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.max(Math.min(elapsed / duration, 1), 0); 
-
-        const easing = progress * (2 - progress);
-
-        const stepDestination = start + (targetPosition - start) * easing
-        if(dist(start, targetPosition) > dist(stepDestination, targetPosition)){
-          window.scrollTo(0, stepDestination);
-        }
-
-        if (progress < 1) {
-            requestAnimationFrame(scroll);
-        }
-    }
-
-    requestAnimationFrame(scroll);
   }
 
   function scrollToNode(key: NodeKey, currIndex: number) {

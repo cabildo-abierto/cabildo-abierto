@@ -11,6 +11,7 @@ import StateButton from "./state-button";
 import { updateContent } from "../actions/contents";
 import { charCount } from "./utils";
 import { useSWRConfig } from "swr";
+import { ExtraChars } from "./extra-chars";
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClose: () => void}) => {
@@ -42,9 +43,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
                     setEditorState={setEditorState}
                     setEditor={setEditor}
                 />
-                {settings.charLimit && settings.charLimit-count < 100 && <div className="flex justify-end text-sm text-[var(--text-light)] mt-2">
-                    Caracteres restantes: {settings.charLimit-count}
-                </div>}
+                {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
             </div>
 
             <StateButton
@@ -52,7 +51,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
                 text2={"Enviando..."}
                 className="gray-btn my-2 w-64"
                 disabled={!validComment(editorState, settings.charLimit)}
-                onClick={async (e) => {
+                handleClick={async (e) => {
                     await updateContent(compress(JSON.stringify(editorState)), contentId)
                     mutate("/api/content/"+contentId)
                     onClose()
