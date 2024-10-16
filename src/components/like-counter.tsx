@@ -3,7 +3,7 @@
 import React, { ReactNode, useOptimistic, useState } from "react"
 import { ReactionButton } from "./reaction-button";
 import { ActiveLikeIcon, InactiveCommentIcon, InactiveLikeIcon, ViewsIcon } from "./icons";
-import { ContentProps } from "../app/lib/definitions";
+import { ContentProps, EntityProps } from "../app/lib/definitions";
 import { useUser } from "../app/hooks/user";
 import { addLike, removeLike } from "../actions/contents";
 

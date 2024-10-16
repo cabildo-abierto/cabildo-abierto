@@ -9,22 +9,17 @@ import { useRouter } from "next/navigation"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 
+
 export function countUserInteractions(entity: SmallEntityProps){
-    const entityId = "Consejo de la Magistratura"
+    const entityId = "Caso Ciccone"
     if(entity.name == entityId) console.log("Interacciones", entity.name)
     let s = new Set(entity.referencedBy.map((r) => (r.authorId)))
     if(entity.name == entityId) console.log("Referencias", s)
-    for(let i = 0; i < entity.reactions.length; i++){
-        s.add(entity.reactions[i].userById)
-    }
     if(entity.name == entityId) console.log("Reacciones", s)
     for(let i = 0; i < entity.versions.length; i++){
         s.add(entity.versions[i].authorId)
         for(let j = 0; j < entity.versions[i].childrenTree.length; j++){
             s.add(entity.versions[i].childrenTree[j].authorId)
-        }
-        for(let j = 0; j < entity.versions[i].reactions.length; j++){
-            s.add(entity.versions[i].reactions[j].userById)
         }
     }
 
@@ -56,9 +51,10 @@ export const TrendingArticles = () => {
 
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
 
-    return <TrendingArticlesSlider
-        trendingArticles={entitiesWithScore.map((e) => (e.entity))}
-    />
+    return <div>
+        <TrendingArticlesSlider trendingArticles={entitiesWithScore.map((e) => (e.entity))}
+        />
+    </div>
 };
 
 
@@ -80,16 +76,19 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
             const score = popularityScore(e)[0]
             return <button
                 onClick={() => {router.push(articleUrl(e.id))}}
-                className="flex-none w-48 h-24 border rounded text-center p-1 hover:bg-[var(--secondary-light)] flex flex-col sm:text-sm text-sm"
+                className="flex-none w-48 h-24 border rounded text-center p-1 hover:bg-[var(--secondary-light)] sm:text-sm text-sm"
                 key={e.id}
                 onMouseEnter={() => {preload("/api/entity/"+e.id, fetcher)}}
             >
-                <div className="h-14 flex items-center justify-center">
+                <div className="flex items-center justify-center">
                     {e.name}
                 </div>
-                <div className="text-[var(--text-light)] h-8 text-xs sm:text-sm">
+                {false && <div
+                    className="text-[var(--text-light)] h-8 text-xs sm:text-sm"
+                    title="La cantidad de usuarios que interactuó con el artículo público. Incluye menciones, ediciones y comentarios."
+                >
                     {score} {score == 1 ? "usuario" : "usuarios"}
-                </div>
+                </div>}
             </button>
         })}
     </div>
