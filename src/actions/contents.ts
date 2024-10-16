@@ -140,6 +140,7 @@ export async function getContentByIdNoCache(id: string, userId?: string){
 export async function getContentById(id: string, userId?: string, useCache: boolean = true): Promise<ContentProps> {
     if(!useCache) return await getContentByIdNoCache(id, userId)
     if(!userId) userId = await getUserId()
+    if(!userId) userId = "not logged in"
     return unstable_cache(async () => {
         return await getContentByIdNoCache(id, userId)
     }, ["content", id, userId], {

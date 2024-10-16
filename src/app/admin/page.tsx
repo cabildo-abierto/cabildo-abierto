@@ -2,7 +2,7 @@
 
 import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions, deleteUser, updateAllUniqueCommentators, updateAllReferences } from "../../actions/contents"
 import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateNotifications, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
-import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually, computeSubscriptorsByDay } from "../../actions/users"
+import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually, computeSubscriptorsByDay, computeDayViews } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
@@ -87,6 +87,12 @@ export default function Page() {
             </button>
             <button className="gray-btn" onClick={async () => {await computeSubscriptorsByDay(0)}}>
                 Calcular cuentas por día
+            </button>
+            <button className="gray-btn" onClick={async () => {await computeDayViews()}}>
+                Views por día
+            </button>
+            <button className="gray-btn" onClick={async () => {await computeDayViews(true)}}>
+                Views en entidades día
             </button>
         </div>
     </div>
