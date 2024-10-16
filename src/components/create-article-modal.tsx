@@ -37,7 +37,7 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
             <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir a la página del artículo después de crearlo</span>}/>
             <div className="py-4">
                 <StateButton
-                    onClick={async (e) => {
+                    handleClick={async (e) => {
                         if (user.user) {
                             setAlreadyExists(false)
                             const { id, error } = await createEntity(entityName, user.user.id);

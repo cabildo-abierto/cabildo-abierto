@@ -11,10 +11,17 @@ import { DidYouKnow } from "./did-you-know"
 import { useState } from "react"
 import SelectionComponent from "./search-selection-component"
 import { NewPublicArticleButton } from "./new-public-article-button"
+import { countUserInteractions } from "./trending-articles"
+
+
+export function countUserReferences(entity: SmallEntityProps){
+    let s = new Set(entity.referencedBy.map((r) => (r.authorId)))
+    return s.size
+}
 
 
 function popularityScore(entity: SmallEntityProps){
-    return [(entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0), getEntityChildrenCount(entity) + entity.uniqueViewsCount + entity._count.referencedBy + entity._count.reactions]
+    return [(entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0), countUserInteractions(entity)]
 }
 
 

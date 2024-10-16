@@ -94,6 +94,7 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                 id: true,
                 compressedPlainText: true,
                 title: true,
+                type: true,
                 author: {
                     select: {
                         id: true,

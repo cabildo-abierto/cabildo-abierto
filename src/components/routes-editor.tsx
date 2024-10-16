@@ -224,7 +224,7 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
             <StateButton
                 className="small-btn"
                 disabled={areCategoriesEqual(categories, entityCategories) || !validCategories(categories)}
-                onClick={onSubmitCategories}
+                handleClick={onSubmitCategories}
                 text1="Confirmar"
                 text2="Guardando..."
             />

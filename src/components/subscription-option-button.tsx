@@ -43,7 +43,7 @@ const SubscriptionOptionButton: React.FC<any> = ({
     return <StateButton
         className="lg:w-96 w-72 subscription-btn flex flex-col items-center"
         disabled={disabled}
-        onClick={handleClick}
+        handleClick={handleClick}
         text1={text1}
         text2={text1}
     />

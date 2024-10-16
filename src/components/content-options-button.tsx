@@ -8,6 +8,8 @@ import { EditCommentModal } from './edit-comment-modal';
 import { ContentProps } from '../app/lib/definitions';
 import { useRouter } from 'next/navigation';
 import { editContentUrl } from './utils';
+import { useUser } from '../app/hooks/user';
+import { deleteContent } from '../actions/entities';
 
 
 export const ContentOptionsDropdown = ({
@@ -22,6 +24,7 @@ export const ContentOptionsDropdown = ({
     const [isFakeNewsModalOpen, setIsFakeNewsModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const router = useRouter()
+    const user = useUser()
 
     function onReportFake(){
         setIsFakeNewsModalOpen(true)
@@ -39,6 +42,12 @@ export const ContentOptionsDropdown = ({
         onClose()
     }
 
+    async function onDelete(e){
+        e.preventDefault()
+        e.stopPropagation()
+        await deleteContent(content.id)
+    }
+
     return <div className="text-base border rounded bg-[var(--background)] mt-1 p-2">
         {optionsList.includes("reportFake") && 
         <button 
@@ -52,6 +61,12 @@ export const ContentOptionsDropdown = ({
             onClick={onEdit}
         >
             Editar
+        </button>}
+        {user && user.user.editorStatus == "Administrator" && <button
+            className="hover:bg-[var(--secondary-light)] px-2 py-1 rounded"
+            onClick={onDelete}
+        >
+            Eliminar
         </button>}
 
         {isFakeNewsModalOpen && <CreateFakeNewsReportModal contentId={content.id} onClose={() => {setIsFakeNewsModalOpen(false); onClose()}}/>}

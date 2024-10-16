@@ -99,6 +99,7 @@ export type EntityProps = {
     deleted: boolean,
     currentVersionId: string
     uniqueViewsCount: number
+    weakReferences: ReferenceProps[]
 }
 
 
@@ -149,13 +150,15 @@ export type SmallEntityProps = {
         id: string,
         categories: string,
         createdAt: Date | string,
-        authorId: string,
-        _count: {childrenTree: number, reactions: number},
+        authorId: string
         numWords: number
+        childrenTree: {authorId: string}[]
+        reactions: {userById: string}[]
     }[]
-    _count: {referencedBy: number, reactions: number},
+    referencedBy: {authorId: string}[]
+    weakReferences: {authorId: string}[]
     views?: number,
-    reactions?: number,
+    reactions?: {userById: string}[],
     uniqueViewsCount: number
     currentVersionId: string
 }
@@ -264,7 +267,7 @@ export type UserStats = {
 export type SmallContentProps = {
     id: string
     author: {name: string, id: string}
-    type?: ContentType
+    type: ContentType
     compressedPlainText?: string
     title?: string
     createdAt?: string | Date

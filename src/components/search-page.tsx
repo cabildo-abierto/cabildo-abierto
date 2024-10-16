@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from "react";
 import { useSearch } from "./search-context";
-import { RouteContent } from "./route-content";
+import { SearchContent } from "./search-content";
 import { ThreeColumnsLayout } from "./three-columns";
 import { usePathname } from "next/navigation";
 
@@ -12,7 +12,7 @@ export const SearchPage = ({ children }: { children: ReactNode }) => {
     const path = usePathname();
     const [route, setRoute] = useState([]);
 
-    const showSearch = searchValue.length > 0 && !path.includes("/inicio");
+    const showSearch = searchValue.length > 0;
 
     return (
         <>
@@ -37,7 +37,7 @@ export const SearchPage = ({ children }: { children: ReactNode }) => {
                 >
                     <ThreeColumnsLayout
                         center={
-                            <RouteContent
+                            <SearchContent
                                 setRoute={setRoute}
                                 route={route}
                                 showRoute={true}

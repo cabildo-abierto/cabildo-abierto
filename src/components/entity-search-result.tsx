@@ -14,7 +14,7 @@ import { DateSince } from "./date"
 export function getEntityChildrenCount(entity: SmallEntityProps){
     let count = 0
     for(let i = 0; i < entity.versions.length; i++){
-        count += entity.versions[i]._count.childrenTree
+        count += entity.versions[i].childrenTree.length
     }
     return count
 }
@@ -94,7 +94,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
             <div className="flex justify-end">
               {/* TO DO: Debería ser active si le diste like y inactive si no */}
               <FixedCounter
-              count={entity._count.reactions}
+              count={entity.reactions.length}
               icon={<InactivePraiseIcon />}
               title='Cantidad de votos hacia arriba que recibió'
               />
@@ -104,7 +104,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
               title="Cantidad de personas distintas que lo vieron."
               />
               <FixedCounter
-                count={entity._count.referencedBy}
+                count={entity.referencedBy.length}
                 icon={<LinkIcon />}
                 title="Cantidad de veces que fue referenciado."
               />

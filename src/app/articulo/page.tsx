@@ -1,9 +1,5 @@
-import { getEntityById } from "../../actions/entities"
 import { ArticlePage } from "../../components/article-page"
-import { LoadingScreen } from "../../components/loading-screen"
-import NoEntityPage from "../../components/no-entity-page"
-import { currentVersion, entityIdToName, inRange } from "../../components/utils"
-import { useEntity } from "../hooks/entities"
+import { entityIdToName } from "../../components/utils"
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
 

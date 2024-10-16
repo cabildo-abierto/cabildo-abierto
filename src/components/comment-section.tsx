@@ -22,7 +22,8 @@ export function getEntityComments(entity: EntityProps, comments: CommentProps[])
         ids.add(comments[i].id)
         uniqueComments.push(comments[i])
     }
-    return [...uniqueComments, ...entity.referencedBy]
+    console.log("weak", entity.weakReferences)
+    return [...uniqueComments, ...entity.referencedBy, ...entity.weakReferences]
 }
 
 export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
@@ -117,10 +118,13 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         getEntityComments(entity, comments) : 
         comments
 
+    console.log("feed", feed)
+
     if(entity){
         feed = feed.filter((comment) => {
             return comment.type != "EntityContent" || (comment.currentVersionOf && comment.currentVersionOf.id)
         })
+        console.log("feed", feed)
     }
 
     let contentsWithScore = feed.map((comment) => ({comment: comment, score: commentScore(comment)}))
@@ -130,10 +134,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     return <>
         {
         contentsWithScore.length > 0 && 
-        <div className={"space-y-2 pt-1 mb-1"}>
+        <div className={"space-y-2 pt-1 mb-1"} id="comment-section">
             {contentsWithScore.map(({comment}, index) => {
                 const isRef = entity && entity.referencedBy.some((content) => (content.id == comment.id))
-                return <div key={comment.id}>
+                return <div key={comment.id+index}>
                     <ContentWithCommentsFromId
                         contentId={comment.id}
                         isMainPage={false}

@@ -28,6 +28,6 @@ export const SetProtectionButton = ({entity} : any) => {
         text1={"Cambiar protección a " + protectionToName(otherProtection(protection))}
         text2={"Cambiando..."}
         className={articleButtonClassname}
-        onClick={onClick}
+        handleClick={onClick}
     />
 }

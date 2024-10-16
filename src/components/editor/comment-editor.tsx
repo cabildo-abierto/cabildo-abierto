@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic'
 import LoadingSpinner from "../loading-spinner"
 import { SettingsProps } from "./lexical-editor"
 import { useUser } from "../../app/hooks/user"
+import { ExtraChars } from "../extra-chars"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
@@ -78,7 +79,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
 	const SendCommentButton = ({onClick}: {onClick: (e: any) => Promise<boolean>}) => {
 
         return <StateButton
-            onClick={onClick}
+            handleClick={onClick}
             className="small-btn"
             text1="Enviar"
             text2="Enviando..."
@@ -94,12 +95,11 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     return <div className="content-container p-1">
         <div className="ml-3 mr-2 mt-2">
             <MyLexicalEditor
-            settings={settings}
-            setEditor={setEditor}
-            setEditorState={setEditorState}/>
-            {settings.charLimit && settings.charLimit-count < 100 && <div className="flex justify-end text-sm text-[var(--text-light)] mt-2">
-                Caracteres restantes: {settings.charLimit-count}
-            </div>}
+                settings={settings}
+                setEditor={setEditor}
+                setEditorState={setEditorState}
+            />
+            {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
         </div>
         <div className="flex justify-end">
 			<div className="flex justify-end mt-3">

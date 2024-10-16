@@ -1,7 +1,7 @@
 "use client"
 
-import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions, deleteUser, updateAllUniqueCommentators, updateAllReferences } from "../../actions/contents"
-import { recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateNotifications, revalidateUsers, updateUniqueViewsCount } from "../../actions/entities"
+import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions, deleteUser, updateAllUniqueCommentators, updateAllReferences, updateAllWeakReferences } from "../../actions/contents"
+import { deleteEntity, recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateNotifications, revalidateUsers, updateIsDraft, updateUniqueViewsCount } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually, computeSubscriptorsByDay, computeDayViews } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
@@ -17,6 +17,7 @@ export default function Page() {
     }
 
     const userId = "prueba2"
+    const entityId = "Proyecto_de_ley_S984%2F24%3A_Financiamiento_de_la_educaci%C3%B3n_universitaria"
 
     const center = <div className="flex flex-col items-center mt-8">
         <h1>Panel de administrador</h1>
@@ -82,6 +83,9 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await deleteUser(userId)}}>
                 Eliminar usuario {userId}
             </button>
+            <button className="gray-btn" onClick={async () => {await deleteEntity(entityId, "soporte")}}>
+                Eliminar artículo {entityId}
+            </button>
             <button className="gray-btn" onClick={async () => {await computeSubscriptorsByDay(500)}}>
                 Calcular suscriptores por día
             </button>
@@ -93,6 +97,12 @@ export default function Page() {
             </button>
             <button className="gray-btn" onClick={async () => {await computeDayViews(true)}}>
                 Views en entidades día
+            </button>
+            <button className="gray-btn" onClick={async () => {await updateAllWeakReferences()}}>
+                Actualizar weak references
+            </button>
+            <button className="gray-btn" onClick={async () => {await updateIsDraft()}}>
+                Actualizar isDraft
             </button>
         </div>
     </div>

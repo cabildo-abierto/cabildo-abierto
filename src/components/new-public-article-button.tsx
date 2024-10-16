@@ -4,7 +4,6 @@ import { ArticleIcon } from "./icons";
 import { CreateArticleModal } from "./create-article-modal";
 
 
-
 export const NewPublicArticleButton = ({onClick, className="", textClassName="", infoPanelIconClassName="text-white", showInfoPanel=true, text}: {onClick: () => void, className?: string, textClassName?: string, infoPanelIconClassName?: string, showInfoPanel?: boolean, text?: string}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     
@@ -32,7 +31,7 @@ export const NewPublicArticleButton = ({onClick, className="", textClassName="",
         {showInfoPanel && <InfoPanel
             iconClassName={infoPanelIconClassName}
             className="w-64"
-            text="Un artículo sobre algún tema de interés público. Cualquiera lo puede editar."
+            text="Un artículo con información sobre algún tema. Cualquiera lo puede editar."
         />}
     </button>
     {isModalOpen && <CreateArticleModal onClose={() => setIsModalOpen(false)} />}

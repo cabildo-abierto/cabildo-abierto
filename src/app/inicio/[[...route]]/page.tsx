@@ -1,9 +1,9 @@
 "use client"
 import React, { useEffect, useState } from "react"
-import { RouteContent } from "../../../components/route-content"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
 import { preload } from "swr"
 import { fetcher } from "../../hooks/utils"
+import { MainPage } from "../../../components/main-page"
 
 
 const TopicsPage: React.FC<{
@@ -23,7 +23,7 @@ const TopicsPage: React.FC<{
 
     const [route, setRoute] = useState(decodedRoute)
 
-    const center = <RouteContent
+    const center = <MainPage
         route={route}
         setRoute={setRoute}
     />

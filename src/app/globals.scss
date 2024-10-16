@@ -15,6 +15,7 @@ $accent: #8790b0;
   --secondary: #{$secondary};
   --accent: #{$accent};
   --background-dark: #{darken($background, 20%)};
+  --background-transparent: rgba(red($background), green($background), blue($background), 0.8);
   --primary-dark: #{darken($primary, 20%)};
   --secondary-slight: #{lighten($secondary, 17%)};
   --secondary-light: #{lighten($secondary, 20%)};
@@ -802,4 +803,13 @@ th {
 
 .h-screen-minus-topbar {
 	height: calc(100vh - 3rem - 1px)
+}
+
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+  }
+  
+  /* For Firefox */
+  .no-scrollbar {
+	scrollbar-width: none;
 }

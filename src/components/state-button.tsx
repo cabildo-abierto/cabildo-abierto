@@ -3,7 +3,7 @@
 import { ReactNode, useState } from "react"
 
 type StateButtonProps = {
-    onClick: (e?: any) => Promise<boolean>
+    handleClick: (e?: any) => Promise<boolean>
     className: string
     text1: ReactNode
     text2?: ReactNode
@@ -11,7 +11,7 @@ type StateButtonProps = {
 }
 
 const StateButton: React.FC<StateButtonProps> = ({
-    onClick,
+    handleClick,
     className,
     text1,
     text2,
@@ -19,11 +19,11 @@ const StateButton: React.FC<StateButtonProps> = ({
 }) => {
     const [submitting, setSubmitting] = useState(false)
 
-    const handleClick = async (e) => {
+    const clickHandle = async (e) => {
         e.stopPropagation()
         e.preventDefault()
         setSubmitting(true)
-        const stopResubmit = await onClick(e)
+        const stopResubmit = await handleClick(e)
         if(!stopResubmit){
             setSubmitting(false)
         }
@@ -31,7 +31,7 @@ const StateButton: React.FC<StateButtonProps> = ({
 
     return <button 
         className={className}
-        onClick={handleClick}
+        onClick={clickHandle}
         disabled={submitting || disabled}
     >
         {!submitting ? text1 : (text2 !== null ? text2 : text1)}

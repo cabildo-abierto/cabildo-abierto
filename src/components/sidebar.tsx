@@ -52,7 +52,7 @@ const SidebarUsername = ({user, onLogout}: {user: UserProps, onLogout: () => Pro
         <div className="py-4">
             <StateButton
                 className="gray-btn"
-                onClick={onLogout}
+                handleClick={onLogout}
                 text1="Cerrar sesión"
                 text2="Cerrando sesión"
             />

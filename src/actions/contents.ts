@@ -7,7 +7,7 @@ import { revalidateEverythingTime } from "./utils";
 import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
 import { getUser, getUserId, getUsers } from "./users";
-import { getPlainText } from "../components/utils";
+import { cleanText, getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
 
 
@@ -221,7 +221,7 @@ export async function createComment(compressedText: string, parentContentId: str
             compressedPlainText: compress(plainText)
         },
     })
-    notifyMentions(mentions, comment.id, userId)
+    await notifyMentions(mentions, comment.id, userId)
 
     let ancestorAuthors = new Set<string>()
 
@@ -434,7 +434,7 @@ export async function updateContent(compressedText: string, contentId: string, t
         }
     })
 
-    notifyMentions(mentions, contentId, userId, true)
+    await notifyMentions(mentions, contentId, userId, true)
     
     revalidateTag("content:"+contentId)
     return result
@@ -470,7 +470,7 @@ export async function publishDraft(compressedText: string, contentId: string, us
             numNodes: numNodes,
         }
     })
-    notifyMentions(mentions, contentId, userId)
+    await notifyMentions(mentions, contentId, userId)
     revalidateTag("content:"+contentId)
     revalidateTag("routeFeed")
     revalidateTag("routeFollowingFeed")
@@ -1027,7 +1027,6 @@ export async function notifyAllMentions(){
                         "Mention",
                         contents[i].id
                     )
-                    console.log("notificando a", mentions[j].id, "por", contents[i].id, "escrito por", contents[i].authorId)
                 }
             }
         }
@@ -1159,4 +1158,61 @@ export async function updateAllReferences(){
         })
     }
     revalidateTag("content")
+}
+
+
+function findWeakReferences(text: string, searchkeys: {id: string, keys: string[]}[]){
+    let ids = []
+    const cleaned = cleanText(text)
+    for(let i = 0; i < searchkeys.length; i++){
+        for(let j = 0; j < searchkeys[i].keys.length; j++){
+            if(cleaned.includes(cleanText(searchkeys[i].keys[j]))){
+                ids.push({id: searchkeys[i].id})
+                break
+            }
+        }
+    }
+    return ids
+}
+
+
+export async function updateAllWeakReferences(){
+    const contents = await db.content.findMany({
+        select: {
+            id: true,
+            compressedPlainText: true
+        },
+        where: {
+            AND: [{isDraft: false}, {visible: true}]
+        }
+    })
+    const entities = await db.entity.findMany({
+        select: {
+            id: true,
+            name: true,
+            searchkeys: true
+        }
+    })
+    let searchkeys = []
+    for(let i = 0; i < entities.length; i++){
+        let keys = [...entities[i].searchkeys, entities[i].name]
+        searchkeys.push({id: entities[i].id, keys: keys})
+    }
+    for(let i = 0; i < contents.length; i++){
+        const text = decompress(contents[i].compressedPlainText)
+        const weakReferences = findWeakReferences(text, searchkeys)
+        console.log("Content", i)
+        console.log("Text", text.slice(0, 300))
+        console.log("weak references", weakReferences)
+        await db.content.update({
+            data: {
+                weakReferences: {
+                    connect: weakReferences
+                }
+            },
+            where: {
+                id: contents[i].id
+            }
+        })
+    }
 }

@@ -9,7 +9,7 @@ import { ContentTopRow } from "./content";
 import { useEntity } from "../app/hooks/entities";
 import { useContent } from "../app/hooks/contents";
 import { ContentProps, EntityProps } from "../app/lib/definitions";
-import { articleUrl, getVersionInEntity } from "./utils";
+import { articleUrl, cleanText, entityIdToName, getPlainText, getVersionInEntity } from "./utils";
 import { decompress } from "./compression";
 
 
@@ -78,7 +78,15 @@ function findMentionNode(node: any, id: string){
             return node
     }
 
-    if(!node.children) return null
+    if(!node.children) {
+        const text = cleanText(getAllText(node))
+        const name = cleanText(entityIdToName(id))
+        if(text.includes(name)){
+            return node
+        } else {
+            return null
+        }
+    }
     for(let i = 0; i < node.children.length; i++){
         const found = findMentionNode(node.children[i], id)
         if(found) return found
@@ -87,6 +95,9 @@ function findMentionNode(node: any, id: string){
 
 
 function findMentionAncestors(node: any, id: string){
+    if(!node.children){
+        return [node]
+    }
     for(let i = 0; i < node.children.length; i++){
         const mentionNode = findMentionNode(node.children[i], id)
         if(mentionNode){

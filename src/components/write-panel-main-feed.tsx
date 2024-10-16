@@ -11,6 +11,7 @@ import { mutate } from "swr";
 import { createPost } from "../actions/contents";
 import { compress } from "./compression";
 import { charCount, emptyOutput, validPost } from "./utils";
+import { ExtraChars } from "./extra-chars";
 
 const MyLexicalEditor = dynamic(() => import('./editor/lexical-editor'), { ssr: false });
 
@@ -69,11 +70,7 @@ export const WritePanelMainFeed = () => {
                     setEditorState={setEditorState}
                     setEditor={setEditor}
                 />
-                {settings.charLimit && settings.charLimit - count < 100 && (
-                    <div className="flex justify-end text-sm text-[var(--text-light)] mt-2">
-                        Caracteres restantes: {settings.charLimit - count}
-                    </div>
-                )}
+                {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
             </div>
             <hr className="border-gray-200" />
             <div className="flex justify-between mt-2">
@@ -95,7 +92,7 @@ export const WritePanelMainFeed = () => {
                 <StateButton
                     text1="Publicar"
                     text2="Enviando..."
-                    onClick={handleSubmit}
+                    handleClick={handleSubmit}
                     disabled={disabled}
                     className="gray-btn title text-sm"
                 />

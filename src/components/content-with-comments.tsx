@@ -75,7 +75,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     }
     
     const className = "w-full " + (depthParity ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]") +
-        (isMainPage ? "" : " content-container")
+        (isMainPage ? "" : " content-container rounded")
 
     const depthParityComments = ["Post", "EntityContent"].includes(content.type) ? false : !depthParity
 
@@ -94,7 +94,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             inCommentSection={inCommentSection}
             depthParity={depthParity}
         />
-        {isMainPage && ["Post", "EntityContent"].includes(content.type) && <hr className="mt-12 mb-2"/>}
+        {isMainPage && ["Post", "EntityContent"].includes(content.type) && <hr className="mt-12 mb-2" id="discussion-start"/>}
         <div className={isMainPage ? "" : "ml-2 mr-1"}>
             {writingReply && <div className={"mb-1 " + (depthParityComments ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]")}>
                 {startsOpen ? <CommentEditor
