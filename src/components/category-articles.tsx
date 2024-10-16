@@ -1,4 +1,4 @@
-import { EntitySearchResult, getEntityChildrenCount } from "./entity-search-result"
+import { EntitySearchResult } from "./entity-search-result"
 import { useSearch } from "./search-context"
 import { NoResults } from "./category-users"
 import { SmallEntityProps } from "../app/lib/definitions"

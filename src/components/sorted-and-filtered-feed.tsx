@@ -81,8 +81,8 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: 
             />
             </div>
         </div>
-        {order == "Populares" && <div className="flex items-center justify-end text-sm text-gray-600">Ordenadas por popularidad. <InfoPanel iconClassName="text-gray-300" text={infoPopular}/></div>}
-        {order == "Recientes" && <div className="flex items-center justify-end text-sm text-gray-600">Ordenadas cronológicamente.</div>}
+        {order == "Populares" && searchValue.length == 0 && <div className="flex items-center justify-end text-sm text-gray-600">Ordenadas por popularidad. <InfoPanel iconClassName="text-gray-300" text={infoPopular}/></div>}
+        {order == "Recientes" && searchValue.length == 0 && <div className="flex items-center justify-end text-sm text-gray-600">Ordenadas cronológicamente.</div>}
         {order == "Populares" && popularityFeedComponent}
         {order == "Recientes" && recentFeedComponent}
     </>
