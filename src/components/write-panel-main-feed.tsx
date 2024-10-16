@@ -23,17 +23,7 @@ export const WritePanelMainFeed = () => {
     const [randomPlaceholder, setRandomPlaceholder] = useState<string>("");
 
     const placeholders = [
-        "Escribí lo primero que se te venga a la cabeza... Y miralo dos veces.",
-        "¿Qué te inspira hoy?",
-        "Contá algo nuevo.",
-        "¿Tenés algún reclamo que quieras compartir?",
-        "¿Necesitás ayuda con algo?",
-        "¿Qué fue tu peor experiencia con la administración pública?",
-        "¿Qué está pasando?",
-        "Compartí tus reflexiones más profundas.",
-        "¿Tenés la solución para algún problema?",
-        "¿Cuál creés que es el mayor problema de nuestro país?",
-        "¿Sabías que este mensaje es distinto cada vez que recargás la página?"
+        "Escribí lo primero que se te venga a la cabeza... Y por las dudas miralo dos veces.",
     ];
 
     useEffect(() => {

@@ -65,24 +65,37 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: 
 
     const infoPopular = "Se suman los votos hacia arriba y la cantidad de personas que comentaron y se lo divide por la cantidad de vistas."
 
+    function onOnlyPosts(){
+        if(filter != "Publicaciones"){
+            setFilter("Publicaciones")
+        } else {
+            setFilter("Todas")
+        }
+    }
+
+    function onOnlyFastPosts(){
+        if(filter != "Rápidas"){
+            setFilter("Rápidas")
+        } else {
+            setFilter("Todas")
+        }
+    }
+
     return <>
-        <div className="flex justify-center text-sm space-x-1 mb-2 mt-3">
-            <div className="w-1/2 border-r rounded border-t border-b border-l">
-            <SelectionComponent
-                className="filter-feed"
-                onSelection={setFilter}
-                selected={filter}
-                options={["Todas", "Rápidas", "Publicaciones"]}
-                optionsNodes={[
-                <div className="text-gray-900" key={0}><FastAndPostIcon/></div>,
-                <div className="text-gray-900" key={1}><FastPostIcon/></div>,
-                <div className="text-gray-900" key={2}><PostIcon/></div>]}
-                optionExpl={["Todas las publicaciones", "Solo publicaciones rápidas", "Solo publicaciones con título"]}
-            />
+        <div className="flex justify-between">
+            
+            <div className="flex ml-1 space-x-1 mb-1">
+                <button onClick={onOnlyFastPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] text-xs sm:text-sm text-[var(--text-light)] border " + (filter == "Rápidas" ? "bg-[var(--secondary-slight)]" : "")}>
+                    solo rápidas
+                </button>
+                <button onClick={onOnlyPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] text-xs sm:text-sm text-[var(--text-light)] border " + (filter == "Publicaciones" ? "bg-[var(--secondary-slight)]" : "")}>
+                    solo publicaciones
+                </button>
             </div>
+
+        {order == "Populares" && searchValue.length == 0 && <div className="flex items-center justify-end text-xs sm:text-sm text-gray-600">Ordenadas por popularidad. <InfoPanel iconClassName="hidden sm:block text-gray-300" text={infoPopular}/></div>}
+        {order == "Recientes" && searchValue.length == 0 && <div className="flex items-center justify-end text-xs sm:text-sm text-gray-600">Ordenadas cronológicamente.</div>}
         </div>
-        {order == "Populares" && searchValue.length == 0 && <div className="flex items-center justify-end text-sm text-gray-600">Ordenadas por popularidad. <InfoPanel iconClassName="text-gray-300" text={infoPopular}/></div>}
-        {order == "Recientes" && searchValue.length == 0 && <div className="flex items-center justify-end text-sm text-gray-600">Ordenadas cronológicamente.</div>}
         {order == "Populares" && popularityFeedComponent}
         {order == "Recientes" && recentFeedComponent}
     </>

@@ -8,6 +8,7 @@ import { useRef } from 'react';
 import { useRouter } from "next/navigation"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
+import InfoPanel from "./info-panel";
 
 
 export function countUserInteractions(entity: SmallEntityProps){
@@ -50,8 +51,13 @@ export const TrendingArticles = () => {
     let entitiesWithScore = entities.entities.map((entity) => ({ entity: entity, score: popularityScore(entity) }));
 
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
+    
+    const text = "Ordenados por cantidad de usuarios que interactuaron. Incluye menciones, comentarios y ediciones."
 
-    return <div>
+    return <div className="">
+        <div className="text-[var(--text-light)] text-xs sm:text-sm flex justify-end mb-1">
+            Artículos públicos en discusión. <InfoPanel iconClassName="hidden sm:block text-gray-300" text={text}/>
+        </div>
         <TrendingArticlesSlider trendingArticles={entitiesWithScore.map((e) => (e.entity))}
         />
     </div>
@@ -67,7 +73,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
 
     return (
     <div
-        className="flex space-x-3 overflow-x-scroll no-scrollbar py-2"
+        className="flex space-x-3 overflow-x-scroll no-scrollbar"
         {...events}
         ref={ref} // add reference and events to the wrapping div
     >
@@ -76,12 +82,12 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
             const score = popularityScore(e)[0]
             return <button
                 onClick={() => {router.push(articleUrl(e.id))}}
-                className="flex-none w-48 h-24 border rounded text-center p-1 hover:bg-[var(--secondary-light)] sm:text-sm text-sm"
+                className="flex-none w-28 sm:w-48 h-24 border rounded text-center p-1 hover:bg-[var(--secondary-slight)] sm:text-sm text-xs"
                 key={e.id}
                 onMouseEnter={() => {preload("/api/entity/"+e.id, fetcher)}}
             >
                 <div className="flex items-center justify-center">
-                    {e.name}
+                    {e.name.slice(0, 64)}{e.name.length > 64 ? "..." : ""}
                 </div>
                 {false && <div
                     className="text-[var(--text-light)] h-8 text-xs sm:text-sm"
