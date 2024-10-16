@@ -61,6 +61,12 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                 </Link>
             </div>
         </div>}
+
+        {searchValue.length == 0 && 
+            <div className="mb-2 mt-2">
+                <WritePanelMainFeed/>
+            </div>
+        }
         
         <MainFeedHeader
             route={route}
@@ -74,17 +80,10 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
             setFilter={setFilter}
         />
         
-        <div className="pt-1">
+        <div className="">
             
-            {writingFastPost && searchValue.length == 0 && 
-                <div className="mb-2">
-                <WritePanelMainFeed
-                />
-                </div>
-            }
-
             {selected == "En discusión" && 
-                <div className="mb-2">
+                <div className="my-4">
                 <TrendingArticles/>
                 </div>
             }
