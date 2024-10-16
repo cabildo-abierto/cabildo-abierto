@@ -8,6 +8,7 @@ import { cleanText } from "./utils"
 import { WritePanelMainFeed } from "./write-panel-main-feed"
 import SelectionComponent from "./search-selection-component"
 import { FastAndPostIcon, FastPostIcon, PostIcon } from "./icons"
+import InfoPanel from "./info-panel"
 
 function popularityScore(content: SmallContentProps){
     const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
@@ -62,6 +63,8 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: 
 
     const recentFeedComponent = <Feed feed={{feed: filteredFeed, isLoading: false, isError: false}} noResultsText={noResultsText}/>
 
+    const infoPopular = "Se suman los votos hacia arriba y la cantidad de personas que comentaron y se lo divide por la cantidad de vistas."
+
     return <>
         <div className="flex justify-center text-sm space-x-1 mb-2 mt-3">
             <div className="w-1/2 border-r rounded border-t border-b border-l">
@@ -78,6 +81,8 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: 
             />
             </div>
         </div>
+        {order == "Populares" && <div className="flex items-center justify-end text-sm text-gray-600">Ordenadas por popularidad. <InfoPanel iconClassName="text-gray-300" text={infoPopular}/></div>}
+        {order == "Recientes" && <div className="flex items-center justify-end text-sm text-gray-600">Ordenadas cronológicamente.</div>}
         {order == "Populares" && popularityFeedComponent}
         {order == "Recientes" && recentFeedComponent}
     </>

@@ -8,7 +8,17 @@ import { listOrder } from "./utils"
 
 
 function commentScore(comment: {type: string, createdAt: Date | string}): number[]{
-    return [-Number(comment.type == "FakeNewsReport"), -new Date(comment.createdAt).getTime()]
+
+    const typeScores = {
+        "FakeNewsReport": -5,
+        "Comment": -4,
+        "Post": -4,
+        "FastPost": -4,
+        "EntityContent": -3
+    }
+
+
+    return [typeScores[comment.type] ? typeScores[comment.type] : 0, -new Date(comment.createdAt).getTime()]
 }
 
 export function getEntityComments(entity: EntityProps, comments: CommentProps[]){
@@ -16,14 +26,19 @@ export function getEntityComments(entity: EntityProps, comments: CommentProps[])
         comments = [...comments, ...entity.versions[i].childrenContents]
     }
     const ids = new Set()
-    const uniqueComments = []
+    let uniqueComments = []
     for(let i = 0; i < comments.length; i++){
         if(ids.has(comments[i].id)) continue
         ids.add(comments[i].id)
         uniqueComments.push(comments[i])
     }
-    console.log("weak", entity.weakReferences)
-    return [...uniqueComments, ...entity.referencedBy, ...entity.weakReferences]
+
+    let references = [...entity.referencedBy, ...entity.weakReferences]
+
+    uniqueComments = uniqueComments.map((c) => ({...c, isReference: false}))
+    references = references.map((ref) => ({...ref, isReference: true}))
+
+    return [...uniqueComments, ...references]
 }
 
 export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
@@ -63,7 +78,7 @@ export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
                         contentId={comment.id}
                         isMainPage={false}
                         parentContentId={content.id}
-                        inCommentSection={true}
+                        inCommentSection={!comment.isReference}
                     />
                 </div>
             ))}
@@ -107,6 +122,7 @@ type CommentSectionElementProps = {
     createdAt: string | Date
     _count: {childrenTree: number}
     currentVersionOf?: {id: string}
+    isReference: boolean
 }
 
 export const CommentSection: React.FC<CommentSectionProps> = ({
@@ -116,15 +132,13 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
     let feed: CommentSectionElementProps[] = entity ? 
         getEntityComments(entity, comments) : 
-        comments
+        comments.map((c) => ({...c, isReference: false}))
 
-    console.log("feed", feed)
 
     if(entity){
         feed = feed.filter((comment) => {
             return comment.type != "EntityContent" || (comment.currentVersionOf && comment.currentVersionOf.id)
         })
-        console.log("feed", feed)
     }
 
     let contentsWithScore = feed.map((comment) => ({comment: comment, score: commentScore(comment)}))
@@ -142,7 +156,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                         contentId={comment.id}
                         isMainPage={false}
                         parentContentId={content.id}
-                        inCommentSection={!isRef}
+                        inCommentSection={!isRef && !comment.isReference}
                         depthParity={depthParity}
                     />
                 </div>

@@ -26,10 +26,6 @@ import { useEntity } from "../app/hooks/entities";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
 
-const DeletedEntity = () => {
-    return <div className="flex justify-center mt-32">Este artículo existía pero fue borrado.</div>
-}
-
 
 const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
     return <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
