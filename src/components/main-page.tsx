@@ -61,12 +61,6 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                 </Link>
             </div>
         </div>}
-
-        {searchValue.length == 0 && 
-            <div className="mb-2 mt-2">
-                <WritePanelMainFeed/>
-            </div>
-        }
         
         <MainFeedHeader
             route={route}
