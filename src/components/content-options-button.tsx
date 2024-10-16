@@ -62,7 +62,7 @@ export const ContentOptionsDropdown = ({
         >
             Editar
         </button>}
-        {user && user.user.editorStatus == "Administrator" && <button
+        {user.user && user.user.editorStatus == "Administrator" && <button
             className="hover:bg-[var(--secondary-light)] px-2 py-1 rounded"
             onClick={onDelete}
         >

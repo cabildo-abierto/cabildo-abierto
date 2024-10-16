@@ -5,9 +5,6 @@ import Feed, { LoadingFeedWithData } from "./feed"
 import LoadingSpinner from "./loading-spinner"
 import { useSearch } from "./search-context"
 import { cleanText } from "./utils"
-import { WritePanelMainFeed } from "./write-panel-main-feed"
-import SelectionComponent from "./search-selection-component"
-import { FastAndPostIcon, FastPostIcon, PostIcon } from "./icons"
 import InfoPanel from "./info-panel"
 
 function popularityScore(content: SmallContentProps){

@@ -13,10 +13,10 @@ import InfoPanel from "./info-panel";
 
 export function countUserInteractions(entity: SmallEntityProps){
     const entityId = "Caso Ciccone"
-    if(entity.name == entityId) console.log("Interacciones", entity.name)
+    //if(entity.name == entityId) console.log("Interacciones", entity.name)
     let s = new Set(entity.referencedBy.map((r) => (r.authorId)))
-    if(entity.name == entityId) console.log("Referencias", s)
-    if(entity.name == entityId) console.log("Reacciones", s)
+    //if(entity.name == entityId) console.log("Referencias", s)
+    //if(entity.name == entityId) console.log("Reacciones", s)
     for(let i = 0; i < entity.versions.length; i++){
         s.add(entity.versions[i].authorId)
         for(let j = 0; j < entity.versions[i].childrenTree.length; j++){
@@ -24,13 +24,13 @@ export function countUserInteractions(entity: SmallEntityProps){
         }
     }
 
-    if(entity.name == entityId) console.log("Versiones", s)
+    //if(entity.name == entityId) console.log("Versiones", s)
     for(let i = 0; i < entity.weakReferences.length; i++){
         s.add(entity.weakReferences[i].authorId)
     }
-    if(entity.name == entityId) console.log("weak refs", s)
+    //if(entity.name == entityId) console.log("weak refs", s)
 
-    if(entity.name == entityId) console.log("Total", entity.name, s.size)
+    //if(entity.name == entityId) console.log("Total", entity.name, s.size)
 
     s.delete("soporte")
     return s.size
