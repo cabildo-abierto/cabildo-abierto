@@ -13,6 +13,7 @@ import { accessToken, contributionsToProportionsMap, isDemonetized, subscription
 import { pathLogo } from "../components/logo";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
+import { isSameDay } from "date-fns";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -1133,4 +1134,41 @@ export async function computeSubscriptorsByDay(minPrice: number) {
     })
 
     console.log("suscripciones vendidas totales", allSubscriptions.length)
+}
+
+
+export async function computeDayViews(entities: boolean = false){
+    let views = await db.view.findMany({
+        select: {
+            createdAt: true,
+            userById: true,
+            contentId: true,
+            entityId: true
+        },
+    })
+    if(entities){
+        views = views.filter((v) => (v.entityId != null))
+    }
+
+    const dayMillis = 24*60*60*1000
+    let day = new Date(new Date().getTime() - dayMillis*7)
+    const tomorrow = new Date(new Date().getTime() + dayMillis)
+    
+    while(day < tomorrow){
+
+        let usersViews = new Map<string, number>()
+        for(let i = 0; i < views.length; i++){
+            if(isSameDay(views[i].createdAt, day)){
+                if(!usersViews.has(views[i].userById)){
+                    usersViews.set(views[i].userById, 1)
+                } else {
+                    usersViews.set(views[i].userById, usersViews.get(views[i].userById)+1)
+                }
+            }
+        }
+
+        console.log(day.getDate(), "/", day.getMonth()+1, "-->", Array.from(usersViews), usersViews.size)
+
+        day.setTime(day.getTime()+dayMillis)
+    }
 }
