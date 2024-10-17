@@ -16,6 +16,7 @@ import Link from "next/link";
 import { CloseButtonIcon } from "./icons";
 import { addView } from "../actions/contents";
 import { SearchHeader } from "./search-header";
+import { TutorialPopup } from "./tutorial-popup";
 
 
 type RouteContentProps = {
@@ -45,14 +46,6 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
     }, [])
 
     return <div className="w-full">
-        {(!user.user || user.user._count.views == 0) && searchValue.length == 0 && !closedIntroPopup && <div className="flex justify-center mt-2">
-            <div className="flex justify-center">
-                <Link className="gray-btn" href="/articulo?i=Cabildo_Abierto">
-                    Leer la presentación de Cabildo Abierto
-                </Link>
-            </div>
-        </div>}
-        
         <SearchHeader
             route={route}
             setRoute={setRoute}
