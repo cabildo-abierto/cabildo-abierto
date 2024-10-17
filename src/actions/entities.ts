@@ -51,13 +51,12 @@ export async function createEntity(name: string, userId: string){
         }
     })
 
-    const t1 = Date.now()
     await updateEntityWeakMentions(entityId)
-    console.log("time updating weak", Date.now()-t1)
 
     revalidateTag("entities")
     revalidateTag("editsFeed:"+userId)
     revalidateTag("entity:"+entityId)
+    
     return {id: entityId}
 }
 

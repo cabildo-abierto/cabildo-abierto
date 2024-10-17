@@ -10,8 +10,7 @@ import { createPortal } from "react-dom"
 export const NotificationsButton = () => {
     const user = useUser()
     const [openNotificationsSidebar, setOpenNotificationsSidebar] = useState(false)
-
-    console.log("open", openNotificationsSidebar)
+    
     return <>
         <button
             onClick={() => {setOpenNotificationsSidebar(true)}}         className="hover:bg-[var(--secondary-light)] rounded-lg">

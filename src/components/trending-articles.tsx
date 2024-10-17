@@ -13,7 +13,7 @@ import SwapVertIcon from '@mui/icons-material/SwapVert';
 
 
 export function countUserInteractions(entity: SmallEntityProps){
-    const entityId = "Caso Ciccone"
+    const entityId = "Universidades Públicas"
     //if(entity.name == entityId) console.log("Interacciones", entity.name)
     let s = new Set(entity.referencedBy.map((r) => (r.authorId)))
     //if(entity.name == entityId) console.log("Referencias", s)
