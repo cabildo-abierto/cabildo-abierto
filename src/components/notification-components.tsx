@@ -67,7 +67,7 @@ export const ReactionNotification = ({notification}: {notification: Notification
 
     const post = <PostDescription content={notification.content}/>
 
-    return <>A <UserMention id={notification.userById}/> le gustó {post}.</>
+    return <>A <UserMention id={notification.userById}/> votó hacia arriba {post}.</>
 }
 
 export const FollowNotification = ({notification}: {notification: NotificationProps}) => {

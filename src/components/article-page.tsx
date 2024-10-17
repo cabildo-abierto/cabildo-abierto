@@ -94,7 +94,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
 
     const EditButton = () => {
         return <ToggleButton
-            text="Editar tema"
+            text="Editar contenido"
             toggledText="Cancelar edición"
             className={"article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--primary-dark)]"}
             setToggled={onEdit}

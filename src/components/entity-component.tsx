@@ -11,6 +11,7 @@ import { useContent } from "../app/hooks/contents";
 import { ContentProps, EntityProps } from "../app/lib/definitions";
 import { articleUrl, cleanText, entityIdToName, getPlainText, getVersionInEntity } from "./utils";
 import { decompress } from "./compression";
+import { contentContextClassName } from "./comment-in-context";
 
 
 type EntityComponentProps = {
@@ -136,18 +137,18 @@ const EntityMentionInCommentSection = ({parentContentId, entity, mentioningConte
     
     const fragment = findFragment(decompress(mentioningContent.content.compressedText), parentContent.content.parentEntityId)
 
-    return <Link className="" href={articleUrl(entity.id)}>
-        <div className="px-2 py-4 w-full flex flex-col hover:bg-[var(--secondary-light)]">
-            <div>
-                Mencionado en <span className="content font-bold">{entity.name}</span>.
-            </div>
+    return <div>
+        <div className={contentContextClassName}>
+            Mención en <Link href={articleUrl(entity.id)} className="content">{entity.name}</Link>.
+        </div>
+        <div className="px-2 py-4 w-full">
             <div className="content">
                 <blockquote>
                     {fragment}
                 </blockquote>
             </div>
         </div>
-    </Link>
+    </div>
 }
 
 
