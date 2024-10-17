@@ -43,6 +43,7 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
             const content = await createPost(compressedText, "FastPost", false, user.id, undefined);
             if(content){
                 mutate("/api/feed/");
+                mutate("/api/following-feed/")
                 mutate("/api/profile-feed/" + user.id);
                 setEditorKey(editorKey + 1);
                 onClose()

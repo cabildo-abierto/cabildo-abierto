@@ -8,6 +8,7 @@ import { FastPostIcon } from './icons';
 import { ContentProps } from '../app/lib/definitions';
 import { decompress } from './compression';
 import { useUser } from '../app/hooks/user';
+import { contentContextClassName } from './comment-in-context';
 
 
 type FastPostProps = {
@@ -16,6 +17,8 @@ type FastPostProps = {
     viewingComments: boolean
     onStartReply: () => void
     depthParity?: boolean
+    inCommentSection: boolean
+    isMainPage: boolean
 }
 
 
@@ -24,6 +27,8 @@ export const FastPost = ({
     onViewComments,
     viewingComments,
     onStartReply,
+    inCommentSection,
+    isMainPage,
     depthParity=false,
 }: FastPostProps) => {
     const icon = <FastPostIcon/>
@@ -38,6 +43,7 @@ export const FastPost = ({
     const optionList = isAuthor ? ["edit"] : ["reportFake"]
 
     return <div className="">
+        <div className={contentContextClassName}><FastPostIcon fontSize="inherit"/> Publicación rápida</div>
         <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews} showFakeNewsCounter={true} optionList={optionList}/>
         <div className="px-2 py-2 content">
             <ReadOnlyEditor initialData={decompress(content.compressedText)}/>
