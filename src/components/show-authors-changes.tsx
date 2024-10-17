@@ -77,7 +77,7 @@ export const ShowArticleAuthors = ({originalContent, originalContentText, entity
 
     return <>
         <div className="text-gray-800 text-sm text-center block lg:hidden content-container p-1">
-            <p>Para ver qué usuario es autor de cada parte de este artículo entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
+            <p>Para ver qué usuario es autor de cada parte de este tema entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
         </div>
         <div className="hidden lg:block">
             <MyLexicalEditor

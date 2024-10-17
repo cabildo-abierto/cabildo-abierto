@@ -28,9 +28,9 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, e
 
     const {mutate} = useSWRConfig()
 
-    const infoPanelVandalism = <span>Si te parece que empeoró la calidad del artículo intencionalmente. La situación va a ser revisada por un administrador.</span>
+    const infoPanelVandalism = <span>Si te parece que empeoró la calidad del contenido intencionalmente.</span>
 
-    const infoPanelOportunism = <span>Si te parece que intentó obtener un rédito económico desproporcionado con respecto a la mejora que representa en el artículo.</span>
+    const infoPanelOportunism = <span>Si te parece que intentó obtener un rédito económico desproporcionado con respecto a la mejora que representa en el contenido.</span>
 
     const vandalismInfo = <span className="text-gray-800 text-sm">Marcar como vandalismo <InfoPanel text={infoPanelVandalism} className="w-72"/></span>
 

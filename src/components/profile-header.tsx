@@ -81,7 +81,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
             />
         </div>
         <div className="flex">
-            <div className="ml-2 text-sm rounded-lg bg-[var(--secondary-light)] px-2 py-1 items-center justify-center hover:bg-[var(--secondary-slight)] cursor-default" title="Nivel de permisos en la edición de artículos públicos. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
+            <div className="ml-2 text-sm rounded-lg bg-[var(--secondary-light)] px-2 py-1 items-center justify-center hover:bg-[var(--secondary-slight)] cursor-default" title="Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
                 <span className="text-gray-600 mb-1">
                     <ArticleIcon/>
                 </span>
@@ -106,7 +106,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
             <SelectionComponent
                 selected={selected}
                 onSelection={(v) => {setSelected(v); setShowingFakeNews(false)}}
-                options={["Publicaciones", "Respuestas", "Ediciones en artículos públicos"]}
+                options={["Publicaciones", "Respuestas", "Ediciones en temas"]}
                 className="main-feed"
             />
         </div>

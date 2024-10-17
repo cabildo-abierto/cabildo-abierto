@@ -19,12 +19,12 @@ const EditDescriptionInNotification = ({content}: {content: {parentEntityId: str
 
     if(user && c.some(([a, n]) => (a == user.id))){
         return <>
-            el <Link href={href}>artículo público</Link> que editaste
+            el <Link href={href}>tema</Link> que editaste
         </>
     }
 
     return <>
-        el <Link href={href}>artículo público</Link>
+        el <Link href={href}>tema</Link>
     </>
 }
 
@@ -52,6 +52,8 @@ function PostDescription({content}: {content: {id: string, authorId: string, typ
 
 export const CommentNotification = ({notification}: {notification: NotificationProps}) => {
 
+    if(!notification.content.parentContents[0]) return null
+    
     const post = <PostDescription
         content={notification.content.parentContents[0]}
     />

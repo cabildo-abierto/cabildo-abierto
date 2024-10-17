@@ -24,7 +24,7 @@ export function shortDescription(content: ContentProps){
     } else if(content.type == "FastPost"){
         desc = <>una <Link href={parentUrl}>publicación rápida</Link> de <Link href={authorUrl}>@{parentAuthor}</Link>.</>
     } else if(content.type == "EntityContent"){
-        desc = <><Link href={parentUrl}><span className="">{parentEntityName}</span></Link> (artículo público).</>
+        desc = <><Link href={parentUrl}><span className="">{parentEntityName}</span></Link> (tema).</>
     } else if(content.type == "FakeNewsReport"){
         desc = <>un <Link href={parentUrl}>reporte de noticia falsa</Link> de <Link href={authorUrl}>@{parentAuthor}</Link>.</>
     }

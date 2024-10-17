@@ -6,7 +6,7 @@ import { ThreeColumnsLayout } from "../../components/three-columns";
 const Drafts: React.FC = () => {
 
     const center = <>
-        <div className="py-4"><h1>Borradores</h1></div>
+        <div className="py-4 px-1"><h2>Borradores</h2></div>
         <DraftsPreview/>
     </>
 

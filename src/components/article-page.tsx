@@ -94,7 +94,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
 
     const EditButton = () => {
         return <ToggleButton
-            text="Editar artículo"
+            text="Editar tema"
             toggledText="Cancelar edición"
             className={"article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--primary-dark)]"}
             setToggled={onEdit}
@@ -141,7 +141,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
     const DeleteArticleButton = () => {
         return <StateButton
             className={articleButtonClassname}
-            text1="Eliminar artículo"
+            text1="Eliminar tema"
             text2="Eliminando..."
             handleClick={async (e) => {
                 if(user.user){
@@ -271,7 +271,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         <div className="flex justify-between items-center">
             <div className="">
             <div className="text-[var(--text-light)] text-sm mt-8 mb-2">
-                Artículo público
+                Tema
             </div>
             <h1 className="mb-8">
                 {entity.entity.name}

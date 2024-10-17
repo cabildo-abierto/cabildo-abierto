@@ -19,7 +19,7 @@ export const UserScoreboard = ({users}: {users: {user: SmallUserProps, stats: Us
     return <div className="flex flex-col">
             <div className="flex border-b items-center">
                 <div className="w-48 text-center">Usuario</div>
-                <div className="w-48 text-center">Caracteres agregados en artículos públicos</div>
+                <div className="w-48 text-center">Caracteres agregados en temas</div>
             </div>
         <div>
         {users.map(({user, stats}, index) => {

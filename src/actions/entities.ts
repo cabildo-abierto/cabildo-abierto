@@ -18,7 +18,7 @@ export async function createEntity(name: string, userId: string){
     const exists = await db.entity.findFirst({
       where: {id: entityId}
     })
-    if(exists) return {error: "Ya existe un artículo con ese nombre"}
+    if(exists) return {error: "Ya existe ese tema"}
   
     await db.entity.create({
       data: {
@@ -313,6 +313,12 @@ export const deleteEntity = async (entityId: string, userId: string) => {
 
 export const deleteContent = async (contentId: string) => {
     await db.view.deleteMany({
+        where: {
+            contentId: contentId
+        }
+    })
+
+    await db.notification.deleteMany({
         where: {
             contentId: contentId
         }

@@ -15,7 +15,7 @@ const CreateEntityButton: React.FC<any> = ({onClick}) => {
             className="gray-btn"
             onClick={onClick}
         >
-            Crear artículo
+            Crear tema
     </button>
 }
 
@@ -37,7 +37,7 @@ export default function NoEntityPage({id}: {id: string}){
 
     return <>
         <div className="flex justify-center py-8">
-        <h1>No se encontró el artículo</h1>
+        <h1>No se encontró el tema</h1>
         </div>
         <div className="flex justify-center py-8 text-lg">
             {'"'+name+'"'}
@@ -49,6 +49,6 @@ export default function NoEntityPage({id}: {id: string}){
                     Trigger={CreateEntityButton}
                 />
             }
-        </div> : <div className="py-16 flex justify-center text-center">Tampoco se puede crear el artículo porque su nombre no es válido.</div>}
+        </div> : <div className="py-16 flex justify-center text-center">Tampoco se puede crear el tema porque su nombre no es válido.</div>}
     </>
 }

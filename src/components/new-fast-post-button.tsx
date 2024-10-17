@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { ArticleIcon, FastPostIcon } from "./icons";
+import { FastPostIcon } from "./icons";
 import InfoPanel from "./info-panel";
-import { CreateArticleModal } from "./create-article-modal";
 import { CreateFastPostModal } from "./create-fast-post-modal";
 
 

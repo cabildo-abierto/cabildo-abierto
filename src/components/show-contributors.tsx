@@ -44,7 +44,7 @@ export const ShowUserContribution = ({entityId, userId}:
             Contribución: {toPercentage(contributions[0][1], total)}%
         </span>
     else {
-        return <span>Contribución: Artículo vacío</span>
+        return <span>Contribución: Tema vacío</span>
     }
 }
 

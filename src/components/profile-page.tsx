@@ -36,6 +36,6 @@ export const ProfilePage = ({profileUser}: ProfilePageProps) => {
         {selected == "Publicaciones" && !showingFakeNews && <ProfileFeed profileUser={profileUser} showingFakeNews={false}/>}
         {selected == "Publicaciones" && showingFakeNews && <ProfileFeed profileUser={profileUser} showingFakeNews={true}/>}
         {selected == "Respuestas" && <RepliesFeed profileUser={profileUser}/>}
-        {selected == "Ediciones en artículos públicos" && <WikiFeed profileUser={profileUser}/>}
+        {selected == "Ediciones en temas" && <WikiFeed profileUser={profileUser}/>}
     </div>
 }

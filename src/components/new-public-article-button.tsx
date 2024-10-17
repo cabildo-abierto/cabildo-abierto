@@ -23,7 +23,7 @@ export const NewPublicArticleButton = ({onClick, className="", textClassName="",
                 <ArticleIcon />
             </span>
             
-            <span>Artículo público</span>
+            <span>Tema</span>
             </>
             }
         </div>
@@ -31,7 +31,7 @@ export const NewPublicArticleButton = ({onClick, className="", textClassName="",
         {showInfoPanel && <InfoPanel
             iconClassName={infoPanelIconClassName}
             className="w-64"
-            text="Un artículo con información sobre algún tema. Cualquiera lo puede editar."
+            text="Un tema de discusión. Cualquiera puede editar su contenido."
         />}
     </button>
     {isModalOpen && <CreateArticleModal onClose={() => setIsModalOpen(false)} />}

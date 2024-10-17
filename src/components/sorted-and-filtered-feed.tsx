@@ -6,6 +6,7 @@ import LoadingSpinner from "./loading-spinner"
 import { useSearch } from "./search-context"
 import { cleanText } from "./utils"
 import InfoPanel from "./info-panel"
+import SwapVertIcon from '@mui/icons-material/SwapVert';
 
 function popularityScore(content: SmallContentProps){
     const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
@@ -60,7 +61,7 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: 
 
     const recentFeedComponent = <Feed feed={{feed: filteredFeed, isLoading: false, isError: false}} noResultsText={noResultsText}/>
 
-    const infoPopular = "Se suman los votos hacia arriba y la cantidad de personas que comentaron y se lo divide por la cantidad de vistas."
+    const infoPopular = <div><p className="font-bold">Publicaciones ordenadas por popularidad</p>Se suman los votos hacia arriba y la cantidad de personas que comentaron y se lo divide por la cantidad de vistas.</div>
 
     function onOnlyPosts(){
         if(filter != "Publicaciones"){
@@ -79,7 +80,7 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: 
     }
 
     return <>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
             
             <div className="flex ml-1 space-x-1 mb-1">
                 <button onClick={onOnlyFastPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] text-xs sm:text-sm text-[var(--text-light)] border " + (filter == "Rápidas" ? "bg-[var(--secondary-slight)]" : "")}>
@@ -90,8 +91,9 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: 
                 </button>
             </div>
 
-        {order == "Populares" && searchValue.length == 0 && <div className="flex items-center justify-end text-xs sm:text-sm text-gray-600">Ordenadas por popularidad. <InfoPanel iconClassName="hidden sm:block text-gray-300" text={infoPopular}/></div>}
-        {order == "Recientes" && searchValue.length == 0 && <div className="flex items-center justify-end text-xs sm:text-sm text-gray-600">Ordenadas cronológicamente.</div>}
+        {order == "Populares" && searchValue.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={infoPopular}/>}
+
+        {order == "Recientes" && searchValue.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text="Publicaciones en orden cronológico inverso (primero las más recientes)"/>}
         </div>
         {order == "Populares" && popularityFeedComponent}
         {order == "Recientes" && recentFeedComponent}

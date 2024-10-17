@@ -262,7 +262,7 @@ function FloatingLinkEditor({
             <input
               ref={inputRef}
               className="link-input w-96"
-              placeholder="Ingresá un link o el nombre de un artículo"
+              placeholder="Ingresá un link o un tema a referenciar"
               value={editedLinkUrl}
               onChange={async (event) => {
                 setEditedLinkUrl(event.target.value);

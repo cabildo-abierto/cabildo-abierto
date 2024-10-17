@@ -91,13 +91,13 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
             />}
 
             {selected == "Siguiendo" &&
-            ((user.isLoading || user.user) ? <ConfiguredFeed
+            ((user.isLoading || user.user) ? <div className="mt-4"><ConfiguredFeed
                 feed={followingFeed}
                 order={order}
                 filter={filter}
                 setFilter={setFilter}
                 noResultsText={noResultsTextFollowing}
-            /> : <div className="flex justify-center mt-8"><CreateAccountLink
+            /></div> : <div className="flex justify-center mt-8"><CreateAccountLink
                 text="Creá una cuenta o iniciá sesión para tener tu muro personal"
             /></div>)}
         </div>

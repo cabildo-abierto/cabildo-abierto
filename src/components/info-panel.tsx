@@ -2,7 +2,7 @@ import { ReactNode, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import { ModalBelow } from './modal-below';
 
-export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {text: ReactNode, className?: string, iconClassName?: string}) => {
+export const InfoPanel = ({text, className, iconClassName="text-gray-600", icon=<InfoIcon fontSize="small"/>}: {text: ReactNode, className?: string, iconClassName?: string, icon?: ReactNode}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return <div className="relative inline-block">
@@ -11,7 +11,7 @@ export const InfoPanel = ({text, className, iconClassName="text-gray-600"}: {tex
         onMouseLeave={() => {setIsHovered(false);}}
         className={iconClassName}
       >
-        <InfoIcon fontSize="small"/>
+        {icon}
       </div>
       {isHovered && 
         <ModalBelow

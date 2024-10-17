@@ -93,7 +93,6 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                 <div className="flex flex-col mt-4 px-2">
                     <SidebarButton onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio"/>
                     <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
-                    <SidebarButton onClick={onClose} icon={<NotificationsIcon count={user.user ? user.user._count.notifications : undefined}/>} text="Notificaciones" href="/notificaciones"/>
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
                     {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={id2url(user.user.id)}/>}
                     <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Panel personal" href="/panel"/>
