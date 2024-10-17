@@ -4,18 +4,14 @@ import { decompress } from "./compression"
 import Feed, { LoadingFeedWithData } from "./feed"
 import LoadingSpinner from "./loading-spinner"
 import { useSearch } from "./search-context"
-import { cleanText } from "./utils"
+import { cleanText, listOrderDesc } from "./utils"
 import InfoPanel from "./info-panel"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 
 function popularityScore(content: SmallContentProps){
     const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
     commentators.delete(content.author.id)
-    return (content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount, 1)
-}
-
-function comp(a: {score: number}, b: {score: number}){
-    return b.score - a.score
+    return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount, 1)]
 }
 
 export type ConfiguredFeedProps = {
@@ -55,7 +51,13 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: 
 
     let feedWithScore = filteredFeed.map((content) => ({score: popularityScore(content), content: content}))
     
-    const byPopularityFeed = feedWithScore.sort(comp).map(({content}) => (content))
+    function isPopularEnough(score: number[]){
+        return score[0] > 0
+    }
+
+    feedWithScore = feedWithScore.filter(({score}) => (isPopularEnough(score)))
+
+    const byPopularityFeed = feedWithScore.sort(listOrderDesc).map(({content}) => (content))
 
     const popularityFeedComponent = <Feed feed={{feed: byPopularityFeed, isLoading: false, isError: false}} noResultsText={noResultsText}/>
 
