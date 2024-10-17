@@ -2,7 +2,7 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findMentions, findReferences, getContentById, getReferencesSearchKeys, notifyMentions } from "./contents";
+import { findMentions, findReferences, getContentById, getReferencesSearchKeys, notifyMentions, updateEntityWeakMentions } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
@@ -50,7 +50,11 @@ export async function createEntity(name: string, userId: string){
             id: entityId
         }
     })
-  
+
+    const t1 = Date.now()
+    await updateEntityWeakMentions(entityId)
+    console.log("time updating weak", Date.now()-t1)
+
     revalidateTag("entities")
     revalidateTag("editsFeed:"+userId)
     revalidateTag("entity:"+entityId)
@@ -165,8 +169,6 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
         text = decompress(compressedText)
         references = await findReferences(text)
         mentions = await findMentions(text)
-        const searchKeys = await getReferencesSearchKeys()
-        weakReferences = await findWeakReferences(text, searchKeys)
         categories = current.categories
         prevText = decompress(currentContent.compressedText)
     } else {
@@ -180,6 +182,11 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
     const permission = hasEditPermission(await getUserById(userId), entity.protection)
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
+
+    if(!categoriesChange){
+        const searchKeys = await getReferencesSearchKeys()
+        weakReferences = await findWeakReferences(plainText+entity.name, searchKeys)
+    }
 
     let {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(prevText, text)
 
@@ -310,6 +317,7 @@ export const undoChange = async (entityId: string, contentId: string, versionNum
   
   
 export const deleteEntity = async (entityId: string, userId: string) => {
+    console.log("deleting", entityId, "by", userId)
     await db.entity.update({
         data: {
             deleted: true,
@@ -492,6 +500,7 @@ export async function getEntityByIdNoCache(id: string){
             protection: true,
             isPublic: true,
             deleted: true,
+            searchkeys: true,
             versions: {
                 select: {
                     id: true,
@@ -566,11 +575,11 @@ export async function getEntityByIdNoCache(id: string){
                         where: {
                             deleted: false
                         }
-                    }
+                    },
                 },
                 orderBy: {
                     createdAt: "asc"
-                }
+                },
             },
             referencedBy: {
                 select: {

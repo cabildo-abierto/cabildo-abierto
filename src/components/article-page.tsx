@@ -25,6 +25,7 @@ import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/he
 import { useEntity } from "../app/hooks/entities";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
+import { updateEntityWeakMentions } from "../actions/contents";
 
 
 const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
@@ -216,6 +217,18 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         />
     }
 
+    const UpdateWeakReferencesButton = () => {
+        return <StateButton
+            className={articleButtonClassname}
+            text1="Actualizar weak references"
+            text2="Actualizando..."
+            handleClick={async (e) => {
+                await updateEntityWeakMentions(entityId)
+                return false
+            }}
+        />
+    }
+
     const MakePrivateButton = () => {
         return <StateButton
             className={articleButtonClassname}
@@ -314,6 +327,11 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             {(user.user && user.user.editorStatus == "Administrator") &&
             <div className="flex justify-center py-2">
                 <DeleteArticleButton/>
+            </div>
+            }
+            {(user.user && user.user.editorStatus == "Administrator") &&
+            <div className="flex justify-center py-2">
+                <UpdateWeakReferencesButton/>
             </div>
             }
             {(user.user && user.user.editorStatus == "Administrator") &&

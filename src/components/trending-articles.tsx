@@ -71,7 +71,6 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
     const { events } = useDraggable(ref);
     const router = useRouter()
 
-
     return (
     <div
         className="flex space-x-3 overflow-x-scroll no-scrollbar"

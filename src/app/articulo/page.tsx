@@ -14,8 +14,10 @@ const Page = async ({searchParams}: {searchParams: {i: string, v?: number}}) => 
     const header = headers()
     const user = userAgent({headers: header})
 
+    console.log("search params", searchParams)
+
     return <ArticlePage
-        entityId={searchParams.i}
+        entityId={encodeURIComponent(searchParams.i)}
         version={searchParams.v}
         userHeaders={user}
         header={header}
