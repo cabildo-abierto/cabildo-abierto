@@ -15,6 +15,17 @@ export function useUser(): {user: UserProps | null, isLoading: boolean, isError:
 }
 
 
+export function useUserFollowSuggestions(): {suggestions: {id: string, name: string}[] | null, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/follow-suggestions', fetcher)
+  
+    return {
+        suggestions: data,
+        isLoading: isLoading,
+        isError: error
+    }
+}
+
+
 export function useUserId(): {userId: string | null, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/userid', fetcher)
   

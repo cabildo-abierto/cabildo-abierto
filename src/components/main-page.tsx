@@ -12,6 +12,7 @@ import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { TrendingArticles } from "./trending-articles"
 import { TutorialPopup } from "./tutorial-popup"
+import { FollowSuggestions } from "./follow-suggestions"
 
 
 type MainPageProps = {
@@ -83,6 +84,12 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                 filter={filter}
                 setFilter={setFilter}
             />}
+
+            {selected == "Siguiendo" && 
+            <div className="mt-4">
+                <FollowSuggestions/>
+                </div>
+            }
 
             {selected == "Siguiendo" &&
             ((user.isLoading || user.user) ? <div className="mt-4"><ConfiguredFeed

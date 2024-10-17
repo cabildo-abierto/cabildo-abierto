@@ -23,7 +23,7 @@ export const NewPublicArticleButton = ({onClick, className="", textClassName="",
                 <ArticleIcon />
             </span>
             
-            <span>Tema</span>
+            <span>Nuevo tema</span>
             </>
             }
         </div>

@@ -459,6 +459,10 @@ export function articleUrl(id: string, index?: number){
     return "/articulo?i=" + id + (index ? "&v=" + index : "")
 }
 
+export function userUrl(id: string){
+    return "/perfil/" + id
+}
+
 
 export function contentUrl(id: string){
     return "/contenido?i=" + id
