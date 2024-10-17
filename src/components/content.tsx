@@ -306,6 +306,8 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
                 onViewComments={onViewComments}
                 onStartReply={onStartReply}
                 depthParity={depthParity}
+                inCommentSection={inCommentSection}
+                isMainPage={isMainPage}
             />
         );
     } else if (content.type === 'Comment' || content.type === 'FakeNewsReport') {
