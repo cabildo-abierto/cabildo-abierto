@@ -176,13 +176,27 @@ export const getContentFakeNewsCount = (contentId: string) => {
 
 
 export async function notifyMentions(mentions: {id: string}[], contentId: string, userById: string, isEdit: boolean = false){
+    let data = []
+
     for(let i = 0; i < mentions.length; i++){
-        await createNotification(
-            userById,
-            mentions[i].id,
-            (isEdit ? "EditMention" : "Mention"),
-            contentId
-        )
+        if(userById != mentions[i].id){
+            data.push({
+                userById: userById,
+                userNotifiedId: mentions[i].id,
+                contentId: contentId,
+                reactionId: null,
+                type: (isEdit ? "EditMention" : "Mention")
+            })
+        }
+    }
+    
+    await db.notification.createMany({
+        data: data
+    })
+
+    for(let i = 0; i < mentions.length; i++){
+        revalidateTag("notifications:"+mentions[i].id)
+        revalidateTag("user:"+mentions[i].id)
     }
 }
 

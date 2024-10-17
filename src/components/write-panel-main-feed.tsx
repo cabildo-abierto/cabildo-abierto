@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { commentEditorSettings } from "./editor/comment-editor";
 import StateButton from "./state-button";
 import Link from "next/link";
-import { FastPostIcon, PostIcon } from "./icons";
+import { CloseButtonIcon, FastPostIcon, PostIcon } from "./icons";
 import { NewPublicArticleButton } from "./new-public-article-button";
 import { useUser } from "../app/hooks/user";
 import { mutate } from "swr";
@@ -12,10 +12,11 @@ import { createPost } from "../actions/contents";
 import { compress } from "./compression";
 import { charCount, emptyOutput, validPost } from "./utils";
 import { ExtraChars } from "./extra-chars";
+import { CloseButton } from "./close-button";
 
 const MyLexicalEditor = dynamic(() => import('./editor/lexical-editor'), { ssr: false });
 
-export const WritePanelMainFeed = () => {
+export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined);
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
     const { user } = useUser();
@@ -23,7 +24,7 @@ export const WritePanelMainFeed = () => {
     const [randomPlaceholder, setRandomPlaceholder] = useState<string>("");
 
     const placeholders = [
-        "Una publicación veloz...",
+        "Una ráfaga comunicacional...",
     ];
 
     useEffect(() => {
@@ -39,10 +40,15 @@ export const WritePanelMainFeed = () => {
         if (editor && user) {
             const text = JSON.stringify(editor.getEditorState());
             const compressedText = compress(text);
-            await createPost(compressedText, "FastPost", false, user.id, undefined);
-            mutate("/api/feed/");
-            mutate("/api/profile-feed/" + user.id);
-            setEditorKey(editorKey + 1);
+            const content = await createPost(compressedText, "FastPost", false, user.id, undefined);
+            if(content){
+                mutate("/api/feed/");
+                mutate("/api/profile-feed/" + user.id);
+                setEditorKey(editorKey + 1);
+                onClose()
+                return true
+            }
+            return false
         }
         return false;
     }
@@ -51,11 +57,14 @@ export const WritePanelMainFeed = () => {
     let disabled = !editor || emptyOutput(editorState) || (!validPost(editorState, settings.charLimit));
 
     return (
-        <div className="w-full rounded px-3 pb-2 pt-1">
-            <div className="text-sm text-gray-400 flex items-center mt-1">
-                <FastPostIcon fontSize="inherit" /> <span className="text-xs">Publicación rápida</span>
+        <div className="w-full rounded px-2 pb-2 pt-1">
+            <div className="flex justify-between">
+                <div className="text-sm text-gray-400 flex items-center">
+                    <FastPostIcon fontSize="inherit" /> <span className="text-xs">Publicación rápida</span>
+                </div>
+                <CloseButton onClose={onClose}/>
             </div>
-            <div className="sm:text-lg py-2 h-full max-h-[400px] overflow-scroll" key={editorKey}>
+            <div className="sm:text-lg py-2 px-1 h-full max-h-[400px] overflow-scroll" key={editorKey}>
                 <MyLexicalEditor
                     settings={settings}
                     setEditorState={setEditorState}
@@ -64,22 +73,7 @@ export const WritePanelMainFeed = () => {
                 {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
             </div>
             <hr className="border-gray-200" />
-            <div className="flex justify-between mt-2">
-                <div className="flex space-x-2 mr-2">
-                    <Link
-                        href="/escribir/publicacion"
-                        className="sm:text-sm text-xs flex items-center title hover:bg-[var(--secondary-light)] text-[var(--text-light)] px-1 sm:px-2 rounded"
-                    >
-                        <div className="mb-1 mr-2 hidden"><PostIcon /></div> Publicación
-                    </Link>
-                    <NewPublicArticleButton
-                        onClick={() => {}}
-                        textClassName="title sm:text-sm text-xs"
-                        className="hover:bg-[var(--secondary-light)] text-[var(--text-light)] px-2 rounded"
-                        showInfoPanel={false}
-                        text={"Tema"}
-                    />
-                </div>
+            <div className="flex justify-end mt-2">
                 <StateButton
                     text1="Publicar"
                     text2="Enviando..."

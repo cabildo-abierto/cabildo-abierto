@@ -5,18 +5,10 @@ import { CategoryUsers } from "./category-users";
 import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents";
 import { preload } from "swr";
 import { fetcher } from "../app/hooks/utils";
-import { MainFeedHeader } from "./main-feed-header";
 import { ConfiguredFeed } from "./sorted-and-filtered-feed";
 import { useUser } from "../app/hooks/user";
-import { CreateAccountLink } from "./create-account-link";
-import { WritePanelMainFeed } from "./write-panel-main-feed";
 import { useSearch } from "./search-context";
-import { articleUrl } from "./utils";
-import Link from "next/link";
-import { CloseButtonIcon } from "./icons";
-import { addView } from "../actions/contents";
 import { SearchHeader } from "./search-header";
-import { TutorialPopup } from "./tutorial-popup";
 
 
 type RouteContentProps = {

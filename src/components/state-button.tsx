@@ -7,12 +7,14 @@ type StateButtonProps = {
     className: string
     text1: ReactNode
     text2?: ReactNode
+    textClassName?: string
     disabled?: boolean
 }
 
 const StateButton: React.FC<StateButtonProps> = ({
     handleClick,
     className,
+    textClassName="",
     text1,
     text2,
     disabled=false
@@ -34,7 +36,7 @@ const StateButton: React.FC<StateButtonProps> = ({
         onClick={clickHandle}
         disabled={submitting || disabled}
     >
-        {!submitting ? text1 : (text2 !== null ? text2 : text1)}
+        <div className={textClassName}>{!submitting ? text1 : (text2 !== null ? text2 : text1)}</div>
     </button>
 }
 

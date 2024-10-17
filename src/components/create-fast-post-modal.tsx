@@ -15,9 +15,9 @@ import { WritePanelMainFeed } from "./write-panel-main-feed";
 
 export const CreateFastPostModal = ({ onClose }: { onClose: () => void }) => {
 
-    return <BaseFullscreenPopup closeButton={true} onClose={onClose}>
+    return <BaseFullscreenPopup>
         <div className="w-[315px] sm:w-128">
-            <WritePanelMainFeed/>
+            <WritePanelMainFeed onClose={onClose}/>
         </div>
     </BaseFullscreenPopup>
 };

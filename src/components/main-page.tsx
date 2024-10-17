@@ -10,7 +10,6 @@ import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents"
 import { useUser } from "../app/hooks/user"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
-import { WritePanelMainFeed } from "./write-panel-main-feed"
 import { TrendingArticles } from "./trending-articles"
 import { TutorialPopup } from "./tutorial-popup"
 
