@@ -26,7 +26,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
 
     let settings = {...commentEditorSettings}
     settings.placeholder = "Escribí la nueva versión de tu comentario..."
-    settings.editorClassName = "min-h-[200px]"
+    settings.editorClassName = "min-h-[200px] content"
     settings.isAutofocus = true
     settings.content = content.content
     settings.initialData = decompress(content.content.compressedText)
