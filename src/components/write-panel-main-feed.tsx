@@ -77,7 +77,7 @@ export const WritePanelMainFeed = () => {
                         textClassName="title sm:text-sm text-xs"
                         className="hover:bg-[var(--secondary-light)] text-[var(--text-light)] px-2 rounded"
                         showInfoPanel={false}
-                        text={"Artículo público"}
+                        text={"Tema"}
                     />
                 </div>
                 <StateButton

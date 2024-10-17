@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import InfoPanel from "./info-panel";
+import SwapVertIcon from '@mui/icons-material/SwapVert';
 
 
 export function countUserInteractions(entity: SmallEntityProps){
@@ -52,11 +53,11 @@ export const TrendingArticles = () => {
 
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
     
-    const text = "Ordenados por cantidad de usuarios que interactuaron. Incluye menciones, comentarios y ediciones."
+    const text = <div><p className="font-bold">Temas ordenados por popularidad</p><p>Según la cantidad de personas que participó en la discusión. Las participaciones incluyen menciones, comentarios y ediciones.</p></div>
 
     return <div className="">
         <div className="text-[var(--text-light)] text-xs sm:text-sm flex justify-end mb-1">
-            Artículos públicos en discusión. <InfoPanel iconClassName="hidden sm:block text-gray-300" text={text}/>
+            <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={text}/>
         </div>
         <TrendingArticlesSlider trendingArticles={entitiesWithScore.map((e) => (e.entity))}
         />
@@ -91,7 +92,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
                 </div>
                 {false && <div
                     className="text-[var(--text-light)] h-8 text-xs sm:text-sm"
-                    title="La cantidad de usuarios que interactuó con el artículo público. Incluye menciones, ediciones y comentarios."
+                    title="La cantidad de usuarios que participó en la discusión."
                 >
                     {score} {score == 1 ? "usuario" : "usuarios"}
                 </div>}

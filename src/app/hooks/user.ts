@@ -1,5 +1,5 @@
 import useSWR from "swr"
-import { UserProps } from "../lib/definitions"
+import { NotificationProps, UserProps } from "../lib/definitions"
 import { fetcher } from "./utils"
 import { ChatMessage } from "@prisma/client"
 
@@ -76,6 +76,17 @@ export function useSupportNotRespondedCount(): {count: number, isLoading: boolea
   
     return {
         count: data,
+        isLoading: isLoading,
+        isError: error
+    }
+}
+
+
+export function useNotifications(): {notifications: NotificationProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/notifications', fetcher, { refreshInterval: 5*60*1000 })
+  
+    return {
+        notifications: data,
         isLoading: isLoading,
         isError: error
     }

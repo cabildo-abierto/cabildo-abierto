@@ -47,7 +47,7 @@ export const SaveEditPopup = ({
         setNewVersionSize(getAllText(JSON.parse(jsonState).root).length)
     }, [])
     
-    const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al artículo el texto de una Ley, o algo escrito por otra persona. Si lo desactivás no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href={articleUrl("Cabildo_Abierto:_Derechos_de_autor")}>Más información</Link>
+    const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una Ley, o algo escrito por otra persona. Al desactivarlo no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href={articleUrl("Cabildo_Abierto:_Derechos_de_autor")}>Más información</Link>
     </span>
 
     if(!newVersionSize){
@@ -57,7 +57,7 @@ export const SaveEditPopup = ({
 
     if(newVersionSize > 1200000){
         return <AcceptButtonPanel
-            text={<span>No se pueden guardar los cambios porque el artículo supera el límite de 500.000 caracteres (con <span className="text-red-600">{newVersionSize}</span> caracteres). Te sugerimos que separes el contenido en secciones en distintos artículos.</span>}
+            text={<span>No se pueden guardar los cambios porque el tema supera el límite de 1.200.000 caracteres (con <span className="text-red-600">{newVersionSize}</span> caracteres). Te sugerimos que separes el contenido en secciones en distintos temas.</span>}
             onClose={onClose}
         />
     }

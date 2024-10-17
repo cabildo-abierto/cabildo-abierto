@@ -62,7 +62,7 @@ const ArticlesWithSearch = ({ entities, route, sortBy }: {
             {entitiesWithScore.length > 0 ? (
                 <LazyLoadFeed maxSize={entitiesWithScore.length} generator={generator} />
             ) : (
-                <NoResults text="No se encontró ningún artículo." />
+                <NoResults text="No se encontró ningún tema." />
             )}
         </div>
     );
@@ -77,17 +77,17 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
 
     if(routeEntities.isLoading) return <LoadingSpinner/>
 
-    const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de votos hacia arriba que recibió. Los artículos vacíos se muestran al final. Solo se muestran artículos de la categoría seleccionada ({route2Text(route)}).</span>
+    const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de votos hacia arriba que recibió. Los temas vacíos se muestran al final. Solo se muestran temas de la categoría seleccionada ({route2Text(route)}).</span>
 
     return <>
-        {searchValue.length == 0 && <div className="mt-2"><DidYouKnow text={<><p>¿Sabías que si editás un artículo público Cabildo Abierto <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>te paga</Link> por cada persona que entre a leerlo en el futuro?</p> <p>Incluso si otras personas lo siguen editando después.</p></>}/></div>}
+        {searchValue.length == 0 && <div className="mt-2"><DidYouKnow text={<><p>¿Sabías que si editás el contenido de un tema Cabildo Abierto <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>te paga</Link> por cada persona que entre a leerlo en el futuro?</p> <p>Incluso si otras personas lo siguen editando después.</p></>}/></div>}
         
         {searchValue.length == 0 && <div className="flex justify-center py-4">
             <NewPublicArticleButton
                 onClick={() => {}}
                 className="gray-btn"
                 textClassName="title text-sm"
-                text="Nuevo artículo público"
+                text="Nuevo tema"
                 showInfoPanel={false}
             />
         </div>}
@@ -116,7 +116,7 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
             />
              : 
         <div className="flex justify-center">
-            No se encontraron artículos.
+            No se encontraron temas.
         </div>}
     </>
 }

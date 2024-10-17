@@ -11,6 +11,7 @@ import { CabildoIcon, NotificationsIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
 import { TopbarLogo } from "./logo";
 import { validSubscription } from "./utils";
+import { NotificationsButton } from "./notifications-button";
 
 
 function FeedButton() {
@@ -40,17 +41,6 @@ export const SearchButton = ({ onClick=null, disabled=false }: any) => {
         <SearchIcon />
     </button>
     </div>
-}
-
-
-const NotificationsButton = () => {
-    const user = useUser()
-
-    return <Link href="/notificaciones" className="hover:bg-[var(--secondary-light)] rounded-lg">
-        <div className="px-1 py-[5px]">
-            <NotificationsIcon count={user.user ? user.user._count.notifications : undefined}/>
-        </div>
-    </Link>
 }
 
 

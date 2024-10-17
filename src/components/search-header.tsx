@@ -35,7 +35,7 @@ export const SearchHeader = ({
         */}
         <SelectionComponent
             onSelection={onSelection}
-            options={["Publicaciones", "Artículos públicos", "Usuarios"]}
+            options={["Publicaciones", "Temas", "Usuarios"]}
             selected={selected}
             className="main-feed text-sm sm:text-base"
         />

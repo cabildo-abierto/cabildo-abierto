@@ -65,7 +65,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
         
         <div className="pt-1">
 
-            {selected == "Artículos públicos" && 
+            {selected == "Temas" && 
                 <CategoryArticles route={route}/>
             }
 

@@ -70,7 +70,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
       {numWords == 0 && (
         <div className="absolute top-[-9px] right-2 z-10">
           <span className="text-xs rounded border px-1 text-[var(--text-light)] bg-[var(--background)]">
-            ¡Artículo vacío! Completalo
+            ¡Tema vacío! Completalo
           </span>
         </div>
       )}

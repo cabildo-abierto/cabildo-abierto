@@ -22,7 +22,7 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
 
     return <BaseFullscreenPopup closeButton={true} onClose={onClose}>
         <div className="space-y-3 px-6 mb-2">
-            <h3>Nuevo artículo público</h3>
+            <h3>Nuevo tema</h3>
             <div>
                 <input
                     className="custom-input"
@@ -31,10 +31,10 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
                     placeholder="Título"
                 />
             </div>
-            {alreadyExists && <ErrorMsg text="Ya existe un artículo con ese nombre."/>}
+            {alreadyExists && <ErrorMsg text="Ya existe ese tema."/>}
             {entityName.includes("/") && <ErrorMsg text="El nombre no puede incluír el caracter '/'."/>}
 
-            <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir a la página del artículo después de crearlo</span>}/>
+            <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir a la página del tema después de crearlo</span>}/>
             <div className="py-4">
                 <StateButton
                     handleClick={async (e) => {
@@ -59,7 +59,7 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
                     text2="Creando..."
                 />
                 {!user.isLoading && !user.user && <CreateAccountLink
-                    text="Creá una cuenta o iniciá sesión para crear artículos públicos"
+                    text="Creá una cuenta o iniciá sesión para crear un tema"
                 />}
             </div>
         </div>

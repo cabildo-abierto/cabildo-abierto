@@ -51,12 +51,12 @@ const ShowUserStats = () => {
 
     return <div className="mx-6 text-lg flex flex-col">
         <UserStat name="Publicaciones individuales" value={stats.stats.posts}/>
-        <UserStat name="Artículos públicos editados" value={stats.stats.editedEntities}/>
-        <UserStat name="Ediciones totales en artículos públicos" value={stats.stats.entityEdits}/>
-        <UserStat name='Caracteres agregados en artículos públicos' value={stats.stats.entityAddedChars}/>
+        <UserStat name="Temas editados" value={stats.stats.editedEntities}/>
+        <UserStat name="Ediciones totales en temas" value={stats.stats.entityEdits}/>
+        <UserStat name='Caracteres agregados en temas' value={stats.stats.entityAddedChars}/>
         <UserStat name='Votos hacia arriba totales' value={stats.stats.reactionsInEntities + stats.stats.reactionsInPosts}/>
         <UserStat name='Votos hacia arriba en publicaciones' value={stats.stats.reactionsInPosts}/>
-        <UserStat name='Votos hacia arriba en artículos públicos' value={stats.stats.reactionsInEntities}/>
+        <UserStat name='Votos hacia arriba en temas' value={stats.stats.reactionsInEntities}/>
         <UserStat name='Vistas totales' value={stats.stats.viewsInPosts+stats.stats.viewsInEntities}/>
         <UserStat name='Vistas en publicaciones' value={stats.stats.viewsInPosts}/>
         <UserStat name='Vistas en entidades' value={stats.stats.viewsInEntities}/>

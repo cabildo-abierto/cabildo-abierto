@@ -39,7 +39,7 @@ export default function Page() {
             </button>
             
             <button className="gray-btn" onClick={async () => {await revalidateEntities()}}>
-                Revalidar artículos
+                Revalidar temas
             </button>
             <button className="gray-btn" onClick={async () => {await revalidateContents()}}>
                 Revalidar contenidos
@@ -84,7 +84,7 @@ export default function Page() {
                 Eliminar usuario {userId}
             </button>
             <button className="gray-btn" onClick={async () => {await deleteEntity(entityId, "soporte")}}>
-                Eliminar artículo {entityId}
+                Eliminar tema {entityId}
             </button>
             <button className="gray-btn" onClick={async () => {await computeSubscriptorsByDay(500)}}>
                 Calcular suscriptores por día

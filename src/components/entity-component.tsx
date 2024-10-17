@@ -156,7 +156,7 @@ const EntityEditInFeed = ({entity, content, version}: {content: ContentProps, en
 
     let text = null
     if(version == 0){
-        text = <>Creó el artículo {name}</>
+        text = <>Creó el tema {name}</>
     } else if(entity.versions[version].categories != entity.versions[version].categories){
         text = <>Modificó las categorías de {name}</>
     } else {
