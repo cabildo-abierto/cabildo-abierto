@@ -100,6 +100,7 @@ export type EntityProps = {
     currentVersionId: string
     uniqueViewsCount: number
     weakReferences: ReferenceProps[]
+    searchkeys: string[]
 }
 
 

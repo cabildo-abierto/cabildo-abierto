@@ -69,7 +69,6 @@ const ArticlesWithSearch = ({ entities, route, sortBy }: {
 };
 
 
-
 export const CategoryArticles = ({route}: {route: string[]}) => {
     const routeEntities = useRouteEntities(route)
     const {searchValue} = useSearch()
