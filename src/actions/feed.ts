@@ -88,6 +88,7 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
     if(!userId) return []
     return unstable_cache(async () => {
         const user = await getUserById(userId)
+        const following = [...user.following.map(({id}: {id: string}) => (id)), "soporte"]
         if(!user) return []
         let feed: any[] = await db.content.findMany({
             select: {
@@ -140,7 +141,7 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                     {visible: true},
                     {isDraft: false},
                     {authorId: {
-                        in: user.following.map(({id}: {id: string}) => (id))
+                        in: following
                     }}
                 ]
             },
