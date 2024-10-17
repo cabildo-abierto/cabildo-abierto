@@ -23,7 +23,7 @@ export const WritePanelMainFeed = () => {
     const [randomPlaceholder, setRandomPlaceholder] = useState<string>("");
 
     const placeholders = [
-        "Escribí lo primero que se te venga a la cabeza... Y por las dudas miralo dos veces.",
+        "Una publicación veloz...",
     ];
 
     useEffect(() => {
@@ -33,6 +33,7 @@ export const WritePanelMainFeed = () => {
 
     const settings = { ...commentEditorSettings };
     settings.placeholder = randomPlaceholder;
+    settings.editorClassName = "min-h-[250px]"
 
     async function handleSubmit() {
         if (editor && user) {
@@ -50,11 +51,11 @@ export const WritePanelMainFeed = () => {
     let disabled = !editor || emptyOutput(editorState) || (!validPost(editorState, settings.charLimit));
 
     return (
-        <div className="w-full content-container rounded px-3 pb-2 pt-1">
+        <div className="w-full rounded px-3 pb-2 pt-1">
             <div className="text-sm text-gray-400 flex items-center mt-1">
                 <FastPostIcon fontSize="inherit" /> <span className="text-xs">Publicación rápida</span>
             </div>
-            <div className="sm:text-lg py-2" key={editorKey}>
+            <div className="sm:text-lg py-2 h-full max-h-[400px] overflow-scroll" key={editorKey}>
                 <MyLexicalEditor
                     settings={settings}
                     setEditorState={setEditorState}

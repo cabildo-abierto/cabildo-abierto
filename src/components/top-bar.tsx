@@ -6,7 +6,6 @@ import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import WriteButton from "./write-button";
-import { usePathname, useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { CabildoIcon, NotificationsIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
