@@ -53,6 +53,7 @@ export type CommentComponentProps = {
     viewingComments: boolean
     onStartReply: () => void
     inCommentSection?: boolean
+    inItsOwnCommentSection: boolean
     isFakeNewsReport?: boolean
     depthParity?: boolean
 }

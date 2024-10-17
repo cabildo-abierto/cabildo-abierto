@@ -43,7 +43,7 @@ export const FastPost = ({
     const optionList = isAuthor ? ["edit"] : ["reportFake"]
 
     return <div className="">
-        <div className={contentContextClassName}><FastPostIcon fontSize="inherit"/> Publicación rápida</div>
+        {inCommentSection && <div className={contentContextClassName}><FastPostIcon fontSize="inherit"/> Publicación rápida</div>}
         <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews} showFakeNewsCounter={true} optionList={optionList}/>
         <div className="px-2 py-2 content">
             <ReadOnlyEditor initialData={decompress(content.compressedText)}/>

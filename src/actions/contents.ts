@@ -7,7 +7,7 @@ import { revalidateEverythingTime } from "./utils";
 import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
 import { getUser, getUserId, getUsers } from "./users";
-import { cleanText, getPlainText } from "../components/utils";
+import { cleanText, findWeakReferences, getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
 
 
@@ -1205,21 +1205,6 @@ export async function updateAllReferences(){
 }
 
 
-function findWeakReferences(text: string, searchkeys: {id: string, keys: string[]}[]): {id: string}[]{
-    let ids = []
-    const cleaned = cleanText(text)
-    for(let i = 0; i < searchkeys.length; i++){
-        for(let j = 0; j < searchkeys[i].keys.length; j++){
-            if(cleaned.includes(cleanText(searchkeys[i].keys[j]))){
-                ids.push({id: searchkeys[i].id})
-                break
-            }
-        }
-    }
-    return ids
-}
-
-
 export async function getReferencesSearchKeys(){
     return await unstable_cache(async () => {
         const entities = await db.entity.findMany({
@@ -1229,9 +1214,9 @@ export async function getReferencesSearchKeys(){
                 searchkeys: true
             }
         })
-        let searchkeys = []
+        let searchkeys: {id: string, keys: string[]}[] = []
         for(let i = 0; i < entities.length; i++){
-            let keys = [...entities[i].searchkeys, entities[i].name]
+            let keys = [...entities[i].searchkeys, entities[i].name].map(cleanText)
             searchkeys.push({id: entities[i].id, keys: keys})
         }
         return searchkeys
