@@ -3,6 +3,7 @@ import { useUser } from "../app/hooks/user"
 import { NotificationsIcon } from "./icons"
 import { useState } from "react"
 import { NotificationsPanel } from "./notificationsPanel"
+import { createPortal } from "react-dom"
 
 
 
@@ -18,8 +19,8 @@ export const NotificationsButton = () => {
                 <NotificationsIcon count={user.user ? user.user._count.notifications : undefined}/>
             </div>
         </button>
-        {openNotificationsSidebar && <div
-            className="fixed top-0 left-0 w-screen h-full z-50"
+        {openNotificationsSidebar && createPortal(<div
+            className="fixed top-0 left-0 w-screen h-screen z-50"
         >
             <div className="flex">
                 <div className="sm:w-128 w-screen h-screen bg-[var(--background)] border-r z-50 overflow-y-scroll no-scrollbar">
@@ -31,6 +32,6 @@ export const NotificationsButton = () => {
                 >
                 </button>
             </div>
-        </div>}
+        </div>, document.body)}
     </>
 }

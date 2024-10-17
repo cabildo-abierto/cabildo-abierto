@@ -435,7 +435,12 @@ export const getEntities = unstable_cache(async () => {
                     authorId: true
                 },
                 where: {
-                    isDraft: false
+                    isDraft: false,
+                    parentEntity: {
+                        deleted: {
+                            not: true
+                        }
+                    }
                 }
             },
             reactions: {
@@ -568,6 +573,11 @@ export async function getEntityByIdNoCache(id: string){
                 where: {
                     isDraft: {
                         not: true
+                    },
+                    parentEntity: {
+                        deleted: {
+                            not: true
+                        }
                     }
                 }
             },

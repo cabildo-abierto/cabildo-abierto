@@ -32,6 +32,9 @@ export function shortDescription(content: ContentProps){
 }
 
 
+export const contentContextClassName = "bg-[var(--secondary-light)] px-2 text-sm mx-1 mt-1 link text-[var(--text-light)]"
+
+
 export const CommentInContext = ({
     content,
     onViewComments,
@@ -62,7 +65,7 @@ export const CommentInContext = ({
 
     if(!inCommentSection){
         return <div>
-            <div className="bg-[var(--secondary-light)] px-2 text-sm mx-1 mt-1 link text-[var(--text-light)]">
+            <div className={contentContextClassName}>
                 {replyTo} {rootIs}
             </div>
             {comment}
