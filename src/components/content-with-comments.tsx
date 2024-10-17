@@ -23,6 +23,7 @@ type ContentWithCommentsProps = {
     parentContentId?: string
     inCommentSection: boolean
     depthParity?: boolean
+    inItsOwnCommentSection: boolean
 }
 
 
@@ -34,6 +35,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     editing=false,
     parentContentId,
     inCommentSection,
+    inItsOwnCommentSection,
     depthParity=false,
     setEditing}) => {
 
@@ -92,6 +94,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             setEditing={setEditing}
             parentContentId={parentContentId}
             inCommentSection={inCommentSection}
+            inItsOwnCommentSection={inItsOwnCommentSection}
             depthParity={depthParity}
         />
         {isMainPage && ["Post", "EntityContent"].includes(content.type) && <hr className="mt-12 mb-2" id="discussion-start"/>}
@@ -134,6 +137,7 @@ type ContentWithCommentsFromIdProps = {
     setEditing?: (arg0: boolean) => void
     parentContentId?: string
     inCommentSection?: boolean
+    inItsOwnCommentSection?: boolean
     depthParity?: boolean
 }
 
@@ -146,6 +150,7 @@ export const ContentWithCommentsFromId = ({
     editing=false,
     parentContentId,
     inCommentSection=false,
+    inItsOwnCommentSection=false,
     depthParity=false,
     setEditing}: ContentWithCommentsFromIdProps) => {
 
@@ -164,6 +169,7 @@ export const ContentWithCommentsFromId = ({
         editing={editing}
         setEditing={setEditing}
         inCommentSection={inCommentSection}
+        inItsOwnCommentSection={inItsOwnCommentSection}
         parentContentId={parentContentId}
         depthParity={depthParity}
     />

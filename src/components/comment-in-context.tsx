@@ -42,6 +42,7 @@ export const CommentInContext = ({
     onStartReply,
     isFakeNewsReport,
     inCommentSection=false,
+    inItsOwnCommentSection,
     depthParity=false}: CommentComponentProps) => {
     const parentId = content.parentContents[0].id
     const parentContent = useContent(parentId)
@@ -57,13 +58,14 @@ export const CommentInContext = ({
         viewingComments={viewingComments}
         onStartReply={onStartReply}
         inCommentSection={inCommentSection}
+        inItsOwnCommentSection={inItsOwnCommentSection}
         isFakeNewsReport={isFakeNewsReport}
     />
 
     let replyTo = <>En respuesta a {shortDescription(parentContent.content)}</>
     let rootIs = parentContent.content.id != rootContent.content.id ? <>La discusión empezó en {shortDescription(rootContent.content)}</> : <></>
 
-    if(!inCommentSection){
+    if(!inItsOwnCommentSection){
         return <div>
             <div className={contentContextClassName}>
                 {replyTo} {rootIs}

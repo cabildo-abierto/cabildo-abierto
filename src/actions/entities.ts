@@ -2,11 +2,11 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findMentions, findReferences, getContentById, notifyMentions } from "./contents";
+import { findMentions, findReferences, getContentById, getReferencesSearchKeys, notifyMentions } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { currentVersionContent, entityInRoute, getPlainText, hasEditPermission, isPartOfContent, isUndo } from "../components/utils";
+import { currentVersionContent, entityInRoute, findWeakReferences, getPlainText, hasEditPermission, isPartOfContent, isUndo } from "../components/utils";
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
@@ -158,17 +158,21 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
     let text = null
     let prevText = null
     let mentions = []
+    let weakReferences = []
     const categoriesChange = compressedText != undefined
     const currentContent = await getContentById(current.id)
     if(categoriesChange){
         text = decompress(compressedText)
         references = await findReferences(text)
         mentions = await findMentions(text)
+        const searchKeys = await getReferencesSearchKeys()
+        weakReferences = await findWeakReferences(text, searchKeys)
         categories = current.categories
         prevText = decompress(currentContent.compressedText)
     } else {
         compressedText = currentContent.compressedText
         references = currentContent.entityReferences
+        weakReferences = current.weakReferences
         text = decompress(compressedText)
         prevText = text
     }
@@ -204,6 +208,9 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
             entityReferences: {
                 connect: references
             },
+            weakReferences: {
+                connect: weakReferences
+            },
             usersMentioned: {
                 connect: mentions
             },
@@ -223,6 +230,13 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
         }
     })
     await notifyMentions(mentions, newContent.id, userId, true)
+
+    for(let i = 0; i < weakReferences.length; i++){
+        revalidateTag("entity:"+weakReferences[i].id)
+    }
+    for(let i = 0; i < references.length; i++){
+        revalidateTag("entity:"+references[i].id)
+    }
 
     revalidateTag("entity:" + entityId)
     revalidateTag("entities")
@@ -540,6 +554,17 @@ export async function getEntityByIdNoCache(id: string){
                     entityReferences: {
                         select: {
                             id: true
+                        },
+                        where: {
+                            deleted: false
+                        }
+                    },
+                    weakReferences: {
+                        select: {
+                            id: true
+                        },
+                        where: {
+                            deleted: false
                         }
                     }
                 },

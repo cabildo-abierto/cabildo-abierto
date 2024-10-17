@@ -78,7 +78,8 @@ export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
                         contentId={comment.id}
                         isMainPage={false}
                         parentContentId={content.id}
-                        inCommentSection={!comment.isReference}
+                        inCommentSection={true}
+                        inItsOwnCommentSection={!comment.isReference}
                     />
                 </div>
             ))}
@@ -134,7 +135,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         getEntityComments(entity, comments) : 
         comments.map((c) => ({...c, isReference: false}))
 
-
     if(entity){
         feed = feed.filter((comment) => {
             return comment.type != "EntityContent" || (comment.currentVersionOf && comment.currentVersionOf.id)
@@ -156,7 +156,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                         contentId={comment.id}
                         isMainPage={false}
                         parentContentId={content.id}
-                        inCommentSection={!isRef && !comment.isReference}
+                        inCommentSection={true}
+                        inItsOwnCommentSection={!isRef && !comment.isReference}
                         depthParity={depthParity}
                     />
                 </div>

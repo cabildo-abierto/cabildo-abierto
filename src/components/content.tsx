@@ -184,6 +184,7 @@ type ContentComponentProps = {
     setEditing: (arg0: boolean) => void
     parentContentId?: string
     inCommentSection: boolean
+    inItsOwnCommentSection: boolean
     depthParity?: boolean
 }
 
@@ -200,6 +201,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     setEditing,
     parentContentId,
     inCommentSection,
+    inItsOwnCommentSection,
     depthParity,
 }) => {
     const { user } = useUser();
@@ -318,6 +320,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
                 onViewComments={onViewComments}
                 onStartReply={onStartReply}
                 inCommentSection={inCommentSection}
+                inItsOwnCommentSection={inItsOwnCommentSection}
                 isFakeNewsReport={content.type === 'FakeNewsReport'}
                 depthParity={depthParity}
             />

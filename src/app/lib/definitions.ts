@@ -136,6 +136,7 @@ export type EntityVersionProps = {
     uniqueViewsCount: number
     editMsg?: string
     entityReferences: {id: string}[]
+    weakReferences: {id: string}[]
 }
 
 export type ContributionsProps = [string, number][]
