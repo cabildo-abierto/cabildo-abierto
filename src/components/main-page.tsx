@@ -12,6 +12,7 @@ import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { WritePanelMainFeed } from "./write-panel-main-feed"
 import { TrendingArticles } from "./trending-articles"
+import { TutorialPopup } from "./tutorial-popup"
 
 
 type MainPageProps = {
@@ -54,13 +55,7 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
     </div>
 
     return <div className="w-full">
-        {(!user.user || user.user._count.views == 0) && searchValue.length == 0 && !closedIntroPopup && <div className="flex justify-center mt-2">
-            <div className="flex justify-center">
-                <Link className="gray-btn" href="/articulo?i=Cabildo_Abierto">
-                    Leer la presentación de Cabildo Abierto
-                </Link>
-            </div>
-        </div>}
+        {!closedIntroPopup && <TutorialPopup onClose={() => {setClosedIntroPopup(true)}}/>}
         
         <MainFeedHeader
             route={route}
