@@ -50,6 +50,12 @@ const WriteButton = () => {
                         className="w-64 create-btn"
                         onClick={() => {setIsDropdownOpen(false)}}
                     />
+                    
+                    {/*<Link href="/escribir/publicacion">
+                        <button className="create-btn w-64 flex justify-between items-center" onClick={() => setIsDropdownOpen(false)}>
+                            <div className="flex"><span className="px-1"><PostIcon /></span> Publicación</div> <InfoPanel iconClassName="text-white" className="w-64" text="Con título y sin límite de caracteres."/>
+                        </button>
+                    </Link>*/}
                 </div>
             </ModalBelow>
         </div>

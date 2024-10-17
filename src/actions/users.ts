@@ -9,7 +9,7 @@ import { getEntities } from "./entities";
 import { createNotification, getContentById } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import MercadoPagoConfig, { Preference } from "mercadopago";
-import { accessToken, contributionsToProportionsMap, isDemonetized, subscriptionEnds, validSubscription } from "../components/utils";
+import { accessToken, contributionsToProportionsMap, isDemonetized, listOrderDesc, subscriptionEnds, validSubscription } from "../components/utils";
 import { pathLogo } from "../components/logo";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
@@ -34,7 +34,28 @@ export const getUsers = unstable_cache(async () => {
         {
             select: {
                 id: true,
-                name: true
+                name: true,
+                following: {select: {id: true}},
+                contents: {
+                    select: {
+                        _count: {
+                            select: {
+                                reactions: true,
+                            }
+                        },
+                        uniqueViewsCount: true
+                    },
+                    where: {
+                        type: {
+                            in: ["Comment", "Post", "FastPost"]
+                        }
+                    }
+                }
+            },
+            where: {
+                id: {
+                    not: "guest"
+                }
             }
         }
     )
@@ -300,6 +321,10 @@ export async function getUserAuthId() {
 
 
 export async function follow(userToFollowId: string, userId: string) {
+    const user = await getUserById(userId)
+    if(user.following.some(({id}) => (userToFollowId == id))){
+        return "already follows"
+    }
     const updatedUser = await db.user.update({
         where: {
             id: userId,
@@ -1171,4 +1196,55 @@ export async function computeDayViews(entities: boolean = false){
 
         day.setTime(day.getTime()+dayMillis)
     }
+}
+
+
+function suggestionScore(user: UserProps, suggestedUser: UserProps){
+    const userFollows = new Set(user.following)
+    let followingInCommon = 0
+    for(let i = 0; i < suggestedUser.following.length; i++){
+        
+    }
+}
+
+
+export async function getUserFollowSuggestions(userId: string){
+
+    return await unstable_cache(async () => {
+        const user = await getUserById(userId)
+        const users = await getUsers()
+
+        const following = new Set<string>(user.following.map(({id}) => (id)))
+
+        function filter(u: {id: string}){
+            return !following.has(u.id) && u.id != user.id
+        }
+
+        function suggestionScore(s: {id: string, contents: {_count: {reactions:number}, uniqueViewsCount: number}[], following: {id: string}[]}){
+            let n = 0
+            for(let i = 0; i < s.following.length; i++){
+                if(following.has(s.following[i].id)) n++
+            }
+
+            let writingScore = 0
+            for(let i = 0; i < s.contents.length; i++){
+                writingScore += s.contents[i]._count.reactions / s.contents[i].uniqueViewsCount
+            }
+            writingScore /= Math.max(s.contents.length, 1)
+
+            console.log(s.id, "score", [n, writingScore])
+
+            return [n, writingScore, Math.random()]
+        }
+
+        let suggestions = users.filter(filter)
+
+        let scores = suggestions.map((u) => ({user: u, score: suggestionScore(u)}))
+
+        scores = scores.sort(listOrderDesc)
+        
+        return scores.map(({user}) => (user))
+
+    }, ["followSuggestions", userId], {revalidate: revalidateEverythingTime, tags: ["followSuggestions", userId]})()
+
 }
