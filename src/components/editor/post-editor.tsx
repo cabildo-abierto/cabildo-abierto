@@ -139,9 +139,10 @@ const PostEditor = ({
 	const PublishButton = ({onClick}: {onClick: (e) => Promise<boolean>}) => {
         return <StateButton
             handleClick={onClick}
-            className="gray-btn"
+            className="small-btn sm:gray-btn text-xs sm:text-sm"
             text1={isPublished ? "Guardar cambios" : "Publicar"}
             text2={isPublished ? "Guardando..." : "Publicando..."}
+            textClassName="py-2"
             disabled={disabled}
         />
 	}
@@ -149,17 +150,20 @@ const PostEditor = ({
     const SaveDraftButton = ({onClick}: {onClick: (e) => Promise<boolean>}) => {
         return <StateButton
             handleClick={onClick}
-            className="gray-btn"
+            className="small-btn sm:gray-btn text-xs sm:text-sm"
             text1="Guardar borrador"
             text2="Guardando..."
+            textClassName="py-2"
             disabled={disabled}
         />
 	}
 
     const DraftsButton = () => {
         return <Link href="/borradores">
-            <button className="gray-btn">
+            <button className="gray-btn hidden text-sm sm:block">
+                <div className="py-1">
                 Ver borradores
+                </div>
             </button>
         </Link>
     }
@@ -168,10 +172,8 @@ const PostEditor = ({
         <div className="text-sm text-gray-400 text-center">{isFast ? "Publicación rápida" : "Publicación"}</div>
         <div className="flex justify-between mt-3">
             {isPublished ? <div></div> : <DraftsButton/>}
-			<div className="flex justify-end">
-                <div className="px-1">
-                    <PublishButton onClick={handleSubmit}/>
-                </div>
+			<div className="flex justify-end space-x-1">
+                <PublishButton onClick={handleSubmit}/>
                 {!isPublished && <SaveDraftButton onClick={handleSaveDraft}/>}
 			</div>
 		</div>

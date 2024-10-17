@@ -93,11 +93,11 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
 
             <div className="flex justify-end">
               {/* TO DO: Debería ser active si le diste like y inactive si no */}
-              <FixedCounter
+              {/*<FixedCounter
               count={entity.reactions.length}
               icon={<InactivePraiseIcon />}
               title='Cantidad de votos hacia arriba que recibió'
-              />
+              />*/}
               <FixedCounter
               count={entity.uniqueViewsCount}
               icon={<ViewsIcon />}
