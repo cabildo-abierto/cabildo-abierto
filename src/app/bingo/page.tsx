@@ -60,7 +60,7 @@ const Page = () => {
                         <button
                             key={index}
                             onClick={() => toggleButton(index)}
-                            className={`lg:w-12 lg:h-12 border border-gray-500 lg:text-lg rounded-3xl ${isToggled ? 'bg-green-400' : 'bg-white'}`}
+                            className={`lg:w-12 lg:h-12 lg:text-lg rounded-3xl ${isToggled ? 'bg-green-400' : 'bg-white'}`}
                         >
                             {index + 1}
                         </button>
