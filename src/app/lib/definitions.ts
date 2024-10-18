@@ -157,8 +157,16 @@ export type SmallEntityProps = {
         childrenTree: {authorId: string}[]
         reactions: {userById: string}[]
     }[]
-    referencedBy: {authorId: string}[]
-    weakReferences: {authorId: string}[]
+    referencedBy: {
+        authorId: string
+        reactions: {userById: string}[]
+        childrenTree: {authorId: string, reactions: {userById: string}[]}[]
+    }[]
+    weakReferences: {
+        authorId: string
+        reactions: {userById: string}[]
+        childrenTree: {authorId: string, reactions: {userById: string}[]}[]
+    }[]
     views?: number,
     reactions?: {userById: string}[],
     uniqueViewsCount: number
