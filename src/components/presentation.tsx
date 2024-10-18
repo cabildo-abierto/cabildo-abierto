@@ -88,7 +88,7 @@ export const Presentation = ({loggingIn, setLoggingIn}: {loggingIn: boolean, set
         </div>
         <div className="ml-4 flex h-full justify-center flex-col">
           <h1 className="lg:text-5xl text-[1.7rem]">Cabildo Abierto</h1>
-          <h3 className="text-gray-600 text-xl lg:text-3xl mt-2">Discutí lo público</h3>
+          <h2 className="text-gray-600 text-xl lg:text-3xl sm:mt-2 my-0 py-0">Discutí lo público</h2>
         </div>
       </div>
       <Link href={articleUrl("Cabildo_Abierto")} className="text-lg title mb-3 w-72 gray-btn flex justify-center text-center">
