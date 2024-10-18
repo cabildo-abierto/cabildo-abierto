@@ -153,7 +153,7 @@ export const recomputeEntityContributions = async (entityId: string) => {
 }
 
   
-export const updateEntity = async (entityId: string, userId: string, claimsAuthorship: boolean, editMsg: string, compressedText?: string, categories?: string) => {
+export const updateEntity = async (entityId: string, userId: string, claimsAuthorship: boolean, editMsg: string, compressedText?: string, categories?: string, searchkeys?: string[]) => {
     const entity = await getEntityById(entityId)
     const current = currentVersionContent(entity)
 
@@ -162,9 +162,11 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
     let prevText = null
     let mentions = []
     let weakReferences = []
-    const categoriesChange = compressedText != undefined
+    const contentChange = compressedText != undefined
+    const categoriesChange = categories != undefined
+    const searchkeysChange = searchkeys != undefined
     const currentContent = await getContentById(current.id)
-    if(categoriesChange){
+    if(contentChange){
         text = decompress(compressedText)
         references = await findReferences(text)
         mentions = await findMentions(text)
@@ -182,7 +184,7 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
 
-    if(!categoriesChange){
+    if(contentChange){
         const searchKeys = await getReferencesSearchKeys()
         weakReferences = await findWeakReferences(plainText+entity.name, searchKeys)
     }
@@ -211,6 +213,7 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
                 connect: {id: entityId}
             },
             categories: categories,
+            searchkeys: searchkeys,
             entityReferences: {
                 connect: references
             },
@@ -235,6 +238,11 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
             charsDeleted: charsDeleted
         }
     })
+
+    if(searchkeysChange){
+        await updateEntityWeakMentions(entityId)
+    }
+
     await notifyMentions(mentions, newContent.id, userId, true)
 
     for(let i = 0; i < weakReferences.length; i++){
@@ -380,6 +388,8 @@ export const deleteEntityHistory = async (entityId: string, includeLast: boolean
     for(let i = 1; i < entity.versions.length-(includeLast ? 0 : 1); i++){
         await deleteContent(entity.versions[i].id)
     }
+
+    await updateEntityCurrentVersion(entityId)
     await recomputeEntityContributions(entityId)
     
     revalidateTag("entity:"+entityId)
@@ -499,7 +509,12 @@ export async function getEntityByIdNoCache(id: string){
             protection: true,
             isPublic: true,
             deleted: true,
-            searchkeys: true,
+            currentVersion: {
+                select: {
+                    categories: true,
+                    searchkeys: true
+                }
+            },
             versions: {
                 select: {
                     id: true,

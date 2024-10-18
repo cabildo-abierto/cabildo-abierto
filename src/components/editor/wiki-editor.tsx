@@ -19,6 +19,7 @@ import { ShowArticleChanges } from "../show-article-changes"
 import { ShowArticleAuthors } from "../show-authors-changes"
 import { SaveEditPopup } from "../save-edit-popup"
 import { fetcher } from "../../app/hooks/utils"
+import { SearchkeysEditor } from "../searchkeys-editor"
 
 
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
@@ -173,15 +174,15 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
             <ToggleButton
                 className={articleButtonClassname}
                 toggled={editingRoutes}
-                setToggled={setEditingRoutes}
+                setToggled={(v) => {setEditingRoutes(v); if(v) setEditingSearchkeys(false)}}
                 text="Editar categorías"
             />
-            {/*<ToggleButton
+            <ToggleButton
                 className={articleButtonClassname}
                 toggled={editingSearchkeys}
-                setToggled={setEditingSearchkeys}
+                setToggled={(v) => {setEditingSearchkeys(v); if(v) setEditingRoutes(false)}}
                 text="Editar sinónimos"
-            />*/}
+            />
             <CancelEditButton/>
             <SaveEditButton/>
         </div>}
@@ -197,6 +198,11 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         {editingRoutes &&
         <div className="py-4">
             <RoutesEditor entity={entity} setEditing={setEditing}/>
+        </div>}
+
+        {editingSearchkeys && 
+        <div className="py-4">
+            <SearchkeysEditor entity={entity} setEditing={setEditing}/>    
         </div>}
         
         <div className="text-center">

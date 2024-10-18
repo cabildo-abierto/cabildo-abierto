@@ -67,7 +67,7 @@ const ArticlesWithSearch = ({ entities, route, sortBy }: {
 };
 
 
-export const CategoryArticles = ({route}: {route: string[]}) => {
+export const CategoryArticles = ({route, onSearchPage=false}: {route: string[], onSearchPage?: boolean}) => {
     const routeEntities = useRouteEntities(route)
     const {searchValue} = useSearch()
     const [sortBy, setSortBy] = useState("Populares")
@@ -78,9 +78,9 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
 
     return <>
 
-        {<div className="mt-2"><DidYouKnow text={<>¿Sabías que si editás el contenido de un tema Cabildo Abierto te paga por cada persona que entre a leerlo en el futuro? <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>Leer más.</Link></>}/></div>}
+        {!onSearchPage && <div className="mt-2"><DidYouKnow text={<>¿Sabías que si editás el contenido de un tema Cabildo Abierto te paga por cada persona que entre a leerlo en el futuro? <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>Leer más.</Link></>}/></div>}
         
-        {<div className="flex justify-center py-4">
+        {!onSearchPage && <div className="flex justify-center py-4">
             <NewPublicArticleButton
                 onClick={() => {}}
                 className="gray-btn"
@@ -90,7 +90,7 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
             />
         </div>}
 
-        {<div className="flex justify-center text-sm space-x-1 mb-4">
+        {!onSearchPage && <div className="flex justify-center text-sm space-x-1 mb-4">
                 <div className="border-r rounded border-t border-b border-l">
             <SelectionComponent
                 onSelection={setSortBy}

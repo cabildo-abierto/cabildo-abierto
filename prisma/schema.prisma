@@ -144,7 +144,6 @@ model ContactEmails {
   mail           String
   createdAt      DateTime  @default(now()) @map("created_at")
 
-
   @@schema("public")
 }
 
@@ -169,8 +168,6 @@ model Entity {
   currentVersion Content?  @relation("currentVersion", fields: [currentVersionId], references: [id])
 
   weakReferences  Content[]   @relation("weakReferences")
-
-  searchkeys String[]
 
   @@schema("public")
 }
@@ -259,6 +256,8 @@ model Content {
   uniqueCommentators Int    @default(0)
 
   weakReferences  Entity[]   @relation("weakReferences")
+
+  searchkeys  String[]
 
   @@schema("public")
 }

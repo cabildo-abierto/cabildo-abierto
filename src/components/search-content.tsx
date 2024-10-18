@@ -51,7 +51,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
         <div className="pt-1">
 
             {selected == "Temas" && 
-                <CategoryArticles route={route}/>
+                <CategoryArticles route={route} onSearchPage={true}/>
             }
 
             {/*selected == "General" &&
