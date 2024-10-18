@@ -46,6 +46,8 @@ model User {
 
     mentionedIn         Content[]       @relation("userMention")
 
+    closedFollowSuggestionsAt DateTime?
+
     @@map("users")
     @@schema("public")
 }

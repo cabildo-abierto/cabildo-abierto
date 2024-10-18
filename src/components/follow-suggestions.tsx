@@ -6,7 +6,7 @@ import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { useUser, useUserFollowSuggestions, useUsers } from "../app/hooks/user";
 import { CloseButton } from "./close-button";
-import { follow } from "../actions/users";
+import { follow, updateClosedFollowSuggestions } from "../actions/users";
 import StateButton from "./state-button";
 import Link from "next/link";
 import InfoPanel from "./info-panel";
@@ -19,7 +19,17 @@ export const FollowSuggestions = () => {
 
     if(!suggestions || !user) return <></>
 
+    if(user.closedFollowSuggestionsAt && new Date().getTime() - new Date(user.closedFollowSuggestionsAt).getTime() < 24*60*1000){
+        return <></>
+    }
+
+
     suggestions = suggestions.filter((u) => (!user.following.some((f) => (f.id == u.id))))
+
+    async function onClose(){
+        setWasClosed(true)
+        await updateClosedFollowSuggestions(user.id)
+    }
 
     if(suggestions.length == 0) return <></>
 
@@ -36,12 +46,12 @@ export const FollowSuggestions = () => {
             <div className="flex items-start">
                 <div className="flex items-center">
                 <InfoPanel text="Por seguidores en común y popularidad de sus publicaciones."/>
-                <CloseButton onClose={() => {setWasClosed(true)}}/>
+                <CloseButton onClose={onClose}/>
                 </div>
             </div>
         </div>
         <div className="px-4 mb-2">
-            <SuggestionsSlider suggestions={suggestions} closePanel={() => {setWasClosed(true)}}/>
+            <SuggestionsSlider suggestions={suggestions} closePanel={onClose}/>
         </div>
     </div>}</>
 }

@@ -163,7 +163,7 @@ export const getUsersWithStats = unstable_cache(async () => {
 
 export const getUserById = (userId: string) => {
     return unstable_cache(async () => {
-        const user = await db.user.findUnique(
+        const user: UserProps = await db.user.findUnique(
             {
                 select: {
                     id: true,
@@ -221,7 +221,7 @@ export const getUserById = (userId: string) => {
                             }
                         }
                     },
-
+                    closedFollowSuggestionsAt: true
                 },
                 where: {id:userId}
             }
@@ -1247,4 +1247,18 @@ export async function getUserFollowSuggestions(userId: string){
 
     }, ["followSuggestions", userId], {revalidate: revalidateEverythingTime, tags: ["followSuggestions", userId]})()
 
+}
+
+
+export async function updateClosedFollowSuggestions(userId: string){
+    await db.user.update({
+        data: {
+            closedFollowSuggestionsAt: new Date()
+        },
+        where: {
+            id: userId
+        }
+    })
+    revalidateTag("user:"+userId)
+    return true
 }
