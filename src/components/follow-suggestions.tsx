@@ -17,9 +17,11 @@ export const FollowSuggestions = () => {
     const {user} = useUser()
     const [wasClosed, setWasClosed] = useState(false)
 
-    if(!suggestions || suggestions.length == 0 || !user) return <></>
+    if(!suggestions || !user) return <></>
 
     suggestions = suggestions.filter((u) => (!user.following.some((f) => (f.id == u.id))))
+
+    if(suggestions.length == 0) return <></>
 
     return <>{!wasClosed && <div className="border rounded">
         <div className="px-2 flex justify-between">
@@ -39,7 +41,7 @@ export const FollowSuggestions = () => {
             </div>
         </div>
         <div className="px-4 mb-2">
-            <SuggestionsSlider suggestions={suggestions}/>
+            <SuggestionsSlider suggestions={suggestions} closePanel={() => {setWasClosed(true)}}/>
         </div>
     </div>}</>
 }
@@ -54,7 +56,10 @@ function arrayMax(a: any[]){
 }
 
 
-export const SuggestionsSlider = ({suggestions}: {suggestions: {id: string, name: string}[]}) => {
+export const SuggestionsSlider = ({suggestions, closePanel}: {
+    suggestions: {id: string, name: string}[]
+    closePanel: () => void
+}) => {
     const {user} = useUser()
 
     const amount = Math.min(Math.floor(window.innerWidth / 160), 4)
@@ -70,6 +75,9 @@ export const SuggestionsSlider = ({suggestions}: {suggestions: {id: string, name
     function onClose(index: number){
         const nextIndex = arrayMax(options)+1
         setOptions([...options.slice(0, index), nextIndex, ...options.slice(index+1)])
+        if(nextIndex >= suggestions.length){
+            closePanel()
+        }
     }
 
     return (
@@ -81,7 +89,7 @@ export const SuggestionsSlider = ({suggestions}: {suggestions: {id: string, name
             const e = suggestions[i]
 
             return <div
-                className="flex-1 border h-32 rounded text-center"
+                className="border min-w-32 h-32 rounded text-center"
                 key={e.id+index}
             >
                 <div className="flex flex-col justify-between h-full">
@@ -98,7 +106,7 @@ export const SuggestionsSlider = ({suggestions}: {suggestions: {id: string, name
                 </Link>
                 <div className="flex justify-center text-sm mt-2 mb-1 px-1">
                     <StateButton
-                        className="gray-btn"
+                        className="gray-btn text-xs sm:text-sm"
                         handleClick={async () => {await onFollow(e.id, index); return true}}
                         text1="Seguir"
                         text2="Siguiendo..."
