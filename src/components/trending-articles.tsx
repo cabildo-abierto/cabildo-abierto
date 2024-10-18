@@ -38,7 +38,7 @@ export function countUserInteractions(entity: SmallEntityProps){
     return s.size
 }
 
-function popularityScore(entity: SmallEntityProps){
+export function topicPopularityScore(entity: SmallEntityProps){
     return [countUserInteractions(entity), entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0]
 }
 
@@ -50,7 +50,7 @@ export const TrendingArticles = () => {
         return <LoadingSpinner />;
     }
 
-    let entitiesWithScore = entities.entities.map((entity) => ({ entity: entity, score: popularityScore(entity) }));
+    let entitiesWithScore = entities.entities.map((entity) => ({ entity: entity, score: topicPopularityScore(entity) }));
 
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
     
@@ -60,9 +60,9 @@ export const TrendingArticles = () => {
     </div>
 
     return <div className="">
-        <div className="text-[var(--text-light)] text-xs sm:text-sm flex justify-end mb-1">
+        {false && <div className="text-[var(--text-light)] text-xs sm:text-sm flex justify-end mb-1">
             <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={text}/>
-        </div>
+        </div>}
         <TrendingArticlesSlider trendingArticles={entitiesWithScore.map((e) => (e.entity))}
         />
     </div>
@@ -83,7 +83,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
     >
         {trendingArticles.map((e, index) => {
 
-            const score = popularityScore(e)[0]
+            const score = topicPopularityScore(e)[0]
             return <button
                 onClick={() => {router.push(articleUrl(e.id))}}
                 className="flex-none min-w-28 max-w-48 sm:min-w-48 sm:max-w-64 h-24 border rounded-lg text-center p-1 hover:bg-[var(--secondary-slight)] sm:text-sm text-xs text-[0.72rem] my-2 hover:scale-105 transition duration-300 ease-in-out"

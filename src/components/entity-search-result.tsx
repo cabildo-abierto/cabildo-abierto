@@ -70,7 +70,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
       {numWords == 0 && (
         <div className="absolute top-[-9px] right-2 z-10">
           <span className="text-xs rounded border px-1 text-[var(--text-light)] bg-[var(--background)]">
-            ¡Tema vacío! Completalo
+            ¡Tema sin información! Completalo
           </span>
         </div>
       )}
@@ -87,11 +87,11 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
 
             <EntityCategoriesSmall entity={entity} route={route}/>
 
-            <div className="mt-1">
+            <div className="mt-1 mb-2">
               <DateLastEdit entity={entity}/>
             </div>
 
-            <div className="flex justify-end">
+            {false && <div className="flex justify-end">
               {/* TO DO: Debería ser active si le diste like y inactive si no */}
               {/*<FixedCounter
               count={entity.reactions.length}
@@ -114,7 +114,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
                 title="Cantidad de comentarios (y comentarios de los comentarios)."
               />
               <FixedCounter count={numWords} icon={<TextLengthIcon/>} title="Cantidad de palabras."/>
-            </div>
+            </div>}
           </div>
         </div>
       </Link>
