@@ -10,10 +10,11 @@ import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import InfoPanel from "./info-panel";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
+import PersonIcon from '@mui/icons-material/Person';
 
 
 export function countUserInteractions(entity: SmallEntityProps){
-    const entityId = "Universidades Públicas"
+    //const entityId = "Universidades Públicas"
     //if(entity.name == entityId) console.log("Interacciones", entity.name)
     let s = new Set(entity.referencedBy.map((r) => (r.authorId)))
     //if(entity.name == entityId) console.log("Referencias", s)
@@ -53,7 +54,10 @@ export const TrendingArticles = () => {
 
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
     
-    const text = <div><p className="font-bold">Temas ordenados por popularidad</p><p>Según la cantidad de personas que participó en la discusión. Las participaciones incluyen menciones, comentarios y ediciones.</p></div>
+    const text = <div>
+        <p className="font-bold">Temas ordenados por popularidad</p>
+        <p>Según la cantidad de personas que participó en la discusión. Las participaciones incluyen menciones, comentarios y ediciones.</p>
+    </div>
 
     return <div className="">
         <div className="text-[var(--text-light)] text-xs sm:text-sm flex justify-end mb-1">
@@ -82,19 +86,19 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
             const score = popularityScore(e)[0]
             return <button
                 onClick={() => {router.push(articleUrl(e.id))}}
-                className="flex-none w-28 sm:w-48 h-24 border rounded text-center p-1 hover:bg-[var(--secondary-slight)] sm:text-sm text-xs"
+                className="flex-none min-w-28 max-w-48 sm:min-w-48 sm:max-w-64 h-24 border rounded-lg text-center p-1 hover:bg-[var(--secondary-slight)] sm:text-sm text-xs text-[0.72rem] my-2 hover:scale-105 transition duration-300 ease-in-out"
                 key={e.id}
                 onMouseEnter={() => {preload("/api/entity/"+e.id, fetcher)}}
             >
-                <div className="flex items-center justify-center">
-                    {e.name.slice(0, 64)}{e.name.length > 64 ? "..." : ""}
+                <div className={"flex items-center justify-center h-14 px-2"}>
+                    <span className={e.name.length > 64 ? "text-[0.74rem]" : ""}>{e.name}</span>
                 </div>
-                {false && <div
-                    className="text-[var(--text-light)] h-8 text-xs sm:text-sm"
-                    title="La cantidad de usuarios que participó en la discusión."
+                <div
+                    className="text-[var(--text-light)] h-10 text-xs sm:text-sm flex items-center justify-center"
+                    title="La cantidad de usuarios que participaron en la discusión."
                 >
-                    {score} {score == 1 ? "usuario" : "usuarios"}
-                </div>}
+                    {score} {score != 1 ? "usuarios" : "usuario"}
+                </div>
             </button>
         })}
     </div>

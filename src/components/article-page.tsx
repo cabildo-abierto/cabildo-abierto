@@ -281,21 +281,16 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
     const center = <div className="bg-[var(--background)] h-full px-2">
         {showingNeedAccountPopup && <NeedAccountToEditPopup 
         onClose={() => {setShowingNeedAccountPopup(false)}}/>}
-        <div className="flex justify-between items-center">
-            <div className="">
+        <div className="flex flex-col">
             <div className="text-[var(--text-light)] text-sm mt-8 mb-2">
                 Tema
             </div>
-            <h1 className="mb-8">
+            <h1 className="mb-8 text-lg sm:text-2xl">
                 {entity.entity.name}
             </h1>
-            </div>
-            <button className="gray-btn sm:text-base text-sm" onClick={onGoToDiscussion}>
-                Ir a la discusión <ArrowDownwardIcon fontSize="inherit"/>
-            </button>
         </div>
-        <div className="flex justify-between">
-            <div className="flex flex-col link">
+        <div className="flex justify-between items-center">
+            <div className="flex flex-col link text-xs sm:text-sm">
 
                 <ShowContributors entityId={entityId}/>
                 
@@ -310,6 +305,9 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
                 }
 
             </div>
+            <button className="gray-btn sm:text-base text-sm" onClick={onGoToDiscussion}>
+                Ir a la discusión <ArrowDownwardIcon fontSize="inherit"/>
+            </button>
         </div>
         <div className="">
         {!editing && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">
