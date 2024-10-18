@@ -113,9 +113,9 @@ const PostEditor = ({
             const type = isFast ? "FastPost" : "Post"
             if(!isDraft){
                 if(!isPublished){
-                    await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
+                    const result = await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
                 } else {
-                    await updateContent(compressedText, contentId, !isFast ? title : undefined)
+                    const result = await updateContent(compressedText, contentId, !isFast ? title : undefined)
                 }
             } else {
                 await updateContent(compressedText, contentId, title)
