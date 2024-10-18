@@ -37,9 +37,8 @@ const Page = () => {
                             Grupo Scout San Martín de Tours
                         </span>
                         <Link href="/inicio" className="flex items-center flex-col">
-                            <Logo className="w-12 h-12" />
                             <div className="text-sm text-gray-800 mb-2 text-center">
-                                <p className="text-xs">en colaboración con</p>
+                                <p className="text-xs">En colaboración con</p>
                                 <p>www.cabildoabierto.com.ar</p>
                             </div>
                         </Link>
