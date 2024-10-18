@@ -471,7 +471,7 @@ export async function updateContent(compressedText: string, contentId: string, t
     await notifyMentions(mentions, contentId, userId, true)
     
     revalidateTag("content:"+contentId)
-    return result
+    return true
 }
 
 

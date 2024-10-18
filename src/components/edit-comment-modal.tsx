@@ -17,6 +17,7 @@ const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ss
 export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClose: () => void}) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
+    const [errorOnEdit, setErrorOnEdit] = useState(false)
     const content = useContent(contentId)
     const {mutate} = useSWRConfig()
 
@@ -52,12 +53,19 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
                 className="gray-btn my-2 w-64"
                 disabled={!validComment(editorState, settings.charLimit)}
                 handleClick={async (e) => {
-                    await updateContent(compress(JSON.stringify(editorState)), contentId)
-                    mutate("/api/content/"+contentId)
-                    onClose()
-                    return false
+                    setErrorOnEdit(false)
+                    const result = await updateContent(compress(JSON.stringify(editorState)), contentId)
+                    if(result){
+                        mutate("/api/content/"+contentId)
+                        onClose()
+                        return true
+                    } else {
+                        setErrorOnEdit(true)
+                        return false
+                    }
                 }}
             />
+            {errorOnEdit && <div className="text-red-600 text-sm mb-2">Ocurrió un error al guardar la edición. Intentalo de nuevo.</div>}
         </div>
     </BaseFullscreenPopup>
 }

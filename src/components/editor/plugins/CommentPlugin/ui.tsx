@@ -177,7 +177,7 @@ export function CommentInputBox({
         
         if(editor){
             editor.getEditorState().read(async () => {
-                await updateContent(compress(JSON.stringify(editor.getEditorState())), parentContent.id)
+                const result = await updateContent(compress(JSON.stringify(editor.getEditorState())), parentContent.id)
             })
         }
         submitAddComment()
