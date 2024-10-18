@@ -53,11 +53,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
 }) => {
     const user = useUser()
     const entity = useEntity(entityId)
-    const [editing, setEditing] = useState(false)
-    const [showingCategories, setShowingCategories] = useState(false)
-    const [showingHistory, setShowingHistory] = useState(version != undefined)
-    const [showingChanges, setShowingChanges] = useState(false)
-    const [showingAuthors, setShowingAuthors] = useState(false)
+    const [selectedPanel, setSelectedPanel] = useState(version == undefined ? "none" : "history")
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
@@ -81,16 +77,14 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
 
     async function onEdit(v){
         if(!v || user.user != null){
-            setEditing(v); 
-            if(v) {
-                setShowingChanges(false)
-                setShowingAuthors(false)
-                setShowingHistory(false)
-                setShowingCategories(false)
-            }
+            setSelectedPanel("editing")
         } else if(user.user == null){
             setShowingNeedAccountPopup(true)
         }
+    }
+
+    function setEditing(v: boolean){
+        if(v) setSelectedPanel("editing"); else setSelectedPanel("none")
     }
 
     const EditButton = () => {
@@ -99,7 +93,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             toggledText="Cancelar edición"
             className={"article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--primary-dark)]"}
             setToggled={onEdit}
-            toggled={editing}
+            toggled={selectedPanel == "editing"}
         />
     }
 
@@ -107,8 +101,8 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         return <ToggleButton
             text="Historial"
             className={articleButtonClassname}
-            setToggled={(v) => {setShowingHistory(v)}}
-            toggled={showingHistory}
+            setToggled={(v) => {if(v) setSelectedPanel("history"); else setSelectedPanel("none")}}
+            toggled={selectedPanel == "history"}
         />
     }
 
@@ -116,8 +110,8 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         return <ToggleButton
             text="Cambios"
             className={articleButtonClassname}
-            setToggled={(v) => {setShowingChanges(v); if(v) {setEditing(false); setShowingAuthors(false)}}}
-            toggled={showingChanges}
+            setToggled={(v) => {if(v) setSelectedPanel("changes"); else setSelectedPanel("none")}}
+            toggled={selectedPanel == "changes"}
         />
     }
 
@@ -125,8 +119,8 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         return <ToggleButton
             text="Autores"
             className={articleButtonClassname}
-            setToggled={(v) => {setShowingAuthors(v); if(v) {setEditing(false); setShowingChanges(false)}}}
-            toggled={showingAuthors}
+            setToggled={(v) => {if(v) setSelectedPanel("authors"); else setSelectedPanel("none")}}
+            toggled={selectedPanel == "authors"}
         />
     }
 
@@ -134,8 +128,8 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         return <ToggleButton
             text="Categorías"
             className={articleButtonClassname}
-            setToggled={(v) => {setShowingCategories(v)}}
-            toggled={showingCategories}
+            setToggled={(v) => {if(v) setSelectedPanel("categories"); else setSelectedPanel("none")}}
+            toggled={selectedPanel == "categories"}
         />
     }
 
@@ -310,7 +304,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             </button>
         </div>
         <div className="">
-        {!editing && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">
+        {selectedPanel != "editing" && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">
             <EditButton/>
             <ViewHistoryButton/>
             <ViewCategoriesButton/>
@@ -354,13 +348,13 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             }
         </div>}
         </div>
-        {showingCategories && <div className="px-2 content-container my-2">
+        {selectedPanel == "categories" && <div className="px-2 content-container my-2">
             <EntityCategories
                 categories={versions[version].categories}
                 name={entity.entity.name}
             />
         </div>}
-        {showingHistory && <div className="my-2">
+        {selectedPanel == "history" && <div className="my-2">
             <EditHistory
                 entity={entity.entity}
                 viewing={version}
@@ -377,19 +371,19 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         </div>}
 
         <div className="mt-4">
-        {editing && <ContentWithCommentsFromId
+        {selectedPanel == "editing" && <ContentWithCommentsFromId
             contentId={contentId}
-            showingChanges={showingChanges}
-            showingAuthors={showingAuthors}
+            showingChanges={false}
+            showingAuthors={false}
             editing={true}
             setEditing={setEditing}
             isMainPage={true}
             inCommentSection={false}
         />}
-        {!editing && <ContentWithCommentsFromId
+        {selectedPanel != "editing" && <ContentWithCommentsFromId
             contentId={contentId}
-            showingChanges={showingChanges}
-            showingAuthors={showingAuthors}
+            showingChanges={selectedPanel == "changes"}
+            showingAuthors={selectedPanel == "authors"}
             editing={false}
             setEditing={setEditing}
             isMainPage={true}

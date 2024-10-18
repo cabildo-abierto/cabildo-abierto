@@ -1211,12 +1211,16 @@ export async function getReferencesSearchKeys(){
             select: {
                 id: true,
                 name: true,
-                searchkeys: true
+                currentVersion: {
+                    select: {
+                        searchkeys: true
+                    }
+                }
             }
         })
         let searchkeys: {id: string, keys: string[]}[] = []
         for(let i = 0; i < entities.length; i++){
-            let keys = [...entities[i].searchkeys, entities[i].name].map(cleanText)
+            let keys = [...entities[i].currentVersion.searchkeys, entities[i].name].map(cleanText)
             searchkeys.push({id: entities[i].id, keys: keys})
         }
         return searchkeys
@@ -1258,7 +1262,7 @@ export async function updateAllWeakReferences(){
 
 export async function updateEntityWeakMentions(entityId: string){
     const entity = await getEntityById(entityId)
-    const entityKeys = [...entity.searchkeys, entity.name].map(cleanText)
+    const entityKeys = [...entity.currentVersion.searchkeys, entity.name].map(cleanText)
     let keys = [{id: entityId, keys: entityKeys}]
 
     const contents = await db.content.findMany({
