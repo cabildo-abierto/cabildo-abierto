@@ -2,12 +2,10 @@
 import React, { useEffect, useState } from "react"
 import { CategoryArticles } from "./category-articles";
 import { CategoryUsers } from "./category-users";
-import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents";
+import { useRouteFeed, useSearchableContents } from "../app/hooks/contents";
 import { preload } from "swr";
 import { fetcher } from "../app/hooks/utils";
 import { ConfiguredFeed } from "./sorted-and-filtered-feed";
-import { useUser } from "../app/hooks/user";
-import { useSearch } from "./search-context";
 import { SearchHeader } from "./search-header";
 
 
@@ -21,16 +19,13 @@ type RouteContentProps = {
 
 export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}: RouteContentProps) => {
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "Publicaciones")
-    const feed = useRouteFeed(route)
-    const followingFeed = useRouteFollowingFeed(route)
+    const contents = useSearchableContents()
     const [filter, setFilter] = useState("Todas")
-    const user = useUser()
-    const {searchValue} = useSearch()
-    const [closedIntroPopup, setClosedIntroPopup] = useState(false)
 
     useEffect(() => {
         preload("/api/users", fetcher)
         preload("/api/entities", fetcher)
+        preload("/api/searchable-contents", fetcher)
 
         // probablemente estos dos no tenga sentido ponerlos acá
         preload("/api/feed/", fetcher)
@@ -64,7 +59,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
 
             {selected == "Publicaciones" &&
                 <ConfiguredFeed
-                    feed={feed}
+                    feed={contents}
                     order="Recientes"
                     filter={filter}
                     setFilter={setFilter}
