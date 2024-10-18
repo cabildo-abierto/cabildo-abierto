@@ -32,7 +32,7 @@ export const Author = ({content} :{content: ContentProps}) => {
     const router = useRouter()
     const onClick = stopPropagation(() => {router.push(url)})
 
-    return <div className="text-sm">
+    return <div className="sm:text-sm text-xs flex flex-wrap mb-1">
         <span
             className="hover:underline mr-1 font-bold text-gray-800"
             onClick={onClick}
@@ -65,13 +65,13 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
         onMouseEnter={onMouseEnter}
     >
         <div className="flex justify-between items-center mt-1">
-            <span className="text-sm text-gray-400 ml-2">Publicación</span>
+            <span className="text-xs sm:text-sm text-gray-400 ml-2">Publicación</span>
 
             <div className="flex items-center space-x-1 mr-1">
-                <span className="text-[var(--text-light)] text-sm mr-1">
+                <span className="text-[var(--text-light)] text-xs sm:text-sm mr-1">
                     <DateSince date={content.createdAt}/>
                 </span>
-                {content.isContentEdited && <span className="text-[var(--text-light)] text-sm mr-1">(editado)</span>}
+                {content.isContentEdited && <span className="text-[var(--text-light)] text-xs sm:text-sm mr-1">(editado)</span>}
                 {optionList.length > 0 && <div className="flex">
                     <ContentOptionsButton content={content} optionList={optionList}/>
                 </div>}
@@ -79,7 +79,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
         </div>
 
         <div className="flex justify-between px-2 py-2 mb-4">
-            <span className="title text-xl py-2">{content.title}</span>
+            <span className="title sm:text-xl text-base py-2">{content.title}</span>
         </div>
 
         <div className="flex justify-between ml-2 items-center">

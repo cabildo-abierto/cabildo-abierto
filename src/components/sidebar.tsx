@@ -45,7 +45,7 @@ const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}
 const SidebarUsername = ({user, onLogout}: {user: UserProps, onLogout: () => Promise<boolean>}) => {
     return <div className="flex flex-col items-center">
         <Link href={`/perfil/${user.id}`}
-            className="py-2 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)]">
+            className="py-2 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)] text-center">
             {user.name}
         </Link>
 

@@ -45,7 +45,7 @@ export const FastPost = ({
     return <div className="">
         {inCommentSection && <div className={contentContextClassName}><FastPostIcon fontSize="inherit"/> Publicación rápida</div>}
         <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews} showFakeNewsCounter={true} optionList={optionList}/>
-        <div className="px-2 py-2 content">
+        <div className="px-2 py-2 content text-sm sm:text-base">
             <ReadOnlyEditor initialData={decompress(content.compressedText)}/>
         </div>
         <div className="flex justify-between">
