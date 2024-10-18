@@ -27,7 +27,7 @@ export const Post: React.FC<{
                 />
             </div>
         </div>
-        <div className="min-h-64 mt-4">
+        <div className="min-h-64 mt-4 px-2 sm:px-0">
             <ReadOnlyEditor 
                 initialData={decompress(content.compressedText)}
                 content={content}
