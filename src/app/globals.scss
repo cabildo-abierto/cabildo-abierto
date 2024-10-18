@@ -34,7 +34,7 @@ $accent: #8790b0;
 	border-color: $accent;
 }
 
-body {
+.safe-padding-mobile {
     padding-bottom: env(safe-area-inset-bottom);
 }
 

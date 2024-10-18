@@ -173,7 +173,7 @@ export default function RootLayout({
 
             <link rel="icon" href={pathLogo} />
         </head>
-        <body className="bg-[var(--background)]">
+        <body className="bg-[var(--background)] h-screen">
             {children}
         </body>
     </html>
