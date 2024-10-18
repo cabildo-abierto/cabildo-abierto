@@ -60,7 +60,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
 
     return <Link
         href={contentUrl(content.id)}
-        className="flex flex-col hover:bg-[var(--secondary-light)] transition-colors duration-300 ease-in-out cursor-pointer"
+        className="flex flex-col transition-colors duration-300 ease-in-out cursor-pointer"
         onMouseEnter={onMouseEnter}
     >
         <div className="flex justify-between items-center mt-1">
@@ -70,7 +70,11 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
                 <span className="text-[var(--text-light)] text-xs sm:text-sm mr-1">
                     <DateSince date={content.createdAt}/>
                 </span>
-                {content.isContentEdited && <span className="text-[var(--text-light)] text-xs sm:text-sm mr-1">(editado)</span>}
+                {content.isContentEdited && <span
+                    className="text-[var(--text-light)] text-xs sm:text-sm mr-1"
+                >
+                    (editado)
+                </span>}
                 {optionList.length > 0 && <div className="flex">
                     <ContentOptionsButton content={content} optionList={optionList}/>
                 </div>}
