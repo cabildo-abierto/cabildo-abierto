@@ -24,6 +24,7 @@ export const Post: React.FC<{
                 <LikeCounter
                     content={content}
                     icon1={<ActivePraiseIcon/>} icon2={<InactivePraiseIcon/>}
+                    title="Votar hacia arriba, para que lo vean más personas."
                 />
             </div>
         </div>
