@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { FastPostIcon, PostIcon, WriteButtonIcon } from './icons';
+import { ArticleIcon, FastPostIcon, PostIcon, WriteButtonIcon } from './icons';
 import InfoPanel from './info-panel';
 import { NewPublicArticleButton } from './new-public-article-button';
 import { ModalBelow } from './modal-below';
@@ -51,11 +51,11 @@ const WriteButton = () => {
                         onClick={() => {setIsDropdownOpen(false)}}
                     />
                     
-                    {/*<Link href="/escribir/publicacion">
+                    {<Link href="/temas">
                         <button className="create-btn w-64 flex justify-between items-center" onClick={() => setIsDropdownOpen(false)}>
-                            <div className="flex"><span className="px-1"><PostIcon /></span> Publicación</div> <InfoPanel iconClassName="text-white" className="w-64" text="Con título y sin límite de caracteres."/>
+                            <div className="flex text-left"><span className="px-1"><ArticleIcon /></span>Editar un tema</div> <InfoPanel iconClassName="text-white" className="w-64" text="Elegí un tema y agregá información."/>
                         </button>
-                    </Link>*/}
+                    </Link>}
                 </div>
             </ModalBelow>
         </div>

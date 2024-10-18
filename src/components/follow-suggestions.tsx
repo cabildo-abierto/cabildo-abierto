@@ -19,10 +19,9 @@ export const FollowSuggestions = () => {
 
     if(!suggestions || !user) return <></>
 
-    if(user.closedFollowSuggestionsAt && new Date().getTime() - new Date(user.closedFollowSuggestionsAt).getTime() < 24*60*1000){
+    if(user.closedFollowSuggestionsAt && new Date().getTime() - new Date(user.closedFollowSuggestionsAt).getTime() < 24*60*60*1000){
         return <></>
     }
-
 
     suggestions = suggestions.filter((u) => (!user.following.some((f) => (f.id == u.id))))
 

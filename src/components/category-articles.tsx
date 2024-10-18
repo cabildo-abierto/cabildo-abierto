@@ -1,3 +1,4 @@
+"use client"
 import { EntitySearchResult } from "./entity-search-result"
 import { useSearch } from "./search-context"
 import { NoResults } from "./category-users"
@@ -11,17 +12,14 @@ import { DidYouKnow } from "./did-you-know"
 import { useState } from "react"
 import SelectionComponent from "./search-selection-component"
 import { NewPublicArticleButton } from "./new-public-article-button"
-import { countUserInteractions } from "./trending-articles"
+import { topicPopularityScore } from "./trending-articles"
+import { RoutesEditor } from "./routes-editor"
+import { Route } from "./wiki-categories"
 
 
 export function countUserReferences(entity: SmallEntityProps){
     let s = new Set(entity.referencedBy.map((r) => (r.authorId)))
     return s.size
-}
-
-
-function popularityScore(entity: SmallEntityProps){
-    return [(entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0), countUserInteractions(entity)]
 }
 
 
@@ -43,7 +41,7 @@ const ArticlesWithSearch = ({ entities, route, sortBy }: {
 
     let filteredEntities = searchValue.length > 0 ? entities.filter(isMatch) : entities;
 
-    const scoreFunc = sortBy == "Populares" ? popularityScore : recentEditScore
+    const scoreFunc = sortBy == "Populares" ? topicPopularityScore : recentEditScore
 
     let entitiesWithScore = filteredEntities.map((entity) => ({ entity: entity, score: scoreFunc(entity) }));
 
@@ -79,9 +77,10 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
     const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de votos hacia arriba que recibió. Los temas vacíos se muestran al final. Solo se muestran temas de la categoría seleccionada ({route2Text(route)}).</span>
 
     return <>
-        {searchValue.length == 0 && <div className="mt-2"><DidYouKnow text={<><p>¿Sabías que si editás el contenido de un tema Cabildo Abierto <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>te paga</Link> por cada persona que entre a leerlo en el futuro?</p> <p>Incluso si otras personas lo siguen editando después.</p></>}/></div>}
+
+        {<div className="mt-2"><DidYouKnow text={<>¿Sabías que si editás el contenido de un tema Cabildo Abierto te paga por cada persona que entre a leerlo en el futuro? <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>Leer más.</Link></>}/></div>}
         
-        {searchValue.length == 0 && <div className="flex justify-center py-4">
+        {<div className="flex justify-center py-4">
             <NewPublicArticleButton
                 onClick={() => {}}
                 className="gray-btn"
@@ -91,8 +90,7 @@ export const CategoryArticles = ({route}: {route: string[]}) => {
             />
         </div>}
 
-        {searchValue.length == 0 && 
-            <div className="flex justify-center text-sm space-x-1 mb-4">
+        {<div className="flex justify-center text-sm space-x-1 mb-4">
                 <div className="border-r rounded border-t border-b border-l">
             <SelectionComponent
                 onSelection={setSortBy}

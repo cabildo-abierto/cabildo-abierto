@@ -12,7 +12,7 @@ export const SearchPage = ({ children }: { children: ReactNode }) => {
     const path = usePathname();
     const [route, setRoute] = useState([]);
 
-    const showSearch = searchValue.length > 0;
+    const showSearch = searchValue.length > 0 && !path.includes("/temas");
 
     return (
         <>
