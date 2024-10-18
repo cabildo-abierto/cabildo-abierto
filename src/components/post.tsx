@@ -11,13 +11,14 @@ export const Post: React.FC<{
     content: ContentProps
 }> = ({content}) => {
 
-    return <div className="">
+    return <div className="px-1">
         <div className="content">
-            <h1>{content.title}</h1>
+            <h1 className="sm:text-xl text-lg">{content.title}</h1>
         </div>
         <div className="flex justify-between">
-            <div className="flex items-center space-x-1">
-                <span className="mr-1"><Authorship content={content}/></span><span>·</span><span><DateSince date={content.createdAt}/></span><span>·</span><TextViewsCounter content={content}/>
+            <div className="sm:space-x-1 text-sm sm:text-base flex flex-col sm:flex-row">
+                <span><Authorship content={content}/>, <DateSince date={content.createdAt}/>.</span>
+                <span className="first-letter:capitalize"><TextViewsCounter content={content}/>.</span>
             </div>
             <div className="flex items-center">
                 <LikeCounter
@@ -30,7 +31,7 @@ export const Post: React.FC<{
             <ReadOnlyEditor 
                 initialData={decompress(content.compressedText)}
                 content={content}
-                editorClassName="content"
+                editorClassName="content sm:text-base text-sm"
             />
         </div>
     </div>

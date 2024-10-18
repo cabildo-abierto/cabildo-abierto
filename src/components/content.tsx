@@ -16,7 +16,7 @@ import { ContentOptionsButton } from "./content-options-button";
 import { FakeNewsCounter } from "./fake-news-counter";
 import { CommentInContext } from "./comment-in-context";
 import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
-import { addView, addViewToEntityContent, recordBatchViews, takeAuthorship } from "../actions/contents";
+import { recordBatchViews, takeAuthorship } from "../actions/contents";
 import { useUser } from "../app/hooks/user";
 import { ContentProps } from "../app/lib/definitions";
 import EntityComponent from "./entity-component";
@@ -78,7 +78,7 @@ export const ContentTopRow: React.FC<ContentTopRowProps> = ({
 }) => {
     return <div className="flex justify-between pt-1 pr-1">
         <div className="px-2 blue-links flex items-center w-full">
-            <div className="text-sm space-x-1 text-[var(--text-light)]">
+            <div className="text-xs sm:text-sm space-x-1 text-[var(--text-light)]">
                 {author && 
                     <ContentTopRowAuthor content={content}/>
                 }
