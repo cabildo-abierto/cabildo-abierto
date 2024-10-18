@@ -490,12 +490,23 @@ export function isPublic(content: ContentProps, isMainPage: boolean){
 }
 
 
+export function isKeyInText(key: string, text: string){
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\/[\\]/g, '\\$&');
+    
+    const regex = new RegExp(`\\b${escapedKey}\\b`, 'i');
+    
+    if(regex.test(text)){
+        return true
+    }
+}
+
+
 export function findWeakReferences(text: string, searchkeys: {id: string, keys: string[]}[]): {id: string}[]{
     let ids = []
     const cleaned = cleanText(text)
     for(let i = 0; i < searchkeys.length; i++){
         for(let j = 0; j < searchkeys[i].keys.length; j++){
-            if(cleaned.includes(searchkeys[i].keys[j])){
+            if(isKeyInText(searchkeys[i].keys[j], cleaned)){
                 ids.push({id: searchkeys[i].id})
                 break
             }

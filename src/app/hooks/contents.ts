@@ -25,6 +25,17 @@ export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: 
 }
 
 
+export function useSearchableContents(): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/searchable-contents', fetcher)
+  
+    return {
+        feed: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
 export function useRouteFeed(route: string[]): {feed: SmallContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/feed/'+route.join("/"), fetcher)
   

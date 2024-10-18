@@ -278,4 +278,74 @@ export const getEditsFeed = (userId: string) => {
 }
 
 
+export const getSearchableContents = (route: string[]) => {
+    return unstable_cache(async () => {
+        let feed = await db.content.findMany({
+            select: {
+                id: true,
+                compressedPlainText: true,
+                title: true,
+                type: true,
+                author: {
+                    select: {
+                        name: true,
+                        id: true
+                    }
+                },
+                uniqueViewsCount: true,
+                childrenTree: {
+                    select: {
+                        authorId: true
+                    }
+                },
+                entityReferences: {
+                    select: {
+                        id: true,
+                        versions: {
+                            select: {
+                                id: true,
+                                categories: true
+                            },
+                            orderBy: {
+                                createdAt: "asc"
+                            }
+                        }
+                    }
+                },
+                _count: {
+                    select: {
+                        reactions: true,
+                        childrenTree: true
+                    }
+                },
+                currentVersionOf: {
+                    select: {
+                        id: true
+                    }
+                }
+            },
+            where: {
+                AND: [
+                    {type: {
+                        in: ["FastPost", "Post", "Comment", "FakeNewsReport"]
+                    }},
+                    {visible: true},
+                    {isDraft: false}
+                ]
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
 
+        if(route.length == 0) return feed
+        let routeFeed = feed.filter(({entityReferences}) => {
+            return entityReferences.some((entity) => {
+                return entityInRoute(entity, route)
+            })
+        })
+        return routeFeed
+    }, ["routeSearchableContents", route.join("/")], {
+        revalidate: revalidateFeedTime,
+        tags: ["routeFeed", "routeFeed:"+route.join("/"), "feed"]})() 
+}
