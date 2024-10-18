@@ -45,13 +45,12 @@ const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}
 const SidebarUsername = ({user, onLogout}: {user: UserProps, onLogout: () => Promise<boolean>}) => {
     return <div className="flex flex-col items-center">
         <Link href={`/perfil/${user.id}`}
-            className="py-2 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)] text-center">
+            className="mb-1 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)] text-center">
             {user.name}
         </Link>
-
-        <div className="py-4">
+        <div className="mb-2">
             <StateButton
-                className="gray-btn"
+                className="small-btn"
                 handleClick={onLogout}
                 text1="Cerrar sesión"
                 text2="Cerrando sesión"
@@ -63,12 +62,12 @@ const SidebarUsername = ({user, onLogout}: {user: UserProps, onLogout: () => Pro
 
 const SidebarUsernameNoUser = () => {
     return <div className="flex flex-col items-center">
-        <span className="text-center text-[var(--text-light)] px-1">Creá una cuenta o iniciá sesión para acceder a todas las funcionalidades del sitio</span>
         <Link href="/" className="mx-1 py-2">
         <button className="bg-[var(--primary)] px-2 py-1 hover:bg-[var(--primary-dark)] rounded text-[var(--background)]">
             Crear cuenta o iniciar sesión
         </button>
         </Link>
+        <span className="text-center text-[var(--text-light)] px-1 text-sm mb-4">Creá una cuenta o iniciá sesión para acceder a todas las funcionalidades del sitio</span>
     </div>
 }
 
@@ -91,6 +90,11 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
         <div className="flex">
             <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--background)] border-r text-gray-900 safe-padding-mobile">
                 <div className="flex flex-col mt-4 px-2">
+                    {user.user && <SidebarUsername
+                        user={user.user}
+                        onLogout={onLogout}
+                    />}
+                    {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
                     <SidebarButton onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio"/>
                     <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
                     <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
@@ -101,13 +105,6 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     {user.user && <SupportButton user={user.user} onClose={onClose}/>}
                     {user.user && user.user.editorStatus == "Administrator" && 
                     <HelpDeskButton user={user.user} onClose={onClose}/>}
-                </div>
-                <div>
-                {user.user && <SidebarUsername
-                    user={user.user}
-                    onLogout={onLogout}
-                />}
-                {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
                 </div>
             </div>
             <button
