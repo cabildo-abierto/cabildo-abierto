@@ -26,7 +26,7 @@ const Page = () => {
         <div className="flex justify-between w-screen">
             <div className="hidden w-64 lg:flex items-end h-screen px-2">
                 <div className="flex flex-col items-center">
-                    <div className="mb-4 flex flex-col items-center">
+                    <div className="mb-4 flex flex-col items-center text-center">
                         <Image
                             src="/smt.png"
                             width={64}
@@ -60,7 +60,7 @@ const Page = () => {
                         <button
                             key={index}
                             onClick={() => toggleButton(index)}
-                            className={`lg:w-12 lg:h-12 border border-gray-500 lg:text-lg rounded ${isToggled ? 'bg-green-400' : 'bg-white'}`}
+                            className={`lg:w-12 lg:h-12 border border-gray-500 lg:text-lg rounded-3xl ${isToggled ? 'bg-green-400' : 'bg-white'}`}
                         >
                             {index + 1}
                         </button>
