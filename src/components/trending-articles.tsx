@@ -10,26 +10,47 @@ import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import InfoPanel from "./info-panel";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
-import PersonIcon from '@mui/icons-material/Person';
 
 
 export function countUserInteractions(entity: SmallEntityProps){
-    //const entityId = "Universidades Públicas"
+    //const entityId = "Ariel Lijo"
     //if(entity.name == entityId) console.log("Interacciones", entity.name)
+
+    // autores de los contenidos que referenciaron
     let s = new Set(entity.referencedBy.map((r) => (r.authorId)))
+
+    function addMany(g: string[]){
+        for(let i = 0; i < g.length; i++) s.add(g[i])
+    }
+
+    for(let i = 0; i < entity.referencedBy.length; i++){
+        addMany(entity.referencedBy[i].childrenTree.map(({authorId}) => (authorId)))
+        for(let j = 0; j < entity.referencedBy[i].childrenTree.length; j++){
+            addMany(entity.referencedBy[i].childrenTree[j].reactions.map(({userById}) => (userById)))
+        }
+        addMany(entity.referencedBy[i].reactions.map(({userById}) => (userById)))
+    }
+
     //if(entity.name == entityId) console.log("Referencias", s)
     //if(entity.name == entityId) console.log("Reacciones", s)
     for(let i = 0; i < entity.versions.length; i++){
+        // autores de las versiones
         s.add(entity.versions[i].authorId)
-        for(let j = 0; j < entity.versions[i].childrenTree.length; j++){
-            s.add(entity.versions[i].childrenTree[j].authorId)
-        }
+
+        // comentarios y subcomentarios de las versiones
+        addMany(entity.versions[i].childrenTree.map(({authorId}) => (authorId)))
     }
 
     //if(entity.name == entityId) console.log("Versiones", s)
+    addMany(entity.weakReferences.map(({authorId}) => (authorId)))
     for(let i = 0; i < entity.weakReferences.length; i++){
-        s.add(entity.weakReferences[i].authorId)
+        addMany(entity.weakReferences[i].childrenTree.map(({authorId}) => (authorId)))
+        for(let j = 0; j < entity.weakReferences[i].childrenTree.length; j++){
+            addMany(entity.weakReferences[i].childrenTree[j].reactions.map(({userById}) => (userById)))
+        }
+        addMany(entity.weakReferences[i].reactions.map(({userById}) => (userById)))
     }
+
     //if(entity.name == entityId) console.log("weak refs", s)
 
     //if(entity.name == entityId) console.log("Total", entity.name, s.size)
@@ -50,7 +71,7 @@ export const TrendingArticles = () => {
         return <LoadingSpinner />;
     }
 
-    let entitiesWithScore = entities.entities.map((entity) => ({ entity: entity, score: topicPopularityScore(entity) }));
+    let entitiesWithScore = entities.entities.map((entity) => ({ entity: entity, score: topicPopularityScore(entity) }))
 
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
     

@@ -463,26 +463,53 @@ export const getEntities = unstable_cache(async () => {
             },
             referencedBy: {
                 select: {
-                    authorId: true
-                },
-                where: {
-                    isDraft: false,
-                    parentEntity: {
-                        deleted: {
-                            not: true
+                    authorId: true,
+                    childrenTree: {
+                        select: {
+                            authorId: true,
+                            reactions: {
+                                select: {
+                                    userById: true
+                                }
+                            }
+                        }
+                    },
+                    reactions: {
+                        select: {
+                            userById: true
                         }
                     }
+                },
+                where: {
+                    isDraft: false
                 }
             },
             reactions: {
                 select: {userById: true}
             },
             weakReferences: {
-                select: {authorId: true},
+                select: {
+                    authorId: true,
+                    childrenTree: {
+                        select: {
+                            authorId: true,
+                            reactions: {
+                                select: {
+                                    userById: true
+                                }
+                            }
+                        }
+                    },
+                    reactions: {
+                        select: {
+                            userById: true
+                        }
+                    }
+                },
                 where: {
                     isDraft: {
                         not: true
-                    }
+                    },
                 }
             },
             currentVersionId: true
