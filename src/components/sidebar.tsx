@@ -102,10 +102,13 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     {user.user && user.user.editorStatus == "Administrator" && 
                     <HelpDeskButton user={user.user} onClose={onClose}/>}
                 </div>
+                <div>
                 {user.user && <SidebarUsername
-                user={user.user}
-                onLogout={onLogout}/>}
+                    user={user.user}
+                    onLogout={onLogout}
+                />}
                 {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
+                </div>
             </div>
             <button
                 className="h-screen w-full"

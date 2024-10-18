@@ -72,7 +72,7 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
         <div className="">
             
             {selected == "En discusión" && 
-                <div className="my-4">
+                <div className="pt-4 pb-6">
                 <TrendingArticles/>
                 </div>
             }

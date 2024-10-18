@@ -50,7 +50,7 @@ export function CommentsPanel({
     return (
         <div
             ref={panelRef}
-            className="fixed top-16 right-0 h-[calc(100vh-3.5rem)] bg-background/60 overflow-y-auto p-4 shadow-lg z-50"
+            className="fixed top-16 right-0 h-[calc(100vh-3.5rem)] bg-[var(--background)] bg-opacity-50 overflow-y-auto p-4 shadow-lg z-50"
             style={{
                 width: `${width}px`, // Set dynamic width
                 maxWidth: `${width}px`, // Prevent the panel from growing beyond this width
