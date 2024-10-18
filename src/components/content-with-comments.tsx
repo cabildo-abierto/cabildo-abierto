@@ -77,7 +77,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     }
     
     const className = "w-full " + (depthParity ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]") +
-        (isMainPage ? "" : " content-container rounded")
+        (isMainPage ? "" : " content-container rounded") + (content.type == "Post" && !isMainPage ? " hover:bg-[var(--secondary-light)]" : "")
 
     const depthParityComments = ["Post", "EntityContent"].includes(content.type) ? false : !depthParity
 
