@@ -7,7 +7,7 @@ import { ModalBelow } from './modal-below';
 import { EditCommentModal } from './edit-comment-modal';
 import { ContentProps } from '../app/lib/definitions';
 import { useRouter } from 'next/navigation';
-import { editContentUrl } from './utils';
+import { editContentUrl, stopPropagation } from './utils';
 import { useUser } from '../app/hooks/user';
 import { deleteContent } from '../actions/entities';
 
@@ -48,7 +48,7 @@ export const ContentOptionsDropdown = ({
         await deleteContent(content.id)
     }
 
-    return <div className="text-base border rounded bg-[var(--background)] mt-1 p-2">
+    return <div className="text-base border rounded bg-[var(--background)] p-2">
         {optionsList.includes("reportFake") && 
         <button 
             className="hover:bg-[var(--secondary-light)] px-2 py-1 rounded flex w-64"
@@ -84,7 +84,7 @@ export const ContentOptionsButton = ({content, optionList}: {content: ContentPro
     return <div style={{ position: 'relative', display: 'inline-block' }}>
         <button
             className="p-1 mt-1 flex items-center hover:bg-[var(--background-dark)] rounded"
-            onClick={(e) => {e.stopPropagation(); e.preventDefault(); setIsDropdownOpen(prev => !prev)}}
+            onClick={(e) => {e.preventDefault(); e.stopPropagation(); setIsDropdownOpen(prev => !prev)}}
         >
             <MoreHorizIcon fontSize="small" />
         </button>

@@ -190,6 +190,7 @@ export type UserProps = {
     authUser: {email: string | null} | null
     description: string | null
     _count: {notifications: number, contents: number, views: number}
+    closedFollowSuggestionsAt?: Date | string
 };
 
 

@@ -51,13 +51,12 @@ export const Author = ({content} :{content: ContentProps}) => {
 
 export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFeedProps) => {
     const {user} = useUser()
-    const router = useRouter()
 
     function onMouseEnter(){
         preload("/api/content/"+content.id, fetcher)
     }
 
-    const optionList = user && content.author.id == user.id ? ["edit"] : []
+    const optionList = user && (content.author.id == user.id || user.editorStatus == "Administrator") ? ["edit"] : []
 
     return <Link
         href={contentUrl(content.id)}

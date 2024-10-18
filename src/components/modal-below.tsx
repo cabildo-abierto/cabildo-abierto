@@ -26,7 +26,7 @@ export const ModalBelow = ({children, open, setOpen, className, hoverOnly=false}
 
     return <>{!hoverOnly && open && <div
             className="fixed left-0 top-0 h-screen w-screen z-50"
-            onClick={() => {setOpen(false)}}
+            onClick={(e) => {e.preventDefault(); e.stopPropagation(); setOpen(false)}}
         >
         </div>}
         {<div
