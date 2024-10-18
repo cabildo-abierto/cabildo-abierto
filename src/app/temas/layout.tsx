@@ -4,7 +4,7 @@ import PaywallChecker from "../../components/paywall-checker";
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
   return <MainLayout>
-      <PaywallChecker requireAccount={false} requireSubscription={false}>
+      <PaywallChecker requireAccount={false} requireSubscription={true}>
       {children}
       </PaywallChecker>
     </MainLayout>

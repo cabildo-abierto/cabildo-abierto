@@ -1123,16 +1123,22 @@ export async function computeSubscriptorsByDay(minPrice: number) {
     let day = new Date(new Date().getTime() - dayMillis*7)
     const tomorrow = new Date(new Date().getTime() + dayMillis)
     
+    let allUsers = new Set()
     while(day < tomorrow){
 
         let users = new Set()
+        let newUsers = new Set()
         for(let i = 0; i < s.length; i++){
             if(s[i].endsAt >= day && s[i].usedAt <= day){
                 users.add(s[i].userId)
+                if(!allUsers.has(s[i].userId)){
+                    newUsers.add(s[i].userId)
+                    allUsers.add(s[i].userId)
+                }
             }
         }
 
-        console.log(day.getDate(), "/", day.getMonth()+1, "-->", Array.from(users), users.size)
+        console.log(day.getDate(), "/", day.getMonth()+1, "-->", Array.from(newUsers), newUsers.size, users.size)
 
         day.setTime(day.getTime()+dayMillis)
     }
