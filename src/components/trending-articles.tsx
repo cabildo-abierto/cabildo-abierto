@@ -13,9 +13,12 @@ import SwapVertIcon from '@mui/icons-material/SwapVert';
 
 
 export function countUserInteractions(entity: SmallEntityProps){
-    //const entityId = "Ariel Lijo"
+    //const entityId = "Javier Milei"
     //if(entity.name == entityId) console.log("Interacciones", entity.name)
 
+    //if(entity.name == entityId){
+    //    console.log(entity.weakReferences)
+    //}
     // autores de los contenidos que referenciaron
     let s = new Set(entity.referencedBy.map((r) => (r.authorId)))
 
