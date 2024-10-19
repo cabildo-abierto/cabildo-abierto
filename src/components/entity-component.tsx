@@ -9,7 +9,7 @@ import { ContentTopRow } from "./content";
 import { useEntity } from "../app/hooks/entities";
 import { useContent } from "../app/hooks/contents";
 import { ContentProps, EntityProps } from "../app/lib/definitions";
-import { articleUrl, cleanText, entityIdToName, getPlainText, getVersionInEntity } from "./utils";
+import { articleUrl, cleanText, entityIdToName, getKeysFromEntity, getPlainText, getVersionInEntity, isKeyInText, someKeyInText } from "./utils";
 import { decompress } from "./compression";
 import { contentContextClassName } from "./comment-in-context";
 
@@ -72,50 +72,51 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
 }
 
 
-function findMentionNode(node: any, id: string){
+function findMentionNode(node: any, entity: EntitySearchKeysProps){
     if(node.type == "link" || node.type == "autolink"){
         const url: string = node.url
-        if(url.includes("/articulo/") && url.split("/articulo/")[1] == id)
+        if(url.includes("/articulo/") && url.split("/articulo/")[1] == entity.id)
             return node
     }
 
     if(!node.children) {
         const text = cleanText(getAllText(node))
-        const name = cleanText(entityIdToName(id))
-        if(text.includes(name)){
+        if(someKeyInText(getKeysFromEntity(entity), text)){
             return node
         } else {
             return null
         }
     }
     for(let i = 0; i < node.children.length; i++){
-        const found = findMentionNode(node.children[i], id)
+        const found = findMentionNode(node.children[i], entity)
         if(found) return found
     }
 }
 
 
-function findMentionAncestors(node: any, id: string){
+function findMentionAncestors(node: any, entity: EntitySearchKeysProps){
     if(!node.children){
         return [node]
     }
     for(let i = 0; i < node.children.length; i++){
-        const mentionNode = findMentionNode(node.children[i], id)
+        const mentionNode = findMentionNode(node.children[i], entity)
         if(mentionNode){
-            return [node, ...findMentionAncestors(node.children[i], id)]
+            return [node, ...findMentionAncestors(node.children[i], entity)]
         }
     }
     return [node]
 }
 
+type EntitySearchKeysProps = {id: string, currentVersion: {searchkeys: string[]}}
 
-function findFragment(text: string, id: string){
+
+function findFragment(text: string, entity: EntitySearchKeysProps){
     const parsed = JSON.parse(text)
-    const mentionNode = findMentionNode(parsed.root, id)
+    const mentionNode = findMentionNode(parsed.root, entity)
     if(!mentionNode){
         return "Parece haber una mención pero no la encontramos"
     }
-    const ancestors = findMentionAncestors(parsed.root, id)
+    const ancestors = findMentionAncestors(parsed.root, entity)
     let best = null
     let bestFitness = null
     for(let i = 0; i < ancestors.length; i++){
@@ -134,8 +135,11 @@ const EntityMentionInCommentSection = ({parentContentId, entity, mentioningConte
     const parentContent = useContent(parentContentId)
     if(mentioningContent.isLoading) return <LoadingSpinner/>
     if(parentContent.isLoading) return <LoadingSpinner/>
-    
-    const fragment = findFragment(decompress(mentioningContent.content.compressedText), parentContent.content.parentEntityId)
+
+    const fragment = findFragment(
+        decompress(mentioningContent.content.compressedText),
+        parentContent.content.parentEntity
+    )
 
     return <div>
         <div className={contentContextClassName}>

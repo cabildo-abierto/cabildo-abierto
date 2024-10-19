@@ -501,18 +501,30 @@ export function isKeyInText(key: string, text: string){
 }
 
 
+export function someKeyInText(keys: string[], text: string){
+    return keys.some((k) => (isKeyInText(k, text)), keys)
+}
+
+
+export function getKeysFromEntity(entity: {currentVersion: {searchkeys: string[]}, id: string}){
+    return [...entity.currentVersion.searchkeys, entityIdToName(entity.id)].map(cleanText)
+}
+
+
 export function findWeakReferences(text: string, searchkeys: {id: string, keys: string[]}[]): {id: string}[]{
     let ids = []
     const cleaned = cleanText(text)
-    //console.log("text", text)
+
     for(let i = 0; i < searchkeys.length; i++){
-        for(let j = 0; j < searchkeys[i].keys.length; j++){
-            if(isKeyInText(searchkeys[i].keys[j], cleaned)){
-                ids.push({id: searchkeys[i].id})
-                break
-            }
+        const keys = getKeysFromEntity({
+            currentVersion: {searchkeys: searchkeys[i].keys},
+            id: searchkeys[i].id
+        })
+
+        if(someKeyInText(keys, cleaned)){
+            ids.push({id: searchkeys[i].id})
         }
     }
-    //console.log("result", ids)
+
     return ids
 }

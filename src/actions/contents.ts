@@ -70,10 +70,16 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                     }
                 }
             },
-            parentEntityId: true,
+            parentEntityId: true, // TO DO: Eliminar
             parentEntity: {
                 select: {
-                    isPublic: true
+                    id: true,
+                    isPublic: true,
+                    currentVersion: {
+                        select: {
+                            searchkeys: true
+                        }
+                    }
                 }
             },
             accCharsAdded: true,
