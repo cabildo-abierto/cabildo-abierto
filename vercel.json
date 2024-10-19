@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/update-weak-references",
+      "schedule": "*/10 * * * *"
+    }
+  ]
+}
