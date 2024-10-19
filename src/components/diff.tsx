@@ -54,11 +54,11 @@ export function nodesFromJSONStr(s: string){
 }
 
 
-export function charDiffFromJSONString(str1: string, str2: string){
+export function charDiffFromJSONString(str1: string, str2: string, safe: boolean = false){
     const nodes1 = textNodesFromJSONStr(str1)
     const nodes2 = textNodesFromJSONStr(str2)
 
-    return nodesCharDiff(nodes1, nodes2)
+    return nodesCharDiff(nodes1, nodes2, safe)
 }
 
 export function makeMatrix(n, m, v){
@@ -164,8 +164,12 @@ function lcs(s1: any[], s2: any[]) {
 }
 
 
-export function diff(nodes1: string[], nodes2: string[]){
+export function diff(nodes1: string[], nodes2: string[], safe: boolean = false){
     const common: {x: number, y: number}[] = lcs(nodes1, nodes2)
+    
+    if(safe && (nodes1.length - common.length) * (nodes2.length - common.length) > 10000){
+        return null
+    }
 
     let matches: {x: number, y: number}[] = minMatch(nodes1, nodes2, common)
 
@@ -193,8 +197,11 @@ export function diff(nodes1: string[], nodes2: string[]){
 }
 
 
-export function nodesCharDiff(nodes1, nodes2) {
-    const {common, matches, perfectMatches} = diff(nodes1, nodes2)
+export function nodesCharDiff(nodes1, nodes2, safe: boolean = false) {
+    const d = diff(nodes1, nodes2, safe)
+    if(!d) return null
+
+    const {common, matches, perfectMatches} = d
 
     let charsDeleted = 0
     let charsAdded = 0
