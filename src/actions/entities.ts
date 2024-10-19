@@ -10,7 +10,7 @@ import { currentVersionContent, entityInRoute, findWeakEntityReferences, getPlai
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
-import { getReferencesSearchKeys, updateAllWeakReferences, updateEntityWeakReferences } from "./references";
+import { getReferencesSearchKeys } from "./references";
 
 
 
@@ -51,8 +51,6 @@ export async function createEntity(name: string, userId: string){
             id: entityId
         }
     })
-
-    await updateEntityWeakReferences(entityId)
 
     revalidateTag("entities")
     revalidateTag("editsFeed:"+userId)
@@ -327,10 +325,6 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
             charsDeleted: charsDeleted
         }
     })
-
-    if(searchkeysChange){
-        await updateEntityWeakReferences(entityId)
-    }
 
     await notifyMentions(mentions, newContent.id, userId, true)
 
