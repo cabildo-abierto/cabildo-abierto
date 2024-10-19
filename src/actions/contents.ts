@@ -4,11 +4,12 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { ContentType, NotificationType } from "@prisma/client";
 import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
-import { getEntities, getEntityById } from "./entities";
+import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
 import { getUser, getUserId, getUsers } from "./users";
-import { cleanText, findWeakReferences, getPlainText } from "../components/utils";
+import { findWeakReferences, getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
+import { getReferencesSearchKeys } from "./references";
 
 
 
@@ -1169,151 +1170,4 @@ export async function updateAllUniqueCommentators() {
             }
         })
     }
-}
-
-
-export async function updateAllReferences(){
-    const contents = await db.content.findMany({
-        select: {
-            id: true,
-            compressedText: true,
-            entityReferences: {
-                select: {
-                    id: true
-                }
-            }
-        },
-        where: {
-            type: {
-                not: "UndoEntityContent"
-            }
-        }
-    })
-    for(let i = 0; i < contents.length; i++){
-        const c = contents[i]
-        const text = decompress(c.compressedText)
-        console.log("updating references for", i, contents[i].id)
-        const ref = await findReferences(text)
-        await db.content.update({
-            data: {
-                entityReferences: {
-                    connect: ref
-                }
-            },
-            where: {
-                id: c.id
-            }
-        })
-    }
-    revalidateTag("content")
-}
-
-
-export async function getReferencesSearchKeys(){
-    return await unstable_cache(async () => {
-        const entities = await db.entity.findMany({
-            select: {
-                id: true,
-                name: true,
-                currentVersion: {
-                    select: {
-                        searchkeys: true
-                    }
-                }
-            }
-        })
-        let searchkeys: {id: string, keys: string[]}[] = []
-        for(let i = 0; i < entities.length; i++){
-            let keys = [...entities[i].currentVersion.searchkeys, entities[i].name].map(cleanText)
-            searchkeys.push({id: entities[i].id, keys: keys})
-        }
-        return searchkeys
-    }, ["searchkeys"], {tags: ["searchkeys"]})()
-}
-
-
-export async function updateAllWeakReferences(){
-    const contents = await db.content.findMany({
-        select: {
-            id: true,
-            compressedPlainText: true,
-            title: true
-        },
-        where: {
-            AND: [{isDraft: false}, {visible: true}]
-        }
-    })
-    const searchKeys = await getReferencesSearchKeys()
-    for(let i = 0; i < contents.length; i++){
-        const text = decompress(contents[i].compressedPlainText)
-        const weakReferences = findWeakReferences(text+" "+contents[i].title, searchKeys)
-        console.log("Content", i)
-        console.log("Text", text.slice(0, 300))
-        console.log("weak references", weakReferences)
-        await db.content.update({
-            data: {
-                weakReferences: {
-                    connect: weakReferences
-                }
-            },
-            where: {
-                id: contents[i].id
-            }
-        })
-    }
-}
-
-
-export async function updateEntityWeakMentions(entityId: string){
-    const entity = await getEntityById(entityId)
-    const entityKeys = [...entity.currentVersion.searchkeys, entity.name].map(cleanText)
-    let keys = [{id: entityId, keys: entityKeys}]
-
-    console.log("getting all contents")
-    const contents = await db.content.findMany({
-        select: {
-            id: true,
-            compressedPlainText: true,
-            title: true
-        },
-        where: {
-            AND: [{isDraft: false}, {visible: true}]
-        }
-    })
-
-
-    console.log("looking at", contents.length, "contents")
-    let referencingContents = []
-    for(let i = 0; i < contents.length; i++){
-        if(contents[i].id != "cm2ezvg6z0001d1hiiwk3emmq") continue
-        const text = decompress(contents[i].compressedPlainText)
-        const weakReferences = findWeakReferences(text+" "+contents[i].title, keys)
-        console.log("considering content", i)
-        console.log("text", cleanText(text))
-        console.log("keys", keys)
-        console.log("references", weakReferences)
-        console.log(text+contents[i].title, contents[i].title)
-        
-        if(weakReferences.length > 0){
-            referencingContents.push({id: contents[i].id})
-        }
-    }
-
-    console.log("referecingContents", referencingContents)
-    
-    if(referencingContents.length > 0){
-        await db.entity.update({
-            data: {
-                weakReferences: {
-                    connect: referencingContents
-                }
-            },
-            where: {
-                id: entityId
-            }
-        })
-    }
-
-    revalidateTag("entity:" + entityId)
-    return true
 }

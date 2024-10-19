@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { DateSince } from "./date";
 import { ShowContributors } from "./show-contributors";
 import { ToggleButton } from "./toggle-button";
-import { deleteEntity, deleteEntityHistory, makeEntityPublic, recomputeEntityContributions, renameEntity } from "../actions/entities";
+import { deleteEntity, deleteEntityHistory, makeEntityPublic, recomputeEntityContributions } from "../actions/entities";
 import { useUser } from "../app/hooks/user";
 import { EntityCategories } from "./categories";
 import { ContentWithCommentsFromId } from "./content-with-comments";
@@ -25,7 +25,7 @@ import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/he
 import { useEntity } from "../app/hooks/entities";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
-import { updateEntityWeakMentions } from "../actions/contents";
+import { updateAllWeakReferences } from "../actions/references";
 
 
 const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
@@ -218,7 +218,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             text1="Actualizar weak references"
             text2="Actualizando..."
             handleClick={async (e) => {
-                const result = await updateEntityWeakMentions(entityId)
+                const result = await updateAllWeakReferences()
                 if(!result){
                     console.log("ocurrió un error al actualizar")
                 }

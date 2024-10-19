@@ -2,7 +2,7 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findMentions, findReferences, getContentById, getReferencesSearchKeys, notifyMentions, updateEntityWeakMentions } from "./contents";
+import { findMentions, findReferences, getContentById, notifyMentions } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
@@ -10,6 +10,7 @@ import { currentVersionContent, entityInRoute, findWeakReferences, getPlainText,
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
+import { getReferencesSearchKeys, updateAllWeakReferences, updateEntityWeakReferences } from "./references";
 
 
 
@@ -51,11 +52,12 @@ export async function createEntity(name: string, userId: string){
         }
     })
 
-    //await updateEntityWeakMentions(entityId)
+    await updateEntityWeakReferences(entityId)
 
     revalidateTag("entities")
     revalidateTag("editsFeed:"+userId)
     revalidateTag("entity:"+entityId)
+    revalidateTag("searchkeys")
     
     return {id: entityId}
 }
@@ -239,9 +241,9 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
         }
     })
 
-    //if(searchkeysChange){
-    //    await updateEntityWeakMentions(entityId)
-    //}
+    if(searchkeysChange){
+        await updateEntityWeakReferences(entityId)
+    }
 
     await notifyMentions(mentions, newContent.id, userId, true)
 
@@ -250,6 +252,9 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
     }
     for(let i = 0; i < references.length; i++){
         revalidateTag("entity:"+references[i].id)
+    }
+    if(searchkeysChange){
+        revalidateTag("searchkeys")
     }
 
     revalidateTag("entity:" + entityId)
@@ -884,6 +889,11 @@ export async function revalidateFeed(){
 
 export async function revalidateDrafts(){
     revalidateTag("drafts")
+}
+
+
+export async function revalidateSearchkeys(){
+    revalidateTag("searchkeys")
 }
 
 
