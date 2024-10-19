@@ -1,4 +1,4 @@
-import { UserProps, EntityProps, SmallEntityProps, EntityVersionProps, ContentProps } from "../app/lib/definitions"
+import { UserProps, EntityProps, SmallEntityProps, EntityVersionProps, ContentProps, SmallUserProps } from "../app/lib/definitions"
 import { charDiffFromJSONString, getAllText } from "./diff"
 import { db } from "../db"
 import { decompress } from "./compression"
@@ -456,7 +456,7 @@ export function nextPrice(p: number){
 
 
 export function articleUrl(id: string, index?: number){
-    return "/articulo?i=" + id + (index ? "&v=" + index : "")
+    return "/articulo?i=" + id + (index != undefined ? "&v=" + index : "")
 }
 
 export function userUrl(id: string){
@@ -511,7 +511,7 @@ export function getKeysFromEntity(entity: {currentVersion: {searchkeys: string[]
 }
 
 
-export function findWeakReferences(text: string, searchkeys: {id: string, keys: string[]}[]): {id: string}[]{
+export function findWeakEntityReferences(text: string, searchkeys: {id: string, keys: string[]}[]): {id: string}[]{
     let ids = []
     const cleaned = cleanText(text)
 
@@ -527,4 +527,94 @@ export function findWeakReferences(text: string, searchkeys: {id: string, keys: 
     }
 
     return ids
+}
+
+
+export function getSearchkeysFromEntities(entities: SmallEntityProps[]){
+    let searchkeys: {id: string, keys: string[]}[] = []
+
+    for(let i = 0; i < entities.length; i++){
+        let keys = getKeysFromEntity(entities[i]).map(cleanText)
+        searchkeys.push({id: entities[i].id, keys: keys})
+    }
+    return searchkeys
+}
+
+
+function findMentionsInNode(node: any): {id: string}[] {
+    let references: {id: string}[] = []
+    if(node.type === "custom-beautifulMention"){
+        references.push({id: node.data.id})
+    }
+    if(node.children){
+        for(let i = 0; i < node.children.length; i++) {
+            const childRefs = findMentionsInNode(node.children[i])
+            childRefs.forEach((x) => {references.push(x)})
+        }
+    }
+    return references
+}
+
+
+export function findMentionsFromUsers(text: string, users: SmallUserProps[]){
+    
+    if(text.length == 0 || text == "Este artículo está vacío!"){
+        return []
+    }
+    let json = null
+    try {
+        json = JSON.parse(text)
+    } catch {
+        console.log("failed parsing", text)
+    }
+    if(!json) return null
+
+    let references: {id: string}[] = findMentionsInNode(json.root)
+
+    references = references.filter(({id}) => (users.some((e) => (e.id == id))))
+
+    return references
+}
+
+
+export function findEntityReferencesFromEntities(text: string, entities: SmallEntityProps[]){
+    function findReferencesInNode(node: any): {id: string}[] {
+        let references: {id: string}[] = []
+        if(node.type === "link"){
+            if(node.url.startsWith("/articulo?i=")){
+                const id = node.url.split("/articulo?i=")[1]
+                references.push({id: id})
+            } else if(node.url.startsWith("/articulo/")){
+                const id = node.url.split("/articulo/")[1]
+                references.push({id: id})
+            } else if(node.url.startsWith("/wiki/")){
+                const id = node.url.split("/wiki/")[1]
+                references.push({id: id})
+            }
+        }
+        if(node.children){
+            for(let i = 0; i < node.children.length; i++) {
+                const childRefs = findReferencesInNode(node.children[i])
+                childRefs.forEach((x) => {references.push(x)})
+            }
+        }
+        return references
+    }
+    
+    if(text.length == 0 || text == "Este artículo está vacío!"){
+        return []
+    }
+    let json = null
+    try {
+        json  = JSON.parse(text)
+    } catch {
+        console.log("failed to parse", text)
+    }
+    if(!json) return []
+
+    let references: {id: string}[] = findReferencesInNode(json.root)
+
+    references = references.filter(({id}) => (entities.some((e) => (e.id == id))))
+
+    return references
 }

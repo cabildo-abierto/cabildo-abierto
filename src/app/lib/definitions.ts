@@ -101,7 +101,11 @@ export type EntityProps = {
     currentVersionId: string
     uniqueViewsCount: number
     weakReferences: ReferenceProps[]
-    currentVersion: {categories: string, searchkeys: string[]}
+    currentVersion: {
+        categories: string
+        searchkeys: string[]
+        compressedText: string
+    }
 }
 
 
@@ -172,6 +176,7 @@ export type SmallEntityProps = {
     reactions?: {userById: string}[],
     uniqueViewsCount: number
     currentVersionId: string
+    currentVersion: {searchkeys: string[]}
 }
 
 
