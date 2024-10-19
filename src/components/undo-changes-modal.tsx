@@ -12,6 +12,7 @@ import { CloseButtonIcon, CloseButtonIconWithHover } from './icons';
 import { hasEditPermission } from './utils';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
 import { AcceptButtonPanel } from './accept-button-panel';
+import { BaseFullscreenPopup } from './base-fullscreen-popup';
 
 
 
@@ -42,38 +43,40 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, e
         return <AcceptButtonPanel text="Necesitás una cuenta para deshacer cambios." onClose={onClose}/>
     }
     if(hasEditPermission(user.user, entity.protection)){
-        modalContent = <div className="space-y-3 p-6">
-            <h3>Deshacer el último cambio en {entity.name}</h3>
-            <div>
-                <textarea
-                    rows={4}
-                    className="resize-none w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"
-                    value={explanation}
-                    onChange={(e) => {setExplanation(e.target.value)}}
-                    placeholder="Explicá el motivo por el que te parece necesario deshacer este cambio."
-                />
+        return <BaseFullscreenPopup closeButton={true} onClose={onClose}>
+            <div className="space-y-3 px-6 mb-4">
+                <h3>Deshacer el último cambio en {entity.name}</h3>
+                <div>
+                    <textarea
+                        rows={4}
+                        className="resize-none w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"
+                        value={explanation}
+                        onChange={(e) => {setExplanation(e.target.value)}}
+                        placeholder="Explicá el motivo por el que te parece necesario deshacer este cambio."
+                    />
+                </div>
+                {<TickButton text={vandalismInfo} setTicked={setVandalism} ticked={vandalism} size={20} color="#455dc0" />}
+                {<TickButton text={oportunismInfo} setTicked={setOportunism} ticked={oportunism} size={20} color="#455dc0" />}
+                <div className="mt-4">
+                    <StateButton
+                        handleClick={async () => {
+                            if(user.user && content){
+                                await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
+                                mutate("/api/entity/"+entity.id)
+                                mutate("/api/entities")
+                                onClose()
+                                return true
+                            }
+                            return false
+                        }}
+                        disabled={!validExplanation(explanation)}
+                        className="gray-btn w-full"
+                        text1="Confirmar"
+                        text2="Deshaciendo cambios..."
+                    />
+                </div>
             </div>
-            {<TickButton text={vandalismInfo} setTicked={setVandalism} ticked={vandalism} size={20} color="#455dc0" />}
-            {<TickButton text={oportunismInfo} setTicked={setOportunism} ticked={oportunism} size={20} color="#455dc0" />}
-            <div className="mt-4">
-                <StateButton
-                    handleClick={async () => {
-                        if(user.user && content){
-                            await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
-                            mutate("/api/entity/"+entity.id)
-                            mutate("/api/entities")
-                            onClose()
-                            return true
-                        }
-                        return false
-                    }}
-                    disabled={!validExplanation(explanation)}
-                    className="gray-btn w-full"
-                    text1="Confirmar"
-                    text2="Deshaciendo cambios..."
-                />
-            </div>
-        </div>
+        </BaseFullscreenPopup>
     } else {
         return <AcceptButtonPanel
             text={<div>
@@ -83,22 +86,4 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, e
             onClose={onClose}
         />
     }
-    
-
-    return createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-[var(--background)] rounded-lg shadow-lg text-center">
-                <div className="flex justify-end px-1">
-                    <button
-                        onClick={(e) => {e.preventDefault(); e.stopPropagation(); onClose();}}
-                    >
-                        <CloseButtonIconWithHover/>
-                    </button>
-                </div>
-                
-                {modalContent}
-            </div>
-        </div>,
-        document.body // This renders the modal directly inside the body
-    );
 };

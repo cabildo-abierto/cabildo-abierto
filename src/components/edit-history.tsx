@@ -20,6 +20,7 @@ import { toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
 import { charDiffFromJSONString } from "./diff"
 import { decompress } from "./compression"
+import { BaseFullscreenPopup } from "./base-fullscreen-popup"
 
 
 const EditDetails = ({type}: {type: string}) => {
@@ -45,7 +46,7 @@ type EditElementProps = {
 const AuthorshipClaim = ({entity, version, setShowingRemoveAuthorshipPanel}: {entity: EntityProps, version: number, setShowingRemoveAuthorshipPanel: (v: boolean) => void}) => {
     if(entity.versions[version].claimsAuthorship){
         return <button className="underline hover:text-[var(--primary)] text-xs"
-            onClick={(e) => {e.preventDefault(); e.stopPropagation(); setShowingRemoveAuthorshipPanel(true)}}
+            onClick={(e) => {e.stopPropagation(); e.preventDefault(); setShowingRemoveAuthorshipPanel(true)}}
         >
             <AuthorshipClaimIcon/>
         </button>
@@ -268,29 +269,27 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
     }
     return (
         <>
-            <div className="cursor-default fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
-                
-                <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg">
-                    <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
-                    <div className="mb-8">
-                        {user.id == entity.versions[version].author.id ? <>Estás por remover la autoría de la modificación que hiciste.</> : <>Estás por remover la autoría de la modificacióm de @{entity.versions[version].author.id}.</>}
-                    </div>
-                    <div className="flex justify-center items-center space-x-4 mt-4">
-                        <button
-                            className="gray-btn w-48"
-                            onClick={async () => {onClose()}}
-                        >
-                            Volver
-                        </button>
-                        <StateButton
-                            className="gray-btn w-48"
-                            handleClick={async (e) => {e.preventDefault(); e.stopPropagation(); await onRemove(); onClose(); return true}}
-                            text1="Confirmar"
-                            text2="Removiendo..."
-                        />
-                    </div>
+            <BaseFullscreenPopup>
+            <div className="px-6 pb-4">
+                <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
+                <div className="mb-8">
+                    {user.id == entity.versions[version].author.id ? <>Estás por remover la autoría de la modificación que hiciste.</> : <>Estás por remover la autoría de la modificacióm de @{entity.versions[version].author.id}.</>}
                 </div>
-            </div>
+                <div className="flex justify-center items-center space-x-4 mt-4">
+                    <button
+                        className="gray-btn w-48"
+                        onClick={async () => {onClose()}}
+                    >
+                        Cancelar
+                    </button>
+                    <StateButton
+                        className="gray-btn w-48"
+                        handleClick={async (e) => {e.preventDefault(); e.stopPropagation(); await onRemove(); onClose(); return true}}
+                        text1="Confirmar"
+                        text2="Removiendo..."
+                    />
+                </div></div>
+            </BaseFullscreenPopup>
         </>
     );
 };

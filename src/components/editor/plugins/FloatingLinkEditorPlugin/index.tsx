@@ -125,6 +125,23 @@ function FloatingLinkEditor({
   }, [anchorElem, editor, setIsLinkEditMode, isLinkEditMode, linkUrl]);
 
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (editorRef.current && !editorRef.current.contains(event.target as Node)) {
+        setIsLink(false);
+      }
+    };
+  
+    if (isLink) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+  
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isLink]);
+
+
+  useEffect(() => {
     const scrollerElem = anchorElem.parentElement;
 
     const update = () => {

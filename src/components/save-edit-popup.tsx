@@ -42,8 +42,10 @@ export const SaveEditPopup = ({
 
     useEffect(() => {
         const jsonState = JSON.stringify(editorState)
-        const d = charDiffFromJSONString(currentVersion, jsonState)
-        setDiff(d)
+        const d = charDiffFromJSONString(currentVersion, jsonState, true)
+        if(!d){
+            setDiff("too big")
+        }
         setNewVersionSize(getAllText(JSON.parse(jsonState).root).length)
     }, [])
     
@@ -68,9 +70,12 @@ export const SaveEditPopup = ({
                 
                 <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg w-full">
                     <h2 className="py-4 text-lg">Confirmar cambios</h2>
-                    {diff && <div className="mb-8">
+                    {diff !== "too big" && diff != undefined && <div className="mb-8">
                         Estás agregando <span className="text-green-600">{diff.charsAdded}</span> caracteres y eliminando <span className="text-red-600">{diff.charsDeleted}</span> caracteres.
                     </div>}
+                    {diff === "too big" && <div className="text-red-600 text-xs mb-8  sm:text-sm">Ups... Parece que hay demasiadas diferencias entre las dos versiones. Probá eliminar primero el contenido y después agregar el contenido nuevo.</div>
+                    }
+
                     <div className="flex justify-center mb-8">
                         <EditMessageInput value={editMsg} setValue={setEditMsg}/>
                     </div>
@@ -97,6 +102,7 @@ export const SaveEditPopup = ({
                                 return await onSave(claimsAuthorship, editMsg)}}
                             text1="Confirmar"
                             text2="Guardando..."
+                            disabled={diff === "too big"}
                         />
                     </div>
                     {errorOnSubmit && <div className="text-center text-red-600 text-sm">Ocurrió un error al guardar los cambios. Intentá nuevamente.</div>}

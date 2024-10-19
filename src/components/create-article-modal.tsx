@@ -48,7 +48,7 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
                             mutate("/api/entities");
                             mutate("/api/entity/"+id);
                             if (goToArticle) router.push(articleUrl(id));
-                            else onClose();
+                            onClose();
                             return true
                         }
                         return false
