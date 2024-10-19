@@ -42,7 +42,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const {mutate} = useSWRConfig()
     const user = useUser()
     const isEntity = content.type == "EntityContent"
-    const startsOpen = isMainPage
+    const startsOpen = isMainPage && !editing
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen && ["Post", "EntityContent"].includes(content.type))
     const [comments, setComments] = useState(content.childrenContents)
@@ -97,7 +97,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             inItsOwnCommentSection={inItsOwnCommentSection}
             depthParity={depthParity}
         />
-        {isMainPage && ["Post", "EntityContent"].includes(content.type) && <hr className="mt-12 mb-2" id="discussion-start"/>}
+        {isMainPage && ["Post", "EntityContent"].includes(content.type) && !editing && <hr className="mt-12 mb-2" id="discussion-start"/>}
         <div className={isMainPage ? "" : "ml-2 mr-1"}>
             {writingReply && <div className={"mb-1 " + (depthParityComments ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]")}>
                 {startsOpen ? <CommentEditor
