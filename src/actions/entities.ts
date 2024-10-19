@@ -481,7 +481,36 @@ export const getEntities = unstable_cache(async () => {
                     }
                 },
                 where: {
-                    isDraft: false
+                    OR: [{
+                        AND: [
+                            {
+                                type: {
+                                    in: ["Post", "FastPost"]
+                                }
+                            },
+                            {
+                                isDraft: false
+                            }
+                        ]
+                    },
+                    {
+                        type: {
+                            notIn: ["Post", "FastPost", "EntityContent"]
+                        }
+                    },
+                    {
+                        AND: [
+                            {
+                                type: "EntityContent"
+                            },
+                            {
+                                parentEntity: {
+                                    deleted: false
+                                }
+                            }
+                        ]
+                    }
+                    ]
                 }
             },
             reactions: {
@@ -507,9 +536,36 @@ export const getEntities = unstable_cache(async () => {
                     }
                 },
                 where: {
-                    isDraft: {
-                        not: true
+                    OR: [{
+                        AND: [
+                            {
+                                type: {
+                                    in: ["Post", "FastPost"]
+                                }
+                            },
+                            {
+                                isDraft: false
+                            }
+                        ]
                     },
+                    {
+                        type: {
+                            notIn: ["Post", "FastPost", "EntityContent"]
+                        }
+                    },
+                    {
+                        AND: [
+                            {
+                                type: "EntityContent"
+                            },
+                            {
+                                parentEntity: {
+                                    deleted: false
+                                }
+                            }
+                        ]
+                    }
+                    ]
                 }
             },
             currentVersionId: true
@@ -646,14 +702,36 @@ export async function getEntityByIdNoCache(id: string){
                     }
                 },
                 where: {
-                    isDraft: {
-                        not: true
+                    OR: [{
+                        AND: [
+                            {
+                                type: {
+                                    in: ["Post", "FastPost"]
+                                }
+                            },
+                            {
+                                isDraft: false
+                            }
+                        ]
                     },
-                    parentEntity: {
-                        deleted: {
-                            not: true
+                    {
+                        type: {
+                            notIn: ["Post", "FastPost", "EntityContent"]
                         }
+                    },
+                    {
+                        AND: [
+                            {
+                                type: "EntityContent"
+                            },
+                            {
+                                parentEntity: {
+                                    deleted: false
+                                }
+                            }
+                        ]
                     }
+                    ]
                 }
             },
             weakReferences: {
@@ -680,9 +758,36 @@ export async function getEntityByIdNoCache(id: string){
                     }
                 },
                 where: {
-                    isDraft: {
-                        not: true // false o null
+                    OR: [{
+                        AND: [
+                            {
+                                type: {
+                                    in: ["Post", "FastPost"]
+                                }
+                            },
+                            {
+                                isDraft: false
+                            }
+                        ]
+                    },
+                    {
+                        type: {
+                            notIn: ["Post", "FastPost", "EntityContent"]
+                        }
+                    },
+                    {
+                        AND: [
+                            {
+                                type: "EntityContent"
+                            },
+                            {
+                                parentEntity: {
+                                    deleted: false
+                                }
+                            }
+                        ]
                     }
+                    ]
                 }
             },
             _count: {
