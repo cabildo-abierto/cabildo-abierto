@@ -504,6 +504,7 @@ export function isKeyInText(key: string, text: string){
 export function findWeakReferences(text: string, searchkeys: {id: string, keys: string[]}[]): {id: string}[]{
     let ids = []
     const cleaned = cleanText(text)
+    //console.log("text", text)
     for(let i = 0; i < searchkeys.length; i++){
         for(let j = 0; j < searchkeys[i].keys.length; j++){
             if(isKeyInText(searchkeys[i].keys[j], cleaned)){
@@ -512,5 +513,6 @@ export function findWeakReferences(text: string, searchkeys: {id: string, keys: 
             }
         }
     }
+    //console.log("result", ids)
     return ids
 }

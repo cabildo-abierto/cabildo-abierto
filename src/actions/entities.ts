@@ -51,7 +51,7 @@ export async function createEntity(name: string, userId: string){
         }
     })
 
-    await updateEntityWeakMentions(entityId)
+    //await updateEntityWeakMentions(entityId)
 
     revalidateTag("entities")
     revalidateTag("editsFeed:"+userId)
@@ -239,9 +239,9 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
         }
     })
 
-    if(searchkeysChange){
-        await updateEntityWeakMentions(entityId)
-    }
+    //if(searchkeysChange){
+    //    await updateEntityWeakMentions(entityId)
+    //}
 
     await notifyMentions(mentions, newContent.id, userId, true)
 

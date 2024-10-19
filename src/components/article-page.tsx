@@ -218,7 +218,10 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             text1="Actualizar weak references"
             text2="Actualizando..."
             handleClick={async (e) => {
-                await updateEntityWeakMentions(entityId)
+                const result = await updateEntityWeakMentions(entityId)
+                if(!result){
+                    console.log("ocurrió un error al actualizar")
+                }
                 return false
             }}
         />
