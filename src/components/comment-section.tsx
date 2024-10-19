@@ -25,6 +25,7 @@ export function getEntityComments(entity: EntityProps, comments: CommentProps[])
     for(let i = 0; i < entity.versions.length; i++){
         comments = [...comments, ...entity.versions[i].childrenContents]
     }
+    
     const ids = new Set()
     let uniqueComments = []
     for(let i = 0; i < comments.length; i++){
@@ -34,11 +35,19 @@ export function getEntityComments(entity: EntityProps, comments: CommentProps[])
     }
 
     let references = [...entity.referencedBy, ...entity.weakReferences]
+    let seenIds = new Set()
+    let uniqueReferences = []
+    references.forEach((r) => {
+        if(!seenIds.has(r.id)){
+            uniqueReferences.push(r)
+            seenIds.add(r.id)
+        }
+    })
 
     uniqueComments = uniqueComments.map((c) => ({...c, isReference: false}))
-    references = references.map((ref) => ({...ref, isReference: true}))
+    uniqueReferences = uniqueReferences.map((ref) => ({...ref, isReference: true}))
 
-    return [...uniqueComments, ...references]
+    return [...uniqueComments, ...uniqueReferences]
 }
 
 export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
