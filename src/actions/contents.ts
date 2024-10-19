@@ -394,7 +394,7 @@ export async function createPost(compressedText: string, postType: ContentType, 
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const searchKeys = await getReferencesSearchKeys()
-    const weakReferences = await findWeakReferences(plainText+title, searchKeys)
+    const weakReferences = await findWeakReferences(plainText+" "+title, searchKeys)
 
     const result = await db.content.create({
         data: {
@@ -446,7 +446,7 @@ export async function updateContent(compressedText: string, contentId: string, t
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const searchKeys = await getReferencesSearchKeys()
-    const weakReferences = await findWeakReferences(plainText+title, searchKeys)
+    const weakReferences = await findWeakReferences(plainText+" "+title, searchKeys)
 
     const result = await db.content.update({
         where: {
@@ -486,7 +486,7 @@ export async function publishDraft(compressedText: string, contentId: string, us
     
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const searchKeys = await getReferencesSearchKeys()
-    const weakReferences = await findWeakReferences(plainText+title, searchKeys)
+    const weakReferences = await findWeakReferences(plainText+" "+title, searchKeys)
     const result = await db.content.update({
         where: {
             id: contentId
@@ -1246,7 +1246,7 @@ export async function updateAllWeakReferences(){
     const searchKeys = await getReferencesSearchKeys()
     for(let i = 0; i < contents.length; i++){
         const text = decompress(contents[i].compressedPlainText)
-        const weakReferences = findWeakReferences(text+contents[i].title, searchKeys)
+        const weakReferences = findWeakReferences(text+" "+contents[i].title, searchKeys)
         console.log("Content", i)
         console.log("Text", text.slice(0, 300))
         console.log("weak references", weakReferences)
@@ -1269,6 +1269,7 @@ export async function updateEntityWeakMentions(entityId: string){
     const entityKeys = [...entity.currentVersion.searchkeys, entity.name].map(cleanText)
     let keys = [{id: entityId, keys: entityKeys}]
 
+    console.log("getting all contents")
     const contents = await db.content.findMany({
         select: {
             id: true,
@@ -1280,17 +1281,19 @@ export async function updateEntityWeakMentions(entityId: string){
         }
     })
 
+
+    console.log("looking at", contents.length, "contents")
     let referencingContents = []
     for(let i = 0; i < contents.length; i++){
+        if(contents[i].id != "cm2ezvg6z0001d1hiiwk3emmq") continue
         const text = decompress(contents[i].compressedPlainText)
-        const weakReferences = findWeakReferences(text+contents[i].title, keys)
-        if(contents[i].id == "cm29p4h070003omkivuvs8mej"){
-            console.log("considering content", i)
-            console.log("text", cleanText(text))
-            console.log("keys", keys)
-            console.log("references", weakReferences)
-            console.log(text+contents[i].title, contents[i].title)
-        }
+        const weakReferences = findWeakReferences(text+" "+contents[i].title, keys)
+        console.log("considering content", i)
+        console.log("text", cleanText(text))
+        console.log("keys", keys)
+        console.log("references", weakReferences)
+        console.log(text+contents[i].title, contents[i].title)
+        
         if(weakReferences.length > 0){
             referencingContents.push({id: contents[i].id})
         }
@@ -1312,4 +1315,5 @@ export async function updateEntityWeakMentions(entityId: string){
     }
 
     revalidateTag("entity:" + entityId)
+    return true
 }
