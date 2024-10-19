@@ -86,6 +86,7 @@ export type ReferenceProps = {
     currentVersionOf: {
         id: string
     }
+    parentEntityId?: string
 }
 
 
