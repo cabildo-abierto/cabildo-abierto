@@ -212,7 +212,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         </div>
         <div id="editor">
             {((!showingChanges && !showingAuthors) || version == 0) && 
-            <div className="px-2 min-h-64">
+            <div className="px-2 min-h-64" key={content.id+readOnly}>
                 <MyLexicalEditor
                 settings={wikiEditorSettings(readOnly, content, contentText)}
                 setEditor={setEditor}
