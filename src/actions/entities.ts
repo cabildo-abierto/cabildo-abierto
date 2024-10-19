@@ -478,7 +478,8 @@ export const getEntities = unstable_cache(async () => {
                         select: {
                             userById: true
                         }
-                    }
+                    },
+                    parentEntityId: true
                 },
                 where: {
                     OR: [{
@@ -533,7 +534,8 @@ export const getEntities = unstable_cache(async () => {
                         select: {
                             userById: true
                         }
-                    }
+                    },
+                    parentEntityId: true
                 },
                 where: {
                     OR: [{
@@ -699,7 +701,8 @@ export async function getEntityByIdNoCache(id: string){
                         select: {
                             id: true
                         }
-                    }
+                    },
+                    parentEntityId: true
                 },
                 where: {
                     OR: [{
@@ -755,7 +758,8 @@ export async function getEntityByIdNoCache(id: string){
                         select: {
                             id: true
                         }
-                    }
+                    },
+                    parentEntityId: true
                 },
                 where: {
                     OR: [{

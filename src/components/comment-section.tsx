@@ -25,7 +25,7 @@ export function getEntityComments(entity: EntityProps, comments: CommentProps[])
     for(let i = 0; i < entity.versions.length; i++){
         comments = [...comments, ...entity.versions[i].childrenContents]
     }
-    
+
     const ids = new Set()
     let uniqueComments = []
     for(let i = 0; i < comments.length; i++){
@@ -38,7 +38,7 @@ export function getEntityComments(entity: EntityProps, comments: CommentProps[])
     let seenIds = new Set()
     let uniqueReferences = []
     references.forEach((r) => {
-        if(!seenIds.has(r.id)){
+        if(!seenIds.has(r.id) && r.parentEntityId != entity.id){
             uniqueReferences.push(r)
             seenIds.add(r.id)
         }

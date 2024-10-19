@@ -36,12 +36,12 @@ const Page = () => {
                         <span className="text-sm text-gray-800 mb-2">
                             Grupo Scout San Martín de Tours
                         </span>
-                        <Link href="/inicio" className="flex items-center flex-col">
+                        {/*<Link href="/inicio" className="flex items-center flex-col">
                             <div className="text-sm text-gray-800 mb-2 text-center">
                                 <p className="text-xs">En colaboración con</p>
                                 <p>www.cabildoabierto.com.ar</p>
                             </div>
-                        </Link>
+                        </Link>*/}
                     </div>
                 </div>
             </div>
