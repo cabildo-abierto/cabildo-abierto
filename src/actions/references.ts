@@ -4,7 +4,7 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { getEntityById } from "./entities";
 import { SearchkeysProps, SmallContentProps } from "../app/lib/definitions";
-import { cleanText, findWeakReferences } from "../components/utils";
+import { cleanText, findWeakReferences, getKeysFromEntity } from "../components/utils";
 import { decompress } from "../components/compression";
 import { getSearchableContents } from "./feed";
 import { findReferences } from "./contents";
@@ -61,7 +61,7 @@ export async function getReferencesSearchKeys(){
         })
         let searchkeys: {id: string, keys: string[]}[] = []
         for(let i = 0; i < entities.length; i++){
-            let keys = [...entities[i].currentVersion.searchkeys, entities[i].name].map(cleanText)
+            let keys = getKeysFromEntity(entities[i]).map(cleanText)
             searchkeys.push({id: entities[i].id, keys: keys})
         }
         return searchkeys
