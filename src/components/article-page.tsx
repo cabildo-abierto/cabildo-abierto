@@ -57,6 +57,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
+    const [showGoToDiscussion, setShowGoToDiscussion] = useState(true)
 
     useEffect(() => {
         if(entity.entity){
@@ -284,7 +285,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             </h1>
         </div>
         <div className="flex justify-between items-center">
-            <div className="flex flex-col link text-xs sm:text-sm">
+            {selectedPanel != "editing" && <div className="flex flex-col link text-xs sm:text-sm">
 
                 <ShowContributors entityId={entityId}/>
                 
@@ -298,10 +299,10 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
                     </div>
                 }
 
-            </div>
-            <button className="gray-btn sm:text-base text-sm" onClick={onGoToDiscussion}>
+            </div>}
+            {selectedPanel != "editing" && <button className="gray-btn sm:text-base text-sm" onClick={onGoToDiscussion}>
                 Ir a la discusión <ArrowDownwardIcon fontSize="inherit"/>
-            </button>
+            </button>}
         </div>
         <div className="">
         {selectedPanel != "editing" && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">
