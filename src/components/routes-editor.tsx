@@ -151,6 +151,7 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
     const entityCategories = (content && content.categories) ? JSON.parse(content.categories) : null
     const [categories, setCategories] = useState<string[][]>(entityCategories)
     const {mutate} = useSWRConfig()
+    const [errorOnSave, setErrorOnSave] = useState(false)
 
     if(isLoading) return <LoadingSpinner/>
     if(!content || !content.categories){
@@ -184,11 +185,19 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
         // TO DO: Pedir confirmación si crea una nueva categoría
         // TO DO: Chequear que otro no haya editado en el medio
         if(user.user) {
-            await updateEntity(entity.id, user.user.id, true, "", undefined, JSON.stringify(categories))
-            mutate("/api/entitiy/"+entity.id)
-            mutate("/api/entities")
-            setEditing(false)
+            setErrorOnSave(false)
+            const result = await updateEntity(entity.id, user.user.id, true, "", undefined, JSON.stringify(categories))
+            if(result){
+                mutate("/api/entitiy/"+entity.id)
+                mutate("/api/entities")
+                setEditing(false)
+                return true
+            } else {
+                setErrorOnSave(true)
+                return false
+            }
         }
+        setErrorOnSave(true)
         return false
     }
 
@@ -229,6 +238,7 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
                 text2="Guardando..."
             />
         </div>
+        {errorOnSave && <div className="text-red-600 flex justify-end sm:text-sm text-xs mt-1">Ocurrió un error al guardar. Intentá de nuevo.</div>}
         <div className="py-3"><hr/></div>
     </div>
 }

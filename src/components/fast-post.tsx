@@ -42,6 +42,10 @@ export const FastPost = ({
     const isAuthor = user && user.id == content.author.id
     const optionList = isAuthor ? ["edit"] : ["reportFake"]
 
+    if(user && user.editorStatus == "Administrator"){
+        optionList.push("delete")
+    }
+
     return <div className="">
         {inCommentSection && <div className={contentContextClassName}><FastPostIcon fontSize="inherit"/> Publicación rápida</div>}
         <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews} showFakeNewsCounter={true} optionList={optionList}/>

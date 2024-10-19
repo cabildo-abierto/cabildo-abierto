@@ -74,15 +74,14 @@ const PostEditor = ({
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
     const [title, setTitle] = useState(initialTitle)
-    const [submitting, setSubmitting] = useState(false)
     const {user} = useUser()
     const {mutate} = useSWRConfig()
+    const [errorOnSubmit, setErrorOnSubmit] = useState(false)
 
     const settings = postEditorSettings(isFast, initialData)
 
     async function handleSubmit(){
         if(editor && user){
-            setSubmitting(true)
             const text = JSON.stringify(editor.getEditorState())
             const compressedText = compress(text)
             const type = isFast ? "FastPost" : "Post"
@@ -107,24 +106,31 @@ const PostEditor = ({
 
     async function handleSaveDraft(){
         if(editor && user){
-            setSubmitting(true)
             const text = JSON.stringify(editor.getEditorState())
             const compressedText = compress(text)
             const type = isFast ? "FastPost" : "Post"
+            let result = null
             if(!isDraft){
                 if(!isPublished){
-                    const result = await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
+                    result = await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
                 } else {
-                    const result = await updateContent(compressedText, contentId, !isFast ? title : undefined)
+                    result = await updateContent(compressedText, contentId, !isFast ? title : undefined)
                 }
             } else {
-                await updateContent(compressedText, contentId, title)
-                await mutate("/api/content/" + contentId)
+                result = await updateContent(compressedText, contentId, title)
+                if(result)
+                    mutate("/api/content/" + contentId)
             }
-            mutate("/api/drafts")
-            router.push("/borradores")
-            return true
+            if(result){
+                mutate("/api/drafts")
+                router.push("/borradores")
+                return true   
+            } else {
+                setErrorOnSubmit(true)
+                return false
+            }
         }
+        setErrorOnSubmit(true)
         return false
     }
 
@@ -134,7 +140,8 @@ const PostEditor = ({
         emptyOutput(editorState) ||
         (!isFast && title.length == 0) ||
         (!validPost(editorState, settings.charLimit)) ||
-        (isDraft && !hasChanged(editorState, initialData)) || submitting
+        (isDraft && !hasChanged(editorState, initialData))
+
 
 	const PublishButton = ({onClick}: {onClick: (e) => Promise<boolean>}) => {
         return <StateButton
@@ -177,6 +184,7 @@ const PostEditor = ({
                 {!isPublished && <SaveDraftButton onClick={handleSaveDraft}/>}
 			</div>
 		</div>
+        {errorOnSubmit && <div className="text-red-600 sm:text-sm text-xs mt-1 flex justify-end px-1">Ocurrió un error. Intentá de nuevo.</div>}
         {!isFast && <div className="mt-6">
             <TitleInput onChange={setTitle} title={title}/>
         </div>}
