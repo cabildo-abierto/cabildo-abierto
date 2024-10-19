@@ -10,16 +10,18 @@ import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
 import LoadingSpinner from "../loading-spinner"
 import { ChangesCounter } from "../changes-counter"
-import { hasChanged } from "../utils"
-import { ContentProps, EntityProps } from "../../app/lib/definitions"
-import { updateEntity } from "../../actions/entities"
-import { useUser } from "../../app/hooks/user"
+import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getSearchkeysFromEntities, hasChanged } from "../utils"
+import { ContentProps, EntityProps, SmallEntityProps, SmallUserProps } from "../../app/lib/definitions"
+import { updateEntity, updateEntityContent } from "../../actions/entities"
+import { useUser, useUsers } from "../../app/hooks/user"
 import { compress, decompress } from "../compression"
 import { ShowArticleChanges } from "../show-article-changes"
 import { ShowArticleAuthors } from "../show-authors-changes"
 import { SaveEditPopup } from "../save-edit-popup"
 import { fetcher } from "../../app/hooks/utils"
 import { SearchkeysEditor } from "../searchkeys-editor"
+import { useRouteEntities } from "../../app/hooks/contents"
+import { findMentions } from "../../actions/contents"
 
 
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
@@ -88,6 +90,16 @@ type WikiEditorProps = {
 }
 
 
+function findReferencesInClient(text: string, entities: SmallEntityProps[], users: SmallUserProps[]){
+    const searchkeys = getSearchkeysFromEntities(entities)
+    const weakReferences = findWeakEntityReferences(text, searchkeys)
+    const mentions = findMentionsFromUsers(text, users)
+    const entityReferences = findEntityReferencesFromEntities(text, entities)
+
+    return {weakReferences: weakReferences, mentions: mentions, entityReferences: entityReferences}
+}
+
+
 const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=false, showingAuthors=false, setEditing}: WikiEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
@@ -96,6 +108,8 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const [errorOnSubmit, setErrorOnSubmit] = useState(false)
     const [editingSearchkeys, setEditingSearchkeys] = useState(false)
+    const {entities} = useRouteEntities([])
+    const {users} = useUsers()
 
     const user = useUser()
     
@@ -120,14 +134,20 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         if(editor){
             const result = editor.read(async () => {
                 setErrorOnSubmit(false)
+                
+                const text = JSON.stringify(editor.getEditorState())
+                const {weakReferences, entityReferences, mentions} = findReferencesInClient(text, entities, users)
+
                 if(user.user){
-                    const newContent = await updateEntity(
+                    const newContent = await updateEntityContent(
                         entity.id, 
                         user.user.id,
                         claimsAuthorship,
                         editMsg,
-                        compress(JSON.stringify(editor.getEditorState())),
-                        content.categories
+                        compress(text),
+                        weakReferences,
+                        entityReferences,
+                        mentions
                     )
                     mutate("/api/entities")
                     mutate("/api/entity/"+entity.id)

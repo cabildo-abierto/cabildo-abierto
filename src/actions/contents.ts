@@ -7,7 +7,7 @@ import { revalidateEverythingTime } from "./utils";
 import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
 import { getUser, getUserId, getUsers } from "./users";
-import { findWeakReferences, getPlainText } from "../components/utils";
+import { findEntityReferencesFromEntities, findWeakEntityReferences, getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
 import { getReferencesSearchKeys } from "./references";
 
@@ -210,7 +210,7 @@ export async function notifyMentions(mentions: {id: string}[], contentId: string
 
 export async function createComment(compressedText: string, parentContentId: string, userId: string) {
     const text = decompress(compressedText)
-    let references = await findReferences(text)
+    let references = await findEntityReferences(text)
     const mentions = await findMentions(text)
 
     
@@ -219,7 +219,7 @@ export async function createComment(compressedText: string, parentContentId: str
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const searchKeys = await getReferencesSearchKeys()
-    const weakReferences = await findWeakReferences(plainText, searchKeys)
+    const weakReferences = await findWeakEntityReferences(plainText, searchKeys)
 
     const comment = await db.content.create({
         data: {
@@ -311,48 +311,8 @@ export async function createNotification(
     revalidateTag("user:"+userNotifiedId)
 }
 
-export async function findReferences(text: string){
-    function findReferencesInNode(node: any): {id: string}[] {
-        let references: {id: string}[] = []
-        if(node.type === "link"){
-            if(node.url.startsWith("/articulo?i=")){
-                const id = node.url.split("/articulo?i=")[1]
-                references.push({id: id})
-            } else if(node.url.startsWith("/articulo/")){
-                const id = node.url.split("/articulo/")[1]
-                references.push({id: id})
-            } else if(node.url.startsWith("/wiki/")){
-                const id = node.url.split("/wiki/")[1]
-                references.push({id: id})
-            }
-        }
-        if(node.children){
-            for(let i = 0; i < node.children.length; i++) {
-                const childRefs = findReferencesInNode(node.children[i])
-                childRefs.forEach((x) => {references.push(x)})
-            }
-        }
-        return references
-    }
-    
-    if(text.length == 0 || text == "Este artículo está vacío!"){
-        return []
-    }
-    let json = null
-    try {
-        json  = JSON.parse(text)
-    } catch {
-        console.log("failed to parse", text)
-    }
-    if(!json) return []
-
-    let references: {id: string}[] = findReferencesInNode(json.root)
-    
-    const entities = await getEntities()
-
-    references = references.filter(({id}) => (entities.some((e) => (e.id == id))))
-
-    return references
+export async function findEntityReferences(text: string){
+    return await findEntityReferencesFromEntities(text, await getEntities())
 }
 
 
@@ -396,12 +356,12 @@ export async function createPost(compressedText: string, postType: ContentType, 
     //await new Promise((resolve) => setTimeout(resolve, 3000));
     //return null
     const text = decompress(compressedText)
-    let references = await findReferences(text)
+    let references = await findEntityReferences(text)
     const mentions = await findMentions(text)
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const searchKeys = await getReferencesSearchKeys()
-    const weakReferences = await findWeakReferences(plainText+" "+title, searchKeys)
+    const weakReferences = await findWeakEntityReferences(plainText+" "+title, searchKeys)
 
     const result = await db.content.create({
         data: {
@@ -445,7 +405,7 @@ export async function updateContent(compressedText: string, contentId: string, t
     //await new Promise((resolve) => setTimeout(resolve, 3000));
     //return null
     const text = decompress(compressedText)
-    let references = await findReferences(text)
+    let references = await findEntityReferences(text)
     const mentions = await findMentions(text)
     const userId = await getUserId()
 
@@ -453,7 +413,7 @@ export async function updateContent(compressedText: string, contentId: string, t
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const searchKeys = await getReferencesSearchKeys()
-    const weakReferences = await findWeakReferences(plainText+" "+title, searchKeys)
+    const weakReferences = await findWeakEntityReferences(plainText+" "+title, searchKeys)
 
     const result = await db.content.update({
         where: {
@@ -488,12 +448,12 @@ export async function updateContent(compressedText: string, contentId: string, t
 
 export async function publishDraft(compressedText: string, contentId: string, userId: string, title?: string) {
     const text = decompress(compressedText)
-    let references = await findReferences(text)
+    let references = await findEntityReferences(text)
     const mentions = await findMentions(text)
     
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const searchKeys = await getReferencesSearchKeys()
-    const weakReferences = await findWeakReferences(plainText+" "+title, searchKeys)
+    const weakReferences = await findWeakEntityReferences(plainText+" "+title, searchKeys)
     const result = await db.content.update({
         where: {
             id: contentId
@@ -532,12 +492,12 @@ export async function publishDraft(compressedText: string, contentId: string, us
 
 export async function createFakeNewsReport(compressedText: string, parentContentId: string, userId: string) {
     const text = decompress(compressedText)
-    let references = await findReferences(text)
+    let references = await findEntityReferences(text)
     const mentions = await findMentions(text)
 
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
     const searchKeys = await getReferencesSearchKeys()
-    const weakReferences = await findWeakReferences(plainText, searchKeys)
+    const weakReferences = await findWeakEntityReferences(plainText, searchKeys)
 
     const report = await db.content.create({
         data: {

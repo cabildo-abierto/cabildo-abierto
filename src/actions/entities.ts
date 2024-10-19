@@ -2,11 +2,11 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findMentions, findReferences, getContentById, notifyMentions } from "./contents";
+import { findEntityReferences, findMentions, getContentById, notifyMentions } from "./contents";
 import { revalidateEverythingTime } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { currentVersionContent, entityInRoute, findWeakReferences, getPlainText, hasEditPermission, isPartOfContent, isUndo } from "../components/utils";
+import { currentVersionContent, entityInRoute, findWeakEntityReferences, getPlainText, hasEditPermission, isPartOfContent, isUndo } from "../components/utils";
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
@@ -154,6 +154,93 @@ export const recomputeEntityContributions = async (entityId: string) => {
     revalidateTag("entity:"+entityId)
 }
 
+
+export const updateEntityContent = async(
+    entityId: string,
+    userId: string,
+    claimsAuthorship: boolean,
+    editMsg: string,
+    compressedText: string,
+    weakReferences: {id: string}[],
+    entityReferences: {id: string}[],
+    mentions: {id: string}[],
+) => {
+    const text = decompress(compressedText)
+    const entity = await getEntityById(entityId)
+    const prevText = decompress(entity.currentVersion.compressedText)
+    const currentContent = await getContentById(entity.currentVersionId)
+
+    const {numChars, numWords, numNodes, plainText} = getPlainText(text)
+
+    let {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(prevText, text)
+
+    const permission = hasEditPermission(await getUserById(userId), entity.protection)
+
+    let contribution = null
+    if(!permission){
+        contribution = JSON.parse(currentContent.contribution)
+    } else {
+        contribution = updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId)
+    }
+
+    const newContent = await db.content.create({
+        data: {
+            compressedText: compressedText,
+            compressedPlainText: compress(plainText),
+            numChars: numChars,
+            numWords: numWords,
+            numNodes: numNodes,
+            author: {
+                connect: {id: userId}
+            },
+            type: "EntityContent",
+            parentEntity: {
+                connect: {id: entityId}
+            },
+            categories: currentContent.categories,
+            searchkeys: entity.currentVersion.searchkeys,
+            entityReferences: {
+                connect: entityReferences
+            },
+            weakReferences: {
+                connect: weakReferences
+            },
+            usersMentioned: {
+                connect: mentions
+            },
+            editPermission: permission,
+            claimsAuthorship: claimsAuthorship,
+            currentVersionOf: permission ? {
+                connect: {
+                    id: entityId
+                }
+            } : undefined,
+            editMsg: editMsg,
+            accCharsAdded: currentContent.accCharsAdded + charsAdded,
+            contribution: JSON.stringify(contribution),
+            diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches}),
+            charsAdded: charsAdded,
+            charsDeleted: charsDeleted
+        }
+    })
+
+    await notifyMentions(mentions, newContent.id, userId, true)
+
+    for(let i = 0; i < weakReferences.length; i++){
+        revalidateTag("entity:"+weakReferences[i].id)
+    }
+    for(let i = 0; i < entityReferences.length; i++){
+        revalidateTag("entity:"+entityReferences[i].id)
+    }
+
+    revalidateTag("entity:" + entityId)
+    revalidateTag("entities")
+    revalidateTag("userContents:"+userId)
+    revalidateTag("editsFeed:"+userId)
+
+    return true
+}
+
   
 export const updateEntity = async (entityId: string, userId: string, claimsAuthorship: boolean, editMsg: string, compressedText?: string, categories?: string, searchkeys?: string[]) => {
     const entity = await getEntityById(entityId)
@@ -170,7 +257,7 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
     const currentContent = await getContentById(current.id)
     if(contentChange){
         text = decompress(compressedText)
-        references = await findReferences(text)
+        references = await findEntityReferences(text)
         mentions = await findMentions(text)
         categories = current.categories
         prevText = decompress(currentContent.compressedText)
@@ -188,7 +275,7 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
 
     if(contentChange){
         const searchKeys = await getReferencesSearchKeys()
-        weakReferences = await findWeakReferences(plainText+entity.name, searchKeys)
+        weakReferences = await findWeakEntityReferences(plainText+entity.name, searchKeys)
     }
 
     let {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(prevText, text)
@@ -575,7 +662,12 @@ export const getEntities = unstable_cache(async () => {
                     ]
                 }
             },
-            currentVersionId: true
+            currentVersionId: true,
+            currentVersion: {
+                select: {
+                    searchkeys: true
+                }
+            }
         },
         where: {
             deleted: false
@@ -602,7 +694,8 @@ export async function getEntityByIdNoCache(id: string){
             currentVersion: {
                 select: {
                     categories: true,
-                    searchkeys: true
+                    searchkeys: true,
+                    compressedText: true
                 }
             },
             versions: {

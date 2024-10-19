@@ -1,13 +1,13 @@
 'use server'
 
-import { revalidateTag, unstable_cache } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { db } from "../db";
-import { getEntityById } from "./entities";
+import { getEntities } from "./entities";
 import { SearchkeysProps, SmallContentProps } from "../app/lib/definitions";
-import { cleanText, findWeakReferences, getKeysFromEntity } from "../components/utils";
+import { findWeakEntityReferences, getSearchkeysFromEntities } from "../components/utils";
 import { decompress } from "../components/compression";
 import { getSearchableContents } from "./feed";
-import { findReferences } from "./contents";
+import { findEntityReferences } from "./contents";
 
 
 export async function updateAllReferences(){
@@ -30,7 +30,7 @@ export async function updateAllReferences(){
     for(let i = 0; i < contents.length; i++){
         const c = contents[i]
         const text = decompress(c.compressedText)
-        const ref = await findReferences(text)
+        const ref = await findEntityReferences(text)
         await db.content.update({
             data: {
                 entityReferences: {
@@ -47,25 +47,7 @@ export async function updateAllReferences(){
 
 
 export async function getReferencesSearchKeys(){
-    return await unstable_cache(async () => {
-        const entities = await db.entity.findMany({
-            select: {
-                id: true,
-                name: true,
-                currentVersion: {
-                    select: {
-                        searchkeys: true
-                    }
-                }
-            }
-        })
-        let searchkeys: {id: string, keys: string[]}[] = []
-        for(let i = 0; i < entities.length; i++){
-            let keys = getKeysFromEntity(entities[i]).map(cleanText)
-            searchkeys.push({id: entities[i].id, keys: keys})
-        }
-        return searchkeys
-    }, ["searchkeys"], {tags: ["searchkeys"]})()
+    return getSearchkeysFromEntities(await getEntities())
 }
 
 
@@ -73,7 +55,7 @@ export async function updateWeakReferencesForContent(content: SmallContentProps,
     const text = decompress(content.compressedPlainText)
     let currentReferences = content.weakReferences.map(({id}) => ({id: id}))
 
-    const weakReferences = findWeakReferences(text+" "+content.title, searchkeys)
+    const weakReferences = findWeakEntityReferences(text+" "+content.title, searchkeys)
 
     let correctIds = new Set(weakReferences.map(({id}) => (id)))
     let currentIds = new Set(currentReferences.map(({id}) => (id)))
