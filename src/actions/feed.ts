@@ -312,6 +312,20 @@ export const getSearchableContents = (route: string[]) => {
                         }
                     }
                 },
+                weakReferences: {
+                    select: {
+                        id: true,
+                        versions: {
+                            select: {
+                                id: true,
+                                categories: true
+                            },
+                            orderBy: {
+                                createdAt: "asc"
+                            }
+                        }
+                    }
+                },
                 _count: {
                     select: {
                         reactions: true,

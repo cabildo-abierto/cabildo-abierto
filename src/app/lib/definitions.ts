@@ -276,6 +276,13 @@ export type UserStats = {
     viewsInEntities: number
 }
 
+
+export type SearchkeysProps = {
+    id: string
+    keys: string[]
+}[]
+
+
 export type SmallContentProps = {
     id: string
     author: {name: string, id: string}
@@ -284,6 +291,7 @@ export type SmallContentProps = {
     title?: string
     createdAt?: string | Date
     entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
+    weakReferences?: {id: string, versions: {id: string, categories: string}[]}[]
     _count: {reactions: number, childrenTree: number}
     currentVersionOf?: {id: (string | null)}
     fakeReportsCount?: number;

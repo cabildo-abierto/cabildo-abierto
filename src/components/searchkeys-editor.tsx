@@ -52,13 +52,6 @@ const SearchKeyInput = ({
 };
 
 
-type SearchkeysEditorProps = {
-    searchkeys: string[],
-    setSearchkeys: (a: string[]) => void
-    routeIndex: number
-}
-
-
 function areSearchkeysEqual(cat1: string[], cat2: string[]){
     const result = areArraysEqual(cat1, cat2)
     return result
@@ -66,7 +59,7 @@ function areSearchkeysEqual(cat1: string[], cat2: string[]){
 
 
 export const EntitySearchkeysTitle = ({name}: {name: string}) => {
-    let info = "Se usan para contabilizar formas alternativas de mencionar el título a la hora de medir su popularidad."
+    let info = "Se usan para contabilizar formas alternativas de mencionar el título a la hora de buscar referencias."
     
     return <div className="ml-1 mb-4 flex items-center">
         <span className="mr-1 text-lg">Sinónimos de {name}</span>

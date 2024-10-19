@@ -1,7 +1,8 @@
 "use client"
 
-import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions, deleteUser, updateAllUniqueCommentators, updateAllReferences, updateAllWeakReferences } from "../../actions/contents"
-import { deleteEntity, recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateNotifications, revalidateUsers, updateIsDraft, updateUniqueViewsCount } from "../../actions/entities"
+import { compressContents, compressContent, decompressContents, decompressContent, notifyAllMentions, deleteUser, updateAllUniqueCommentators } from "../../actions/contents"
+import { deleteEntity, recomputeAllContributions, recomputeEntityContributions, revalidateContents, revalidateDrafts, revalidateEntities, revalidateFeed, revalidateNotifications, revalidateSearchkeys, revalidateUsers, updateIsDraft, updateUniqueViewsCount } from "../../actions/entities"
+import { updateAllReferences, updateAllWeakReferences } from "../../actions/references"
 import { createPaymentPromises, confirmPayments, addDonatedSubscriptionsManually, computeSubscriptorsByDay, computeDayViews } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
@@ -21,7 +22,10 @@ export default function Page() {
 
     const center = <div className="flex flex-col items-center mt-8">
         <h1>Panel de administrador</h1>
-        <div className="py-8 flex flex-col items-center space-y-2 w-64">
+        <div className="py-8 flex flex-col items-center space-y-2 w-64 text-center">
+            
+            <h2>Pagos</h2>
+
             <button className="gray-btn" onClick={async () => {await createPaymentPromises()}}>
                 Crear promesas
             </button>
@@ -34,10 +38,14 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await recomputeEntityContributions("C%C3%B3digo_Procesal_Civil_y_Comercial_de_la_Naci%C3%B3n")}}>
                 Recalcular contribuciones entidad
             </button>
+
             <button className="gray-btn" onClick={async () => {await addDonatedSubscriptionsManually("Fer1974", 9, 500, "89515361127")}}>
                 Asignar suscripciones
             </button>
-            
+
+
+            <h2>Revalidar</h2>
+
             <button className="gray-btn" onClick={async () => {await revalidateEntities()}}>
                 Revalidar temas
             </button>
@@ -56,9 +64,12 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await revalidateDrafts()}}>
                 Revalidar drafts
             </button>
-            <button className="gray-btn" onClick={async () => {await updateAllUniqueCommentators()}}>
-                Actualizar unique comentators
+            <button className="gray-btn" onClick={async () => {await revalidateSearchkeys()}}>
+                Revalidar search keys
             </button>
+
+            <h2>Contenido</h2>
+
             <button className="gray-btn" onClick={async () => {await compressContents()}}>
                 Comprimir
             </button>
@@ -71,12 +82,27 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await decompressContent("cm20q7zys0003w80jqk227mw2")}}>
                 Descomprimir contenido
             </button>
+
+            <h2>Actualizar</h2>
+
+            <button className="gray-btn" onClick={async () => {await updateAllUniqueCommentators()}}>
+                Actualizar unique comentators
+            </button>
             <button className="gray-btn" onClick={async () => {await updateUniqueViewsCount()}}>
                 Actualizar unique views
             </button>
             <button className="gray-btn" onClick={async () => {await updateAllReferences()}}>
                 Actualizar referencias
             </button>
+            <button className="gray-btn" onClick={async () => {await updateAllWeakReferences()}}>
+                Actualizar weak references
+            </button>
+            <button className="gray-btn" onClick={async () => {await updateIsDraft()}}>
+                Actualizar isDraft
+            </button>
+
+            <h2>Operaciones sobre la discusión</h2>
+
             <button className="gray-btn" onClick={async () => {await notifyAllMentions()}}>
                 Notificar menciones
             </button>
@@ -86,6 +112,9 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await deleteEntity(entityId, "soporte")}}>
                 Eliminar tema {entityId}
             </button>
+
+            <h2>Estadísticas</h2>
+
             <button className="gray-btn" onClick={async () => {await computeSubscriptorsByDay(500)}}>
                 Calcular suscriptores por día
             </button>
@@ -98,12 +127,7 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await computeDayViews(true)}}>
                 Views en entidades día
             </button>
-            <button className="gray-btn" onClick={async () => {await updateAllWeakReferences()}}>
-                Actualizar weak references
-            </button>
-            <button className="gray-btn" onClick={async () => {await updateIsDraft()}}>
-                Actualizar isDraft
-            </button>
+
         </div>
     </div>
 
