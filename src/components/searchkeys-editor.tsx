@@ -80,18 +80,23 @@ export const SearchkeysEditor = ({entity, setEditing}: {entity: EntityProps, set
     const user = useUser()
     const [searchkeys, setSearchkeys] = useState(entity.currentVersion.searchkeys)
     const {mutate} = useSWRConfig()
+    const [errorOnSave, setErrorOnSave] = useState(false)
 
     const onSubmitSearchkeys = async () => {
+        setErrorOnSave(false)
         if(user.user) {
             const result = await updateEntity(entity.id, user.user.id, true, "", undefined, undefined, searchkeys)
             if(result){
                 mutate("/api/entitiy/"+entity.id)
                 mutate("/api/entities")
                 setEditing(false)
+                return true
+            } else {
+                setErrorOnSave(true)
                 return false
             }
-            return true
         }
+        setErrorOnSave(true)
         return false
     }
 
@@ -163,6 +168,7 @@ export const SearchkeysEditor = ({entity, setEditing}: {entity: EntityProps, set
                 text2="Guardando..."
             />
         </div>
+        {errorOnSave && <div className="text-red-600 flex justify-end sm:text-sm text-xs mt-1">Ocurrió un error al guardar. Intentá de nuevo.</div>}
         <div className="py-3"><hr/></div>
     </div>
 }

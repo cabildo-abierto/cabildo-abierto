@@ -58,6 +58,10 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
 
     const optionList = user && (content.author.id == user.id || user.editorStatus == "Administrator") ? ["edit"] : []
 
+    if(user && user.editorStatus == "Administrator"){
+        optionList.push("delete")
+    }
+
     return <Link
         href={contentUrl(content.id)}
         className="flex flex-col transition-colors duration-300 ease-in-out cursor-pointer"

@@ -174,7 +174,7 @@ export const updateEntity = async (entityId: string, userId: string, claimsAutho
         prevText = decompress(currentContent.compressedText)
     } else {
         compressedText = currentContent.compressedText
-        references = currentContent.entityReferences
+        references = currentContent.entityReferences.map(({id}) => ({id: id}))
         weakReferences = current.weakReferences
         text = decompress(compressedText)
         prevText = text

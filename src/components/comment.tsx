@@ -107,8 +107,12 @@ export const Comment = ({
     const icon = isFakeNewsReport ? <RedFlag/> : <></>
     const isAuthor: boolean = user && user.id == content.author.id
 
+    const optionList = isAuthor ? ["edit"] : []
+    if(user && user.editorStatus == "Administrator"){
+        optionList.push("delete")
+    }
     return <div className="">
-        <ContentTopRow content={content} icon={icon} showOptions={true} optionList={isAuthor ? ["edit"] : []}/>
+        <ContentTopRow content={content} icon={icon} showOptions={true} optionList={optionList}/>
         <div className="px-2 my-2 ml-2 content">
             {snode && <div>
                 <ReadOnlyEditor initialData={initializeQuote}/>

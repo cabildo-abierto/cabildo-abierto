@@ -21,7 +21,8 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
     const { user } = useUser();
     const [editorKey, setEditorKey] = useState(0);
-    const [randomPlaceholder, setRandomPlaceholder] = useState<string>("");
+    const [randomPlaceholder, setRandomPlaceholder] = useState<string>("")
+    const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
 
     const placeholders = [
         "Una ráfaga comunicacional...",
@@ -37,6 +38,7 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
     settings.editorClassName = "min-h-[250px]"
 
     async function handleSubmit() {
+        setErrorOnCreatePost(false)
         if (editor && user) {
             const text = JSON.stringify(editor.getEditorState());
             const compressedText = compress(text);
@@ -48,9 +50,12 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
                 setEditorKey(editorKey + 1);
                 onClose()
                 return true
+            } else {
+                setErrorOnCreatePost(true)
             }
             return false
         }
+        setErrorOnCreatePost(true)
         return false;
     }
 
@@ -83,6 +88,7 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
                     className="gray-btn title text-sm"
                 />
             </div>
+            {errorOnCreatePost && <div className="flex justify-end text-sm text-red-600">Ocurrió un error al publicar. Intentá de nuevo.</div>}
         </div>
     );
 };

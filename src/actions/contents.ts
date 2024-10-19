@@ -386,6 +386,8 @@ export async function findMentions(text: string){
 
 
 export async function createPost(compressedText: string, postType: ContentType, isDraft: boolean, userId: string, title?: string) {
+    //await new Promise((resolve) => setTimeout(resolve, 3000));
+    //return null
     const text = decompress(compressedText)
     let references = await findReferences(text)
     const mentions = await findMentions(text)
@@ -433,6 +435,8 @@ export async function createPost(compressedText: string, postType: ContentType, 
 
 
 export async function updateContent(compressedText: string, contentId: string, title?: string) {
+    //await new Promise((resolve) => setTimeout(resolve, 3000));
+    //return null
     const text = decompress(compressedText)
     let references = await findReferences(text)
     const mentions = await findMentions(text)
