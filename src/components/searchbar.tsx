@@ -12,8 +12,11 @@ import { useSearch } from "./search-context";
 
 export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = ({ result }) => {
     const className = "px-2 py-1 w-72 text-center hover:bg-[var(--secondary-light)]"
+    const {searchValue, setSearchValue} = useSearch()
 
-    return <div className="flex justify-center content-container">
+    return <div className="flex justify-center content-container"
+      onClick={() => {setSearchValue("")}}
+    >
         <Link href={id2url(result.id)}>
             <button className={className}>
                 <div className="flex w-full items-center">
