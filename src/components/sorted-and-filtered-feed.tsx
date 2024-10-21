@@ -66,7 +66,7 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter, m
         filteredFeed = filteredFeed.slice(0, maxCount)
     }
 
-    if(searchValue.length == 0)
+    if(searchValue.length == 0 && order == "Populares")
         filteredFeed = filteredFeed.filter(isPopularEnough)
 
     let feedWithScore = filteredFeed.map((content) => ({score: popularityScore(content), content: content}))
