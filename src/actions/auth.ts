@@ -8,7 +8,7 @@ import { AuthRetryableFetchError } from '@supabase/supabase-js'
 import { getUser } from './users'
 
 
-type LoginFormState = {
+export type LoginFormState = {
   error?: string
   data?: any
   user?: UserProps
