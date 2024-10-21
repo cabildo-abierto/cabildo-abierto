@@ -37,7 +37,7 @@ export const deleteEntity = async (entityId: string, userId: string) => {
             }
         })
     } catch {
-        return {error: "error deleting entity"}
+        return {error: "Error al borrar el tema."}
     }
   
     revalidateTag("entities")
@@ -120,7 +120,7 @@ export const makeEntityPublic = async (entityId: string, value: boolean) => {
             }
         })
     } catch {
-        return {error: "error making entity public"}
+        return {error: "Error al hacer pública la entidad."}
     }
   
     revalidateTag("entity:"+entityId)
@@ -388,7 +388,7 @@ export async function takeAuthorship(contentId: string) {
     if(userError) return {error: userError}
 
     if(!user || user.editorStatus != "Administrator" || user.id == content.author.id){
-        return {error: "not enough permissions"}
+        return {error: "No tenés los permisos suficientes para hacer esto."}
     }
 
     try {
@@ -401,7 +401,7 @@ export async function takeAuthorship(contentId: string) {
             }
         })
     } catch {
-        return {error: "error on update authorship"}
+        return {error: "Error al actualizar la autoría."}
     }
 
     revalidateTag("content:"+contentId)

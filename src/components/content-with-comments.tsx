@@ -59,6 +59,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const handleNewComment = async (text: string) => {
         const compressedText = compress(text)
         const {error, ...newComment} = await createComment(compressedText, user.user.id, content.id, content.parentEntityId)
+        
         if(error) return {error}
 
         setComments([newComment as CommentProps, ...comments])
@@ -66,9 +67,6 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         mutate("/api/replies-feed/"+user.user.id)
         setViewComments(true)
 
-        // para que se resetee el contenido del editor
-        setWritingReply(false)
-        setWritingReply(startsOpen)
         return {}
     }
 
@@ -158,7 +156,7 @@ export const ContentWithCommentsFromId = ({
     if(content.isLoading) return <LoadingSpinner/>
     
     if(!content.content || content.isError) {
-        return <>No se pudo cargar el contenido</>
+        return <></>
     }
 
     return <ContentWithComments

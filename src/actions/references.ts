@@ -30,7 +30,7 @@ export async function updateAllReferences(){
             }
         })
     } catch {
-        return {error: "error on get contents"}
+        return {error: "Error al obtener los contenidos."}
     }
     for(let i = 0; i < contents.length; i++){
         const c = contents[i]
@@ -50,7 +50,7 @@ export async function updateAllReferences(){
                 }
             })
         } catch {
-            return {error: "error on update entity references"}
+            return {error: "Error al actualizar las referencias."}
         }
     }
     revalidateTag("content")

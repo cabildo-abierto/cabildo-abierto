@@ -4,7 +4,12 @@ import { z } from 'zod'
 
 export type SmallUserProps = {
     id: string,
-    name: string
+    name: string,
+    following?: {id: string}[],
+    contents?: {
+        _count: {reactions: number},    
+        uniqueViewsCount: number
+    }[]
 }
 
 export type ContentProps = {

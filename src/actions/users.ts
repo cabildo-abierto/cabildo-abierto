@@ -4,7 +4,7 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { createClient } from "../utils/supabase/server";
 import { revalidateEverythingTime } from "./utils";
-import { UserProps, UserStats } from "../app/lib/definitions";
+import { SmallUserProps, UserProps, UserStats } from "../app/lib/definitions";
 import { getEntities } from "./entities";
 import { createNotification, getContentById } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
@@ -30,48 +30,55 @@ export async function updateDescription(text: string, userId: string) {
 }
 
 
-export const getUsers = unstable_cache(async () => {
-    try {
-        const users = await db.user.findMany(
-            {
+export const getUsersNoCache = async (): Promise<SmallUserProps[]> => {
+    const users = await db.user.findMany({
+        select: {
+            id: true,
+            name: true,
+            following: {select: {id: true}},
+            contents: {
                 select: {
-                    id: true,
-                    name: true,
-                    following: {select: {id: true}},
-                    contents: {
+                    _count: {
                         select: {
-                            _count: {
-                                select: {
-                                    reactions: true,
-                                }
-                            },
-                            uniqueViewsCount: true
-                        },
-                        where: {
-                            type: {
-                                in: ["Comment", "Post", "FastPost"]
-                            }
+                            reactions: true,
                         }
-                    }
+                    },
+                    uniqueViewsCount: true
                 },
                 where: {
-                    id: {
-                        not: "guest"
+                    type: {
+                        in: ["Comment", "Post", "FastPost"]
                     }
                 }
             }
-        )
+        },
+        where: {
+            id: {
+                not: "guest"
+            }
+        }
+    })
+    return users
+}
+
+
+export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: string}> => {
+    try {
+        const users = await unstable_cache(async () => {
+            return await getUsersNoCache()
+        },
+            ["users"],
+            {
+                revalidate: revalidateEverythingTime,
+                tags: ["users"]
+            }
+        )() 
         return {users}
     } catch {
-        return {error: "error getting users"}
+        return {error: "Error al obtener los usuarios."}
     }
-},
-    ["users"],
-    {
-        revalidate: revalidateEverythingTime,
-        tags: ["users"]
-    }
-)
+}
+    
 
 
 export const getConversations = (userId: string) => {
@@ -1004,7 +1011,7 @@ export async function getUserFollowSuggestions(userId: string){
             return !following.has(u.id) && u.id != user.id
         }
 
-        function suggestionScore(s: {id: string, contents: {_count: {reactions:number}, uniqueViewsCount: number}[], following: {id: string}[]}){
+        function suggestionScore(s: {id: string, contents?: {_count: {reactions:number}, uniqueViewsCount?: number}[], following?: {id: string}[]}){
             let n = 0
             for(let i = 0; i < s.following.length; i++){
                 if(following.has(s.following[i].id)) n++

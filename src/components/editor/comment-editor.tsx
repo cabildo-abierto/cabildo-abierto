@@ -42,7 +42,7 @@ export const commentEditorSettings: SettingsProps = {
     useCodeblock: false,
     placeholder: "Agregá un comentario...",
     isAutofocus: false,
-    editorClassName: "link min-h-16",
+    editorClassName: "content min-h-16",
     initialData: null,
     isReadOnly: false,
     placeholderClassName: "absolute top-0 text-[var(--text-lighter)] pointer-events-none"
@@ -57,6 +57,7 @@ type CommentEditorProps = {
 export function validComment(editorState: EditorState, charLimit: number) {
     return !emptyOutput(editorState) && validPost(editorState, charLimit)
 }
+
 
 const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
@@ -76,17 +77,6 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
         return {error: "Ocurrió un problema al enviar el comentario."}
 	}
 
-	const SendCommentButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
-
-        return <StateButton
-            handleClick={onClick}
-            className="small-btn"
-            text1="Enviar"
-            text2="Enviando..."
-            disabled={!user.user || !validComment(editorState, settings.charLimit)}
-        />
-	}
-
     const settings = {...commentEditorSettings}
     if(!user.user) settings.placeholder = "Necesitás una cuenta para agregar un comentario."
     
@@ -104,7 +94,13 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
         <div className="flex justify-end">
 			<div className="flex justify-end mt-3">
                 <div className="px-1">
-                    <SendCommentButton onClick={handleSubmit}/>
+                    <StateButton
+                        handleClick={handleSubmit}
+                        className="small-btn"
+                        text1="Enviar"
+                        text2="Enviando..."
+                        disabled={!user.user || !validComment(editorState, settings.charLimit)}
+                    />
                 </div>
 				{onCancel &&
 					<div className="px-1">
