@@ -196,6 +196,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
             />
             <CancelEditButton/>
         </div>}
+        
         {showingSaveEditPopup && <SaveEditPopup
             editorState={editorState}
             currentVersion={contentText}
