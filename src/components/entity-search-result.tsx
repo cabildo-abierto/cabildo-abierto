@@ -9,6 +9,7 @@ import { articleUrl, currentVersion } from "./utils"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { DateSince } from "./date"
+import { useSearch } from "./search-context"
 
 
 export function getEntityChildrenCount(entity: SmallEntityProps){
@@ -58,6 +59,7 @@ const DateLastEdit = ({entity}: {entity: SmallEntityProps}) => {
 
 
 export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityProps}> = ({ route, entity }) => {
+  const {searchValue, setSearchValue} = useSearch()
 
   function onMouseEnter(){
     preload("/api/entity/"+entity.id, fetcher)
@@ -78,6 +80,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
         href={articleUrl(entity.id)}
         className={"px-2 content-container hover:bg-[var(--secondary-light)] bg-[var(--content)] " + (numWords == 0 ? "mt-1" : "")}
         onMouseEnter={onMouseEnter}
+        onClick={() => {setSearchValue("")}}
       >
         <div className="flex w-full items-center">
           <div className="w-full">

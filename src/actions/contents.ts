@@ -578,6 +578,10 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
         revalidateTag("content:"+id)
         if(entityId)
             revalidateTag("entity:"+entityId)
+
+        if(content.type == "FastPost" || content.type == "Post"){
+            revalidateTag("feed")
+        }
         
         const {error} = await createNotification(
             userId,
