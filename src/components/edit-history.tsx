@@ -2,24 +2,21 @@ import Link from "next/link"
 import { Authorship } from "./content"
 import { DateSince } from "./date"
 import { UndoButton } from "./undo-button"
-import LoadingSpinner, { SmallLoadingSpinner } from "./loading-spinner"
-import { ContentProps, EntityProps, UserProps } from "../app/lib/definitions"
-import { useContent } from "../app/hooks/contents"
+import { SmallLoadingSpinner } from "./loading-spinner"
+import { EntityProps, UserProps } from "../app/lib/definitions"
 import { useRouter } from "next/navigation"
-import { ActiveCommentIcon, AuthorshipClaimIcon, ConfirmEditIcon, NoAuthorshipClaimIcon, RejectEditIcon, UndoIcon, ViewsIcon, WriteButtonIcon } from "./icons"
+import { ActiveCommentIcon, AuthorshipClaimIcon, ConfirmEditIcon, NoAuthorshipClaimIcon, RejectEditIcon, UndoIcon, ViewsIcon } from "./icons"
 import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
 import { confirmChanges, rejectChanges, removeEntityAuthorship } from "../actions/entities"
 import { articleUrl, currentVersion, hasEditPermission, isDemonetized, isUndo } from "./utils"
-import useSWR, { useSWRConfig } from "swr"
+import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./accept-button-panel"
 import { NoEditPermissionsMsg } from "./no-edit-permissions-msg"
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 import { toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
-import { charDiffFromJSONString } from "./diff"
-import { decompress } from "./compression"
 import { BaseFullscreenPopup } from "./base-fullscreen-popup"
 
 
@@ -29,6 +26,8 @@ const EditDetails = ({type}: {type: string}) => {
     } else {
         if(type == "Categorías"){
             return <span className="">Categorías</span>
+        } else if(type == "Sinónimos") {
+            return <span className="">Sinónimos</span>
         } else {
             return <span className="">Contenido</span>
         }
@@ -184,7 +183,18 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 
     className = className + ((isUndone || isRejected) ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
 
-    const type = index == 0 ? "Creación" : (entity.versions[index].compressedText == entity.versions[index-1].compressedText ? "Categorías" : "Contenido")
+    let type
+    if(index == 0){
+        type = "Creación"
+    } else if(entity.versions[index].compressedText == entity.versions[index-1].compressedText){
+        if(entity.versions[index].categories == entity.versions[index-1].categories){
+            type = "Sinónimos"
+        } else {
+            type = "Categorías"
+        }
+    } else {
+        type = "Contenido"
+    }
 
     const entityVersion = entity.versions[index]
 
