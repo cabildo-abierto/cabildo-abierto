@@ -47,10 +47,11 @@ export const Chatbox = ({fromUser, toUser}: {fromUser?: string, toUser: string})
     const {mutate} = useSWRConfig()
 
     async function onClickSend(){
-        await sendMessage(message, fromUser, toUser);
+        const {error} = await sendMessage(message, fromUser, toUser)
+        if(error) return {error}
         setMessage("");
         mutate("/api/chat/"+fromUser+"/"+toUser)
-        return false
+        return {}
     }
 
     useEffect(() => {

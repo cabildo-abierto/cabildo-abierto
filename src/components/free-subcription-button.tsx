@@ -11,13 +11,11 @@ export const FreeSubscriptionButton = () => {
     const router = useRouter()
     const {mutate} = useSWRConfig()
     const handlePayment = async () => {
-        if(user){
-            await getDonatedSubscription(user.id)
-            await mutate("/api/user")
-            router.push("/inicio")
-            return true
-        }
-        return false
+        const {error} = await getDonatedSubscription(user.id)
+        if(error) return {error}
+        await mutate("/api/user")
+        router.push("/inicio")
+        return {}
     }
 
     return <StateButton 

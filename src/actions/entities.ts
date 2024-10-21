@@ -2,60 +2,68 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findEntityReferences, findMentions, getContentById, notifyMentions } from "./contents";
-import { revalidateEverythingTime } from "./utils";
+import { findEntityReferences, findMentions, getContentById, notifyMentions, processNewText } from "./contents";
+import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { currentVersionContent, entityInRoute, findWeakEntityReferences, getPlainText, hasEditPermission, isPartOfContent, isUndo } from "../components/utils";
+import { currentVersionContent, entityExists, entityInRoute, findWeakEntityReferences, getPlainText, hasEditPermission, isPartOfContent, isUndo } from "../components/utils";
 import { EditorStatus } from "@prisma/client";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
 import { getReferencesSearchKeys } from "./references";
+import { extendContentStallPaymentDate } from "./payments";
 
 
 
 export async function createEntity(name: string, userId: string){
     const entityId = encodeURIComponent(name.replaceAll(" ", "_"))
-    const exists = await db.entity.findFirst({
-      where: {id: entityId}
-    })
-    if(exists) return {error: "Ya existe ese tema"}
-  
-    await db.entity.create({
-      data: {
-        name: name,
-        id: entityId,
-      }
-    })
-  
-    const content = await db.content.create({
-      data: {
-        text: "",
-        authorId: userId,
-        type: "EntityContent",
-        parentEntityId: entityId,
-        uniqueViewsCount: 0,
-        fakeReportsCount: 0,
-        contribution: JSON.stringify([]),
-        charsAdded: 0,
-        charsDeleted: 0,
-        accCharsAdded: 0,
-        diff: JSON.stringify([{matches: [], common: [], perfectMatches: []}])
-      }
-    })
+    
+    const {entities, error} = await getEntities()
+    if(error) return {error}
 
-    await db.entity.update({
-        data: {
-            currentVersionId: content.id,
-        }, where: {
-            id: entityId
-        }
-    })
+    if(entityExists(name, entities)){
+        return {error: "exists"}
+    }
+
+    try {
+        await db.entity.create({
+            data: {
+                name: name,
+                id: entityId,
+            }
+        })
+    } catch {
+        return {error: "error on create"}
+    }
+    
+    try {
+        const content = await db.content.create({
+            data: {
+                text: "",
+                authorId: userId,
+                type: "EntityContent",
+                parentEntityId: entityId,
+                uniqueViewsCount: 0,
+                fakeReportsCount: 0,
+                contribution: JSON.stringify([]),
+                charsAdded: 0,
+                charsDeleted: 0,
+                accCharsAdded: 0,
+                diff: JSON.stringify([{matches: [], common: [], perfectMatches: []}]),
+                currentVersionOf: {
+                    connect: {
+                        id: entityId
+                    }
+                }
+            }
+        })
+    } catch {
+        return {error: "error on create content"}
+    }
 
     revalidateTag("entities")
     revalidateTag("editsFeed:"+userId)
     revalidateTag("entity:"+entityId)
-    revalidateTag("searchkeys")
     
     return {id: entityId}
 }
@@ -78,33 +86,37 @@ function updateContribution(contribution: [string, number][], charsAdded: number
 
 
 export const recomputeEntityContributions = async (entityId: string) => {
-
-    const entity = await db.entity.findUnique({
-        select: {
-            versions: {
-                select: {
-                    compressedText: true,
-                    authorId: true,
-                    id: true,
-                    undos: {
-                        select: {
-                            id: true
-                        }
+    let entity
+    try {
+        entity = await db.entity.findUnique({
+            select: {
+                versions: {
+                    select: {
+                        compressedText: true,
+                        authorId: true,
+                        id: true,
+                        undos: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        rejectedById: true,
+                        confirmedById: true,
+                        claimsAuthorship: true,
+                        editPermission: true
                     },
-                    rejectedById: true,
-                    confirmedById: true,
-                    claimsAuthorship: true,
-                    editPermission: true
-                },
-                orderBy: {
-                    createdAt: "asc"
+                    orderBy: {
+                        createdAt: "asc"
+                    }
                 }
+            },
+            where: {
+                id: entityId
             }
-        },
-        where: {
-            id: entityId
-        }
-    })
+        })
+    } catch {
+        return {error: "error on get entity"}
+    }
 
     const texts = entity.versions.map((t) => (decompress(t.compressedText)))
 
@@ -139,21 +151,27 @@ export const recomputeEntityContributions = async (entityId: string) => {
             }
         }
 
-        await db.content.update({
-            data: newData,
-            where: {
-                id: entity.versions[i].id
-            }
-        })
+        // TO DO: Update many
+        try {
+            await db.content.update({
+                data: newData,
+                where: {
+                    id: entity.versions[i].id
+                }
+            })
+        } catch {
+            return {error: "error on update version"}
+        }
         lastContribution = newData.contribution
         lastAccCharsAdded = newData.accCharsAdded
         revalidateTag("content:"+entity.versions[i].id)
     }
     revalidateTag("entity:"+entityId)
+    return {}
 }
 
 
-export const updateEntityContent = async(
+export const updateEntityContent = async (
     entityId: string,
     userId: string,
     claimsAuthorship: boolean,
@@ -163,192 +181,190 @@ export const updateEntityContent = async(
     entityReferences: {id: string}[],
     mentions: {id: string}[],
 ) => {
-    const text = decompress(compressedText)
-    const entity = await getEntityById(entityId)
-    const prevText = decompress(entity.currentVersion.compressedText)
-    const currentContent = await getContentById(entity.currentVersionId)
+    const {entity, error} = await getEntityById(entityId)
+    if(error) return {error}
 
-    const {numChars, numWords, numNodes, plainText} = getPlainText(text)
+    const {content: currentContent, error: contentError} = await getContentById(entity.currentVersionId)
+    if(contentError) return {error: contentError}
+
+    const text = decompress(compressedText)
+    const {error: processError, numNodes, numChars, numWords, compressedPlainText, ...processed} = await processNewText(text, entity.name)
+    if(processError) return {error: processError}
+
+    const {user, error: userError} = await getUserById(userId)
+    if(error) return {error: error}
+
+    const permission = hasEditPermission(user, entity.protection)
+
+    const prevText = decompress(entity.currentVersion.compressedText)
 
     let {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(prevText, text)
 
-    const permission = hasEditPermission(await getUserById(userId), entity.protection)
-
     let contribution = null
     if(!permission){
-        contribution = JSON.parse(currentContent.contribution)
+        contribution = currentContent.contribution
     } else {
-        contribution = updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId)
+        contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId))
     }
 
-    const newContent = await db.content.create({
-        data: {
-            compressedText: compressedText,
-            compressedPlainText: compress(plainText),
-            numChars: numChars,
-            numWords: numWords,
-            numNodes: numNodes,
-            author: {
-                connect: {id: userId}
-            },
-            type: "EntityContent",
-            parentEntity: {
-                connect: {id: entityId}
-            },
-            categories: currentContent.categories,
-            searchkeys: entity.currentVersion.searchkeys,
-            entityReferences: {
-                connect: entityReferences
-            },
-            weakReferences: {
-                connect: weakReferences
-            },
-            usersMentioned: {
-                connect: mentions
-            },
-            editPermission: permission,
-            claimsAuthorship: claimsAuthorship,
-            currentVersionOf: permission ? {
-                connect: {
-                    id: entityId
-                }
-            } : undefined,
-            editMsg: editMsg,
-            accCharsAdded: currentContent.accCharsAdded + charsAdded,
-            contribution: JSON.stringify(contribution),
-            diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches}),
-            charsAdded: charsAdded,
-            charsDeleted: charsDeleted
-        }
-    })
-
-    await notifyMentions(mentions, newContent.id, userId, true)
-
-    for(let i = 0; i < weakReferences.length; i++){
-        revalidateTag("entity:"+weakReferences[i].id)
+    let newContent
+    try {
+        newContent = await db.content.create({
+            data: {
+                compressedText: compressedText,
+                compressedPlainText: compressedPlainText,
+                numChars: numChars,
+                numWords: numWords,
+                numNodes: numNodes,
+                author: {
+                    connect: {id: userId}
+                },
+                type: "EntityContent",
+                parentEntity: {
+                    connect: {id: entityId}
+                },
+                categories: currentContent.categories,
+                searchkeys: entity.currentVersion.searchkeys,
+                entityReferences: {
+                    connect: entityReferences
+                },
+                weakReferences: {
+                    connect: weakReferences
+                },
+                usersMentioned: {
+                    connect: mentions
+                },
+                editPermission: permission,
+                claimsAuthorship: claimsAuthorship,
+                currentVersionOf: permission ? {
+                    connect: {
+                        id: entityId
+                    }
+                } : undefined,
+                editMsg: editMsg,
+                accCharsAdded: currentContent.accCharsAdded + charsAdded,
+                contribution: contribution,
+                diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches}),
+                charsAdded: charsAdded,
+                charsDeleted: charsDeleted
+            }
+        })
+    } catch {
+        return {error: "error on new content creation"}
     }
-    for(let i = 0; i < entityReferences.length; i++){
-        revalidateTag("entity:"+entityReferences[i].id)
-    }
+
+    const {error: notifyError} = await notifyMentions(mentions, newContent.id, userId, true)
+    if(notifyError) return {error: notifyError}
+
+    revalidateReferences(entityReferences, weakReferences)
 
     revalidateTag("entity:" + entityId)
     revalidateTag("entities")
     revalidateTag("userContents:"+userId)
     revalidateTag("editsFeed:"+userId)
 
-    return true
+    return {}
 }
 
   
-export const updateEntity = async (entityId: string, userId: string, claimsAuthorship: boolean, editMsg: string, compressedText?: string, categories?: string, searchkeys?: string[]) => {
-    const entity = await getEntityById(entityId)
+export const updateEntityCategoriesOrSearchkeys = async (entityId: string, userId: string, claimsAuthorship: boolean, editMsg: string, categories?: string, searchkeys?: string[]) => {
+    const {entity, error} = await getEntityById(entityId)
+    if(error) return {error: error}
+    
+    const {user, error: userError} = await getUserById(userId)
+    if(userError) return {error: userError}
+
+    const permission = hasEditPermission(user, entity.protection)
+
     const current = currentVersionContent(entity)
+    const {content: currentContent, error: getContentError} = await getContentById(current.id)
+    if(getContentError) return {error: getContentError}
 
-    let references = []
-    let text = null
-    let prevText = null
-    let mentions = []
-    let weakReferences = []
-    const contentChange = compressedText != undefined
-    const categoriesChange = categories != undefined
-    const searchkeysChange = searchkeys != undefined
-    const currentContent = await getContentById(current.id)
-    if(contentChange){
-        text = decompress(compressedText)
-        references = await findEntityReferences(text)
-        mentions = await findMentions(text)
-        categories = current.categories
-        prevText = decompress(currentContent.compressedText)
-    } else {
-        compressedText = currentContent.compressedText
-        references = currentContent.entityReferences.map(({id}) => ({id: id}))
-        weakReferences = current.weakReferences
-        text = decompress(compressedText)
-        prevText = text
-    }
+    const compressedText = currentContent.compressedText
+    const references = currentContent.entityReferences.map(({id}) => ({id: id}))
+    const weakReferences = current.weakReferences
+    const mentions = currentContent.usersMentioned
+    const text = decompress(currentContent.compressedText)
 
-    const permission = hasEditPermission(await getUserById(userId), entity.protection)
-
+    const prevText = text
     const {numChars, numWords, numNodes, plainText} = getPlainText(text)
-
-    if(contentChange){
-        const searchKeys = await getReferencesSearchKeys()
-        weakReferences = await findWeakEntityReferences(plainText+entity.name, searchKeys)
-    }
 
     let {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(prevText, text)
 
     let contribution = null
     if(!permission){
-        contribution = JSON.parse(currentContent.contribution)
+        contribution = currentContent.contribution
     } else {
-        contribution = updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId)
-    }
-
-    const newContent = await db.content.create({
-        data: {
-            compressedText: compressedText,
-            compressedPlainText: compress(plainText),
-            numChars: numChars,
-            numWords: numWords,
-            numNodes: numNodes,
-            author: {
-                connect: {id: userId}
-            },
-            type: "EntityContent",
-            parentEntity: {
-                connect: {id: entityId}
-            },
-            categories: categories,
-            searchkeys: searchkeys,
-            entityReferences: {
-                connect: references
-            },
-            weakReferences: {
-                connect: weakReferences
-            },
-            usersMentioned: {
-                connect: mentions
-            },
-            editPermission: permission,
-            claimsAuthorship: claimsAuthorship,
-            currentVersionOf: permission ? {
-                connect: {
-                    id: entityId
-                }
-            } : undefined,
-            editMsg: editMsg,
-            accCharsAdded: currentContent.accCharsAdded + charsAdded,
-            contribution: JSON.stringify(contribution),
-            diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches}),
-            charsAdded: charsAdded,
-            charsDeleted: charsDeleted
+        try {
+            contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId))
+        } catch {
+            return {error: "error updating contribution"}
         }
-    })
+    }
 
-    await notifyMentions(mentions, newContent.id, userId, true)
+    let newContent
+    try {
+        newContent = await db.content.create({
+            data: {
+                compressedText: compressedText,
+                compressedPlainText: compress(plainText),
+                numChars: numChars,
+                numWords: numWords,
+                numNodes: numNodes,
+                author: {
+                    connect: {id: userId}
+                },
+                type: "EntityContent",
+                parentEntity: {
+                    connect: {id: entityId}
+                },
+                categories: categories,
+                searchkeys: searchkeys,
+                entityReferences: {
+                    connect: references
+                },
+                weakReferences: {
+                    connect: weakReferences
+                },
+                usersMentioned: {
+                    connect: mentions
+                },
+                editPermission: permission,
+                claimsAuthorship: claimsAuthorship,
+                currentVersionOf: permission ? {
+                    connect: {
+                        id: entityId
+                    }
+                } : undefined,
+                editMsg: editMsg,
+                accCharsAdded: currentContent.accCharsAdded + charsAdded,
+                contribution: contribution,
+                diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches}),
+                charsAdded: charsAdded,
+                charsDeleted: charsDeleted
+            }
+        })
+    } catch {
+        return {error: "error on create content"}
+    }
 
-    for(let i = 0; i < weakReferences.length; i++){
-        revalidateTag("entity:"+weakReferences[i].id)
-    }
-    for(let i = 0; i < references.length; i++){
-        revalidateTag("entity:"+references[i].id)
-    }
-    if(searchkeysChange){
-        revalidateTag("searchkeys")
-    }
+    const {error: notifyError} = await notifyMentions(mentions, newContent.id, userId, true)
+    if(notifyError) return {error: notifyError}
+
+    revalidateReferences(references, weakReferences)
 
     revalidateTag("entity:" + entityId)
     revalidateTag("entities")
     revalidateTag("userContents:"+userId)
     revalidateTag("editsFeed:"+userId)
 
-    return true
+    return {}
 }
 
 
 export const updateEntityCurrentVersion = async (entityId: string) => {
-    const entity = await getEntityByIdNoCache(entityId)
+    const {entity, error} = await getEntityByIdNoCache(entityId)
+    if(error) return {error: error}
 
     let index = 0
     for(let i = 0; i < entity.versions.length; i++){
@@ -356,36 +372,29 @@ export const updateEntityCurrentVersion = async (entityId: string) => {
             index = i
         }
     }
-    await db.entity.update({
-        data: {
-            currentVersionId: entity.versions[index].id
-        },
-        where: {
-            id: entityId
-        }
-    })
+
+    try {
+        await db.entity.update({
+            data: {
+                currentVersionId: entity.versions[index].id
+            },
+            where: {
+                id: entityId
+            }
+        })
+    } catch {
+        return {error: "error on update entity version"}
+    }
+    
     revalidateTag("entity:"+entityId)
-}
-
-
-export async function extendContentStallPaymentDate(contentId: string){
-    const content = await getContentById(contentId)
-    await db.content.update({
-        data: {
-            stallPaymentUntil: content.stallPaymentDate
-        },
-        where: {
-            id: contentId
-        }
-    })
-    revalidateTag("content:"+contentId)
+    return {}
 }
   
   
 export const undoChange = async (entityId: string, contentId: string, versionNumber: number, message: string, userId: string, isVandalism: boolean, isOportunism: boolean) => {
-    const entity = await getEntityById(entityId)
     const compressedText = compress(message)
-    if(entity){
+    
+    try {
         await db.content.create({
             data: {
                 type: "UndoEntityContent",
@@ -397,280 +406,187 @@ export const undoChange = async (entityId: string, contentId: string, versionNum
                 contentUndoneId: contentId
             }
         })
-        await extendContentStallPaymentDate(contentId)
-        await updateEntityCurrentVersion(entityId)
-        await recomputeEntityContributions(entityId)
-        revalidateTag("entity:"+entityId)
-        revalidateTag("content:"+contentId)
+    } catch {
+        return {error: "error on create undo change"}
     }
+
+    const {error: stallError} = await extendContentStallPaymentDate(contentId)
+    if(stallError) return {error: stallError}
+
+    const {error: updateVersion} = await updateEntityCurrentVersion(entityId)
+    if(updateVersion) return {error: updateVersion}
+
+    const {error: updateContributions} = await recomputeEntityContributions(entityId)
+    if(updateContributions) return {error: updateContributions}
     
-    revalidateTag("entities")
     revalidateTag("entity:"+entityId)
-}
-  
-  
-export const deleteEntity = async (entityId: string, userId: string) => {
-    console.log("deleting", entityId, "by", userId)
-    await db.entity.update({
-        data: {
-            deleted: true,
-            deletedById: userId
-        },
-        where: {
-            id: entityId
-        }
-    })
-  
-    revalidateTag("entities")
-    revalidateTag("entity:"+entityId)
-}
-
-
-export const deleteContent = async (contentId: string) => {
-    await db.view.deleteMany({
-        where: {
-            contentId: contentId
-        }
-    })
-
-    await db.notification.deleteMany({
-        where: {
-            contentId: contentId
-        }
-    })
-
-    await db.noAccountVisit.deleteMany({
-        where: {
-            contentId: contentId
-        }
-    })
-
-    await db.reaction.deleteMany({
-        where: {
-            contentId: contentId
-        }
-    })
-
-    const content = await getContentById(contentId)
-
-    for(let i = 0; i < content.childrenContents.length; i++){
-        await deleteContent(content.childrenContents[i].id)
-    }
-
-    await db.content.delete({
-        where: {
-            id: contentId
-        }
-    })
-
-    // habría que revalidar más tags en realidad
     revalidateTag("content:"+contentId)
-}
 
-
-export const deleteEntityHistory = async (entityId: string, includeLast: boolean) => {
-    const entity = await getEntityById(entityId)
-
-    for(let i = 1; i < entity.versions.length-(includeLast ? 0 : 1); i++){
-        await deleteContent(entity.versions[i].id)
-    }
-
-    await updateEntityCurrentVersion(entityId)
-    await recomputeEntityContributions(entityId)
-    
-    revalidateTag("entity:"+entityId)
-    revalidateTag("entities")
-}
-
-
-// TO DO: Terminar de implementar
-export const renameEntity = async (entityId: string, userId: string, newName: string) => {
-    const newEntityId = encodeURIComponent(newName.replaceAll(" ", "_"))
-    await db.entity.update({
-        data: {
-            name: newName,
-            id: newEntityId
-        },
-        where: {
-            id: entityId
-        }
-    })
-  
     revalidateTag("entities")
     revalidateTag("entity:"+entityId)
-}
-
-
-
-export const makeEntityPublic = async (entityId: string, value: boolean) => {
-    await db.entity.update({
-        data: {
-            isPublic: value,
-        },
-        where: {
-            id: entityId
-        }
-    })
-  
-    revalidateTag("entity:"+entityId)
+    return {}
 }
 
 
 
 export const getEntities = unstable_cache(async () => {
-    let entities: SmallEntityProps[] = await db.entity.findMany({
-        select: {
-            id: true,
-            name: true,
-            protection: true,
-            isPublic: true,
-            uniqueViewsCount: true,
-            versions: {
-                select: {
-                    id: true,
-                    categories: true,
-                    createdAt: true,
-                    authorId: true,
-                    childrenTree: {
-                        select: {
-                            authorId: true
-                        }
+    try {
+        let entities: SmallEntityProps[] = await db.entity.findMany({
+            select: {
+                id: true,
+                name: true,
+                protection: true,
+                isPublic: true,
+                uniqueViewsCount: true,
+                versions: {
+                    select: {
+                        id: true,
+                        categories: true,
+                        createdAt: true,
+                        authorId: true,
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        reactions: {
+                            select: {
+                                userById: true
+                            }
+                        },
+                        numWords: true
                     },
-                    reactions: {
-                        select: {
-                            userById: true
-                        }
-                    },
-                    numWords: true
+                    orderBy: {
+                        createdAt: "asc"
+                    }
                 },
-                orderBy: {
-                    createdAt: "asc"
-                }
-            },
-            referencedBy: {
-                select: {
-                    authorId: true,
-                    childrenTree: {
-                        select: {
-                            authorId: true,
-                            reactions: {
-                                select: {
-                                    userById: true
+                referencedBy: {
+                    select: {
+                        authorId: true,
+                        childrenTree: {
+                            select: {
+                                authorId: true,
+                                reactions: {
+                                    select: {
+                                        userById: true
+                                    }
                                 }
                             }
-                        }
-                    },
-                    reactions: {
-                        select: {
-                            userById: true
-                        }
-                    },
-                    parentEntityId: true
-                },
-                where: {
-                    OR: [{
-                        AND: [
-                            {
-                                type: {
-                                    in: ["Post", "FastPost"]
-                                }
-                            },
-                            {
-                                isDraft: false
+                        },
+                        reactions: {
+                            select: {
+                                userById: true
                             }
-                        ]
+                        },
+                        parentEntityId: true
                     },
-                    {
-                        type: {
-                            notIn: ["Post", "FastPost", "EntityContent"]
-                        }
-                    },
-                    {
-                        AND: [
-                            {
-                                type: "EntityContent"
-                            },
-                            {
-                                parentEntity: {
-                                    deleted: false
+                    where: {
+                        OR: [{
+                            AND: [
+                                {
+                                    type: {
+                                        in: ["Post", "FastPost"]
+                                    }
+                                },
+                                {
+                                    isDraft: false
                                 }
+                            ]
+                        },
+                        {
+                            type: {
+                                notIn: ["Post", "FastPost", "EntityContent"]
                             }
+                        },
+                        {
+                            AND: [
+                                {
+                                    type: "EntityContent"
+                                },
+                                {
+                                    parentEntity: {
+                                        deleted: false
+                                    }
+                                }
+                            ]
+                        }
                         ]
                     }
-                    ]
-                }
-            },
-            reactions: {
-                select: {userById: true}
-            },
-            weakReferences: {
-                select: {
-                    authorId: true,
-                    childrenTree: {
-                        select: {
-                            authorId: true,
-                            reactions: {
-                                select: {
-                                    userById: true
-                                }
-                            }
-                        }
-                    },
-                    reactions: {
-                        select: {
-                            userById: true
-                        }
-                    },
-                    parentEntityId: true
                 },
-                where: {
-                    OR: [{
-                        AND: [
-                            {
-                                type: {
-                                    in: ["Post", "FastPost"]
+                reactions: {
+                    select: {userById: true}
+                },
+                weakReferences: {
+                    select: {
+                        authorId: true,
+                        childrenTree: {
+                            select: {
+                                authorId: true,
+                                reactions: {
+                                    select: {
+                                        userById: true
+                                    }
                                 }
-                            },
-                            {
-                                isDraft: false
                             }
-                        ]
+                        },
+                        reactions: {
+                            select: {
+                                userById: true
+                            }
+                        },
+                        parentEntityId: true
                     },
-                    {
-                        type: {
-                            notIn: ["Post", "FastPost", "EntityContent"]
+                    where: {
+                        OR: [{
+                            AND: [
+                                {
+                                    type: {
+                                        in: ["Post", "FastPost"]
+                                    }
+                                },
+                                {
+                                    isDraft: false
+                                }
+                            ]
+                        },
+                        {
+                            type: {
+                                notIn: ["Post", "FastPost", "EntityContent"]
+                            }
+                        },
+                        {
+                            AND: [
+                                {
+                                    type: "EntityContent"
+                                },
+                                {
+                                    parentEntity: {
+                                        deleted: false
+                                    }
+                                }
+                            ]
                         }
-                    },
-                    {
-                        AND: [
-                            {
-                                type: "EntityContent"
-                            },
-                            {
-                                parentEntity: {
-                                    deleted: false
-                                }
-                            }
                         ]
                     }
-                    ]
+                },
+                currentVersionId: true,
+                currentVersion: {
+                    select: {
+                        searchkeys: true
+                    }
                 }
             },
-            currentVersionId: true,
-            currentVersion: {
-                select: {
-                    searchkeys: true
-                }
+            where: {
+                deleted: false
+            },
+            orderBy: {
+                name: "asc"
             }
-        },
-        where: {
-            deleted: false
-        },
-        orderBy: {
-            name: "asc"
-        }
-    })
-    return entities
+        })
+        return {entities: entities}
+    } catch {
+        return {error: "error on get entities"}
+    } 
 }, ["entities"], {
     revalidate: revalidateEverythingTime,
     tags: ["entities"]
@@ -678,226 +594,235 @@ export const getEntities = unstable_cache(async () => {
 
 
 export async function getEntityByIdNoCache(id: string){
-    const entity: EntityProps | null = await db.entity.findUnique(
-        {select: {
-            id: true,
-            name: true,
-            protection: true,
-            isPublic: true,
-            deleted: true,
-            currentVersion: {
-                select: {
-                    categories: true,
-                    searchkeys: true,
-                    compressedText: true
-                }
-            },
-            versions: {
-                select: {
-                    id: true,
-                    categories: true,
-                    confirmedById: true,
-                    rejectedById: true,
-                    accCharsAdded: true,
-                    charsAdded: true,
-                    charsDeleted: true,
-                    contribution: true,
-                    editMsg: true,
-                    undos: {
-                        select: {
-                            id: true,
-                            reportsOportunism: true,
-                            reportsVandalism: true,
-                            authorId: true,
-                            createdAt: true,
-                            compressedText: true
-                        },
-                        orderBy: {
-                            createdAt: "desc"
-                        }
-                    },
-                    uniqueViewsCount: true,
-                    _count: {
-                        select: {
-                            reactions: true
-                        }
-                    },
-                    createdAt: true,
-                    compressedText: true,
-                    author: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    },
-                    editPermission: true,
-                    childrenContents: {
-                        select: {
-                            id: true,
-                            type: true,
-                            createdAt: true,
-                            _count: {
-                                select: {
-                                    childrenTree: true
-                                }
-                            },
-                            currentVersionOf: {
-                                select: {
-                                    id: true
-                                }
-                            },
-                            editPermission: true
-                        },
-                    },
-                    claimsAuthorship: true,
-                    diff: true,
-                    entityReferences: {
-                        select: {
-                            id: true
-                        },
-                        where: {
-                            deleted: false
-                        }
-                    },
-                    weakReferences: {
-                        select: {
-                            id: true
-                        },
-                        where: {
-                            deleted: false
-                        }
-                    },
+    let entity: EntityProps | null
+    try {
+        entity = await db.entity.findUnique(
+            {select: {
+                id: true,
+                name: true,
+                protection: true,
+                isPublic: true,
+                deleted: true,
+                currentVersion: {
+                    select: {
+                        categories: true,
+                        searchkeys: true,
+                        compressedText: true
+                    }
                 },
-                orderBy: {
-                    createdAt: "asc"
-                },
-            },
-            referencedBy: {
-                select: {
-                    id: true,
-                    createdAt: true,
-                    type: true,
-                    author: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    },
-                    _count: {
-                        select: {
-                            reactions: true,
-                            childrenTree: true
-                        }
-                    },
-                    currentVersionOf: {
-                        select: {
-                            id: true
-                        }
-                    },
-                    parentEntityId: true
-                },
-                where: {
-                    OR: [{
-                        AND: [
-                            {
-                                type: {
-                                    in: ["Post", "FastPost"]
-                                }
+                versions: {
+                    select: {
+                        id: true,
+                        categories: true,
+                        confirmedById: true,
+                        rejectedById: true,
+                        accCharsAdded: true,
+                        charsAdded: true,
+                        charsDeleted: true,
+                        contribution: true,
+                        editMsg: true,
+                        undos: {
+                            select: {
+                                id: true,
+                                reportsOportunism: true,
+                                reportsVandalism: true,
+                                authorId: true,
+                                createdAt: true,
+                                compressedText: true
                             },
-                            {
-                                isDraft: false
+                            orderBy: {
+                                createdAt: "desc"
                             }
-                        ]
-                    },
-                    {
-                        type: {
-                            notIn: ["Post", "FastPost", "EntityContent"]
-                        }
-                    },
-                    {
-                        AND: [
-                            {
-                                type: "EntityContent"
-                            },
-                            {
-                                parentEntity: {
-                                    deleted: false
-                                }
+                        },
+                        uniqueViewsCount: true,
+                        _count: {
+                            select: {
+                                reactions: true
                             }
+                        },
+                        createdAt: true,
+                        compressedText: true,
+                        author: {
+                            select: {
+                                id: true,
+                                name: true
+                            }
+                        },
+                        editPermission: true,
+                        childrenContents: {
+                            select: {
+                                id: true,
+                                type: true,
+                                createdAt: true,
+                                _count: {
+                                    select: {
+                                        childrenTree: true
+                                    }
+                                },
+                                currentVersionOf: {
+                                    select: {
+                                        id: true
+                                    }
+                                },
+                                editPermission: true
+                            },
+                        },
+                        claimsAuthorship: true,
+                        diff: true,
+                        entityReferences: {
+                            select: {
+                                id: true
+                            },
+                            where: {
+                                deleted: false
+                            }
+                        },
+                        weakReferences: {
+                            select: {
+                                id: true
+                            },
+                            where: {
+                                deleted: false
+                            }
+                        },
+                    },
+                    orderBy: {
+                        createdAt: "asc"
+                    },
+                },
+                referencedBy: {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        type: true,
+                        author: {
+                            select: {
+                                id: true,
+                                name: true
+                            }
+                        },
+                        _count: {
+                            select: {
+                                reactions: true,
+                                childrenTree: true
+                            }
+                        },
+                        currentVersionOf: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        parentEntityId: true
+                    },
+                    where: {
+                        OR: [{
+                            AND: [
+                                {
+                                    type: {
+                                        in: ["Post", "FastPost"]
+                                    }
+                                },
+                                {
+                                    isDraft: false
+                                }
+                            ]
+                        },
+                        {
+                            type: {
+                                notIn: ["Post", "FastPost", "EntityContent"]
+                            }
+                        },
+                        {
+                            AND: [
+                                {
+                                    type: "EntityContent"
+                                },
+                                {
+                                    parentEntity: {
+                                        deleted: false
+                                    }
+                                }
+                            ]
+                        }
                         ]
                     }
-                    ]
-                }
-            },
-            weakReferences: {
-                select: {
-                    id: true,
-                    createdAt: true,
-                    type: true,
-                    author: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    },
-                    _count: {
-                        select: {
-                            reactions: true,
-                            childrenTree: true
-                        }
-                    },
-                    currentVersionOf: {
-                        select: {
-                            id: true
-                        }
-                    },
-                    parentEntityId: true
                 },
-                where: {
-                    OR: [{
-                        AND: [
-                            {
-                                type: {
-                                    in: ["Post", "FastPost"]
-                                }
-                            },
-                            {
-                                isDraft: false
+                weakReferences: {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        type: true,
+                        author: {
+                            select: {
+                                id: true,
+                                name: true
                             }
-                        ]
+                        },
+                        _count: {
+                            select: {
+                                reactions: true,
+                                childrenTree: true
+                            }
+                        },
+                        currentVersionOf: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        parentEntityId: true
                     },
-                    {
-                        type: {
-                            notIn: ["Post", "FastPost", "EntityContent"]
+                    where: {
+                        OR: [{
+                            AND: [
+                                {
+                                    type: {
+                                        in: ["Post", "FastPost"]
+                                    }
+                                },
+                                {
+                                    isDraft: false
+                                }
+                            ]
+                        },
+                        {
+                            type: {
+                                notIn: ["Post", "FastPost", "EntityContent"]
+                            }
+                        },
+                        {
+                            AND: [
+                                {
+                                    type: "EntityContent"
+                                },
+                                {
+                                    parentEntity: {
+                                        deleted: false
+                                    }
+                                }
+                            ]
                         }
-                    },
-                    {
-                        AND: [
-                            {
-                                type: "EntityContent"
-                            },
-                            {
-                                parentEntity: {
-                                    deleted: false
-                                }
-                            }
                         ]
                     }
-                    ]
+                },
+                _count: {
+                    select: {reactions: true},
+                },
+                uniqueViewsCount: true,
+                currentVersionId: true
+            },
+                where: {
+                    id: id,
                 }
-            },
-            _count: {
-                select: {reactions: true},
-            },
-            uniqueViewsCount: true,
-            currentVersionId: true
-        },
-            where: {
-                id: id,
             }
+        )
+        if(entity){
+            return {entity: entity}
+        } else {
+            return {error: "error on get entity"}
         }
-    )
-    return entity
+    } catch {
+        return {error: "error on get entity"}
+    }
 }
 
 
@@ -917,175 +842,99 @@ export async function getEntityById(id: string, useCache: boolean = true) {
 }
 
 
-export const getRouteEntities = (route: string[]) => {
+export const getRouteEntities = (route: string[]): Promise<{entities?: SmallEntityProps[], error?: string}> => {
     return unstable_cache(async () => {
-        const entities = await getEntities()
+        const {entities, error} = await getEntities()
+        if(error) return {error: error}
 
-        if(route.length == 0) return entities
+        if(route.length == 0) return {entities: entities}
 
         let routeEntities = entities.filter((entity) => {
             return entityInRoute(entity, route)
         })
 
-        return routeEntities
+        return {routeEntities}
     }, ["routeEntities", route.join("/")], {
         revalidate: revalidateEverythingTime,
         tags: ["entities", "routeEntities", "routeEntities:"+route.join("/"), "entities"]})() 
 }
 
 
-export async function setProtection(entityId: string, level: EditorStatus) {
-    const result = await db.entity.update({
-      where: { id: entityId },
-      data: { protection: level },
-    });
-    revalidateTag("entities")
-    revalidateTag("entity")
-    return result
-}
-
-
-export async function revalidateEntities(){
-    revalidateTag("entity")
-    revalidateTag("entities")
-}
-
-export async function revalidateContents(){
-    revalidateTag("content")
-}
-
-export async function revalidateNotifications(){
-    revalidateTag("notifications")
-}
-
-export async function revalidateUsers(){
-    revalidateTag("user")
-    revalidateTag("users")
-    revalidateTag("userStats")
-    revalidateTag("usersWithStats")
-}
-
-export async function revalidateFeed(){
-    revalidateTag("routeFeed")
-    revalidateTag("routeFollowingFeed")
-    revalidateTag("repliesFeed")
-    revalidateTag("editsFeed")
-    revalidateTag("profileFeed")
-}
-
-
-export async function revalidateDrafts(){
-    revalidateTag("drafts")
-}
-
-
-export async function revalidateSearchkeys(){
-    revalidateTag("searchkeys")
-}
-
-
-export async function removeEntityAuthorship(contentId: string, entityId: string){
-    await db.content.update({
-        data: {
-            claimsAuthorship: false,
-            removedAuthorshipAt: new Date()
-        },
-        where: {
-            id: contentId
-        }
-    })
+export async function removeEntityAuthorship(contentId: string, entityId: string): Promise<{error?: string}>{
+    try {
+        await db.content.update({
+            data: {
+                claimsAuthorship: false,
+                removedAuthorshipAt: new Date()
+            },
+            where: {
+                id: contentId
+            }
+        })
+    } catch {
+        return {error: "error on claim authorship"}
+    }
     revalidateTag("entity:"+entityId)
     revalidateTag("content:"+contentId)
-    await recomputeEntityContributions(entityId)
+    const {error} = await recomputeEntityContributions(entityId)
+    if(error) return {error}
+
+    return {}
 }
 
 
 export async function confirmChanges(entityId: string, contentId: string, userId: string){
-    await db.content.update({
-        data: {
-            confirmedById: userId,
-            confirmedAt: new Date()
-        },
-        where: {
-            id: contentId
-        }
-    })
-    await updateEntityCurrentVersion(entityId)
-    await recomputeEntityContributions(entityId)
+    try {
+        await db.content.update({
+            data: {
+                confirmedById: userId,
+                confirmedAt: new Date()
+            },
+            where: {
+                id: contentId
+            }
+        })
+    } catch {
+        return {error: "error on confirm"}
+    }
+
+    const {error} = await updateEntityCurrentVersionAndContribution(entityId)
+    if(error) return {error}
+
     revalidateTag("content:" + contentId)
+    return {}
+}
+
+
+export async function updateEntityCurrentVersionAndContribution(entityId: string){
+
+    const res1 = await updateEntityCurrentVersion(entityId)
+    if(res1.error) return {error: res1.error}
+
+    const res2 = await recomputeEntityContributions(entityId)
+    if(res2.error) return {error: res2.error}
+
+    return {}
 }
 
 
 export async function rejectChanges(entityId: string, contentId: string, userId: string){
-    await db.content.update({
-        data: {
-            rejectedById: userId,
-            rejectedAt: new Date()
-        },
-        where: {
-            id: contentId
-        }
-    })
-    await updateEntityCurrentVersion(entityId)
-    await recomputeEntityContributions(entityId)
-    revalidateTag("content:" + contentId)
-}
-
-
-export async function recomputeAllContributions(){
-    const entities = await getEntities()
-
-    for(let i = 0; i < entities.length; i++){
-        console.log("recomputing contributions for", entities[i].name)
-        const t1 = Date.now()
-        await recomputeEntityContributions(entities[i].id)
-        console.log("Done in ", Date.now()-t1)
-    }
-}
-
-
-export async function updateUniqueViewsCount(){
-    const entities = await db.entity.findMany({
-        select: {
-            id: true,
-            views: true
-        },
-        where: {
-            uniqueViewsCount: null
-        }
-    })
-    for(let i = 0; i < entities.length; i++){
-        const s = new Set(entities[i].views.map((v) => (v.userById))).size
-        await db.entity.update({
+    try {
+        await db.content.update({
             data: {
-                uniqueViewsCount: s
+                rejectedById: userId,
+                rejectedAt: new Date()
             },
             where: {
-                id: entities[i].id
+                id: contentId
             }
         })
+    } catch {
+        return {error: "error on reject"}
     }
-}
 
+    const {error} = await updateEntityCurrentVersionAndContribution(entityId)
+    if(error) return {error}
 
-export async function updateIsDraft(){
-    const contents = await db.content.findMany({
-        select: {
-            id: true,
-            isDraft: true
-        }
-    })
-    for(let i = 0; i < contents.length; i++){
-        if(contents[i].isDraft == null){
-            console.log("updating", i)
-            await db.content.update({
-                data: {
-                    isDraft: false
-                },
-                where: {
-                    id: contents[i].id
-                }
-            })
-        }
-    }
+    revalidateTag("content:" + contentId)
 }

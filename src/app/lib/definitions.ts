@@ -14,6 +14,7 @@ export type ContentProps = {
     author: SmallUserProps
     type: ContentType
     parentContents: {id: string}[]
+    usersMentioned: {id: string}[]
 
     title: string | null
 
@@ -149,6 +150,7 @@ export type ContributionsProps = [string, number][]
 
 export type ContributionsArray = ContributionsProps[]
 
+export type ErrorProps = {error: string}
 
 export type SmallEntityProps = {
     id: string,

@@ -2,7 +2,6 @@
 import Link from "next/link"
 import SubscriptionOptionButton from "../../../components/subscription-option-button"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
-import { createPreference } from "../../../actions/users"
 import { useUser } from "../../hooks/user"
 import { useState } from "react"
 import { useSubscriptionPrice } from "../../hooks/subscriptions"
@@ -10,6 +9,7 @@ import { MPWallet } from "../../../components/mp-wallet"
 import LoadingSpinner from "../../../components/loading-spinner"
 import { IntegerInputPlusMinus } from "./integer-input-plus-minus"
 import { nextPrice, validSubscription } from "../../../components/utils"
+import { createPreference } from "../../../actions/payments"
 
 
 function PagoUnico({preferenceId, months, total, onBack}: {preferenceId: string, months: number, total: number, onBack: () => void}) {
@@ -47,10 +47,12 @@ export default function PlanClasico() {
 
     async function onUniquePayment(){
         if(user.user){
-            const id = await createPreference(user.user.id, months, 0)
+            const {error, id} = await createPreference(user.user.id, months, 0)
+            if(error) return {error}
             setPreferenceId(id)
             setChoice("unique")
         }
+        return {}
     }
 
     function onChange(val){

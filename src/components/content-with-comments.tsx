@@ -5,7 +5,7 @@ import { preload, useSWRConfig } from "swr"
 import LoadingSpinner from "./loading-spinner"
 import ContentComponent from "./content"
 import CommentEditor from "./editor/comment-editor"
-import { ContentProps } from "../app/lib/definitions"
+import { CommentProps, ContentProps } from "../app/lib/definitions"
 import { useUser } from "../app/hooks/user"
 import { useContent } from "../app/hooks/contents"
 import { createComment } from "../actions/contents"
@@ -57,19 +57,19 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     }, [content])
 
     const handleNewComment = async (text: string) => {
-        if(user.user){
-            const compressedText = compress(text)
-            const newComment = await createComment(compressedText, content.id, user.user.id)
+        const compressedText = compress(text)
+        const {error, ...newComment} = await createComment(compressedText, user.user.id, content.id, content.parentEntityId)
+        if(error) return {error}
 
-            setComments([newComment, ...comments])
+        setComments([newComment as CommentProps, ...comments])
 
-            mutate("/api/replies-feed/"+user.user.id)
-            setViewComments(true)
+        mutate("/api/replies-feed/"+user.user.id)
+        setViewComments(true)
 
-            // para que se resetee el contenido del editor
-            setWritingReply(false)
-            setWritingReply(startsOpen)
-        }
+        // para que se resetee el contenido del editor
+        setWritingReply(false)
+        setWritingReply(startsOpen)
+        return {}
     }
 
     const handleCancelComment = () => {
@@ -157,8 +157,8 @@ export const ContentWithCommentsFromId = ({
     const content = useContent(contentId)
     if(content.isLoading) return <LoadingSpinner/>
     
-    if(!content.content) {
-        return <>Error :(</>
+    if(!content.content || content.isError) {
+        return <>No se pudo cargar el contenido</>
     }
 
     return <ContentWithComments

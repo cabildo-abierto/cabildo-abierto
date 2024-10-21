@@ -8,13 +8,12 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useSWRConfig } from "swr";
 import StateButton from "./state-button";
 import { id2url } from "./content";
-import {CabildoIcon, DashboardIcon, ManageAccountIcon, NotificationsIcon, ScoreboardIcon, SupportIcon} from "./icons";
+import {CabildoIcon, DashboardIcon, ManageAccountIcon, SupportIcon} from "./icons";
 import { useRouter } from "next/navigation";
 import { signOut } from "../actions/auth";
 import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user";
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
-import LoadingSpinner from "./loading-spinner";
 import { articleUrl } from "./utils";
 
 
@@ -42,7 +41,7 @@ const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}
     return <SidebarButton icon={<SupportIcon newCount={count.count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
 }
 
-const SidebarUsername = ({user, onLogout}: {user: UserProps, onLogout: () => Promise<boolean>}) => {
+const SidebarUsername = ({user, onLogout}: {user: UserProps, onLogout: () => Promise<{error?: string}>}) => {
     return <div className="flex flex-col items-center">
         <Link href={`/perfil/${user.id}`}
             className="mb-1 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)] text-center">
@@ -83,7 +82,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
             router.push("/")
             await mutate("/api/user", null)
         }
-        return true
+        return {}
     }
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-20">

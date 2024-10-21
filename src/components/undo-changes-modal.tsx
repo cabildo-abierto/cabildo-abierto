@@ -61,13 +61,13 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, e
                     <StateButton
                         handleClick={async () => {
                             if(user.user && content){
-                                await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
+                                const {error} = await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
+                                if(error) return {error}
                                 mutate("/api/entity/"+entity.id)
                                 mutate("/api/entities")
                                 onClose()
-                                return true
                             }
-                            return false
+                            return {}
                         }}
                         disabled={!validExplanation(explanation)}
                         className="gray-btn w-full"

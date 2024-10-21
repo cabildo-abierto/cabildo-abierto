@@ -243,12 +243,19 @@ export function getPlainText(jsonStr: string){
         numNodes: 0,
         plainText: ""
     }
-    const json = JSON.parse(jsonStr)
+
+    let json
+    try {
+        json = JSON.parse(jsonStr)
+    } catch {
+        return {error: "error on parse json"}
+    }
+
     const text = getAllText(json.root)
     return {
         numChars: text.length,
         numWords: text.split(" ").length,
-        numNodes: json.root.children.length,
+        numNodes: json.root.children.length as number,
         plainText: text
     }
 }
@@ -617,4 +624,17 @@ export function findEntityReferencesFromEntities(text: string, entities: SmallEn
     references = references.filter(({id}) => (entities.some((e) => (e.id == id))))
 
     return references
+}
+
+
+export function entityExists(name: string, entities: SmallEntityProps[]){
+    name = cleanText(name).replaceAll(" ", "")
+    
+    for(let i = 0; i < entities.length; i++){
+        const clean = cleanText(entities[i].name).replaceAll(" ", "")
+        if(clean == name){
+            return true
+        }
+    }
+    return false
 }

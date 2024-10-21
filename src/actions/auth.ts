@@ -38,7 +38,7 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
     }
   }
 
-  return {user: await getUser()}
+  return await getUser()
 }
 
 export type SignUpFormState = {

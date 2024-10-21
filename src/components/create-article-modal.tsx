@@ -15,7 +15,7 @@ import { BaseFullscreenPopup } from "./base-fullscreen-popup";
 export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
     const user = useUser();
     const [entityName, setEntityName] = useState("");
-    const [alreadyExists, setAlreadyExists] = useState(false)
+    const [errorOnCreate, setErrorOnCreate] = useState(null)
     const { mutate } = useSWRConfig();
     const router = useRouter();
     const [goToArticle, setGoToArticle] = useState(true);
@@ -31,27 +31,28 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
                     placeholder="Título"
                 />
             </div>
-            {alreadyExists && <ErrorMsg text="Ya existe ese tema."/>}
+            {errorOnCreate && <ErrorMsg text={errorOnCreate}/>}
             {entityName.includes("/") && <ErrorMsg text="El nombre no puede incluír el caracter '/'."/>}
 
             <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir a la página del tema después de crearlo</span>}/>
             <div className="py-4">
                 <StateButton
                     handleClick={async (e) => {
-                        if (user.user) {
-                            setAlreadyExists(false)
-                            const { id, error } = await createEntity(entityName, user.user.id);
-                            if(error){
-                                setAlreadyExists(true)
-                                return false
+                        setErrorOnCreate(null)
+                        const { id, error } = await createEntity(entityName, user.user.id);
+                        if(error){
+                            if(error == "exists"){
+                                setErrorOnCreate("Ya existe ese tema.")
+                                return {}
+                            } else {
+                                return {error}
                             }
-                            mutate("/api/entities");
-                            mutate("/api/entity/"+id);
-                            if (goToArticle) router.push(articleUrl(id));
-                            onClose();
-                            return true
                         }
-                        return false
+                        mutate("/api/entities")
+                        mutate("/api/entity/"+id)
+                        if (goToArticle) router.push(articleUrl(id))
+                        onClose()
+                        return {}
                     }}
                     disabled={!user.user || !validEntityName(entityName)}
                     className="gray-btn w-full"

@@ -2,7 +2,7 @@
 
 import MyLexicalEditor, { initializeEmpty, SettingsProps } from "./lexical-editor"
 import { useState } from "react"
-import StateButton from "../state-button"
+import StateButton, { StateButtonClickHandler } from "../state-button"
 import { EditorState, LexicalEditor } from "lexical"
 import { charCount, emptyOutput, hasChanged, validPost } from "../utils"
 import { useRouter } from "next/navigation"
@@ -87,51 +87,50 @@ const PostEditor = ({
             const type = isFast ? "FastPost" : "Post"
             if(!isDraft){ 
                 if(!isPublished){
-                    createPost(compressedText, type, isDraft, user.id, !isFast ? title : undefined)
+                    const {error} = await createPost(compressedText, type, isDraft, user.id, !isFast ? title : undefined)
+                    if(error) return {error}
                 } else {
-                    updateContent(compressedText, contentId, !isFast ? title : undefined)
+                    const {error} = await updateContent(compressedText, contentId, !isFast ? title : undefined)
+                    if(error) return {error}
                 }
             } else {
-                publishDraft(compressedText, contentId, user.id, !isFast ? title : undefined)
+                const {error} = await publishDraft(compressedText, contentId, user.id, !isFast ? title : undefined)
+                if(error) return {error}
                 mutate("/api/content/"+contentId)
                 mutate("/api/drafts/"+user.id)
             }
             mutate("/api/feed")
             mutate("/api/profile-feed/"+user.id)
             router.push("/")
-            return true
+            return {stopResubmit: true}
         }
-        return false
+        return {error: "Ocurrió un error al enviar la publicación."}
 	}
 
-    async function handleSaveDraft(){
+    const handleSaveDraft: StateButtonClickHandler = async (e) => {
         if(editor && user){
             const text = JSON.stringify(editor.getEditorState())
             const compressedText = compress(text)
             const type = isFast ? "FastPost" : "Post"
-            let result = null
             if(!isDraft){
                 if(!isPublished){
-                    result = await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
+                    const {error} = await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
+                    if(error) return {error}
                 } else {
-                    result = await updateContent(compressedText, contentId, !isFast ? title : undefined)
+                    const {error} = await updateContent(compressedText, contentId, !isFast ? title : undefined)
+                    if(error) return {error}
                 }
             } else {
-                result = await updateContent(compressedText, contentId, title)
-                if(result)
-                    mutate("/api/content/" + contentId)
+                const {error} = await updateContent(compressedText, contentId, title)
+                if(error) return {error}
+                await mutate("/api/content/" + contentId)
             }
-            if(result){
-                mutate("/api/drafts")
-                router.push("/borradores")
-                return true   
-            } else {
-                setErrorOnSubmit(true)
-                return false
-            }
+            await mutate("/api/drafts")
+            router.push("/borradores")
+            return {stopResubmit: true}
         }
         setErrorOnSubmit(true)
-        return false
+        return {error: "Ocurrió un error al guardar el borrador."}
     }
 
     const count = editor && editorState ? charCount(editorState) : 0
@@ -139,11 +138,12 @@ const PostEditor = ({
     let disabled = !editor || 
         emptyOutput(editorState) ||
         (!isFast && title.length == 0) ||
-        (!validPost(editorState, settings.charLimit)) ||
-        (isDraft && !hasChanged(editorState, initialData))
+        (!validPost(editorState, settings.charLimit))
+
+    let saveDraftDisabled = disabled || (isDraft && !hasChanged(editorState, initialData))
 
 
-	const PublishButton = ({onClick}: {onClick: (e) => Promise<boolean>}) => {
+	const PublishButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
         return <StateButton
             handleClick={onClick}
             className="small-btn sm:gray-btn text-xs sm:text-sm"
@@ -154,14 +154,14 @@ const PostEditor = ({
         />
 	}
 
-    const SaveDraftButton = ({onClick}: {onClick: (e) => Promise<boolean>}) => {
+    const SaveDraftButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
         return <StateButton
             handleClick={onClick}
             className="small-btn sm:gray-btn text-xs sm:text-sm"
             text1="Guardar borrador"
             text2="Guardando..."
             textClassName="py-2"
-            disabled={disabled}
+            disabled={saveDraftDisabled}
         />
 	}
 

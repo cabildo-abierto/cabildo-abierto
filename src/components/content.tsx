@@ -16,7 +16,7 @@ import { ContentOptionsButton } from "./content-options-button";
 import { FakeNewsCounter } from "./fake-news-counter";
 import { CommentInContext } from "./comment-in-context";
 import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
-import { recordBatchViews, takeAuthorship } from "../actions/contents";
+import { recordBatchViews } from "../actions/contents";
 import { useUser } from "../app/hooks/user";
 import { ContentProps } from "../app/lib/definitions";
 import EntityComponent from "./entity-component";
@@ -24,6 +24,7 @@ import { UndoDiscussionContent } from "./undo-discussion";
 import { logVisit } from "../actions/users";
 import { NoVisitsAvailablePopup } from "./no-visits-popup";
 import { debounce } from 'lodash'; // You may need to install this if not installed
+import { takeAuthorship } from "../actions/admin";
 
 export function id2url(id: string){
     return "/perfil/" + id.replace("@", "")
@@ -79,6 +80,7 @@ export const ContentTopRow: React.FC<ContentTopRowProps> = ({
     return <div className="flex justify-between pt-1 pr-1">
         <div className="px-2 blue-links flex items-center w-full">
             <div className="text-xs sm:text-sm space-x-1 text-[var(--text-light)]">
+                {icon}
                 {author && 
                     <ContentTopRowAuthor content={content}/>
                 }
@@ -265,8 +267,10 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     useEffect(() => {
         async function checkVisit() {
             if (!isPublic(content, isMainPage) && !user) {
-                const noAccountUser = await logVisit(content.id);
-                const visits = visitsThisMonth(noAccountUser.visits);
+                const {user, error} = await logVisit(content.id);
+                if(error) return {error}
+
+                const visits = visitsThisMonth(user.visits);
                 if (visits >= monthly_visits_limit) {
                     setValidVisit(false);
                 }

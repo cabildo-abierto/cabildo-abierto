@@ -14,6 +14,7 @@ import { pathLogo } from "../components/logo";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
 import { isSameDay } from "date-fns";
+import { NoAccountUser } from "@prisma/client";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -30,36 +31,40 @@ export async function updateDescription(text: string, userId: string) {
 
 
 export const getUsers = unstable_cache(async () => {
-    const users = await db.user.findMany(
-        {
-            select: {
-                id: true,
-                name: true,
-                following: {select: {id: true}},
-                contents: {
-                    select: {
-                        _count: {
-                            select: {
-                                reactions: true,
-                            }
+    try {
+        const users = await db.user.findMany(
+            {
+                select: {
+                    id: true,
+                    name: true,
+                    following: {select: {id: true}},
+                    contents: {
+                        select: {
+                            _count: {
+                                select: {
+                                    reactions: true,
+                                }
+                            },
+                            uniqueViewsCount: true
                         },
-                        uniqueViewsCount: true
-                    },
-                    where: {
-                        type: {
-                            in: ["Comment", "Post", "FastPost"]
+                        where: {
+                            type: {
+                                in: ["Comment", "Post", "FastPost"]
+                            }
                         }
                     }
-                }
-            },
-            where: {
-                id: {
-                    not: "guest"
+                },
+                where: {
+                    id: {
+                        not: "guest"
+                    }
                 }
             }
-        }
-    )
-    return users
+        )
+        return {users}
+    } catch {
+        return {error: "error getting users"}
+    }
 },
     ["users"],
     {
@@ -142,7 +147,8 @@ export const getConversations = (userId: string) => {
 
 
 export const getUsersWithStats = unstable_cache(async () => {
-    const users = await getUsers()
+    const {users, error} = await getUsers()
+    if(error) return {error}
 
     const withStats = []
     for(let i = 0; i < users.length; i++){
@@ -163,70 +169,75 @@ export const getUsersWithStats = unstable_cache(async () => {
 
 export const getUserById = (userId: string) => {
     return unstable_cache(async () => {
-        const user: UserProps = await db.user.findUnique(
-            {
-                select: {
-                    id: true,
-                    name: true,
-                    createdAt: true,
-                    authenticated: true,
-                    editorStatus: true,
-                    subscriptionsUsed: {
-                        orderBy: {
-                            createdAt: "asc"
-                        }
-                    },
-                    subscriptionsBought: {
-                        select: {
-                            id: true
-                        }, 
-                        where: {
-                            userId: null,
-                            isDonation: false,
-                            price: {
-                                gte: 500
+        let user: UserProps
+        try {
+            user = await db.user.findUnique(
+                {
+                    select: {
+                        id: true,
+                        name: true,
+                        createdAt: true,
+                        authenticated: true,
+                        editorStatus: true,
+                        subscriptionsUsed: {
+                            orderBy: {
+                                createdAt: "asc"
                             }
-                        }
-                    },
-                    following: {select: {id: true}},
-                    followedBy: {select: {id: true}},
-                    authUser: {
-                        select: {
-                            email: true,
-                        }
-                    },
-                    description: true,
-                    _count: {
-                        select: {
-                            notifications: {
-                                where: {
-                                    viewed: false
+                        },
+                        subscriptionsBought: {
+                            select: {
+                                id: true
+                            }, 
+                            where: {
+                                userId: null,
+                                isDonation: false,
+                                price: {
+                                    gte: 500
                                 }
-                            },
-                            views: {
-                                where: {
-                                    content: {
-                                        parentEntityId: "Cabildo_Abierto"
+                            }
+                        },
+                        following: {select: {id: true}},
+                        followedBy: {select: {id: true}},
+                        authUser: {
+                            select: {
+                                email: true,
+                            }
+                        },
+                        description: true,
+                        _count: {
+                            select: {
+                                notifications: {
+                                    where: {
+                                        viewed: false
                                     }
-                                }
-                            },
-                            contents: {
-                                where: {
-                                    NOT: {
-                                        fakeReportsCount: {
-                                            equals: 0
+                                },
+                                views: {
+                                    where: {
+                                        content: {
+                                            parentEntityId: "Cabildo_Abierto"
+                                        }
+                                    }
+                                },
+                                contents: {
+                                    where: {
+                                        NOT: {
+                                            fakeReportsCount: {
+                                                equals: 0
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
+                        },
+                        closedFollowSuggestionsAt: true
                     },
-                    closedFollowSuggestionsAt: true
-                },
-                where: {id:userId}
-            }
-        )
-        return user ? user : undefined
+                    where: {id:userId}
+                }
+            )
+        } catch {
+            return {error: "error on get entity"}
+        }
+        return user ? {user} : {error : "error on get entity"}
     }, ["user", userId], {
         revalidate: revalidateEverythingTime,
         tags: ["user:"+userId, "user"]})()    
@@ -293,9 +304,9 @@ export const getUserIdByAuthId = (authId: string) => {
 }
 
 
-export async function getUser() {
+export async function getUser(): Promise<{error?: string, user?: UserProps}> {
     const userId = await getUserId()
-    if(!userId) return null
+    if(!userId) return {error: "no user id"}
 
     return await getUserById(userId)
 }
@@ -321,46 +332,62 @@ export async function getUserAuthId() {
 
 
 export async function follow(userToFollowId: string, userId: string) {
-    const user = await getUserById(userId)
+    const {user, error} = await getUserById(userId)
+    if(error) return {error}
+
     if(user.following.some(({id}) => (userToFollowId == id))){
-        return "already follows"
+        return {error: "already follows"}
     }
-    const updatedUser = await db.user.update({
-        where: {
-            id: userId,
-        },
-        data: {
-            following: {
-                connect: {
-                    id: userToFollowId,
+
+    let updatedUser
+
+    try {
+        const updatedUser = await db.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                following: {
+                    connect: {
+                        id: userToFollowId,
+                    },
                 },
             },
-        },
-    });
+        })
+    } catch {
+        return {error: "error on update user"}
+    }
+
     revalidateTag("user:"+userToFollowId)
     revalidateTag("user:"+userId)
-    await createNotification(userId, userToFollowId, "Follow")
-    return updatedUser;
+    const {error: errorOnNotify} = await createNotification(userId, userToFollowId, "Follow")
+    if(errorOnNotify) return {error: errorOnNotify}
+    return {updatedUser};
 }
 
 
 export async function unfollow(userToUnfollowId: string, userId: string) {
-
-    const updatedUser = await db.user.update({
-        where: {
-            id: userId,
-        },
-        data: {
-            following: {
-                disconnect: {
-                    id: userToUnfollowId,
+    let updatedUser
+    try {
+        updatedUser = await db.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                following: {
+                    disconnect: {
+                        id: userToUnfollowId,
+                    },
                 },
             },
-        },
-    });
+        })
+    } catch {
+        return {error: "error on update user"}
+    }
+
     revalidateTag("user:"+userToUnfollowId)
     revalidateTag("user:"+userId)
-    return updatedUser;
+    return {updatedUser};
 }
 
 
@@ -413,7 +440,8 @@ export const getUserStats = async (userId: string) => {
             }
         })
         
-        const entities = await getEntities()
+        const {entities, error} = await getEntities()
+        if(error) return {error: error}
 
         let entityReactions = 0
         let entityViews = 0
@@ -456,7 +484,7 @@ export const getUserStats = async (userId: string) => {
             viewsInEntities: entityViews
         }
         
-        return stats
+        return {stats}
     }, ["userStats", userId], {
         revalidate: Math.min(revalidateEverythingTime, 3600),
         tags: ["userStats", "userStats:"+userId, ""]})()
@@ -468,18 +496,24 @@ export async function buyAndUseSubscription(userId: string, price: number, payme
     
     const usedAt = new Date()
     const endsAt = subscriptionEnds(usedAt)
-    const result = await db.subscription.create({
-        data: {
-            userId: userId,
-            boughtByUserId: userId,
-            usedAt: usedAt,
-            endsAt: endsAt,
-            paymentId: paymentId,
-            price: price,
-            isDonation: false
-        }
-    })
+    
+    try {
+        await db.subscription.create({
+            data: {
+                userId: userId,
+                boughtByUserId: userId,
+                usedAt: usedAt,
+                endsAt: endsAt,
+                paymentId: paymentId,
+                price: price,
+                isDonation: false
+            }
+        })
+    } catch {
+        return {error: "error on create subscription"}
+    }
     revalidateTag("user:"+userId)
+    return {}
 }
 
 
@@ -496,12 +530,17 @@ export async function stockSubscriptions(userId: string, price: number, n: numbe
         })
     }
 
-    await db.subscription.createMany({
-        data: queries
-    })
+    try {
+        await db.subscription.createMany({
+            data: queries
+        })
+    } catch {
+        return {error: "error on stock subscriptions"}
+    }
 
     revalidateTag("user:"+userId)
     revalidateTag("poolsize")
+    return {}
 }
 
 export async function donateSubscriptions(n: number, userId: string, paymentId: string, price: number) {
@@ -516,49 +555,68 @@ export async function donateSubscriptions(n: number, userId: string, paymentId: 
         })
     }
 
-    await db.subscription.createMany({
-        data: queries
-    })
+    try {
+        await db.subscription.createMany({
+            data: queries
+        })
+    } catch {
+        return {error: "error on donate subscriptions"}
+    }
     revalidateTag("user:"+userId)
     revalidateTag("poolsize")
+    return {}
 }
 
 
 // TO DO: Atómico
 export async function getDonatedSubscription(userId: string) {
-    const subscription = await db.subscription.findFirst({
-        where: {
-            usedAt: null,
-            isDonation: true
-        }
-    })
+    let subscription
+    try {
+        subscription = await db.subscription.findFirst({
+            where: {
+                usedAt: null,
+                isDonation: true
+            }
+        })
+    } catch {
+        return {error: "error finding donated subscription"}
+    }
 
     if(!subscription){
-        return null
+        return {error: "no donated subscription"}
     } else {
         const usedAt = new Date()
         const endsAt = subscriptionEnds(usedAt)
-        const result = await db.subscription.update({
-            data: {
-                usedAt: usedAt,
-                endsAt: endsAt,
-                userId: userId
-            },
-            where: {
-                id: subscription.id
-            }
-        })
+        try {
+            await db.subscription.update({
+                data: {
+                    usedAt: usedAt,
+                    endsAt: endsAt,
+                    userId: userId
+                },
+                where: {
+                    id: subscription.id
+                }
+            })
+        } catch {
+            return {error: "error on use donated subscription"}
+        }
         revalidateTag("user:"+userId)
         revalidateTag("poolsize")
+        return {}
     }
 }
 
 export const getSubscriptionPoolSize = unstable_cache(async () => {
-    const available = await db.subscription.findMany({
-        select: {id: true},
-        where: {usedAt: null, isDonation: true}
-    })
-    return available.length
+    try {
+        const available = await db.subscription.findMany({
+            select: {id: true},
+            where: {usedAt: null, isDonation: true}
+        })
+        return {poolSize: available.length}
+    } catch {
+        return {error: "error getting subscription poolsize"}
+    }
 },
     ["poolsize"],
     {
@@ -571,23 +629,34 @@ export const getSubscriptionPoolSize = unstable_cache(async () => {
 const min_time_between_visits = 60*60*1000 // una hora
 
 
-export const logVisit = async (contentId: string) => {
+function olderThan(date: Date, ms: number){
+    return new Date().getTime() - date.getTime() <= ms
+}
+
+
+export const logVisit = async (contentId: string): Promise<{error?: string, user?: NoAccountUserProps}> => {
     const header = headers()
     const agent = userAgent({headers: header})
 
     const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
 
-    let user = await db.noAccountUser.findFirst({
-        where: {
-            ip: ip,
-            browser: JSON.stringify(agent.browser),
-            engine: JSON.stringify(agent.engine),
-            os: JSON.stringify(agent.os),
-            device: JSON.stringify(agent.device),
-            cpu: JSON.stringify(agent.cpu),
-            isBot: agent.isBot
-        }
-    })
+    let user
+    try {
+        user = await db.noAccountUser.findFirst({
+            where: {
+                ip: ip,
+                browser: JSON.stringify(agent.browser),
+                engine: JSON.stringify(agent.engine),
+                os: JSON.stringify(agent.os),
+                device: JSON.stringify(agent.device),
+                cpu: JSON.stringify(agent.cpu),
+                isBot: agent.isBot
+            }
+        })
+    } catch {
+        return {error: "error finding no account user"}
+    }
+
     const newUser = user == null
     if(newUser){
         user = await db.noAccountUser.create({
@@ -615,125 +684,64 @@ export const logVisit = async (contentId: string) => {
                 createdAt: "desc"
             }
         })
-        if(visit && new Date().getTime() - visit.createdAt.getTime() <= min_time_between_visits){ 
+        if(visit && olderThan(visit.createdAt, min_time_between_visits)){ 
             recentVisit = true
         }
     }
     if(!recentVisit){
-        await db.noAccountVisit.create({
-            data: {
-                userId: user.id,
-                contentId: contentId,
-            }
-        })
+        try {
+            await db.noAccountVisit.create({
+                data: {
+                    userId: user.id,
+                    contentId: contentId,
+                }
+            })
+        } catch {
+            return {error: "error creating no account visit"}
+        }
     }
     return await getNoAccountUser(header, agent)
 }
 
 
-export const getNoAccountUser = async (header: ReadonlyHeaders, agent: any) => {
+export type NoAccountUserProps = {
+    id: string
+    visits: {
+        createdAt: Date
+    }[]
+}
+
+
+export const getNoAccountUser = async (header: ReadonlyHeaders, agent: any): Promise<{error?: string, user?: NoAccountUserProps}> => {
     const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
 
-    let user = await db.noAccountUser.findFirst({
-        where: {
-            ip: ip,
-            browser: JSON.stringify(agent.browser),
-            engine: JSON.stringify(agent.engine),
-            os: JSON.stringify(agent.os),
-            device: JSON.stringify(agent.device),
-            cpu: JSON.stringify(agent.cpu),
-            isBot: agent.isBot
-        },
-        select: {
-            id: true,
-            visits: {
-                select: {
-                    createdAt: true
+    try {
+        let user = await db.noAccountUser.findFirst({
+            where: {
+                ip: ip,
+                browser: JSON.stringify(agent.browser),
+                engine: JSON.stringify(agent.engine),
+                os: JSON.stringify(agent.os),
+                device: JSON.stringify(agent.device),
+                cpu: JSON.stringify(agent.cpu),
+                isBot: agent.isBot
+            },
+            select: {
+                id: true,
+                visits: {
+                    select: {
+                        createdAt: true
+                    }
                 }
             }
-        }
-    })
+        })
 
-    return user
-}
-
-const baseUrl = "https://www.cabildoabierto.com.ar"
-//const baseUrl = "localhost:3000"
-
-export async function createPreference(userId: string, amount: number, donationsAmount) {
-    const client = new MercadoPagoConfig({ accessToken: accessToken });
-    const preference = new Preference(client);
-
-    const price = await getSubscriptionPrice()
-
-    console.log("creating preference with", amount, donationsAmount)
-    /*const methods = await fetch(
-        "https://api.mercadopago.com/v1/payment_methods", {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-            },
-        }
-    )*/
-    if(amount + donationsAmount == 0) return null
-
-    let title = null
-    if(amount == 0){
-        if(donationsAmount == 1){
-            title = "Un mes de suscripción donado"
-        } else {
-            title = donationsAmount + " suscripciones donadas"
-        }
-    } else if(amount == 1){
-        if(donationsAmount == 0){
-            title = "Un mes de suscripción"
-        } else if(donationsAmount == 1){
-            title = "Un mes para vos y uno donado"
-        } else {
-            title = "Un mes para vos y " + donationsAmount + " donados"
-        }
-    } else if(amount > 1){
-        if(donationsAmount == 0){
-            title = amount + " meses de suscripción"
-        } else if(donationsAmount == 1){
-            title = amount + " meses para vos y uno donado"
-        } else {
-            title = amount + " meses para vos y " + donationsAmount + " meses donados"
-        }
+        return {user}
+    } catch {
+        return {error: "error on get no account user"}
     }
-
-    let items = [{
-        picture_url: baseUrl+pathLogo,
-        id: "0",
-        title: title,
-        quantity: 1,
-        unit_price: (donationsAmount + amount) * price.price,
-        currencyId: "ARS"
-    }]
-
-    const result = await preference.create({
-      body: {
-        back_urls: {
-            success: baseUrl+"/suscripciones/pago-exitoso",
-            pending: baseUrl+"/suscripciones/pago-pendiente",
-            failure: baseUrl+"/suscripciones/pago-fallido"
-        },
-        notification_url: baseUrl+"/api/pago?source_news=webhooks",
-        items: items,
-        metadata: {
-            user_id: userId,
-            amount: (amount+donationsAmount)
-        },
-        payment_methods: {
-            excluded_payment_types: [
-                {id: "ticket"}
-            ]
-        }
-      }
-    })
-
-    return result.id
 }
+
 
 
 export const getChatBetween = (userId: string, anotherUserId: string) => {
@@ -772,13 +780,17 @@ export const getChatBetween = (userId: string, anotherUserId: string) => {
 
 
 export async function sendMessage(message: string, userFrom: string, userTo: string){
-    await db.chatMessage.create({
-        data: {
-            text: message,
-            fromUserId: userFrom,
-            toUserId: userTo
-        }
-    })
+    try {
+        await db.chatMessage.create({
+            data: {
+                text: message,
+                fromUserId: userFrom,
+                toUserId: userTo
+            }
+        })
+    } catch {
+        return {error: "Ocurrió un error al enviar el mensaje."}
+    }
     revalidateTag("chat:"+userFrom+":"+userTo)
     revalidateTag("chat:"+userTo+":"+userFrom)
     revalidateTag("conversations:"+userFrom)
@@ -801,242 +813,6 @@ export async function setMessageSeen(id: string, userFrom: string, userTo: strin
     revalidateTag("chat:"+userTo+":"+userFrom)
     revalidateTag("conversations:"+userFrom)
     revalidateTag("conversations:"+userTo)
-}
-
-
-export async function getSubscriptionPrice() {
-    return unstable_cache(async () => {
-        const count = await db.subscription.count({
-            where: {
-                price: {
-                    gte: 500,
-                }
-            }
-        })
-        if(count < 200){
-            return {price: 500, remaining: 200-count}
-        } else {
-            return {price: 1000, remaining: 1000-count}
-        }
-    }, ["subscriptionPrice"], {tags: ["subscriptionPrice"]})()
-}
-
-
-export async function newContactMail(mail: string){
-    await db.contactEmails.create({
-        data: {
-          mail: mail
-        }
-    })
-}
-
-
-export async function createPaymentPromisesForEntityView(view: {content: {id: string, authorId: string, createdAt: Date}}, viewValue: number, subscriptionId: string){
-
-    console.log("creating payment promises for entity view")
-
-    const content = await getContentById(view.content.id)
-    
-    const contributions = contributionsToProportionsMap(JSON.parse(content.contribution))
-
-    const authors = Object.keys(contributions)
-    console.log("contributions map", contributions)
-
-    for(let i = 0; i < authors.length; i++){
-        console.log("creating promise for", authors[i], "with contribution", contributions[authors[i]], "and value", viewValue)
-        await db.paymentPromise.create({
-            data: {
-                authorId: authors[i],
-                subscriptionId: subscriptionId,
-                contentId: view.content.id,
-                amount: viewValue * contributions[authors[i]]
-            }
-        })
-    }
-}
-
-
-export async function createPaymentPromisesForEntityViews(user: UserProps, amount: number, start: Date, end: Date, subscriptionId: string){
-    const entityViews = await db.view.findMany({
-        select: {
-            content: {
-                select: {
-                    id: true,
-                    authorId: true,
-                    createdAt: true
-                }
-            }
-        },
-        where: {
-            userById: user.id,
-            content: {
-                type: "EntityContent"
-            },
-            createdAt: {
-                gte: start
-            }
-        }
-    })
-
-    const viewValue = amount / entityViews.length
-
-    for(let i = 0; i < entityViews.length; i++){
-        const view = entityViews[i]
-        await createPaymentPromisesForEntityView(view, viewValue, subscriptionId)
-    }
-}
-
-
-export async function createPaymentPromisesForContentReactions(user: UserProps, amount: number, start: Date, end: Date, subscriptionId: string){
-    const contentReactions = await db.reaction.findMany({
-        select: {
-            content: {
-                select: {
-                    id: true,
-                    authorId: true,
-                    createdAt: true
-                }
-            }
-        },
-        where: {
-            userById: user.id,
-            content: {
-                type: "Post"
-            },
-            createdAt: {
-                gte: start
-            }
-        }
-    })
-
-    const reactionValue = amount / contentReactions.length
-
-    for(let i = 0; i < contentReactions.length; i++){
-        const reaction = contentReactions[i]
-        console.log("creating payment promise for post reaction", reaction.content.id, "with value", reactionValue)
-        await db.paymentPromise.create({
-            data: {
-                authorId: reaction.content.authorId,
-                subscriptionId: subscriptionId,
-                contentId: reaction.content.id,
-                amount: reactionValue
-            }
-        })
-    }
-}
-
-
-export async function createPaymentPromises(){
-    const curDate = new Date()
-
-    const subscriptions = await db.subscription.findMany({
-        select: {
-            id: true,
-            usedAt: true,
-            endsAt: true,
-            userId: true,
-            boughtByUserId: true,
-            createdAt: true,
-            price: true
-        },
-        where: {
-            price: {
-                gt: 0
-            },
-            usedAt: {
-                not: null
-            },
-            endsAt: {
-                lt: curDate
-            },
-            promisesCreated: false
-        }
-    })
-
-    console.log("ended subscriptions found", subscriptions.length)
-    for(let i = 0; i < subscriptions.length; i++){
-        const s = subscriptions[i]
-        await createPromises(s.userId, s.price*0.64, s.usedAt, s.endsAt, s.id)
-    }
-}
-
-
-export async function createPromises(userId: string, amount: number, start: Date, end: Date, subscriptionId: string){
-    const user = await getUserById(userId)
-
-    console.log("creating promises by user", user.id, "with total value", amount, "between", start, "and", end)
-    await createPaymentPromisesForEntityViews(user, amount*0.5, start, end, subscriptionId)
-    await createPaymentPromisesForContentReactions(user, amount*0.5, start, end, subscriptionId)
-}
-
-
-export async function reassignPromise(p: {id: string, amount: number, subscription: {id: string, userId: string, usedAt: Date, endsAt: Date}}) {
-    await db.paymentPromise.update({
-        data: {
-            status: "Canceled"
-        },
-        where: {
-            id: p.id
-        }
-    })
-    await createPromises(p.subscription.userId, p.amount, p.subscription.usedAt, p.subscription.endsAt, p.subscription.id)
-}
-
-
-export async function confirmPayments() {
-    const promises = await db.paymentPromise.findMany({
-        select: {
-            id: true,
-            amount: true,
-            subscription: {
-                select: {
-                    price: true,
-                    userId: true,
-                    usedAt: true,
-                    endsAt: true,
-                    id: true
-                }
-            },
-            content: {
-                select: {
-                    stallPaymentUntil: true,
-                    undos: {
-                        select: {
-                            id: true
-                        }
-                    },
-                    claimsAuthorship: true,
-                    rejectedById: true,
-                    charsAdded: true,
-                    confirmedById: true,
-                    editPermission: true
-                }
-            }
-        },
-        where: {
-            status: "Pending"
-        }
-    })
-
-    console.log("unconfirmed promises found", promises.length)
-    const curDate = new Date()
-    for(let i = 0; i < promises.length; i++){
-        const p = promises[i]
-        if(p.content.stallPaymentUntil < curDate){
-            if(isDemonetized(p.content)){
-                await reassignPromise(p)
-            } else {
-                await db.paymentPromise.update({
-                    data: {
-                        status: "Confirmed"
-                    },
-                    where: {
-                        id: p.id
-                    }
-                })
-            }
-        }
-    }
 }
 
 
@@ -1217,8 +993,10 @@ function suggestionScore(user: UserProps, suggestedUser: UserProps){
 export async function getUserFollowSuggestions(userId: string){
 
     return await unstable_cache(async () => {
-        const user = await getUserById(userId)
-        const users = await getUsers()
+        const {user, error} = await getUserById(userId)
+        if(error) return {error}
+        const {users, error: usersError} = await getUsers()
+        if(usersError) return {error: usersError}
 
         const following = new Set<string>(user.following.map(({id}) => (id)))
 
@@ -1238,8 +1016,6 @@ export async function getUserFollowSuggestions(userId: string){
             }
             writingScore /= Math.max(s.contents.length, 1)
 
-            console.log(s.id, "score", [n, writingScore])
-
             return [n, writingScore, Math.random()]
         }
 
@@ -1249,10 +1025,9 @@ export async function getUserFollowSuggestions(userId: string){
 
         scores = scores.sort(listOrderDesc)
         
-        return scores.map(({user}) => (user))
+        return {suggestions: scores.map(({user}) => (user))}
 
     }, ["followSuggestions", userId], {revalidate: revalidateEverythingTime, tags: ["followSuggestions", userId]})()
-
 }
 
 

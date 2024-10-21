@@ -104,7 +104,7 @@ export const Comment = ({
         })
     }
 
-    const icon = isFakeNewsReport ? <RedFlag/> : <></>
+    const icon = isFakeNewsReport ? <span title="Reporte de noticia falsa"><RedFlag/></span> : <></>
     const isAuthor: boolean = user && user.id == content.author.id
 
     const optionList = isAuthor ? ["edit"] : []

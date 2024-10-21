@@ -5,7 +5,11 @@ export async function GET(req: NextRequest,
   { params }: { params: { id: string } }
 ) {
 
-    let entity = await getEntityById(encodeURIComponent(params.id))
+    let {entity, error} = await getEntityById(encodeURIComponent(params.id))
+
+    if (error) {
+      return NextResponse.json({ error }, { status: 500 })
+    }
 
     return NextResponse.json(entity);
 }

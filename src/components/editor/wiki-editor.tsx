@@ -12,7 +12,7 @@ import LoadingSpinner from "../loading-spinner"
 import { ChangesCounter } from "../changes-counter"
 import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getSearchkeysFromEntities, hasChanged } from "../utils"
 import { ContentProps, EntityProps, SmallEntityProps, SmallUserProps } from "../../app/lib/definitions"
-import { updateEntity, updateEntityContent } from "../../actions/entities"
+import { updateEntityContent } from "../../actions/entities"
 import { useUser, useUsers } from "../../app/hooks/user"
 import { compress, decompress } from "../compression"
 import { ShowArticleChanges } from "../show-article-changes"
@@ -130,16 +130,16 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         return <LoadingSpinner/>
     }
 
-    async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<boolean>{
+    async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{error?: string}>{
         if(editor){
-            const result = editor.read(async () => {
+            const result = await editor.read(async () => {
                 setErrorOnSubmit(false)
                 
                 const text = JSON.stringify(editor.getEditorState())
                 const {weakReferences, entityReferences, mentions} = findReferencesInClient(text, entities, users)
 
                 if(user.user){
-                    const newContent = await updateEntityContent(
+                    const {error} = await updateEntityContent(
                         entity.id, 
                         user.user.id,
                         claimsAuthorship,
@@ -152,32 +152,30 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
                     mutate("/api/entities")
                     mutate("/api/entity/"+entity.id)
                     mutate("/api/contributions/"+entity.id)
-                    if(newContent){
+                    if(!error){
                         setShowingSaveEditPopup(false)
                         setEditing(false)
-                        return true
                     } else {
                         setErrorOnSubmit(true)
-                        return false
                     }
                 } else {
                     setErrorOnSubmit(true)
-                    return false
                 }
+                return {}
             })
             return result
         }
-        return false
+        return {error: "Ocurrió un error al guardar los cambios."}
     }
 
     const SaveEditButton = () => {
-        return <StateButton
+        return <button
             className={articleButtonClassname}
-            text1="Guardar edición"
-            text2="Guardando..."
-            handleClick={async (e) => {setShowingSaveEditPopup(true); return false}}
+            onClick={(e) => {setShowingSaveEditPopup(true)}}
             disabled={!editorState || !hasChanged(editorState, contentText)}
-        />
+        >
+            Guardar edición
+        </button>
     }
     
     const CancelEditButton = () => {

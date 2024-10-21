@@ -11,43 +11,56 @@ import { findEntityReferences } from "./contents";
 
 
 export async function updateAllReferences(){
-    const contents = await db.content.findMany({
-        select: {
-            id: true,
-            compressedText: true,
-            entityReferences: {
-                select: {
-                    id: true
-                }
-            }
-        },
-        where: {
-            type: {
-                not: "UndoEntityContent"
-            }
-        }
-    })
-    for(let i = 0; i < contents.length; i++){
-        const c = contents[i]
-        const text = decompress(c.compressedText)
-        const ref = await findEntityReferences(text)
-        await db.content.update({
-            data: {
+    let contents
+    try {
+        contents = await db.content.findMany({
+            select: {
+                id: true,
+                compressedText: true,
                 entityReferences: {
-                    connect: ref
+                    select: {
+                        id: true
+                    }
                 }
             },
             where: {
-                id: c.id
+                type: {
+                    not: "UndoEntityContent"
+                }
             }
         })
+    } catch {
+        return {error: "error on get contents"}
+    }
+    for(let i = 0; i < contents.length; i++){
+        const c = contents[i]
+        const text = decompress(c.compressedText)
+        const {entityReferences, error} = await findEntityReferences(text)
+        if(error) return {error}
+
+        try {
+            await db.content.update({
+                data: {
+                    entityReferences: {
+                        connect: entityReferences
+                    }
+                },
+                where: {
+                    id: c.id
+                }
+            })
+        } catch {
+            return {error: "error on update entity references"}
+        }
     }
     revalidateTag("content")
 }
 
 
 export async function getReferencesSearchKeys(){
-    return getSearchkeysFromEntities(await getEntities())
+    const {entities, error} = await getEntities()
+    if(error) return {error}
+    return {searchkeys: getSearchkeysFromEntities(entities)}
 }
 
 
@@ -91,14 +104,15 @@ export async function updateWeakReferencesForContent(content: SmallContentProps,
 export async function updateAllWeakReferences(){
     const contents = await getSearchableContents([])
 
-    const searchkeys = await getReferencesSearchKeys()
+    const {searchkeys, error} = await getReferencesSearchKeys()
+    if(error) return {error}
 
     for(let i = 0; i < contents.length; i++){
         await updateWeakReferencesForContent(contents[i], searchkeys)
     }
     revalidateTag("entities")
     revalidateTag("feed")
-    return true
+    return {}
 }
 
 

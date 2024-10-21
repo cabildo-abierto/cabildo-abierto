@@ -12,6 +12,7 @@ import { updateContent } from "../actions/contents";
 import { charCount } from "./utils";
 import { useSWRConfig } from "swr";
 import { ExtraChars } from "./extra-chars";
+import { useUser } from "../app/hooks/user";
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClose: () => void}) => {
@@ -20,6 +21,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
     const [errorOnEdit, setErrorOnEdit] = useState(false)
     const content = useContent(contentId)
     const {mutate} = useSWRConfig()
+    const {user} = useUser()
 
     if(content.isLoading){
         return <LoadingSpinner/>
@@ -54,14 +56,18 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
                 disabled={!validComment(editorState, settings.charLimit)}
                 handleClick={async (e) => {
                     setErrorOnEdit(false)
-                    const result = await updateContent(compress(JSON.stringify(editorState)), contentId)
-                    if(result){
+                    const {error} = await updateContent(compress(
+                        JSON.stringify(editorState)),
+                        contentId,
+                        user.id
+                    )
+                    if(!error){
                         mutate("/api/content/"+contentId)
                         onClose()
-                        return true
+                        return {}
                     } else {
                         setErrorOnEdit(true)
-                        return false
+                        return {}
                     }
                 }}
             />

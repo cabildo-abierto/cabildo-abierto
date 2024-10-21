@@ -45,18 +45,19 @@ export const CreateFakeNewsReportModal = ({ contentId, onClose }: { contentId: s
                 <StateButton
                     handleClick={async () => {
                         if(user.user && editor){
-                            await createFakeNewsReport(
+                            const {error} = await createFakeNewsReport(
                                 compress(JSON.stringify(editor.getEditorState())),
+                                user.user.id,
                                 contentId,
-                                user.user.id
                             )
+                            if(error) return {error}
                             
-                            mutate("/api/comments/"+contentId)
                             mutate("/api/replies-feed/"+user.user.id)
+                            mutate("/api/content/"+contentId)
                             onClose()
-                            return true
+                            return {}
                         }
-                        return false
+                        return {error: "Ocurrió un error al crear el reporte."}
                     }}
                     className="gray-btn w-64"
                     text1="Confirmar"
