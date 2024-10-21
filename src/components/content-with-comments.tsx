@@ -74,7 +74,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         setWritingReply(false)
     }
     
-    const className = "w-full " + (depthParity ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]") +
+    const className = "w-full " + (depthParity ? "bg-[var(--content2)]" : "bg-[var(--content)]") +
         (isMainPage ? "" : " content-container rounded") + (content.type == "Post" && !isMainPage ? " hover:bg-[var(--secondary-light)]" : "")
 
     const depthParityComments = ["Post", "EntityContent"].includes(content.type) ? false : !depthParity
@@ -97,7 +97,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         />
         {isMainPage && ["Post", "EntityContent"].includes(content.type) && !editing && <hr className="mt-12 mb-2" id="discussion-start"/>}
         <div className={isMainPage ? "" : "ml-2 mr-1"}>
-            {writingReply && <div className={"mb-1 " + (depthParityComments ? "bg-[var(--secondary-light)]" : "bg-[var(--background)]")}>
+            {writingReply && <div className={"mb-1 " + (depthParityComments ? "bg-[var(--content2)]" : "bg-[var(--content)]")}>
                 {startsOpen ? <CommentEditor
                         onSubmit={handleNewComment}
                     /> : 

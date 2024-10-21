@@ -90,10 +90,10 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter, m
         <div className="flex justify-between items-center">
             
             {feedWithScore.length > 0 && <div className="flex ml-1 space-x-1 mb-1">
-                <button onClick={onOnlyFastPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] text-xs sm:text-sm text-[var(--text-light)] border " + (filter == "Rápidas" ? "bg-[var(--secondary-slight)]" : "")}>
+                <button onClick={onOnlyFastPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] bg-[var(--content)]  text-xs sm:text-sm text-[var(--text-light)] border " + (filter == "Rápidas" ? "bg-[var(--secondary-slight)]" : "")}>
                     solo rápidas
                 </button>
-                <button onClick={onOnlyPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] text-xs sm:text-sm text-[var(--text-light)] border " + (filter == "Publicaciones" ? "bg-[var(--secondary-slight)]" : "")}>
+                <button onClick={onOnlyPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] bg-[var(--content)]  text-xs sm:text-sm text-[var(--text-light)] border " + (filter == "Publicaciones" ? "bg-[var(--secondary-slight)]" : "")}>
                     solo publicaciones
                 </button>
             </div>}

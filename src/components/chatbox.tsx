@@ -89,7 +89,7 @@ export const Chatbox = ({fromUser, toUser}: {fromUser?: string, toUser: string})
             </div>
             <div className="pb-1 px-2 w-full flex space-x-2">
                 <textarea
-                    className="bg-[var(--background)] w-full py-1 px-2 resize-none outline-none border border-[var(--accent)]"
+                    className="bg-[var(--content)] w-full py-1 px-2 resize-none outline-none border border-[var(--accent)]"
                     placeholder="Escribí un mensaje..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}

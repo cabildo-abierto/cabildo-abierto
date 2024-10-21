@@ -3,24 +3,34 @@
 @tailwind utilities;
 
 $text: #181b23;
-$background: #f8f8f9;
+$lightwhite: #f8f8f9;
 $primary: #455dc0;
 $secondary: #beaccc;
 $accent: #8790b0;
+$background: #fbfbfc;
 
 :root {
   --text: #{$text};
+  --lightwhite: #{$lightwhite};
+
   --background: #{$background};
+  --background-dark: #{darken($background, 20%)};
+  --background-transparent: rgba(red($background), green($background), blue($background), 0.8);
+
+  --topbar: #{lighten($secondary, 25%)};
   --primary: #{$primary};
   --secondary: #{$secondary};
   --accent: #{$accent};
-  --background-dark: #{darken($background, 20%)};
-  --background-transparent: rgba(red($background), green($background), blue($background), 0.8);
+  --content: #{$background};//#{lighten($secondary, 25%)};
+  --content2: #{lighten($secondary, 23%)};//#{lighten($secondary, 23%)};
+  
   --primary-dark: #{darken($primary, 20%)};
-  --secondary-slight: #{lighten($secondary, 17%)};
-  --secondary-light: #{lighten($secondary, 20%)};
-  --secondary-xlight: #{lighten($secondary, 23%)};
-  --secondary-lighter: #{lighten($secondary, 25%)};
+
+  --secondary-slight: #{lighten($secondary, 20%)};
+  --secondary-light: #{lighten($secondary, 23%)};
+  --secondary-xlight: #{lighten($secondary, 25%)};
+  --secondary-lighter: #{lighten($secondary, 27%)};
+
   --primary-light: #{lighten($primary, 20%)};
   --accent-dark: #{darken($accent, 20%)};
   --accent-light: #{lighten($accent, 20%)};
@@ -177,7 +187,7 @@ ol {
 	border-radius: 0.25rem; 
 	background-color: var(--primary); 
 	cursor: pointer; 
-	color: var(--background);
+	color: var(--lightwhite);
 }
   
 .gray-btn:hover {
@@ -354,10 +364,11 @@ ol {
 	padding-top: 0.25rem;
 	padding-bottom: 0.25rem;
 	text-align: center;
+	background-color: var(--content);
 }
 
 .subcategories-dropdown:hover {
-	background-color: var(--secondary-light);
+	background-color: var(--content2);
 }
 
 .main-feed span {
@@ -367,6 +378,7 @@ ol {
 .main-feed button {
 	padding-bottom: 8px;
 	padding-top: 8px;
+	background: var(--content);
 }
 
 .main-feed.selected-option-text {
@@ -375,26 +387,26 @@ ol {
 }
 
 .main-feed.not-selected-option:hover {
-	background: var(--secondary-light);
+	background: var(--content2);
 }
 
 .filter-feed button {
 	padding-bottom: 2px;
 	padding-top: 2px;
+	background-color: var(--content);
 }
 
-
 .filter-feed.selected-option {
-	background-color: var(--secondary-light);
+	background-color: var(--content2);
 }
 
 
 .filter-feed.not-selected-option:hover {
-	background-color: var(--secondary-light);
+	background-color: var(--content2);
 }
 
 .search.selected-option {
-	background-color: var(--secondary-light);
+	background-color: var(--content2);
 	border-bottom: 3px solid var(--accent-dark);
 }
 
@@ -545,7 +557,7 @@ ol {
 
 .topbar-container {
 	border-bottom-width: 1px;
-	background-color: var(--background);
+	background-color: var(--topbar);
 	height: 3rem;
 	display: flex;
 	align-items: center;

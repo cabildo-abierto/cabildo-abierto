@@ -27,26 +27,25 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
 import { updateAllWeakReferences } from "../actions/references";
 import { deleteEntity, deleteEntityHistory, makeEntityPublic } from "../actions/admin";
+import { BaseFullscreenPopup } from "./base-fullscreen-popup";
 
 
 const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
-    return <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
-        <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
-            <div className="py-4 text-lg">Necesitás una cuenta para hacer ediciones.</div>
-            <div className="flex justify-center items-center space-x-4 mt-12">
-                <button className="gray-btn" onClick={onClose}>
-                    Seguir leyendo
-                </button>
-                <Link className="gray-btn" href="/">
-                    Crear una cuenta o iniciar sesión
-                </Link>
-            </div>
+    return <BaseFullscreenPopup>
+        <div className="py-4 text-lg">Necesitás una cuenta para hacer ediciones.</div>
+        <div className="flex justify-center items-center space-x-4 mt-12">
+            <button className="gray-btn" onClick={onClose}>
+                Seguir leyendo
+            </button>
+            <Link className="gray-btn" href="/">
+                Crear una cuenta o iniciar sesión
+            </Link>
         </div>
-    </div>
+    </BaseFullscreenPopup>
 }
 
 
-export const editContentClassName = "article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--primary-dark)] disabled:hover:bg-[var(--primary)]"
+export const editContentClassName = "article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--lightwhite)] hover:bg-[var(--primary-dark)] disabled:hover:bg-[var(--primary)]"
 
 
 export const ArticlePage = ({entityId, version, header, userHeaders}: {
@@ -61,7 +60,6 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
-    const [showGoToDiscussion, setShowGoToDiscussion] = useState(true)
 
     useEffect(() => {
         if(entity.entity){
@@ -261,7 +259,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
 
     const lastUpdated = entity.entity.versions[entity.entity.versions.length-1].createdAt
 
-    const center = <div className="bg-[var(--background)] h-full px-2">
+    const center = <div className="h-full px-2">
         {showingNeedAccountPopup && <NeedAccountToEditPopup 
         onClose={() => {setShowingNeedAccountPopup(false)}}/>}
         <div className="flex flex-col">

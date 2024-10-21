@@ -7,7 +7,7 @@ export const BaseFullscreenPopup = ({children, closeButton=false, onClose}: {chi
     return createPortal(<div className="fixed inset-0 z-50 flex justify-center items-center"
     >
         <div className="px-1">
-        <div className="bg-[var(--background)] rounded border-2 border-black text-center max-w-lg z-50">
+        <div className="bg-white rounded border-2 border-black text-center max-w-lg z-50">
             {closeButton && <div className="flex justify-end">
                 <CloseButton onClose={onClose}/>
             </div>}
