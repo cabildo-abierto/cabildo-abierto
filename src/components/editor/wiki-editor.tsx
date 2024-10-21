@@ -155,7 +155,6 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
                 mentions
             )
             
-            console.log("result", result)
             if(result.error) return {error: result.error}
             
             await mutate("/api/entity/"+entity.id)

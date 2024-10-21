@@ -200,11 +200,15 @@ export const updateEntityContent = async (
 
     let {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(prevText, text)
 
-    let contribution = null
-    if(!permission){
-        contribution = currentContent.contribution
-    } else {
-        contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId))
+    let contribution
+    try {
+        if(!permission){
+            contribution = currentContent.contribution
+        } else {
+            contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId))
+        }
+    } catch {
+        return {error: "Ocurrió un error al guardar los cambios."}
     }
 
     let newContent

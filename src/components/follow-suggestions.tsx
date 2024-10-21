@@ -32,7 +32,7 @@ export const FollowSuggestions = () => {
 
     if(suggestions.length == 0) return <></>
 
-    return <>{!wasClosed && <div className="border rounded">
+    return <>{!wasClosed && <div className="border rounded bg-[var(--content)]">
         <div className="px-2 flex justify-between">
             <div className="flex flex-col py-4 px-2">
                 <h4 className="sm:text-xl text-sm text-gray-800">

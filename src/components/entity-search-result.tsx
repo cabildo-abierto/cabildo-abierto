@@ -69,14 +69,14 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
     <div className="relative flex flex-col max-w-[384px] w-full">
       {numWords == 0 && (
         <div className="absolute top-[-9px] right-2 z-10">
-          <span className="text-xs rounded border px-1 text-[var(--text-light)] bg-[var(--background)]">
+          <span className="text-xs rounded border px-1 text-[var(--text-light)] bg-[var(--content2)]">
             ¡Tema sin información! Completalo
           </span>
         </div>
       )}
       <Link
         href={articleUrl(entity.id)}
-        className={"px-2 content-container hover:bg-[var(--secondary-light)] " + (numWords == 0 ? "mt-1" : "")}
+        className={"px-2 content-container hover:bg-[var(--secondary-light)] bg-[var(--content)] " + (numWords == 0 ? "mt-1" : "")}
         onMouseEnter={onMouseEnter}
       >
         <div className="flex w-full items-center">

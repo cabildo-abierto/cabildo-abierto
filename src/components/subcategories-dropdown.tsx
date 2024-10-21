@@ -7,7 +7,7 @@ const SubcategoriesList = ({ nextCategories, route, setRoute }: { nextCategories
         <div key={index}>
             <button
                 onClick={() => setRoute([...route, nextCategory])}
-                className="subcategories-dropdown w-full bg-[var(--background)] py-1 px-2"
+                className="bg-[var(--content)] border rounded hover:bg-[var(--content2)] w-full py-1 px-2"
             >
                 <span className="flex justify-center w-full content text-[var(--primary)]">
                     {nextCategory}

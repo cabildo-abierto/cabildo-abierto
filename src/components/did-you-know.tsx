@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 
 export const DidYouKnow = ({text}: {text: ReactNode}) => {
     return <div className="flex justify-center">
-        <div className="content-container w-72 text-sm text-center p-1 text-[var(--text-light)]">
+        <div className="content-container bg-[var(--content)] rounded w-72 text-sm text-center p-1 text-[var(--text-light)]">
             {text}
         </div>
     </div>

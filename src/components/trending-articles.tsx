@@ -110,7 +110,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
             const score = topicPopularityScore(e)[0]
             return <button
                 onClick={() => {router.push(articleUrl(e.id))}}
-                className="flex-none min-w-28 max-w-48 sm:min-w-48 sm:max-w-64 h-24 border rounded-lg text-center p-1 hover:bg-[var(--secondary-slight)] sm:text-sm text-xs text-[0.72rem] my-2 hover:scale-105 transition duration-300 ease-in-out"
+                className="flex-none min-w-28 max-w-48 sm:min-w-48 sm:max-w-64 h-24 border rounded-lg text-center p-1 hover:bg-[var(--content2)] sm:text-sm text-xs text-[0.72rem] my-2 transition duration-300 ease-in-out bg-[var(--content)]"
                 key={e.id}
                 onMouseEnter={() => {preload("/api/entity/"+e.id, fetcher)}}
             >
