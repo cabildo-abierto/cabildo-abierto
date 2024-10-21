@@ -192,7 +192,7 @@ export const updateEntityContent = async (
     if(processError) return {error: processError}
 
     const {user, error: userError} = await getUserById(userId)
-    if(error) return {error: error}
+    if(userError) return {error: userError}
 
     const permission = hasEditPermission(user, entity.protection)
 

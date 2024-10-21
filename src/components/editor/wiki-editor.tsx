@@ -107,7 +107,6 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const {mutate} = useSWRConfig()
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
-    const [errorOnSubmit, setErrorOnSubmit] = useState(false)
     const [editingSearchkeys, setEditingSearchkeys] = useState(false)
     const {entities} = useRouteEntities([])
     const {users} = useUsers()
@@ -132,41 +131,33 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
     }
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{error?: string}>{
-        if(editor){
-            const result = await editor.read(async () => {
-                setErrorOnSubmit(false)
-                
-                const text = JSON.stringify(editor.getEditorState())
-                const {weakReferences, entityReferences, mentions} = findReferencesInClient(text, entities, users)
+        if(!editor) return {error: "Ocurrió un error con el editor."}
+        if(!entities || !users) return {error: "Ocurrió un error al guardar los cambios. Intentá de nuevo."}
 
-                if(user.user){
-                    const {error} = await updateEntityContent(
-                        entity.id, 
-                        user.user.id,
-                        claimsAuthorship,
-                        editMsg,
-                        compress(text),
-                        weakReferences,
-                        entityReferences,
-                        mentions
-                    )
-                    mutate("/api/entities")
-                    mutate("/api/entity/"+entity.id)
-                    mutate("/api/contributions/"+entity.id)
-                    if(!error){
-                        setShowingSaveEditPopup(false)
-                        setEditing(false)
-                    } else {
-                        setErrorOnSubmit(true)
-                    }
-                } else {
-                    setErrorOnSubmit(true)
-                }
-                return {}
-            })
-            return result
-        }
-        return {error: "Ocurrió un error al guardar los cambios."}
+        return await editor.read(async () => {
+            const text = JSON.stringify(editor.getEditorState())
+
+            const {weakReferences, entityReferences, mentions} = findReferencesInClient(text, entities, users)
+
+            const {error} = await updateEntityContent(
+                entity.id, 
+                user.user.id,
+                claimsAuthorship,
+                editMsg,
+                compress(text),
+                weakReferences,
+                entityReferences,
+                mentions
+            )
+
+            if(error) return {error}
+            
+            await mutate("/api/entity/"+entity.id)
+            mutate("/api/entities")
+            setShowingSaveEditPopup(false)
+            setEditing(false)
+            return {}
+        })
     }
 
     const SaveEditButton = () => {
@@ -209,9 +200,8 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
             editorState={editorState}
             currentVersion={contentText}
             onSave={saveEdit}
-            onClose={() => {setShowingSaveEditPopup(false); setErrorOnSubmit(false)}}
+            onClose={() => {setShowingSaveEditPopup(false)}}
             entity={entity}
-            errorOnSubmit={errorOnSubmit}
         />}
 
         {editingRoutes &&
