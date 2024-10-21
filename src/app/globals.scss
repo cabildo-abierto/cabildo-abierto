@@ -22,12 +22,12 @@ $background: #fbfbfc;
   --secondary: #{$secondary};
   --accent: #{$accent};
   --content: #{$background};//#{lighten($secondary, 25%)};
-  --content2: #{lighten($secondary, 23%)};//#{lighten($secondary, 23%)};
+  --content2: #{lighten($secondary, 20%)};//#{lighten($secondary, 23%)};
   
   --primary-dark: #{darken($primary, 20%)};
 
   --secondary-slight: #{lighten($secondary, 20%)};
-  --secondary-light: #{lighten($secondary, 23%)};
+  --secondary-light: #{lighten($secondary, 20%)};
   --secondary-xlight: #{lighten($secondary, 25%)};
   --secondary-lighter: #{lighten($secondary, 27%)};
 

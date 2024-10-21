@@ -11,7 +11,19 @@ import SwapVertIcon from '@mui/icons-material/SwapVert';
 function popularityScore(content: SmallContentProps){
     const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
     commentators.delete(content.author.id)
-    return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount, 1)]
+
+    const viewWeight = content.type == "FastPost" ? 0.4 : 1
+
+    const daysSinceCreation = (new Date().getTime() - new Date(content.createdAt).getTime()) / (1000*60*60*24)
+
+    return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount * viewWeight, 1)-daysSinceCreation]
+}
+    
+function isPopularEnough(content: SmallContentProps){
+    const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
+    commentators.delete(content.author.id)
+    
+    return content._count.reactions + commentators.size > 0
 }
 
 export type ConfiguredFeedProps = {
@@ -54,13 +66,9 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter, m
         filteredFeed = filteredFeed.slice(0, maxCount)
     }
 
-    let feedWithScore = filteredFeed.map((content) => ({score: popularityScore(content), content: content}))
-    
-    function isPopularEnough(score: number[]){
-        return score[0] > 0
-    }
+    filteredFeed = filteredFeed.filter(isPopularEnough)
 
-    feedWithScore = feedWithScore.filter(({score}) => (isPopularEnough(score)))
+    let feedWithScore = filteredFeed.map((content) => ({score: popularityScore(content), content: content}))
 
     const byPopularityFeed = feedWithScore.sort(listOrderDesc).map(({content}) => (content))
 

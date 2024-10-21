@@ -71,8 +71,9 @@ function selectErrors(state: any){
     return state
 }
 
-export const EmailInput = ({state, label="Email"}) => {
+export const EmailInput = ({state, label="Email"}: {state: any, label?: string}) => {
     state = selectErrors(state)
+    const {pending} = useFormStatus()
 
     const handleEmailInput = (e: any) => {
         const email = e.target;
@@ -95,10 +96,10 @@ export const EmailInput = ({state, label="Email"}) => {
             onInvalid={handleEmailInput}
         />
         {
-            state?.errors?.email
+            state?.errors?.email && !pending
             && <FormErrors errors={state?.errors?.email}/>
         }
-        {   state?.authError == "user_already_exists"
+        {   state?.authError == "user_already_exists" && !pending
             && <FormErrors errors={["Ya existe una cuenta con ese mail."]}/>    
         }
     </div>
@@ -107,6 +108,7 @@ export const EmailInput = ({state, label="Email"}) => {
 export const PasswordInput = ({state, label="Contraseña"}: {state: SignUpFormState, label?: string}) => {
     state = selectErrors(state)
     const [showPassword, setShowPassword] = useState(false);
+    const {pending} = useFormStatus()
 
     return <div>
         <AuthenticationFormLabel text={label} label="password"/>
@@ -128,7 +130,7 @@ export const PasswordInput = ({state, label="Contraseña"}: {state: SignUpFormSt
             </button>
         </div>
         {
-            state?.errors?.password
+            !pending && state?.errors?.password
             && <FormErrors errors={state?.errors?.password}/>
         }
     </div>
@@ -136,6 +138,8 @@ export const PasswordInput = ({state, label="Contraseña"}: {state: SignUpFormSt
 
 const UsernameInput = ({state}) => {
     state = selectErrors(state)
+    const {pending} = useFormStatus()
+
     return <div>
         <div className="flex items-center justify-between">
         <AuthenticationFormLabel text="Nombre de usuario" label="username"/>
@@ -156,7 +160,7 @@ const UsernameInput = ({state}) => {
         />
         </div>
         {
-            state?.errors?.username
+            !pending && state?.errors?.username
             && <FormErrors errors={state?.errors?.username}/>
         }
     </div>
@@ -164,6 +168,8 @@ const UsernameInput = ({state}) => {
 
 const NameInput = ({state}: {state: SignUpFormState}) => {
     state = selectErrors(state)
+    const {pending} = useFormStatus()
+
     return <div>
         <div className="flex items-center justify-between">
             <AuthenticationFormLabel text="Nombre" label="name"/>
@@ -181,7 +187,7 @@ const NameInput = ({state}: {state: SignUpFormState}) => {
             defaultValue=''
         />
         {
-            state?.errors?.name
+            pending && state?.errors?.name
             && <div className="text-sm text-red-500">
                 <FormErrors errors={state?.errors?.name}/>
             </div>
