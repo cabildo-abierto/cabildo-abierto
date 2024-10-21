@@ -143,9 +143,6 @@ export async function getContentByIdNoCache(id: string, userId?: string){
         }
     })
     if(!content) {
-        console.log("Couldn't find content")
-        console.log("contentId", id)
-        console.log("userId", userId)
         return {error: "No se encontró el contenido."}
     }
     if(!content.reactions) content.reactions = []

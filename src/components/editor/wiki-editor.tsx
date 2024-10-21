@@ -135,11 +135,16 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         if(!entities || !users) return {error: "Ocurrió un error al guardar los cambios. Intentá de nuevo."}
 
         return await editor.read(async () => {
-            const text = JSON.stringify(editor.getEditorState())
+            let text
+            try {
+                text = JSON.stringify(editor.getEditorState())
+            } catch {
+                return {error: "Ocurrió un error con el editor."}
+            }
 
             const {weakReferences, entityReferences, mentions} = findReferencesInClient(text, entities, users)
 
-            const {error} = await updateEntityContent(
+            const result = await updateEntityContent(
                 entity.id, 
                 user.user.id,
                 claimsAuthorship,
@@ -149,8 +154,9 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
                 entityReferences,
                 mentions
             )
-
-            if(error) return {error}
+            
+            console.log("result", result)
+            if(result.error) return {error: result.error}
             
             await mutate("/api/entity/"+entity.id)
             mutate("/api/entities")
@@ -196,7 +202,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
             />
             <CancelEditButton/>
         </div>}
-        
+
         {showingSaveEditPopup && <SaveEditPopup
             editorState={editorState}
             currentVersion={contentText}
