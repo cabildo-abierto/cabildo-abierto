@@ -117,7 +117,7 @@ export const Comment = ({
             {snode && <div>
                 <ReadOnlyEditor initialData={initializeQuote}/>
             </div>}
-            <ReadOnlyEditor initialData={decompress(content.compressedText)} editorClassName="content"/>
+            <ReadOnlyEditor initialData={decompress(content.compressedText)} editorClassName={"content" + (content.type == "Comment" ? " comment" : "")}/>
         </div>
         <div className="flex justify-between">
             <button className="reply-btn" onClick={onStartReply}>
