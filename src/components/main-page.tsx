@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { useState, useEffect } from "react"
 import { CreateAccountLink } from "./create-account-link"
 import { MainFeedHeader } from "./main-feed-header"
@@ -27,6 +26,7 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "En discusión")
     const feed = useRouteFeed(route)
     const followingFeed = useRouteFollowingFeed(route)
+
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
     const [filter, setFilter] = useState("Todas")
     const user = useUser()

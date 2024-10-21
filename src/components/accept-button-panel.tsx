@@ -2,14 +2,14 @@ import { ReactNode } from "react";
 import { BaseFullscreenPopup } from "./base-fullscreen-popup";
 
 
-export const AcceptButtonPanel = ({text, onClose}: {text: ReactNode, onClose: () => void}) => {
+export const AcceptButtonPanel = ({text, buttonText="Aceptar", onClose}: {text: ReactNode, buttonText: string, onClose: () => void}) => {
     return <BaseFullscreenPopup>
         <div className="p-8">
             {text}
 
             <div className="flex justify-center mt-8">
                 <button className="gray-btn" onClick={onClose}>
-                    Aceptar
+                    {buttonText}
                 </button>
             </div>
         </div>

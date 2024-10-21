@@ -10,12 +10,15 @@ import { follow, updateClosedFollowSuggestions } from "../actions/users";
 import StateButton from "./state-button";
 import Link from "next/link";
 import InfoPanel from "./info-panel";
+import ShareIcon from '@mui/icons-material/Share';
+import { SharePopup } from "./share-popup";
 
 
 export const FollowSuggestions = () => {
     let {suggestions, isError} = useUserFollowSuggestions()
     const {user} = useUser()
     const [wasClosed, setWasClosed] = useState(false)
+    const [openSharePopup, setOpenSharePopup] = useState(false)
 
     if(!suggestions || !user || isError) return <></>
 
@@ -52,6 +55,16 @@ export const FollowSuggestions = () => {
         <div className="px-4 mb-2">
             <SuggestionsSlider suggestions={suggestions} closePanel={onClose}/>
         </div>
+        <div className="flex justify-end px-2 mb-2">
+            <button
+                className="rounded px-2 bg-[var(--primary)] hover:bg-[var(--primary-dark)]  text-[var(--lightwhite)] text-xs sm:text-sm flex items-center space-x-2"
+                onClick={() => {setOpenSharePopup(true)}}
+            >
+                <div>O compartí la página con alguien que conozcas</div>
+                <div className="text-sm sm:text-base mb-1"><ShareIcon fontSize="inherit"/></div> 
+            </button>
+        </div>
+        {openSharePopup && <SharePopup onClose={() => {setOpenSharePopup(false)}}/>}
     </div>}</>
 }
 
