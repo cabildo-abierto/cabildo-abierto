@@ -602,7 +602,7 @@ export const getEntities = async (): Promise<{entities?: SmallEntityProps[], err
 }
 
 
-export async function getEntityByIdNoCache(id: string){
+export async function getEntityByIdNoCache(id: string): Promise<{entity?: EntityProps, error?: string}>{
     let entity: EntityProps | null
     entity = await db.entity.findUnique(
         {select: {
