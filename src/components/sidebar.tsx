@@ -62,7 +62,7 @@ const SidebarUsername = ({user, onLogout}: {user: UserProps, onLogout: () => Pro
 const SidebarUsernameNoUser = () => {
     return <div className="flex flex-col items-center">
         <Link href="/" className="mx-1 py-2">
-        <button className="bg-[var(--primary)] px-2 py-1 hover:bg-[var(--primary-dark)] rounded text-[var(--background)]">
+        <button className="bg-[var(--primary)] px-2 py-1 hover:bg-[var(--primary-dark)] rounded text-[var(--background)] text-sm sm:text-base">
             Crear cuenta o iniciar sesión
         </button>
         </Link>

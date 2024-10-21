@@ -65,7 +65,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
     
     return <div className="flex items-center w-screen justify-between">
         <div className="flex items-center sm:w-72 text-gray-900">
-            {((!searchBarOpen) || wideScreen) && <TopbarLogo/>}
+            {((!searchBarOpen && user.user) || wideScreen) && <TopbarLogo/>}
             {(!searchBarOpen || wideScreen) && <OpenSidebarButton onClick={onOpenSidebar}/>}
             {(!searchBarOpen || wideScreen) && <FeedButton />}
             {((!searchBarOpen && user.user) || wideScreen) && <WriteButton />}
@@ -85,7 +85,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
         {(user.isLoading || user.user) && 
             <div className="sm:w-72 sm:block hidden"></div>
         }
-        {(!user.isLoading && !user.user) &&
+        {(!user.isLoading && !user.user && (wideScreen || !searchBarOpen)) &&
             <Link href="/" className="sm:w-72 flex justify-end">
                 <button className="mr-2 bg-[var(--primary)] px-2 py-1 hover:bg-[var(--primary-dark)] rounded text-[var(--background)] text-xs lg:text-base">
                     Crear cuenta o iniciar sesión
