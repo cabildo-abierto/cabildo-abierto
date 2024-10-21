@@ -72,7 +72,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
             {!searchBarOpen && <SearchButton onClick={() => {
                 setSearchBarOpen(true)
             }} />}
-            {((!searchBarOpen && user.user) || wideScreen) && <NotificationsButton/>}
+            {(user.user && (!searchBarOpen || wideScreen)) && <NotificationsButton/>}
         </div>
 
         {searchBarOpen && searchBarAvailable && <div className="mx-2">
