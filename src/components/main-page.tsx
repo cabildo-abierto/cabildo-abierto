@@ -99,7 +99,7 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                 setFilter={setFilter}
                 noResultsText={noResultsTextFollowing}
             /></div> : <div className="flex justify-center mt-8"><CreateAccountLink
-                text="Creá una cuenta o iniciá sesión para tener tu muro personal"
+                text="Creá una cuenta o iniciá sesión para tener tu muro personal."
             /></div>)}
         </div>
     </div>
