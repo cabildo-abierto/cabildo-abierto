@@ -22,6 +22,7 @@ import { fetcher } from "../../app/hooks/utils"
 import { SearchkeysEditor } from "../searchkeys-editor"
 import { useRouteEntities } from "../../app/hooks/contents"
 import { findMentions } from "../../actions/contents"
+import { editContentClassName } from "../article-page"
 
 
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
@@ -170,7 +171,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
 
     const SaveEditButton = () => {
         return <button
-            className={articleButtonClassname}
+            className={editContentClassName}
             onClick={(e) => {setShowingSaveEditPopup(true)}}
             disabled={!editorState || !hasChanged(editorState, contentText)}
         >
@@ -189,6 +190,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
 
     return <>
         {!readOnly && <div className="flex flex-wrap items-center space-x-2 border-b">
+            <SaveEditButton/>
             <ToggleButton
                 className={articleButtonClassname}
                 toggled={editingRoutes}
@@ -202,7 +204,6 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
                 text="Editar sinónimos"
             />
             <CancelEditButton/>
-            <SaveEditButton/>
         </div>}
         {showingSaveEditPopup && <SaveEditPopup
             editorState={editorState}

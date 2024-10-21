@@ -46,9 +46,7 @@ const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: {
 
     let entitiesWithScore = filteredEntities.map((entity) => ({ entity: entity, score: scoreFunc(entity) }));
 
-
-    entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
-    console.log("withScore", entitiesWithScore)
+    entitiesWithScore = entitiesWithScore.sort(listOrderDesc)
     
     function generator(index: number){
         const entity = entitiesWithScore[index]?.entity;
