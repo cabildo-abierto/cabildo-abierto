@@ -803,6 +803,7 @@ export async function sendMessage(message: string, userFrom: string, userTo: str
     revalidateTag("conversations:"+userFrom)
     revalidateTag("conversations:"+userTo)
     revalidateTag("not-responded-count")
+    return {}
 }
 
 

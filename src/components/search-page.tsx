@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useSearch } from "./search-context";
 import { SearchContent } from "./search-content";
 import { ThreeColumnsLayout } from "./three-columns";
@@ -11,30 +11,18 @@ export const SearchPage = ({ children }: { children: ReactNode }) => {
     const { searchValue } = useSearch();
     const path = usePathname();
     const [route, setRoute] = useState([]);
-
+    
     const showSearch = searchValue.length > 0 && !path.includes("/temas");
 
     return (
         <>
             {/* Always render the children to maintain their state */}
-            <div className="">
+            <div>
                 {children}
             </div>
 
-            {/* Conditionally render the search page with a lower z-index than the sidebar or modals */}
             {showSearch && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: '3rem',
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'var(--background)', // Optional background
-                        zIndex: 19, // Ensure this is lower than sidebar/modals
-                        overflowY: 'auto',
-                    }}
-                >
+                <div className="fixed top-[3rem] left-0 bg-[var(--background)] z-50 w-screen">
                     <ThreeColumnsLayout
                         center={
                             <SearchContent
