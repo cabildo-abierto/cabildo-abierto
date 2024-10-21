@@ -14,9 +14,9 @@ function popularityScore(content: SmallContentProps){
 
     const viewWeight = content.type == "FastPost" ? 0.4 : 1
 
-    const daysSinceCreation = (new Date().getTime() - new Date(content.createdAt).getTime()) / (1000*60*60*24)
+    //const daysSinceCreation = (new Date().getTime() - new Date(content.createdAt).getTime()) / (1000*60*60*24)
 
-    return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount * viewWeight, 1)-daysSinceCreation]
+    return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount * viewWeight, 1)]
 }
     
 function isPopularEnough(content: SmallContentProps){
