@@ -480,17 +480,12 @@ export async function findMentions(text: string){
 
 
 export async function updateContent(compressedText: string, contentId: string, userId: string, title?: string) {
-    console.log("updating content")
     const text = decompress(compressedText)
     const {error: processError, entityReferences, weakReferences, mentions, ...processed} = await processNewText(text)
     if(processError) return {error: processError}
 
-    console.log("Processing done")
-
     const {content, error: getContentError} = await getContentById(contentId)
     if(getContentError) return {error: getContentError}
-
-    console.log("content obtained")
 
     try {
         await db.content.update({
@@ -518,15 +513,12 @@ export async function updateContent(compressedText: string, contentId: string, u
     }
 
     if(!content.isDraft){
-        console.log("notifying mentinos")
         const {error} = await notifyMentions(mentions, contentId, userId, true)
         if(error) return {error: error}
 
-        console.log("done")
         revalidateReferences(entityReferences, weakReferences)
     }
 
-    console.log("returing", {}, contentId)
     revalidateTag("content:"+contentId)
     return {}
 }

@@ -26,13 +26,12 @@ const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: strin
 
 
 export const SaveEditPopup = ({ 
-    editorState, currentVersion, onClose, onSave, entity, errorOnSubmit }: {
+    editorState, currentVersion, onClose, onSave, entity }: {
         editorState: EditorState,
         currentVersion: string
         onClose: () => void
         onSave: (v: boolean, editMsg: string) => Promise<{error?: string}>,
         entity: EntityProps
-        errorOnSubmit: boolean
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useUser()
@@ -73,7 +72,7 @@ export const SaveEditPopup = ({
                     {diff !== "too big" && diff != undefined && <div className="mb-8">
                         Estás agregando <span className="text-green-600">{diff.charsAdded}</span> caracteres y eliminando <span className="text-red-600">{diff.charsDeleted}</span> caracteres.
                     </div>}
-                    {diff === "too big" && <div className="text-red-600 text-xs mb-8  sm:text-sm">Ups... Parece que hay demasiadas diferencias entre las dos versiones. Probá eliminar primero el contenido y después agregar el contenido nuevo.</div>
+                    {diff === "too big" && <div className="text-red-600 text-xs mb-8  sm:text-sm">Parece que hay demasiadas diferencias entre las dos versiones. Probá eliminar primero el contenido y después agregar el contenido nuevo.</div>
                     }
 
                     <div className="flex justify-center mb-8">
@@ -106,7 +105,6 @@ export const SaveEditPopup = ({
                             disabled={diff === "too big"}
                         />
                     </div>
-                    {errorOnSubmit && <div className="text-center text-red-600 text-sm">Ocurrió un error al guardar los cambios. Intentá nuevamente.</div>}
                 </div>
             </div>
         </>
