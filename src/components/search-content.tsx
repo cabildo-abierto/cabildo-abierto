@@ -43,89 +43,85 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
     const buttonClassName = "sm:text-xl text-base my-4 text-gray-900 rounded-lg bg-[var(--secondary-light)] px-4 py-2 hover:border-[var(--accent)] border border-[var(--secondary-light)]"
 
     return <div className="w-full h-screen overflow-y-scroll px-2">
-        
         <div className="pt-1">
-
             <div className="mt-7 mb-12">
-
-            <div className="flex justify-center mb-4 space-x-2 text-sm sm:text-base">
-                {<button
-                    onClick={() => {setSelected("Publicaciones")}}
-                    className={"rounded-lg px-2 border hover:bg-[var(--secondary-light)] " + (selected == "Publicaciones" ? "bg-[var(--secondary-light)]" : "")}>
-                        Publicaciones y comentarios
-                </button>}
-                {<button
-                    onClick={() => {setSelected("Temas")}}
-                    className={"rounded-lg px-2 border hover:bg-[var(--secondary-light)] " + (selected == "Temas" ? "bg-[var(--secondary-light)]" : "")}>Temas
-                </button>}
-                {<button
-                    onClick={() => {setSelected("Usuarios")}}
-                    className={"rounded-lg px-2 border hover:bg-[var(--secondary-light)] " + (selected == "Usuarios" ? "bg-[var(--secondary-light)]" : "")}>Usuarios
-                </button>}
-
-            </div>
-
-            {selected == "Temas" && 
-                <CategoryArticles route={route} onSearchPage={true}/>
-            }
-
-            {selected == "Publicaciones" &&
-                <ConfiguredFeed
-                    feed={contents}
-                    order="Recientes"
-                    filter={filter}
-                    setFilter={setFilter}
-                />
-            }
-
-            {selected == "Usuarios" && <CategoryUsers route={route}/>}
-            </div>
-
-            {selected == "Ninguno" && 
-                <div className="flex flex-col items-center w-full">
-                    <div className="w-full pb-4 flex flex-col items-center" >
-                        <button 
-                            className={buttonClassName}
-                            onClick={() => {setSelected("Usuarios")}}
-                        >
-                            Usuarios
-                        </button>
-                        <CategoryUsers route={route} maxCount={3}/>
-                    </div>
-                    <div className="px-4 w-full">
-                        <hr className="border-1 border-[var(--accent)] w-full"/>
-                    </div>
-                    <div className="w-full pb-4 flex flex-col items-center">
-                        <button 
-                            className={buttonClassName}
-                            onClick={() => {setSelected("Temas")}}
-                        >
-                            Temas
-                        </button>
-                        <CategoryArticles route={route} onSearchPage={true} maxCount={3}/>
-                    </div>
-                    <div className="px-4 w-full">
-                        <hr className="border-1 border-[var(--accent)] w-full"/>
-                    </div>
-                    <div className="w-full pb-4  flex flex-col items-center">
-                        <button 
-                            className={buttonClassName}
-                            onClick={() => {setSelected("Publicaciones")}}
-                        >
+                <div className="flex justify-center mb-4 space-x-2 text-xs sm:text-sm">
+                    {<button
+                        onClick={() => {if(selected != "Publicaciones") setSelected("Publicaciones"); else setSelected("Ninguno")}}
+                        className={"rounded-lg px-2 border hover:bg-[var(--secondary-light)] py-1 " + (selected == "Publicaciones" ? "bg-[var(--secondary-light)]" : "")}>
                             Publicaciones y comentarios
-                        </button>
-                        <ConfiguredFeed
-                            feed={contents}
-                            order="Recientes"
-                            filter={filter}
-                            setFilter={setFilter}
-                            maxCount={3}
-                            noResultsText="No se encontró ninguna publicación o comentario"
-                        />
-                    </div>
+                    </button>}
+                    {<button
+                        onClick={() => {if(selected != "Temas") setSelected("Temas"); else setSelected("Ninguno")}}
+                        className={"rounded-lg px-2 border hover:bg-[var(--secondary-light)] py-1 " + (selected == "Temas" ? "bg-[var(--secondary-light)]" : "")}>Temas
+                    </button>}
+                    {<button
+                        onClick={() => {if(selected != "Usuarios") setSelected("Usuarios"); else setSelected("Ninguno")}}
+                        className={"rounded-lg px-2 border hover:bg-[var(--secondary-light)] py-1 " + (selected == "Usuarios" ? "bg-[var(--secondary-light)]" : "")}>Usuarios
+                    </button>}
+
                 </div>
-            
-            }
+
+                {selected == "Temas" && 
+                    <CategoryArticles route={route} onSearchPage={true}/>
+                }
+
+                {selected == "Publicaciones" &&
+                    <ConfiguredFeed
+                        feed={contents}
+                        order="Recientes"
+                        filter={filter}
+                        setFilter={setFilter}
+                    />
+                }
+
+                {selected == "Usuarios" && <CategoryUsers route={route}/>}
+                </div>
+
+                {selected == "Ninguno" && 
+                    <div className="flex flex-col items-center w-full mb-12">
+                        <div className="w-full pb-4 flex flex-col items-center">
+                            <button 
+                                className={buttonClassName}
+                                onClick={() => {setSelected("Usuarios")}}
+                            >
+                                Usuarios
+                            </button>
+                            <CategoryUsers route={route} maxCount={3}/>
+                        </div>
+                        <div className="px-4 w-full">
+                            <hr className="border-1 border-[var(--accent)] w-full"/>
+                        </div>
+                        <div className="w-full pb-4 flex flex-col items-center">
+                            <button 
+                                className={buttonClassName}
+                                onClick={() => {setSelected("Temas")}}
+                            >
+                                Temas
+                            </button>
+                            <CategoryArticles route={route} onSearchPage={true} maxCount={3}/>
+                        </div>
+                        <div className="px-4 w-full">
+                            <hr className="border-1 border-[var(--accent)] w-full"/>
+                        </div>
+                        <div className="w-full pb-4  flex flex-col items-center">
+                            <button 
+                                className={buttonClassName}
+                                onClick={() => {setSelected("Publicaciones")}}
+                            >
+                                Publicaciones y comentarios
+                            </button>
+                            <ConfiguredFeed
+                                feed={contents}
+                                order="Recientes"
+                                filter={filter}
+                                setFilter={setFilter}
+                                maxCount={3}
+                                noResultsText="No se encontró ninguna publicación o comentario"
+                            />
+                        </div>
+                    </div>
+                }
 
         </div>
     </div>
