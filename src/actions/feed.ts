@@ -93,6 +93,7 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
         if(!user) return []
         
         const following = [...user.following.map(({id}: {id: string}) => (id)), "soporte", user.id]
+        
         let feed: any[] = await db.content.findMany({
             select: {
                 id: true,

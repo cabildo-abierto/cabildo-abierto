@@ -417,7 +417,7 @@ export async function createPost(
     
         revalidateTag("repliesFeed:"+userId)
         revalidateTag("content:"+parentContentId)
-        revalidateTag("routeFeed")
+        revalidateTag("feed")
         revalidateTag("routeFollowingFeed")
         revalidateTag("profileFeed:"+userId)
         if(type == "Post")
@@ -541,7 +541,7 @@ export async function publishDraft(compressedText: string, contentId: string, us
 
     revalidateTag("content:"+contentId)
     revalidateTag("feed")
-    revalidateTag("followingFeed")
+    revalidateTag("routeFollowingFeed")
     revalidateTag("profileFeed:"+userId)
     return {}
 }

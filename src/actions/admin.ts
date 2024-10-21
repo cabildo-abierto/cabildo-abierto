@@ -160,7 +160,7 @@ export async function revalidateUsers(){
 }
 
 export async function revalidateFeed(){
-    revalidateTag("routeFeed")
+    revalidateTag("feed")
     revalidateTag("routeFollowingFeed")
     revalidateTag("repliesFeed")
     revalidateTag("editsFeed")
