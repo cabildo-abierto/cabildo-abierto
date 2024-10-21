@@ -30,7 +30,7 @@ export async function extendContentStallPaymentDate(contentId: string){
             }
         })
     } catch {
-        return {error: "error on stall date update"}
+        return {error: "Error al extender la fecha."}
     }
 
     revalidateTag("content:"+contentId)

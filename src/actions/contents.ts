@@ -14,147 +14,139 @@ import { getReferencesSearchKeys } from "./references";
 
 
 export async function getContentByIdNoCache(id: string, userId?: string){
-    let content: ContentProps
-    try {
-        content = await db.content.findUnique({
-            select: {
-                id: true,
-                type: true,
-                compressedText: true,
-                title: true,
-                author: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
+    let content: ContentProps = await db.content.findUnique({
+        select: {
+            id: true,
+            type: true,
+            compressedText: true,
+            title: true,
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
+            createdAt: true,
+            _count: {
+                select: {
+                    reactions: true,
+                    childrenTree: true
+                }
+            },
+            rootContentId: true,
+            fakeReportsCount: true,
+            uniqueViewsCount: true,
+            reactions: userId ? {
+                select: {
+                    id: true
                 },
-                createdAt: true,
-                _count: {
-                    select: {
-                        reactions: true,
-                        childrenTree: true
-                    }
+                where: {
+                    userById: userId
+                }
+            } : false,
+            views: userId ? {
+                select: {
+                    id: true
                 },
-                rootContentId: true,
-                fakeReportsCount: true,
-                uniqueViewsCount: true,
-                reactions: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                views: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                parentContents: {
-                    select: {id: true}
-                },
-                entityReferences: {
-                    select: {
-                        id: true,
-                        versions: {
-                            select: {
-                                id: true,
-                                categories: true
-                            },
-                            orderBy: {
-                                createdAt: "asc"
-                            }
+                where: {
+                    userById: userId
+                }
+            } : false,
+            parentContents: {
+                select: {id: true}
+            },
+            entityReferences: {
+                select: {
+                    id: true,
+                    versions: {
+                        select: {
+                            id: true,
+                            categories: true
+                        },
+                        orderBy: {
+                            createdAt: "asc"
                         }
-                    }
-                },
-                parentEntityId: true, // TO DO: Eliminar
-                parentEntity: {
-                    select: {
-                        id: true,
-                        isPublic: true,
-                        currentVersion: {
-                            select: {
-                                searchkeys: true
-                            }
-                        }
-                    }
-                },
-                accCharsAdded: true,
-                contribution: true,
-                charsAdded: true,
-                charsDeleted: true,
-                diff: true,
-                currentVersionOf: {
-                    select: {
-                        id: true
-                    }
-                },
-                categories: true,
-                stallPaymentUntil: true,
-                undos: {
-                    select: {
-                        id: true,
-                        reportsOportunism: true,
-                        reportsVandalism: true,
-                        authorId: true,
-                        createdAt: true,
-                        compressedText: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                contentUndoneId: true,
-                reportsOportunism: true,
-                reportsVandalism: true,
-                ancestorContent: {
-                    select: {
-                        id: true,
-                        authorId: true
-                    }
-                },
-                childrenContents: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true,
-                        _count: {
-                            select: {
-                                childrenTree: true
-                            }
-                        }
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                isContentEdited: true,
-                isDraft: true,
-                usersMentioned: {
-                    select: {
-                        id: true
                     }
                 }
             },
-            where: {
-                id: id,
+            parentEntityId: true, // TO DO: Eliminar
+            parentEntity: {
+                select: {
+                    id: true,
+                    isPublic: true,
+                    currentVersion: {
+                        select: {
+                            searchkeys: true
+                        }
+                    }
+                }
+            },
+            accCharsAdded: true,
+            contribution: true,
+            charsAdded: true,
+            charsDeleted: true,
+            diff: true,
+            currentVersionOf: {
+                select: {
+                    id: true
+                }
+            },
+            categories: true,
+            stallPaymentUntil: true,
+            undos: {
+                select: {
+                    id: true,
+                    reportsOportunism: true,
+                    reportsVandalism: true,
+                    authorId: true,
+                    createdAt: true,
+                    compressedText: true
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            },
+            contentUndoneId: true,
+            reportsOportunism: true,
+            reportsVandalism: true,
+            ancestorContent: {
+                select: {
+                    id: true,
+                    authorId: true
+                }
+            },
+            childrenContents: {
+                select: {
+                    id: true,
+                    createdAt: true,
+                    type: true,
+                    _count: {
+                        select: {
+                            childrenTree: true
+                        }
+                    }
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            },
+            isContentEdited: true,
+            isDraft: true,
+            usersMentioned: {
+                select: {
+                    id: true
+                }
             }
-        })
-    } catch (error) {
-        console.log("Error", error)
-        console.log("contentId", id)
-        console.log("userId", userId)
-        return {error: "error on get content"}
-    }
+        },
+        where: {
+            id: id,
+        }
+    })
     if(!content) {
         console.log("Couldn't find content")
         console.log("contentId", id)
         console.log("userId", userId)
-        return {error: "error on get content"}
+        return {error: "No se encontró el contenido."}
     }
     if(!content.reactions) content.reactions = []
     if(!content.views) content.views = []
@@ -171,7 +163,7 @@ export async function getContentById(id: string, userId?: string, useCache: bool
         return await getContentByIdNoCache(id, userId)
     }, ["content", id, userId], {
         tags: ["content", "content:"+id+":"+userId, "content:"+id],
-        revalidate: revalidateEverythingTime,
+        revalidate: 5,
     })()
 }
 
@@ -196,7 +188,7 @@ export async function notifyMentions(mentions: {id: string}[], contentId: string
             data: data
         })
     } catch {
-        return {error: "error on notify mentions"}
+        return {error: "Error al notificar las menciones."}
     }
 
     for(let i = 0; i < mentions.length; i++){
@@ -293,7 +285,7 @@ export async function notifyAncestors(commentId: string, commentAncestorsData: C
                 undefined
             )
         } catch {
-            return {error: "error on notify ancestor"}
+            return {error: "Error al notificar a otros usuarios."}
         }
     }
     if(parentContent.author.id != userId){
@@ -306,7 +298,7 @@ export async function notifyAncestors(commentId: string, commentAncestorsData: C
             undefined
         )
         } catch {
-            return {error: "error on notify parent"}
+            return {error: "Error al notificar al autor del contenido comentado."}
         }
     }
 
@@ -355,7 +347,7 @@ export async function incrementFakeNewsCounter(contentId: string){
             }
         })
     } catch {
-        return {error: "error on increment fake news"}
+        return {error: "Error al agregar el reporte."}
     }
     revalidateTag("content:"+contentId)
     return {}
@@ -378,12 +370,8 @@ export async function createPost(
     const processed = await processNewText(text)
     if(processed.error) return {error: processed.error}
 
-    console.log("processing done")
-
     const {error, parentContent, ...commentData} = await getCommentAncestorsData(parentContentId)
     if(error) return {error}
-
-    console.log("got comment data", commentData)
 
     let result
     try {
@@ -414,7 +402,7 @@ export async function createPost(
     } catch (error) {
         console.log("Error:", error)
         console.log("userId", userId)
-        return {error: "Ocurrió un error al crear el contenido"}
+        return {error: "Error al crear el contenido."}
     }
     
     if(!isDraft){
@@ -432,7 +420,6 @@ export async function createPost(
     
         revalidateTag("repliesFeed:"+userId)
         revalidateTag("content:"+parentContentId)
-        console.log("revalidated tag", parentContentId)
         revalidateTag("routeFeed")
         revalidateTag("routeFollowingFeed")
         revalidateTag("profileFeed:"+userId)
@@ -468,7 +455,7 @@ export async function createNotification(
             }
         })
     } catch {
-        return {error: "error on create notification"}
+        return {error: "Error al notificar."}
     }
 
     revalidateTag("notifications:"+userNotifiedId)
@@ -527,8 +514,7 @@ export async function updateContent(compressedText: string, contentId: string, u
             }
         })
     } catch {
-        console.log("error on update")
-        return {error: "error on update content"}
+        return {error: "Error al actualizar el contenido."}
     }
 
     if(!content.isDraft){
@@ -561,7 +547,7 @@ export async function publishDraft(compressedText: string, contentId: string, us
             }
         })
     } catch {
-        return {error: "error on publish draft"}
+        return {error: "Error al publicar el borrador."}
     }
 
     revalidateTag("content:"+contentId)
@@ -597,7 +583,7 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
                 })
             }
         } catch {
-            return {error: "error on create reaction"}
+            return {error: "Error al agregar el voto hacia arriba."}
         }
 
         revalidateTag("content:"+id)
@@ -628,7 +614,7 @@ export const removeLike = async (id: string, userId: string, entityId?: string) 
             }
         })
     } catch {
-        return {error: "error on remove like"}
+        return {error: "Error al remover el voto hacia arriba."}
     }
 
     revalidateTag("content:"+id)
@@ -665,7 +651,7 @@ export const addView = async (id: string, userId: string) => {
             }
         })
     } catch {
-        return {error: "error on check exists view"}
+        return {error: "Ocurrió un error."}
     }
 
     function olderThan(seconds: number){
@@ -684,7 +670,7 @@ export const addView = async (id: string, userId: string) => {
                 },
             })
         } catch {
-            return {error: "error on create view"}
+            return {error: "Ocurrió un error"}
         }
     }
 
@@ -701,7 +687,7 @@ export const addView = async (id: string, userId: string) => {
                 }
             })
         } catch {
-            return {error: "error on update content unique views count"}
+            return {error: "Ocurrió un error."}
         }
     }
     
@@ -726,47 +712,41 @@ export async function recordBatchViews(views){
 
 
 export async function getLastKNotificationsNoCache(k: number, userId: string){
-
-    let notifications
-    try {
-        await db.notification.findMany({
-            select: {
-                id: true,
-                viewed: true,
-                content: {
-                    select: {
-                        id: true,
-                        parentContents: {
-                            select: {
-                                id: true,
-                                authorId: true,
-                                type: true,
-                                contribution: true,
-                                parentEntityId: true
-                            }
-                        },
-                        authorId: true,
-                        type: true,
-                        contribution: true,
-                        parentEntityId: true
-                    }
-                },
-                reactionId: true,
-                userById: true,
-                userNotifiedId: true,
-                type: true,
-                createdAt: true
+    const notifications = await db.notification.findMany({
+        select: {
+            id: true,
+            viewed: true,
+            content: {
+                select: {
+                    id: true,
+                    parentContents: {
+                        select: {
+                            id: true,
+                            authorId: true,
+                            type: true,
+                            contribution: true,
+                            parentEntityId: true
+                        }
+                    },
+                    authorId: true,
+                    type: true,
+                    contribution: true,
+                    parentEntityId: true
+                }
             },
-            where: {
-                userNotifiedId: userId
-            },
-            orderBy: {
-                createdAt: "desc"
-            }
-        })
-    } catch {
-        return {error: "error on get notifications"}
-    }
+            reactionId: true,
+            userById: true,
+            userNotifiedId: true,
+            type: true,
+            createdAt: true
+        },
+        where: {
+            userNotifiedId: userId
+        },
+        orderBy: {
+            createdAt: "desc"
+        }
+    })
     let lastUnseen = 0
     for(let i = 0; i < notifications.length; i++){
         if(!notifications[i].viewed) lastUnseen = i
@@ -777,7 +757,7 @@ export async function getLastKNotificationsNoCache(k: number, userId: string){
 
 export async function getLastKNotifications(k: number){
     const userId = await getUserId()
-    if(!userId) return {error: "error not logged in"}
+    if(!userId) return {error: "No se encontró un usuario."}
 
     return await unstable_cache(async () => {
         return await getLastKNotificationsNoCache(k, userId)
@@ -803,7 +783,7 @@ export async function markNotificationViewed(id: string){
             }
         })
     } catch {
-        return {error: "error on update notification viewed"}
+        return {error: "Ocurrió un error."}
     }
     revalidateTag("notifications:"+notification.userNotifiedId)
     revalidateTag("user:"+notification.userNotifiedId)

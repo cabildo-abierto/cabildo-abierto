@@ -24,19 +24,19 @@ const StateButton: React.FC<StateButtonProps> = ({
     disabled=false
 }) => {
     const [submitting, setSubmitting] = useState(false)
-    const [error, setError] = useState<string>()
-
+    const [error, setError] = useState<string | undefined>()
 
     const clickHandle = async (e) => {
         e.stopPropagation()
         e.preventDefault()
         setSubmitting(true)
+        setError(undefined)
         const {stopResubmit, error: clickError} = await handleClick(e)
         if(stopResubmit == undefined || !stopResubmit || clickError){
             setSubmitting(false) // allow resubmit
         }
         if(clickError){
-            setError(error)
+            setError(clickError)
         }
     }
 
@@ -46,9 +46,12 @@ const StateButton: React.FC<StateButtonProps> = ({
             onClick={clickHandle}
             disabled={submitting || disabled}
         >
-            <div className={textClassName}>{!submitting ? text1 : (text2 !== null ? text2 : text1)}</div>
+            <div className={textClassName}>
+                {!submitting ? text1 : (text2 !== null ? text2 : text1)}
+            </div>
         </button>
-        {error && <AcceptButtonPanel
+        {error != undefined && <ErrorMsg text={error}/>}
+        {error != undefined && <AcceptButtonPanel
             text={error}
             onClose={() => {setError(undefined)}}
         />}
