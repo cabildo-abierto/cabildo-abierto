@@ -46,7 +46,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
         
         <div className="pt-1">
 
-            <div className="mt-7">
+            <div className="mt-7 mb-12">
 
             <div className="flex justify-center mb-4 space-x-2 text-sm sm:text-base">
                 {<button
@@ -82,7 +82,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
             </div>
 
             {selected == "Ninguno" && 
-                <div className="flex flex-col items-center w-full mb-12">
+                <div className="flex flex-col items-center w-full">
                     <div className="w-full pb-4 flex flex-col items-center" >
                         <button 
                             className={buttonClassName}

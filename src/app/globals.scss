@@ -131,6 +131,11 @@ h4 {
 	margin-top: 10px;
 }
 
+.content:comment p, ul, li {
+	margin-top: 0px;
+	margin-bottom: 10px;
+}
+
 .content li {
 	margin-left: 32px;
 }
