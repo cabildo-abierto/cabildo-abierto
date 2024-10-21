@@ -32,17 +32,18 @@ export async function POST(req) {
     const amount = paymentDetails.metadata.amount
 
     const userId = paymentDetails.metadata.user_id
-    const user = await getUserById(userId)
+    const {user, error} = await getUserById(userId)
+
     const valid = validSubscription(user)
     const price = paymentDetails.transaction_amount / amount
 
-
     if(amount > 1){
-      await donateSubscriptions(valid ? amount : amount-1, userId, paymentId, price)
+        const {error} = await donateSubscriptions(valid ? amount : amount-1, userId, paymentId, price)
     }
     if(!valid){
-      await buyAndUseSubscription(userId, price, paymentId)
+        const {error} = await buyAndUseSubscription(userId, price, paymentId)
     }
 
+    // TO DO: Ver qué hacer en caso de error
     return NextResponse.json({ status: 200 });
 }

@@ -145,72 +145,89 @@ export function CommentInputBox({
   }, [updateLocation]);
 
   const submitComment = async () => {
-    if (!emptyOutput(editor.getEditorState())) {
-        let quote = editor.getEditorState().read(() => {
-            const selection = selectionRef.current;
-            return selection ? selection.getTextContent() : '';
-        });
-        if (quote.length > 100) {
-            quote = quote.slice(0, 99) + '…';
-        }
+      if (!emptyOutput(editor.getEditorState())) {
+          let quote = editor.getEditorState().read(() => {
+              const selection = selectionRef.current;
+              return selection ? selection.getTextContent() : '';
+          });
+          if (quote.length > 100) {
+              quote = quote.slice(0, 99) + '…';
+          }
 
-        if(commentEditor) await commentEditor.read(async () => {
-            if(!user.user) return
-            const comment = await createCommentDB(
-              compress(JSON.stringify(commentEditor.getEditorState())), parentContent.id,
-              user.user.id)
-
-            if(comment){
-                setComments([...comments, comment])
-                editor.update(async () => {
-                    if ($isRangeSelection(selectionRef.current)) {
-                        const isBackward = selectionRef.current.isBackward();
-                        const id = comment.id;
-            
-                        $wrapSelectionInMarkNode(selectionRef.current, isBackward, id);
-                    }
-                })
-                mutate("/api/content/"+comment.id)
-                mutate("/api/replies-feed/"+user.user.id)
-            }
-        })
-        
-        if(editor){
-            editor.getEditorState().read(async () => {
-                const result = await updateContent(compress(JSON.stringify(editor.getEditorState())), parentContent.id)
-            })
-        }
-        submitAddComment()
-        selectionRef.current = null;
-    }
-    return true
+          if(commentEditor) {
+              const {error} = await commentEditor.read(async () => {
+                  if(!user.user) return {error: "Necesitás un usuario."}
+                  const comment = await createCommentDB(
+                      compress(JSON.stringify(commentEditor.getEditorState())),
+                      user.user.id,
+                      parentContent.id,
+                  )
+                  if(!comment.error){
+                      setComments([...comments, comment as CommentProps])
+                      editor.update(async () => {
+                          if ($isRangeSelection(selectionRef.current)) {
+                              const isBackward = selectionRef.current.isBackward();
+                              const id = comment.id;
+                  
+                              $wrapSelectionInMarkNode(selectionRef.current, isBackward, id);
+                          }
+                      })
+                      await mutate("/api/content/"+comment.id)
+                      await mutate("/api/content/"+parentContent.id)
+                  }
+                  return {}
+              })
+              if(error) return {error}
+          }
+          
+          if(editor){
+              const state = editor.getEditorState()
+              const {error: updateContentError} = await (state.read(async () => {
+                  const {error} = await updateContent(
+                    compress(JSON.stringify(state)),
+                    parentContent.id,
+                    user.user.id
+                  )
+                  mutate("/api/content/"+parentContent.id)
+                  if(error) return {error: error}
+                  return {}
+              }))
+              if(updateContentError) return {updateContentError}
+          }
+          
+          submitAddComment()
+          selectionRef.current = null;
+      }
+      return {}
   };
 
   const settings = {...commentEditorSettings}
+  settings.editorClassName = "min-h-[150px]"
 
   if(!user.user) settings.placeholder = "Necesitás una cuenta para agregar un comentario." 
 
   return (
-    <div className="CommentPlugin_CommentInputBox px-2" ref={boxRef}>
-      <div className="mt-2 px-2 py-2 border rounded">
+    <div className="CommentPlugin_CommentInputBox border rounded-lg px-2" ref={boxRef}>
+      <div className="mt-2 px-2 py-2">
         <MyLexicalEditor
             settings={settings}
             setEditor={setCommentEditor}
             setEditorState={setCommentEditorState}
         />
       </div>
-      <div className="flex justify-between py-2">
-        <Button
+      <hr className="border-gray-200"/>
+      <div className="flex justify-end py-2 space-x-1">
+        <button
           onClick={cancelAddComment}
-          className="gray-btn w-full mr-1">
-          Cancelar
-        </Button>
+          className="small-btn title">
+          <div className="py-1">Cancelar</div>
+        </button>
         <StateButton
           handleClick={submitComment}
           disabled={emptyOutput(editor.getEditorState()) || !user.user}
-          className="gray-btn w-full ml-1"
-          text1="Comentar"
-          text2="Enviando..."
+          className="small-btn title"
+          text1={<div className="py-1">Enviar</div>}
+          text2={<div className="py-1">Enviando...</div>}
         />
       </div>
     </div>

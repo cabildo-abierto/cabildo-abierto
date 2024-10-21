@@ -6,9 +6,9 @@ import { getUser } from "../actions/users"
 
 
 export const AdminOnlyPage = async ({children}: {children: ReactNode}) => {
-    const user = await getUser()
+    const {user, error} = await getUser()
 
-    if(user.editorStatus == "Administrator"){
+    if(user && user.editorStatus == "Administrator"){
         return <>{children}</>
     } else {
         return <NotFoundPage/>

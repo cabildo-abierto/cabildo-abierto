@@ -12,7 +12,7 @@ import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
 import { confirmChanges, rejectChanges, removeEntityAuthorship } from "../actions/entities"
 import { articleUrl, currentVersion, hasEditPermission, isDemonetized, isUndo } from "./utils"
-import { useSWRConfig } from "swr"
+import useSWR, { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./accept-button-panel"
 import { NoEditPermissionsMsg } from "./no-edit-permissions-msg"
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
@@ -62,25 +62,27 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
 
     async function confirm(e){
         if(editPermission){
-            await confirmChanges(entity.id, contentId, user.id)
+            const {error} = await confirmChanges(entity.id, contentId, user.id)
+            if(error) return {error}
             mutate("/api/entity/"+entity.id)
             mutate("/api/content/"+contentId)
-            return true
+            return {}
         } else {
             setShowingNoPermissions(true)
-            return false
+            return {}
         }
     }
 
     async function reject(){
         if(editPermission){
-            await rejectChanges(entity.id, contentId, user.id)
+            const {error} = await rejectChanges(entity.id, contentId, user.id)
+            if(error) return {error}
             mutate("/api/entity/"+entity.id)
             mutate("/api/content/"+contentId)
-            return true
+            return {}
         } else {
             setShowingNoPermissions(true)
-            return false
+            return {}
         }
     }
 
@@ -141,7 +143,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     const user = useUser()
 
     async function onRemoveAuthorship(){
-        await removeEntityAuthorship(entity.versions[index].id, entity.id)
+        return await removeEntityAuthorship(entity.versions[index].id, entity.id)
     }
 
     const selected = viewing == index
@@ -261,12 +263,24 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 }
 
 
-export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {entity: EntityProps, onClose: () => void, version: number, onRemove: () => void}) => {
+export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {entity: EntityProps, onClose: () => void, version: number, onRemove: () => Promise<{error?: string}>}) => {
     const {user} = useUser()
+    const {mutate} = useSWRConfig()
 
     if(!user){
         return <AcceptButtonPanel text="Necesitás una cuenta para remover la autoría de una edición." onClose={onClose}/>
     }
+
+    async function handleClick(e){
+        e.preventDefault()
+        e.stopPropagation()
+        const {error} = await onRemove()
+        if(error) return {error}
+        mutate("/api/entity/"+entity.id)
+        onClose()
+        return {}
+    }
+
     return (
         <>
             <BaseFullscreenPopup>
@@ -284,7 +298,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
                     </button>
                     <StateButton
                         className="gray-btn w-48"
-                        handleClick={async (e) => {e.preventDefault(); e.stopPropagation(); await onRemove(); onClose(); return true}}
+                        handleClick={handleClick}
                         text1="Confirmar"
                         text2="Removiendo..."
                     />

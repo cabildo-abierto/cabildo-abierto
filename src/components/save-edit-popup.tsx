@@ -30,7 +30,7 @@ export const SaveEditPopup = ({
         editorState: EditorState,
         currentVersion: string
         onClose: () => void
-        onSave: (v: boolean, editMsg: string) => Promise<boolean>,
+        onSave: (v: boolean, editMsg: string) => Promise<{error?: string}>,
         entity: EntityProps
         errorOnSubmit: boolean
 }) => {
@@ -99,7 +99,8 @@ export const SaveEditPopup = ({
                         <StateButton
                             className="gray-btn w-48"
                             handleClick={async (e) => {
-                                return await onSave(claimsAuthorship, editMsg)}}
+                                return await onSave(claimsAuthorship, editMsg)}
+                            }
                             text1="Confirmar"
                             text2="Guardando..."
                             disabled={diff === "too big"}

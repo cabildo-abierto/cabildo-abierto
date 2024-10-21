@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { DateSince } from "./date";
 import { ShowContributors } from "./show-contributors";
 import { ToggleButton } from "./toggle-button";
-import { deleteEntity, deleteEntityHistory, makeEntityPublic, recomputeEntityContributions } from "../actions/entities";
+import { recomputeEntityContributions } from "../actions/entities";
 import { useUser } from "../app/hooks/user";
 import { EntityCategories } from "./categories";
 import { ContentWithCommentsFromId } from "./content-with-comments";
@@ -26,6 +26,7 @@ import { useEntity } from "../app/hooks/entities";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
 import { updateAllWeakReferences } from "../actions/references";
+import { deleteEntity, deleteEntityHistory, makeEntityPublic } from "../actions/admin";
 
 
 const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
@@ -92,8 +93,9 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         return <ToggleButton
             text="Editar contenido"
             toggledText="Cancelar edición"
-            className={"article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--primary-dark)]"}
+            className={"article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--primary-dark)] disabled:hover:bg-[var(--primary)]"}
             setToggled={onEdit}
+            disabled={!isCurrent}
             toggled={selectedPanel == "editing"}
         />
     }
@@ -140,13 +142,10 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             text1="Eliminar tema"
             text2="Eliminando..."
             handleClick={async (e) => {
-                if(user.user){
-                    await deleteEntity(entityId, user.user.id)
-                    mutate("/api/entities")
-                    router.push("/inicio")
-                    return true
-                }
-                return false
+                const {error} = await deleteEntity(entityId, user.user.id)
+                mutate("/api/entities")
+                router.push("/inicio")
+                return {error}
             }}
         />
     }
@@ -157,8 +156,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             text1="Recalcular contribuciones"
             text2="Recalculando..."
             handleClick={async (e) => {
-                await recomputeEntityContributions(entityId)
-                return false
+                return await recomputeEntityContributions(entityId)
             }}
         />
     }
@@ -169,12 +167,9 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             text1="Eliminar historial"
             text2="Eliminando..."
             handleClick={async (e) => {
-                if(user.user){
-                    await deleteEntityHistory(entityId, false); 
-                    mutate("/api/entity/"+entityId)
-                    return true
-                }
-                return false
+                const {error} = await deleteEntityHistory(entityId, false); 
+                mutate("/api/entity/"+entityId)
+                return {error}
             }}
         />
     }
@@ -186,12 +181,9 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             text1="Reiniciar"
             text2="Reiniciando..."
             handleClick={async (e) => {
-                if(user.user){
-                    await deleteEntityHistory(entityId, true); 
-                    mutate("/api/entity/"+entityId)
-                    return true
-                }
-                return false
+                const {error} = await deleteEntityHistory(entityId, true); 
+                mutate("/api/entity/"+entityId)
+                return {error}
             }}
         />
     }
@@ -202,12 +194,9 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             text1="Hacer público"
             text2="Haciendo público..."
             handleClick={async (e) => {
-                if(user.user){
-                    await makeEntityPublic(entityId, true); 
-                    mutate("/api/entity/"+entityId)
-                    return true
-                }
-                return false
+                const {error} = await makeEntityPublic(entityId, true); 
+                mutate("/api/entity/"+entityId)
+                return {error}
             }}
         />
     }
@@ -218,11 +207,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             text1="Actualizar weak references"
             text2="Actualizando..."
             handleClick={async (e) => {
-                const result = await updateAllWeakReferences()
-                if(!result){
-                    console.log("ocurrió un error al actualizar")
-                }
-                return false
+                return await updateAllWeakReferences()
             }}
         />
     }
@@ -233,12 +218,9 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             text1="Hacer privado"
             text2="Haciendo privado..."
             handleClick={async (e) => {
-                if(user.user){
-                    await makeEntityPublic(entityId, false); 
-                    mutate("/api/entity/"+entityId)
-                    return true
-                }
-                return false
+                const {error} = await makeEntityPublic(entityId, false); 
+                mutate("/api/entity/"+entityId)
+                return {error}
             }}
         />
     }

@@ -87,7 +87,9 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
     if(!userId) userId = await getUserId()
     if(!userId) return []
     return unstable_cache(async () => {
-        const user = await getUserById(userId)
+        const {user, error} = await getUserById(userId)
+        if(error) return {error}
+        
         const following = [...user.following.map(({id}: {id: string}) => (id)), "soporte", user.id]
         if(!user) return []
         let feed: any[] = await db.content.findMany({

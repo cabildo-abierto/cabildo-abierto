@@ -56,9 +56,11 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
     </div>
 
     async function getFreeTrial(){
-        await buyAndUseSubscription(user.id, 0, null)
+        const {error} = await buyAndUseSubscription(user.id, 0, null)
+        if(error) return {error}
         setShowingFreeTrial(true)
         mutate("/api/user")
+        return {}
     }
 
     if(!price.price){

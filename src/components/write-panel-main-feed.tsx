@@ -1,18 +1,16 @@
-import { LexicalEditor, EditorState } from "lexical";
-import { useState, useEffect } from "react";
-import dynamic from 'next/dynamic';
-import { commentEditorSettings } from "./editor/comment-editor";
-import StateButton from "./state-button";
-import Link from "next/link";
-import { CloseButtonIcon, FastPostIcon, PostIcon } from "./icons";
-import { NewPublicArticleButton } from "./new-public-article-button";
-import { useUser } from "../app/hooks/user";
-import { mutate } from "swr";
-import { createPost } from "../actions/contents";
-import { compress } from "./compression";
-import { charCount, emptyOutput, validPost } from "./utils";
-import { ExtraChars } from "./extra-chars";
-import { CloseButton } from "./close-button";
+import { LexicalEditor, EditorState } from "lexical"
+import { useState, useEffect } from "react"
+import dynamic from 'next/dynamic'
+import { commentEditorSettings } from "./editor/comment-editor"
+import StateButton from "./state-button"
+import { FastPostIcon } from "./icons"
+import { useUser } from "../app/hooks/user"
+import { mutate } from "swr"
+import { createPost } from "../actions/contents"
+import { compress } from "./compression"
+import { charCount, emptyOutput, validPost } from "./utils"
+import { ExtraChars } from "./extra-chars"
+import { CloseButton } from "./close-button"
 
 const MyLexicalEditor = dynamic(() => import('./editor/lexical-editor'), { ssr: false });
 
@@ -35,28 +33,26 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
 
     const settings = { ...commentEditorSettings };
     settings.placeholder = randomPlaceholder;
-    settings.editorClassName = "min-h-[250px]"
+    settings.editorClassName = "min-h-[250px] content"
 
     async function handleSubmit() {
         setErrorOnCreatePost(false)
         if (editor && user) {
             const text = JSON.stringify(editor.getEditorState());
             const compressedText = compress(text);
-            const content = await createPost(compressedText, "FastPost", false, user.id, undefined);
-            if(content){
+            const {error} = await createPost(compressedText, "FastPost", false, user.id, undefined);
+            if(!error){
                 mutate("/api/feed/");
                 mutate("/api/following-feed/")
                 mutate("/api/profile-feed/" + user.id);
                 setEditorKey(editorKey + 1);
                 onClose()
-                return true
             } else {
                 setErrorOnCreatePost(true)
             }
-            return false
         }
         setErrorOnCreatePost(true)
-        return false;
+        return {}
     }
 
     const count = editor && editorState ? charCount(editorState) : 0;

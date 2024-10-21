@@ -13,11 +13,11 @@ import InfoPanel from "./info-panel";
 
 
 export const FollowSuggestions = () => {
-    let {suggestions} = useUserFollowSuggestions()
+    let {suggestions, isError} = useUserFollowSuggestions()
     const {user} = useUser()
     const [wasClosed, setWasClosed] = useState(false)
 
-    if(!suggestions || !user) return <></>
+    if(!suggestions || !user || isError) return <></>
 
     if(user.closedFollowSuggestionsAt && new Date().getTime() - new Date(user.closedFollowSuggestionsAt).getTime() < 24*60*60*1000){
         return <></>
@@ -76,9 +76,12 @@ export const SuggestionsSlider = ({suggestions, closePanel}: {
     const [options, setOptions] = useState(Array.from({ length: amount }, (_, i) => i))
 
     async function onFollow(followedUserId: string, index: number){
-        const result = await follow(followedUserId, user.id)
-        if(result == "already follows" || result)
+        const {error} = await follow(followedUserId, user.id)
+        if(error == "already follows" || !error){
             onClose(index)
+            return {}
+        }
+        else return {error}
     }
 
     function onClose(index: number){
@@ -94,7 +97,7 @@ export const SuggestionsSlider = ({suggestions, closePanel}: {
         className="flex justify-center space-x-2 sm:space-x-3 overflow-x-scroll no-scrollbar"
     >
         {options.map((i, index) => {
-            if(i >= suggestions.length) return <></>
+            if(i >= suggestions.length) return <div key={i}></div>
             const e = suggestions[i]
 
             return <div
@@ -116,7 +119,7 @@ export const SuggestionsSlider = ({suggestions, closePanel}: {
                 <div className="flex justify-center text-sm mt-2 mb-1 px-1">
                     <StateButton
                         className="gray-btn text-xs sm:text-sm"
-                        handleClick={async () => {await onFollow(e.id, index); return true}}
+                        handleClick={async () => {return await onFollow(e.id, index);}}
                         text1="Seguir"
                         text2="Siguiendo..."
                     />

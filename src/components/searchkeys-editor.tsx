@@ -5,15 +5,11 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
-import { currentVersion, currentVersionContent, getNextCategories } from "./utils";
 import { useSWRConfig } from "swr";
-import LoadingSpinner from "./loading-spinner";
-import { EntityCategoriesTitle } from "./categories";
-import { updateEntity } from "../actions/entities";
-import { useRouteEntities, useContent } from "../app/hooks/contents";
 import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
 import InfoPanel from "./info-panel";
+import { updateEntityCategoriesOrSearchkeys } from "../actions/entities";
 
 
 function validSearchkey(k: string){
@@ -78,19 +74,17 @@ export const SearchkeysEditor = ({entity, setEditing}: {entity: EntityProps, set
     const onSubmitSearchkeys = async () => {
         setErrorOnSave(false)
         if(user.user) {
-            const result = await updateEntity(entity.id, user.user.id, true, "", undefined, undefined, searchkeys)
-            if(result){
+            const {error} = await updateEntityCategoriesOrSearchkeys(entity.id, user.user.id, true, "", undefined, searchkeys)
+            if(!error){
                 mutate("/api/entitiy/"+entity.id)
                 mutate("/api/entities")
                 setEditing(false)
-                return true
             } else {
                 setErrorOnSave(true)
-                return false
             }
         }
         setErrorOnSave(true)
-        return false
+        return {}
     }
 
     function addSearchkey() {

@@ -36,7 +36,7 @@ export const UserName = ({name}: {name: string}) => {
 const NeedSubscriptionPaywall: React.FC<any> = ({ children }) => {
     const {user} = useUser()
 
-    if(user.subscriptionsUsed.length == 0){
+    if(user && user.subscriptionsUsed.length == 0){
         return <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
             <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg mx-1">
                 <div className="py-4 text-lg">¡Bienvenido/a <UserName name={user.name}/> a Cabildo Abierto!</div>

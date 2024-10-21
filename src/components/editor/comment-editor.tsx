@@ -2,7 +2,7 @@
 
 import { charCount, emptyOutput, validPost } from "../utils"
 import { useState } from "react"
-import StateButton from "../state-button"
+import StateButton, { StateButtonClickHandler } from "../state-button"
 import { CLEAR_EDITOR_COMMAND, EditorState, LexicalEditor } from "lexical"
 
 
@@ -50,7 +50,7 @@ export const commentEditorSettings: SettingsProps = {
 
 
 type CommentEditorProps = {
-    onSubmit: (arg0: string) => void,
+    onSubmit: (arg0: string) => Promise<{error?: string}>,
     onCancel?: () => void
 }
 
@@ -69,14 +69,14 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     
     async function handleSubmit(){
         if(editor){
-            await onSubmit(JSON.stringify(editor.getEditorState()))
+            const {error} = await onSubmit(JSON.stringify(editor.getEditorState()))
             editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined)
-            return true
+            return {error}
         }
-        return false
+        return {error: "Ocurrió un problema al enviar el comentario."}
 	}
 
-	const SendCommentButton = ({onClick}: {onClick: (e: any) => Promise<boolean>}) => {
+	const SendCommentButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
 
         return <StateButton
             handleClick={onClick}

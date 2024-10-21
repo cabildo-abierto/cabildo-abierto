@@ -1,5 +1,5 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { RedFlag } from './icons';
 import { CreateFakeNewsReportModal } from './create-fake-news-report';
@@ -7,9 +7,9 @@ import { ModalBelow } from './modal-below';
 import { EditCommentModal } from './edit-comment-modal';
 import { ContentProps } from '../app/lib/definitions';
 import { useRouter } from 'next/navigation';
-import { editContentUrl, stopPropagation } from './utils';
+import { editContentUrl } from './utils';
 import { useUser } from '../app/hooks/user';
-import { deleteContent } from '../actions/entities';
+import { deleteContent } from '../actions/admin';
 
 
 export const ContentOptionsDropdown = ({
@@ -45,7 +45,7 @@ export const ContentOptionsDropdown = ({
     async function onDelete(e){
         e.preventDefault()
         e.stopPropagation()
-        await deleteContent(content.id)
+        return await deleteContent(content.id)
     }
 
     return <div className="text-base border rounded bg-[var(--background)] p-2">

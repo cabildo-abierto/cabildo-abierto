@@ -5,14 +5,14 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
-import { currentVersion, currentVersionContent, getNextCategories } from "./utils";
+import { currentVersionContent, getNextCategories } from "./utils";
 import { useSWRConfig } from "swr";
 import LoadingSpinner from "./loading-spinner";
 import { EntityCategoriesTitle } from "./categories";
-import { updateEntity } from "../actions/entities";
 import { useRouteEntities, useContent } from "../app/hooks/contents";
 import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
+import { updateEntityCategoriesOrSearchkeys } from "../actions/entities";
 
 function validCategoryElement(e: string){
     return e.length > 0
@@ -186,19 +186,18 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
         // TO DO: Chequear que otro no haya editado en el medio
         if(user.user) {
             setErrorOnSave(false)
-            const result = await updateEntity(entity.id, user.user.id, true, "", undefined, JSON.stringify(categories))
-            if(result){
+            const {error} = await updateEntityCategoriesOrSearchkeys(entity.id, user.user.id, true, "", JSON.stringify(categories))
+            if(!error){
                 mutate("/api/entitiy/"+entity.id)
                 mutate("/api/entities")
                 setEditing(false)
-                return true
             } else {
                 setErrorOnSave(true)
-                return false
             }
+            return {}
         }
         setErrorOnSave(true)
-        return false
+        return {}
     }
 
     return <div className="w-full">

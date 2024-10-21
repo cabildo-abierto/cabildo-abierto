@@ -5,11 +5,11 @@ import { useUser } from "../../hooks/user"
 import { validSubscription } from "../../../components/utils"
 import { useState } from "react"
 import SubscriptionOptionButton from "../../../components/subscription-option-button"
-import { createPreference } from "../../../actions/users"
 import { UniqueDonationCheckout } from "./unique-donation-checkout"
 import { IntegerInputPlusMinus } from "../clasico/integer-input-plus-minus"
 import { useSubscriptionPrice } from "../../hooks/subscriptions"
 import LoadingSpinner from "../../../components/loading-spinner"
+import { createPreference } from "../../../actions/payments"
 
 
 
@@ -33,7 +33,8 @@ export default function DonationPage() {
 
     async function onUniqueChosen(){
         setChoice("unique")
-        const id = await createPreference(user.id, activeSubscription ? 0 : amount, donationAmount)
+        const {id, error} = await createPreference(user.id, activeSubscription ? 0 : amount, donationAmount)
+        if(error) return {error}
         setPreferenceId(id)
     }
 

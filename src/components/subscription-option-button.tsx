@@ -1,9 +1,19 @@
 "use client"
 import { useRouter } from "next/navigation"
-import React from "react"
-import StateButton from "./state-button"
+import React, { ReactNode } from "react"
+import StateButton, { StateButtonClickHandler } from "./state-button"
+import Link from "next/link"
 
-const SubscriptionOptionButton: React.FC<any> = ({
+type SubscriptionOptionButtonProps = {
+    title: string
+    description: ReactNode
+    disabled?: boolean
+    price?: string
+    href?: string
+    onClick?: StateButtonClickHandler
+}
+
+const SubscriptionOptionButton: React.FC<SubscriptionOptionButtonProps> = ({
     title,
     description,
     disabled=false,
@@ -11,18 +21,6 @@ const SubscriptionOptionButton: React.FC<any> = ({
     href=null,
     onClick=null,
 }) => {
-    const router = useRouter()
-
-    async function handleClick(e){
-        if(onClick){
-            await onClick()
-        }
-        if(href){
-            router.push(href)
-        }
-        return false
-    }
-
     const text1 = <>
         <div className="flex justify-center">
             <h3 className="text-lg">{title}</h3>
@@ -40,10 +38,20 @@ const SubscriptionOptionButton: React.FC<any> = ({
             }
     </>
 
+    const className = "lg:w-96 w-72 subscription-btn flex flex-col items-center"
+
+    if(href){
+        return <button className={className}>
+            <Link href={href}>
+                {text1}
+            </Link>
+        </button>
+    }
+
     return <StateButton
-        className="lg:w-96 w-72 subscription-btn flex flex-col items-center"
+        className={className}
         disabled={disabled}
-        handleClick={handleClick}
+        handleClick={onClick}
         text1={text1}
         text2={text1}
     />

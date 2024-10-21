@@ -10,7 +10,6 @@
 
 import './index.css';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import { CharacterLimitPlugin } from '@lexical/react/LexicalCharacterLimitPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
 import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
@@ -218,7 +217,7 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
             <RichTextPlugin
               contentEditable={
                 <div className={'editor-scroller'}>
-                  <div className="editor" ref={onRef}>
+                  <div className={"editor " + editorClassName} ref={onRef}>
                     <ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} settings={settings} />
                   </div>
                 </div>

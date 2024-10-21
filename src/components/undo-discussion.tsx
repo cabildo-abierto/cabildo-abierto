@@ -3,8 +3,8 @@
 import { useContent } from "../app/hooks/contents"
 import { ContentProps, EntityProps } from "../app/lib/definitions"
 import { decompress } from "./compression"
-import { Authorship, CommentCounter, UserIdLink } from "./content"
-import { ContentWithComments, ContentWithCommentsFromId } from "./content-with-comments"
+import { CommentCounter, UserIdLink } from "./content"
+import { ContentWithCommentsFromId } from "./content-with-comments"
 import LoadingSpinner from "./loading-spinner"
 
 
