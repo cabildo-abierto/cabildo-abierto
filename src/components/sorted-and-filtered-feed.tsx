@@ -19,10 +19,11 @@ export type ConfiguredFeedProps = {
     noResultsText?: ReactNode
     order: string
     filter: string
-    setFilter: (v: string) => void 
+    setFilter: (v: string) => void
+    maxCount?: number
 }
 
-export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: ConfiguredFeedProps) => {
+export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter, maxCount}: ConfiguredFeedProps) => {
     const {searchValue} = useSearch()
 
     if(feed.isLoading){
@@ -47,6 +48,10 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: 
     }
     if(filteredFeed && filter == "Publicaciones"){
         filteredFeed = filteredFeed.filter((content) => (content.type == "Post"))
+    }
+
+    if(maxCount && maxCount < filteredFeed.length){
+        filteredFeed = filteredFeed.slice(0, maxCount)
     }
 
     let feedWithScore = filteredFeed.map((content) => ({score: popularityScore(content), content: content}))
@@ -84,14 +89,14 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter}: 
     return <>
         <div className="flex justify-between items-center">
             
-            <div className="flex ml-1 space-x-1 mb-1">
+            {feedWithScore.length > 0 && <div className="flex ml-1 space-x-1 mb-1">
                 <button onClick={onOnlyFastPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] text-xs sm:text-sm text-[var(--text-light)] border " + (filter == "Rápidas" ? "bg-[var(--secondary-slight)]" : "")}>
                     solo rápidas
                 </button>
                 <button onClick={onOnlyPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] text-xs sm:text-sm text-[var(--text-light)] border " + (filter == "Publicaciones" ? "bg-[var(--secondary-slight)]" : "")}>
                     solo publicaciones
                 </button>
-            </div>
+            </div>}
 
         {order == "Populares" && searchValue.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={infoPopular}/>}
 

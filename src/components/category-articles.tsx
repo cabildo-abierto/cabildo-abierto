@@ -28,10 +28,11 @@ function recentEditScore(entity: SmallEntityProps){
 }
 
 
-const ArticlesWithSearch = ({ entities, route, sortBy }: { 
+const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: { 
     entities: SmallEntityProps[], 
     route: string[],
-    sortBy: string
+    sortBy: string,
+    maxCount?: number
  }) => {
     const { searchValue } = useSearch();
 
@@ -45,8 +46,10 @@ const ArticlesWithSearch = ({ entities, route, sortBy }: {
 
     let entitiesWithScore = filteredEntities.map((entity) => ({ entity: entity, score: scoreFunc(entity) }));
 
-    entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
 
+    entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
+    console.log("withScore", entitiesWithScore)
+    
     function generator(index: number){
         const entity = entitiesWithScore[index]?.entity;
         return {
@@ -58,7 +61,9 @@ const ArticlesWithSearch = ({ entities, route, sortBy }: {
     return (
         <div className="flex flex-col items-center w-full">
             {entitiesWithScore.length > 0 ? (
-                <LazyLoadFeed maxSize={entitiesWithScore.length} generator={generator} />
+                <LazyLoadFeed
+                maxSize={Math.min(entitiesWithScore.length, maxCount != undefined ? maxCount : entitiesWithScore.length)}
+                generator={generator}/>
             ) : (
                 <NoResults text="No se encontró ningún tema." />
             )}
@@ -67,7 +72,7 @@ const ArticlesWithSearch = ({ entities, route, sortBy }: {
 };
 
 
-export const CategoryArticles = ({route, onSearchPage=false}: {route: string[], onSearchPage?: boolean}) => {
+export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: string[], onSearchPage?: boolean, maxCount?: number}) => {
     const routeEntities = useRouteEntities(route)
     const {searchValue} = useSearch()
     const [sortBy, setSortBy] = useState("Populares")
@@ -110,6 +115,7 @@ export const CategoryArticles = ({route, onSearchPage=false}: {route: string[], 
                 entities={routeEntities.entities}
                 route={route}
                 sortBy={sortBy}
+                maxCount={maxCount}
             />
              : 
         <div className="flex justify-center">

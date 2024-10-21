@@ -5,14 +5,15 @@ import { SmallUserProps } from "../app/lib/definitions"
 import { useUsers } from "../app/hooks/user"
 import LoadingSpinner from "./loading-spinner"
 import { ReactNode } from "react"
+import { shuffleArray } from "./utils"
 
 
 export const NoResults = ({text="No se encontraron resultados..."}: {text?: ReactNode}) => {
-    return <div className="mt-8 text-center max-w-128 text-[var(--text-light)]">{text}</div>
+    return <div className="text-center max-w-128 text-[var(--text-light)]">{text}</div>
 }
 
 
-export const CategoryUsers = ({route}: {route: string[]}) => {
+export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: number}) => {
     const users = useUsers()
     const {searchValue} = useSearch()
 
@@ -31,9 +32,13 @@ export const CategoryUsers = ({route}: {route: string[]}) => {
 
     let filteredUsers = users.users.filter(isMatch)
 
+    filteredUsers = shuffleArray(filteredUsers)
+
+    const rightIndex = maxCount != undefined ? maxCount : filteredUsers.length
+
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center">
-            {filteredUsers.length > 0 ? filteredUsers.map((user, index) => (
+            {filteredUsers.length > 0 ? filteredUsers.slice(0, rightIndex).map((user, index) => (
                 <div key={index} className="py-1">
                     <UserSearchResult result={user}/>
                 </div>

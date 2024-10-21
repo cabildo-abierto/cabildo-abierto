@@ -638,3 +638,13 @@ export function entityExists(name: string, entities: SmallEntityProps[]){
     }
     return false
 }
+
+
+export const shuffleArray = (array) => {
+    const newArray = [...array]; // Create a copy of the array
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1)); // Pick a random index
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]]; // Swap elements
+    }
+    return newArray;
+}
