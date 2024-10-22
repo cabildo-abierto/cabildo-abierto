@@ -25,19 +25,23 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
 }) => {
     const {user} = useUser()
     const entityId = content.parentEntityId
-    const [liked, setLiked] = useState(content.reactions.length > 0)
-    const [likeCount, setLikeCount] = useState(content._count.reactions)
+    const initiallyLiked = content.reactions.length > 0
+    const [liked, setLiked] = useState(initiallyLiked)
+
+    let delta = 0
+    if(initiallyLiked && !liked) delta = -1
+    if(!initiallyLiked && liked) delta = 1
+
+    const likeCount = content._count.reactions + delta
     
     const onLikeClick = async () => {
         if(!user) return
         if(liked){
             removeLike(content.id, user.id, entityId)
             setLiked(false)
-            setLikeCount(likeCount-1)
         } else {
             addLike(content.id, user.id, entityId)
             setLiked(true)
-            setLikeCount(likeCount+1)
         }
     }
 
