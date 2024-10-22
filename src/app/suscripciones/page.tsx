@@ -1,4 +1,3 @@
-import Link from "next/link"
 import SubscriptionPage from "../../components/subscription-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 

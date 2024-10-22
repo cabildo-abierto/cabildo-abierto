@@ -69,8 +69,8 @@ export const ArticleIcon = () => {
 }
 
 
-export const CabildoIcon = ({className}: {className?: string}) => {
-    return <HomeIcon/>
+export const CabildoIcon = ({className, fontSize="small"}: {className?: string, fontSize?: string}) => {
+    return <HomeIcon fontSize="small"/>
     //return <i className={"icon cabildo "+className}/>
     /*return <div className={className}>
         <CabildoSVG height={23} width={23}/>

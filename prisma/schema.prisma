@@ -48,7 +48,6 @@ model User {
 
     closedFollowSuggestionsAt DateTime?
 
-    @@map("users")
     @@schema("public")
 }
 

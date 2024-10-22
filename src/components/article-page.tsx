@@ -32,8 +32,8 @@ import { BaseFullscreenPopup } from "./base-fullscreen-popup";
 
 const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
     return <BaseFullscreenPopup>
-        <div className="py-4 text-lg">Necesitás una cuenta para hacer ediciones.</div>
-        <div className="flex justify-center items-center space-x-4 mt-12">
+        <div className="py-4 sm:text-lg text-base">Necesitás una cuenta para hacer ediciones.</div>
+        <div className="flex justify-center items-center space-x-4 mt-12 px-6 pb-4 text-sm sm:text-base">
             <button className="gray-btn" onClick={onClose}>
                 Seguir leyendo
             </button>
@@ -63,6 +63,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
 
     useEffect(() => {
         if(entity.entity){
+            console.log("entity", entity.entity)
             const references = entity.entity.versions[currentVersion(entity.entity)].entityReferences
             for(let i = 0; i < references.length; i++){
                 preload("/api/entity/"+references[i].id, fetcher)
@@ -74,7 +75,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         return <LoadingScreen/>
     }
 
-    if(!entity.entity || entity.isError || entity.entity.deleted){
+    if(!entity.entity || entity.isError || entity.entity.deleted || entity.error){
         return <NoEntityPage id={entityId}/>
     }
 
@@ -248,6 +249,8 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         return smoothScrollTo(targetElement, 300)
     }
 
+    console.log("entity", entity.entity)
+
     const versions = entity.entity.versions
     const currentIndex = currentVersion(entity.entity)
     if(version == undefined || !inRange(version, versions.length)){
@@ -262,8 +265,13 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
     const center = <div className="h-full px-2">
         {showingNeedAccountPopup && <NeedAccountToEditPopup 
         onClose={() => {setShowingNeedAccountPopup(false)}}/>}
+        <div className="flex justify-end mt-4">
+            {selectedPanel != "editing" && <button className="gray-btn sm:text-base text-sm" onClick={onGoToDiscussion}>
+                Ir a la discusión <ArrowDownwardIcon fontSize="inherit"/>
+            </button>}
+        </div>
         <div className="flex flex-col">
-            <div className="text-[var(--text-light)] text-sm mt-8 mb-2">
+            <div className="text-[var(--text-light)] text-sm mt-1 mb-2">
                 Tema
             </div>
             <h1 className="mb-8 text-lg sm:text-2xl">
@@ -286,9 +294,6 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
                 }
 
             </div>}
-            {selectedPanel != "editing" && <button className="gray-btn sm:text-base text-sm" onClick={onGoToDiscussion}>
-                Ir a la discusión <ArrowDownwardIcon fontSize="inherit"/>
-            </button>}
         </div>
         <div className="">
         {selectedPanel != "editing" && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">
