@@ -18,7 +18,9 @@ const LoginFormError = ({state}: {state: LoginFormState}) => {
         errorComponent = <div className="flex items-center text-red-600 h-6 px-2">Usuario o contraseña incorrectos.</div>
     }
     if(!pending && state && state.error == "no connection"){
-        errorComponent = <div className="flex items-center text-red-600 h-6 px-2">Ocurrió un error en la conexión.</div>   
+        errorComponent = <div className="flex items-center text-red-600 h-6 px-2">
+            Ocurrió un error en la conexión.
+        </div>
     }
     if(!pending && state && state.error == "not confirmed"){
         errorComponent = <div className="flex items-center px-2">
@@ -27,6 +29,9 @@ const LoginFormError = ({state}: {state: LoginFormState}) => {
             <ResendEmailButton email={state.data.email}/>
             </div>
         </div>   
+    }
+    if(!pending && state && state.error == "api error"){
+        errorComponent = <div className="flex items-center text-red-600 h-12 px-2">Estamos teniendo inconvenientes técnicos. Volvé a intentar más tarde.</div>
     }
 
     return errorComponent

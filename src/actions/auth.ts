@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { createClient } from '../utils/supabase/server'
 import { LoginFormSchema, RecoverPwFormSchema, SignupFormSchema, UpdatePwFormSchema, UserProps } from '../app/lib/definitions'
 import { db } from '../db'
-import { AuthRetryableFetchError } from '@supabase/supabase-js'
+import { AuthApiError, AuthRetryableFetchError } from '@supabase/supabase-js'
 import { getUser } from './users'
 
 
@@ -31,6 +31,8 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
   if (error) {
     if(error instanceof AuthRetryableFetchError){
       return { error: "no connection" }
+    } else if(error instanceof AuthApiError){
+      return { error: "api error"}
     } else if(error.message == "Email not confirmed"){
       return { error: "not confirmed", data: validatedFields.data}
     } else {
