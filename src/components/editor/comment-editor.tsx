@@ -104,12 +104,11 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
                 </div>
 				{onCancel &&
 					<div className="px-1">
-						<button
-							onClick={onCancel}
+						<StateButton
+							handleClick={async (e) => {onCancel(); return {}}}
 							className="small-btn"
-						>
-							Cancelar
-						</button>
+                            text1="Cancelar"
+						/>
 					</div>
 				}
 			</div>

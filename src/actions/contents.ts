@@ -592,7 +592,7 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
         )
         if(error) return {error}
     }
-    return {liked: true, likeCount: content._count.reactions}
+    return {}
 }
 
 
@@ -614,11 +614,8 @@ export const removeLike = async (id: string, userId: string, entityId?: string) 
     if(entityId)
         revalidateTag("entity:"+entityId)
 
-    const {content, error} = await getContentById(id)
-    if(error) return {error}
-
-    // TO DO: Esto no anda, revalidate no funciona en la misma función
-    return {liked: false, likeCount: content._count.reactions}
+    console.log("done removing like")
+    return {}
 }
 
 
