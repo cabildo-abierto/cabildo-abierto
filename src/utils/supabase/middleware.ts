@@ -54,8 +54,7 @@ export async function updateSession(request: NextRequest) {
   if(url.pathname.startsWith("/articulo/")){
     const id = url.pathname.split("/articulo/")[1]
     const articleUrl = new URL('/articulo', request.url)
-
-    articleUrl.searchParams.set('i', id)
+    articleUrl.searchParams.set('i', decodeURIComponent(id))
     return NextResponse.redirect(articleUrl)
   }
 

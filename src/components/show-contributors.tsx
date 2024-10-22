@@ -77,7 +77,7 @@ export const ShowContributors = ({entityId, userId}:
 
     return <div className="flex">
         <span className="mr-1">Escrito por</span>
-        <div className="flex space-x-2 link">
+        <div className="flex flwx-wrap space-x-2 link">
             {contributions.map(([authorId, chars], index) => {
                 return <span key={index}><Link href={"/perfil/"+authorId}>@{authorId}</Link> ({toPercentage(chars, total)}%)</span>
             })}.
