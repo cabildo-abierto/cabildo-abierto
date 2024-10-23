@@ -8,7 +8,6 @@ import { InvalidConfirmLinkPopup } from "./invalid-confirm-link-popup";
 import { preload } from "swr";
 import { fetcher } from "./hooks/utils";
 import { useUser } from "./hooks/user";
-import { BaseFullscreenPopup } from "../components/base-fullscreen-popup";
 import { AcceptButtonPanel } from "../components/accept-button-panel";
 import { CabildoIcon } from "../components/icons";
 import Link from "next/link";

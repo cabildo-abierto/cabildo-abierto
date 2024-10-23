@@ -11,6 +11,7 @@ import { signup, SignUpFormState } from '../actions/auth';
 import ResendEmailButton from './resend-email-button';
 import Link from 'next/link';
 import { articleUrl } from './utils';
+import { BaseFullscreenPopup } from './base-fullscreen-popup';
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
@@ -71,9 +72,17 @@ function selectErrors(state: any){
     return state
 }
 
-export const EmailInput = ({state, label="Email"}: {state: any, label?: string}) => {
+export const EmailInput = ({state, label="Email"}: {state: SignUpFormState, label?: string}) => {
     state = selectErrors(state)
     const {pending} = useFormStatus()
+    const [email, setEmail] = useState("")
+
+    useEffect(() => {
+        if(state && !state.errors){
+            setEmail("")
+        }
+    }, [state])
+
 
     const handleEmailInput = (e: any) => {
         const email = e.target;
@@ -91,7 +100,8 @@ export const EmailInput = ({state, label="Email"}: {state: any, label?: string})
             type="email"
             id="email"
             name="email"
-            defaultValue=''
+            value={email}
+            onChange={(e) => {setEmail(e.target.value)}}
             onInput={handleEmailInput}
             onInvalid={handleEmailInput}
         />
@@ -109,6 +119,14 @@ export const PasswordInput = ({state, label="Contraseña"}: {state: SignUpFormSt
     state = selectErrors(state)
     const [showPassword, setShowPassword] = useState(false);
     const {pending} = useFormStatus()
+    const [password, setPassword] = useState("")
+
+    useEffect(() => {
+        if(state && !state.errors){
+            setPassword("")
+        }
+    }, [state])
+
 
     return <div>
         <AuthenticationFormLabel text={label} label="password"/>
@@ -120,6 +138,8 @@ export const PasswordInput = ({state, label="Contraseña"}: {state: SignUpFormSt
                 id="password"
                 name="password"
                 defaultValue=''
+                value={password}
+                onChange={(e) => {setPassword(e.target.value)}}
             />
             <button
                 type="button"
@@ -140,6 +160,15 @@ const UsernameInput = ({state}) => {
     state = selectErrors(state)
     const {pending} = useFormStatus()
 
+    const [username, setUsername] = useState("")
+
+    useEffect(() => {
+        if(state && !state.error){
+            setUsername("")
+        }
+    }, [state])
+
+
     return <div>
         <div className="flex items-center justify-between">
         <AuthenticationFormLabel text="Nombre de usuario" label="username"/>
@@ -157,6 +186,8 @@ const UsernameInput = ({state}) => {
             id="username"
             name="username"
             placeholder=""
+            value={username}
+            onChange={(e) => {setUsername(e.target.value)}}
         />
         </div>
         {
@@ -169,6 +200,13 @@ const UsernameInput = ({state}) => {
 const NameInput = ({state}: {state: SignUpFormState}) => {
     state = selectErrors(state)
     const {pending} = useFormStatus()
+    const [name, setName] = useState("")
+
+    useEffect(() => {
+        if(state && !state.errors){
+            setName("")
+        }
+    }, [state])
 
     return <div>
         <div className="flex items-center justify-between">
@@ -184,7 +222,8 @@ const NameInput = ({state}: {state: SignUpFormState}) => {
             type="text"
             id="name"
             name="name"
-            defaultValue=''
+            value={name}
+            onChange={(e) => {setName(e.target.value)}}
         />
         {
             pending && state?.errors?.name
@@ -213,19 +252,13 @@ export const AuthForm = ({children, action, state, title}: {children: ReactNode,
 
 const ConfirmLinkSentPopup = ({onClose, email}: {onClose: any, email: string}) => {
     return (
-        <div className="fixed inset-0 bg-opacity-50 bg-gray-800 z-10 flex justify-center items-center backdrop-blur-sm">
-            
-            <div className="bg-[var(--background)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
-                <div className="mt-4 text-lg">¡Gracias por registrarte!</div>
-                <div className="mb-4 text-lg">En breve debería llegarte un mail de confirmación.</div>
-                <ResendEmailButton email={email} initializeSent={true}/>
-                <div className="flex justify-center items-center py-8 space-x-4">
-                    <button onClick={onClose} className="gray-btn">
-                        Ok
-                    </button>
-                </div>
+        <BaseFullscreenPopup>
+            <div className="px-6 pt-6 pb-12">
+            <div className="mt-4 text-lg">¡Gracias por registrarte!</div>
+            <div className="mb-4 text-lg">En breve debería llegarte un mail de confirmación.</div>
+            <ResendEmailButton email={email} initializeSent={true}/>
             </div>
-        </div>
+        </BaseFullscreenPopup>
     );
 };
 
@@ -235,6 +268,7 @@ export default function SignupForm() {
     const [showingSignupOK, setShowingSignupOK] = useState(false)
 
     useEffect(() => {
+        console.log("state", state)
         if(state && !state.errors){
             setShowingSignupOK(true)
         }

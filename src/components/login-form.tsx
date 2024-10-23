@@ -31,7 +31,7 @@ const LoginFormError = ({state}: {state: LoginFormState}) => {
         </div>   
     }
     if(!pending && state && state.error == "api error"){
-        errorComponent = <div className="flex items-center text-red-600 h-12 px-2">Volvé a intentar más tarde.</div>
+        errorComponent = <div className="flex items-center text-red-600 h-6 px-2">Volvé a intentar más tarde.</div>
     }
 
     return errorComponent
