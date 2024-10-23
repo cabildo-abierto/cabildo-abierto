@@ -90,8 +90,6 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
     }
 
     const { error, data } = await supabase.auth.signUp(validatedFields.data as {email: string, password: string, username: string, name: string, betakey: string})
-    
-    console.log("error", error)
 
     if (error || !data || !data.user) {
         return {
@@ -168,9 +166,14 @@ export async function updatePw(state: any, formData: FormData) {
 
 
 export async function resendConfirmationEmail(email: string){
-    const supabase = createClient()
-    const result = await supabase.auth.resend({
-      type: "signup",
-      email: email
-    })
+    try {
+      const supabase = createClient()
+      const response = await supabase.auth.resend({
+        type: "signup",
+        email: email
+      })
+      return {response}
+    } catch {
+      return {error: "Error al enviar el mail."}
+    }
 }

@@ -2,7 +2,7 @@
 import { UserSearchResult } from "./searchbar"
 import { useSearch } from "./search-context"
 import { SmallUserProps } from "../app/lib/definitions"
-import { useUsers } from "../app/hooks/user"
+import { useUser, useUsers } from "../app/hooks/user"
 import LoadingSpinner from "./loading-spinner"
 import { ReactNode } from "react"
 import { shuffleArray } from "./utils"
@@ -16,12 +16,19 @@ export const NoResults = ({text="No se encontraron resultados..."}: {text?: Reac
 export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: number}) => {
     const users = useUsers()
     const {searchValue} = useSearch()
+    const {user} = useUser()
 
     if(searchValue.length == 0){
-        return <div className="text-center mt-8 text-[var(--text-light)]">Buscá un usuario en la barra de arriba</div>
+        return <div className="text-center text-[var(--text-light)] text-sm sm:text-base">Buscá un usuario en la barra de arriba</div>
     }
     if(users.isLoading){
         return <LoadingSpinner/>
+    }
+
+    if(!user){
+        return <div className="text-center text-[var(--text-light)] text-sm sm:text-base">
+            Creá una cuenta para buscar usuarios.
+        </div>
     }
 
     //const routeUsers = users.users.filter((user) => (entityInRoute(user, route)))

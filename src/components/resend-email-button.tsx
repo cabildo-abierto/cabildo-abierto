@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { resendConfirmationEmail } from '../actions/auth';
+import StateButton from './state-button';
 
 const ResendEmailButton = ({ email, initializeSent=false }: { email: string, initializeSent?: boolean }) => {
   const [lastSent, setLastSent] = useState<undefined | Date>(initializeSent ? new Date() : undefined);
@@ -21,16 +22,18 @@ const ResendEmailButton = ({ email, initializeSent=false }: { email: string, ini
 
   if (!lastSent || seconds >= 30) {
     return (
-      <span
+      <StateButton
         className="ml-1 cursor-pointer underline hover:text-[var(--primary)]"
-        onClick={() => {
-          resendConfirmationEmail(email);
+        handleClick={async () => {
+          const {response, error} = await resendConfirmationEmail(email);
+          if(error) return error
           setLastSent(new Date());
-          setSeconds(0); // Reset the seconds counter when the email is resent
+          setSeconds(0);
+          return {}
         }}
-      >
-        Reenviar mail
-      </span>
+        text1="Reenviar mail"
+        text2="Reenviando..."
+      />
     );
   } else {
     return (
