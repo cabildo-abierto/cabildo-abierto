@@ -10,19 +10,17 @@ import InfoPanel from "./info-panel";
 import ShareIcon from '@mui/icons-material/Share';
 import { SharePopup } from "./share-popup";
 import { SmallUserProps } from "../app/lib/definitions";
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 
 
 export const FollowSuggestions = () => {
     let {suggestions, isError} = useUserFollowSuggestions()
     const {user} = useUser()
-    const [wasClosed, setWasClosed] = useState(false)
+    const [open, setOpen] = useState(user && (!user.closedFollowSuggestionsAt || new Date().getTime() - new Date(user.closedFollowSuggestionsAt).getTime() >= 24*60*60*1000))
+
     const [openSharePopup, setOpenSharePopup] = useState(false)
 
     if(!suggestions || !user || isError) return <></>
-
-    if(user.closedFollowSuggestionsAt && new Date().getTime() - new Date(user.closedFollowSuggestionsAt).getTime() < 24*60*60*1000){
-        return <></>
-    }
 
     function filter(u: SmallUserProps){
         return u.id != "soporte" && !user.following.some((f) => (f.id == u.id))
@@ -31,13 +29,22 @@ export const FollowSuggestions = () => {
     suggestions = suggestions.filter(filter)
 
     async function onClose(){
-        setWasClosed(true)
+        setOpen(false)
         await updateClosedFollowSuggestions(user.id)
     }
 
-    if(suggestions.length == 0) return <></>
+    if(!open || suggestions.length == 0){
+        return <div className="flex justify-end px-1">
+            <button className="hover:bg-[var(--secondary-light)] rounded text-[var(--text-light)]" onClick={() => {setOpen(true)}}>
+                <div className="p-1 flex space-x-1 items-center text-sm">
+                    <TipsAndUpdatesIcon fontSize="inherit"/>
+                    <div className="text-[0.65rem]">Sugerencias</div>
+                </div>
+            </button>
+        </div>
+    }
 
-    return <>{!wasClosed && <div className="border rounded bg-[var(--content)]">
+    return <div className="border rounded bg-[var(--content)]">
         <div className="px-2 flex justify-between">
             <div className="flex flex-col py-4 px-2">
                 <h4 className="sm:text-xl text-sm text-gray-800">
@@ -67,7 +74,7 @@ export const FollowSuggestions = () => {
             </button>
         </div>
         {openSharePopup && <SharePopup onClose={() => {setOpenSharePopup(false)}}/>}
-    </div>}</>
+    </div>
 }
 
 
