@@ -137,7 +137,6 @@ export const PasswordInput = ({state, label="Contraseña"}: {state: SignUpFormSt
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 name="password"
-                defaultValue=''
                 value={password}
                 onChange={(e) => {setPassword(e.target.value)}}
             />

@@ -5,7 +5,7 @@ import { NoResults } from "./category-users"
 import { SmallEntityProps } from "../app/lib/definitions"
 import { useRouteEntities } from "../app/hooks/contents"
 import LoadingSpinner from "./loading-spinner"
-import { articleUrl, cleanText, currentVersion, listOrderDesc, route2Text } from "./utils"
+import { articleUrl, cleanText, listOrderDesc, route2Text } from "./utils"
 import { LazyLoadFeed } from "./lazy-load-feed"
 import Link from "next/link"
 import { DidYouKnow } from "./did-you-know"
@@ -13,8 +13,6 @@ import { useState } from "react"
 import SelectionComponent from "./search-selection-component"
 import { NewPublicArticleButton } from "./new-public-article-button"
 import { topicPopularityScore } from "./trending-articles"
-import { RoutesEditor } from "./routes-editor"
-import { Route } from "./wiki-categories"
 
 
 export function countUserReferences(entity: SmallEntityProps){
