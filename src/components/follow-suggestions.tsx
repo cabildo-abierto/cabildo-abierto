@@ -1,10 +1,7 @@
 import { userUrl } from "./utils"
 
 import { useState } from 'react';
-import { useRouter } from "next/navigation"
-import { fetcher } from "../app/hooks/utils"
-import { preload } from "swr"
-import { useUser, useUserFollowSuggestions, useUsers } from "../app/hooks/user";
+import { useUser, useUserFollowSuggestions } from "../app/hooks/user";
 import { CloseButton } from "./close-button";
 import { follow, updateClosedFollowSuggestions } from "../actions/users";
 import StateButton from "./state-button";
@@ -12,6 +9,7 @@ import Link from "next/link";
 import InfoPanel from "./info-panel";
 import ShareIcon from '@mui/icons-material/Share';
 import { SharePopup } from "./share-popup";
+import { SmallUserProps } from "../app/lib/definitions";
 
 
 export const FollowSuggestions = () => {
@@ -26,7 +24,11 @@ export const FollowSuggestions = () => {
         return <></>
     }
 
-    suggestions = suggestions.filter((u) => (!user.following.some((f) => (f.id == u.id))))
+    function filter(u: SmallUserProps){
+        return u.id != "soporte" && !user.following.some((f) => (f.id == u.id))
+    }
+
+    suggestions = suggestions.filter(filter)
 
     async function onClose(){
         setWasClosed(true)
