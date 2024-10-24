@@ -13,12 +13,20 @@ import { CabildoIcon } from "../components/icons";
 import Link from "next/link";
 
 
+/*const initialMessageContent = <div className="flex flex-col items-center space-y-4">
+    <h3>Estamos haciendo algunos ajustes...</h3>
+    <div className="text-gray-600 text-sm">No vas a poder iniciar sesión hasta que terminemos.</div>
+    <div className="text-gray-600 text-sm">Mientras tanto, podés explorar la página como invitado/a.</div>
+    <div className="text-gray-600 text-sm link"><span className="underline">Tip:</span> Te recomendamos empezar por <Link href="/articulo?i=Cabildo_Abierto">¿Qué es Cabildo Abierto?</Link> y desde ahí seguir leyendo las secciones que te interesen, o apretar <CabildoIcon fontSize="inherit"/> para ir al inicio.</div>
+</div>*/
+
+
 export default function Page({searchParams}: {searchParams: {code?: string, error_description?: string}}) {
     const [invalidLink, setInvalidLink] = useState(searchParams.error_description == "Email link is invalid or has expired")
     const router = useRouter()
     const user = useUser() // para prefetchearlo
     const [loggingIn, setLoggingIn] = useState(searchParams.code != undefined)
-    const [showingInitialMessage, setShowingInitialMessage] = useState(true)
+    // const [showingInitialMessage, setShowingInitialMessage] = useState(true)
     
     useEffect(() => {
         preload("/api/entity/Cabildo_Abierto", fetcher)
@@ -26,13 +34,6 @@ export default function Page({searchParams}: {searchParams: {code?: string, erro
         preload("/api/entity/Cabildo_Abierto%3A_Política_de_privacidad", fetcher)
         preload("/api/user", fetcher)
     }, [])
-
-    const initialMessageContent = <div className="flex flex-col items-center space-y-4">
-        <h3>Estamos haciendo algunos ajustes...</h3>
-        <div className="text-gray-600 text-sm">No vas a poder iniciar sesión hasta que terminemos.</div>
-        <div className="text-gray-600 text-sm">Mientras tanto, podés explorar la página como invitado/a.</div>
-        <div className="text-gray-600 text-sm link"><span className="underline">Tip:</span> Te recomendamos empezar por <Link href="/articulo?i=Cabildo_Abierto">¿Qué es Cabildo Abierto?</Link> y desde ahí seguir leyendo las secciones que te interesen, o apretar <CabildoIcon fontSize="inherit"/> para ir al inicio.</div>
-    </div>
 
     return <div>
         <div className="flex lg:flex-row flex-col min-h-screen-minus-footer px-1">
@@ -50,9 +51,9 @@ export default function Page({searchParams}: {searchParams: {code?: string, erro
             </div>
         </div>
         <Footer/>
-        {showingInitialMessage && <AcceptButtonPanel
+        {/*showingInitialMessage && <AcceptButtonPanel
             onClose={() => {setShowingInitialMessage(false)}}
             text={initialMessageContent}
-        />}
+        />*/}
     </div>
 }
