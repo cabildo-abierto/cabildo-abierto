@@ -86,7 +86,7 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
             />}
 
             {selected == "Siguiendo" && 
-            <div className="mt-4">
+            <div className="">
                 <FollowSuggestions/>
                 </div>
             }
