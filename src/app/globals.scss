@@ -228,10 +228,14 @@ ol {
 	cursor: pointer; 
 	background-color: #78c966;
 	color: var(--background);
+	border-bottom-width: 2px;
+	border-right-width: 2px;
+	border-color: #46a332
 }
   
 .green-btn:hover {
-	background-color: #46a332
+	background-color: #46a332;
+	border-color: #368524
 }
 
 .create-btn {

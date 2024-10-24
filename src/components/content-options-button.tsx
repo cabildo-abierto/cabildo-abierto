@@ -48,7 +48,7 @@ export const ContentOptionsDropdown = ({
         return await deleteContent(content.id)
     }
 
-    return <div className="text-base border rounded bg-[var(--content)] p-2">
+    return <div className="text-base content-container rounded bg-[var(--content)] p-2">
         {optionsList.includes("reportFake") && 
         <button 
             className="hover:bg-[var(--secondary-light)] px-2 py-1 rounded flex w-64"
