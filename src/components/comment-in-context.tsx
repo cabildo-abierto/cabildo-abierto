@@ -32,7 +32,7 @@ export function shortDescription(content: ContentProps){
 }
 
 
-export const contentContextClassName = "bg-[var(--secondary-light)] px-2 text-sm mx-1 mt-1 link text-[var(--text-light)]"
+export const contentContextClassName = "bg-[var(--secondary-light)] px-2 text-sm mx-1 mt-1 link text-[var(--text-light)] rounded "
 
 
 export const CommentInContext = ({

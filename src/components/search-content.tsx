@@ -47,16 +47,16 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
                 <div className="flex justify-center mb-4 space-x-2 text-xs sm:text-sm">
                     {<button
                         onClick={() => {if(selected != "Publicaciones") setSelected("Publicaciones"); else setSelected("Ninguno")}}
-                        className={"rounded-lg px-2 border hover:bg-[var(--secondary-light)] py-1 " + (selected == "Publicaciones" ? "bg-[var(--secondary-light)]" : "")}>
+                        className={"rounded-lg px-2 content-container hover:bg-[var(--secondary-light)] py-1 " + (selected == "Publicaciones" ? "bg-[var(--secondary-light)]" : "")}>
                             Publicaciones y comentarios
                     </button>}
                     {<button
                         onClick={() => {if(selected != "Temas") setSelected("Temas"); else setSelected("Ninguno")}}
-                        className={"rounded-lg px-2 border hover:bg-[var(--secondary-light)] py-1 " + (selected == "Temas" ? "bg-[var(--secondary-light)]" : "")}>Temas
+                        className={"rounded-lg px-2 content-container hover:bg-[var(--secondary-light)] py-1 " + (selected == "Temas" ? "bg-[var(--secondary-light)]" : "")}>Temas
                     </button>}
                     {<button
                         onClick={() => {if(selected != "Usuarios") setSelected("Usuarios"); else setSelected("Ninguno")}}
-                        className={"rounded-lg px-2 border hover:bg-[var(--secondary-light)] py-1 " + (selected == "Usuarios" ? "bg-[var(--secondary-light)]" : "")}>Usuarios
+                        className={"rounded-lg px-2 content-container hover:bg-[var(--secondary-light)] py-1 " + (selected == "Usuarios" ? "bg-[var(--secondary-light)]" : "")}>Usuarios
                     </button>}
 
                 </div>
