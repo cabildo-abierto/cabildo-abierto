@@ -88,7 +88,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
         {(!user.isLoading && !user.user && (wideScreen || !searchBarOpen)) &&
             <div className="sm:w-72 flex justify-end">
                 <Link href="/" className="mx-1 sm:mx-2">
-                <button className="bg-[var(--primary)] px-2 py-1 hover:bg-[var(--primary-dark)] rounded text-[var(--background)] text-xs flex flex-col items-center">
+                <button className="small-btn text-xs sm:text-sm flex flex-col items-center">
                     <span>Crear cuenta o </span><span>iniciar sesión</span>
                 </button>
                 </Link>

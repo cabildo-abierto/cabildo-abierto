@@ -76,10 +76,10 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
 
     const depthParity = depth % 2 == 1
     
-    const className = "w-full border " + (depthParity ? "bg-[var(--content2)]" : "bg-[var(--content)]") +
-        (isMainPage ? "" : " rounded") + (content.type == "Post" && !isMainPage ? " hover:bg-[var(--secondary-light)]" : "") + (depth == 0 ? " border-b-2 border-r-2" : "")
+    const className = "w-full " + (depthParity ? "bg-[var(--content2)]" : "bg-[var(--content)]") +
+        (isMainPage ? "" : " rounded") + (content.type == "Post" && !isMainPage ? " hover:bg-[var(--secondary-light)]" : "") + ((depth == 0 && !isMainPage) ? " border-b-2 border-r-2" : "") + (isMainPage ? "" : " border")
 
-    const depthParityComments = ["Post", "EntityContent"].includes(content.type) ? false : !depthParity
+    const depthComments = ["Post", "EntityContent"].includes(content.type) ? depth : depth+1
 
     return <div className={className}>
         <ContentComponent
@@ -99,7 +99,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         />
         {isMainPage && ["Post", "EntityContent"].includes(content.type) && !editing && <hr className="mt-12 mb-2" id="discussion-start"/>}
         <div className={isMainPage ? "" : "ml-2 mr-1"}>
-            {writingReply && <div className={"mb-1 " + (depthParityComments ? "bg-[var(--content2)]" : "bg-[var(--content)]")}>
+            {writingReply && <div className={"mb-1 " + (depthComments % 2 == 1 ? "bg-[var(--content2)]" : "bg-[var(--content)]")}>
                 {startsOpen ? <CommentEditor
                         onSubmit={handleNewComment}
                     /> : 
@@ -114,13 +114,13 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
                 content={content}
                 comments={comments}
                 writingReply={writingReply}
-                depth={depth+1}
+                depth={depthComments}
             /> : 
             <EntityCommentSection
                 content={content}
                 comments={comments}
                 writingReply={writingReply}
-                depth={depth+1}
+                depth={depthComments}
             />
             )}
         </div>
