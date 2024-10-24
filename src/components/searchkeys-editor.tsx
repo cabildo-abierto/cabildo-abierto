@@ -55,7 +55,10 @@ function areSearchkeysEqual(cat1: string[], cat2: string[]){
 
 
 export const EntitySearchkeysTitle = ({name}: {name: string}) => {
-    let info = "Se usan para contabilizar formas alternativas de mencionar el título a la hora de buscar referencias."
+    let info = <div className="flex flex-col">
+        <span className="font-bold">Nombres alternativos para el título del tema</span>
+        <span>Se usan para encontrar referencias a este tema en publicaciones, comentarios y otros temas.</span>
+    </div>
     
     return <div className="ml-1 mb-4 flex items-center">
         <span className="mr-1 text-lg">Sinónimos de {name}</span>

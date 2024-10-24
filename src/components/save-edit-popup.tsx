@@ -40,12 +40,14 @@ export const SaveEditPopup = ({
     const [newVersionSize, setNewVersionSize] = useState(undefined)
 
     useEffect(() => {
+        console.log("computing diff")
         const jsonState = JSON.stringify(editorState)
         const d = charDiffFromJSONString(currentVersion, jsonState, true)
         if(!d){
             setDiff("too big")
         }
         setNewVersionSize(getAllText(JSON.parse(jsonState).root).length)
+        setDiff(d)
     }, [])
     
     const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una Ley, o algo escrito por otra persona. Al desactivarlo no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href={articleUrl("Cabildo_Abierto:_Derechos_de_autor")}>Más información</Link>
@@ -54,7 +56,6 @@ export const SaveEditPopup = ({
     if(!newVersionSize){
         return null
     }
-
 
     if(newVersionSize > 1200000){
         return <AcceptButtonPanel
@@ -81,13 +82,13 @@ export const SaveEditPopup = ({
                     {!hasEditPermission(user, entity.protection) && <div className="mb-8">
                     <NotEnoughPermissionsWarning entity={entity}/>
                     </div>}
-                    <div className="flex justify-center">
+                    {diff !== "too big" && diff != undefined && diff.charsAdded > 0 && <div className="flex justify-center">
                         <TickButton
                             ticked={claimsAuthorship}
                             setTicked={setClaimsAuthorship}
                             text={<span className="text-sm text-gray-700">Soy autor/a de los caracteres agregados. <InfoPanel text={infoAuthorship} className="w-72"/></span>}
                         />
-                    </div>
+                    </div>}
                     <div className="flex justify-center items-center space-x-4 mt-4">
                         <button
                             className="gray-btn w-48"

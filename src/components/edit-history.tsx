@@ -179,7 +179,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
         baseMsg = <span></span>
     }
 
-    let className = "w-full px-2 py-2 link cursor-pointer mr-1 flex items-center " + (selected ? "border-2" : "border")
+    let className = "w-full px-2 py-2 link cursor-pointer mr-1 flex items-center rounded " + (selected ? "border-2" : "border")
 
     className = className + ((isUndone || isRejected) ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
 
