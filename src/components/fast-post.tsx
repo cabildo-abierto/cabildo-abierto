@@ -16,7 +16,7 @@ type FastPostProps = {
     onViewComments: () => void,
     viewingComments: boolean
     onStartReply: () => void
-    depthParity?: boolean
+    depth?: number
     inCommentSection: boolean
     isMainPage: boolean
 }
@@ -29,7 +29,7 @@ export const FastPost = ({
     onStartReply,
     inCommentSection,
     isMainPage,
-    depthParity=false,
+    depth=0,
 }: FastPostProps) => {
     const icon = <FastPostIcon/>
     const {user} = useUser()

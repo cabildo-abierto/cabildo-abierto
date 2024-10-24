@@ -19,6 +19,7 @@ const TopicsPage: React.FC<{
         // probablemente estos dos no tenga sentido ponerlos acá
         preload("/api/feed/", fetcher)
         preload("/api/following-feed/", fetcher)
+        preload("/api/notifications", fetcher)
     }, [])
 
     const [route, setRoute] = useState(decodedRoute)

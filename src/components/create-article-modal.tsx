@@ -55,7 +55,7 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
                         return {}
                     }}
                     disabled={!user.user || !validEntityName(entityName)}
-                    className="gray-btn w-full"
+                    className="gray-btn w-full title"
                     text1="Crear"
                     text2="Creando..."
                 />

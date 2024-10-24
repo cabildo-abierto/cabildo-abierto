@@ -55,7 +55,7 @@ export type CommentComponentProps = {
     inCommentSection?: boolean
     inItsOwnCommentSection: boolean
     isFakeNewsReport?: boolean
-    depthParity?: boolean
+    depth?: number
 }
 
 
@@ -65,8 +65,7 @@ export const Comment = ({
     viewingComments,
     onStartReply,
     inCommentSection=false,
-    isFakeNewsReport,
-    depthParity=false}: CommentComponentProps) => {
+    isFakeNewsReport}: CommentComponentProps) => {
     const {user} = useUser()
     const parentId = content.parentContents[0].id
     let snode = null

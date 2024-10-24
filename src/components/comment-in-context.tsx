@@ -43,7 +43,7 @@ export const CommentInContext = ({
     isFakeNewsReport,
     inCommentSection=false,
     inItsOwnCommentSection,
-    depthParity=false}: CommentComponentProps) => {
+    depth}: CommentComponentProps) => {
     const parentId = content.parentContents[0].id
     const parentContent = useContent(parentId)
     const rootContent = useContent(content.rootContentId)

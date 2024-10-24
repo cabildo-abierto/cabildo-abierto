@@ -54,10 +54,10 @@ const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsPro
         useCodeblock: false,
         placeholder: "Escribí tu publicación acá...",
         initialData: initialData ? initialData : initializeEmpty(""),
-        editorClassName: "content",
+        editorClassName: "content sm:ml-0 ml-3",
         isReadOnly: false,
         isAutofocus: true,
-        placeholderClassName: "ContentEditable__placeholder"
+        placeholderClassName: "ContentEditable__placeholder sm:ml-0 ml-3"
     }
 }
 
@@ -146,7 +146,7 @@ const PostEditor = ({
 	const PublishButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
         return <StateButton
             handleClick={onClick}
-            className="small-btn sm:gray-btn text-xs sm:text-sm"
+            className="small-btn sm:gray-btn text-xs sm:text-sm title"
             text1={isPublished ? "Guardar cambios" : "Publicar"}
             text2={isPublished ? "Guardando..." : "Publicando..."}
             textClassName="py-2"
@@ -157,7 +157,7 @@ const PostEditor = ({
     const SaveDraftButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
         return <StateButton
             handleClick={onClick}
-            className="small-btn sm:gray-btn text-xs sm:text-sm"
+            className="small-btn sm:gray-btn text-xs sm:text-sm title"
             text1="Guardar borrador"
             text2="Guardando..."
             textClassName="py-2"
@@ -167,7 +167,7 @@ const PostEditor = ({
 
     const DraftsButton = () => {
         return <Link href="/borradores">
-            <button className="gray-btn hidden text-sm sm:block">
+            <button className="gray-btn hidden text-sm sm:block title">
                 <div className="py-1">
                 Ver borradores
                 </div>

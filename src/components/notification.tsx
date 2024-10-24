@@ -33,7 +33,7 @@ export const NotificationComponent = ({notification}: {notification: Notificatio
         content = <>Error n01. Si podés, avisale al <Link href="/soporte">soporte</Link>.</>
     }
 
-    const className = "content-container flex flex-col space-y-2 p-2 " + (notification.viewed ? "" : "bg-[var(--secondary-light)]")
+    const className = "content-container rounded flex flex-col space-y-2 p-2 " + (notification.viewed ? "" : "bg-[var(--secondary-light)]")
 
     return <div className={className}>
         <div className="text-[var(--text-light)]"><DateSince date={notification.createdAt}/></div>

@@ -23,7 +23,7 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
 
     const placeholders = [
-        "Una ráfaga comunicacional...",
+        "No más de 800 caracteres...",
     ];
 
     useEffect(() => {
@@ -33,7 +33,8 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
 
     const settings = { ...commentEditorSettings };
     settings.placeholder = randomPlaceholder;
-    settings.editorClassName = "min-h-[250px] content"
+    settings.editorClassName = "min-h-[250px] content comment"
+    settings.placeholderClassName = "absolute top-0 text-[var(--text-lighter)] pointer-events-none"
 
     async function handleSubmit() {
         setErrorOnCreatePost(false)

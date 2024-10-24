@@ -2,11 +2,10 @@
 import React, { useEffect, useState } from "react"
 import { CategoryArticles } from "./category-articles";
 import { CategoryUsers } from "./category-users";
-import { useRouteFeed, useSearchableContents } from "../app/hooks/contents";
+import { useSearchableContents } from "../app/hooks/contents";
 import { preload } from "swr";
 import { fetcher } from "../app/hooks/utils";
 import { ConfiguredFeed } from "./sorted-and-filtered-feed";
-import { SearchHeader } from "./search-header";
 import { useSearch } from "./search-context";
 import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
 

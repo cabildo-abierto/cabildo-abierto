@@ -42,7 +42,7 @@ export const commentEditorSettings: SettingsProps = {
     useCodeblock: false,
     placeholder: "Agregá un comentario...",
     isAutofocus: false,
-    editorClassName: ".content comment min-h-16 relative",
+    editorClassName: "content comment min-h-16 relative",
     initialData: null,
     isReadOnly: false,
     placeholderClassName: "absolute top-0 text-[var(--text-lighter)] pointer-events-none"
@@ -82,7 +82,7 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
     
     const count = editor && editorState ? charCount(editorState) : 0
 
-    return <div className="content-container p-1">
+    return <div className="content-container rounded p-1">
         <div className="ml-3 mr-2 mt-2">
             <MyLexicalEditor
                 settings={settings}

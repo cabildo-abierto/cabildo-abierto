@@ -123,7 +123,7 @@ type CommentSectionProps = {
     activeIDs?: string[]
     onlyQuotes?: boolean
     writingReply: boolean
-    depthParity?: boolean
+    depth?: number
 }
 
 type CommentSectionElementProps = {
@@ -133,10 +133,11 @@ type CommentSectionElementProps = {
     _count: {childrenTree: number}
     currentVersionOf?: {id: string}
     isReference: boolean
+    depth: number
 }
 
 export const CommentSection: React.FC<CommentSectionProps> = ({
-    content, comments, entity, writingReply, depthParity=false}) => {
+    content, comments, entity, writingReply, depth}) => {
     
     if(!comments) return <></>
 
@@ -167,7 +168,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                         parentContentId={content.id}
                         inCommentSection={true}
                         inItsOwnCommentSection={!isRef && !comment.isReference}
-                        depthParity={depthParity}
+                        depth={depth}
                     />
                 </div>
             })}
@@ -184,11 +185,11 @@ type EntityCommentSectionProps = {
     content: ContentProps
     comments: CommentProps[]
     writingReply: boolean
-    depthParity?: boolean
+    depth: number
 }
 
 
-export const EntityCommentSection = ({content, comments, writingReply, depthParity}: EntityCommentSectionProps) => {
+export const EntityCommentSection = ({content, comments, writingReply, depth}: EntityCommentSectionProps) => {
     const entity = useEntity(content.parentEntityId)
     if(entity.isLoading){
         return <LoadingSpinner/>
@@ -199,6 +200,6 @@ export const EntityCommentSection = ({content, comments, writingReply, depthPari
         comments={comments}
         writingReply={writingReply}
         entity={entity.entity}
-        depthParity={depthParity}
+        depth={depth}
     />
 }

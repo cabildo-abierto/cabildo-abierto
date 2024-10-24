@@ -34,7 +34,7 @@ export const FollowSuggestions = () => {
     }
 
     if(!open || suggestions.length == 0){
-        return <div className="flex justify-end px-1">
+        return <div className="flex justify-end px-1 mt-1">
             <button className="hover:bg-[var(--secondary-light)] rounded text-[var(--text-light)]" onClick={() => {setOpen(true)}}>
                 <div className="p-1 flex space-x-1 items-center text-sm">
                     <TipsAndUpdatesIcon fontSize="inherit"/>
@@ -44,7 +44,7 @@ export const FollowSuggestions = () => {
         </div>
     }
 
-    return <div className="border rounded bg-[var(--content)]">
+    return <div className="border rounded bg-[var(--content)] mt-4">
         <div className="px-2 flex justify-between">
             <div className="flex flex-col py-4 px-2">
                 <h4 className="sm:text-xl text-sm text-gray-800">
