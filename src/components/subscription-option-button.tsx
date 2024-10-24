@@ -41,10 +41,10 @@ const SubscriptionOptionButton: React.FC<SubscriptionOptionButtonProps> = ({
     const className = "lg:w-96 w-72 subscription-btn flex flex-col items-center"
 
     if(href){
-        return <button className={className}>
-            <Link href={href}>
+        return <button className={className} disabled={disabled}>
+            {disabled ? <div>{text1}</div> : <Link href={href}>
                 {text1}
-            </Link>
+            </Link>}
         </button>
     }
 

@@ -72,6 +72,8 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
         <div className="text-gray-300 text-sm">Quedan {price.price.remaining} suscripciones con este descuento (luego costarán ${nextPrice(price.price.price)}).</div>
     </div>
 
+    console.log("user", user.subscriptionsUsed.length)
+
     return <>
         <div className="px-4 w-full flex flex-col justify-center items-center">
             <div className="flex justify-center">

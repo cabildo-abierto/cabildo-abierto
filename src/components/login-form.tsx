@@ -23,11 +23,9 @@ const LoginFormError = ({state}: {state: LoginFormState}) => {
         </div>
     }
     if(!pending && state && state.error == "not confirmed"){
-        errorComponent = <div className="flex items-center px-2">
-            <div>
+        errorComponent = <div className="flex flex-col items-center px-2 justify-center text-center">
             <span className="text-red-600">Confirmá tu mail para iniciar sesión.</span>
-            <ResendEmailButton email={state.data.email}/>
-            </div>
+            <span><ResendEmailButton email={state.data.email}/></span>
         </div>   
     }
     if(!pending && state && state.error == "api error"){

@@ -21,7 +21,7 @@ export const FreeSubscriptionButton = () => {
     return <StateButton 
         handleClick={handlePayment}
         className="gray-btn"
-        text1="Usar una suscripción pendiente"
+        text1="Usar una suscripción donada"
         text2="Adquiriendo suscripción..."
     />
         
