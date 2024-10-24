@@ -17,7 +17,7 @@ export const WhatsAppShareButton = () => {
         aria-label="Compartir por WhatsApp"
         background-
       >
-        <button className="bg-[#78c966] hover:bg-[#46a332] rounded text-[var(--lightwhite)] w-64">
+        <button className="bg-[#78c966] hover:bg-[#46a332] rounded text-[var(--lightwhite)] w-64 border-b-2 border-r-2 border-[#46a332] hover:border-[#316f23]">
           <div className="py-2">
             Compartir en Whatsapp
           </div>

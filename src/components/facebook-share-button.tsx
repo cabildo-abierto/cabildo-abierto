@@ -8,7 +8,7 @@ const FacebookShareButton = () => {
   return (
     <Link href={shareUrl} target="_blank" rel="noopener noreferrer">
     <button
-        className="bg-[#4267B2] hover:bg-[#365899] text-white rounded w-64"
+        className="bg-[#4267B2] hover:bg-[#365899] text-white rounded w-64 border-b-2 border-r-2  border-[#365899] hover:border-[#264379]"
     >
         <div className="py-2">
             Compartir en Facebook

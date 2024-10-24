@@ -13,7 +13,7 @@ const XShareButton = () => {
     return (
         <Link href={shareUrl} target="_blank" rel="noopener noreferrer">
         <button
-            className="hover:bg-gray-800 bg-black text-white rounded w-64"
+            className="hover:bg-gray-900 bg-gray-800 text-white rounded w-64 border-b-2 border-r-2 hover:border-black border-gray-900"
         >
             <div className="py-2">
                 Compartir en X (Twitter)

@@ -11,6 +11,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import { SharePopup } from "./share-popup";
 import { SmallUserProps } from "../app/lib/definitions";
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+import { CloseButtonIcon } from "./icons";
 
 
 export const FollowSuggestions = () => {
@@ -44,8 +45,8 @@ export const FollowSuggestions = () => {
         </div>
     }
 
-    return <div className="border rounded bg-[var(--content)] mt-4">
-        <div className="px-2 flex justify-between">
+    return <div className="content-container rounded bg-[var(--content)] mt-4">
+        <div className="pl-2 flex justify-between">
             <div className="flex flex-col py-4 px-2">
                 <h4 className="sm:text-xl text-sm text-gray-800">
                     Personas que quizás quieras seguir
@@ -66,7 +67,7 @@ export const FollowSuggestions = () => {
         </div>
         <div className="flex justify-end px-2 mb-2">
             <button
-                className="rounded px-2 bg-[var(--primary)] hover:bg-[var(--primary-dark)]  text-[var(--lightwhite)] text-xs sm:text-sm flex items-center space-x-2"
+                className="small-btn px-2 text-xs sm:text-sm flex items-center space-x-2"
                 onClick={() => {setOpenSharePopup(true)}}
             >
                 <div>O compartí la página con alguien que conozcas</div>
@@ -123,12 +124,14 @@ export const SuggestionsSlider = ({suggestions, closePanel}: {
             const e = suggestions[i]
 
             return <div
-                className="border min-w-32 h-32 rounded text-center"
+                className="bg-[var(--secondary-light)] min-w-32 h-32 rounded text-center"
                 key={e.id+index}
             >
                 <div className="flex flex-col justify-between h-full">
                 <div className="flex justify-end text-[var(--text-light)]">
-                    <CloseButton onClose={() => {onClose(index)}}/>
+                    <button onClick={() => {onClose(index)}} className="rounded hover:bg-[var(--secondary)] m-1">
+                    <CloseButtonIcon />
+                </button>
                 </div>
                 <Link href={userUrl(e.id)} className="flex items-center justify-center text-xs sm:text-sm flex-col px-1">
                     <span>
