@@ -63,7 +63,6 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
 
     useEffect(() => {
         if(entity.entity){
-            console.log("entity", entity.entity)
             const references = entity.entity.versions[currentVersion(entity.entity)].entityReferences
             for(let i = 0; i < references.length; i++){
                 preload("/api/entity/"+references[i].id, fetcher)
@@ -248,8 +247,6 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
 
         return smoothScrollTo(targetElement, 300)
     }
-
-    console.log("entity", entity.entity)
 
     const versions = entity.entity.versions
     const currentIndex = currentVersion(entity.entity)

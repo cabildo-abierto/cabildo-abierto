@@ -9,7 +9,7 @@ import { ContentTopRow } from "./content";
 import { useEntity } from "../app/hooks/entities";
 import { useContent } from "../app/hooks/contents";
 import { ContentProps, EntityProps } from "../app/lib/definitions";
-import { articleUrl, cleanText, entityIdToName, getKeysFromEntity, getPlainText, getVersionInEntity, isKeyInText, someKeyInText } from "./utils";
+import { articleUrl, cleanText, currentVersion, entityIdToName, getKeysFromEntity, getPlainText, getVersionInEntity, isKeyInText, someKeyInText } from "./utils";
 import { decompress } from "./compression";
 import { contentContextClassName } from "./comment-in-context";
 
@@ -40,13 +40,14 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
         return <LoadingSpinner/>
     }
     if(!entity.entity){
-        return <>Error :( {entityId}</>
+        return <></>
     }
+
     const version = getVersionInEntity(content.id, entity.entity)
 
     if(parentContentId){
         const version = getVersionInEntity(content.id, entity.entity)
-        if(version != entity.entity.versions.length-1){
+        if(version != currentVersion(entity.entity)){
             return <></>
         } else {
             return <EntityMentionInCommentSection
