@@ -56,7 +56,7 @@ export const FollowSuggestions = () => {
             </div>
             <div className="flex items-start">
                 <div className="flex items-center">
-                <InfoPanel text="Por seguidores en común y popularidad de sus publicaciones."/>
+                <InfoPanel text="Por seguidos en común y popularidad de sus publicaciones."/>
                 <CloseButton onClose={onClose}/>
                 </div>
             </div>
