@@ -23,7 +23,7 @@ const ResendEmailButton = ({ email, initializeSent=false }: { email: string, ini
   if (!lastSent || seconds >= 30) {
     return (
       <StateButton
-        className="ml-1 cursor-pointer underline hover:text-[var(--primary)]"
+        className="cursor-pointer small-btn"
         handleClick={async () => {
           const {response, error} = await resendConfirmationEmail(email);
           if(error) return error
@@ -37,7 +37,7 @@ const ResendEmailButton = ({ email, initializeSent=false }: { email: string, ini
     );
   } else {
     return (
-      <span className="ml-1">
+      <span className="">
         Podés volver a enviar el mail en {30 - seconds} segundos.
       </span>
     );

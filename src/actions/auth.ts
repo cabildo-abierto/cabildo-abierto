@@ -31,10 +31,10 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
   if (error) {
     if(error instanceof AuthRetryableFetchError){
       return { error: "no connection" }
-    } else if(error instanceof AuthApiError){
-      return { error: "api error"}
     } else if(error.message == "Email not confirmed"){
       return { error: "not confirmed", data: validatedFields.data}
+    } else if(error instanceof AuthApiError){
+      return { error: "api error"}
     } else {
       return { error: "invalid auth" }
     }

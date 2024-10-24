@@ -298,20 +298,26 @@ ol {
 	border-radius: 0.25rem; 
 	background-color: var(--primary); 
 	cursor: pointer; 
-	color: var(--background)
+	color: var(--background);
+	border-bottom-width: 2px;
+	border-right-width: 2px;
+	border-color: var(--primary-dark)
 }
   
 .subscription-btn:hover {
 	background-color: var(--primary-dark);
+	border-color: var(--primary-darker)
 }
 
 .subscription-btn:disabled {
 	background-color: var(--primary-light);
+	border-color: var(--primary);
 	opacity: 0.7;
 }
 
 .subscription-btn:disabled:hover {
 	background-color: var(--primary-light);
+	border-color: var(--primary);
 	opacity: 0.7;
 }
 
