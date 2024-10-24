@@ -22,7 +22,7 @@ type ContentWithCommentsProps = {
     setEditing?: (arg0: boolean) => void
     parentContentId?: string
     inCommentSection: boolean
-    depthParity?: boolean
+    depth?: number
     inItsOwnCommentSection: boolean
 }
 
@@ -36,7 +36,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     parentContentId,
     inCommentSection,
     inItsOwnCommentSection,
-    depthParity=false,
+    depth,
     setEditing}) => {
 
     const {mutate} = useSWRConfig()
@@ -73,9 +73,11 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const handleCancelComment = () => {
         setWritingReply(false)
     }
+
+    const depthParity = depth % 2 == 1
     
-    const className = "w-full " + (depthParity ? "bg-[var(--content2)]" : "bg-[var(--content)]") +
-        (isMainPage ? "" : " content-container rounded") + (content.type == "Post" && !isMainPage ? " hover:bg-[var(--secondary-light)]" : "")
+    const className = "w-full border " + (depthParity ? "bg-[var(--content2)]" : "bg-[var(--content)]") +
+        (isMainPage ? "" : " rounded") + (content.type == "Post" && !isMainPage ? " hover:bg-[var(--secondary-light)]" : "") + (depth == 0 ? " border-b-2 border-r-2" : "")
 
     const depthParityComments = ["Post", "EntityContent"].includes(content.type) ? false : !depthParity
 
@@ -93,7 +95,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
             parentContentId={parentContentId}
             inCommentSection={inCommentSection}
             inItsOwnCommentSection={inItsOwnCommentSection}
-            depthParity={depthParity}
+            depth={depth}
         />
         {isMainPage && ["Post", "EntityContent"].includes(content.type) && !editing && <hr className="mt-12 mb-2" id="discussion-start"/>}
         <div className={isMainPage ? "" : "ml-2 mr-1"}>
@@ -112,13 +114,13 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
                 content={content}
                 comments={comments}
                 writingReply={writingReply}
-                depthParity={depthParityComments}
+                depth={depth+1}
             /> : 
             <EntityCommentSection
                 content={content}
                 comments={comments}
                 writingReply={writingReply}
-                depthParity={depthParityComments}
+                depth={depth+1}
             />
             )}
         </div>
@@ -136,7 +138,7 @@ type ContentWithCommentsFromIdProps = {
     parentContentId?: string
     inCommentSection?: boolean
     inItsOwnCommentSection?: boolean
-    depthParity?: boolean
+    depth?: number
 }
 
 
@@ -149,7 +151,7 @@ export const ContentWithCommentsFromId = ({
     parentContentId,
     inCommentSection=false,
     inItsOwnCommentSection=false,
-    depthParity=false,
+    depth=0,
     setEditing}: ContentWithCommentsFromIdProps) => {
 
     const content = useContent(contentId)
@@ -169,6 +171,6 @@ export const ContentWithCommentsFromId = ({
         inCommentSection={inCommentSection}
         inItsOwnCommentSection={inItsOwnCommentSection}
         parentContentId={parentContentId}
-        depthParity={depthParity}
+        depth={depth}
     />
 }

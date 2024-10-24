@@ -14,7 +14,7 @@ export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = 
     const className = "px-2 py-1 w-72 text-center hover:bg-[var(--secondary-light)]"
     const {searchValue, setSearchValue} = useSearch()
 
-    return <div className="flex justify-center content-container"
+    return <div className="flex justify-center content-container rounded"
       onClick={() => {setSearchValue("")}}
     >
         <Link href={id2url(result.id)}>
@@ -67,7 +67,7 @@ const SearchBar: React.FC<{onClose: any, setSearchValue: any, wideScreen: boolea
   const {searchValue} = useSearch()
 
   return wideScreen ?
-      <div className="flex border pl-3 pr-1">
+      <div className="flex border rounded pl-3 pr-1">
         <div className="flex w-full">
           <SearchInput searchValue={searchValue} onChange={setSearchValue} autoFocus={false}/>
         </div>
@@ -76,7 +76,7 @@ const SearchBar: React.FC<{onClose: any, setSearchValue: any, wideScreen: boolea
           <CloseSearchButton onClick={() => {setSearchValue("")}}/>}
         </div>
       </div> : 
-      <div className="flex border pl-1 pr-1">
+      <div className="flex border rounded pl-1 pr-1">
         <div className="text-[var(--text-light)] flex">
           <SearchButton disabled={true}/>
           <div className="flex w-full">

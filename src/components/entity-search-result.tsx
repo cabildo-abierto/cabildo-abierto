@@ -78,7 +78,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
       )}
       <Link
         href={articleUrl(entity.id)}
-        className={"px-2 content-container hover:bg-[var(--secondary-light)] bg-[var(--content)] " + (numWords == 0 ? "mt-1" : "")}
+        className={"px-2 content-container rounded hover:bg-[var(--secondary-light)] bg-[var(--content)] " + (numWords == 0 ? "mt-1" : "")}
         onMouseEnter={onMouseEnter}
         onClick={() => {setSearchValue("")}}
       >

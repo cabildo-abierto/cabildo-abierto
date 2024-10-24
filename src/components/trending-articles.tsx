@@ -4,12 +4,13 @@ import LoadingSpinner from "./loading-spinner"
 import { articleUrl, currentVersion, listOrderDesc } from "./utils"
 import { useDraggable } from "react-use-draggable-scroll";
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from "next/navigation"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import InfoPanel from "./info-panel";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
+import PersonIcon from '@mui/icons-material/Person';
 
 
 export function countUserInteractions(entity: SmallEntityProps){
@@ -98,6 +99,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
     useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
     const { events } = useDraggable(ref);
     const router = useRouter()
+    const [hovering, setHovering] = useState<number>(undefined)
 
     return (
     <div
@@ -110,18 +112,22 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
             const score = topicPopularityScore(e)[0]
             return <button
                 onClick={() => {router.push(articleUrl(e.id))}}
-                className="flex-none min-w-28 max-w-48 sm:min-w-48 sm:max-w-64 h-24 border rounded-lg text-center p-1 hover:bg-[var(--content2)] sm:text-sm text-xs text-[0.72rem] my-2 bg-[var(--content)]"
+                className="flex flex-col justify-between rounded text-center p-1 sm:text-sm text-xs text-[0.72rem] my-2 bg-[var(--secondary-light)] hover:bg-[var(--secondary)] text-gray-900 border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)]"
                 key={e.id}
-                onMouseEnter={() => {preload("/api/entity/"+e.id, fetcher)}}
+                onMouseLeave={() => {setHovering(undefined)}}
+                onMouseEnter={() => {preload("/api/entity/"+e.id, fetcher); setHovering(index)}}
             >
-                <div className={"flex items-center justify-center h-14 px-2"}>
-                    <span className={e.name.length > 64 ? "text-[0.74rem]" : ""}>{e.name}</span>
+                <div className="flex items-center justify-center px-2 w-28 sm:w-48 title h-full">
+                    <span className={"overflow-hidden" + (hovering == index ? " line-clamp-none" : " line-clamp-2")}>
+                        {e.name}
+                    </span>
                 </div>
+
                 <div
-                    className="text-[var(--text-light)] h-10 text-xs sm:text-sm flex items-center justify-center"
-                    title="La cantidad de usuarios que participaron en la discusión."
+                    className="text-gray-700 text-xs sm:text-sm flex items-end justify-end px-1"
+                    
                 >
-                    {score} {score != 1 ? "usuarios" : "usuario"}
+                    <div title="La cantidad de usuarios que participaron en la discusión.">{score} <PersonIcon fontSize="inherit"/></div>
                 </div>
             </button>
         })}

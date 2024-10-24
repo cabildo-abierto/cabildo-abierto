@@ -25,11 +25,13 @@ $background: #fbfbfc;
   --content2: #{lighten($secondary, 20%)};//#{lighten($secondary, 23%)};
   
   --primary-dark: #{darken($primary, 20%)};
+  --primary-darker: #{darken($primary, 30%)};
 
   --secondary-slight: #{lighten($secondary, 20%)};
   --secondary-light: #{lighten($secondary, 20%)};
   --secondary-xlight: #{lighten($secondary, 25%)};
   --secondary-lighter: #{lighten($secondary, 27%)};
+  --secondary-dark: #{darken($secondary, 20%)};
 
   --primary-light: #{lighten($primary, 20%)};
   --accent-dark: #{darken($accent, 20%)};
@@ -141,7 +143,7 @@ h4 {
 	margin-top: 10px;
 }
 
-.content:comment p, ul, li {
+.content.comment p, ul, li {
 	margin-top: 0px;
 	margin-bottom: 10px;
 }
@@ -188,20 +190,26 @@ ol {
 	background-color: var(--primary); 
 	cursor: pointer; 
 	color: var(--lightwhite);
+	border-bottom-width: 2px;
+	border-right-width: 2px;
+	border-color: var(--primary-dark)
 }
   
 .gray-btn:hover {
 	background-color: var(--primary-dark);
+	border-color: var(--primary-darker)
 }
 
 .gray-btn:disabled {
 	background-color: var(--background-dark);
+	border-color: var(--secondary-light);
 	color: var(--accent);
 	opacity: 0.6;
 }
 
 .gray-btn:disabled:hover {
 	background-color: var(--background-dark);
+	border-color: var(--secondary-light);
 	color: var(--accent);
 	opacity: 0.6;
 }
@@ -234,11 +242,15 @@ ol {
 	border-radius: 0.25rem; 
 	background-color: var(--primary); 
 	cursor: pointer; 
-	color: var(--background)
+	color: var(--background);
+	border-right-width: 2px;
+	border-bottom-width: 2px;
+	border-color: var(--primary-dark)
 }
   
 .create-btn:hover {
-	background-color: var(--primary-dark)
+	background-color: var(--primary-dark);
+	border-color: var(--primary-darker)
 }
   
 .small-btn {
@@ -249,22 +261,28 @@ ol {
 	border-radius: 0.25rem;
 	font-size: 14px; 
 	background-color: var(--primary); 
-	cursor: pointer; 
+	cursor: pointer;
+	border-right-width: 2px;
+	border-bottom-width: 2px;
+	border-color: var(--primary-dark);
 	color: var(--background)
 }
   
 .small-btn:hover {
 	background-color: var(--primary-dark);
+	border-color: var(--primary-darker)
 }
 
 .small-btn:disabled {
 	background-color: var(--background-dark);
+	border-color: var(--secondary-light);
 	color: var(--accent);
 	opacity: 0.6;
 }
 
 .small-btn:disabled:hover {
 	background-color: var(--background-dark);
+	border-color: var(--secondary-light);
 	color: var(--accent);
 	opacity: 0.6;
 }
@@ -381,12 +399,13 @@ ol {
 }
 
 .main-feed.selected-option-text {
-	border-bottom: 4px solid var(--primary);
+	border-bottom: 4px solid var(--secondary-light);
 	border-radius: 2px
 }
 
 .main-feed.not-selected-option:hover {
-	background: var(--content2);
+	background: var(--primary-dark);
+	border-color: var(--primary-darker)
 }
 
 .filter-feed button {
@@ -619,6 +638,8 @@ ol {
 .content-container {
 	border: 1px solid;
 	border-color: $accent;
+	border-bottom-width: 2px;
+	border-right-width: 2px;
 }
 
 
@@ -831,3 +852,4 @@ th {
   .no-scrollbar {
 	scrollbar-width: none;
 }
+

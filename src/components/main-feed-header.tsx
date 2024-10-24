@@ -19,7 +19,7 @@ export const MainFeedHeader = ({
 }: MainFeedHeaderProps) => {
 
     return <div className="mt-2">
-        <div className="content-container rounded mb-1">
+        <div className="mb-1 border-b-2 border-r-2 bg-[var(--primary)] text-[var(--lightwhite)] rounded border-[var(--primary-dark)] title">
         {/*showRoute && 
             <div className="flex flex-col pt-1">
                 <span className="ml-2 text-sm text-[var(--text-light)]">

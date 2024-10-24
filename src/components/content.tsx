@@ -187,7 +187,7 @@ type ContentComponentProps = {
     parentContentId?: string
     inCommentSection: boolean
     inItsOwnCommentSection: boolean
-    depthParity?: boolean
+    depth?: number
 }
 
 
@@ -204,7 +204,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     parentContentId,
     inCommentSection,
     inItsOwnCommentSection,
-    depthParity,
+    depth,
 }) => {
     const { user } = useUser();
     const viewRecordedRef = useRef(false);
@@ -311,7 +311,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
                 viewingComments={viewingComments}
                 onViewComments={onViewComments}
                 onStartReply={onStartReply}
-                depthParity={depthParity}
+                depth={depth}
                 inCommentSection={inCommentSection}
                 isMainPage={isMainPage}
             />
@@ -326,7 +326,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
                 inCommentSection={inCommentSection}
                 inItsOwnCommentSection={inItsOwnCommentSection}
                 isFakeNewsReport={content.type === 'FakeNewsReport'}
-                depthParity={depthParity}
+                depth={depth}
             />
         );
     } else if (content.type === 'UndoEntityContent') {

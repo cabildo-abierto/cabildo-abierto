@@ -15,7 +15,7 @@ export const InfoPanel = ({text, className, iconClassName="text-gray-600", icon=
       </div>
       {isHovered && 
         <ModalBelow
-          className={"text-justify text-sm bg-[var(--background)] text-gray-900 rounded border z-50 " + (className ? className : "w-72")}
+          className={"text-justify text-sm bg-[var(--background)] text-gray-900 rounded border z-50 border-b-2 border-r-2 " + (className ? className : "w-72")}
           open={isHovered}
           setOpen={setIsHovered}
           hoverOnly={true}
