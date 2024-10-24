@@ -92,7 +92,7 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
         </div>}
 
         {!onSearchPage && <div className="flex justify-center text-sm space-x-1 mb-4">
-                <div className="border-r rounded border-t border-b border-l">
+                <div className="rounded content-container">
             <SelectionComponent
                 onSelection={setSortBy}
                 selected={sortBy}

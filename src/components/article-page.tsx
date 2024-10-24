@@ -300,40 +300,29 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             <ViewLastChangesButton/>
             <ViewAuthorsButton/>
             
-            {(user.user && user.user.editorStatus == "Administrator") &&
-            <div className="flex justify-center py-2">
-                <SetProtectionButton entity={entity}/>
-            </div>
-            }
-            {(user.user && user.user.editorStatus == "Administrator") &&
-            <div className="flex justify-center py-2">
-                <DeleteArticleButton/>
-            </div>
-            }
-            {(user.user && user.user.editorStatus == "Administrator") &&
-            <div className="flex justify-center py-2">
-                <UpdateWeakReferencesButton/>
-            </div>
-            }
-            {(user.user && user.user.editorStatus == "Administrator") &&
-            <div className="flex justify-center py-2">
-                <RemoveHistoryButton/>
-            </div>
-            }
-            {(user.user && user.user.editorStatus == "Administrator") &&
-            <div className="flex justify-center py-2">
-                <RebootArticleButton/>
-            </div>
-            }
-            {(user.user && user.user.editorStatus == "Administrator") &&
-            <div className="flex justify-center py-2">
-                <RecomputeContributionsButton/>
-            </div>
-            }
-            {(user.user && user.user.editorStatus == "Administrator") &&
-            <div className="flex justify-center py-2">
-                {entity.entity.isPublic ? <MakePrivateButton/> : <MakePublicButton/>}
-            </div>
+            {(user.user && user.user.id == "soporte") && <>
+                <div className="flex justify-center py-2">
+                    <SetProtectionButton entity={entity}/>
+                </div>
+                <div className="flex justify-center py-2">
+                    <DeleteArticleButton/>
+                </div>
+                <div className="flex justify-center py-2">
+                    <UpdateWeakReferencesButton/>
+                </div>
+                <div className="flex justify-center py-2">
+                    <RemoveHistoryButton/>
+                </div>
+                <div className="flex justify-center py-2">
+                    <RebootArticleButton/>
+                </div>
+                <div className="flex justify-center py-2">
+                    <RecomputeContributionsButton/>
+                </div>
+                <div className="flex justify-center py-2">
+                    {entity.entity.isPublic ? <MakePrivateButton/> : <MakePublicButton/>}
+                </div>
+                </>
             }
         </div>}
         </div>
