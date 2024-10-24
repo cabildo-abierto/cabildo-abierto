@@ -153,7 +153,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
     let contentsWithScore = feed.map((comment) => ({comment: comment, score: commentScore(comment)}))
     contentsWithScore = contentsWithScore.sort(listOrder)
-    
 
     return <>
         {

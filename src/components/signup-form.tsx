@@ -267,7 +267,6 @@ export default function SignupForm() {
     const [showingSignupOK, setShowingSignupOK] = useState(false)
 
     useEffect(() => {
-        console.log("state", state)
         if(state && !state.errors){
             setShowingSignupOK(true)
         }
