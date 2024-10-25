@@ -6,7 +6,7 @@ import { db } from "../db";
 import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
-import { getUser, getUserId, getUsers } from "./users";
+import { getUserId, getUsers } from "./users";
 import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
 import { getReferencesSearchKeys } from "./references";
