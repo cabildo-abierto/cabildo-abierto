@@ -5,7 +5,8 @@ import { AcceptButtonPanel } from "../components/accept-button-panel";
 
 export const InvalidConfirmLinkPopup = ({onClose}: {onClose: any}) => {
     return <AcceptButtonPanel
-        text={<div className="py-4 text-lg">El link de verificación expiró o es inválido.</div>}
         onClose={onClose}
-    />
+    >
+        <div className="py-4 text-lg">El link de verificación expiró o es inválido.</div>
+    </AcceptButtonPanel>
 };

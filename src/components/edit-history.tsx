@@ -87,13 +87,12 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
 
     return <div className="flex items-center">
         {showingNoPermissions && 
-        <AcceptButtonPanel
-            text={<div className="text-base">
+        <AcceptButtonPanel onClose={() => {setShowingNoPermissions(false)}}>
+            <div className="text-base">
                 <p>Necesitás permisos de edición para confirmar cambios.</p>
                 <NoEditPermissionsMsg user={user} level={entity.protection}/>
-            </div>}
-            onClose={() => {setShowingNoPermissions(false)}}
-        />}
+            </div>
+        </AcceptButtonPanel>}
         <StateButton
             className="hover:scale-105"
             handleClick={confirm}
@@ -278,7 +277,9 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
     const {mutate} = useSWRConfig()
 
     if(!user){
-        return <AcceptButtonPanel text="Necesitás una cuenta para remover la autoría de una edición." onClose={onClose}/>
+        return <AcceptButtonPanel onClose={onClose}>
+            <span>Necesitás una cuenta para remover la autoría de una edición.</span>
+        </AcceptButtonPanel>
     }
 
     async function handleClick(e){
@@ -291,13 +292,26 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
         return {}
     }
 
+    if(user.editorStatus != "Administrator" && user.id != entity.versions[version].author.id){
+        return <AcceptButtonPanel onClose={onClose}>
+            <div className="">
+                <div>
+                    Por ahora no podés remover la autoría de ediciones de otros usuarios.
+                </div>
+                <div className="link">
+                    Podés deshacer el cambio, sugerir que se remueva la autoría en un comentario, o hablar directamente con el <Link href="/soporte">soporte</Link>.
+                </div>
+            </div>
+        </AcceptButtonPanel>
+    }
+
     return (
         <>
             <BaseFullscreenPopup>
             <div className="px-6 pb-4">
                 <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
                 <div className="mb-8">
-                    {user.id == entity.versions[version].author.id ? <>Estás por remover la autoría de la modificación que hiciste.</> : <>Estás por remover la autoría de la modificacióm de @{entity.versions[version].author.id}.</>}
+                    {user.id == entity.versions[version].author.id ? <>Estás por remover la autoría de la modificación que hiciste.</> : <>Estás por remover la autoría de la modificación de @{entity.versions[version].author.id}.</>}
                 </div>
                 <div className="flex justify-center items-center space-x-4 mt-4">
                     <button
