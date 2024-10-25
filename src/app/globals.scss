@@ -417,6 +417,24 @@ ol {
 	border-color: var(--primary-darker)
 }
 
+.profile-feed span {
+	padding-bottom: 2px;
+}
+
+.profile-feed button {
+	padding-bottom: 8px;
+	padding-top: 8px;
+}
+
+.profile-feed.selected-option-text {
+	border-bottom: 4px solid var(--primary);
+	border-radius: 2px
+}
+
+.profile-feed.not-selected-option:hover {
+	background: var(--secondary-light);
+}
+
 .filter-feed button {
 	padding-bottom: 2px;
 	padding-top: 2px;

@@ -899,7 +899,19 @@ export async function computeSubscriptorsByDay(minPrice: number) {
     const accounts = await db.user.findMany({
         select: {
             id: true,
-            subscriptionsUsed: true
+            subscriptionsUsed: true,
+            _count: {
+                select: {
+                    contents: true,
+                    subscriptionsBought: {
+                        where: {
+                            price: {
+                                gte: 500
+                            }
+                        }
+                    }
+                }
+            }
         }
     })
 
@@ -927,7 +939,15 @@ export async function computeSubscriptorsByDay(minPrice: number) {
         day.setTime(day.getTime()+dayMillis)
     }
 
-    console.log("all accounts", accounts.map(({id}) => (id)), accounts.length)
+    function comp(a, b){
+        return a.contents - b.contents
+    }
+
+    const printableAccounts = accounts.map((a) => ({id: a.id, contents: a._count.contents, bought: a._count.subscriptionsBought}))
+
+    printableAccounts.sort(comp)
+
+    console.log("all accounts", printableAccounts, accounts.length)
 
     const unsubscribedAccounts = []
     for(let i = 0; i < accounts.length; i++){
