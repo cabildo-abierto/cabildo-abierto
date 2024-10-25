@@ -40,7 +40,9 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, e
     let modalContent = null
 
     if(!user.user){
-        return <AcceptButtonPanel text="Necesitás una cuenta para deshacer cambios." onClose={onClose}/>
+        return <AcceptButtonPanel onClose={onClose}>
+            Necesitás una cuenta para deshacer cambios.
+        </AcceptButtonPanel>
     }
     if(hasEditPermission(user.user, entity.protection)){
         return <BaseFullscreenPopup closeButton={true} onClose={onClose}>
@@ -79,11 +81,12 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, e
         </BaseFullscreenPopup>
     } else {
         return <AcceptButtonPanel
-            text={<div>
+            onClose={onClose}
+        >
+            <div>
                 <p>Necesitás permisos de edición para deshacer cambios.</p>
                 <NoEditPermissionsMsg user={user.user} level={entity.protection}/>
-            </div>}
-            onClose={onClose}
-        />
+            </div>
+        </AcceptButtonPanel>
     }
 };

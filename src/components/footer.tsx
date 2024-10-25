@@ -32,14 +32,15 @@ export default function Footer() {
             </Link>
         </div>
         {showingContactUs && createPortal(<AcceptButtonPanel
-            text={<div className="text-lg">
+            onClose={() => {setShowingContactUs(false)}}>
+            <div className="text-lg">
                 <h2>Envianos tu mensaje</h2>
                 <p className="mt-8 text-[var(--text-light)]">Consultas relacionadas con el uso de la plataforma:</p>
                 <Link className="link3" href="mailto:soporte@cabildoabierto.com.ar">soporte@cabildoabierto.com.ar</Link>
                 <p className="mt-4 text-[var(--text-light)]">Cualquier otra consulta o mensaje:</p>
                 <Link className="link3" href="mailto:soporte@cabildoabierto.com.ar">contacto@cabildoabierto.com.ar</Link>
-            </div>}
-            onClose={() => {setShowingContactUs(false)}}
-        />, document.body)}
+            </div>
+        </AcceptButtonPanel>
+        , document.body)}
     </footer>
 }

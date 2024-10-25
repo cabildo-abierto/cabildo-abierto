@@ -52,9 +52,8 @@ const StateButton: React.FC<StateButtonProps> = ({
         </button>
         {error != undefined && <ErrorMsg text={error}/>}
         {error != undefined && <AcceptButtonPanel
-            text={error}
             onClose={() => {setError(undefined)}}
-        />}
+        >{error}</AcceptButtonPanel>}
     </div>
 }
 
