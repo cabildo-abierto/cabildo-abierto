@@ -2,21 +2,16 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findEntityReferences, findMentions, getContentById, notifyMentions } from "./contents";
-import { revalidateEverythingTime } from "./utils";
-import { charDiffFromJSONString } from "../components/diff";
-import { EntityProps, SmallEntityProps, UserProps } from "../app/lib/definitions";
-import { accessToken, contributionsToProportionsMap, currentVersionContent, entityExists, entityInRoute, findWeakEntityReferences, getPlainText, hasEditPermission, isDemonetized, isPartOfContent, isUndo } from "../components/utils";
-import { EditorStatus } from "@prisma/client";
+import { getContentById } from "./contents";
+import { accessToken, contributionsToProportionsMap, isDemonetized } from "../components/utils";
 import { getUserById } from "./users";
-import { compress, decompress } from "../components/compression";
-import { getReferencesSearchKeys } from "./references";
 import { pathLogo } from "../components/logo";
 import MercadoPagoConfig, { Preference } from "mercadopago";
+import { UserProps } from "../app/lib/definitions";
 
 
 
-export async function extendContentStallPaymentDate(contentId: string){
+export async function extendContentStallPaymentDate(contentId: string): Promise<{error?: string}>{
     const {content, error} = await getContentById(contentId)
     if(error) return {error}
 

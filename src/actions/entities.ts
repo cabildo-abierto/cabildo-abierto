@@ -85,7 +85,7 @@ function updateContribution(contribution: [string, number][], charsAdded: number
 }
 
 
-export const recomputeEntityContributions = async (entityId: string) => {
+export const recomputeEntityContributions = async (entityId: string): Promise<{error?: string}> => {
     let entity
     try {
         entity = await db.entity.findUnique({
@@ -366,7 +366,7 @@ export const updateEntityCategoriesOrSearchkeys = async (entityId: string, userI
 }
 
 
-export const updateEntityCurrentVersion = async (entityId: string) => {
+export const updateEntityCurrentVersion = async (entityId: string): Promise<{error?: string, entity?: EntityProps}> => {
     const {entity, error} = await getEntityByIdNoCache(entityId)
     if(error) return {error: error}
 
@@ -425,9 +425,7 @@ export const undoChange = async (entityId: string, contentId: string, versionNum
     
     revalidateTag("entity:"+entityId)
     revalidateTag("content:"+contentId)
-
     revalidateTag("entities")
-    revalidateTag("entity:"+entityId)
     return {}
 }
 

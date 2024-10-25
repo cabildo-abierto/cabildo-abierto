@@ -40,7 +40,6 @@ export const SaveEditPopup = ({
     const [newVersionSize, setNewVersionSize] = useState(undefined)
 
     useEffect(() => {
-        console.log("computing diff")
         const jsonState = JSON.stringify(editorState)
         const d = charDiffFromJSONString(currentVersion, jsonState, true)
         if(!d){

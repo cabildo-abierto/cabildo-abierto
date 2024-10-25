@@ -20,7 +20,7 @@ export function validExplanation(text: string) {
     return text.length > 0
 }
 
-export const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, entity: EntityProps, version: number}) => {
+export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => void, entity: EntityProps, version: number}) => {
     const user = useUser()
     const [explanation, setExplanation] = useState("")
     const [vandalism, setVandalism] = useState(false)
@@ -63,12 +63,14 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: any, e
                     <StateButton
                         handleClick={async () => {
                             if(user.user && content){
-                                const {error} = await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
-                                if(error) return {error}
+                                const result = await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
+                                if(!result) return {error: "Ocurrió un error un inesperado. Es posible que el cambio se haya deshecho correctamente. Contactate con el soporte."}
+                                if(result.error) return {error: result.error}
                                 mutate("/api/entity/"+entity.id)
                                 mutate("/api/entities")
                                 onClose()
                             }
+                            console.log("retruning ok")
                             return {}
                         }}
                         disabled={!validExplanation(explanation)}
