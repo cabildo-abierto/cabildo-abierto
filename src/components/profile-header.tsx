@@ -46,7 +46,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
         mutate("/api/user")
     }
 
-    return <div className="content-container mt-2 flex flex-col">
+    return <div className="content-container rounded mt-2 flex flex-col">
         <div className="flex justify-between">
             <div className="ml-2 py-2">
                 <h3>
@@ -80,17 +80,6 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                 isOwner={isLoggedInUser !== undefined ? isLoggedInUser : false}
             />
         </div>
-        <div className="flex">
-            <div className="ml-2 text-sm rounded-lg bg-[var(--secondary-light)] px-2 py-1 items-center justify-center hover:bg-[var(--secondary-slight)] cursor-default" title="Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
-                <span className="text-gray-600 mb-1">
-                    <ArticleIcon/>
-                </span>
-                <PermissionLevel
-                    level={profileUser.editorStatus}
-                    className="text-[var(--text-light)]"
-                />
-            </div>
-        </div>
         <div className="ml-2 flex mb-1 items-center">
             <div>
             <span className="font-bold">{updatedFollowerCount}</span> {updatedFollowerCount == 1 ? "seguidor" : "seguidores"}
@@ -101,13 +90,22 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
             <div className="px-4 mb-1">
                 <FixedFakeNewsCounter count={profileUser._count.contents} onClick={() => {setSelected("Publicaciones"); setShowingFakeNews(true)}}/>
             </div>
+            <div className="ml-2 text-sm rounded-lg px-2 py-1 items-end justify-center cursor-default" title="Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
+                <span className="text-gray-600 mb-1">
+                    <ArticleIcon/>
+                </span>
+                <PermissionLevel
+                    level={profileUser.editorStatus}
+                    className="text-[var(--text-light)]"
+                />
+            </div>
         </div>
         <div>
             <SelectionComponent
                 selected={selected}
                 onSelection={(v) => {setSelected(v); setShowingFakeNews(false)}}
                 options={["Publicaciones", "Respuestas", "Ediciones en temas"]}
-                className="main-feed"
+                className="profile-feed"
             />
         </div>
     </div>
