@@ -10,8 +10,7 @@ import InfoPanel from "./info-panel";
 import ShareIcon from '@mui/icons-material/Share';
 import { SharePopup } from "./share-popup";
 import { SmallUserProps } from "../app/lib/definitions";
-import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
-import { CloseButtonIcon } from "./icons";
+import { CloseButtonIcon, TipIcon } from "./icons";
 
 
 export const FollowSuggestions = () => {
@@ -38,7 +37,7 @@ export const FollowSuggestions = () => {
         return <div className="flex justify-end px-1 mt-1">
             <button className="hover:bg-[var(--secondary-light)] rounded text-[var(--text-light)]" onClick={() => {setOpen(true)}}>
                 <div className="p-1 flex space-x-1 items-center text-sm">
-                    <TipsAndUpdatesIcon fontSize="inherit"/>
+                    <TipIcon/>
                     <div className="text-[0.65rem]">Sugerencias</div>
                 </div>
             </button>

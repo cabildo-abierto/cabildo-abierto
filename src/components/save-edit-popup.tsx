@@ -12,6 +12,7 @@ import { NotEnoughPermissionsWarning } from "./permissions-warning";
 import StateButton from "./state-button";
 import TickButton from "./tick-button";
 import { articleUrl, hasEditPermission } from "./utils";
+import { ChangesCounter, ChangesCounterWithText } from "./changes-counter";
 
 
 const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: string) => void}) => {
@@ -49,7 +50,7 @@ export const SaveEditPopup = ({
         setDiff(d)
     }, [])
     
-    const infoAuthorship = <span className="link">Desactivá este tick si no sos el autor de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una Ley, o algo escrito por otra persona. Al desactivarlo no vas a obtener ingresos por los caracteres agregados en esta modificación. <Link href={articleUrl("Cabildo_Abierto:_Derechos_de_autor")}>Más información</Link>
+    const infoAuthorship = <span className="link">Desactivá este tick si no sos autor/a de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una ley, o algo escrito por otra persona. Si no estás seguro/a no te preocupes, se puede cambiar después. <Link href={articleUrl("Cabildo_Abierto:_Temas")}>Más información</Link>
     </span>
 
     if(!newVersionSize){
@@ -71,7 +72,8 @@ export const SaveEditPopup = ({
                 <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg w-full">
                     <h2 className="py-4 text-lg">Confirmar cambios</h2>
                     {diff !== "too big" && diff != undefined && <div className="mb-8">
-                        Estás agregando <span className="text-green-600">{diff.charsAdded}</span> caracteres y eliminando <span className="text-red-600">{diff.charsDeleted}</span> caracteres.
+                        <ChangesCounterWithText charsAdded={diff.charsAdded} charsDeleted={diff.charsDeleted}/>
+                        
                     </div>}
                     {diff === "too big" && <div className="text-red-600 text-xs mb-8  sm:text-sm">Parece que hay demasiadas diferencias entre las dos versiones. Probá eliminar primero el contenido y después agregar el contenido nuevo.</div>
                     }

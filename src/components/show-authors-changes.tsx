@@ -5,6 +5,7 @@ import { getAllText } from "./diff"
 import { SerializedAuthorNode } from "./editor/nodes/AuthorNode"
 import { editorStateFromJSON } from "./utils"
 import { wikiEditorSettings } from "./editor/wiki-editor"
+import { ShowContributors } from "./show-contributors"
 
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
@@ -78,6 +79,12 @@ export const ShowArticleAuthors = ({originalContent, originalContentText, entity
     return <>
         <div className="text-gray-800 text-sm text-center block lg:hidden content-container p-1">
             <p>Para ver qué usuario es autor de cada parte de este tema entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
+        </div>
+        <div className="flex justify-center py-4">
+            <div className="content-container bg-[var(--secondary-light)] rounded px-2 pb-2 text-sm sm:text-base flex flex-col items-center justify-center">
+                <div className="text-[var(--text-light)]">Autores</div>
+                <ShowContributors entityId={entity.id}/>
+            </div>
         </div>
         <div className="hidden lg:block">
             <MyLexicalEditor
