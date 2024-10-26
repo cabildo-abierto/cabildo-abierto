@@ -1,11 +1,11 @@
 "use client"
 
-import { recomputeAllContributions, revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, compressContents, compressContent, decompressContents, decompressContent, updateUniqueViewsCount, updateIsDraft, deleteEntity } from "../../actions/admin"
+import { recomputeAllContributions, revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, compressContents, compressContent, decompressContents, decompressContent, updateUniqueViewsCount, updateIsDraft, deleteEntity, computeDayViews, computeSubscriptorsByDay } from "../../actions/admin"
 import { updateAllUniqueCommentators, notifyAllMentions, deleteUser } from "../../actions/contents"
 import { recomputeEntityContributions } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments } from "../../actions/payments"
 import { updateAllReferences, updateAllWeakReferences } from "../../actions/references"
-import { addDonatedSubscriptionsManually, computeSubscriptorsByDay, computeDayViews } from "../../actions/users"
+import { addDonatedSubscriptionsManually } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"

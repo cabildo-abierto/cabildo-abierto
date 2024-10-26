@@ -7,6 +7,8 @@ import { EditorStatus } from "@prisma/client";
 import { getUser } from "./users";
 import { compress, decompress } from "../components/compression";
 import { getEntityById, updateEntityCurrentVersion, recomputeEntityContributions, getEntities } from "./entities";
+import { validSubscription } from "../components/utils";
+import { isSameDay } from "date-fns";
 
 
 export const deleteEntityHistory = async (entityId: string, includeLast: boolean) => {
@@ -415,4 +417,208 @@ export async function takeAuthorship(contentId: string) {
         revalidateTag("entity:"+content.parentEntityId)
     }
     return {}
+}
+
+
+
+
+export async function computeSubscriptorsByDay(minPrice: number) {
+    const s = await db.subscription.findMany({
+        select: {
+            usedAt: true,
+            endsAt: true,
+            userId: true,
+        },
+        where: {
+            usedAt: {
+                not: null
+            },
+            price: {
+                gte: minPrice
+            }
+        }
+    })
+    const accounts = await db.user.findMany({
+        select: {
+            id: true,
+            subscriptionsUsed: true,
+            _count: {
+                select: {
+                    contents: {
+                        where: {
+                            isDraft: false
+                        }
+                    },
+                    subscriptionsBought: {
+                        where: {
+                            price: {
+                                gte: 500
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    const dayMillis = 24*60*60*1000
+    let day = new Date(new Date().getTime() - dayMillis*7)
+    const tomorrow = new Date(new Date().getTime() + dayMillis)
+    
+    let allUsers = new Set()
+    while(day < tomorrow){
+
+        let users = new Set()
+        let newUsers = new Set()
+        for(let i = 0; i < s.length; i++){
+            if(s[i].endsAt >= day && s[i].usedAt <= day){
+                users.add(s[i].userId)
+                if(!allUsers.has(s[i].userId)){
+                    newUsers.add(s[i].userId)
+                    allUsers.add(s[i].userId)
+                }
+            }
+        }
+
+        console.log(day.getDate(), "/", day.getMonth()+1, "-->", Array.from(newUsers), newUsers.size, users.size)
+
+        day.setTime(day.getTime()+dayMillis)
+    }
+
+    function comp(a, b){
+        return a.bought - b.bought
+    }
+
+    const printableAccounts = accounts.map((a) => ({id: a.id, contents: a._count.contents, bought: a._count.subscriptionsBought}))
+
+    printableAccounts.sort(comp)
+
+    console.log("all accounts", printableAccounts, accounts.length)
+
+    const unsubscribedAccounts = []
+    for(let i = 0; i < accounts.length; i++){
+        if(!validSubscription(accounts[i])){
+            unsubscribedAccounts.push(accounts[i].id)
+        }
+    }
+
+    const allSubscriptions = await db.subscription.findMany({
+        select: {
+            id: true
+        },
+        where: {
+            price: {
+                gte: minPrice
+            }
+        }
+    })
+
+    console.log("suscripciones vendidas totales", allSubscriptions.length)
+}
+
+
+export async function computeDayViews(entities: boolean = false){
+    let views = await db.view.findMany({
+        select: {
+            createdAt: true,
+            userById: true,
+            contentId: true,
+            entityId: true
+        },
+    })
+    if(entities){
+        views = views.filter((v) => (v.entityId != null))
+    }
+
+    const dayMillis = 24*60*60*1000
+    let day = new Date(new Date().getTime() - dayMillis*7)
+    const tomorrow = new Date(new Date().getTime() + dayMillis)
+    
+    while(day < tomorrow){
+
+        let usersViews = new Map<string, number>()
+        for(let i = 0; i < views.length; i++){
+            if(isSameDay(views[i].createdAt, day)){
+                if(!usersViews.has(views[i].userById)){
+                    usersViews.set(views[i].userById, 1)
+                } else {
+                    usersViews.set(views[i].userById, usersViews.get(views[i].userById)+1)
+                }
+            }
+        }
+
+        console.log(day.getDate(), "/", day.getMonth()+1, "-->", Array.from(usersViews), usersViews.size)
+
+        day.setTime(day.getTime()+dayMillis)
+    }
+}
+
+
+export async function getAdminStats(){
+
+    const accounts = await db.user.findMany({
+        select: {
+            id: true,
+            subscriptionsUsed: true,
+            createdAt: true,
+            views: {
+                select: {
+                    createdAt: true
+                }
+            },
+            _count: {
+                select: {
+                    contents: {
+                        where: {
+                            isDraft: false
+                        }
+                    },
+                    subscriptionsBought: {
+                        where: {
+                            price: {
+                                gte: 500
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    const sellsByPrice = await db.subscription.groupBy({
+        by: ['price'],
+        _count: {
+          price: true,
+        },
+    });
+
+    const sellsByIsDonation = await db.subscription.groupBy({
+        by: ['isDonation'],
+        _count: {
+          isDonation: true,
+        },
+    });
+
+    const dayDuration = 60*60*24*1000
+
+    let viewsByDay = []
+    for(let i = 0; i < 100; i++) viewsByDay.push(0)
+
+    accounts.forEach(({id, views, createdAt}) => {
+        if(!["soporte", "tomas", "guest"].includes(id)){
+            views.forEach((v) => {
+                const time =  Math.floor((v.createdAt.getTime() - createdAt.getTime()) / dayDuration)
+                if(time < 100){
+                    viewsByDay[time] ++
+                }
+            })
+        }
+    })
+
+    return {
+        accounts: accounts.length,
+        sellsByPrice,
+        sellsByIsDonation,
+        viewsByDay
+    }
 }
