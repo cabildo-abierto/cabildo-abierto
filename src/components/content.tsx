@@ -16,7 +16,7 @@ import { ContentOptionsButton } from "./content-options-button";
 import { FakeNewsCounter } from "./fake-news-counter";
 import { CommentInContext } from "./comment-in-context";
 import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
-import { recordBatchViews } from "../actions/contents";
+import { addView } from "../actions/contents";
 import { useUser } from "../app/hooks/user";
 import { ContentProps } from "../app/lib/definitions";
 import EntityComponent from "./entity-component";
@@ -25,6 +25,7 @@ import { logVisit } from "../actions/users";
 import { NoVisitsAvailablePopup } from "./no-visits-popup";
 import { debounce } from 'lodash'; // You may need to install this if not installed
 import { takeAuthorship } from "../actions/admin";
+import { decompress } from "./compression";
 
 export function id2url(id: string){
     return "/perfil/" + id.replace("@", "")
@@ -208,7 +209,6 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
 }) => {
     const { user } = useUser();
     const viewRecordedRef = useRef(false);
-    const viewsToRecordRef = useRef([]);
     const [validVisit, setValidVisit] = useState(true);
     const contentRef = useRef(null); // For Intersection Observer
     const requiresMainPage = content.type === 'Post' || content.type === 'EntityContent';
@@ -233,37 +233,20 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
 
     const isVisible = useVisibility(contentRef);
 
-    // Batch the recording of views
-    const batchRecordViews = useCallback(debounce(async () => {
-        if (viewsToRecordRef.current.length > 0) {
-            const views = [...viewsToRecordRef.current];
-            viewsToRecordRef.current = [];
-            await recordBatchViews(views); // Call your API with the batched views
-        }
-    }, 2000), []);
-
-    // Record view function
-    const recordView = (contentId, userId, parentEntityId = null, contentType) => {
-        viewsToRecordRef.current.push({ contentId, userId, parentEntityId, contentType });
-    };
 
     // Trigger view recording when content is visible and valid
     useEffect(() => {
-        if (isVisible && user && !viewRecordedRef.current && content) {
-            if (requiresMainPage && isMainPage || !requiresMainPage) {
-                viewRecordedRef.current = true; // Mark that the view has been recorded
-                recordView(content.id, user.id, content.parentEntityId, content.type);
+        async function recordView() {
+            if (isVisible && user && !viewRecordedRef.current && content) {
+                if (requiresMainPage && isMainPage || !requiresMainPage) {
+                    viewRecordedRef.current = true;
+                    await addView(content.id, user.id);
+                }
             }
         }
+        recordView()
     }, [isVisible, user, content]);
 
-    // Batch the views every 2 seconds
-    useEffect(() => {
-        const intervalId = setInterval(batchRecordViews, 2000); // Send batched views every 2 seconds
-        return () => clearInterval(intervalId); // Cleanup interval on unmount
-    }, [batchRecordViews]);
-
-    // Check visit count and valid visit status
     useEffect(() => {
         async function checkVisit() {
             if (!isPublic(content, isMainPage) && !user) {
