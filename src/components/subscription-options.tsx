@@ -85,7 +85,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
                     Cabildo Abierto está hecha para sus usuarios. Por eso, se financia exclusivamente con suscripciones.
                 </p>
                 <p>
-                    Las suscripciones se usan para financiar el desarrollo de la plataforma y a los autores de los contenidos que leas. <Link href={articleUrl("Cabildo_Abierto:_Suscripciones")}>Leer más.</Link>
+                    Las suscripciones se usan para financiar el desarrollo de la plataforma y a los autores de los contenidos que leas.
                 </p>
                 <p>
                     De todas formas, podés empezar con un mes gratis. Además, hay suscripciones que fueron donadas por otros usuarios y podés usarlas si lo necesitás.
