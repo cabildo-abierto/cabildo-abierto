@@ -690,17 +690,6 @@ export const addView = async (id: string, userId: string) => {
 }
 
 
-
-// TO DO: Hacer en una sola transacción
-export async function recordBatchViews(views){
-    for(let i = 0; i < views.length; i++){
-        const {error} = await addView(views[i].contentId, views[i].userId)
-        if(error) return {error}
-    }
-    return {}
-}
-
-
 export async function getLastKNotificationsNoCache(k: number, userId: string){
     const notifications = await db.notification.findMany({
         select: {

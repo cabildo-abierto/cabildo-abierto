@@ -70,7 +70,6 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
                                 mutate("/api/entities")
                                 onClose()
                             }
-                            console.log("retruning ok")
                             return {}
                         }}
                         disabled={!validExplanation(explanation)}
