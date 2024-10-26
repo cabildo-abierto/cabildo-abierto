@@ -9,6 +9,7 @@ import TickButton from "./tick-button";
 import { articleUrl } from "./utils";
 import { ErrorMsg, validEntityName } from "./write-button";
 import { BaseFullscreenPopup } from "./base-fullscreen-popup";
+import { DidYouKnow } from "./did-you-know";
 
 
 
@@ -34,7 +35,16 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
             {errorOnCreate && <ErrorMsg text={errorOnCreate}/>}
             {entityName.includes("/") && <ErrorMsg text="El nombre no puede incluír el caracter '/'."/>}
 
+            <div className="flex justify-center">
+            <div className="text-[var(--text-light)] text-xs sm:text-sm text-center max-w-64">
+                Antes de crear un nuevo tema fijate que no exista un tema similar.
+            </div>
+            </div>
+            
             <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir a la página del tema después de crearlo</span>}/>
+
+
+
             <div className="py-4">
                 <StateButton
                     handleClick={async (e) => {
@@ -63,6 +73,7 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
                     text="Creá una cuenta o iniciá sesión para crear un tema"
                 />}
             </div>
+
         </div>
     </BaseFullscreenPopup>
 };

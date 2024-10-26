@@ -31,6 +31,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useState } from 'react';
 import { BiUpvote } from "react-icons/bi";
 import { BiSolidUpvote } from "react-icons/bi";
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 
 
 export const RedFlag = () => {
@@ -221,4 +222,12 @@ export const CloseButtonIcon = ({fontSize="medium"}: {fontSize?: "medium" | "sma
 
 export const WriteButtonIcon = () => {
     return <CreateIcon/>
+}
+
+
+type FontSizeType = "inherit" | "small" | "medium" | "large"
+
+
+export const TipIcon = ({fontSize="inherit"}: {fontSize?: FontSizeType}) => {
+    return <TipsAndUpdatesIcon fontSize={fontSize}/>
 }

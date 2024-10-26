@@ -902,7 +902,11 @@ export async function computeSubscriptorsByDay(minPrice: number) {
             subscriptionsUsed: true,
             _count: {
                 select: {
-                    contents: true,
+                    contents: {
+                        where: {
+                            isDraft: false
+                        }
+                    },
                     subscriptionsBought: {
                         where: {
                             price: {
@@ -940,7 +944,7 @@ export async function computeSubscriptorsByDay(minPrice: number) {
     }
 
     function comp(a, b){
-        return a.contents - b.contents
+        return a.bought - b.bought
     }
 
     const printableAccounts = accounts.map((a) => ({id: a.id, contents: a._count.contents, bought: a._count.subscriptionsBought}))

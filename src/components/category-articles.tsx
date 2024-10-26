@@ -13,6 +13,7 @@ import { useState } from "react"
 import SelectionComponent from "./search-selection-component"
 import { NewPublicArticleButton } from "./new-public-article-button"
 import { topicPopularityScore } from "./trending-articles"
+import { TipIcon } from "./icons"
 
 
 export function countUserReferences(entity: SmallEntityProps){
@@ -75,11 +76,16 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
 
     if(routeEntities.isLoading) return <LoadingSpinner/>
 
-    const infoText = <span>Se suma la cantidad de comentarios, la cantidad de usuarios distintos que entraron y la cantidad de votos hacia arriba que recibió. Los temas vacíos se muestran al final. Solo se muestran temas de la categoría seleccionada ({route2Text(route)}).</span>
+    const infoText = <span>Ordenados por cantidad de usuarios que participaron en la discusión del tema (ya sea mencionándolo, comentando o agregando un voto hacia arriba).</span>
 
     return <>
 
-        {!onSearchPage && <div className="mt-2"><DidYouKnow text={<>¿Sabías que si editás el contenido de un tema Cabildo Abierto te paga por cada persona que entre a leerlo en el futuro? <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>Leer más.</Link></>}/></div>}
+        {/*!onSearchPage && <div className="mt-2"><DidYouKnow text={<>¿Sabías que si editás el contenido de un tema Cabildo Abierto te remunera por cada persona que entre a leerlo en el futuro? <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>Leer más.</Link></>}/></div>*/}
+
+        <div className="mt-4">
+            <DidYouKnow text={<div className="flex items-center">
+                <div className="px-2"><TipIcon/></div> Elegí un tema de la lista para agregarle información o creá un nuevo tema.</div>}/>
+        </div>
         
         {!onSearchPage && <div className="flex justify-center py-4">
             <NewPublicArticleButton
@@ -90,8 +96,8 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
                 showInfoPanel={false}
             />
         </div>}
-
-        {!onSearchPage && <div className="flex justify-center text-sm space-x-1 mb-4">
+        
+        {!onSearchPage && <div className="flex flex-1 justify-center text-sm space-x-1 mb-4">
                 <div className="rounded content-container">
             <SelectionComponent
                 onSelection={setSortBy}
@@ -99,7 +105,8 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
                 options={["Populares", "Ediciones recientes"]}
                 optionsNodes={[<div key={0}>Populares</div>, <div key={1}>Ediciones recientes</div>]}
                 infoPanelTexts={[infoText, null]}
-                className="filter-feed w-48"
+                className="filter-feed"
+                
                 showExplanations={false}
             />
                 </div>
@@ -117,5 +124,6 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
         <div className="flex justify-center">
             No se encontraron temas.
         </div>}
+
     </>
 }

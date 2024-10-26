@@ -6,7 +6,6 @@ import Link from "next/link";
 import StateButton from "./state-button";
 import { useRouter } from "next/navigation";
 import { DateSince } from "./date";
-import { ShowContributors } from "./show-contributors";
 import { ToggleButton } from "./toggle-button";
 import { recomputeEntityContributions } from "../actions/entities";
 import { useUser } from "../app/hooks/user";
@@ -15,7 +14,7 @@ import { ContentWithCommentsFromId } from "./content-with-comments";
 import { EditHistory } from "./edit-history";
 import { SetProtectionButton } from "./protection-button";
 import { ThreeColumnsLayout } from "./three-columns";
-import { articleUrl, currentVersion, inRange, isUndo } from "./utils";
+import { articleUrl, currentVersion, hasEditPermission, inRange, isUndo } from "./utils";
 import { UndoDiscussion } from "./undo-discussion";
 import { articleButtonClassname } from "./editor/wiki-editor";
 import { fetcher } from "../app/hooks/utils";
@@ -91,14 +90,25 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
     }
 
     const EditButton = () => {
-        return <ToggleButton
-            text="Editar contenido"
-            toggledText="Cancelar edición"
-            className={editContentClassName}
-            setToggled={onEdit}
-            disabled={!isCurrent}
-            toggled={selectedPanel == "editing"}
-        />
+        if(hasEditPermission(user.user, entity.entity.protection)){
+            return <ToggleButton
+                text="Editar contenido"
+                toggledText="Cancelar edición"
+                className={editContentClassName}
+                setToggled={onEdit}
+                disabled={!isCurrent}
+                toggled={selectedPanel == "editing"}
+            />
+        } else {
+            return <ToggleButton
+                text="Proponer edición"
+                toggledText="Cancelar edición"
+                className={articleButtonClassname}
+                setToggled={onEdit}
+                disabled={!isCurrent}
+                toggled={selectedPanel == "editing"}
+            />
+        }
     }
 
     const ViewHistoryButton = () => {
@@ -277,8 +287,6 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         </div>
         <div className="flex justify-between items-center">
             {selectedPanel != "editing" && <div className="flex flex-col link text-xs sm:text-sm">
-
-                <ShowContributors entityId={entityId}/>
                 
                 {isCurrent && <span className="text-[var(--text-light)]">
                     Últ. actualización <DateSince date={lastUpdated}/>.
@@ -300,7 +308,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             <ViewLastChangesButton/>
             <ViewAuthorsButton/>
             
-            {(user.user && user.user.id == "soporte") && <>
+            {(user.user && user.user.editorStatus == "Administrator") && <>
                 <div className="flex justify-center py-2">
                     <SetProtectionButton entity={entity}/>
                 </div>
