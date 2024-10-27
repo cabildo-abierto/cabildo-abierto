@@ -43,7 +43,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
 
     return <div className="w-full h-screen overflow-y-scroll px-2">
         <div className="pt-1">
-            <div className="mt-7 mb-12">
+            <div className="mt-7">
                 <div className="flex justify-center mb-4 space-x-2 text-xs sm:text-sm">
                     {<button
                         onClick={() => {if(selected != "Publicaciones") setSelected("Publicaciones"); else setSelected("Ninguno")}}

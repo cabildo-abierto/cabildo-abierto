@@ -82,10 +82,10 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
 
         {/*!onSearchPage && <div className="mt-2"><DidYouKnow text={<>¿Sabías que si editás el contenido de un tema Cabildo Abierto te remunera por cada persona que entre a leerlo en el futuro? <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>Leer más.</Link></>}/></div>*/}
 
-        <div className="mt-4">
+        {!onSearchPage && <div className="mt-4">
             <DidYouKnow text={<div className="flex items-center">
                 <div className="px-2"><TipIcon/></div> Elegí un tema de la lista para agregarle información o creá un nuevo tema.</div>}/>
-        </div>
+        </div>}
         
         {!onSearchPage && <div className="flex justify-center py-4">
             <NewPublicArticleButton
