@@ -30,12 +30,13 @@ export type ConfiguredFeedProps = {
     feed: LoadingFeedWithData
     noResultsText?: ReactNode
     order: string
+    setOrder: (v: string) => void
     filter: string
     setFilter: (v: string) => void
     maxCount?: number
 }
 
-export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter, maxCount}: ConfiguredFeedProps) => {
+export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, setFilter, maxCount}: ConfiguredFeedProps) => {
     const {searchValue} = useSearch()
 
     if(feed.isLoading){
@@ -95,15 +96,30 @@ export const ConfiguredFeed = ({feed, noResultsText, order, filter, setFilter, m
         }
     }
 
+    function onRecent(){
+        if(order != "Recientes"){
+            setOrder("Recientes")
+        } else {
+            setOrder("Populares")
+        }
+    }
+
+    const filterClassName = "rounded-lg px-2 hover:bg-[var(--secondary-light)] bg-[var(--content)]  text-xs sm:text-sm text-[var(--text-light)] border-b-2 border-r-2 border "
+
+    const filterSelectedClassName = "bg-[var(--secondary-slight)] border-[var(--accent-dark)]"
+
     return <>
         <div className="flex justify-between items-center">
             
             {feedWithScore.length > 0 && <div className="flex ml-1 space-x-1 mb-1">
-                <button onClick={onOnlyFastPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] bg-[var(--content)]  text-xs sm:text-sm text-[var(--text-light)] border-b-2 border-r-2 border " + (filter == "Rápidas" ? "bg-[var(--secondary-slight)]" : "")}>
+                <button onClick={onOnlyFastPosts} className={filterClassName + (filter == "Rápidas" ? filterSelectedClassName : "")}>
                     solo rápidas
                 </button>
-                <button onClick={onOnlyPosts} className={"rounded-lg px-2 hover:bg-[var(--secondary-light)] bg-[var(--content)]  text-xs sm:text-sm text-[var(--text-light)] border-b-2 border-r-2 border " + (filter == "Publicaciones" ? "bg-[var(--secondary-slight)]" : "")}>
+                <button onClick={onOnlyPosts} className={filterClassName + (filter == "Publicaciones" ? filterSelectedClassName : "")}>
                     solo publicaciones
+                </button>
+                <button onClick={onRecent} className={filterClassName + (order == "Recientes" ? filterSelectedClassName : "")}>
+                    recientes
                 </button>
             </div>}
 
