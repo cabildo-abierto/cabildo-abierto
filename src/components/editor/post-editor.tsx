@@ -135,13 +135,16 @@ const PostEditor = ({
 
     const count = editor && editorState ? charCount(editorState) : 0
     
+    const postType = isFast ? "FastPost" : "Post"
+
+    const valid = validPost(editorState, settings.charLimit, postType)
+
     let disabled = !editor || 
         emptyOutput(editorState) ||
         (!isFast && title.length == 0) ||
-        (!validPost(editorState, settings.charLimit))
+        (valid.problem != undefined)
 
     let saveDraftDisabled = disabled || (isDraft && !hasChanged(editorState, initialData))
-
 
 	const PublishButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
         return <StateButton

@@ -251,6 +251,7 @@ export default function ImageResizer({
       document.removeEventListener('pointerup', handlePointerUp);
     }
   };
+
   return (
     <div ref={controlWrapperRef}>
       {!showCaption && captionsEnabled && (

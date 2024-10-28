@@ -253,7 +253,7 @@ export function $createImageNode({
       height,
       showCaption,
       caption,
-      captionsEnabled,
+      false, // TO DO: Hacer más prolijo
       key,
     ),
   );
