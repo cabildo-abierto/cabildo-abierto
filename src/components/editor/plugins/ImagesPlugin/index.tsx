@@ -259,7 +259,6 @@ const img = document.createElement('img');
 img.src = TRANSPARENT_IMAGE;
 
 function $onDragStart(event: DragEvent): boolean {
-  console.log("drag start")
   const node = $getImageNodeInSelection();
   if (!node) {
     return false;
@@ -291,7 +290,6 @@ function $onDragStart(event: DragEvent): boolean {
 }
 
 function $onDragover(event: DragEvent): boolean {
-  console.log("drag over")
   const node = $getImageNodeInSelection();
   if (!node) {
     return false;

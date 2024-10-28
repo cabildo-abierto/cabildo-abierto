@@ -56,8 +56,10 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
         return {}
     }
 
+    const valid = validPost(editorState, settings.charLimit, "FastPost")
+
     const count = editor && editorState ? charCount(editorState) : 0;
-    let disabled = !editor || emptyOutput(editorState) || (!validPost(editorState, settings.charLimit));
+    let disabled = !editor || emptyOutput(editorState) || valid.problem != undefined;
 
     return (
         <div className="w-full rounded px-2 pb-2 pt-1">

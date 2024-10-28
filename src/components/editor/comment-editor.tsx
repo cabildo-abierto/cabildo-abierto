@@ -55,7 +55,7 @@ type CommentEditorProps = {
 }
 
 export function validComment(editorState: EditorState, charLimit: number) {
-    return !emptyOutput(editorState) && validPost(editorState, charLimit)
+    return !emptyOutput(editorState) && validPost(editorState, charLimit, "Comment").problem == undefined
 }
 
 

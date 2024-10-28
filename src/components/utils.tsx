@@ -3,6 +3,7 @@ import { charDiffFromJSONString, getAllText } from "./diff"
 import { db } from "../db"
 import { decompress } from "./compression"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
+import { ContentType } from "@prisma/client"
 
 
 export const splitPost = (text: string) => {
@@ -396,11 +397,51 @@ export function charCount(state: EditorState | undefined){
 }
 
 
-export function validPost(state: EditorState | undefined, charLimit: number){
-    if(!state) return false
-    if(!charLimit) return true
-    const count = charCount(state)
-    return count <= charLimit
+function getImageCountInNode(node: any){
+    if(node.type == "image"){
+        return 1
+    }
+    if(!node.children) return 0
+    let count = 0
+    for(let i = 0; i < node.children.length; i++){
+        count += getImageCountInNode(node.children[i])
+    }
+    return count
+}
+
+
+function getImageCount(state: EditorState){
+    const root = state.toJSON().root
+
+    return getImageCountInNode(root)
+}
+
+
+export function validPost(state: EditorState | undefined, charLimit: number, type: ContentType){
+    if(!state) return {problem: "no state"}
+
+    if(charLimit){
+        const count = charCount(state)
+        if(count > charLimit) return {problem: "too many characters"}
+    }
+
+    if(type == "EntityContent" || type == "Post"){
+        return {}
+    }
+
+    try {
+        const images = getImageCount(state)
+        const isComment = ["Comment", "FakeNewsReport"].includes(type)
+        if(isComment && images == 0){
+            return {}
+        } else if(!isComment && images <= 1){
+            return {}
+        } else {
+            return {problem: "too many images"}
+        }
+    } catch {
+        return {problem: "error counting images"}
+    }
 }
 
 

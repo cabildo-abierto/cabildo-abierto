@@ -203,8 +203,8 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
           hasCellBackgroundColor={false}
         />
         <TableCellResizer />
-        <ImagesPlugin />
-        <InlineImagePlugin />
+        <ImagesPlugin captionsEnabled={false}/>
+        <InlineImagePlugin/>
 
         <OnChangePlugin
           onChange={(editorState) => {
