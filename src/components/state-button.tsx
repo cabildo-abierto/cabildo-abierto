@@ -50,7 +50,6 @@ const StateButton: React.FC<StateButtonProps> = ({
                 {!submitting ? text1 : (text2 !== null ? text2 : text1)}
             </div>
         </button>
-        {error != undefined && <ErrorMsg text={error}/>}
         {error != undefined && <AcceptButtonPanel
             onClose={() => {setError(undefined)}}
         >{error}</AcceptButtonPanel>}
