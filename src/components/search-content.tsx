@@ -22,6 +22,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "Ninguno")
     const contents = useSearchableContents()
     const [filter, setFilter] = useState("Todas")
+    const [order, setOrder] = useState("Populares")
     const {searchValue} = useSearch()
 
 
@@ -68,7 +69,8 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
                 {selected == "Publicaciones" &&
                     <ConfiguredFeed
                         feed={contents}
-                        order="Recientes"
+                        setOrder={setOrder}
+                        order={order}
                         filter={filter}
                         setFilter={setFilter}
                     />
@@ -112,7 +114,8 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
                             </button>
                             <ConfiguredFeed
                                 feed={contents}
-                                order="Recientes"
+                                order={order}
+                                setOrder={setOrder}
                                 filter={filter}
                                 setFilter={setFilter}
                                 maxCount={3}

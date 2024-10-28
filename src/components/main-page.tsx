@@ -79,11 +79,13 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
 
             {selected == "En discusión" &&
                 <ConfiguredFeed
-                feed={feed}
-                order={order}
-                filter={filter}
-                setFilter={setFilter}
-            />}
+                    feed={feed}
+                    order={order}
+                    filter={filter}
+                    setFilter={setFilter}
+                    setOrder={setOrder}
+                />
+            }
 
             {selected == "Siguiendo" && 
             <div className="">
@@ -92,12 +94,14 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
             }
 
             {selected == "Siguiendo" &&
-            ((user.isLoading || user.user) ? <div className="mt-4"><ConfiguredFeed
-                feed={followingFeed}
-                order={order}
-                filter={filter}
-                setFilter={setFilter}
-                noResultsText={noResultsTextFollowing}
+            ((user.isLoading || user.user) ? <div className="mt-4">
+                <ConfiguredFeed
+                    feed={followingFeed}
+                    order={order}
+                    setOrder={setOrder}
+                    filter={filter}
+                    setFilter={setFilter}
+                    noResultsText={noResultsTextFollowing}
             /></div> : <div className="flex justify-center mt-8"><CreateAccountLink
                 text="Creá una cuenta o iniciá sesión para tener tu muro personal."
             /></div>)}
