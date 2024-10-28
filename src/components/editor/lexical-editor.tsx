@@ -62,6 +62,9 @@ import TableCellResizer from './plugins/TableCellResizer';
 import { TableContext } from './plugins/TablePlugin';
 import { CustomTableNode } from './nodes/CustomTableNode';
 
+import ImagesPlugin from './plugins/ImagesPlugin';
+import InlineImagePlugin from './plugins/InlineImagePlugin';
+
 
 export type SettingsProps = {
   disableBeforeInput: boolean,
@@ -200,6 +203,8 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
           hasCellBackgroundColor={false}
         />
         <TableCellResizer />
+        <ImagesPlugin />
+        <InlineImagePlugin />
 
         <OnChangePlugin
           onChange={(editorState) => {

@@ -102,6 +102,7 @@ export function InsertInlineImageDialog({
   }, [activeEditor]);
 
   const handleOnClick = () => {
+    console.log("handling lick")
     const payload = {altText, position, showCaption, src};
     activeEditor.dispatchCommand(INSERT_INLINE_IMAGE_COMMAND, payload);
     onClose();

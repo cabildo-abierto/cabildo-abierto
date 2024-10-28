@@ -43,8 +43,6 @@ import Select from '../../ui/Select';
 import TextInput from '../../ui/TextInput';
 import {$isInlineImageNode, InlineImageNode} from './InlineImageNode';
 
-import NextImage from 'next/image'
-
 const imageCache = new Set();
 
 function useSuspenseImage(src: string) {
@@ -79,7 +77,7 @@ function LazyImage({
 }): JSX.Element {
   useSuspenseImage(src);
   return (
-    <NextImage
+    <img
       className={className || undefined}
       src={src}
       alt={altText}
@@ -390,9 +388,9 @@ export default function InlineImageComponent({
               <RichTextPlugin
                 contentEditable={
                   <ContentEditable
-                    placeholder="Enter a caption..."
-                    placeholderClassName="InlineImageNode__placeholder"
-                    className="InlineImageNode__contentEditable"
+                    placeholder="Escribí una descripción..."
+                    placeholderClassName="InlineImageNode__placeholder content no-margin-top"
+                    className="InlineImageNode__contentEditable content no-margin-top"
                   />
                 }
                 ErrorBoundary={LexicalErrorBoundary}
