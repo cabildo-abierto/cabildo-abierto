@@ -21,7 +21,6 @@ import { SaveEditPopup } from "../save-edit-popup"
 import { fetcher } from "../../app/hooks/utils"
 import { SearchkeysEditor } from "../searchkeys-editor"
 import { useRouteEntities } from "../../app/hooks/contents"
-import { findMentions } from "../../actions/contents"
 import { editContentClassName } from "../article-page"
 
 
@@ -31,7 +30,7 @@ const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: fals
 export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:px-2"
 
 
-const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este tema no tiene contenido! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión. Cabildo Abierto te va a ","type":"text","version":1},{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"pagar","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"link","version":1,"rel":"","target":"","title":null,"url":"/articulo?i=Cabildo_Abierto%3A_Remuneraciones"},{"detail":0,"format":0,"mode":"normal","style":"","text":" por tu contribución durante toda la vida del tema.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
+const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este tema no tiene contenido! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
 
 
 export const wikiEditorSettings = (readOnly: boolean, content: ContentProps, contentText: string) => {
