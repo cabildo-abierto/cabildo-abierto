@@ -18,6 +18,8 @@ import './ImageNode.css';
 import {HashtagNode} from '@lexical/hashtag';
 import {LinkNode} from '@lexical/link';
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
+import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
+import {CollaborationPlugin} from '@lexical/react/LexicalCollaborationPlugin';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
 import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
@@ -58,9 +60,6 @@ import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import {$isImageNode} from './ImageNode';
 import {KeywordNode} from './KeywordNode';
-import { BeautifulMentionsPlugin } from 'lexical-beautiful-mentions';
-import { queryMentions } from '../custom-mention-component';
-import NextImage from 'next/image'
 
 const imageCache = new Set();
 
@@ -104,7 +103,7 @@ function LazyImage({
 }): JSX.Element {
   useSuspenseImage(src);
   return (
-    <NextImage
+    <img
       className={className || undefined}
       src={src}
       alt={altText}
@@ -122,14 +121,13 @@ function LazyImage({
 
 function BrokenImage(): JSX.Element {
   return (
-    <NextImage
+    <img
       src={brokenImage}
       style={{
         height: 200,
         opacity: 0.2,
         width: 200,
       }}
-      alt="broken-image"
       draggable="false"
     />
   );
@@ -163,11 +161,11 @@ export default function ImageComponent({
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
+  const {isCollabActive} = useCollaborationContext();
   const [editor] = useLexicalComposerContext();
   const [selection, setSelection] = useState<BaseSelection | null>(null);
   const activeEditorRef = useRef<LexicalEditor | null>(null);
   const [isLoadError, setIsLoadError] = useState<boolean>(false);
-  const isCollabActive = false
 
   const $onDelete = useCallback(
     (payload: KeyboardEvent) => {
@@ -389,7 +387,8 @@ export default function ImageComponent({
   const {historyState} = useSharedHistoryContext();
 
   const draggable = isSelected && $isNodeSelection(selection) && !isResizing;
-  const isFocused = isSelected || isResizing;
+  const isFocused = (isSelected || isResizing)
+
   return (
     <Suspense fallback={null}>
       <>
@@ -428,10 +427,6 @@ export default function ImageComponent({
                 KeywordNode,
               ]}>
               <AutoFocusPlugin />
-              <BeautifulMentionsPlugin
-                triggers={["@"]}
-                onSearch={queryMentions}
-              />
               <LinkPlugin />
               <HashtagPlugin />
               <KeywordsPlugin />
@@ -439,18 +434,17 @@ export default function ImageComponent({
               <RichTextPlugin
                 contentEditable={
                   <ContentEditable
-                    placeholder="Enter a caption..."
-                    placeholderClassName="ImageNode__placeholder"
-                    className="ImageNode__contentEditable"
+                    placeholder="Escribí una descripción..."
+                    placeholderClassName="InlineImageNode__placeholder content no-margin-top"
+                    className="InlineImageNode__contentEditable content no-margin-top"
                   />
                 }
                 ErrorBoundary={LexicalErrorBoundary}
               />
-              {false ? <TreeViewPlugin /> : null}
             </LexicalNestedComposer>
           </div>
         )}
-        {resizable && $isNodeSelection(selection) && isFocused && (
+        {resizable && editor.isEditable() && $isNodeSelection(selection) && isFocused && (
           <ImageResizer
             showCaption={showCaption}
             setShowCaption={setShowCaption}

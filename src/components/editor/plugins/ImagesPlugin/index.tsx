@@ -5,9 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-"use client"
-
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$wrapNodeInElement, mergeRegister} from '@lexical/utils';
 import {
@@ -30,18 +27,16 @@ import {
 } from 'lexical';
 import {useEffect, useRef, useState} from 'react';
 import * as React from 'react';
-import {CAN_USE_DOM} from '../../shared/canUseDOM';
 
-import {
-  $createImageNode,
-  $isImageNode,
-  ImageNode,
-  ImagePayload,
-} from '../../nodes/ImageNode';
+import landscapeImage from '../../images/landscape.jpg';
+import yellowFlowerImage from '../../images/yellow-flower.jpg';
+import {$isImageNode, ImageNode, $createImageNode, ImagePayload} from '../../nodes/ImageNode';
+
 import Button from '../../ui/Button';
 import {DialogActions, DialogButtonsList} from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
+import { CAN_USE_DOM } from '../../shared/canUseDOM';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -82,7 +77,7 @@ export function InsertImageUriDialogBody({
           data-test-id="image-modal-confirm-btn"
           disabled={isDisabled}
           onClick={() => onClick({altText, src})}>
-          Confirm
+          Confirmar
         </Button>
       </DialogActions>
     </>
@@ -132,7 +127,7 @@ export function InsertImageUploadedDialogBody({
           data-test-id="image-modal-file-upload-btn"
           disabled={isDisabled}
           onClick={() => onClick({altText, src})}>
-          Confirm
+          Confirmar
         </Button>
       </DialogActions>
     </>
@@ -258,22 +253,13 @@ export default function ImagesPlugin({
   return null;
 }
 
-
 const TRANSPARENT_IMAGE =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
-let img: HTMLImageElement | null = null;
-
-function initializeImage() {
-  if (typeof window !== 'undefined') {
-    const _img = document.createElement('img');
-    _img.src = TRANSPARENT_IMAGE;
-    return _img
-  }
-  return null
-}
+const img = document.createElement('img');
+img.src = TRANSPARENT_IMAGE;
 
 function $onDragStart(event: DragEvent): boolean {
+  console.log("drag start")
   const node = $getImageNodeInSelection();
   if (!node) {
     return false;
@@ -282,13 +268,6 @@ function $onDragStart(event: DragEvent): boolean {
   if (!dataTransfer) {
     return false;
   }
-  if (!img) {
-    img = initializeImage();
-  }
-  if (!img) {
-    return false
-  }
-
   dataTransfer.setData('text/plain', '_');
   dataTransfer.setDragImage(img, 0, 0);
   dataTransfer.setData(
@@ -312,6 +291,7 @@ function $onDragStart(event: DragEvent): boolean {
 }
 
 function $onDragover(event: DragEvent): boolean {
+  console.log("drag over")
   const node = $getImageNodeInSelection();
   if (!node) {
     return false;
