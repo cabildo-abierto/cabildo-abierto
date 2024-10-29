@@ -160,7 +160,7 @@ export async function getContentById(id: string, userId?: string, useCache: bool
         return await getContentByIdNoCache(id, userId)
     }, ["content", id, userId], {
         tags: ["content", "content:"+id+":"+userId, "content:"+id],
-        revalidate: 5,
+        revalidate: revalidateEverythingTime,
     })()
 }
 
