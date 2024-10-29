@@ -11,5 +11,5 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error }, { status: 500 })
   }
 
-  return NextResponse.json(content);
+  return NextResponse.json({content});
 }

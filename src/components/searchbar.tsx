@@ -15,7 +15,6 @@ export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = 
     const {searchValue, setSearchValue} = useSearch()
 
     return <div className="flex justify-center content-container rounded"
-      onClick={() => {setSearchValue("")}}
     >
         <Link href={id2url(result.id)}>
             <button className={className}>

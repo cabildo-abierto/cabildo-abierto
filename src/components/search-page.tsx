@@ -4,14 +4,19 @@ import { ReactNode, useEffect, useState } from "react";
 import { useSearch } from "./search-context";
 import { SearchContent } from "./search-content";
 import { ThreeColumnsLayout } from "./three-columns";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 
 
 export const SearchPage = ({ children }: { children: ReactNode }) => {
-    const { searchValue } = useSearch();
+    const { searchValue, setSearchValue } = useSearch();
     const path = usePathname();
+    const params = useParams()
     const [route, setRoute] = useState([]);
     
+    useEffect(() => {
+        setSearchValue("")
+    }, [path, params])
+
     const showSearch = searchValue.length > 0 && !path.includes("/temas");
 
     return (
