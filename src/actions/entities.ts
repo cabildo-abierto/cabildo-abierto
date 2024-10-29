@@ -2,7 +2,7 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findEntityReferences, findMentions, getContentById, notifyMentions, processNewText } from "./contents";
+import { findEntityReferences, findMentions, getContentById, notifyMentions, processNewText, processNewTextFast } from "./contents";
 import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
@@ -184,17 +184,17 @@ export const updateEntityContent = async (
     const {entity, error} = await getEntityById(entityId)
     if(error) return {error}
 
-    const {content: currentContent, error: contentError} = await getContentById(entity.currentVersionId)
-    if(contentError) return {error: contentError}
-
-    const text = decompress(compressedText)
-    const {error: processError, numNodes, numChars, numWords, compressedPlainText, ...processed} = await processNewText(text, entity.name)
-    if(processError) return {error: processError}
-
     const {user, error: userError} = await getUserById(userId)
     if(userError) return {error: userError}
 
     const permission = hasEditPermission(user, entity.protection)
+
+    const {content: currentContent, error: contentError} = await getContentById(entity.currentVersionId)
+    if(contentError) return {error: contentError}
+
+    const text = decompress(compressedText)
+    const {error: processError, numNodes, numChars, numWords, compressedPlainText, ...processed} = await processNewTextFast(text, entity.name)
+    if(processError) return {error: processError}
 
     const prevText = decompress(entity.currentVersion.compressedText)
 
