@@ -5,9 +5,15 @@ import { fetcher } from "./utils"
 
 export function useContent(id: string): {content: ContentProps | undefined, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/content/'+id, fetcher)
-  
+    
+    if(data && data.error){
+        return {content: undefined,
+            isLoading: false,
+            isError: true
+        }
+    }
     return {
-        content: data,
+        content: data ? data.content : undefined,
         isLoading,
         isError: error
     }

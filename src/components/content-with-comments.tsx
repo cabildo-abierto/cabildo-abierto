@@ -48,11 +48,14 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const [comments, setComments] = useState(content.childrenContents)
     
     useEffect(() => {
-        for(let i = 0; i < content.childrenContents.length; i++){
-            preload("/api/content/"+content.childrenContents[i].id, fetcher)
-        }
-        if(!comments || content.childrenContents.length == comments.length){
-            setComments(content.childrenContents)
+        if(content){
+            console.log("content", content)
+            for(let i = 0; i < content.childrenContents.length; i++){
+                preload("/api/content/"+content.childrenContents[i].id, fetcher)
+            }
+            if(!comments || content.childrenContents.length == comments.length){
+                setComments(content.childrenContents)
+            }
         }
     }, [content])
 
