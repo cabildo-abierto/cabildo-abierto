@@ -49,7 +49,6 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     
     useEffect(() => {
         if(content){
-            console.log("content", content)
             for(let i = 0; i < content.childrenContents.length; i++){
                 preload("/api/content/"+content.childrenContents[i].id, fetcher)
             }
