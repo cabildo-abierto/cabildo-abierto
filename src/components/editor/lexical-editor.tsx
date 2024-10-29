@@ -210,7 +210,6 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
         <OnChangePlugin
           onChange={(editorState) => {
             setEditorState(editorState);
-            console.log(JSON.stringify(editorState))
           }}
         />
         <HashtagPlugin />
