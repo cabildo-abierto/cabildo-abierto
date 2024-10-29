@@ -172,12 +172,18 @@ export async function updatePw(state: any, formData: FormData) {
 export async function resendConfirmationEmail(email: string){
     try {
       const supabase = createClient()
+      console.log("client created, resending")
       const response = await supabase.auth.resend({
         type: "signup",
         email: email
       })
-      return {response}
+      if(response.error){
+        return {error: "Error al enviar el mail."}
+      } else {
+        return {}
+      }
     } catch {
+      console.log("error al enviar")
       return {error: "Error al enviar el mail."}
     }
 }

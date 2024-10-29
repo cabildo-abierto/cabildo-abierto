@@ -1,11 +1,9 @@
 "use client"
 import { useRouter } from "next/navigation";
-import { Authorship, ContentTopRow, ContentTopRowAuthor, id2url, LikeAndCommentCounter } from "./content"
+import { id2url, LikeAndCommentCounter } from "./content"
 
-import { PostIcon } from "./icons";
 import { ContentProps } from "../app/lib/definitions";
-import ReadOnlyEditor from "./editor/read-only-editor";
-import { contentUrl, getPreviewFromJSONStr, stopPropagation } from "./utils";
+import { contentUrl, stopPropagation } from "./utils";
 import Link from "next/link";
 import { DateSince } from "./date";
 import { fetcher } from "../app/hooks/utils";

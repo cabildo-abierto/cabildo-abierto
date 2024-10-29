@@ -75,6 +75,7 @@ export const wikiEditorSettings = (readOnly: boolean, content: ContentProps, con
         content: content,
         isAutofocus: false,
         placeholderClassName: "ContentEditable__placeholder",
+        imageClassName: ""
     }
 }
 

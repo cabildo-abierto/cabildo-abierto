@@ -35,6 +35,7 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
     settings.placeholder = randomPlaceholder;
     settings.editorClassName = "min-h-[250px] content comment"
     settings.placeholderClassName = "absolute top-0 text-[var(--text-lighter)] pointer-events-none"
+    settings.imageClassName = "fastpost-image"
 
     async function handleSubmit() {
         setErrorOnCreatePost(false)

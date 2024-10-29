@@ -19,7 +19,6 @@ import {HashtagNode} from '@lexical/hashtag';
 import {LinkNode} from '@lexical/link';
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
 import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
-import {CollaborationPlugin} from '@lexical/react/LexicalCollaborationPlugin';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
 import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
@@ -55,7 +54,6 @@ import {useSharedHistoryContext} from '../context/SharedHistoryContext';
 import brokenImage from '../images/image-broken.svg';
 import KeywordsPlugin from '../plugins/KeywordsPlugin';
 import LinkPlugin from '../plugins/LinkPlugin';
-import TreeViewPlugin from '../plugins/TreeViewPlugin';
 import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import {$isImageNode} from './ImageNode';
@@ -82,26 +80,28 @@ function useSuspenseImage(src: string) {
   }
 }
 
+
 function LazyImage({
   altText,
   className,
   imageRef,
-  src,
   width,
   height,
   maxWidth,
+  src,
   onError,
 }: {
   altText: string;
   className: string | null;
   height: 'inherit' | number;
-  imageRef: {current: null | HTMLImageElement};
+  imageRef: { current: null | HTMLImageElement };
   maxWidth: number;
   src: string;
   width: 'inherit' | number;
   onError: () => void;
 }): JSX.Element {
   useSuspenseImage(src);
+
   return (
     <img
       className={className || undefined}
@@ -109,15 +109,19 @@ function LazyImage({
       alt={altText}
       ref={imageRef}
       style={{
-        height,
-        maxWidth,
-        width,
+        maxWidth: `calc(min(100%, 500px))`,
+        width: 'auto',
+        maxHeight: `300px`,
+        height: 'auto',
+        objectFit: 'cover',
+        overflow: 'hidden',
       }}
       onError={onError}
       draggable="false"
     />
   );
 }
+
 
 function BrokenImage(): JSX.Element {
   return (
@@ -397,10 +401,10 @@ export default function ImageComponent({
             <BrokenImage />
           ) : (
             <LazyImage
-              className={
+              className={ "rounded-lg " + (
                 isFocused
                   ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}`
-                  : null
+                  : null)
               }
               src={src}
               altText={altText}
