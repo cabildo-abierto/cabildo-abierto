@@ -197,6 +197,37 @@ export async function notifyMentions(mentions: {id: string}[], contentId: string
 }
 
 
+export async function processNewTextFast(text: string, title?: string) {
+
+    //let entityReferences = await findEntityReferences(text)
+    //if(entityReferences.error) return {error: entityReferences.error}
+
+    //const {mentions, error: mentionsError} = await findMentions(text)
+    //if(mentionsError) return {error: mentionsError}
+
+    //const searchkeys = await getReferencesSearchKeys()
+    //if(searchkeys.error) return {error: searchkeys.error}
+
+    const {numChars, numWords, numNodes, plainText, error} = getPlainText(text)
+    if(error) return {error}
+
+    //const weakReferences = findWeakEntityReferences(
+    //    plainText+" "+title,
+    //    searchkeys.searchkeys
+    //)
+
+    return {
+        numChars,
+        numWords,
+        numNodes,
+        //weakReferences,
+        //mentions,
+        //entityReferences: entityReferences.entityReferences,
+        compressedPlainText: compress(plainText)
+    }
+}
+
+
 export async function processNewText(text: string, title?: string) {
 
     let entityReferences = await findEntityReferences(text)
@@ -226,6 +257,7 @@ export async function processNewText(text: string, title?: string) {
         compressedPlainText: compress(plainText)
     }
 }
+
 
 
 type CommentAncestorsDataProps = {
