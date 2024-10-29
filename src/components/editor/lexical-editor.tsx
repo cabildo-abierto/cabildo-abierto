@@ -99,7 +99,8 @@ export type SettingsProps = {
   editorClassName: string,
   content?: ContentProps | null,
   placeholderClassName: string,
-  showingChanges?: string
+  showingChanges?: string,
+  imageClassName: string
 }
 
 
@@ -209,6 +210,7 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
         <OnChangePlugin
           onChange={(editorState) => {
             setEditorState(editorState);
+            console.log(JSON.stringify(editorState))
           }}
         />
         <HashtagPlugin />
@@ -283,7 +285,7 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 }
 
 const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorProps) => {
-  let {isReadOnly, initialData} = settings
+  let {isReadOnly, initialData, imageClassName} = settings
 
   if(typeof initialData === 'string'){
       try {
@@ -313,7 +315,7 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
     onError: (error: Error) => {
       throw error;
     },
-    theme: PlaygroundEditorTheme,
+    theme: {...PlaygroundEditorTheme, image: "editor-image " + imageClassName},
     editable: !isReadOnly,
   };
 

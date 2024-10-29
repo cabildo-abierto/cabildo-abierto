@@ -45,7 +45,8 @@ export const commentEditorSettings: SettingsProps = {
     editorClassName: "content comment min-h-16 relative",
     initialData: null,
     isReadOnly: false,
-    placeholderClassName: "absolute top-0 text-[var(--text-lighter)] pointer-events-none"
+    placeholderClassName: "absolute top-0 text-[var(--text-lighter)] pointer-events-none",
+    imageClassName: ""
 }
 
 

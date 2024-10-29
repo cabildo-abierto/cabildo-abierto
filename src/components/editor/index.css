@@ -882,6 +882,11 @@ i.page-break,
   user-select: none;
 }
 
+.editor-shell span.fastpost-image {
+  display: flex;
+  justify-content: center;
+}
+
 .editor-shell .editor-image img {
   max-width: 100%;
   cursor: default;

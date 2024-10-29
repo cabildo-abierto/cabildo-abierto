@@ -7,6 +7,13 @@ import { ChatMessage } from "@prisma/client"
 export function useUser(): {user: UserProps | null, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/user', fetcher)
     
+    if(data && data.status == "not logged in"){
+        return {
+            user: undefined,
+            isLoading: false,
+            isError: false
+        }
+    }
     return {
         user: data,
         isLoading: isLoading,

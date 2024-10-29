@@ -25,7 +25,7 @@ const ResendEmailButton = ({ email, initializeSent=false }: { email: string, ini
       <StateButton
         className="cursor-pointer small-btn"
         handleClick={async () => {
-          const {response, error} = await resendConfirmationEmail(email);
+          const {error} = await resendConfirmationEmail(email);
           if(error) return error
           setLastSent(new Date());
           setSeconds(0);
