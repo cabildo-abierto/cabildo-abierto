@@ -29,8 +29,11 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
   const { error } = await supabase.auth.signInWithPassword(validatedFields.data as {email: string, password: string})
 
   if (error) {
+    console.log("error", error)
     if(error instanceof AuthRetryableFetchError){
       return { error: "no connection" }
+    } else if(error.message == "Invalid login credentials"){
+      return {error: "invalid credentials"}
     } else if(error.message == "Email not confirmed"){
       return { error: "not confirmed", data: validatedFields.data}
     } else if(error instanceof AuthApiError){
@@ -92,6 +95,7 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
     const { error, data } = await supabase.auth.signUp(validatedFields.data as {email: string, password: string, username: string, name: string, betakey: string})
 
     if (error || !data || !data.user) {
+        console.log("signup error", error)
         return {
             authError: error?.code
         }
