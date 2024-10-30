@@ -3,6 +3,7 @@ import { getAdminStats } from "../../actions/admin"
 import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
+import { SubscriptorsByWeek } from "../../components/subscriptors-by-week"
 
 
 function getMedianViewsByDay(viewsByDay: number[]){
@@ -39,8 +40,18 @@ export default async function Page() {
 
     const center = <div className="flex flex-col items-center w-full">
         <Stat>
+            Suscriptores: {stats.subscriptors}
+        </Stat>
+        <Stat>
+            Objetivo lunes que viene: {stats.subscriptorsByWeek[stats.subscriptorsByWeek.length-1].count * 1.1}
+        </Stat>
+
+        <SubscriptorsByWeek data={stats.subscriptorsByWeek}/>
+
+        <Stat>
             Cuentas: {stats.accounts}
         </Stat>
+
         <div>
             <h3>Suscripciones por precio: </h3>
             

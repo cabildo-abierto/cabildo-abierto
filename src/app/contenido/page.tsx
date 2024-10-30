@@ -1,10 +1,11 @@
 import React from "react";
 import { ContentWithCommentsFromId } from "../../components/content-with-comments";
 import { ThreeColumnsLayout } from "../../components/three-columns";
+import { getContentById } from "../../actions/contents";
 
 
-/*export async function generateMetadata({searchParams}: {searchParams: {i: string}}){
-    const content = await getContentById(searchParams.i)
+export async function generateMetadata({searchParams}: {searchParams: {i: string}}){
+    const {content} = await getContentById(searchParams.i)
     if(!content){
         return {
             title: "Contenido no encontrado"
@@ -34,7 +35,7 @@ import { ThreeColumnsLayout } from "../../components/three-columns";
     }
 
     return {}
-}*/
+}
 
 
 const ContentPage: React.FC<{searchParams: {i: string}}> = async ({searchParams}) => {
