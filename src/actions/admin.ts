@@ -585,6 +585,14 @@ export async function getAdminStats(){
         }
     })
 
+    const subscriptions = await db.subscription.findMany({
+        select: {
+            usedAt: true,
+            endsAt: true,
+            userId: true
+        }
+    })
+
     const sellsByPrice = await db.subscription.groupBy({
         by: ['price'],
         _count: {
@@ -615,10 +623,49 @@ export async function getAdminStats(){
         }
     })
 
+    const firstSubscription = await db.subscription.findFirst({
+        orderBy: { createdAt: 'asc' },
+        select: { createdAt: true }
+    });
+
+    const firstDate = new Date(firstSubscription.createdAt);
+    
+    const firstMonday = new Date(firstDate);
+    firstMonday.setDate(firstMonday.getDate() - ((firstMonday.getDay() + 6) % 7));
+
+    const currentDate = new Date();
+    const weekDuration = 7 * dayDuration;
+
+
+    let subscriptorsByWeek: {date: Date, count: number}[] = []
+    for (let date = new Date(firstMonday); date <= currentDate; date = new Date(date.getTime() + weekDuration)) {
+
+        let users = new Set()
+
+        subscriptions.forEach((s) => {
+            if(s.usedAt && s.usedAt <= date && s.endsAt >= date){
+                users.add(s.userId)
+            }
+        })
+
+        subscriptorsByWeek.push({ date, count: users.size });
+    }
+
+    const today = new Date()
+    const subscriptors = new Set()
+    subscriptions.forEach((s) => {
+        if(s.usedAt && s.usedAt < today && s.endsAt >= today){
+            subscriptors.add(s.userId)
+        }
+    })
+
+
     return {
         accounts: accounts.length,
         sellsByPrice,
         sellsByIsDonation,
-        viewsByDay
+        viewsByDay,
+        subscriptorsByWeek,
+        subscriptors: subscriptors.size
     }
 }
