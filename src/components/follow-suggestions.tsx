@@ -68,6 +68,7 @@ export const FollowSuggestions = () => {
             <button
                 className="small-btn px-2 text-xs sm:text-sm flex items-center space-x-2"
                 onClick={() => {setOpenSharePopup(true)}}
+                id="share-button" data-umami-event="share-button"
             >
                 <div>O compartí la página con alguien que conozcas</div>
                 <div className="text-sm sm:text-base mb-1"><ShareIcon fontSize="inherit"/></div> 
