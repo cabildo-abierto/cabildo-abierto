@@ -7,8 +7,10 @@ import { userAgent } from "next/server";
 
 
 export async function generateMetadata({searchParams}: {searchParams: {i: string, version: string}}){
+    const name = entityIdToName(searchParams.i)
     return {
-        title: entityIdToName(searchParams.i)
+        title: name,
+        description: "Artículo sobre " + name + " en Cabildo Abierto."
     }
 }
 

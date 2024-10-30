@@ -8,29 +8,37 @@ export async function generateMetadata({searchParams}: {searchParams: {i: string
     const {content} = await getContentById(searchParams.i)
     if(!content){
         return {
-            title: "Contenido no encontrado"
+            title: "Contenido no encontrado",
+            description: ""
         }
     }
 
+    const description = "Publicación de @" + content.author.id + " en Cabildo Abierto"
+
     if(content.type == "Post"){
-        return {title: content.title}
+        return {title: content.title,
+            description
+        }
     }
 
     if(content.type == "FastPost"){
         return {
-            title: "Publicación rápida de @" + content.author.id
+            title: "Publicación rápida de @" + content.author.id,
+            description
         }
     }
 
     if(content.type == "Comment"){
         return {
-            title: "Comentario de @" + content.author.id
+            title: "Comentario de @" + content.author.id,
+            description
         }
     }
 
     if(content.type == "FakeNewsReport"){
         return {
-            title: "Reporte de @" + content.author.id
+            title: "Reporte de @" + content.author.id,
+            description
         }
     }
 
