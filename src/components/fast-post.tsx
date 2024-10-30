@@ -31,7 +31,7 @@ export const FastPost = ({
     isMainPage,
     depth=0,
 }: FastPostProps) => {
-    const icon = <FastPostIcon/>
+    const icon = <span className="text-[var(--primary-dark)]"><FastPostIcon/></span>
     const {user} = useUser()
 
     function onShowFakeNews() {

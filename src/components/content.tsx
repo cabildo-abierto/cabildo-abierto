@@ -45,12 +45,12 @@ export const ContentTopRowAuthor = ({content} :{content: ContentProps}) => {
     return <>
         <Link 
             href={url} 
-            className=""
+            className="text-[var(--primary-dark)]"
             onClick={onClick}
         >
-            <span className="hover:underline font-bold text-gray-800 mr-1">  {content.author?.name}
+            <span className="hover:underline font-bold  mr-1">  {content.author?.name}
             </span>
-            <span className="text-[var(--text-light)]">
+            <span className="text-[var(--primary-light)]">
                 @{content.author?.id}
             </span>
         </Link>
@@ -121,6 +121,7 @@ export const CommentCounter = ({viewingComments, disabled, content, onViewCommen
             active={viewingComments}
             onClick={onViewComments}
             title={commentCounterTitle}
+            className="comment-btn"
         />
     </div>
 }
