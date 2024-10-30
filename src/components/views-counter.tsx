@@ -17,7 +17,9 @@ export const ViewsCounter: React.FC<ViewsCounterProps> = ({
     return <ReactionButton
         onClick={() => {}}
         icon1={<ViewsIcon/>}
+        icon2={<ViewsIcon/>}
         disabled={true}
+        active={false}
         count={content.uniqueViewsCount}
         title={title}
     />

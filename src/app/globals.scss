@@ -477,6 +477,33 @@ ol {
 	background: transparent;
 }
 
+.reaction-btn.toggled {
+	color: #be6666
+}
+
+.reaction-btn.toggled:hover {
+	color: #804343
+}
+
+
+.comment-btn {
+	font-size: small;
+	color: var(--text-lighter);
+	padding: 5px;
+}
+
+.comment-btn:hover {
+	background: var(--accent-light);
+	padding: 5px;
+	border-radius: 15px
+}
+
+.comment-btn:disabled:hover {
+	color: var(--text-lighter);
+	background: transparent;
+}
+
+
 .topbar-btn {
 	cursor: pointer;
 	padding: 4px;

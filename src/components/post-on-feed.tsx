@@ -1,6 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation";
-import { id2url, LikeAndCommentCounter } from "./content"
+import { ContentTopRow, ContentTopRowAuthor, id2url, LikeAndCommentCounter } from "./content"
 
 import { ContentProps } from "../app/lib/definitions";
 import { contentUrl, stopPropagation } from "./utils";
@@ -88,7 +88,9 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
         </div>
 
         <div className="flex justify-between ml-2 items-center">
-            <Author content={content}/>
+            <div className="sm:text-sm text-xs">
+                <ContentTopRowAuthor content={content}/>
+            </div>
             {/*<span className="text-sm text-gray-400 ml-2">Entrar a leer</span>*/}
             <LikeAndCommentCounter
                 disabled={true}
