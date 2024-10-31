@@ -9,7 +9,7 @@ import { getUser } from './users'
 
 
 export type LoginFormState = {
-  error?: string
+  errors?: string[]
   data?: any
   user?: UserProps
 }
@@ -23,7 +23,7 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
   })
 
   if(!validatedFields.data) {
-    return { error: "invalid fields"}
+    return { errors: ["invalid fields"]}
   }
 
   const { error } = await supabase.auth.signInWithPassword(validatedFields.data as {email: string, password: string})
@@ -31,15 +31,15 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
   if (error) {
     console.log("error", error)
     if(error instanceof AuthRetryableFetchError){
-      return { error: "no connection" }
+      return { errors: ["no connection"] }
     } else if(error.message == "Invalid login credentials"){
-      return {error: "invalid credentials"}
+      return {errors: ["invalid credentials"]}
     } else if(error.message == "Email not confirmed"){
-      return { error: "not confirmed", data: validatedFields.data}
+      return { errors: ["not confirmed"], data: validatedFields.data}
     } else if(error instanceof AuthApiError){
-      return { error: "api error"}
+      return { errors: ["api error"]}
     } else {
-      return { error: "invalid auth" }
+      return { errors: ["invalid auth"] }
     }
   }
 
