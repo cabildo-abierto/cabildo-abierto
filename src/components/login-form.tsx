@@ -14,21 +14,21 @@ const LoginFormError = ({state}: {state: LoginFormState}) => {
 
     let errorComponent = <div className="h-6"></div>
 
-    if(!pending && state && state.error == "invalid credentials"){
+    if(!pending && state && state.errors[0] == "invalid credentials"){
         errorComponent = <div className="flex items-center text-red-600 h-6 px-2">Usuario o contraseña incorrectos.</div>
     }
-    if(!pending && state && state.error == "no connection"){
+    if(!pending && state && state.errors[0] == "no connection"){
         errorComponent = <div className="flex items-center text-red-600 h-6 px-2">
             Ocurrió un error en la conexión.
         </div>
     }
-    if(!pending && state && state.error == "not confirmed"){
+    if(!pending && state && state.errors[0] == "not confirmed"){
         errorComponent = <div className="flex flex-col items-center px-2 justify-center text-center">
             <span className="text-red-600">Confirmá tu mail para iniciar sesión.</span>
             <span><ResendEmailButton email={state.data.email}/></span>
         </div>   
     }
-    if(!pending && state && state.error == "api error"){
+    if(!pending && state && state.errors[0] == "api error"){
         errorComponent = <div className="flex items-center text-red-600 h-6 px-2">Volvé a intentar más tarde.</div>
     }
 

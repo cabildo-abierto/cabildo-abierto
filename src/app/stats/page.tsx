@@ -4,6 +4,7 @@ import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { SubscriptorsByWeek } from "../../components/subscriptors-by-week"
+import { ViewsByDaySinceSignup } from "../../components/views-since-signup"
 
 
 function getMedianViewsByDay(viewsByDay: number[]){
@@ -87,21 +88,10 @@ export default async function Page() {
                 Vistas por día desde el registro
             </h3>
             <div className="flex flex-col items-center">
-            <Stat>
-                <span>Mediana: {getMedianViewsByDay(stats.viewsByDay)}</span>
-            </Stat>
-            <div className="flex flex-col">
-                {stats.viewsByDay.slice(0, 60).map((c, index) => {
-                    return <div key={index} className="flex justify-between w-16">
-                        <div>
-                            {index}
-                        </div>
-                        <div>
-                            {c}
-                        </div>
-                    </div>
-                })}
-            </div>
+                <Stat>
+                    <span>Mediana: {getMedianViewsByDay(stats.viewsByDay)}</span>
+                </Stat>
+                <ViewsByDaySinceSignup viewsByDay={stats.viewsByDay}/>
             </div>
         </div>
 

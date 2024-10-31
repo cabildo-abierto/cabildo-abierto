@@ -79,6 +79,7 @@ export const EmailInput = ({state, label="Email"}: {state: SignUpFormState, labe
 
     useEffect(() => {
         if(state && !state.errors){
+            console.log("deleting email", state)
             setEmail("")
         }
     }, [state])
@@ -162,7 +163,7 @@ const UsernameInput = ({state}) => {
     const [username, setUsername] = useState("")
 
     useEffect(() => {
-        if(state && !state.error){
+        if(state && !state.errors){
             setUsername("")
         }
     }, [state])
