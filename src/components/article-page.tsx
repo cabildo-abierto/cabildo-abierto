@@ -138,15 +138,6 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         />
     }
 
-    const ViewCategoriesButton = () => {
-        return <ToggleButton
-            text="Categorías"
-            className={articleButtonClassname}
-            setToggled={(v) => {if(v) setSelectedPanel("categories"); else setSelectedPanel("none")}}
-            toggled={selectedPanel == "categories"}
-        />
-    }
-
     const DeleteArticleButton = () => {
         return <StateButton
             className={articleButtonClassname}
@@ -304,7 +295,6 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         {selectedPanel != "editing" && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">
             <EditButton/>
             <ViewHistoryButton/>
-            <ViewCategoriesButton/>
             <ViewLastChangesButton/>
             <ViewAuthorsButton/>
             

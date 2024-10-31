@@ -227,7 +227,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         {showingChanges && readOnly && version == 0 && <>Estás viendo la primera versión</>}
         </div>
         <div id="editor">
-            {((!showingChanges && !showingAuthors) || version == 0) && 
+            {(((!showingChanges || version == 0) && !showingAuthors)) && 
             <div className="px-2 min-h-64" key={content.id+readOnly}>
                 <MyLexicalEditor
                 settings={wikiEditorSettings(readOnly, content, contentText)}
@@ -243,7 +243,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
                     version={version}
                 />
             }
-            {(showingAuthors && version > 0) && 
+            {(showingAuthors) && 
                 <ShowArticleAuthors
                     originalContent={content}
                     originalContentText={contentText}
