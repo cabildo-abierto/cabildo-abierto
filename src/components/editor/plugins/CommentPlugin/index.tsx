@@ -216,6 +216,10 @@ export default function CommentPlugin({parentContent}: {
       setShowCommentInput(false)
   }
 
+  if(!window || window.innerWidth < 800){
+    return <></>
+  }
+
   return (
     <>
       {showCommentInput &&
