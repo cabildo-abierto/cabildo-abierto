@@ -937,18 +937,17 @@ export async function updateClosedFollowSuggestions(userId: string){
 
 // to do: cachear
 export async function getUsersByLocation(){
-    try {
+    return {usersByLocation: [], error: undefined}
+    /*try {
         const users = await db.users.groupBy({
-            by: ['id'],
+            by: ['provincia'],
             _count: {
-            id: true,
+            provincia: true,
             },
         })
-
-        const usersByLocation = Array.from(users)
-
-        return {usersByLocation}
+        
+        return {usersByLocation} // usersByLocation should by {nombre: string, count: number}
     } catch {
         return {error: "error al obtener los usuarios"}
-    }
+    }*/
 }
