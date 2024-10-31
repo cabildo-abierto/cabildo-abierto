@@ -36,6 +36,7 @@ import { CommentInputBox } from './ui';
 import { CommentsPanel } from './CommentsPanel';
 import { $createMarkNode, $isMarkNode, CustomMarkNode } from '../../nodes/CustomMarkNode';
 import { ContentProps } from '../../../../app/lib/definitions';
+import { ActiveCommentIcon, InactiveCommentIcon } from '../../../icons';
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -245,7 +246,9 @@ export default function CommentPlugin({parentContent}: {
           className={"hidden sm:block gray-btn CommentPlugin_ShowCommentsButton " + (showComments ? "toggled" : "")}
           onClick={() => setShowComments(!showComments)}
           title={showComments ? 'Esconder comentarios' : 'Ver comentarios'}>
-          <i className="comments" />
+          <div className="text-gray-300">
+          {showComments ? <ActiveCommentIcon/> : <InactiveCommentIcon/>}
+          </div>
         </button>
       }
 
@@ -256,6 +259,7 @@ export default function CommentPlugin({parentContent}: {
             parentContent={parentContent}
             markNodeMap={markNodeMap}
             comments={comments}
+            onClose={() => {setShowComments(false)}}
           />,
           document.body,
       )}

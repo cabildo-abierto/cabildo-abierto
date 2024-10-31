@@ -2,17 +2,20 @@ import { useState, useRef, useEffect } from "react";
 import { NodeKey } from "lexical";
 import { CommentProps, ContentProps } from "../../../../app/lib/definitions";
 import { EntitySidebarCommentSection, SidebarCommentSection } from "../../../comment-section";
+import { CloseButton } from "../../../close-button";
 
 export function CommentsPanel({
     activeIDs,
     parentContent,
     markNodeMap,
-    comments
+    comments,
+    onClose
 }: {
     activeIDs: string[],
     parentContent: ContentProps,
     markNodeMap: Map<string, Set<NodeKey>>
     comments: CommentProps[]
+    onClose: () => void
 }): JSX.Element {
     const [width, setWidth] = useState(350); // Set initial width
     const panelRef = useRef<HTMLDivElement>(null);
@@ -50,18 +53,24 @@ export function CommentsPanel({
     return (
         <div
             ref={panelRef}
-            className="fixed top-16 right-0 h-[calc(100vh-3.5rem)] bg-[var(--background)] bg-opacity-50 overflow-y-auto p-4 shadow-lg z-50"
+            className="fixed top-16 right-0 h-[calc(100vh-3.5rem)] overflow-y-auto bg-[var(--comments-panel-bg)] z-50 rounded-l"
             style={{
                 width: `${width}px`, // Set dynamic width
                 maxWidth: `${width}px`, // Prevent the panel from growing beyond this width
                 overflowX: "hidden" // Prevent horizontal scrolling
             }}
         >
+            <div className="flex justify-between px-2">
+                <div className="text-[var(--text-light)] text-sm mt-1">Comentarios sobre el texto</div>
+                <button onClick={onClose} className="text-[var(--text-light)] hover:text-[var(--text)] text-sm">cerrar</button>
+            </div>
+            <div className="px-2">
             {parentContent.type == "EntityContent" ? (
                 <EntitySidebarCommentSection content={parentContent} activeIDs={activeIDs} comments={comments}/>
             ) : (
                 <SidebarCommentSection content={parentContent} activeIDs={activeIDs} comments={comments}/>
             )}
+            </div>
 
             <div
                 className="absolute top-0 left-0 h-full w-2 cursor-ew-resize"
