@@ -3,8 +3,13 @@ import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import { useEffect, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 
+type Province = {
+  nombre: string;
+  centroide: { lat: number; lon: number };
+}
+
 const ArgentinaMap = ({usersByLocation}: {usersByLocation: {nombre: string, count: number}[]}) => {
-  const [provinces, setProvinces] = useState(null);
+  const [provinces, setProvinces] = useState<Province[] | null>(null);
 
   useEffect(() => {
     fetch("https://apis.datos.gob.ar/georef/api/provincias")
@@ -21,7 +26,7 @@ const ArgentinaMap = ({usersByLocation}: {usersByLocation: {nombre: string, coun
   };
 
   return (
-    <MapContainer style={{ height: '1100px', width: '450px' }} center={[-41, -65]} zoom={5}>
+    <MapContainer style={{ height: '1100px', width: '450px' }} center={[-41.0, -65.0]} zoom={5}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       {provinces && provinces.map((province) => {
         const userCount = getUserCount(province.nombre);
