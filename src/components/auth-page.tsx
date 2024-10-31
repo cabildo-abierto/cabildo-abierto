@@ -11,7 +11,7 @@ export const AuthPage = ({loggingIn, setLoggingIn}: {loggingIn?: boolean, setLog
             !loggingIn ? <>
             <SignupForm/>
             <div className='mt-4 text-center pb-4'>
-                Ya tenés una cuenta? <button className="link2" onClick={() => {setLoggingIn(true)}}>Iniciá sesión</button>.
+                ¿Ya tenés una cuenta? <button className="link2" onClick={() => {setLoggingIn(true)}}>Iniciá sesión</button>.
             </div>
             </>
             :<>
@@ -20,7 +20,7 @@ export const AuthPage = ({loggingIn, setLoggingIn}: {loggingIn?: boolean, setLog
                 <Link href="/recuperar" className="link2">Recuperar contraseña</Link>.
             </div>
             <div className='text-center'>
-                No tenés una cuenta? <button className="link2" onClick={() => {setLoggingIn(false)}}>Registrate</button>.
+                ¿No tenés una cuenta? <button className="link2" onClick={() => {setLoggingIn(false)}}>Registrate</button>.
             </div>
             </>
         }

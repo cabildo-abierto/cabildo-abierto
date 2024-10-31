@@ -933,3 +933,22 @@ export async function updateClosedFollowSuggestions(userId: string){
     revalidateTag("user:"+userId)
     return true
 }
+
+
+// to do: cachear
+export async function getUsersByLocation(){
+    try {
+        const users = await db.users.groupBy({
+            by: ['id'],
+            _count: {
+            id: true,
+            },
+        })
+
+        const usersByLocation = Array.from(users)
+
+        return {usersByLocation}
+    } catch {
+        return {error: "error al obtener los usuarios"}
+    }
+}
