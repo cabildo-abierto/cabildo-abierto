@@ -242,9 +242,9 @@ export const getUserById = (userId: string) => {
                 }
             )
         } catch {
-            return {error: "error on get entity"}
+            return {error: "error on get user " + userId}
         }
-        return user ? {user} : {error : "error on get entity"}
+        return user ? {user} : {error : "error on get user " + userId}
     }, ["user", userId], {
         revalidate: revalidateEverythingTime,
         tags: ["user:"+userId, "user"]})()    

@@ -78,11 +78,15 @@ export function CommentInputBox({
         const boxElem = boxRef.current;
         if (range !== null && boxElem !== null) {
           const {left, bottom, width} = range.getBoundingClientRect();
+          const {width: commentBoxWidth} = boxRef.current.getBoundingClientRect();
           const selectionRects = createRectsFromDOMRange(editor, range);
           let correctedLeft =
             selectionRects.length === 1 ? left + width / 2 - 125 : left - 125;
-          if (correctedLeft < 10) {
-            correctedLeft = 10;
+          if(correctedLeft + commentBoxWidth > window.innerWidth){
+            correctedLeft = window.innerWidth - commentBoxWidth
+          }
+          if (correctedLeft < 0) {
+            correctedLeft = 0;
           }
           boxElem.style.left = `${correctedLeft}px`;
           boxElem.style.top = `${
@@ -202,12 +206,13 @@ export function CommentInputBox({
   };
 
   const settings = {...commentEditorSettings}
-  settings.editorClassName = "min-h-[150px]"
+  settings.editorClassName = "min-h-[150px] sm:text-base text-sm"
 
   if(!user.user) settings.placeholder = "Necesitás una cuenta para agregar un comentario." 
 
   return (
-    <div className="CommentPlugin_CommentInputBox border rounded-lg px-2" ref={boxRef}>
+    <div ref={boxRef} className="absolute block z-24 px-2 w-screen sm:w-[24rem]">
+    <div className="min-h-[80px] bg-[var(--background)] border rounded-lg px-2">
       <div className="mt-2 px-2 py-2">
         <MyLexicalEditor
             settings={settings}
@@ -219,17 +224,18 @@ export function CommentInputBox({
       <div className="flex justify-end py-2 space-x-1">
         <button
           onClick={cancelAddComment}
-          className="small-btn title">
+          className="small-btn text-xs lg:text-sm title">
           <div className="py-1">Cancelar</div>
         </button>
         <StateButton
           handleClick={submitComment}
           disabled={emptyOutput(editor.getEditorState()) || !user.user}
-          className="small-btn title"
+          className="small-btn text-xs lg:text-sm title"
           text1={<div className="py-1">Enviar</div>}
           text2={<div className="py-1">Enviando...</div>}
         />
       </div>
+    </div>
     </div>
   );
 }

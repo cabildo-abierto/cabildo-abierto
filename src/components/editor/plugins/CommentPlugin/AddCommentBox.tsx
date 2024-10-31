@@ -55,8 +55,9 @@ export function AddCommentBox({
 
 
   return (
-    <div ref={boxRef} className="CommentPlugin_AddCommentBox">
-      <button className="CommentPlugin_AddCommentBox_button" onClick={onAddComment}>
+    <div ref={boxRef} className="CommentPlugin_AddCommentBox flex justify-center items-center cursor-pointer"
+    onClick={onAddComment}>
+      <button className="CommentPlugin_AddCommentBox_button">
         <i className="icon add-comment" />
       </button>
     </div>

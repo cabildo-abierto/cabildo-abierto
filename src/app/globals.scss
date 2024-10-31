@@ -8,6 +8,7 @@ $primary: #455dc0;
 $secondary: #beaccc;
 $accent: #8790b0;
 $background: #fbfbfc;
+$comments-panel-bg: rgba(lighten($secondary, 20%), 0.5);
 
 :root {
   --text: #{$text};
@@ -32,6 +33,7 @@ $background: #fbfbfc;
   --secondary-xlight: #{lighten($secondary, 25%)};
   --secondary-lighter: #{lighten($secondary, 27%)};
   --secondary-dark: #{darken($secondary, 20%)};
+  --comments-panel-bg: #{$comments-panel-bg};
 
   --primary-light: #{lighten($primary, 20%)};
   --accent-dark: #{darken($accent, 20%)};

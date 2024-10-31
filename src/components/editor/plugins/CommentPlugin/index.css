@@ -12,21 +12,12 @@
   background-color: var(--background);
   width: 40px;
   height: 60px;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+  border-width: 1px;
   z-index: 52;
 }
 
-.CommentPlugin_AddCommentBox_button {
-  border-radius: 20px;
-  border: 0;
-  background: none;
-  width: 40px;
-  height: 60px;
-  cursor: pointer;
-}
-
-.CommentPlugin_AddCommentBox_button:hover {
-  background-color: #f6f6f6;
+.CommentPlugin_AddCommentBox:hover {
+  background-color: var(--secondary-light);
 }
 
 i.add-comment {
@@ -36,15 +27,6 @@ i.add-comment {
   width: 20px;
   vertical-align: -10px;
   background-image: url(../../images/icons/chat-left-text.svg);
-}
-
-.CommentPlugin_CommentInputBox {
-  display: block;
-  position: absolute;
-  width: 24rem;
-  min-height: 80px;
-  background-color: var(--background);
-  z-index: 24;
 }
 
 @keyframes show-input-box {
