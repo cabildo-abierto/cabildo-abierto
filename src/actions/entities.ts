@@ -446,12 +446,14 @@ export const getEntitiesNoCache = async () => {
                     authorId: true,
                     childrenTree: {
                         select: {
-                            authorId: true
+                            authorId: true,
+                            createdAt: true
                         }
                     },
                     reactions: {
                         select: {
-                            userById: true
+                            userById: true,
+                            createdAt: true
                         }
                     },
                     numWords: true
@@ -462,19 +464,23 @@ export const getEntitiesNoCache = async () => {
             },
             referencedBy: {
                 select: {
+                    createdAt: true,
                     authorId: true,
                     childrenTree: {
                         select: {
                             authorId: true,
+                            createdAt: true,
                             reactions: {
                                 select: {
-                                    userById: true
+                                    userById: true,
+                                    createdAt: true
                                 }
                             }
                         }
                     },
                     reactions: {
                         select: {
+                            createdAt: true,
                             userById: true
                         }
                     },
@@ -514,24 +520,31 @@ export const getEntitiesNoCache = async () => {
                 }
             },
             reactions: {
-                select: {userById: true}
+                select: {
+                    userById: true,
+                    createdAt: true
+                }
             },
             weakReferences: {
                 select: {
                     authorId: true,
+                    createdAt: true,
                     childrenTree: {
                         select: {
                             authorId: true,
+                            createdAt: true,
                             reactions: {
                                 select: {
-                                    userById: true
+                                    userById: true,
+                                    createdAt: true
                                 }
                             }
                         }
                     },
                     reactions: {
                         select: {
-                            userById: true
+                            userById: true,
+                            createdAt: true
                         }
                     },
                     parentEntityId: true

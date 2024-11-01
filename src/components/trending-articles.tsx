@@ -11,73 +11,103 @@ import { preload } from "swr"
 import InfoPanel from "./info-panel";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PersonIcon from '@mui/icons-material/Person';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 
 
-export function countUserInteractions(entity: SmallEntityProps){
-    //const entityId = "Javier Milei"
+export function countUserInteractions(entity: SmallEntityProps, since?: Date){
+    const entityId = "Cabildo Abierto"
     //if(entity.name == entityId) console.log("Interacciones", entity.name)
 
     //if(entity.name == entityId){
     //    console.log(entity.weakReferences)
     //}
     // autores de los contenidos que referenciaron
-    let s = new Set(entity.referencedBy.map((r) => (r.authorId)))
 
-    function addMany(g: string[]){
-        for(let i = 0; i < g.length; i++) s.add(g[i])
+    function recentEnough(date: Date | string){
+        return !since || new Date(date) > since
     }
 
-    for(let i = 0; i < entity.referencedBy.length; i++){
-        addMany(entity.referencedBy[i].childrenTree.map(({authorId}) => (authorId)))
-        for(let j = 0; j < entity.referencedBy[i].childrenTree.length; j++){
-            addMany(entity.referencedBy[i].childrenTree[j].reactions.map(({userById}) => (userById)))
+    function addMany(g: {authorId: string, createdAt: Date}[]){
+        for(let i = 0; i < g.length; i++) {
+            if(recentEnough(g[i].createdAt)){
+                s.add(g[i].authorId)
+            }
         }
-        addMany(entity.referencedBy[i].reactions.map(({userById}) => (userById)))
+    }
+
+    let s = new Set()
+
+    entity.referencedBy.forEach((r) => {
+        if(recentEnough(r.createdAt)){
+            s.add(r.authorId)
+        }
+    })
+
+    for(let i = 0; i < entity.referencedBy.length; i++){
+        
+        addMany(entity.referencedBy[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
+        for(let j = 0; j < entity.referencedBy[i].childrenTree.length; j++){
+            addMany(entity.referencedBy[i].childrenTree[j].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
+        }
+        addMany(entity.referencedBy[i].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
     }
 
     //if(entity.name == entityId) console.log("Referencias", s)
     //if(entity.name == entityId) console.log("Reacciones", s)
     for(let i = 0; i < entity.versions.length; i++){
         // autores de las versiones
-        s.add(entity.versions[i].authorId)
+
+        if(recentEnough(entity.versions[i].createdAt)){
+            s.add(entity.versions[i].authorId)
+        }
 
         // comentarios y subcomentarios de las versiones
-        addMany(entity.versions[i].childrenTree.map(({authorId}) => (authorId)))
+        addMany(entity.versions[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
     }
 
-    //if(entity.name == entityId) console.log("Versiones", s)
-    addMany(entity.weakReferences.map(({authorId}) => (authorId)))
+    addMany(entity.weakReferences.map(({authorId, createdAt}) => ({authorId, createdAt})))
+
     for(let i = 0; i < entity.weakReferences.length; i++){
-        addMany(entity.weakReferences[i].childrenTree.map(({authorId}) => (authorId)))
-        for(let j = 0; j < entity.weakReferences[i].childrenTree.length; j++){
-            addMany(entity.weakReferences[i].childrenTree[j].reactions.map(({userById}) => (userById)))
+        addMany(entity.weakReferences[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
+        
+        if(entity.name == entityId && entity.weakReferences[i].authorId == "mariamisionser"){
+            console.log(entity)
+            console.log(recentEnough(entity.weakReferences[i].createdAt))
         }
-        addMany(entity.weakReferences[i].reactions.map(({userById}) => (userById)))
+
+        for(let j = 0; j < entity.weakReferences[i].childrenTree.length; j++){
+            addMany(entity.weakReferences[i].childrenTree[j].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
+        }
+        addMany(entity.weakReferences[i].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
     }
 
     //if(entity.name == entityId) console.log("weak refs", s)
 
-    //if(entity.name == entityId) console.log("Total", entity.name, s.size)
+    if(entity.name == entityId) console.log("Total", entity.name, s.size, s)
 
     s.delete("soporte")
     return s.size
 }
 
-export function topicPopularityScore(entity: SmallEntityProps){
-    return [countUserInteractions(entity), entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0]
+
+export function topicPopularityScore(entity: SmallEntityProps, since?: Date){
+    return [countUserInteractions(entity, since), entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0]
 }
 
 
 export const TrendingArticles = () => {
     const entities = useRouteEntities([]);
+    const [recent, setRecent] = useState(true)
 
     if (entities.isLoading) {
-        return <LoadingSpinner />;
+        return <LoadingSpinner />
     }
 
-    let entitiesWithScore = entities.entities.map((entity) => ({ entity: entity, score: topicPopularityScore(entity) }))
+    const since = recent ? new Date(new Date().getTime() - (7*24*60*60*1000)) : undefined
 
-    entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
+    let entitiesWithScore = entities.entities.map((entity) => ({ entity: entity, score: topicPopularityScore(entity, since) }))
+
+    entitiesWithScore = entitiesWithScore.filter(({score}) => (score[0] > 0)).sort(listOrderDesc);
     
     const text = <div>
         <p className="font-bold">Temas ordenados por popularidad</p>
@@ -88,13 +118,29 @@ export const TrendingArticles = () => {
         {false && <div className="text-[var(--text-light)] text-xs sm:text-sm flex justify-end mb-1">
             <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={text}/>
         </div>}
-        <TrendingArticlesSlider trendingArticles={entitiesWithScore.map((e) => (e.entity))}
-        />
+        <div className="flex justify-end space-x-2">
+            <button 
+                className={"rounded-lg text-[10px] sm:text-xs border px-2 text-[var(--text-light)] hover:bg-[var(--secondary-light)]" + (recent ? " bg-[var(--secondary-light)]" : "")}
+                onClick={() => {setRecent(true)}}
+            >
+                últimos 7 días
+            </button>
+            <button 
+                className={"rounded-lg text-[10px] sm:text-xs border px-2 text-[var(--text-light)] hover:bg-[var(--secondary-light)]" + (!recent ? " bg-[var(--secondary-light)]" : "")}
+                onClick={() => {setRecent(false)}}
+            >
+                histórico
+            </button>
+        </div>
+        <TrendingArticlesSlider trendingArticles={entitiesWithScore}/>
+        <div className="flex justify-end text-[var(--text-light)]">
+            <ArrowRightAltIcon fontSize="small"/>
+        </div>
     </div>
 };
 
 
-export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: SmallEntityProps[]}) => {
+export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: {entity: SmallEntityProps, score: number[]}[]}) => {
     const ref =
     useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
     const { events } = useDraggable(ref);
@@ -107,19 +153,18 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
         {...events}
         ref={ref} // add reference and events to the wrapping div
     >
-        {trendingArticles.map((e, index) => {
+        {trendingArticles.map(({entity, score}, index) => {
 
-            const score = topicPopularityScore(e)[0]
             return <button
-                onClick={() => {router.push(articleUrl(e.id))}}
+                onClick={() => {router.push(articleUrl(entity.id))}}
                 className="flex flex-col justify-between rounded text-center p-1 sm:text-sm text-xs text-[0.72rem] my-2 bg-[var(--secondary-light)] hover:bg-[var(--secondary)] text-gray-900 border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)]"
-                key={e.id}
+                key={entity.id}
                 onMouseLeave={() => {setHovering(undefined)}}
-                onMouseEnter={() => {preload("/api/entity/"+e.id, fetcher); setHovering(index)}}
+                onMouseEnter={() => {preload("/api/entity/"+entity.id, fetcher); setHovering(index)}}
             >
                 <div className="flex items-center justify-center px-2 w-28 sm:w-48 title h-full">
                     <span className={"overflow-hidden" + (hovering == index ? " line-clamp-none" : " line-clamp-2")}>
-                        {e.name}
+                        {entity.name}
                     </span>
                 </div>
 
@@ -127,7 +172,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: Sm
                     className="text-gray-700 text-xs sm:text-sm flex items-end justify-end px-1"
                     
                 >
-                    <div title="La cantidad de usuarios que participaron en la discusión.">{score} <PersonIcon fontSize="inherit"/></div>
+                    <div title="La cantidad de usuarios que participaron en la discusión.">{score[0]} <PersonIcon fontSize="inherit"/></div>
                 </div>
             </button>
         })}

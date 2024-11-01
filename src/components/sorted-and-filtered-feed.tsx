@@ -104,7 +104,7 @@ export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, se
         }
     }
 
-    const filterClassName = "rounded-lg px-2 hover:bg-[var(--secondary-light)] bg-[var(--content)]  text-xs sm:text-sm text-[var(--text-light)] border-b-2 border-r-2 border "
+    const filterClassName = "rounded-lg px-2 hover:bg-[var(--secondary-light)] bg-[var(--content)]  text-xs sm:text-sm text-[var(--text-light)] border "
 
     const filterSelectedClassName = "bg-[var(--secondary-slight)] border-[var(--accent-dark)]"
 
