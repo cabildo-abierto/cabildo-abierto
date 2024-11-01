@@ -957,4 +957,5 @@ export async function rejectChanges(entityId: string, contentId: string, userId:
     if(error) return {error}
 
     revalidateTag("content:" + contentId)
+    return {}
 }

@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Authorship } from "./content"
 import { DateSince } from "./date"
 import { UndoButton } from "./undo-button"
-import { SmallLoadingSpinner } from "./loading-spinner"
+import LoadingSpinner, { SmallLoadingSpinner } from "./loading-spinner"
 import { EntityProps, UserProps } from "../app/lib/definitions"
 import { useRouter } from "next/navigation"
 import { ActiveCommentIcon, AuthorshipClaimIcon, ConfirmEditIcon, NoAuthorshipClaimIcon, RejectEditIcon, UndoIcon, ViewsIcon } from "./icons"
@@ -58,32 +58,43 @@ const AuthorshipClaim = ({entity, version, setShowingRemoveAuthorshipPanel}: {en
 const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: EntityProps, contentId: string, user: UserProps, editPermission: boolean}) => {
     const {mutate} = useSWRConfig()
     const [showingNoPermissions, setShowingNoPermissions] = useState(false)
+    const [pending, setPending] = useState(false)
 
     async function confirm(e){
+        setPending(true)
         if(editPermission){
             const {error} = await confirmChanges(entity.id, contentId, user.id)
             if(error) return {error}
             mutate("/api/entity/"+entity.id)
             mutate("/api/content/"+contentId)
+            setPending(false)
             return {}
         } else {
             setShowingNoPermissions(true)
+            setPending(false)
             return {}
         }
     }
 
     async function reject(){
+        setPending(true)
         if(editPermission){
             const {error} = await rejectChanges(entity.id, contentId, user.id)
             if(error) return {error}
             mutate("/api/entity/"+entity.id)
             mutate("/api/content/"+contentId)
+            setPending(false)
             return {}
         } else {
             setShowingNoPermissions(true)
+            setPending(false)
             return {}
         }
     }
+
+    if(!editPermission) return <div className="text-center text-[10px]">
+        Sin confirmar
+    </div>
 
     return <div className="flex items-center">
         {showingNoPermissions && 
@@ -93,18 +104,19 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
                 <NoEditPermissionsMsg user={user} level={entity.protection}/>
             </div>
         </AcceptButtonPanel>}
-        <StateButton
+        {!pending && <><button
             className="hover:scale-105"
-            handleClick={confirm}
-            text1={<ConfirmEditIcon/>}
-            text2={<SmallLoadingSpinner/>}
-        />
-        <StateButton
+            onClick={confirm}
+        >
+            <ConfirmEditIcon/>
+        </button>
+        <button
             className="hover:scale-105"
-            handleClick={reject}
-            text1={<RejectEditIcon/>}
-            text2={<SmallLoadingSpinner/>}
-        />
+            onClick={reject}
+        >
+            <RejectEditIcon/>
+        </button>
+        </>}
     </div>
 }
 
