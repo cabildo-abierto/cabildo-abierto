@@ -33,7 +33,7 @@ export default function PlanGratuito() {
         <div className="flex justify-center items-center mt-4">
             <div>
                 <Link href="/suscripciones">
-                    <button className="gray-btn">Volver</button>
+                    <button className="small-btn">Volver</button>
                 </Link>
             </div>
         </div>

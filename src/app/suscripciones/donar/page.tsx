@@ -36,6 +36,7 @@ export default function DonationPage() {
         const {id, error} = await createPreference(user.id, activeSubscription ? 0 : amount, donationAmount)
         if(error) return {error}
         setPreferenceId(id)
+        return {}
     }
 
     async function handleAmountChange(val){
@@ -66,7 +67,7 @@ export default function DonationPage() {
                 
                 <div className="flex justify-center">
                     <div className="flex flex-col items-center">
-                        <div className="text-[var(--text-light)] text-center text-sm py-8">
+                        <div className="text-[var(--text-light)] text-center text-sm sm:text-base py-8">
                             Cada suscripción donada se suma al pozo de suscripciones disponibles para quien lo necesite.
                         </div>
 
@@ -119,7 +120,7 @@ export default function DonationPage() {
                 <div className="flex justify-end items-center mt-4">
                     <div>
                         <Link href="/suscripciones">
-                            <button className="gray-btn">Volver</button>
+                            <button className="small-btn">Volver</button>
                         </Link>
                     </div>
                 </div>
@@ -129,7 +130,7 @@ export default function DonationPage() {
 
     const uniqueChosen = <div className="flex flex-col items-center">
         <UniqueDonationCheckout amount={donationAmount} preferenceId={preferenceId}/>
-        <button className="gray-btn" onClick={() => {setChoice("none"); }}>Volver</button>
+        <button className="small-btn" onClick={() => {setChoice("none"); }}>Volver</button>
     </div>
 
     const center = <>

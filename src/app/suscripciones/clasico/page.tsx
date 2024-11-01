@@ -21,13 +21,10 @@ function PagoUnico({preferenceId, months, total, onBack}: {preferenceId: string,
             </div>
         </div>
 
-        <div className="flex justify-end items-center mt-4">
-            <div>
-                <button className="gray-btn" onClick={onBack}>
-                    Volver
-                </button>
-                
-            </div>
+        <div className="flex justify-center w-full">
+            <button className="small-btn" onClick={onBack}>
+                Volver
+            </button>
         </div>
 
     </div>
@@ -72,18 +69,14 @@ export default function PlanClasico() {
         center = <PagoUnico preferenceId={preferenceId} months={months} total={months*price.price.price} onBack={() => {setChoice("none")}}/>
     } else {
         center = <div className="flex justify-center">
-            <div className="mt-8 w-72 lg:w-96">
+            <div className="mt-12 w-72 lg:w-96">
                 <div className="flex justify-center items-center">
                     <h2>
                         Comprar suscripciones
                     </h2>
                 </div>
 
-                <div className="mt-16 mb-16 flex justify-center items-center text-center">
-                    ${price.price.price} por mes para obtener acceso ilimitado a toda la plataforma. Sin publicidad, sin algoritmos, sin bots, etc.
-                </div>
-
-                <div className="flex flex-col items-center content-container rounded bg-[var(--secondary-light)] py-2">
+                <div className="mt-24 flex flex-col items-center content-container rounded bg-[var(--secondary-light)] py-2">
                     <label htmlFor="integer-input" className="text-gray-800 text-center">
                         {activeSubscription ? "Elegí la cantidad de meses para agregar a tu suscripción" : "Elegí la cantidad de meses de tu suscripción"}
                     </label>
@@ -103,7 +96,7 @@ export default function PlanClasico() {
                 </div>
 
                 <div className="text-center mt-8 text-[var(--text-light)]">
-                    <p className="mt-8">Quedan <span className="">{price.price.remaining}</span> suscripciones a este precio. Podés comprar meses por adelantado para aprovechar el descuento (luego pasan a costar ${nextPrice(price.price.price)}).</p>
+                    <p className="mt-8">Quedan <span className="">{price.price.remaining}</span> suscripciones a este precio. Podés comprar meses por adelantado para aprovechar el descuento.</p>
                 </div>
 
                 <div className="flex justify-center items-center mt-10">

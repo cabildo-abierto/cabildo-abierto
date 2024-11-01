@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { buyAndUseSubscription, donateSubscriptions, getUserById } from '../../../actions/users';
+import { buyAndUseSubscriptions, donateSubscriptions, getUserById } from '../../../actions/users';
 import { accessToken, validSubscription } from '../../../components/utils';
 
 
@@ -30,20 +30,21 @@ export async function POST(req) {
     }
 
     const amount = paymentDetails.metadata.amount
+    const donationsAmount = paymentDetails.metadata.donationsAmount
 
     const userId = paymentDetails.metadata.user_id
-    const {user, error} = await getUserById(userId)
 
-    const valid = validSubscription(user)
-    const price = paymentDetails.transaction_amount / amount
+    const total = amount + donationsAmount
+    const price = paymentDetails.transaction_amount / total
 
-    if(amount > 1){
-        const {error} = await donateSubscriptions(valid ? amount : amount-1, userId, paymentId, price)
+    if(donationsAmount > 0){
+        const {error} = await donateSubscriptions(donationsAmount, userId, paymentId, price)
+        if(error) return NextResponse.json({status: 500})
     }
-    if(!valid){
-        const {error} = await buyAndUseSubscription(userId, price, paymentId)
+    if(amount > 0){
+        const {error} = await buyAndUseSubscriptions(userId, price, paymentId)
+        if(error) return NextResponse.json({status: 500})
     }
 
-    // TO DO: Ver qué hacer en caso de error
     return NextResponse.json({ status: 200 });
 }

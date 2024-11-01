@@ -231,3 +231,16 @@ type FontSizeType = "inherit" | "small" | "medium" | "large"
 export const TipIcon = ({fontSize="inherit"}: {fontSize?: FontSizeType}) => {
     return <TipsAndUpdatesIcon fontSize={fontSize}/>
 }
+
+
+import ExpandMoreIconMui from '@mui/icons-material/ExpandMore';
+import ExpandLessIconMui from '@mui/icons-material/ExpandLess';
+
+export const ExpandMoreIcon = ({fontSize="inherit"}: {fontSize?: FontSizeType}) => {
+    return <ExpandMoreIconMui fontSize={fontSize}/>
+}
+
+
+export const ExpandLessIcon = ({fontSize="inherit"}: {fontSize?: FontSizeType}) => {
+    return <ExpandLessIconMui fontSize={fontSize}/>
+}
