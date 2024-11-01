@@ -549,7 +549,8 @@ export async function buySubscriptions(userId: string, amount: number, donations
         await db.subscription.createMany({
             data: queries
         })
-    } catch {
+    } catch(e) {
+        console.log("error detail", e)
         return {error: "error on buy subscriptions"}
     }
 
