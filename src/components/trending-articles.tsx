@@ -15,7 +15,7 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 
 
 export function countUserInteractions(entity: SmallEntityProps, since?: Date){
-    const entityId = "Cabildo Abierto"
+    //const entityId = "Cabildo Abierto"
     //if(entity.name == entityId) console.log("Interacciones", entity.name)
 
     //if(entity.name == entityId){
@@ -70,10 +70,10 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
     for(let i = 0; i < entity.weakReferences.length; i++){
         addMany(entity.weakReferences[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
         
-        if(entity.name == entityId && entity.weakReferences[i].authorId == "mariamisionser"){
-            console.log(entity)
-            console.log(recentEnough(entity.weakReferences[i].createdAt))
-        }
+        //if(entity.name == entityId && entity.weakReferences[i].authorId == "mariamisionser"){
+        //    console.log(entity)
+        //    console.log(recentEnough(entity.weakReferences[i].createdAt))
+        //}
 
         for(let j = 0; j < entity.weakReferences[i].childrenTree.length; j++){
             addMany(entity.weakReferences[i].childrenTree[j].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
@@ -83,7 +83,7 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
 
     //if(entity.name == entityId) console.log("weak refs", s)
 
-    if(entity.name == entityId) console.log("Total", entity.name, s.size, s)
+    //if(entity.name == entityId) console.log("Total", entity.name, s.size, s)
 
     s.delete("soporte")
     return s.size

@@ -58,6 +58,7 @@ import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import {$isImageNode} from './ImageNode';
 import {KeywordNode} from './KeywordNode';
+import ImageNext from 'next/image';
 
 const imageCache = new Set();
 
@@ -102,20 +103,18 @@ function LazyImage({
 }): JSX.Element {
   useSuspenseImage(src);
 
+  console.log("src", src)
+  console.log("width", width, height)
+
   return (
-    <img
+    <ImageNext
       className={className || undefined}
       src={src}
       alt={altText}
       ref={imageRef}
-      style={{
-        maxWidth: `calc(min(100%, 500px))`,
-        width: 'auto',
-        maxHeight: `300px`,
-        height: 'auto',
-        objectFit: 'cover',
-        overflow: 'hidden',
-      }}
+      width={width == "inherit" ? undefined : Math.min(width, maxWidth)}
+      height={height == "inherit" ? undefined : height}
+      fill={width == "inherit"}
       onError={onError}
       draggable="false"
     />
