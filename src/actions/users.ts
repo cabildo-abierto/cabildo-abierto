@@ -498,53 +498,50 @@ export const getUserStats = async (userId: string) => {
 }
 
 
-export async function buyAndUseSubscriptions(userId: string, price: number, n: number, paymentId?: string) {
+export async function buySubscriptions(userId: string, amount: number, donationsAmount: number, paymentId: string, price: number) {
     const {user, error} = await getUserById(userId)
     if(error) return {error}
 
     const valid = validSubscription(user)
 
-    const queries = []
-    
-    for(let i = 0; i < n; i++){
-        queries.push({
-            boughtByUserId: userId,
-            price: price,
-            paymentId: paymentId,
-            isDonation: false
-        })
-    }
+    const queries: {boughtByUserId: string, price: number, paymentId: string, isDonation: boolean, userId: string | null, usedAt: Date | null, endsAt: Date | null}[] = []
 
-    if(!valid){
+    if(!valid && amount > 0){
         const usedAt = new Date()
         const endsAt = subscriptionEnds(usedAt)
-        queries[0].usedAt = usedAt
-        queries[0].endsAt = endsAt
-        queries[0].userId = userId
-    }
-
-    try {
-        await db.subscription.createMany({
-            data: queries
-        })
-    } catch {
-        return {error: "error on stock subscriptions"}
-    }
-
-    revalidateTag("user:"+userId)
-    revalidateTag("poolsize")
-    return {}
-}
-
-export async function donateSubscriptions(n: number, userId: string, paymentId: string, price: number) {
-    const queries = []
-    
-    for(let i = 0; i < n; i++){
         queries.push({
             boughtByUserId: userId,
             price: price,
             paymentId: paymentId,
-            isDonation: true
+            isDonation: false,
+            userId: userId,
+            usedAt: usedAt,
+            endsAt: endsAt
+        })
+        amount --
+    }
+    
+    for(let i = 0; i < amount; i++){
+        queries.push({
+            boughtByUserId: userId,
+            price: price,
+            paymentId: paymentId,
+            isDonation: false,
+            userId: null,
+            usedAt: null,
+            endsAt: null
+        })
+    }
+    
+    for(let i = 0; i < donationsAmount; i++){
+        queries.push({
+            boughtByUserId: userId,
+            price: price,
+            paymentId: paymentId,
+            isDonation: true,
+            userId: null,
+            usedAt: null,
+            endsAt: null
         })
     }
 
@@ -553,8 +550,9 @@ export async function donateSubscriptions(n: number, userId: string, paymentId: 
             data: queries
         })
     } catch {
-        return {error: "error on donate subscriptions"}
+        return {error: "error on buy subscriptions"}
     }
+
     revalidateTag("user:"+userId)
     revalidateTag("poolsize")
     return {}
