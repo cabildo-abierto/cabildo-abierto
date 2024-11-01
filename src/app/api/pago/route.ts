@@ -31,7 +31,6 @@ export async function POST(req) {
 
     const amount = paymentDetails.metadata.amount
     const donationsAmount = paymentDetails.metadata.donationsAmount
-
     const userId = paymentDetails.metadata.user_id
 
     const total = amount + donationsAmount
@@ -39,11 +38,19 @@ export async function POST(req) {
 
     if(donationsAmount > 0){
         const {error} = await donateSubscriptions(donationsAmount, userId, paymentId, price)
-        if(error) return NextResponse.json({status: 500})
+        if(error) {
+            console.log("error", error)
+            console.log("details", paymentDetails)
+            return NextResponse.json({status: 500})
+        }
     }
     if(amount > 0){
         const {error} = await buyAndUseSubscriptions(userId, price, paymentId)
-        if(error) return NextResponse.json({status: 500})
+        if(error) {
+            console.log("error", error)
+            console.log("details", paymentDetails)
+            return NextResponse.json({status: 500})
+        }
     }
 
     return NextResponse.json({ status: 200 });
