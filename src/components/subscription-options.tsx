@@ -3,13 +3,14 @@ import SubscriptionOptionButton from "./subscription-option-button"
 import Link from "next/link"
 import { useSubscriptionPoolSize, useSubscriptionPrice } from "../app/hooks/subscriptions"
 import { useUser } from "../app/hooks/user"
-import { buyAndUseSubscriptions } from "../actions/users"
+import { buySubscriptions } from "../actions/users"
 import { useSWRConfig } from "swr"
 import LoadingSpinner from "./loading-spinner"
 import { articleUrl, nextPrice } from "./utils"
 import InfoPanel from "./info-panel"
 import { Desplegable } from "./desplegable"
 import { ExpandLessIcon, ExpandMoreIcon } from "./icons"
+import { WhySubscriptions } from "./why-subscriptions"
 
 
 
@@ -59,7 +60,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
     </div>
 
     async function getFreeTrial(){
-        const {error} = await buyAndUseSubscriptions(user.id, 0, 1, null)
+        const {error} = await buySubscriptions(user.id, 1, 0, null, 0)
         if(error) return {error}
         setShowingFreeTrial(true)
         mutate("/api/user")
@@ -72,17 +73,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
 
     const desc1 = <div>
         <div>Comprá uno o más meses de suscripción</div>
-        <div className="text-gray-300 text-sm">Quedan {price.price.remaining} suscripciones con este descuento (luego costarán ${nextPrice(price.price.price)}).</div>
-    </div>
-
-    const whySubscriptions = <div className="text-sm sm:text-base flex flex-col justify-center mt-4 lg:w-96 w-64 link text-justify space-y-2 border rounded bg-[var(--secondary-light)] content-container p-2">
-        <p>Tanto el desarrollo de la plataforma como la escritura de contenidos se financia exclusivamente con suscripciones mensuales.</p>
-
-        <p>El 70% de tu suscripción se reparte entre los autores de los contenidos que te interesen (vos también podés ser autor/a).</p>
-
-        <p>El resto se usa para el desarrollo y moderación de la plataforma.</p>
-
-        <p className="flex justify-end"><Link href="/suscripciones">Leer más</Link></p>
+        <div className="text-gray-300 text-sm">Quedan {price.price.remaining} suscripciones con este descuento.</div>
     </div>
 
     return <>
@@ -94,11 +85,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
             </div>
 
             <div className="flex justify-center mt-6">
-                <Desplegable
-                    text={whySubscriptions}
-                    btn={<div className="gray-btn">¿Por qué suscripciones? <ExpandMoreIcon/></div>}
-                    btnOpen={<div className="gray-btn toggled">¿Por qué suscripciones? <ExpandLessIcon/></div>}
-                />
+                <WhySubscriptions/>
             </div>
         </div>
 

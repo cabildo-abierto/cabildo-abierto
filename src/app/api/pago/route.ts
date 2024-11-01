@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { buyAndUseSubscriptions, donateSubscriptions, getUserById } from '../../../actions/users';
-import { accessToken, validSubscription } from '../../../components/utils';
+import { NextResponse } from 'next/server';
+import { buySubscriptions } from '../../../actions/users';
+import { accessToken } from '../../../components/utils';
 
 
 const getPaymentDetails = async (paymentId) => {
@@ -19,6 +19,8 @@ const getPaymentDetails = async (paymentId) => {
 
 
 export async function POST(req) {
+    // https://www.mercadopago.com.ar/developers/es/docs/checkout-pro/additional-content/your-integrations/notifications/webhooks
+    // TO DO: Verificar la x-signature
     const json = await req.json()
 
     const paymentId = json.data.id
@@ -36,21 +38,11 @@ export async function POST(req) {
     const total = amount + donationsAmount
     const price = paymentDetails.transaction_amount / total
 
-    if(donationsAmount > 0){
-        const {error} = await donateSubscriptions(donationsAmount, userId, paymentId, price)
-        if(error) {
-            console.log("error", error)
-            console.log("details", paymentDetails)
-            return NextResponse.json({status: 500})
-        }
-    }
-    if(amount > 0){
-        const {error} = await buyAndUseSubscriptions(userId, price, paymentId)
-        if(error) {
-            console.log("error", error)
-            console.log("details", paymentDetails)
-            return NextResponse.json({status: 500})
-        }
+    const {error} = await buySubscriptions(userId, amount, donationsAmount, paymentId, price)
+    if(error) {
+      console.log("error", error)
+      console.log("details", paymentDetails)
+      return NextResponse.json({status: 500})
     }
 
     return NextResponse.json({ status: 200 });
