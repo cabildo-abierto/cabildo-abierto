@@ -32,7 +32,7 @@ export async function POST(req) {
     }
 
     const amount = paymentDetails.metadata.amount
-    const donationsAmount = paymentDetails.metadata.donationsAmount
+    const donationsAmount = paymentDetails.metadata.donations_amount
     const userId = paymentDetails.metadata.user_id
 
     const total = amount + donationsAmount
