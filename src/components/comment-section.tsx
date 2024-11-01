@@ -21,7 +21,7 @@ function commentScore(comment: {type: string, createdAt: Date | string}): number
     return [typeScores[comment.type] ? typeScores[comment.type] : 0, -new Date(comment.createdAt).getTime()]
 }
 
-export function getEntityComments(entity: EntityProps, comments: CommentProps[]){
+export function getEntityComments(entity: EntityProps, comments: CommentProps[], addReferences: boolean){
     for(let i = 0; i < entity.versions.length; i++){
         comments = [...comments, ...entity.versions[i].childrenContents]
     }
@@ -33,21 +33,26 @@ export function getEntityComments(entity: EntityProps, comments: CommentProps[])
         ids.add(comments[i].id)
         uniqueComments.push(comments[i])
     }
-
-    let references = [...entity.referencedBy, ...entity.weakReferences]
-    let seenIds = new Set()
-    let uniqueReferences = []
-    references.forEach((r) => {
-        if(!seenIds.has(r.id) && r.parentEntityId != entity.id){
-            uniqueReferences.push(r)
-            seenIds.add(r.id)
-        }
-    })
-
+    
     uniqueComments = uniqueComments.map((c) => ({...c, isReference: false}))
-    uniqueReferences = uniqueReferences.map((ref) => ({...ref, isReference: true}))
 
-    return [...uniqueComments, ...uniqueReferences]
+    if(addReferences){
+        let references = [...entity.referencedBy, ...entity.weakReferences]
+        let seenIds = new Set()
+        let uniqueReferences = []
+        references.forEach((r) => {
+            if(!seenIds.has(r.id) && r.parentEntityId != entity.id){
+                uniqueReferences.push(r)
+                seenIds.add(r.id)
+            }
+        })
+    
+        uniqueReferences = uniqueReferences.map((ref) => ({...ref, isReference: true}))
+        return [...uniqueComments, ...uniqueReferences]
+    } else {
+        return uniqueComments
+    }
+
 }
 
 export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
@@ -63,7 +68,7 @@ export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
         allIds = getAllQuoteIds(parentText.root)
     } catch {}
     
-    const originalComments = entity ? getEntityComments(entity, []) : content.childrenContents
+    const originalComments = entity ? getEntityComments(entity, [], false) : content.childrenContents
     const newComments = comments.filter((c) => (!originalComments.some(({id}) => (id == c.id))))
 
     const filteredComments = originalComments.filter(({id}) => ((allIds.includes(id) && inActiveIDs({id}))))
@@ -142,7 +147,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     if(!comments) return <></>
 
     let feed: CommentSectionElementProps[] = entity ? 
-        getEntityComments(entity, comments) : 
+        getEntityComments(entity, comments, true) : 
         comments.map((c) => ({...c, isReference: false}))
 
     if(entity){
