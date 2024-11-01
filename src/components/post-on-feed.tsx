@@ -89,7 +89,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
 
         <div className="flex justify-between ml-2 items-center">
             <div className="sm:text-sm text-xs">
-                <ContentTopRowAuthor content={content}/>
+                <ContentTopRowAuthor content={content} useLink={false}/>
             </div>
             {/*<span className="text-sm text-gray-400 ml-2">Entrar a leer</span>*/}
             <LikeAndCommentCounter

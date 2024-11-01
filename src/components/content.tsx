@@ -26,6 +26,7 @@ import { NoVisitsAvailablePopup } from "./no-visits-popup";
 import { debounce } from 'lodash'; // You may need to install this if not installed
 import { takeAuthorship } from "../actions/admin";
 import { decompress } from "./compression";
+import { useRouter } from "next/navigation";
 
 export function id2url(id: string){
     return "/perfil/" + id.replace("@", "")
@@ -38,23 +39,36 @@ export function addAt(id: string){
 }
 
 
-export const ContentTopRowAuthor = ({content} :{content: ContentProps}) => {
+export const ContentTopRowAuthor = ({content, useLink=true} :{content: ContentProps, useLink?: boolean}) => {
+    const router = useRouter()
     const url = content.author  ? id2url(content.author.id) : ""
-    const onClick = stopPropagation(() => {})
+    const onClick = stopPropagation(() => {router.push(url)})
 
-    return <>
-        <Link 
-            href={url} 
-            className="text-[var(--primary-dark)]"
+    const text = <><span className="hover:underline font-bold  mr-1">  {content.author?.name}
+    </span>
+    <span className="text-[var(--primary-light)]">
+        @{content.author?.id}
+    </span></>
+
+    const className = "text-[var(--primary-dark)]"
+
+    if(useLink){
+        return <>
+            <Link 
+                href={url} 
+                className={className}
+            >
+                {text}
+            </Link>
+        </>
+    } else {
+        return <div
             onClick={onClick}
+            className={className}
         >
-            <span className="hover:underline font-bold  mr-1">  {content.author?.name}
-            </span>
-            <span className="text-[var(--primary-light)]">
-                @{content.author?.id}
-            </span>
-        </Link>
-    </>
+            {text}
+        </div>
+    }
 }
 
 

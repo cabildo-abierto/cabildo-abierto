@@ -163,24 +163,26 @@ export type SmallEntityProps = {
     versions: {
         id: string,
         categories: string,
-        createdAt: Date | string,
+        createdAt: Date,
         authorId: string
         numWords: number
-        childrenTree: {authorId: string}[]
+        childrenTree: {authorId: string, createdAt: Date}[]
         reactions: {userById: string}[]
     }[]
     referencedBy: {
         authorId: string
-        reactions: {userById: string}[]
-        childrenTree: {authorId: string, reactions: {userById: string}[]}[]
+        reactions: {userById: string, createdAt: Date}[]
+        childrenTree: {authorId: string, createdAt: Date, reactions: {userById: string, createdAt: Date}[]}[]
+        createdAt: Date
     }[]
     weakReferences: {
         authorId: string
-        reactions: {userById: string}[]
-        childrenTree: {authorId: string, reactions: {userById: string}[]}[]
+        createdAt: Date
+        reactions: {userById: string, createdAt: Date}[]
+        childrenTree: {authorId: string, createdAt: Date, reactions: {userById: string, createdAt: Date}[]}[]
     }[]
     views?: number,
-    reactions?: {userById: string}[],
+    reactions?: {userById: string, createdAt: Date}[],
     uniqueViewsCount: number
     currentVersionId: string
     currentVersion: {searchkeys: string[]}
