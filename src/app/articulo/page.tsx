@@ -18,8 +18,6 @@ const Page = async ({searchParams}: {searchParams: {i: string, v?: number, c?: s
     const header = headers()
     const user = userAgent({headers: header})
 
-    console.log("search params", searchParams)
-
     return <Suspense fallback={<LoadingScreen/>}>
         <ArticlePage
             entityId={encodeURIComponent(searchParams.i)}
