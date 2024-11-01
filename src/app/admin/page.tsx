@@ -5,7 +5,7 @@ import { updateAllUniqueCommentators, notifyAllMentions, deleteUser } from "../.
 import { recomputeEntityContributions } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments } from "../../actions/payments"
 import { updateAllReferences, updateAllWeakReferences } from "../../actions/references"
-import { addDonatedSubscriptionsManually } from "../../actions/users"
+import { addDonatedSubscriptionsManually, buySubscriptions } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
@@ -27,6 +27,10 @@ export default function Page() {
         <div className="py-8 flex flex-col items-center space-y-2 w-64 text-center">
             
             <h2>Pagos</h2>
+
+            <button className="gray-btn" onClick={async () => {await buySubscriptions("soporte", 1, 1, "hola", 500)}}>
+                Comprar suscripciones
+            </button>
 
             <button className="gray-btn" onClick={async () => {await createPaymentPromises()}}>
                 Crear promesas

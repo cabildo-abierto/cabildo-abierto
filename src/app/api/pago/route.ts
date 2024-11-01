@@ -42,6 +42,7 @@ export async function POST(req) {
     if(error) {
       console.log("error", error)
       console.log("details", paymentDetails)
+      console.log(userId, amount, donationsAmount, paymentId, price)
       return NextResponse.json({status: 500})
     }
 
