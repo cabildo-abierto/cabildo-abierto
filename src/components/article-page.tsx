@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import { preload, useSWRConfig } from "swr";
 import Link from "next/link";
 import StateButton from "./state-button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DateSince } from "./date";
 import { ToggleButton } from "./toggle-button";
 import { recomputeEntityContributions } from "../actions/entities";
@@ -47,18 +47,25 @@ const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
 export const editContentClassName = "article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--lightwhite)] hover:bg-[var(--primary-dark)] disabled:hover:bg-[var(--primary)]"
 
 
-export const ArticlePage = ({entityId, version, header, userHeaders}: {
+export const ArticlePage = ({entityId, version, changes, header, userHeaders}: {
     entityId: string,
     version?: number,
     userHeaders: any,
-    header: ReadonlyHeaders
+    header: ReadonlyHeaders,
+    changes?: boolean
 }) => {
     const user = useUser()
     const entity = useEntity(entityId)
-    const [selectedPanel, setSelectedPanel] = useState(version == undefined ? "none" : "history")
+    const initialSelection = changes ? "changes" : (version == undefined ? "none" : "history")
+    const [selectedPanel, setSelectedPanel] = useState(initialSelection)
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
+    const searchParams = useSearchParams()
+
+    useEffect(() => {
+        setSelectedPanel(changes ? "changes" : (version == undefined ? "none" : "history"))
+    }, [searchParams])
 
     useEffect(() => {
         if(entity.entity){
@@ -94,7 +101,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
             return <ToggleButton
                 text="Editar contenido"
                 toggledText="Cancelar edición"
-                className={editContentClassName}
+                className={articleButtonClassname}
                 setToggled={onEdit}
                 disabled={!isCurrent}
                 toggled={selectedPanel == "editing"}
@@ -293,7 +300,7 @@ export const ArticlePage = ({entityId, version, header, userHeaders}: {
         </div>
         <div className="">
         {selectedPanel != "editing" && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">
-            <EditButton/>
+            {isCurrent && <EditButton/>}
             <ViewHistoryButton/>
             <ViewLastChangesButton/>
             <ViewAuthorsButton/>

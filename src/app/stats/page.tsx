@@ -3,7 +3,7 @@ import { getAdminStats } from "../../actions/admin"
 import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
-import { SubscriptorsByWeek } from "../../components/subscriptors-by-week"
+import { SubscriptorsByDate } from "../../components/subscriptors-by-week"
 import { ViewsByDaySinceSignup } from "../../components/views-since-signup"
 
 
@@ -44,10 +44,10 @@ export default async function Page() {
             Suscriptores: {stats.subscriptors}
         </Stat>
         <Stat>
-            Objetivo lunes que viene: {stats.subscriptorsByWeek[stats.subscriptorsByWeek.length-1].count * 1.1}
+            Objetivo lunes que viene: {Math.ceil(stats.subscriptorsByWeek[stats.subscriptorsByWeek.length-2].count * 1.1)}
         </Stat>
 
-        <SubscriptorsByWeek data={stats.subscriptorsByWeek}/>
+        <SubscriptorsByDate data={stats.subscriptorsByWeek}/>
 
         <Stat>
             Cuentas: {stats.accounts}

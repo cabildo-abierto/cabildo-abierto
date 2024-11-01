@@ -659,6 +659,8 @@ export async function getAdminStats(){
         }
     })
 
+    subscriptorsByWeek.push({date: today, count: subscriptors.size})
+
 
     return {
         accounts: accounts.length,

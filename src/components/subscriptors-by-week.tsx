@@ -1,30 +1,59 @@
 "use client"
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { Line } from 'react-chartjs-2';
-import 'chart.js/auto';
+import { Chart as ChartJS, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, BarElement } from 'chart.js';
+import {CategoryScale} from 'chart.js'; 
+ChartJS.register(CategoryScale);
 
+// Register the required components
+ChartJS.register(LinearScale, PointElement, BarElement, LineElement, Title, Tooltip, Legend);
 
-export const SubscriptorsByWeek = ({data}: {data: {date: Date, count: number}[]}) => {
+export const SubscriptorsByDate = ({ data }: { data: { date: Date; count: number }[] }) => {
+  // Prepare the data for the chart
+  const chartData = {
+    labels: data.map(item => item.date.toLocaleDateString()), // Formatting the date for display
+    datasets: [
+      {
+        label: 'Cantidad de suscriptores',
+        data: data.map(item => item.count),
+        fill: false,
+        borderColor: '#455dc0', // Primary color from your palette
+        tension: 0.1, // Controls the smoothness of the line
+      },
+    ],
+  };
 
-    const chartData = {
-        labels: data.map(entry => 
-          new Date(entry.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-        ),
-        datasets: [
-          {
-            label: 'Suscriptores por semana',
-            data: data.map(entry => entry.count),
-            borderColor: '#455dc0', // Customize color as desired
-            backgroundColor: 'rgba(69, 93, 192, 0.2)', // Optional for a filled line chart
-            fill: true, // Set true for a filled area under the line
-            tension: 0.3, // Optional for a smooth line
-          },
-        ],
-      };
-    
-      return (
-        <div style={{ width: '100%', maxWidth: '800px', height: '500px' }}>
-          <Line data={chartData} />
-        </div>
-    );
-}
+  const options = {
+    responsive: true,
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Date',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Cantidad de suscriptores',
+        },
+        beginAtZero: true,
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Suscriptores',
+      },
+    },
+  };
+
+  return (
+    <div style={{ width: '100%', maxWidth: '800px', height: '500px' }}>
+      <Line data={chartData} options={options} />
+    </div>
+  );
+};

@@ -14,9 +14,11 @@ export async function generateMetadata({searchParams}: {searchParams: {i: string
     }
 }
 
-const Page = async ({searchParams}: {searchParams: {i: string, v?: number}}) => {
+const Page = async ({searchParams}: {searchParams: {i: string, v?: number, c?: string}}) => {
     const header = headers()
     const user = userAgent({headers: header})
+
+    console.log("search params", searchParams)
 
     return <Suspense fallback={<LoadingScreen/>}>
         <ArticlePage
@@ -24,6 +26,7 @@ const Page = async ({searchParams}: {searchParams: {i: string, v?: number}}) => 
             version={searchParams.v}
             userHeaders={user}
             header={header}
+            changes={searchParams.c == "true"}
         />
     </Suspense>
 }
