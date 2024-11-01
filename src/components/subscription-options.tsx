@@ -3,10 +3,13 @@ import SubscriptionOptionButton from "./subscription-option-button"
 import Link from "next/link"
 import { useSubscriptionPoolSize, useSubscriptionPrice } from "../app/hooks/subscriptions"
 import { useUser } from "../app/hooks/user"
-import { buyAndUseSubscription } from "../actions/users"
+import { buyAndUseSubscriptions } from "../actions/users"
 import { useSWRConfig } from "swr"
 import LoadingSpinner from "./loading-spinner"
 import { articleUrl, nextPrice } from "./utils"
+import InfoPanel from "./info-panel"
+import { Desplegable } from "./desplegable"
+import { ExpandLessIcon, ExpandMoreIcon } from "./icons"
 
 
 
@@ -56,7 +59,7 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
     </div>
 
     async function getFreeTrial(){
-        const {error} = await buyAndUseSubscription(user.id, 0, null)
+        const {error} = await buyAndUseSubscriptions(user.id, 0, 1, null)
         if(error) return {error}
         setShowingFreeTrial(true)
         mutate("/api/user")
@@ -72,6 +75,16 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
         <div className="text-gray-300 text-sm">Quedan {price.price.remaining} suscripciones con este descuento (luego costarán ${nextPrice(price.price.price)}).</div>
     </div>
 
+    const whySubscriptions = <div className="text-sm sm:text-base flex flex-col justify-center mt-4 lg:w-96 w-64 link text-justify space-y-2 border rounded bg-[var(--secondary-light)] content-container p-2">
+        <p>Tanto el desarrollo de la plataforma como la escritura de contenidos se financia exclusivamente con suscripciones mensuales.</p>
+
+        <p>El 70% de tu suscripción se reparte entre los autores de los contenidos que te interesen (vos también podés ser autor/a).</p>
+
+        <p>El resto se usa para el desarrollo y moderación de la plataforma.</p>
+
+        <p className="flex justify-end"><Link href="/suscripciones">Leer más</Link></p>
+    </div>
+
     return <>
         <div className="px-4 w-full flex flex-col justify-center items-center">
             <div className="flex justify-center">
@@ -80,16 +93,12 @@ const SubscriptionOptions = ({setShowingFreeTrial}) => {
                 </h2>
             </div>
 
-            <div className="flex flex-col justify-center mt-4 lg:w-96 w-64 link text-justify space-y-3">
-                <p className="">
-                    Cabildo Abierto está hecha para sus usuarios. Por eso, se financia exclusivamente con suscripciones.
-                </p>
-                <p>
-                    Las suscripciones se usan para financiar el desarrollo de la plataforma y a los autores de los contenidos que leas.
-                </p>
-                <p>
-                    De todas formas, podés empezar con un mes gratis. Además, hay suscripciones que fueron donadas por otros usuarios y podés usarlas si lo necesitás.
-                </p>
+            <div className="flex justify-center mt-6">
+                <Desplegable
+                    text={whySubscriptions}
+                    btn={<div className="gray-btn">¿Por qué suscripciones? <ExpandMoreIcon/></div>}
+                    btnOpen={<div className="gray-btn toggled">¿Por qué suscripciones? <ExpandLessIcon/></div>}
+                />
             </div>
         </div>
 

@@ -498,34 +498,12 @@ export const getUserStats = async (userId: string) => {
 }
 
 
+export async function buyAndUseSubscriptions(userId: string, price: number, n: number, paymentId?: string) {
+    const {user, error} = await getUserById(userId)
+    if(error) return {error}
 
-export async function buyAndUseSubscription(userId: string, price: number, paymentId?: string) {
-    
-    const usedAt = new Date()
-    const endsAt = subscriptionEnds(usedAt)
-    
-    try {
-        await db.subscription.create({
-            data: {
-                userId: userId,
-                boughtByUserId: userId,
-                usedAt: usedAt,
-                endsAt: endsAt,
-                paymentId: paymentId,
-                price: price,
-                isDonation: false
-            }
-        })
-    } catch {
-        return {error: "error on create subscription"}
-    }
-    revalidateTag("user:"+userId)
-    return {}
-}
+    const valid = validSubscription(user)
 
-
-export async function stockSubscriptions(userId: string, price: number, n: number, paymentId?: string) {
-    
     const queries = []
     
     for(let i = 0; i < n; i++){
@@ -535,6 +513,14 @@ export async function stockSubscriptions(userId: string, price: number, n: numbe
             paymentId: paymentId,
             isDonation: false
         })
+    }
+
+    if(!valid){
+        const usedAt = new Date()
+        const endsAt = subscriptionEnds(usedAt)
+        queries[0].usedAt = usedAt
+        queries[0].endsAt = endsAt
+        queries[0].userId = userId
     }
 
     try {

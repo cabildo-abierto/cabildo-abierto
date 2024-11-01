@@ -14,8 +14,6 @@ const LoginFormError = ({state}: {state: LoginFormState}) => {
 
     let errorComponent = <div className="h-6"></div>
 
-    console.log("state", state)
-
     if(!pending && state && state.errors && state.errors[0] == "invalid credentials"){
         errorComponent = <div className="flex items-center text-red-600 h-6 px-2">Usuario o contraseña incorrectos.</div>
     }

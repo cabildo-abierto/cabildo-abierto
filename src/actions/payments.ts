@@ -89,7 +89,8 @@ export async function createPreference(userId: string, amount: number, donations
               items: items,
               metadata: {
                   user_id: userId,
-                  amount: (amount+donationsAmount)
+                  amount: amount,
+                  donationsAmount: donationsAmount
               },
               payment_methods: {
                   excluded_payment_types: [

@@ -79,7 +79,6 @@ export const EmailInput = ({state, label="Email"}: {state: SignUpFormState, labe
 
     useEffect(() => {
         if(state && !state.errors){
-            console.log("deleting email", state)
             setEmail("")
         }
     }, [state])
@@ -257,6 +256,7 @@ const ConfirmLinkSentPopup = ({onClose, email}: {onClose: any, email: string}) =
             <div className="mt-4 text-lg">¡Gracias por registrarte!</div>
             <div className="mb-4 text-lg">En breve debería llegarte un mail de confirmación.</div>
             <ResendEmailButton email={email} initializeSent={true}/>
+            <div className="mt-4">Cerrá esta ventana cuando hayas recibido el mail de verificación.</div>
             </div>
         </BaseFullscreenPopup>
     );
