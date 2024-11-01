@@ -19,11 +19,15 @@ export const deleteEntityHistory = async (entityId: string, includeLast: boolean
         await deleteContent(entity.versions[i].id)
     }
 
-    await updateEntityCurrentVersion(entityId)
-    await recomputeEntityContributions(entityId)
+    const {error: errorUpdate} = await updateEntityCurrentVersion(entityId)
+    if(errorUpdate) return {error: errorUpdate}
     
+    const {error: errorContr} = await recomputeEntityContributions(entityId)
+    if(errorContr) return {error: errorContr}
+
     revalidateTag("entity:"+entityId)
     revalidateTag("entities")
+    return {}
 }
 
 
