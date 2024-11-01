@@ -49,7 +49,6 @@ export default function Page() {
                 Asignar suscripciones
             </button>
 
-
             <h2>Revalidar</h2>
 
             <button className="gray-btn" onClick={async () => {await revalidateEntities()}}>

@@ -116,7 +116,6 @@ const EditMessage = ({msg, type}: {msg?: string, type: string}) => {
 }
 
 
-
 const MonetizationPortion = ({entity, index}: {entity: EntityProps, index: number}) => {
 
     const charsAdded = entity.versions[index].charsAdded
@@ -235,6 +234,10 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                             <ChangesCounter
                                 charsAdded={entity.versions[index].charsAdded} charsDeleted={entity.versions[index].charsDeleted}
                             />
+                        </div>
+
+                        <div className="text-[var(--text-light)] hover:underline" onClick={(e) => {e.stopPropagation(); e.preventDefault(); router.push("/articulo?i=" + entity.id + "&v=" + index + "&c=true")}}>
+                            Ver cambios
                         </div>
 
                         {entity.versions[index].editMsg && 
