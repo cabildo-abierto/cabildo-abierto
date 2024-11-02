@@ -665,6 +665,13 @@ export async function getAdminStats(){
 
     subscriptorsByWeek.push({date: today, count: subscriptors.size})
 
+    const unrenewed = new Set()
+
+    accounts.forEach((a) => {
+        if(a.subscriptionsUsed.length > 0 && !validSubscription(a)){
+            unrenewed.add(a.id)
+        }
+    })
 
     return {
         accounts: accounts.length,
@@ -672,6 +679,7 @@ export async function getAdminStats(){
         sellsByIsDonation,
         viewsByDay,
         subscriptorsByWeek,
-        subscriptors: subscriptors.size
+        subscriptors: subscriptors.size,
+        unrenewed
     }
 }

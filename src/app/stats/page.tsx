@@ -95,6 +95,20 @@ export default async function Page() {
             </div>
         </div>
 
+        <div>
+            <h3>
+                No renovadas
+            </h3>
+            <div>
+                <Stat>
+                    Total: {stats.unrenewed.size}
+                </Stat>
+                <div className="flex flex-wrap space-x-2">
+                    {Array.from(stats.unrenewed).map((x: string) => (<div key={x}>{x}</div>))}
+                </div>
+            </div>
+        </div>
+
     </div>
 
     return <ThreeColumnsLayout center={center}/>
