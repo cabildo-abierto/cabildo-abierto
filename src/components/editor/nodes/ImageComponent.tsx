@@ -103,9 +103,6 @@ function LazyImage({
 }): JSX.Element {
   useSuspenseImage(src);
 
-  console.log("src", src)
-  console.log("width", width, height)
-
   return (
     <ImageNext
       className={className || undefined}
