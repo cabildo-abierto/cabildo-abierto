@@ -12,6 +12,7 @@ import InfoPanel from "./info-panel";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import Link from "next/link";
 
 
 export function countUserInteractions(entity: SmallEntityProps, since?: Date){
@@ -155,9 +156,8 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: {e
     >
         {trendingArticles.map(({entity, score}, index) => {
 
-            return <button
-                onClick={() => {router.push(articleUrl(entity.id))}}
-                className="flex flex-col justify-between rounded text-center p-1 sm:text-sm text-xs text-[0.72rem] my-2 bg-[var(--secondary-light)] hover:bg-[var(--secondary)] text-gray-900 border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)]"
+            return <Link href={articleUrl(entity.id)} draggable={false}
+                className="flex flex-col justify-between rounded text-center p-1 sm:text-sm text-xs text-[0.72rem] my-2 bg-[var(--secondary-light)] hover:bg-[var(--secondary)] text-gray-900 border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)] select-none"
                 key={entity.id}
                 onMouseLeave={() => {setHovering(undefined)}}
                 onMouseEnter={() => {preload("/api/entity/"+entity.id, fetcher); setHovering(index)}}
@@ -174,7 +174,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: {e
                 >
                     <div title="La cantidad de usuarios que participaron en la discusión.">{score[0]} <PersonIcon fontSize="inherit"/></div>
                 </div>
-            </button>
+            </Link>
         })}
     </div>
     );
