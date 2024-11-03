@@ -19,6 +19,12 @@ export async function getContentByIdNoCache(id: string, userId?: string){
             id: true,
             type: true,
             compressedText: true,
+            compressedPlainText: true,
+            childrenTree: {
+                select: {
+                    authorId: true
+                }
+            },
             title: true,
             author: {
                 select: {
@@ -33,6 +39,8 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                     childrenTree: true
                 }
             },
+            claimsAuthorship: true,
+            stallPaymentUntil: true,
             rootContentId: true,
             fakeReportsCount: true,
             uniqueViewsCount: true,
@@ -92,7 +100,6 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                 }
             },
             categories: true,
-            stallPaymentUntil: true,
             undos: {
                 select: {
                     id: true,
@@ -145,8 +152,6 @@ export async function getContentByIdNoCache(id: string, userId?: string){
     if(!content) {
         return {error: "No se encontró el contenido."}
     }
-    if(!content.reactions) content.reactions = []
-    if(!content.views) content.views = []
     return {content}
 }
 
@@ -584,7 +589,7 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
     const {content, error} = await getContentById(id, userId)
     if(error) return {error}
 
-    if(content.reactions.length == 0){
+    if(!content.reactions || content.reactions.length == 0){
         let reaction = null
         try {
             if(entityId){

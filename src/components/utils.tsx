@@ -527,7 +527,7 @@ export function inRange(i, n){
 }
 
 
-export function isPublic(content: ContentProps, isMainPage: boolean){
+export function isPublic(content: {type: string, parentEntity: {isPublic: boolean}}, isMainPage: boolean){
     if(content.type == "EntityContent"){
         return content.parentEntity.isPublic
     }

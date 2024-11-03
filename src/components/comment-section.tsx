@@ -1,5 +1,5 @@
 import { useEntity } from "../app/hooks/entities"
-import { CommentProps, ContentProps, EntityProps, SmallContentProps } from "../app/lib/definitions"
+import { CommentProps, ContentProps, EntityProps, FeedContentProps, SmallContentProps } from "../app/lib/definitions"
 import { getAllQuoteIds } from "./comment"
 import { decompress } from "./compression"
 import { ContentWithCommentsFromId } from "./content-with-comments"
@@ -56,7 +56,7 @@ export function getEntityComments(entity: EntityProps, comments: CommentProps[],
 }
 
 export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
-    content: ContentProps, entity?: EntityProps, activeIDs: string[], comments: CommentProps[]}) => {
+    content: {id: string, compressedText?: string, childrenContents: CommentProps[]}, entity?: EntityProps, activeIDs: string[], comments: CommentProps[]}) => {
 
     function inActiveIDs({id}: {id: string}) {
         return (!activeIDs || activeIDs.length == 0) || activeIDs.includes(id)
@@ -106,7 +106,7 @@ export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
 }
 
 export const EntitySidebarCommentSection = ({content, activeIDs, comments}: {
-    content: ContentProps, activeIDs: string[], comments: CommentProps[]}) => {
+    content: {compressedText?: string, parentEntityId?: string, childrenContents: CommentProps[], id: string}, activeIDs: string[], comments: CommentProps[]}) => {
     
     const entity = useEntity(content.parentEntityId)
     if(entity.isLoading){
@@ -121,16 +121,6 @@ export const EntitySidebarCommentSection = ({content, activeIDs, comments}: {
     />
 }
 
-type CommentSectionProps = {
-    content: ContentProps
-    comments: CommentProps[]
-    entity?: EntityProps
-    activeIDs?: string[]
-    onlyQuotes?: boolean
-    writingReply: boolean
-    depth?: number
-}
-
 type CommentSectionElementProps = {
     id: string
     type: string
@@ -139,6 +129,18 @@ type CommentSectionElementProps = {
     currentVersionOf?: {id: string}
     isReference: boolean
     depth: number
+}
+
+type CommentSectionProps = {
+    content: {
+        id: string
+    }
+    comments: CommentProps[]
+    entity?: EntityProps
+    activeIDs?: string[]
+    onlyQuotes?: boolean
+    writingReply: boolean
+    depth?: number
 }
 
 export const CommentSection: React.FC<CommentSectionProps> = ({
@@ -186,7 +188,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
 
 type EntityCommentSectionProps = {
-    content: ContentProps
+    content: {
+        id: string
+        parentEntityId?: string
+    }
     comments: CommentProps[]
     writingReply: boolean
     depth: number

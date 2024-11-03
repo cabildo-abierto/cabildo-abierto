@@ -33,13 +33,13 @@ const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: {
     sortBy: string,
     maxCount?: number
  }) => {
-    const { searchValue } = useSearch();
+    const { searchState } = useSearch();
 
     function isMatch(entity: SmallEntityProps) {
-        return cleanText(entity.name).includes(cleanText(searchValue));
+        return cleanText(entity.name).includes(cleanText(searchState.value));
     }
 
-    let filteredEntities = searchValue.length > 0 ? entities.filter(isMatch) : entities;
+    let filteredEntities = searchState.value.length > 0 ? entities.filter(isMatch) : entities;
 
     const scoreFunc = sortBy == "Populares" ? topicPopularityScore : recentEditScore
 
@@ -70,11 +70,13 @@ const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: {
 
 
 export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: string[], onSearchPage?: boolean, maxCount?: number}) => {
-    const routeEntities = useRouteEntities(route)
-    const {searchValue} = useSearch()
+    const {entities: routeEntities, isLoading, isError} = useRouteEntities(route)
     const [sortBy, setSortBy] = useState("Populares")
 
-    if(routeEntities.isLoading) return <LoadingSpinner/>
+    if(isLoading) return <LoadingSpinner/>
+    if(isError){
+        return <></>
+    }
 
     const infoText = <span>Ordenados por cantidad de usuarios que participaron en la discusión del tema (ya sea mencionándolo, comentando o agregando un voto hacia arriba).</span>
 
@@ -113,9 +115,9 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
             </div>
         }
 
-        {routeEntities.entities.length > 0 ? 
+        {routeEntities.length > 0 ? 
             <ArticlesWithSearch
-                entities={routeEntities.entities}
+                entities={routeEntities}
                 route={route}
                 sortBy={sortBy}
                 maxCount={maxCount}

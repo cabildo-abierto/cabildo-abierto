@@ -5,30 +5,62 @@ import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
 import { getUserById, getUserId } from "./users";
 import { entityInRoute } from "../components/utils";
+import { ContentProps } from "../app/lib/definitions";
 
 
 const revalidateFeedTime = 10*60
 
 
-export const getRouteFeed = (route: string[]) => {
+export const getRouteFeed = (route: string[], userId?: string) => {
     return unstable_cache(async () => {
-        let feed = await db.content.findMany({
+        let feed: ContentProps[] = await db.content.findMany({
             select: {
                 id: true,
-                compressedPlainText: true,
-                title: true,
                 type: true,
-                author: {
-                    select: {
-                        name: true,
-                        id: true
-                    }
-                },
-                uniqueViewsCount: true,
+                compressedText: true,
+                compressedPlainText: true,
                 childrenTree: {
                     select: {
                         authorId: true
                     }
+                },
+                title: true,
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                createdAt: true,
+                _count: {
+                    select: {
+                        reactions: true,
+                        childrenTree: true
+                    }
+                },
+                claimsAuthorship: true,
+                stallPaymentUntil: true,
+                rootContentId: true,
+                fakeReportsCount: true,
+                uniqueViewsCount: true,
+                reactions: userId ? {
+                    select: {
+                        id: true
+                    },
+                    where: {
+                        userById: userId
+                    }
+                } : false,
+                views: userId ? {
+                    select: {
+                        id: true
+                    },
+                    where: {
+                        userById: userId
+                    }
+                } : false,
+                parentContents: {
+                    select: {id: true}
                 },
                 entityReferences: {
                     select: {
@@ -44,13 +76,69 @@ export const getRouteFeed = (route: string[]) => {
                         }
                     }
                 },
-                _count: {
+                parentEntityId: true, // TO DO: Eliminar
+                parentEntity: {
                     select: {
-                        reactions: true,
-                        childrenTree: true
+                        id: true,
+                        isPublic: true,
+                        currentVersion: {
+                            select: {
+                                searchkeys: true
+                            }
+                        }
                     }
                 },
+                accCharsAdded: true,
+                contribution: true,
+                charsAdded: true,
+                charsDeleted: true,
+                diff: true,
                 currentVersionOf: {
+                    select: {
+                        id: true
+                    }
+                },
+                categories: true,
+                undos: {
+                    select: {
+                        id: true,
+                        reportsOportunism: true,
+                        reportsVandalism: true,
+                        authorId: true,
+                        createdAt: true,
+                        compressedText: true
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                contentUndoneId: true,
+                reportsOportunism: true,
+                reportsVandalism: true,
+                ancestorContent: {
+                    select: {
+                        id: true,
+                        authorId: true
+                    }
+                },
+                childrenContents: {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        type: true,
+                        _count: {
+                            select: {
+                                childrenTree: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                isContentEdited: true,
+                isDraft: true,
+                usersMentioned: {
                     select: {
                         id: true
                     }
@@ -77,9 +165,9 @@ export const getRouteFeed = (route: string[]) => {
             })
         })
         return routeFeed
-    }, ["routeFeed", route.join("/")], {
+    }, ["routeFeed", route.join("/"), userId], {
         revalidate: revalidateFeedTime,
-        tags: ["routeFeed", "routeFeed:"+route.join("/"), "feed"]})() 
+        tags: ["routeFeed", "routeFeed:"+route.join("/"), "feed", "routeFeed:"+route.join("/")+":"+userId]})() 
 }
 
 
@@ -94,23 +182,54 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
         
         const following = [...user.following.map(({id}: {id: string}) => (id)), "soporte", user.id]
         
-        let feed: any[] = await db.content.findMany({
+        let feed: ContentProps[] = await db.content.findMany({
             select: {
                 id: true,
-                compressedPlainText: true,
-                title: true,
                 type: true,
-                author: {
-                    select: {
-                        id: true,
-                        name: true
-                    }
-                },
-                uniqueViewsCount: true,
+                compressedText: true,
+                compressedPlainText: true,
                 childrenTree: {
                     select: {
                         authorId: true
                     }
+                },
+                title: true,
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                createdAt: true,
+                _count: {
+                    select: {
+                        reactions: true,
+                        childrenTree: true
+                    }
+                },
+                claimsAuthorship: true,
+                stallPaymentUntil: true,
+                rootContentId: true,
+                fakeReportsCount: true,
+                uniqueViewsCount: true,
+                reactions: userId ? {
+                    select: {
+                        id: true
+                    },
+                    where: {
+                        userById: userId
+                    }
+                } : false,
+                views: userId ? {
+                    select: {
+                        id: true
+                    },
+                    where: {
+                        userById: userId
+                    }
+                } : false,
+                parentContents: {
+                    select: {id: true}
                 },
                 entityReferences: {
                     select: {
@@ -118,7 +237,7 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                         versions: {
                             select: {
                                 id: true,
-                                categories: true,
+                                categories: true
                             },
                             orderBy: {
                                 createdAt: "asc"
@@ -126,12 +245,69 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                         }
                     }
                 },
-                _count: {
+                parentEntityId: true, // TO DO: Eliminar
+                parentEntity: {
                     select: {
-                        reactions: true
+                        id: true,
+                        isPublic: true,
+                        currentVersion: {
+                            select: {
+                                searchkeys: true
+                            }
+                        }
                     }
                 },
+                accCharsAdded: true,
+                contribution: true,
+                charsAdded: true,
+                charsDeleted: true,
+                diff: true,
                 currentVersionOf: {
+                    select: {
+                        id: true
+                    }
+                },
+                categories: true,
+                undos: {
+                    select: {
+                        id: true,
+                        reportsOportunism: true,
+                        reportsVandalism: true,
+                        authorId: true,
+                        createdAt: true,
+                        compressedText: true
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                contentUndoneId: true,
+                reportsOportunism: true,
+                reportsVandalism: true,
+                ancestorContent: {
+                    select: {
+                        id: true,
+                        authorId: true
+                    }
+                },
+                childrenContents: {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        type: true,
+                        _count: {
+                            select: {
+                                childrenTree: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                isContentEdited: true,
+                isDraft: true,
+                usersMentioned: {
                     select: {
                         id: true
                     }
@@ -201,7 +377,133 @@ export const getProfileFeed = async (userId: string) => {
         const feed = await db.content.findMany({
             select: {
                 id: true,
-                fakeReportsCount: true
+                type: true,
+                compressedText: true,
+                compressedPlainText: true,
+                childrenTree: {
+                    select: {
+                        authorId: true
+                    }
+                },
+                title: true,
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                createdAt: true,
+                _count: {
+                    select: {
+                        reactions: true,
+                        childrenTree: true
+                    }
+                },
+                claimsAuthorship: true,
+                stallPaymentUntil: true,
+                rootContentId: true,
+                fakeReportsCount: true,
+                uniqueViewsCount: true,
+                reactions: userId ? {
+                    select: {
+                        id: true
+                    },
+                    where: {
+                        userById: userId
+                    }
+                } : false,
+                views: userId ? {
+                    select: {
+                        id: true
+                    },
+                    where: {
+                        userById: userId
+                    }
+                } : false,
+                parentContents: {
+                    select: {id: true}
+                },
+                entityReferences: {
+                    select: {
+                        id: true,
+                        versions: {
+                            select: {
+                                id: true,
+                                categories: true
+                            },
+                            orderBy: {
+                                createdAt: "asc"
+                            }
+                        }
+                    }
+                },
+                parentEntityId: true, // TO DO: Eliminar
+                parentEntity: {
+                    select: {
+                        id: true,
+                        isPublic: true,
+                        currentVersion: {
+                            select: {
+                                searchkeys: true
+                            }
+                        }
+                    }
+                },
+                accCharsAdded: true,
+                contribution: true,
+                charsAdded: true,
+                charsDeleted: true,
+                diff: true,
+                currentVersionOf: {
+                    select: {
+                        id: true
+                    }
+                },
+                categories: true,
+                undos: {
+                    select: {
+                        id: true,
+                        reportsOportunism: true,
+                        reportsVandalism: true,
+                        authorId: true,
+                        createdAt: true,
+                        compressedText: true
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                contentUndoneId: true,
+                reportsOportunism: true,
+                reportsVandalism: true,
+                ancestorContent: {
+                    select: {
+                        id: true,
+                        authorId: true
+                    }
+                },
+                childrenContents: {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        type: true,
+                        _count: {
+                            select: {
+                                childrenTree: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                isContentEdited: true,
+                isDraft: true,
+                usersMentioned: {
+                    select: {
+                        id: true
+                    }
+                }
             },
             where: {
                 AND: [
@@ -229,6 +531,133 @@ export const getRepliesFeed = async (userId: string) => {
         const feed = await db.content.findMany({
             select: {
                 id: true,
+                type: true,
+                compressedText: true,
+                compressedPlainText: true,
+                childrenTree: {
+                    select: {
+                        authorId: true
+                    }
+                },
+                title: true,
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                createdAt: true,
+                _count: {
+                    select: {
+                        reactions: true,
+                        childrenTree: true
+                    }
+                },
+                claimsAuthorship: true,
+                stallPaymentUntil: true,
+                rootContentId: true,
+                fakeReportsCount: true,
+                uniqueViewsCount: true,
+                reactions: userId ? {
+                    select: {
+                        id: true
+                    },
+                    where: {
+                        userById: userId
+                    }
+                } : false,
+                views: userId ? {
+                    select: {
+                        id: true
+                    },
+                    where: {
+                        userById: userId
+                    }
+                } : false,
+                parentContents: {
+                    select: {id: true}
+                },
+                entityReferences: {
+                    select: {
+                        id: true,
+                        versions: {
+                            select: {
+                                id: true,
+                                categories: true
+                            },
+                            orderBy: {
+                                createdAt: "asc"
+                            }
+                        }
+                    }
+                },
+                parentEntityId: true, // TO DO: Eliminar
+                parentEntity: {
+                    select: {
+                        id: true,
+                        isPublic: true,
+                        currentVersion: {
+                            select: {
+                                searchkeys: true
+                            }
+                        }
+                    }
+                },
+                accCharsAdded: true,
+                contribution: true,
+                charsAdded: true,
+                charsDeleted: true,
+                diff: true,
+                currentVersionOf: {
+                    select: {
+                        id: true
+                    }
+                },
+                categories: true,
+                undos: {
+                    select: {
+                        id: true,
+                        reportsOportunism: true,
+                        reportsVandalism: true,
+                        authorId: true,
+                        createdAt: true,
+                        compressedText: true
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                contentUndoneId: true,
+                reportsOportunism: true,
+                reportsVandalism: true,
+                ancestorContent: {
+                    select: {
+                        id: true,
+                        authorId: true
+                    }
+                },
+                childrenContents: {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        type: true,
+                        _count: {
+                            select: {
+                                childrenTree: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                isContentEdited: true,
+                isDraft: true,
+                usersMentioned: {
+                    select: {
+                        id: true
+                    }
+                }
             },
             where: {
                 AND: [
@@ -253,54 +682,38 @@ export const getRepliesFeed = async (userId: string) => {
 }
 
 
-export const getEditsFeed = (userId: string) => {
+export const getEditsFeed = (profileUserId: string) => {
     return unstable_cache(async () => {
-        const feed = await db.content.findMany({
+        const feed: ContentProps[] = await db.content.findMany({
             select: {
                 id: true,
-            },
-            where: {
-                AND: [
-                    {type: {
-                            in: ["EntityContent"]
-                        }},
-                    {visible: true},
-                    {authorId: userId},
-                    {parentEntity: {
-                        deleted: false
-                    }}
-                ]
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
-        })
-        return feed
-    }, ["editsFeed", userId], {
-        revalidate: revalidateEverythingTime,
-        tags: ["editsFeed", "editsFeed:"+userId]})()
-}
-
-
-export const getSearchableContents = (route: string[]) => {
-    return unstable_cache(async () => {
-        let feed = await db.content.findMany({
-            select: {
-                id: true,
-                compressedPlainText: true,
-                title: true,
                 type: true,
-                author: {
-                    select: {
-                        name: true,
-                        id: true
-                    }
-                },
-                uniqueViewsCount: true,
                 childrenTree: {
                     select: {
                         authorId: true
                     }
+                },
+                title: true,
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                createdAt: true,
+                _count: {
+                    select: {
+                        reactions: true,
+                        childrenTree: true
+                    }
+                },
+                claimsAuthorship: true,
+                stallPaymentUntil: true,
+                rootContentId: true,
+                fakeReportsCount: true,
+                uniqueViewsCount: true,
+                parentContents: {
+                    select: {id: true}
                 },
                 entityReferences: {
                     select: {
@@ -316,7 +729,149 @@ export const getSearchableContents = (route: string[]) => {
                         }
                     }
                 },
-                weakReferences: {
+                parentEntityId: true, // TO DO: Eliminar
+                parentEntity: {
+                    select: {
+                        id: true,
+                        isPublic: true,
+                        currentVersion: {
+                            select: {
+                                searchkeys: true
+                            }
+                        }
+                    }
+                },
+                accCharsAdded: true,
+                contribution: true,
+                charsAdded: true,
+                charsDeleted: true,
+                diff: true,
+                currentVersionOf: {
+                    select: {
+                        id: true
+                    }
+                },
+                categories: true,
+                undos: {
+                    select: {
+                        id: true,
+                        reportsOportunism: true,
+                        reportsVandalism: true,
+                        authorId: true,
+                        createdAt: true,
+                        compressedText: true
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                contentUndoneId: true,
+                reportsOportunism: true,
+                reportsVandalism: true,
+                ancestorContent: {
+                    select: {
+                        id: true,
+                        authorId: true
+                    }
+                },
+                childrenContents: {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        type: true,
+                        _count: {
+                            select: {
+                                childrenTree: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                isContentEdited: true,
+                isDraft: true,
+                usersMentioned: {
+                    select: {
+                        id: true
+                    }
+                }
+            },
+            where: {
+                AND: [
+                    {type: {
+                            in: ["EntityContent"]
+                        }},
+                    {visible: true},
+                    {authorId: profileUserId},
+                    {parentEntity: {
+                        deleted: false
+                    }}
+                ]
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
+        return feed
+    }, ["editsFeed", profileUserId], {
+        revalidate: revalidateEverythingTime,
+        tags: ["editsFeed", "editsFeed:"+profileUserId]})()
+}
+
+
+export const getSearchableContents = (route: string[], userId?: string) => {
+    return unstable_cache(async () => {
+        let feed = await db.content.findMany({
+            select: {
+                id: true,
+                type: true,
+                compressedText: true,
+                compressedPlainText: true,
+                childrenTree: {
+                    select: {
+                        authorId: true
+                    }
+                },
+                title: true,
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                createdAt: true,
+                _count: {
+                    select: {
+                        reactions: true,
+                        childrenTree: true
+                    }
+                },
+                claimsAuthorship: true,
+                stallPaymentUntil: true,
+                rootContentId: true,
+                fakeReportsCount: true,
+                uniqueViewsCount: true,
+                reactions: userId ? {
+                    select: {
+                        id: true
+                    },
+                    where: {
+                        userById: userId
+                    }
+                } : false,
+                views: userId ? {
+                    select: {
+                        id: true
+                    },
+                    where: {
+                        userById: userId
+                    }
+                } : false,
+                parentContents: {
+                    select: {id: true}
+                },
+                entityReferences: {
                     select: {
                         id: true,
                         versions: {
@@ -330,13 +885,69 @@ export const getSearchableContents = (route: string[]) => {
                         }
                     }
                 },
-                _count: {
+                parentEntityId: true, // TO DO: Eliminar
+                parentEntity: {
                     select: {
-                        reactions: true,
-                        childrenTree: true
+                        id: true,
+                        isPublic: true,
+                        currentVersion: {
+                            select: {
+                                searchkeys: true
+                            }
+                        }
                     }
                 },
+                accCharsAdded: true,
+                contribution: true,
+                charsAdded: true,
+                charsDeleted: true,
+                diff: true,
                 currentVersionOf: {
+                    select: {
+                        id: true
+                    }
+                },
+                categories: true,
+                undos: {
+                    select: {
+                        id: true,
+                        reportsOportunism: true,
+                        reportsVandalism: true,
+                        authorId: true,
+                        createdAt: true,
+                        compressedText: true
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                contentUndoneId: true,
+                reportsOportunism: true,
+                reportsVandalism: true,
+                ancestorContent: {
+                    select: {
+                        id: true,
+                        authorId: true
+                    }
+                },
+                childrenContents: {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        type: true,
+                        _count: {
+                            select: {
+                                childrenTree: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                },
+                isContentEdited: true,
+                isDraft: true,
+                usersMentioned: {
                     select: {
                         id: true
                     }

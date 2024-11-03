@@ -15,10 +15,10 @@ export const NoResults = ({text="No se encontraron resultados..."}: {text?: Reac
 
 export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: number}) => {
     const users = useUsers()
-    const {searchValue} = useSearch()
+    const {searchState} = useSearch()
     const {user} = useUser()
 
-    if(searchValue.length == 0){
+    if(searchState.value.length == 0){
         return <div className="text-center text-[var(--text-light)] text-sm sm:text-base">Buscá un usuario en la barra de arriba</div>
     }
     if(users.isLoading){
@@ -34,7 +34,7 @@ export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: nu
     //const routeUsers = users.users.filter((user) => (entityInRoute(user, route)))
 
     function isMatch(user: SmallUserProps){
-        return user.name.toLowerCase().includes(searchValue.toLowerCase())
+        return user.name.toLowerCase().includes(searchState.value.toLowerCase())
     }
 
     let filteredUsers = users.users.filter(isMatch)

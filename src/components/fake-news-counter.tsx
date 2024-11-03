@@ -3,10 +3,12 @@
 import React from "react"
 import { ReactionButton } from "./reaction-button";
 import { RedFlag } from "./icons";
-import { ContentProps } from "../app/lib/definitions";
+
 
 type FakeCounterProps = {
-    content: ContentProps
+    content: {
+        fakeReportsCount: number
+    }
     onClick?: () => void
 }
 

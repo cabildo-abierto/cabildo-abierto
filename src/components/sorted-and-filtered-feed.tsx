@@ -1,5 +1,4 @@
 import { ReactNode } from "react"
-import { SmallContentProps } from "../app/lib/definitions"
 import { decompress } from "./compression"
 import Feed, { LoadingFeedWithData } from "./feed"
 import LoadingSpinner from "./loading-spinner"
@@ -8,7 +7,7 @@ import { cleanText, listOrderDesc } from "./utils"
 import InfoPanel from "./info-panel"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 
-function popularityScore(content: SmallContentProps){
+function popularityScore(content: {childrenTree: {authorId: string}[], author: {id: string}, type: string, _count: {reactions: number}, uniqueViewsCount: number}){
     const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
     commentators.delete(content.author.id)
 
@@ -19,7 +18,7 @@ function popularityScore(content: SmallContentProps){
     return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount * viewWeight, 1)]
 }
     
-function isPopularEnough(content: SmallContentProps){
+function isPopularEnough(content: {childrenTree: {authorId: string}[], author: {id: string}, _count: {reactions: number}}){
     const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
     commentators.delete(content.author.id)
     
@@ -37,24 +36,24 @@ export type ConfiguredFeedProps = {
 }
 
 export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, setFilter, maxCount}: ConfiguredFeedProps) => {
-    const {searchValue} = useSearch()
+    const {searchState} = useSearch()
 
     if(feed.isLoading){
         return <LoadingSpinner/>
     }
 
-    function satisfiesSearch(c: SmallContentProps){
-        const value = cleanText(searchValue)
+    function satisfiesSearch(c: {compressedPlainText?: string, title?: string, author: {id: string, name: string}}){
+        const value = cleanText(searchState.value)
         
-        const text = cleanText(decompress(c.compressedPlainText))
+        const inText = c.compressedPlainText && cleanText(decompress(c.compressedPlainText)).includes(value)
 
-        return text.includes(value) || 
+        return inText || 
             (c.title && cleanText(c.title).includes(value)) ||
             cleanText(c.author.name).includes(value) || 
             cleanText(c.author.id).includes(value)
     }
 
-    let filteredFeed = searchValue.length > 0 ? feed.feed.filter(satisfiesSearch) : feed.feed
+    let filteredFeed = searchState.value.length > 0 ? feed.feed.filter(satisfiesSearch) : feed.feed
 
     if(filteredFeed && filter == "Rápidas"){
         filteredFeed = filteredFeed.filter((content) => (content.type == "FastPost"))
@@ -67,7 +66,7 @@ export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, se
         filteredFeed = filteredFeed.slice(0, maxCount)
     }
 
-    if(searchValue.length == 0 && order == "Populares")
+    if(searchState.value.length == 0 && order == "Populares")
         filteredFeed = filteredFeed.filter(isPopularEnough)
 
     let feedWithScore = filteredFeed.map((content) => ({score: popularityScore(content), content: content}))
@@ -123,9 +122,9 @@ export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, se
                 </button>
             </div>}
 
-        {order == "Populares" && searchValue.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={infoPopular}/>}
+        {order == "Populares" && searchState.value.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={infoPopular}/>}
 
-        {order == "Recientes" && searchValue.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text="Publicaciones en orden cronológico inverso (primero las más recientes)"/>}
+        {order == "Recientes" && searchState.value.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text="Publicaciones en orden cronológico inverso (primero las más recientes)"/>}
         </div>
         {order == "Populares" && popularityFeedComponent}
         {order == "Recientes" && recentFeedComponent}

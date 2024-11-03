@@ -1,14 +1,21 @@
 "use client"
 
-import React, { ReactNode, useOptimistic, useState } from "react"
+import React, { ReactNode, useState } from "react"
 import { ReactionButton } from "./reaction-button";
-import { ActiveLikeIcon, InactiveCommentIcon, InactiveLikeIcon, ViewsIcon } from "./icons";
-import { ContentProps, EntityProps } from "../app/lib/definitions";
+import { ActiveLikeIcon, InactiveLikeIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
 import { addLike, removeLike } from "../actions/contents";
 
 type LikeCounterProps = {
-    content: ContentProps
+    content: {
+        parentEntityId?: string
+        reactions?: {id: string}[]
+        _count: {
+            reactions: number
+        }
+        id: string
+        author: {id: string}
+    }
     disabled?: boolean
     icon1?: ReactNode
     icon2?: ReactNode
@@ -25,7 +32,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
 }) => {
     const {user} = useUser()
     const entityId = content.parentEntityId
-    const initiallyLiked = content.reactions.length > 0
+    const initiallyLiked = content.reactions && content.reactions.length > 0
     const [liked, setLiked] = useState(initiallyLiked)
 
     let delta = 0

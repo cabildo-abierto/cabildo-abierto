@@ -12,7 +12,6 @@ import { useSearch } from "./search-context";
 
 export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = ({ result }) => {
     const className = "px-2 py-1 w-72 text-center hover:bg-[var(--secondary-light)]"
-    const {searchValue, setSearchValue} = useSearch()
 
     return <div className="flex justify-center content-container rounded"
     >
@@ -30,12 +29,11 @@ export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = 
 }
 
 
-export const SearchInput = ({ onChange, autoFocus, searchValue }: {
-  onChange: (arg: string) => void,
-  autoFocus: boolean,
-  searchValue: string
+export const SearchInput = ({ autoFocus }: {
+  autoFocus: boolean
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const {searchState, setSearchState} = useSearch()
 
   useEffect(() => {
     if (inputRef.current && autoFocus) {
@@ -47,8 +45,8 @@ export const SearchInput = ({ onChange, autoFocus, searchValue }: {
     ref={inputRef}
     className="bg-transparent w-full focus:outline-none"
     placeholder="buscar"
-    value={searchValue}
-    onChange={(e) => {onChange(e.target.value)}}
+    value={searchState.value}
+    onChange={(e) => {setSearchState({value: e.target.value, searching: true});}}
   />
 }
 
@@ -62,25 +60,25 @@ const CloseSearchButton = ({ onClick }: any) => {
 }
 
 
-const SearchBar: React.FC<{onClose: any, setSearchValue: any, wideScreen: boolean}> = ({onClose, setSearchValue, wideScreen}) => {
-  const {searchValue} = useSearch()
+const SearchBar: React.FC<{onClose: any, wideScreen: boolean}> = ({onClose, wideScreen}) => {
+  const {searchState, setSearchState} = useSearch()
 
   return wideScreen ?
       <div className="flex border rounded pl-3 pr-1">
         <div className="flex w-full">
-          <SearchInput searchValue={searchValue} onChange={setSearchValue} autoFocus={false}/>
+          <SearchInput autoFocus={false}/>
         </div>
         <div className="text-[var(--text-light)]">
-          {searchValue.length == 0 ? <SearchButton disabled={true}/> : 
-          <CloseSearchButton onClick={() => {setSearchValue("")}}/>}
+          {!searchState.searching ? <SearchButton disabled={true}/> : 
+          <CloseSearchButton onClick={() => {setSearchState({value: "", searching: false})}}/>}
         </div>
       </div> : 
       <div className="flex border rounded pl-1 pr-1">
         <div className="text-[var(--text-light)] flex">
           <SearchButton disabled={true}/>
           <div className="flex w-full">
-            <SearchInput onChange={setSearchValue} autoFocus={true} searchValue={searchValue}/>
-            <CloseSearchButton onClick={() => {onClose(); setSearchValue("")}}/>
+            <SearchInput autoFocus={true}/>
+            <CloseSearchButton onClick={() => {onClose(); setSearchState({value: "", searching: false})}}/>
           </div>
         </div>
       </div>

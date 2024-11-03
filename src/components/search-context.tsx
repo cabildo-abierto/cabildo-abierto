@@ -4,8 +4,8 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 
 // Create a context
 const SearchContext = createContext<{
-    searchValue: string;
-    setSearchValue: React.Dispatch<React.SetStateAction<string>>;
+    searchState: {value: string, searching: boolean};
+    setSearchState: React.Dispatch<React.SetStateAction<{value: string, searching: boolean}>>;
 } | undefined>(undefined);
 
 // Custom hook to use the SearchContext
@@ -19,10 +19,10 @@ export const useSearch = () => {
 
 // BarsProvider component to provide the context
 export const SearchProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [searchValue, setSearchValue] = useState("");
+    const [searchState, setSearchState] = useState({value: "", searching: false});
 
     return (
-        <SearchContext.Provider value={{ searchValue, setSearchValue }}>
+        <SearchContext.Provider value={{ searchState, setSearchState }}>
             {children}
         </SearchContext.Provider>
     );

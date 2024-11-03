@@ -6,15 +6,10 @@ import Sidebar from "./sidebar";
 import Topbar from "./top-bar";
 
 const Bars: React.FC = () => {
-    const { searchValue, setSearchValue } = useSearch();
     const [openSidebar, setOpenSidebar] = useState(false);
-    const searching = searchValue.length > 0;
     return (
         <div className="">
-            <Topbar onOpenSidebar={() => setOpenSidebar(true)}
-                    setSearchValue={setSearchValue}
-                    searching={searching}
-            />
+            <Topbar onOpenSidebar={() => setOpenSidebar(true)}/>
             {openSidebar && <Sidebar onClose={() => setOpenSidebar(false)} />}
         </div>
     );

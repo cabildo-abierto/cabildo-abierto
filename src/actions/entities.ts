@@ -862,12 +862,12 @@ export async function getEntityById(id: string, useCache: boolean = true) {
 }
 
 
-export const getRouteEntities = (route: string[]): Promise<{entities?: SmallEntityProps[], error?: string}> => {
+export const getRouteEntities = (route: string[]): Promise<{routeEntities?: SmallEntityProps[], error?: string}> => {
     return unstable_cache(async () => {
         const {entities, error} = await getEntities()
         if(error) return {error: error}
 
-        if(route.length == 0) return {entities: entities}
+        if(route.length == 0) return {routeEntities: entities}
 
         let routeEntities = entities.filter((entity) => {
             return entityInRoute(entity, route)

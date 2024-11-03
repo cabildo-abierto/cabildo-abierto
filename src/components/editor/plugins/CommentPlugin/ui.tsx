@@ -41,7 +41,7 @@ export function CommentInputBox({
 }: {
   cancelAddComment: () => void
   editor: LexicalEditor
-  parentContent: ContentProps
+  parentContent: {id: string}
   submitAddComment: () => void
   comments: CommentProps[]
   setComments: (c: CommentProps[]) => void

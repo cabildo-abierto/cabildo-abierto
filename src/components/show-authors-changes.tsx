@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic"
-import { ContentProps, EntityProps } from "../app/lib/definitions"
+import { CommentProps, ContentProps, EntityProps } from "../app/lib/definitions"
 import { decompress } from "./compression"
 import { getAllText } from "./diff"
 import { SerializedAuthorNode } from "./editor/nodes/AuthorNode"
@@ -70,7 +70,13 @@ function showAuthors(entity: EntityProps, version: number, versionText: string){
 }
 
 
-export const ShowArticleAuthors = ({originalContent, originalContentText, entity, version}: {originalContent: ContentProps, originalContentText: string, entity: EntityProps, version: number}) => {
+export const ShowArticleAuthors = ({originalContent, originalContentText, entity, version}: {originalContent: {
+    id: string
+    type: string
+    childrenContents: CommentProps[]
+    compressedText?: string
+}, 
+originalContentText: string, entity: EntityProps, version: number}) => {
     
     const contentText = showAuthors(entity, version, originalContentText)
 

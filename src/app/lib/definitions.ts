@@ -16,38 +16,40 @@ export type ContentProps = {
     id: string
     createdAt: string | Date
     compressedText?: string
+    compressedPlainText?: string
     author: SmallUserProps
     type: ContentType
     parentContents: {id: string}[]
     usersMentioned: {id: string}[]
+    childrenTree: {authorId: string}[]
 
     title: string | null
 
-    categories?: string | null
-    parentEntityId?: string | null
+    categories: string | null
+    parentEntityId: string | null
     parentEntity: {id: string, isPublic: boolean, currentVersion: {searchkeys: string[]}}
-    charsAdded?: number,
-    charsDeleted?: number,
-    accCharsAdded?: number,
-    contribution?: string,
-    diff?: string
+    charsAdded: number,
+    charsDeleted: number,
+    accCharsAdded: number,
+    contribution: string,
+    diff: string
 
-    fakeReportsCount?: number,
+    fakeReportsCount: number,
     reactions?: {id: string}[],
     views?: {id: string}[],
-    _count?: {reactions: number, childrenTree: number},
+    _count: {reactions: number, childrenTree: number},
     uniqueViewsCount: number,
 
-    entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
+    entityReferences: {id: string, versions: {id: string, categories: string}[]}[]
 
     rootContentId: string
-    ancestorContent?: {id: string, authorId: string}[]
+    ancestorContent: {id: string, authorId: string}[]
 
-    currentVersionOf?: {id: string} | null
+    currentVersionOf: {id: string} | null
 
-    claimsAuthorship?: boolean
+    claimsAuthorship: boolean
 
-    stallPaymentDate?: Date | string
+    stallPaymentUntil: Date | string
 
     undos: {
         id: string
@@ -57,9 +59,9 @@ export type ContentProps = {
         createdAt: Date | string
         compressedText?: string
     }[]
-    contentUndoneId?: string
-    reportsOportunism?: boolean
-    reportsVandalism?: boolean
+    contentUndoneId: string
+    reportsOportunism: boolean
+    reportsVandalism: boolean
 
     childrenContents: CommentProps[]
 
@@ -311,6 +313,22 @@ export type SmallContentProps = {
     fakeReportsCount?: number;
     uniqueViewsCount?: number
     childrenTree: {authorId: string}[]
+}
+
+
+export type FeedContentProps = {
+    id: string
+    author: {id: string, name: string}
+    createdAt: Date | string
+    type: string
+    compressedText: string
+    compressedPlainText: string
+    title?: string
+    childrenTree: {id: string, authorId: string}[]
+    childrenContents: CommentProps[]
+    _count: {reactions: number}
+    uniqueViewsCount: number
+    parentEntityId?: string
 }
 
 export type NotificationProps = {

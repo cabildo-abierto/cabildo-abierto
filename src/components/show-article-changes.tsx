@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { nodesFromJSONStr } from './diff';
 import { SerializedDiffNode } from './editor/nodes/DiffNode';
-import { ContentProps, EntityProps, MatchesType } from '../app/lib/definitions';
+import { CommentProps, ContentProps, EntityProps, MatchesType } from '../app/lib/definitions';
 import { Content } from 'next/font/google';
 import { wikiEditorSettings } from './editor/wiki-editor';
 import { useContent } from '../app/hooks/contents';
@@ -70,7 +70,13 @@ function showChanges(initialData: string, withRespectToContent: string, diff: Ma
 
 
 type ShowArticleChangesProps = {
-    originalContent: ContentProps,
+    originalContent: {
+        id: string
+        diff: string
+        type: string
+        childrenContents: CommentProps[]
+        compressedText?: string
+    },
     originalContentText: string,
     entity: EntityProps,
     version: number

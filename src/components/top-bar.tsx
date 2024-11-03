@@ -12,6 +12,7 @@ import { useUser } from "../app/hooks/user";
 import { TopbarLogo } from "./logo";
 import { validSubscription } from "./utils";
 import { NotificationsButton } from "./notifications-button";
+import { useSearch } from "./search-context";
 
 
 function FeedButton() {
@@ -78,7 +79,6 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
         {searchBarOpen && searchBarAvailable && <div className="mx-2">
             <SearchBar 
                 onClose={() => {setSearchBarOpen(false)}}
-                setSearchValue={ setSearchValue }
                 wideScreen={wideScreen}
             />
         </div>}
@@ -99,13 +99,12 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
 
 type TopBarProps = {
     onOpenSidebar: () => void, 
-    setSearchValue: (arg0: string) => void,
-    searching: boolean
 }
 
-export default function Topbar({ onOpenSidebar, setSearchValue, searching }: TopBarProps) {
+export default function Topbar({ onOpenSidebar }: TopBarProps) {
     const [barState, setBarState] = useState("top")
     const [prevScrollPos, setPrevScrollPos] = useState(0);
+    const {searchState, setSearchState} = useSearch()
     const user = useUser()
     
     useEffect(() => {
@@ -142,15 +141,15 @@ export default function Topbar({ onOpenSidebar, setSearchValue, searching }: Top
     if(!user.isLoading){
         bar = <TopbarLoggedIn
             onOpenSidebar={onOpenSidebar}
-            setSearchValue={(value: string) => {setSearchValue(value); onSearchUpdate()}}
+            setSearchValue={(value: string) => {setSearchState({value: value, ...searchState}); onSearchUpdate()}}
         />
     }
 
     return createPortal(
         <>
-            {(barState != "no bar" || searching) && 
+            {(barState != "no bar" || searchState.searching) && 
                 <div className="fixed top-0 left-0 w-screen">
-                    <div className={"topbar-container"+((barState == "transparent" && !searching) ? "-transparent" : "")}>
+                    <div className={"topbar-container"+((barState == "transparent" && !searchState.searching) ? "-transparent" : "")}>
                         {bar}
                     </div>
                 </div>
