@@ -9,6 +9,10 @@ import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$findMatchingParent, mergeRegister} from '@lexical/utils';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { $createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 
@@ -35,6 +39,7 @@ import {sanitizeUrl, SUPPORTED_URL_PROTOCOLS} from '../../utils/url';
 import { useRouteEntities } from '../../../../app/hooks/contents';
 import { SmallEntityProps, EntityProps } from '../../../../app/lib/definitions';
 import { articleUrl } from '../../../utils';
+import Link from 'next/link';
 
 function FloatingLinkEditor({
   editor,
@@ -203,7 +208,7 @@ function FloatingLinkEditor({
 
   useEffect(() => {
     if (isLinkEditMode && inputRef.current) {
-      inputRef.current.focus();
+      //inputRef.current.focus();
     }
   }, [isLinkEditMode, isLink]);
 
@@ -256,14 +261,15 @@ function FloatingLinkEditor({
   }
 
   const SearchResults = ({results, setValue}: any) => {
+    if(results.length == 0) return <></>
     return <div className="mb-2">
-      {results.map((entity: EntityProps) => {
+      {results.slice(0, 5).map((entity: EntityProps) => {
           return <button
               key={entity.id}
-              className="w-96 mx-[12px] flex justify-center items-center mt-1 hover:bg-gray-100 rounded"
+              className="mx-[12px] flex justify-center items-center mt-1 hover:bg-gray-100 rounded"
               onClick={() => {setValue(articleUrl(entity.id))}}
             >
-              <div className="py-1 px-2 text-center">
+              <div className="py-1 px-2 text-left">
                 {entity.name}
               </div>
         </button>
@@ -271,72 +277,84 @@ function FloatingLinkEditor({
     </div>
   }
 
+  const linkEditComp = <div className="w-64 sm:w-96 p-1 border rounded bg-white">
+    <div className="flex items-center justify-between">
+      <input
+        ref={inputRef}
+        className="p-1 outline-none w-full"
+        placeholder="Ingresá un link o un tema a referenciar"
+        value={editedLinkUrl}
+        onChange={async (event) => {
+          setEditedLinkUrl(event.target.value);
+          await searchEntities(event.target.value)
+        }}
+        onKeyDown={(event) => {
+          monitorInputInteraction(event);
+        }}
+      />
+      <div className="flex space-x-1 mr-1">
+        <button
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => {
+            setIsLinkEditMode(false);
+          }}
+        >
+          <CheckIcon fontSize="small"/>
+        </button>
+        <button
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={handleLinkSubmission}
+        >
+          <CloseIcon fontSize="small"/>
+        </button>
+      </div>
+    </div>
+    <SearchResults results={results} setValue={setEditedLinkUrl}/>
+  </div>
+
+const linkViewComp = (
+  <div className="rounded p-1 w-64 sm:w-96 border bg-white">
+    <div className="flex items-center">
+      <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
+        <Link
+          href={sanitizeUrl(linkUrl)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-ellipsis"
+        >
+          {linkUrl}
+        </Link>
+      </div>
+      <div className="flex space-x-1 mr-1">
+        <button
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => {
+            setEditedLinkUrl(linkUrl);
+            setIsLinkEditMode(true);
+          }}
+        >
+          <EditIcon fontSize="small" />
+        </button>
+        <button
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => {
+            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+          }}
+        >
+          <DeleteOutlineIcon fontSize="small" />
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+
   return (
     <div ref={editorRef} className="link-editor">
       {!isLink ? null : isLinkEditMode ? (
-        <div className="">
-          <div className="flex items-center justify-between">
-            <input
-              ref={inputRef}
-              className="link-input w-96"
-              placeholder="Ingresá un link o un tema a referenciar"
-              value={editedLinkUrl}
-              onChange={async (event) => {
-                setEditedLinkUrl(event.target.value);
-                await searchEntities(event.target.value)
-              }}
-              onKeyDown={(event) => {
-                monitorInputInteraction(event);
-              }}
-            />
-            <div className="flex">
-              <div
-                className="link-cancel"
-                role="button"
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => {
-                  setIsLinkEditMode(false);
-                }}
-              />
-
-              <div
-                className="link-confirm"
-                role="button"
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={handleLinkSubmission}
-              />
-            </div>
-          </div>
-          <SearchResults results={results} setValue={setEditedLinkUrl}/>
-        </div>
+        linkEditComp
       ) : (
-        <div className="link-view">
-          <a
-            href={sanitizeUrl(linkUrl)}
-            target="_blank"
-            rel="noopener noreferrer">
-            {linkUrl}
-          </a>
-          <div
-            className="link-edit"
-            role="button"
-            tabIndex={0}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
-              setEditedLinkUrl(linkUrl);
-              setIsLinkEditMode(true);
-            }}
-          />
-          <div
-            className="link-trash"
-            role="button"
-            tabIndex={0}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
-              editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
-            }}
-          />
-        </div>
+        linkViewComp
       )}
     </div>
   );
