@@ -17,7 +17,21 @@ export const UndoDiscussion = ({entity, version}: {entity: EntityProps, version:
 }
 
 
-export const UndoDiscussionContent = ({content, onStartReply, onViewComments, viewingComments}: {content: ContentProps, onStartReply: () => void, onViewComments: () => void, viewingComments: boolean}) => {
+export const UndoDiscussionContent = ({content, onStartReply, onViewComments, viewingComments}: {
+    content: {
+        contentUndoneId: string
+        author: {id: string}
+        compressedText?: string
+        reportsVandalism: boolean
+        reportsOportunism: boolean
+        _count: {
+            childrenTree: number
+        }
+    }
+    onStartReply: () => void
+    onViewComments: () => void
+    viewingComments: boolean
+}) => {
     const undone = useContent(content.contentUndoneId)
 
     if(undone.isLoading){

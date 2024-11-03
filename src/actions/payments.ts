@@ -18,7 +18,7 @@ export async function extendContentStallPaymentDate(contentId: string): Promise<
     try {
         await db.content.update({
             data: {
-                stallPaymentUntil: content.stallPaymentDate
+                stallPaymentUntil: content.stallPaymentUntil
             },
             where: {
                 id: contentId

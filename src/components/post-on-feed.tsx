@@ -1,6 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation";
-import { ContentTopRow, ContentTopRowAuthor, id2url, LikeAndCommentCounter } from "./content"
+import { ContentTopRowAuthor, id2url, LikeAndCommentCounter } from "./content"
 
 import { ContentProps } from "../app/lib/definitions";
 import { contentUrl, stopPropagation } from "./utils";
@@ -10,12 +10,6 @@ import { fetcher } from "../app/hooks/utils";
 import { preload } from "swr";
 import { useUser } from "../app/hooks/user";
 import { ContentOptionsButton } from "./content-options-button";
-
-type PostOnFeedProps = {
-    content: ContentProps,
-    onViewComments: () => void,
-    viewingComments: boolean
-}
 
 
 export const PostTitleOnFeed = ({title}: {title: string}) => {
@@ -44,6 +38,26 @@ export const Author = ({content} :{content: ContentProps}) => {
             @{content.author?.id}
         </span>
     </div>
+}
+
+type PostOnFeedProps = {
+    content: {
+        id: string
+        type: string
+        author: {name: string, id: string}
+        createdAt: Date | string
+        isContentEdited: boolean
+        title?: string
+        parentEntityId?: string
+        reactions?: {id: string}[]
+        _count: {
+            reactions: number
+            childrenTree: number
+        }
+        uniqueViewsCount: number
+    },
+    onViewComments: () => void,
+    viewingComments: boolean
 }
 
 
@@ -91,7 +105,6 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
             <div className="sm:text-sm text-xs">
                 <ContentTopRowAuthor content={content} useLink={false}/>
             </div>
-            {/*<span className="text-sm text-gray-400 ml-2">Entrar a leer</span>*/}
             <LikeAndCommentCounter
                 disabled={true}
                 content={content}

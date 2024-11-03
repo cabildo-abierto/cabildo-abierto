@@ -5,17 +5,31 @@ import LoadingSpinner from "./loading-spinner";
 import Link from "next/link";
 import { getAllText } from "./diff";
 import { ChangesCounter } from "./changes-counter";
-import { ContentTopRow } from "./content";
 import { useEntity } from "../app/hooks/entities";
 import { useContent } from "../app/hooks/contents";
-import { ContentProps, EntityProps } from "../app/lib/definitions";
-import { articleUrl, cleanText, currentVersion, entityIdToName, getKeysFromEntity, getPlainText, getVersionInEntity, isKeyInText, someKeyInText } from "./utils";
+import { CommentProps, EntityProps } from "../app/lib/definitions";
+import { articleUrl, cleanText, currentVersion, getKeysFromEntity, getVersionInEntity, someKeyInText } from "./utils";
 import { decompress } from "./compression";
 import { contentContextClassName } from "./comment-in-context";
+import { ContentTopRow } from "./content-top-row";
 
 
 type EntityComponentProps = {
-    content: ContentProps
+    content: {
+        id: string
+        compressedText?: string
+        charsAdded: number
+        charsDeleted: number
+        type: string
+        diff: string
+        title?: string
+        parentEntityId?: string
+        isContentEdited: boolean
+        createdAt: string | Date
+        author: {name: string, id: string}
+        fakeReportsCount: number
+        childrenContents: CommentProps[]
+    }
     entityId: string
     showingChanges?: boolean
     editing?: boolean
@@ -67,7 +81,10 @@ const EntityComponent: React.FC<EntityComponentProps> = ({
             setEditing={setEditing}
         />
     } else {
-        return <EntityEditInFeed content={content} entity={entity.entity} version={version}/>
+        return <EntityEditInFeed
+        content={content}
+        entity={entity.entity}
+        version={version}/>
     }
     
 }
@@ -157,7 +174,19 @@ const EntityMentionInCommentSection = ({parentContentId, entity, mentioningConte
 }
 
 
-const EntityEditInFeed = ({entity, content, version}: {content: ContentProps, entity: EntityProps, version: number}) => {
+const EntityEditInFeed = ({entity, content, version}: {
+    content: {
+        charsAdded: number
+        charsDeleted: number
+        id: string
+        isContentEdited: boolean
+        createdAt: Date | string
+        type: string
+        author: {name: string, id: string}
+        fakeReportsCount: number
+    },
+    entity: EntityProps,
+    version: number}) => {
     const name = <Link href={articleUrl(entity.id, version)} className="content">{entity.name}</Link>
 
     let text = null

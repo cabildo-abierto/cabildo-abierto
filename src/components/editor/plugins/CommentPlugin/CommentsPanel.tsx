@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { NodeKey } from "lexical";
 import { CommentProps, ContentProps } from "../../../../app/lib/definitions";
 import { EntitySidebarCommentSection, SidebarCommentSection } from "../../../comment-section";
-import { CloseButton } from "../../../close-button";
+
 
 export function CommentsPanel({
     activeIDs,
@@ -12,7 +12,7 @@ export function CommentsPanel({
     onClose
 }: {
     activeIDs: string[],
-    parentContent: ContentProps,
+    parentContent: {id: string, type: string, compressedText?: string, childrenContents: CommentProps[]},
     markNodeMap: Map<string, Set<NodeKey>>
     comments: CommentProps[]
     onClose: () => void

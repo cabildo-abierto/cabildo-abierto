@@ -3,12 +3,27 @@ import ReadOnlyEditor from "./editor/read-only-editor";
 import { LikeCounter } from "./like-counter";
 import { TextViewsCounter } from "./views-counter";
 import { ActivePraiseIcon, InactivePraiseIcon } from "./icons";
-import { ContentProps } from "../app/lib/definitions";
 import { DateSince } from "./date";
 import { decompress } from "./compression";
+import { CommentProps } from "../app/lib/definitions";
 
 export const Post: React.FC<{
-    content: ContentProps
+    content: {
+        title?: string
+        createdAt: Date | string
+        author: {id: string, name: string}
+        uniqueViewsCount: number
+        parentEntityId?: string
+        reactions?: {id: string}[]
+        _count: {
+            reactions: number
+        }
+        id: string
+        compressedText?: string
+        type: string
+        isContentEdited: boolean
+        childrenContents: CommentProps[]
+    }
 }> = ({content}) => {
 
     return <div className="px-1">

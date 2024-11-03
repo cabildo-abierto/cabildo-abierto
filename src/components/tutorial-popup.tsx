@@ -6,12 +6,12 @@ import { CloseButtonIcon } from "./icons"
 
 
 export const TutorialPopup = ({onClose}: {onClose: () => void}) => {
-    const {searchValue} = useSearch()
+    const {searchState} = useSearch()
     const {user} = useUser()
 
     return (
         <>
-        {(!user || user._count.views === 0) && searchValue.length === 0 && (
+        {(!user || user._count.views === 0) && searchState.value.length === 0 && (
             <div className="flex justify-center space-x-2 mt-2">
                 <Link className="small-btn space-x-4" href="/articulo?i=Cabildo_Abierto">
                     <span className="sm:text-base text-sm">¿Qué es Cabildo Abierto?</span>

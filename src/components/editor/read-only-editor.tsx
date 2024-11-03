@@ -6,7 +6,7 @@ import { SettingsProps } from "./lexical-editor"
 
 import dynamic from "next/dynamic";
 import { EditorState, LexicalEditor } from "lexical";
-import { ContentProps } from "../../app/lib/definitions";
+import { CommentProps, ContentProps } from "../../app/lib/definitions";
 import { useUser } from "../../app/hooks/user";
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
@@ -17,7 +17,13 @@ const ReadOnlyEditor = ({
     editorClassName="link"
 }: {
     initialData: InitialEditorStateType,
-    content?: ContentProps,
+    content?: {
+        type: string
+        isContentEdited: boolean
+        id: string
+        childrenContents: CommentProps[]
+        compressedText?: string
+    },
     editorClassName?: string
 }) => {
     const user = useUser()

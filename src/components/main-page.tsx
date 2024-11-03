@@ -30,9 +30,7 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
     const [filter, setFilter] = useState("Todas")
     const user = useUser()
-    const {searchValue} = useSearch()
     const [closedIntroPopup, setClosedIntroPopup] = useState(false)
-    const [writingFastPost, setWritingFastPost] = useState(false)
 
     useEffect(() => {
         preload("/api/users", fetcher)

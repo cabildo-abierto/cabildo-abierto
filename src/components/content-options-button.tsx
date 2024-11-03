@@ -19,7 +19,10 @@ export const ContentOptionsDropdown = ({
 }: {
     onClose: () => void,
     optionsList: string[],
-    content: ContentProps
+    content: {
+        type: string
+        id: string
+    }
 }) => {
     const [isFakeNewsModalOpen, setIsFakeNewsModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -78,7 +81,15 @@ export const ContentOptionsDropdown = ({
     </div>
 }
 
-export const ContentOptionsButton = ({content, optionList}: {content: ContentProps, optionList: string[]}) => {
+type ContentOptionsButtonProps = {
+    content: {
+        id: string
+        type: string
+    }
+    optionList: string[]
+}
+
+export const ContentOptionsButton = ({content, optionList}: ContentOptionsButtonProps) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     return <div style={{ position: 'relative', display: 'inline-block' }}>

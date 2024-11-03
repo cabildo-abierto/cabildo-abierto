@@ -3,10 +3,12 @@
 import React from "react"
 import { ReactionButton } from "./reaction-button";
 import { ViewsIcon } from "./icons";
-import { ContentProps } from "../app/lib/definitions";
+
 
 type ViewsCounterProps = {
-    content: ContentProps
+    content: {
+        uniqueViewsCount: number
+    }
 }
 
 const title = "Cantidad de personas distintas que vieron este contenido. No se cuentan segundas visitas y tampoco personas sin cuenta."

@@ -57,13 +57,14 @@ import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { $createParagraphNode, $createTextNode, $getRoot, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 import { DiffNode } from './nodes/DiffNode';
 import { AuthorNode } from './nodes/AuthorNode';
-import { ContentProps } from '../../app/lib/definitions';
+import { CommentProps } from '../../app/lib/definitions';
 import TableCellResizer from './plugins/TableCellResizer';
 import { TableContext } from './plugins/TablePlugin';
 import { CustomTableNode } from './nodes/CustomTableNode';
 
 import ImagesPlugin from './plugins/ImagesPlugin';
 import InlineImagePlugin from './plugins/InlineImagePlugin';
+
 
 
 export type SettingsProps = {
@@ -97,7 +98,14 @@ export type SettingsProps = {
   isReadOnly: boolean,
   isAutofocus: boolean,
   editorClassName: string,
-  content?: ContentProps | null,
+  content?: {
+    id: string
+    type: string
+    title?: string
+    parentEntityId?: string
+    compressedText?: string
+    childrenContents: CommentProps[]
+  },
   placeholderClassName: string,
   showingChanges?: string,
   imageClassName: string

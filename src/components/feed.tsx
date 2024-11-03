@@ -1,13 +1,13 @@
 import React, { ReactNode } from "react"
-import { ContentWithCommentsFromId } from "./content-with-comments";
+import { ContentWithComments } from "./content-with-comments";
 import { NoResults } from "./category-users";
-import { SmallContentProps } from "../app/lib/definitions";
+import { ContentProps, FeedContentProps } from "../app/lib/definitions";
 import LoadingSpinner from "./loading-spinner";
 import { LazyLoadFeed } from "./lazy-load-feed";
 
 
-export type LoadingFeed = {feed: {id: string}[], isLoading: boolean, isError: boolean}
-export type LoadingFeedWithData = {feed: SmallContentProps[], isLoading: boolean, isError: boolean}
+export type LoadingFeed = {feed: ContentProps[], isLoading: boolean, isError: boolean}
+export type LoadingFeedWithData = {feed: ContentProps[], isLoading: boolean, isError: boolean}
 
 
 export type FeedProps = {
@@ -22,9 +22,10 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
 
     function generator(index: number){
         return {
-            c: <ContentWithCommentsFromId
-                contentId={feed.feed[index].id}
+            c: <ContentWithComments
+                content={feed.feed[index]}
                 inCommentSection={false}
+                inItsOwnCommentSection={false}
             />,
             key: feed.feed[index].id
         }

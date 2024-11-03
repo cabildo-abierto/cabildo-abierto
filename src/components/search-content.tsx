@@ -23,7 +23,6 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
     const contents = useSearchableContents()
     const [filter, setFilter] = useState("Todas")
     const [order, setOrder] = useState("Populares")
-    const {searchValue} = useSearch()
 
 
     useEffect(() => {

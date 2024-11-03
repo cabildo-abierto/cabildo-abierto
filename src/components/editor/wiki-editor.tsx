@@ -11,7 +11,7 @@ import { ToggleButton } from "../toggle-button"
 import LoadingSpinner from "../loading-spinner"
 import { ChangesCounter } from "../changes-counter"
 import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getSearchkeysFromEntities, hasChanged } from "../utils"
-import { ContentProps, EntityProps, SmallEntityProps, SmallUserProps } from "../../app/lib/definitions"
+import { CommentProps, ContentProps, EntityProps, SmallEntityProps, SmallUserProps } from "../../app/lib/definitions"
 import { updateEntityContent } from "../../actions/entities"
 import { useUser, useUsers } from "../../app/hooks/user"
 import { compress, decompress } from "../compression"
@@ -22,6 +22,7 @@ import { fetcher } from "../../app/hooks/utils"
 import { SearchkeysEditor } from "../searchkeys-editor"
 import { useRouteEntities } from "../../app/hooks/contents"
 import { editContentClassName } from "../article-page"
+import { SettingsProps } from "./lexical-editor"
 
 
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
@@ -33,7 +34,7 @@ export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:
 const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este tema no tiene contenido! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
 
 
-export const wikiEditorSettings = (readOnly: boolean, content: ContentProps, contentText: string) => {
+export const wikiEditorSettings = (readOnly: boolean, content: {type: string, title?: string, parentEntityId?: string, id: string, compressedText?: string, childrenContents: CommentProps[]}, contentText: string): SettingsProps => {
     
     let initialData = null
     let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
@@ -80,17 +81,6 @@ export const wikiEditorSettings = (readOnly: boolean, content: ContentProps, con
 }
 
 
-type WikiEditorProps = {
-    entity: EntityProps,
-    content: ContentProps
-    version: number,
-    readOnly?: boolean,
-    showingChanges?: boolean
-    showingAuthors?: boolean
-    setEditing: (arg0: boolean) => void
-}
-
-
 function findReferencesInClient(text: string, entities: SmallEntityProps[], users: SmallUserProps[]){
     const searchkeys = getSearchkeysFromEntities(entities)
     const weakReferences = findWeakEntityReferences(text, searchkeys)
@@ -98,6 +88,27 @@ function findReferencesInClient(text: string, entities: SmallEntityProps[], user
     const entityReferences = findEntityReferencesFromEntities(text, entities)
 
     return {weakReferences: weakReferences, mentions: mentions, entityReferences: entityReferences}
+}
+
+
+type WikiEditorProps = {
+    entity: EntityProps,
+    content: {
+        compressedText?: string
+        id: string
+        charsAdded: number
+        charsDeleted: number
+        type: string
+        diff: string
+        title?: string
+        parentEntityId?: string
+        childrenContents: CommentProps[]
+    }
+    version: number,
+    readOnly?: boolean,
+    showingChanges?: boolean
+    showingAuthors?: boolean
+    setEditing: (arg0: boolean) => void
 }
 
 

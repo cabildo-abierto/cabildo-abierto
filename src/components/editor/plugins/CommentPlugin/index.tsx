@@ -35,8 +35,9 @@ import { AddCommentBox } from './AddCommentBox';
 import { CommentInputBox } from './ui';
 import { CommentsPanel } from './CommentsPanel';
 import { $createMarkNode, $isMarkNode, CustomMarkNode } from '../../nodes/CustomMarkNode';
-import { ContentProps } from '../../../../app/lib/definitions';
 import { ActiveCommentIcon, InactiveCommentIcon } from '../../../icons';
+import { CommentProps } from '../../../../app/lib/definitions';
+
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -44,7 +45,7 @@ export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
 
 
 export default function CommentPlugin({parentContent}: {
-  parentContent: ContentProps
+  parentContent: {id: string, childrenContents: CommentProps[], compressedText?: string, type: string}
 }): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const markNodeMap = useMemo<Map<string, Set<NodeKey>>>(() => {

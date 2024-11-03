@@ -14,8 +14,6 @@ import './index.css';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {TableOfContentsPlugin as LexicalTableOfContentsPlugin} from '@lexical/react/LexicalTableOfContentsPlugin';
 import {useEffect, useRef, useState} from 'react';
-import * as React from 'react';
-import { ContentProps } from '../../../../app/lib/definitions';
 import { entityIdToName } from '../../../utils';
 
 
@@ -240,7 +238,14 @@ function TableOfContentsList({
 
 
 
-export default function TableOfContentsPlugin({content, marginAboveEditor}: {content: ContentProps, marginAboveEditor: number}) {
+export default function TableOfContentsPlugin({content, marginAboveEditor}: {
+  content: {
+    type: string
+    title?: string
+    parentEntityId?: string
+  }
+  marginAboveEditor: number
+}) {
 
   return <LexicalTableOfContentsPlugin>
       {(tableOfContents) => {

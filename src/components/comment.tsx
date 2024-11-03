@@ -1,7 +1,7 @@
 
 "use client"
 
-import { AddCommentButton, ContentTopRow, LikeAndCommentCounter } from './content';
+import { LikeAndCommentCounter } from './content';
 import {MarkNode} from '@lexical/mark';
 import {$getRoot, LexicalEditor} from 'lexical'
 import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
@@ -14,6 +14,7 @@ import { ContentProps } from '../app/lib/definitions';
 import { useContent } from '../app/hooks/contents';
 import { decompress } from './compression';
 import { useUser } from '../app/hooks/user';
+import { ContentTopRow } from './content-top-row';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -48,7 +49,24 @@ export function getAllQuoteIds(node: any): any {
 
 
 export type CommentComponentProps = {
-    content: ContentProps,
+    content: {
+        parentContents: {id: string}[]
+        id: string
+        author: {id: string, name: string}
+        compressedText?: string
+        type: string
+        isContentEdited: boolean
+        createdAt: Date | string
+        fakeReportsCount: number
+        reactions?: {id: string}[]
+        _count: {
+            reactions: number
+            childrenTree: number
+        }
+        uniqueViewsCount: number
+        parentEntityId?: string
+        rootContentId: string
+    },
     onViewComments: () => void
     viewingComments: boolean
     onStartReply: () => void

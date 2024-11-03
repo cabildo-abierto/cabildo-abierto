@@ -18,14 +18,12 @@ import { CommentInContext } from "./comment-in-context";
 import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
 import { addView } from "../actions/contents";
 import { useUser } from "../app/hooks/user";
-import { ContentProps } from "../app/lib/definitions";
+import { CommentProps, ContentProps } from "../app/lib/definitions";
 import EntityComponent from "./entity-component";
 import { UndoDiscussionContent } from "./undo-discussion";
 import { logVisit } from "../actions/users";
 import { NoVisitsAvailablePopup } from "./no-visits-popup";
-import { debounce } from 'lodash'; // You may need to install this if not installed
 import { takeAuthorship } from "../actions/admin";
-import { decompress } from "./compression";
 import { useRouter } from "next/navigation";
 
 export function id2url(id: string){
@@ -72,50 +70,6 @@ export const ContentTopRowAuthor = ({content, useLink=true} :{content: {author: 
 }
 
 
-type ContentTopRowProps = {
-    content: ContentProps
-    author?: boolean
-    icon: ReactNode
-    showOptions?: boolean
-    onShowFakeNews?: () => void
-    showFakeNewsCounter?: boolean
-    optionList?: string[]
-}
-
-
-export const ContentTopRow: React.FC<ContentTopRowProps> = ({
-    content,
-    author=true,
-    icon=null,
-    showOptions=false,
-    optionList,
-    onShowFakeNews,
-    showFakeNewsCounter=false,
-}) => {
-    return <div className="flex justify-between pt-1 pr-1">
-        <div className="px-2 blue-links flex items-center w-full">
-            <div className="text-xs sm:text-sm space-x-1 text-[var(--text-light)]">
-                {icon}
-                {author && 
-                    <ContentTopRowAuthor content={content}/>
-                }
-                <span className="">•</span>
-                <span className="">
-                    <DateSince date={content.createdAt}/>
-                </span>
-                {content.isContentEdited && <span className="">(editado)</span>}
-            </div>
-        </div>
-        {showFakeNewsCounter && 
-            <FakeNewsCounter content={content} onClick={onShowFakeNews}/>
-        }
-        {showOptions && optionList.length > 0 && <div className="flex">
-            <ContentOptionsButton content={content} optionList={optionList}/>
-        </div>}
-    </div>
-}
-
-
 export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, onClick}) => {
     return <button className="text-gray-600 text-sm mr-2 hover:text-gray-800"
         onClick={onClick}>
@@ -125,7 +79,19 @@ export const AddCommentButton: React.FC<{text: string, onClick: any}> = ({text, 
     </button>
 }
 
-export const CommentCounter = ({viewingComments, disabled, content, onViewComments, commentCounterTitle}: CommentCounterProps) => {
+type CommentCounterProps = {
+    viewingComments: boolean
+    disabled?: boolean
+    content: {
+        _count: {
+            childrenTree: number
+        }
+    }
+    onViewComments: () => void
+    commentCounterTitle?: string
+}
+
+export const CommentCounter = ({viewingComments, disabled=false, content, onViewComments, commentCounterTitle}: CommentCounterProps) => {
     return <div className="flex items-center px-2">
         <ReactionButton
             icon1={<ActiveCommentIcon/>}
@@ -140,17 +106,27 @@ export const CommentCounter = ({viewingComments, disabled, content, onViewCommen
     </div>
 }
 
-type CommentCounterProps = {
-    content: ContentProps,
-    onViewComments: () => void,
-    viewingComments: boolean,
+type LikeAndCommentCounterProps = {
+    content: {
+        parentEntityId?: string
+        reactions?: {id: string}[]
+        _count: {
+            reactions: number
+            childrenTree: number
+        }
+        id: string
+        author: {id: string}
+        uniqueViewsCount: number
+    }
+    onViewComments: () => void
+    viewingComments: boolean
     disabled?: boolean
     likeCounterTitle?: string
     isPost?: boolean
     commentCounterTitle?: string
 }
 
-export const LikeAndCommentCounter: React.FC<CommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false, likeCounterTitle, commentCounterTitle, isPost=false}) => {
+export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({content, onViewComments, viewingComments, disabled=false, likeCounterTitle, commentCounterTitle, isPost=false}) => {
     const icon1 = isPost ? <ActivePraiseIcon/> : <ActiveLikeIcon/>
     const icon2 = isPost ? <InactivePraiseIcon/> : <InactiveLikeIcon/>
     return <div className="flex mb-1">
@@ -191,7 +167,33 @@ export const Authorship = ({content, onlyAuthor=false}: {content: {author: {id: 
 
 
 type ContentComponentProps = {
-    content: ContentProps
+    content: {
+        id: string
+        type: string
+        parentEntity: {isPublic: boolean}
+        parentEntityId?: string
+        author: {name: string, id: string}
+        createdAt: Date | string
+        isContentEdited: boolean
+        title?: string
+        reactions?: {id: string}[]
+        _count: {
+            reactions: number
+            childrenTree: number
+        }
+        uniqueViewsCount: number
+        charsAdded: number
+        charsDeleted: number
+        diff: string
+        fakeReportsCount: number
+        compressedText?: string
+        rootContentId: string
+        parentContents: {id: string}[]
+        reportsVandalism: boolean
+        reportsOportunism: boolean
+        contentUndoneId: string
+        childrenContents: CommentProps[]
+    }
     onViewComments: () => void
     isMainPage?: boolean
     viewingComments: boolean
