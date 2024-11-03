@@ -577,6 +577,19 @@ export const getRepliesFeed = async (userId: string) => {
                         title: true
                     }
                 },
+                rootContent: {
+                    select: {
+                        id: true,
+                        author: {
+                            select: {
+                                id: true,
+                            }
+                        },
+                        parentEntityId: true,
+                        type: true,
+                        title: true
+                    }
+                },
                 entityReferences: {
                     select: {
                         id: true,
@@ -658,19 +671,6 @@ export const getRepliesFeed = async (userId: string) => {
                         id: true
                     }
                 },
-                rootContent: {
-                    select: {
-                        id: true,
-                        author: {
-                            select: {
-                                id: true,
-                            }
-                        },
-                        parentEntityId: true,
-                        type: true,
-                        title: true
-                    }
-                }
             },
             where: {
                 AND: [

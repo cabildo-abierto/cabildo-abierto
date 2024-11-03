@@ -140,7 +140,33 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                 select: {
                     id: true
                 }
-            }
+            },
+            parentContents: {
+                select: {
+                    id: true,
+                    author: {
+                        select: {
+                            id: true,
+                        }
+                    },
+                    parentEntityId: true,
+                    type: true,
+                    title: true
+                }
+            },
+            rootContent: {
+                select: {
+                    id: true,
+                    author: {
+                        select: {
+                            id: true,
+                        }
+                    },
+                    parentEntityId: true,
+                    type: true,
+                    title: true
+                }
+            },
         },
         where: {
             id: id,
