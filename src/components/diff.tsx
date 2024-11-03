@@ -15,6 +15,10 @@ export function getAllText(node: any){
 
 
 export function charDiff(str1: string, str2: string){
+    console.log("char diff", str1.length, str2.length)
+    if(str1.length * str2.length > 10000){
+        return {total: 0, insertions: 0, deletions: 0} // TO DO: Arreglar
+    }
     const common = lcs(Array.from(str1), Array.from(str2))
 
     const insertions = str2.length - common.length
@@ -166,12 +170,15 @@ function lcs(s1: any[], s2: any[]) {
 
 export function diff(nodes1: string[], nodes2: string[], safe: boolean = false){
     const common: {x: number, y: number}[] = lcs(nodes1, nodes2)
-    
+
     if(safe && (nodes1.length - common.length) * (nodes2.length - common.length) > 10000){
         return null
     }
 
-    let matches: {x: number, y: number}[] = minMatch(nodes1, nodes2, common)
+    let matches: {x: number, y: number}[] | null = minMatch(nodes1, nodes2, common)
+
+    if(matches == null) return null
+
 
     matches = matches.filter((m) => (m != undefined))
 

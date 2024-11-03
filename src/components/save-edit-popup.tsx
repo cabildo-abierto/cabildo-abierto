@@ -43,9 +43,11 @@ export const SaveEditPopup = ({
     useEffect(() => {
         const jsonState = JSON.stringify(editorState)
         const d = charDiffFromJSONString(currentVersion, jsonState, true)
+
         if(!d){
             setDiff("too big")
         }
+        
         setNewVersionSize(getAllText(JSON.parse(jsonState).root).length)
         setDiff(d)
     }, [])
@@ -73,7 +75,6 @@ export const SaveEditPopup = ({
                     <h2 className="py-4 text-lg">Confirmar cambios</h2>
                     {diff !== "too big" && diff != undefined && <div className="mb-8">
                         <ChangesCounterWithText charsAdded={diff.charsAdded} charsDeleted={diff.charsDeleted}/>
-                        
                     </div>}
                     {diff === "too big" && <div className="text-red-600 text-xs mb-8  sm:text-sm">Parece que hay demasiadas diferencias entre las dos versiones. Probá eliminar primero el contenido y después agregar el contenido nuevo.</div>
                     }
