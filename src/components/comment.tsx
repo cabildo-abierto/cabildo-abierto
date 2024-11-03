@@ -15,6 +15,7 @@ import { useContent } from '../app/hooks/contents';
 import { decompress } from './compression';
 import { useUser } from '../app/hooks/user';
 import { ContentTopRow } from './content-top-row';
+import { ShortDescriptionProps } from './comment-in-context';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -48,49 +49,13 @@ export function getAllQuoteIds(node: any): any {
 }
 
 
-export type CommentComponentProps = {
-    content: {
-        parentContents: {id: string}[]
-        id: string
-        author: {id: string, name: string}
-        compressedText?: string
-        type: string
-        isContentEdited: boolean
-        createdAt: Date | string
-        fakeReportsCount: number
-        reactions?: {id: string}[]
-        _count: {
-            reactions: number
-            childrenTree: number
-        }
-        uniqueViewsCount: number
-        parentEntityId?: string
-        rootContentId: string
-    },
-    onViewComments: () => void
-    viewingComments: boolean
-    onStartReply: () => void
-    inCommentSection?: boolean
-    inItsOwnCommentSection: boolean
-    isFakeNewsReport?: boolean
-    depth?: number
-}
-
-
-export const Comment = ({
-    content,
-    onViewComments,
-    viewingComments,
-    onStartReply,
-    inCommentSection=false,
-    isFakeNewsReport}: CommentComponentProps) => {
-    const {user} = useUser()
+export const CommentQuote = ({content}: {content: CommentContentProps}) => {
     const parentId = content.parentContents[0].id
     let snode = null
     const parentContent = useContent(parentId)
 
     if(parentContent.isLoading){
-        return <LoadingSpinner/>
+        return <></>
     }
 
     if(parentContent.content){
@@ -121,6 +86,57 @@ export const Comment = ({
         })
     }
 
+    if(snode) { 
+        return <div>
+        <ReadOnlyEditor initialData={initializeQuote}/>
+        </div>
+    } else {
+        return <></>
+    }
+}
+
+
+type CommentContentProps = {
+    id: string
+    author: {id: string, name: string}
+    compressedText?: string
+    type: string
+    isContentEdited: boolean
+    createdAt: Date | string
+    fakeReportsCount: number
+    reactions?: {id: string}[]
+    _count: {
+        reactions: number
+        childrenTree: number
+    }
+    uniqueViewsCount: number
+    parentEntityId?: string
+    parentContents?: ShortDescriptionProps[]
+    rootContent?: ShortDescriptionProps
+}
+
+
+export type CommentComponentProps = {
+    content: CommentContentProps,
+    onViewComments: () => void
+    viewingComments: boolean
+    onStartReply: () => void
+    inCommentSection?: boolean
+    inItsOwnCommentSection: boolean
+    isFakeNewsReport?: boolean
+    depth?: number
+}
+
+
+export const Comment = ({
+    content,
+    onViewComments,
+    viewingComments,
+    onStartReply,
+    inCommentSection=false,
+    isFakeNewsReport}: CommentComponentProps) => {
+    const {user} = useUser()
+
     const icon = isFakeNewsReport ? <span title="Reporte de noticia falsa"><RedFlag/></span> : <></>
     const isAuthor: boolean = user && user.id == content.author.id
 
@@ -131,9 +147,7 @@ export const Comment = ({
     return <div className="">
         <ContentTopRow content={content} icon={icon} showOptions={true} optionList={optionList}/>
         <div className="px-2 my-2 ml-2 content">
-            {snode && <div>
-                <ReadOnlyEditor initialData={initializeQuote}/>
-            </div>}
+            {content.parentContents && <CommentQuote content={content}/>}
             <ReadOnlyEditor initialData={decompress(content.compressedText)} editorClassName={"content" + (content.type == "Comment" ? " comment" : "")}/>
         </div>
         <div className="flex justify-between">

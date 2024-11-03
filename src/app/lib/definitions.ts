@@ -1,5 +1,6 @@
 import { ContentType } from '@prisma/client';
 import { z } from 'zod'
+import { ShortDescriptionProps } from '../../components/comment-in-context';
 
 
 export type SmallUserProps = {
@@ -19,7 +20,7 @@ export type ContentProps = {
     compressedPlainText?: string
     author: SmallUserProps
     type: ContentType
-    parentContents: {id: string}[]
+    parentContents?: ShortDescriptionProps[]
     usersMentioned: {id: string}[]
     childrenTree: {authorId: string}[]
 
@@ -42,7 +43,7 @@ export type ContentProps = {
 
     entityReferences: {id: string, versions: {id: string, categories: string}[]}[]
 
-    rootContentId: string
+    rootContent?: ShortDescriptionProps
     ancestorContent: {id: string, authorId: string}[]
 
     currentVersionOf: {id: string} | null
