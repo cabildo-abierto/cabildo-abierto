@@ -40,7 +40,6 @@ export const getRouteFeed = (route: string[], userId?: string) => {
                 },
                 claimsAuthorship: true,
                 stallPaymentUntil: true,
-                rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
                 reactions: userId ? {
@@ -59,9 +58,6 @@ export const getRouteFeed = (route: string[], userId?: string) => {
                         userById: userId
                     }
                 } : false,
-                parentContents: {
-                    select: {id: true}
-                },
                 entityReferences: {
                     select: {
                         id: true,
@@ -228,9 +224,6 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                         userById: userId
                     }
                 } : false,
-                parentContents: {
-                    select: {id: true}
-                },
                 entityReferences: {
                     select: {
                         id: true,
@@ -420,9 +413,6 @@ export const getProfileFeed = async (userId: string) => {
                         userById: userId
                     }
                 } : false,
-                parentContents: {
-                    select: {id: true}
-                },
                 entityReferences: {
                     select: {
                         id: true,
@@ -575,7 +565,17 @@ export const getRepliesFeed = async (userId: string) => {
                     }
                 } : false,
                 parentContents: {
-                    select: {id: true}
+                    select: {
+                        id: true,
+                        author: {
+                            select: {
+                                id: true,
+                            }
+                        },
+                        parentEntityId: true,
+                        type: true,
+                        title: true
+                    }
                 },
                 entityReferences: {
                     select: {
@@ -657,6 +657,19 @@ export const getRepliesFeed = async (userId: string) => {
                     select: {
                         id: true
                     }
+                },
+                rootContent: {
+                    select: {
+                        id: true,
+                        author: {
+                            select: {
+                                id: true,
+                            }
+                        },
+                        parentEntityId: true,
+                        type: true,
+                        title: true
+                    }
                 }
             },
             where: {
@@ -712,9 +725,6 @@ export const getEditsFeed = (profileUserId: string) => {
                 rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
-                parentContents: {
-                    select: {id: true}
-                },
                 entityReferences: {
                     select: {
                         id: true,
@@ -849,7 +859,19 @@ export const getSearchableContents = (route: string[], userId?: string) => {
                 },
                 claimsAuthorship: true,
                 stallPaymentUntil: true,
-                rootContentId: true,
+                rootContent: {
+                    select: {
+                        id: true,
+                        author: {
+                            select: {
+                                id: true,
+                            }
+                        },
+                        parentEntityId: true,
+                        type: true,
+                        title: true
+                    }
+                },
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
                 reactions: userId ? {
@@ -869,7 +891,17 @@ export const getSearchableContents = (route: string[], userId?: string) => {
                     }
                 } : false,
                 parentContents: {
-                    select: {id: true}
+                    select: {
+                        id: true,
+                        author: {
+                            select: {
+                                id: true,
+                            }
+                        },
+                        parentEntityId: true,
+                        type: true,
+                        title: true
+                    }
                 },
                 entityReferences: {
                     select: {
@@ -946,7 +978,6 @@ export const getSearchableContents = (route: string[], userId?: string) => {
                     }
                 },
                 isContentEdited: true,
-                isDraft: true,
                 usersMentioned: {
                     select: {
                         id: true

@@ -1,14 +1,15 @@
 "use client"
 import { Comment, CommentComponentProps } from './comment';
 import Link from 'next/link';
-import LoadingSpinner from './loading-spinner';
-import { useContent } from '../app/hooks/contents';
-import { ContentProps } from '../app/lib/definitions';
 import { articleUrl, contentUrl } from './utils';
 
 
+export type ShortDescriptionProps = {
+    author: {id: string}, id: string, type: string, parentEntityId?: string, title?: string
+}
 
-export function shortDescription(content: ContentProps){
+
+export function shortDescription(content: ShortDescriptionProps){
     const parentAuthor = content.author.id
     const authorUrl = "/perfil/"+parentAuthor
     const parentEntityId = content.parentEntityId
@@ -44,13 +45,6 @@ export const CommentInContext = ({
     inCommentSection=false,
     inItsOwnCommentSection,
     depth}: CommentComponentProps) => {
-    const parentId = content.parentContents[0].id
-    const parentContent = useContent(parentId)
-    const rootContent = useContent(content.rootContentId)
-
-    if(parentContent.isLoading || rootContent.isLoading){
-        return <LoadingSpinner/>
-    }
 
     const comment = <Comment
         content={content}
@@ -62,17 +56,20 @@ export const CommentInContext = ({
         isFakeNewsReport={isFakeNewsReport}
     />
 
-    let replyTo = <>En respuesta a {shortDescription(parentContent.content)}</>
-    let rootIs = parentContent.content.id != rootContent.content.id ? <>La discusión empezó en {shortDescription(rootContent.content)}</> : <></>
-
-    if(!inItsOwnCommentSection){
-        return <div>
-            <div className={contentContextClassName}>
-                {replyTo} {rootIs}
-            </div>
-            {comment}
-        </div>
-    } else {
-        return <>{comment}</>
+    if(inItsOwnCommentSection){
+        return comment
     }
+
+    const parentContent = content.parentContents[0]
+    const rootContent = content.rootContent
+
+    let replyTo = <>En respuesta a {shortDescription(parentContent)}</>
+    let rootIs = parentContent.id != rootContent.id ? <>La discusión empezó en {shortDescription(rootContent)}</> : <></>
+
+    return <div>
+        <div className={contentContextClassName}>
+            {replyTo} {rootIs}
+        </div>
+        {comment}
+    </div>
 }

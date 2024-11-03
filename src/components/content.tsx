@@ -14,7 +14,7 @@ import { ReactionButton } from "./reaction-button";
 import { ViewsCounter } from "./views-counter";
 import { ContentOptionsButton } from "./content-options-button";
 import { FakeNewsCounter } from "./fake-news-counter";
-import { CommentInContext } from "./comment-in-context";
+import { CommentInContext, ShortDescriptionProps } from "./comment-in-context";
 import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
 import { addView } from "../actions/contents";
 import { useUser } from "../app/hooks/user";
@@ -167,33 +167,7 @@ export const Authorship = ({content, onlyAuthor=false}: {content: {author: {id: 
 
 
 type ContentComponentProps = {
-    content: {
-        id: string
-        type: string
-        parentEntity: {isPublic: boolean}
-        parentEntityId?: string
-        author: {name: string, id: string}
-        createdAt: Date | string
-        isContentEdited: boolean
-        title?: string
-        reactions?: {id: string}[]
-        _count: {
-            reactions: number
-            childrenTree: number
-        }
-        uniqueViewsCount: number
-        charsAdded: number
-        charsDeleted: number
-        diff: string
-        fakeReportsCount: number
-        compressedText?: string
-        rootContentId: string
-        parentContents: {id: string}[]
-        reportsVandalism: boolean
-        reportsOportunism: boolean
-        contentUndoneId: string
-        childrenContents: CommentProps[]
-    }
+    content: ContentProps
     onViewComments: () => void
     isMainPage?: boolean
     viewingComments: boolean

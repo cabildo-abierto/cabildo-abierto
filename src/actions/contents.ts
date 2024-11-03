@@ -60,9 +60,6 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                     userById: userId
                 }
             } : false,
-            parentContents: {
-                select: {id: true}
-            },
             entityReferences: {
                 select: {
                     id: true,
@@ -282,7 +279,7 @@ async function getCommentAncestorsData(parentContentId?: string) : Promise<Comme
 
         console.log("got it")
         commentData = {
-            rootContentId: content.rootContentId ? content.rootContentId : content.id,
+            rootContentId: content.rootContent.id ? content.rootContent.id : content.id,
             ancestorContent: {
                 connect: [...content.ancestorContent, {id: content.id}]
             },
