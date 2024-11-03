@@ -27,12 +27,12 @@ export const CreateFakeNewsReportModal = ({ contentId, onClose }: { contentId: s
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
 
     let settings = {...commentEditorSettings}
-    settings.placeholder = "Explicá por qué creés que la publicación incluye información falsa. Tené en cuenta que hacer un reporte sin justificarlo puede ser sancionado."
+    settings.placeholder = "Explicá por qué creés que la publicación incluye información falsa. Hacer un reporte sin justificarlo puede ser sancionado."
     settings.editorClassName = "min-h-[200px]"
     settings.isAutofocus = true
 
-    return <BaseFullscreenPopup onClose={onClose} closeButton={true}>
-        <div className="space-y-3 px-6 pb-6 sm:w-128">
+    return <BaseFullscreenPopup onClose={onClose} closeButton={true} className="px-1 sm:w-128 w-[98vh]">
+        <div className="space-y-3 px-2">
             <h3>Reportando información falsa</h3>
             <div className="border rounded p-1">
                 <MyLexicalEditor
