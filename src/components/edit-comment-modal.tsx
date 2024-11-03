@@ -13,6 +13,9 @@ import { charCount } from "./utils";
 import { useSWRConfig } from "swr";
 import { ExtraChars } from "./extra-chars";
 import { useUser } from "../app/hooks/user";
+import useMedia from "use-media";
+import { FullscreenDialog } from "./fullscreen-dialog";
+import { CloseButton } from "./close-button";
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClose: () => void}) => {
@@ -22,6 +25,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
     const content = useContent(contentId)
     const {mutate} = useSWRConfig()
     const {user} = useUser()
+    const isSmallScreen = useMedia({ maxWidth: "640px" });
 
     if(content.isLoading){
         return <LoadingSpinner/>
@@ -29,49 +33,70 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
 
     let settings = {...commentEditorSettings}
     settings.placeholder = "Escribí la nueva versión de tu comentario..."
-    settings.editorClassName = "min-h-[200px] content"
+    settings.editorClassName = "min-h-[200px] content px-1"
     settings.isAutofocus = true
     settings.content = content.content
     settings.initialData = decompress(content.content.compressedText)
 
     const count = editor && editorState ? charCount(editorState) : 0
     
-    return <BaseFullscreenPopup onClose={onClose} closeButton={true}>
-        <div className="px-4 sm:w-96 lg:w-128">
-            <h3>Editar comentario</h3>
+    const editorComp = <div className="border rounded p-1 mt-6">
+        <MyLexicalEditor
+            settings={settings}
+            setEditorState={setEditorState}
+            setEditor={setEditor}
+        />
+        {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
+    </div>
 
-            <div className="border rounded p-1 mt-6">
-                <MyLexicalEditor
-                    settings={settings}
-                    setEditorState={setEditorState}
-                    setEditor={setEditor}
-                />
-                {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
+    const saveBtn = <StateButton
+        text1={"Guardar"}
+        text2={"Guardando..."}
+        className="small-btn my-2"
+        disabled={!validComment(editorState, settings.charLimit)}
+        handleClick={async (e) => {
+            setErrorOnEdit(false)
+            const {error} = await updateContent(compress(
+                JSON.stringify(editorState)),
+                contentId,
+                user.id
+            )
+            if(!error){
+                mutate("/api/content/"+contentId)
+                onClose()
+                return {}
+            } else {
+                setErrorOnEdit(true)
+                return {}
+            }
+        }}
+    />
+
+    const error = errorOnEdit ? <div className="text-red-600 text-sm mb-2">Ocurrió un error al guardar la edición. Intentalo de nuevo.</div> : <></>
+
+
+    if(isSmallScreen){
+        return <FullscreenDialog>
+            <div className="px-2">
+                <div className="flex justify-between items-center">
+                    <CloseButton onClose={onClose}/>
+                    {saveBtn}
+                </div>
+                {editorComp}
+                {error}
             </div>
-
-            <StateButton
-                text1={"Confirmar cambios"}
-                text2={"Enviando..."}
-                className="gray-btn my-2 w-64"
-                disabled={!validComment(editorState, settings.charLimit)}
-                handleClick={async (e) => {
-                    setErrorOnEdit(false)
-                    const {error} = await updateContent(compress(
-                        JSON.stringify(editorState)),
-                        contentId,
-                        user.id
-                    )
-                    if(!error){
-                        mutate("/api/content/"+contentId)
-                        onClose()
-                        return {}
-                    } else {
-                        setErrorOnEdit(true)
-                        return {}
-                    }
-                }}
-            />
-            {errorOnEdit && <div className="text-red-600 text-sm mb-2">Ocurrió un error al guardar la edición. Intentalo de nuevo.</div>}
-        </div>
-    </BaseFullscreenPopup>
+        </FullscreenDialog>
+    } else {
+        return <BaseFullscreenPopup onClose={onClose} closeButton={true}>
+            <div className="px-4 w-128">
+                <h3>Editando comentario</h3>
+                {editorComp}
+                <div className="flex justify-end">
+                {saveBtn}
+                </div>
+                {error}
+            </div>
+        </BaseFullscreenPopup>
+    }
+    
 }
