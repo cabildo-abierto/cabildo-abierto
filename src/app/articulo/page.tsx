@@ -21,7 +21,7 @@ const Page = async ({searchParams}: {searchParams: {i: string, v?: number, c?: s
     return <Suspense fallback={<LoadingScreen/>}>
         <ArticlePage
             entityId={encodeURIComponent(searchParams.i)}
-            version={searchParams.v}
+            paramsVersion={searchParams.v}
             userHeaders={user}
             header={header}
             changes={searchParams.c == "true"}
