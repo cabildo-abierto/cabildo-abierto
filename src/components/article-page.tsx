@@ -47,16 +47,16 @@ const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
 export const editContentClassName = "article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--lightwhite)] hover:bg-[var(--primary-dark)] disabled:hover:bg-[var(--primary)]"
 
 
-export const ArticlePage = ({entityId, version, changes, header, userHeaders}: {
+export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeaders}: {
     entityId: string,
-    version?: number,
+    paramsVersion?: number,
     userHeaders: any,
     header: ReadonlyHeaders,
     changes?: boolean
 }) => {
     const user = useUser()
     const entity = useEntity(entityId)
-    const initialSelection = changes ? "changes" : (version == undefined ? "none" : "history")
+    const initialSelection = changes ? "changes" : (paramsVersion == undefined ? "none" : "history")
     const [selectedPanel, setSelectedPanel] = useState(initialSelection)
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const router = useRouter()
@@ -64,7 +64,7 @@ export const ArticlePage = ({entityId, version, changes, header, userHeaders}: {
     const searchParams = useSearchParams()
 
     useEffect(() => {
-        setSelectedPanel(changes ? "changes" : (version == undefined ? "none" : "history"))
+        setSelectedPanel(changes ? "changes" : (paramsVersion == undefined ? "none" : "history"))
     }, [searchParams])
 
     useEffect(() => {
@@ -258,7 +258,8 @@ export const ArticlePage = ({entityId, version, changes, header, userHeaders}: {
 
     const versions = entity.entity.versions
     const currentIndex = currentVersion(entity.entity)
-    if(version == undefined || !inRange(version, versions.length)){
+    let version = paramsVersion
+    if(paramsVersion == undefined || !inRange(paramsVersion, versions.length)){
         version = currentIndex
     }
     const isCurrent = version == currentIndex
