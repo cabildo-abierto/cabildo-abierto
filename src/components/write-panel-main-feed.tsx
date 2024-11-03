@@ -11,10 +11,11 @@ import { compress } from "./compression"
 import { charCount, emptyOutput, validPost } from "./utils"
 import { ExtraChars } from "./extra-chars"
 import { CloseButton } from "./close-button"
+import { ContentTopRowAuthor } from "./content"
 
 const MyLexicalEditor = dynamic(() => import('./editor/lexical-editor'), { ssr: false });
 
-export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
+export const WritePanelMainFeed = ({onClose, mobile=false}: {onClose: () => void, mobile?: boolean}) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined);
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
     const { user } = useUser();
@@ -62,32 +63,61 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void}) => {
     const count = editor && editorState ? charCount(editorState) : 0;
     let disabled = !editor || emptyOutput(editorState) || valid.problem != undefined;
 
-    return (
-        <div className="w-full rounded px-2 pb-2 pt-1">
+    const sendButton = <StateButton
+        text1="Publicar"
+        text2="Enviando..."
+        handleClick={handleSubmit}
+        disabled={disabled}
+        className="small-btn title text-sm"
+    />
+
+    const editorComp = <div className="sm:text-lg py-2 px-1 h-full max-h-[400px] overflow-scroll" key={editorKey}>
+        <MyLexicalEditor
+            settings={settings}
+            setEditorState={setEditorState}
+            setEditor={setEditor}
+        />
+        {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
+    </div>
+
+    let center = <></>
+
+    if(mobile){
+        center = <>
+            <div className="flex justify-between">
+                <div className="">
+                    <CloseButton onClose={onClose}/>
+                </div>
+                <div className="flex justify-end mt-2">
+                    {sendButton}
+                </div>
+            </div>
+            <div className="text-sm">
+                <ContentTopRowAuthor content={{author: user}}/>
+            </div>
+            {editorComp}
+        </>
+    } else {
+        center = <>
             <div className="flex justify-between">
                 <div className="text-sm text-gray-400 flex items-center">
-                    <FastPostIcon fontSize="inherit" /> <span className="text-xs">Publicación rápida</span>
+                    <ContentTopRowAuthor content={{author: user}}/>
                 </div>
                 <CloseButton onClose={onClose}/>
             </div>
             <div className="sm:text-lg py-2 px-1 h-full max-h-[400px] overflow-scroll" key={editorKey}>
-                <MyLexicalEditor
-                    settings={settings}
-                    setEditorState={setEditorState}
-                    setEditor={setEditor}
-                />
-                {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
+                {editorComp}
             </div>
             <hr className="border-gray-200" />
             <div className="flex justify-end mt-2">
-                <StateButton
-                    text1="Publicar"
-                    text2="Enviando..."
-                    handleClick={handleSubmit}
-                    disabled={disabled}
-                    className="gray-btn title text-sm"
-                />
+                {sendButton}
             </div>
+        </>
+    }
+
+    return (
+        <div className="w-full rounded px-2 pb-2 pt-1">
+            {center}
             {errorOnCreatePost && <div className="flex justify-end text-sm text-red-600">Ocurrió un error al publicar. Intentá de nuevo.</div>}
         </div>
     );

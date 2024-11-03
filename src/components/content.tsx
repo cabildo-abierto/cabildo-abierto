@@ -39,7 +39,7 @@ export function addAt(id: string){
 }
 
 
-export const ContentTopRowAuthor = ({content, useLink=true} :{content: ContentProps, useLink?: boolean}) => {
+export const ContentTopRowAuthor = ({content, useLink=true} :{content: {author: {name: string, id: string}}, useLink?: boolean}) => {
     const router = useRouter()
     const url = content.author  ? id2url(content.author.id) : ""
     const onClick = stopPropagation(() => {router.push(url)})
