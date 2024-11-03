@@ -15,7 +15,6 @@ export function getAllText(node: any){
 
 
 export function charDiff(str1: string, str2: string){
-    console.log("char diff", str1.length, str2.length)
     if(str1.length * str2.length > 10000){
         return {total: 0, insertions: 0, deletions: 0} // TO DO: Arreglar
     }
