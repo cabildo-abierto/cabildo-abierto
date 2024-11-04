@@ -108,6 +108,7 @@ export async function updateAllWeakReferences(){
     if(error) return {error}
 
     for(let i = 0; i < contents.length; i++){
+        console.log("updating weak refs for content", i, "of", contents.length)
         await updateWeakReferencesForContent(contents[i], searchkeys)
     }
     revalidateTag("entities")

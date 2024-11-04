@@ -68,7 +68,7 @@ export type ContentProps = {
 
     isContentEdited: boolean
 
-    isDraft: boolean
+    isDraft?: boolean
 }
 
 

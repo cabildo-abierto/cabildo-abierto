@@ -832,7 +832,7 @@ export const getEditsFeed = (profileUserId: string) => {
 
 export const getSearchableContents = (route: string[], userId?: string) => {
     return unstable_cache(async () => {
-        let feed = await db.content.findMany({
+        let feed: ContentProps[] = await db.content.findMany({
             select: {
                 id: true,
                 type: true,
@@ -904,6 +904,20 @@ export const getSearchableContents = (route: string[], userId?: string) => {
                     }
                 },
                 entityReferences: {
+                    select: {
+                        id: true,
+                        versions: {
+                            select: {
+                                id: true,
+                                categories: true
+                            },
+                            orderBy: {
+                                createdAt: "asc"
+                            }
+                        }
+                    }
+                },
+                weakReferences: {
                     select: {
                         id: true,
                         versions: {
