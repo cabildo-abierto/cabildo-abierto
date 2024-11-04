@@ -299,11 +299,9 @@ type CommentAncestorsDataProps = {
 async function getCommentAncestorsData(parentContentId?: string) : Promise<CommentAncestorsDataProps> {
     let commentData = {}
     if(parentContentId){
-        console.log("getting content", parentContentId)
         const {content, error} = await getContentById(parentContentId)
         if(error) return {error}
 
-        console.log("got it")
         commentData = {
             rootContentId: content.rootContent != undefined ? content.rootContent.id : content.id,
             ancestorContent: {
@@ -426,12 +424,10 @@ export async function createPost(
     const text = decompress(compressedText)
     const processed = await processNewText(text)
     if(processed.error) return {error: processed.error}
-    console.log("getting ancestor data")
 
     const {error, parentContent, ...commentData} = await getCommentAncestorsData(parentContentId)
     if(error) return {error}
 
-    console.log("creating comment")
     let result
     try {
         result = await db.content.create({
