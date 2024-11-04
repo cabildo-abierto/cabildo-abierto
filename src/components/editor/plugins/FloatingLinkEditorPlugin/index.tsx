@@ -294,15 +294,15 @@ function FloatingLinkEditor({
       <div className="flex space-x-1 mr-1">
         <button
           onMouseDown={(event) => event.preventDefault()}
-          onClick={() => {
-            setIsLinkEditMode(false);
-          }}
+          onClick={handleLinkSubmission}
         >
           <CheckIcon fontSize="small"/>
         </button>
         <button
           onMouseDown={(event) => event.preventDefault()}
-          onClick={handleLinkSubmission}
+          onClick={() => {
+            setIsLinkEditMode(false);
+          }}
         >
           <CloseIcon fontSize="small"/>
         </button>
