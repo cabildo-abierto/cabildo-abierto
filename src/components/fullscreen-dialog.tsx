@@ -20,9 +20,12 @@ export const FullscreenDialog = ({
                 if (onClose) onClose();
             }}
             aria-hidden="true"
-            className="fixed inset-0 z-50 flex justify-center items-center w-screen h-screen"
+            className="fixed inset-0 z-50 flex justify-center items-center w-screen h-screen touch-none" // Adds `touch-none`
         >
-            <Dialog.Panel className="bg-white w-full h-full z-50">
+            <Dialog.Panel
+                className="bg-white w-full h-full z-50"
+                onClick={(e) => e.stopPropagation()} // Prevents click propagation to the Dialog overlay
+            >
                 {closeButton && (
                     <div className="flex justify-end">
                         <CloseButton onClose={onClose} />
