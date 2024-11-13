@@ -7,6 +7,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import GradeOutlinedIcon from '@mui/icons-material/GradeOutlined';
 import GradeIcon from '@mui/icons-material/Grade';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard'
@@ -32,6 +33,7 @@ import { useState } from 'react';
 import { BiUpvote } from "react-icons/bi";
 import { BiSolidUpvote } from "react-icons/bi";
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+import ArrowRightIconMui from '@mui/icons-material/ArrowRight';
 
 
 export const RedFlag = () => {
@@ -243,4 +245,14 @@ export const ExpandMoreIcon = ({fontSize="inherit"}: {fontSize?: FontSizeType}) 
 
 export const ExpandLessIcon = ({fontSize="inherit"}: {fontSize?: FontSizeType}) => {
     return <ExpandLessIconMui fontSize={fontSize}/>
+}
+
+
+export const DonateIcon = ({fontSize="inherit"}: {fontSize?: FontSizeType}) => {
+    return <VolunteerActivismIcon fontSize={fontSize}/>
+}
+
+
+export const ArrowRightIcon = () => {
+    return <ArrowRightIconMui/>
 }

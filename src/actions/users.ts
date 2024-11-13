@@ -9,12 +9,14 @@ import { getEntities } from "./entities";
 import { createNotification, getContentById } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import MercadoPagoConfig, { Preference } from "mercadopago";
-import { accessToken, contributionsToProportionsMap, isDemonetized, listOrderDesc, subscriptionEnds, validSubscription } from "../components/utils";
+import { accessToken, contributionsToProportionsMap, isDemonetized, listOrder, listOrderDesc, subscriptionEnds, validSubscription } from "../components/utils";
 import { pathLogo } from "../components/logo";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
 import { isSameDay } from "date-fns";
 import { NoAccountUser } from "@prisma/client";
+import { getSubscriptionPrice } from "./payments";
+import { useSubscriptionPrice } from "../app/hooks/subscriptions";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -498,45 +500,18 @@ export const getUserStats = async (userId: string) => {
 }
 
 
-export async function buySubscriptions(userId: string, amount: number, donationsAmount: number, paymentId: string, price: number) {
+export async function buySubscriptions(userId: string, donatedAmount: number, paymentId: string) {
     const {user, error} = await getUserById(userId)
     if(error) return {error}
 
-    const valid = validSubscription(user)
-
     const queries: {boughtByUserId: string, price: number, paymentId: string, isDonation: boolean, userId: string | null, usedAt: Date | null, endsAt: Date | null}[] = []
+    
+    const price = await getSubscriptionPrice()
 
-    if(!valid && amount > 0){
-        const usedAt = new Date()
-        const endsAt = subscriptionEnds(usedAt)
+    for(let i = 0; i < donatedAmount / price.price; i++){
         queries.push({
             boughtByUserId: userId,
-            price: price,
-            paymentId: paymentId,
-            isDonation: false,
-            userId: userId,
-            usedAt: usedAt,
-            endsAt: endsAt
-        })
-        amount --
-    }
-    
-    for(let i = 0; i < amount; i++){
-        queries.push({
-            boughtByUserId: userId,
-            price: price,
-            paymentId: paymentId,
-            isDonation: false,
-            userId: null,
-            usedAt: null,
-            endsAt: null
-        })
-    }
-    
-    for(let i = 0; i < donationsAmount; i++){
-        queries.push({
-            boughtByUserId: userId,
-            price: price,
+            price: price.price,
             paymentId: paymentId,
             isDonation: true,
             userId: null,
@@ -550,7 +525,6 @@ export async function buySubscriptions(userId: string, amount: number, donations
             data: queries
         })
     } catch(e) {
-        console.log("error detail", e)
         return {error: "error on buy subscriptions"}
     }
 
@@ -935,4 +909,161 @@ export async function getUsersByLocation(){
     } catch {
         return {error: "error al obtener los usuarios"}
     }*/
+}
+
+
+export const getFundingPercentage = unstable_cache(async () => {
+    const available = await db.subscription.findMany({
+        select: {id: true},
+        where: {
+            usedAt: null,
+            price: {
+                gte: 500
+            }
+        }
+    })
+    if(available.length > 0){
+        return 100
+    }
+
+    const usersWithViews = await db.user.findMany({
+        select: {
+            id: true,
+            subscriptionsUsed: {
+                select: {
+                    endsAt: true
+                },
+                orderBy: {
+                    endsAt: "asc"
+                }
+            },
+            views: {
+                select: {
+                    createdAt: true
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            }
+        },
+    })
+
+    let activeUsers = 0
+    let activeNoSubscription = 0
+    usersWithViews.forEach((u) => {
+        if(u.views.length > 0 && new Date().getTime() - u.views[0].createdAt.getTime() < 1000*3600*24*30){
+            activeUsers ++
+            if(!validSubscription(u)){
+                activeNoSubscription ++
+            }
+        }
+    })
+
+    console.log("active users", activeUsers)
+    console.log("active no subs", activeNoSubscription)
+
+    return (1 - (activeNoSubscription / activeUsers))*100
+
+},
+    ["fundingPercentage"],
+    {
+        revalidate: 5,
+        tags: ["fundingPercentage"]
+    }
+)
+
+
+export async function assignSubscriptions(){
+    const usersWithViews = await db.user.findMany({
+        select: {
+            id: true,
+            subscriptionsUsed: {
+                select: {
+                    endsAt: true
+                },
+                orderBy: {
+                    usedAt: "asc"
+                }
+            },
+            createdAt: true,
+            views: {
+                select: {
+                    createdAt: true
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            }
+        },
+    })
+
+    let usersRequiringSubscription = []
+
+    usersWithViews.forEach((u) => {
+        if(u.views.length > 0 && new Date().getTime() - u.views[0].createdAt.getTime() < 1000*3600*24*30){
+            if(!validSubscription(u)){
+                usersRequiringSubscription.push(u)
+            }
+        }
+    })
+
+    //console.log("users requiring", usersRequiringSubscription.map(({id}) => (id)))
+
+    function userScore(u){
+        if(u.subscriptionsUsed.length > 0){
+            return [u.subscriptionsUsed[u.subscriptionsUsed.length-1].usedAt]
+        } else {
+            return [u.createdAt]
+        }
+    }
+
+    usersRequiringSubscription = usersRequiringSubscription.map((u) => ({user: u, score: userScore(u)})).sort(listOrder).map(({user}) => (user))
+
+    //console.log("sorted", usersRequiringSubscription.map(({id}) => (id)))
+
+    const available = await db.subscription.findMany({
+        select: {id: true},
+        where: {
+            usedAt: null,
+            price: {
+                gte: 500
+            }
+        }
+    })
+
+    //console.log("available subscriptions", available.length)
+    for(let i = 0; i < usersRequiringSubscription.length; i++){
+        if(i >= available.length) break
+        const usedAt = new Date()
+        const endsAt = subscriptionEnds(usedAt)
+        await db.subscription.update({
+            data: {
+                usedAt: usedAt,
+                userId: usersRequiringSubscription[i].id,
+                endsAt: endsAt,
+            },
+            where: {
+                id: available[i].id
+            }
+        })    
+        //console.log("assigned subscription", available[i].id, "to", usersRequiringSubscription[i].id)
+    }
+
+    revalidateTag("fundingPercentage")
+}
+
+
+export async function recoverSubscriptions(){
+    const sellsByUser = await db.subscription.groupBy({
+        by: ['boughtByUserId'],
+        _count: {
+          boughtByUserId: true,
+        },
+        where: {
+            price: {
+                gte: 500
+            }
+        }
+    });
+    console.log(sellsByUser)
 }

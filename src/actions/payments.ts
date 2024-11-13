@@ -35,45 +35,18 @@ export async function extendContentStallPaymentDate(contentId: string): Promise<
 const baseUrl = "https://www.cabildoabierto.com.ar"
 //const baseUrl = "localhost:3000"
 
-export async function createPreference(userId: string, amount: number, donationsAmount) {
+export async function createPreference(userId: string, amount: number) {
     const client = new MercadoPagoConfig({ accessToken: accessToken });
     const preference = new Preference(client);
 
-    const price = await getSubscriptionPrice()
-
-    if(amount + donationsAmount == 0) return {error: "No es posible iniciar un pago por 0 suscripciones."}
-
-    let title = null
-    if(amount == 0){
-        if(donationsAmount == 1){
-            title = "Un mes de suscripción donado"
-        } else {
-            title = donationsAmount + " suscripciones donadas"
-        }
-    } else if(amount == 1){
-        if(donationsAmount == 0){
-            title = "Un mes de suscripción"
-        } else if(donationsAmount == 1){
-            title = "Un mes para vos y uno donado"
-        } else {
-            title = "Un mes para vos y " + donationsAmount + " donados"
-        }
-    } else if(amount > 1){
-        if(donationsAmount == 0){
-            title = amount + " meses de suscripción"
-        } else if(donationsAmount == 1){
-            title = amount + " meses para vos y uno donado"
-        } else {
-            title = amount + " meses para vos y " + donationsAmount + " meses donados"
-        }
-    }
+    const title = "Aporte de $" + amount + " a Cabildo Abierto"
 
     let items = [{
         picture_url: baseUrl+pathLogo,
         id: "0",
         title: title,
         quantity: 1,
-        unit_price: (donationsAmount + amount) * price.price,
+        unit_price: amount,
         currencyId: "ARS"
     }]
 
@@ -81,16 +54,15 @@ export async function createPreference(userId: string, amount: number, donations
         const result = await preference.create({
             body: {
               back_urls: {
-                  success: baseUrl+"/suscripciones/pago-exitoso",
-                  pending: baseUrl+"/suscripciones/pago-pendiente",
-                  failure: baseUrl+"/suscripciones/pago-fallido"
+                  success: baseUrl+"/aportar/pago-exitoso",
+                  pending: baseUrl+"/aportar/pago-pendiente",
+                  failure: baseUrl+"/aportar/pago-fallido"
               },
               notification_url: baseUrl+"/api/pago?source_news=webhooks",
               items: items,
               metadata: {
                   user_id: userId,
-                  amount: amount,
-                  donationsAmount: donationsAmount
+                  donatedAmount: amount,
               },
               payment_methods: {
                   excluded_payment_types: [
@@ -108,20 +80,7 @@ export async function createPreference(userId: string, amount: number, donations
 
 
 export async function getSubscriptionPrice() {
-    return unstable_cache(async () => {
-        const count = await db.subscription.count({
-            where: {
-                price: {
-                    gte: 500,
-                }
-            }
-        })
-        if(count < 200){
-            return {price: 500, remaining: 200-count}
-        } else {
-            return {price: 1000, remaining: 1000-count}
-        }
-    }, ["subscriptionPrice"], {tags: ["subscriptionPrice"]})()
+    return {price: 500}
 }
 
 

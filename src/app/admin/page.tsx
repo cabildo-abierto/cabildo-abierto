@@ -5,7 +5,7 @@ import { updateAllUniqueCommentators, notifyAllMentions, deleteUser } from "../.
 import { recomputeEntityContributions } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments } from "../../actions/payments"
 import { updateAllReferences, updateAllWeakReferences } from "../../actions/references"
-import { addDonatedSubscriptionsManually, buySubscriptions } from "../../actions/users"
+import { addDonatedSubscriptionsManually, assignSubscriptions, buySubscriptions, recoverSubscriptions } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
@@ -28,8 +28,12 @@ export default function Page() {
             
             <h2>Pagos</h2>
 
-            <button className="gray-btn" onClick={async () => {await buySubscriptions("soporte", 1, 1, "hola", 500)}}>
+            <button className="gray-btn" onClick={async () => {await buySubscriptions("soporte", 500, "hola")}}>
                 Comprar suscripciones
+            </button>
+
+            <button className="gray-btn" onClick={async () => {await recoverSubscriptions()}}>
+                Recuperar suscripciones
             </button>
 
             <button className="gray-btn" onClick={async () => {await createPaymentPromises()}}>
@@ -45,7 +49,7 @@ export default function Page() {
                 Recalcular contribuciones entidad
             </button>
 
-            <button className="gray-btn" onClick={async () => {await addDonatedSubscriptionsManually("Fer1974", 9, 500, "89515361127")}}>
+            <button className="gray-btn" onClick={async () => {await assignSubscriptions()}}>
                 Asignar suscripciones
             </button>
 

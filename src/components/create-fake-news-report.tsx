@@ -28,7 +28,7 @@ export const CreateFakeNewsReportModal = ({ contentId, onClose }: { contentId: s
 
     let settings = {...commentEditorSettings}
     settings.placeholder = "Explicá por qué creés que la publicación incluye información falsa. Hacer un reporte sin justificarlo puede ser sancionado."
-    settings.editorClassName = "min-h-[200px]"
+    settings.editorClassName = "min-h-[200px] content"
     settings.isAutofocus = true
 
     return <BaseFullscreenPopup onClose={onClose} closeButton={true} className="px-1 sm:w-128 w-[98vh]">

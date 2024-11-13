@@ -1,9 +1,5 @@
-import { useSubscriptionPrice } from "../../hooks/subscriptions"
-import React, { useState } from 'react';
-import { ThreeColumnsLayout } from '../../../components/three-columns';
-import { validSubscription } from '../../../components/utils';
-import { useUser } from '../../hooks/user';
-import { MPWallet } from "../../../components/mp-wallet";
+import { ThreeColumnsLayout } from './three-columns';
+import { MPWallet } from "./mp-wallet";
 
 
 

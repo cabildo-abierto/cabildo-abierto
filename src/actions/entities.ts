@@ -2,15 +2,13 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { findEntityReferences, findMentions, getContentById, notifyMentions, processNewText, processNewTextFast } from "./contents";
+import { getContentById, notifyMentions, processNewTextFast } from "./contents";
 import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { currentVersionContent, entityExists, entityInRoute, findWeakEntityReferences, getPlainText, hasEditPermission, isPartOfContent, isUndo } from "../components/utils";
-import { EditorStatus } from "@prisma/client";
+import { currentVersionContent, entityExists, entityInRoute, getPlainText, hasEditPermission, isPartOfContent, isUndo } from "../components/utils";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
-import { getReferencesSearchKeys } from "./references";
 import { extendContentStallPaymentDate } from "./payments";
 
 

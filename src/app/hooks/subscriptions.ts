@@ -20,3 +20,13 @@ export function useSubscriptionPrice(): {price: {price: number, remaining: numbe
         isError: error
     }
 }
+
+
+export function useFundingPercentage(): {fundingPercentage: number, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/funding-percentage', fetcher)
+    return {
+        fundingPercentage: data,
+        isLoading,
+        isError: error
+    }
+}

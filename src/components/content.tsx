@@ -326,7 +326,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
                     Tomar autoría
                 </button>
             )}
-            {!validVisit && <NoVisitsAvailablePopup />}
+            {!validVisit && <NoVisitsAvailablePopup /> /* TO DO: Arreglar */}
             <div ref={contentRef}>{element}</div>
         </>
     );
