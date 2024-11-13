@@ -195,11 +195,10 @@ export const getUserById = (userId: string) => {
                         },
                         subscriptionsBought: {
                             select: {
-                                id: true
+                                id: true,
+                                price: true
                             }, 
                             where: {
-                                userId: null,
-                                isDonation: false,
                                 price: {
                                     gte: 500
                                 }
@@ -530,6 +529,7 @@ export async function buySubscriptions(userId: string, donatedAmount: number, pa
 
     revalidateTag("user:"+userId)
     revalidateTag("poolsize")
+    revalidateTag("fundingPercentage")
     return {}
 }
 
@@ -1064,6 +1064,55 @@ export async function recoverSubscriptions(){
                 gte: 500
             }
         }
-    });
+    })
     console.log(sellsByUser)
 }
+
+
+export const getDonationsDistribution = unstable_cache(async () => {
+    const users = await db.user.findMany({
+        select: {
+            subscriptionsBought: {
+                select: {
+                    price: true
+                }
+            },
+            createdAt: true
+        }
+    })
+
+    const today = new Date()
+    let data: number[] = []
+    users.forEach((u) => {
+        let t = 0
+        u.subscriptionsBought.forEach(({price}) => {
+            t += price
+        })
+        const months = Math.ceil((today.getTime() - u.createdAt.getTime()) / (1000*3600*24*30))
+        data.push(t / months)
+    })
+    data.sort((a, b) => {return Math.sign(a-b)})
+    //console.log("data", data)
+
+    const percentiles = data.map((value, index) => {
+        return {value, p: index / data.length}
+    })
+
+    //console.log("percentiles", percentiles)
+
+    const inverse = []
+    let j = 0
+    for(let i = 0; i < 100; i++){
+        while(percentiles[j].p < i / 100 && j < percentiles.length-1) j++
+        inverse.push(percentiles[j].value)
+    }
+
+    //console.log("inverse", inverse)
+    return inverse
+},
+    ["donationsDistribution"],
+    {
+        revalidate: 5,
+        tags: ["donationsDistribution"]
+    }
+)

@@ -113,6 +113,7 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
 
     revalidatePath('/', 'layout')
     revalidateTag("users")
+    revalidateTag("fundingPercentage")
     return {data: {email: validatedFields.data.email}}
 }
 

@@ -30,3 +30,13 @@ export function useFundingPercentage(): {fundingPercentage: number, isLoading: b
         isError: error
     }
 }
+
+
+export function useDonationsDistribution(): {donationsDistribution: number[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/donations-distribution', fetcher)
+    return {
+        donationsDistribution: data,
+        isLoading,
+        isError: error
+    }
+}

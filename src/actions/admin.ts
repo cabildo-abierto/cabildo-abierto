@@ -563,7 +563,11 @@ export async function getAdminStats(){
     const accounts = await db.user.findMany({
         select: {
             id: true,
-            subscriptionsUsed: true,
+            subscriptionsUsed: {
+                orderBy: {
+                    endsAt: "asc"
+                }
+            },
             createdAt: true,
             views: {
                 select: {
@@ -609,18 +613,6 @@ export async function getAdminStats(){
         }
     });
 
-    const sellsByIsDonation = await db.subscription.groupBy({
-        by: ['isDonation'],
-        _count: {
-          isDonation: true,
-        },
-        where: {
-            price: {
-                gte: 500
-            }
-        }
-    });
-
     const dayDuration = 60*60*24*1000
 
     let viewsByDay = []
@@ -641,6 +633,7 @@ export async function getAdminStats(){
         orderBy: { createdAt: 'asc' },
         select: { createdAt: true }
     });
+    console.log("first subscription", firstSubscription)
 
     const firstDate = new Date(firstSubscription.createdAt);
     
@@ -697,7 +690,6 @@ export async function getAdminStats(){
     return {
         accounts: accounts.length,
         sellsByPrice,
-        sellsByIsDonation,
         viewsByDay,
         subscriptorsByWeek,
         subscriptors: subscriptors.size,
