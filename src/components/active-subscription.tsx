@@ -1,6 +1,6 @@
 "use client"
 import LoadingSpinner from './loading-spinner';
-import { useFundingPercentage, useSubscriptionPrice } from '../app/hooks/subscriptions';
+import { useDonationsDistribution, useFundingPercentage, useSubscriptionPrice } from '../app/hooks/subscriptions';
 import Link from 'next/link';
 import { ThreeColumnsLayout } from './three-columns';
 import { useUser } from '../app/hooks/user';
@@ -8,12 +8,13 @@ import { UserProps } from '../app/lib/definitions';
 import { nextSubscriptionEnd } from './utils';
 import FundingProgress from './funding-progress';
 import StateButton from './state-button';
-import { ArrowRightIcon, ExpandLessIcon, ExpandMoreIcon } from './icons';
+import { ArrowRightIcon, DonateIcon, ExpandLessIcon, ExpandMoreIcon } from './icons';
 import { Desplegable } from './desplegable';
 import { useState } from 'react';
 import { createPreference } from '../actions/payments';
 import { IntegerInputPlusMinus } from './integer-input-plus-minus';
 import { UniqueDonationCheckout } from './unique-donation-checkout';
+import InfoPanel from './info-panel';
 
 
 const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -63,6 +64,29 @@ const HowUsed = () => {
 }
 
 
+const DonatedSoFar = ({user, donationsDistribution}: {user: UserProps, donationsDistribution: number[]}) => {
+    let totalDonations = 0
+    user.subscriptionsBought.forEach(({price}) => {totalDonations += price})
+
+    const today = new Date()
+    const months = Math.ceil((today.getTime() - new Date(user.createdAt).getTime()) / (1000*3600*24*30))
+
+    const meanDonations = totalDonations / months
+
+    if(totalDonations == 0){
+        return <></>
+    }
+
+    let p = 0
+    while(p < 100 && totalDonations > donationsDistribution[p]) p++
+
+    return <div className="mt-8 text-[var(--text-light)] text-center">
+        <div>Aportaste hasta ahora ${totalDonations} (${meanDonations} por mes).</div>
+        <div>Es más que el <span className="text-[var(--primary)]">{p}%</span> de los usuarios. ¡Gracias!</div>
+    </div>
+}
+
+
 function DonationPage() {
     const [choice, setChoice] = useState("none")
     const [preferenceId, setPreferenceId] = useState<undefined | string>()
@@ -70,8 +94,9 @@ function DonationPage() {
     const {user} = useUser()
     const {price} = useSubscriptionPrice()
     const {fundingPercentage} = useFundingPercentage()
+    const {donationsDistribution} = useDonationsDistribution()
 
-    if(!price || !fundingPercentage){
+    if(!price || fundingPercentage == undefined || donationsDistribution == undefined){
         return <LoadingSpinner/>
     }
 
@@ -96,29 +121,30 @@ function DonationPage() {
         }
     }
 
-
     const donationInput = <div className="mt-8">
-        <div className="flex justify-center">
-        <div className="flex flex-col justify-center items-center">
-            <div className="flex items-center flex-col bg-[var(--secondary-light)] p-4 rounded-lg  mt-4">
-                <div className="text-center text-[var(--text-light)] mb-2 title">
-                    Estado de financiamiento
+        {choice == "none" && <div className="flex justify-center">
+            <div className="flex flex-col justify-center items-center">
+                <div className="flex items-center flex-col bg-[var(--secondary-light)] p-4 rounded-lg  mt-4">
+                    <div className="text-center text-[var(--text-light)] mb-2 title">
+                        Estado de financiamiento
+                    </div>
+                    <div className="w-full px-6">
+                        <FundingProgress p={fundingPercentage}/>
+                    </div>
                 </div>
-                <div className="w-full px-6">
-                    <FundingProgress p={fundingPercentage}/>
-                </div>
-            </div>
 
-            <div className="mt-8">
-                <HowUsed/>
+                <div className="mt-8">
+                    <HowUsed/>
+                </div>
+
+                <DonatedSoFar user={user} donationsDistribution={donationsDistribution}/>
             </div>
-        </div>
-        </div>
-        <div className="flex justify-center mt-8">
+        </div>}
+        {choice == "aportar" && <div className="flex justify-center mt-8">
             <div className="w-72 lg:w-96">
                 <div className="flex justify-center">
                     <div className="flex flex-col items-center">
-                        <div className="mt-12 flex flex-col items-center">
+                        <div className="flex flex-col items-center">
                             <label htmlFor="integer-input" className="mb-2 text-gray-700 text-sm sm:text-base">
                                 Elegí una cantidad a aportar
                             </label>
@@ -126,7 +152,7 @@ function DonationPage() {
                         </div>
                     </div>
                 </div>
-                
+
                 {amount > maxAmount && <div className="flex justify-center text-[var(--text-light)] py-2 text-center">
                     Para donar más de ${maxAmount} contactate con nosotros.
                 </div>}
@@ -145,13 +171,29 @@ function DonationPage() {
                         />
                     </div>
                 </div>
+                <div className="flex justify-center mt-4">
+                    <button
+                        className="small-btn"
+                        onClick={() => {setChoice("none")}}
+                    >
+                        <div>Volver</div>
+                    </button>
+                </div>
             </div>
-        </div>
+        </div>}
+        {choice == "none" && <div className="flex justify-center mt-8">
+            <button
+                className="gray-btn title"
+                onClick={() => {setChoice("aportar")}}
+            >
+                <div><DonateIcon/> Aportar</div>
+            </button>
+        </div>}
     </div>
 
     const uniqueChosen = <div className="flex flex-col items-center">
         <UniqueDonationCheckout amount={amount} preferenceId={preferenceId}/>
-        <button className="small-btn" onClick={() => {setChoice("none"); }}>Volver</button>
+        <button className="small-btn" onClick={() => {setChoice("aportar"); }}>Volver</button>
     </div>
 
     const center = <>

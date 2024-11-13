@@ -69,21 +69,6 @@ export default async function Page() {
             }
         </div>
         <div>
-            <h3>Suscripciones donadas:</h3>
-            
-            {stats.sellsByIsDonation.map((p, index) => {
-                    return <div key={index}>
-                        <Stat>
-                            <div className="flex space-x-4">
-                                <span>Es donación: {p.isDonation ? "Sí" : "No"}</span>
-                                <span>Cantidad: {p._count.isDonation}</span>
-                            </div>
-                        </Stat>
-                    </div>
-                })
-            }
-        </div>
-        <div>
             <h3>
                 Vistas por día desde el registro
             </h3>
@@ -109,7 +94,10 @@ export default async function Page() {
             </div>
         </div>
 
-        <div>
+        <div className="mt-8">
+            <h3>
+                Contenidos por usuario
+            </h3>
             {stats.contentsByUser.map((u, index) => {
                 return <div key={index}>
                     {u.authorId} {u._count.authorId}
