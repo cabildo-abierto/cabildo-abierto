@@ -109,6 +109,14 @@ export default async function Page() {
             </div>
         </div>
 
+        <div>
+            {stats.contentsByUser.map((u, index) => {
+                return <div key={index}>
+                    {u.authorId} {u._count.authorId}
+                </div>
+            })}
+        </div>
+
     </div>
 
     return <ThreeColumnsLayout center={center}/>

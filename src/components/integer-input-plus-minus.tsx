@@ -2,15 +2,15 @@
 export const IntegerInputPlusMinus = ({value, onChange}: {value: number, onChange: (v: number) => void}) => {
 
     const handleIncrement = () => {
-        onChange(value + 1);
+        onChange(value + 500);
     };
 
     const handleDecrement = () => {
-        onChange(Math.max(value - 1, 0)); // Prevents going below 0
+        onChange(Math.max(value - 500, 0));
     };
 
     const handleChange = (e) => {
-        const value = e.target.value;
+        const value = e.target.value.slice(1);
         // Only allow integers
         if (/^\d*$/.test(value)) {
             onChange(Number(value));
@@ -31,10 +31,10 @@ export const IntegerInputPlusMinus = ({value, onChange}: {value: number, onChang
             <input
                 id="integer-input"
                 type="text"
-                value={value}
+                value={"$"+value}
                 autoFocus={true}
                 onChange={handleChange}
-                className="px-4 py-1 border rounded-md focus:outline-none w-24 text-center text-gray-900"
+                className="px-4 py-1 border rounded-md focus:outline-none w-32 text-center text-gray-900"
             />
             <button
                 onClick={handleIncrement}

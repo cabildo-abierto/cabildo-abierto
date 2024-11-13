@@ -5,9 +5,7 @@ import React from "react"
 import { useSWRConfig } from "swr"
 import { createEntity } from "../actions/entities"
 import { useUser } from "../app/hooks/user"
-import NeedSubscriptionPopupPanel from "./need-subscription-popup"
-import Popup from "./popup"
-import { articleUrl, validSubscription } from "./utils"
+import { articleUrl } from "./utils"
 import { validEntityName } from "./write-button"
 
 const CreateEntityButton: React.FC<any> = ({onClick}) => {
@@ -42,13 +40,9 @@ export default function NoEntityPage({id}: {id: string}){
         <div className="flex justify-center py-8 text-lg">
             {'"'+name+'"'}
         </div>
-        {validEntityName(name) ? <div className="flex justify-center py-16">
-            {validSubscription(user) ? <CreateEntityButton onClick={handleCreateEntity}/> :
-                <Popup
-                    Panel={NeedSubscriptionPopupPanel}
-                    Trigger={CreateEntityButton}
-                />
-            }
-        </div> : <div className="py-16 flex justify-center text-center">Tampoco se puede crear el tema porque su nombre no es válido.</div>}
+        {validEntityName(name) ? 
+            <div className="flex justify-center py-16">
+                <CreateEntityButton onClick={handleCreateEntity}/>
+            </div> : <div className="py-16 flex justify-center text-center">Tampoco se puede crear el tema porque su nombre no es válido.</div>}
     </>
 }

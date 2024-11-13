@@ -14,7 +14,7 @@ export default function Page(){
         </div>
         <div className="text-[var(--text-light)] text-sm py-16">Ante cualquier duda o inconveniente con tu pago podés escribirnos por la <Link href="/soporte" className="link2">pestaña de soporte</Link> o por mail a <Link href="mailto:soporte@cabildoabierto.com.ar" className="link3">soporte@cabildoabierto.com.ar</Link>
         </div>
-        <Link href="/suscripciones" className="gray-btn">Ir al inicio</Link>
+        <Link href="/inicio" className="gray-btn">Ir al inicio</Link>
     </div>
 
     return <ThreeColumnsLayout center={center} maxWidthCenter="400px"/>

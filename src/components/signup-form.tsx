@@ -45,7 +45,7 @@ function SignupButton() {
     )
 }
 
-const inputClassName = "custom-input rounded"
+export const inputClassName = "custom-input rounded"
 
 function selectErrors(state: any){
     if(!state){

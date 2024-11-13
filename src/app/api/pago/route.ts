@@ -31,18 +31,14 @@ export async function POST(req) {
       return Response.json({status: 200})
     }
 
-    const amount = paymentDetails.metadata.amount
-    const donationsAmount = paymentDetails.metadata.donations_amount
+    const donated_amount = paymentDetails.metadata.donated_amount
     const userId = paymentDetails.metadata.user_id
 
-    const total = amount + donationsAmount
-    const price = paymentDetails.transaction_amount / total
-
-    const {error} = await buySubscriptions(userId, amount, donationsAmount, paymentId, price)
+    const {error} = await buySubscriptions(userId, donated_amount, paymentId)
     if(error) {
       console.log("error", error)
       console.log("details", paymentDetails)
-      console.log(userId, amount, donationsAmount, paymentId, price)
+      console.log(userId, donated_amount, paymentId)
       return NextResponse.json({status: 500})
     }
 

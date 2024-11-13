@@ -8,7 +8,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useSWRConfig } from "swr";
 import StateButton from "./state-button";
 import { id2url } from "./content";
-import {CabildoIcon, DashboardIcon, ManageAccountIcon, SupportIcon} from "./icons";
+import {CabildoIcon, DashboardIcon, DonateIcon, ManageAccountIcon, SupportIcon} from "./icons";
 import { useRouter } from "next/navigation";
 import { signOut } from "../actions/auth";
 import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user";
@@ -91,9 +91,9 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
                     <SidebarButton onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio"/>
                     <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
-                    <SidebarButton icon={<PaymentIcon/>} onClick={onClose} text="Suscripciones" href="/suscripciones"/>
                     {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={id2url(user.user.id)}/>}
                     <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Panel personal" href="/panel"/>
+                    <SidebarButton icon={<DonateIcon fontSize="medium"/>} onClick={onClose} text="Aportar" href="/aportar"/>
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href={articleUrl("Cabildo_Abierto")}/>
                     <SidebarButton icon={<ManageAccountIcon/>} onClick={onClose} text="Cuenta" href="/cuenta"/>
                     {user.user && <SupportButton user={user.user} onClose={onClose}/>}

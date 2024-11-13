@@ -32,12 +32,6 @@ const Cuenta: React.FC = () => {
                     <div className="text-lg text-gray-900">{user.authUser.email}</div>
                 </div>
                 <div className="mb-4">
-                    <div className="text-gray-600 font-medium">Estado de la suscripción:</div>
-                    <div className={`text-lg ${validSubscription(user) ? 'text-green-600' : 'text-red-600'}`}>
-                        {validSubscription(user) ? "Activa" : "Sin suscripción"}
-                    </div>
-                </div>
-                <div className="mb-4">
                     <div className="text-gray-600 font-medium">Nivel de permisos de edición:</div>
                     <div className="text-lg">
                         <PermissionLevel level={user.editorStatus}/>

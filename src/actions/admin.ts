@@ -602,6 +602,11 @@ export async function getAdminStats(){
         _count: {
           price: true,
         },
+        where: {
+            price: {
+                gte: 500
+            }
+        }
     });
 
     const sellsByIsDonation = await db.subscription.groupBy({
@@ -609,6 +614,11 @@ export async function getAdminStats(){
         _count: {
           isDonation: true,
         },
+        where: {
+            price: {
+                gte: 500
+            }
+        }
     });
 
     const dayDuration = 60*60*24*1000
@@ -673,6 +683,17 @@ export async function getAdminStats(){
         }
     })
 
+
+    const contentsByUser = await db.content.groupBy({
+        by: ['authorId'],
+        _count: {
+          authorId: true,
+        },
+        where: {
+            isDraft: false
+        }
+    });
+
     return {
         accounts: accounts.length,
         sellsByPrice,
@@ -680,6 +701,7 @@ export async function getAdminStats(){
         viewsByDay,
         subscriptorsByWeek,
         subscriptors: subscriptors.size,
-        unrenewed
+        unrenewed,
+        contentsByUser
     }
 }

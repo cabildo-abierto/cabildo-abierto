@@ -1,11 +1,11 @@
-import SubscriptionPage from "../../components/subscription-page"
+import ActiveSubscription from "../../components/active-subscription"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 
 
-export default function Suscripciones() {
+export default function Aportar() {
 
     const center = <div className="mt-8">
-        <SubscriptionPage/>
+        <ActiveSubscription/>
     </div>
 
     return <ThreeColumnsLayout center={center}/>
