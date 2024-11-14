@@ -6,8 +6,8 @@ import { db } from "../db";
 import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
-import { getUserId, getUsers } from "./users";
-import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getPlainText } from "../components/utils";
+import { getDonatedSubscription, getSubscriptionPoolSize, getUserById, getUserId, getUsers } from "./users";
+import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getPlainText, validSubscription } from "../components/utils";
 import { compress, decompress } from "../components/compression";
 import { getReferencesSearchKeys } from "./references";
 
@@ -610,6 +610,8 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
     const {content, error} = await getContentById(id, userId)
     if(error) return {error}
 
+    await getSubscriptionIfAvailable(userId)
+
     if(!content.reactions || content.reactions.length == 0){
         let reaction = null
         try {
@@ -655,6 +657,8 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
 
 
 export const removeLike = async (id: string, userId: string, entityId?: string) => {
+    await getSubscriptionIfAvailable(userId)
+    
     try {
         await db.reaction.deleteMany({
             where: { 
@@ -675,6 +679,20 @@ export const removeLike = async (id: string, userId: string, entityId?: string) 
     console.log("done removing like")
     return {}
 }
+
+
+
+export async function getSubscriptionIfAvailable(userId: string){
+    const {user} = await getUserById(userId)
+
+    if(!validSubscription(user)){
+        const {poolSize} = await getSubscriptionPoolSize()
+        if(poolSize > 0){
+            await getDonatedSubscription(userId)
+        }
+    }
+}
+
 
 
 export const addView = async (id: string, userId: string) => {
@@ -710,6 +728,8 @@ export const addView = async (id: string, userId: string) => {
     }
 
     if(exists.length == 0 || olderThan(3600)){
+        await getSubscriptionIfAvailable(userId)
+
         try {
             await db.view.create({
                 data: {
