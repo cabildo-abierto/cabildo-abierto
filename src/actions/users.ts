@@ -995,6 +995,11 @@ export async function assignSubscriptions(){
                 }
             }
         },
+        where: {
+            id: {
+                notIn: ["guest", "soporte"]
+            }
+        }
     })
 
     let usersRequiringSubscription = []
@@ -1046,7 +1051,7 @@ export async function assignSubscriptions(){
                 id: available[i].id
             }
         })    
-        //console.log("assigned subscription", available[i].id, "to", usersRequiringSubscription[i].id)
+        console.log("assigned subscription", available[i].id, "to", usersRequiringSubscription[i].id)
     }
 
     revalidateTag("fundingPercentage")
@@ -1116,3 +1121,25 @@ export const getDonationsDistribution = unstable_cache(async () => {
         tags: ["donationsDistribution"]
     }
 )
+
+
+export async function desassignSubscriptions(){
+    await db.subscription.updateMany({
+        data: {
+            usedAt: null,
+            endsAt: null,
+            userId: null
+        }
+    })
+}
+
+
+export async function removeSubscriptions(){
+    await db.subscription.deleteMany({
+        where: {
+            price: {
+                lt: 499
+            }
+        }
+    })
+}

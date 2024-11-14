@@ -658,7 +658,7 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
 
 export const removeLike = async (id: string, userId: string, entityId?: string) => {
     await getSubscriptionIfAvailable(userId)
-    
+
     try {
         await db.reaction.deleteMany({
             where: { 
@@ -683,6 +683,10 @@ export const removeLike = async (id: string, userId: string, entityId?: string) 
 
 
 export async function getSubscriptionIfAvailable(userId: string){
+    if(["guest", "soporte"].includes(userId)){
+        return
+    }
+    
     const {user} = await getUserById(userId)
 
     if(!validSubscription(user)){

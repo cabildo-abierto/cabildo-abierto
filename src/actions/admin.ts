@@ -694,6 +694,45 @@ export async function getAdminStats(){
         subscriptorsByWeek,
         subscriptors: subscriptors.size,
         unrenewed,
-        contentsByUser
+        contentsByUser,
+        lastAccounts: accounts.sort((a, b) => (b.createdAt.getTime() - a.createdAt.getTime())).slice(0, 5)
     }
+}
+
+
+export async function getPaymentsStats(){
+    const accounts = await db.user.findMany({
+        select: {
+            id: true,
+            subscriptionsUsed: true,
+            createdAt: true,
+            views: {
+                select: {
+                    createdAt: true,
+                },
+                where: {
+                    createdAt: {
+                        gte: new Date(2024, 9, 10) // 10 de octubre de 2024. Lanzamiento
+                    },
+                    content: {
+                        type: "EntityContent"
+                    }
+                }
+            },
+            reactions: {
+                select: {
+                    createdAt: true
+                },
+                where: {
+                    createdAt: {
+                        gte: new Date(2024, 9, 10) // 10 de octubre de 2024. Lanzamiento
+                    },
+                    content: {
+                        type: "Post"
+                    }
+                }
+            }
+        }
+    })
+    return {accounts}
 }

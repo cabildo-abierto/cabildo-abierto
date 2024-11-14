@@ -691,3 +691,12 @@ export const shuffleArray = (array) => {
     }
     return newArray;
 }
+
+
+export function formatDate(date: Date) {
+    const day = String(date.getDate()).padStart(2, '0');         // Add leading zero if needed
+    const month = String(date.getMonth() + 1).padStart(2, '0');  // Month is 0-indexed, add 1 and pad
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+}
