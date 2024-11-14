@@ -42,7 +42,7 @@ const WriteButton = () => {
                     
                     <Link href="/escribir/publicacion">
                         <button className="create-btn w-64 flex justify-between items-center" onClick={() => setIsDropdownOpen(false)}>
-                            <div className="flex"><span className="px-1"><PostIcon /></span> Publicación</div> <InfoPanel iconClassName="text-white" className="w-64" text="Con título y sin límite de caracteres."/>
+                            <div className="flex"><span className="px-1"><PostIcon /></span> Publicación</div> <InfoPanel iconClassName="text-white" className="w-64" text={<div>Con título y sin límite de caracteres. Relatá la realidad, compartí tu análisis, o lo que se te ocura y requiera más de 800 caracteres. Va a aparecer en el muro.</div>}/>
                         </button>
                     </Link>
                     
@@ -53,7 +53,7 @@ const WriteButton = () => {
                     
                     {<Link href="/temas">
                         <button className="create-btn w-64 flex justify-between items-center" onClick={() => setIsDropdownOpen(false)}>
-                            <div className="flex text-left"><span className="px-1"><ArticleIcon /></span>Editar un tema</div> <InfoPanel iconClassName="text-white" className="w-64" text="Elegí un tema y agregá información."/>
+                            <div className="flex text-left"><span className="px-1"><ArticleIcon /></span>Editar un tema</div> <InfoPanel iconClassName="text-white" className="w-64" text="Elegí un tema y agregá información o modificá su contenido."/>
                         </button>
                     </Link>}
                 </div>

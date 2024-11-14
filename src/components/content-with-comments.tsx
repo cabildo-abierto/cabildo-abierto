@@ -11,6 +11,7 @@ import { useContent } from "../app/hooks/contents"
 import { createComment } from "../actions/contents"
 import { fetcher } from "../app/hooks/utils"
 import { compress } from "./compression"
+import { CommentSectionCommentEditor } from "./comment-section-comment-editor"
 
 
 type ContentWithCommentsProps = {
@@ -39,8 +40,6 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     depth,
     setEditing}) => {
 
-    const {mutate} = useSWRConfig()
-    const user = useUser()
     const isEntity = content.type == "EntityContent"
     const startsOpen = isMainPage && !editing
     const [viewComments, setViewComments] = useState(startsOpen) 
@@ -58,26 +57,8 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         }
     }, [content])
 
-    const handleNewComment = async (text: string) => {
-        const compressedText = compress(text)
-        const {error, ...newComment} = await createComment(compressedText, user.user.id, content.id, content.parentEntityId)
-        
-        if(error) return {error}
-
-        setComments([newComment as CommentProps, ...comments])
-
-        mutate("/api/replies-feed/"+user.user.id)
-        setViewComments(true)
-
-        return {}
-    }
-
-    const handleCancelComment = () => {
-        setWritingReply(false)
-    }
-
     const depthParity = depth % 2 == 1
-    
+
     const className = "w-full " + (depthParity ? "bg-[var(--content2)]" : "bg-[var(--content)]") +
         (isMainPage ? "" : " rounded") + (content.type == "Post" && !isMainPage ? " hover:bg-[var(--secondary-light)]" : "") + ((depth == 0 && !isMainPage) ? " border-b-2 border-r-2" : "") + (isMainPage ? "" : " border")
 
@@ -101,16 +82,15 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
         />
         {isMainPage && ["Post", "EntityContent"].includes(content.type) && !editing && <hr className="mt-12 mb-2" id="discussion-start"/>}
         <div className={isMainPage ? "" : "ml-2 mr-1"}>
-            {writingReply && <div className={"mb-1 " + (depthComments % 2 == 1 ? "bg-[var(--content2)]" : "bg-[var(--content)]")}>
-                {startsOpen ? <CommentEditor
-                        onSubmit={handleNewComment}
-                    /> : 
-                    <CommentEditor
-                        onSubmit={handleNewComment}
-                        onCancel={handleCancelComment}
-                    />
-                }
-            </div>}
+            {writingReply && <CommentSectionCommentEditor
+                content={content}
+                comments={comments}
+                setComments={setComments}
+                setViewComments={setViewComments}
+                setWritingReply={setWritingReply}
+                startsOpen={startsOpen}
+                depth={depthComments}
+            />}
             {viewComments &&  
             (!isEntity ? <CommentSection
                 content={content}

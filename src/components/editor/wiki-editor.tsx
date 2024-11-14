@@ -96,9 +96,9 @@ type WikiEditorProps = {
     content: {
         compressedText?: string
         id: string
+        type: string
         charsAdded: number
         charsDeleted: number
-        type: string
         diff: string
         title?: string
         parentEntityId?: string
@@ -121,6 +121,8 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
     const [editingSearchkeys, setEditingSearchkeys] = useState(false)
     const {entities} = useRouteEntities([])
     const {users} = useUsers()
+
+    console.log("editor", editorState ? editorState.toJSON() : "")
 
     const user = useUser()
     
@@ -239,7 +241,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         </div>
         <div id="editor">
             {(((!showingChanges || version == 0) && !showingAuthors)) && 
-            <div className="px-2 min-h-64" key={content.id+readOnly}>
+            <div className="px-2" key={content.id+readOnly}>
                 <MyLexicalEditor
                 settings={wikiEditorSettings(readOnly, content, contentText)}
                 setEditor={setEditor}

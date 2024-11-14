@@ -451,13 +451,14 @@ export function nodesEqual(node1: any, node2: any){
     }
     const keys1 = Object.keys(node1);
     const keys2 = Object.keys(node2);
-  
+
     if (keys1.length !== keys2.length) {
       return false;
     }
   
     function keyEquals(key: string){
         if(key == "children"){
+            if(node1.children.length != node2.children.length) return false
             for(let i = 0; i < node1.children.length; i++){
                 if(!nodesEqual(node1.children[i], node2.children[i])){
                     return false
@@ -485,7 +486,8 @@ export function hasChanged(state: EditorState | undefined, initialData: string){
     const json1 = state.toJSON()
     try {
         const json2 = JSON.parse(initialData)
-        return !nodesEqual(json1.root, json2.root)
+        const equal = nodesEqual(json1.root, json2.root)
+        return !equal
     } catch {
         return !emptyOutput(state)
     }

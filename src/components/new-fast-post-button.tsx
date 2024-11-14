@@ -38,7 +38,7 @@ export const NewFastPostButton = ({onClick, className="", textClassName="", info
         {showInfoPanel && <InfoPanel
             iconClassName={infoPanelIconClassName}
             className="w-64"
-            text="Caracteres y formato limitados. Sin título."
+            text={<div><p className="font-bold">Cortita y al pie</p>Máximo 800 caracteres y formato limitado. Sin título. Va a aparecer en el muro.</div>}
         />}
     </button>
     {isModalOpen && <CreateFastPostModal onClose={() => setIsModalOpen(false)} />}

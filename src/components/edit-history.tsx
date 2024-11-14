@@ -248,9 +248,9 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                             />
                         </div>
 
-                        <div className="text-[var(--text-light)] hover:underline" onClick={(e) => {e.stopPropagation(); e.preventDefault(); router.push("/articulo?i=" + entity.id + "&v=" + index + "&c=true")}}>
+                        {index > 0 && <div className="text-[var(--text-light)] hover:underline" onClick={(e) => {e.stopPropagation(); e.preventDefault(); router.push("/articulo?i=" + entity.id + "&v=" + index + "&c=true")}}>
                             Ver cambios
-                        </div>
+                        </div>}
 
                         {entity.versions[index].editMsg && 
                             <EditMessage

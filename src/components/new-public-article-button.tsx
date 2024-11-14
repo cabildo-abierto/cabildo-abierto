@@ -31,7 +31,7 @@ export const NewPublicArticleButton = ({onClick, className="", textClassName="",
         {showInfoPanel && <InfoPanel
             iconClassName={infoPanelIconClassName}
             className="w-64"
-            text="Un tema de discusión. Cualquiera puede editar su contenido."
+            text={<div><p className="font-bold">Un tema de discusión</p> Una vez creado cualquiera puede editar su contenido informativo y se empiezan a reunir todas las publicaciones sobre eso en la página del tema. Aparece en el panel deslizante de <span className="italic">En discusión</span></div>}
         />}
     </button>
     {isModalOpen && <CreateArticleModal onClose={() => setIsModalOpen(false)} />}

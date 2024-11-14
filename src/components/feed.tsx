@@ -26,6 +26,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
                 content={feed.feed[index]}
                 inCommentSection={false}
                 inItsOwnCommentSection={false}
+                depth={0}
             />,
             key: feed.feed[index].id
         }

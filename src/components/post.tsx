@@ -27,12 +27,16 @@ export const Post: React.FC<{
 }> = ({content}) => {
 
     return <div className="px-1">
-        <div className="content">
+
+        <div className="text-[var(--text-light)] text-sm mt-1 mb-2">
+            Publicación
+        </div>
+        <div className="">
             <h1 className="sm:text-xl text-lg">{content.title}</h1>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between mt-4">
             <div className="sm:space-x-1 text-sm sm:text-base flex flex-col sm:flex-row">
-                <span><Authorship content={content}/>, <DateSince date={content.createdAt}/>.</span>
+                <span><Authorship content={content} onlyAuthor={true}/>, <DateSince date={content.createdAt}/>.</span>
                 <span className="first-letter:capitalize"><TextViewsCounter content={content}/>.</span>
             </div>
             <div className="flex items-center">

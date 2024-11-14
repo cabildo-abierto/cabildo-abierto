@@ -135,7 +135,7 @@ export type EntityVersionProps = {
     charsDeleted: number
     contribution: string
     childrenContents: CommentProps[]
-    diff?: string
+    diff: string
     claimsAuthorship: boolean,
     undos: {
         id: string
