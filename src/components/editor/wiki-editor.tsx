@@ -122,8 +122,6 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
     const {entities} = useRouteEntities([])
     const {users} = useUsers()
 
-    console.log("editor", editorState ? editorState.toJSON() : "")
-
     const user = useUser()
     
     if(version == null || version >= entity.versions.length || version < 0){

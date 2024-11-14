@@ -96,6 +96,17 @@ export default async function Page() {
 
         <div className="mt-8">
             <h3>
+                Últimas cuentas creadas
+            </h3>
+            {stats.lastAccounts.map((u, index) => {
+                return <div key={index}>
+                    {u.id}
+                </div>
+            })}
+        </div>
+
+        <div className="mt-8">
+            <h3>
                 Contenidos por usuario
             </h3>
             {stats.contentsByUser.map((u, index) => {

@@ -168,34 +168,34 @@ export const Authorship = ({content, onlyAuthor=false}: {content: {author: {id: 
 
 type ContentComponentProps = {
     content: ContentProps
-    onViewComments: () => void
+    onViewComments?: () => void
     isMainPage?: boolean
-    viewingComments: boolean
-    onStartReply: () => void
+    viewingComments?: boolean
+    onStartReply?: () => void
     showingChanges?: boolean
     showingAuthors?: boolean
     editing?: boolean
     setEditing: (arg0: boolean) => void
     parentContentId?: string
-    inCommentSection: boolean
-    inItsOwnCommentSection: boolean
+    inCommentSection?: boolean
+    inItsOwnCommentSection?: boolean
     depth?: number
 }
 
 
 const ContentComponent: React.FC<ContentComponentProps> = ({
     content,
-    onViewComments,
-    viewingComments,
-    onStartReply,
+    onViewComments = () => {},
+    viewingComments = true,
+    onStartReply = () => {},
     isMainPage = false,
     showingChanges = false,
     showingAuthors = false,
     editing = false,
     setEditing,
     parentContentId,
-    inCommentSection,
-    inItsOwnCommentSection,
+    inCommentSection = false,
+    inItsOwnCommentSection = false,
     depth,
 }) => {
     const { user } = useUser();
@@ -203,7 +203,6 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     const [validVisit, setValidVisit] = useState(true);
     const contentRef = useRef(null); // For Intersection Observer
     const requiresMainPage = content.type === 'Post' || content.type === 'EntityContent';
-
     
     const useVisibility = (ref) => {
         const [isVisible, setIsVisible] = useState(false);
@@ -223,7 +222,6 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
     };
 
     const isVisible = useVisibility(contentRef);
-
 
     // Trigger view recording when content is visible and valid
     useEffect(() => {
@@ -331,5 +329,6 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
         </>
     );
 };
+
 
 export default ContentComponent;

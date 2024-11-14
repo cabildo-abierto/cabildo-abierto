@@ -31,6 +31,39 @@ import EntityComponent from "./entity-component";
 import { EntityCommentSection } from "./comment-section";
 import { CommentSectionCommentEditor } from "./comment-section-comment-editor";
 import { ArticleDiscussion } from "./article-discussion";
+import LoadingSpinner from "./loading-spinner";
+import { useContent } from "../app/hooks/contents";
+import ContentComponent from "./content";
+
+
+
+export const ContentComponentFromId = ({
+    contentId,
+    ...props
+}: {
+    contentId: string
+    onViewComments?: () => void
+    isMainPage?: boolean
+    viewingComments?: boolean
+    onStartReply?: () => void
+    showingChanges?: boolean
+    showingAuthors?: boolean
+    editing?: boolean
+    setEditing: (arg0: boolean) => void
+    parentContentId?: string
+    inCommentSection?: boolean
+    inItsOwnCommentSection?: boolean
+    depth?: number
+}) => {
+    const {content} = useContent(contentId)
+    if(!content) return <LoadingSpinner/>
+
+    return <ContentComponent
+        content={content}
+        {...props}
+    />
+}
+
 
 
 const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
@@ -348,22 +381,20 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
         </div>}
 
         <div className="mt-4">
-        {selectedPanel == "editing" && <WikiEditor
-            content={{...entity.entity.versions[version], type: "EntityContent", parentEntityId: entity.entity.id}}
-            entity={entity.entity}
-            version={version}
+        {selectedPanel == "editing" && <ContentComponentFromId
+            contentId={contentId}
+            isMainPage={true}
             showingChanges={false}
             showingAuthors={false}
-            readOnly={false}
+            editing={true}
             setEditing={setEditing}
         />}
-        {selectedPanel != "editing" && <WikiEditor
-            content={{...entity.entity.versions[version], type: "EntityContent", parentEntityId: entity.entity.id}}
-            entity={entity.entity}
-            version={version}
+        {selectedPanel != "editing" && <ContentComponentFromId
+            contentId={contentId}
+            isMainPage={true}
             showingChanges={selectedPanel == "changes"}
             showingAuthors={selectedPanel == "authors"}
-            readOnly={true}
+            editing={false}
             setEditing={setEditing}
         />}
         </div>

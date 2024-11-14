@@ -5,7 +5,7 @@ import { updateAllUniqueCommentators, notifyAllMentions, deleteUser } from "../.
 import { recomputeEntityContributions } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments } from "../../actions/payments"
 import { updateAllReferences, updateAllWeakReferences } from "../../actions/references"
-import { addDonatedSubscriptionsManually, assignSubscriptions, buySubscriptions, recoverSubscriptions } from "../../actions/users"
+import { addDonatedSubscriptionsManually, assignSubscriptions, buySubscriptions, desassignSubscriptions, recoverSubscriptions, removeSubscriptions } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
@@ -48,6 +48,16 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await recomputeEntityContributions("C%C3%B3digo_Procesal_Civil_y_Comercial_de_la_Naci%C3%B3n")}}>
                 Recalcular contribuciones entidad
             </button>
+
+
+            <button className="gray-btn" onClick={async (e) => {desassignSubscriptions()}}>
+                Desasignar suscripciones
+            </button>
+
+            <button className="gray-btn" onClick={async (e) => {removeSubscriptions()}}>
+                Eliminar suscripciones
+            </button>
+
 
             <button className="gray-btn" onClick={async () => {await assignSubscriptions()}}>
                 Asignar suscripciones
