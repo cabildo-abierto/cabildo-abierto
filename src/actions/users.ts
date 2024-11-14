@@ -540,8 +540,7 @@ export async function getDonatedSubscription(userId: string) {
     try {
         subscription = await db.subscription.findFirst({
             where: {
-                usedAt: null,
-                isDonation: true
+                usedAt: null
             }
         })
     } catch {
@@ -569,6 +568,7 @@ export async function getDonatedSubscription(userId: string) {
         }
         revalidateTag("user:"+userId)
         revalidateTag("poolsize")
+        revalidateTag("fundingProgress")
         return {}
     }
 }
