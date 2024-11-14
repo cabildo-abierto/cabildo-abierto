@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from "react"
-
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { preload, useSWRConfig } from "swr";
 import Link from "next/link";
 import StateButton from "./state-button";
@@ -16,7 +16,7 @@ import { SetProtectionButton } from "./protection-button";
 import { ThreeColumnsLayout } from "./three-columns";
 import { articleUrl, currentVersion, hasEditPermission, inRange, isUndo } from "./utils";
 import { UndoDiscussion } from "./undo-discussion";
-import { articleButtonClassname } from "./editor/wiki-editor";
+import WikiEditor, { articleButtonClassname } from "./editor/wiki-editor";
 import { fetcher } from "../app/hooks/utils";
 import { LoadingScreen } from "./loading-screen";
 import NoEntityPage from "./no-entity-page";
@@ -27,6 +27,10 @@ import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
 import { updateAllWeakReferences } from "../actions/references";
 import { deleteEntity, deleteEntityHistory, makeEntityPublic } from "../actions/admin";
 import { BaseFullscreenPopup } from "./base-fullscreen-popup";
+import EntityComponent from "./entity-component";
+import { EntityCommentSection } from "./comment-section";
+import { CommentSectionCommentEditor } from "./comment-section-comment-editor";
+import { ArticleDiscussion } from "./article-discussion";
 
 
 const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
@@ -268,28 +272,15 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
     const lastUpdated = entity.entity.versions[entity.entity.versions.length-1].createdAt
 
-    const center = <div className="h-full px-2">
-        {showingNeedAccountPopup && <NeedAccountToEditPopup 
-        onClose={() => {setShowingNeedAccountPopup(false)}}/>}
-        <div className="flex justify-end mt-4">
-            {selectedPanel != "editing" && <button className="gray-btn sm:text-base text-sm" onClick={onGoToDiscussion}>
-                Ir a la discusión <ArrowDownwardIcon fontSize="inherit"/>
-            </button>}
-        </div>
-        <div className="flex flex-col">
-            <div className="text-[var(--text-light)] text-sm mt-1 mb-2">
-                Tema
-            </div>
-            <h1 className="mb-8 text-lg sm:text-2xl">
-                {entity.entity.name}
-            </h1>
-        </div>
-        <div className="flex justify-between items-center">
+    const titleFontSize = entity.entity.name.length > 60 ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl"
+
+    const info = <>
+    <div className="flex justify-between items-center">
             {selectedPanel != "editing" && <div className="flex flex-col link text-xs sm:text-sm">
                 
-                {isCurrent && <span className="text-[var(--text-light)]">
-                    Últ. actualización <DateSince date={lastUpdated}/>.
-                </span>}
+                <span className="text-[var(--text-light)] mt-2 flex items-center">
+                    <div className="mr-1 flex items-center"><AccessTimeIcon fontSize="inherit"/></div> <span>Última actualización <DateSince date={lastUpdated}/>.</span>
+                </span>
 
                 {!isCurrent && <div className="flex text-[var(--text-light)]">
                     <span className="mr-1">Estás viendo la versión {version} (publicada <DateSince date={entity.entity.versions[version].createdAt}/>).</span>
@@ -299,6 +290,7 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
             </div>}
         </div>
+
         <div className="">
         {selectedPanel != "editing" && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">
             {isCurrent && <EditButton/>}
@@ -331,6 +323,7 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
                 </>
             }
         </div>}
+
         </div>
         {selectedPanel == "categories" && <div className="px-2 content-container my-2">
             <EntityCategories
@@ -355,26 +348,68 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
         </div>}
 
         <div className="mt-4">
-        {selectedPanel == "editing" && <ContentWithCommentsFromId
-            contentId={contentId}
+        {selectedPanel == "editing" && <WikiEditor
+            content={{...entity.entity.versions[version], type: "EntityContent", parentEntityId: entity.entity.id}}
+            entity={entity.entity}
+            version={version}
             showingChanges={false}
             showingAuthors={false}
-            editing={true}
+            readOnly={false}
             setEditing={setEditing}
-            isMainPage={true}
-            inCommentSection={false}
         />}
-        {selectedPanel != "editing" && <ContentWithCommentsFromId
-            contentId={contentId}
+        {selectedPanel != "editing" && <WikiEditor
+            content={{...entity.entity.versions[version], type: "EntityContent", parentEntityId: entity.entity.id}}
+            entity={entity.entity}
+            version={version}
             showingChanges={selectedPanel == "changes"}
             showingAuthors={selectedPanel == "authors"}
-            editing={false}
+            readOnly={true}
             setEditing={setEditing}
-            isMainPage={true}
-            inCommentSection={false}
         />}
         </div>
+    
+    </>
 
+    const center = <div className="flex flex-col items-center w-full">
+        <div className="w-full mt-8">
+            {showingNeedAccountPopup && <NeedAccountToEditPopup 
+            onClose={() => {setShowingNeedAccountPopup(false)}}/>}
+
+            <div className="flex flex-col rounded content-container p-4 mb-8">
+                <div className="text-[var(--text-light)] text-sm mt-1 mb-2">
+                    Tema
+                </div>
+                <h1 className={" " + titleFontSize}>
+                    {entity.entity.name}
+                </h1>
+            </div>
+        </div>
+        <div className="w-full border rounded-lg content-container p-4 mb-8" id="information-start">
+            <div className="flex justify-between mb-2">
+                <div>
+                    <h2 className="">
+                        Información
+                    </h2>
+                </div>
+
+                <div className="">
+                    {selectedPanel != "editing" && <button className="flex items-center space-x-2 w-full sm:text-base text-sm bg-[var(--secondary-light)] text-gray-700 rounded px-1" onClick={onGoToDiscussion}>
+                        <div className="flex items-center">Discusión</div> <ArrowDownwardIcon fontSize="inherit"/>
+                    </button>}
+                </div>
+            </div>
+            <div className="text-[var(--text-light)] text-xs sm:text-sm">
+                El consenso fáctico sobre el tema. Si no estás de acuerdo con algo editalo o comentá. También podés agregar información.
+            </div>
+            {info}
+        </div>
+        {selectedPanel != "editing" && <div className="w-full" id="discussion-start">
+            <ArticleDiscussion
+                contentId={contentId}
+                entity={entity.entity}
+                version={version}
+            />
+        </div>}
     </div>
     
     return <>

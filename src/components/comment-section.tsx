@@ -146,7 +146,7 @@ type CommentSectionProps = {
 export const CommentSection: React.FC<CommentSectionProps> = ({
     content, comments, entity, writingReply, depth}) => {
     
-    if(!comments) return <></>
+    if(comments == undefined) return <></>
 
     let feed: CommentSectionElementProps[] = entity ? 
         getEntityComments(entity, comments, true) : 
