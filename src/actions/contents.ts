@@ -6,8 +6,8 @@ import { db } from "../db";
 import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { getEntities } from "./entities";
 import { ContentProps } from "../app/lib/definitions";
-import { getDonatedSubscription, getSubscriptionPoolSize, getUserById, getUserId, getUsers } from "./users";
-import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getPlainText, validSubscription } from "../components/utils";
+import { getUserId, getUsers } from "./users";
+import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
 import { getReferencesSearchKeys } from "./references";
 
@@ -674,23 +674,6 @@ export const removeLike = async (id: string, userId: string, entityId?: string) 
 
     console.log("done removing like")
     return {}
-}
-
-
-
-export async function getSubscriptionIfAvailable(userId: string){
-    if(["guest", "soporte"].includes(userId)){
-        return
-    }
-    
-    const {user} = await getUserById(userId)
-
-    if(!validSubscription(user)){
-        const {poolSize} = await getSubscriptionPoolSize()
-        if(poolSize > 0){
-            await getDonatedSubscription(userId)
-        }
-    }
 }
 
 

@@ -132,7 +132,11 @@ export const recomputeEntityContributions = async (entityId: string): Promise<{e
                 diff: JSON.stringify({matches: [], common: [], bestMatches: []})
             }
         } else {
-            const {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(texts[i-1], texts[i])
+            const diff = charDiffFromJSONString(texts[i-1], texts[i])
+            if(diff == null){
+                return {error: "couldn't compute char diff between versions " + (i-1) + " " + i}
+            }
+            const {charsAdded, charsDeleted, matches, common, perfectMatches} = diff
 
             const accCharsAdded = lastAccCharsAdded + charsAdded
 

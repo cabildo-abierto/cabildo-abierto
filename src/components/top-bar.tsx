@@ -62,7 +62,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
         }
     }, [])
 
-    const searchBarAvailable = !user.user || validSubscription(user.user)
+    const searchBarAvailable = true
     
     return <div className="flex items-center w-screen justify-between">
         <div className="flex items-center sm:w-72 text-gray-900">

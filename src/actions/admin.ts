@@ -192,7 +192,10 @@ export async function recomputeAllContributions(){
     for(let i = 0; i < entities.length; i++){
         console.log("recomputing contributions for", entities[i].name)
         const t1 = Date.now()
-        await recomputeEntityContributions(entities[i].id)
+        const {error} = await recomputeEntityContributions(entities[i].id)
+        if(error){
+            console.log("error", error)
+        }
         console.log("Done in ", Date.now()-t1)
     }
 }
