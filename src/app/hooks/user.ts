@@ -101,8 +101,8 @@ export function useSupportNotRespondedCount(): {count: number, isLoading: boolea
 
 
 export function useNotifications(): {notifications: NotificationProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/notifications', fetcher, { refreshInterval: 5*60*1000 })
-  
+    const { data, error, isLoading } = useSWR('/api/notifications', fetcher)
+    
     return {
         notifications: data,
         isLoading: isLoading,

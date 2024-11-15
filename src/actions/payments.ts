@@ -7,7 +7,8 @@ import { accessToken, contributionsToProportionsMap, isDemonetized } from "../co
 import { getUserById } from "./users";
 import { pathLogo } from "../components/logo";
 import MercadoPagoConfig, { Preference } from "mercadopago";
-import { UserProps } from "../app/lib/definitions";
+import { SubscriptionProps, UserMonthDistributionProps, UserProps } from "../app/lib/definitions";
+import { getPaymentsStats } from "./admin";
 
 
 
@@ -122,13 +123,22 @@ export async function createPaymentPromisesForEntityView(view: {content: {id: st
 
 
 export async function createPaymentPromisesForEntityViews(user: UserProps, amount: number, start: Date, end: Date, subscriptionId: string){
-    const entityViews = await db.view.findMany({
+    let entityViews = await db.view.findMany({
         select: {
             content: {
                 select: {
                     id: true,
                     authorId: true,
-                    createdAt: true
+                    createdAt: true,
+                    parentEntity: {
+                        select: {
+                            versions: {
+                                select: {
+                                    authorId: true
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -137,11 +147,26 @@ export async function createPaymentPromisesForEntityViews(user: UserProps, amoun
             content: {
                 type: "EntityContent"
             },
-            createdAt: {
-                gte: start
-            }
+            AND: [
+                {
+                    createdAt: {
+                        gte: start
+                    }
+                },
+                {
+                    createdAt: {
+                        lt: end
+                    }
+                }
+            ]
         }
     })
+
+    function notEntityAuthor(e){
+        return !e.content.parentEntity.versions.some((v) => (v.authorId == user.id))
+    }
+
+    entityViews = entityViews.filter(notEntityAuthor)
 
     const viewValue = amount / entityViews.length
 
@@ -191,46 +216,12 @@ export async function createPaymentPromisesForContentReactions(user: UserProps, 
 }
 
 
-export async function createPaymentPromises(){
-    const curDate = new Date()
-
-    const subscriptions = await db.subscription.findMany({
-        select: {
-            id: true,
-            usedAt: true,
-            endsAt: true,
-            userId: true,
-            boughtByUserId: true,
-            createdAt: true,
-            price: true
-        },
-        where: {
-            price: {
-                gt: 0
-            },
-            usedAt: {
-                not: null
-            },
-            endsAt: {
-                lt: curDate
-            },
-            promisesCreated: false
-        }
-    })
-
-    console.log("ended subscriptions found", subscriptions.length)
-    for(let i = 0; i < subscriptions.length; i++){
-        const s = subscriptions[i]
-        await createPromises(s.userId, s.price*0.64, s.usedAt, s.endsAt, s.id)
-    }
-}
-
-
 export async function createPromises(userId: string, amount: number, start: Date, end: Date, subscriptionId: string){
     const {user, error} = await getUserById(userId)
     if(error) return {error}
 
-    console.log("creating promises by user", user.id, "with total value", amount, "between", start, "and", end)
+    console.log("creating promises by user", userId, "with total value", amount, "between", start, "and", end)
+
     await createPaymentPromisesForEntityViews(user, amount*0.5, start, end, subscriptionId)
     await createPaymentPromisesForContentReactions(user, amount*0.5, start, end, subscriptionId)
 
@@ -238,7 +229,7 @@ export async function createPromises(userId: string, amount: number, start: Date
 }
 
 
-export async function reassignPromise(p: {id: string, amount: number, subscription: {id: string, userId: string, usedAt: Date, endsAt: Date}}) {
+export async function reassignPromise(p: {id: string, amount: number, subscription: SubscriptionProps}) {
     await db.paymentPromise.update({
         data: {
             status: "Canceled"
@@ -247,7 +238,7 @@ export async function reassignPromise(p: {id: string, amount: number, subscripti
             id: p.id
         }
     })
-    await createPromises(p.subscription.userId, p.amount, p.subscription.usedAt, p.subscription.endsAt, p.subscription.id)
+    // TO DO: Implement
 }
 
 
@@ -256,15 +247,7 @@ export async function confirmPayments() {
         select: {
             id: true,
             amount: true,
-            subscription: {
-                select: {
-                    price: true,
-                    userId: true,
-                    usedAt: true,
-                    endsAt: true,
-                    id: true
-                }
-            },
+            subscription: true,
             content: {
                 select: {
                     stallPaymentUntil: true,
@@ -304,5 +287,34 @@ export async function confirmPayments() {
                 })
             }
         }
+    }
+}
+
+
+
+
+export async function createPaymentPromises(){
+    const {userMonths} = await getPaymentsStats()
+
+    const subscriptions = await db.subscription.findMany({
+        where: {
+            userId: null
+        }
+    })
+
+    if(subscriptions.length == 0){
+        return
+    }
+
+    console.log("Subscriptions available", subscriptions.length)
+
+    for(let i = 0; i < userMonths.length; i++){
+        if(i >= subscriptions.length) {
+            console.log("Ran out of subscriptions")
+            break
+        }
+        const subscription = subscriptions[i]
+        await createPromises(userMonths[i].userId, subscription.price, userMonths[i].start, userMonths[i].end, subscription.id)
+        break
     }
 }

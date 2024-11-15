@@ -6,7 +6,7 @@ import { NotificationComponent } from "./notification"
 
 export const NotificationsPanel = ({onClose}: {onClose: () => void}) => {
     const notifications = useNotifications()
-    
+
     const nots = notifications.notifications
     return <div className="mb-8 bg-[var(--background)]">
         <div className="justify-end sm:hidden flex">

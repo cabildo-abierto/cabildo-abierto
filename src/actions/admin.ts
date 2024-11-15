@@ -7,8 +7,10 @@ import { EditorStatus } from "@prisma/client";
 import { getUser } from "./users";
 import { compress, decompress } from "../components/compression";
 import { getEntityById, updateEntityCurrentVersion, recomputeEntityContributions, getEntities } from "./entities";
-import { validSubscription } from "../components/utils";
+import { launchDate, subscriptionEnds, validSubscription } from "../components/utils";
 import { isSameDay } from "date-fns";
+import { createPaymentPromises, createPromises } from "./payments";
+import { UserMonthDistributionProps } from "../app/lib/definitions";
 
 
 export const deleteEntityHistory = async (entityId: string, includeLast: boolean) => {
@@ -708,11 +710,25 @@ export async function getPaymentsStats(){
             createdAt: true,
             views: {
                 select: {
+                    id: true,
                     createdAt: true,
+                    content: {
+                        select: {
+                            parentEntity: {
+                                select: {
+                                    versions: {
+                                        select: {
+                                            authorId: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
                 where: {
                     createdAt: {
-                        gte: new Date(2024, 9, 10) // 10 de octubre de 2024. Lanzamiento
+                        gte: launchDate
                     },
                     content: {
                         type: "EntityContent"
@@ -721,18 +737,69 @@ export async function getPaymentsStats(){
             },
             reactions: {
                 select: {
+                    id: true,
                     createdAt: true
                 },
                 where: {
                     createdAt: {
-                        gte: new Date(2024, 9, 10) // 10 de octubre de 2024. Lanzamiento
+                        gte: launchDate
                     },
                     content: {
                         type: "Post"
                     }
                 }
             }
+        },
+        where: {
+            id: {
+                notIn: ["soporte", "guest"]
+            }
         }
     })
-    return {accounts}
+
+    const userMonths: UserMonthDistributionProps[] = []
+
+    accounts.forEach((a, index) => {
+        const launch = launchDate
+        let date = launch > a.createdAt ? launch : a.createdAt
+        let monthEnds = [date]
+        const today = new Date()
+        while(date < today){
+            date = subscriptionEnds(date)
+            if(date < today)
+                monthEnds.push(date)
+        }
+
+        for(let i = 1; i < monthEnds.length; i++){
+            const start = monthEnds[i-1]
+            const end = monthEnds[i]
+
+            const viewsOnMonth: {createdAt: Date, id: string}[] = []
+            a.views.forEach((v) => {
+                if(v.createdAt < end && v.createdAt >= start){
+                    const versions = v.content.parentEntity.versions
+                    if(!versions.some((v) => (v.authorId == a.id))){
+                        viewsOnMonth.push(v)
+                    }
+                }
+            })
+
+            const reactionsOnMonth: {createdAt: Date, id: string}[] = []
+            a.reactions.forEach((r) => {
+                if(r.createdAt < end && r.createdAt >= start){
+                    reactionsOnMonth.push(r)
+                }
+            })
+            
+            userMonths.push({
+                userId: a.id,
+                reactions: reactionsOnMonth,
+                views: viewsOnMonth,
+                start: start,
+                end: end
+            })
+        }
+    })
+
+    return {userMonths}
 }
