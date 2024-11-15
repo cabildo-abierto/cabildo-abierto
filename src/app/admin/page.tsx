@@ -6,9 +6,14 @@ import { recomputeEntityContributions } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments } from "../../actions/payments"
 import { updateAllReferences, updateAllWeakReferences } from "../../actions/references"
 import { addDonatedSubscriptionsManually, assignSubscriptions, buySubscriptions, desassignSubscriptions, recoverSubscriptions, removeSubscriptions } from "../../actions/users"
+import { Logo } from "../../components/logo"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
+
+import React from 'react';
+import QRCode from 'react-qr-code';
+
 
 
 
@@ -22,7 +27,7 @@ export default function Page() {
     const userId = "prueba2"
     const entityId = "Proyecto_de_ley_S984%2F24%3A_Financiamiento_de_la_educaci%C3%B3n_universitaria"
 
-    const center = <div className="flex flex-col items-center mt-8">
+    let center = <div className="flex flex-col items-center mt-8">
         <h1>Panel de administrador</h1>
         <div className="py-8 flex flex-col items-center space-y-2 w-64 text-center">
             
@@ -147,6 +152,24 @@ export default function Page() {
                 Views en entidades día
             </button>
 
+        </div>
+    </div>
+
+    center = <div className="flex flex-col items-center bg-white border p-16">
+        <div className="mb-16 flex flex-col items-center">
+            <div className="">
+                <Logo className="lg:w-28 lg:h-28 h-16 w-16"/>
+            </div>
+            <div className="ml-4 flex h-full items-center mt-4 justify-center flex-col">
+                <h1 className="lg:text-5xl text-[1.7rem]">Cabildo Abierto</h1>
+                <h2 className="text-gray-600 text-xl lg:text-3xl sm:mt-2 my-0 py-0">
+                    Discutí lo público
+                </h2>
+            </div>
+        </div>
+        <QRCode value="https://www.cabildoabierto.com.ar" size={300}/>
+        <div className="text-xl mt-4">
+            www.cabildoabierto.com.ar
         </div>
     </div>
 

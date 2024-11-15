@@ -68,7 +68,9 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
         preload("/api/content/"+content.id, fetcher)
     }
 
-    const optionList = user && (content.author.id == user.id || user.editorStatus == "Administrator") ? ["edit"] : []
+    const optionList = ["share"]
+    if(user && (content.author.id == user.id || user.editorStatus == "Administrator"))
+        optionList.push("edit")
 
     if(user && user.editorStatus == "Administrator"){
         optionList.push("delete")

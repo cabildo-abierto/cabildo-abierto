@@ -63,6 +63,7 @@ export const FastPost = ({
     }
 
     return <div className="">
+        {isMainPage && <div className="text-[var(--text-light)] text-sm w-full text-center">Publicación rápida</div>}
         {inCommentSection && <div className={contentContextClassName}><FastPostIcon fontSize="inherit"/> Publicación rápida</div>}
         <ContentTopRow content={content} icon={icon} showOptions={true} onShowFakeNews={onShowFakeNews} showFakeNewsCounter={true} optionList={optionList}/>
         <div className="px-2 py-2 content text-sm sm:text-base">

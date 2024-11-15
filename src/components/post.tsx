@@ -6,6 +6,8 @@ import { ActivePraiseIcon, InactivePraiseIcon } from "./icons";
 import { DateSince } from "./date";
 import { decompress } from "./compression";
 import { CommentProps } from "../app/lib/definitions";
+import { useUser } from "../app/hooks/user";
+import { ContentOptionsButton } from "./content-options-button";
 
 export const Post: React.FC<{
     content: {
@@ -25,11 +27,22 @@ export const Post: React.FC<{
         childrenContents: CommentProps[]
     }
 }> = ({content}) => {
+    const {user} = useUser()
+
+    const optionList = ["share"]
+    if(user && (content.author.id == user.id || user.editorStatus == "Administrator"))
+        optionList.push("edit")
 
     return <div className="px-1">
 
-        <div className="text-[var(--text-light)] text-sm mt-1 mb-2">
-            Publicación
+        <div className="flex justify-between">
+            <div className="text-[var(--text-light)] text-sm mt-1 mb-2">
+                Publicación
+            </div>
+            
+            {optionList.length > 0 && <div className="flex">
+                <ContentOptionsButton content={content} optionList={optionList}/>
+            </div>}
         </div>
         <div className="">
             <h1 className="sm:text-xl text-lg">{content.title}</h1>
