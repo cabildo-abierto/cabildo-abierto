@@ -146,7 +146,7 @@ export const Comment = ({
     }
     return <div className="">
         <ContentTopRow content={content} icon={icon} showOptions={true} optionList={optionList}/>
-        <div className="px-2 my-2 ml-2 content">
+        <div className="px-2 my-2 ml-2 content text-sm sm:text-base">
             {content.parentContents && <CommentQuote content={content}/>}
             <ReadOnlyEditor initialData={decompress(content.compressedText)} editorClassName={"content" + (content.type == "Comment" ? " comment" : "")}/>
         </div>
