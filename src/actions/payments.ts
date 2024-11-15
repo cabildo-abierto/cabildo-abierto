@@ -355,8 +355,6 @@ export async function createPaymentPromises(){
         }
     })
 
-    users = users.filter((u) => (u.id == "TheRasmuz"))
-
     let j = 0
     for(let i = 0; i < users.length; i++){
         if(j >= subscriptions.length) {
@@ -371,6 +369,10 @@ export async function createPaymentPromises(){
         const nextSubscriptionStart = users[i].subscriptionsUsed.length > 0 ? users[i].subscriptionsUsed[users[i].subscriptionsUsed.length-1].endsAt : creation
 
         const nextSubscriptionEnd = subscriptionEnds(nextSubscriptionStart)
+
+        if(nextSubscriptionEnd > new Date()){
+            continue
+        }
 
         console.log("User", userId)
         console.log("Current subscriptions", users[i].subscriptionsUsed.length)
