@@ -128,12 +128,12 @@ model PaymentPromise {
   subscription   Subscription  @relation(fields: [subscriptionId], references: [id])
   subscriptionId String
 
-  amount         Float // quizás hay que tener cuidado con errores numéricos
+  amount         Float // errores numéricos?
 
   contentId      String
   content        Content  @relation(fields: [contentId], references: [id])
 
-  status      PromiseStatus  @default(Pending) // true cuando el contenido pasó su período de gracia
+  status         PromiseStatus  @default(Pending) // true cuando el contenido pasó su período de gracia
 
   @@schema("public")
 }

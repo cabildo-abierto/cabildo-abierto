@@ -6,7 +6,7 @@ import { updateAllReferences, updateAllWeakReferences } from "../../actions/refe
 import { assignSubscriptions, buySubscriptions, desassignSubscriptions, getUser, recoverSubscriptions } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
-import { formatDate, subscriptionEnds } from "../../components/utils"
+import { formatDate, launchDate, subscriptionEnds } from "../../components/utils"
 
 
 export default async function Page() {
@@ -16,59 +16,17 @@ export default async function Page() {
         return <NotFoundPage/>
     }
 
-    const stats = await getPaymentsStats()
-
-    const userMonths: {
-        userId: string
-        reactions: {createdAt: Date}[],
-        views: {createdAt: Date}[]
-        start: Date
-        end: Date
-    }[] = []
-
-    stats.accounts.forEach((a, index) => {
-        let date = a.createdAt
-        let monthEnds = [date]
-        const today = new Date()
-        while(date < today){
-            date = subscriptionEnds(date)
-            if(date < today)
-                monthEnds.push(date)
-        }
-
-        for(let i = 1; i < monthEnds.length; i++){
-            const start = monthEnds[i-1]
-            const end = monthEnds[i]
-
-            const viewsOnMonth: {createdAt: Date}[] = []
-            a.views.forEach((v) => {
-                if(v.createdAt < end && v.createdAt >= start){
-                    viewsOnMonth.push(v)
-                }
-            })
-
-            const reactionsOnMonth: {createdAt: Date}[] = []
-            a.reactions.forEach((r) => {
-                if(r.createdAt < end && r.createdAt >= start){
-                    reactionsOnMonth.push(r)
-                }
-            })
-
-            userMonths.push({
-                userId: a.id,
-                reactions: reactionsOnMonth,
-                views: viewsOnMonth,
-                start: start,
-                end: end
-            })
-        }
-    })
+    const {userMonths} = await getPaymentsStats()
 
     const center = <div className="flex items-center flex-col">
         <h1>Pagos</h1>
         
         <div>
             {userMonths.map((m, index) => {
+                
+                if(m.views.length == 0 && m.reactions.length == 0)
+                    return <></>
+
                 return <div key={index}>
                     {m.userId} {formatDate(m.start)} {formatDate(m.end)} {m.views.length} {m.reactions.length}
                 </div>

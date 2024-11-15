@@ -700,3 +700,6 @@ export function formatDate(date: Date) {
     
     return `${day}/${month}/${year}`;
 }
+
+
+export const launchDate = new Date(2024, 9, 10) // 10 de octubre de 2024

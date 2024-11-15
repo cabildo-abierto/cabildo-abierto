@@ -1,5 +1,5 @@
 "use client"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useUser } from "../app/hooks/user"
 import { NotificationProps } from "../app/lib/definitions"
 import { DateSince } from "./date"
@@ -12,13 +12,17 @@ import Link from "next/link"
 
 export const NotificationComponent = ({notification}: {notification: NotificationProps}) => {
     const {mutate} = useSWRConfig()
+    const [viewed, setViewed] = useState(notification.viewed)
 
     useEffect(() => {
-        if(!notification.viewed){
-            markNotificationViewed(notification.id)
-            mutate("/api/user")
-        }
-    }, [])
+        return () => {
+            if(!notification.viewed){
+                markNotificationViewed(notification.id)
+                mutate("/api/user")
+                mutate("/api/notifications")
+            }
+        };
+    }, [notification]);
     
     let content = null
     if(notification.type == "Comment" || notification.type == "CommentToComment"){
@@ -33,7 +37,7 @@ export const NotificationComponent = ({notification}: {notification: Notificatio
         content = <>Error n01. Si podés, avisale al <Link href="/soporte">soporte</Link>.</>
     }
 
-    const className = "content-container rounded flex flex-col space-y-2 p-2 " + (notification.viewed ? "" : "bg-[var(--secondary-light)]")
+    const className = "content-container rounded flex flex-col space-y-2 p-2 " + (viewed ? "" : "bg-[var(--secondary-light)]")
 
     return <div className={className}>
         <div className="text-[var(--text-light)]"><DateSince date={notification.createdAt}/></div>

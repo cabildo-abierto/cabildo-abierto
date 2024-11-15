@@ -13,6 +13,15 @@ export type SmallUserProps = {
     }[]
 }
 
+
+export type UserMonthDistributionProps = {
+    userId: string
+    reactions: {createdAt: Date, id: string}[],
+    views: {createdAt: Date, id: string}[]
+    start: Date
+    end: Date
+}
+
 export type ContentProps = {
     id: string
     createdAt: string | Date

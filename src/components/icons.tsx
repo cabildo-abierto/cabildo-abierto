@@ -5,11 +5,8 @@ import MuiArticleIcon from '@mui/icons-material/Article';
 import BookIcon from '@mui/icons-material/Book';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import GradeOutlinedIcon from '@mui/icons-material/GradeOutlined';
-import GradeIcon from '@mui/icons-material/Grade';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard'
 import AbcIcon from '@mui/icons-material/Abc';
 import MuiLinkIcon from '@mui/icons-material/Link';

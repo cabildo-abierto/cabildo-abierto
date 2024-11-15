@@ -1,21 +1,30 @@
 "use client"
-import { useUser } from "../app/hooks/user"
+import { useNotifications, useUser } from "../app/hooks/user"
 import { NotificationsIcon } from "./icons"
 import { useState } from "react"
 import { NotificationsPanel } from "./notificationsPanel"
 import { createPortal } from "react-dom"
 
 
+function count(a: any[], filter: (v: any) => boolean){
+    let t = 0
+    a.forEach((v) => {
+        if(filter(v)) t++
+    })
+    return t
+}
+
 
 export const NotificationsButton = () => {
     const user = useUser()
     const [openNotificationsSidebar, setOpenNotificationsSidebar] = useState(false)
-    
+    const {notifications} = useNotifications()
+
     return <>
         <button
             onClick={() => {setOpenNotificationsSidebar(true)}}         className="hover:bg-[var(--secondary-light)] rounded-lg">
             <div className="px-1 py-[5px]">
-                <NotificationsIcon count={user.user ? user.user._count.notifications : undefined}/>
+                <NotificationsIcon count={!notifications ? 0 : count(notifications, (n) => (!n.viewed))}/>
             </div>
         </button>
         {openNotificationsSidebar && createPortal(<div
