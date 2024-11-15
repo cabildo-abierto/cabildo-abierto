@@ -73,6 +73,7 @@
     "react-leaflet": "^4.2.1",
     "react-loader-spinner": "^6.1.6",
     "react-popper": "^2.3.0",
+    "react-qr-code": "^2.0.15",
     "react-use-draggable-scroll": "^0.4.7",
     "remark-gfm": "^4.0.0",
     "sass": "^1.77.8",

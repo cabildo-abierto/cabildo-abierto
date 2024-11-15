@@ -1,24 +1,21 @@
 "use client"
 
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 
 import { isPublic, monthly_visits_limit, stopPropagation, visitsThisMonth } from "./utils";
-import { DateSince } from "./date";
 import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
 import { PostOnFeed } from "./post-on-feed";
 import { FastPost } from "./fast-post";
 import { ReactionButton } from "./reaction-button";
 import { ViewsCounter } from "./views-counter";
-import { ContentOptionsButton } from "./content-options-button";
-import { FakeNewsCounter } from "./fake-news-counter";
-import { CommentInContext, ShortDescriptionProps } from "./comment-in-context";
+import { CommentInContext } from "./comment-in-context";
 import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
 import { addView } from "../actions/contents";
 import { useUser } from "../app/hooks/user";
-import { CommentProps, ContentProps } from "../app/lib/definitions";
+import { ContentProps } from "../app/lib/definitions";
 import EntityComponent from "./entity-component";
 import { UndoDiscussionContent } from "./undo-discussion";
 import { logVisit } from "../actions/users";
