@@ -3,7 +3,7 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { getContentById } from "./contents";
-import { accessToken, contributionsToProportionsMap, isDemonetized } from "../components/utils";
+import { accessToken, contributionsToProportionsMap, formatDate, isDemonetized, launchDate, subscriptionEnds } from "../components/utils";
 import { getUserById } from "./users";
 import { pathLogo } from "../components/logo";
 import MercadoPagoConfig, { Preference } from "mercadopago";
@@ -168,12 +168,14 @@ export async function createPaymentPromisesForEntityViews(user: UserProps, amoun
 
     entityViews = entityViews.filter(notEntityAuthor)
 
+    if(entityViews.length == 0) return false
     const viewValue = amount / entityViews.length
 
     for(let i = 0; i < entityViews.length; i++){
         const view = entityViews[i]
         await createPaymentPromisesForEntityView(view, viewValue, subscriptionId)
     }
+    return true
 }
 
 
@@ -199,6 +201,9 @@ export async function createPaymentPromisesForContentReactions(user: UserProps, 
         }
     })
 
+    if(contentReactions.length == 0){
+        return false
+    }
     const reactionValue = amount / contentReactions.length
 
     for(let i = 0; i < contentReactions.length; i++){
@@ -213,6 +218,7 @@ export async function createPaymentPromisesForContentReactions(user: UserProps, 
             }
         })
     }
+    return true
 }
 
 
@@ -222,8 +228,28 @@ export async function createPromises(userId: string, amount: number, start: Date
 
     console.log("creating promises by user", userId, "with total value", amount, "between", start, "and", end)
 
-    await createPaymentPromisesForEntityViews(user, amount*0.5, start, end, subscriptionId)
-    await createPaymentPromisesForContentReactions(user, amount*0.5, start, end, subscriptionId)
+    const foundEntityViews = await createPaymentPromisesForEntityViews(user, amount*0.5, start, end, subscriptionId)
+    
+    const foundReactions = await createPaymentPromisesForContentReactions(user, amount*0.5, start, end, subscriptionId)
+
+    if(!foundEntityViews){
+        await createPaymentPromisesForContentReactions(user, amount*0.5, start, end, subscriptionId)
+    }
+
+    if(!foundReactions){
+        await createPaymentPromisesForEntityViews(user, amount*0.5, start, end, subscriptionId)
+    }
+
+    await db.subscription.update({
+        data: {
+            usedAt: start,
+            endsAt: end,
+            userId: userId,
+        },
+        where: {
+            id: subscriptionId
+        }
+    })
 
     return {}
 }
@@ -291,16 +317,23 @@ export async function confirmPayments() {
 }
 
 
-
-
 export async function createPaymentPromises(){
-    const {userMonths} = await getPaymentsStats()
-
-    const subscriptions = await db.subscription.findMany({
+    let subscriptions = await db.subscription.findMany({
+        select: {
+            paymentPromises: {
+                select: {
+                    id: true
+                }
+            },
+            price: true,
+            id: true
+        },
         where: {
             userId: null
         }
     })
+
+    subscriptions = subscriptions.filter((s) => (s.paymentPromises.length == 0))
 
     if(subscriptions.length == 0){
         return
@@ -308,13 +341,42 @@ export async function createPaymentPromises(){
 
     console.log("Subscriptions available", subscriptions.length)
 
-    for(let i = 0; i < userMonths.length; i++){
-        if(i >= subscriptions.length) {
+    let users = await db.user.findMany({
+        select: {
+            id: true,
+            subscriptionsUsed: {
+                select: {
+                    id: true,
+                    usedAt: true,
+                    endsAt: true
+                }
+            },
+            createdAt: true
+        }
+    })
+
+    users = users.filter((u) => (u.id == "TheRasmuz"))
+
+    let j = 0
+    for(let i = 0; i < users.length; i++){
+        if(j >= subscriptions.length) {
             console.log("Ran out of subscriptions")
             break
         }
-        const subscription = subscriptions[i]
-        await createPromises(userMonths[i].userId, subscription.price, userMonths[i].start, userMonths[i].end, subscription.id)
+        const subscription = subscriptions[j]
+        const userId = users[i].id
+
+        const creation = users[i].createdAt > launchDate ? users[i].createdAt : launchDate
+
+        const nextSubscriptionStart = users[i].subscriptionsUsed.length > 0 ? users[i].subscriptionsUsed[users[i].subscriptionsUsed.length-1].endsAt : creation
+
+        const nextSubscriptionEnd = subscriptionEnds(nextSubscriptionStart)
+
+        console.log("User", userId)
+        console.log("Current subscriptions", users[i].subscriptionsUsed.length)
+        console.log("Next subscription", formatDate(nextSubscriptionStart), formatDate(nextSubscriptionEnd))
+
+        await createPromises(userId, subscription.price, nextSubscriptionStart, nextSubscriptionEnd, subscription.id)
         break
     }
 }

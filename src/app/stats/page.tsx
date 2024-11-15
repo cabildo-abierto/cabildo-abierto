@@ -41,17 +41,15 @@ export default async function Page() {
 
     const center = <div className="flex flex-col items-center w-full">
         <Stat>
-            Suscriptores: {stats.subscriptors}
-        </Stat>
-        <Stat>
-            Objetivo lunes que viene: {Math.ceil(stats.subscriptorsByWeek[stats.subscriptorsByWeek.length-2].count * 1.1)}
-        </Stat>
-
-        <SubscriptorsByDate data={stats.subscriptorsByWeek}/>
-
-        <Stat>
             Cuentas: {stats.accounts}
         </Stat>
+        <Stat>
+            Objetivo lunes que viene: {Math.ceil(stats.eventsByWeek[stats.eventsByWeek.length-2].accounts * 1.1)}
+        </Stat>
+
+        <SubscriptorsByDate name="Cuentas" data={stats.eventsByWeek.map(({date, accounts}) => ({date, count: accounts}))}/>
+        <SubscriptorsByDate name="Contenidos" data={stats.eventsByWeek.map(({date, contents}) => ({date, count: contents}))}/>
+        <SubscriptorsByDate name="Reacciones" data={stats.eventsByWeek.map(({date, reactions}) => ({date, count: reactions}))}/>
 
         <div>
             <h3>Suscripciones por precio: </h3>
