@@ -21,38 +21,37 @@ function commentScore(comment: {type: string, createdAt: Date | string}): number
     return [typeScores[comment.type] ? typeScores[comment.type] : 0, -new Date(comment.createdAt).getTime()]
 }
 
+function removeRepetitions(a: any[], getKey: (v: any) => any = (v) => (v)){
+    let keys = new Set()
+    const unique = []
+    a.forEach((v) => {
+        const k = getKey(v)
+        if(!keys.has(k)){
+            keys.add(k)
+            unique.push(v)
+        }
+    })
+    return unique
+}
+
 export function getEntityComments(entity: EntityProps, comments: CommentProps[], addReferences: boolean){
     for(let i = 0; i < entity.versions.length; i++){
-        comments = [...comments, ...entity.versions[i].childrenContents]
+        if(entity.versions[i].type == "EntityContent"){
+            comments = [...comments, ...entity.versions[i].childrenContents]
+        }
     }
 
-    const ids = new Set()
-    let uniqueComments = []
-    for(let i = 0; i < comments.length; i++){
-        if(ids.has(comments[i].id)) continue
-        ids.add(comments[i].id)
-        uniqueComments.push(comments[i])
-    }
-    
-    uniqueComments = uniqueComments.map((c) => ({...c, isReference: false}))
+    let commentsAndRefs: CommentSectionElementProps[] = comments.map((c) => ({...c, isReference: false}))
 
     if(addReferences){
-        let references = [...entity.referencedBy, ...entity.weakReferences]
-        let seenIds = new Set()
-        let uniqueReferences = []
-        references.forEach((r) => {
-            if(!seenIds.has(r.id) && r.parentEntityId != entity.id){
-                uniqueReferences.push(r)
-                seenIds.add(r.id)
-            }
-        })
-    
-        uniqueReferences = uniqueReferences.map((ref) => ({...ref, isReference: true}))
-        return [...uniqueComments, ...uniqueReferences]
-    } else {
-        return uniqueComments
+        let references: CommentSectionElementProps[] = [...entity.referencedBy, ...entity.weakReferences].map((ref) => ({...ref, isReference: true}))
+
+        references = references.filter((r) => (r.id != entity.id && r.parentEntityId != entity.id))
+
+        commentsAndRefs = [...commentsAndRefs, ...references]
     }
 
+    return removeRepetitions(commentsAndRefs, (v) => (v.id))
 }
 
 export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
@@ -67,9 +66,9 @@ export const SidebarCommentSection = ({content, entity, activeIDs, comments}: {
         let parentText = JSON.parse(decompress(content.compressedText))
         allIds = getAllQuoteIds(parentText.root)
     } catch {}
-    
-    const originalComments = entity ? getEntityComments(entity, [], false) : content.childrenContents
-    const newComments = comments.filter((c) => (!originalComments.some(({id}) => (id == c.id))))
+
+    const originalComments: CommentSectionElementProps[] = entity ? getEntityComments(entity, [], false) : content.childrenContents.map((c) => ({...c, isReference: false}))
+    const newComments: CommentSectionElementProps[] = comments.map((c) => ({...c, isReference: false})).filter((c) => (!originalComments.some(({id}) => (id == c.id))))
 
     const filteredComments = originalComments.filter(({id}) => ((allIds.includes(id) && inActiveIDs({id}))))
 
@@ -128,7 +127,7 @@ type CommentSectionElementProps = {
     _count: {childrenTree: number}
     currentVersionOf?: {id: string}
     isReference: boolean
-    depth: number
+    parentEntityId?: string
 }
 
 type CommentSectionProps = {

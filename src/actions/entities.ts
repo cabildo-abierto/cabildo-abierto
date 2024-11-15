@@ -634,6 +634,7 @@ export async function getEntityByIdNoCache(id: string): Promise<{entity?: Entity
             versions: {
                 select: {
                     id: true,
+                    type: true,
                     categories: true,
                     confirmedById: true,
                     rejectedById: true,
