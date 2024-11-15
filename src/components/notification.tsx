@@ -22,7 +22,7 @@ export const NotificationComponent = ({notification}: {notification: Notificatio
                 mutate("/api/notifications")
             }
         };
-    }, [notification]);
+    }, [notification])
     
     let content = null
     if(notification.type == "Comment" || notification.type == "CommentToComment"){

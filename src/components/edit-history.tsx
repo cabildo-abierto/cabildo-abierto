@@ -208,6 +208,10 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 
     const entityVersion = entity.versions[index]
 
+    if(entity.versions[index].type == "Comment"){
+        return <></>
+    }
+
     return <div className="flex items-center w-full pb-1">
         {<div className={"px-2 " + (selected ? "text-gray-400" : "text-transparent")}>
             <ViewsIcon/>

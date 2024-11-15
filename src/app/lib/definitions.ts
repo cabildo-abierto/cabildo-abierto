@@ -129,6 +129,7 @@ export type EntityProps = {
 
 export type EntityVersionProps = {
     id: string,
+    type: string
     categories: string,
     createdAt: string | Date,
     confirmedById?: string,
