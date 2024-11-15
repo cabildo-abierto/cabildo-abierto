@@ -610,8 +610,6 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
     const {content, error} = await getContentById(id, userId)
     if(error) return {error}
 
-    await getSubscriptionIfAvailable(userId)
-
     if(!content.reactions || content.reactions.length == 0){
         let reaction = null
         try {
@@ -657,8 +655,6 @@ export const addLike = async (id: string, userId: string, entityId?: string) => 
 
 
 export const removeLike = async (id: string, userId: string, entityId?: string) => {
-    await getSubscriptionIfAvailable(userId)
-
     try {
         await db.reaction.deleteMany({
             where: { 
@@ -732,7 +728,6 @@ export const addView = async (id: string, userId: string) => {
     }
 
     if(exists.length == 0 || olderThan(3600)){
-        await getSubscriptionIfAvailable(userId)
 
         try {
             await db.view.create({

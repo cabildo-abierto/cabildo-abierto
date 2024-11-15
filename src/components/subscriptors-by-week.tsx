@@ -8,13 +8,13 @@ ChartJS.register(CategoryScale);
 // Register the required components
 ChartJS.register(LinearScale, PointElement, BarElement, LineElement, Title, Tooltip, Legend);
 
-export const SubscriptorsByDate = ({ data }: { data: { date: Date; count: number }[] }) => {
+export const SubscriptorsByDate = ({ data, name }: { name: string; data: { date: Date; count: number }[] }) => {
   // Prepare the data for the chart
   const chartData = {
     labels: data.map(item => item.date.toLocaleDateString()), // Formatting the date for display
     datasets: [
       {
-        label: 'Cantidad de suscriptores',
+        label: name,
         data: data.map(item => item.count),
         fill: false,
         borderColor: '#455dc0', // Primary color from your palette
@@ -35,7 +35,7 @@ export const SubscriptorsByDate = ({ data }: { data: { date: Date; count: number
       y: {
         title: {
           display: true,
-          text: 'Cantidad de suscriptores',
+          text: name,
         },
         beginAtZero: true,
       },
@@ -46,7 +46,7 @@ export const SubscriptorsByDate = ({ data }: { data: { date: Date; count: number
       },
       title: {
         display: true,
-        text: 'Suscriptores',
+        text: name,
       },
     },
   };

@@ -595,6 +595,18 @@ export async function getAdminStats(){
         }
     })
 
+    const reactions = await db.reaction.findMany({
+        select: {
+            createdAt: true
+        }
+    })
+
+    const contents = await db.content.findMany({
+        select: {
+            createdAt: true
+        }
+    })
+
     const subscriptions = await db.subscription.findMany({
         select: {
             usedAt: true,
@@ -635,7 +647,6 @@ export async function getAdminStats(){
         orderBy: { createdAt: 'asc' },
         select: { createdAt: true }
     });
-    console.log("first subscription", firstSubscription)
 
     const firstDate = new Date(firstSubscription.createdAt);
     
@@ -646,18 +657,32 @@ export async function getAdminStats(){
     const weekDuration = 7 * dayDuration;
 
 
-    let subscriptorsByWeek: {date: Date, count: number}[] = []
+    let eventsByWeek: {date: Date, accounts: number, reactions: number, contents: number}[] = []
     for (let date = new Date(firstMonday); date <= currentDate; date = new Date(date.getTime() + weekDuration)) {
 
         let users = new Set()
 
-        subscriptions.forEach((s) => {
-            if(s.usedAt && s.usedAt <= date && s.endsAt >= date){
-                users.add(s.userId)
-            }
+        accounts.forEach((s) => {
+            if(s.createdAt <= date)
+                users.add(s.id)
         })
 
-        subscriptorsByWeek.push({ date, count: users.size });
+        const weekEnd = new Date(date.getTime() + weekDuration)
+
+        let weekReactions = new Set()
+        reactions.forEach((r) => {
+            if(r.createdAt >= date && r.createdAt < weekEnd)
+                weekReactions.add(r.createdAt)
+        })
+
+
+        let weekContents = new Set()
+        contents.forEach((c) => {
+            if(c.createdAt >= date && c.createdAt < weekEnd)
+                weekContents.add(c.createdAt)
+        })
+
+        eventsByWeek.push({ date, accounts: users.size, reactions: weekReactions.size, contents: weekContents.size });
     }
 
     const today = new Date()
@@ -667,8 +692,6 @@ export async function getAdminStats(){
             subscriptors.add(s.userId)
         }
     })
-
-    subscriptorsByWeek.push({date: today, count: subscriptors.size})
 
     const unrenewed = new Set()
 
@@ -693,8 +716,7 @@ export async function getAdminStats(){
         accounts: accounts.length,
         sellsByPrice,
         viewsByDay,
-        subscriptorsByWeek,
-        subscriptors: subscriptors.size,
+        eventsByWeek,
         unrenewed,
         contentsByUser,
         lastAccounts: accounts.sort((a, b) => (b.createdAt.getTime() - a.createdAt.getTime())).slice(0, 5)
