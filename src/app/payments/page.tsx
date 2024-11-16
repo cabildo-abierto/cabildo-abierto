@@ -1,12 +1,8 @@
-import { recomputeAllContributions, revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, compressContents, compressContent, decompressContents, decompressContent, updateUniqueViewsCount, updateIsDraft, deleteEntity, computeDayViews, computeSubscriptorsByDay, getPaymentsStats } from "../../actions/admin"
-import { updateAllUniqueCommentators, notifyAllMentions, deleteUser } from "../../actions/contents"
-import { recomputeEntityContributions } from "../../actions/entities"
-import { createPaymentPromises, confirmPayments } from "../../actions/payments"
-import { updateAllReferences, updateAllWeakReferences } from "../../actions/references"
-import { assignSubscriptions, buySubscriptions, desassignSubscriptions, getUser, recoverSubscriptions } from "../../actions/users"
+import { getPaymentsStats } from "../../actions/admin"
+import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
-import { formatDate, launchDate, subscriptionEnds } from "../../components/utils"
+import { formatDate, getEntityMonetizedContributions } from "../../components/utils"
 
 
 export default async function Page() {
@@ -37,7 +33,7 @@ export default async function Page() {
 
         <div className="flex flex-col">
             {entities.map((m, index) => {
-                const c = JSON.parse(m.versions[0].contribution)
+                const c = getEntityMonetizedContributions(m, m.versions.length-1)
                 if(!c) {
                     console.log("error con ", m.name)
                     return <></>

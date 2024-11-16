@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { useEntity } from "../app/hooks/entities"
-import { currentVersion, isDemonetized } from "./utils"
+import { currentVersion, getEntityMonetizedChars, getEntityMonetizedContributions, isDemonetized } from "./utils"
 import { Button, IconButton } from "@mui/material"
 import { AuthorshipClaimIcon } from "./icons"
 import { useState } from "react"
@@ -50,34 +50,6 @@ export const ShowUserContribution = ({entityId, userId}:
     else {
         return <span>Contribución: Tema vacío</span>
     }
-}
-
-
-export function getEntityMonetizedChars(entity: EntityProps, version: number){
-    let monetizedCharsAdded = 0
-    for(let i = 0; i <= version; i++){
-        if(!isDemonetized(entity.versions[i])){
-            monetizedCharsAdded += entity.versions[i].charsAdded
-        }
-    }
-    return monetizedCharsAdded
-}
-
-
-export function getEntityMonetizedContributions(entity: EntityProps, version: number){
-    const authors = new Map()
-    for(let i = 0; i <= version; i++){
-        if(!isDemonetized(entity.versions[i])){
-            const author = entity.versions[i].author.id
-            
-            if(authors.has(author)){
-                authors.set(author, authors.get(author) + entity.versions[i].charsAdded)
-            } else {
-                authors.set(author, entity.versions[i].charsAdded)
-            }
-        }
-    }
-    return Array.from(authors)
 }
 
 

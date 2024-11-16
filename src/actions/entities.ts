@@ -105,6 +105,11 @@ export const recomputeEntityContributions = async (entityId: string): Promise<{e
                     },
                     orderBy: {
                         createdAt: "asc"
+                    },
+                    where: {
+                        type: {
+                            not: "Comment"
+                        }
                     }
                 }
             },
@@ -168,6 +173,7 @@ export const recomputeEntityContributions = async (entityId: string): Promise<{e
         lastContribution = newData.contribution
         lastAccCharsAdded = newData.accCharsAdded
     }
+    console.log("contr", lastContribution)
 
     for(let i = 0; i < entity.versions.length; i++){
         revalidateTag("content:"+entity.versions[i].id)
@@ -719,6 +725,9 @@ export async function getEntityByIdNoCache(id: string): Promise<{entity?: Entity
                 orderBy: {
                     createdAt: "asc"
                 },
+                where: {
+                    type: "EntityContent"
+                }
             },
             referencedBy: {
                 select: {
