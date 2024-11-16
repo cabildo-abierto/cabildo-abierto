@@ -6,7 +6,7 @@ import { getContentById, notifyMentions, processNewTextFast } from "./contents";
 import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { currentVersionContent, entityExists, entityInRoute, getPlainText, hasEditPermission, isPartOfContent, isUndo } from "../components/utils";
+import { currentVersionContent, entityExists, entityInRoute, getPlainText, hasEditPermission, isDemonetized, isPartOfContent, isUndo } from "../components/utils";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
 import { extendContentStallPaymentDate } from "./payments";
@@ -67,19 +67,33 @@ export async function createEntity(name: string, userId: string){
 }
 
 
-function updateContribution(contribution: [string, number][], charsAdded: number, newAuthor: string){
+function addToContributionList(l: [string, number][], author: string, value: number){
     let wasAuthor = false
-    for(let i = 0; i < contribution.length; i++){
-        if(contribution[i][0] == newAuthor){
+    for(let i = 0; i < l.length; i++){
+        if(l[i][0] == author){
             wasAuthor = true
-            contribution[i][1] += charsAdded
+            l[i][1] += value
         }
     }
     
     if(!wasAuthor){
-        contribution.push([newAuthor, charsAdded])
+        l.push([author, value])
     }
-    return contribution
+    return l
+}
+
+
+function updateContribution(contribution: BothContributionsProps, charsAdded: number, newAuthor: string, monetized: boolean){
+    return {
+        all: addToContributionList(contribution.all, newAuthor, charsAdded),
+        monetized: monetized ? addToContributionList(contribution.monetized, newAuthor, charsAdded) : contribution.monetized
+    }
+}
+
+
+export type BothContributionsProps = {
+    monetized: [string, number][]
+    all: [string, number][]
 }
 
 
@@ -123,7 +137,7 @@ export const recomputeEntityContributions = async (entityId: string): Promise<{e
 
     const texts = entity.versions.map((t) => (decompress(t.compressedText)))
 
-    let lastContribution = JSON.stringify([[entity.versions[0].authorId, 0]])
+    let lastContribution: BothContributionsProps = {monetized: [], all: []}
     let lastAccCharsAdded = 0
 
     for(let i = 0; i < entity.versions.length; i++){
@@ -133,7 +147,7 @@ export const recomputeEntityContributions = async (entityId: string): Promise<{e
                 accCharsAdded: lastAccCharsAdded, 
                 charsAdded: 0, 
                 charsDeleted: 0, 
-                contribution: lastContribution,
+                contribution: JSON.stringify(lastContribution),
                 diff: JSON.stringify({matches: [], common: [], bestMatches: []})
             }
         } else {
@@ -146,9 +160,9 @@ export const recomputeEntityContributions = async (entityId: string): Promise<{e
 
             const accCharsAdded = lastAccCharsAdded + charsAdded
 
-            const contribution: [string, number][] = JSON.parse(lastContribution)
+            const contribution: BothContributionsProps = lastContribution
             
-            const newContribution = updateContribution(contribution, charsAdded, entity.versions[i].authorId)
+            const newContribution = updateContribution(contribution, charsAdded, entity.versions[i].authorId, !isDemonetized(entity.versions[i]))
         
             newData = {
                 accCharsAdded: accCharsAdded, 
@@ -170,10 +184,9 @@ export const recomputeEntityContributions = async (entityId: string): Promise<{e
         } catch {
             return {error: "Error al actualizar las contribuciones."}
         }
-        lastContribution = newData.contribution
+        lastContribution = JSON.parse(newData.contribution)
         lastAccCharsAdded = newData.accCharsAdded
     }
-    console.log("contr", lastContribution)
 
     for(let i = 0; i < entity.versions.length; i++){
         revalidateTag("content:"+entity.versions[i].id)
@@ -217,7 +230,7 @@ export const updateEntityContent = async (
         if(!permission){
             contribution = currentContent.contribution
         } else {
-            contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId))
+            contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId, permission && claimsAuthorship))
         }
     } catch {
         return {error: "Ocurrió un error al guardar los cambios."}
@@ -312,7 +325,7 @@ export const updateEntityCategoriesOrSearchkeys = async (entityId: string, userI
         contribution = currentContent.contribution
     } else {
         try {
-            contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId))
+            contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId, false))
         } catch {
             return {error: "Error al actualizar el tema."}
         }
