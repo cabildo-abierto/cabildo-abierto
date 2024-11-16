@@ -75,6 +75,12 @@ export const ShowContributors = ({entityId, userId}:
         return <></>
     }
 
+    function comp(a, b){
+        return b[1] - a[1]
+    }
+
+    contributions = contributions.sort(comp)
+
     return <div className="flex">
         <div className="flex flex-wrap space-x-2 link">
             {contributions.map(([authorId, chars], index) => {

@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import { nodesFromJSONStr } from './diff';
+import { getNodeList, nodesFromJSONStr } from './diff';
 import { SerializedDiffNode } from './editor/nodes/DiffNode';
 import { CommentProps, ContentProps, EntityProps, MatchesType } from '../app/lib/definitions';
 import { Content } from 'next/font/google';

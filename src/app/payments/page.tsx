@@ -16,7 +16,7 @@ export default async function Page() {
         return <NotFoundPage/>
     }
 
-    const {userMonths} = await getPaymentsStats()
+    const {userMonths, entities} = await getPaymentsStats()
 
     const center = <div className="flex items-center flex-col">
         <h1>Pagos</h1>
@@ -30,6 +30,23 @@ export default async function Page() {
                 return <div key={index}>
                     {m.userId} {formatDate(m.start)} {formatDate(m.end)} {m.views.length} {m.reactions.length}
                 </div>
+            })}
+        </div>
+
+        <h1>Temas</h1>
+
+        <div>
+            {entities.map((m, index) => {
+                const c = JSON.parse(m.versions[0].contribution)
+                console.log(m.name, c)
+                return <>{m.name}</>
+                if(c.length > 1){
+                    return <div key={index}>
+                        {m.name} {c}
+                    </div>
+                } else {
+                    return <></>
+                }
             })}
         </div>
     </div>
