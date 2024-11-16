@@ -92,10 +92,6 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
         {!onSearchPage && <div className="flex justify-center py-4">
             <NewPublicArticleButton
                 onClick={() => {}}
-                className="gray-btn"
-                textClassName="title text-sm"
-                text="Nuevo tema"
-                showInfoPanel={false}
             />
         </div>}
         

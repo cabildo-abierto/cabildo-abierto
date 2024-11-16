@@ -5,22 +5,17 @@ import { ReactionButton } from "./reaction-button";
 import { ViewsIcon } from "./icons";
 
 
-type ViewsCounterProps = {
-    content: {
-        uniqueViewsCount: number
-    }
-}
-
 const title = "Cantidad de personas distintas que vieron este contenido. No se cuentan segundas visitas y tampoco personas sin cuenta."
 
-export const ViewsCounter: React.FC<ViewsCounterProps> = ({
-    content
-}) => {
+export const ViewsCounter = ({
+    content,
+    disabled
+}: {content: {uniqueViewsCount: number}, disabled?: boolean}) => {
     return <ReactionButton
         onClick={() => {}}
         icon1={<ViewsIcon/>}
         icon2={<ViewsIcon/>}
-        disabled={true}
+        disabled={disabled}
         active={false}
         count={content.uniqueViewsCount}
         title={title}
@@ -28,8 +23,8 @@ export const ViewsCounter: React.FC<ViewsCounterProps> = ({
 }
 
 
-export const TextViewsCounter: React.FC<ViewsCounterProps> = ({
+export const TextViewsCounter = ({
     content
-}) => {
+}: {content: {uniqueViewsCount: number}}) => {
     return <span title={title}>visto por {content.uniqueViewsCount}</span>
 }

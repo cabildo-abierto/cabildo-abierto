@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { ArticleIcon, FastPostIcon, PostIcon, WriteButtonIcon } from './icons';
@@ -6,6 +6,7 @@ import InfoPanel from './info-panel';
 import { NewPublicArticleButton } from './new-public-article-button';
 import { ModalBelow } from './modal-below';
 import { NewFastPostButton } from './new-fast-post-button';
+import { Button, IconButton } from '@mui/material';
 
 export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100 && !name.includes("/");
@@ -18,43 +19,69 @@ export const ErrorMsg = ({text}: {text: string}) => {
 }
 
 
+export const WriteButtonButton = ({onClick, icon, infoText, name}: {onClick: () => void, icon: ReactNode, infoText: ReactNode, name: string}) => {
+    return <Button
+        onClick={onClick}
+        startIcon={<div className="mb-1">{icon}</div>}
+        variant="contained"
+        color="primary"
+        size="medium"
+        sx={{
+            textTransform: 'none',
+            justifyContent: 'flex-start',  // Align icon and text to the left
+            paddingLeft: 2,                // Optional: add padding to the left to give space
+            height: "36px"
+        }}
+        disableElevation={true}
+        fullWidth
+    >
+        <div className="flex justify-between w-full items-center">
+        {name}
+        <InfoPanel iconClassName="text-white" className="w-64" text={infoText}/>
+        </div>
+    </Button>
+}
+
+
 const WriteButton = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     return (
         <div className="relative">
-            <div className="px-1 py-2">
-                <button 
-                    className="topbar-btn"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
-                    <WriteButtonIcon />
-                </button>
-            </div>
+            <IconButton
+                color="inherit"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+                <WriteButtonIcon />
+            </IconButton>
 
             <ModalBelow open={isDropdownOpen} setOpen={setIsDropdownOpen} className="">
                 <div className="z-10 bg-[var(--background)] rounded content-container px-2 py-2 mt-1 flex flex-col items-center space-y-2">
                     
                     <NewFastPostButton
-                        className="w-64 create-btn"
                         onClick={() => {setIsDropdownOpen(false)}}
                     />
                     
-                    <Link href="/escribir/publicacion">
-                        <button className="create-btn w-64 flex justify-between items-center" onClick={() => setIsDropdownOpen(false)}>
-                            <div className="flex"><span className="px-1"><PostIcon /></span> Publicación</div> <InfoPanel iconClassName="text-white" className="w-64" text={<div>Con título y sin límite de caracteres. Relatá la realidad, compartí tu análisis, o lo que se te ocura y requiera más de 800 caracteres. Va a aparecer en el muro.</div>}/>
-                        </button>
+                    <Link href="/escribir/publicacion" className="w-64">
+                        <WriteButtonButton
+                            onClick={() => setIsDropdownOpen(false)}
+                            icon={<PostIcon/>}
+                            infoText={<div>Con título y sin límite de caracteres. Relatá la realidad, compartí tu análisis, o lo que se te ocura y requiera más de 800 caracteres. Va a aparecer en el muro.</div>}
+                            name="Publicación"
+                        />
                     </Link>
                     
                     <NewPublicArticleButton
-                        className="w-64 create-btn"
                         onClick={() => {setIsDropdownOpen(false)}}
                     />
                     
-                    {<Link href="/temas">
-                        <button className="create-btn w-64 flex justify-between items-center" onClick={() => setIsDropdownOpen(false)}>
-                            <div className="flex text-left"><span className="px-1"><ArticleIcon /></span>Editar un tema</div> <InfoPanel iconClassName="text-white" className="w-64" text="Elegí un tema y agregá información o modificá su contenido."/>
-                        </button>
+                    {<Link href="/temas" className="w-64">
+                        <WriteButtonButton
+                            onClick={() => setIsDropdownOpen(false)}
+                            icon={<ArticleIcon/>}
+                            name="Editar un tema"
+                            infoText={<div>Elegí un tema y agregá información o modificá su contenido.</div>}
+                        />
                     </Link>}
                 </div>
             </ModalBelow>

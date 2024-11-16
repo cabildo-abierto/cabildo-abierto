@@ -4,43 +4,31 @@ import InfoPanel from "./info-panel";
 import { CreateFastPostModal } from "./create-fast-post-modal";
 import { isIOS } from 'react-device-detect'
 import { useRouter } from "next/navigation";
+import { WriteButtonButton } from "./write-button";
 
 
-export const NewFastPostButton = ({onClick, className="", textClassName="", infoPanelIconClassName="text-white", showInfoPanel=true, text}: {onClick: () => void, className?: string, textClassName?: string, infoPanelIconClassName?: string, showInfoPanel?: boolean, text?: string}) => {
+export const NewFastPostButton = ({onClick}: {onClick: () => void}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const router = useRouter()
   
-    return <>
-        <button
-            onClick={() => {
-                if(!isIOS){
-                    setIsModalOpen(true);
-                    onClick()
-                } else {
-                    router.push("/escribir/rapida")
-                }
-            }}
-            className={
-                "flex justify-between items-center " + className
-            }
-        >
-        <div className={"flex " + textClassName} >
-            
-            {text ? <span>{text}</span> : <><span className="px-1">
-                <FastPostIcon />
-            </span>
-            
-            <span>Publicación rápida</span>
-            </>
-            }
-        </div>
+    const handleClick = () => {
+        if(!isIOS){
+            setIsModalOpen(true);
+            onClick()
+        } else {
+            router.push("/escribir/rapida")
+        }
+    }
 
-        {showInfoPanel && <InfoPanel
-            iconClassName={infoPanelIconClassName}
-            className="w-64"
-            text={<div><p className="font-bold">Cortita y al pie</p>Máximo 800 caracteres y formato limitado. Sin título. Va a aparecer en el muro.</div>}
-        />}
-    </button>
+    const infoText = <div><p className="font-bold">Cortita y al pie</p>Máximo 800 caracteres y formato limitado. Sin título. Va a aparecer en el muro.</div>
+
+    return <>
+        <WriteButtonButton
+            onClick={handleClick}
+            name="Publicación rápida"
+            icon={<FastPostIcon/>}
+            infoText={infoText}
+        />
     {isModalOpen && <CreateFastPostModal onClose={() => setIsModalOpen(false)} />}
     </>
 }

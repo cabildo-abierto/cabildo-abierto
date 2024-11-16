@@ -13,6 +13,7 @@ import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from "next/link";
+import { Button } from "@mui/material";
 
 
 export function countUserInteractions(entity: SmallEntityProps, since?: Date){
@@ -134,9 +135,6 @@ export const TrendingArticles = () => {
             </button>
         </div>
         <TrendingArticlesSlider trendingArticles={entitiesWithScore}/>
-        <div className="flex justify-end text-[var(--text-light)]">
-            <ArrowRightAltIcon fontSize="small"/>
-        </div>
     </div>
 };
 
@@ -150,30 +148,41 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: {e
 
     return (
     <div
-        className="flex space-x-3 overflow-x-scroll no-scrollbar"
+        className="flex space-x-3 overflow-x-scroll no-scrollbar py-2"
         {...events}
         ref={ref} // add reference and events to the wrapping div
     >
         {trendingArticles.map(({entity, score}, index) => {
 
             return <Link href={articleUrl(entity.id)} draggable={false}
-                className="flex flex-col justify-between rounded text-center p-1 sm:text-sm text-xs text-[0.72rem] my-2 bg-[var(--secondary-light)] hover:bg-[var(--secondary)] text-gray-900 border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)] select-none"
+                className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] bg-[var(--secondary-light)] hover:bg-[var(--secondary)] text-gray-900 border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)] select-none"
                 key={entity.id}
                 onMouseLeave={() => {setHovering(undefined)}}
                 onMouseEnter={() => {preload("/api/entity/"+entity.id, fetcher); setHovering(index)}}
             >
-                <div className="flex items-center justify-center px-2 w-28 sm:w-48 title h-full">
-                    <span className={"overflow-hidden" + (hovering == index ? " line-clamp-none" : " line-clamp-2")}>
-                        {entity.name}
-                    </span>
-                </div>
-
-                <div
-                    className="text-gray-700 text-xs sm:text-sm flex items-end justify-end px-1"
-                    
+                <Button
+                    color="inherit"
+                    size="small"
+                    sx={{
+                        textTransform: "none",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        height: "100%"
+                    }}
                 >
-                    <div title="La cantidad de usuarios que participaron en la discusión.">{score[0]} <PersonIcon fontSize="inherit"/></div>
-                </div>
+                    <div className="flex items-center justify-center px-2 w-28 sm:w-48 title h-full">
+                        <span className={"overflow-hidden" + (hovering == index ? " line-clamp-none" : " line-clamp-2")}>
+                            {entity.name}
+                        </span>
+                    </div>
+
+                    <div
+                        className="text-gray-700 text-xs sm:text-sm flex items-end justify-end px-1 w-full"
+                    >
+                        <div title="La cantidad de usuarios que participaron en la discusión.">{score[0]} <PersonIcon fontSize="inherit"/></div>
+                    </div>
+                </Button>
             </Link>
         })}
     </div>

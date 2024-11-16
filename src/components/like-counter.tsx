@@ -70,6 +70,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
         disabled={!user || disabled || isAuthor}
         count={likeCount}
         title={title}
+        className="mt-1 reaction-btn"
     />
 }
 

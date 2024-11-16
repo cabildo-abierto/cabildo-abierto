@@ -463,20 +463,12 @@ ol {
 }
 
 .reaction-btn {
-	font-size: small;
-	color: var(--text-lighter);
-	padding: 5px;
 }
 
 .reaction-btn:hover {
-	background: var(--accent-light);
-	padding: 5px;
-	border-radius: 15px
 }
 
 .reaction-btn:disabled:hover {
-	color: var(--text-lighter);
-	background: transparent;
 }
 
 .reaction-btn.toggled {
@@ -489,20 +481,12 @@ ol {
 
 
 .comment-btn {
-	font-size: small;
-	color: var(--text-lighter);
-	padding: 5px;
 }
 
 .comment-btn:hover {
-	background: var(--accent-light);
-	padding: 5px;
-	border-radius: 15px
 }
 
 .comment-btn:disabled:hover {
-	color: var(--text-lighter);
-	background: transparent;
 }
 
 

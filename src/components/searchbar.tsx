@@ -8,6 +8,7 @@ import { SearchButton } from "./top-bar";
 import { id2url } from "./content";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import { useSearch } from "./search-context";
+import { CloseButton } from "./close-button";
 
 
 export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = ({ result }) => {
@@ -51,15 +52,6 @@ export const SearchInput = ({ autoFocus }: {
 }
 
 
-const CloseSearchButton = ({ onClick }: any) => {
-  return <div className="text-l text-gray-900 p-1 flex justify-center items-center">
-      <button className="hover:bg-[var(--secondary-light)] rounded-lg" onClick={onClick}>
-          <CloseIcon/>
-      </button>
-  </div>
-}
-
-
 const SearchBar: React.FC<{onClose: any, wideScreen: boolean}> = ({onClose, wideScreen}) => {
   const {searchState, setSearchState} = useSearch()
 
@@ -70,7 +62,7 @@ const SearchBar: React.FC<{onClose: any, wideScreen: boolean}> = ({onClose, wide
         </div>
         <div className="text-[var(--text-light)]">
           {!searchState.searching ? <SearchButton disabled={true}/> : 
-          <CloseSearchButton onClick={() => {setSearchState({value: "", searching: false})}}/>}
+          <div className="py-1"><CloseButton onClose={() => {setSearchState({value: "", searching: false})}} size="small"/></div>}
         </div>
       </div> : 
       <div className="flex border rounded pl-1 pr-1">
@@ -78,7 +70,8 @@ const SearchBar: React.FC<{onClose: any, wideScreen: boolean}> = ({onClose, wide
           <SearchButton disabled={true}/>
           <div className="flex w-full">
             <SearchInput autoFocus={true}/>
-            <CloseSearchButton onClick={() => {onClose(); setSearchState({value: "", searching: false})}}/>
+            <div className="py-1"><CloseButton onClose={() => {onClose(); setSearchState({value: "", searching: false})}} size="small"/>
+            </div>
           </div>
         </div>
       </div>

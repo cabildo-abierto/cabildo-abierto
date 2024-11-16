@@ -4,6 +4,7 @@ import { NotificationsIcon } from "./icons"
 import { useState } from "react"
 import { NotificationsPanel } from "./notificationsPanel"
 import { createPortal } from "react-dom"
+import { IconButton } from "@mui/material"
 
 
 function count(a: any[], filter: (v: any) => boolean){
@@ -21,12 +22,12 @@ export const NotificationsButton = () => {
     const {notifications} = useNotifications()
 
     return <>
-        <button
-            onClick={() => {setOpenNotificationsSidebar(true)}}         className="hover:bg-[var(--secondary-light)] rounded-lg">
-            <div className="px-1 py-[5px]">
-                <NotificationsIcon count={!notifications ? 0 : count(notifications, (n) => (!n.viewed))}/>
-            </div>
-        </button>
+        <IconButton
+            color="inherit"
+            onClick={() => {setOpenNotificationsSidebar(true)}}
+        >
+            <NotificationsIcon count={!notifications ? 0 : count(notifications, (n) => (!n.viewed))}/>
+        </IconButton>
         {openNotificationsSidebar && createPortal(<div
             className="fixed top-0 left-0 w-screen h-screen z-50"
         >

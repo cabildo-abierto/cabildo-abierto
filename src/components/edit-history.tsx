@@ -301,9 +301,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
         </AcceptButtonPanel>
     }
 
-    async function handleClick(e){
-        e.preventDefault()
-        e.stopPropagation()
+    async function handleClick(){
         const {error} = await onRemove()
         if(error) return {error}
         mutate("/api/entity/"+entity.id)

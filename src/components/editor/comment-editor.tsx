@@ -97,18 +97,22 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
                 <div className="px-1">
                     <StateButton
                         handleClick={handleSubmit}
-                        className="small-btn"
+                        size="small"
+                        disableElevation={true}
                         text1="Enviar"
                         text2="Enviando..."
                         disabled={!user.user || !validComment(editorState, settings.charLimit)}
+                        variant="contained"
                     />
                 </div>
 				{onCancel &&
 					<div className="px-1">
 						<StateButton
-							handleClick={async (e) => {onCancel(); return {}}}
-							className="small-btn"
+							handleClick={async () => {onCancel(); return {}}}
+                            size="small"
+                            disableElevation={true}
                             text1="Cancelar"
+                            variant="contained"
 						/>
 					</div>
 				}

@@ -133,6 +133,7 @@ export const recomputeEntityContributions = async (entityId: string): Promise<{e
             }
         } else {
             const diff = charDiffFromJSONString(texts[i-1], texts[i])
+            
             if(diff == null){
                 return {error: "couldn't compute char diff between versions " + (i-1) + " " + i}
             }
@@ -166,6 +167,9 @@ export const recomputeEntityContributions = async (entityId: string): Promise<{e
         }
         lastContribution = newData.contribution
         lastAccCharsAdded = newData.accCharsAdded
+    }
+
+    for(let i = 0; i < entity.versions.length; i++){
         revalidateTag("content:"+entity.versions[i].id)
     }
     revalidateTag("entity:"+entityId)

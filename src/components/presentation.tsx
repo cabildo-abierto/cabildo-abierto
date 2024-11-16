@@ -45,9 +45,9 @@ export const Presentation = ({loggingIn, setLoggingIn}: {loggingIn: boolean, set
       <button onClick={() => {setLoggingIn(!loggingIn)}} className="w-72 text-lg title mb-3 green-btn">
         <div className="m-1">{loggingIn ? "Crear cuenta" : "Iniciar sesión"}</div>
       </button>
-      <Link href="/inicio" className="link2 mb-16 text-[var(--text-light)] text-sm">
+      {false && <Link href="/inicio" className="link2 mb-16 text-[var(--text-light)] text-sm">
         Entrar como invitado/a
-      </Link>
+      </Link>}
       {openThanks && <ThanksForSubscribing onClose={() => {setOpenThanks(false)}}/>}
     </div>
 };

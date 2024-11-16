@@ -6,6 +6,7 @@ import { EntityCommentSection } from "./comment-section"
 import LoadingSpinner from "./loading-spinner"
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin"
+import { Button } from "@mui/material"
 
 
 
@@ -32,10 +33,10 @@ export const ArticleDiscussion = ({contentId, entity, version}: {contentId: stri
                 <h2>Discusión</h2>
             </div>
 
-            <div className="">
-                <button className="flex items-center space-x-2 w-full sm:text-base text-sm bg-[var(--secondary-light)] text-gray-700 rounded px-1" onClick={onGoToInformation}>
-                    Información <ArrowUpwardIcon fontSize="inherit"/>
-                </button>
+            <div className="text-[var(--text-light)]">
+                <Button variant="outlined" onClick={onGoToInformation} size="small" color="inherit" endIcon={<ArrowUpwardIcon/>}>
+                    Información
+                </Button>
             </div>
         </div>
         <div className="text-[var(--text-light)] text-sm sm:text-base mb-4">

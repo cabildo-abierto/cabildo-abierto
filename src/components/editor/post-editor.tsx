@@ -14,6 +14,7 @@ import { createPost, publishDraft, updateContent } from "../../actions/contents"
 import { compress } from "../compression"
 import { useContent } from "../../app/hooks/contents"
 import { ExtraChars } from "../extra-chars"
+import { Button } from "@mui/material"
 
 type PostEditorProps = {
     initialData?: string,
@@ -108,7 +109,7 @@ const PostEditor = ({
         return {error: "Ocurrió un error al enviar la publicación."}
 	}
 
-    const handleSaveDraft: StateButtonClickHandler = async (e) => {
+    const handleSaveDraft: StateButtonClickHandler = async () => {
         if(editor && user){
             const text = JSON.stringify(editor.getEditorState())
             const compressedText = compress(text)
@@ -150,32 +151,35 @@ const PostEditor = ({
 	const PublishButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
         return <StateButton
             handleClick={onClick}
-            className="small-btn sm:gray-btn text-xs sm:text-sm title"
             text1={isPublished ? "Guardar cambios" : "Publicar"}
             text2={isPublished ? "Guardando..." : "Publicando..."}
-            textClassName="py-2"
+            textClassName="title"
             disabled={disabled}
+            size="medium"
+            disableElevation={true}
         />
 	}
 
     const SaveDraftButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
         return <StateButton
             handleClick={onClick}
-            className="small-btn sm:gray-btn text-xs sm:text-sm title"
             text1="Guardar borrador"
             text2="Guardando..."
-            textClassName="py-2"
+            textClassName="title"
             disabled={saveDraftDisabled}
+            disableElevation={true}
         />
 	}
 
     const DraftsButton = () => {
         return <Link href="/borradores">
-            <button className="gray-btn hidden text-sm sm:block title">
-                <div className="py-1">
-                Ver borradores
-                </div>
-            </button>
+            <Button
+                variant="contained"
+                sx={{textTransform: "none"}}
+                disableElevation={true}
+            >
+                <span className="title">Ver borradores</span>
+            </Button>
         </Link>
     }
 

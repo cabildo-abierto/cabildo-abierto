@@ -47,7 +47,7 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
 
             <div className="py-4">
                 <StateButton
-                    handleClick={async (e) => {
+                    handleClick={async () => {
                         setErrorOnCreate(null)
                         const { id, error } = await createEntity(entityName, user.user.id);
                         if(error){

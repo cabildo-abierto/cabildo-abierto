@@ -1,3 +1,6 @@
+import { Button, IconButton } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 export const IntegerInputPlusMinus = ({value, onChange}: {value: number, onChange: (v: number) => void}) => {
 
@@ -21,13 +24,17 @@ export const IntegerInputPlusMinus = ({value, onChange}: {value: number, onChang
 
     return (
         <div className="flex items-center space-x-2">
-            <button
+            <IconButton
                 onClick={handleDecrement}
-                className={btnClassname}
+                color="primary"
+                
+                size="small"
                 disabled={value <= 1}
             >
-                -
-            </button>
+                <RemoveIcon/>
+            </IconButton>
+
+
             <input
                 id="integer-input"
                 type="text"
@@ -36,12 +43,13 @@ export const IntegerInputPlusMinus = ({value, onChange}: {value: number, onChang
                 onChange={handleChange}
                 className="px-4 py-1 border rounded-md focus:outline-none w-32 text-center text-gray-900"
             />
-            <button
+            <IconButton
                 onClick={handleIncrement}
-                className={btnClassname}
+                color="primary"
+                size="small"
             >
-                +
-            </button>
+                <AddIcon/>
+            </IconButton>
         </div>
     );
 };

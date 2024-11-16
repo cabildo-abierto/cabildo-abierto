@@ -15,6 +15,7 @@ import { createPreference } from '../actions/payments';
 import { IntegerInputPlusMinus } from './integer-input-plus-minus';
 import { UniqueDonationCheckout } from './unique-donation-checkout';
 import InfoPanel from './info-panel';
+import { Button } from '@mui/material';
 
 
 const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -87,6 +88,16 @@ const DonatedSoFar = ({user, donationsDistribution}: {user: UserProps, donations
 }
 
 
+export const BackButton = ({onClick}: {onClick: () => void}) => {
+    return <Button
+        sx={{textTransform: "none"}}
+        onClick={onClick}
+    >
+        Volver
+    </Button>
+}
+
+
 function DonationPage() {
     const [choice, setChoice] = useState("none")
     const [preferenceId, setPreferenceId] = useState<undefined | string>()
@@ -146,7 +157,7 @@ function DonationPage() {
                     <div className="flex flex-col items-center">
                         <div className="flex flex-col items-center">
                             <label htmlFor="integer-input" className="mb-2 text-gray-700 text-sm sm:text-base">
-                                Elegí una cantidad a aportar
+                                Elegí una cantidad
                             </label>
                             <IntegerInputPlusMinus value={amount} onChange={handleAmountChange}/>
                         </div>
@@ -160,40 +171,36 @@ function DonationPage() {
                 {amount % price.price != 0 && <div className="flex justify-center text-[var(--text-light)] py-2 text-xs sm:text-sm">
                     Por ahora solo aceptamos múltiplos de {price.price}.
                 </div>}
-
-                <div className="mt-12 flex justify-center items-center">
-                    <div className="flex justify-center py-2">
-                        <StateButton
-                            text1="Continuar"
-                            disabled={!validAmount}
-                            handleClick={onUniqueChosen}
-                            className="gray-btn title w-64 h-10"
-                        />
-                    </div>
-                </div>
-                <div className="flex justify-center mt-4">
-                    <button
-                        className="small-btn"
-                        onClick={() => {setChoice("none")}}
-                    >
-                        <div>Volver</div>
-                    </button>
+                
+                <div className="flex justify-center space-x-4 mt-12">
+                    <StateButton
+                        text1="Continuar"
+                        disabled={!validAmount}
+                        handleClick={onUniqueChosen}
+                    />
+                    <BackButton onClick={() => {setChoice("none")}}/>
                 </div>
             </div>
         </div>}
         {choice == "none" && <div className="flex justify-center mt-8">
-            <button
-                className="gray-btn title"
+            <Button
+                startIcon={<DonateIcon/>}
+                variant="contained"
+                color="primary"
+                size="large"
                 onClick={() => {setChoice("aportar")}}
+                sx={{textTransform: "none"}}
             >
-                <div><DonateIcon/> Aportar</div>
-            </button>
+                <span className="title">Aportar</span>
+            </Button>
         </div>}
     </div>
 
     const uniqueChosen = <div className="flex flex-col items-center">
         <UniqueDonationCheckout amount={amount} preferenceId={preferenceId}/>
-        <button className="small-btn" onClick={() => {setChoice("aportar"); }}>Volver</button>
+        <BackButton
+            onClick={() => {setChoice("aportar")}}
+        />
     </div>
 
     const center = <>

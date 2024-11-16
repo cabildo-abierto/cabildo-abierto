@@ -127,7 +127,7 @@ export const LikeAndCommentCounter: React.FC<LikeAndCommentCounterProps> = ({con
     const icon1 = isPost ? <ActivePraiseIcon/> : <ActiveLikeIcon/>
     const icon2 = isPost ? <InactivePraiseIcon/> : <InactiveLikeIcon/>
     return <div className="flex mb-1">
-        <ViewsCounter content={content}/>
+        <ViewsCounter content={content} disabled={disabled}/>
         <LikeCounter
             icon1={icon1}
             icon2={icon2}
