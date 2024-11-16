@@ -334,6 +334,12 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
             <ViewLastChangesButton/>
             <ViewAuthorsButton/>
             
+            {(user.user && (user.user.editorStatus == "Administrator" || user.user.id == "tomas")) && 
+                <div className="flex justify-center py-2">
+                    <RecomputeContributionsButton/>
+                </div>
+            }
+
             {(user.user && user.user.editorStatus == "Administrator") && <>
                 <div className="flex justify-center py-2">
                     <SetProtectionButton entity={entity.entity}/>
@@ -349,9 +355,6 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
                 </div>
                 <div className="flex justify-center py-2">
                     <RebootArticleButton/>
-                </div>
-                <div className="flex justify-center py-2">
-                    <RecomputeContributionsButton/>
                 </div>
                 <div className="flex justify-center py-2">
                     {entity.entity.isPublic ? <MakePrivateButton/> : <MakePublicButton/>}

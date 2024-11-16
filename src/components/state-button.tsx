@@ -42,7 +42,6 @@ const StateButton: React.FC<StateButtonProps> = ({
     useEffect(() => {
         async function submit(){
             const result = await handleClick()
-            console.log("result", result)
             if(result.error){
                 setError(result.error)
             }
