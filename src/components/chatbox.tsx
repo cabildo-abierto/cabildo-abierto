@@ -96,11 +96,11 @@ export const Chatbox = ({fromUser, toUser}: {fromUser?: string, toUser: string})
                 />
                 <div className="flex justify-center items-center">
                     <StateButton
-                        className="gray-btn h-full"
                         disabled={message.length === 0}
                         handleClick={onClickSend}
                         text1={<SendIcon/>}
                         text2={<SendIcon/>}
+                        disableElevation={true}
                     />
                 </div>
             </div>

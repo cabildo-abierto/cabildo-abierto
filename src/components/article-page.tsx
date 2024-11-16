@@ -34,6 +34,7 @@ import { ArticleDiscussion } from "./article-discussion";
 import LoadingSpinner from "./loading-spinner";
 import { useContent } from "../app/hooks/contents";
 import ContentComponent from "./content";
+import { Button } from "@mui/material";
 
 
 
@@ -184,10 +185,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
     const DeleteArticleButton = () => {
         return <StateButton
-            className={articleButtonClassname}
             text1="Eliminar tema"
             text2="Eliminando..."
-            handleClick={async (e) => {
+            variant="text"
+            handleClick={async () => {
                 const {error} = await deleteEntity(entityId, user.user.id)
                 mutate("/api/entities")
                 router.push("/inicio")
@@ -198,10 +199,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
     const RecomputeContributionsButton = () => {
         return <StateButton
-            className={articleButtonClassname}
+            variant="text"
             text1="Recalcular contribuciones"
             text2="Recalculando..."
-            handleClick={async (e) => {
+            handleClick={async () => {
                 return await recomputeEntityContributions(entityId)
             }}
         />
@@ -209,10 +210,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
     const RemoveHistoryButton = () => {
         return <StateButton
-            className={articleButtonClassname}
+            variant="text"
             text1="Eliminar historial"
             text2="Eliminando..."
-            handleClick={async (e) => {
+            handleClick={async () => {
                 const {error} = await deleteEntityHistory(entityId, false); 
                 mutate("/api/entity/"+entityId)
                 return {error}
@@ -223,10 +224,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
     const RebootArticleButton = () => {
         return <StateButton
-            className={articleButtonClassname}
+            variant="text"
             text1="Reiniciar"
             text2="Reiniciando..."
-            handleClick={async (e) => {
+            handleClick={async () => {
                 const {error} = await deleteEntityHistory(entityId, true); 
                 mutate("/api/entity/"+entityId)
                 return {error}
@@ -236,10 +237,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
     const MakePublicButton = () => {
         return <StateButton
-            className={articleButtonClassname}
+            variant="text"
             text1="Hacer público"
             text2="Haciendo público..."
-            handleClick={async (e) => {
+            handleClick={async () => {
                 const {error} = await makeEntityPublic(entityId, true); 
                 mutate("/api/entity/"+entityId)
                 return {error}
@@ -249,10 +250,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
     const UpdateWeakReferencesButton = () => {
         return <StateButton
-            className={articleButtonClassname}
+            variant="text"
             text1="Actualizar weak references"
             text2="Actualizando..."
-            handleClick={async (e) => {
+            handleClick={async () => {
                 return await updateAllWeakReferences()
             }}
         />
@@ -260,10 +261,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
     const MakePrivateButton = () => {
         return <StateButton
-            className={articleButtonClassname}
+            variant="text"
             text1="Hacer privado"
             text2="Haciendo privado..."
-            handleClick={async (e) => {
+            handleClick={async () => {
                 const {error} = await makeEntityPublic(entityId, false); 
                 mutate("/api/entity/"+entityId)
                 return {error}
@@ -333,7 +334,7 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
             
             {(user.user && user.user.editorStatus == "Administrator") && <>
                 <div className="flex justify-center py-2">
-                    <SetProtectionButton entity={entity}/>
+                    <SetProtectionButton entity={entity.entity}/>
                 </div>
                 <div className="flex justify-center py-2">
                     <DeleteArticleButton/>
@@ -423,10 +424,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
                     </h2>
                 </div>
 
-                <div className="">
-                    {selectedPanel != "editing" && <button className="flex items-center space-x-2 w-full sm:text-base text-sm bg-[var(--secondary-light)] text-gray-700 rounded px-1" onClick={onGoToDiscussion}>
-                        <div className="flex items-center">Discusión</div> <ArrowDownwardIcon fontSize="inherit"/>
-                    </button>}
+                <div className="text-[var(--text-light)]">
+                    {selectedPanel != "editing" && <Button variant="outlined" onClick={onGoToDiscussion} size="small" color="inherit" endIcon={<ArrowDownwardIcon/>}>
+                        Discusión
+                    </Button>}
                 </div>
             </div>
             <div className="text-[var(--text-light)] text-xs sm:text-sm">

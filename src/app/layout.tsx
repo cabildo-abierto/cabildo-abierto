@@ -1,5 +1,7 @@
+"use client"
+
 import './globals.scss'
-import { Metadata } from 'next'
+
 //import { Roboto_Mono, Roboto, Roboto_Condensed, , Roboto_Slab, Roboto_Flex } from 'next/font/google'
 //import { Bodoni_Moda, Lora, Inter, Source_Serif_4, PT_Serif } from 'next/font/google'
 //import { PT_Serif } from 'next/font/google'
@@ -8,7 +10,9 @@ import { Metadata } from 'next'
 //import { Roboto, Merriweather, Merriweather_Sans } from 'next/font/google'
 import { Merriweather } from 'next/font/google'
 import { pathLogo } from '../components/logo'
-
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import theme from './theme'; // Adjust the path if needed
+import { Metadata } from 'next';
 
 
 const merriweather = Merriweather({
@@ -155,12 +159,6 @@ const fonts = [
     //merriweather_sans.variable
 ]
 
-
-export const metadata: Metadata = {
-  title: 'Cabildo Abierto',
-  description: 'Un nuevo medio para la discusión pública argentina. Abrimos la información a discusión. Sin algoritmo, bots, ni noticias falsas.'
-}
-
 export default function RootLayout({
     children
 }: Readonly<{
@@ -178,7 +176,9 @@ export default function RootLayout({
             </meta>
         </head>
         <body className="bg-[var(--background)]">
+          <ThemeProvider theme={theme}>
             {children}
+          </ThemeProvider>
         </body>
     </html>
 }

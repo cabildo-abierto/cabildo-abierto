@@ -10,38 +10,36 @@ import { createPortal } from "react-dom";
 import { CabildoIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
 import { TopbarLogo } from "./logo";
-import { validSubscription } from "./utils";
 import { NotificationsButton } from "./notifications-button";
 import { useSearch } from "./search-context";
+import { IconButton } from "@mui/material";
 
 
 function FeedButton() {
-    return <Link href="/inicio" className="px-1">
-        <button className="hover:bg-[var(--secondary-light)] rounded-lg px-1">
-            <div className="flex py-1 mt-1">
-                <CabildoIcon/>
-            </div>
-        </button>
+    return <Link href="/inicio" className="">
+        <IconButton color="inherit">
+            <CabildoIcon/>
+        </IconButton>
     </Link>
 }
 
 
 function OpenSidebarButton({ onClick }: any) {
-    return <div className="px-1">
-        <button className="topbar-btn" onClick={onClick}>
-            <MenuIcon />
-        </button>
-    </div>
+    return <IconButton color="inherit" onClick={onClick}>
+        <MenuIcon />
+    </IconButton>
 }
 
 
-export const SearchButton = ({ onClick=null, disabled=false }: any) => {
-    return <div className="p-1">
-        <button className={!disabled ? "p-1 hover:bg-[var(--secondary-light)] rounded-lg " : ""}
-            onClick={onClick} disabled={disabled}>
-        <SearchIcon />
-    </button>
-    </div>
+export const SearchButton = ({ onClick, disabled=false }: {onClick?: () => void, disabled?: boolean}) => {
+    return <IconButton
+            onClick={onClick}
+            disabled={disabled}
+            color="inherit"
+            size="small"
+        >
+            <SearchIcon />
+    </IconButton>
 }
 
 
@@ -66,7 +64,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
     
     return <div className="flex items-center w-screen justify-between">
         <div className="flex items-center sm:w-72 text-gray-900">
-            {((!searchBarOpen && user.user) || wideScreen) && <TopbarLogo/>}
+            {((!searchBarOpen && user.user) || wideScreen) && <div className="ml-1"><TopbarLogo/></div>}
             {(!searchBarOpen || wideScreen) && <OpenSidebarButton onClick={onOpenSidebar}/>}
             {(!searchBarOpen || wideScreen) && <FeedButton />}
             {((!searchBarOpen && user.user) || wideScreen) && <WriteButton />}

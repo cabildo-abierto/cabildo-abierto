@@ -54,7 +54,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
         text2={"Guardando..."}
         className="small-btn my-2"
         disabled={!validComment(editorState, settings.charLimit)}
-        handleClick={async (e) => {
+        handleClick={async () => {
             setErrorOnEdit(false)
             const {error} = await updateContent(compress(
                 JSON.stringify(editorState)),

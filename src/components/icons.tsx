@@ -89,6 +89,16 @@ export const InactiveLikeIcon = () => {
     return <BiUpvote fontSize="1.3rem"/>
 }
 
+
+export const ActiveCommentIcon = () => {
+    return <ChatBubbleIcon fontSize="small"/>
+}
+
+
+export const InactiveCommentIcon = () => {
+    return <ChatBubbleOutlineIcon fontSize="small"/>
+}
+
 export const ActivePraiseIcon = () => {
     return <BiSolidUpvote fontSize="1.3rem"/>
 }
@@ -110,16 +120,6 @@ export const StatsIcon = () => {
 
 export const ScoreboardIcon = () => {
     return <LeaderboardIcon fontSize="small"/>
-}
-
-
-export const ActiveCommentIcon = () => {
-    return <ChatBubbleIcon fontSize="small"/>
-}
-
-
-export const InactiveCommentIcon = () => {
-    return <ChatBubbleOutlineIcon fontSize="small"/>
 }
 
 

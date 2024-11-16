@@ -1,7 +1,6 @@
 import React from "react";
 import { SidebarButton } from "./sidebar-button";
 import Link from "next/link";
-import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
 import EditNoteIcon from '@mui/icons-material/EditNote';
@@ -15,6 +14,7 @@ import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
 import { articleUrl } from "./utils";
+import { Button } from "@mui/material";
 
 
 function unseenCount(chat: ChatMessage[], userId: string){
@@ -43,16 +43,19 @@ const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}
 
 const SidebarUsername = ({user, onLogout}: {user: UserProps, onLogout: () => Promise<{error?: string}>}) => {
     return <div className="flex flex-col items-center">
-        <Link href={`/perfil/${user.id}`}
-            className="mb-1 cursor-pointer rounded px-3 hover:bg-[var(--secondary-light)] text-center">
-            {user.name}
+        <Link href={`/perfil/${user.id}`}>
+            <Button variant="text" color="inherit" sx={{ textTransform: 'none' }}>
+                {user.name}
+            </Button>
         </Link>
-        <div className="mb-2">
+        <div className="mb-2 w-48 flex justify-center">
             <StateButton
-                className="small-btn"
+                variant="text"
+                size="small"
+                color="primary"
                 handleClick={onLogout}
-                text1="Cerrar sesión"
-                text2="Cerrando sesión"
+                text1="CERRAR SESIÓN"
+                text2="..."
             />
         </div>
     </div>

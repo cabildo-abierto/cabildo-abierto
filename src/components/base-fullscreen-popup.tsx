@@ -25,7 +25,7 @@ export const BaseFullscreenPopup = ({
             <div className={"relative " + className}>
                 <Dialog.Panel className="bg-white rounded border-2 border-black text-center z-50">
                     {closeButton && (
-                        <div className="flex justify-end">
+                        <div className="flex justify-end mr-1 mt-1">
                             <CloseButton onClose={onClose} />
                         </div>
                     )}

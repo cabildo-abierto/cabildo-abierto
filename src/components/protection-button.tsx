@@ -16,7 +16,7 @@ function otherProtection(protection: string) {
     return protection == "Administrator" ? "Beginner" : "Administrator"
 }
 
-export const SetProtectionButton = ({entity} : any) => {
+export const SetProtectionButton = ({entity} : {entity: {id: string, protection: string}}) => {
     const protection = entity.protection
     
     async function onClick(){
@@ -27,7 +27,7 @@ export const SetProtectionButton = ({entity} : any) => {
     return <StateButton
         text1={"Cambiar protección a " + protectionToName(otherProtection(protection))}
         text2={"Cambiando..."}
-        className={articleButtonClassname}
+        variant="text"
         handleClick={onClick}
     />
 }

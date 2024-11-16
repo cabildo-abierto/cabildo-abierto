@@ -1,59 +1,82 @@
-"use client"
+"use client";
 
-import { ReactNode, useState } from "react"
-import { ErrorMsg } from "./write-button"
-import { AcceptButtonPanel } from "./accept-button-panel"
+import LoadingButton from '@mui/lab/LoadingButton';
+import { useEffect, useState } from 'react';
+import { AcceptButtonPanel } from './accept-button-panel';
 
 type StateButtonProps = {
-    handleClick: StateButtonClickHandler
-    className: string
-    text1: ReactNode
-    text2?: ReactNode
-    textClassName?: string
-    disabled?: boolean
-}
+  handleClick: StateButtonClickHandler;
+  variant?: "text" | "contained" | "outlined";
+  className?: string
+  color?: "primary" | "secondary"
+  size?: "small" | "medium" | "large",
+  text1: React.ReactNode;
+  text2?: React.ReactNode;
+  textClassName?: string;
+  disabled?: boolean;
+  disableElevation?: boolean
+};
 
-export type StateButtonClickHandler = (e?: any) => Promise<{error?: string, stopResubmit?: boolean}>
+export type StateButtonClickHandler = () => Promise<{ error?: string; stopResubmit?: boolean }>;
 
 const StateButton: React.FC<StateButtonProps> = ({
-    handleClick,
-    className,
-    textClassName="",
-    text1,
-    text2,
-    disabled=false
+  handleClick,
+  variant = "contained",
+  color = "primary",
+  textClassName = "",
+  text1,
+  text2,
+  size,
+  disabled = false,
+  disableElevation = false,
 }) => {
-    const [submitting, setSubmitting] = useState(false)
-    const [error, setError] = useState<string | undefined>()
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(undefined)
 
-    const clickHandle = async (e) => {
+    async function onClick(e) {
         e.stopPropagation()
         e.preventDefault()
-        setSubmitting(true)
-        setError(undefined)
-        const {stopResubmit, error: clickError} = await handleClick(e)
-        if(stopResubmit == undefined || !stopResubmit || clickError){
-            setSubmitting(false) // allow resubmit
-        }
-        if(clickError){
-            setError(clickError)
-        }
+        setLoading(true)
     }
 
-    return <div className="flex flex-col items-center">
-        <button 
-            className={className}
-            onClick={clickHandle}
-            disabled={submitting || disabled}
-        >
-            <div className={textClassName}>
-                {!submitting ? text1 : (text2 !== null ? text2 : text1)}
-            </div>
-        </button>
-        {error != undefined && <AcceptButtonPanel
-            onClose={() => {setError(undefined)}}
-        >{error}</AcceptButtonPanel>}
-    </div>
-}
+    useEffect(() => {
+        async function submit(){
+            const result = await handleClick()
+            console.log("result", result)
+            if(result.error){
+                setError(result.error)
+            }
+            setLoading(false)
+        }
 
-export default StateButton
+        if(loading){
+            submit()
+        }
+    }, [loading])
+
+    return <><LoadingButton
+      loading={loading}
+      loadingIndicator={text2 ? text2 : text1}
+      variant={variant}
+      color={color}
+      size={size}
+      onClick={onClick}
+      disabled={disabled}
+      disableElevation={disableElevation}
+      sx={{
+          textTransform: 'none'
+      }}
+    >
+      <div className={textClassName}>
+        {text1}
+      </div>
+    </LoadingButton>
+      {error && <AcceptButtonPanel
+        onClose={() => {setError(undefined)}}
+      >
+        {error}  
+      </AcceptButtonPanel>}
+    </>
+};
+
+export default StateButton;

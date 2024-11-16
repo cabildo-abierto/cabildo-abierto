@@ -1,9 +1,10 @@
+import { IconButton } from "@mui/material"
 import { CloseButtonIcon } from "./icons"
 
 
 
-export const CloseButton = ({onClose}: {onClose: () => void}) => {
-    return <button onClick={onClose} className="rounded hover:bg-[var(--secondary-light)] m-1">
-        <CloseButtonIcon />
-    </button>
+export const CloseButton = ({onClose, size}: {onClose: () => void, size?: "small" | "medium" | "large"}) => {
+    return <IconButton onClick={onClose} color="inherit" size={size}>
+        <CloseButtonIcon fontSize="inherit"/>
+    </IconButton>
 }

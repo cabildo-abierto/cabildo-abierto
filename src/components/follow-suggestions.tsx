@@ -11,6 +11,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import { SharePopup } from "./share-popup";
 import { SmallUserProps } from "../app/lib/definitions";
 import { CloseButtonIcon, TipIcon } from "./icons";
+import { Button } from "@mui/material";
 
 
 export const FollowSuggestions = () => {
@@ -55,24 +56,25 @@ export const FollowSuggestions = () => {
                 </div>
             </div>
             <div className="flex items-start">
-                <div className="flex items-center">
-                <InfoPanel text="Por seguidos en común y popularidad de sus publicaciones."/>
-                <CloseButton onClose={onClose}/>
+                <div className="flex items-center mr-1 mt-1">
+                    <CloseButton onClose={onClose} size="medium"/>
                 </div>
             </div>
         </div>
         <div className="px-4 mb-2">
             <SuggestionsSlider suggestions={suggestions} closePanel={onClose}/>
         </div>
-        <div className="flex justify-end px-2 mb-2">
-            <button
-                className="small-btn px-2 text-xs sm:text-sm flex items-center space-x-2"
+        <div className="flex justify-between items-center px-2 mb-2">
+            <InfoPanel text="Por seguidos en común y popularidad de sus publicaciones."/>
+            <Button
+                size="small"
                 onClick={() => {setOpenSharePopup(true)}}
                 id="share-button" data-umami-event="share-button"
+                endIcon={<ShareIcon/>}
+                sx={{textTransform: "none"}}
             >
-                <div>Compartir</div>
-                <div className="text-sm sm:text-base mb-1"><ShareIcon fontSize="inherit"/></div> 
-            </button>
+                Compartir
+            </Button>
         </div>
         {openSharePopup && <SharePopup onClose={() => {setOpenSharePopup(false)}}/>}
     </div>
@@ -128,10 +130,8 @@ export const SuggestionsSlider = ({suggestions, closePanel}: {
                 key={e.id+index}
             >
                 <div className="flex flex-col justify-between h-full">
-                <div className="flex justify-end text-[var(--text-light)]">
-                    <button onClick={() => {onClose(index)}} className="rounded hover:bg-[var(--secondary)] m-1">
-                    <CloseButtonIcon />
-                </button>
+                <div className="flex justify-end mt-1 mx-1">
+                <CloseButton onClose={() => {onClose(index)}} size="small"/>
                 </div>
                 <Link href={userUrl(e.id)} className="flex items-center justify-center text-xs sm:text-sm flex-col px-1">
                     <span>
@@ -143,10 +143,12 @@ export const SuggestionsSlider = ({suggestions, closePanel}: {
                 </Link>
                 <div className="flex justify-center text-sm mt-2 mb-1 px-1">
                     <StateButton
-                        className="gray-btn text-xs sm:text-sm"
                         handleClick={async () => {return await onFollow(e.id, index);}}
                         text1="Seguir"
                         text2="Siguiendo..."
+                        size="small"
+                        variant="contained"
+                        disableElevation={true}
                     />
                 </div>
                 </div>

@@ -1,6 +1,7 @@
 "use client"
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import { RedFlag, WriteButtonIcon } from './icons';
 import { CreateFakeNewsReportModal } from './create-fake-news-report';
@@ -11,45 +12,51 @@ import { articleUrl, contentUrl, editContentUrl } from './utils';
 import { useUser } from '../app/hooks/user';
 import { deleteContent } from '../actions/admin';
 import ShareIcon from '@mui/icons-material/Share';
+import { Button, IconButton } from '@mui/material';
+
+
+export const ContentOptionsChoiceButton = ({children, onClick, icon}: {children: ReactNode, onClick: () => void, icon: ReactNode}) => {
+    return <Button
+        onClick={(e) => {e.stopPropagation(); e.preventDefault(); onClick()}}
+        startIcon={icon}
+        color="inherit"
+        sx={{
+            textTransform: 'none',
+            justifyContent: 'flex-start',  // Align icon and text to the left
+            paddingLeft: 2,                // Optional: add padding to the left to give space
+        }}
+        fullWidth
+    >
+        {children}
+    </Button>
+}
 
 
 const ShareContentButton = ({ content }: { content: { id: string; parentEntityId?: string } }) => {
-  const [onClipboard, setOnClipboard] = useState(false);
+    const [onClipboard, setOnClipboard] = useState(false);
 
-  const onShare = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    e.preventDefault();
+    const onShare = () => {
+        const link = content.parentEntityId
+        ? `${window.location.origin}${articleUrl(content.parentEntityId)}`
+        : `${window.location.origin}${contentUrl(content.id)}`;
 
-    const link = content.parentEntityId
-      ? `${window.location.origin}${articleUrl(content.parentEntityId)}`
-      : `${window.location.origin}${contentUrl(content.id)}`;
+        navigator.clipboard.writeText(link).then(
+        () => {
+            setOnClipboard(true);
+            setTimeout(() => setOnClipboard(false), 2000);
+        },
+        (err) => {
+            console.error('Failed to copy: ', err);
+        }
+        );
+    };
 
-    navigator.clipboard.writeText(link).then(
-      () => {
-        setOnClipboard(true);
-        setTimeout(() => setOnClipboard(false), 2000);
-      },
-      (err) => {
-        console.error('Failed to copy: ', err);
-      }
-    );
-  };
-
-  return (
-    <button
-      className="hover:bg-[var(--secondary-light)] px-2 py-1 rounded"
-      onClick={onShare}
+    return <ContentOptionsChoiceButton
+        onClick={onShare}
+        icon={<ShareIcon/>}
     >
-      {!onClipboard ? (
-        <div className="flex items-center space-x-2 w-full">
-          <ShareIcon fontSize="inherit" />
-          <span>Compartir</span>
-        </div>
-      ) : (
-        <div className="flex w-24">Link copiado</div>
-      )}
-    </button>
-  );
+        <div className="whitespace-nowrap">{!onClipboard ? "Compartir" : "Link copiado"}</div>
+    </ContentOptionsChoiceButton>
 };
 
 
@@ -75,9 +82,7 @@ export const ContentOptionsDropdown = ({
         onClose()
     }
 
-    function onEdit(e){
-        e.preventDefault()
-        e.stopPropagation()
+    function onEdit(){
         if(content.type == "Comment"){
             setIsEditModalOpen(true)
         } else {
@@ -86,32 +91,32 @@ export const ContentOptionsDropdown = ({
         onClose()
     }
 
-    async function onDelete(e){
-        e.preventDefault()
-        e.stopPropagation()
+    async function onDelete(){
         return await deleteContent(content.id)
     }
 
     return <div className="text-base content-container rounded bg-[var(--content)] p-2">
         {optionsList.includes("reportFake") && 
-        <button 
-            className="hover:bg-[var(--secondary-light)] px-2 py-1 rounded flex w-full"
+        <ContentOptionsChoiceButton 
             onClick={onReportFake}
+            icon={<RedFlag/>}
         >
-            <RedFlag/> <span className="ml-2 whitespace-nowrap">Reportar información falsa</span>
-        </button>}
-        {optionsList.includes("edit") && <button
-            className="hover:bg-[var(--secondary-light)] px-2 py-1 rounded space-x-2 flex items-center w-full"
+            <div className="whitespace-nowrap">Reportar información falsa</div>
+        </ContentOptionsChoiceButton>}
+
+        {optionsList.includes("edit") && <ContentOptionsChoiceButton
             onClick={onEdit}
+            icon={<WriteButtonIcon/>}
         >
-            <WriteButtonIcon/><span>Editar</span>
-        </button>}
-        {user.user && user.user.editorStatus == "Administrator" && <button
-            className="hover:bg-[var(--secondary-light)] px-2 py-1 rounded w-full"
+            Editar
+        </ContentOptionsChoiceButton>}
+        {user.user && user.user.editorStatus == "Administrator" && <ContentOptionsChoiceButton
             onClick={onDelete}
+            icon={<DeleteIcon/>}
         >
             Eliminar
-        </button>}
+        </ContentOptionsChoiceButton>}
+
         {optionsList.includes("share") && <ShareContentButton content={content}/>}
 
         {isFakeNewsModalOpen && <CreateFakeNewsReportModal contentId={content.id} onClose={() => {setIsFakeNewsModalOpen(false); onClose()}}/>}
@@ -135,12 +140,12 @@ export const ContentOptionsButton = ({content, optionList}: ContentOptionsButton
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     return <div style={{ position: 'relative', display: 'inline-block' }}>
-        <button
-            className="p-1 mt-1 flex items-center hover:bg-[var(--background-dark)] rounded"
+        <IconButton
+            color="inherit"
             onClick={(e) => {e.preventDefault(); e.stopPropagation(); setIsDropdownOpen(prev => !prev)}}
         >
             <MoreHorizIcon fontSize="small" />
-        </button>
+        </IconButton>
 
         <ModalBelow
             open={isDropdownOpen}

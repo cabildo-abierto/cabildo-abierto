@@ -1,5 +1,6 @@
 import { ReactNode } from "react"
 import { stopPropagation } from "./utils"
+import { Button, IconButton } from "@mui/material"
 
 type ReactionButtonProps = {
     onClick: () => void
@@ -14,19 +15,19 @@ type ReactionButtonProps = {
 
 export const ReactionButton = ({onClick, count, icon1, icon2, active=true, disabled=false, title, className="reaction-btn"}: ReactionButtonProps) => {
     
-    return <div className="" title={title}>
-        <button onClick={stopPropagation(onClick)}
-            disabled={disabled}
-            className={className + (active ? " toggled" : "")}
-        >
-            <div className="flex items-end">
-                <span className="px-[2px]">{active ? icon1 : icon2 }</span>
-                <div className="flex justify-center">           
-                    <span className="text-xs">
-                        {count}
-                    </span>  
-                </div>
+    return <IconButton
+        onClick={stopPropagation(onClick)}
+        disabled={disabled}
+        title={title}
+        size="small"
+    >
+        <div className={"flex items-end " + className + (active ? " toggled " : "")}>
+            <span className={"px-[2px]"}>{active ? icon1 : icon2 }</span>
+            <div className="flex justify-center">           
+                <span className="text-xs">
+                    {count}
+                </span>  
             </div>
-        </button>
-    </div>
+        </div>
+    </IconButton>
 }

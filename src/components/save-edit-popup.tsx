@@ -101,7 +101,7 @@ export const SaveEditPopup = ({
                         </button>
                         <StateButton
                             className="gray-btn w-48"
-                            handleClick={async (e) => {
+                            handleClick={async () => {
                                 return await onSave(claimsAuthorship, editMsg)}
                             }
                             text1="Confirmar"

@@ -68,7 +68,9 @@ export const WritePanelMainFeed = ({onClose, mobile=false}: {onClose: () => void
         text2="Enviando..."
         handleClick={handleSubmit}
         disabled={disabled}
-        className="small-btn title text-sm"
+        textClassName="title"
+        size="medium"
+        disableElevation={true}
     />
 
     const editorComp = <div className="sm:text-lg py-2 px-1 h-full max-h-[400px] overflow-scroll" key={editorKey}>
