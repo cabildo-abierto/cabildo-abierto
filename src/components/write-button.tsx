@@ -56,7 +56,7 @@ const WriteButton = () => {
             </IconButton>
 
             <ModalBelow open={isDropdownOpen} setOpen={setIsDropdownOpen} className="">
-                <div className="z-10 bg-[var(--background)] rounded content-container px-2 py-2 mt-1 flex flex-col items-center space-y-2">
+                <div className="z-[52] bg-[var(--background)] rounded content-container px-2 py-2 mt-1 flex flex-col items-center space-y-2">
                     
                     <NewFastPostButton
                         onClick={() => {setIsDropdownOpen(false)}}
