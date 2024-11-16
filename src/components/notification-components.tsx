@@ -4,6 +4,7 @@ import { ContributionsProps, NotificationProps } from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
 import { useUser } from "../app/hooks/user"
 import { articleUrl, contentUrl } from "./utils"
+import { BothContributionsProps } from "../actions/entities"
 
 
 const UserMention = ({id}: {id: string}) => {
@@ -15,9 +16,9 @@ const EditDescriptionInNotification = ({content}: {content: {parentEntityId: str
     const href = articleUrl(content.parentEntityId)
     const {user} = useUser()
 
-    const c: ContributionsProps = JSON.parse(content.contribution)
+    const c: BothContributionsProps = JSON.parse(content.contribution)
 
-    if(user && c.some(([a, n]) => (a == user.id))){
+    if(user && c.all.some(([a, n]) => (a == user.id))){
         return <>
             el <Link href={href}>tema</Link> que editaste
         </>

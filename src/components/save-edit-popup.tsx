@@ -102,7 +102,6 @@ export const SaveEditPopup = ({
                             Volver
                         </Button>
                         <StateButton
-                            className="gray-btn w-48"
                             handleClick={async () => {
                                 return await onSave(claimsAuthorship, editMsg)}
                             }

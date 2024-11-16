@@ -1,10 +1,10 @@
 import Link from "next/link"
 import { useEntity } from "../app/hooks/entities"
-import { currentVersion, getEntityMonetizedChars, getEntityMonetizedContributions, isDemonetized } from "./utils"
-import { Button, IconButton } from "@mui/material"
-import { AuthorshipClaimIcon } from "./icons"
+import { currentVersion, getEntityMonetizedChars, getEntityMonetizedContributions } from "./utils"
+import { Button } from "@mui/material"
 import { useState } from "react"
-import { EntityProps } from "../app/lib/definitions"
+import { BothContributionsProps } from "../actions/entities"
+import { ContributionsProps } from "../app/lib/definitions"
 
 
 
@@ -37,7 +37,7 @@ export const ShowUserContribution = ({entityId, userId}:
         </div>
     }
 
-    let contributions: [string, number][] = JSON.parse(lastVersion.contribution)
+    let contributions: [string, number][] = JSON.parse(lastVersion.contribution).monetized
     
     const total = lastVersion.accCharsAdded
 
@@ -72,7 +72,13 @@ export const ShowContributors = ({entityId, userId}:
         </div>
     }
 
-    let contributions: [string, number][] = JSON.parse(lastVersion.contribution)
+    let contributions: ContributionsProps
+    try {
+        let contributionsBoth: BothContributionsProps = JSON.parse(lastVersion.contribution)
+        contributions = monetized ? contributionsBoth.monetized : contributionsBoth.all
+    } catch {
+        return <></>
+    }
 
     if(contributions == null){
         return <></>
@@ -84,7 +90,6 @@ export const ShowContributors = ({entityId, userId}:
 
     let total = lastVersion.accCharsAdded
     if(monetized){
-        contributions = getEntityMonetizedContributions(entity, entity.versions.length-1)
         total = getEntityMonetizedChars(entity, entity.versions.length-1)
     }
 

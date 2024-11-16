@@ -96,8 +96,6 @@ export async function newContactMail(mail: string){
 
 export async function createPaymentPromisesForEntityView(view: {content: {id: string, authorId: string, createdAt: Date}}, viewValue: number, subscriptionId: string){
 
-    console.log("creating payment promises for entity view")
-
     const {content, error} = await getContentById(view.content.id)
     if(error) return {error}
     
@@ -132,6 +130,7 @@ export async function createPaymentPromisesForEntityViews(user: UserProps, amoun
                     createdAt: true,
                     parentEntity: {
                         select: {
+                            id: true,
                             versions: {
                                 select: {
                                     authorId: true
@@ -173,6 +172,7 @@ export async function createPaymentPromisesForEntityViews(user: UserProps, amoun
 
     for(let i = 0; i < entityViews.length; i++){
         const view = entityViews[i]
+        console.log("creating payment promises for entity view", view.content.parentEntity.id)
         await createPaymentPromisesForEntityView(view, viewValue, subscriptionId)
     }
     return true
@@ -370,11 +370,12 @@ export async function createPaymentPromises(){
 
         const nextSubscriptionEnd = subscriptionEnds(nextSubscriptionStart)
 
+        console.log("User", userId)
         if(nextSubscriptionEnd > new Date()){
+            console.log("skipping because next subscription is not done")
             continue
         }
 
-        console.log("User", userId)
         console.log("Current subscriptions", users[i].subscriptionsUsed.length)
         console.log("Next subscription", formatDate(nextSubscriptionStart), formatDate(nextSubscriptionEnd))
 

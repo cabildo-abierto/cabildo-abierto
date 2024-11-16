@@ -63,7 +63,7 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
                         return {}
                     }}
                     disabled={!user.user || !validEntityName(entityName)}
-                    textClassName="title"
+                    textClassName="title px-4"
                     text1="Crear"
                     text2="Creando..."
                 />
