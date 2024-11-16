@@ -9,7 +9,6 @@ import { compress, decompress } from "../components/compression";
 import { getEntityById, updateEntityCurrentVersion, recomputeEntityContributions, getEntities } from "./entities";
 import { launchDate, subscriptionEnds, validSubscription } from "../components/utils";
 import { isSameDay } from "date-fns";
-import { createPaymentPromises, createPromises } from "./payments";
 import { UserMonthDistributionProps } from "../app/lib/definitions";
 
 
@@ -826,5 +825,20 @@ export async function getPaymentsStats(){
         }
     })
 
-    return {userMonths}
+    const entities = await db.entity.findMany({
+        select: {
+            id: true,
+            name: true,
+            versions: {
+                select: {
+                    contribution: true
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            }
+        }
+    })
+
+    return {userMonths, entities}
 }

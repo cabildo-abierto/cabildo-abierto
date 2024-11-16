@@ -15,10 +15,18 @@ export function getAllText(node: any){
 
 
 export function charDiff(str1: string, str2: string){
-    if(str1.length * str2.length > 1000000){
-        return {error: "el producto en char diff es " + str1.length * str2.length}
+    if(str1 == str2) return {total: 0, insertions: 0, deletions: 0}
+
+    if(str1.length * str2.length > 10000000){
+        //console.log(str1)
+        //console.log(str2)
+        console.log("Product size is", str1.length*str2.length)
+        return {total: str1.length + str2.length, insertions: str2.length, deletions: str1.length}
     }
+    
+    const t1 = Date.now()
     const common = lcs(Array.from(str1), Array.from(str2))
+    const t2 = Date.now()
 
     const insertions = str2.length - common.length
     const deletions = str1.length - common.length
@@ -44,16 +52,41 @@ export function wordDiff(str1: string, str2: string){
 
 
 export function textNodesFromJSONStr(s: string){
-    return nodesFromJSONStr(s).map(getAllText)
+    const nodes = nodesFromJSONStr(s).map(getAllText)
+    return nodes
+    /*let smallNodes = []
+    for(let i = 0; i < nodes.length; i++){
+        const n = nodes[i]
+        for(let j = 0; j < n.length; j += 1000){
+            smallNodes.push(n.slice(j, j+1000))
+        }
+    }
+    return smallNodes*/
 }
 
 
 export function nodesFromJSONStr(s: string){
     try {
-        return JSON.parse(s).root.children
+        const root = JSON.parse(s).root
+        return root.children
     } catch {
         return []
     }
+}
+
+
+export function getNodeList(n: any){
+    let nodes = []
+    n.children.forEach((c) => {
+        if(c.type == "list"){
+            c.children.forEach((cc) => {
+                nodes.push(cc)
+            })
+        } else {
+            nodes.push(c)
+        }
+    })
+    return nodes
 }
 
 
@@ -98,9 +131,6 @@ export function minMatch(nodes1, nodes2, common: {x: number, y: number}[]){
     for(let i = 0; i < uncommonNodes1.length; i++){
         for(let j = 0; j < uncommonNodes2.length; j++){
             const d = charDiff(uncommonNodes1[i].node, uncommonNodes2[j].node)
-            if(d.error){
-                return null
-            }
             a[i][j] = d.total
         }
     }
@@ -180,7 +210,6 @@ export function diff(nodes1: string[], nodes2: string[], safe: boolean = false){
     let matches: {x: number, y: number}[] | null = minMatch(nodes1, nodes2, common)
 
     if(matches == null) return null
-
 
     matches = matches.filter((m) => (m != undefined))
 
