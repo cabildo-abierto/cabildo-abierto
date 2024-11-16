@@ -35,14 +35,20 @@ export default async function Page() {
 
         <h1>Temas</h1>
 
-        <div>
+        <div className="flex flex-col">
             {entities.map((m, index) => {
                 const c = JSON.parse(m.versions[0].contribution)
-                console.log(m.name, c)
-                return <>{m.name}</>
+                if(!c) {
+                    console.log("error con ", m.name)
+                    return <></>
+                }
                 if(c.length > 1){
-                    return <div key={index}>
-                        {m.name} {c}
+                    return <div key={index} className="flex space-x-2">
+                        {m.name} {c.map((a, index) => {
+                            return <div key={index} className="p-1 border rounded">
+                                {a[0]} {a[1]}
+                            </div>
+                        })}
                     </div>
                 } else {
                     return <></>

@@ -15,7 +15,7 @@ import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./accept-button-panel"
 import { NoEditPermissionsMsg } from "./no-edit-permissions-msg"
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
-import { toPercentage } from "./show-contributors"
+import { getEntityMonetizedChars, toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
 import { BaseFullscreenPopup } from "./base-fullscreen-popup"
 
@@ -132,12 +132,7 @@ const MonetizationPortion = ({entity, index}: {entity: EntityProps, index: numbe
 
     const charsAdded = entity.versions[index].charsAdded
 
-    let monetizedCharsAdded = 0
-    for(let i = 0; i < entity.versions.length; i++){
-        if(!isDemonetized(entity.versions[i])){
-            monetizedCharsAdded += entity.versions[i].charsAdded
-        }
-    }
+    let monetizedCharsAdded = getEntityMonetizedChars(entity, entity.versions.length-1)
 
     return <span title="Porcentaje sobre las contribuciones monetizadas">
         {toPercentage(charsAdded, monetizedCharsAdded)}%
