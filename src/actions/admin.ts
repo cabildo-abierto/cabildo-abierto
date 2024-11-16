@@ -397,7 +397,7 @@ export async function takeAuthorship(contentId: string) {
     const {user, error: userError} = await getUser()
     if(userError) return {error: userError}
 
-    if(!user || user.editorStatus != "Administrator" || user.id == content.author.id){
+    if(!user || (user.editorStatus != "Administrator" && user.id != "tomas") || user.id == content.author.id){
         return {error: "No tenés los permisos suficientes para hacer esto."}
     }
 
@@ -424,6 +424,7 @@ export async function takeAuthorship(contentId: string) {
     if(content.parentEntityId){
         revalidateTag("entity:"+content.parentEntityId)
     }
+    
     return {}
 }
 
@@ -831,10 +832,28 @@ export async function getPaymentsStats(){
             name: true,
             versions: {
                 select: {
-                    contribution: true
+                    contribution: true,
+                    editPermission: true,
+                    charsAdded: true,
+                    author: {
+                        select: {
+                            id: true
+                        }
+                    },
+                    undos: {
+                        select: {
+                            id: true
+                        }
+                    },
+                    rejectedById: true,
+                    confirmedById: true,
+                    claimsAuthorship: true
                 },
                 orderBy: {
                     createdAt: "desc"
+                },
+                where: {
+                    type: "EntityContent"
                 }
             }
         }
