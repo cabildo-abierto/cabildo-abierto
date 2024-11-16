@@ -13,6 +13,7 @@ import StateButton from "./state-button";
 import TickButton from "./tick-button";
 import { articleUrl, hasEditPermission } from "./utils";
 import { ChangesCounter, ChangesCounterWithText } from "./changes-counter";
+import { Button } from "@mui/material";
 
 
 const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: string) => void}) => {
@@ -93,12 +94,13 @@ export const SaveEditPopup = ({
                         />
                     </div>}
                     <div className="flex justify-center items-center space-x-4 mt-4">
-                        <button
-                            className="gray-btn w-48"
+                        <Button
+                            color="primary"
+                            variant="text"
                             onClick={async () => {onClose()}}
                         >
                             Volver
-                        </button>
+                        </Button>
                         <StateButton
                             className="gray-btn w-48"
                             handleClick={async () => {
@@ -107,6 +109,7 @@ export const SaveEditPopup = ({
                             text1="Confirmar"
                             text2="Guardando..."
                             disabled={diff === "too big"}
+                            disableElevation={true}
                         />
                     </div>
                 </div>

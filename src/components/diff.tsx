@@ -15,7 +15,7 @@ export function getAllText(node: any){
 
 
 export function charDiff(str1: string, str2: string){
-    if(str1.length * str2.length > 10000){
+    if(str1.length * str2.length > 1000000){
         return {error: "el producto en char diff es " + str1.length * str2.length}
     }
     const common = lcs(Array.from(str1), Array.from(str2))
@@ -99,7 +99,6 @@ export function minMatch(nodes1, nodes2, common: {x: number, y: number}[]){
         for(let j = 0; j < uncommonNodes2.length; j++){
             const d = charDiff(uncommonNodes1[i].node, uncommonNodes2[j].node)
             if(d.error){
-                console.log("error", d.error)
                 return null
             }
             a[i][j] = d.total
@@ -178,7 +177,6 @@ export function diff(nodes1: string[], nodes2: string[], safe: boolean = false){
     if(safe && (nodes1.length - common.length) * (nodes2.length - common.length) > 10000){
         return null
     }
-
     let matches: {x: number, y: number}[] | null = minMatch(nodes1, nodes2, common)
 
     if(matches == null) return null
