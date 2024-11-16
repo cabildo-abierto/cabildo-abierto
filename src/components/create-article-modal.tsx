@@ -43,8 +43,6 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
             
             <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir a la página del tema después de crearlo</span>}/>
 
-
-
             <div className="py-4">
                 <StateButton
                     handleClick={async () => {
@@ -65,7 +63,7 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
                         return {}
                     }}
                     disabled={!user.user || !validEntityName(entityName)}
-                    className="gray-btn w-full title"
+                    textClassName="title"
                     text1="Crear"
                     text2="Creando..."
                 />

@@ -33,7 +33,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
 
     let settings = {...commentEditorSettings}
     settings.placeholder = "Escribí la nueva versión de tu comentario..."
-    settings.editorClassName = "min-h-[200px] content px-1"
+    settings.editorClassName = settings.editorClassName + " min-h-[200px]"
     settings.isAutofocus = true
     settings.content = content.content
     settings.initialData = decompress(content.content.compressedText)
@@ -49,10 +49,10 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
         {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
     </div>
 
-    const saveBtn = <StateButton
+    const saveBtn = <div className="my-2"><StateButton
         text1={"Guardar"}
         text2={"Guardando..."}
-        className="small-btn my-2"
+        disableElevation={true}
         disabled={!validComment(editorState, settings.charLimit)}
         handleClick={async () => {
             setErrorOnEdit(false)
@@ -70,7 +70,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
                 return {}
             }
         }}
-    />
+    /></div>
 
     const error = errorOnEdit ? <div className="text-red-600 text-sm mb-2">Ocurrió un error al guardar la edición. Intentalo de nuevo.</div> : <></>
 

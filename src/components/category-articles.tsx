@@ -14,6 +14,7 @@ import SelectionComponent from "./search-selection-component"
 import { NewPublicArticleButton } from "./new-public-article-button"
 import { topicPopularityScore } from "./trending-articles"
 import { TipIcon } from "./icons"
+import { Button } from "@mui/material"
 
 
 export function countUserReferences(entity: SmallEntityProps){
@@ -90,9 +91,14 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
         </div>}
         
         {!onSearchPage && <div className="flex justify-center py-4">
-            <NewPublicArticleButton
-                onClick={() => {}}
-            />
+            <Button
+                color="primary"
+                variant="contained"
+                disableElevation={true}
+                sx={{textTransform: "none"}}
+            >
+                Nuevo tema
+            </Button>
         </div>}
         
         {!onSearchPage && <div className="flex flex-1 justify-center text-sm space-x-1 mb-4">
