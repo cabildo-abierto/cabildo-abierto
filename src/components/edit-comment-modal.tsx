@@ -50,8 +50,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
     </div>
 
     const saveBtn = <div className="my-2"><StateButton
-        text1={"Guardar"}
-        text2={"Guardando..."}
+        text1="Guardar"
         disableElevation={true}
         disabled={!validComment(editorState, settings.charLimit)}
         handleClick={async () => {

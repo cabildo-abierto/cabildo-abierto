@@ -24,7 +24,7 @@ export const WritePanelMainFeed = ({onClose, mobile=false}: {onClose: () => void
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
 
     const placeholders = [
-        "No más de 800 caracteres...",
+        "Una ráfaga comunicacional de menos de 800 caracteres...",
     ];
 
     useEffect(() => {
@@ -65,7 +65,6 @@ export const WritePanelMainFeed = ({onClose, mobile=false}: {onClose: () => void
 
     const sendButton = <StateButton
         text1="Publicar"
-        text2="Enviando..."
         handleClick={handleSubmit}
         disabled={disabled}
         textClassName="title"

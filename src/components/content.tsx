@@ -311,7 +311,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
 
     return (
         <>
-            {(user && (user.editorStatus == "Administrator" || user.id == "tomas") && user.id !== content.author.id) && (
+            {(user && (user.editorStatus == "Administrator") && user.id !== content.author.id) && (
                 <button
                     className="border mx-1 text-xs hover:bg-[var(--secondary-light)]"
                     onClick={async () => {

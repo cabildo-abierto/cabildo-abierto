@@ -1,17 +1,18 @@
 "use client";
 
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { AcceptButtonPanel } from './accept-button-panel';
 
 type StateButtonProps = {
   handleClick: StateButtonClickHandler;
   variant?: "text" | "contained" | "outlined";
   className?: string
-  color?: "primary" | "secondary"
+  color?: "primary" | "secondary" | "error"
   size?: "small" | "medium" | "large",
-  text1: React.ReactNode;
-  text2?: React.ReactNode;
+  text1: ReactNode;
+  text2?: ReactNode;
+  startIcon?: ReactNode;
   textClassName?: string;
   disabled?: boolean;
   disableElevation?: boolean
@@ -24,6 +25,7 @@ const StateButton: React.FC<StateButtonProps> = ({
   variant = "contained",
   color = "primary",
   textClassName = "",
+  startIcon,
   text1,
   text2,
   size,
@@ -45,7 +47,9 @@ const StateButton: React.FC<StateButtonProps> = ({
             if(result.error){
                 setError(result.error)
             }
-            setLoading(false)
+            if(!result.stopResubmit){
+              setLoading(false)
+            }
         }
 
         if(loading){
@@ -55,7 +59,8 @@ const StateButton: React.FC<StateButtonProps> = ({
 
     return <><LoadingButton
       loading={loading}
-      loadingIndicator={text2 ? text2 : text1}
+      startIcon={startIcon}
+      loadingIndicator={text2}
       variant={variant}
       color={color}
       size={size}

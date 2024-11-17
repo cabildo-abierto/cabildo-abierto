@@ -139,6 +139,10 @@ type ContentOptionsButtonProps = {
 export const ContentOptionsButton = ({content, optionList}: ContentOptionsButtonProps) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+    function onClose() {
+        setIsDropdownOpen(false)
+    }
+
     return <div style={{ position: 'relative', display: 'inline-block' }}>
         <IconButton
             color="inherit"
@@ -154,7 +158,7 @@ export const ContentOptionsButton = ({content, optionList}: ContentOptionsButton
         >
             <ContentOptionsDropdown
                 content={content}
-                onClose={() => {setIsDropdownOpen(false)}}
+                onClose={onClose}
                 optionsList={[...optionList, "share"]}
             />
         </ModalBelow>

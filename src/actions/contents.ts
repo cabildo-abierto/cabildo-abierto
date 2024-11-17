@@ -579,7 +579,7 @@ export async function updateContent(compressedText: string, contentId: string, u
 }
 
 
-export async function publishDraft(compressedText: string, contentId: string, userId: string, title?: string) {
+export async function publishDraft(compressedText: string, contentId: string, userId: string, isPublished: boolean, title?: string) {
     const {error} = await updateContent(compressedText, contentId, userId, title)
     if(error) return {error}
 
@@ -590,7 +590,8 @@ export async function publishDraft(compressedText: string, contentId: string, us
             },
             data: {
                 isDraft: false,
-                createdAt: new Date(),
+                createdAt: isPublished ? undefined : new Date(),
+                isContentEdited: isPublished
             }
         })
     } catch {
@@ -981,4 +982,20 @@ export async function updateAllUniqueCommentators() {
             }
         })
     }
+}
+
+
+export async function deleteDraft(contentId: string){
+    const userId = await getUserId()
+    try {
+        await db.content.delete({
+            where: {
+                id: contentId
+            }
+        })
+    } catch {
+        return {error: "Error al borrar el borrador."}
+    }
+    revalidateTag("drafts:"+userId)
+    return {}
 }
