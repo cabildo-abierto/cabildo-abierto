@@ -43,7 +43,7 @@ export async function createEntity(name: string, userId: string){
                 parentEntityId: entityId,
                 uniqueViewsCount: 0,
                 fakeReportsCount: 0,
-                contribution: JSON.stringify([]),
+                contribution: JSON.stringify({monetized: [], all: []}),
                 charsAdded: 0,
                 charsDeleted: 0,
                 accCharsAdded: 0,
@@ -233,7 +233,7 @@ export const updateEntityContent = async (
             contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId, permission && claimsAuthorship))
         }
     } catch {
-        return {error: "Ocurrió un error al guardar los cambios."}
+        return {error: "Ocurrió un error al guardar los cambios. e01."}
     }
 
     let newContent
