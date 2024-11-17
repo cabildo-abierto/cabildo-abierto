@@ -79,8 +79,8 @@ type PostEditorProps = {
 }
 
 
-function useDebouncedEffect(effect, deps, delay) {
-    const handler = useRef();
+function useDebouncedEffect(effect: () => void, deps: any[], delay: number) {
+    const handler = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         if (handler.current) clearTimeout(handler.current);
@@ -90,9 +90,9 @@ function useDebouncedEffect(effect, deps, delay) {
         }, delay);
 
         return () => {
-            clearTimeout(handler.current);
+            if (handler.current) clearTimeout(handler.current);
         };
-    }, [...deps]);
+    }, [...deps, delay]);
 }
 
 
