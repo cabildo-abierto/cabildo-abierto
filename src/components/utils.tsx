@@ -4,6 +4,7 @@ import { db } from "../db"
 import { decompress } from "./compression"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
 import { ContentType } from "@prisma/client"
+import { BothContributionsProps } from "../actions/entities"
 
 
 export const splitPost = (text: string) => {
@@ -299,17 +300,35 @@ export function getVersionInEntity(contentId: string, entity: EntityProps){
 }
 
 
-export function contributionsToProportionsMap(contributions: [string, number][]){
-    let total = 0
+export function contributionsToProportionsMap(contributions: BothContributionsProps, author: string){
     let map = {}
-    for(let i = 0; i < contributions.length; i++){
-        const [author, charCount] = contributions[i]
+
+    if(!contributions.all.some(([a, x]) => (a == author))){
+        contributions.all.push([author, 0])
+    }
+
+    let total = 0
+    for(let i = 0; i < contributions.monetized.length; i++){
+        const [author, charCount] = contributions.monetized[i]
         total += charCount 
     }
-    for(let i = 0; i < contributions.length; i++){
-        const [author, charCount] = contributions[i]
-        map[author] = charCount / total 
+
+    const monetized = total > 0
+
+    for(let i = 0; i < contributions.all.length; i++){
+        const [author, charCount] = contributions.all[i]
+        map[author] = 1.0 / contributions.all.length * (monetized ? 0.1 : 1)
     }
+
+    if(total > 0){
+        for(let i = 0; i < contributions.monetized.length; i++){
+            const [author, charCount] = contributions.monetized[i]
+            map[author] += charCount / total * 0.9
+        }
+    }
+
+    console.log("contributions", contributions)
+    console.log("map", map)
 
     return map
 }

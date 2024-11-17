@@ -7,7 +7,7 @@ import InfoPanel from "../../components/info-panel"
 import { ReactNode } from "react"
 import { StatsIcon } from "../../components/icons"
 
-const UserStat = ({name, value}: {name: ReactNode, value: number}) => {
+const UserStat = ({name, value}: {name: ReactNode, value: ReactNode}) => {
     return <div className="flex justify-between border-b py-2">
         <span>{name}</span>
         <span className="font-bold ml-8">{value}</span>
@@ -40,7 +40,7 @@ const ShowUserStats = () => {
 
     const confirmationPendingDesc = <span>
     Ingresos pendientes de confirmación ($)
-    <InfoPanel iconClassName="ml-2 text-gray-600" text='Ingresos que te corresponden por contenidos que escribiste recientemente pero que todavía están en período de evaluación.'/>
+    <InfoPanel iconClassName="ml-2 text-gray-600" text='Ingresos que te corresponden por contenidos que escribiste recientemente pero que todavía están en período de evaluación. Si cumplen los términos y condiciones los pagos van a pasar a "pendientes de pago".'/>
     </span>
 
     const paymentPendingDesc = <span>
@@ -59,11 +59,11 @@ const ShowUserStats = () => {
         <UserStat name='Votos hacia arriba en temas' value={stats.stats.reactionsInEntities}/>
         <UserStat name='Vistas totales' value={stats.stats.viewsInPosts+stats.stats.viewsInEntities}/>
         <UserStat name='Vistas en publicaciones' value={stats.stats.viewsInPosts}/>
-        <UserStat name='Vistas en entidades' value={stats.stats.viewsInEntities}/>
+        <UserStat name='Vistas en temas' value={stats.stats.viewsInEntities}/>
 
-        <UserStat name={incomeDesc} value={stats.stats.income}/>
-        <UserStat name={confirmationPendingDesc} value={stats.stats.pendingConfirmationIncome}/>
-        <UserStat name={paymentPendingDesc} value={stats.stats.pendingPayIncome}/>
+        <UserStat name={incomeDesc} value={stats.stats.income.toFixed(2)}/>
+        <UserStat name={confirmationPendingDesc} value={stats.stats.pendingConfirmationIncome.toFixed(2)}/>
+        <UserStat name={paymentPendingDesc} value={stats.stats.pendingPayIncome.toFixed(2)}/>
     </div>
 }
 

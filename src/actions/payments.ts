@@ -9,6 +9,7 @@ import { pathLogo } from "../components/logo";
 import MercadoPagoConfig, { Preference } from "mercadopago";
 import { SubscriptionProps, UserMonthDistributionProps, UserProps } from "../app/lib/definitions";
 import { getPaymentsStats } from "./admin";
+import { BothContributionsProps } from "./entities";
 
 
 
@@ -99,10 +100,10 @@ export async function createPaymentPromisesForEntityView(view: {content: {id: st
     const {content, error} = await getContentById(view.content.id)
     if(error) return {error}
     
-    const contributions = contributionsToProportionsMap(JSON.parse(content.contribution))
+    const bothContributions: BothContributionsProps = JSON.parse(content.contribution)
+    const contributions = contributionsToProportionsMap(bothContributions, view.content.authorId)
 
     const authors = Object.keys(contributions)
-    console.log("contributions map", contributions)
 
     for(let i = 0; i < authors.length; i++){
         console.log("creating promise for", authors[i], "with contribution", contributions[authors[i]], "and value", viewValue)
@@ -144,7 +145,10 @@ export async function createPaymentPromisesForEntityViews(user: UserProps, amoun
         where: {
             userById: user.id,
             content: {
-                type: "EntityContent"
+                type: "EntityContent",
+                parentEntity: {
+                    deleted: false
+                }
             },
             AND: [
                 {
@@ -157,7 +161,7 @@ export async function createPaymentPromisesForEntityViews(user: UserProps, amoun
                         lt: end
                     }
                 }
-            ]
+            ],
         }
     })
 
@@ -208,7 +212,7 @@ export async function createPaymentPromisesForContentReactions(user: UserProps, 
 
     for(let i = 0; i < contentReactions.length; i++){
         const reaction = contentReactions[i]
-        console.log("creating payment promise for post reaction", reaction.content.id, "with value", reactionValue)
+        console.log("creating payment promise for post reaction", reaction.content.id, "with value", reactionValue, "and author", reaction.content.authorId)
         await db.paymentPromise.create({
             data: {
                 authorId: reaction.content.authorId,
@@ -240,16 +244,32 @@ export async function createPromises(userId: string, amount: number, start: Date
         await createPaymentPromisesForEntityViews(user, amount*0.5, start, end, subscriptionId)
     }
 
-    await db.subscription.update({
-        data: {
-            usedAt: start,
-            endsAt: end,
-            userId: userId,
-        },
-        where: {
-            id: subscriptionId
-        }
-    })
+    if(foundReactions || foundEntityViews){
+        await db.subscription.update({
+            data: {
+                usedAt: start,
+                endsAt: end,
+                userId: userId,
+            },
+            where: {
+                id: subscriptionId
+            }
+        })
+    } else {
+        console.log("creating no activity subscription")
+        await db.subscription.create({
+            data: {
+                boughtByUserId: "soporte",
+                price: 0,
+                paymentId: "no activity",
+                isDonation: true,
+                userId: userId,
+                usedAt: start,
+                endsAt: end
+            }
+        })
+    }
+
 
     return {}
 }
@@ -352,6 +372,11 @@ export async function createPaymentPromises(){
                 }
             },
             createdAt: true
+        },
+        where: {
+            id: {
+                notIn: ["soporte", "guest"]
+            }
         }
     })
 
