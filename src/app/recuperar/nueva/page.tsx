@@ -7,10 +7,7 @@ import { useRouter } from "next/navigation";
 import { AuthForm, PasswordInput } from "../../../components/signup-form";
 import { ThreeColumnsLayout } from "../../../components/three-columns";
 import { updatePw } from "../../../actions/auth";
-import Link from "next/link";
-import NotFound from "../../not-found";
-import { NotFoundPage } from "../../../components/not-found-page";
-import { Metadata } from "next"
+import { CustomLink as Link } from '../../../components/custom-link';
 
 function NewPwButton() {
     const {pending} = useFormStatus()

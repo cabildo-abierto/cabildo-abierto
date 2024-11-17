@@ -1,6 +1,6 @@
 "use client"
 import { useEntity } from "../hooks/entities"
-import Link from "next/link"
+import { CustomLink as Link } from '../../components/custom-link';
 import { DateSince } from "../../components/date"
 import { ActiveLikeIcon } from "../../components/icons"
 import { FixedCounter } from "../../components/like-counter"

@@ -6,7 +6,7 @@ import { DateSince } from "./date"
 import { CommentNotification, FollowNotification, MentionNotification, ReactionNotification } from "./notification-components"
 import { markNotificationViewed } from "../actions/contents"
 import { useSWRConfig } from "swr"
-import Link from "next/link"
+import { CustomLink as Link } from './custom-link';
 
 
 

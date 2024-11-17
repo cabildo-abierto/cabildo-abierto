@@ -1,6 +1,6 @@
 import { Button } from "@mui/material"
-import Link from "next/link"
 import { ReactNode } from "react"
+import { CustomLink } from "./custom-link"
 
 type SidebarButtonProps = {
     text: string
@@ -13,7 +13,7 @@ type SidebarButtonProps = {
 export const SidebarButton: React.FC<SidebarButtonProps> = ({text, onClick, icon, href, disabled=false}) => {
 
     return (
-        <Link href={href} className="mt-1">
+        <CustomLink href={href} className="mt-1">
             <Button
                 variant="text"
                 color="inherit"
@@ -30,6 +30,6 @@ export const SidebarButton: React.FC<SidebarButtonProps> = ({text, onClick, icon
             >
                 {text}
             </Button>
-        </Link>
+        </CustomLink>
     )
 }

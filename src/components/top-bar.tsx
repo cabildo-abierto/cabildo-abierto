@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link";
+import { CustomLink as Link } from './custom-link';
 import React, { useEffect, useState } from "react";
 import SearchBar from "./searchbar";
 import SearchIcon from '@mui/icons-material/Search';

@@ -64,6 +64,9 @@ import { CustomTableNode } from './nodes/CustomTableNode';
 
 import ImagesPlugin from './plugins/ImagesPlugin';
 import InlineImagePlugin from './plugins/InlineImagePlugin';
+import { getAllText } from '../diff';
+import { usePageLeave } from '../prevent-leave';
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -108,7 +111,8 @@ export type SettingsProps = {
   },
   placeholderClassName: string,
   showingChanges?: string,
-  imageClassName: string
+  imageClassName: string,
+  preventLeave: boolean
 }
 
 
@@ -123,6 +127,9 @@ type LexicalEditorProps = {
 function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JSX.Element {
   const { historyState } = useSharedHistoryContext();
   const [editor] = useLexicalComposerContext();
+  const {leaveStoppers, setLeaveStoppers} = usePageLeave()
+
+  const [uniqueId, setUniqueId] = useState(undefined)
   
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const [marginAboveEditor, setMarginAboveEditor] = useState<number>(0);
@@ -132,6 +139,15 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
       setEditor(editor);
     }
   }, [editor, setEditor]);
+
+  useEffect(() => {
+    return () => {
+      if(!isReadOnly && preventLeave && uniqueId){
+        leaveStoppers.delete(uniqueId)
+        setLeaveStoppers(leaveStoppers);
+      }
+    };
+  }, [setLeaveStoppers, uniqueId]);
 
   const {
     isMaxLength,
@@ -151,6 +167,7 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
     content,
     placeholderClassName,
     charLimit,
+    preventLeave
   } = settings;
 
   const isEditable = useLexicalEditable();
@@ -218,6 +235,12 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
         <OnChangePlugin
           onChange={(editorState) => {
             setEditorState(editorState);
+            if(!isReadOnly && preventLeave && !uniqueId){
+              const newUniqueId = uuidv4()
+              setUniqueId(newUniqueId)
+              const newStoppers = leaveStoppers.add(newUniqueId)
+              setLeaveStoppers(newStoppers);
+            }        
           }}
         />
         <HashtagPlugin />

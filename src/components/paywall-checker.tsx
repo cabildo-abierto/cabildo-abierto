@@ -1,8 +1,7 @@
 "use client"
 
-import Link from "next/link"
+import { CustomLink as Link } from './custom-link';
 import LoadingPage from "./loading-page"
-import { validSubscription } from "./utils"
 import { ReactNode } from "react";
 import { useUser } from "../app/hooks/user";
 

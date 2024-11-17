@@ -60,7 +60,8 @@ const ReadOnlyEditor = ({
         isReadOnly: true,
         content: content,
         placeholderClassName: "",
-        imageClassName: (content && content.type == "FastPost") ? "fastpost-image" : ""
+        imageClassName: (content && content.type == "FastPost") ? "fastpost-image" : "",
+        preventLeave: true
     }
     
     return <div key={content ? (content.id + content.isContentEdited) : 0}>

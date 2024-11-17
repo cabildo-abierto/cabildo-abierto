@@ -1,6 +1,6 @@
 "use client"
-import Link from "next/link"
-import { ContributionsProps, NotificationProps } from "../app/lib/definitions"
+import { CustomLink as Link } from './custom-link';
+import { NotificationProps } from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
 import { useUser } from "../app/hooks/user"
 import { articleUrl, contentUrl } from "./utils"

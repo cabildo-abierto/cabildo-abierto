@@ -35,11 +35,11 @@ import {createPortal} from 'react-dom';
 
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
-import {sanitizeUrl, SUPPORTED_URL_PROTOCOLS} from '../../utils/url';
+import {sanitizeUrl} from '../../utils/url';
 import { useRouteEntities } from '../../../../app/hooks/contents';
 import { SmallEntityProps, EntityProps } from '../../../../app/lib/definitions';
 import { articleUrl } from '../../../utils';
-import Link from 'next/link';
+import { CustomLink as Link } from '../../../../components/custom-link';
 
 function FloatingLinkEditor({
   editor,

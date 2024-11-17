@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { CustomLink as Link } from './custom-link';
 
 
 import { isPublic, monthly_visits_limit, stopPropagation, visitsThisMonth } from "./utils";

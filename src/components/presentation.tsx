@@ -1,4 +1,5 @@
-import Link from 'next/link';
+
+import { CustomLink as Link } from './custom-link';
 import { Logo } from './logo';
 import { useState } from 'react';
 import { articleUrl } from './utils';

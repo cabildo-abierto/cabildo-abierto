@@ -4,7 +4,7 @@ import { ContentTopRowAuthor, id2url, LikeAndCommentCounter } from "./content"
 
 import { ContentProps } from "../app/lib/definitions";
 import { contentUrl, stopPropagation } from "./utils";
-import Link from "next/link";
+import { CustomLink as Link } from './custom-link';
 import { DateSince } from "./date";
 import { fetcher } from "../app/hooks/utils";
 import { preload } from "swr";

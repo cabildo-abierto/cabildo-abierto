@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link";
+import { CustomLink as Link } from './custom-link';
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { AcceptButtonPanel } from "./accept-button-panel";

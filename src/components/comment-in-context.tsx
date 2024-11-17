@@ -1,6 +1,6 @@
 "use client"
 import { Comment, CommentComponentProps } from './comment';
-import Link from 'next/link';
+import { CustomLink as Link } from './custom-link';
 import { articleUrl, contentUrl } from './utils';
 
 

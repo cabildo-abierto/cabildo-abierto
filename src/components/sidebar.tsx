@@ -1,6 +1,6 @@
 import React from "react";
 import { SidebarButton } from "./sidebar-button";
-import Link from "next/link";
+import { CustomLink as Link } from './custom-link';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
 import EditNoteIcon from '@mui/icons-material/EditNote';

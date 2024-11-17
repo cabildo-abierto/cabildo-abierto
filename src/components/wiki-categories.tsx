@@ -1,12 +1,11 @@
 "use client"
 
-import Link from "next/link"
+import { CustomLink as Link } from './custom-link';
 import { SubcategoriesDropDown } from "./subcategories-dropdown";
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { getNextCategories } from "./utils";
 import { ContentProps, SmallEntityProps } from "../app/lib/definitions";
 import { useRouteEntities } from "../app/hooks/contents";
-import { useRouter } from "next/navigation";
 
 
 export type LoadingContent = {

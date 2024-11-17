@@ -1,8 +1,7 @@
 "use client"
 import { useState } from 'react';
-import { Logo } from '../../components/logo';
 import Image from 'next/image'
-import Link from 'next/link';
+
 
 const Page = () => {
     // Create state to track which buttons are toggled (green)

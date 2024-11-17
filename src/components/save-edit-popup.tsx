@@ -1,7 +1,7 @@
 "use client"
 
 import { EditorState } from "lexical";
-import Link from "next/link";
+import { CustomLink as Link } from './custom-link';
 import React, { useEffect, useState } from "react";
 import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
