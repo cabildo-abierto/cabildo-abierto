@@ -733,6 +733,18 @@ export async function getPaymentsStats(){
             id: true,
             subscriptionsUsed: true,
             createdAt: true,
+            paymentPromises: {
+                select: {
+                    amount: true,
+                    contentId: true,
+                    status: true,
+                    subscription: {
+                        select: {
+                            userId: true
+                        }
+                    }
+                }
+            },
             views: {
                 select: {
                     id: true,
@@ -859,5 +871,5 @@ export async function getPaymentsStats(){
         }
     })
 
-    return {userMonths, entities}
+    return {userMonths, entities, accounts}
 }

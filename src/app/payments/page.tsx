@@ -1,8 +1,10 @@
 import { getPaymentsStats } from "../../actions/admin"
+import { createPaymentPromises } from "../../actions/payments"
 import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { formatDate, getEntityMonetizedContributions } from "../../components/utils"
+import { CreatePromisesButton } from "./create-promises-button"
 
 
 export default async function Page() {
@@ -12,7 +14,7 @@ export default async function Page() {
         return <NotFoundPage/>
     }
 
-    const {userMonths, entities} = await getPaymentsStats()
+    const {userMonths, entities, accounts} = await getPaymentsStats()
 
     const center = <div className="flex items-center flex-col">
         <h1>Pagos</h1>
@@ -49,6 +51,24 @@ export default async function Page() {
                 } else {
                     return <></>
                 }
+            })}
+        </div>
+
+        <div>
+            <CreatePromisesButton/>
+            <h1>Promesas creadas</h1>
+
+            {accounts.map((a, index) => {
+                let total = 0
+                let users = new Set<string>()
+                a.paymentPromises.forEach((p) => {
+                    total += p.amount
+                    users.add(p.subscription.userId)
+                })
+                if(total == 0) return <></>
+                return <div key={index} className="flex">
+                    {a.id} {total.toFixed(2)} <div className="flex flex-wrap space-x-2 ml-2">{Array.from(users).map((u, index2) => {return <div key={index2}>{u}</div>})}</div>
+                </div>
             })}
         </div>
     </div>

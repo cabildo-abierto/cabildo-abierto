@@ -6,17 +6,12 @@ import { createClient } from "../utils/supabase/server";
 import { revalidateEverythingTime } from "./utils";
 import { SmallUserProps, UserProps, UserStats } from "../app/lib/definitions";
 import { getEntities } from "./entities";
-import { createNotification, getContentById } from "./contents";
+import { createNotification } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-import MercadoPagoConfig, { Preference } from "mercadopago";
-import { accessToken, contributionsToProportionsMap, isDemonetized, listOrder, listOrderDesc, subscriptionEnds, validSubscription } from "../components/utils";
-import { pathLogo } from "../components/logo";
+import { listOrder, listOrderDesc, subscriptionEnds, validSubscription } from "../components/utils";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
-import { isSameDay } from "date-fns";
-import { NoAccountUser } from "@prisma/client";
 import { getSubscriptionPrice } from "./payments";
-import { useSubscriptionPrice } from "../app/hooks/subscriptions";
 
 
 export async function updateDescription(text: string, userId: string) {
