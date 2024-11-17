@@ -45,7 +45,7 @@ const ShowUserStats = () => {
 
     const paymentPendingDesc = <span>
     Ingresos pendientes de pago ($)
-    <InfoPanel iconClassName="ml-2 text-gray-600" text='Ingresos que te fueron confirmados pero por los que todavía no recibiste una transferencia. Mientras tanto podés usarlos para comprar suscripciones.'/>
+    <InfoPanel iconClassName="ml-2 text-gray-600" text='Ingresos que te fueron confirmados pero por los que todavía no recibiste una transferencia.'/>
     </span>
 
 
