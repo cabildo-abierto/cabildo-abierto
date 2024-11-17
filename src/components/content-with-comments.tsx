@@ -43,7 +43,7 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const isEntity = content.type == "EntityContent"
     const startsOpen = isMainPage && !editing
     const [viewComments, setViewComments] = useState(startsOpen) 
-    const [writingReply, setWritingReply] = useState(startsOpen && ["Post", "EntityContent"].includes(content.type))
+    const [writingReply, setWritingReply] = useState(startsOpen)
     const [comments, setComments] = useState(content.childrenContents)
     
     useEffect(() => {
