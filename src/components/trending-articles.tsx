@@ -93,7 +93,7 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
 
 
 export function topicPopularityScore(entity: SmallEntityProps, since?: Date){
-    return [countUserInteractions(entity, since), entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0]
+    return [countUserInteractions(entity, since), entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0, new Date(entity.versions[currentVersion(entity)].createdAt).getTime()]
 }
 
 
