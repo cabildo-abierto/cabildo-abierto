@@ -35,7 +35,7 @@ export const LogoAndSlogan = () => {
             <div className="text-base sm:text-lg text-gray-600 text-left lg:text-2xl my-0 py-0 mt-2">
                 Toda la información en un solo lugar,
             </div>
-            <div className="text-lg text-gray-600 text-left lg:text-2xl lg:mt-2 my-0 py-0">
+            <div className="text-base sm:text-lg text-gray-600 text-left lg:text-2xl my-0 py-0">
                 abierta a discusión.
             </div>
         </div>
