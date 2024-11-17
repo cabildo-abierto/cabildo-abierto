@@ -1,8 +1,7 @@
-import Link from "next/link"
 import { Authorship } from "./content"
 import { DateSince } from "./date"
 import { UndoButton } from "./undo-button"
-import LoadingSpinner, { SmallLoadingSpinner } from "./loading-spinner"
+import { CustomLink as Link } from './custom-link';
 import { EntityProps, UserProps } from "../app/lib/definitions"
 import { useRouter } from "next/navigation"
 import { ActiveCommentIcon, AuthorshipClaimIcon, ConfirmEditIcon, NoAuthorshipClaimIcon, RejectEditIcon, UndoIcon, ViewsIcon } from "./icons"

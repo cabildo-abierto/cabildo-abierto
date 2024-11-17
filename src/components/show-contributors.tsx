@@ -1,4 +1,5 @@
-import Link from "next/link"
+
+import { CustomLink as Link } from './custom-link';
 import { useEntity } from "../app/hooks/entities"
 import { currentVersion, getEntityMonetizedChars, getEntityMonetizedContributions } from "./utils"
 import { Button } from "@mui/material"

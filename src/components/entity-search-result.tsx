@@ -1,15 +1,13 @@
 "use client"
 
-import Link from "next/link"
-import { ActivePraiseIcon, ArticleIcon, InactiveCommentIcon, InactivePraiseIcon, LinkIcon, TextLengthIcon, ViewsIcon } from "./icons"
+import { CustomLink as Link } from './custom-link';
+import { InactiveCommentIcon, LinkIcon, TextLengthIcon, ViewsIcon } from "./icons"
 import { FixedCounter } from "./like-counter"
-import { PostTitleOnFeed } from "./post-on-feed"
-import { EntityProps, SmallEntityProps } from "../app/lib/definitions"
+import { SmallEntityProps } from "../app/lib/definitions"
 import { articleUrl, currentVersion } from "./utils"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { DateSince } from "./date"
-import { useSearch } from "./search-context"
 
 
 export function getEntityChildrenCount(entity: SmallEntityProps){

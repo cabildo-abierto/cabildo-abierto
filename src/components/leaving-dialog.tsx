@@ -1,6 +1,5 @@
-import Link from "next/link";
 
-  
+
 type LeavingDialogProps = {
 isOpen: boolean;
 yesCallback: () => void;

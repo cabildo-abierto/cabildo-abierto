@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import Link from "next/link";
+import { CustomLink as Link } from '../../../components/custom-link';
 import { ThreeColumnsLayout } from "../../../components/three-columns";
 
 export const metadata: Metadata = {

@@ -6,16 +6,14 @@ import StateButton, { StateButtonClickHandler } from "../state-button"
 import { EditorState, LexicalEditor } from "lexical"
 import { charCount, emptyOutput, hasChanged, validPost } from "../utils"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { TitleInput } from "./title-input"
 import { useSWRConfig } from "swr"
 import { useUser } from "../../app/hooks/user"
 import { createPost, publishDraft, updateContent } from "../../actions/contents"
-import { compress, decompress } from "../compression"
-import { useContent } from "../../app/hooks/contents"
+import { compress } from "../compression"
 import { ExtraChars } from "../extra-chars"
 import { Button } from "@mui/material"
-import { ContentProps } from "../../app/lib/definitions"
+import { CustomLink } from "../custom-link"
 
 
 const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsProps = (isFast, initialData) => {
@@ -51,22 +49,23 @@ const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsPro
         isReadOnly: false,
         isAutofocus: true,
         placeholderClassName: "ContentEditable__placeholder sm:ml-0 ml-3",
-        imageClassName: isFast ? "fastpost-image" : ""
+        imageClassName: isFast ? "fastpost-image" : "",
+        preventLeave: false
     }
 }
 
 
 const DraftsButton = () => {
-    return <Link href="/borradores">
+    return <CustomLink href="/borradores">
         <Button
-            variant="outlined"
+            variant="text"
             color="primary"
             sx={{textTransform: "none"}}
             disableElevation={true}
         >
             <span className="whitespace-nowrap">Ver borradores</span>
         </Button>
-    </Link>
+    </CustomLink>
 }
 
 
@@ -162,6 +161,8 @@ const PostEditor = ({
             mutate("/api/profile-feed/"+user.id)
             router.push("/")
             return {stopResubmit: true}
+        } else {
+            return {}
         }
 	}
 
@@ -170,10 +171,8 @@ const PostEditor = ({
         const compressedText = compress(text)
         const type = isFast ? "FastPost" : "Post"
 
-        console.log("crating draft post")
         const {error, id: contentId} = await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
         if(error) return {error}
-        console.log("setting last saved", {text: text, title: title, contentId})
         setLastSaved({text: text, title: title, contentId})
         setContentCreationState("created")
 
@@ -186,7 +185,6 @@ const PostEditor = ({
         const text = JSON.stringify(editor.getEditorState())
         const compressedText = compress(text)
         
-        console.log("updating content", text, title, isFast)
         const {error} = await updateContent(compressedText, lastSaved.contentId, user.id, title)
         if(error) return {error}
         setLastSaved({text: text, title: title, contentId: lastSaved.contentId})
@@ -205,7 +203,7 @@ const PostEditor = ({
     let disabled = !editor || !editorState ||
         emptyOutput(editorState) ||
         (!isFast && title.length == 0) ||
-        (valid.problem != undefined)
+        (valid.problem != undefined) || !lastSaved.contentId
 
 	const PublishButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
         return <StateButton

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import Link from 'next/link';
 import { ArticleIcon, FastPostIcon, PostIcon, WriteButtonIcon } from './icons';
 import InfoPanel from './info-panel';
 import { NewPublicArticleButton } from './new-public-article-button';
 import { ModalBelow } from './modal-below';
 import { NewFastPostButton } from './new-fast-post-button';
 import { Button, IconButton } from '@mui/material';
+import { CustomLink as Link } from './custom-link';
 
 export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100 && !name.includes("/");

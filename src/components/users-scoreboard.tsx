@@ -1,5 +1,5 @@
 import {SmallUserProps, UserStats} from "../app/lib/definitions";
-import Link from "next/link";
+import { CustomLink as Link } from './custom-link';
 
 
 const UserInScoreboard = ({user, stats}: {user: SmallUserProps, stats: UserStats}) => {

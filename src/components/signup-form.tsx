@@ -2,14 +2,12 @@
 
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useFormState, useFormStatus } from "react-dom";
-import { useRouter } from "next/navigation";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import ConstructionIcon from '@mui/icons-material/Construction';
 import InfoPanel from './info-panel';
 import { signup, SignUpFormState } from '../actions/auth';
 import ResendEmailButton from './resend-email-button';
-import Link from 'next/link';
+import { CustomLink as Link } from './custom-link';
 import { articleUrl } from './utils';
 import { BaseFullscreenPopup } from './base-fullscreen-popup';
 

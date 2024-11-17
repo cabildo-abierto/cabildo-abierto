@@ -1,7 +1,7 @@
 import React from 'react';
 import InfoPanel from './info-panel';
 import { articleUrl } from './utils';
-import Link from 'next/link';
+import { CustomLink as Link } from './custom-link';
 import { useSubscriptionPrice } from '../app/hooks/subscriptions';
 
 const FundingProgress = ({ p }: { p: number }) => {

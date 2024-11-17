@@ -1,5 +1,5 @@
 "use client"
-import Link from "next/link"
+import { CustomLink as Link } from './custom-link';
 import LoadingSpinner from "./loading-spinner"
 import ReadOnlyEditor from "./editor/read-only-editor";
 import { PostTitleOnFeed } from "./post-on-feed";

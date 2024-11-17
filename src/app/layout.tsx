@@ -13,6 +13,7 @@ import { pathLogo } from '../components/logo'
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme'; // Adjust the path if needed
 import { Metadata } from 'next';
+import { PageLeaveProvider } from '../components/prevent-leave';
 
 
 const merriweather = Merriweather({
@@ -177,7 +178,9 @@ export default function RootLayout({
         </head>
         <body className="bg-[var(--background)]">
           <ThemeProvider theme={theme}>
+            <PageLeaveProvider>
             {children}
+            </PageLeaveProvider>
           </ThemeProvider>
         </body>
     </html>

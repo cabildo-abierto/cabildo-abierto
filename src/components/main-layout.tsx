@@ -3,17 +3,18 @@ import Bars from "./bars";
 import LoadingPage from "./loading-page";
 import { SearchProvider } from "./search-context";
 import { SearchPage } from "./search-page";
+import { PageLeaveProvider } from "./prevent-leave";
 
 const MainLayout: React.FC<{children: ReactNode}> = ({children}) => {
     return <>
         <LoadingPage>
             <SearchProvider>
-                <Bars/>
-                <div className="mt-12 mb-8 safe-padding-mobile">
-                    <SearchPage>
-                        {children}
-                    </SearchPage>
-                </div>
+                    <Bars/>
+                    <div className="mt-12 mb-8 safe-padding-mobile">
+                        <SearchPage>
+                            {children}
+                        </SearchPage>
+                    </div>
             </SearchProvider>
         </LoadingPage>
     </>

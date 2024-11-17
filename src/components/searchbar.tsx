@@ -1,9 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef } from "react";
-import Link from "next/link";
-
-import CloseIcon from '@mui/icons-material/Close';
+import { CustomLink as Link } from './custom-link';
 import { SearchButton } from "./top-bar";
 import { id2url } from "./content";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';

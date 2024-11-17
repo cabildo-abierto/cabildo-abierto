@@ -5,12 +5,12 @@ import { useUser, useUserFollowSuggestions } from "../app/hooks/user";
 import { CloseButton } from "./close-button";
 import { follow, updateClosedFollowSuggestions } from "../actions/users";
 import StateButton from "./state-button";
-import Link from "next/link";
+import { CustomLink as Link } from './custom-link';
 import InfoPanel from "./info-panel";
 import ShareIcon from '@mui/icons-material/Share';
 import { SharePopup } from "./share-popup";
 import { SmallUserProps } from "../app/lib/definitions";
-import { CloseButtonIcon, TipIcon } from "./icons";
+import { TipIcon } from "./icons";
 import { Button } from "@mui/material";
 
 

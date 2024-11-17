@@ -1,8 +1,7 @@
 "use client"
-import { useRouter } from "next/navigation"
 import React, { ReactNode } from "react"
 import StateButton, { StateButtonClickHandler } from "./state-button"
-import Link from "next/link"
+import { CustomLink as Link } from './custom-link';
 
 type SubscriptionOptionButtonProps = {
     title: string

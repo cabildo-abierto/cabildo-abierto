@@ -2,7 +2,7 @@
 import React from "react"
 import WikiEditor from "./editor/wiki-editor";
 import LoadingSpinner from "./loading-spinner";
-import Link from "next/link";
+import { CustomLink as Link } from './custom-link';
 import { getAllText } from "./diff";
 import { ChangesCounter } from "./changes-counter";
 import { useEntity } from "../app/hooks/entities";

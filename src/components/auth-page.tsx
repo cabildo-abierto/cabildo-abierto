@@ -1,5 +1,5 @@
 "use client"
-import Link from "next/link"
+import { CustomLink as Link } from './custom-link';
 import LoginForm from "./login-form"
 import SignupForm from "./signup-form"
 

@@ -1,7 +1,7 @@
 "use client"
 import LoadingSpinner from './loading-spinner';
 import { useDonationsDistribution, useFundingPercentage, useSubscriptionPrice } from '../app/hooks/subscriptions';
-import Link from 'next/link';
+import { CustomLink as Link } from './custom-link';
 import { ThreeColumnsLayout } from './three-columns';
 import { useUser } from '../app/hooks/user';
 import { UserProps } from '../app/lib/definitions';
@@ -14,7 +14,6 @@ import { useState } from 'react';
 import { createPreference } from '../actions/payments';
 import { IntegerInputPlusMinus } from './integer-input-plus-minus';
 import { UniqueDonationCheckout } from './unique-donation-checkout';
-import InfoPanel from './info-panel';
 import { Button } from '@mui/material';
 
 
