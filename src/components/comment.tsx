@@ -16,6 +16,7 @@ import { decompress } from './compression';
 import { useUser } from '../app/hooks/user';
 import { ContentTopRow } from './content-top-row';
 import { ShortDescriptionProps } from './comment-in-context';
+import { useEffect, useState } from 'react';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -136,6 +137,11 @@ export const Comment = ({
     inCommentSection=false,
     isFakeNewsReport}: CommentComponentProps) => {
     const {user} = useUser()
+    const [changeIndex, setChangeIndex] = useState(0)
+
+    useEffect(() => {
+        setChangeIndex(changeIndex+1)
+    }, [content])
 
     const icon = isFakeNewsReport ? <span title="Reporte de noticia falsa"><RedFlag/></span> : <></>
     const isAuthor: boolean = user && user.id == content.author.id
@@ -144,7 +150,9 @@ export const Comment = ({
     if(user && user.editorStatus == "Administrator"){
         optionList.push("delete")
     }
-    return <div className="">
+
+
+    return <div className="" key={changeIndex}>
         <ContentTopRow content={content} icon={icon} showOptions={true} optionList={optionList}/>
         <div className="px-2 my-2 ml-2 content text-sm sm:text-base">
             {content.parentContents && <CommentQuote content={content}/>}

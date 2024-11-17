@@ -166,7 +166,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
                 mentions
             )
             
-            if(!result) return {error: "Ocurrió un error al guardar los cambios."}
+            if(!result) return {error: "Ocurrió un error al guardar los cambios. e02."}
             if(result.error) return {error: result.error}
             
             mutate("/api/entity/"+entity.id)

@@ -148,7 +148,7 @@ function DonationPage() {
                     <HowUsed/>
                 </div>
 
-                <DonatedSoFar user={user} donationsDistribution={donationsDistribution}/>
+                {user && <DonatedSoFar user={user} donationsDistribution={donationsDistribution}/>}
             </div>
         </div>}
         {choice == "aportar" && <div className="flex justify-center mt-8">

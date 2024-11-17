@@ -51,7 +51,6 @@ const Editar: React.FC<any> = ({params}) => {
         initialData={decompress(content.compressedText)}
         initialTitle={content.title ? content.title : undefined}
         isFast={content.type == "FastPost"}
-        isDraft={content.isDraft}
         contentId={content.id}
         isPublished={!content.isDraft}
     />

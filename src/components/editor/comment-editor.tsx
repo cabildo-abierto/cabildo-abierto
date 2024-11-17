@@ -100,7 +100,6 @@ const CommentEditor = ({ onSubmit, onCancel }: CommentEditorProps) => {
                         size="small"
                         disableElevation={true}
                         text1="Enviar"
-                        text2="Enviando..."
                         disabled={!user.user || !validComment(editorState, settings.charLimit)}
                         variant="contained"
                     />
