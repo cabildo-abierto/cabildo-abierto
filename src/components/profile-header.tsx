@@ -10,7 +10,7 @@ import { UserProps } from "../app/lib/definitions"
 import { FixedFakeNewsCounter } from "./fake-news-counter"
 import { ArticleIcon } from "./icons"
 import { PermissionLevel } from "./permission-level"
-import InfoPanel from "./info-panel"
+import { Button } from "@mui/material"
 
 export function ProfileHeader({profileUser, user, selected, setSelected, setShowingFakeNews }: {profileUser: UserProps, user?: UserProps, selected: string, setSelected: any, setShowingFakeNews: any }) {
     const [following, setFollowing] = useState(false)
@@ -44,6 +44,19 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
         await follow(profileUser.id, user.id)
         mutate("/api/following-feed/"+user.id)
         mutate("/api/user")
+    }
+
+    function optionsNodes(o: string, isSelected: boolean){
+        return <Button
+            variant="text"
+            color="inherit"
+            fullWidth={true}
+            sx={{textTransform: "none",
+                background: (isSelected ? "var(--secondary-light)" : undefined)
+            }}
+        >
+            {o}
+        </Button>
     }
 
     return <div className="content-container rounded mt-2 flex flex-col">
@@ -105,6 +118,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                 selected={selected}
                 onSelection={(v) => {setSelected(v); setShowingFakeNews(false)}}
                 options={["Publicaciones", "Respuestas", "Ediciones en temas"]}
+                optionsNodes={optionsNodes}
                 className="profile-feed"
             />
         </div>

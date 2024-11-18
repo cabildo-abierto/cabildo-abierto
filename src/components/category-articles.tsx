@@ -79,6 +79,24 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
 
     const infoText = <span>Ordenados por cantidad de usuarios que participaron en la discusión del tema (ya sea mencionándolo, comentando o agregando un voto hacia arriba).</span>
 
+    function optionsNodes(o: string, isSelected: boolean){
+        return <div className="w-full">
+            <Button
+                variant="outlined"
+                size="small"
+                fullWidth={true}
+                sx={{
+                    textTransform: "none",
+                    background: (isSelected ? "var(--secondary-light)" : undefined)
+                }}
+            >
+                <div className="">
+                    {o}
+                </div>
+            </Button>
+        </div>
+    }
+
     return <>
 
         {/*!onSearchPage && <div className="mt-2"><DidYouKnow text={<>¿Sabías que si editás el contenido de un tema Cabildo Abierto te remunera por cada persona que entre a leerlo en el futuro? <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>Leer más.</Link></>}/></div>*/}
@@ -100,17 +118,14 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
         </div>}
         
         {!onSearchPage && <div className="flex flex-1 justify-center text-sm space-x-1 mb-4">
-                <div className="rounded content-container">
-            <SelectionComponent
-                onSelection={setSortBy}
-                selected={sortBy}
-                options={["Populares", "Ediciones recientes"]}
-                optionsNodes={[<div key={0}>Populares</div>, <div key={1}>Ediciones recientes</div>]}
-                infoPanelTexts={[infoText, null]}
-                className="filter-feed"
-                
-                showExplanations={false}
-            />
+                <div className="w-full max-w-[384px]">
+                    <SelectionComponent
+                        onSelection={setSortBy}
+                        selected={sortBy}
+                        className="space-x-2"
+                        options={["Populares", "Ediciones recientes"]}
+                        optionsNodes={optionsNodes}
+                    />
                 </div>
             </div>
         }

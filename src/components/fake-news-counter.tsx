@@ -21,6 +21,8 @@ export const FakeNewsCounter: React.FC<FakeCounterProps> = ({
         if(c.type == "FakeNewsReport") count ++
     })
 
+    if(count == 0) return <></>
+
     return <ReactionButton
         onClick={onClick ? onClick : (() => {})}
         icon1={<RedFlag/>}
