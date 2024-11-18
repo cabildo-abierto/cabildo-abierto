@@ -5,7 +5,7 @@ import { SmallUserProps } from "../app/lib/definitions"
 import { useUser, useUsers } from "../app/hooks/user"
 import LoadingSpinner from "./loading-spinner"
 import { ReactNode } from "react"
-import { shuffleArray } from "./utils"
+import { cleanText, shuffleArray } from "./utils"
 
 
 export const NoResults = ({text="No se encontraron resultados..."}: {text?: ReactNode}) => {
@@ -33,8 +33,10 @@ export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: nu
 
     //const routeUsers = users.users.filter((user) => (entityInRoute(user, route)))
 
+    const searchValue = cleanText(searchState.value)
+
     function isMatch(user: SmallUserProps){
-        return user.name.toLowerCase().includes(searchState.value.toLowerCase())
+        return cleanText(user.name).includes(searchValue) || cleanText(user.id).includes(searchValue)
     }
 
     let filteredUsers = users.users.filter(isMatch)
