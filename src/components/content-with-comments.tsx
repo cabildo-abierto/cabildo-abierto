@@ -45,13 +45,13 @@ export const ContentWithComments: React.FC<ContentWithCommentsProps> = ({
     const [viewComments, setViewComments] = useState(startsOpen) 
     const [writingReply, setWritingReply] = useState(startsOpen)
     const [comments, setComments] = useState(content.childrenContents)
-    
+
     useEffect(() => {
         if(content){
             for(let i = 0; i < content.childrenContents.length; i++){
                 preload("/api/content/"+content.childrenContents[i].id, fetcher)
             }
-            if(!comments || content.childrenContents.length == comments.length){
+            if(!comments || content.childrenContents.length >= comments.length){
                 setComments(content.childrenContents)
             }
         }

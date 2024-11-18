@@ -12,7 +12,7 @@ import { InvalidConfirmLinkPopup } from "../app/invalid-confirm-link-popup";
 
 
 export const HomePage = ({searchParams}: {searchParams: {code?: string, error_description?: string}}) => {
-    const [invalidLink, setInvalidLink] = useState(searchParams.error_description == "Email link is invalid or has expired")
+    const [invalidLink, setInvalidLink] = useState(searchParams.error_description == "Email link is invalid or has expired" || searchParams.error_description == "confirm")
     const router = useRouter()
     const user = useUser() // para prefetchearlo
     const [loggingIn, setLoggingIn] = useState(searchParams.code != undefined)

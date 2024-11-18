@@ -184,6 +184,7 @@ const EntityEditInFeed = ({entity, content, version}: {
         type: string
         author: {name: string, id: string}
         fakeReportsCount: number
+        childrenContents: {type: string}[]
     },
     entity: EntityProps,
     version: number}) => {

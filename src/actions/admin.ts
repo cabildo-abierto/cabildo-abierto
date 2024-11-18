@@ -17,7 +17,7 @@ export const deleteEntityHistory = async (entityId: string, includeLast: boolean
     if(error) return {error: error}
 
     for(let i = 1; i < entity.versions.length-(includeLast ? 0 : 1); i++){
-        await deleteContent(entity.versions[i].id)
+        await deleteContent(entity.versions[i].id, true)
     }
 
     const {error: errorUpdate} = await updateEntityCurrentVersion(entityId)
@@ -53,7 +53,19 @@ export const deleteEntity = async (entityId: string, userId: string) => {
 }
 
 
-export const deleteContent = async (contentId: string) => {
+export const deleteContent = async (contentId: string, force: boolean) => {
+
+    const {content, error} = await getContentById(contentId)
+    if(error) return {error}
+
+    if(content.childrenContents.length > 0 && !force){
+        return {error: "No pudimos borrar el contenido porque tiene comentarios. Podés editarlo y borrarle el contenido."}
+    }
+
+    for(let i = 0; i < content.childrenContents.length; i++){
+        await deleteContent(content.childrenContents[i].id, true)
+    }
+
     await db.view.deleteMany({
         where: {
             contentId: contentId
@@ -78,13 +90,6 @@ export const deleteContent = async (contentId: string) => {
         }
     })
 
-    const {content, error} = await getContentById(contentId)
-    if(error) return {error}
-
-    for(let i = 0; i < content.childrenContents.length; i++){
-        await deleteContent(content.childrenContents[i].id)
-    }
-
     await db.content.delete({
         where: {
             id: contentId
@@ -93,6 +98,13 @@ export const deleteContent = async (contentId: string) => {
 
     // habría que revalidar más tags en realidad
     revalidateTag("content:"+contentId)
+    if(content.parentContents && content.parentContents.length > 0){
+        revalidateTag("content:"+content.parentContents[0].id)
+    }
+    if(["FastPost", "Post"].includes(content.type) || (content.rootContent && ["FastPost", "Post"].includes(content.rootContent.type))){
+        revalidateTag("feed")
+        revalidateTag("routeFollowingFeed")
+    }
     return {}
 }
 

@@ -395,7 +395,6 @@ export async function createPaymentPromises(){
 
         const nextSubscriptionEnd = subscriptionEnds(nextSubscriptionStart)
 
-        console.log("User", userId)
         if(nextSubscriptionEnd > new Date()){
             console.log("skipping because next subscription is not done")
             continue

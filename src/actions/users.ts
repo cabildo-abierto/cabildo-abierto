@@ -300,6 +300,9 @@ export const getUserIdByAuthId = (authId: string) => {
                 }
             }
         )
+        if(!userId){
+            return "not defined yet"
+        }
         return userId?.id
     }, ["userIdByAuthId", authId], {
         revalidate: revalidateEverythingTime,
@@ -309,6 +312,9 @@ export const getUserIdByAuthId = (authId: string) => {
 
 export async function getUser(): Promise<{error?: string, user?: UserProps}> {
     const userId = await getUserId()
+    if(userId == "not defined yet"){
+        return {error: "not defined yet"}
+    }
     if(!userId) return {error: "no user id"}
 
     return await getUserById(userId)
@@ -316,7 +322,7 @@ export async function getUser(): Promise<{error?: string, user?: UserProps}> {
 
 
 export async function getUserId() {
-    const userAuthId = await getUserAuthId()
+    const {userAuthId} = await getUserAuthId()
     if(!userAuthId) return null
 
     return await getUserIdByAuthId(userAuthId)
@@ -330,7 +336,7 @@ export async function getUserAuthId() {
 
     const userId = data?.user?.id
 
-    return userId
+    return {userAuthId: userId, name: data?.user?.user_metadata?.name}
 }
 
 

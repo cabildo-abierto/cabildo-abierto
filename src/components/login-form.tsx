@@ -53,7 +53,7 @@ export default function LoginForm() {
     return (
         <>
             <AuthForm
-                title="Iniciar sesión"
+                title={<h2>Iniciar sesión</h2>}
                 state={state}
                 action={action}
             >

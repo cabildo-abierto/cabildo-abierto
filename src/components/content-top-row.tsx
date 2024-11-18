@@ -1,5 +1,4 @@
 import { ReactNode } from "react"
-import { ContentProps } from "../app/lib/definitions"
 import { ContentTopRowAuthor } from "./content"
 import { ContentOptionsButton } from "./content-options-button"
 import { DateSince } from "./date"
@@ -13,7 +12,8 @@ type ContentTopRowProps = {
         createdAt: Date | string
         type: string
         author: {name: string, id: string}
-        fakeReportsCount: number
+        childrenContents: {type: string}[]
+        parentContents?: {id: string}[]
     }
     author?: boolean
     icon: ReactNode

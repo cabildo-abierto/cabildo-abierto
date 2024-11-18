@@ -7,7 +7,7 @@ import { RedFlag } from "./icons";
 
 type FakeCounterProps = {
     content: {
-        fakeReportsCount: number
+        childrenContents: {type: string}[]
     }
     onClick?: () => void
 }
@@ -16,13 +16,15 @@ export const FakeNewsCounter: React.FC<FakeCounterProps> = ({
     content,
     onClick
 }) => {
-    if(content.fakeReportsCount == 0){
-        return <></>
-    }
+    let count = 0
+    content.childrenContents.forEach((c) => {
+        if(c.type == "FakeNewsReport") count ++
+    })
+
     return <ReactionButton
         onClick={onClick ? onClick : (() => {})}
         icon1={<RedFlag/>}
-        count={content.fakeReportsCount}
+        count={count}
         disabled={false}
         title="Reportes de información falsa"
     />

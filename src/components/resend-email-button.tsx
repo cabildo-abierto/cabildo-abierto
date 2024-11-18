@@ -24,6 +24,7 @@ const ResendEmailButton = ({ email, initializeSent=false }: { email: string, ini
     return (
       <StateButton
         disableElevation={true}
+        variant="text"
         handleClick={async () => {
           const {error} = await resendConfirmationEmail(email);
           if(error) return error
@@ -32,7 +33,6 @@ const ResendEmailButton = ({ email, initializeSent=false }: { email: string, ini
           return {}
         }}
         text1="Reenviar mail"
-        text2="Reenviando..."
       />
     );
   } else {

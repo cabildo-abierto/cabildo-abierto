@@ -4,22 +4,40 @@ import { fetcher } from "./utils"
 import { ChatMessage } from "@prisma/client"
 
 
-export function useUser(): {user: UserProps | null, isLoading: boolean, isError: boolean}{
+export function useUser(): {user: UserProps | null, isLoading: boolean, error?: string}{
     const { data, error, isLoading } = useSWR('/api/user', fetcher)
-    
+
     if(data && data.status == "not logged in"){
         return {
             user: undefined,
-            isLoading: false,
-            isError: false
+            isLoading: false
+        }
+    }
+    if(data && data.error){
+        return {
+            user: undefined,
+            isLoading: isLoading,
+            error: data.error
         }
     }
     return {
         user: data,
         isLoading: isLoading,
-        isError: error
+        error: undefined
     }
 }
+
+
+export function useAuthUser(): {authUser: {name: string} | null, isLoading: boolean, error?: string}{
+    const { data, error, isLoading } = useSWR('/api/auth-user', fetcher)
+
+    return {
+        authUser: data,
+        isLoading: isLoading,
+        error: error
+    }
+}
+
 
 
 export function useUserFollowSuggestions(): {suggestions: {id: string, name: string}[] | null, isLoading: boolean, isError: boolean}{

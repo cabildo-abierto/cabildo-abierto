@@ -115,8 +115,6 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
     }
 
     if(!entity.entity || entity.isError || entity.entity.deleted || entity.error){
-        console.log("No entity", entityId)
-        console.log(entity)
         return <NoEntityPage id={entityId}/>
     }
 

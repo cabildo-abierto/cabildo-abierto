@@ -230,19 +230,22 @@ export type UserProps = {
 };
 
 
-export const SignupFormSchema = z.object({
-    name: z
-        .string()
-        .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
-        .trim(),
-    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim(),
+export const UsernameFormSchema = z.object({
     username: z
         .string()
         .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
         .regex(/^[a-zA-Z0-9]+$/, {
             message: 'Solo puede contener letras y números.',
         })
+        .trim()
+})
+
+export const SignupFormSchema = z.object({
+    name: z
+        .string()
+        .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
         .trim(),
+    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim(),
     password: z
         .string()
         .min(8, { message: 'Tiene que tener al menos 8 caracteres.' })
