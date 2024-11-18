@@ -23,7 +23,7 @@ const ResendEmailButton = ({ email, initializeSent=false }: { email: string, ini
   if (!lastSent || seconds >= 30) {
     return (
       <StateButton
-        className="cursor-pointer small-btn"
+        disableElevation={true}
         handleClick={async () => {
           const {error} = await resendConfirmationEmail(email);
           if(error) return error
