@@ -987,3 +987,96 @@ export async function rejectChanges(entityId: string, contentId: string, userId:
     revalidateTag("content:" + contentId)
     return {}
 }
+
+
+export async function changeEntityName(entityId: string, newName: string, userId: string){
+    
+    const {entity, error} = await getEntityById(entityId)
+    if(error) return {error: error}
+    
+    const current = currentVersionContent(entity)
+    const {content: currentContent, error: getContentError} = await getContentById(current.id)
+    if(getContentError) return {error: getContentError}
+
+    const compressedText = currentContent.compressedText
+    const references = currentContent.entityReferences.map(({id}) => ({id: id}))
+    const weakReferences = current.weakReferences
+    const mentions = currentContent.usersMentioned
+    const text = decompress(currentContent.compressedText)
+
+    const prevText = text
+    const {numChars, numWords, numNodes, plainText} = getPlainText(text)
+
+    let {charsAdded, charsDeleted, matches, common, perfectMatches} = charDiffFromJSONString(prevText, text)
+
+    let contribution = null
+    try {
+        contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId, false))
+    } catch {
+        return {error: "Error al actualizar el tema."}
+    }
+
+    try {
+        const newContent = await db.content.create({
+            data: {
+                compressedText: compressedText,
+                compressedPlainText: compress(plainText),
+                numChars: numChars,
+                numWords: numWords,
+                numNodes: numNodes,
+                author: {
+                    connect: {id: userId}
+                },
+                type: "EntityContent",
+                parentEntity: {
+                    connect: {id: entityId}
+                },
+                categories: current.categories,
+                searchkeys: entity.currentVersion.searchkeys,
+                entityReferences: {
+                    connect: references
+                },
+                weakReferences: {
+                    connect: weakReferences
+                },
+                usersMentioned: {
+                    connect: mentions
+                },
+                editPermission: true,
+                claimsAuthorship: true,
+                currentVersionOf: {
+                    connect: {
+                        id: entityId
+                    }
+                },
+                editMsg: "nuevo nombre: " + newName,
+                accCharsAdded: currentContent.accCharsAdded + charsAdded,
+                contribution: contribution,
+                diff: JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches}),
+                charsAdded: charsAdded,
+                charsDeleted: charsDeleted
+            }
+        })
+    } catch {
+        return {error: "Error al actualizar el tema."}
+    }
+
+    try {
+        await db.entity.update({
+            data: {
+                name: newName
+            },
+            where: {
+                id: entityId
+            }
+        })
+    } catch {
+        return {error: "Error al cambiar el nombre."}
+    }
+
+    revalidateTag("entity:" + entityId)
+    revalidateTag("entities")
+    revalidateTag("userContents:"+userId)
+    revalidateTag("editsFeed:"+userId)
+    return {}
+}

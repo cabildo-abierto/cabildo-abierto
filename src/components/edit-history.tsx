@@ -20,17 +20,7 @@ import { BaseFullscreenPopup } from "./base-fullscreen-popup"
 
 
 const EditDetails = ({type}: {type: string}) => {
-    if(type == "Creación"){
-        return <span className="">Creación</span>
-    } else {
-        if(type == "Categorías"){
-            return <span className="">Categorías</span>
-        } else if(type == "Sinónimos") {
-            return <span className="">Sinónimos</span>
-        } else {
-            return <span className="">Contenido</span>
-        }
-    }
+    return <span>{type}</span>
 }
 
 type EditElementProps = {
@@ -191,7 +181,9 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     if(index == 0){
         type = "Creación"
     } else if(entity.versions[index].compressedText == entity.versions[index-1].compressedText){
-        if(entity.versions[index].categories == entity.versions[index-1].categories){
+        if(entity.versions[index].editMsg.startsWith("nuevo nombre:")){
+            type = "Cambio de nombre"
+        } else if(entity.versions[index].categories == entity.versions[index-1].categories){
             type = "Sinónimos"
         } else {
             type = "Categorías"

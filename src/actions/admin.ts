@@ -662,10 +662,8 @@ export async function getAdminStats(){
         orderBy: { createdAt: 'asc' },
         select: { createdAt: true }
     });
-
-    const firstDate = new Date(firstSubscription.createdAt);
     
-    const firstMonday = new Date(firstDate);
+    const firstMonday = new Date(launchDate);
     firstMonday.setDate(firstMonday.getDate() - ((firstMonday.getDay() + 6) % 7));
 
     const currentDate = new Date();

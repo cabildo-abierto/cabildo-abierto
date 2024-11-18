@@ -52,6 +52,8 @@ export const SaveEditPopup = ({
         setNewVersionSize(getAllText(JSON.parse(jsonState).root).length)
         setDiff(d)
     }, [])
+
+    const validMsg = !editMsg.startsWith("nuevo nombre:")
     
     const infoAuthorship = <span className="link">Desactivá este tick si no sos autor/a de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una ley, o algo escrito por otra persona. Si no estás seguro/a no te preocupes, se puede cambiar después. <Link href={articleUrl("Cabildo_Abierto:_Temas")}>Más información</Link>
     </span>
@@ -80,8 +82,9 @@ export const SaveEditPopup = ({
                     {diff === "too big" && <div className="text-red-600 text-xs mb-8  sm:text-sm">Parece que hay demasiadas diferencias entre las dos versiones. Probá eliminar primero el contenido y después agregar el contenido nuevo.</div>
                     }
 
-                    <div className="flex justify-center mb-8">
+                    <div className="flex flex-col items-center mb-8">
                         <EditMessageInput value={editMsg} setValue={setEditMsg}/>
+                        {!validMsg && <div className="mt-1 text-[var(--text-light)] text-sm">No puede empezar con &quot;nuevo nombre:&quot;</div>}
                     </div>
                     {!hasEditPermission(user, entity.protection) && <div className="mb-8">
                     <NotEnoughPermissionsWarning entity={entity}/>
@@ -106,8 +109,7 @@ export const SaveEditPopup = ({
                                 return await onSave(claimsAuthorship, editMsg)}
                             }
                             text1="Confirmar"
-                            text2="Guardando..."
-                            disabled={diff === "too big"}
+                            disabled={!validMsg || diff === "too big"}
                             disableElevation={true}
                         />
                     </div>
