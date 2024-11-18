@@ -44,7 +44,7 @@ export default async function Page() {
             Cuentas: {stats.accounts}
         </Stat>
         <Stat>
-            Objetivo lunes que viene: {Math.ceil(stats.eventsByWeek[stats.eventsByWeek.length-2].accounts * 1.1)}
+            Objetivo lunes que viene: {Math.round(stats.eventsByWeek[stats.eventsByWeek.length-1].accounts * 1.1)}
         </Stat>
 
         <SubscriptorsByDate name="Cuentas" data={stats.eventsByWeek.map(({date, accounts}) => ({date, count: accounts}))}/>

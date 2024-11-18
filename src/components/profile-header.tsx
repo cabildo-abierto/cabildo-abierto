@@ -11,39 +11,36 @@ import { FixedFakeNewsCounter } from "./fake-news-counter"
 import { ArticleIcon } from "./icons"
 import { PermissionLevel } from "./permission-level"
 import { Button } from "@mui/material"
+import StateButton from "./state-button"
 
 export function ProfileHeader({profileUser, user, selected, setSelected, setShowingFakeNews }: {profileUser: UserProps, user?: UserProps, selected: string, setSelected: any, setShowingFakeNews: any }) {
-    const [following, setFollowing] = useState(false)
     const {mutate} = useSWRConfig()
 
-    useEffect(() => {
-        if(user)
-            setFollowing(user.following.some((u) => u.id === profileUser.id))
-    }, [user, profileUser])
 
-    const doesFollow = user && user.following.some((u) => u.id === profileUser.id)
-
+    const following = user && user.following.some((u) => u.id === profileUser.id)
     const followerCount = profileUser.followedBy.length
 
     // hay alguna mejor forma de hacer esto?
-    const updatedFollowerCount = followerCount + Number(following) - Number(doesFollow)
+    const updatedFollowerCount = followerCount
     const isLoggedInUser = user && user.id == profileUser.id
     const followingCount = profileUser.following.length
     
     const onUnfollow = async () => {
-        if(!user) return; 1
-        setFollowing(false);
-        await unfollow(profileUser.id, user.id);
-        mutate("/api/following-feed/"+user.id)
-        mutate("/api/user")
+        if(!user) return;
+        const {error} = await unfollow(profileUser.id, user.id)
+        if(error) return {error}
+        await mutate("/api/following-feed/"+user.id)
+        await mutate("/api/user")
+        return {}
     }
 
     const onFollow = async () => {
         if(!user) return
-        setFollowing(true)
-        await follow(profileUser.id, user.id)
-        mutate("/api/following-feed/"+user.id)
-        mutate("/api/user")
+        const {error} = await follow(profileUser.id, user.id)
+        if(error) return {error}
+        await mutate("/api/following-feed/"+user.id)
+        await mutate("/api/user")
+        return {}
     }
 
     function optionsNodes(o: string, isSelected: boolean){
@@ -71,19 +68,23 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
             </div>
             {user && <div className="flex items-center mr-2">
                 {!isLoggedInUser &&
-                    (following ? <button
-                        onClick={onUnfollow}
-                        className="gray-btn"
-                    >
-                        Dejar de seguir
-                    </button>
+                    (following ? <StateButton
+                        handleClick={onUnfollow}
+                        color="primary"
+                        size="small"
+                        variant="contained"
+                        disableElevation={true}
+                        text1="Dejar de seguir"
+                    />
                     :
-                    <button
-                        onClick={onFollow}
-                        className="gray-btn"
-                    >
-                        Seguir
-                    </button>)
+                    <StateButton
+                        handleClick={onFollow}
+                        color="primary"
+                        size="small"
+                        variant="contained"
+                        disableElevation={true}
+                        text1="Seguir"
+                    />)
                 }
             </div>}
         </div>

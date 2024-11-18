@@ -145,7 +145,6 @@ export const SuggestionsSlider = ({suggestions, closePanel}: {
                     <StateButton
                         handleClick={async () => {return await onFollow(e.id, index);}}
                         text1="Seguir"
-                        text2="Siguiendo..."
                         size="small"
                         variant="contained"
                         disableElevation={true}

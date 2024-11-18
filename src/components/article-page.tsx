@@ -31,6 +31,7 @@ import LoadingSpinner from "./loading-spinner";
 import { useContent } from "../app/hooks/contents";
 import ContentComponent from "./content";
 import { Button } from "@mui/material";
+import { ArticleOtherOptions } from "./article-other-options";
 
 
 
@@ -133,7 +134,7 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
     const EditButton = () => {
         if(hasEditPermission(user.user, entity.entity.protection)){
             return <ToggleButton
-                text="Editar contenido"
+                text="Editar"
                 toggledText="Cancelar edición"
                 className={articleButtonClassname}
                 setToggled={onEdit}
@@ -322,14 +323,18 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
         </div>
 
         <div className="">
-        {selectedPanel != "editing" && <div className="flex flex-wrap w-full items-center px-2 border-b mt-4 space-x-2">
+        {selectedPanel != "editing" && <div className="flex flex-wrap w-full items-center border-b mt-4">
             {isCurrent && <EditButton/>}
             <ViewHistoryButton/>
             <ViewLastChangesButton/>
             <ViewAuthorsButton/>
+            <ArticleOtherOptions
+                optionList={["change-name"]}
+                entity={entity.entity}
+            />
             
-            {(user.user && (user.user.editorStatus == "Administrator" || user.user.id == "tomas")) && 
-                <div className="flex justify-center py-2">
+            {(false && user.user && (user.user.editorStatus == "Administrator" || user.user.id == "tomas")) && 
+                <div className="flex justify-center">
                     <RecomputeContributionsButton/>
                 </div>
             }

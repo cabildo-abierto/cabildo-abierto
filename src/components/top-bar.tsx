@@ -12,7 +12,7 @@ import { useUser } from "../app/hooks/user";
 import { TopbarLogo } from "./logo";
 import { NotificationsButton } from "./notifications-button";
 import { useSearch } from "./search-context";
-import { IconButton } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 
 
 function FeedButton() {
@@ -86,9 +86,20 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
         {(!user.isLoading && !user.user && (wideScreen || !searchBarOpen)) &&
             <div className="sm:w-72 flex justify-end">
                 <Link href="/" className="mx-1 sm:mx-2">
-                <button className="small-btn text-xs sm:text-sm flex flex-col items-center">
+                <Button
+                    size="small"
+                    variant="contained"
+                    sx={{
+                        textTransform: "none",
+                        display: "flex",
+                        flexDirection: "column",
+                        lineHeight: 1.2,
+                        gap: "2px"
+                    }}
+                    disableElevation={true}
+                >
                     <span>Crear cuenta o </span><span>iniciar sesión</span>
-                </button>
+                </Button>
                 </Link>
             </div>
         }

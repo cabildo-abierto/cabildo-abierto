@@ -28,7 +28,7 @@ import { SettingsProps } from "./lexical-editor"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
-export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:px-2"
+export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:px-2 py-1"
 
 
 const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este tema no tiene contenido! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
