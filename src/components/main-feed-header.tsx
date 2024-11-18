@@ -1,3 +1,5 @@
+
+import { Button } from "@mui/material"
 import SelectionComponent from "./search-selection-component"
 
 
@@ -18,8 +20,21 @@ export const MainFeedHeader = ({
     route, setRoute, selected, onSelection, showRoute, order, setOrder, filter, setFilter
 }: MainFeedHeaderProps) => {
 
+    function optionsNodes(o: string, isSelected: boolean){
+        return <div className="pr-1"><Button
+                onClick={() => {}}
+                variant="contained"
+                color="primary"
+                fullWidth={true}
+                disableElevation={true}
+                sx={{textTransform: "none"}}
+            >
+                <div className={"text-lg title relative after:content-[''] after:block after:h-[4px] after:rounded-full after:w-full after:mt-[-2px] " + (isSelected ? "after:bg-white" : "after:bg-transparent")}>{o}</div>
+        </Button></div>
+    }
+
     return <div className="mt-2">
-        <div className="mb-1 border-b-2 border-r-2 bg-[var(--primary)] text-[var(--lightwhite)] rounded border-[var(--primary-dark)] title">
+        <div className="">
         {/*showRoute && 
             <div className="flex flex-col pt-1">
                 <span className="ml-2 text-sm text-[var(--text-light)]">
@@ -34,7 +49,8 @@ export const MainFeedHeader = ({
             onSelection={onSelection}
             options={["En discusión", "Siguiendo"]}
             selected={selected}
-            className="main-feed text-sm sm:text-base"
+            optionsNodes={optionsNodes}
+            className="flex justify-between w-full"
         />
         </div>
     </div>

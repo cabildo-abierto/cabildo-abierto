@@ -8,14 +8,15 @@ import { EditorState, LexicalEditor } from "lexical";
 import { useSWRConfig } from "swr";
 import { updateDescription } from "../actions/users";
 import { useUser } from "../app/hooks/user";
+import { Button } from "@mui/material";
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 
 
 const EditButton = ({onClick, isEmpty}: {onClick: () => void, isEmpty: boolean}) => {
-    return <button className="small-btn" onClick={onClick}>
+    return <Button size="small" sx={{textTransform: "none"}} onClick={onClick}>
         {isEmpty ? "Agregar una descripción" : "Editar descripción"}
-    </button>
+    </Button>
 }
 
 const DescriptionEditor = ({setEditing}: {setEditing: (arg0: boolean) => void}) => {
@@ -45,9 +46,11 @@ const DescriptionEditor = ({setEditing}: {setEditing: (arg0: boolean) => void}) 
             setEditor={setEditor}
             setEditorState={setEditorState}
         />
-        <div className="flex justify-end px-1 mb-1">
-            <button className="small-btn mr-1" onClick={() => {setEditing(false)}}>Cancelar</button>
-            <button className="small-btn" onClick={onSubmit}>Confirmar</button>
+        <div className="flex justify-end px-1 mb-1 space-x-1">
+            <Button size="small" sx={{textTransform: "none"}} onClick={() => {setEditing(false)}}>
+                Cancelar
+            </Button>
+            <Button size="small" sx={{textTransform: "none"}} onClick={onSubmit}>Confirmar</Button>
         </div>
     </div>
 }
