@@ -1,5 +1,6 @@
 'use client'
 
+import LoadingButton from '@mui/lab/LoadingButton'
 import { useFormStatus } from 'react-dom'
 
 
@@ -7,10 +8,17 @@ export function LoginButton() {
     const {pending} = useFormStatus()
 
     return (
-        <button aria-disabled={pending} type="submit" className="gray-btn w-full">
-            <div className="py-1 w-full">
-            {pending ? 'Iniciando sesión...' : 'Iniciar sesión'}
+        <LoadingButton
+            type="submit"
+            fullWidth={true}
+            loading={pending}
+            variant="contained"
+            sx={{textTransform: "none"}}
+            disableElevation={true}
+        >
+            <div className="py-1 w-full title">
+                Iniciar sesión
             </div>
-        </button>
+        </LoadingButton>
     )
 }

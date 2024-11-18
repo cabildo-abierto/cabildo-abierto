@@ -10,6 +10,7 @@ import ResendEmailButton from './resend-email-button';
 import { CustomLink as Link } from './custom-link';
 import { articleUrl } from './utils';
 import { BaseFullscreenPopup } from './base-fullscreen-popup';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 export const AuthenticationFormLabel: React.FC<{text: string, label: string}> = ({text, label}) => {
     return <label
@@ -35,11 +36,18 @@ function SignupButton() {
     const {pending} = useFormStatus()
 
     return (
-        <button aria-disabled={pending} type="submit" className="gray-btn w-full">
-            <div className="py-1 w-full">
-            {pending ? 'Creando cuenta...' : 'Crear cuenta'}
-            </div>
-        </button>
+        <LoadingButton
+            loading={pending}
+            type="submit"
+            variant="contained"
+            disableElevation={true}
+            sx={{
+                textTransform: "none",
+                width: "100%"
+            }}
+        >
+            <div className="w-full py-1 title">Crear cuenta</div>
+        </LoadingButton>
     )
 }
 
@@ -232,13 +240,13 @@ const NameInput = ({state}: {state: SignUpFormState}) => {
 }
 
 
-export const AuthForm = ({children, action, state, title}: {children: ReactNode, action: any, state: any, title: string}) => {
+export const AuthForm = ({children, action, state, title}: {children: ReactNode, action: any, state: any, title: ReactNode}) => {
 
     return <form action={action} className="flex justify-center items-center lg:w-90 min-w-80 px-1">
         <div className="flex-1 bg-[var(--secondary-light)] p-3 content-container rounded">
-            <h2 className='flex justify-center mb-2'>
+            <div className='flex justify-center mb-2'>
                 {title}
-            </h2>
+            </div>
             <div className="w-full space-y-2">
                 {children}
             </div>
@@ -271,23 +279,33 @@ export default function SignupForm() {
         }
     }, [state])
 
+    const title = <div>
+        <h2 className="title">
+            Creá tu cuenta
+        </h2>
+        <div className="text-[var(--text-light)] text-lg text-center">
+            Es gratis.
+        </div>
+    </div>
+
     return (
         <>
             {showingSignupOK && <ConfirmLinkSentPopup
                 onClose={() => {setShowingSignupOK(false)}}
                 email={state?.data?.email}
             />}
-            <AuthForm action={action} state={state} title="Crear cuenta">
+            <AuthForm action={action} state={state} title={title}>
                 <EmailInput state={state}/>
                 <PasswordInput state={state}/>
-                <UsernameInput state={state}/>
                 <NameInput state={state}/>
-                <SignupButton/>
+                <div className="pt-4">
+                    <SignupButton/>
+                </div>
                 <div className="text-sm leading-tight mt-1 text-justify text-[var(--text-light)]">
-                    Al crear una cuenta aceptás nuestros <Link href={articleUrl("Cabildo_Abierto%3A_Términos_y_condiciones")}
-                    className="link2">Términos y condiciones</Link> y <Link href={articleUrl("Cabildo_Abierto%3A_Política_de_privacidad")} className="link2">
-                    Política de privacidad.
-                </Link> ¡Leelos!
+                    Al crear una cuenta aceptás los <Link href={articleUrl("Cabildo_Abierto%3A_Términos_y_condiciones")}
+                    className="link2">Términos y condiciones</Link> y la <Link href={articleUrl("Cabildo_Abierto%3A_Política_de_privacidad")} className="link2">
+                    Política de privacidad
+                </Link>. ¡Leelos!
                 </div>
             </AuthForm>
         </>

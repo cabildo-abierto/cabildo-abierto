@@ -6,13 +6,11 @@ import { recomputeEntityContributions } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments } from "../../actions/payments"
 import { updateAllReferences, updateAllWeakReferences } from "../../actions/references"
 import { addDonatedSubscriptionsManually, assignSubscriptions, buySubscriptions, desassignSubscriptions, recoverSubscriptions, removeSubscriptions } from "../../actions/users"
-import { Logo } from "../../components/logo"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
 
 import React from 'react';
-import QRCode from 'react-qr-code';
 
 
 

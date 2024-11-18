@@ -13,42 +13,46 @@ import { useUser } from '../app/hooks/user';
 import { deleteContent } from '../actions/admin';
 import ShareIcon from '@mui/icons-material/Share';
 import { Button, IconButton } from '@mui/material';
+import StateButton, { StateButtonClickHandler } from './state-button';
+import { useSWRConfig } from 'swr';
 
 
-export const ContentOptionsChoiceButton = ({children, onClick, icon}: {children: ReactNode, onClick: () => void, icon: ReactNode}) => {
-    return <Button
-        onClick={(e) => {e.stopPropagation(); e.preventDefault(); onClick()}}
+export const ContentOptionsChoiceButton = ({children, onClick, icon}: {children: ReactNode, onClick: StateButtonClickHandler, icon: ReactNode}) => {
+    return <StateButton
+        handleClick={onClick}
         startIcon={icon}
+        variant="text"
         color="inherit"
+        text1={children}
         sx={{
             textTransform: 'none',
             justifyContent: 'flex-start',  // Align icon and text to the left
             paddingLeft: 2,                // Optional: add padding to the left to give space
         }}
-        fullWidth
-    >
-        {children}
-    </Button>
+        fullWidth={true}
+    />
 }
 
 
 const ShareContentButton = ({ content }: { content: { id: string; parentEntityId?: string } }) => {
     const [onClipboard, setOnClipboard] = useState(false);
 
-    const onShare = () => {
-        const link = content.parentEntityId
-        ? `${window.location.origin}${articleUrl(content.parentEntityId)}`
-        : `${window.location.origin}${contentUrl(content.id)}`;
+    const onShare = async () => {
+        try {
+            const link = content.parentEntityId
+            ? `${window.location.origin}${articleUrl(content.parentEntityId)}`
+            : `${window.location.origin}${contentUrl(content.id)}`;
 
-        navigator.clipboard.writeText(link).then(
-        () => {
-            setOnClipboard(true);
-            setTimeout(() => setOnClipboard(false), 2000);
-        },
-        (err) => {
-            console.error('Failed to copy: ', err);
+            navigator.clipboard.writeText(link).then(
+                () => {
+                    setOnClipboard(true);
+                    setTimeout(() => setOnClipboard(false), 2000);
+                }
+            )
+            return {}
+        } catch {
+            return {error: "Error al copiar el link."}
         }
-        );
     };
 
     return <ContentOptionsChoiceButton
@@ -70,29 +74,43 @@ export const ContentOptionsDropdown = ({
     content: {
         type: string
         id: string
+        parentContents?: {id: string}[]
+        rootContent?: {type: string}
     }
 }) => {
     const [isFakeNewsModalOpen, setIsFakeNewsModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const router = useRouter()
     const user = useUser()
+    const {mutate} = useSWRConfig()
 
-    function onReportFake(){
+    async function onReportFake(){
         setIsFakeNewsModalOpen(true)
         onClose()
+        return {}
     }
 
-    function onEdit(){
+    async function onEdit(){
         if(content.type == "Comment"){
             setIsEditModalOpen(true)
         } else {
             router.push(editContentUrl(content.id))
         }
         onClose()
+        return {}
     }
 
     async function onDelete(){
-        return await deleteContent(content.id)
+        const result = await deleteContent(content.id, false)
+        mutate("/api/content/"+content.id)
+        if(content.parentContents && content.parentContents.length > 0){
+            mutate("/api/content"+content.parentContents[0].id)
+        }
+        if(["Post", "FastPost"].includes(content.type) || (content.rootContent && ["Post", "FastPost"].includes(content.rootContent.type))){
+            mutate("/api/feed/")
+        }
+        onClose()
+        return result
     }
 
     return <div className="text-base content-container rounded bg-[var(--content)] p-2">
@@ -110,7 +128,7 @@ export const ContentOptionsDropdown = ({
         >
             Editar
         </ContentOptionsChoiceButton>}
-        {user.user && user.user.editorStatus == "Administrator" && <ContentOptionsChoiceButton
+        {optionsList.includes("delete") && <ContentOptionsChoiceButton
             onClick={onDelete}
             icon={<DeleteIcon/>}
         >
@@ -132,6 +150,8 @@ type ContentOptionsButtonProps = {
     content: {
         id: string
         type: string
+        parentContents?: {id: string}[]
+        rootContent?: {type: string}
     }
     optionList: string[]
 }

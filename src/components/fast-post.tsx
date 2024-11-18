@@ -58,7 +58,7 @@ export const FastPost = ({
     const isAuthor = user && user.id == content.author.id
     const optionList = isAuthor ? ["edit"] : ["reportFake"]
 
-    if(user && user.editorStatus == "Administrator"){
+    if(user && (user.editorStatus == "Administrator" || user.id == content.author.id)){
         optionList.push("delete")
     }
 

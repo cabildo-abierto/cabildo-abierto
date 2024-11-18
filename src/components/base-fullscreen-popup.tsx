@@ -23,7 +23,7 @@ export const BaseFullscreenPopup = ({
         >
             <div className="fixed inset-0 bg-black opacity-30" aria-hidden="true" />
             <div className={"relative " + className}>
-                <Dialog.Panel className="bg-white rounded border-2 border-black text-center z-50">
+                <Dialog.Panel className="mx-1 bg-white rounded border-2 border-black text-center z-50">
                     {closeButton && (
                         <div className="flex justify-end mr-1 mt-1">
                             <CloseButton onClose={onClose} />

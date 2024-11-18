@@ -334,9 +334,8 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
         return routeFeed
     }, ["routeFollowingFeed", route.join("/"), userId], {
         revalidate: revalidateFeedTime,
-        tags: ["routeFollowingFeed", "routeFollowingFeed:"+route.join("/")+":"+userId, "feed"]})() 
+        tags: ["routeFollowingFeed", "routeFollowingFeed:"+route.join("/")+":"+userId, "feed"]})()
 }
-
 
 
 export const getDrafts = (userId: string) => {

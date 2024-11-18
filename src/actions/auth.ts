@@ -5,13 +5,13 @@ import { createClient } from '../utils/supabase/server'
 import { LoginFormSchema, RecoverPwFormSchema, SignupFormSchema, UpdatePwFormSchema, UserProps } from '../app/lib/definitions'
 import { db } from '../db'
 import { AuthApiError, AuthRetryableFetchError } from '@supabase/supabase-js'
-import { getUser } from './users'
+import { getUser, getUserAuthId } from './users'
 
 
 export type LoginFormState = {
   errors?: string[]
   data?: any
-  user?: UserProps
+  user?: UserProps | string
 }
 
 export async function login(state: any, formData: FormData): Promise<LoginFormState> {
@@ -28,8 +28,6 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
 
   const { error } = await supabase.auth.signInWithPassword(validatedFields.data as {email: string, password: string})
 
-  console.log("error", error)
-
   if (error) {
     console.log("error", error)
     if(error instanceof AuthRetryableFetchError){
@@ -45,7 +43,7 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
     }
   }
 
-  return await getUser()
+  return {user: "not defined yet"}
 }
 
 export type SignUpFormState = {
@@ -60,25 +58,12 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
     const validatedFields = SignupFormSchema.safeParse({
         email: formData.get('email'),
         password: formData.get('password'),
-        username: formData.get('username'),
         name: formData.get('name')
     })
 
     if (!validatedFields.success) {
         return {
             errors: validatedFields.error.flatten().fieldErrors,
-        }
-    }
-
-    const user = await db.user.findFirst({
-      where: {
-        id: validatedFields.data.username
-      }
-    })
-
-    if(user){
-        return {
-            errors: {username: ["El nombre de usuario ya está en uso."]}
         }
     }
 
@@ -94,7 +79,17 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
         }
     }
 
-    const { error, data } = await supabase.auth.signUp(validatedFields.data as {email: string, password: string, username: string, name: string, betakey: string})
+    const { error, data } = await supabase.auth.signUp(
+      {
+        email: validatedFields.data.email,
+        password: validatedFields.data.password,
+        options: {
+          data: {
+            name: validatedFields.data.name
+          }
+        }
+      }
+    )
 
     if (error || !data || !data.user) {
         console.log("signup error", error)
@@ -102,14 +97,6 @@ export async function signup(state: any, formData: FormData): Promise<SignUpForm
             authError: error?.code
         }
     }
-
-    await db.user.create({
-        data: {
-            authUserId: data.user.id,
-            name: validatedFields.data.name,
-            id: validatedFields.data.username,
-        }
-    })
 
     revalidatePath('/', 'layout')
     revalidateTag("users")
@@ -175,7 +162,6 @@ export async function updatePw(state: any, formData: FormData) {
 export async function resendConfirmationEmail(email: string){
     try {
       const supabase = createClient()
-      console.log("client created, resending")
       const response = await supabase.auth.resend({
         type: "signup",
         email: email
@@ -189,4 +175,41 @@ export async function resendConfirmationEmail(email: string){
       console.log("error al enviar")
       return {error: "Error al enviar el mail."}
     }
+}
+
+
+export async function selectUsername(username: string){
+    const {userAuthId, name} = await getUserAuthId()
+    if(!userAuthId){
+        return {error: "Ocurrió un error, volvé a iniciar sesión."}
+    }
+
+    const user = await db.user.findFirst({
+      where: {
+        id: username
+      }
+    })
+
+    if(user){
+        return {
+            error: "El nombre de usuario ya está en uso."
+        }
+    }
+
+    try {
+        await db.user.create({
+            data: {
+                id: username,
+                authUserId: userAuthId,
+                name: name
+            }
+        })
+    } catch {
+        return {error: "Ocurrió un error al crear el usuario."}
+    }
+
+    revalidatePath('/', 'layout')
+    revalidateTag("users")
+    revalidateTag("fundingPercentage")
+    return {}
 }

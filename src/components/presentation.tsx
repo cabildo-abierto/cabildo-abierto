@@ -3,6 +3,7 @@ import { CustomLink as Link } from './custom-link';
 import { Logo } from './logo';
 import { useState } from 'react';
 import { articleUrl } from './utils';
+import { Button } from '@mui/material';
 
 
 export const ThanksForSubscribing = ({onClose}: {onClose: () => void}) => {
@@ -53,12 +54,14 @@ export const Presentation = ({loggingIn, setLoggingIn}: {loggingIn: boolean, set
       
       <LogoAndSlogan/>
 
-      <Link href={articleUrl("Cabildo_Abierto")} className="sm:text-lg text-base title mb-3 sm:w-72 w-64 gray-btn flex justify-center text-center">
-        <div className="m-1">¿Qué es Cabildo Abierto?</div>
-      </Link>
-      <button onClick={() => {setLoggingIn(!loggingIn)}} className="sm:w-72 w-64 text-base sm:text-lg title mb-3 green-btn">
-        <div className="m-1">{loggingIn ? "Crear cuenta" : "Iniciar sesión"}</div>
-      </button>
+      <Button onClick={() => {setLoggingIn(!loggingIn)}}
+        color="primary"
+        size="large"
+        variant="contained"
+        sx={{textTransform: "none"}}
+        >
+        <div className="title px-4">{loggingIn ? "Crear cuenta" : "Iniciar sesión"}</div>
+      </Button>
       {false && <Link href="/inicio" className="link2 mb-16 text-[var(--text-light)] text-sm">
         Entrar como invitado/a
       </Link>}

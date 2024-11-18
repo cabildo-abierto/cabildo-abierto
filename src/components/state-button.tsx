@@ -8,7 +8,7 @@ type StateButtonProps = {
   handleClick: StateButtonClickHandler;
   variant?: "text" | "contained" | "outlined";
   className?: string
-  color?: "primary" | "secondary" | "error"
+  color?: "primary" | "secondary" | "error" | "inherit"
   size?: "small" | "medium" | "large",
   text1: ReactNode;
   text2?: ReactNode;
@@ -16,6 +16,8 @@ type StateButtonProps = {
   textClassName?: string;
   disabled?: boolean;
   disableElevation?: boolean
+  sx?: any
+  fullWidth?: boolean
 };
 
 export type StateButtonClickHandler = () => Promise<{ error?: string; stopResubmit?: boolean }>;
@@ -31,6 +33,8 @@ const StateButton: React.FC<StateButtonProps> = ({
   size,
   disabled = false,
   disableElevation = false,
+  fullWidth,
+  sx
 }) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(undefined)
@@ -69,7 +73,8 @@ const StateButton: React.FC<StateButtonProps> = ({
       disableElevation={disableElevation}
       sx={{
           textTransform: 'none'
-      }}
+      , ...sx}}
+      fullWidth={fullWidth}
     >
       <div className={textClassName}>
         {text1}

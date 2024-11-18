@@ -8,7 +8,7 @@ export default function Page() {
 
     const center = <div className="flex justify-center">
         <div className="fixed top-0 left-0 w-screen">
-            <div className={"topbar-container"}>
+            <div className="topbar-container">
                 <div className="px-2">
                     <TopbarLogo/>
                 </div>

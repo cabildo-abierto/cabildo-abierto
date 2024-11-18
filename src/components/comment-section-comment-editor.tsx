@@ -1,3 +1,4 @@
+import { useSWRConfig } from "swr"
 import { createComment } from "../actions/contents"
 import { useUser } from "../app/hooks/user"
 import { CommentProps } from "../app/lib/definitions"
@@ -6,7 +7,7 @@ import CommentEditor from "./editor/comment-editor"
 
 
 type CommentSectionCommentEditorProps = {
-    content: {id: string, parentEntityId: string}
+    content: {id: string, type: string, parentEntityId: string, rootContent?: {type: string}}
     comments: CommentProps[]
     setComments: (c: CommentProps[]) => void
     setViewComments: (v: boolean) => void
@@ -18,6 +19,7 @@ type CommentSectionCommentEditorProps = {
 
 export const CommentSectionCommentEditor = ({content, comments, setComments, setViewComments, setWritingReply, startsOpen, depth}: CommentSectionCommentEditorProps) => {
     const {user} = useUser()
+    const {mutate} = useSWRConfig()
 
     const handleNewComment = async (text: string) => {
         const compressedText = compress(text)
@@ -28,6 +30,10 @@ export const CommentSectionCommentEditor = ({content, comments, setComments, set
         setComments([newComment as CommentProps, ...comments])
 
         setViewComments(true)
+
+        if(["Post", "FastPost"].includes(content.type) || (content.rootContent && ["Post", "FastPost"].includes(content.rootContent.type))){
+            await mutate("/api/feed/")
+        }
 
         return {}
     }

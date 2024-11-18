@@ -72,7 +72,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
     if(user && (content.author.id == user.id || user.editorStatus == "Administrator"))
         optionList.push("edit")
 
-    if(user && user.editorStatus == "Administrator"){
+    if(user && (user.editorStatus == "Administrator" || user.id == content.author.id)){
         optionList.push("delete")
     }
 

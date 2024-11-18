@@ -8,9 +8,7 @@ import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
 import {$createQuoteNode} from '@lexical/rich-text';
 import {$unwrapMarkNode} from '@lexical/mark'
 import ReadOnlyEditor from './editor/read-only-editor';
-import LoadingSpinner from './loading-spinner';
 import { RedFlag } from './icons';
-import { ContentProps } from '../app/lib/definitions';
 import { useContent } from '../app/hooks/contents';
 import { decompress } from './compression';
 import { useUser } from '../app/hooks/user';
@@ -114,6 +112,7 @@ type CommentContentProps = {
     parentEntityId?: string
     parentContents?: ShortDescriptionProps[]
     rootContent?: ShortDescriptionProps
+    childrenContents: {type: string}[]
 }
 
 
@@ -147,10 +146,10 @@ export const Comment = ({
     const isAuthor: boolean = user && user.id == content.author.id
 
     const optionList = isAuthor ? ["edit"] : []
-    if(user && user.editorStatus == "Administrator"){
+
+    if(user && (user.editorStatus == "Administrator" || user.id == content.author.id)){
         optionList.push("delete")
     }
-
 
     return <div className="" key={changeIndex}>
         <ContentTopRow content={content} icon={icon} showOptions={true} optionList={optionList}/>

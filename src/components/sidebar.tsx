@@ -41,23 +41,40 @@ const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}
     return <SidebarButton icon={<SupportIcon newCount={count.count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
 }
 
-const SidebarUsername = ({user, onLogout}: {user: UserProps, onLogout: () => Promise<{error?: string}>}) => {
+
+export const CloseSessionButton = () => {
+    const router = useRouter()
+    const {mutate} = useSWRConfig()
+
+    const onLogout = async () => {
+        const {error} = await signOut()
+        if(!error){
+            router.push("/")
+            await mutate("/api/user", null)
+        }
+        return {}
+    }
+
+    return <div className="flex justify-center">
+        <StateButton
+            variant="text"
+            size="small"
+            color="primary"
+            handleClick={onLogout}
+            text1="CERRAR SESIÓN"
+        />
+    </div>
+}
+
+
+const SidebarUsername = ({user}: {user: UserProps}) => {
     return <div className="flex flex-col items-center">
         <Link href={`/perfil/${user.id}`}>
             <Button variant="text" color="inherit" sx={{ textTransform: 'none' }}>
                 {user.name}
             </Button>
         </Link>
-        <div className="mb-2 w-48 flex justify-center">
-            <StateButton
-                variant="text"
-                size="small"
-                color="primary"
-                handleClick={onLogout}
-                text1="CERRAR SESIÓN"
-                text2="..."
-            />
-        </div>
+        <CloseSessionButton/>
     </div>
 }
 
@@ -71,17 +88,6 @@ const SidebarUsernameNoUser = () => {
 
 export default function Sidebar({onClose}: {onClose: () => void}) {
     const user = useUser()
-    const {mutate} = useSWRConfig()
-    const router = useRouter()
-
-    const onLogout = async () => {
-        const {error} = await signOut()
-        if(!error){
-            router.push("/")
-            await mutate("/api/user", null)
-        }
-        return {}
-    }
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-[51]">
         <div className="flex">
@@ -89,7 +95,6 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                 <div className="flex flex-col mt-4 px-2">
                     {user.user && <SidebarUsername
                         user={user.user}
-                        onLogout={onLogout}
                     />}
                     {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
                     <SidebarButton onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio"/>

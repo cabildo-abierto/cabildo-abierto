@@ -45,23 +45,40 @@ export const CreateFakeNewsReportModal = ({ contentId, onClose }: { contentId: s
                 <StateButton
                     handleClick={async () => {
                         if(user.user && editor){
-                            const {error} = await createFakeNewsReport(
+                            const {error, ...newComment} = await createFakeNewsReport(
                                 compress(JSON.stringify(editor.getEditorState())),
                                 user.user.id,
                                 contentId,
                             )
                             if(error) return {error}
                             
-                            mutate("/api/replies-feed/"+user.user.id)
                             mutate("/api/content/"+contentId)
+                            mutate("/api/feed/")
+                            mutate("/api/routeFollowingFeed/")
                             onClose()
                             return {}
                         }
                         return {error: "Ocurrió un error al crear el reporte."}
+
+                        
+                        /*const compressedText = compress(text)
+                        const {error, ...newComment} = await createComment(compressedText, user.id, content.id, content.parentEntityId)
+                        
+                        if(error) return {error}
+
+                        setComments([newComment as CommentProps, ...comments])
+
+                        setViewComments(true)
+
+                        if(["Post", "FastPost"].includes(content.type) || (content.rootContent && ["Post", "FastPost"].includes(content.rootContent.type))){
+                            console.log("Mutating feed")
+                            await mutate("/api/feed/")
+                        }
+
+                        return {}*/
                     }}
-                    className="gray-btn w-64"
-                    text1="Confirmar"
-                    text2="Enviando..."
+                    disableElevation={true}
+                    text1="Enviar"
                     disabled={!validFakeNewsReport(editorState)}
                 />
             </div>
