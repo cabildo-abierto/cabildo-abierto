@@ -21,7 +21,7 @@ export function useUser(): {user: UserProps | null, isLoading: boolean, error?: 
         }
     }
     return {
-        user: data,
+        user: data ? data.user : undefined,
         isLoading: isLoading,
         error: undefined
     }

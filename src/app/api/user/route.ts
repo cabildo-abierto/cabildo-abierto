@@ -9,6 +9,6 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({error: error})
     }
 
-    return NextResponse.json(user ? user : {status: "not logged in"})
+    return NextResponse.json(user ? {user} : {status: "not logged in"})
     
 }
