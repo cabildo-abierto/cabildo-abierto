@@ -43,7 +43,10 @@ export default function LoginForm() {
     const origAction = async (state: any, payload: any) => {
         const result = await login(state, payload)
         if(result.user){
-            await mutate("/api/user", result.user)
+            await mutate("/api/user", result)
+            router.push("/inicio")
+        } else if(result.error == "not defined yet"){
+            await mutate("/api/user", result)
             router.push("/inicio")
         }
         return result
