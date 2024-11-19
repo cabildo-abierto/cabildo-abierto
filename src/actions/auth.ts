@@ -43,7 +43,7 @@ export async function login(state: any, formData: FormData): Promise<LoginFormSt
     }
   }
 
-  return {user: "not defined yet"}
+  return await getUser()
 }
 
 export type SignUpFormState = {
