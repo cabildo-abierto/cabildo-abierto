@@ -12,6 +12,7 @@ export type LoginFormState = {
   errors?: string[]
   data?: any
   user?: UserProps | string
+  error?: string
 }
 
 export async function login(state: any, formData: FormData): Promise<LoginFormState> {
