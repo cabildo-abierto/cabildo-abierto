@@ -132,8 +132,8 @@ export function UpdateInlineImageDialog({
     <>
       <div style={{marginBottom: '1em'}}>
         <TextInput
-          label="Alt Text"
-          placeholder="Descriptive alternative text"
+          label="Texto alternativo"
+          placeholder="Cataratas del Iguazú"
           onChange={setAltText}
           value={altText}
           data-test-id="image-modal-alt-text-input"

@@ -47,7 +47,8 @@ export const commentEditorSettings: SettingsProps = {
     isReadOnly: false,
     placeholderClassName: "absolute top-0 text-[var(--text-lighter)] pointer-events-none",
     imageClassName: "",
-    preventLeave: true
+    preventLeave: true,
+    allowImages: false
 }
 
 

@@ -67,7 +67,8 @@ import InlineImagePlugin from './plugins/InlineImagePlugin';
 import { getAllText } from '../diff';
 import { usePageLeave } from '../prevent-leave';
 import { v4 as uuidv4 } from 'uuid';
-
+import {ImageNode} from './nodes/ImageNode'
+import {InlineImageNode} from './nodes/InlineImageNode/InlineImageNode';
 
 
 export type SettingsProps = {
@@ -112,7 +113,8 @@ export type SettingsProps = {
   placeholderClassName: string,
   showingChanges?: string,
   imageClassName: string,
-  preventLeave: boolean
+  preventLeave: boolean,
+  allowImages: boolean
 }
 
 
@@ -167,7 +169,8 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
     content,
     placeholderClassName,
     charLimit,
-    preventLeave
+    preventLeave,
+    allowImages
   } = settings;
 
   const isEditable = useLexicalEditable();
@@ -229,8 +232,8 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
           hasCellBackgroundColor={false}
         />
         <TableCellResizer />
-        <ImagesPlugin captionsEnabled={false}/>
-        <InlineImagePlugin/>
+        {allowImages && <ImagesPlugin captionsEnabled={false}/>}
+        {allowImages && <InlineImagePlugin/>}
 
         <OnChangePlugin
           onChange={(editorState) => {
@@ -315,7 +318,7 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 }
 
 const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorProps) => {
-  let {isReadOnly, initialData, imageClassName} = settings
+  let {isReadOnly, initialData, imageClassName, allowImages} = settings
 
   if(typeof initialData === 'string'){
       try {
@@ -328,12 +331,18 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
       }
   }
 
+  let nodes = [...PlaygroundNodes]
+
+  if(allowImages){
+      nodes = [...PlaygroundNodes, ImageNode, InlineImageNode]
+  }
+
   const initialConfig: InitialConfigType = {
     namespace: 'Playground',
     editorState: initialData,
     nodes: [
       ...createBeautifulMentionNode(CustomMentionComponent),
-      ...PlaygroundNodes,
+      ...nodes,
       CustomMarkNode,
       {
         replace: MarkNode,
