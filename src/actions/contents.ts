@@ -896,6 +896,21 @@ export async function notifyAllMentions(){
 
 
 export async function deleteUser(userId: string){
+    await db.reaction.deleteMany({
+        where: {
+            userById: userId
+        }
+    })
+    await db.notification.deleteMany({
+        where: {
+            userById: userId
+        }
+    })
+    await db.notification.deleteMany({
+        where: {
+            userNotifiedId: userId
+        }
+    })
     await db.view.deleteMany({
         where: {
             userById: userId

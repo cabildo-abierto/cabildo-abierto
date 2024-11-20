@@ -657,11 +657,6 @@ export async function getAdminStats(){
             })
         }
     })
-
-    const firstSubscription = await db.subscription.findFirst({
-        orderBy: { createdAt: 'asc' },
-        select: { createdAt: true }
-    });
     
     const firstMonday = new Date(launchDate);
     firstMonday.setDate(firstMonday.getDate() - ((firstMonday.getDay() + 6) % 7));
@@ -671,7 +666,7 @@ export async function getAdminStats(){
 
 
     let eventsByWeek: {date: Date, accounts: number, reactions: number, contents: number}[] = []
-    for (let date = new Date(firstMonday); date <= currentDate; date = new Date(date.getTime() + weekDuration)) {
+    for (let date = firstMonday; date <= currentDate; date = new Date(date.getTime() + weekDuration)) {
 
         let users = new Set()
 
