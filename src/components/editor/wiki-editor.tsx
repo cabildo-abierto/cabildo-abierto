@@ -225,12 +225,12 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
 
         {editingRoutes &&
         <div className="py-4">
-            <RoutesEditor entity={entity} setEditing={setEditing}/>
+            <RoutesEditor entity={entity} setEditing={setEditingRoutes}/>
         </div>}
 
         {editingSearchkeys && 
         <div className="py-4">
-            <SearchkeysEditor entity={entity} setEditing={setEditing}/>    
+            <SearchkeysEditor entity={entity} setEditing={setEditingSearchkeys}/>    
         </div>}
         
         <div className="text-center">

@@ -13,6 +13,7 @@ import { useRouteEntities, useContent } from "../app/hooks/contents";
 import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
 import { updateEntityCategoriesOrSearchkeys } from "../actions/entities";
+import { Button } from "@mui/material";
 
 function validCategoryElement(e: string){
     return e.length > 0
@@ -222,15 +223,18 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
                 addCategory={addCategory}
             />
         </div>
-        <div className="flex justify-end">
-            <button
-                className="small-btn mr-2"
+        <div className="flex justify-end space-x-2">
+            <Button
+                size="small"
+                variant="outlined"
+                sx={{textTransform: "none"}}
                 disabled={areCategoriesEqual(categories, entityCategories)}
-                onClick={() => {setCategories(entityCategories)}}>
+                onClick={() => {setCategories(entityCategories); setEditing(false)}}>
                 Cancelar
-            </button>
+            </Button>
             <StateButton
-                className="small-btn"
+                size="small"
+                variant="outlined"
                 disabled={areCategoriesEqual(categories, entityCategories) || !validCategories(categories)}
                 handleClick={onSubmitCategories}
                 text1="Confirmar"
