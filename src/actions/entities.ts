@@ -6,10 +6,10 @@ import { getContentById, notifyMentions, processNewTextFast } from "./contents";
 import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
 import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
-import { currentVersionContent, entityExists, entityInRoute, getPlainText, hasEditPermission, isDemonetized, isPartOfContent, isUndo } from "../components/utils";
+import { currentVersionContent, entityExists, entityInRoute, getPlainText, hasEditPermission, isEntityContentDemonetized, isPartOfContent, isUndo } from "../components/utils";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
-import { extendContentStallPaymentDate } from "./payments";
+//import { extendContentStallPaymentDate } from "./payments";
 
 
 
@@ -161,7 +161,7 @@ export const recomputeEntityContributions = async (entityId: string): Promise<{e
 
             const contribution: BothContributionsProps = lastContribution
             
-            const newContribution = updateContribution(contribution, charsAdded, entity.versions[i].authorId, !isDemonetized(entity.versions[i]))
+            const newContribution = updateContribution(contribution, charsAdded, entity.versions[i].authorId, !isEntityContentDemonetized(entity.versions[i]))
         
             newData = {
                 accCharsAdded: accCharsAdded, 
@@ -438,8 +438,8 @@ export const undoChange = async (entityId: string, contentId: string, versionNum
         return {error: "Error al deshacer el tema."}
     }
 
-    const {error: stallError} = await extendContentStallPaymentDate(contentId)
-    if(stallError) return {error: stallError}
+    //const {error: stallError} = await extendContentStallPaymentDate(contentId)
+    //if(stallError) return {error: stallError}
 
     const {error: updateVersion} = await updateEntityCurrentVersion(entityId)
     if(updateVersion) return {error: updateVersion}

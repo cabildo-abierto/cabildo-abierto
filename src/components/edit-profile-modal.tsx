@@ -1,16 +1,14 @@
-import { Button, InputLabel, TextField } from "@mui/material"
+
 import { BaseFullscreenPopup } from "./base-fullscreen-popup"
-import { inputClassName } from "./signup-form"
 import { useUser } from "../app/hooks/user"
 import { useEffect, useState } from "react"
-import { DescriptionEditor } from "./description"
 import { commentEditorSettings } from "./editor/comment-editor"
 import { LexicalEditor, EditorState } from "lexical"
 import dynamic from "next/dynamic"
 import { updateDescription, updateName } from "../actions/users"
 import { useSWRConfig } from "swr"
 import StateButton from "./state-button"
-import { NameFormSchema, SignupFormSchema, UsernameFormSchema } from "../app/lib/definitions"
+import { NameFormSchema } from "../app/lib/definitions"
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 
@@ -35,7 +33,8 @@ export const EditProfileModal = ({onClose}: {onClose: () => void}) => {
     settings.isAutofocus = true
 
     async function onSave(){
-        const newDescription = JSON.stringify(editor.getEditorState())
+        let newDescription = JSON.stringify(editorState)
+
         if(user.description != newDescription){
             await updateDescription(newDescription, user.id)
             await mutate("/api/user")

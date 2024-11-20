@@ -39,7 +39,6 @@ export const getRouteFeed = (route: string[], userId?: string) => {
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
                 reactions: userId ? {
@@ -204,7 +203,6 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
@@ -392,7 +390,6 @@ export const getProfileFeed = async (userId: string) => {
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
@@ -543,7 +540,6 @@ export const getRepliesFeed = async (userId: string) => {
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
@@ -720,7 +716,6 @@ export const getEditsFeed = (profileUserId: string) => {
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
@@ -857,7 +852,6 @@ export const getSearchableContents = (route: string[], userId?: string) => {
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 rootContent: {
                     select: {
                         id: true,

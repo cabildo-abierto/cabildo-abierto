@@ -319,11 +319,15 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
 
   if(typeof initialData === 'string'){
       try {
-          JSON.parse(initialData)
+          const root = JSON.parse(initialData).root
+          if(getAllText(root).length == 0){
+            initialData = undefined
+          }
       } catch {
           initialData = undefined
       }
   }
+
   const initialConfig: InitialConfigType = {
     namespace: 'Playground',
     editorState: initialData,
