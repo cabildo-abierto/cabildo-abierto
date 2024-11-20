@@ -27,6 +27,7 @@ const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsPro
         isCollab: false,
         isMaxLength: false,
         isRichText: true,
+        allowImages: !isFast,
         measureTypingPerf: false,
         shouldPreserveNewLinesInMarkdown: true,
         shouldUseLexicalContextMenu: false,

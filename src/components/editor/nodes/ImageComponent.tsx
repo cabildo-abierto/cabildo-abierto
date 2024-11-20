@@ -104,14 +104,13 @@ function LazyImage({
   useSuspenseImage(src);
 
   return (
-    <ImageNext
+    <img
       className={className || undefined}
       src={src}
       alt={altText}
       ref={imageRef}
-      width={width == "inherit" ? undefined : Math.min(width, maxWidth)}
+      width={width ==  "inherit" ? maxWidth : Math.min(width, maxWidth)}
       height={height == "inherit" ? undefined : height}
-      fill={width == "inherit"}
       onError={onError}
       draggable="false"
     />

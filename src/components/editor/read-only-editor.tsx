@@ -32,6 +32,7 @@ const ReadOnlyEditor = ({
         disableBeforeInput: false,
         emptyEditor: false,
         isAutocomplete: false,
+        allowImages: true,
         isCharLimit: false,
         isCharLimitUtf8: false,
         isCollab: false,

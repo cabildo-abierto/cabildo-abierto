@@ -50,6 +50,7 @@ export const wikiEditorSettings = (readOnly: boolean, content: {type: string, ti
         isAutocomplete: false,
         isCharLimit: false,
         isCharLimitUtf8: false,
+        allowImages: true,
         isCollab: false,
         isMaxLength: false,
         isRichText: true,

@@ -28,15 +28,17 @@ import {
 import {useEffect, useRef, useState} from 'react';
 import * as React from 'react';
 
-import landscapeImage from '../../images/landscape.jpg';
-import yellowFlowerImage from '../../images/yellow-flower.jpg';
 import {$isImageNode, ImageNode, $createImageNode, ImagePayload} from '../../nodes/ImageNode';
 
 import Button from '../../ui/Button';
+import {Button as MuiButton} from '@mui/material'
 import {DialogActions, DialogButtonsList} from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
 import { CAN_USE_DOM } from '../../shared/canUseDOM';
+import { createClient } from '../../../../utils/supabase/client';
+
+import { v4 as uuidv4 } from 'uuid'; // Import the uuid library
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -59,26 +61,28 @@ export function InsertImageUriDialogBody({
   return (
     <>
       <TextInput
-        label="Image URL"
-        placeholder="i.e. https://source.unsplash.com/random"
+        label="URL"
+        placeholder="ej. https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Foz_de_Igua%C3%A7u_27_Panorama_Nov_2005.jpg/480px-Foz_de_Igua%C3%A7u_27_Panorama_Nov_2005.jpg"
         onChange={setSrc}
         value={src}
         data-test-id="image-modal-url-input"
       />
       <TextInput
-        label="Alt Text"
-        placeholder="Random unsplash image"
+        label="Texto alternativo"
+        placeholder="Cataratas del Iguazú"
         onChange={setAltText}
         value={altText}
         data-test-id="image-modal-alt-text-input"
       />
       <DialogActions>
-        <Button
-          data-test-id="image-modal-confirm-btn"
+        <MuiButton
+          sx={{textTransform: "none"}}
+          variant="contained"
+          disableElevation={true}
           disabled={isDisabled}
           onClick={() => onClick({altText, src})}>
           Confirmar
-        </Button>
+        </MuiButton>
       </DialogActions>
     </>
   );
@@ -94,41 +98,59 @@ export function InsertImageUploadedDialogBody({
 
   const isDisabled = src === '';
 
-  const loadImage = (files: FileList | null) => {
-    const reader = new FileReader();
-    reader.onload = function () {
-      if (typeof reader.result === 'string') {
-        setSrc(reader.result);
-      }
-      return '';
-    };
+  const loadImage = async (files: FileList | null) => {
     if (files !== null) {
-      reader.readAsDataURL(files[0]);
+      const file = files[0];
+  
+      const uniqueId = uuidv4()
+      const extension = file.type.split('/')[1]; 
+      const filename = `${uniqueId}.${extension}`;
+  
+      const supabase = createClient();
+      
+      const { data, error } = await supabase.storage
+        .from('pictures')
+        .upload('public/' + filename, file);
+  
+      if (error) {
+        console.error('Error al cargar el archivo:', error);
+        return;
+      }
+  
+      const { data: publicUrlData } = supabase.storage
+        .from('pictures')
+        .getPublicUrl('public/' + filename);
+  
+      if (publicUrlData?.publicUrl) {
+        setSrc("/media/"+filename);
+      }
     }
   };
 
   return (
     <>
       <FileInput
-        label="Image Upload"
+        label="Subir imágen"
         onChange={loadImage}
         accept="image/*"
         data-test-id="image-modal-file-upload"
       />
       <TextInput
-        label="Alt Text"
-        placeholder="Descriptive alternative text"
+        label="Texto alternativo"
+        placeholder="Cataratas del Iguazú"
         onChange={setAltText}
         value={altText}
         data-test-id="image-modal-alt-text-input"
       />
       <DialogActions>
-        <Button
-          data-test-id="image-modal-file-upload-btn"
+        <MuiButton
+          variant="contained"
+          disableElevation={true}
           disabled={isDisabled}
+          sx={{textTransform: "none"}}
           onClick={() => onClick({altText, src})}>
           Confirmar
-        </Button>
+        </MuiButton>
       </DialogActions>
     </>
   );
@@ -161,42 +183,28 @@ export function InsertImageDialog({
   };
 
   return (
-    <>
+    <div className="w-[350px]">
       {!mode && (
         <DialogButtonsList>
-          <Button
-            data-test-id="image-modal-option-sample"
-            onClick={() =>
-              onClick(
-                hasModifier.current
-                  ? {
-                      altText:
-                        'Daylight fir trees forest glacier green high ice landscape',
-                      src: '../../images/landscape.jpg',
-                    }
-                  : {
-                      altText: 'Yellow flower in tilt shift lens',
-                      src: '../../images/yellow-flower.jpg',
-                    },
-              )
-            }>
-            Sample
-          </Button>
-          <Button
-            data-test-id="image-modal-option-url"
+          <MuiButton
+            variant="contained"
+            sx={{textTransform: "none"}}
+            disableElevation={true}
             onClick={() => setMode('url')}>
-            URL
-          </Button>
-          <Button
-            data-test-id="image-modal-option-file"
+            Desde un URL
+          </MuiButton>
+          <MuiButton
+            variant="contained"
+            sx={{textTransform: "none"}}
+            disableElevation={true}
             onClick={() => setMode('file')}>
-            File
-          </Button>
+            Subir un archivo
+          </MuiButton>
         </DialogButtonsList>
       )}
       {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
       {mode === 'file' && <InsertImageUploadedDialogBody onClick={onClick} />}
-    </>
+    </div>
   );
 }
 
@@ -216,10 +224,10 @@ export default function ImagesPlugin({
       editor.registerCommand<InsertImagePayload>(
         INSERT_IMAGE_COMMAND,
         (payload) => {
-          const imageNode = $createImageNode(payload);
+          const imageNode = $createImageNode(payload)
           $insertNodes([imageNode]);
           if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
-            $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
+            $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd()
           }
 
           return true;
