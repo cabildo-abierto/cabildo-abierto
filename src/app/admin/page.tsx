@@ -22,7 +22,7 @@ export default function Page() {
         return <NotFoundPage/>
     }
 
-    const userId = "prueba2"
+    const userId = "Violeta"
     const entityId = "Proyecto_de_ley_S984%2F24%3A_Financiamiento_de_la_educaci%C3%B3n_universitaria"
 
     let center = <div className="flex flex-col items-center mt-8">

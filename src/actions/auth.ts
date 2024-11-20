@@ -6,6 +6,7 @@ import { LoginFormSchema, RecoverPwFormSchema, SignupFormSchema, UpdatePwFormSch
 import { db } from '../db'
 import { AuthApiError, AuthRetryableFetchError } from '@supabase/supabase-js'
 import { getUser, getUserAuthId } from './users'
+import { redirect } from 'next/navigation'
 
 
 export type LoginFormState = {
