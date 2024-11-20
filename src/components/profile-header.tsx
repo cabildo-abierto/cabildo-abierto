@@ -12,9 +12,11 @@ import { ArticleIcon } from "./icons"
 import { PermissionLevel } from "./permission-level"
 import { Button } from "@mui/material"
 import StateButton from "./state-button"
+import { EditProfileModal } from "./edit-profile-modal"
 
 export function ProfileHeader({profileUser, user, selected, setSelected, setShowingFakeNews }: {profileUser: UserProps, user?: UserProps, selected: string, setSelected: any, setShowingFakeNews: any }) {
     const {mutate} = useSWRConfig()
+    const [editProfileOpen, setEditProfileOpen] = useState(false)
 
 
     const following = user && user.following.some((u) => u.id === profileUser.id)
@@ -56,6 +58,8 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
         </Button>
     }
 
+    const isOwner = isLoggedInUser !== undefined ? isLoggedInUser : false
+
     return <div className="content-container rounded mt-2 flex flex-col">
         <div className="flex justify-between">
             <div className="ml-2 py-2">
@@ -86,12 +90,21 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                         text1="Seguir"
                     />)
                 }
+                {isOwner && 
+                    <Button
+                        size="small"
+                        variant="outlined"
+                        sx={{textTransform: "none"}}
+                        onClick={() => {setEditProfileOpen(true)}}
+                    >
+                        Editar perfil
+                    </Button>
+                }
             </div>}
         </div>
         <div className="ml-2">
             <Description
                 text={profileUser.description}
-                isOwner={isLoggedInUser !== undefined ? isLoggedInUser : false}
             />
         </div>
         <div className="ml-2 flex mb-1 items-center">
@@ -123,5 +136,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                 className="profile-feed"
             />
         </div>
+
+        {editProfileOpen && <EditProfileModal onClose={() => {setEditProfileOpen(false)}}/>}
     </div>
 }
