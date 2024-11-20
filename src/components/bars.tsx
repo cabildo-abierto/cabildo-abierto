@@ -1,18 +1,16 @@
 "use client"
 
-import React, { useState } from "react";
-import { useSearch } from "./search-context";
+import React, { ReactNode, useState } from "react";
 import Sidebar from "./sidebar";
 import Topbar from "./top-bar";
 
-const Bars: React.FC = () => {
+export const Bars = ({children}: {children: ReactNode}) => {
     const [openSidebar, setOpenSidebar] = useState(false);
     return (
-        <div className="">
+        <>
             <Topbar onOpenSidebar={() => setOpenSidebar(true)}/>
             {openSidebar && <Sidebar onClose={() => setOpenSidebar(false)} />}
-        </div>
+            {children}
+        </>
     );
 };
-
-export default Bars;

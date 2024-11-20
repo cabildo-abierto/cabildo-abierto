@@ -59,8 +59,6 @@ export type ContentProps = {
 
     claimsAuthorship: boolean
 
-    stallPaymentUntil: Date | string
-
     undos: {
         id: string
         reportsVandalism: boolean

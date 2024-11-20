@@ -40,7 +40,6 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                 }
             },
             claimsAuthorship: true,
-            stallPaymentUntil: true,
             rootContentId: true,
             fakeReportsCount: true,
             uniqueViewsCount: true,

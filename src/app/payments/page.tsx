@@ -4,7 +4,7 @@ import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { formatDate, getEntityMonetizedContributions } from "../../components/utils"
-import { CreatePromisesButton } from "./create-promises-button"
+import { ConfirmPaymentsButton, CreatePromisesButton } from "./create-promises-button"
 
 
 export default async function Page() {
@@ -56,6 +56,7 @@ export default async function Page() {
 
         <div>
             <CreatePromisesButton/>
+            <ConfirmPaymentsButton/>
             <h1>Promesas creadas</h1>
 
             {accounts.map((a, index) => {
@@ -64,6 +65,22 @@ export default async function Page() {
                 a.paymentPromises.forEach((p) => {
                     total += p.amount
                     users.add(p.subscription.userId)
+                })
+                if(total == 0) return <></>
+                return <div key={index} className="flex">
+                    {a.id} {total.toFixed(2)} <div className="flex flex-wrap space-x-2 ml-2">{Array.from(users).map((u, index2) => {return <div key={index2}>{u}</div>})}</div>
+                </div>
+            })}
+            <h1>Pagos confirmados</h1>
+
+            {accounts.map((a, index) => {
+                let total = 0
+                let users = new Set<string>()
+                a.paymentPromises.forEach((p) => {
+                    if(p.status == "Confirmed"){
+                        total += p.amount
+                        users.add(p.subscription.userId)
+                    }
                 })
                 if(total == 0) return <></>
                 return <div key={index} className="flex">

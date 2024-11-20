@@ -273,8 +273,9 @@ export function isRejected(content: {rejectedById?: string}) {
 }
 
 
-export function isDemonetized(content: {undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, charsAdded: number, confirmedById?: string, editPermission: boolean}){
-    return !isPartOfContent(content) || !content.claimsAuthorship || content.charsAdded == 0
+export function isEntityContentDemonetized(content: {undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, charsAdded: number, confirmedById?: string, editPermission: boolean}){
+
+    return !isPartOfContent(content) || !content.claimsAuthorship
 }
 
 
@@ -326,9 +327,6 @@ export function contributionsToProportionsMap(contributions: BothContributionsPr
             map[author] += charCount / total * 0.9
         }
     }
-
-    console.log("contributions", contributions)
-    console.log("map", map)
 
     return map
 }
@@ -729,7 +727,7 @@ export const launchDate = new Date(2024, 9, 10) // 10 de octubre de 2024
 export function getEntityMonetizedChars(entity: EntityProps, version: number){
     let monetizedCharsAdded = 0
     for(let i = 0; i <= version; i++){
-        if(!isDemonetized(entity.versions[i])){
+        if(!isEntityContentDemonetized(entity.versions[i])){
             monetizedCharsAdded += entity.versions[i].charsAdded
         }
     }
@@ -740,7 +738,7 @@ export function getEntityMonetizedChars(entity: EntityProps, version: number){
 export function getEntityMonetizedContributions(entity: {versions: {author: {id: string}, charsAdded: number, undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, confirmedById?: string, editPermission: boolean}[]}, version: number){
     const authors = new Map()
     for(let i = 0; i <= version; i++){
-        if(!isDemonetized(entity.versions[i])){
+        if(!isEntityContentDemonetized(entity.versions[i])){
             const author = entity.versions[i].author.id
             
             if(authors.has(author)){

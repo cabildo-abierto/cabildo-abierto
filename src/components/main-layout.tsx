@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import Bars from "./bars";
+import {Bars} from "./bars";
 import LoadingPage from "./loading-page";
 import { SearchProvider } from "./search-context";
 import { SearchPage } from "./search-page";
@@ -9,12 +9,13 @@ const MainLayout: React.FC<{children: ReactNode}> = ({children}) => {
     return <>
         <LoadingPage>
             <SearchProvider>
-                    <Bars/>
-                    <div className="mt-12 mb-8 safe-padding-mobile">
-                        <SearchPage>
-                            {children}
-                        </SearchPage>
-                    </div>
+                    <Bars>
+                        <div className="mt-12 mb-8 safe-padding-mobile">
+                            <SearchPage>
+                                {children}
+                            </SearchPage>
+                        </div>
+                    </Bars>
             </SearchProvider>
         </LoadingPage>
     </>
