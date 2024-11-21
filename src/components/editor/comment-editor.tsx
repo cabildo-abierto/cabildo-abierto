@@ -19,7 +19,7 @@ export const commentEditorSettings: SettingsProps = {
     emptyEditor: false,
     isAutocomplete: false,
     isCharLimit: true,
-    charLimit: 800,
+    charLimit: 300,
     isCharLimitUtf8: false,
     isCollab: false,
     isMaxLength: false,
@@ -47,7 +47,8 @@ export const commentEditorSettings: SettingsProps = {
     isReadOnly: false,
     placeholderClassName: "absolute top-0 text-[var(--text-lighter)] pointer-events-none",
     imageClassName: "",
-    preventLeave: true
+    preventLeave: true,
+    allowImages: false
 }
 
 
@@ -57,7 +58,7 @@ type CommentEditorProps = {
 }
 
 export function validComment(editorState: EditorState, charLimit: number) {
-    return !emptyOutput(editorState) && validPost(editorState, charLimit, "Comment").problem == undefined
+    return validPost(editorState, charLimit, "Comment", []).problem == undefined
 }
 
 

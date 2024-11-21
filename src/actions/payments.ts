@@ -3,36 +3,13 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { getContentById } from "./contents";
-import { accessToken, contributionsToProportionsMap, formatDate, isDemonetized, launchDate, subscriptionEnds } from "../components/utils";
+import { accessToken, contributionsToProportionsMap, formatDate, isEntityContentDemonetized, isPartOfContent, launchDate, subscriptionEnds } from "../components/utils";
 import { getUserById } from "./users";
 import { pathLogo } from "../components/logo";
 import MercadoPagoConfig, { Preference } from "mercadopago";
-import { SubscriptionProps, UserMonthDistributionProps, UserProps } from "../app/lib/definitions";
-import { getPaymentsStats } from "./admin";
+import { SubscriptionProps, UserProps } from "../app/lib/definitions";
 import { BothContributionsProps } from "./entities";
 
-
-
-export async function extendContentStallPaymentDate(contentId: string): Promise<{error?: string}>{
-    const {content, error} = await getContentById(contentId)
-    if(error) return {error}
-
-    try {
-        await db.content.update({
-            data: {
-                stallPaymentUntil: content.stallPaymentUntil
-            },
-            where: {
-                id: contentId
-            }
-        })
-    } catch {
-        return {error: "Error al extender la fecha."}
-    }
-
-    revalidateTag("content:"+contentId)
-    return {}
-}
 
 const baseUrl = "https://www.cabildoabierto.com.ar"
 //const baseUrl = "localhost:3000"
@@ -176,7 +153,6 @@ export async function createPaymentPromisesForEntityViews(user: UserProps, amoun
 
     for(let i = 0; i < entityViews.length; i++){
         const view = entityViews[i]
-        console.log("creating payment promises for entity view", view.content.parentEntity.id)
         await createPaymentPromisesForEntityView(view, viewValue, subscriptionId)
     }
     return true
@@ -245,6 +221,7 @@ export async function createPromises(userId: string, amount: number, start: Date
     }
 
     if(foundReactions || foundEntityViews){
+        console.log("assigning subscription")
         await db.subscription.update({
             data: {
                 usedAt: start,
@@ -288,6 +265,19 @@ export async function reassignPromise(p: {id: string, amount: number, subscripti
 }
 
 
+function confirmWaitPassed(content: {createdAt: Date, undos: {createdAt: Date}[], type: string}){
+    const now = new Date()
+    let lastUpdateDate = content.createdAt
+    if(content.type == "EntityContent"){
+        lastUpdateDate = content.createdAt
+        content.undos.forEach((u) => {
+            if(u.createdAt > lastUpdateDate) lastUpdateDate = u.createdAt
+        })
+    }
+    return now.getTime() - lastUpdateDate.getTime() > 1000*30*24*60*60
+}
+
+
 export async function confirmPayments() {
     const promises = await db.paymentPromise.findMany({
         select: {
@@ -296,17 +286,20 @@ export async function confirmPayments() {
             subscription: true,
             content: {
                 select: {
-                    stallPaymentUntil: true,
+                    type: true,
                     undos: {
                         select: {
-                            id: true
+                            id: true,
+                            createdAt: true
                         }
                     },
                     claimsAuthorship: true,
                     rejectedById: true,
                     charsAdded: true,
                     confirmedById: true,
-                    editPermission: true
+                    editPermission: true,
+                    parentEntityId: true,
+                    createdAt: true
                 }
             }
         },
@@ -316,13 +309,18 @@ export async function confirmPayments() {
     })
 
     console.log("unconfirmed promises found", promises.length)
-    const curDate = new Date()
+
+    let totalConfirmed = 0
+    let totalAmount = 0
     for(let i = 0; i < promises.length; i++){
         const p = promises[i]
-        if(p.content.stallPaymentUntil < curDate){
-            if(isDemonetized(p.content)){
-                await reassignPromise(p)
+        if(confirmWaitPassed(promises[i].content)){
+            if(p.content.type == "EntityContent" && !isPartOfContent(p.content)){
+                console.log("reasignando promesa")
+                console.log(p)
+                //await reassignPromise(p)
             } else {
+                console.log("confirmando promesa", i)
                 await db.paymentPromise.update({
                     data: {
                         status: "Confirmed"
@@ -331,9 +329,13 @@ export async function confirmPayments() {
                         id: p.id
                     }
                 })
+                totalConfirmed ++
+                totalAmount += p.amount
             }
         }
     }
+    console.log("Promsesas confirmadas", totalConfirmed)
+    console.log("Pagos totales", totalAmount)
 }
 
 

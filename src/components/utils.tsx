@@ -273,8 +273,9 @@ export function isRejected(content: {rejectedById?: string}) {
 }
 
 
-export function isDemonetized(content: {undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, charsAdded: number, confirmedById?: string, editPermission: boolean}){
-    return !isPartOfContent(content) || !content.claimsAuthorship || content.charsAdded == 0
+export function isEntityContentDemonetized(content: {undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, charsAdded: number, confirmedById?: string, editPermission: boolean}){
+
+    return !isPartOfContent(content) || !content.claimsAuthorship
 }
 
 
@@ -326,9 +327,6 @@ export function contributionsToProportionsMap(contributions: BothContributionsPr
             map[author] += charCount / total * 0.9
         }
     }
-
-    console.log("contributions", contributions)
-    console.log("map", map)
 
     return map
 }
@@ -436,30 +434,20 @@ function getImageCount(state: EditorState){
 }
 
 
-export function validPost(state: EditorState | undefined, charLimit: number, type: ContentType){
-    if(!state) return {problem: "no state"}
-
-    if(charLimit){
-        const count = charCount(state)
-        if(count > charLimit) return {problem: "too many characters"}
-    }
-
-    if(type == "EntityContent" || type == "Post"){
+export function validPost(state: EditorState | undefined, charLimit: number, type: ContentType, images: {src: string}[], title?: string){
+    if(type == "Post" && (!title || title.length == 0)) return {problem: "no title"}
+    if(state != undefined && !emptyOutput(state)){
+        if(charLimit){
+            const count = charCount(state)
+            if(count > charLimit) return {problem: "too many characters"}
+        }
         return {}
-    }
-
-    try {
-        const images = getImageCount(state)
-        const isComment = ["Comment", "FakeNewsReport"].includes(type)
-        if(isComment && images == 0){
-            return {}
-        } else if(!isComment && images <= 1){
+    } else {
+        if(images.length > 0){
             return {}
         } else {
-            return {problem: "too many images"}
+            return {problem: "no state"}
         }
-    } catch {
-        return {problem: "error counting images"}
     }
 }
 
@@ -729,7 +717,7 @@ export const launchDate = new Date(2024, 9, 10) // 10 de octubre de 2024
 export function getEntityMonetizedChars(entity: EntityProps, version: number){
     let monetizedCharsAdded = 0
     for(let i = 0; i <= version; i++){
-        if(!isDemonetized(entity.versions[i])){
+        if(!isEntityContentDemonetized(entity.versions[i])){
             monetizedCharsAdded += entity.versions[i].charsAdded
         }
     }
@@ -740,7 +728,7 @@ export function getEntityMonetizedChars(entity: EntityProps, version: number){
 export function getEntityMonetizedContributions(entity: {versions: {author: {id: string}, charsAdded: number, undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, confirmedById?: string, editPermission: boolean}[]}, version: number){
     const authors = new Map()
     for(let i = 0; i <= version; i++){
-        if(!isDemonetized(entity.versions[i])){
+        if(!isEntityContentDemonetized(entity.versions[i])){
             const author = entity.versions[i].author.id
             
             if(authors.has(author)){

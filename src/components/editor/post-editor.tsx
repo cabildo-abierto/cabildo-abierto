@@ -1,6 +1,6 @@
 "use client"
 
-import MyLexicalEditor, { initializeEmpty, SettingsProps } from "./lexical-editor"
+import { initializeEmpty, SettingsProps } from "./lexical-editor"
 import { useEffect, useRef, useState } from "react"
 import StateButton, { StateButtonClickHandler } from "../state-button"
 import { EditorState, LexicalEditor } from "lexical"
@@ -14,6 +14,11 @@ import { compress } from "../compression"
 import { ExtraChars } from "../extra-chars"
 import { Button } from "@mui/material"
 import { CustomLink } from "../custom-link"
+import dynamic from "next/dynamic"
+import { AddImageButton } from "../write-panel-main-feed"
+import useModal from "./hooks/useModal"
+import { FastPostImagesEditor } from "../fast-post-images-editor"
+const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
 const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsProps = (isFast, initialData) => {
@@ -22,11 +27,12 @@ const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsPro
         emptyEditor: false,
         isAutocomplete: false,
         isCharLimit: true,
-        charLimit: isFast ? 800 : 1200000,
+        charLimit: isFast ? 300 : 1200000,
         isCharLimitUtf8: false,
         isCollab: false,
         isMaxLength: false,
         isRichText: true,
+        allowImages: !isFast,
         measureTypingPerf: false,
         shouldPreserveNewLinesInMarkdown: true,
         shouldUseLexicalContextMenu: false,
@@ -111,6 +117,8 @@ const PostEditor = ({
     const [saveStatus, setSaveStatus] = useState("no changes")
     const [title, setTitle] = useState(initialTitle)
     const [contentCreationState, setContentCreationState] = useState(contentId ? "created" : "no content")
+    const [modal, showModal] = useModal()
+    const [images, setImages] = useState([])
 
     const [lastSaved, setLastSaved] = useState({
         text: initialData,
@@ -198,18 +206,14 @@ const PostEditor = ({
     
     const postType = isFast ? "FastPost" : "Post"
 
-    const valid = validPost(editorState, settings.charLimit, postType)
+    const valid = validPost(editorState, settings.charLimit, postType, images, title)
 
-    let disabled = !editor || !editorState ||
-        emptyOutput(editorState) ||
-        (!isFast && title.length == 0) ||
-        (valid.problem != undefined) || !lastSaved.contentId
+    let disabled = valid.problem != undefined || !lastSaved.contentId
 
 	const PublishButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
         return <StateButton
             handleClick={onClick}
             text1={isPublished ? "Guardar cambios" : "Publicar"}
-            text2={isPublished ? "Guardando..." : "Publicando..."}
             textClassName="title whitespace-nowrap px-2"
             disabled={disabled}
             size="medium"
@@ -234,13 +238,14 @@ const PostEditor = ({
     return <div className="p-1 rounded">
         <div className="text-sm text-gray-400 text-center">{isFast ? "Publicación rápida" : "Publicación"}</div>
         <div className="flex justify-between mt-3 items-center w-full">
-            <div className="w-48">
+            <div className="hidden sm:block w-64">
             {isPublished ? <div></div> : <DraftsButton/>}
             </div>
             <div className="w-full flex justify-center">
             {!isPublished && <SaveDraftButton onClick={handleSaveDraft}/>}
             </div>
-			<div className="w-48">
+			<div className="w-64 flex space-x-2">
+                {isFast && <AddImageButton images={images} setImages={setImages} showModal={showModal}/>}
                 <PublishButton onClick={handleSubmit}/>
 			</div>
 		</div>
@@ -248,13 +253,22 @@ const PostEditor = ({
         {!isFast && <div className="mt-6">
             <TitleInput onChange={setTitle} title={title}/>
         </div>}
-        <div className={isFast ? "mt-12" : "mt-4"}>
+        <div className={isFast ? "mt-6" : "mt-4"}>
             <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}
                 setEditorState={setEditorState}
             />
         </div>
+        {isFast && 
+            <div className="flex justify-end mt-4 w-full">
+            <FastPostImagesEditor
+                images={images}
+                setImages={setImages}
+            />
+            </div>
+        }
+        {modal}
         {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
     </div>
 }

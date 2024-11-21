@@ -22,6 +22,7 @@ import { logVisit } from "../actions/users";
 import { NoVisitsAvailablePopup } from "./no-visits-popup";
 import { takeAuthorship } from "../actions/admin";
 import { useRouter } from "next/navigation";
+import LoadingSpinner from "./loading-spinner";
 
 export function id2url(id: string){
     return "/perfil/" + id.replace("@", "")

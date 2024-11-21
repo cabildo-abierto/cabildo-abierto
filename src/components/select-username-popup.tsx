@@ -1,19 +1,17 @@
 "use client"
 import { useState } from "react"
-import { BaseFullscreenPopup } from "./base-fullscreen-popup"
-import InfoPanel from "./info-panel"
-import { AuthenticationFormLabel, inputClassName } from "./signup-form"
-import Button from "./editor/ui/Button"
+import { inputClassName } from "./signup-form"
 import StateButton from "./state-button"
 import { selectUsername } from "../actions/auth"
 import { useAuthUser } from "../app/hooks/user"
-import LoadingPage from "./loading-page"
 import { LoadingScreen } from "./loading-screen"
 import { useSWRConfig } from "swr"
-import TopBar from "./top-bar"
 import { TopbarLogo } from "./logo"
 import { CloseSessionButton } from "./sidebar"
 import { UsernameFormSchema } from "../app/lib/definitions"
+
+
+export const emptyChar = <>&nbsp;</>
 
 
 const UsernameInput = ({username, setUsername}: {username: string, setUsername: (u: string) => void}) => {
@@ -88,7 +86,7 @@ export const SelectUsernamePopup = () => {
                     <UsernameInput username={username} setUsername={(u) => {setUsername(u); setAlreadyExists(false)}}/>
                 </div>
                 </div>
-                {!alreadyExists && validatedUsername.success && <div className="h-12 mt-1">&nbsp;</div>}
+                {!alreadyExists && validatedUsername.success && <div className="h-12 mt-1">{emptyChar}</div>}
                 
                 {!alreadyExists && !validatedUsername.success && <div className="h-12 text-[var(--text-light)] mt-1">
                     {validatedUsername.error.flatten().fieldErrors.username[0]}

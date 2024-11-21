@@ -59,8 +59,6 @@ export type ContentProps = {
 
     claimsAuthorship: boolean
 
-    stallPaymentUntil: Date | string
-
     undos: {
         id: string
         reportsVandalism: boolean
@@ -85,7 +83,13 @@ export type CommentProps = {
     id: string | null
     createdAt: Date | string
     type: ContentType
-    _count: {childrenTree: number}
+    _count: {
+        childrenTree: number
+        reactions: number
+    }
+    childrenTree: {authorId: string}[]
+    author: {id: string}
+    uniqueViewsCount: number
 }
 
 
@@ -105,6 +109,8 @@ export type ReferenceProps = {
         id: string
     }
     parentEntityId?: string
+    childrenTree: {authorId: string}[]
+    uniqueViewsCount: number
 }
 
 
@@ -240,11 +246,19 @@ export const UsernameFormSchema = z.object({
         .trim()
 })
 
+const nameReqs = z
+    .string()
+    .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
+    .max(60, { message: 'Como máximo 60 caracteres.' })
+    .trim()
+
+export const NameFormSchema = z.object({
+    name: nameReqs
+})
+
+
 export const SignupFormSchema = z.object({
-    name: z
-        .string()
-        .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
-        .trim(),
+    name: nameReqs,
     email: z.string().email({ message: 'Ingresá un mail válido.' }).trim(),
     password: z
         .string()

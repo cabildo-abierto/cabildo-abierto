@@ -40,7 +40,6 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                 }
             },
             claimsAuthorship: true,
-            stallPaymentUntil: true,
             rootContentId: true,
             fakeReportsCount: true,
             uniqueViewsCount: true,
@@ -126,9 +125,21 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                     type: true,
                     _count: {
                         select: {
-                            childrenTree: true
+                            childrenTree: true,
+                            reactions: true
                         }
-                    }
+                    },
+                    childrenTree: {
+                        select: {
+                            authorId: true
+                        }
+                    },
+                    author: {
+                        select: {
+                            id: true
+                        }
+                    },
+                    uniqueViewsCount: true
                 },
                 orderBy: {
                     createdAt: "desc"

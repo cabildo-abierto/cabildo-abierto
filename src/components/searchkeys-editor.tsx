@@ -10,6 +10,7 @@ import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
 import InfoPanel from "./info-panel";
 import { updateEntityCategoriesOrSearchkeys } from "../actions/entities";
+import { Button } from "@mui/material";
 
 
 function validSearchkey(k: string){
@@ -143,19 +144,21 @@ export const SearchkeysEditor = ({entity, setEditing}: {entity: EntityProps, set
             </div>
             
         </div>
-        <div className="flex justify-end">
-            <button
-                className="small-btn mr-2"
+        <div className="flex justify-end space-x-2">
+            <Button
+                size="small"
+                variant="outlined"
+                sx={{textTransform: "none"}}
                 disabled={areSearchkeysEqual(searchkeys, entity.currentVersion.searchkeys)}
-                onClick={() => {setSearchkeys(entity.currentVersion.searchkeys)}}>
+                onClick={() => {setEditing(false)}}>
                 Cancelar
-            </button>
+            </Button>
             <StateButton
-                className="small-btn"
+                size="small"
+                variant="outlined"
                 disabled={areSearchkeysEqual(searchkeys, entity.currentVersion.searchkeys) || !validSearchkeys(searchkeys)}
                 handleClick={onSubmitSearchkeys}
                 text1="Confirmar"
-                text2="Guardando..."
             />
         </div>
         {errorOnSave && <div className="text-red-600 flex justify-end sm:text-sm text-xs mt-1">Ocurrió un error al guardar. Intentá de nuevo.</div>}
