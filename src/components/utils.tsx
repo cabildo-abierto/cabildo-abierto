@@ -434,30 +434,20 @@ function getImageCount(state: EditorState){
 }
 
 
-export function validPost(state: EditorState | undefined, charLimit: number, type: ContentType){
-    if(!state) return {problem: "no state"}
-
-    if(charLimit){
-        const count = charCount(state)
-        if(count > charLimit) return {problem: "too many characters"}
-    }
-
-    if(type == "EntityContent" || type == "Post"){
+export function validPost(state: EditorState | undefined, charLimit: number, type: ContentType, images: {src: string}[], title?: string){
+    if(type == "Post" && (!title || title.length == 0)) return {problem: "no title"}
+    if(state != undefined && !emptyOutput(state)){
+        if(charLimit){
+            const count = charCount(state)
+            if(count > charLimit) return {problem: "too many characters"}
+        }
         return {}
-    }
-
-    try {
-        const images = getImageCount(state)
-        const isComment = ["Comment", "FakeNewsReport"].includes(type)
-        if(isComment && images == 0){
-            return {}
-        } else if(!isComment && images <= 1){
+    } else {
+        if(images.length > 0){
             return {}
         } else {
-            return {problem: "too many images"}
+            return {problem: "no state"}
         }
-    } catch {
-        return {problem: "error counting images"}
     }
 }
 

@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
     }
 
     // Construct the Supabase URL
-    const supabaseURL = `https://ipkthbrawgjwaeqvlbjk.supabase.co/storage/v1/object/public/pictures/public/${path}`;
+    const supabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL+`/storage/v1/object/public/pictures/public/${path}`;
 
     // Fetch the resource from Supabase
     const response = await fetch(supabaseURL);

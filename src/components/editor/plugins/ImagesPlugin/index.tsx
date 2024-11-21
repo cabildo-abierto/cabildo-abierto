@@ -30,7 +30,6 @@ import * as React from 'react';
 
 import {$isImageNode, ImageNode, $createImageNode, ImagePayload} from '../../nodes/ImageNode';
 
-import Button from '../../ui/Button';
 import {Button as MuiButton} from '@mui/material'
 import {DialogActions, DialogButtonsList} from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
@@ -38,7 +37,7 @@ import TextInput from '../../ui/TextInput';
 import { CAN_USE_DOM } from '../../shared/canUseDOM';
 import { createClient } from '../../../../utils/supabase/client';
 
-import { v4 as uuidv4 } from 'uuid'; // Import the uuid library
+import { v4 as uuidv4 } from 'uuid';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -58,6 +57,15 @@ export function InsertImageUriDialogBody({
 
   const isDisabled = src === '';
 
+  /*
+      <TextInput
+        label="Texto alternativo"
+        placeholder="Cataratas del Iguazú"
+        onChange={setAltText}
+        value={altText}
+        data-test-id="image-modal-alt-text-input"
+      />*/
+
   return (
     <>
       <TextInput
@@ -67,13 +75,6 @@ export function InsertImageUriDialogBody({
         value={src}
         data-test-id="image-modal-url-input"
       />
-      <TextInput
-        label="Texto alternativo"
-        placeholder="Cataratas del Iguazú"
-        onChange={setAltText}
-        value={altText}
-        data-test-id="image-modal-alt-text-input"
-      />
       <DialogActions>
         <MuiButton
           sx={{textTransform: "none"}}
@@ -81,7 +82,7 @@ export function InsertImageUriDialogBody({
           disableElevation={true}
           disabled={isDisabled}
           onClick={() => onClick({altText, src})}>
-          Confirmar
+          Aceptar
         </MuiButton>
       </DialogActions>
     </>
@@ -127,6 +128,15 @@ export function InsertImageUploadedDialogBody({
     }
   };
 
+  /*
+      <TextInput
+        label="Texto alternativo"
+        placeholder="Cataratas del Iguazú"
+        onChange={setAltText}
+        value={altText}
+        data-test-id="image-modal-alt-text-input"
+  />*/
+
   return (
     <>
       <FileInput
@@ -135,13 +145,6 @@ export function InsertImageUploadedDialogBody({
         accept="image/*"
         data-test-id="image-modal-file-upload"
       />
-      <TextInput
-        label="Texto alternativo"
-        placeholder="Cataratas del Iguazú"
-        onChange={setAltText}
-        value={altText}
-        data-test-id="image-modal-alt-text-input"
-      />
       <DialogActions>
         <MuiButton
           variant="contained"
@@ -149,7 +152,7 @@ export function InsertImageUploadedDialogBody({
           disabled={isDisabled}
           sx={{textTransform: "none"}}
           onClick={() => onClick({altText, src})}>
-          Confirmar
+          Aceptar
         </MuiButton>
       </DialogActions>
     </>
@@ -183,7 +186,8 @@ export function InsertImageDialog({
   };
 
   return (
-    <div className="w-[350px]">
+    <div className="max-w-screen flex flex-col items-center">
+      <div className="w-48">
       {!mode && (
         <DialogButtonsList>
           <MuiButton
@@ -202,6 +206,7 @@ export function InsertImageDialog({
           </MuiButton>
         </DialogButtonsList>
       )}
+      </div>
       {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
       {mode === 'file' && <InsertImageUploadedDialogBody onClick={onClick} />}
     </div>
@@ -214,6 +219,42 @@ export default function ImagesPlugin({
   captionsEnabled?: boolean;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
+
+  const TRANSPARENT_IMAGE =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  const img = document.createElement('img');
+  img.src = TRANSPARENT_IMAGE;
+
+  function $onDragStart(event: DragEvent): boolean {
+    const node = $getImageNodeInSelection();
+    if (!node) {
+      return false;
+    }
+    const dataTransfer = event.dataTransfer;
+    if (!dataTransfer) {
+      return false;
+    }
+    dataTransfer.setData('text/plain', '_');
+    dataTransfer.setDragImage(img, 0, 0);
+    dataTransfer.setData(
+      'application/x-lexical-drag',
+      JSON.stringify({
+        data: {
+          altText: node.__altText,
+          caption: node.__caption,
+          height: node.__height,
+          key: node.getKey(),
+          maxWidth: node.__maxWidth,
+          showCaption: node.__showCaption,
+          src: node.__src,
+          width: node.__width,
+        },
+        type: 'image',
+      }),
+    );
+
+    return true;
+  }
 
   useEffect(() => {
     if (!editor.hasNodes([ImageNode])) {
@@ -259,42 +300,6 @@ export default function ImagesPlugin({
   }, [captionsEnabled, editor]);
 
   return null;
-}
-
-const TRANSPARENT_IMAGE =
-  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-const img = document.createElement('img');
-img.src = TRANSPARENT_IMAGE;
-
-function $onDragStart(event: DragEvent): boolean {
-  const node = $getImageNodeInSelection();
-  if (!node) {
-    return false;
-  }
-  const dataTransfer = event.dataTransfer;
-  if (!dataTransfer) {
-    return false;
-  }
-  dataTransfer.setData('text/plain', '_');
-  dataTransfer.setDragImage(img, 0, 0);
-  dataTransfer.setData(
-    'application/x-lexical-drag',
-    JSON.stringify({
-      data: {
-        altText: node.__altText,
-        caption: node.__caption,
-        height: node.__height,
-        key: node.getKey(),
-        maxWidth: node.__maxWidth,
-        showCaption: node.__showCaption,
-        src: node.__src,
-        width: node.__width,
-      },
-      type: 'image',
-    }),
-  );
-
-  return true;
 }
 
 function $onDragover(event: DragEvent): boolean {
