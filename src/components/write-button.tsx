@@ -66,7 +66,7 @@ const WriteButton = () => {
                         <WriteButtonButton
                             onClick={() => setIsDropdownOpen(false)}
                             icon={<PostIcon/>}
-                            infoText={<div>Con título y sin límite de caracteres. Relatá la realidad, compartí tu análisis, o lo que se te ocura y requiera más de 800 caracteres. Va a aparecer en el muro.</div>}
+                            infoText={<div>Con título y sin límite de caracteres. Relatá la realidad, compartí tu análisis, o lo que se te ocura y requiera más de 300 caracteres. Va a aparecer en el muro.</div>}
                             name="Publicación"
                         />
                     </Link>

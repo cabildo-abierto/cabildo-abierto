@@ -1,5 +1,5 @@
 import { LexicalEditor, EditorState } from "lexical"
-import { useState, useEffect } from "react"
+import { useState, useEffect, JSX, useRef } from "react"
 import dynamic from 'next/dynamic'
 import { commentEditorSettings } from "./editor/comment-editor"
 import StateButton from "./state-button"
@@ -12,19 +12,87 @@ import { charCount, emptyOutput, validPost } from "./utils"
 import { ExtraChars } from "./extra-chars"
 import { CloseButton } from "./close-button"
 import { ContentTopRowAuthor } from "./content"
+import { DialogButtonsList } from "./editor/ui/Dialog"
+import { Button } from "@mui/material"
+import { InsertImagePayload, InsertImageUploadedDialogBody, InsertImageUriDialogBody } from "./editor/plugins/ImagesPlugin"
+import useModal from "./editor/hooks/useModal"
+import Image from "next/image"
+import { FastPostImagesEditor } from "./fast-post-images-editor"
 
 const MyLexicalEditor = dynamic(() => import('./editor/lexical-editor'), { ssr: false });
 
-export const WritePanelMainFeed = ({onClose, mobile=false}: {onClose: () => void, mobile?: boolean}) => {
+
+
+export function InsertImageDialog({
+    onSubmit,
+  }: {
+    onSubmit: (payload: InsertImagePayload) => void;
+  }): JSX.Element {
+    const [mode, setMode] = useState<null | 'url' | 'file'>(null);
+
+    return (
+      <div className="max-w-screen flex flex-col items-center">
+        <div className="w-48">
+        {!mode && (
+          <DialogButtonsList>
+            <Button
+              variant="contained"
+              sx={{textTransform: "none"}}
+              disableElevation={true}
+              onClick={() => setMode('url')}>
+              Desde un URL
+            </Button>
+            <Button
+              variant="contained"
+              sx={{textTransform: "none"}}
+              disableElevation={true}
+              onClick={() => setMode('file')}>
+              Subir un archivo
+            </Button>
+          </DialogButtonsList>
+        )}
+        </div>
+        {mode === 'url' && <InsertImageUriDialogBody onClick={onSubmit} />}
+        {mode === 'file' && <InsertImageUploadedDialogBody onClick={onSubmit} />}
+      </div>
+    );
+}
+
+
+export const AddImageButton = ({images, setImages, showModal}: {images: InsertImagePayload[], setImages: (images: InsertImagePayload[]) => void, showModal: any}) => {
+    return <button
+        onClick={() => {
+        showModal('Insertar una imágen', (onClose: any) => (
+            <InsertImageDialog
+            onSubmit={(payload: InsertImagePayload) => {
+                setImages([...images, payload])
+                onClose()
+            }}
+            />
+        ));
+        }}
+        disabled={images.length >= 4}
+        type="button"
+        title="Insertar imágen"
+        className="toolbar-item spaced"
+        aria-label="Insertar imágen">
+        <i className="format image" />
+    </button>
+}
+
+
+export const WritePanelMainFeed = ({onClose}: {onClose: () => void, mobile?: boolean}) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined);
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
     const { user } = useUser();
     const [editorKey, setEditorKey] = useState(0);
     const [randomPlaceholder, setRandomPlaceholder] = useState<string>("")
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
+    const [modal, showModal] = useModal();
+    const [images, setImages] = useState([])
 
     const placeholders = [
-        "Una ráfaga comunicacional de menos de 800 caracteres...",
+        "Una ráfaga comunicacional de menos de 300 caracteres...",
     ];
 
     useEffect(() => {
@@ -34,14 +102,19 @@ export const WritePanelMainFeed = ({onClose, mobile=false}: {onClose: () => void
 
     const settings = { ...commentEditorSettings };
     settings.placeholder = randomPlaceholder;
-    settings.editorClassName = "min-h-[250px] content comment"
+    settings.editorClassName = "min-h-[50px] w-full content comment"
     settings.placeholderClassName = "absolute top-0 text-[var(--text-lighter)] pointer-events-none"
     settings.imageClassName = "fastpost-image"
 
     async function handleSubmit() {
         setErrorOnCreatePost(false)
         if (editor && user) {
-            const text = JSON.stringify(editor.getEditorState());
+            const json = editor.getEditorState().toJSON()
+
+            json["images"] = images
+
+            const text = JSON.stringify(json);
+            
             const compressedText = compress(text);
             const {error} = await createPost(compressedText, "FastPost", false, user.id, undefined);
             if(!error){
@@ -58,10 +131,12 @@ export const WritePanelMainFeed = ({onClose, mobile=false}: {onClose: () => void
         return {}
     }
 
-    const valid = validPost(editorState, settings.charLimit, "FastPost")
+    const valid = validPost(editorState, settings.charLimit, "FastPost", images)
 
     const count = editor && editorState ? charCount(editorState) : 0;
-    let disabled = !editor || emptyOutput(editorState) || valid.problem != undefined;
+    let disabled = valid.problem != undefined;
+
+    console.log("disabled:", editor, emptyOutput(editorState), images.length, valid.problem)
 
     const sendButton = <StateButton
         text1="Publicar"
@@ -72,7 +147,7 @@ export const WritePanelMainFeed = ({onClose, mobile=false}: {onClose: () => void
         disableElevation={true}
     />
 
-    const editorComp = <div className="sm:text-lg py-2 px-1 h-full max-h-[400px] overflow-scroll" key={editorKey}>
+    const editorComp = <div className="sm:text-lg py-2 h-full max-h-[400px] w-full" key={editorKey}>
         <MyLexicalEditor
             settings={settings}
             setEditorState={setEditorState}
@@ -81,45 +156,36 @@ export const WritePanelMainFeed = ({onClose, mobile=false}: {onClose: () => void
         {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
     </div>
 
-    let center = <></>
-
-    if(mobile){
-        center = <>
-            <div className="flex justify-between">
-                <div className="">
-                    <CloseButton onClose={onClose}/>
-                </div>
-                <div className="flex justify-end mt-2">
-                    {sendButton}
-                </div>
-            </div>
-            <div className="text-sm">
+    const center = <>
+        <div className="flex justify-between px-2">
+            <div className="text-sm text-gray-400 flex items-center">
                 <ContentTopRowAuthor content={{author: user}}/>
             </div>
+            <CloseButton onClose={onClose}/>
+        </div>
+        <div className="min-h-[250px]">
+        <div className="sm:text-lg py-2 px-3 h-full w-full" key={editorKey}>
             {editorComp}
-        </>
-    } else {
-        center = <>
-            <div className="flex justify-between">
-                <div className="text-sm text-gray-400 flex items-center">
-                    <ContentTopRowAuthor content={{author: user}}/>
-                </div>
-                <CloseButton onClose={onClose}/>
-            </div>
-            <div className="sm:text-lg py-2 px-1 h-full max-h-[400px] overflow-scroll" key={editorKey}>
-                {editorComp}
-            </div>
-            <hr className="border-gray-200" />
-            <div className="flex justify-end mt-2">
-                {sendButton}
-            </div>
-        </>
-    }
+        </div>
+            <FastPostImagesEditor images={images} setImages={setImages}/>
+        </div>
+        <hr className="border-gray-200" />
+        <div className="flex justify-between mt-2 px-2">
+            <AddImageButton
+                images={images}
+                setImages={setImages}
+                showModal={showModal}
+            />
+            {sendButton}
+        </div>
+        {modal}
+    </>
 
     return (
-        <div className="w-full rounded px-2 pb-2 pt-1">
+        <div className="w-full rounded pb-2 pt-1">
             {center}
             {errorOnCreatePost && <div className="flex justify-end text-sm text-red-600">Ocurrió un error al publicar. Intentá de nuevo.</div>}
         </div>
     );
 };
+
