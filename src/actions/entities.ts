@@ -704,7 +704,8 @@ export async function getEntityByIdNoCache(id: string): Promise<{entity?: Entity
                             createdAt: true,
                             _count: {
                                 select: {
-                                    childrenTree: true
+                                    childrenTree: true,
+                                    reactions: true,
                                 }
                             },
                             currentVersionOf: {
@@ -712,7 +713,18 @@ export async function getEntityByIdNoCache(id: string): Promise<{entity?: Entity
                                     id: true
                                 }
                             },
-                            editPermission: true
+                            editPermission: true,
+                            childrenTree: {
+                                select: {
+                                    authorId: true
+                                }
+                            },
+                            author: {
+                                select: {
+                                    id: true
+                                }
+                            },
+                            uniqueViewsCount: true
                         },
                     },
                     claimsAuthorship: true,
@@ -763,7 +775,13 @@ export async function getEntityByIdNoCache(id: string): Promise<{entity?: Entity
                             id: true
                         }
                     },
-                    parentEntityId: true
+                    parentEntityId: true,
+                    childrenTree: {
+                        select: {
+                            authorId: true
+                        }
+                    },
+                    uniqueViewsCount: true
                 },
                 where: {
                     OR: [{
@@ -820,7 +838,13 @@ export async function getEntityByIdNoCache(id: string): Promise<{entity?: Entity
                             id: true
                         }
                     },
-                    parentEntityId: true
+                    parentEntityId: true,
+                    childrenTree: {
+                        select: {
+                            authorId: true
+                        }
+                    },
+                    uniqueViewsCount: true
                 },
                 where: {
                     OR: [{

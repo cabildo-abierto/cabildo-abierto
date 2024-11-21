@@ -4,10 +4,18 @@ import { getAllQuoteIds } from "./comment"
 import { decompress } from "./compression"
 import { ContentWithCommentsFromId } from "./content-with-comments"
 import LoadingSpinner from "./loading-spinner"
+import { popularityScore } from "./sorted-and-filtered-feed"
 import { listOrder } from "./utils"
 
 
-function commentScore(comment: {type: string, createdAt: Date | string}): number[]{
+function commentScore(comment: {
+    type: string
+    createdAt: Date | string
+    childrenTree: {authorId: string}[]
+    author: {id: string}
+    _count: {reactions: number}
+    uniqueViewsCount: number
+}): number[]{
 
     const typeScores = {
         "FakeNewsReport": -5,
@@ -17,8 +25,7 @@ function commentScore(comment: {type: string, createdAt: Date | string}): number
         "EntityContent": -3
     }
 
-
-    return [typeScores[comment.type] ? typeScores[comment.type] : 0, -new Date(comment.createdAt).getTime()]
+    return [typeScores[comment.type] ? typeScores[comment.type] : 0, -popularityScore(comment)]
 }
 
 function removeRepetitions(a: any[], getKey: (v: any) => any = (v) => (v)){
@@ -124,10 +131,16 @@ type CommentSectionElementProps = {
     id: string
     type: string
     createdAt: string | Date
-    _count: {childrenTree: number}
+    _count: {
+        childrenTree: number
+        reactions: number
+    }
     currentVersionOf?: {id: string}
     isReference: boolean
     parentEntityId?: string
+    childrenTree: {authorId: string}[]
+    author: {id: string}
+    uniqueViewsCount: number
 }
 
 type CommentSectionProps = {

@@ -123,9 +123,21 @@ export const getRouteFeed = (route: string[], userId?: string) => {
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -288,9 +300,21 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -475,9 +499,21 @@ export const getProfileFeed = async (userId: string) => {
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -651,9 +687,21 @@ export const getRepliesFeed = async (userId: string) => {
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -785,9 +833,21 @@ export const getEditsFeed = (profileUserId: string) => {
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -976,9 +1036,21 @@ export const getSearchableContents = (route: string[], userId?: string) => {
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"

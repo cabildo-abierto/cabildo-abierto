@@ -83,7 +83,13 @@ export type CommentProps = {
     id: string | null
     createdAt: Date | string
     type: ContentType
-    _count: {childrenTree: number}
+    _count: {
+        childrenTree: number
+        reactions: number
+    }
+    childrenTree: {authorId: string}[]
+    author: {id: string}
+    uniqueViewsCount: number
 }
 
 
@@ -103,6 +109,8 @@ export type ReferenceProps = {
         id: string
     }
     parentEntityId?: string
+    childrenTree: {authorId: string}[]
+    uniqueViewsCount: number
 }
 
 
