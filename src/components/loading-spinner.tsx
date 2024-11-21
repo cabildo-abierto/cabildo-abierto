@@ -1,47 +1,13 @@
-import React from 'react';
-import {LineWave} from 'react-loader-spinner'
+import { CircularProgress } from '@mui/material';
 
-const LoadingSpinnerOld = () => {
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="w-16 h-16 border-4 border-t-4 border-gray-200 rounded-full animate-spin"></div>
-    </div>
-  );
-};
 
 const LoadingSpinner = () => {
   return <div className="flex items-center justify-center h-full w-full">
-    <LineWave
-        visible={true}
-        height="80"
-        width="80"
-        color="var(--primary)"
-        ariaLabel="line-wave-loading"
-        wrapperStyle={{}}
-        wrapperClass=""
-        firstLineColor=""
-        middleLineColor=""
-        lastLineColor=""
-    />
+    <div className="my-2">
+    <CircularProgress size="30px" color="primary"/>
+    </div>
   </div>
 }
 
-
-export const SmallLoadingSpinner = () => {
-  return <div className="">
-    <LineWave
-        visible={true}
-        height="40"
-        width="40"
-        color="var(--primary)"
-        ariaLabel="line-wave-loading"
-        wrapperStyle={{}}
-        wrapperClass=""
-        firstLineColor=""
-        middleLineColor=""
-        lastLineColor=""
-    />
-  </div>
-}
 
 export default LoadingSpinner;

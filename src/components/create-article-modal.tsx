@@ -65,7 +65,6 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
                     disabled={!user.user || !validEntityName(entityName)}
                     textClassName="title px-4"
                     text1="Crear"
-                    text2="Creando..."
                 />
                 {!user.isLoading && !user.user && <CreateAccountLink
                     text="Creá una cuenta o iniciá sesión para crear un tema"
