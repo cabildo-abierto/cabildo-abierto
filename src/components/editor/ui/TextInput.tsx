@@ -29,7 +29,7 @@ export default function TextInput({
   type = 'text',
 }: Props): JSX.Element {
   return (
-    <div className="Input__wrapper">
+    <div className="flex flex-col max-w-52">
       <label className="Input__label">{label}</label>
       <input
         type={type}

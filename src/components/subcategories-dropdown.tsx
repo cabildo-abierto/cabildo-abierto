@@ -3,33 +3,32 @@ import { ToggleButton } from "./toggle-button";
 import { ModalBelow } from "./modal-below";
 
 const SubcategoriesList = ({ nextCategories, route, setRoute }: { nextCategories: string[], route: string[], setRoute: (r: string[]) => void }) => {
-    return nextCategories.map((nextCategory: string, index: number) => (
+    return <div className="p-1 space-y-1">{nextCategories.map((nextCategory: string, index: number) => (
         <div key={index}>
             <button
                 onClick={() => setRoute([...route, nextCategory])}
-                className="bg-[var(--content)] border rounded hover:bg-[var(--content2)] w-full py-1 px-2"
+                className="bg-[var(--content)] border rounded hover:bg-[var(--content2)] py-1 px-2 w-64"
             >
                 <span className="flex justify-center w-full content text-[var(--primary)]">
                     {nextCategory}
                 </span>
             </button>
         </div>
-    ))
+    ))}</div>
 };
 
 export const SubcategoriesDropDown = ({ nextCategories, route, setRoute, selected }: { nextCategories: string[], route: string[], setRoute: (v: string[]) => void, selected: string }) => {
     const [viewSubcategories, setViewSubcategories] = useState(false);
 
     return (
-        <div className="relative ml-2">
+        <div className="relative">
             <ToggleButton
-                className="filter-btn"
                 setToggled={setViewSubcategories}
                 toggled={viewSubcategories}
-                text="Filtrar"
+                text={route.length > 0 ? "Subcategoría" : "Categoría"}
             />
             {viewSubcategories && (
-                <ModalBelow className="w-64 space-y-1 mt-1" open={viewSubcategories} setOpen={setViewSubcategories}>
+                <ModalBelow className="space-y-1 mt-1 bg-[var(--background)] border rounded" open={viewSubcategories} setOpen={setViewSubcategories}>
                     <SubcategoriesList
                         route={route}
                         setRoute={setRoute}

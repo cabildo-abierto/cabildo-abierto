@@ -949,6 +949,22 @@ export default function ToolbarPlugin({
         aria-label="Insertar tabla">
         <i className="format table" />
       </button>
+      <button
+        onClick={() => {
+          showModal('Insertar una imágen', (onClose: any) => (
+            <InsertImageDialog
+              activeEditor={activeEditor}
+              onClose={onClose}
+            />
+          ));
+        }}
+        type="button"
+        title="Insertar imágen"
+        className="toolbar-item spaced"
+        aria-label="Insertar imágen">
+        <i className="format image" />
+      </button>
+
       <ElementFormatDropdown
         disabled={!isEditable}
         value={elementFormat}

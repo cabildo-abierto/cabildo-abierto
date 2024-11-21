@@ -39,7 +39,6 @@ export const getRouteFeed = (route: string[], userId?: string) => {
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
                 reactions: userId ? {
@@ -124,9 +123,21 @@ export const getRouteFeed = (route: string[], userId?: string) => {
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -204,7 +215,6 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
@@ -290,9 +300,21 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -392,7 +414,6 @@ export const getProfileFeed = async (userId: string) => {
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
@@ -478,9 +499,21 @@ export const getProfileFeed = async (userId: string) => {
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -543,7 +576,6 @@ export const getRepliesFeed = async (userId: string) => {
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
@@ -655,9 +687,21 @@ export const getRepliesFeed = async (userId: string) => {
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -720,7 +764,6 @@ export const getEditsFeed = (profileUserId: string) => {
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 rootContentId: true,
                 fakeReportsCount: true,
                 uniqueViewsCount: true,
@@ -790,9 +833,21 @@ export const getEditsFeed = (profileUserId: string) => {
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"
@@ -857,7 +912,6 @@ export const getSearchableContents = (route: string[], userId?: string) => {
                     }
                 },
                 claimsAuthorship: true,
-                stallPaymentUntil: true,
                 rootContent: {
                     select: {
                         id: true,
@@ -982,9 +1036,21 @@ export const getSearchableContents = (route: string[], userId?: string) => {
                         type: true,
                         _count: {
                             select: {
-                                childrenTree: true
+                                childrenTree: true,
+                                reactions: true
                             }
-                        }
+                        },
+                        childrenTree: {
+                            select: {
+                                authorId: true
+                            }
+                        },
+                        author: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        uniqueViewsCount: true
                     },
                     orderBy: {
                         createdAt: "desc"

@@ -27,6 +27,20 @@ export async function updateDescription(text: string, userId: string) {
 }
 
 
+export async function updateName(newName: string, userId: string){
+    await db.user.update({
+        data: {
+            name: newName
+        },
+        where: {
+            id: userId
+        }
+    })
+    revalidateTag("user:"+userId)
+}
+
+
+
 export const getUsersNoCache = async (): Promise<SmallUserProps[]> => {
     const users = await db.user.findMany({
         select: {

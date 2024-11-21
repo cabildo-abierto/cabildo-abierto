@@ -7,7 +7,7 @@ import { cleanText, listOrderDesc } from "./utils"
 import InfoPanel from "./info-panel"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 
-function popularityScore(content: {childrenTree: {authorId: string}[], author: {id: string}, type: string, _count: {reactions: number}, uniqueViewsCount: number}){
+export function popularityScore(content: {childrenTree: {authorId: string}[], author: {id: string}, type: string, _count: {reactions: number}, uniqueViewsCount: number}){
     const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
     commentators.delete(content.author.id)
 

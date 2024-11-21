@@ -1,6 +1,7 @@
 
 import { Button } from "@mui/material"
 import SelectionComponent from "./search-selection-component"
+import { Route } from "./wiki-categories"
 
 
 type MainFeedHeaderProps = {
@@ -34,24 +35,12 @@ export const MainFeedHeader = ({
     }
 
     return <div className="mt-2">
-        <div className="">
-        {/*showRoute && 
-            <div className="flex flex-col pt-1">
-                <span className="ml-2 text-sm text-[var(--text-light)]">
-                    Estás viendo:
-                </span>
-                <div className="flex pb-2 items-center px-2">
-                    <Route route={route} setRoute={setRoute} selected={selected}/>
-                </div>
-            </div>
-        */}
         <SelectionComponent
             onSelection={onSelection}
-            options={["En discusión", "Siguiendo"]}
+            options={["Siguiendo", "En discusión"]}
             selected={selected}
             optionsNodes={optionsNodes}
             className="flex justify-between w-full"
         />
-        </div>
     </div>
 }

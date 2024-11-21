@@ -11,7 +11,7 @@ import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
 
 import React from 'react';
-
+import { ConfirmPaymentsButton, CreatePromisesButton } from "../payments/create-promises-button"
 
 
 
@@ -39,12 +39,8 @@ export default function Page() {
                 Recuperar suscripciones
             </button>
 
-            <button className="gray-btn" onClick={async () => {await createPaymentPromises()}}>
-                Crear promesas
-            </button>
-            <button className="gray-btn" onClick={async () => {await confirmPayments()}}>
-                Confirmar pagos
-            </button>
+            <CreatePromisesButton/>
+            <ConfirmPaymentsButton/>
             <button className="gray-btn" onClick={async () => {await recomputeAllContributions()}}>
                 Recalcular contribuciones
             </button>

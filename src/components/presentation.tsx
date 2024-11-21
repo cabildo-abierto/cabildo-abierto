@@ -34,11 +34,8 @@ export const LogoAndSlogan = () => {
         </div>
         <div className="flex justify-center flex-col mt-8">
             <h1 className="lg:text-5xl text-4xl">Cabildo Abierto</h1>
-            <div className="text-base sm:text-lg text-gray-600 text-left lg:text-2xl my-0 py-0 mt-2">
-                Toda la información en un solo lugar,
-            </div>
-            <div className="text-base sm:text-lg text-gray-600 text-left lg:text-2xl my-0 py-0">
-                abierta a discusión.
+            <div className="text-base text-gray-600 text-left lg:text-[1.29rem] text-[0.96rem] my-0 py-0 mt-2">
+                El lugar donde el país se reúne a discutir.
             </div>
         </div>
     </div>
