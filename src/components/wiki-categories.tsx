@@ -34,8 +34,8 @@ const RouteElement = ({route, c, index, setRoute}: {route: string[], c: string, 
             <button 
                 className="sm:text-lg text-base font-bold content text-[var(--primary)] hover:bg-[var(--secondary-light)] rounded px-2"
             >
-            {c}
-        </button>
+                {c}
+            </button>
         </Link>
     }
 }
@@ -46,12 +46,12 @@ export const Route = ({route, setRoute, selected}: {route: string[], setRoute?: 
     const nextCategories = routeEntities.entities ? getNextCategories(route, routeEntities.entities) : null
 
     return <div className="flex items-center flex-wrap">
-        {["Inicio"].concat(route).map((c: string, index: number) => {
+        {route.map((c: string, index: number) => {
             return <div className="flex items-center" key={index}>
             
                 <RouteElement route={route} setRoute={setRoute} c={c} index={index}/>
 
-                {(index != route.length || (nextCategories && nextCategories.length > 0 && setRoute != undefined)) && 
+                {(index != route.length-1 || (nextCategories && nextCategories.length > 0 && setRoute != undefined)) && 
                 <span className="px-1 text-2xl font-bold content text-[var(--primary)] mb-1">
                     <KeyboardArrowRightIcon/>
                 </span>}

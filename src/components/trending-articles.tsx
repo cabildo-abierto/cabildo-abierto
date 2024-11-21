@@ -4,7 +4,7 @@ import LoadingSpinner from "./loading-spinner"
 import { articleUrl, currentVersion, listOrderDesc } from "./utils"
 import { useDraggable } from "react-use-draggable-scroll";
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from "next/navigation"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
@@ -96,9 +96,13 @@ export function topicPopularityScore(entity: SmallEntityProps, since?: Date){
 }
 
 
-export const TrendingArticles = () => {
-    const entities = useRouteEntities([]);
-    const [recent, setRecent] = useState(true)
+export const TrendingArticles = ({route}: {route: string[]}) => {
+    const entities = useRouteEntities(route);
+    const [recent, setRecent] = useState(route.length == 0)
+
+    useEffect(() => {
+        setRecent(route.length == 0)
+    }, [route])
 
     if (entities.isLoading) {
         return <LoadingSpinner />
@@ -108,7 +112,7 @@ export const TrendingArticles = () => {
 
     let entitiesWithScore = entities.entities.map((entity) => ({ entity: entity, score: topicPopularityScore(entity, since) }))
 
-    entitiesWithScore = entitiesWithScore.filter(({score}) => (score[0] > 0)).sort(listOrderDesc);
+    entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
     
     const text = <div>
         <p className="font-bold">Temas ordenados por popularidad</p>

@@ -26,11 +26,11 @@ import {
   LexicalEditor,
 } from 'lexical';
 import {useEffect, useRef, useState} from 'react';
-import * as React from 'react';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 import {$isImageNode, ImageNode, $createImageNode, ImagePayload} from '../../nodes/ImageNode';
 
-import {Button as MuiButton} from '@mui/material'
+import {Button, Button as MuiButton, styled} from '@mui/material'
 import {DialogActions, DialogButtonsList} from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
@@ -88,6 +88,69 @@ export function InsertImageUriDialogBody({
     </>
   );
 }
+
+
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
+
+
+
+export const UploadImageButton = ({onSubmit}: {onSubmit: (i: InsertImagePayload) => void}) => {
+    const loadImage = async (e) => {
+        if (e.target.files !== null) {
+            const file = e.target.files[0];
+        
+            const uniqueId = uuidv4()
+            const extension = file.type.split('/')[1]; 
+            const filename = `${uniqueId}.${extension}`;
+        
+            const supabase = createClient();
+            
+            const { data, error } = await supabase.storage
+              .from('pictures')
+              .upload('public/' + filename, file);
+        
+            if (error) {
+              console.error('Error al cargar el archivo:', error);
+              return;
+            }
+        
+            const { data: publicUrlData } = supabase.storage
+              .from('pictures')
+              .getPublicUrl('public/' + filename);
+        
+            if (publicUrlData?.publicUrl) {
+              onSubmit({src: "/media/"+filename, altText: ""});
+            }
+        }
+    };
+    return <Button
+      component="label"
+      role={undefined}
+      variant="contained"
+      tabIndex={-1}
+      sx={{textTransform: "none"}}
+      disableElevation={true}
+      startIcon={<CloudUploadIcon />}
+    >
+      Subir archivo
+      <VisuallyHiddenInput
+        type="file"
+        onChange={loadImage}
+        multiple={false}
+      />
+    </Button>
+}
+
 
 export function InsertImageUploadedDialogBody({
   onClick,
@@ -197,13 +260,9 @@ export function InsertImageDialog({
             onClick={() => setMode('url')}>
             Desde un URL
           </MuiButton>
-          <MuiButton
-            variant="contained"
-            sx={{textTransform: "none"}}
-            disableElevation={true}
-            onClick={() => setMode('file')}>
-            Subir un archivo
-          </MuiButton>
+          <UploadImageButton
+            onSubmit={onClick}
+          />
         </DialogButtonsList>
       )}
       </div>

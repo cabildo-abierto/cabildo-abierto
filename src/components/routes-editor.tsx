@@ -238,7 +238,6 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
                 disabled={areCategoriesEqual(categories, entityCategories) || !validCategories(categories)}
                 handleClick={onSubmitCategories}
                 text1="Confirmar"
-                text2="Guardando..."
             />
         </div>
         {errorOnSave && <div className="text-red-600 flex justify-end sm:text-sm text-xs mt-1">Ocurrió un error al guardar. Intentá de nuevo.</div>}
