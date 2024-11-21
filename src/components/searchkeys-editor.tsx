@@ -159,7 +159,6 @@ export const SearchkeysEditor = ({entity, setEditing}: {entity: EntityProps, set
                 disabled={areSearchkeysEqual(searchkeys, entity.currentVersion.searchkeys) || !validSearchkeys(searchkeys)}
                 handleClick={onSubmitSearchkeys}
                 text1="Confirmar"
-                text2="Guardando..."
             />
         </div>
         {errorOnSave && <div className="text-red-600 flex justify-end sm:text-sm text-xs mt-1">Ocurrió un error al guardar. Intentá de nuevo.</div>}

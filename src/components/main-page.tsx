@@ -12,6 +12,7 @@ import { preload } from "swr"
 import { TrendingArticles } from "./trending-articles"
 import { TutorialPopup } from "./tutorial-popup"
 import { FollowSuggestions } from "./follow-suggestions"
+import { Route } from "./wiki-categories"
 
 
 type MainPageProps = {
@@ -23,7 +24,7 @@ type MainPageProps = {
 
 
 export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: MainPageProps) => {
-    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "En discusión")
+    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "Siguiendo")
     const feed = useRouteFeed(route)
     const followingFeed = useRouteFollowingFeed(route)
 
@@ -68,10 +69,16 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
         />
         
         <div className="">
+
+            {false && showRoute && selected == "En discusión" && 
+                <div className="flex items-center px-2 mt-2">
+                    <Route route={route} setRoute={setRoute} selected={selected}/>
+                </div>
+            }
             
             {selected == "En discusión" && 
                 <div className="pt-4 pb-6">
-                    <TrendingArticles/>
+                    <TrendingArticles route={route}/>
                 </div>
             }
 

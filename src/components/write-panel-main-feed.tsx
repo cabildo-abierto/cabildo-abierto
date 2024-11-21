@@ -3,7 +3,7 @@ import { useState, useEffect, JSX, useRef } from "react"
 import dynamic from 'next/dynamic'
 import { commentEditorSettings } from "./editor/comment-editor"
 import StateButton from "./state-button"
-import { FastPostIcon } from "./icons"
+import { FastPostIcon, LinkIcon } from "./icons"
 import { useUser } from "../app/hooks/user"
 import { mutate } from "swr"
 import { createPost } from "../actions/contents"
@@ -14,7 +14,7 @@ import { CloseButton } from "./close-button"
 import { ContentTopRowAuthor } from "./content"
 import { DialogButtonsList } from "./editor/ui/Dialog"
 import { Button } from "@mui/material"
-import { InsertImagePayload, InsertImageUploadedDialogBody, InsertImageUriDialogBody } from "./editor/plugins/ImagesPlugin"
+import { InsertImagePayload, InsertImageUploadedDialogBody, InsertImageUriDialogBody, UploadImageButton } from "./editor/plugins/ImagesPlugin"
 import useModal from "./editor/hooks/useModal"
 import Image from "next/image"
 import { FastPostImagesEditor } from "./fast-post-images-editor"
@@ -39,21 +39,17 @@ export function InsertImageDialog({
               variant="contained"
               sx={{textTransform: "none"}}
               disableElevation={true}
+              startIcon={<LinkIcon/>}
               onClick={() => setMode('url')}>
               Desde un URL
             </Button>
-            <Button
-              variant="contained"
-              sx={{textTransform: "none"}}
-              disableElevation={true}
-              onClick={() => setMode('file')}>
-              Subir un archivo
-            </Button>
+            <UploadImageButton
+                onSubmit={onSubmit}
+            />
           </DialogButtonsList>
         )}
         </div>
         {mode === 'url' && <InsertImageUriDialogBody onClick={onSubmit} />}
-        {mode === 'file' && <InsertImageUploadedDialogBody onClick={onSubmit} />}
       </div>
     );
 }
