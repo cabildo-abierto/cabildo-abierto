@@ -15,7 +15,7 @@ export function popularityScore(content: {childrenTree: {authorId: string}[], au
 
     //const daysSinceCreation = (new Date().getTime() - new Date(content.createdAt).getTime()) / (1000*60*60*24)
 
-    return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount * viewWeight, 1)]
+    return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount * viewWeight, 1), content._count.reactions, commentators.size, content.uniqueViewsCount]
 }
     
 function isPopularEnough(content: {childrenTree: {authorId: string}[], author: {id: string}, _count: {reactions: number}}){
@@ -72,6 +72,7 @@ export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, se
     let feedWithScore = filteredFeed.map((content) => ({score: popularityScore(content), content: content}))
 
     const byPopularityFeed = feedWithScore.sort(listOrderDesc).map(({content}) => (content))
+
 
     const popularityFeedComponent = <Feed feed={{feed: byPopularityFeed, isLoading: false, isError: false}} noResultsText={noResultsText}/>
 

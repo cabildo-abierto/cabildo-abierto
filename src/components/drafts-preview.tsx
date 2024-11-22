@@ -13,7 +13,7 @@ export const DraftsPreview = () => {
     }
     if(drafts.length == 0){
         return <div className="text-center mt-32 text-[var(--text-light)]">
-            Todavía no tenés borradores.
+            No tenés ningún borrador.
         </div>
     }
     return <div>

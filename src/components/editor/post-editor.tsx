@@ -18,6 +18,7 @@ import dynamic from "next/dynamic"
 import { AddImageButton } from "../write-panel-main-feed"
 import useModal from "./hooks/useModal"
 import { FastPostImagesEditor } from "../fast-post-images-editor"
+import Link from "next/link"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
@@ -101,6 +102,38 @@ function useDebouncedEffect(effect: () => void, deps: any[], delay: number) {
 }
 
 
+const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}: {editor: LexicalEditor, lastSaved: {contentId?: string}, disabled: boolean, isPublished: boolean, isFast: boolean, title?: string}) => {
+    const router = useRouter()
+    const {mutate} = useSWRConfig()
+    const {user} = useUser()
+
+    async function handleSubmit(){
+        const text = JSON.stringify(editor.getEditorState())
+        const compressedText = compress(text)
+
+        const {error} = await publishDraft(compressedText, lastSaved.contentId, user.id, isPublished, !isFast ? title : undefined)
+        if(error) return {error}
+
+        await mutate("/api/content/"+lastSaved.contentId)
+        await mutate("/api/drafts/"+user.id)
+        await mutate("/api/feed")
+        await mutate("/api/following-feed")
+        await mutate("/api/profile-feed/"+user.id)
+        router.push("/")
+        return {stopResubmit: true}
+	}
+
+    return <StateButton
+        handleClick={handleSubmit}
+        text1={isPublished ? "Guardar cambios" : "Publicar"}
+        textClassName="title whitespace-nowrap px-2"
+        disabled={disabled}
+        size="medium"
+        disableElevation={true}
+    />
+}
+
+
 const PostEditor = ({
     isFast=false,
     initialData,
@@ -114,7 +147,7 @@ const PostEditor = ({
     const {user} = useUser()
     const {mutate} = useSWRConfig()
     const [errorOnSubmit, setErrorOnSubmit] = useState(false)
-    const [saveStatus, setSaveStatus] = useState("no changes")
+    const [saveStatus, setSaveStatus] = useState<"saved" | "error" | "no changes" | "not saved">("no changes")
     const [title, setTitle] = useState(initialTitle)
     const [contentCreationState, setContentCreationState] = useState(contentId ? "created" : "no content")
     const [modal, showModal] = useModal()
@@ -155,24 +188,16 @@ const PostEditor = ({
         onChange()
     }, [editorState, title, lastSaved], 500)
 
-    async function handleSubmit(){
-        if(lastSaved.contentId){
-            const text = JSON.stringify(editor.getEditorState())
-            const compressedText = compress(text)
-    
-            const {error} = await publishDraft(compressedText, lastSaved.contentId, user.id, isPublished, !isFast ? title : undefined)
-            if(error) return {error}
-    
-            mutate("/api/content/"+lastSaved.contentId)
-            mutate("/api/drafts/"+user.id)
-            mutate("/api/feed")
-            mutate("/api/profile-feed/"+user.id)
-            router.push("/")
-            return {stopResubmit: true}
-        } else {
-            return {}
-        }
-	}
+    async function waitForSaveStatus() {
+        return new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (saveStatus !== "not saved") {
+                    clearInterval(interval);
+                    resolve(saveStatus);
+                }
+            }, 100);
+        });
+    }
 
     const handleCreateDraftPost: StateButtonClickHandler = async () => {
         const text = JSON.stringify(editor.getEditorState())
@@ -189,17 +214,23 @@ const PostEditor = ({
         return {stopResubmit: true}
     }
 
-    const handleSaveDraft: StateButtonClickHandler = async () => {
+    const handleSaveDraft = async () => {
+        if(!lastSaved.contentId){
+            return await handleCreateDraftPost()
+        }
+
         const text = JSON.stringify(editor.getEditorState())
         const compressedText = compress(text)
         
         const {error} = await updateContent(compressedText, lastSaved.contentId, user.id, title)
-        if(error) return {error}
+        if(error) {
+            setSaveStatus("error")
+            return
+        }
         setLastSaved({text: text, title: title, contentId: lastSaved.contentId})
 
         await mutate("/api/content/" + lastSaved.contentId)
         await mutate("/api/drafts")
-        return {stopResubmit: true}
     }
 
     const count = editor && editorState ? charCount(editorState) : 0
@@ -210,18 +241,7 @@ const PostEditor = ({
 
     let disabled = valid.problem != undefined || !lastSaved.contentId
 
-	const PublishButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
-        return <StateButton
-            handleClick={onClick}
-            text1={isPublished ? "Guardar cambios" : "Publicar"}
-            textClassName="title whitespace-nowrap px-2"
-            disabled={disabled}
-            size="medium"
-            disableElevation={true}
-        />
-	}
-
-    const SaveDraftButton = ({onClick}: {onClick: StateButtonClickHandler}) => {
+    const SaveDraftDialog = () => {
         if(saveStatus == "no changes"){
             return <></>
         } else if(saveStatus == "not saved"){
@@ -232,6 +252,10 @@ const PostEditor = ({
             return <div className="text-gray-400 sm:text-base text-sm">
                 Cambios guardados
             </div>
+        } else if(saveStatus == "error"){
+            return <div className="text-gray-400 sm:text-base text-sm">
+                Error al guardar. <button onClick={async () => {setSaveStatus("not saved"); await handleSaveDraft()}} className="link2">Reintentar</button>
+            </div>
         }
 	}
 
@@ -239,14 +263,21 @@ const PostEditor = ({
         <div className="text-sm text-gray-400 text-center">{isFast ? "Publicación rápida" : "Publicación"}</div>
         <div className="flex justify-between mt-3 items-center w-full">
             <div className="hidden sm:block w-64">
-            {isPublished ? <div></div> : <DraftsButton/>}
+                {isPublished ? <div></div> : <DraftsButton/>}
             </div>
-            <div className="w-full flex justify-center">
-            {!isPublished && <SaveDraftButton onClick={handleSaveDraft}/>}
+            <div className="w-full flex sm:justify-center">
+                {!isPublished && <SaveDraftDialog/>}
             </div>
-			<div className="w-64 flex space-x-2">
+			<div className="sm:w-64 w-auto flex space-x-2">
                 {isFast && <AddImageButton images={images} setImages={setImages} showModal={showModal}/>}
-                <PublishButton onClick={handleSubmit}/>
+                <PublishButton
+                    editor={editor}
+                    lastSaved={lastSaved}
+                    title={title}
+                    isFast={isFast}
+                    isPublished={isPublished}
+                    disabled={disabled}
+                />
 			</div>
 		</div>
         {errorOnSubmit && <div className="text-red-600 sm:text-sm text-xs mt-1 flex justify-end px-1">Ocurrió un error. Intentá de nuevo.</div>}

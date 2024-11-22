@@ -44,7 +44,6 @@ export const DraftButton: React.FC<{draftId: string}> = ({draftId}) => {
                 color="error"
                 variant="contained"
                 text1="Borrar"
-                text2="Borrando..."
                 size="small"
                 disableElevation={true}
             />
