@@ -14,7 +14,7 @@
   position: absolute;
   top: 45px;
   left: 0;
-  z-index: 51;
+  z-index: 100000;
   opacity: 0;
   border-width: 1px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
