@@ -23,8 +23,6 @@ export const FollowSuggestions = () => {
 
     if(!suggestions || !user || error) return <></>
 
-    console.log("suggestions", suggestions)
-
     function filter(u: SmallUserProps){
         return u.id != "soporte" && !user.following.some((f) => (f.id == u.id))
     }
