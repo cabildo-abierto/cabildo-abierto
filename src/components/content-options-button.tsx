@@ -12,7 +12,7 @@ import { articleUrl, contentUrl, editContentUrl } from './utils';
 import { useUser } from '../app/hooks/user';
 import { deleteContent } from '../actions/admin';
 import ShareIcon from '@mui/icons-material/Share';
-import { Button, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
 import StateButton, { StateButtonClickHandler } from './state-button';
 import { useSWRConfig } from 'swr';
 
@@ -67,7 +67,9 @@ const ShareContentButton = ({ content }: { content: { id: string; parentEntityId
 export const ContentOptionsDropdown = ({
     content,
     onClose,
-    optionsList
+    optionsList,
+    setIsFakeNewsModalOpen,
+    setIsEditModalOpen
 }: {
     onClose: () => void,
     optionsList: string[],
@@ -76,10 +78,10 @@ export const ContentOptionsDropdown = ({
         id: string
         parentContents?: {id: string}[]
         rootContent?: {type: string}
-    }
+    },
+    setIsFakeNewsModalOpen: (v: boolean) => void,
+    setIsEditModalOpen: (v: boolean) => void,
 }) => {
-    const [isFakeNewsModalOpen, setIsFakeNewsModalOpen] = useState(false)
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const router = useRouter()
     const user = useUser()
     const {mutate} = useSWRConfig()
@@ -137,12 +139,6 @@ export const ContentOptionsDropdown = ({
 
         {optionsList.includes("share") && <ShareContentButton content={content}/>}
 
-        {isFakeNewsModalOpen && <CreateFakeNewsReportModal contentId={content.id} onClose={() => {setIsFakeNewsModalOpen(false); onClose()}}/>}
-
-        {isEditModalOpen && <EditCommentModal
-            contentId={content.id}
-            onClose={() => {setIsEditModalOpen(false); onClose()}}
-        />}
     </div>
 }
 
@@ -158,6 +154,9 @@ type ContentOptionsButtonProps = {
 
 export const ContentOptionsButton = ({content, optionList}: ContentOptionsButtonProps) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null)
+    const [isFakeNewsModalOpen, setIsFakeNewsModalOpen] = useState(false)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
     function onClose() {
         setIsDropdownOpen(false)
@@ -166,21 +165,31 @@ export const ContentOptionsButton = ({content, optionList}: ContentOptionsButton
     return <div style={{ position: 'relative', display: 'inline-block' }}>
         <IconButton
             color="inherit"
-            onClick={(e) => {e.preventDefault(); e.stopPropagation(); setIsDropdownOpen(prev => !prev)}}
+            onClick={(e) => {e.preventDefault(); e.stopPropagation(); setAnchorEl(e.target); setIsDropdownOpen(prev => !prev)}}
         >
             <MoreHorizIcon fontSize="small" />
         </IconButton>
 
         <ModalBelow
+            anchorEl={anchorEl}
             open={isDropdownOpen}
-            setOpen={setIsDropdownOpen}
-            className=""
+            onClose={() => {setIsDropdownOpen(false)}}
         >
             <ContentOptionsDropdown
                 content={content}
                 onClose={onClose}
                 optionsList={[...optionList, "share"]}
+                setIsEditModalOpen={setIsEditModalOpen}
+                setIsFakeNewsModalOpen={setIsFakeNewsModalOpen}
             />
         </ModalBelow>
+
+        <CreateFakeNewsReportModal contentId={content.id} open={isFakeNewsModalOpen} onClose={() => {setIsFakeNewsModalOpen(false); onClose()}}/>
+
+        <EditCommentModal
+            contentId={content.id}
+            open={isEditModalOpen}
+            onClose={() => {setIsEditModalOpen(false); onClose()}}
+        />
     </div>
 };

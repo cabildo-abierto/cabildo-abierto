@@ -3,27 +3,32 @@ import InfoIcon from '@mui/icons-material/Info';
 import { ModalBelow } from './modal-below';
 
 export const InfoPanel = ({text, className, iconClassName="text-gray-600", icon=<InfoIcon fontSize="small"/>}: {text: ReactNode, className?: string, iconClassName?: string, icon?: ReactNode}) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null)
 
   return <div className="relative inline-block">
       <div
-        onMouseEnter={() => {setIsHovered(true);}}
-        onMouseLeave={() => {setIsHovered(false);}}
-        className={iconClassName}
+          onMouseEnter={(e) => {setAnchorEl(e.target)}}
+          onMouseLeave={() => {setAnchorEl(null)}}
+          className={iconClassName}
       >
         {icon}
       </div>
-      {isHovered && 
-        <ModalBelow
-          className={"text-justify text-sm bg-[var(--background)] text-gray-900 rounded border z-50 border-b-2 border-r-2 " + (className ? className : "w-72")}
-          open={isHovered}
-          setOpen={setIsHovered}
+      <ModalBelow
           hoverOnly={true}
-        >
-          <div className="p-1 z-50">{text}</div>
-        </ModalBelow>
-      }
-    </div>
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          marginTop="5px"
+          onClose={() => {setAnchorEl(null); console.log("closing")}}
+      >
+          <div
+              className={"text-justify text-sm bg-[var(--background)] text-gray-900 rounded  border content-container " + (className ? className : "w-72")}
+          >
+              <div className="p-2">
+                  {text}
+              </div>
+          </div>
+      </ModalBelow>
+  </div>
 };
 
 export default InfoPanel

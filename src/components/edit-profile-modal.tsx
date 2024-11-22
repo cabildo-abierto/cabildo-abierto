@@ -53,8 +53,8 @@ export const EditProfileModal = ({onClose}: {onClose: () => void}) => {
 
     const valid = validation.success
 
-    return <BaseFullscreenPopup onClose={onClose} closeButton={true}>
-        <div className="pb-4 px-4">
+    return <BaseFullscreenPopup open={true} onClose={onClose} closeButton={true}>
+        <div className="pb-4 px-4 w-screen lg:w-96 flex flex-col items-center">
             <h2>Editar perfil</h2>
 
             <div className="ml-2 text-[var(--text-light)] mt-8">
@@ -77,7 +77,7 @@ export const EditProfileModal = ({onClose}: {onClose: () => void}) => {
             <div className="ml-2 text-[var(--text-light)]">
                 Descripción
             </div>
-            <div className="border rounded p-2 lg:w-96 mb-8 mt-2">
+            <div className="border rounded p-2 mb-8 mt-2 w-full">
                 <MyLexicalEditor
                     settings={settings}
                     setEditor={setEditor}

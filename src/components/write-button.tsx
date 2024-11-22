@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArticleIcon, FastPostIcon, PostIcon, WriteButtonIcon } from './icons';
 import InfoPanel from './info-panel';
-import { NewPublicArticleButton } from './new-public-article-button';
+import { NewTopicButton } from './new-public-article-button';
 import { ModalBelow } from './modal-below';
 import { NewFastPostButton } from './new-fast-post-button';
 import { Button, IconButton } from '@mui/material';
 import { CustomLink as Link } from './custom-link';
+import { CreateFastPostModal } from './create-fast-post-modal';
+import { CreateArticleModal } from './create-article-modal';
 
 export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100 && !name.includes("/");
@@ -45,34 +47,38 @@ export const WriteButtonButton = ({onClick, icon, infoText, name}: {onClick: () 
 
 const WriteButton = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isFastPostModalOpen, setIsFastPostModalOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null)
+    const [newTopicOpen, setNewTopicOpen] = useState(false)
 
     return (
         <div className="relative">
             <IconButton
                 color="inherit"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                onClick={(e) => {setIsDropdownOpen(!isDropdownOpen); setAnchorEl(e.target)}}
             >
                 <WriteButtonIcon />
             </IconButton>
 
-            <ModalBelow open={isDropdownOpen} setOpen={setIsDropdownOpen} className="">
-                <div className="z-[52] bg-[var(--background)] rounded content-container px-2 py-2 mt-1 flex flex-col items-center space-y-2">
+            <ModalBelow open={isDropdownOpen} onClose={() => {setIsDropdownOpen(false)}} anchorEl={anchorEl}>
+                <div className="">
+                <div className="z-[52] bg-[var(--background)] rounded content-container px-2 py-2 flex flex-col items-center space-y-2">
                     
                     <NewFastPostButton
-                        onClick={() => {setIsDropdownOpen(false)}}
+                        onClick={() => {setIsDropdownOpen(false); setIsFastPostModalOpen(true)}}
                     />
                     
                     <Link href="/escribir/publicacion" className="w-64">
                         <WriteButtonButton
                             onClick={() => setIsDropdownOpen(false)}
                             icon={<PostIcon/>}
-                            infoText={<div>Con título y sin límite de caracteres. Relatá la realidad, compartí tu análisis, o lo que se te ocura y requiera más de 300 caracteres. Va a aparecer en el muro.</div>}
+                            infoText={<div><p className="font-bold">Con título y sin límite de caracteres</p><p> Relatá la realidad, compartí tu análisis, o lo que se te ocura y requiera más de 300 caracteres. Va a aparecer en el muro.</p></div>}
                             name="Publicación"
                         />
                     </Link>
                     
-                    <NewPublicArticleButton
-                        onClick={() => {setIsDropdownOpen(false)}}
+                    <NewTopicButton
+                        onClick={() => {setIsDropdownOpen(false); setNewTopicOpen(true)}}
                     />
                     
                     {<Link href="/temas" className="w-64">
@@ -80,11 +86,14 @@ const WriteButton = () => {
                             onClick={() => setIsDropdownOpen(false)}
                             icon={<ArticleIcon/>}
                             name="Editar un tema"
-                            infoText={<div>Elegí un tema y agregá información o modificá su contenido.</div>}
+                            infoText={<div>Elegir un tema para modificar su contenido o agregar información.</div>}
                         />
                     </Link>}
                 </div>
+                </div>
             </ModalBelow>
+            <CreateFastPostModal open={isFastPostModalOpen} onClose={() => setIsFastPostModalOpen(false)} />
+            <CreateArticleModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)} />
         </div>
     );
 };

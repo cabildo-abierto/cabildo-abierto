@@ -80,11 +80,12 @@ const StateButton: React.FC<StateButtonProps> = ({
         {text1}
       </div>
     </LoadingButton>
-      {error && <AcceptButtonPanel
+      <AcceptButtonPanel
+        open={Boolean(error)}
         onClose={() => {setError(undefined)}}
       >
         {error}  
-      </AcceptButtonPanel>}
+      </AcceptButtonPanel>
     </>
 };
 

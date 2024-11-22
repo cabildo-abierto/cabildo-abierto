@@ -6,12 +6,14 @@ export const FullscreenDialog = ({
     children,
     closeButton = false,
     onClose,
-    className
+    className,
+    open
 }: {
     children: ReactNode;
     closeButton?: boolean;
     onClose?: () => void;
     className?: string;
+    open: boolean
 }) => {
     return (
         <Dialog

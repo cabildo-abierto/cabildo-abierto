@@ -1,37 +1,38 @@
 import { ReactNode } from "react";
-import { Dialog } from "@headlessui/react";
+import { Box, Modal } from "@mui/material";
 import { CloseButton } from "./close-button";
 
 export const BaseFullscreenPopup = ({
     children,
     closeButton = false,
     onClose,
-    className
+    open,
+    className,
+    allowClose = false
 }: {
+    open: boolean
     children: ReactNode;
     closeButton?: boolean;
     onClose?: () => void;
     className?: string;
+    allowClose?: boolean
 }) => {
     return (
-        <Dialog
-            open={true}
+        <Modal
+            open={open}
             onClose={() => {
-                if (onClose) onClose();
+                if (allowClose && onClose) onClose();
             }}
-            className="fixed inset-0 z-50 flex justify-center items-center"
+            disableEnforceFocus={true}
         >
-            <div className="fixed inset-0 bg-black opacity-30" aria-hidden="true" />
-            <div className={"relative " + className}>
-                <Dialog.Panel className="mx-1 bg-white rounded border-2 border-black text-center z-50">
-                    {closeButton && (
-                        <div className="flex justify-end mr-1 mt-1">
-                            <CloseButton onClose={onClose} />
-                        </div>
-                    )}
-                    {children}
-                </Dialog.Panel>
-            </div>
-        </Dialog>
+            <Box className={"absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg bg-[var(--background)] rounded-lg " + className}>
+                {closeButton && (
+                    <div className="flex justify-end mr-1 mt-1">
+                        <CloseButton onClose={onClose} />
+                    </div>
+                )}
+                {children}
+            </Box>
+        </Modal>
     );
 };

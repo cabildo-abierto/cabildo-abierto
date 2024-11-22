@@ -33,8 +33,8 @@ import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import ArrowRightIconMui from '@mui/icons-material/ArrowRight';
 
 
-export const RedFlag = () => {
-    return <FlagIcon fontSize="small" className="text-red-600"/>
+export const RedFlag = ({fontSize = "inherit"}: {fontSize?: FontSizeType}) => {
+    return <FlagIcon fontSize={fontSize} className="text-red-600"/>
 }
 
 

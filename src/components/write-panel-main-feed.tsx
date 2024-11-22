@@ -153,14 +153,14 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void, mobile?: boo
     </div>
 
     const center = <>
-        <div className="flex justify-between px-2">
-            <div className="text-sm text-gray-400 flex items-center">
+        <div className="flex justify-between px-1">
+            <div className="text-sm text-gray-400 flex items-center ml-2">
                 <ContentTopRowAuthor content={{author: user}}/>
             </div>
             <CloseButton onClose={onClose}/>
         </div>
-        <div className="min-h-[250px]">
-        <div className="sm:text-lg py-2 px-3 h-full w-full" key={editorKey}>
+        <div className="min-h-[250px] px-2">
+        <div className="sm:text-lg py-2 px-1 h-full w-full" key={editorKey}>
             {editorComp}
         </div>
             <FastPostImagesEditor images={images} setImages={setImages}/>
