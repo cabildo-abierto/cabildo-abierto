@@ -854,7 +854,8 @@ export async function addDonatedSubscriptionsManually(boughtByUserId: string, am
 }
 
 
-export async function getUserFollowSuggestions(userId: string){
+export async function getUserFollowSuggestions(userId: string): Promise<{suggestions?: any[], error?: string}> {
+    if(!userId) return {suggestions: undefined, error: "not logged in"}
 
     return await unstable_cache(async () => {
         const {user, error} = await getUserById(userId)

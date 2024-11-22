@@ -335,7 +335,7 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
                 entity={entity.entity}
             />
             
-            {(false && user.user && (user.user.editorStatus == "Administrator" || user.user.id == "tomas")) && 
+            {(user.user && (user.user.editorStatus == "Administrator" || user.user.id == "tomas")) && 
                 <div className="flex justify-center">
                     <RecomputeContributionsButton/>
                 </div>
