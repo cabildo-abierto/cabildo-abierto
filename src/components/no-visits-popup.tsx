@@ -1,6 +1,4 @@
-
-import { IrAlInicioButton } from '../app/recuperar/nueva/page';
-import { CustomLink as Link } from './custom-link';
+import { IrAlInicioButton } from "./ir-al-inicio";
 import { monthly_visits_limit } from "./utils";
 
 

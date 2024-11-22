@@ -1,10 +1,9 @@
 "use client"
 
-import { CustomLink as Link } from './custom-link';
 import LoadingPage from "./loading-page"
 import { ReactNode } from "react";
 import { useUser } from "../app/hooks/user";
-import { IrAlInicioButton } from '../app/recuperar/nueva/page';
+import { IrAlInicioButton } from "./ir-al-inicio";
 
 
 export const NeedAccountPaywall: React.FC<any> = ({ children }) => {

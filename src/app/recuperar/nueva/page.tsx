@@ -7,8 +7,7 @@ import { useRouter } from "next/navigation";
 import { AuthForm, PasswordInput } from "../../../components/signup-form";
 import { ThreeColumnsLayout } from "../../../components/three-columns";
 import { updatePw } from "../../../actions/auth";
-import { CustomLink as Link } from '../../../components/custom-link';
-import { Button } from "@mui/material";
+import { IrAlInicioButton } from "../../../components/ir-al-inicio";
 
 function NewPwButton() {
     const {pending} = useFormStatus()
@@ -20,19 +19,6 @@ function NewPwButton() {
             </div>
         </button>
     )
-}
-
-
-export const IrAlInicioButton = () => {
-    return <Link href="/">
-        <Button
-            variant="contained"
-            sx={{textTransform: "none"}}
-            disableElevation={true}
-        >
-            Ir al inicio
-        </Button>
-    </Link>
 }
 
 
