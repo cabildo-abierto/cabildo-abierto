@@ -204,9 +204,9 @@ const PostEditor = ({
         const compressedText = compress(text)
         const type = isFast ? "FastPost" : "Post"
 
-        const {error, id: contentId} = await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
+        const {error, result} = await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
         if(error) return {error}
-        setLastSaved({text: text, title: title, contentId})
+        setLastSaved({text: text, title: title, contentId: result.id})
         setContentCreationState("created")
 
         await mutate("/api/content/" + lastSaved.contentId)
