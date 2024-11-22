@@ -17,6 +17,7 @@ import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 import { toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
 import { BaseFullscreenPopup } from "./base-fullscreen-popup"
+import { NeedAccountPopup } from "./article-page";
 
 
 const EditDetails = ({type}: {type: string}) => {
@@ -86,13 +87,12 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
     </div>
 
     return <div className="flex items-center">
-        {showingNoPermissions && 
-        <AcceptButtonPanel onClose={() => {setShowingNoPermissions(false)}}>
+        <AcceptButtonPanel open={showingNoPermissions} onClose={() => {setShowingNoPermissions(false)}}>
             <div className="text-base">
                 <p>Necesitás permisos de edición para confirmar cambios.</p>
                 <NoEditPermissionsMsg user={user} level={entity.protection}/>
             </div>
-        </AcceptButtonPanel>}
+        </AcceptButtonPanel>
         {!pending && <><button
             className="hover:scale-105"
             onClick={confirm}
@@ -282,9 +282,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
     const {mutate} = useSWRConfig()
 
     if(!user){
-        return <AcceptButtonPanel onClose={onClose}>
-            <span>Necesitás una cuenta para remover la autoría de una edición.</span>
-        </AcceptButtonPanel>
+        return <NeedAccountPopup open={true} onClose={onClose} text="Necesitás una cuenta para remover la autoría de una edición."/>
     }
 
     async function handleClick(){
@@ -296,7 +294,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
     }
 
     if(user.editorStatus != "Administrator" && user.id != entity.versions[version].author.id){
-        return <AcceptButtonPanel onClose={onClose}>
+        return <AcceptButtonPanel open={true} onClose={onClose}>
             <div className="">
                 <div>
                     Por ahora no podés remover la autoría de ediciones de otros usuarios.
@@ -310,7 +308,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
 
     return (
         <>
-            <BaseFullscreenPopup>
+            <BaseFullscreenPopup open={true}>
             <div className="px-6 pb-4">
                 <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
                 <div className="mb-8">
@@ -340,7 +338,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
 export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: number}) => {
     const currentIndex = currentVersion(entity)
 
-    const lastDiff = JSON.parse(entity.versions[entity.versions.length-1].diff)
+    // const lastDiff = JSON.parse(entity.versions[entity.versions.length-1].diff)
     
     const history = <div className="mt-1 hidden lg:block">
         {entity.versions.map((version, index) => {

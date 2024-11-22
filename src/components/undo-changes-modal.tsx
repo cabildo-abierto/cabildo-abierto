@@ -13,6 +13,7 @@ import { hasEditPermission } from './utils';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
 import { AcceptButtonPanel } from './accept-button-panel';
 import { BaseFullscreenPopup } from './base-fullscreen-popup';
+import { NeedAccountPopup } from './article-page';
 
 
 
@@ -40,15 +41,17 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
     let modalContent = null
 
     if(!user.user){
-        return <AcceptButtonPanel onClose={onClose}>
-            Necesitás una cuenta para deshacer cambios.
-        </AcceptButtonPanel>
+        return <NeedAccountPopup
+            open={true}
+            text="Necesitás una cuenta para deshacer cambios."
+            onClose={onClose}
+        />
     }
     if(hasEditPermission(user.user, entity.protection)){
-        return <BaseFullscreenPopup closeButton={true} onClose={onClose}>
-            <div className="space-y-3 px-6 mb-4">
+        return <BaseFullscreenPopup open={true} closeButton={true} onClose={onClose}>
+            <div className="space-y-6 px-6 mb-4 flex flex-col items-center">
                 <h3>Deshacer el último cambio en {entity.name}</h3>
-                <div>
+                <div className="w-full">
                     <textarea
                         rows={4}
                         className="resize-none w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"
@@ -57,9 +60,11 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
                         placeholder="Explicá el motivo por el que te parece necesario deshacer este cambio."
                     />
                 </div>
+                <div className="w-full flex flex-col space-y-2">
                 {<TickButton text={vandalismInfo} setTicked={setVandalism} ticked={vandalism} size={20} color="#455dc0" />}
                 {<TickButton text={oportunismInfo} setTicked={setOportunism} ticked={oportunism} size={20} color="#455dc0" />}
-                <div className="mt-4">
+                </div>
+                <div className="">
                     <StateButton
                         handleClick={async () => {
                             if(user.user && content){
@@ -73,7 +78,7 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
                             return {}
                         }}
                         disabled={!validExplanation(explanation)}
-                        className="gray-btn w-full"
+                        disableElevation={true}
                         text1="Confirmar"
                         text2="Deshaciendo cambios..."
                     />
@@ -82,6 +87,7 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
         </BaseFullscreenPopup>
     } else {
         return <AcceptButtonPanel
+            open={true}
             onClose={onClose}
         >
             <div>

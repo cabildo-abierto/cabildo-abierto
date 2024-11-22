@@ -64,6 +64,7 @@ export const SaveEditPopup = ({
 
     if(newVersionSize > 1200000){
         return <AcceptButtonPanel
+            open={true}
             onClose={onClose}
         >
             <span>No se pueden guardar los cambios porque el tema supera el límite de 1.200.000 caracteres (con <span className="text-red-600">{newVersionSize}</span> caracteres). Te sugerimos que separes el contenido en secciones en distintos temas.</span>

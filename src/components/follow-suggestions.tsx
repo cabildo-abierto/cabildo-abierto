@@ -76,7 +76,7 @@ export const FollowSuggestions = () => {
                 Compartir
             </Button>
         </div>
-        {openSharePopup && <SharePopup onClose={() => {setOpenSharePopup(false)}}/>}
+        <SharePopup open={openSharePopup} onClose={() => {setOpenSharePopup(false)}}/>
     </div>
 }
 

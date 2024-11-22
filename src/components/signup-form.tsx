@@ -255,9 +255,9 @@ export const AuthForm = ({children, action, state, title}: {children: ReactNode,
 }
 
 
-const ConfirmLinkSentPopup = ({onClose, email}: {onClose: any, email: string}) => {
+const ConfirmLinkSentPopup = ({open, onClose, email}: {open: boolean, onClose: any, email: string}) => {
     return (
-        <BaseFullscreenPopup>
+        <BaseFullscreenPopup open={open}>
             <div className="px-6 pt-6 pb-12">
             <div className="mt-4 text-lg">¡Gracias por registrarte!</div>
             <div className="mb-4 text-lg">En breve debería llegarte un mail de confirmación.</div>
@@ -290,10 +290,11 @@ export default function SignupForm() {
 
     return (
         <>
-            {showingSignupOK && <ConfirmLinkSentPopup
+            <ConfirmLinkSentPopup
+                open={showingSignupOK}
                 onClose={() => {setShowingSignupOK(false)}}
                 email={state?.data?.email}
-            />}
+            />
             <AuthForm action={action} state={state} title={title}>
                 <EmailInput state={state}/>
                 <PasswordInput state={state}/>

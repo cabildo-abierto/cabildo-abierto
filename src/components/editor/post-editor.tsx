@@ -52,10 +52,10 @@ const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsPro
         useCodeblock: false,
         placeholder: "Escribí tu publicación acá...",
         initialData: initialData ? initialData : initializeEmpty(""),
-        editorClassName: "content sm:ml-0 ml-3",
+        editorClassName: "content sm:ml-0 " + (isFast ? "ml-1" : "ml-3"),
         isReadOnly: false,
         isAutofocus: true,
-        placeholderClassName: "ContentEditable__placeholder sm:ml-0 ml-3",
+        placeholderClassName: "ContentEditable__placeholder sm:ml-0 " + (isFast ? "ml-1" : "ml-3"),
         imageClassName: isFast ? "fastpost-image" : "",
         preventLeave: false
     }

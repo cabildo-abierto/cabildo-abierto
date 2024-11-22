@@ -27,9 +27,9 @@ export const HomePage = ({searchParams}: {searchParams: {code?: string, error_de
 
     return <div>
         <div className="flex lg:flex-row flex-col min-h-screen-minus-footer px-1">
-            {invalidLink &&
-                <InvalidConfirmLinkPopup onClose={() => {setInvalidLink(false); router.push("/")}}/>
-            }
+            
+            <InvalidConfirmLinkPopup open={invalidLink} onClose={() => {setInvalidLink(false); router.push("/")}}/>
+
             <div className="lg:w-1/2 lg:mb-8 lg:flex lg:justify-center lg:items-center">
                 <Presentation loggingIn={loggingIn} setLoggingIn={setLoggingIn}/>
             </div>

@@ -8,9 +8,10 @@ import { WhatsAppShareButton } from "./whatsapp-share-button"
 
 
 
-export const SharePopup = ({onClose}: {onClose: () => void}) => {
+export const SharePopup = ({open, onClose}: {open: boolean, onClose: () => void}) => {
 
     return <BaseFullscreenPopup
+        open={open}
         closeButton={true}
         onClose={onClose}
     >

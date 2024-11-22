@@ -18,7 +18,7 @@ import { FullscreenDialog } from "./fullscreen-dialog";
 import { CloseButton } from "./close-button";
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
-export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClose: () => void}) => {
+export const EditCommentModal = ({contentId, onClose, open}: {contentId: string, onClose: () => void, open: boolean}) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const [errorOnEdit, setErrorOnEdit] = useState(false)
@@ -28,7 +28,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
     const isSmallScreen = useMedia({ maxWidth: "640px" });
 
     if(content.isLoading){
-        return <LoadingSpinner/>
+        return <></>
     }
 
     let settings = {...commentEditorSettings}
@@ -75,7 +75,7 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
 
 
     if(isSmallScreen){
-        return <FullscreenDialog>
+        return <BaseFullscreenPopup open={open} onClose={onClose} className="w-screen h-screen">
             <div className="px-2">
                 <div className="flex justify-between items-center">
                     <CloseButton onClose={onClose}/>
@@ -84,9 +84,9 @@ export const EditCommentModal = ({contentId, onClose}: {contentId: string, onClo
                 {editorComp}
                 {error}
             </div>
-        </FullscreenDialog>
+        </BaseFullscreenPopup>
     } else {
-        return <BaseFullscreenPopup onClose={onClose} closeButton={true}>
+        return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true}>
             <div className="px-4 w-128">
                 <h3>Editando comentario</h3>
                 {editorComp}

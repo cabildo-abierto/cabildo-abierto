@@ -15,9 +15,9 @@ function canEdit(content: ContentProps){
     if(content.type == "EntityContent"){
         return false
     } else if(content.type == "Comment"){
-        return false
+        return true
     } else if(content.type == "FakeNewsReport"){
-        return false
+        return true
     } else if(content.type == "UndoEntityContent"){
         return false
     } else if(content.type == "FastPost"){

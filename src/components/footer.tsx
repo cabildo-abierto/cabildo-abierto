@@ -31,7 +31,8 @@ export default function Footer() {
                 Términos y condiciones
             </Link>
         </div>
-        {showingContactUs && createPortal(<AcceptButtonPanel
+        <AcceptButtonPanel
+            open={showingContactUs}
             onClose={() => {setShowingContactUs(false)}}>
             <div className="text-lg">
                 <h2>Envianos tu mensaje</h2>
@@ -41,6 +42,5 @@ export default function Footer() {
                 <Link className="link3" href="mailto:soporte@cabildoabierto.com.ar">contacto@cabildoabierto.com.ar</Link>
             </div>
         </AcceptButtonPanel>
-        , document.body)}
     </footer>
 }
