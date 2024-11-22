@@ -143,6 +143,7 @@ export const ArticleOtherOptions = ({entity, optionList}: ContentOptionsButtonPr
             open={isDropdownOpen}
             onClose={() => {setIsDropdownOpen(false)}}
             anchorEl={anchorEl}
+            noShadow={true}
         >
             <ContentOptionsDropdown
                 entity={entity}

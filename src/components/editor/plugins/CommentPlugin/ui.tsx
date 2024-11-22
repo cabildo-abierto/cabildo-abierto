@@ -161,12 +161,12 @@ export function CommentInputBox({
           if(commentEditor) {
               const {error} = await commentEditor.read(async () => {
                   if(!user.user) return {error: "Necesitás un usuario."}
-                  const comment = await createCommentDB(
+                  const {result: comment, error} = await createCommentDB(
                       compress(JSON.stringify(commentEditor.getEditorState())),
                       user.user.id,
                       parentContent.id,
                   )
-                  if(!comment.error){
+                  if(!error){
                       setComments([...comments, comment as CommentProps])
                       editor.update(async () => {
                           if ($isRangeSelection(selectionRef.current)) {

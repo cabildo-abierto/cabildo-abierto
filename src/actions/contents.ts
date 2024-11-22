@@ -5,7 +5,7 @@ import { ContentType, NotificationType } from "@prisma/client";
 import { db } from "../db";
 import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { getEntities } from "./entities";
-import { ContentProps } from "../app/lib/definitions";
+import { CommentProps, ContentProps } from "../app/lib/definitions";
 import { getUserId, getUsers } from "./users";
 import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
@@ -431,7 +431,7 @@ type NewPostProps = {
 
 export async function createPost(
     compressedText: string, type: ContentType, isDraft: boolean, userId: string, title?: string, parentContentId?: string, parentEntityId?: string
-): Promise<NewPostProps> {
+): Promise<{result?: CommentProps, error?: string}> {
     const text = decompress(compressedText)
     const processed = await processNewText(text)
     if(processed.error) return {error: processed.error}
@@ -498,10 +498,15 @@ export async function createPost(
     }
 
     return {
-        id: result.id,
-        type: result.type,
-        createdAt: result.createdAt,
-        _count: {childrenTree: 0}
+        result: {
+            id: result.id,
+            type: result.type,
+            createdAt: result.createdAt,
+            _count: {childrenTree: 0, reactions: 0},
+            uniqueViewsCount: 0,
+            author: {id: userId},
+            childrenTree: []
+        }
     }
 }
 
