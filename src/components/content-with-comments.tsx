@@ -1,16 +1,12 @@
 "use client"
 import { CommentSection, EntityCommentSection } from "./comment-section"
 import { useEffect, useState } from "react"
-import { preload, useSWRConfig } from "swr"
+import { preload } from "swr"
 import LoadingSpinner from "./loading-spinner"
 import ContentComponent from "./content"
-import CommentEditor from "./editor/comment-editor"
-import { CommentProps, ContentProps } from "../app/lib/definitions"
-import { useUser } from "../app/hooks/user"
+import { ContentProps } from "../app/lib/definitions"
 import { useContent } from "../app/hooks/contents"
-import { createComment } from "../actions/contents"
 import { fetcher } from "../app/hooks/utils"
-import { compress } from "./compression"
 import { CommentSectionCommentEditor } from "./comment-section-comment-editor"
 
 

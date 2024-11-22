@@ -2,7 +2,7 @@ import { Popover } from "@mui/material";
 import { ReactNode } from "react";
 
 
-export const ModalBelow = ({children, open, onClose, anchorEl, marginTop="10px", hoverOnly=false}: 
+export const ModalBelow = ({children, open, onClose, anchorEl, marginTop="10px", hoverOnly=false, noShadow=false}: 
     {
         children: ReactNode
         open: boolean
@@ -10,6 +10,7 @@ export const ModalBelow = ({children, open, onClose, anchorEl, marginTop="10px",
         anchorEl: HTMLElement
         marginTop?: string
         hoverOnly?: boolean
+        noShadow?: boolean
     }) => {
 
     return <Popover
@@ -32,7 +33,7 @@ export const ModalBelow = ({children, open, onClose, anchorEl, marginTop="10px",
             vertical: 'top',
             horizontal: 'left',
         }}
-        PaperProps={hoverOnly ? {
+        PaperProps={noShadow ? {
           sx: {
             boxShadow: "none",
           },

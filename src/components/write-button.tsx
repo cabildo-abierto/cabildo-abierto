@@ -60,7 +60,7 @@ const WriteButton = () => {
                 <WriteButtonIcon />
             </IconButton>
 
-            <ModalBelow open={isDropdownOpen} onClose={() => {setIsDropdownOpen(false)}} anchorEl={anchorEl}>
+            <ModalBelow open={isDropdownOpen} onClose={() => {setIsDropdownOpen(false)}} anchorEl={anchorEl} noShadow={true}>
                 <div className="">
                 <div className="z-[52] bg-[var(--background)] rounded content-container px-2 py-2 flex flex-col items-center space-y-2">
                     
