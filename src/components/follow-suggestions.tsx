@@ -15,13 +15,15 @@ import { Button } from "@mui/material";
 
 
 export const FollowSuggestions = () => {
-    let {suggestions, isError} = useUserFollowSuggestions()
+    let {suggestions, error} = useUserFollowSuggestions()
     const {user} = useUser()
     const [open, setOpen] = useState(user && (!user.closedFollowSuggestionsAt || new Date().getTime() - new Date(user.closedFollowSuggestionsAt).getTime() >= 24*60*60*1000))
 
     const [openSharePopup, setOpenSharePopup] = useState(false)
 
-    if(!suggestions || !user || isError) return <></>
+    if(!suggestions || !user || error) return <></>
+
+    console.log("suggestions", suggestions)
 
     function filter(u: SmallUserProps){
         return u.id != "soporte" && !user.following.some((f) => (f.id == u.id))

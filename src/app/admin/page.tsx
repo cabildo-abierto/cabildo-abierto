@@ -1,6 +1,6 @@
 "use client"
 
-import { recomputeAllContributions, revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, compressContents, compressContent, decompressContents, decompressContent, updateUniqueViewsCount, updateIsDraft, deleteEntity, computeDayViews, computeSubscriptorsByDay } from "../../actions/admin"
+import { recomputeAllContributions, revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, compressContents, compressContent, decompressContents, decompressContent, updateUniqueViewsCount, updateIsDraft, deleteEntity, computeDayViews, computeSubscriptorsByDay, revalidateSuggestions } from "../../actions/admin"
 import { updateAllUniqueCommentators, notifyAllMentions, deleteUser } from "../../actions/contents"
 import { recomputeEntityContributions } from "../../actions/entities"
 import { createPaymentPromises, confirmPayments } from "../../actions/payments"
@@ -84,6 +84,9 @@ export default function Page() {
             </button>
             <button className="gray-btn" onClick={async () => {await revalidateSearchkeys()}}>
                 Revalidar search keys
+            </button>
+            <button className="gray-btn" onClick={async () => {await revalidateSuggestions()}}>
+                Revalidar sugerencias
             </button>
 
             <h2>Contenido</h2>

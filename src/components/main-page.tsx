@@ -24,13 +24,13 @@ type MainPageProps = {
 
 
 export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: MainPageProps) => {
-    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "Siguiendo")
+    const user = useUser()
+    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : (user.user ? "Siguiendo" : "En discusión"))
     const feed = useRouteFeed(route)
     const followingFeed = useRouteFollowingFeed(route)
 
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
     const [filter, setFilter] = useState("Todas")
-    const user = useUser()
     const [closedIntroPopup, setClosedIntroPopup] = useState(false)
 
     useEffect(() => {

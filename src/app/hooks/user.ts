@@ -40,13 +40,13 @@ export function useAuthUser(): {authUser: {name: string} | null, isLoading: bool
 
 
 
-export function useUserFollowSuggestions(): {suggestions: {id: string, name: string}[] | null, isLoading: boolean, isError: boolean}{
+export function useUserFollowSuggestions(): {suggestions: {id: string, name: string}[] | null, isLoading: boolean, error: boolean}{
     const { data, error, isLoading } = useSWR('/api/follow-suggestions', fetcher)
-  
+    
     return {
         suggestions: data,
         isLoading: isLoading,
-        isError: error
+        error: error
     }
 }
 
