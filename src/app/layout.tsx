@@ -1,5 +1,4 @@
 "use client"
-
 import './globals.scss'
 
 //import { Roboto_Mono, Roboto, Roboto_Condensed, , Roboto_Slab, Roboto_Flex } from 'next/font/google'
@@ -10,9 +9,8 @@ import './globals.scss'
 //import { Roboto, Merriweather, Merriweather_Sans } from 'next/font/google'
 import { Merriweather } from 'next/font/google'
 import { pathLogo } from '../components/logo'
-import { ThemeProvider, CssBaseline } from '@mui/material';
+import { ThemeProvider } from '@mui/material';
 import theme from './theme'; // Adjust the path if needed
-import { Metadata } from 'next';
 import { PageLeaveProvider } from '../components/prevent-leave';
 
 
@@ -160,6 +158,7 @@ const fonts = [
     //merriweather_sans.variable
 ]
 
+
 export default function RootLayout({
     children
 }: Readonly<{
@@ -179,7 +178,7 @@ export default function RootLayout({
         <body className="bg-[var(--background)]">
           <ThemeProvider theme={theme}>
             <PageLeaveProvider>
-            {children}
+              {children}
             </PageLeaveProvider>
           </ThemeProvider>
         </body>
