@@ -197,6 +197,11 @@ export async function revalidateSearchkeys(){
 }
 
 
+export async function revalidateSuggestions(){
+    revalidateTag("followSuggestions")
+}
+
+
 export async function recomputeAllContributions(){
     const {entities} = await getEntities()
 

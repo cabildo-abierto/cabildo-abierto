@@ -1,43 +1,48 @@
-import { ReactNode, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
+import { Popover } from "@mui/material";
+import { ReactNode } from "react";
 
 
-export const ModalBelow = ({children, open, setOpen, className, hoverOnly=false}: 
+export const ModalBelow = ({children, open, onClose, anchorEl, marginTop="10px", hoverOnly=false, noShadow=false}: 
     {
         children: ReactNode
         open: boolean
-        setOpen: (v: boolean) => void
-        className: string
+        onClose: () => void
+        anchorEl: HTMLElement
+        marginTop?: string
         hoverOnly?: boolean
+        noShadow?: boolean
     }) => {
-    const panelRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (open && panelRef.current) {
-            const panel = panelRef.current;
-            const boundingRect = panel.getBoundingClientRect();
-            const screenWidth = window.innerWidth
-            
-            if (boundingRect.right > screenWidth) {
-                panel.style.left = `${screenWidth - boundingRect.width - boundingRect.left - 20}px`;
-            } else if (boundingRect.left < 0) {
-                panel.style.left = `${0}px`;
-            }
-        }
-    }, [open]);
-
-    return <>{!hoverOnly && open && <div
-            className="fixed left-0 top-0 h-screen w-screen z-[10000]"
-            onClick={(e) => {e.preventDefault(); e.stopPropagation(); setOpen(false)}}
-        >
-        </div>}
-        {<div
-            ref={panelRef}
-            className={"absolute top-full left-0 z-[10000] sm:px-0 px-2 " + className + (open ? "" : "hidden")}
-            onMouseLeave={() => {if(hoverOnly) {setOpen(false);}}}
-            onMouseEnter={() => {if(hoverOnly) {setOpen(true);}}}
-        >
-            {children}
-        </div>}
-    </>
+    return <Popover
+        id={open ? "popover" : undefined}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={onClose}
+        BackdropProps={{
+            onClick: (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onClose();
+            },
+        }}
+        anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+        }}
+        transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+        }}
+        PaperProps={noShadow ? {
+          sx: {
+            boxShadow: "none",
+          },
+        } : undefined}
+        sx={{
+            marginTop: marginTop,
+            pointerEvents: hoverOnly ? "none" : "auto"
+        }}
+    >
+      {children}
+    </Popover>
 }

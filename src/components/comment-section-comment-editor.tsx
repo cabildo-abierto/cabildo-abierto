@@ -23,7 +23,7 @@ export const CommentSectionCommentEditor = ({content, comments, setComments, set
 
     const handleNewComment = async (text: string) => {
         const compressedText = compress(text)
-        const {error, ...newComment} = await createComment(compressedText, user.id, content.id, content.parentEntityId)
+        const {error, result: newComment} = await createComment(compressedText, user.id, content.id, content.parentEntityId)
         
         if(error) return {error}
 

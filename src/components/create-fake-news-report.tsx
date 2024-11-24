@@ -11,6 +11,7 @@ import { useUser } from '../app/hooks/user';
 import { compress } from './compression';
 import { emptyOutput } from './utils';
 import { BaseFullscreenPopup } from './base-fullscreen-popup';
+import { NeedAccountPopup } from './article-page';
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 
@@ -20,7 +21,7 @@ function validFakeNewsReport(editorState: EditorState) {
 }
 
 
-export const CreateFakeNewsReportModal = ({ contentId, onClose }: { contentId: string, onClose: () => void }) => {
+export const CreateFakeNewsReportModal = ({ contentId, open, onClose }: { contentId: string, onClose: () => void, open: boolean }) => {
     const user = useUser();
     const { mutate } = useSWRConfig();
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
@@ -31,10 +32,12 @@ export const CreateFakeNewsReportModal = ({ contentId, onClose }: { contentId: s
     settings.editorClassName = "min-h-[200px] " + settings.editorClassName 
     settings.isAutofocus = true
 
-    return <BaseFullscreenPopup onClose={onClose} closeButton={true} className="px-1 sm:w-128 w-[98vh]">
-        <div className="space-y-3 px-2">
+    if(!user) return <NeedAccountPopup text="Necesitás una cuenta para crear un reporte." open={open} onClose={onClose}/>
+
+    return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true} className="px-1 sm:w-128 w-[98vh]">
+        <div className="space-y-3 px-2 flex flex-col items-center">
             <h3>Reportando información falsa</h3>
-            <div className="border rounded p-1">
+            <div className="border rounded p-1 w-full">
                 <MyLexicalEditor
                     settings={settings}
                     setEditorState={setEditorState}

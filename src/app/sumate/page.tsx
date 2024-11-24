@@ -19,7 +19,7 @@ export default function Page() {
             <h1 className="py-8 mt-12 text-3xl text-center">Trabajá con nosotros</h1>
 
             <div className="py-4 text-lg text-center">
-                Nuestra misión es construir la mejor herramienta comunicacional posible para la discusión pública.
+                Trabajamos para construir la mejor herramienta comunicacional posible para la discusión pública.
             </div>
 
             <div className="py-4 text-lg link text-center">

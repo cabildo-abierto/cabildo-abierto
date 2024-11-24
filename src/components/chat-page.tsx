@@ -7,7 +7,7 @@ import { ThreeColumnsLayout } from "./three-columns"
 
 export const NoConversationsChatPage = () => {
     return <div className="text-center mt-16">
-        Todavía no tenés conversaciones. Seguí a alguien para empezar una conversación.
+        Todavía no tenés conversaciones.
     </div>
 }
 

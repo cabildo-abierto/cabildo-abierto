@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from "react"
+import React, { ReactNode, useEffect, useState } from "react"
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { preload, useSWRConfig } from "swr";
 import { CustomLink as Link } from './custom-link';
@@ -64,15 +64,17 @@ export const ContentComponentFromId = ({
 
 
 
-const NeedAccountToEditPopup = ({onClose}: {onClose: () => void}) => {
-    return <BaseFullscreenPopup>
-        <div className="py-4 sm:text-lg text-base">Necesitás una cuenta para hacer ediciones.</div>
-        <div className="flex justify-center items-center space-x-4 mt-12 px-6 pb-4 text-sm sm:text-base">
-            <button className="gray-btn" onClick={onClose}>
+export const NeedAccountPopup = ({open, onClose, text}: {text: ReactNode, open: boolean, onClose: () => void}) => {
+    return <BaseFullscreenPopup open={open}>
+        <div className="py-6 sm:text-lg text-base text-center px-2">{text}</div>
+        <div className="flex justify-center items-center space-x-4 px-6 pb-4 text-sm sm:text-base">
+            <Button variant="contained" disableElevation={true} sx={{textTransform: "none"}} onClick={onClose}>
                 Seguir leyendo
-            </button>
-            <Link className="gray-btn" href="/">
-                Crear una cuenta o iniciar sesión
+            </Button>
+            <Link href="/">
+                <Button variant="contained" disableElevation={true} sx={{textTransform: "none"}}>
+                    Crear una cuenta o iniciar sesión
+                </Button>
             </Link>
         </div>
     </BaseFullscreenPopup>
@@ -116,6 +118,8 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
     }
 
     if(!entity.entity || entity.isError || entity.entity.deleted || entity.error){
+        console.log("entity", entity, entityId)
+
         return <NoEntityPage id={entityId}/>
     }
 
@@ -333,7 +337,7 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
                 entity={entity.entity}
             />
             
-            {(false && user.user && (user.user.editorStatus == "Administrator" || user.user.id == "tomas")) && 
+            {(user.user && (user.user.editorStatus == "Administrator")) && 
                 <div className="flex justify-center">
                     <RecomputeContributionsButton/>
                 </div>
@@ -408,8 +412,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
     const center = <div className="flex flex-col items-center w-full">
         <div className="w-full mt-8">
-            {showingNeedAccountPopup && <NeedAccountToEditPopup 
-            onClose={() => {setShowingNeedAccountPopup(false)}}/>}
+            <NeedAccountPopup
+            text="Necesitás una cuenta para hacer ediciones." 
+            open={showingNeedAccountPopup}
+            onClose={() => {setShowingNeedAccountPopup(false)}}/>
 
             <div className="flex flex-col rounded content-container p-4 mb-8">
                 <div className="text-[var(--text-light)] text-sm mt-1 mb-2">

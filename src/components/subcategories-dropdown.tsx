@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ToggleButton } from "./toggle-button";
 import { ModalBelow } from "./modal-below";
+import { Button } from "@mui/material";
 
 const SubcategoriesList = ({ nextCategories, route, setRoute }: { nextCategories: string[], route: string[], setRoute: (r: string[]) => void }) => {
     return <div className="p-1 space-y-1">{nextCategories.map((nextCategory: string, index: number) => (
@@ -18,24 +19,28 @@ const SubcategoriesList = ({ nextCategories, route, setRoute }: { nextCategories
 };
 
 export const SubcategoriesDropDown = ({ nextCategories, route, setRoute, selected }: { nextCategories: string[], route: string[], setRoute: (v: string[]) => void, selected: string }) => {
-    const [viewSubcategories, setViewSubcategories] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
 
     return (
         <div className="relative">
-            <ToggleButton
-                setToggled={setViewSubcategories}
-                toggled={viewSubcategories}
-                text={route.length > 0 ? "Subcategoría" : "Categoría"}
-            />
-            {viewSubcategories && (
-                <ModalBelow className="space-y-1 mt-1 bg-[var(--background)] border rounded" open={viewSubcategories} setOpen={setViewSubcategories}>
+            <Button
+                variant="outlined"
+                onClick={(e) => {setAnchorEl(e.target)}}
+            >
+                {route.length > 0 ? "Subcategoría" : "Categoría"}
+            </Button>
+            <ModalBelow
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={() => {setAnchorEl(null)}}>
+                <div className="space-y-1 mt-1 bg-[var(--background)] border rounded">
                     <SubcategoriesList
                         route={route}
                         setRoute={setRoute}
                         nextCategories={nextCategories}
                     />
-                </ModalBelow>
-            )}
+                </div>
+            </ModalBelow>
         </div>
     );
 };

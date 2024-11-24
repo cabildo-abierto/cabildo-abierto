@@ -1,5 +1,4 @@
-
-import { CustomLink as Link } from './custom-link';
+import { IrAlInicioButton } from "./ir-al-inicio";
 import { monthly_visits_limit } from "./utils";
 
 
@@ -15,9 +14,7 @@ export const NoVisitsAvailablePopup: React.FC<any> = ({ children }) => {
                     <h3 className="py-4 text-lg">Creá una cuenta para seguir leyendo</h3>
                     <div>Ya leíste más de {monthly_visits_limit} contenidos este mes, registrate para seguir leyendo. ¡Es gratis!</div>
                     <div className="flex justify-center items-center py-8 space-x-4">
-                        <Link href="/" className="gray-btn">
-                            Ir al inicio
-                        </Link>
+                        <IrAlInicioButton/>
                     </div>
                 </div>
             </div>

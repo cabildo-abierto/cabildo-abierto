@@ -4,7 +4,8 @@ import { Metadata } from "next"
 
 
 export const metadata: Metadata = {
-    title: 'Escribir publicación rápida'
+    title: 'Escribir publicación rápida',
+    description: 'Escribir una publicación rápida en Cabildo Abierto.'
 }
 
 

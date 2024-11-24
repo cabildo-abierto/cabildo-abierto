@@ -1,13 +1,15 @@
 import { Metadata } from "next";
 import { HomePage } from "../components/home-page";
-
+import { AuthPage } from "../components/auth-page";
 
 export const metadata: Metadata = {
     title: 'Cabildo Abierto',
-    description: 'Un nuevo medio para la discusión pública argentina. Abrimos la información a discusión.'
+    description: 'Una plataforma para la discusión pública. Sumate a conectar con otros y construir conocimiento colectivo.'
 }
 
-
 export default function Page({searchParams}: {searchParams: {code?: string, error_description?: string}}) {
+    if(searchParams.code){
+        return <AuthPage state="login"/>
+    }
     return <HomePage searchParams={searchParams}/>
 }

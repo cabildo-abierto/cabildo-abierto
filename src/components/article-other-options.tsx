@@ -1,29 +1,24 @@
 "use client"
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { ReactNode, useEffect, useState } from 'react';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { useState } from 'react';
 
-import { RedFlag, WriteButtonIcon } from './icons';
-import { CreateFakeNewsReportModal } from './create-fake-news-report';
+import { WriteButtonIcon } from './icons';
 import { ModalBelow } from './modal-below';
-import { EditCommentModal } from './edit-comment-modal';
-import { useRouter } from 'next/navigation';
-import { articleUrl, contentUrl, editContentUrl, hasEditPermission } from './utils';
+import { hasEditPermission } from './utils';
 import { useUser } from '../app/hooks/user';
-import { deleteContent } from '../actions/admin';
-import ShareIcon from '@mui/icons-material/Share';
-import { Button, IconButton } from '@mui/material';
-import StateButton, { StateButtonClickHandler } from './state-button';
-import useSWR, { useSWRConfig } from 'swr';
+import { IconButton } from '@mui/material';
+import StateButton from './state-button';
+import { useSWRConfig } from 'swr';
 import { ContentOptionsChoiceButton } from './content-options-button';
 import { BaseFullscreenPopup } from './base-fullscreen-popup';
 import { inputClassName } from './signup-form';
 import { validEntityName } from './write-button';
 import { AcceptButtonPanel } from './accept-button-panel';
 import { changeEntityName } from '../actions/entities';
+import { NeedAccountPopup } from './article-page';
 
 
-const NewNameModal = ({entity, onClose}: {entity: {id: string, name: string, protection: string}, onClose: () => void}) => {
+const NewNameModal = ({entity, open, onClose}: {entity: {id: string, name: string, protection: string}, onClose: () => void, open: boolean}) => {
     const [name, setName] = useState(entity.name)
     const {user} = useUser()
     const {mutate} = useSWRConfig()
@@ -37,24 +32,28 @@ const NewNameModal = ({entity, onClose}: {entity: {id: string, name: string, pro
         return result
     }
 
+    if(!user){
+        return <NeedAccountPopup text="Necesitás una cuenta para hacer ediciones." open={open} onClose={onClose}/>
+    }
+
     const editPermissions = hasEditPermission(user, entity.protection)
 
     if(!editPermissions){
-        return <AcceptButtonPanel onClose={onClose}>
-            <div className="sm:text-lg text-base">
+        return <AcceptButtonPanel open={true} onClose={onClose}>
+            <div className="sm:text-lg text-base text-center">
                 <p>Necesitás permisos de edición para hacer un cambio de nombre.</p><p>Podés sugerir el cambio en un comentario.</p>
             </div>
         </AcceptButtonPanel>
     }
 
-    return <BaseFullscreenPopup onClose={onClose} closeButton={true}>
-        <div className="flex flex-col items-center justify-between p-4">
+    return <BaseFullscreenPopup open={true} onClose={onClose} closeButton={true}>
+        <div className="flex flex-col items-center justify-between">
         <h2 className="">
             Cambio de nombre
         </h2>
 
         <div className="mt-8 lg:w-96 w-72 px-4">
-            <div className="lg:text-base text-sm text-[var(--text-light)] mb-2">
+            <div className="lg:text-base text-sm text-[var(--text-light)] mb-2 flex justify-center">
                 Ingresá un nuevo nombre
             </div>
         <input
@@ -64,7 +63,7 @@ const NewNameModal = ({entity, onClose}: {entity: {id: string, name: string, pro
         />
         </div>
         
-        <div className="mt-4 pb-2">
+        <div className="mt-4 pb-4">
         {!valid && <div className="text-[var(--text-light)] h-8 text-sm">Entre 2 y 100 caracteres y sin &quot;/&quot;.</div>}
         {valid && <div className="h-8">&nbsp;</div>}
         <StateButton
@@ -105,11 +104,11 @@ export const ContentOptionsDropdown = ({
                 <div className="whitespace-nowrap">Cambiar nombre</div>
             </ContentOptionsChoiceButton>    
         </div>}
-        {isNewNameModalopen && <NewNameModal
+        <NewNameModal
             entity={entity}
             onClose={() => {onClose(); setIsNewNameModalOpen(false)}}
-        
-        />}
+            open={isNewNameModalopen}
+        />
     </div>
 }
 
@@ -125,6 +124,7 @@ type ContentOptionsButtonProps = {
 
 export const ArticleOtherOptions = ({entity, optionList}: ContentOptionsButtonProps) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null)
 
     function onClose() {
         setIsDropdownOpen(false)
@@ -134,15 +134,16 @@ export const ArticleOtherOptions = ({entity, optionList}: ContentOptionsButtonPr
         <IconButton
             size="small"
             color="inherit"
-            onClick={(e) => {e.preventDefault(); e.stopPropagation(); setIsDropdownOpen(prev => !prev)}}
+            onClick={(e) => {e.preventDefault(); e.stopPropagation(); setAnchorEl(e.target); setIsDropdownOpen(prev => !prev)}}
         >
             <MoreHorizIcon fontSize="small" />
         </IconButton>
 
         <ModalBelow
             open={isDropdownOpen}
-            setOpen={setIsDropdownOpen}
-            className=""
+            onClose={() => {setIsDropdownOpen(false)}}
+            anchorEl={anchorEl}
+            noShadow={true}
         >
             <ContentOptionsDropdown
                 entity={entity}

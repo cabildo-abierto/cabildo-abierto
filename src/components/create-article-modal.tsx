@@ -10,10 +10,11 @@ import { articleUrl } from "./utils";
 import { ErrorMsg, validEntityName } from "./write-button";
 import { BaseFullscreenPopup } from "./base-fullscreen-popup";
 import { DidYouKnow } from "./did-you-know";
+import { inputClassName } from "./signup-form";
 
 
 
-export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
+export const CreateArticleModal = ({ open, onClose }: { open: boolean, onClose: () => void }) => {
     const user = useUser();
     const [entityName, setEntityName] = useState("");
     const [errorOnCreate, setErrorOnCreate] = useState(null)
@@ -21,12 +22,12 @@ export const CreateArticleModal = ({ onClose }: { onClose: () => void }) => {
     const router = useRouter();
     const [goToArticle, setGoToArticle] = useState(true);
 
-    return <BaseFullscreenPopup closeButton={true} onClose={onClose}>
-        <div className="space-y-3 px-6 mb-2">
+    return <BaseFullscreenPopup open={open} closeButton={true} onClose={onClose}>
+        <div className="space-y-3 px-6 mb-2 flex flex-col items-center">
             <h3>Nuevo tema</h3>
             <div>
                 <input
-                    className="custom-input"
+                    className={inputClassName}
                     value={entityName}
                     onChange={(e) => setEntityName(e.target.value)}
                     placeholder="Título"
