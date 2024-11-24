@@ -13,7 +13,7 @@ import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
 
 
-export const HomePage = ({ searchParams, state }: { searchParams: { code?: string, error_description?: string }, state: "login" | "signup" | "none" }) => {
+export const HomePage = ({ searchParams }: { searchParams: { code?: string, error_description?: string }}) => {
     const [invalidLink, setInvalidLink] = useState(searchParams.error_description == "Email link is invalid or has expired" || searchParams.error_description == "confirm")
     const router = useRouter()
     const user = useUser() // para prefetchearlo
