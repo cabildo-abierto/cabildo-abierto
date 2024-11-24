@@ -64,7 +64,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
     
     return <div className="flex items-center w-screen justify-between">
         <div className="flex items-center sm:w-72 text-gray-900">
-            {((!searchBarOpen && user.user) || wideScreen) && <div className="ml-1"><TopbarLogo/></div>}
+            {((!searchBarOpen && user.user) || wideScreen) && <div className="ml-1"><TopbarLogo somethingSpecial={true}/></div>}
             {(!searchBarOpen || wideScreen) && <OpenSidebarButton onClick={onOpenSidebar}/>}
             {(!searchBarOpen || wideScreen) && <FeedButton />}
             {((!searchBarOpen && user.user) || wideScreen) && <WriteButton />}
