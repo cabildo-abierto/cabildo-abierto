@@ -66,7 +66,6 @@ export const ShowContributors = ({entityId, userId}:
 
     if(lastVersion.accCharsAdded == 0){
         return <div className="flex">
-            <span className="mr-1">Creado por</span>
             <div className="flex space-x-2 link">
                 <Link href={"/perfil/"+firstVersion.author.id}>@{firstVersion.author.id}</Link>
             </div>.

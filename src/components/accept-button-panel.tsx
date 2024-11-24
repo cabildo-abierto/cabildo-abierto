@@ -3,8 +3,8 @@ import { BaseFullscreenPopup } from "./base-fullscreen-popup";
 import { Button } from "@mui/material";
 
 
-export const AcceptButtonPanel = ({children, buttonText="Aceptar", onClose}: {children: ReactNode, buttonText?: string, onClose: () => void}) => {
-    return <BaseFullscreenPopup>
+export const AcceptButtonPanel = ({children, buttonText="Aceptar", onClose, open}: {children: ReactNode, buttonText?: string, onClose: () => void, open: boolean}) => {
+    return <BaseFullscreenPopup open={open}>
         <div className="pt-8 px-8 pb-4">
             {children}
 

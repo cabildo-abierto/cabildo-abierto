@@ -15,7 +15,7 @@ export function popularityScore(content: {childrenTree: {authorId: string}[], au
 
     //const daysSinceCreation = (new Date().getTime() - new Date(content.createdAt).getTime()) / (1000*60*60*24)
 
-    return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount * viewWeight, 1)]
+    return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount * viewWeight, 1), content._count.reactions, commentators.size, content.uniqueViewsCount]
 }
     
 function isPopularEnough(content: {childrenTree: {authorId: string}[], author: {id: string}, _count: {reactions: number}}){
@@ -73,6 +73,7 @@ export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, se
 
     const byPopularityFeed = feedWithScore.sort(listOrderDesc).map(({content}) => (content))
 
+
     const popularityFeedComponent = <Feed feed={{feed: byPopularityFeed, isLoading: false, isError: false}} noResultsText={noResultsText}/>
 
     const recentFeedComponent = <Feed feed={{feed: filteredFeed, isLoading: false, isError: false}} noResultsText={noResultsText}/>
@@ -122,9 +123,9 @@ export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, se
                 </button>
             </div>}
 
-        {order == "Populares" && searchState.value.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={infoPopular}/>}
+        {order == "Populares" && !searchState.searching && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={infoPopular}/>}
 
-        {order == "Recientes" && searchState.value.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text="Publicaciones en orden cronológico inverso (primero las más recientes)"/>}
+        {order == "Recientes" && !searchState.searching && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text="Publicaciones en orden cronológico inverso (primero las más recientes)"/>}
         </div>
         {order == "Populares" && popularityFeedComponent}
         {order == "Recientes" && recentFeedComponent}

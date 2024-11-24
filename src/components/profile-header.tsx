@@ -45,10 +45,13 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
         return {}
     }
 
+    const smallScreen = window.innerWidth < 640
+
     function optionsNodes(o: string, isSelected: boolean){
         return <Button
             variant="text"
             color="inherit"
+            size={smallScreen ? "small" : "medium"}
             fullWidth={true}
             sx={{textTransform: "none",
                 background: (isSelected ? "var(--secondary-light)" : undefined)
@@ -107,33 +110,38 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                 text={profileUser.description}
             />
         </div>
-        <div className="ml-2 flex mb-1 items-center">
-            <div>
-            <span className="font-bold">{updatedFollowerCount}</span> {updatedFollowerCount == 1 ? "seguidor" : "seguidores"}
+        <div className="flex sm:flex-row flex-col px-2 space-y-1 sm:space-y-0 sm:space-x-4 mb-1">
+
+            <div className="flex space-x-2 sm:text-base text-sm items-center">
+                <div className="">
+                    <span className="font-bold">{updatedFollowerCount}</span> {updatedFollowerCount == 1 ? "seguidor" : "seguidores"}
+                </div>
+                <div className="sm:text-base text-sm">
+                    <span className="font-bold">{followingCount}</span> siguiendo
+                </div>
             </div>
-            <div className="px-4">
-            <span className="font-bold">{followingCount}</span> siguiendo
-            </div>
-            <div className="px-4 mb-1">
+
+            <div className="flex items-center text-sm sm:text-base">
+
                 <FixedFakeNewsCounter count={profileUser._count.contents} onClick={() => {setSelected("Publicaciones"); setShowingFakeNews(true)}}/>
-            </div>
-            <div className="ml-2 text-sm rounded-lg px-2 py-1 items-end justify-center cursor-default" title="Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
-                <span className="text-gray-600 mb-1">
-                    <ArticleIcon/>
-                </span>
-                <PermissionLevel
-                    level={profileUser.editorStatus}
-                    className="text-[var(--text-light)]"
-                />
+
+                <div className="ml-2 text-sm rounded-lg px-2 py-1 flex items-center justify-center cursor-default" title="Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
+                    <span className="text-gray-600 mb-1">
+                        <ArticleIcon/>
+                    </span>
+                    <PermissionLevel
+                        level={profileUser.editorStatus}
+                        className="text-[var(--text-light)]"
+                    />
+                </div>
             </div>
         </div>
         <div>
             <SelectionComponent
                 selected={selected}
                 onSelection={(v) => {setSelected(v); setShowingFakeNews(false)}}
-                options={["Publicaciones", "Respuestas", "Ediciones en temas"]}
+                options={["Publicaciones", "Respuestas", smallScreen ? "Ediciones" : "Ediciones en temas"]}
                 optionsNodes={optionsNodes}
-                className="profile-feed"
             />
         </div>
 

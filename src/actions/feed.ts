@@ -12,7 +12,9 @@ const revalidateFeedTime = 10*60
 
 
 export const getRouteFeed = (route: string[], userId?: string) => {
+    console.log("getting route feed", userId)
     return unstable_cache(async () => {
+        console.log("using cache", userId)
         let feed: ContentProps[] = await db.content.findMany({
             select: {
                 id: true,
@@ -180,7 +182,10 @@ export const getRouteFeed = (route: string[], userId?: string) => {
 
 export const getRouteFollowingFeed = async (route: string[], userId?: string) => {
     if(!userId) userId = await getUserId()
-    if(!userId) return []
+    if(!userId) {
+        return []
+    }
+    console.log("userId after retry", userId)
     return unstable_cache(async () => {
         const {user, error} = await getUserById(userId)
         if(error) return {error}

@@ -19,17 +19,29 @@ export const Logo = ({className, opacity=1}: {className: string, opacity?: numbe
 }
 
 
-export function TopbarLogo() {
+export function TopbarLogo({className="w-8 h-8", somethingSpecial=false}: {className?: string, somethingSpecial?: boolean}) {
     return <Link href="/">
-        <IconButton>
+        <IconButton className="relative">
             <Image
                 src={pathLogo}
                 alt="Loading..."
                 width={320}
                 height={320}
                 priority={true}
-                className="w-8 h-8 rounded-sm"
+                className={`rounded-sm ${className}`}
             />
+            {somethingSpecial && (
+                <div className="h-[16px] w-[16px] absolute inset-0 m-auto" title="Racing salió campeón de la Sudamericana.">
+                <Image
+                    src="/racing-logo.png"
+                    alt="Special Logo"
+                    width={320}
+                    height={320}
+                    priority={true}
+                    className={`rounded-sm`}
+                />
+                </div>
+            )}
         </IconButton>
     </Link>
 }

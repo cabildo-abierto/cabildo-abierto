@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { AuthForm, PasswordInput } from "../../../components/signup-form";
 import { ThreeColumnsLayout } from "../../../components/three-columns";
 import { updatePw } from "../../../actions/auth";
-import { CustomLink as Link } from '../../../components/custom-link';
+import { IrAlInicioButton } from "../../../components/ir-al-inicio";
 
 function NewPwButton() {
     const {pending} = useFormStatus()
@@ -29,9 +29,7 @@ const PasswordChangeSuccessful = () => {
             <div className="bg-[var(--content)] rounded border-2 border-black p-8 z-10 text-center max-w-lg">
                 <div className="py-4 text-lg">Se cambió la contraseña correctamente.</div>
                 <div className="flex justify-center items-center py-8 space-x-4">
-                    <Link href="/inicio" className="gray-btn">
-                        Ir al inicio
-                    </Link>
+                    <IrAlInicioButton/>
                 </div>
             </div>
         </div>
