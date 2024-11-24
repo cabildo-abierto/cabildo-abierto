@@ -1,5 +1,4 @@
 import { AuthPage } from "../../components/auth-page";
-import { HomePage } from "../../components/home-page";
 
 
 

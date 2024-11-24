@@ -258,11 +258,13 @@ export const AuthForm = ({children, action, state, title}: {children: ReactNode,
 const ConfirmLinkSentPopup = ({open, onClose, email}: {open: boolean, onClose: any, email: string}) => {
     return (
         <BaseFullscreenPopup open={open}>
+            <div className="flex flex-col justify-center text-center">
             <div className="px-6 pt-6 pb-12">
             <div className="mt-4 text-lg">¡Gracias por registrarte!</div>
             <div className="mb-4 text-lg">En breve debería llegarte un mail de confirmación.</div>
             <ResendEmailButton email={email} initializeSent={true}/>
             <div className="mt-4">Cerrá esta ventana cuando hayas recibido el mail de verificación.</div>
+            </div>
             </div>
         </BaseFullscreenPopup>
     );
