@@ -54,7 +54,7 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
     </div>
 
     return <div className="w-full">
-        {user.user != undefined && !closedIntroPopup && <TutorialPopup onClose={() => {setClosedIntroPopup(true)}}/>}
+        {false && user.user != undefined && !closedIntroPopup && <TutorialPopup onClose={() => {setClosedIntroPopup(true)}}/>}
         
         <MainFeedHeader
             route={route}

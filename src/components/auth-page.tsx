@@ -1,28 +1,39 @@
 "use client"
 import { CustomLink as Link } from './custom-link';
+import Footer from './footer';
 import LoginForm from "./login-form"
+import { Logo, TopbarLogo } from './logo';
+import { LogoAndSlogan } from './presentation';
 import SignupForm from "./signup-form"
 
 
-export const AuthPage = ({loggingIn, setLoggingIn}: {loggingIn?: boolean, setLoggingIn: (v: boolean) => void}) => {
-    
-    return <div className="flex flex-col items-center justify-center py-12 h-full">
+export const AuthPage = ({state}: {state: "login" | "signup"}) => {
+
+    return <div className="flex flex-col items-center h-screen justify-between">
+
+        <div className="flex flex-col h-full items-center justify-center">
+            <div className="mb-8">
+            <TopbarLogo className="w-20 h-20 m-2"/>
+            </div>
         {
-            !loggingIn ? <>
+
+            state == "signup" ? <>
             <SignupForm/>
             <div className='mt-4 text-center pb-4'>
-                ¿Ya tenés una cuenta? <button className="link2" onClick={() => {setLoggingIn(true)}}>Iniciá sesión</button>.
+                ¿Ya tenés una cuenta? <Link className="link2" href="/login">Iniciá sesión</Link>.
             </div>
             </>
-            :<>
+            : <>
             <LoginForm/>
             <div className='mt-2 text-center'>
                 <Link href="/recuperar" className="link2">Recuperar contraseña</Link>.
             </div>
             <div className='text-center'>
-                ¿No tenés una cuenta? <button className="link2" onClick={() => {setLoggingIn(false)}}>Registrate</button>.
+                ¿No tenés una cuenta? <Link className="link2" href="/signup">Registrate</Link>.
             </div>
             </>
         }
+        </div>
+        <Footer/>
     </div>
 }
