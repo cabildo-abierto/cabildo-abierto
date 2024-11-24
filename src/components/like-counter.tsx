@@ -32,7 +32,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
 }) => {
     const {user} = useUser()
     const entityId = content.parentEntityId
-    const initiallyLiked = content.reactions && content.reactions.length > 0
+    const initiallyLiked = content.reactions != undefined && content.reactions.length > 0
     const [liked, setLiked] = useState(initiallyLiked)
 
     let delta = 0
