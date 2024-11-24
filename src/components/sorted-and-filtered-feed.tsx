@@ -123,9 +123,9 @@ export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, se
                 </button>
             </div>}
 
-        {order == "Populares" && searchState.value.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={infoPopular}/>}
+        {order == "Populares" && !searchState.searching && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={infoPopular}/>}
 
-        {order == "Recientes" && searchState.value.length == 0 && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text="Publicaciones en orden cronológico inverso (primero las más recientes)"/>}
+        {order == "Recientes" && !searchState.searching && <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text="Publicaciones en orden cronológico inverso (primero las más recientes)"/>}
         </div>
         {order == "Populares" && popularityFeedComponent}
         {order == "Recientes" && recentFeedComponent}
