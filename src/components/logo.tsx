@@ -19,7 +19,7 @@ export const Logo = ({className, opacity=1}: {className: string, opacity?: numbe
 }
 
 
-export function TopbarLogo() {
+export function TopbarLogo({className="w-8 h-8"}: {className?: string}) {
     return <Link href="/">
         <IconButton>
             <Image
@@ -28,7 +28,7 @@ export function TopbarLogo() {
                 width={320}
                 height={320}
                 priority={true}
-                className="w-8 h-8 rounded-sm"
+                className={"rounded-sm " + className }
             />
         </IconButton>
     </Link>
