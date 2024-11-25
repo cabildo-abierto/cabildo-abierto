@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from 'react';
 import ReadOnlyEditor from './editor/read-only-editor';
-import { useUser } from '../app/hooks/user';
+import { useBskyUser, useUser } from '../app/hooks/user';
 import { LoadingScreen } from './loading-screen';
 import { SelectUsernamePopup } from './select-username-popup';
 

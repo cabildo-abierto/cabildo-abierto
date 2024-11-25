@@ -1,4 +1,5 @@
 "use client"
+import { BlueskyLogin } from './bsky-login';
 import { CustomLink as Link } from './custom-link';
 import Footer from './footer';
 import LoginForm from "./login-form"
@@ -24,13 +25,7 @@ export const AuthPage = ({state}: {state: "login" | "signup"}) => {
             </div>
             </>
             : <>
-            <LoginForm/>
-            <div className='mt-2 text-center'>
-                <Link href="/recuperar" className="link2">Recuperar contraseña</Link>.
-            </div>
-            <div className='text-center'>
-                ¿No tenés una cuenta? <Link className="link2" href="/signup">Registrate</Link>.
-            </div>
+            <BlueskyLogin/>
             </>
         }
         </div>

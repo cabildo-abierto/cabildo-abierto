@@ -16,12 +16,12 @@ export type LoginFormState = {
   error?: string
 }
 
-export async function login(state: any, formData: FormData): Promise<LoginFormState> {
+export async function login(email: string, password: string): Promise<LoginFormState> {
   const supabase = createClient()
 
   const validatedFields = LoginFormSchema.safeParse({
-    email: formData.get('email'),
-    password: formData.get('password'),
+    email: email,
+    password: password,
   })
 
   if(!validatedFields.data) {
