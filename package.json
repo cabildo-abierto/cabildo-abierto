@@ -22,7 +22,10 @@
   },
   "dependencies": {
     "@ancientec/selection-serializer": "^1.1.1",
+    "@atproto/api": "^0.13.18",
+    "@atproto/identity": "^0.4.3",
     "@atproto/oauth-client-node": "^0.2.1",
+    "@atproto/syntax": "^0.3.1",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@floating-ui/react-dom": "^2.1.2",

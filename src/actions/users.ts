@@ -1159,3 +1159,26 @@ export async function removeSubscriptions(){
         }
     })
 }
+
+
+export async function createNewCAUserForBskyAccount(did: string){
+    try {
+        const exists = await db.user.findFirst({
+            where: {id: did}
+        })
+        if(!exists){
+            console.log("Creating user")
+            const result = await db.user.create({
+                data: {
+                    id: did,
+                    name: did
+                }
+            })
+        } else {
+            console.log("User exists.")
+        }
+    } catch {
+        return {error: "Error al crear el usuario"}
+    }
+    return {}
+}

@@ -31,6 +31,7 @@ import { BiUpvote } from "react-icons/bi";
 import { BiSolidUpvote } from "react-icons/bi";
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import ArrowRightIconMui from '@mui/icons-material/ArrowRight';
+import Image from 'next/image'
 
 
 export const RedFlag = ({fontSize = "inherit"}: {fontSize?: FontSizeType}) => {
@@ -252,4 +253,15 @@ export const DonateIcon = ({fontSize="inherit"}: {fontSize?: FontSizeType}) => {
 
 export const ArrowRightIcon = () => {
     return <ArrowRightIconMui/>
+}
+
+
+export const BlueskyLogo = ({className="w-8 h-8"}: {className?: string}) => {
+    return <Image
+        src="/bluesky-logo.png"
+        alt="Bluesky logo"
+        width={100}
+        height={100}
+        className={className}
+    />
 }

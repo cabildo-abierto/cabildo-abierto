@@ -10,7 +10,7 @@ export default function Footer() {
     const [showingContactUs, setShowingContactUs] = useState(false)
 
     return <footer className="border-gray-300 px-2 w-screen text-gray-800 flex items-center justify-center text-center text-[var(--text-light)] text-xs sm:text-sm">
-        <div className="lg:space-x-6 flex flex-col lg:flex-row">
+        <div className="sm:space-x-6 flex flex-col sm:flex-row">
             <div className=""><button className="link3" onClick={() => {setShowingContactUs(true)}}>
                 Contacto
             </button>

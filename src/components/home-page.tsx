@@ -11,6 +11,8 @@ import Link from "next/link";
 import { Button } from "@mui/material";
 import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
+import { BlueskyLogo } from "./icons";
+import { articleUrl } from "./utils";
 
 
 export const HomePage = ({ searchParams }: { searchParams: { code?: string, error_description?: string }}) => {
@@ -35,7 +37,7 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
 
                 <LogoAndSlogan />
 
-                <div className="flex flex-col space-y-2 mt-12">
+                <div className="flex flex-col items-center space-y-2 mt-12">
 
                     <Link href="/signup">
                         <Button
@@ -45,13 +47,12 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                             disableElevation={true}
                             sx={{
                                 textTransform: "none",
-                                width: !isMobile ? "240px" : "170px"
+                                width: !isMobile ? "300px" : "170px"
                             }}
                         >
-                            <div className="title">Crear una cuenta</div>
+                            <div className="title">Crear cuenta</div>
                         </Button>
                     </Link>
-
                     <Link href="/login">
                         <Button
                             color="primary"
@@ -60,12 +61,16 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                             disableElevation={true}
                             sx={{
                                 textTransform: "none",
-                                width: !isMobile ? "240px" : "170px"
+                                width: !isMobile ? "300px" : "170px"
                             }}
                         >
                             <div className="title">Iniciar sesión</div>
                         </Button>
                     </Link>
+                    <div className="text-center inline-block text-[var(--text-light)]">
+                        <span className="mr-1">Podés iniciar sesión tu cuenta de </span>
+                        <div className="inline-block"><Link className="text-[#0481f7] flex items-center" href="https://bsky.social">Bluesky<BlueskyLogo className="w-8 h-8"/></Link></div>
+                    </div>
                 </div>
             </div>
             
@@ -103,7 +108,7 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
             </div>
 
             <div className="flex flex-col items-center space-x-6 md:mt-64 mt-32">
-                <h2 className="text-center">Todo está abierto a discusión</h2>
+                <h2 className="text-center">Todo abierto a discusión</h2>
                 <div className="mt-16 flex flex-col md:flex-row justify-center md:space-y-0 md:space-x-10 space-y-16">
                     <div className="flex flex-col items-center text-center">
                         <h4>Comentá sobre el texto</h4>
@@ -147,7 +152,7 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                 </div>
             </div>
 
-            <div className="flex flex-col justify-center items-center text-center px-2 mt-48">
+            <div className="flex flex-col justify-center items-center text-center mx-2 mt-48 rounded-lg">
                 <h2><span className="">Vos elegís</span> el contenido que consumís</h2>
                 <div className="text-lg max-w-[500px] mt-8">No hay publicidad y los algoritmos usados van a ser siempre transparentes, configurables y sin personalización automática.</div>
             </div>
@@ -173,10 +178,6 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                 </div>
             </div>
 
-            {false && <div>
-                Conexión con Bluesky
-            </div>}
-
             <div className="flex flex-col-reverse items-center md:flex-row md:space-x-16 mt-48 mb-32">
                 <div className="mt-8 md:mt-0">
                     <Image
@@ -195,6 +196,58 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                     <p className="mt-6 text-lg">
                         Con eso, remuneramos a cada autor en función del valor que generó en otros usuarios.
                     </p>
+                </div>
+            </div>
+
+
+            <div className="mt-12 mb-32 flex max-w-[800px] w-full justify-center">
+                <div className="">
+                <div className="relative w-[400px]">
+                    <div className="absolute left-0 top-[-30px]">
+                        <Image
+                            src="/connected.png"
+                            width={400}
+                            height={300}
+                            alt="Red"
+                            className="w-[350px]"
+                        />
+                    </div>
+                    <div className="absolute z-2 left-[200px] top-[50px]">
+                        <Image
+                            src="/logo.svg"
+                            width={400}
+                            height={400}
+                            alt="Logo de Cabildo Abierto"
+                            className="rounded-lg shadow-lg w-32 h-auto"
+                        />
+                    </div>
+                    <div className="absolute z-2 left-[0px] top-[10px]">
+                        <Link href="https://bsky.social">
+                        <BlueskyLogo className="w-48 h-auto"/>
+                        </Link>
+                    </div>
+                    <div className="absolute z-2 left-[100px] top-[220px] text-2xl">
+                        <Link href="https://atproto.com">
+                        <span className="text-[#0481f7]">@AT</span><span>Protocol</span>
+                        </Link>
+                    </div>
+                </div>
+                </div>
+                <div>
+                    <h3 className="">
+                        Abiertos en serio.
+                    </h3>
+                    <div className="text-lg mt-4">
+                        <p>
+                            Cabildo Abierto usa <span className="">AT</span><span>Protocol</span>, el mismo sistema que Bluesky, que permite que nadie más que vos sea dueño de tus datos.
+                        </p>
+                        <p className="mt-4">
+                            Gracias a eso, te podés mover libremente entre plataformas sin perder nada. Las cuentas y contenidos se comparten.
+                        </p>
+                        <p className="link mt-4 text-right">
+                            <Link href={articleUrl("ATProtocol")}>Leer más.</Link>
+                        </p>
+                    </div>
                 </div>
             </div>
 
