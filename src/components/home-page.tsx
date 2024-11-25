@@ -132,7 +132,7 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                         />
                     </div>
                     <div className="flex flex-col items-center">
-                        <h4>O hacé publicaciones rápidas</h4>
+                        <h4>Hacé publicaciones rápidas</h4>
                         <div className="text-lg">
                             Hasta 300 caracteres.
                         </div>
@@ -165,10 +165,10 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                         <div className="text-gray-400 text-sm">Imagen generada por Midjourney.</div>
                     </div>
                     <div className="max-w-[400px] h-full flex flex-col justify-center text-lg text-center">
-                        <h2 className="">El cabildo es solo para seres humanos</h2>
-                        <p className="mt-4">Verificamos que los usuarios sean personas reales con su DNI.</p>
+                        <h2 className="">El cabildo es solo para personas reales</h2>
+                        <p className="mt-4">Para participar en la discusión tenés que validar tu cuenta con una foto del DNI.</p>
                         <p className="mt-4">Después de la verificación tu cuenta puede ser anónima.</p>
-                        <p className="mt-4">Gracias a esto, podemos (por ejemplo) mostrarte cuántas personas reales distintas vieron una publicación, o le dieron me gusta.</p>
+                        <p className="mt-4">Gracias a esto, todas las interacciones y métricas de popularidad son representativas.</p>
                     </div>
                 </div>
             </div>
@@ -193,7 +193,7 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                         Cabildo Abierto se financia con aportes voluntarios.
                     </p>
                     <p className="mt-6 text-lg">
-                        Con eso, remuneramos a cada autor en función del valor que generó en otros usuarios.
+                        Con eso, remuneramos a cada autor en función de su contribución, según el valor que le dan otros usuarios.
                     </p>
                 </div>
             </div>
