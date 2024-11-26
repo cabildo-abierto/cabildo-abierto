@@ -67,8 +67,11 @@ export async function createEntity(name: string, userId: string){
 }
 
 
-function addToContributionList(l: [string, number][], author: string, value: number){
+function addToContributionList(l: [string, number][] | undefined, author: string, value: number){
     let wasAuthor = false
+
+    if(!l) l = []    
+
     for(let i = 0; i < l.length; i++){
         if(l[i][0] == author){
             wasAuthor = true
@@ -325,8 +328,9 @@ export const updateEntityCategoriesOrSearchkeys = async (entityId: string, userI
     } else {
         try {
             contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId, false))
-        } catch {
-            return {error: "Error al actualizar el tema."}
+        } catch (err) {
+            console.log("Error", err)
+            return {error: "Error al actualizar el tema. e01."}
         }
     }
 
@@ -373,7 +377,7 @@ export const updateEntityCategoriesOrSearchkeys = async (entityId: string, userI
             }
         })
     } catch {
-        return {error: "Error al actualizar el tema."}
+        return {error: "Error al actualizar el tema. e02."}
     }
 
     const {error: notifyError} = await notifyMentions(mentions, newContent.id, userId, true)
