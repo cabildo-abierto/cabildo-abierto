@@ -23,6 +23,7 @@ import { NoVisitsAvailablePopup } from "./no-visits-popup";
 import { takeAuthorship } from "../actions/admin";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "./loading-spinner";
+import assert from "assert";
 
 export function id2url(id: string){
     return "/perfil/" + id.replace("@", "")

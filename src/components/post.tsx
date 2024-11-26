@@ -8,6 +8,7 @@ import { decompress } from "./compression";
 import { CommentProps } from "../app/lib/definitions";
 import { useUser } from "../app/hooks/user";
 import { ContentOptionsButton } from "./content-options-button";
+import { ReadingTime } from "./reading-time";
 
 export const Post: React.FC<{
     content: {
@@ -45,12 +46,13 @@ export const Post: React.FC<{
             </div>}
         </div>
         <div className="">
-            <h1 className="sm:text-xl text-lg">{content.title}</h1>
+            <h1 className="sm:text-4xl text-lg">{content.title}</h1>
         </div>
         <div className="flex justify-between mt-4">
-            <div className="sm:space-x-1 text-sm sm:text-base flex flex-col sm:flex-row">
+            <div className="sm:space-x-1 text-sm sm:text-base flex flex-col sm:flex-row sm:items-center">
                 <span><Authorship content={content} onlyAuthor={true}/>, <DateSince date={content.createdAt}/>.</span>
                 <span className="first-letter:capitalize"><TextViewsCounter content={content}/>.</span>
+                <ReadingTime content={content}/>
             </div>
             <div className="flex items-center">
                 <LikeCounter
