@@ -2,8 +2,7 @@
 import { CustomLink as Link } from './custom-link';
 import Footer from './footer';
 import LoginForm from "./login-form"
-import { Logo, TopbarLogo } from './logo';
-import { LogoAndSlogan } from './presentation';
+import { TopbarLogo } from './logo';
 import SignupForm from "./signup-form"
 
 
