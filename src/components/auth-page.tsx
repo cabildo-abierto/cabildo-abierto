@@ -1,6 +1,5 @@
 "use client"
 import { CustomLink as Link } from './custom-link';
-import Footer from './footer';
 import LoginForm from "./login-form"
 import { TopbarLogo } from './logo';
 import SignupForm from "./signup-form"
@@ -33,6 +32,5 @@ export const AuthPage = ({state}: {state: "login" | "signup"}) => {
             </>
         }
         </div>
-        <Footer/>
     </div>
 }
