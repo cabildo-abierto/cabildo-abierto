@@ -1,10 +1,10 @@
 "use client"
 import { useNotifications, useUser } from "../app/hooks/user"
-import { NotificationsIcon } from "./icons"
 import { useState } from "react"
 import { NotificationsPanel } from "./notificationsPanel"
 import { createPortal } from "react-dom"
 import { IconButton } from "@mui/material"
+import { NotificationsIcon } from "./icons/notifications-icon"
 
 
 function count(a: any[], filter: (v: any) => boolean){

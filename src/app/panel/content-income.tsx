@@ -2,7 +2,6 @@
 import { useEntity } from "../hooks/entities"
 import { CustomLink as Link } from '../../components/custom-link';
 import { DateSince } from "../../components/date"
-import { ActiveLikeIcon } from "../../components/icons"
 import { FixedCounter } from "../../components/like-counter"
 import { PostTitleOnFeed } from "../../components/post-on-feed"
 import { ShowUserContribution } from "../../components/show-contributors"
@@ -10,6 +9,7 @@ import { useUser } from "../hooks/user"
 import { useContent } from "../hooks/contents"
 import LoadingSpinner from "../../components/loading-spinner"
 import { articleUrl, contentUrl } from "../../components/utils"
+import { ActiveLikeIcon } from "../../components/icons/active-like-icon";
 
 const EntityIncome = ({entityId}: {entityId: string}) => {
     const {user} = useUser()

@@ -30,7 +30,8 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 import {$isImageNode, ImageNode, $createImageNode, ImagePayload} from '../../nodes/ImageNode';
 
-import {Button, Button as MuiButton, styled} from '@mui/material'
+import Button from '@mui/material/Button'
+import {styled} from '@mui/material'
 import {DialogActions, DialogButtonsList} from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
@@ -76,14 +77,14 @@ export function InsertImageUriDialogBody({
         data-test-id="image-modal-url-input"
       />
       <DialogActions>
-        <MuiButton
+        <Button
           sx={{textTransform: "none"}}
           variant="contained"
           disableElevation={true}
           disabled={isDisabled}
           onClick={() => onClick({altText, src})}>
           Aceptar
-        </MuiButton>
+        </Button>
       </DialogActions>
     </>
   );
@@ -209,14 +210,14 @@ export function InsertImageUploadedDialogBody({
         data-test-id="image-modal-file-upload"
       />
       <DialogActions>
-        <MuiButton
+        <Button
           variant="contained"
           disableElevation={true}
           disabled={isDisabled}
           sx={{textTransform: "none"}}
           onClick={() => onClick({altText, src})}>
           Aceptar
-        </MuiButton>
+        </Button>
       </DialogActions>
     </>
   );
@@ -253,13 +254,13 @@ export function InsertImageDialog({
       <div className="w-48">
       {!mode && (
         <DialogButtonsList>
-          <MuiButton
+          <Button
             variant="contained"
             sx={{textTransform: "none"}}
             disableElevation={true}
             onClick={() => setMode('url')}>
             Desde un URL
-          </MuiButton>
+          </Button>
           <UploadImageButton
             onSubmit={onClick}
           />

@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import InfoPanel from "./info-panel";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 
 type SelectionComponentProps = { 
     selected?: string

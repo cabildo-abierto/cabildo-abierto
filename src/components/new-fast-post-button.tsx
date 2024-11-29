@@ -1,7 +1,7 @@
-import { FastPostIcon } from "./icons";
 import { isMobile } from 'react-device-detect'
 import { useRouter } from "next/navigation";
 import { WriteButtonButton } from "./write-button";
+import { FastPostIcon } from './icons/fast-post-icon';
 
 
 export const NewFastPostButton = ({onClick}: {onClick: () => void}) => {

@@ -2,7 +2,6 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useState } from 'react';
 
-import { WriteButtonIcon } from './icons';
 import { ModalBelow } from './modal-below';
 import { hasEditPermission } from './utils';
 import { useUser } from '../app/hooks/user';
@@ -10,12 +9,13 @@ import { IconButton } from '@mui/material';
 import StateButton from './state-button';
 import { useSWRConfig } from 'swr';
 import { ContentOptionsChoiceButton } from './content-options-button';
-import { BaseFullscreenPopup } from './base-fullscreen-popup';
+import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
 import { inputClassName } from './utils';
 import { validEntityName } from './write-button';
-import { AcceptButtonPanel } from './accept-button-panel';
+import { AcceptButtonPanel } from './ui-utils/accept-button-panel';
 import { changeEntityName } from '../actions/entities';
 import { NeedAccountPopup } from './article-page';
+import { WriteButtonIcon } from './icons/write-button-icon';
 
 
 const NewNameModal = ({entity, open, onClose}: {entity: {id: string, name: string, protection: string}, onClose: () => void, open: boolean}) => {

@@ -1,11 +1,9 @@
-import { BaseFullscreenPopup } from "./base-fullscreen-popup"
 
 import dynamic from 'next/dynamic'
 import { commentEditorSettings, validComment } from "./editor/comment-editor";
 import { useState } from "react";
 import { EditorState, LexicalEditor } from "lexical";
 import { useContent } from "../app/hooks/contents";
-import LoadingSpinner from "./loading-spinner";
 import { compress, decompress } from "./compression";
 import StateButton from "./state-button";
 import { updateContent } from "../actions/contents";
@@ -14,8 +12,9 @@ import { useSWRConfig } from "swr";
 import { ExtraChars } from "./extra-chars";
 import { useUser } from "../app/hooks/user";
 import useMedia from "use-media";
-import { FullscreenDialog } from "./fullscreen-dialog";
-import { CloseButton } from "./close-button";
+import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
+import { CloseButton } from './ui-utils/close-button';
+
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 export const EditCommentModal = ({contentId, onClose, open}: {contentId: string, onClose: () => void, open: boolean}) => {

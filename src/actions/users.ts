@@ -178,6 +178,7 @@ export const getUsersWithStats = unstable_cache(async () => {
 
 
 export const getUserById = (userId: string) => {
+
     return unstable_cache(async () => {
         let user: UserProps
         try {
@@ -191,6 +192,7 @@ export const getUserById = (userId: string) => {
                         description: true,
                         createdAt: true,
                         editorStatus: true,
+                        avatar: true,
                         following: {
                             select: {
                                 id: true
@@ -1024,7 +1026,8 @@ export async function createNewCAUserForBskyAccount(did: string){
                     id: did,
                     handle: data.handle,
                     displayName: data.displayName,
-                    description: data.description
+                    description: data.description,
+                    avatar: data.avatar
                 }
             })
         } else {

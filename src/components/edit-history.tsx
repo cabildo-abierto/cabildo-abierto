@@ -4,21 +4,27 @@ import { UndoButton } from "./undo-button"
 import { CustomLink as Link } from './custom-link';
 import { EntityProps, UserProps } from "../app/lib/definitions"
 import { useRouter } from "next/navigation"
-import { ActiveCommentIcon, AuthorshipClaimIcon, ConfirmEditIcon, NoAuthorshipClaimIcon, RejectEditIcon, UndoIcon, ViewsIcon } from "./icons"
 import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
 import { confirmChanges, rejectChanges, removeEntityAuthorship } from "../actions/entities"
 import { articleUrl, currentVersion, getEntityMonetizedChars, hasEditPermission, isUndo } from "./utils"
 import { useSWRConfig } from "swr"
-import { AcceptButtonPanel } from "./accept-button-panel"
+import { AcceptButtonPanel } from "./ui-utils/accept-button-panel"
 import { NoEditPermissionsMsg } from "./no-edit-permissions-msg"
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 import { toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
-import { BaseFullscreenPopup } from "./base-fullscreen-popup"
+import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
 import { NeedAccountPopup } from "./article-page";
 import { ContentType } from "@prisma/client";
+import { AuthorshipClaimIcon } from "./icons/authorship-claim-icon";
+import { NoAuthorshipClaimIcon } from "./icons/no-authorship-claim-icon";
+import { ConfirmEditIcon } from "./icons/confirm-edit-icon";
+import { ActiveCommentIcon } from "./icons/active-comment-icon";
+import { RejectEditIcon } from "./icons/reject-edit-icon";
+import { UndoIcon } from "./icons/undo-icon";
+import { ViewsIcon } from "./icons/views-icon";
 
 
 const EditDetails = ({editType}: {editType: ContentType}) => {

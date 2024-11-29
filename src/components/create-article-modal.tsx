@@ -8,7 +8,7 @@ import StateButton from "./state-button";
 import TickButton from "./tick-button";
 import { articleUrl, inputClassName } from "./utils";
 import { ErrorMsg, validEntityName } from "./write-button";
-import { BaseFullscreenPopup } from "./base-fullscreen-popup";
+import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup";
 
 
 

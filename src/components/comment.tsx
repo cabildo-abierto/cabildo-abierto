@@ -8,7 +8,6 @@ import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
 import {$createQuoteNode} from '@lexical/rich-text';
 import {$unwrapMarkNode} from '@lexical/mark'
 import ReadOnlyEditor from './editor/read-only-editor';
-import { RedFlag } from './icons';
 import { useContent } from '../app/hooks/contents';
 import { decompress } from './compression';
 import { useUser } from '../app/hooks/user';
@@ -16,6 +15,7 @@ import { ContentTopRow } from './content-top-row';
 import { ShortDescriptionProps } from './comment-in-context';
 import { useEffect, useState } from 'react';
 import { ContentType } from '@prisma/client';
+import { RedFlag } from './icons/red-flag-icon';
 
 
 function getQuoteFromContent(node: any, id: string): any {

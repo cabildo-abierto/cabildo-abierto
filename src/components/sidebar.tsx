@@ -5,13 +5,17 @@ import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { id2url } from "./content";
-import {CabildoIcon, DashboardIcon, DonateIcon, ManageAccountIcon, SupportIcon} from "./icons";
 import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user";
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
 import { articleUrl, supportDid } from "./utils";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 import { CloseSessionButton } from "./close-session-button";
+import { DashboardIcon } from "./icons/dashboard-icon";
+import { DonateIcon } from "./icons/donate-icon";
+import { CabildoIcon } from "./icons/home-icon";
+import { ManageAccountIcon } from "./icons/manage-account-icon";
+import { SupportIcon } from "./icons/support-icon";
 
 
 function unseenCount(chat: ChatMessage[], userId: string){

@@ -9,8 +9,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import StateButton from "./state-button";
 import { deleteDraft } from "../actions/contents";
 import { useSWRConfig } from "swr";
-import { Button } from "@mui/material";
-import { WriteButtonIcon } from "./icons";
+import Button from "@mui/material/Button";
+import { WriteButtonIcon } from './icons/write-button-icon';
 
 
 

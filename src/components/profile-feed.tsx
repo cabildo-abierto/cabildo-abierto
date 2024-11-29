@@ -5,7 +5,7 @@ import Feed from "./feed"
 import LoadingSpinner from "./loading-spinner"
 
 
-export const ProfileFeed = ({profileUser, showingFakeNews}: {profileUser: UserProps, showingFakeNews: boolean}) => {
+export const ProfileFeed = ({profileUser, showingFakeNews}: {profileUser: {id: string, displayName: string}, showingFakeNews: boolean}) => {
     let feed = useProfileFeed(profileUser.id)
 
     if(feed.isLoading){

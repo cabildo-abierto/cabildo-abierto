@@ -1,7 +1,6 @@
 "use client"
 
 import { CustomLink as Link } from './custom-link';
-import { InactiveCommentIcon, LinkIcon, TextLengthIcon, ViewsIcon } from "./icons"
 import { FixedCounter } from "./like-counter"
 import { SmallEntityProps } from "../app/lib/definitions"
 import { articleUrl, currentVersion } from "./utils"
@@ -9,6 +8,9 @@ import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { DateSince } from "./date"
 import { EntityCategoriesSmall } from './entity-categories-small';
+import { InactiveCommentIcon } from './icons/inactive-comment-icon';
+import { LinkIcon } from './icons/link-icon';
+import { TextLengthIcon } from './icons/text-length-icon';
 
 
 export function getEntityChildrenCount(entity: SmallEntityProps){

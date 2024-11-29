@@ -1,7 +1,7 @@
 import { useNotifications } from "../app/hooks/user"
-import { CloseButton } from "./close-button"
 import LoadingSpinner from "./loading-spinner"
 import { NotificationComponent } from "./notification"
+import { CloseButton } from "./ui-utils/close-button"
 
 
 export const NotificationsPanel = ({onClose}: {onClose: () => void}) => {

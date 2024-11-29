@@ -1,4 +1,4 @@
-import { ContentType, NotificationType } from '@prisma/client';
+import { ContentType, EditorStatus, NotificationType } from '@prisma/client';
 import { z } from 'zod'
 import { ShortDescriptionProps } from '../../components/comment-in-context';
 
@@ -214,11 +214,12 @@ export type UserProps = {
     handle: string
     displayName: string
     description: string
+    avatar: string
     email: string
     createdAt: Date
     following: {id: string}[]
     followers: {id: string}[]
-    editorStatus: string
+    editorStatus: EditorStatus
     subscriptionsUsed: SubscriptionProps[]
     subscriptionsBought: {id: string, price: number}[]
     _count: {notifications: number, contents: number}

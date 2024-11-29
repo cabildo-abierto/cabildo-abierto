@@ -1,5 +1,5 @@
 
-import { BaseFullscreenPopup } from "./base-fullscreen-popup"
+import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
 import { useUser } from "../app/hooks/user"
 import { useEffect, useState } from "react"
 import { commentEditorSettings } from "./editor/comment-editor"

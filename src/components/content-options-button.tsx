@@ -1,9 +1,8 @@
 "use client"
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { RedFlag, WriteButtonIcon } from './icons';
 import { CreateFakeNewsReportModal } from './create-fake-news-report';
 import { ModalBelow } from './modal-below';
 import { EditCommentModal } from './edit-comment-modal';
@@ -16,6 +15,8 @@ import { IconButton } from '@mui/material';
 import StateButton, { StateButtonClickHandler } from './state-button';
 import { useSWRConfig } from 'swr';
 import { ContentType } from '@prisma/client';
+import { RedFlag } from './icons/red-flag-icon';
+import { WriteButtonIcon } from './icons/write-button-icon';
 
 
 export const ContentOptionsChoiceButton = ({children, onClick, icon}: {children: ReactNode, onClick: StateButtonClickHandler, icon: ReactNode}) => {
