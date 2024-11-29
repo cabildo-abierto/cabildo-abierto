@@ -864,6 +864,7 @@ export async function updateProfilesFromAT(){
             displayName: true,
             description: true,
             avatar: true,
+            banner: true
         }
     })
 
@@ -872,10 +873,14 @@ export async function updateProfilesFromAT(){
     for(let i = 0; i < users.length; i++){
         const u = users[i]
         const {data: p} = await agent.getProfile({"actor": u.id})
+
+        console.log("profile", p)
+
         if(p.avatar != u.avatar ||
             p.handle != u.handle ||
             p.displayName != u.displayName ||
-            p.description != u.description
+            p.description != u.description ||
+            p.banner != u.banner
         ) {
             console.log("Updating user", u.handle)
             console.log("Prev:")
@@ -888,7 +893,8 @@ export async function updateProfilesFromAT(){
                     handle: p.handle,
                     displayName: p.displayName,
                     description: p.description,
-                    avatar: p.avatar
+                    avatar: p.avatar,
+                    banner: p.banner
                 },
                 where: {
                     id: u.id

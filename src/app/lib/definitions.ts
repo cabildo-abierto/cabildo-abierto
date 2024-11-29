@@ -215,6 +215,7 @@ export type UserProps = {
     displayName: string
     description: string
     avatar: string
+    banner: string
     email: string
     createdAt: Date
     following: {id: string}[]

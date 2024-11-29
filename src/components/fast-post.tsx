@@ -20,7 +20,7 @@ import { CloseButton } from './ui-utils/close-button';
 import { FastPostIcon } from './icons/fast-post-icon';
 
 
-export const emptyChar = <>&quot;</>
+export const emptyChar = <>&nbsp;</>
 
 
 type FastPostProps = {

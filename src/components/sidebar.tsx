@@ -8,7 +8,7 @@ import { id2url } from "./content";
 import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user";
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
-import { articleUrl, supportDid } from "./utils";
+import { articleUrl, supportDid, userUrl } from "./utils";
 import Button from "@mui/material/Button";
 import { CloseSessionButton } from "./close-session-button";
 import { DashboardIcon } from "./icons/dashboard-icon";
@@ -45,7 +45,7 @@ const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}
 
 const SidebarUsername = ({user}: {user: UserProps}) => {
     return <div className="flex flex-col items-center">
-        <Link href={`/perfil/${user.id}`}>
+        <Link href={userUrl(user.handle)}>
             <Button variant="text" color="inherit" sx={{ textTransform: 'none' }}>
                 {user.displayName}
             </Button>

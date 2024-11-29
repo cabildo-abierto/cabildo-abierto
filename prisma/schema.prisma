@@ -26,6 +26,7 @@ model User {
     description        String
     email              String?
     avatar             String?
+    banner             String?
 
     following          User[]         @relation("following")
     followers          User[]         @relation("following")

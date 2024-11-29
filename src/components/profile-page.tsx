@@ -15,9 +15,9 @@ export const ProfilePage = ({profileUser}: ProfilePageProps) => {
     const loggedInUser = useUser()
     const [selected, setSelected] = useState("Publicaciones")
     const [showingFakeNews, setShowingFakeNews] = useState(false)
-    const repliesFeed = useRepliesFeed(profileUser.id)
-    const profileFeed = useProfileFeed(profileUser.id)
-    const editsFeed = useEditsFeed(profileUser.id)
+    //const repliesFeed = useRepliesFeed(profileUser.id)
+    //const profileFeed = useProfileFeed(profileUser.id)
+    //const editsFeed = useEditsFeed(profileUser.id)
 
     return <div>
         <div className="mb-4">
