@@ -10,6 +10,7 @@ import { fetcher } from "../app/hooks/utils";
 import { preload } from "swr";
 import { useUser } from "../app/hooks/user";
 import { ContentOptionsButton } from "./content-options-button";
+import { ContentType } from "@prisma/client";
 
 
 export const PostTitleOnFeed = ({title}: {title: string}) => {
@@ -29,13 +30,13 @@ export const Author = ({content} :{content: ContentProps}) => {
             className="hover:underline mr-1 font-bold text-gray-800"
             onClick={onClick}
         >
-            {content.author?.name}
+            {content.author?.displayName}
         </span>
         <span
             onClick={onClick}
             className="text-[var(--text-light)]"
         >
-            @{content.author?.id}
+            @{content.author?.handle}
         </span>
     </div>
 }
@@ -43,13 +44,12 @@ export const Author = ({content} :{content: ContentProps}) => {
 type PostOnFeedProps = {
     content: {
         id: string
-        type: string
-        author: {name: string, id: string}
-        createdAt: Date | string
+        type: ContentType
+        author: {id: string, handle: string, displayName: string}
+        createdAt: Date
         isContentEdited: boolean
         title?: string
-        parentEntityId?: string
-        reactions?: {id: string}[]
+        parentEntity?: {id: string}
         _count: {
             reactions: number
             childrenTree: number

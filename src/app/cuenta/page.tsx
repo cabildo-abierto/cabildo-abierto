@@ -20,15 +20,15 @@ const Cuenta: React.FC = () => {
             <div className="bg-white shadow rounded-lg p-6">
                 <div className="mb-4">
                     <div className="text-gray-600 font-medium">Nombre de usuario:</div>
-                    <div className="text-lg text-gray-900">@{user.id}</div>
+                    <div className="text-lg text-gray-900">@{user.handle}</div>
                 </div>
                 <div className="mb-4">
-                    <div className="text-gray-600 font-medium">Nombre:</div>
-                    <div className="text-lg text-gray-900">{user.name}</div>
+                    <div className="text-gray-600 font-medium">Nombre visible:</div>
+                    <div className="text-lg text-gray-900">{user.displayName}</div>
                 </div>
                 <div className="mb-4">
                     <div className="text-gray-600 font-medium">Mail:</div>
-                    <div className="text-lg text-gray-900">{user.authUser.email}</div>
+                    {user.email ? <div className="text-lg text-gray-900">{user.email}</div> : <div className="text-lg text-gray-900">Pendiente</div>}
                 </div>
                 <div className="mb-4">
                     <div className="text-gray-600 font-medium">Nivel de permisos de edición:</div>

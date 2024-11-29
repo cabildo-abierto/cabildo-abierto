@@ -5,21 +5,19 @@ import { useEffect, useState } from "react"
 import { commentEditorSettings } from "./editor/comment-editor"
 import { LexicalEditor, EditorState } from "lexical"
 import dynamic from "next/dynamic"
-import { updateDescription, updateName } from "../actions/users"
 import { useSWRConfig } from "swr"
 import StateButton from "./state-button"
 import { NameFormSchema } from "../app/lib/definitions"
+import { updateDescription, updateDisplayName } from "../actions/users"
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
-
-
 
 
 export const EditProfileModal = ({onClose}: {onClose: () => void}) => {
     const {user} = useUser()
-    const [name, setName] = useState(user.name)
+    const [name, setName] = useState(user.displayName)
 
     useEffect(() => {
-        setName(user.name)
+        setName(user.displayName)
     }, [user])
 
     const settings = {...commentEditorSettings}
@@ -40,8 +38,8 @@ export const EditProfileModal = ({onClose}: {onClose: () => void}) => {
             await mutate("/api/user")
         }
 
-        if(name != user.name){
-            await updateName(name, user.id)
+        if(name != user.displayName){
+            await updateDisplayName(name, user.id)
         }
         onClose()
         return {}

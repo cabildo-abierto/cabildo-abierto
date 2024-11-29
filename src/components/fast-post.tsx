@@ -17,17 +17,19 @@ import { IconButton } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { getAllText } from './diff';
-import { emptyChar } from './select-username-popup';
+import { ContentType } from '@prisma/client';
+
+
+export const emptyChar = <>&quot;</>
 
 
 type FastPostProps = {
     content: {
-        author: {id: string, name: string}
+        author: {id: string, handle: string, displayName: string}
         id: string
-        type: string
+        type: ContentType
         compressedText?: string
-        parentEntityId?: string
-        reactions?: {id: string}[]
+        parentEntity?: {id: string}
         _count: {
             reactions: number
             childrenTree: number

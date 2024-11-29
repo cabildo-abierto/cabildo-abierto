@@ -45,6 +45,10 @@ $comments-panel-bg: rgba(lighten($secondary, 20%), 0.5);
   font-style: normal;
 }
 
+body {
+	background-color: var(--background);
+}
+
 * {
 	border-color: $accent;
 }

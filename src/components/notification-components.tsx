@@ -1,10 +1,10 @@
 "use client"
 import { CustomLink as Link } from './custom-link';
-import { NotificationProps } from "../app/lib/definitions"
+import { BothContributionsProps, NotificationProps } from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
 import { useUser } from "../app/hooks/user"
 import { articleUrl, contentUrl } from "./utils"
-import { BothContributionsProps } from "../actions/entities"
+import { ContentType } from '@prisma/client';
 
 
 const UserMention = ({id}: {id: string}) => {
@@ -30,7 +30,7 @@ const EditDescriptionInNotification = ({content}: {content: {parentEntityId: str
 }
 
 
-function PostDescription({content}: {content: {id: string, authorId: string, type: string, contribution: string, parentEntityId: string}}){
+function PostDescription({content}: {content: {id: string, authorId: string, type: ContentType, contribution: string, parentEntityId: string}}){
     const {user} = useUser()
 
     let post = null

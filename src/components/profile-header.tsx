@@ -18,9 +18,8 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
     const {mutate} = useSWRConfig()
     const [editProfileOpen, setEditProfileOpen] = useState(false)
 
-
     const following = user && user.following.some((u) => u.id === profileUser.id)
-    const followerCount = profileUser.followedBy.length
+    const followerCount = profileUser.followers.length
 
     // hay alguna mejor forma de hacer esto?
     const updatedFollowerCount = followerCount
@@ -67,10 +66,10 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
         <div className="flex justify-between">
             <div className="ml-2 py-2">
                 <h3>
-                    {profileUser.name}
+                    {profileUser.displayName}
                 </h3>
                 <div className="text-gray-600">
-                    {addAt(profileUser.id)}
+                    {addAt(profileUser.handle)}
                 </div>
             </div>
             {user && <div className="flex items-center mr-2">
@@ -93,7 +92,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                         text1="Seguir"
                     />)
                 }
-                {isOwner && 
+                {/* TO DO: Implement */ isOwner && false && 
                     <Button
                         size="small"
                         variant="outlined"

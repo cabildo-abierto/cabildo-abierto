@@ -9,7 +9,7 @@ import { CID } from 'multiformats/cid'
 /** Annotation of a sub-string within rich text. */
 export interface Main {
   index: ByteSlice
-  features: (Mention | Link | Tag | { $type: string; [k: string]: unknown })[]
+  features: (Mention | Link | Tag | { type: string; [k: string]: unknown })[]
   [k: string]: unknown
 }
 

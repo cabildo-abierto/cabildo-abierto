@@ -8,6 +8,7 @@ import { articleUrl, currentVersion } from "./utils"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { DateSince } from "./date"
+import { EntityCategoriesSmall } from './entity-categories-small';
 
 
 export function getEntityChildrenCount(entity: SmallEntityProps){
@@ -16,26 +17,6 @@ export function getEntityChildrenCount(entity: SmallEntityProps){
         count += entity.versions[i].childrenTree.length
     }
     return count
-}
-
-
-const EntityCategorySmall = ({c, route}: {c: string[], route: string[]}) => {
-  
-  return <div className="bg-[var(--secondary-light)] rounded text-gray-600 text-xs px-1">
-    {c.slice(route.length, c.length).join(" > ")}
-  </div>
-}
-
-
-const EntityCategoriesSmall = ({route, entity}: {
-  entity: {versions: {categories: string, id: string}[], currentVersionId: string}, route: string[]}) => {
-  const c: string[][] = JSON.parse(entity.versions[currentVersion(entity)].categories)
-  return <div className="flex flex-wrap space-x-1">
-    {c.map((cat: string[], index) => (
-      <div key={index}>
-        <EntityCategorySmall c={cat} route={route}/>
-      </div>))}
-  </div>
 }
 
 
@@ -97,11 +78,6 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
               icon={<InactivePraiseIcon />}
               title='Cantidad de votos hacia arriba que recibió'
               />*/}
-              <FixedCounter
-              count={entity.uniqueViewsCount}
-              icon={<ViewsIcon />}
-              title="Cantidad de personas distintas que lo vieron."
-              />
               <FixedCounter
                 count={entity.referencedBy.length}
                 icon={<LinkIcon />}

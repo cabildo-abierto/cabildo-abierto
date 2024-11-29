@@ -15,6 +15,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import { IconButton } from '@mui/material';
 import StateButton, { StateButtonClickHandler } from './state-button';
 import { useSWRConfig } from 'swr';
+import { ContentType } from '@prisma/client';
 
 
 export const ContentOptionsChoiceButton = ({children, onClick, icon}: {children: ReactNode, onClick: StateButtonClickHandler, icon: ReactNode}) => {
@@ -74,10 +75,10 @@ export const ContentOptionsDropdown = ({
     onClose: () => void,
     optionsList: string[],
     content: {
-        type: string
+        type: ContentType
         id: string
         parentContents?: {id: string}[]
-        rootContent?: {type: string}
+        rootContent?: {type: ContentType}
     },
     setIsFakeNewsModalOpen: (v: boolean) => void,
     setIsEditModalOpen: (v: boolean) => void,
@@ -145,9 +146,9 @@ export const ContentOptionsDropdown = ({
 type ContentOptionsButtonProps = {
     content: {
         id: string
-        type: string
+        type: ContentType
         parentContents?: {id: string}[]
-        rootContent?: {type: string}
+        rootContent?: {type: ContentType}
     }
     optionList: string[]
 }

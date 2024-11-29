@@ -8,5 +8,5 @@ import Feed from "./feed"
 export const WikiFeed = ({profileUser}: {profileUser: UserProps}) => {
     const feed = useEditsFeed(profileUser.id)
     
-    return <Feed feed={feed} noResultsText={profileUser.name + " todavía no hizo ninguna edición."}/>
+    return <Feed feed={feed} noResultsText={profileUser.displayName + " todavía no hizo ninguna edición."}/>
 }

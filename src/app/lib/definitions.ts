@@ -1,15 +1,14 @@
-import { ContentType } from '@prisma/client';
+import { ContentType, NotificationType } from '@prisma/client';
 import { z } from 'zod'
 import { ShortDescriptionProps } from '../../components/comment-in-context';
 
 
 export type SmallUserProps = {
-    id: string,
-    name: string,
-    following?: {id: string}[],
+    id: string
+    displayName: string
+    handle: string
     contents?: {
-        _count: {reactions: number},    
-        uniqueViewsCount: number
+        _count: {reactions: number}
     }[]
 }
 
@@ -24,7 +23,7 @@ export type UserMonthDistributionProps = {
 
 export type ContentProps = {
     id: string
-    createdAt: string | Date
+    createdAt: Date
     compressedText?: string
     compressedPlainText?: string
     author: SmallUserProps
@@ -36,7 +35,6 @@ export type ContentProps = {
     title: string | null
 
     categories: string | null
-    parentEntityId: string | null
     parentEntity: {id: string, isPublic: boolean, currentVersion: {searchkeys: string[]}}
     charsAdded: number,
     charsDeleted: number,
@@ -45,12 +43,11 @@ export type ContentProps = {
     diff: string
 
     fakeReportsCount: number,
-    reactions?: {id: string}[],
-    views?: {id: string}[],
+    reactions: {userById: string}[],
     _count: {reactions: number, childrenTree: number},
     uniqueViewsCount: number,
 
-    entityReferences: {id: string, versions: {id: string, categories: string}[]}[]
+    references: {entityReferenced: {id: string, versions: {id: string, categories: string}[]}}[]
 
     rootContent?: ShortDescriptionProps
     ancestorContent: {id: string, authorId: string}[]
@@ -80,13 +77,10 @@ export type ContentProps = {
 
 
 export type CommentProps = {
-    id: string | null
-    createdAt: Date | string
+    id: string
+    createdAt: Date
     type: ContentType
-    _count: {
-        childrenTree: number
-        reactions: number
-    }
+    reactions: {userById: string}[]
     childrenTree: {authorId: string}[]
     author: {id: string}
     uniqueViewsCount: number
@@ -94,23 +88,28 @@ export type CommentProps = {
 
 
 export type ReferenceProps = {
-    id: string
-    createdAt: string | Date
-    type: string
-    author: {
+    isStrong: boolean
+    referencingContent: {
         id: string
-        name: string
-    },
-    _count: {
-        reactions: number
-        childrenTree: number
-    },
-    currentVersionOf: {
-        id: string
+        createdAt: Date
+        type: ContentType
+        author: {
+            id: string
+        },
+        uniqueViewsCount: number
+        childrenTree: {authorId: string, createdAt: Date}[]
+        reactions: {userById: string, createdAt: Date}[]
+        currentVersionOf: {
+            id: string
+        }
+        parentEntityId: string
     }
-    parentEntityId?: string
-    childrenTree: {authorId: string}[]
-    uniqueViewsCount: number
+}
+
+
+export type BothContributionsProps = {
+    monetized: [string, number][]
+    all: [string, number][]
 }
 
 
@@ -123,8 +122,6 @@ export type EntityProps = {
     referencedBy: ReferenceProps[]
     deleted: boolean,
     currentVersionId: string
-    uniqueViewsCount: number
-    weakReferences: ReferenceProps[]
     currentVersion: {
         categories: string
         searchkeys: string[]
@@ -135,15 +132,16 @@ export type EntityProps = {
 
 export type EntityVersionProps = {
     id: string,
-    type: string
+    type: ContentType
     categories: string,
-    createdAt: string | Date,
+    createdAt: Date,
     confirmedById?: string,
     rejectedById?: string,
     compressedText?: string
     author: {
         id: string
-        name: string
+        handle: string
+        displayName: string
     }
     editPermission: boolean,
     accCharsAdded: number,
@@ -158,16 +156,12 @@ export type EntityVersionProps = {
         reportsVandalism: boolean
         reportsOportunism: boolean
         authorId: string
-        createdAt: Date | string
-        compressedText?: string
+        createdAt: Date
+        compressedText: string
     }[]
-    _count: {
-        reactions: number
-    }
     uniqueViewsCount: number
     editMsg?: string
-    entityReferences: {id: string}[]
-    weakReferences: {id: string}[]
+    references: {entityReferenced: {id: string}}[]
 }
 
 export type ContributionsProps = [string, number][]
@@ -189,20 +183,16 @@ export type SmallEntityProps = {
         reactions: {userById: string}[]
     }[]
     referencedBy: {
-        authorId: string
-        reactions: {userById: string, createdAt: Date}[]
-        childrenTree: {authorId: string, createdAt: Date, reactions: {userById: string, createdAt: Date}[]}[]
-        createdAt: Date
-    }[]
-    weakReferences: {
-        authorId: string
-        createdAt: Date
-        reactions: {userById: string, createdAt: Date}[]
-        childrenTree: {authorId: string, createdAt: Date, reactions: {userById: string, createdAt: Date}[]}[]
+        isStrong: boolean
+        referencingContent: {
+            authorId: string
+            reactions: {userById: string, createdAt: Date}[]
+            childrenTree: {authorId: string, createdAt: Date, reactions: {userById: string, createdAt: Date}[]}[]
+            createdAt: Date
+        }
     }[]
     views?: number,
-    reactions?: {userById: string, createdAt: Date}[],
-    uniqueViewsCount: number
+    reactions?: {userById: string, createdAt: Date}[]
     currentVersionId: string
     currentVersion: {searchkeys: string[]}
 }
@@ -211,27 +201,27 @@ export type SmallEntityProps = {
 export type SubscriptionProps = {
     id: string
     userId?: string
-    createdAt: string | Date
+    createdAt: Date
     boughtByUserId: string
-    usedAt: string | Date | null
-    endsAt: string | Date | null
+    usedAt: Date | null
+    endsAt: Date | null
     price: number
 }
 
 
 export type UserProps = {
     id: string
-    name: string
-    createdAt: string | Date
-    authenticated: Boolean
+    handle: string
+    displayName: string
+    description: string
+    email: string
+    createdAt: Date
+    following: {id: string}[]
+    followers: {id: string}[]
     editorStatus: string
     subscriptionsUsed: SubscriptionProps[]
     subscriptionsBought: {id: string, price: number}[]
-    following: {id: string}[]
-    followedBy: {id: string}[]
-    authUser: {email: string | null} | null
-    description: string | null
-    _count: {notifications: number, contents: number, views: number}
+    _count: {notifications: number, contents: number}
     closedFollowSuggestionsAt?: Date | string
 };
 
@@ -327,28 +317,11 @@ export type SearchkeysProps = {
 }[]
 
 
-export type SmallContentProps = {
-    id: string
-    author: {name: string, id: string}
-    type: ContentType
-    compressedPlainText?: string
-    title?: string
-    createdAt?: string | Date
-    entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
-    weakReferences?: {id: string, versions: {id: string, categories: string}[]}[]
-    _count: {reactions: number, childrenTree: number}
-    currentVersionOf?: {id: (string | null)}
-    fakeReportsCount?: number;
-    uniqueViewsCount?: number
-    childrenTree: {authorId: string}[]
-}
-
-
 export type FeedContentProps = {
     id: string
     author: {id: string, name: string}
     createdAt: Date | string
-    type: string
+    type: ContentType
     compressedText: string
     compressedPlainText: string
     title?: string
@@ -362,25 +335,25 @@ export type FeedContentProps = {
 export type NotificationProps = {
     id: string
     content: {
-        id: string,
-        authorId: string,
-        type: string,
-        contribution: string,
+        id: string
+        authorId: string
+        type: ContentType
+        contribution: string
         parentEntityId: string
         parentContents: {
             id: string
-            authorId: string,
-            type: string,
+            authorId: string
+            type: ContentType
             contribution: string,
             parentEntityId: string
         }[]
     }
     reactionId?: string
-    createdAt: string | Date
+    createdAt: Date
     userById: string
     userNotifiedId: string
     viewed: boolean
-    type: string
+    type: NotificationType
 }
 
 

@@ -1,10 +1,9 @@
-import { UserProps, EntityProps, SmallEntityProps, EntityVersionProps, ContentProps, SmallUserProps } from "../app/lib/definitions"
+import { UserProps, EntityProps, SmallEntityProps, EntityVersionProps, ContentProps, SmallUserProps, BothContributionsProps } from "../app/lib/definitions"
 import { charDiffFromJSONString, getAllText } from "./diff"
 import { db } from "../db"
 import { decompress } from "./compression"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
 import { ContentType } from "@prisma/client"
-import { BothContributionsProps } from "../actions/entities"
 
 
 export const splitPost = (text: string) => {
@@ -536,7 +535,7 @@ export function inRange(i, n){
 }
 
 
-export function isPublic(content: {type: string, parentEntity: {isPublic: boolean}}, isMainPage: boolean){
+export function isPublic(content: {type: ContentType, parentEntity: {isPublic: boolean}}, isMainPage: boolean){
     if(content.type == "EntityContent"){
         return content.parentEntity.isPublic
     }
@@ -740,3 +739,6 @@ export function getEntityMonetizedContributions(entity: {versions: {author: {id:
     }
     return Array.from(authors)
 }
+
+
+export const inputClassName = "custom-input rounded"

@@ -8,7 +8,7 @@ import { ConfirmPaymentsButton, CreatePromisesButton } from "./create-promises-b
 
 
 export default async function Page() {
-    const {user} = await getUser()
+    const user = await getUser()
 
     if(!user || (user.editorStatus != "Administrator" && user.id != "tomas")){
         return <NotFoundPage/>
@@ -37,7 +37,6 @@ export default async function Page() {
             {entities.map((m, index) => {
                 const c = getEntityMonetizedContributions(m, m.versions.length-1)
                 if(!c) {
-                    console.log("error con ", m.name)
                     return <></>
                 }
                 if(c.length > 1){

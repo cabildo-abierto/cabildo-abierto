@@ -3,11 +3,12 @@
 import React from "react"
 import { ReactionButton } from "./reaction-button";
 import { RedFlag } from "./icons";
+import { ContentType } from "@prisma/client";
 
 
 type FakeCounterProps = {
     content: {
-        childrenContents: {type: string}[]
+        childrenContents: {type: ContentType}[]
     }
     onClick?: () => void
 }

@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag, unstable_cache } from "next/cache";
-import { ContentType, NotificationType } from "@prisma/client";
+import { ContentType, NotificationType, Prisma } from "@prisma/client";
 import { db } from "../db";
 import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { getEntities } from "./entities";
@@ -11,6 +11,33 @@ import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntity
 import { compress, decompress } from "../components/compression";
 import { getReferencesSearchKeys } from "./references";
 
+
+const childrenContentsQuery = {
+    select: {
+        id: true,
+        createdAt: true,
+        type: true,
+        childrenTree: {
+            select: {
+                authorId: true
+            }
+        },
+        reactions: {
+            select: {
+                userById: true
+            }
+        },
+        author: {
+            select: {
+                id: true
+            }
+        },
+        uniqueViewsCount: true
+    },
+    orderBy: {
+        createdAt: "desc" as Prisma.SortOrder
+    }
+}
 
 
 export async function getContentByIdNoCache(id: string, userId?: string){
@@ -29,7 +56,8 @@ export async function getContentByIdNoCache(id: string, userId?: string){
             author: {
                 select: {
                     id: true,
-                    name: true,
+                    handle: true,
+                    displayName: true,
                 }
             },
             createdAt: true,
@@ -59,21 +87,24 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                     userById: userId
                 }
             } : false,
-            entityReferences: {
+            references: {
                 select: {
-                    id: true,
-                    versions: {
+                    entityReferenced: {
                         select: {
                             id: true,
-                            categories: true
-                        },
-                        orderBy: {
-                            createdAt: "asc"
+                            versions: {
+                                select: {
+                                    id: true,
+                                    categories: true
+                                },
+                                orderBy: {
+                                    createdAt: "asc"
+                                }
+                            }
                         }
                     }
                 }
             },
-            parentEntityId: true, // TO DO: Eliminar
             parentEntity: {
                 select: {
                     id: true,
@@ -118,33 +149,7 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                     authorId: true
                 }
             },
-            childrenContents: {
-                select: {
-                    id: true,
-                    createdAt: true,
-                    type: true,
-                    _count: {
-                        select: {
-                            childrenTree: true,
-                            reactions: true
-                        }
-                    },
-                    childrenTree: {
-                        select: {
-                            authorId: true
-                        }
-                    },
-                    author: {
-                        select: {
-                            id: true
-                        }
-                    },
-                    uniqueViewsCount: true
-                },
-                orderBy: {
-                    createdAt: "desc"
-                }
-            },
+            childrenContents: childrenContentsQuery,
             isContentEdited: true,
             isDraft: true,
             usersMentioned: {
@@ -190,7 +195,6 @@ export async function getContentByIdNoCache(id: string, userId?: string){
 }
 
 export async function getContentById(id: string, userId?: string, useCache: boolean = true): Promise<{content?: ContentProps, error?: string}> {
-    if(!userId) userId = await getUserId()
     if(!userId) userId = "not logged in"
 
     if(!useCache) return await getContentByIdNoCache(id, userId)
@@ -439,6 +443,8 @@ export async function createPost(
     const {error, parentContent, ...commentData} = await getCommentAncestorsData(parentContentId)
     if(error) return {error}
 
+    const references = [] // to do: implement
+
     let result
     try {
         result = await db.content.create({
@@ -453,11 +459,8 @@ export async function createPost(
                 numNodes: processed.numNodes,
                 numWords: processed.numWords,
                 numChars: processed.numChars,
-                entityReferences: {
-                    connect: processed.entityReferences
-                },
-                weakReferences: {
-                    connect: processed.weakReferences
+                references: {
+                    create: references
                 },
                 usersMentioned: {
                     connect: processed.mentions
@@ -491,7 +494,7 @@ export async function createPost(
         revalidateTag("profileFeed:"+userId)
         if(type == "Post")
             revalidateTag("userContents:"+userId)
-        revalidateReferences(processed.entityReferences, processed.weakReferences)
+        revalidateReferences(processed.entityReferences)
 
     } else {
         revalidateTag("drafts:"+userId)
@@ -502,7 +505,7 @@ export async function createPost(
             id: result.id,
             type: result.type,
             createdAt: result.createdAt,
-            _count: {childrenTree: 0, reactions: 0},
+            reactions: [],
             uniqueViewsCount: 0,
             author: {id: userId},
             childrenTree: []
@@ -567,14 +570,11 @@ export async function updateContent(compressedText: string, contentId: string, u
                 compressedText: compressedText,
                 ...processed,
                 title: title,
-                entityReferences: {
-                    connect: entityReferences
+                references: {
+                    create: []
                 },
                 usersMentioned: {
                     connect: mentions
-                },
-                weakReferences: {
-                    connect: weakReferences
                 },
                 isContentEdited: content && !content.isDraft
             }
@@ -587,7 +587,7 @@ export async function updateContent(compressedText: string, contentId: string, u
         const {error} = await notifyMentions(mentions, contentId, userId, true)
         if(error) return {error: error}
 
-        revalidateReferences(entityReferences, weakReferences)
+        revalidateReferences(entityReferences)
     }
 
     revalidateTag("content:"+contentId)
@@ -688,8 +688,7 @@ export const removeLike = async (id: string, userId: string, entityId?: string) 
     revalidateTag("content:"+id)
     if(entityId)
         revalidateTag("entity:"+entityId)
-
-    console.log("done removing like")
+    
     return {}
 }
 
@@ -758,7 +757,7 @@ export const addView = async (id: string, userId: string) => {
         }
     }
     
-    if(content.parentEntityId == "Cabildo_Abierto"){ // && !exists
+    if(content.parentEntity.id == "Cabildo_Abierto"){ // && !exists
         revalidateTag("user:"+userId)
     }
 

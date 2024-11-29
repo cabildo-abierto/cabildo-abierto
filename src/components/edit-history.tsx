@@ -18,10 +18,11 @@ import { toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
 import { BaseFullscreenPopup } from "./base-fullscreen-popup"
 import { NeedAccountPopup } from "./article-page";
+import { ContentType } from "@prisma/client";
 
 
-const EditDetails = ({type}: {type: string}) => {
-    return <span>{type}</span>
+const EditDetails = ({editType}: {editType: ContentType}) => {
+    return <span>{editType}</span>
 }
 
 type EditElementProps = {
@@ -110,9 +111,9 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
 }
 
 
-const EditMessage = ({msg, type}: {msg?: string, type: string}) => {
+const EditMessage = ({msg, editType}: {msg?: string, editType: string}) => {
     return <span className="text-sm text-gray-900">
-        {(msg != null && msg.length > 0) ? msg : (type == "Contenido" ? "sin descripción" : "")}
+        {(msg != null && msg.length > 0) ? msg : (editType == "Contenido" ? "sin descripción" : "")}
     </span>
 }
 
@@ -177,19 +178,19 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 
     className = className + ((isUndone || isRejected) ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
 
-    let type
+    let editType
     if(index == 0){
-        type = "Creación"
+        editType = "Creación"
     } else if(entity.versions[index].compressedText == entity.versions[index-1].compressedText){
         if(entity.versions[index].editMsg.startsWith("nuevo nombre:")){
-            type = "Cambio de nombre"
+            editType = "Cambio de nombre"
         } else if(entity.versions[index].categories == entity.versions[index-1].categories){
-            type = "Sinónimos"
+            editType = "Sinónimos"
         } else {
-            type = "Categorías"
+            editType = "Categorías"
         }
     } else {
-        type = "Contenido"
+        editType = "Contenido"
     }
 
     const entityVersion = entity.versions[index]
@@ -245,7 +246,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                         {entity.versions[index].editMsg && 
                             <EditMessage
                                 msg={entity.versions[index].editMsg}
-                                type={type}
+                                editType={editType}
                             />
                         }
                     </div>
@@ -253,7 +254,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                     
                     <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-900">
-                            <EditDetails type={type}/>
+                            <EditDetails editType={editType}/>
                         </div>
                         <div className="items-center space-x-2 text-gray-900 flex">
                             {(isCurrent && index > 0) ? <UndoButton entity={entity} version={index}/> : <></>}

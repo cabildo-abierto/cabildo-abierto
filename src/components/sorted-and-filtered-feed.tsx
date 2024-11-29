@@ -6,16 +6,30 @@ import { useSearch } from "./search-context"
 import { cleanText, listOrderDesc } from "./utils"
 import InfoPanel from "./info-panel"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
+import { ContentType } from "@prisma/client"
 
-export function popularityScore(content: {childrenTree: {authorId: string}[], author: {id: string}, type: string, _count: {reactions: number}, uniqueViewsCount: number}){
-    const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
-    commentators.delete(content.author.id)
+
+type ScorableContent = {
+    childrenTree: {authorId: string}[]
+    author: {id: string}
+    type: ContentType
+    reactions: {userById: string}[]
+    uniqueViewsCount: number
+}
+
+
+export function popularityScore(content: ScorableContent){
+    const participants = new Set([
+        ...content.childrenTree.map(({authorId}) => (authorId)),
+        ...content.reactions.map(({userById}) => (userById))
+    ])
+    participants.delete(content.author.id)
 
     const viewWeight = content.type == "FastPost" ? 0.4 : 1
 
     //const daysSinceCreation = (new Date().getTime() - new Date(content.createdAt).getTime()) / (1000*60*60*24)
 
-    return [(content._count.reactions + commentators.size) / Math.max(content.uniqueViewsCount * viewWeight, 1), content._count.reactions, commentators.size, content.uniqueViewsCount]
+    return [(participants.size) / Math.max(content.uniqueViewsCount * viewWeight, 1), participants.size, content.uniqueViewsCount]
 }
     
 function isPopularEnough(content: {childrenTree: {authorId: string}[], author: {id: string}, _count: {reactions: number}}){
@@ -42,15 +56,15 @@ export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, se
         return <LoadingSpinner/>
     }
 
-    function satisfiesSearch(c: {compressedPlainText?: string, title?: string, author: {id: string, name: string}}){
+    function satisfiesSearch(c: {compressedPlainText?: string, title?: string, author: {displayName: string, handle: string}}){
         const value = cleanText(searchState.value)
         
         const inText = c.compressedPlainText && cleanText(decompress(c.compressedPlainText)).includes(value)
 
         return inText || 
             (c.title && cleanText(c.title).includes(value)) ||
-            cleanText(c.author.name).includes(value) || 
-            cleanText(c.author.id).includes(value)
+            cleanText(c.author.displayName).includes(value) || 
+            cleanText(c.author.handle).includes(value)
     }
 
     let filteredFeed = searchState.value.length > 0 ? feed.feed.filter(satisfiesSearch) : feed.feed

@@ -4,17 +4,14 @@ import { CustomLink as Link } from './custom-link';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import { useSWRConfig } from "swr";
-import StateButton from "./state-button";
 import { id2url } from "./content";
 import {CabildoIcon, DashboardIcon, DonateIcon, ManageAccountIcon, SupportIcon} from "./icons";
-import { useRouter } from "next/navigation";
-import { signOut } from "../actions/auth";
 import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user";
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
 import { articleUrl } from "./utils";
 import { Button } from "@mui/material";
+import { CloseSessionButton } from "./close-session-button";
 
 
 function unseenCount(chat: ChatMessage[], userId: string){
@@ -42,36 +39,11 @@ const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}
 }
 
 
-export const CloseSessionButton = () => {
-    const router = useRouter()
-    const {mutate} = useSWRConfig()
-
-    const onLogout = async () => {
-        const {error} = await signOut()
-        if(!error){
-            router.push("/")
-            await mutate("/api/user", null)
-        }
-        return {}
-    }
-
-    return <div className="flex justify-center">
-        <StateButton
-            variant="text"
-            size="small"
-            color="primary"
-            handleClick={onLogout}
-            text1="CERRAR SESIÓN"
-        />
-    </div>
-}
-
-
 const SidebarUsername = ({user}: {user: UserProps}) => {
     return <div className="flex flex-col items-center">
         <Link href={`/perfil/${user.id}`}>
             <Button variant="text" color="inherit" sx={{ textTransform: 'none' }}>
-                {user.name}
+                {user.displayName}
             </Button>
         </Link>
         <CloseSessionButton/>

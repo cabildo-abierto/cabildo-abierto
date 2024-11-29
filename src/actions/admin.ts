@@ -4,18 +4,18 @@ import { revalidateTag } from "next/cache";
 import { db } from "../db";
 import { getContentById } from "./contents";
 import { EditorStatus } from "@prisma/client";
-import { getUser } from "./users";
 import { compress, decompress } from "../components/compression";
 import { getEntityById, updateEntityCurrentVersion, recomputeEntityContributions, getEntities } from "./entities";
 import { launchDate, subscriptionEnds, validSubscription } from "../components/utils";
 import { isSameDay } from "date-fns";
 import { UserMonthDistributionProps } from "../app/lib/definitions";
+import { getUser } from "./users";
 
 
 export const deleteEntityHistory = async (entityId: string, includeLast: boolean) => {
     const {entity, error} = await getEntityById(entityId)
     if(error) return {error: error}
-
+    
     for(let i = 1; i < entity.versions.length-(includeLast ? 0 : 1); i++){
         await deleteContent(entity.versions[i].id, true)
     }
@@ -217,30 +217,6 @@ export async function recomputeAllContributions(){
 }
 
 
-export async function updateUniqueViewsCount(){
-    const entities = await db.entity.findMany({
-        select: {
-            id: true,
-            views: true
-        },
-        where: {
-            uniqueViewsCount: null
-        }
-    })
-    for(let i = 0; i < entities.length; i++){
-        const s = new Set(entities[i].views.map((v) => (v.userById))).size
-        await db.entity.update({
-            data: {
-                uniqueViewsCount: s
-            },
-            where: {
-                id: entities[i].id
-            }
-        })
-    }
-}
-
-
 export async function updateIsDraft(){
     const contents = await db.content.findMany({
         select: {
@@ -411,8 +387,7 @@ export async function takeAuthorship(contentId: string) {
     const {content, error} = await getContentById(contentId)
     if(error) return {error}
     
-    const {user, error: userError} = await getUser()
-    if(userError) return {error: userError}
+    const user = await getUser()
 
     if(!user || (user.editorStatus != "Administrator" && user.id != "tomas") || user.id == content.author.id){
         return {error: "No tenés los permisos suficientes para hacer esto."}
@@ -438,8 +413,8 @@ export async function takeAuthorship(contentId: string) {
     revalidateTag("profileFeed:"+content.author.id)
     revalidateTag("editsFeed:"+user.id)
     revalidateTag("editsFeed:"+content.author.id)
-    if(content.parentEntityId){
-        revalidateTag("entity:"+content.parentEntityId)
+    if(content.parentEntity.id){
+        revalidateTag("entity:"+content.parentEntity.id)
     }
     
     return {}

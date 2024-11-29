@@ -6,6 +6,7 @@ import { SerializedAuthorNode } from "./editor/nodes/AuthorNode"
 import { editorStateFromJSON } from "./utils"
 import { wikiEditorSettings } from "./editor/wiki-editor"
 import { ShowContributors } from "./show-contributors"
+import { ContentType } from "@prisma/client"
 
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
@@ -72,7 +73,7 @@ function showAuthors(entity: EntityProps, version: number, versionText: string){
 
 export const ShowArticleAuthors = ({originalContent, originalContentText, entity, version}: {originalContent: {
     id: string
-    type: string
+    type: ContentType
     childrenContents: CommentProps[]
     compressedText?: string
 }, 

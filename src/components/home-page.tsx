@@ -38,39 +38,21 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                 <LogoAndSlogan />
 
                 <div className="flex flex-col items-center space-y-2 mt-12">
-
-                    <Link href="/signup">
-                        <Button
-                            color="primary"
-                            size={!isMobile ? "large" : "medium"}
-                            variant="contained"
-                            disableElevation={true}
-                            sx={{
-                                textTransform: "none",
-                                width: !isMobile ? "300px" : "170px"
-                            }}
-                        >
-                            <div className="title">Crear cuenta</div>
-                        </Button>
-                    </Link>
                     <Link href="/login">
                         <Button
                             color="primary"
                             size={!isMobile ? "large" : "medium"}
-                            variant="contained"
+                            variant="outlined"
+                            endIcon={<BlueskyLogo/>}
                             disableElevation={true}
                             sx={{
                                 textTransform: "none",
-                                width: !isMobile ? "300px" : "170px"
+                                width: !isMobile ? "300px" : "170px",
                             }}
                         >
-                            <div className="title">Iniciar sesión</div>
+                            <div className="title">Crear cuenta o iniciar sesión</div>
                         </Button>
                     </Link>
-                    <div className="text-center inline-block text-[var(--text-light)]">
-                        <span className="mr-1">Podés iniciar sesión tu cuenta de </span>
-                        <div className="inline-block"><Link className="text-[#0481f7] flex items-center" href="https://bsky.social">Bluesky<BlueskyLogo className="w-8 h-8"/></Link></div>
-                    </div>
                 </div>
             </div>
             
@@ -137,7 +119,7 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                         />
                     </div>
                     <div className="flex flex-col items-center">
-                        <h4>O hacé publicaciones rápidas</h4>
+                        <h4>Hacé publicaciones rápidas</h4>
                         <div className="text-lg">
                             Hasta 300 caracteres.
                         </div>
@@ -170,10 +152,10 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                         <div className="text-gray-400 text-sm">Imagen generada por Midjourney.</div>
                     </div>
                     <div className="max-w-[400px] h-full flex flex-col justify-center text-lg text-center">
-                        <h2 className="">El cabildo es solo para seres humanos</h2>
-                        <p className="mt-4">Verificamos que los usuarios sean personas reales con su DNI.</p>
+                        <h2 className="">El cabildo es solo para personas reales</h2>
+                        <p className="mt-4">Para participar en la discusión tenés que validar tu cuenta con una foto del DNI.</p>
                         <p className="mt-4">Después de la verificación tu cuenta puede ser anónima.</p>
-                        <p className="mt-4">Gracias a esto, podemos (por ejemplo) mostrarte cuántas personas reales distintas vieron una publicación, o le dieron me gusta.</p>
+                        <p className="mt-4">Gracias a esto, todas las interacciones y métricas de popularidad son representativas.</p>
                     </div>
                 </div>
             </div>
@@ -194,7 +176,7 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                         Cabildo Abierto se financia con aportes voluntarios.
                     </p>
                     <p className="mt-6 text-lg">
-                        Con eso, remuneramos a cada autor en función del valor que generó en otros usuarios.
+                        Con eso, remuneramos a cada autor en función de su contribución, según el valor que le dan otros usuarios.
                     </p>
                 </div>
             </div>
@@ -221,9 +203,9 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                             className="rounded-lg shadow-lg w-32 h-auto"
                         />
                     </div>
-                    <div className="absolute z-2 left-[0px] top-[10px]">
+                    <div className="absolute z-2 left-[0px] top-[40px]">
                         <Link href="https://bsky.social">
-                        <BlueskyLogo className="w-48 h-auto"/>
+                            <BlueskyLogo fontSize="135"/>
                         </Link>
                     </div>
                     <div className="absolute z-2 left-[100px] top-[220px] text-2xl">
@@ -242,7 +224,7 @@ export const HomePage = ({ searchParams }: { searchParams: { code?: string, erro
                             Cabildo Abierto usa <span className="">AT</span><span>Protocol</span>, el mismo sistema que Bluesky, que permite que nadie más que vos sea dueño de tus datos.
                         </p>
                         <p className="mt-4">
-                            Gracias a eso, te podés mover libremente entre plataformas sin perder nada. Las cuentas y contenidos se comparten.
+                            Gracias a eso, te podés mover libremente entre plataformas sin perder nada: las cuentas y contenidos se comparten.
                         </p>
                         <p className="link mt-4 text-right">
                             <Link href={articleUrl("ATProtocol")}>Leer más.</Link>

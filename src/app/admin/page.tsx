@@ -1,11 +1,10 @@
 "use client"
 
-import { recomputeAllContributions, revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, compressContents, compressContent, decompressContents, decompressContent, updateUniqueViewsCount, updateIsDraft, deleteEntity, computeDayViews, computeSubscriptorsByDay, revalidateSuggestions } from "../../actions/admin"
+import { recomputeAllContributions, revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, compressContents, compressContent, decompressContents, decompressContent, updateIsDraft, deleteEntity, computeDayViews, computeSubscriptorsByDay, revalidateSuggestions } from "../../actions/admin"
 import { updateAllUniqueCommentators, notifyAllMentions, deleteUser } from "../../actions/contents"
 import { recomputeEntityContributions } from "../../actions/entities"
-import { createPaymentPromises, confirmPayments } from "../../actions/payments"
 import { updateAllReferences, updateAllWeakReferences } from "../../actions/references"
-import { addDonatedSubscriptionsManually, assignSubscriptions, buySubscriptions, desassignSubscriptions, recoverSubscriptions, removeSubscriptions } from "../../actions/users"
+import { assignSubscriptions, buySubscriptions, desassignSubscriptions, recoverSubscriptions, removeSubscriptions } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
@@ -106,9 +105,6 @@ export default function Page() {
 
             <button className="gray-btn" onClick={async () => {await updateAllUniqueCommentators()}}>
                 Actualizar unique comentators
-            </button>
-            <button className="gray-btn" onClick={async () => {await updateUniqueViewsCount()}}>
-                Actualizar unique views
             </button>
             <button className="gray-btn" onClick={async () => {await updateAllReferences()}}>
                 Actualizar referencias

@@ -12,6 +12,7 @@ import { articleUrl, cleanText, currentVersion, getKeysFromEntity, getVersionInE
 import { decompress } from "./compression";
 import { contentContextClassName } from "./comment-in-context";
 import { ContentTopRow } from "./content-top-row";
+import { ContentType } from "@prisma/client";
 
 
 type EntityComponentProps = {
@@ -20,13 +21,13 @@ type EntityComponentProps = {
         compressedText?: string
         charsAdded: number
         charsDeleted: number
-        type: string
+        type: ContentType
         diff: string
         title?: string
         parentEntityId?: string
         isContentEdited: boolean
-        createdAt: string | Date
-        author: {name: string, id: string}
+        createdAt: Date
+        author: {id: string, handle: string, displayName: string}
         fakeReportsCount: number
         childrenContents: CommentProps[]
     }
@@ -181,10 +182,10 @@ const EntityEditInFeed = ({entity, content, version}: {
         id: string
         isContentEdited: boolean
         createdAt: Date | string
-        type: string
-        author: {name: string, id: string}
+        type: ContentType
+        author: {id: string, handle: string, displayName: string}
         fakeReportsCount: number
-        childrenContents: {type: string}[]
+        childrenContents: {type: ContentType}[]
     },
     entity: EntityProps,
     version: number}) => {

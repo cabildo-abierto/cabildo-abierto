@@ -21,25 +21,6 @@ export const ProfilePage = ({profileUser}: ProfilePageProps) => {
     const repliesFeed = useRepliesFeed(profileUser.id)
     const profileFeed = useProfileFeed(profileUser.id)
     const editsFeed = useEditsFeed(profileUser.id)
-    
-    useEffect(() => {
-        const loadAmount = 50
-        if(repliesFeed.feed){
-            for(let i = 0; i < Math.min(repliesFeed.feed.length, loadAmount); i++){
-                preload("/api/content/"+repliesFeed.feed[i].id, fetcher)
-            }
-        }
-        if(profileFeed.feed){
-            for(let i = 0; i < Math.min(profileFeed.feed.length, loadAmount); i++){
-                preload("/api/content/"+profileFeed.feed[i].id, fetcher)
-            }
-        }
-        if(editsFeed.feed){
-            for(let i = 0; i < Math.min(editsFeed.feed.length, loadAmount); i++){
-                preload("/api/content/"+editsFeed.feed[i].id, fetcher)
-            }
-        }
-    }, [])
 
     return <div>
         <div className="mb-4">

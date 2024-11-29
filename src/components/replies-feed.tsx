@@ -9,5 +9,5 @@ import Feed from "./feed"
 export const RepliesFeed = ({profileUser}: {profileUser: UserProps}) => {
     const feed = useRepliesFeed(profileUser.id)
 
-    return <Feed feed={feed} noResultsText={profileUser.name + " todavía no escribió ninguna respuesta."}/>
+    return <Feed feed={feed} noResultsText={profileUser.displayName + " todavía no escribió ninguna respuesta."}/>
 }

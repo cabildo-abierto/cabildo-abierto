@@ -3,7 +3,7 @@
 import { revalidateTag } from "next/cache";
 import { db } from "../db";
 import { getEntities } from "./entities";
-import { SearchkeysProps, SmallContentProps } from "../app/lib/definitions";
+import { ContentProps, SearchkeysProps } from "../app/lib/definitions";
 import { findWeakEntityReferences, getSearchkeysFromEntities } from "../components/utils";
 import { decompress } from "../components/compression";
 import { getSearchableContents } from "./feed";
@@ -17,9 +17,9 @@ export async function updateAllReferences(){
             select: {
                 id: true,
                 compressedText: true,
-                entityReferences: {
+                references: {
                     select: {
-                        id: true
+                        entityReferencedId: true
                     }
                 }
             },
@@ -41,9 +41,7 @@ export async function updateAllReferences(){
         try {
             await db.content.update({
                 data: {
-                    entityReferences: {
-                        connect: entityReferences
-                    }
+                    // TO DO: Implement
                 },
                 where: {
                     id: c.id
@@ -64,9 +62,10 @@ export async function getReferencesSearchKeys(){
 }
 
 
-export async function updateWeakReferencesForContent(content: SmallContentProps, searchkeys: SearchkeysProps){
+export async function updateWeakReferencesForContent(content: ContentProps, searchkeys: SearchkeysProps){
+    return null // TO DO: Implement
     const text = decompress(content.compressedPlainText)
-    let currentReferences = content.weakReferences.map(({id}) => ({id: id}))
+    let currentReferences = content.references.map(({entityReferenced}) => ({id: entityReferenced.id}))
 
     const weakReferences = findWeakEntityReferences(text+" "+content.title, searchkeys)
 
@@ -86,7 +85,7 @@ export async function updateWeakReferencesForContent(content: SmallContentProps,
     if(toRemoveIds.length > 0 || toAddIds.length > 0){
         await db.content.update({
             data: {
-                weakReferences: {
+                references: {
                     connect: toAddIds,
                     disconnect: toRemoveIds
                 }

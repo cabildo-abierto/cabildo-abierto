@@ -15,6 +15,7 @@ import { useUser } from '../app/hooks/user';
 import { ContentTopRow } from './content-top-row';
 import { ShortDescriptionProps } from './comment-in-context';
 import { useEffect, useState } from 'react';
+import { ContentType } from '@prisma/client';
 
 
 function getQuoteFromContent(node: any, id: string): any {
@@ -97,22 +98,21 @@ export const CommentQuote = ({content}: {content: CommentContentProps}) => {
 
 type CommentContentProps = {
     id: string
-    author: {id: string, name: string}
+    author: {id: string, handle: string, displayName: string}
     compressedText?: string
-    type: string
+    type: ContentType
     isContentEdited: boolean
     createdAt: Date | string
     fakeReportsCount: number
-    reactions?: {id: string}[]
     _count: {
         reactions: number
         childrenTree: number
     }
     uniqueViewsCount: number
-    parentEntityId?: string
+    parentEntity?: {id: string}
     parentContents?: ShortDescriptionProps[]
     rootContent?: ShortDescriptionProps
-    childrenContents: {type: string}[]
+    childrenContents: {type: ContentType}[]
 }
 
 

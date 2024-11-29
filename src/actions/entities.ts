@@ -5,11 +5,11 @@ import { db } from "../db";
 import { getContentById, notifyMentions, processNewTextFast } from "./contents";
 import { revalidateEverythingTime, revalidateReferences } from "./utils";
 import { charDiffFromJSONString } from "../components/diff";
-import { EntityProps, SmallEntityProps } from "../app/lib/definitions";
+import { BothContributionsProps, EntityProps, SmallEntityProps } from "../app/lib/definitions";
 import { currentVersionContent, entityExists, entityInRoute, getPlainText, hasEditPermission, isEntityContentDemonetized, isPartOfContent, isUndo } from "../components/utils";
 import { getUserById } from "./users";
 import { compress, decompress } from "../components/compression";
-//import { extendContentStallPaymentDate } from "./payments";
+import { ContentType, Prisma } from "@prisma/client";
 
 
 
@@ -67,8 +67,11 @@ export async function createEntity(name: string, userId: string){
 }
 
 
-function addToContributionList(l: [string, number][], author: string, value: number){
+function addToContributionList(l: [string, number][] | undefined, author: string, value: number){
     let wasAuthor = false
+
+    if(!l) l = []    
+
     for(let i = 0; i < l.length; i++){
         if(l[i][0] == author){
             wasAuthor = true
@@ -88,12 +91,6 @@ function updateContribution(contribution: BothContributionsProps, charsAdded: nu
         all: addToContributionList(contribution.all, newAuthor, charsAdded),
         monetized: monetized ? addToContributionList(contribution.monetized, newAuthor, charsAdded) : contribution.monetized
     }
-}
-
-
-export type BothContributionsProps = {
-    monetized: [string, number][]
-    all: [string, number][]
 }
 
 
@@ -253,11 +250,8 @@ export const updateEntityContent = async (
                 },
                 categories: currentContent.categories,
                 searchkeys: entity.currentVersion.searchkeys,
-                entityReferences: {
-                    connect: entityReferences
-                },
-                weakReferences: {
-                    connect: weakReferences
+                references: {
+                    create: []
                 },
                 usersMentioned: {
                     connect: mentions
@@ -284,7 +278,7 @@ export const updateEntityContent = async (
     const {error: notifyError} = await notifyMentions(mentions, newContent.id, userId, true)
     if(notifyError) return {error: notifyError}
 
-    revalidateReferences(entityReferences, weakReferences)
+    revalidateReferences(entityReferences)
 
     revalidateTag("entity:" + entityId)
     revalidateTag("entities")
@@ -309,8 +303,7 @@ export const updateEntityCategoriesOrSearchkeys = async (entityId: string, userI
     if(getContentError) return {error: getContentError}
 
     const compressedText = currentContent.compressedText
-    const references = currentContent.entityReferences.map(({id}) => ({id: id}))
-    const weakReferences = current.weakReferences
+    const references = currentContent.references.map(({entityReferenced}) => ({id: entityReferenced.id}))
     const mentions = currentContent.usersMentioned
     const text = decompress(currentContent.compressedText)
 
@@ -325,8 +318,9 @@ export const updateEntityCategoriesOrSearchkeys = async (entityId: string, userI
     } else {
         try {
             contribution = JSON.stringify(updateContribution(JSON.parse(currentContent.contribution), charsAdded, userId, false))
-        } catch {
-            return {error: "Error al actualizar el tema."}
+        } catch (err) {
+            console.log("Error", err)
+            return {error: "Error al actualizar el tema. e01."}
         }
     }
 
@@ -348,11 +342,8 @@ export const updateEntityCategoriesOrSearchkeys = async (entityId: string, userI
                 },
                 categories: categories,
                 searchkeys: searchkeys,
-                entityReferences: {
-                    connect: references
-                },
-                weakReferences: {
-                    connect: weakReferences
+                references: {
+                    create: []
                 },
                 usersMentioned: {
                     connect: mentions
@@ -373,13 +364,13 @@ export const updateEntityCategoriesOrSearchkeys = async (entityId: string, userI
             }
         })
     } catch {
-        return {error: "Error al actualizar el tema."}
+        return {error: "Error al actualizar el tema. e02."}
     }
 
     const {error: notifyError} = await notifyMentions(mentions, newContent.id, userId, true)
     if(notifyError) return {error: notifyError}
 
-    revalidateReferences(references, weakReferences)
+    revalidateReferences(references)
 
     revalidateTag("entity:" + entityId)
     revalidateTag("entities")
@@ -461,7 +452,6 @@ export const getEntitiesNoCache = async () => {
             name: true,
             protection: true,
             isPublic: true,
-            uniqueViewsCount: true,
             versions: {
                 select: {
                     id: true,
@@ -488,122 +478,72 @@ export const getEntitiesNoCache = async () => {
             },
             referencedBy: {
                 select: {
-                    createdAt: true,
-                    authorId: true,
-                    childrenTree: {
+                    isStrong: true,
+                    referencingContent: {
                         select: {
-                            authorId: true,
                             createdAt: true,
+                            authorId: true,
+                            uniqueViewsCount: true,
+                            childrenTree: {
+                                select: {
+                                    authorId: true,
+                                    createdAt: true,
+                                    reactions: {
+                                        select: {
+                                            userById: true,
+                                            createdAt: true
+                                        }
+                                    }
+                                }
+                            },
                             reactions: {
                                 select: {
-                                    userById: true,
-                                    createdAt: true
+                                    createdAt: true,
+                                    userById: true
                                 }
-                            }
+                            },
+                            parentEntityId: true
                         }
-                    },
-                    reactions: {
-                        select: {
-                            createdAt: true,
-                            userById: true
-                        }
-                    },
-                    parentEntityId: true
+                    }
                 },
                 where: {
-                    OR: [{
-                        AND: [
+                    referencingContent: {
+                        OR: [
+                            {
+                                AND: [
+                                    {
+                                        type: {
+                                            in: ["Post", "FastPost"]
+                                        }
+                                    },
+                                    {
+                                        isDraft: false
+                                    }
+                                ]
+                            },
                             {
                                 type: {
-                                    in: ["Post", "FastPost"]
+                                    notIn: ["Post", "FastPost", "EntityContent"]
                                 }
                             },
                             {
-                                isDraft: false
-                            }
-                        ]
-                    },
-                    {
-                        type: {
-                            notIn: ["Post", "FastPost", "EntityContent"]
-                        }
-                    },
-                    {
-                        AND: [
-                            {
-                                type: "EntityContent"
-                            },
-                            {
-                                parentEntity: {
-                                    deleted: false
-                                }
+                                AND: [{
+                                    type: "EntityContent"
+                                },
+                                {
+                                    parentEntity: {
+                                        deleted: false
+                                    }
+                                }]
                             }
                         ]
                     }
-                    ]
                 }
             },
             reactions: {
                 select: {
                     userById: true,
                     createdAt: true
-                }
-            },
-            weakReferences: {
-                select: {
-                    authorId: true,
-                    createdAt: true,
-                    childrenTree: {
-                        select: {
-                            authorId: true,
-                            createdAt: true,
-                            reactions: {
-                                select: {
-                                    userById: true,
-                                    createdAt: true
-                                }
-                            }
-                        }
-                    },
-                    reactions: {
-                        select: {
-                            userById: true,
-                            createdAt: true
-                        }
-                    },
-                    parentEntityId: true
-                },
-                where: {
-                    OR: [{
-                        AND: [
-                            {
-                                type: {
-                                    in: ["Post", "FastPost"]
-                                }
-                            },
-                            {
-                                isDraft: false
-                            }
-                        ]
-                    },
-                    {
-                        type: {
-                            notIn: ["Post", "FastPost", "EntityContent"]
-                        }
-                    },
-                    {
-                        AND: [
-                            {
-                                type: "EntityContent"
-                            },
-                            {
-                                parentEntity: {
-                                    deleted: false
-                                }
-                            }
-                        ]
-                    }
-                    ]
                 }
             },
             currentVersionId: true,
@@ -641,10 +581,172 @@ export const getEntities = async (): Promise<{entities?: SmallEntityProps[], err
 }
 
 
+const versionsSelect = {
+    id: true,
+    type: true,
+    categories: true,
+    confirmedById: true,
+    rejectedById: true,
+    accCharsAdded: true,
+    charsAdded: true,
+    charsDeleted: true,
+    contribution: true,
+    editMsg: true,
+    undos: {
+        select: {
+            id: true,
+            reportsOportunism: true,
+            reportsVandalism: true,
+            authorId: true,
+            createdAt: true,
+            compressedText: true
+        },
+        orderBy: {
+            createdAt: "desc" as Prisma.SortOrder
+        }
+    },
+    uniqueViewsCount: true,
+    createdAt: true,
+    compressedText: true,
+    author: {
+        select: {
+            id: true,
+            handle: true,
+            displayName: true
+        }
+    },
+    editPermission: true,
+    childrenContents: {
+        select: {
+            id: true,
+            type: true,
+            createdAt: true,
+            reactions: {
+                select: {
+                    userById: true
+                }
+            },
+            currentVersionOf: {
+                select: {
+                    id: true
+                }
+            },
+            editPermission: true,
+            childrenTree: {
+                select: {
+                    authorId: true
+                }
+            },
+            author: {
+                select: {
+                    id: true
+                }
+            },
+            uniqueViewsCount: true
+        },
+    },
+    claimsAuthorship: true,
+    diff: true,
+    references: {
+        select: {
+            entityReferenced: {
+                select: {
+                    id: true
+                }
+            }
+        },
+        where: {
+            entityReferenced: {
+                deleted: false
+            }
+        }
+    },
+}
+
+
+const referencedBySelect = {
+    isStrong: true,
+    referencingContent: {
+        select: {
+            id: true,
+            createdAt: true,
+            type: true,
+            author: {
+                select: {
+                    id: true
+                }
+            },
+            uniqueViewsCount: true,
+            childrenTree: {
+                select: {
+                    authorId: true,
+                    createdAt: true,
+                    reactions: {
+                        select: {
+                            userById: true,
+                            createdAt: true
+                        }
+                    }
+                }
+            },
+            reactions: {
+                select: {
+                    createdAt: true,
+                    userById: true
+                }
+            },
+            currentVersionOf: {
+                select: {
+                    id: true
+                }
+            },
+            parentEntityId: true
+        }
+    }
+}
+
+
+const referencedByWhere = {
+    referencingContent: {
+        OR: [
+            {
+                AND: [
+                    {
+                        type: {
+                            in: ["Post", "FastPost"] as ContentType[]
+                        }
+                    },
+                    {
+                        isDraft: false
+                    }
+                ]
+            },
+            {
+                type: {
+                    notIn: ["Post", "FastPost", "EntityContent"] as ContentType[]
+                }
+            },
+            {
+                AND: [
+                    {
+                        type: "EntityContent" as ContentType
+                    },
+                    {
+                        parentEntity: {
+                            deleted: false
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+
 export async function getEntityByIdNoCache(id: string): Promise<{entity?: EntityProps, error?: string}>{
     let entity: EntityProps | null
-    entity = await db.entity.findUnique(
-        {select: {
+    entity = await db.entity.findUnique({
+        select: {
             id: true,
             name: true,
             protection: true,
@@ -658,231 +760,18 @@ export async function getEntityByIdNoCache(id: string): Promise<{entity?: Entity
                 }
             },
             versions: {
-                select: {
-                    id: true,
-                    type: true,
-                    categories: true,
-                    confirmedById: true,
-                    rejectedById: true,
-                    accCharsAdded: true,
-                    charsAdded: true,
-                    charsDeleted: true,
-                    contribution: true,
-                    editMsg: true,
-                    undos: {
-                        select: {
-                            id: true,
-                            reportsOportunism: true,
-                            reportsVandalism: true,
-                            authorId: true,
-                            createdAt: true,
-                            compressedText: true
-                        },
-                        orderBy: {
-                            createdAt: "desc"
-                        }
-                    },
-                    uniqueViewsCount: true,
-                    _count: {
-                        select: {
-                            reactions: true
-                        }
-                    },
-                    createdAt: true,
-                    compressedText: true,
-                    author: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    },
-                    editPermission: true,
-                    childrenContents: {
-                        select: {
-                            id: true,
-                            type: true,
-                            createdAt: true,
-                            _count: {
-                                select: {
-                                    childrenTree: true,
-                                    reactions: true,
-                                }
-                            },
-                            currentVersionOf: {
-                                select: {
-                                    id: true
-                                }
-                            },
-                            editPermission: true,
-                            childrenTree: {
-                                select: {
-                                    authorId: true
-                                }
-                            },
-                            author: {
-                                select: {
-                                    id: true
-                                }
-                            },
-                            uniqueViewsCount: true
-                        },
-                    },
-                    claimsAuthorship: true,
-                    diff: true,
-                    entityReferences: {
-                        select: {
-                            id: true
-                        },
-                        where: {
-                            deleted: false
-                        }
-                    },
-                    weakReferences: {
-                        select: {
-                            id: true
-                        },
-                        where: {
-                            deleted: false
-                        }
-                    },
-                },
+                select: versionsSelect,
                 orderBy: {
                     createdAt: "asc"
                 },
                 where: {
-                    type: "EntityContent"
+                    type: "EntityContent" as ContentType
                 }
             },
             referencedBy: {
-                select: {
-                    id: true,
-                    createdAt: true,
-                    type: true,
-                    author: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    },
-                    _count: {
-                        select: {
-                            reactions: true,
-                            childrenTree: true
-                        }
-                    },
-                    currentVersionOf: {
-                        select: {
-                            id: true
-                        }
-                    },
-                    parentEntityId: true,
-                    childrenTree: {
-                        select: {
-                            authorId: true
-                        }
-                    },
-                    uniqueViewsCount: true
-                },
-                where: {
-                    OR: [{
-                        AND: [
-                            {
-                                type: {
-                                    in: ["Post", "FastPost"]
-                                }
-                            },
-                            {
-                                isDraft: false
-                            }
-                        ]
-                    },
-                    {
-                        type: {
-                            notIn: ["Post", "FastPost", "EntityContent"]
-                        }
-                    },
-                    {
-                        AND: [
-                            {
-                                type: "EntityContent"
-                            },
-                            {
-                                parentEntity: {
-                                    deleted: false
-                                }
-                            }
-                        ]
-                    }
-                    ]
-                }
+                select: referencedBySelect,
+                where: referencedByWhere,
             },
-            weakReferences: {
-                select: {
-                    id: true,
-                    createdAt: true,
-                    type: true,
-                    author: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    },
-                    _count: {
-                        select: {
-                            reactions: true,
-                            childrenTree: true
-                        }
-                    },
-                    currentVersionOf: {
-                        select: {
-                            id: true
-                        }
-                    },
-                    parentEntityId: true,
-                    childrenTree: {
-                        select: {
-                            authorId: true
-                        }
-                    },
-                    uniqueViewsCount: true
-                },
-                where: {
-                    OR: [{
-                        AND: [
-                            {
-                                type: {
-                                    in: ["Post", "FastPost"]
-                                }
-                            },
-                            {
-                                isDraft: false
-                            }
-                        ]
-                    },
-                    {
-                        type: {
-                            notIn: ["Post", "FastPost", "EntityContent"]
-                        }
-                    },
-                    {
-                        AND: [
-                            {
-                                type: "EntityContent"
-                            },
-                            {
-                                parentEntity: {
-                                    deleted: false
-                                }
-                            }
-                        ]
-                    }
-                    ]
-                }
-            },
-            _count: {
-                select: {reactions: true},
-            },
-            uniqueViewsCount: true,
             currentVersionId: true
         },
             where: {
@@ -1023,8 +912,7 @@ export async function changeEntityName(entityId: string, newName: string, userId
     if(getContentError) return {error: getContentError}
 
     const compressedText = currentContent.compressedText
-    const references = currentContent.entityReferences.map(({id}) => ({id: id}))
-    const weakReferences = current.weakReferences
+    const references = currentContent.references.map(({entityReferenced}) => ({id: entityReferenced.id}))
     const mentions = currentContent.usersMentioned
     const text = decompress(currentContent.compressedText)
 
@@ -1057,11 +945,8 @@ export async function changeEntityName(entityId: string, newName: string, userId
                 },
                 categories: current.categories,
                 searchkeys: entity.currentVersion.searchkeys,
-                entityReferences: {
-                    connect: references
-                },
-                weakReferences: {
-                    connect: weakReferences
+                references: {
+                    create: []
                 },
                 usersMentioned: {
                     connect: mentions

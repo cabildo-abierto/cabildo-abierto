@@ -36,7 +36,7 @@ export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: nu
     const searchValue = cleanText(searchState.value)
 
     function isMatch(user: SmallUserProps){
-        return cleanText(user.name).includes(searchValue) || cleanText(user.id).includes(searchValue)
+        return cleanText(user.displayName).includes(searchValue) || cleanText(user.handle).includes(searchValue)
     }
 
     let filteredUsers = users.users.filter(isMatch)

@@ -2,16 +2,16 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { createClient } from "../utils/supabase/server";
 import { revalidateEverythingTime } from "./utils";
 import { SmallUserProps, UserProps, UserStats } from "../app/lib/definitions";
 import { getEntities } from "./entities";
-import { createNotification } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-import { listOrder, listOrderDesc, subscriptionEnds, validSubscription } from "../components/utils";
+import { listOrder, subscriptionEnds, validSubscription } from "../components/utils";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
 import { getSubscriptionPrice } from "./payments";
+import { getSessionAgent } from "./auth";
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 
 export async function updateDescription(text: string, userId: string) {
@@ -27,10 +27,10 @@ export async function updateDescription(text: string, userId: string) {
 }
 
 
-export async function updateName(newName: string, userId: string){
+export async function updateDisplayName(newName: string, userId: string){
     await db.user.update({
         data: {
-            name: newName
+            displayName: newName
         },
         where: {
             id: userId
@@ -40,21 +40,19 @@ export async function updateName(newName: string, userId: string){
 }
 
 
-
 export const getUsersNoCache = async (): Promise<SmallUserProps[]> => {
     const users = await db.user.findMany({
         select: {
             id: true,
-            name: true,
-            following: {select: {id: true}},
+            handle: true,
+            displayName: true,
             contents: {
                 select: {
                     _count: {
                         select: {
                             reactions: true,
                         }
-                    },
-                    uniqueViewsCount: true
+                    }
                 },
                 where: {
                     type: {
@@ -98,12 +96,6 @@ export const getConversations = (userId: string) => {
             {
                 select: {
                     id: true,
-                    name: true,
-                    following: {
-                        select: {
-                            id: true
-                        }
-                    },
                     messagesSent: {
                         select: {
                             id: true,
@@ -153,7 +145,7 @@ export const getConversations = (userId: string) => {
 
         const usersArray = Array.from(users).map(([u, d]) => ({id: u, date: d.date, seen: d.seen}))
 
-        return [...usersArray, ...user.following.map(({id}) => ({id: id, date: null, seen: null}))]
+        return usersArray
     },
         ["conversations", userId],
         {
@@ -189,14 +181,26 @@ export const getUserById = (userId: string) => {
     return unstable_cache(async () => {
         let user: UserProps
         try {
-            user = await db.user.findUnique(
+            user = await db.user.findFirst(
                 {
                     select: {
                         id: true,
-                        name: true,
+                        displayName: true,
+                        handle: true,
+                        email: true,
+                        description: true,
                         createdAt: true,
-                        authenticated: true,
                         editorStatus: true,
+                        following: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        followers: {
+                            select: {
+                                id: true
+                            }
+                        },
                         subscriptionsUsed: {
                             orderBy: {
                                 createdAt: "asc"
@@ -213,14 +217,6 @@ export const getUserById = (userId: string) => {
                                 }
                             }
                         },
-                        following: {select: {id: true}},
-                        followedBy: {select: {id: true}},
-                        authUser: {
-                            select: {
-                                email: true,
-                            }
-                        },
-                        description: true,
                         _count: {
                             select: {
                                 notifications: {
@@ -228,27 +224,26 @@ export const getUserById = (userId: string) => {
                                         viewed: false
                                     }
                                 },
-                                views: {
-                                    where: {
-                                        content: {
-                                            parentEntityId: "Cabildo_Abierto"
-                                        }
-                                    }
-                                },
                                 contents: {
                                     where: {
-                                        NOT: {
-                                            fakeReportsCount: {
-                                                equals: 0
-                                            }
+                                        fakeReportsCount: {
+                                            not: 0
                                         }
                                     }
                                 }
                             }
-                        },
-                        closedFollowSuggestionsAt: true
+                        }
                     },
-                    where: {id:userId}
+                    where: {
+                        OR: [
+                            {
+                                id: userId
+                            },
+                            {
+                                handle:userId
+                            }
+                        ]
+                    }
                 }
             )
         } catch {
@@ -302,115 +297,43 @@ export const getUserContents = (userId: string) => {
 }
 
 
-export const getUserIdByAuthId = (authId: string) => {
-    return unstable_cache(async () => {
-        const userId = await db.user.findUnique(
-            {
-                select: {
-                    id: true,
-                },
-                where: {
-                    authUserId: authId
-                }
-            }
-        )
-        if(!userId){
-            return "not defined yet"
-        }
-        return userId?.id
-    }, ["userIdByAuthId", authId], {
-        revalidate: revalidateEverythingTime,
-        tags: ["userIdByAuthId", "userIdByAuthId:"+authId]})()    
-}
-
-
-export async function getUser(): Promise<{error?: string, user?: UserProps}> {
-    const userId = await getUserId()
-    if(userId == "not defined yet"){
-        return {error: "not defined yet"}
-    }
-    if(!userId) return {error: "no user id"}
-
-    return await getUserById(userId)
-}
-
-
-export async function getUserId() {
-    const {userAuthId} = await getUserAuthId()
-    if(!userAuthId) return null
-
-    return await getUserIdByAuthId(userAuthId)
-}
-
-
-export async function getUserAuthId() {
-
-    const supabase = createClient()
-    const {data} = await supabase.auth.getUser()
-
-    const userId = data?.user?.id
-
-    return {userAuthId: userId, name: data?.user?.user_metadata?.name}
-}
-
-
 export async function follow(userToFollowId: string, userId: string) {
-    const {user, error} = await getUserById(userId)
-    if(error) return {error}
-
-    if(user.following.some(({id}) => (userToFollowId == id))){
-        return {error: "already follows"}
-    }
-
-    let updatedUser
-
-    try {
-        const updatedUser = await db.user.update({
-            where: {
-                id: userId,
-            },
-            data: {
-                following: {
-                    connect: {
-                        id: userToFollowId,
-                    },
-                },
-            },
-        })
-    } catch {
-        return {error: "error on update user"}
-    }
-
-    revalidateTag("user:"+userToFollowId)
+    return {error: "not implemented"}
+    /*revalidateTag("user:"+userToFollowId)
     revalidateTag("user:"+userId)
     const {error: errorOnNotify} = await createNotification(userId, userToFollowId, "Follow")
     if(errorOnNotify) return {error: errorOnNotify}
-    return {updatedUser};
+    return {updatedUser};*/
 }
 
 
 export async function unfollow(userToUnfollowId: string, userId: string) {
-    let updatedUser
-    try {
-        updatedUser = await db.user.update({
-            where: {
-                id: userId,
-            },
-            data: {
-                following: {
-                    disconnect: {
-                        id: userToUnfollowId,
-                    },
-                },
-            },
-        })
-    } catch {
-        return {error: "error on update user"}
-    }
+    return {error: "not implemented"}
 
-    revalidateTag("user:"+userToUnfollowId)
+    /*revalidateTag("user:"+userToUnfollowId)
     revalidateTag("user:"+userId)
-    return {updatedUser};
+    return {updatedUser};*/
+}
+
+
+export async function getUserId(){
+    const {agent} = await getSessionAgent()
+
+    if(!agent) return null
+
+    return agent.assertDid
+}
+
+
+export async function getUser(){
+
+    const userId = await getUserId()
+    if(userId){
+        const {user} = await getUserById(userId)
+        return user ? user : null
+    } else {
+        return null
+    }
 }
 
 
@@ -587,24 +510,6 @@ export async function getDonatedSubscription(userId: string) {
         return {}
     }
 }
-
-export const getSubscriptionPoolSize = unstable_cache(async () => {
-    try {
-        const available = await db.subscription.findMany({
-            select: {id: true},
-            where: {usedAt: null, isDonation: true}
-        })
-        return {poolSize: available.length}
-    } catch {
-        return {error: "error getting subscription poolsize"}
-    }
-},
-    ["poolsize"],
-    {
-        revalidate: revalidateEverythingTime,
-        tags: ["poolsize"]
-    }
-)
 
 
 const min_time_between_visits = 60*60*1000 // una hora
@@ -851,62 +756,6 @@ export async function addDonatedSubscriptionsManually(boughtByUserId: string, am
         data: data
     })
     
-}
-
-
-export async function getUserFollowSuggestions(userId: string): Promise<{suggestions?: any[], error?: string}> {
-    if(!userId) return {suggestions: undefined, error: "not logged in"}
-
-    return await unstable_cache(async () => {
-        const {user, error} = await getUserById(userId)
-        if(error) return {error}
-        const {users, error: usersError} = await getUsers()
-        if(usersError) return {error: usersError}
-
-        const following = new Set<string>(user.following.map(({id}) => (id)))
-
-        function filter(u: {id: string}){
-            return !following.has(u.id) && u.id != user.id
-        }
-
-        function suggestionScore(s: {id: string, contents?: {_count: {reactions:number}, uniqueViewsCount?: number}[], following?: {id: string}[]}){
-            let n = 0
-            for(let i = 0; i < s.following.length; i++){
-                if(following.has(s.following[i].id)) n++
-            }
-
-            let writingScore = 0
-            for(let i = 0; i < s.contents.length; i++){
-                writingScore += s.contents[i]._count.reactions / s.contents[i].uniqueViewsCount
-            }
-            writingScore /= Math.max(s.contents.length, 1)
-
-            return [n, writingScore, Math.random()]
-        }
-
-        let suggestions = users.filter(filter)
-
-        let scores = suggestions.map((u) => ({user: u, score: suggestionScore(u)}))
-
-        scores = scores.sort(listOrderDesc)
-        
-        return {suggestions: scores.map(({user}) => (user))}
-
-    }, ["followSuggestions", userId], {revalidate: revalidateEverythingTime, tags: ["followSuggestions", userId]})()
-}
-
-
-export async function updateClosedFollowSuggestions(userId: string){
-    await db.user.update({
-        data: {
-            closedFollowSuggestionsAt: new Date()
-        },
-        where: {
-            id: userId
-        }
-    })
-    revalidateTag("user:"+userId)
-    return true
 }
 
 
@@ -1163,15 +1012,24 @@ export async function removeSubscriptions(){
 
 export async function createNewCAUserForBskyAccount(did: string){
     try {
+        console.log("checking if exists")
         const exists = await db.user.findFirst({
             where: {id: did}
         })
+        console.log("exists", exists)
         if(!exists){
-            console.log("Creating user")
-            const result = await db.user.create({
+
+            const {agent} = await getSessionAgent()
+            
+            const {data}: {data: ProfileViewDetailed} = await agent.getProfile({actor: agent.assertDid})
+
+            console.log("agentprofile", data)
+            await db.user.create({
                 data: {
                     id: did,
-                    name: did
+                    handle: data.handle,
+                    displayName: data.displayName,
+                    description: data.description
                 }
             })
         } else {
