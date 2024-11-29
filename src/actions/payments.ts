@@ -3,7 +3,7 @@
 
 import { db } from "../db";
 import { getContentById } from "./contents";
-import { accessToken, contributionsToProportionsMap, formatDate, isPartOfContent, launchDate, subscriptionEnds } from "../components/utils";
+import { accessToken, contributionsToProportionsMap, formatDate, isPartOfContent, launchDate, subscriptionEnds, supportDid } from "../components/utils";
 import { getUserById } from "./users";
 import { pathLogo } from "../components/logo";
 import MercadoPagoConfig, { Preference } from "mercadopago";
@@ -236,7 +236,7 @@ export async function createPromises(userId: string, amount: number, start: Date
         console.log("creating no activity subscription")
         await db.subscription.create({
             data: {
-                boughtByUserId: "soporte",
+                boughtByUserId: supportDid,
                 price: 0,
                 paymentId: "no activity",
                 userId: userId,
@@ -373,11 +373,6 @@ export async function createPaymentPromises(){
                 }
             },
             createdAt: true
-        },
-        where: {
-            id: {
-                notIn: ["soporte", "guest"]
-            }
         }
     })
 

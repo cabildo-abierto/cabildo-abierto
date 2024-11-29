@@ -34,7 +34,7 @@ export async function GET(req: NextRequest){
 
         await createNewCAUserForBskyAccount(session.did)
     } catch (err) {
-        return NextResponse.redirect('http://127.0.0.1:3000/inicio')
+        return NextResponse.redirect('http://127.0.0.1:3000/login')
     }
     return NextResponse.redirect('http://127.0.0.1:3000/inicio')
 }

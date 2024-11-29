@@ -1,7 +1,7 @@
 import { useRouteEntities } from "../app/hooks/contents"
 import { SmallEntityProps } from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
-import { articleUrl, currentVersion, listOrderDesc } from "./utils"
+import { articleUrl, currentVersion, listOrderDesc, supportDid } from "./utils"
 import { useDraggable } from "react-use-draggable-scroll";
 
 import { useEffect, useRef, useState } from 'react';
@@ -70,7 +70,7 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
 
     //if(entity.name == entityId) console.log("Total", entity.name, s.size, s)
 
-    s.delete("soporte")
+    s.delete(supportDid)
     return s.size
 }
 
