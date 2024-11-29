@@ -6,7 +6,7 @@ import { revalidateEverythingTime } from "./utils";
 import { SmallUserProps, UserProps, UserStats } from "../app/lib/definitions";
 import { getEntities } from "./entities";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-import { listOrder, subscriptionEnds, validSubscription } from "../components/utils";
+import { listOrder, subscriptionEnds, supportDid, validSubscription } from "../components/utils";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
 import { getSubscriptionPrice } from "./payments";
@@ -712,7 +712,7 @@ export const getSupportNotRespondedCount = unstable_cache(async () => {
                 toUserId: true
             },
             where: {
-                OR: [{toUserId: "soporte"}, {fromUserId: "soporte"}]
+                OR: [{toUserId: supportDid}, {fromUserId: supportDid}]
             },
             orderBy: {
                 createdAt: "asc"
@@ -723,7 +723,7 @@ export const getSupportNotRespondedCount = unstable_cache(async () => {
 
     for(let i = 0; i < messages.length; i++){
         const m = messages[i]
-        if(m.fromUserId == "soporte"){
+        if(m.fromUserId == supportDid){
             c.delete(m.toUserId)
         } else {
             c.add(m.fromUserId)
@@ -858,11 +858,6 @@ export async function assignSubscriptions(){
                 orderBy: {
                     createdAt: "desc"
                 }
-            }
-        },
-        where: {
-            id: {
-                notIn: ["guest", "soporte"]
             }
         }
     })

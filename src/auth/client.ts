@@ -7,7 +7,7 @@ export const createClient = async () => {
   const enc = encodeURIComponent
   return new NodeOAuthClient({
     clientMetadata: {
-      client_name: 'AT Protocol Express App',
+      client_name: 'Cabildo Abierto',
       client_id: publicUrl
         ? `${url}/client-metadata.json`
         : `http://localhost?redirect_uri=${enc(`${url}/oauth/callback`)}&scope=${enc('atproto transition:generic')}`,

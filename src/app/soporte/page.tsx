@@ -1,5 +1,6 @@
 import { Chatbox } from "../../components/chatbox";
 import { ThreeColumnsLayout } from "../../components/three-columns";
+import { supportDid } from "../../components/utils";
 
 
 
@@ -13,7 +14,7 @@ export default async function Page() {
             Te va a responder una persona real en menos de 24hs.
         </div>
         <div className="flex justify-center mt-6">
-            <Chatbox toUser="soporte"/>
+            <Chatbox toUser={supportDid}/>
         </div>
     </div>
 

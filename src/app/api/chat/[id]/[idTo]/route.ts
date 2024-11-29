@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getChatBetween, getUserId } from '../../../../../actions/users';
+import { supportDid } from '../../../../../components/utils';
 
 
 function hasAccess(loggedInUser: string, userId: string){
-    if(loggedInUser == "tomas" && userId == "soporte"){
+    if(loggedInUser == "tomas" && userId == supportDid){
         return true
     }
     return loggedInUser == userId

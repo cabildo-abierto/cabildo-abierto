@@ -6,7 +6,7 @@ import { getContentById } from "./contents";
 import { EditorStatus } from "@prisma/client";
 import { compress, decompress } from "../components/compression";
 import { getEntityById, updateEntityCurrentVersion, recomputeEntityContributions, getEntities } from "./entities";
-import { launchDate, subscriptionEnds, validSubscription } from "../components/utils";
+import { launchDate, subscriptionEnds, supportDid, validSubscription } from "../components/utils";
 import { isSameDay } from "date-fns";
 import { UserMonthDistributionProps } from "../app/lib/definitions";
 import { getUser } from "./users";
@@ -628,7 +628,7 @@ export async function getAdminStats(){
     for(let i = 0; i < 100; i++) viewsByDay.push(0)
 
     accounts.forEach(({id, views, createdAt}) => {
-        if(!["soporte", "tomas", "guest"].includes(id)){
+        if(![supportDid, "tomas", "guest"].includes(id)){
             views.forEach((v) => {
                 const time =  Math.floor((v.createdAt.getTime() - createdAt.getTime()) / dayDuration)
                 if(time < 100){
@@ -770,11 +770,6 @@ export async function getPaymentsStats(){
                         type: "Post"
                     }
                 }
-            }
-        },
-        where: {
-            id: {
-                notIn: ["soporte", "guest"]
             }
         }
     })

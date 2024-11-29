@@ -11,8 +11,8 @@ export const BlueskyLogin = () => {
     const [error, setError] = useState(undefined)
 
     async function handleSubmit(){
-        await login(handle)
-        return {}
+        const res = await login(handle)
+        return res && res.error ? {error: res.error} : {}
     }
 
     return <div className="w-screen flex justify-center">

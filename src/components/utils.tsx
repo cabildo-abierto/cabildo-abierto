@@ -742,3 +742,6 @@ export function getEntityMonetizedContributions(entity: {versions: {author: {id:
 
 
 export const inputClassName = "custom-input rounded"
+
+
+export const supportDid = "did:plc:rup47j6oesjlf44wx4fizu4m"

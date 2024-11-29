@@ -8,14 +8,19 @@ import { Agent } from "@atproto/api"
 import { getIronSession } from "iron-session"
 import { cookies } from "next/headers"
 import { env } from "process"
+//import { AppViewHandleResolver } from '@atproto-labs/handle-resolver'
 
 
 export async function login(handle: string){
     const oauthClient = await createClient()
 
     if (typeof handle !== 'string' || !isValidHandle(handle)) {
-        return {error: "invalid handle"}
+        return {error: "Nombre de usuario inválido. Escribilo sin @."}
     }
+
+    /*const resolver = new AppViewHandleResolver('https://api.bsky.app/')
+    const did = await resolver.resolve('cabildoabierto.com.ar')
+    console.log("CA did", did)*/
 
     // Initiate the OAuth flow
     let url
@@ -24,7 +29,8 @@ export async function login(handle: string){
             scope: 'atproto transition:generic',
         })
     } catch (err) {
-        return {error: "error initiating authorization"}
+        console.log(err)
+        return {error: "Falló la conexión con Bluesky."}
     }
     redirect(url.toString())
 }

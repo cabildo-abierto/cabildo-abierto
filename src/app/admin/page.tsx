@@ -11,6 +11,7 @@ import { useUser } from "../hooks/user"
 
 import React from 'react';
 import { ConfirmPaymentsButton, CreatePromisesButton } from "../payments/create-promises-button"
+import { supportDid } from "../../components/utils"
 
 
 
@@ -30,7 +31,7 @@ export default function Page() {
             
             <h2>Pagos</h2>
 
-            <button className="gray-btn" onClick={async () => {await buySubscriptions("soporte", 500, "hola")}}>
+            <button className="gray-btn" onClick={async () => {await buySubscriptions(supportDid, 500, "hola")}}>
                 Comprar suscripciones
             </button>
 
@@ -124,7 +125,7 @@ export default function Page() {
             <button className="gray-btn" onClick={async () => {await deleteUser(userId)}}>
                 Eliminar usuario {userId}
             </button>
-            <button className="gray-btn" onClick={async () => {await deleteEntity(entityId, "soporte")}}>
+            <button className="gray-btn" onClick={async () => {await deleteEntity(entityId, supportDid)}}>
                 Eliminar tema {entityId}
             </button>
 

@@ -9,7 +9,7 @@ import {CabildoIcon, DashboardIcon, DonateIcon, ManageAccountIcon, SupportIcon} 
 import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user";
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
-import { articleUrl } from "./utils";
+import { articleUrl, supportDid } from "./utils";
 import { Button } from "@mui/material";
 import { CloseSessionButton } from "./close-session-button";
 
@@ -26,7 +26,7 @@ function unseenCount(chat: ChatMessage[], userId: string){
 
 
 const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () => void}) => {
-    const chat = useChat(user.id, "soporte")
+    const chat = useChat(user.id, supportDid)
     const newSupportCount = chat.chat ? unseenCount(chat.chat, user.id) : 0
     return <SidebarButton icon={<SupportIcon newCount={newSupportCount}/>} onClick={onClose} text="Soporte" href="/soporte"/>
 }
