@@ -10,6 +10,7 @@ import { launchDate, subscriptionEnds, supportDid, validSubscription } from "../
 import { isSameDay } from "date-fns";
 import { UserMonthDistributionProps } from "../app/lib/definitions";
 import { getUser } from "./users";
+import { getSessionAgent } from "./auth";
 
 
 export const deleteEntityHistory = async (entityId: string, includeLast: boolean) => {
@@ -852,4 +853,47 @@ export async function getPaymentsStats(){
     })
 
     return {userMonths, entities, accounts}
+}
+
+
+export async function updateProfilesFromAT(){
+    const users = await db.user.findMany({
+        select: {
+            id: true,
+            handle: true,
+            displayName: true,
+            description: true,
+            avatar: true,
+        }
+    })
+
+    const {agent} = await getSessionAgent()
+
+    for(let i = 0; i < users.length; i++){
+        const u = users[i]
+        const {data: p} = await agent.getProfile({"actor": u.id})
+        if(p.avatar != u.avatar ||
+            p.handle != u.handle ||
+            p.displayName != u.displayName ||
+            p.description != u.description
+        ) {
+            console.log("Updating user", u.handle)
+            console.log("Prev:")
+            console.log(u.handle, u.displayName, u.description, u.avatar)
+            console.log("New:")
+            console.log(p.handle, p.displayName, p.description, p.avatar)
+
+            await db.user.update({
+                data: {
+                    handle: p.handle,
+                    displayName: p.displayName,
+                    description: p.description,
+                    avatar: p.avatar
+                },
+                where: {
+                    id: u.id
+                }
+            })
+        }
+    }
 }

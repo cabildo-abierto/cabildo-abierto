@@ -12,7 +12,7 @@ import InfoPanel from "./info-panel";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PersonIcon from '@mui/icons-material/Person';
 import { CustomLink as Link } from './custom-link';
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 
 
 export function countUserInteractions(entity: SmallEntityProps, since?: Date){

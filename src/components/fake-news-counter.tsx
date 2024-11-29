@@ -2,8 +2,8 @@
 
 import React from "react"
 import { ReactionButton } from "./reaction-button";
-import { RedFlag } from "./icons";
 import { ContentType } from "@prisma/client";
+import { RedFlag } from "./icons/red-flag-icon";
 
 
 type FakeCounterProps = {

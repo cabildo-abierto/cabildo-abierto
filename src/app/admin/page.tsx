@@ -1,6 +1,6 @@
 "use client"
 
-import { recomputeAllContributions, revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, compressContents, compressContent, decompressContents, decompressContent, updateIsDraft, deleteEntity, computeDayViews, computeSubscriptorsByDay, revalidateSuggestions } from "../../actions/admin"
+import { recomputeAllContributions, revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, compressContents, compressContent, decompressContents, decompressContent, updateIsDraft, deleteEntity, computeDayViews, computeSubscriptorsByDay, revalidateSuggestions, updateProfilesFromAT } from "../../actions/admin"
 import { updateAllUniqueCommentators, notifyAllMentions, deleteUser } from "../../actions/contents"
 import { recomputeEntityContributions } from "../../actions/entities"
 import { updateAllReferences, updateAllWeakReferences } from "../../actions/references"
@@ -11,14 +11,14 @@ import { useUser } from "../hooks/user"
 
 import React from 'react';
 import { ConfirmPaymentsButton, CreatePromisesButton } from "../payments/create-promises-button"
-import { supportDid } from "../../components/utils"
+import { supportDid, tomasDid } from "../../components/utils"
 
 
 
 export default function Page() {
     const {user} = useUser()
 
-    if(!user || (user.editorStatus != "Administrator" && user.id != "tomas")){
+    if(!user || (user.editorStatus != "Administrator" && user.id != tomasDid)){
         return <NotFoundPage/>
     }
 
@@ -104,6 +104,9 @@ export default function Page() {
 
             <h2>Actualizar</h2>
 
+            <button className="gray-btn" onClick={async () => {await updateProfilesFromAT()}}>
+                Actualizar perfiles
+            </button>
             <button className="gray-btn" onClick={async () => {await updateAllUniqueCommentators()}}>
                 Actualizar unique comentators
             </button>

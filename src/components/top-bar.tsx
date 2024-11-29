@@ -7,12 +7,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import WriteButton from "./write-button";
 import { createPortal } from "react-dom";
-import { CabildoIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
 import { TopbarLogo } from "./logo";
 import { NotificationsButton } from "./notifications-button";
 import { useSearch } from "./search-context";
 import { Button, IconButton } from "@mui/material";
+import { CabildoIcon } from './icons/home-icon';
 
 
 function FeedButton() {

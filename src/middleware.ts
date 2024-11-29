@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getIronSession } from 'iron-session'
+
 import { Session } from './app/oauth/callback/route'
 import { cookies } from 'next/headers'
 import { env } from 'process'
@@ -9,19 +10,6 @@ function isNewUserRoute(request: NextRequest){
 }
 
 export async function middleware(request: NextRequest) {
-    const session = await getIronSession<Session>(await cookies(), {
-        cookieName: 'sid',
-        password: env.COOKIE_SECRET || "",
-        cookieOptions: {
-            sameSite: "lax",
-            httpOnly: true,
-            secure: false,
-            path: "/"
-        }
-    })
-
-    const loggedIn = session.did != undefined
-
     const url = request.nextUrl.clone()
 
     if(url.pathname.startsWith("/wiki/")){
@@ -48,6 +36,19 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(articleUrl)
     }
 
+    const session = await getIronSession<Session>(await cookies(), {
+        cookieName: 'sid',
+        password: env.COOKIE_SECRET || "",
+        cookieOptions: {
+            sameSite: "lax",
+            httpOnly: true,
+            secure: false,
+            path: "/"
+        }
+    })
+
+    const loggedIn = session.did != undefined
+    
     if (
       !loggedIn && !isNewUserRoute(request)
     ) {

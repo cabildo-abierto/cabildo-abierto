@@ -6,7 +6,7 @@ import { SearchButton } from "./top-bar";
 import { id2url } from "./content";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import { useSearch } from "./search-context";
-import { CloseButton } from "./close-button";
+import { CloseButton } from "./ui-utils/close-button";
 
 
 export const UserSearchResult: React.FC<{result: {displayName: string, handle: string}}> = ({ result }) => {

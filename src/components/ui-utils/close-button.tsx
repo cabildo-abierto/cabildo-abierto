@@ -1,5 +1,5 @@
 import { IconButton } from "@mui/material"
-import { CloseButtonIcon } from "./icons"
+import { CloseButtonIcon } from "../icons/close-button-icon"
 
 
 

@@ -12,7 +12,6 @@ import { FastPost } from "./fast-post";
 import { ReactionButton } from "./reaction-button";
 import { ViewsCounter } from "./views-counter";
 import { CommentInContext } from "./comment-in-context";
-import { ActiveCommentIcon, ActiveLikeIcon, ActivePraiseIcon, InactiveCommentIcon, InactiveLikeIcon, InactivePraiseIcon } from "./icons";
 import { addView } from "../actions/contents";
 import { useUser } from "../app/hooks/user";
 import { ContentProps } from "../app/lib/definitions";
@@ -24,6 +23,12 @@ import { takeAuthorship } from "../actions/admin";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "./loading-spinner";
 import assert from "assert";
+import { ActiveCommentIcon } from "./icons/active-comment-icon";
+import { ActiveLikeIcon } from "./icons/active-like-icon";
+import { ActivePraiseIcon } from "./icons/active-praise-icon";
+import { InactiveCommentIcon } from "./icons/inactive-comment-icon";
+import { InactiveLikeIcon } from "./icons/inactive-like-icon";
+import { InactivePraiseIcon } from "./icons/inactive-praise-icon";
 
 export function id2url(id: string){
     return "/perfil/" + id.replace("@", "")

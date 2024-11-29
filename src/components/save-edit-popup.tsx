@@ -5,7 +5,6 @@ import { CustomLink as Link } from './custom-link';
 import React, { useEffect, useState } from "react";
 import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
-import { AcceptButtonPanel } from "./accept-button-panel";
 import { charDiffFromJSONString, getAllText } from "./diff";
 import InfoPanel from "./info-panel";
 import { NotEnoughPermissionsWarning } from "./permissions-warning";
@@ -13,7 +12,8 @@ import StateButton from "./state-button";
 import TickButton from "./tick-button";
 import { articleUrl, hasEditPermission } from "./utils";
 import { ChangesCounter, ChangesCounterWithText } from "./changes-counter";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
+import { AcceptButtonPanel } from "./ui-utils/accept-button-panel";
 
 
 const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: string) => void}) => {

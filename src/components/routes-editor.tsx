@@ -13,7 +13,7 @@ import { useRouteEntities, useContent } from "../app/hooks/contents";
 import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
 import { updateEntityCategoriesOrSearchkeys } from "../actions/entities";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 
 function validCategoryElement(e: string){
     return e.length > 0

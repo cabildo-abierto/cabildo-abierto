@@ -1,17 +1,14 @@
 "use client"
-import {ProfileHeader} from "./profile-header";
+import {ProfileHeader, ProfileHeaderData} from "./profile-header";
 import {ProfileFeed} from "./profile-feed";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useUser} from "../app/hooks/user";
-import {UserProps} from "../app/lib/definitions";
 import {RepliesFeed} from "./replies-feed";
 import {WikiFeed} from "./wiki-feed";
-import { preload } from "swr";
-import { fetcher } from "../app/hooks/utils";
 import { useEditsFeed, useProfileFeed, useRepliesFeed } from "../app/hooks/contents";
 
 type ProfilePageProps = {
-    profileUser: UserProps
+    profileUser: ProfileHeaderData
 }
 
 export const ProfilePage = ({profileUser}: ProfilePageProps) => {

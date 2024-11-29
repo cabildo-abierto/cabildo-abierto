@@ -3,7 +3,6 @@
 
 import { LikeAndCommentCounter } from './content';
 import ReadOnlyEditor from './editor/read-only-editor';
-import { FastPostIcon } from './icons';
 import { decompress } from './compression';
 import { useUser } from '../app/hooks/user';
 import { contentContextClassName } from './comment-in-context';
@@ -12,12 +11,13 @@ import { CommentProps } from '../app/lib/definitions';
 import Image from 'next/image'
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { CloseButton } from './close-button';
 import { IconButton } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { getAllText } from './diff';
 import { ContentType } from '@prisma/client';
+import { CloseButton } from './ui-utils/close-button';
+import { FastPostIcon } from './icons/fast-post-icon';
 
 
 export const emptyChar = <>&quot;</>

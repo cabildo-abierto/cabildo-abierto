@@ -1,20 +1,44 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useSWRConfig } from "swr"
 import { addAt } from "./content"
 import { Description } from "./description"
 import SelectionComponent from "./search-selection-component";
 import { unfollow, follow } from "../actions/users"
-import { UserProps } from "../app/lib/definitions"
 import { FixedFakeNewsCounter } from "./fake-news-counter"
-import { ArticleIcon } from "./icons"
 import { PermissionLevel } from "./permission-level"
 import { Button } from "@mui/material"
 import StateButton from "./state-button"
 import { EditProfileModal } from "./edit-profile-modal"
+import { EditorStatus } from "@prisma/client"
+import Image from 'next/image'
+import { ArticleIcon } from "./icons/article-icon"
 
-export function ProfileHeader({profileUser, user, selected, setSelected, setShowingFakeNews }: {profileUser: UserProps, user?: UserProps, selected: string, setSelected: any, setShowingFakeNews: any }) {
+
+export type ProfileHeaderData = {
+    followers: {id: string}[]
+    following: {id: string}[]
+    avatar: string
+    id: string
+    handle: string
+    displayName: string
+    description: string
+    editorStatus: EditorStatus
+    _count: {contents: number}
+}
+
+
+type ProfileHeaderProps = {
+    profileUser: ProfileHeaderData
+    user?: {id: string, following: {id: string}[]}
+    selected: string
+    setSelected: any
+    setShowingFakeNews: any
+}
+
+
+export function ProfileHeader({profileUser, user, selected, setSelected, setShowingFakeNews }: ProfileHeaderProps) {
     const {mutate} = useSWRConfig()
     const [editProfileOpen, setEditProfileOpen] = useState(false)
 
@@ -62,7 +86,16 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
 
     const isOwner = isLoggedInUser !== undefined ? isLoggedInUser : false
 
-    return <div className="content-container rounded mt-2 flex flex-col">
+    return <div className="flex flex-col border-l border-r">
+        <div>
+            <Image
+                src={profileUser.avatar}
+                width={400}
+                height={400}
+                alt={profileUser.handle + " avatar."}
+                className="w-24 h-24 rounded-full ml-6 mt-6"
+            />
+        </div>
         <div className="flex justify-between">
             <div className="ml-2 py-2">
                 <h3>

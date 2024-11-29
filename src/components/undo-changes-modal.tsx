@@ -8,11 +8,10 @@ import { useContent } from '../app/hooks/contents';
 import { useUser } from '../app/hooks/user';
 import { EntityProps } from '../app/lib/definitions';
 import InfoPanel from './info-panel';
-import { CloseButtonIcon, CloseButtonIconWithHover } from './icons';
 import { hasEditPermission } from './utils';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
-import { AcceptButtonPanel } from './accept-button-panel';
-import { BaseFullscreenPopup } from './base-fullscreen-popup';
+import { AcceptButtonPanel } from './ui-utils/accept-button-panel';
+import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
 import { NeedAccountPopup } from './article-page';
 
 

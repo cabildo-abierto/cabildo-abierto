@@ -8,8 +8,7 @@
 
 import type {
   LexicalCommand,
-  NodeKey,
-  RangeSelection,
+  NodeKey
 } from 'lexical';
 
 import './index.css';
@@ -28,16 +27,16 @@ import {
 import {$getMarkIDs} from '@lexical/mark'
 
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import * as React from 'react';
 import {createPortal} from 'react-dom';
 
 import { AddCommentBox } from './AddCommentBox';
 import { CommentInputBox } from './ui';
 import { CommentsPanel } from './CommentsPanel';
 import { $createMarkNode, $isMarkNode, CustomMarkNode } from '../../nodes/CustomMarkNode';
-import { ActiveCommentIcon, InactiveCommentIcon } from '../../../icons';
 import { CommentProps } from '../../../../app/lib/definitions';
 import { ContentType } from '@prisma/client';
+import { ActiveCommentIcon } from '../../../icons/active-comment-icon';
+import { InactiveCommentIcon } from '../../../icons/inactive-comment-icon';
 
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(

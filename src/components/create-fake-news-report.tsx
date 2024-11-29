@@ -10,7 +10,7 @@ import { createFakeNewsReport } from '../actions/contents';
 import { useUser } from '../app/hooks/user';
 import { compress } from './compression';
 import { emptyOutput } from './utils';
-import { BaseFullscreenPopup } from './base-fullscreen-popup';
+import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
 import { NeedAccountPopup } from './article-page';
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 

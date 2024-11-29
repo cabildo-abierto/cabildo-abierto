@@ -25,12 +25,12 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
 import { updateAllWeakReferences } from "../actions/references";
 import { deleteEntity, deleteEntityHistory, makeEntityPublic } from "../actions/admin";
-import { BaseFullscreenPopup } from "./base-fullscreen-popup";
+import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup";
 import { ArticleDiscussion } from "./article-discussion";
 import LoadingSpinner from "./loading-spinner";
 import { useContent } from "../app/hooks/contents";
 import ContentComponent from "./content";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 import { ArticleOtherOptions } from "./article-other-options";
 import { EntityCategoriesSmall } from "./entity-categories-small";
 

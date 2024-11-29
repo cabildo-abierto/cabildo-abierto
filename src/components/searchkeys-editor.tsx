@@ -10,7 +10,7 @@ import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
 import InfoPanel from "./info-panel";
 import { updateEntityCategoriesOrSearchkeys } from "../actions/entities";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 
 
 function validSearchkey(k: string){

@@ -2,9 +2,10 @@
 
 import React, { ReactNode, useState } from "react"
 import { ReactionButton } from "./reaction-button";
-import { ActiveLikeIcon, InactiveLikeIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
 import { addLike, removeLike } from "../actions/contents";
+import { ActiveLikeIcon } from "./icons/active-like-icon";
+import { InactiveLikeIcon } from "./icons/inactive-like-icon";
 
 type LikeCounterProps = {
     content: {

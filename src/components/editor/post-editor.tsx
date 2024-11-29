@@ -15,10 +15,9 @@ import { ExtraChars } from "../extra-chars"
 import { Button } from "@mui/material"
 import { CustomLink } from "../custom-link"
 import dynamic from "next/dynamic"
-import { AddImageButton } from "../write-panel-main-feed"
 import useModal from "./hooks/useModal"
 import { FastPostImagesEditor } from "../fast-post-images-editor"
-import Link from "next/link"
+import { AddImageButton } from "../add-image-button"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 

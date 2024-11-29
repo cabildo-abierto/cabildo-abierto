@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { BaseFullscreenPopup } from "./base-fullscreen-popup";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 
 
 export const AcceptButtonPanel = ({children, buttonText="Aceptar", onClose, open}: {children: ReactNode, buttonText?: string, onClose: () => void, open: boolean}) => {

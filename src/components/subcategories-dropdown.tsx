@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ToggleButton } from "./toggle-button";
 import { ModalBelow } from "./modal-below";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 
 const SubcategoriesList = ({ nextCategories, route, setRoute }: { nextCategories: string[], route: string[], setRoute: (r: string[]) => void }) => {
     return <div className="p-1 space-y-1">{nextCategories.map((nextCategory: string, index: number) => (

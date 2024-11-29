@@ -11,8 +11,8 @@ import { DidYouKnow } from "./did-you-know"
 import { useState } from "react"
 import SelectionComponent from "./search-selection-component"
 import { topicPopularityScore } from "./trending-articles"
-import { TipIcon } from "./icons"
 import { Button } from "@mui/material"
+import { TipIcon } from "./icons/tip-icon"
 
 
 export function countUserReferences(entity: {referencedBy: {referencingContent: {author: {id: string}}}[]}){

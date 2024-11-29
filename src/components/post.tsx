@@ -2,7 +2,6 @@ import { Authorship } from "./content";
 import ReadOnlyEditor from "./editor/read-only-editor";
 import { LikeCounter } from "./like-counter";
 import { TextViewsCounter } from "./views-counter";
-import { ActivePraiseIcon, InactivePraiseIcon } from "./icons";
 import { DateSince } from "./date";
 import { decompress } from "./compression";
 import { CommentProps } from "../app/lib/definitions";
@@ -10,6 +9,8 @@ import { useUser } from "../app/hooks/user";
 import { ContentOptionsButton } from "./content-options-button";
 import { ReadingTime } from "./reading-time";
 import { ContentType } from "@prisma/client";
+import { ActivePraiseIcon } from "./icons/active-praise-icon";
+import { InactivePraiseIcon } from "./icons/inactive-praise-icon";
 
 export const Post: React.FC<{
     content: {
