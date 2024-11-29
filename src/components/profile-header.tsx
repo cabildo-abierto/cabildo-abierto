@@ -86,7 +86,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
 
     const isOwner = isLoggedInUser !== undefined ? isLoggedInUser : false
 
-    return <div className="flex flex-col border-l border-r">
+    return <div className="flex flex-col">
         <div>
             <Image
                 src={profileUser.avatar}

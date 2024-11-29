@@ -1,9 +1,7 @@
-import React from "react";
 import {ProfilePage} from "../../../components/profile-page";
 import { getUserById } from "../../../actions/users";
 import { ErrorPage } from "../../../components/error-page";
 import { ThreeColumnsLayout } from "../../../components/three-columns";
-import { getSessionAgent } from "../../../actions/auth";
 
 export async function generateMetadata({params}: {params: {id: string}}){
     const {user, error} = await getUserById(params.id)
@@ -28,9 +26,9 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
         return <ErrorPage>El usuario @{username} no existe</ErrorPage>
     }
 
-    const center = <ProfilePage
+    const center = <div className="border-l border-r"><ProfilePage
         profileUser={user}
-    />
+    /></div>
 
     return <ThreeColumnsLayout center={center}/>
 }
