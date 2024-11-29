@@ -122,6 +122,7 @@ export const getConversations = (userId: string) => {
                 }
             }
         )
+        if(!user) return []
 
         let users = new Map<string, {date: Date, seen: boolean}>()
 
