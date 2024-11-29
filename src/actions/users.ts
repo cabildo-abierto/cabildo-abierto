@@ -179,7 +179,7 @@ export const getUsersWithStats = unstable_cache(async () => {
 
 
 export const getUserById = (userId: string) => {
-
+    console.log("getting user", userId)
     return unstable_cache(async () => {
         let user: UserProps
         try {
@@ -194,6 +194,7 @@ export const getUserById = (userId: string) => {
                         createdAt: true,
                         editorStatus: true,
                         avatar: true,
+                        banner: true,
                         following: {
                             select: {
                                 id: true
@@ -250,6 +251,7 @@ export const getUserById = (userId: string) => {
                 }
             )
         } catch {
+            console.log("error con get user", userId)
             return {error: "error on get user " + userId}
         }
         return user ? {user} : {error : "error on get user " + userId}
@@ -329,10 +331,14 @@ export async function getUserId(){
 
 
 export async function getUser(){
-
+    console.log("getting user")
+    const t1 = Date.now()
     const userId = await getUserId()
+    const t2 = Date.now()
     if(userId){
         const {user} = await getUserById(userId)
+        const t3 = Date.now()
+        console.log("User tiems", t2-t1, t3-t2, t3-t1)
         return user ? user : null
     } else {
         return null

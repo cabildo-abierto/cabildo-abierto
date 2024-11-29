@@ -6,14 +6,15 @@ import { ThreeColumnsLayout } from "../../../components/three-columns";
 export async function generateMetadata({params}: {params: {id: string}}){
     const {user, error} = await getUserById(params.id)
 
+    console.log("user", user)
+
     if(!user){
         return {title: "Usuario no encontrado"}
     }
 
-    return {}
-    /*return {
-        title: "Perfil de " + user.name
-    }*/
+    return {
+        title: "Perfil de " + user.displayName
+    }
 }
 
 
@@ -26,7 +27,7 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
         return <ErrorPage>El usuario @{username} no existe</ErrorPage>
     }
 
-    const center = <div className="border-l border-r"><ProfilePage
+    const center = <div className=""><ProfilePage
         profileUser={user}
     /></div>
 

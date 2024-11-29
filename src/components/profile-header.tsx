@@ -14,12 +14,14 @@ import { EditProfileModal } from "./edit-profile-modal"
 import { EditorStatus } from "@prisma/client"
 import Image from 'next/image'
 import { ArticleIcon } from "./icons/article-icon"
+import { emptyChar } from "./fast-post"
 
 
 export type ProfileHeaderData = {
     followers: {id: string}[]
     following: {id: string}[]
     avatar: string
+    banner: string
     id: string
     handle: string
     displayName: string
@@ -88,12 +90,22 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
 
     return <div className="flex flex-col">
         <div>
+            {profileUser.banner ? <Image
+                src={profileUser.banner}
+                width={800}
+                height={300}
+                alt={profileUser.handle + " banner"}
+                className="w-full h-48"
+            /> : 
+            <div className="w-full h-48 bg-slate-200">{emptyChar}
+            </div>
+            }
             <Image
                 src={profileUser.avatar}
                 width={400}
                 height={400}
-                alt={profileUser.handle + " avatar."}
-                className="w-24 h-24 rounded-full ml-6 mt-6"
+                alt={profileUser.handle + " avatar"}
+                className="w-24 h-24 rounded-full ml-6 mt-[-48px]"
             />
         </div>
         <div className="flex justify-between">
