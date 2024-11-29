@@ -32,6 +32,7 @@ import { useContent } from "../app/hooks/contents";
 import ContentComponent from "./content";
 import { Button } from "@mui/material";
 import { ArticleOtherOptions } from "./article-other-options";
+import { EntityCategoriesSmall } from "./entity-categories-small";
 
 
 
@@ -106,9 +107,9 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
 
     useEffect(() => {
         if(entity.entity){
-            const references = entity.entity.versions[currentVersion(entity.entity)].entityReferences
+            const references = entity.entity.versions[currentVersion(entity.entity)].references
             for(let i = 0; i < references.length; i++){
-                preload("/api/entity/"+references[i].id, fetcher)
+                preload("/api/entity/"+references[i].entityReferenced.id, fetcher)
             }
         }
     }, [entity])
@@ -118,8 +119,6 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
     }
 
     if(!entity.entity || entity.isError || entity.entity.deleted || entity.error){
-        console.log("entity", entity, entityId)
-
         return <NoEntityPage id={entityId}/>
     }
 
@@ -418,12 +417,13 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
             onClose={() => {setShowingNeedAccountPopup(false)}}/>
 
             <div className="flex flex-col rounded content-container p-4 mb-8">
-                <div className="text-[var(--text-light)] text-sm mt-1 mb-2">
+                <div className="text-[var(--text-light)] text-sm mb-2">
                     Tema
                 </div>
-                <h1 className={" " + titleFontSize}>
+                <h1 className={"mb-2 " + titleFontSize}>
                     {entity.entity.name}
                 </h1>
+                <EntityCategoriesSmall entity={entity.entity} route={[]}/>
             </div>
         </div>
         <div className="w-full border rounded-lg content-container p-4 mb-8" id="information-start">

@@ -132,8 +132,6 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void, mobile?: boo
     const count = editor && editorState ? charCount(editorState) : 0;
     let disabled = valid.problem != undefined;
 
-    console.log("disabled:", editor, emptyOutput(editorState), images.length, valid.problem)
-
     const sendButton = <StateButton
         text1="Publicar"
         handleClick={handleSubmit}

@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { CustomLink as Link } from './custom-link';
 
 
-import { isPublic, monthly_visits_limit, stopPropagation, visitsThisMonth } from "./utils";
+import { isPublic, monthly_visits_limit, stopPropagation, userUrl, visitsThisMonth } from "./utils";
 import { LikeCounter } from "./like-counter";
 import { Post } from "./post";
 import { PostOnFeed } from "./post-on-feed";
@@ -23,6 +23,7 @@ import { NoVisitsAvailablePopup } from "./no-visits-popup";
 import { takeAuthorship } from "../actions/admin";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "./loading-spinner";
+import assert from "assert";
 
 export function id2url(id: string){
     return "/perfil/" + id.replace("@", "")
@@ -35,15 +36,15 @@ export function addAt(id: string){
 }
 
 
-export const ContentTopRowAuthor = ({content, useLink=true} :{content: {author: {name: string, id: string}}, useLink?: boolean}) => {
+export const ContentTopRowAuthor = ({content, useLink=true} :{content: {author: {id: string, handle: string, displayName: string}}, useLink?: boolean}) => {
     const router = useRouter()
-    const url = content.author  ? id2url(content.author.id) : ""
+    const url = content.author ? id2url(content.author.handle) : ""
     const onClick = stopPropagation(() => {router.push(url)})
 
-    const text = <><span className="hover:underline font-bold  mr-1">  {content.author?.name}
+    const text = <><span className="hover:underline font-bold  mr-1">  {content.author?.displayName}
     </span>
     <span className="text-[var(--primary-light)]">
-        @{content.author?.id}
+        @{content.author?.handle}
     </span></>
 
     const className = "text-[var(--primary-dark)]"
@@ -155,10 +156,10 @@ export const UserIdLink = ({id}: {id:string}) => {
 }
 
 
-export const Authorship = ({content, onlyAuthor=false}: {content: {author: {id: string, name: string}}, onlyAuthor?: boolean}) => {
+export const Authorship = ({content, onlyAuthor=false}: {content: {author: {displayName: string, handle: string}}, onlyAuthor?: boolean}) => {
     return <span className="link">
-        {onlyAuthor ? "" : "Por "}<Link href={"/perfil/"+content.author?.id}>
-            {content.author?.name}
+        {onlyAuthor ? "" : "Por "}<Link href={userUrl(content.author?.handle)}>
+            {content.author?.displayName}
         </Link>
     </span>
 }
@@ -258,7 +259,7 @@ const ContentComponent: React.FC<ContentComponentProps> = ({
             <EntityComponent
                 setEditing={setEditing}
                 content={content}
-                entityId={content.parentEntityId}
+                entityId={content.parentEntity.id}
                 showingChanges={showingChanges}
                 editing={editing}
                 showingAuthors={showingAuthors}

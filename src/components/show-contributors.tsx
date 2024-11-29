@@ -1,11 +1,10 @@
 
 import { CustomLink as Link } from './custom-link';
 import { useEntity } from "../app/hooks/entities"
-import { currentVersion, getEntityMonetizedChars, getEntityMonetizedContributions } from "./utils"
+import { currentVersion, getEntityMonetizedChars } from "./utils"
 import { Button } from "@mui/material"
 import { useState } from "react"
-import { BothContributionsProps } from "../actions/entities"
-import { ContributionsProps } from "../app/lib/definitions"
+import { BothContributionsProps, ContributionsProps } from "../app/lib/definitions"
 
 
 

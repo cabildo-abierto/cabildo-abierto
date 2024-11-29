@@ -10,8 +10,6 @@ import { useUser } from "../app/hooks/user"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { TrendingArticles } from "./trending-articles"
-import { TutorialPopup } from "./tutorial-popup"
-import { FollowSuggestions } from "./follow-suggestions"
 import { Route } from "./wiki-categories"
 
 
@@ -54,8 +52,6 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
     </div>
 
     return <div className="w-full">
-        {false && user.user != undefined && !closedIntroPopup && <TutorialPopup onClose={() => {setClosedIntroPopup(true)}}/>}
-        
         <MainFeedHeader
             route={route}
             setRoute={setRoute}
@@ -90,12 +86,6 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                     setFilter={setFilter}
                     setOrder={setOrder}
                 />
-            }
-
-            {selected == "Siguiendo" && 
-            <div className="">
-                <FollowSuggestions/>
-                </div>
             }
 
             {selected == "Siguiendo" &&

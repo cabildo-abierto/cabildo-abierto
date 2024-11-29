@@ -11,7 +11,7 @@ import StateButton from './state-button';
 import { useSWRConfig } from 'swr';
 import { ContentOptionsChoiceButton } from './content-options-button';
 import { BaseFullscreenPopup } from './base-fullscreen-popup';
-import { inputClassName } from './signup-form';
+import { inputClassName } from './utils';
 import { validEntityName } from './write-button';
 import { AcceptButtonPanel } from './accept-button-panel';
 import { changeEntityName } from '../actions/entities';

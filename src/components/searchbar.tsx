@@ -9,17 +9,17 @@ import { useSearch } from "./search-context";
 import { CloseButton } from "./close-button";
 
 
-export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = ({ result }) => {
+export const UserSearchResult: React.FC<{result: {displayName: string, handle: string}}> = ({ result }) => {
     const className = "px-2 py-1 w-72 text-center hover:bg-[var(--secondary-light)]"
 
     return <div className="flex justify-center content-container rounded"
     >
-        <Link href={id2url(result.id)}>
+        <Link href={id2url(result.handle)}>
             <button className={className}>
                 <div className="flex w-full items-center">
                     <AccountBoxIcon fontSize="small"/>
                     <div className="text-center w-full px-1">
-                        {result.name} <span className="text-[var(--text-light)]">@{result.id}</span>
+                        {result.displayName} <span className="text-[var(--text-light)]">@{result.handle}</span>
                     </div>
                 </div>                  
             </button>

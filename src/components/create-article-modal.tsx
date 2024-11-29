@@ -6,11 +6,9 @@ import { useUser } from "../app/hooks/user";
 import { CreateAccountLink } from "./create-account-link";
 import StateButton from "./state-button";
 import TickButton from "./tick-button";
-import { articleUrl } from "./utils";
+import { articleUrl, inputClassName } from "./utils";
 import { ErrorMsg, validEntityName } from "./write-button";
 import { BaseFullscreenPopup } from "./base-fullscreen-popup";
-import { DidYouKnow } from "./did-you-know";
-import { inputClassName } from "./signup-form";
 
 
 

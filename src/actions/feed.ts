@@ -3,63 +3,63 @@
 import { unstable_cache } from "next/cache";
 import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
-import { getUserById, getUserId } from "./users";
 import { entityInRoute } from "../components/utils";
 import { ContentProps } from "../app/lib/definitions";
+import { Prisma } from "@prisma/client";
+import { getUserById, getUserId } from "./users";
 
 
 const revalidateFeedTime = 10*60
 
 
-export const getRouteFeed = (route: string[], userId?: string) => {
-    console.log("getting route feed", userId)
-    return unstable_cache(async () => {
-        console.log("using cache", userId)
-        let feed: ContentProps[] = await db.content.findMany({
+const feedSelect = (userId?: string) => {
+    return {
+        id: true,
+        type: true,
+        compressedText: true,
+        compressedPlainText: true,
+        childrenTree: {
+            select: {
+                authorId: true
+            }
+        },
+        title: true,
+        author: {
             select: {
                 id: true,
-                type: true,
-                compressedText: true,
-                compressedPlainText: true,
-                childrenTree: {
-                    select: {
-                        authorId: true
-                    }
-                },
-                title: true,
-                author: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
-                },
-                createdAt: true,
-                _count: {
-                    select: {
-                        reactions: true,
-                        childrenTree: true
-                    }
-                },
-                claimsAuthorship: true,
-                fakeReportsCount: true,
-                uniqueViewsCount: true,
-                reactions: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                views: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                entityReferences: {
+                displayName: true,
+                handle: true,
+            }
+        },
+        createdAt: true,
+        _count: {
+            select: {
+                reactions: true,
+                childrenTree: true
+            }
+        },
+        claimsAuthorship: true,
+        fakeReportsCount: true,
+        uniqueViewsCount: true,
+        reactions: userId ? {
+            select: {
+                id: true
+            },
+            where: {
+                userById: userId
+            }
+        } : false,
+        views: userId ? {
+            select: {
+                id: true
+            },
+            where: {
+                userById: userId
+            }
+        } : false,
+        references: {
+            select: {
+                entityReferenced: {
                     select: {
                         id: true,
                         versions: {
@@ -68,91 +68,100 @@ export const getRouteFeed = (route: string[], userId?: string) => {
                                 categories: true
                             },
                             orderBy: {
-                                createdAt: "asc"
+                                createdAt: "asc" as Prisma.SortOrder
                             }
                         }
                     }
-                },
-                parentEntityId: true, // TO DO: Eliminar
-                parentEntity: {
+                }
+            }
+        },
+        parentEntity: {
+            select: {
+                id: true,
+                isPublic: true,
+                currentVersion: {
                     select: {
-                        id: true,
-                        isPublic: true,
-                        currentVersion: {
-                            select: {
-                                searchkeys: true
-                            }
-                        }
+                        searchkeys: true
                     }
-                },
-                accCharsAdded: true,
-                contribution: true,
-                charsAdded: true,
-                charsDeleted: true,
-                diff: true,
-                currentVersionOf: {
-                    select: {
-                        id: true
-                    }
-                },
-                categories: true,
-                undos: {
-                    select: {
-                        id: true,
-                        reportsOportunism: true,
-                        reportsVandalism: true,
-                        authorId: true,
-                        createdAt: true,
-                        compressedText: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                contentUndoneId: true,
+                }
+            }
+        },
+        accCharsAdded: true,
+        contribution: true,
+        charsAdded: true,
+        charsDeleted: true,
+        diff: true,
+        currentVersionOf: {
+            select: {
+                id: true
+            }
+        },
+        categories: true,
+        undos: {
+            select: {
+                id: true,
                 reportsOportunism: true,
                 reportsVandalism: true,
-                ancestorContent: {
+                authorId: true,
+                createdAt: true,
+                compressedText: true
+            },
+            orderBy: {
+                createdAt: "desc" as Prisma.SortOrder
+            }
+        },
+        contentUndoneId: true,
+        reportsOportunism: true,
+        reportsVandalism: true,
+        ancestorContent: {
+            select: {
+                id: true,
+                authorId: true
+            }
+        },
+        childrenContents: {
+            select: {
+                id: true,
+                createdAt: true,
+                type: true,
+                reactions: {
                     select: {
-                        id: true,
+                        createdAt: true,
+                        userById: true
+                    }
+                },
+                childrenTree: {
+                    select: {
                         authorId: true
                     }
                 },
-                childrenContents: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true,
-                        _count: {
-                            select: {
-                                childrenTree: true,
-                                reactions: true
-                            }
-                        },
-                        childrenTree: {
-                            select: {
-                                authorId: true
-                            }
-                        },
-                        author: {
-                            select: {
-                                id: true
-                            }
-                        },
-                        uniqueViewsCount: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                isContentEdited: true,
-                isDraft: true,
-                usersMentioned: {
+                author: {
                     select: {
                         id: true
                     }
-                }
+                },
+                uniqueViewsCount: true
             },
+            orderBy: {
+                createdAt: "desc" as Prisma.SortOrder
+            }
+        },
+        isContentEdited: true,
+        isDraft: true,
+        usersMentioned: {
+            select: {
+                id: true
+            }
+        }
+    }
+}
+
+
+export const getRouteFeed = (route: string[], userId?: string) => {
+
+    return unstable_cache(async () => {
+        let feed: ContentProps[] = await db.content.findMany({
+            select: feedSelect(userId),
             where: {
                 AND: [
                     {type: {
@@ -168,9 +177,9 @@ export const getRouteFeed = (route: string[], userId?: string) => {
         })
 
         if(route.length == 0) return feed
-        let routeFeed = feed.filter(({entityReferences}) => {
-            return entityReferences.some((entity) => {
-                return entityInRoute(entity, route)
+        let routeFeed = feed.filter(({references}) => {
+            return references.some(({entityReferenced}) => {
+                return entityInRoute(entityReferenced, route)
             })
         })
         return routeFeed
@@ -185,7 +194,7 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
     if(!userId) {
         return []
     }
-    console.log("userId after retry", userId)
+    
     return unstable_cache(async () => {
         const {user, error} = await getUserById(userId)
         if(error) return {error}
@@ -195,144 +204,7 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
         const following = [...user.following.map(({id}: {id: string}) => (id)), "soporte", user.id]
         
         let feed: ContentProps[] = await db.content.findMany({
-            select: {
-                id: true,
-                type: true,
-                compressedText: true,
-                compressedPlainText: true,
-                childrenTree: {
-                    select: {
-                        authorId: true
-                    }
-                },
-                title: true,
-                author: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
-                },
-                createdAt: true,
-                _count: {
-                    select: {
-                        reactions: true,
-                        childrenTree: true
-                    }
-                },
-                claimsAuthorship: true,
-                rootContentId: true,
-                fakeReportsCount: true,
-                uniqueViewsCount: true,
-                reactions: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                views: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                entityReferences: {
-                    select: {
-                        id: true,
-                        versions: {
-                            select: {
-                                id: true,
-                                categories: true
-                            },
-                            orderBy: {
-                                createdAt: "asc"
-                            }
-                        }
-                    }
-                },
-                parentEntityId: true, // TO DO: Eliminar
-                parentEntity: {
-                    select: {
-                        id: true,
-                        isPublic: true,
-                        currentVersion: {
-                            select: {
-                                searchkeys: true
-                            }
-                        }
-                    }
-                },
-                accCharsAdded: true,
-                contribution: true,
-                charsAdded: true,
-                charsDeleted: true,
-                diff: true,
-                currentVersionOf: {
-                    select: {
-                        id: true
-                    }
-                },
-                categories: true,
-                undos: {
-                    select: {
-                        id: true,
-                        reportsOportunism: true,
-                        reportsVandalism: true,
-                        authorId: true,
-                        createdAt: true,
-                        compressedText: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                contentUndoneId: true,
-                reportsOportunism: true,
-                reportsVandalism: true,
-                ancestorContent: {
-                    select: {
-                        id: true,
-                        authorId: true
-                    }
-                },
-                childrenContents: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true,
-                        _count: {
-                            select: {
-                                childrenTree: true,
-                                reactions: true
-                            }
-                        },
-                        childrenTree: {
-                            select: {
-                                authorId: true
-                            }
-                        },
-                        author: {
-                            select: {
-                                id: true
-                            }
-                        },
-                        uniqueViewsCount: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                isContentEdited: true,
-                isDraft: true,
-                usersMentioned: {
-                    select: {
-                        id: true
-                    }
-                }
-            },
+            select: feedSelect(userId),
             where: {
                 AND: [
                     {type: {
@@ -352,9 +224,9 @@ export const getRouteFollowingFeed = async (route: string[], userId?: string) =>
 
         if(route.length == 0) return feed
         
-        let routeFeed = feed.filter(({entityReferences}) => {
-            return entityReferences.some((entity) => {
-                return entityInRoute(entity, route)
+        let routeFeed = feed.filter(({references}) => {
+            return references.some(({entityReferenced}) => {
+                return entityInRoute(entityReferenced, route)
             })
         })
 
@@ -394,144 +266,7 @@ export const getDrafts = (userId: string) => {
 export const getProfileFeed = async (userId: string) => {
     return unstable_cache(async () => {
         const feed = await db.content.findMany({
-            select: {
-                id: true,
-                type: true,
-                compressedText: true,
-                compressedPlainText: true,
-                childrenTree: {
-                    select: {
-                        authorId: true
-                    }
-                },
-                title: true,
-                author: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
-                },
-                createdAt: true,
-                _count: {
-                    select: {
-                        reactions: true,
-                        childrenTree: true
-                    }
-                },
-                claimsAuthorship: true,
-                rootContentId: true,
-                fakeReportsCount: true,
-                uniqueViewsCount: true,
-                reactions: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                views: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                entityReferences: {
-                    select: {
-                        id: true,
-                        versions: {
-                            select: {
-                                id: true,
-                                categories: true
-                            },
-                            orderBy: {
-                                createdAt: "asc"
-                            }
-                        }
-                    }
-                },
-                parentEntityId: true, // TO DO: Eliminar
-                parentEntity: {
-                    select: {
-                        id: true,
-                        isPublic: true,
-                        currentVersion: {
-                            select: {
-                                searchkeys: true
-                            }
-                        }
-                    }
-                },
-                accCharsAdded: true,
-                contribution: true,
-                charsAdded: true,
-                charsDeleted: true,
-                diff: true,
-                currentVersionOf: {
-                    select: {
-                        id: true
-                    }
-                },
-                categories: true,
-                undos: {
-                    select: {
-                        id: true,
-                        reportsOportunism: true,
-                        reportsVandalism: true,
-                        authorId: true,
-                        createdAt: true,
-                        compressedText: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                contentUndoneId: true,
-                reportsOportunism: true,
-                reportsVandalism: true,
-                ancestorContent: {
-                    select: {
-                        id: true,
-                        authorId: true
-                    }
-                },
-                childrenContents: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true,
-                        _count: {
-                            select: {
-                                childrenTree: true,
-                                reactions: true
-                            }
-                        },
-                        childrenTree: {
-                            select: {
-                                authorId: true
-                            }
-                        },
-                        author: {
-                            select: {
-                                id: true
-                            }
-                        },
-                        uniqueViewsCount: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                isContentEdited: true,
-                isDraft: true,
-                usersMentioned: {
-                    select: {
-                        id: true
-                    }
-                }
-            },
+            select: feedSelect(userId),
             where: {
                 AND: [
                     {type: {
@@ -556,170 +291,7 @@ export const getProfileFeed = async (userId: string) => {
 export const getRepliesFeed = async (userId: string) => {
     return unstable_cache(async () => {
         const feed = await db.content.findMany({
-            select: {
-                id: true,
-                type: true,
-                compressedText: true,
-                compressedPlainText: true,
-                childrenTree: {
-                    select: {
-                        authorId: true
-                    }
-                },
-                title: true,
-                author: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
-                },
-                createdAt: true,
-                _count: {
-                    select: {
-                        reactions: true,
-                        childrenTree: true
-                    }
-                },
-                claimsAuthorship: true,
-                rootContentId: true,
-                fakeReportsCount: true,
-                uniqueViewsCount: true,
-                reactions: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                views: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                parentContents: {
-                    select: {
-                        id: true,
-                        author: {
-                            select: {
-                                id: true,
-                            }
-                        },
-                        parentEntityId: true,
-                        type: true,
-                        title: true
-                    }
-                },
-                rootContent: {
-                    select: {
-                        id: true,
-                        author: {
-                            select: {
-                                id: true,
-                            }
-                        },
-                        parentEntityId: true,
-                        type: true,
-                        title: true
-                    }
-                },
-                entityReferences: {
-                    select: {
-                        id: true,
-                        versions: {
-                            select: {
-                                id: true,
-                                categories: true
-                            },
-                            orderBy: {
-                                createdAt: "asc"
-                            }
-                        }
-                    }
-                },
-                parentEntityId: true, // TO DO: Eliminar
-                parentEntity: {
-                    select: {
-                        id: true,
-                        isPublic: true,
-                        currentVersion: {
-                            select: {
-                                searchkeys: true
-                            }
-                        }
-                    }
-                },
-                accCharsAdded: true,
-                contribution: true,
-                charsAdded: true,
-                charsDeleted: true,
-                diff: true,
-                currentVersionOf: {
-                    select: {
-                        id: true
-                    }
-                },
-                categories: true,
-                undos: {
-                    select: {
-                        id: true,
-                        reportsOportunism: true,
-                        reportsVandalism: true,
-                        authorId: true,
-                        createdAt: true,
-                        compressedText: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                contentUndoneId: true,
-                reportsOportunism: true,
-                reportsVandalism: true,
-                ancestorContent: {
-                    select: {
-                        id: true,
-                        authorId: true
-                    }
-                },
-                childrenContents: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true,
-                        _count: {
-                            select: {
-                                childrenTree: true,
-                                reactions: true
-                            }
-                        },
-                        childrenTree: {
-                            select: {
-                                authorId: true
-                            }
-                        },
-                        author: {
-                            select: {
-                                id: true
-                            }
-                        },
-                        uniqueViewsCount: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                isContentEdited: true,
-                isDraft: true,
-                usersMentioned: {
-                    select: {
-                        id: true
-                    }
-                },
-            },
+            select: feedSelect(userId),
             where: {
                 AND: [
                     {type: {
@@ -746,126 +318,7 @@ export const getRepliesFeed = async (userId: string) => {
 export const getEditsFeed = (profileUserId: string) => {
     return unstable_cache(async () => {
         const feed: ContentProps[] = await db.content.findMany({
-            select: {
-                id: true,
-                type: true,
-                childrenTree: {
-                    select: {
-                        authorId: true
-                    }
-                },
-                title: true,
-                author: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
-                },
-                createdAt: true,
-                _count: {
-                    select: {
-                        reactions: true,
-                        childrenTree: true
-                    }
-                },
-                claimsAuthorship: true,
-                rootContentId: true,
-                fakeReportsCount: true,
-                uniqueViewsCount: true,
-                entityReferences: {
-                    select: {
-                        id: true,
-                        versions: {
-                            select: {
-                                id: true,
-                                categories: true
-                            },
-                            orderBy: {
-                                createdAt: "asc"
-                            }
-                        }
-                    }
-                },
-                parentEntityId: true, // TO DO: Eliminar
-                parentEntity: {
-                    select: {
-                        id: true,
-                        isPublic: true,
-                        currentVersion: {
-                            select: {
-                                searchkeys: true
-                            }
-                        }
-                    }
-                },
-                accCharsAdded: true,
-                contribution: true,
-                charsAdded: true,
-                charsDeleted: true,
-                diff: true,
-                currentVersionOf: {
-                    select: {
-                        id: true
-                    }
-                },
-                categories: true,
-                undos: {
-                    select: {
-                        id: true,
-                        reportsOportunism: true,
-                        reportsVandalism: true,
-                        authorId: true,
-                        createdAt: true,
-                        compressedText: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                contentUndoneId: true,
-                reportsOportunism: true,
-                reportsVandalism: true,
-                ancestorContent: {
-                    select: {
-                        id: true,
-                        authorId: true
-                    }
-                },
-                childrenContents: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true,
-                        _count: {
-                            select: {
-                                childrenTree: true,
-                                reactions: true
-                            }
-                        },
-                        childrenTree: {
-                            select: {
-                                authorId: true
-                            }
-                        },
-                        author: {
-                            select: {
-                                id: true
-                            }
-                        },
-                        uniqueViewsCount: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                isContentEdited: true,
-                isDraft: true,
-                usersMentioned: {
-                    select: {
-                        id: true
-                    }
-                }
-            },
+            select: feedSelect(profileUserId),
             where: {
                 AND: [
                     {type: {
@@ -892,182 +345,7 @@ export const getEditsFeed = (profileUserId: string) => {
 export const getSearchableContents = (route: string[], userId?: string) => {
     return unstable_cache(async () => {
         let feed: ContentProps[] = await db.content.findMany({
-            select: {
-                id: true,
-                type: true,
-                compressedText: true,
-                compressedPlainText: true,
-                childrenTree: {
-                    select: {
-                        authorId: true
-                    }
-                },
-                title: true,
-                author: {
-                    select: {
-                        id: true,
-                        name: true,
-                    }
-                },
-                createdAt: true,
-                _count: {
-                    select: {
-                        reactions: true,
-                        childrenTree: true
-                    }
-                },
-                claimsAuthorship: true,
-                rootContent: {
-                    select: {
-                        id: true,
-                        author: {
-                            select: {
-                                id: true,
-                            }
-                        },
-                        parentEntityId: true,
-                        type: true,
-                        title: true
-                    }
-                },
-                fakeReportsCount: true,
-                uniqueViewsCount: true,
-                reactions: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                views: userId ? {
-                    select: {
-                        id: true
-                    },
-                    where: {
-                        userById: userId
-                    }
-                } : false,
-                parentContents: {
-                    select: {
-                        id: true,
-                        author: {
-                            select: {
-                                id: true,
-                            }
-                        },
-                        parentEntityId: true,
-                        type: true,
-                        title: true
-                    }
-                },
-                entityReferences: {
-                    select: {
-                        id: true,
-                        versions: {
-                            select: {
-                                id: true,
-                                categories: true
-                            },
-                            orderBy: {
-                                createdAt: "asc"
-                            }
-                        }
-                    }
-                },
-                weakReferences: {
-                    select: {
-                        id: true,
-                        versions: {
-                            select: {
-                                id: true,
-                                categories: true
-                            },
-                            orderBy: {
-                                createdAt: "asc"
-                            }
-                        }
-                    }
-                },
-                parentEntityId: true, // TO DO: Eliminar
-                parentEntity: {
-                    select: {
-                        id: true,
-                        isPublic: true,
-                        currentVersion: {
-                            select: {
-                                searchkeys: true
-                            }
-                        }
-                    }
-                },
-                accCharsAdded: true,
-                contribution: true,
-                charsAdded: true,
-                charsDeleted: true,
-                diff: true,
-                currentVersionOf: {
-                    select: {
-                        id: true
-                    }
-                },
-                categories: true,
-                undos: {
-                    select: {
-                        id: true,
-                        reportsOportunism: true,
-                        reportsVandalism: true,
-                        authorId: true,
-                        createdAt: true,
-                        compressedText: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                contentUndoneId: true,
-                reportsOportunism: true,
-                reportsVandalism: true,
-                ancestorContent: {
-                    select: {
-                        id: true,
-                        authorId: true
-                    }
-                },
-                childrenContents: {
-                    select: {
-                        id: true,
-                        createdAt: true,
-                        type: true,
-                        _count: {
-                            select: {
-                                childrenTree: true,
-                                reactions: true
-                            }
-                        },
-                        childrenTree: {
-                            select: {
-                                authorId: true
-                            }
-                        },
-                        author: {
-                            select: {
-                                id: true
-                            }
-                        },
-                        uniqueViewsCount: true
-                    },
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                },
-                isContentEdited: true,
-                usersMentioned: {
-                    select: {
-                        id: true
-                    }
-                }
-            },
+            select: feedSelect(userId),
             where: {
                 AND: [
                     {type: {
@@ -1083,9 +361,9 @@ export const getSearchableContents = (route: string[], userId?: string) => {
         })
 
         if(route.length == 0) return feed
-        let routeFeed = feed.filter(({entityReferences}) => {
-            return entityReferences.some((entity) => {
-                return entityInRoute(entity, route)
+        let routeFeed = feed.filter(({references}) => {
+            return references.some(({entityReferenced}) => {
+                return entityInRoute(entityReferenced, route)
             })
         })
         return routeFeed

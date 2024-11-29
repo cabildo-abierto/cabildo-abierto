@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import { EditorState, LexicalEditor } from "lexical";
 import { CommentProps, ContentProps } from "../../app/lib/definitions";
 import { useUser } from "../../app/hooks/user";
+import { ContentType } from "@prisma/client";
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
@@ -18,7 +19,7 @@ const ReadOnlyEditor = ({
 }: {
     initialData: InitialEditorStateType,
     content?: {
-        type: string
+        type: ContentType
         isContentEdited: boolean
         id: string
         childrenContents: CommentProps[]

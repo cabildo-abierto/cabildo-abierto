@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { HomePage } from "../components/home-page";
-import { AuthPage } from "../components/auth-page";
 
 export const metadata: Metadata = {
     title: 'Cabildo Abierto',
@@ -8,8 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function Page({searchParams}: {searchParams: {code?: string, error_description?: string}}) {
-    if(searchParams.code){
-        return <AuthPage state="login"/>
-    }
     return <HomePage searchParams={searchParams}/>
 }

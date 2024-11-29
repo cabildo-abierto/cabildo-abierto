@@ -1,14 +1,14 @@
 'use server'
 
-import { revalidateTag, unstable_cache } from "next/cache";
+
 import { db } from "../db";
 import { getContentById } from "./contents";
-import { accessToken, contributionsToProportionsMap, formatDate, isEntityContentDemonetized, isPartOfContent, launchDate, subscriptionEnds } from "../components/utils";
+import { accessToken, contributionsToProportionsMap, formatDate, isPartOfContent, launchDate, subscriptionEnds } from "../components/utils";
 import { getUserById } from "./users";
 import { pathLogo } from "../components/logo";
 import MercadoPagoConfig, { Preference } from "mercadopago";
-import { SubscriptionProps, UserProps } from "../app/lib/definitions";
-import { BothContributionsProps } from "./entities";
+import { BothContributionsProps, SubscriptionProps, UserProps } from "../app/lib/definitions";
+import { ContentType } from "@prisma/client";
 
 
 const baseUrl = "https://www.cabildoabierto.com.ar"
@@ -239,7 +239,6 @@ export async function createPromises(userId: string, amount: number, start: Date
                 boughtByUserId: "soporte",
                 price: 0,
                 paymentId: "no activity",
-                isDonation: true,
                 userId: userId,
                 usedAt: start,
                 endsAt: end
@@ -265,7 +264,7 @@ export async function reassignPromise(p: {id: string, amount: number, subscripti
 }
 
 
-function confirmWaitPassed(content: {createdAt: Date, undos: {createdAt: Date}[], type: string}){
+function confirmWaitPassed(content: {createdAt: Date, undos: {createdAt: Date}[], type: ContentType}){
     const now = new Date()
     let lastUpdateDate = content.createdAt
     if(content.type == "EntityContent"){

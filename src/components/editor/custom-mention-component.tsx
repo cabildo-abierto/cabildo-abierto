@@ -3,6 +3,7 @@ import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, Beautif
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
 import { getUsers } from "../../actions/users";
+import { cleanText } from "../utils";
 
 export const EmptyMentionResults = () => (
   <div className="top-[2px] m-0 min-w-[10rem] overflow-hidden ...">
@@ -55,8 +56,11 @@ export const queryMentions = async (trigger: string, query: string | undefined |
     if(!query) return []
     const {users, error} = await getUsers()
     if(error) return []
+
+    const cleanQuery = cleanText(query)
+
     const data = users.filter((user) =>
-        user.name.toLowerCase().includes(query.toLowerCase()),
+        cleanText(user.displayName).includes(cleanQuery) || cleanText(user.handle).includes(cleanQuery),
     )
     return data.map(({ id, name }: any) => ({ id, value: name, name: name}))
 };

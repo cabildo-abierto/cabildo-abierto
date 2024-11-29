@@ -7,6 +7,7 @@ import { wikiEditorSettings } from './editor/wiki-editor';
 import { useContent } from '../app/hooks/contents';
 import { decompress } from './compression';
 import LoadingSpinner from './loading-spinner';
+import { ContentType } from '@prisma/client';
 
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
@@ -73,7 +74,7 @@ type ShowArticleChangesProps = {
     originalContent: {
         id: string
         diff: string
-        type: string
+        type: ContentType
         childrenContents: CommentProps[]
         compressedText?: string
     },

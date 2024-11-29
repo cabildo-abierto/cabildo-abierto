@@ -31,7 +31,7 @@ export const DraftButton: React.FC<{draftId: string}> = ({draftId}) => {
     const title = content.type != "Post" ? undefined : (content.title && content.title.length > 0 ? content.title : "Sin título")
 
     return <div className="">
-        <div className="content-container w-full rounded">
+        <div className="content-container w-full rounded max-h-[300px] overflow-scroll">
             <div className="px-2 py-2 content flex flex-col">
                 {content.type == "Post" && <PostTitleOnFeed title={title}/>}
                 <ReadOnlyEditor initialData={decompress(content.compressedText)} content={content}/>

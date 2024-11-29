@@ -6,29 +6,37 @@ import { IconButton } from "@mui/material"
 export const pathLogo = "/logo.svg"
 
 
-export const Logo = ({className, opacity=1}: {className: string, opacity?: number}) => {
-    return <Image
+export const Logo = ({
+    className,
+    imageClassName="",
+    opacity = 1,
+  }: {
+    className: string
+    imageClassName?: string
+    opacity?: number
+  }) => {
+    return (
+      <div className={`relative inline-block ${className}`}>
+        <Image
           src={pathLogo}
           alt="Loading..."
           width={397}
           height={397}
           priority={true}
-          className={"object-contain "+className}
-          style={{opacity: opacity}}
-    />
-}
+          className={"object-contain " + imageClassName}
+          style={{ opacity: opacity }}
+        />
+      </div>
+    );
+};
 
 
 export function TopbarLogo({className="w-8 h-8", somethingSpecial=false}: {className?: string, somethingSpecial?: boolean}) {
     return <Link href="/">
         <IconButton className="relative">
-            <Image
-                src={pathLogo}
-                alt="Loading..."
-                width={320}
-                height={320}
-                priority={true}
-                className={`rounded-sm ${className}`}
+            <Logo
+                className={className}
+                imageClassName="rounded-sm"
             />
             {somethingSpecial && (
                 <div className="h-[16px] w-[16px] absolute inset-0 m-auto" title="Racing salió campeón de la Sudamericana.">

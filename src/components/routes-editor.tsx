@@ -188,6 +188,7 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
         if(user.user) {
             setErrorOnSave(false)
             const {error} = await updateEntityCategoriesOrSearchkeys(entity.id, user.user.id, true, "", JSON.stringify(categories))
+            
             if(!error){
                 mutate("/api/entitiy/"+entity.id)
                 mutate("/api/entities")

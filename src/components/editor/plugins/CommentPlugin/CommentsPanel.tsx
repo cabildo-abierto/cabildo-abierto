@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { NodeKey } from "lexical";
-import { CommentProps, ContentProps } from "../../../../app/lib/definitions";
+import { CommentProps } from "../../../../app/lib/definitions";
 import { EntitySidebarCommentSection, SidebarCommentSection } from "../../../comment-section";
+import { ContentType } from "@prisma/client";
 
 
 export function CommentsPanel({
@@ -12,7 +13,7 @@ export function CommentsPanel({
     onClose
 }: {
     activeIDs: string[],
-    parentContent: {id: string, type: string, compressedText?: string, childrenContents: CommentProps[]},
+    parentContent: {id: string, type: ContentType, compressedText?: string, childrenContents: CommentProps[]},
     markNodeMap: Map<string, Set<NodeKey>>
     comments: CommentProps[]
     onClose: () => void

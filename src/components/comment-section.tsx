@@ -1,5 +1,6 @@
+import { ContentType } from "@prisma/client"
 import { useEntity } from "../app/hooks/entities"
-import { CommentProps, ContentProps, EntityProps, FeedContentProps, SmallContentProps } from "../app/lib/definitions"
+import { CommentProps, EntityProps } from "../app/lib/definitions"
 import { getAllQuoteIds } from "./comment"
 import { decompress } from "./compression"
 import { ContentWithCommentsFromId } from "./content-with-comments"
@@ -9,11 +10,11 @@ import { listOrder } from "./utils"
 
 
 function commentScore(comment: {
-    type: string
-    createdAt: Date | string
+    type: ContentType
+    createdAt: Date
     childrenTree: {authorId: string}[]
     author: {id: string}
-    _count: {reactions: number}
+    reactions: {userById: string}[]
     uniqueViewsCount: number
 }): number[]{
 
@@ -51,9 +52,9 @@ export function getEntityComments(entity: EntityProps, comments: CommentProps[],
     let commentsAndRefs: CommentSectionElementProps[] = comments.map((c) => ({...c, isReference: false}))
 
     if(addReferences){
-        let references: CommentSectionElementProps[] = [...entity.referencedBy, ...entity.weakReferences].map((ref) => ({...ref, isReference: true}))
+        let references: CommentSectionElementProps[] = [...entity.referencedBy].map(({referencingContent}) => ({...referencingContent, isReference: true}))
 
-        references = references.filter((r) => (r.id != entity.id && r.parentEntityId != entity.id))
+        references = references.filter((r) => (r.id != entity.id && r.parentEntity.id != entity.id))
 
         commentsAndRefs = [...commentsAndRefs, ...references]
     }
@@ -129,15 +130,12 @@ export const EntitySidebarCommentSection = ({content, activeIDs, comments}: {
 
 type CommentSectionElementProps = {
     id: string
-    type: string
-    createdAt: string | Date
-    _count: {
-        childrenTree: number
-        reactions: number
-    }
+    type: ContentType
+    createdAt: Date
+    reactions: {userById: string}[]
     currentVersionOf?: {id: string}
     isReference: boolean
-    parentEntityId?: string
+    parentEntity?: {id: string}
     childrenTree: {authorId: string}[]
     author: {id: string}
     uniqueViewsCount: number
@@ -178,7 +176,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         contentsWithScore.length > 0 && 
         <div className={"space-y-2 pt-1 mb-1"} id="comment-section">
             {contentsWithScore.map(({comment}, index) => {
-                const isRef = entity && entity.referencedBy.some((content) => (content.id == comment.id))
+                const isRef = entity && entity.referencedBy.some(({referencingContent}) => (referencingContent.id == comment.id))
                 return <div key={comment.id+index}>
                     <ContentWithCommentsFromId
                         contentId={comment.id}

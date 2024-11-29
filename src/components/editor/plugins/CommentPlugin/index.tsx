@@ -37,6 +37,7 @@ import { CommentsPanel } from './CommentsPanel';
 import { $createMarkNode, $isMarkNode, CustomMarkNode } from '../../nodes/CustomMarkNode';
 import { ActiveCommentIcon, InactiveCommentIcon } from '../../../icons';
 import { CommentProps } from '../../../../app/lib/definitions';
+import { ContentType } from '@prisma/client';
 
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
@@ -45,7 +46,7 @@ export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
 
 
 export default function CommentPlugin({parentContent}: {
-  parentContent: {id: string, childrenContents: CommentProps[], compressedText?: string, type: string}
+  parentContent: {id: string, childrenContents: CommentProps[], compressedText?: string, type: ContentType}
 }): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const markNodeMap = useMemo<Map<string, Set<NodeKey>>>(() => {

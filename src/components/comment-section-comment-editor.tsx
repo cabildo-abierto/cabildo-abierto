@@ -4,10 +4,11 @@ import { useUser } from "../app/hooks/user"
 import { CommentProps } from "../app/lib/definitions"
 import { compress } from "./compression"
 import CommentEditor from "./editor/comment-editor"
+import { ContentType } from "@prisma/client"
 
 
 type CommentSectionCommentEditorProps = {
-    content: {id: string, type: string, parentEntityId: string, rootContent?: {type: string}}
+    content: {id: string, type: ContentType, parentEntity: {id: string}, rootContent?: {type: ContentType}}
     comments: CommentProps[]
     setComments: (c: CommentProps[]) => void
     setViewComments: (v: boolean) => void
@@ -23,7 +24,7 @@ export const CommentSectionCommentEditor = ({content, comments, setComments, set
 
     const handleNewComment = async (text: string) => {
         const compressedText = compress(text)
-        const {error, result: newComment} = await createComment(compressedText, user.id, content.id, content.parentEntityId)
+        const {error, result: newComment} = await createComment(compressedText, user.id, content.id, content.parentEntity.id)
         
         if(error) return {error}
 

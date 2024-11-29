@@ -11,9 +11,10 @@ export async function generateMetadata({params}: {params: {id: string}}){
         return {title: "Usuario no encontrado"}
     }
 
-    return {
+    return {}
+    /*return {
         title: "Perfil de " + user.name
-    }
+    }*/
 }
 
 

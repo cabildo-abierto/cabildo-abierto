@@ -12,7 +12,6 @@ import { pathLogo } from '../components/logo'
 import { ThemeProvider } from '@mui/material';
 import theme from './theme'; // Adjust the path if needed
 import { PageLeaveProvider } from '../components/prevent-leave';
-import { SessionContextWrapper } from '../contexts/SessionContext';
 
 
 const merriweather = Merriweather({
@@ -176,12 +175,10 @@ export default function RootLayout({
               content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
             </meta>
         </head>
-        <body className="bg-[var(--background)]">
+        <body>
           <ThemeProvider theme={theme}>
             <PageLeaveProvider>
-              <SessionContextWrapper>
               {children}
-              </SessionContextWrapper>
             </PageLeaveProvider>
           </ThemeProvider>
         </body>

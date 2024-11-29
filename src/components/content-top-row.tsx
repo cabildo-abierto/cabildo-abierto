@@ -3,6 +3,7 @@ import { ContentTopRowAuthor } from "./content"
 import { ContentOptionsButton } from "./content-options-button"
 import { DateSince } from "./date"
 import { FakeNewsCounter } from "./fake-news-counter"
+import { ContentType } from "@prisma/client"
 
 
 type ContentTopRowProps = {
@@ -10,9 +11,9 @@ type ContentTopRowProps = {
         id: string
         isContentEdited: boolean
         createdAt: Date | string
-        type: string
-        author: {name: string, id: string}
-        childrenContents: {type: string}[]
+        type: ContentType
+        author: {id: string, handle: string, displayName: string}
+        childrenContents: {type: ContentType}[]
         parentContents?: {id: string}[]
     }
     author?: boolean

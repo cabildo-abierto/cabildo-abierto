@@ -24,8 +24,8 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
     //}
     // autores de los contenidos que referenciaron
 
-    function recentEnough(date: Date | string){
-        return !since || new Date(date) > since
+    function recentEnough(date: Date){
+        return !since || date > since
     }
 
     function addMany(g: {authorId: string, createdAt: Date}[]){
@@ -38,19 +38,19 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
 
     let s = new Set()
 
-    entity.referencedBy.forEach((r) => {
-        if(recentEnough(r.createdAt)){
-            s.add(r.authorId)
+    entity.referencedBy.forEach(({referencingContent}) => {
+        if(recentEnough(referencingContent.createdAt)){
+            s.add(referencingContent.authorId)
         }
     })
 
     for(let i = 0; i < entity.referencedBy.length; i++){
-        
-        addMany(entity.referencedBy[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
-        for(let j = 0; j < entity.referencedBy[i].childrenTree.length; j++){
-            addMany(entity.referencedBy[i].childrenTree[j].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
+        const referencingContent = entity.referencedBy[i].referencingContent
+        addMany(referencingContent.childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
+        for(let j = 0; j < referencingContent.childrenTree.length; j++){
+            addMany(referencingContent.childrenTree[j].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
         }
-        addMany(entity.referencedBy[i].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
+        addMany(referencingContent.reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
     }
 
     //if(entity.name == entityId) console.log("Referencias", s)
@@ -65,23 +65,7 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
         // comentarios y subcomentarios de las versiones
         addMany(entity.versions[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
     }
-
-    addMany(entity.weakReferences.map(({authorId, createdAt}) => ({authorId, createdAt})))
-
-    for(let i = 0; i < entity.weakReferences.length; i++){
-        addMany(entity.weakReferences[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
-        
-        //if(entity.name == entityId && entity.weakReferences[i].authorId == "mariamisionser"){
-        //    console.log(entity)
-        //    console.log(recentEnough(entity.weakReferences[i].createdAt))
-        //}
-
-        for(let j = 0; j < entity.weakReferences[i].childrenTree.length; j++){
-            addMany(entity.weakReferences[i].childrenTree[j].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
-        }
-        addMany(entity.weakReferences[i].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
-    }
-
+    
     //if(entity.name == entityId) console.log("weak refs", s)
 
     //if(entity.name == entityId) console.log("Total", entity.name, s.size, s)

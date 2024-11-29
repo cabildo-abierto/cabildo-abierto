@@ -1,11 +1,12 @@
 "use client"
+import { ContentType } from '@prisma/client';
 import { Comment, CommentComponentProps } from './comment';
 import { CustomLink as Link } from './custom-link';
 import { articleUrl, contentUrl } from './utils';
 
 
 export type ShortDescriptionProps = {
-    author: {id: string}, id: string, type: string, parentEntityId?: string, title?: string
+    author: {id: string}, id: string, type: ContentType, parentEntityId?: string, title?: string
 }
 
 

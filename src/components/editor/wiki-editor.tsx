@@ -23,6 +23,7 @@ import { SearchkeysEditor } from "../searchkeys-editor"
 import { useRouteEntities } from "../../app/hooks/contents"
 import { editContentClassName } from "../article-page"
 import { SettingsProps } from "./lexical-editor"
+import { ContentType } from "@prisma/client"
 
 
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
@@ -34,7 +35,7 @@ export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:
 const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este tema no tiene contenido! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
 
 
-export const wikiEditorSettings = (readOnly: boolean, content: {type: string, title?: string, parentEntityId?: string, id: string, compressedText?: string, childrenContents: CommentProps[]}, contentText: string): SettingsProps => {
+export const wikiEditorSettings = (readOnly: boolean, content: {type: ContentType, title?: string, parentEntityId?: string, id: string, compressedText?: string, childrenContents: CommentProps[]}, contentText: string): SettingsProps => {
     
     let initialData = null
     let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
@@ -98,7 +99,7 @@ type WikiEditorProps = {
     content: {
         compressedText?: string
         id: string
-        type: string
+        type: ContentType
         charsAdded: number
         charsDeleted: number
         diff: string
