@@ -22,25 +22,32 @@ export const MainFeedHeader = ({
 }: MainFeedHeaderProps) => {
 
     function optionsNodes(o: string, isSelected: boolean){
-        return <div className="text-[var(--text)]"><Button
+        return <div className="text-[var(--text)] w-32">
+            <Button
                 onClick={() => {}}
                 variant="text"
                 color="inherit"
                 fullWidth={true}
                 disableElevation={true}
-                sx={{textTransform: "none"}}
+                sx={{textTransform: "none",
+                    paddingY: 0
+
+                }}
             >
-                <div className={"text-lg title relative after:content-[''] after:block after:h-[4px] after:rounded-full after:w-full after:mt-[-2px] " + (isSelected ? "after:bg-[var(--text)]" : "after:bg-transparent")}>{o}</div>
-        </Button></div>
+                <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                    {o}
+                </div>
+            </Button>
+        </div>
     }
 
-    return <div className="">
+    return <div className="flex">
         <SelectionComponent
             onSelection={onSelection}
             options={["Siguiendo", "En discusión"]}
             selected={selected}
             optionsNodes={optionsNodes}
-            className="flex justify-between w-full space-x-1"
+            className="flex justify-between"
         />
     </div>
 }

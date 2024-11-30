@@ -1,5 +1,5 @@
 import useSWR from "swr"
-import { NotificationProps, UserProps } from "../lib/definitions"
+import { NotificationProps, SmallUserProps, UserProps } from "../lib/definitions"
 import { fetcher } from "./utils"
 import { ChatMessage, ContentType } from "@prisma/client"
 import { useCallback, useContext, useEffect, useState } from "react"
@@ -43,7 +43,7 @@ export function useUserLikesContent(contentId: string): {userLikesContent: boole
 
 
 
-export function useUsers(): {users: UserProps[], isLoading: boolean, isError: boolean}{
+export function useUsers(): {users: SmallUserProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/users', fetcher)
   
     return {

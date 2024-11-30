@@ -7,6 +7,7 @@ export type SmallUserProps = {
     id: string
     displayName: string
     handle: string
+    avatar: string
     contents?: {
         _count: {reactions: number}
     }[]

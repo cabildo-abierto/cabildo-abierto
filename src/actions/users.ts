@@ -46,6 +46,7 @@ export const getUsersNoCache = async (): Promise<SmallUserProps[]> => {
             id: true,
             handle: true,
             displayName: true,
+            avatar: true,
             contents: {
                 select: {
                     _count: {

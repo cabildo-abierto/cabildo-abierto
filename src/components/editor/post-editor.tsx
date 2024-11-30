@@ -4,12 +4,12 @@ import { initializeEmpty, SettingsProps } from "./lexical-editor"
 import { useEffect, useRef, useState } from "react"
 import StateButton, { StateButtonClickHandler } from "../state-button"
 import { EditorState, LexicalEditor } from "lexical"
-import { charCount, emptyOutput, hasChanged, validPost } from "../utils"
+import { charCount, hasChanged, validPost } from "../utils"
 import { useRouter } from "next/navigation"
 import { TitleInput } from "./title-input"
 import { useSWRConfig } from "swr"
 import { useUser } from "../../app/hooks/user"
-import { createPost, publishDraft, updateContent } from "../../actions/contents"
+import { oldCreatePost, publishDraft, updateContent } from "../../actions/contents"
 import { compress } from "../compression"
 import { ExtraChars } from "../extra-chars"
 import { Button } from "@mui/material"
@@ -203,7 +203,7 @@ const PostEditor = ({
         const compressedText = compress(text)
         const type = isFast ? "FastPost" : "Post"
 
-        const {error, result} = await createPost(compressedText, type, true, user.id, !isFast ? title : undefined)
+        const {error, result} = await oldCreatePost(compressedText, type, true, user.id, !isFast ? title : undefined)
         if(error) return {error}
         setLastSaved({text: text, title: title, contentId: result.id})
         setContentCreationState("created")

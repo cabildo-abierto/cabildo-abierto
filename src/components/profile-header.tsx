@@ -186,6 +186,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                 onSelection={(v) => {setSelected(v); setShowingFakeNews(false)}}
                 options={["Publicaciones", "Respuestas", smallScreen ? "Ediciones" : "Ediciones en temas"]}
                 optionsNodes={optionsNodes}
+                className="flex"
             />
         </div>
 

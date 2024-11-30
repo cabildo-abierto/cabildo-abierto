@@ -1,13 +1,8 @@
-import { LexicalEditor, EditorState } from "lexical"
-import { useState, useEffect } from "react"
-import dynamic from 'next/dynamic'
-import { commentEditorSettings } from "./editor/comment-editor"
+import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
 import { mutate } from "swr"
-import { createPost } from "../actions/contents"
-import { compress } from "./compression"
-import { charCount, validPost } from "./utils"
+import { createFastPost } from "../actions/contents"
 import { ExtraChars } from "./extra-chars"
 import { ContentTopRowAuthor } from "./content"
 import useModal from "./editor/hooks/useModal"
@@ -15,46 +10,25 @@ import { FastPostImagesEditor } from "./fast-post-images-editor"
 import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
 import { CloseButton } from "./ui-utils/close-button"
 import { AddImageButton } from "./add-image-button"
-
-const MyLexicalEditor = dynamic(() => import('./editor/lexical-editor'), { ssr: false });
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 
 
 export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () => void, mobile?: boolean}) => {
-    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined);
-    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
     const { user } = useUser();
     const [editorKey, setEditorKey] = useState(0);
     const [randomPlaceholder, setRandomPlaceholder] = useState<string>("")
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
     const [modal, showModal] = useModal();
     const [images, setImages] = useState([])
+    const [text, setText] = useState("")
 
-    const placeholders = [
-        "Una ráfaga comunicacional de menos de 300 caracteres...",
-    ];
-
-    useEffect(() => {
-        const randomIndex = Math.floor(Math.random() * placeholders.length);
-        setRandomPlaceholder(placeholders[randomIndex]);
-    }, []);
-
-    const settings = { ...commentEditorSettings };
-    settings.placeholder = randomPlaceholder;
-    settings.editorClassName = "min-h-[50px] w-full content comment"
-    settings.placeholderClassName = "absolute top-0 text-[var(--text-lighter)] pointer-events-none"
-    settings.imageClassName = "fastpost-image"
+    const charLimit = 300
 
     async function handleSubmit() {
         setErrorOnCreatePost(false)
-        if (editor && user) {
-            const json = editor.getEditorState().toJSON()
+        if (user) {
+            const {error} = await createFastPost(text);
 
-            json["images"] = images
-
-            const text = JSON.stringify(json);
-            
-            const compressedText = compress(text);
-            const {error} = await createPost(compressedText, "FastPost", false, user.id, undefined);
             if(!error){
                 mutate("/api/feed/");
                 mutate("/api/following-feed/")
@@ -69,10 +43,9 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
         return {}
     }
 
-    const valid = validPost(editorState, settings.charLimit, "FastPost", images)
+    const valid = text.length > 0 && text.length <= 300
 
-    const count = editor && editorState ? charCount(editorState) : 0;
-    let disabled = valid.problem != undefined;
+    let disabled = !valid
 
     const sendButton = <StateButton
         text1="Publicar"
@@ -84,12 +57,14 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
     />
 
     const editorComp = <div className="sm:text-lg py-2 h-full max-h-[400px] w-full" key={editorKey}>
-        <MyLexicalEditor
-            settings={settings}
-            setEditorState={setEditorState}
-            setEditor={setEditor}
+        <TextareaAutosize
+            minRows={3}
+            value={text}
+            onChange={(e) => {setText(e.target.value)}}
+            placeholder="¿Qué está pasando?"
+            className="w-full outline-none resize-none"
         />
-        {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
+        {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
     </div>
 
     const center = <>

@@ -22,7 +22,6 @@ export class StateStore implements NodeSavedStateStore {
     }
     async set(key: string, val: NodeSavedState) {
         const state = JSON.stringify(val)
-        console.log("upserting", key, state)
         await db.authState.upsert({
           where: { key }, 
           update: { state },
