@@ -10,6 +10,8 @@ import { getUserId, getUsers } from "./users";
 import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getPlainText } from "../components/utils";
 import { compress, decompress } from "../components/compression";
 import { getReferencesSearchKeys } from "./references";
+import { getSessionAgent } from "./auth";
+import { RichText } from '@atproto/api'
 
 
 const childrenContentsQuery = {
@@ -58,6 +60,7 @@ export async function getContentByIdNoCache(id: string, userId?: string){
                     id: true,
                     handle: true,
                     displayName: true,
+                    avatar: true
                 }
             },
             createdAt: true,
@@ -396,11 +399,11 @@ export async function notifyNewPost(
 
 
 export async function createComment(compressedText: string, userId: string, parentContentId?: string, parentEntityId?: string){
-    return await createPost(compressedText, "Comment", false, userId, undefined, parentContentId, parentEntityId)
+    return await oldCreatePost(compressedText, "Comment", false, userId, undefined, parentContentId, parentEntityId)
 }
 
 export async function createFakeNewsReport(compressedText: string, userId: string, parentContentId?: string, parentEntityId?: string){
-    return await createPost(compressedText, "FakeNewsReport", false, userId, undefined, parentContentId, parentEntityId)
+    return await oldCreatePost(compressedText, "FakeNewsReport", false, userId, undefined, parentContentId, parentEntityId)
 }
 
 
@@ -433,7 +436,44 @@ type NewPostProps = {
 }
 
 
-export async function createPost(
+export async function createFastPost(
+    text: string
+): Promise<{error?: string}> {
+
+    const {agent} = await getSessionAgent()
+
+    const rt = new RichText({
+      text: text
+    })
+    await rt.detectFacets(agent) // automatically detects mentions and links
+    
+    /*const segments = rt.segments()
+    // rendering as markdown
+    let markdown = ''
+    segments.forEach((segment) => {
+      if (segment.isLink()) {
+        markdown += `[${segment.text}](${segment.link?.uri})`
+      } else if (segment.isMention()) {
+        markdown += `[${segment.text}](https://my-bsky-app.com/profile/${segment.mention?.did})`
+      } else {
+        markdown += segment.text
+      }
+    })*/
+
+    const record = {
+        "$type": "app.bsky.feed.post",
+        text: rt.text,
+        facets: rt.facets,
+        "createdAt": new Date().toISOString()
+    }
+
+    await agent.post(record)
+
+    return {}
+}
+
+
+export async function oldCreatePost(
     compressedText: string, type: ContentType, isDraft: boolean, userId: string, title?: string, parentContentId?: string, parentEntityId?: string
 ): Promise<{result?: CommentProps, error?: string}> {
     const text = decompress(compressedText)

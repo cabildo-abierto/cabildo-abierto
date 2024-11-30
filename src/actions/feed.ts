@@ -29,6 +29,7 @@ const feedSelect = (userId?: string) => {
                 id: true,
                 displayName: true,
                 handle: true,
+                avatar: true
             }
         },
         createdAt: true,

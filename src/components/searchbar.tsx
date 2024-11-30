@@ -4,20 +4,28 @@ import React, { useEffect, useRef } from "react";
 import { CustomLink as Link } from './custom-link';
 import { SearchButton } from "./top-bar";
 import { id2url } from "./content";
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import { useSearch } from "./search-context";
 import { CloseButton } from "./ui-utils/close-button";
+import Image from 'next/image'
 
 
-export const UserSearchResult: React.FC<{result: {displayName: string, handle: string}}> = ({ result }) => {
-    const className = "px-2 py-1 w-72 text-center hover:bg-[var(--secondary-light)]"
+export const UserSearchResult: React.FC<{result: {displayName: string, handle: string, avatar: string}}> = ({ result }) => {
+    const className = "px-2 py-1 w-72 text-center"
 
-    return <div className="flex justify-center content-container rounded"
+    console.log("result", result)
+
+    return <div className="flex justify-center hover:bg-[var(--secondary-light)] content-container rounded"
     >
         <Link href={id2url(result.handle)}>
             <button className={className}>
                 <div className="flex w-full items-center">
-                    <AccountBoxIcon fontSize="small"/>
+                    <Image
+                      src={result.avatar}
+                      alt={"Foto de perfil de @" + result.handle}
+                      width={100}
+                      height={100}
+                      className="rounded-full h-8 w-8"
+                    />
                     <div className="text-center w-full px-1">
                         {result.displayName} <span className="text-[var(--text-light)]">@{result.handle}</span>
                     </div>
