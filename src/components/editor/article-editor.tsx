@@ -17,6 +17,7 @@ import dynamic from "next/dynamic"
 import useModal from "./hooks/useModal"
 import { FastPostImagesEditor } from "../fast-post-images-editor"
 import { AddImageButton } from "../add-image-button"
+import { createATProtoArticle } from "../../actions/contents"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 
@@ -106,10 +107,10 @@ const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}
     const {user} = useUser()
 
     async function handleSubmit(){
-        /*const text = JSON.stringify(editor.getEditorState())
+        const text = JSON.stringify(editor.getEditorState())
         const compressedText = compress(text)
 
-        const {error} = await publishDraft(compressedText, lastSaved.contentId, user.id, isPublished, !isFast ? title : undefined)
+        const {error} = await createATProtoArticle(compressedText, user.id, title)
         if(error) return {error}
 
         await mutate("/api/content/"+lastSaved.contentId)
@@ -118,8 +119,7 @@ const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}
         await mutate("/api/following-feed")
         await mutate("/api/profile-feed/"+user.id)
         router.push("/")
-        return {stopResubmit: true}*/
-        return {}
+        return {stopResubmit: true}
 	}
 
     return <StateButton
@@ -165,7 +165,7 @@ const PostEditor = ({
         if(isPublished) return
 
         async function onChange(){
-            if(contentCreationState == "creating") return
+            /*if(contentCreationState == "creating") return
             if(hasChanged(editorState, lastSaved.text) || title != lastSaved.title){
                 // distinto del last saved
                 setSaveStatus("not saved")
@@ -181,7 +181,7 @@ const PostEditor = ({
             } else {
                 // igual al last saved e igual al inicial
                 setSaveStatus("no changes")
-            }
+            }*/
         }
 
         onChange()
@@ -240,7 +240,7 @@ const PostEditor = ({
 
     const valid = validPost(editorState, settings.charLimit, postType, images, title)
 
-    let disabled = valid.problem != undefined || !lastSaved.contentId
+    let disabled = valid.problem != undefined// || !lastSaved.contentId
 
     const SaveDraftDialog = () => {
         if(saveStatus == "no changes"){
@@ -294,10 +294,10 @@ const PostEditor = ({
         </div>
         {isFast && 
             <div className="flex justify-end mt-4 w-full">
-            <FastPostImagesEditor
-                images={images}
-                setImages={setImages}
-            />
+                <FastPostImagesEditor
+                    images={images}
+                    setImages={setImages}
+                />
             </div>
         }
         {modal}

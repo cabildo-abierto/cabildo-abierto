@@ -1,4 +1,4 @@
-import PostEditor from "../../../components/editor/post-editor"
+import PostEditor from "../../../components/editor/article-editor"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
 import { Metadata } from "next"
 

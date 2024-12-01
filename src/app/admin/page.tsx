@@ -1,6 +1,6 @@
 "use client"
 
-import { assignSubscriptions, buySubscriptions, desassignSubscriptions, recoverSubscriptions, removeSubscriptions } from "../../actions/users"
+import { assignSubscriptions, buySubscriptions, createNewCAUserForBskyAccount, desassignSubscriptions, recoverSubscriptions, removeSubscriptions, unsafeCreateUserFromDid } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
@@ -21,13 +21,19 @@ export default function Page() {
         return <NotFoundPage/>
     }
 
-    const userId = "juan"
+    const userId = "did:plc:of56nmyuqzvjta7qlf7gwht6"
     const entityId = "Proyecto_de_ley_S984%2F24%3A_Financiamiento_de_la_educaci%C3%B3n_universitaria"
 
     let center = <div className="flex flex-col items-center mt-8">
         <h1>Panel de administrador</h1>
         <div className="py-8 flex flex-col items-center space-y-2 w-64 text-center">
             
+            <h2>Usuarios</h2>
+
+            <button className="gray-btn" onClick={async () => {await unsafeCreateUserFromDid(userId)}}>
+                Crear usuario {userId}
+            </button>
+
             <h2>Pagos</h2>
 
             <button className="gray-btn" onClick={async () => {await buySubscriptions(supportDid, 500, "hola")}}>

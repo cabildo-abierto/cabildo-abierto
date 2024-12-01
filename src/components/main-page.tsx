@@ -70,7 +70,7 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                 </div>
             }
             
-            {selected == "En discusión" && 
+            {false && selected == "En discusión" && 
                 <div className="pt-4 pb-6 px-2">
                     <TrendingArticles route={route}/>
                 </div>

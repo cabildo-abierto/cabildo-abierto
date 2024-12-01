@@ -9,7 +9,7 @@ export const ShareContentButton = ({ content }: { content: FeedContentProps }) =
 
     const onShare = async () => {
         try {
-            const url = contentUrl(content.uri, content.author.handle)
+            const url = contentUrl(content.uri, content.record.$type, content.author.handle)
 
             navigator.clipboard.writeText(url).then(
                 () => {

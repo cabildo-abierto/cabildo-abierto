@@ -525,9 +525,9 @@ export function userUrl(id: string){
 }
 
 
-export function contentUrl(uri: string, authorHandle: string){
+export function contentUrl(uri: string, collection: string, authorHandle: string){
     const split = uri.split("/")
-    return "/contenido?u=" + authorHandle + "&i=" + split[split.length-1]
+    return "/contenido?u=" + authorHandle + "&i=" + split[split.length-1] + "&c=" + collection
 }
 
 

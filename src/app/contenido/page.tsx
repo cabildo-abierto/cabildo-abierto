@@ -1,7 +1,10 @@
 import { ThreeColumnsLayout } from "../../components/three-columns";
 import { getATProtoThread } from "../../actions/contents";
-import { ATProtoFastPost } from "../../components/atproto-fast-post";
+import { ATProtoFastPost } from "../../components/feed/atproto-fast-post";
 import { FeedContentProps } from "../lib/definitions";
+import { ATProtoArticle } from "../../components/feed/atproto-article";
+import { BlockedPost, NotFoundPost, ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
+import { ATProtoThread } from "./thread";
 
 
 export async function generateMetadata({searchParams}: {searchParams: {i: string}}){
@@ -47,12 +50,19 @@ export async function generateMetadata({searchParams}: {searchParams: {i: string
 }
 
 
-const ContentPage: React.FC<{searchParams: {i: string, u: string}}> = async ({searchParams}) => {
-    const thread = await getATProtoThread(searchParams.u, searchParams.i)
+export type ThreadProps = ThreadViewPost | FeedContentProps
 
-    const center = <div>
-        <ATProtoFastPost content={thread.post as FeedContentProps}/>
-    </div>
+
+const ContentPage: React.FC<{searchParams: {i: string, u: string, c: string}}> = async ({searchParams}) => {
+    
+    const content: ThreadProps | null = await getATProtoThread(searchParams.u, searchParams.i, searchParams.c)
+
+    let center
+    if('post' in content){
+        center = <ATProtoThread thread={content}/>
+    } else {
+        center = <ATProtoArticle content={content as FeedContentProps}/>
+    }
 
     return <ThreeColumnsLayout center={center}/>
 }
