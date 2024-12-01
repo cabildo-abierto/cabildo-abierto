@@ -1,23 +1,23 @@
 "use client"
-import LoadingSpinner from './loading-spinner';
-import { useDonationsDistribution, useFundingPercentage, useSubscriptionPrice } from '../app/hooks/subscriptions';
-import { CustomLink as Link } from './custom-link';
-import { ThreeColumnsLayout } from './three-columns';
-import { useUser } from '../app/hooks/user';
-import { UserProps } from '../app/lib/definitions';
-import { nextSubscriptionEnd } from './utils';
-import FundingProgress from './funding-progress';
-import StateButton from './state-button';
-import { Desplegable } from './desplegable';
+import LoadingSpinner from '../../components/loading-spinner';
+import { useDonationsDistribution, useFundingPercentage, useSubscriptionPrice } from '../hooks/subscriptions';
+import { CustomLink as Link } from '../../components/custom-link';
+import { ThreeColumnsLayout } from '../../components/three-columns';
+import { useUser } from '../hooks/user';
+import { UserProps } from '../lib/definitions';
+import { nextSubscriptionEnd } from '../../components/utils';
+import FundingProgress from '../../components/funding-progress';
+import StateButton from '../../components/state-button';
+import { Desplegable } from '../../components/desplegable';
 import { useState } from 'react';
-import { createPreference } from '../actions/payments';
-import { IntegerInputPlusMinus } from './integer-input-plus-minus';
-import { UniqueDonationCheckout } from './unique-donation-checkout';
+import { createPreference } from '../../actions/payments';
+import { IntegerInputPlusMinus } from '../../components/integer-input-plus-minus';
+import { UniqueDonationCheckout } from '../../components/unique-donation-checkout';
 import { Button } from '@mui/material';
-import { ArrowRightIcon } from './icons/arrow-right-icon';
-import { DonateIcon } from './icons/donate-icon';
-import { ExpandLessIcon } from './icons/expand-less-icon';
-import { ExpandMoreIcon } from './icons/expand-more-icon';
+import { ArrowRightIcon } from '../../components/icons/arrow-right-icon';
+import { DonateIcon } from '../../components/icons/donate-icon';
+import { ExpandLessIcon } from '../../components/icons/expand-less-icon';
+import { ExpandMoreIcon } from '../../components/icons/expand-more-icon';
 
 
 const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -25,13 +25,6 @@ const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "
 
 function dateToText(date: Date){
     return date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear()
-}
-
-
-function getSubscriptionEndDate(user: UserProps){
-    const extraMonths = user.subscriptionsBought.length
-    const nextEnd = nextSubscriptionEnd(user, extraMonths)
-    return dateToText(nextEnd)
 }
 
 

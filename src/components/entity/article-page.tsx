@@ -2,66 +2,33 @@
 import React, { ReactNode, useEffect, useState } from "react"
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { preload, useSWRConfig } from "swr";
-import { CustomLink as Link } from './custom-link';
-import StateButton from "./state-button";
+import { CustomLink as Link } from '../custom-link';
+import StateButton from "../state-button";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DateSince } from "./date";
-import { ToggleButton } from "./toggle-button";
-import { recomputeEntityContributions } from "../actions/entities";
-import { useUser } from "../app/hooks/user";
-import { EntityCategories } from "./categories";
-import { EditHistory } from "./edit-history";
-import { SetProtectionButton } from "./protection-button";
-import { ThreeColumnsLayout } from "./three-columns";
-import { articleUrl, currentVersion, hasEditPermission, inRange, isUndo } from "./utils";
-import { UndoDiscussion } from "./undo-discussion";
-import { articleButtonClassname } from "./editor/wiki-editor";
-import { fetcher } from "../app/hooks/utils";
-import { LoadingScreen } from "./loading-screen";
-import NoEntityPage from "./no-entity-page";
+import { DateSince } from "../date";
+import { ToggleButton } from "../toggle-button";
+import { useUser } from "../../app/hooks/user";
+import { EntityCategories } from "../categories";
+import { EditHistory } from "../edit-history";
+import { SetProtectionButton } from "../protection-button";
+import { ThreeColumnsLayout } from "../three-columns";
+import { articleUrl, currentVersion, hasEditPermission, inRange, isUndo } from "../utils";
+import { UndoDiscussion } from "../undo-discussion";
+import { articleButtonClassname } from "../editor/wiki-editor";
+import { fetcher } from "../../app/hooks/utils";
+import { LoadingScreen } from "../loading-screen";
+import NoEntityPage from "../no-entity-page";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-import { useEntity } from "../app/hooks/entities";
+import { useEntity } from "../../app/hooks/entities";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
-import { updateAllWeakReferences } from "../actions/references";
-import { deleteEntity, deleteEntityHistory, makeEntityPublic } from "../actions/admin";
-import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup";
+import { smoothScrollTo } from "../editor/plugins/TableOfContentsPlugin";
+import { BaseFullscreenPopup } from "../ui-utils/base-fullscreen-popup";
 import { ArticleDiscussion } from "./article-discussion";
-import LoadingSpinner from "./loading-spinner";
-import { useContent } from "../app/hooks/contents";
-import ContentComponent from "./content";
+import LoadingSpinner from "../loading-spinner";
+import { useContent } from "../../app/hooks/contents";
 import Button from "@mui/material/Button";
 import { ArticleOtherOptions } from "./article-other-options";
-import { EntityCategoriesSmall } from "./entity-categories-small";
-
-
-
-export const ContentComponentFromId = ({
-    contentId,
-    ...props
-}: {
-    contentId: string
-    onViewComments?: () => void
-    isMainPage?: boolean
-    viewingComments?: boolean
-    onStartReply?: () => void
-    showingChanges?: boolean
-    showingAuthors?: boolean
-    editing?: boolean
-    setEditing: (arg0: boolean) => void
-    parentContentId?: string
-    inCommentSection?: boolean
-    inItsOwnCommentSection?: boolean
-    depth?: number
-}) => {
-    const {content} = useContent(contentId)
-    if(!content) return <LoadingSpinner/>
-
-    return <ContentComponent
-        content={content}
-        {...props}
-    />
-}
+import { EntityCategoriesSmall } from "../entity-categories-small";
 
 
 
@@ -189,10 +156,11 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
             text2="Eliminando..."
             variant="text"
             handleClick={async () => {
-                const {error} = await deleteEntity(entityId, user.user.id)
+                /*const {error} = await deleteEntity(entityId, user.user.id)
                 mutate("/api/entities")
                 router.push("/inicio")
-                return {error}
+                return {error}*/
+                return {}
             }}
         />
     }
@@ -203,7 +171,8 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
             text1="Recalcular contribuciones"
             text2="Recalculando..."
             handleClick={async () => {
-                return await recomputeEntityContributions(entityId)
+                //return await recomputeEntityContributions(entityId)
+                return {}
             }}
         />
     }
@@ -214,9 +183,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
             text1="Eliminar historial"
             text2="Eliminando..."
             handleClick={async () => {
-                const {error} = await deleteEntityHistory(entityId, false); 
+                /*const {error} = await deleteEntityHistory(entityId, false); 
                 mutate("/api/entity/"+entityId)
-                return {error}
+                return {error}*/
+                return {}
             }}
         />
     }
@@ -228,9 +198,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
             text1="Reiniciar"
             text2="Reiniciando..."
             handleClick={async () => {
-                const {error} = await deleteEntityHistory(entityId, true); 
+                /*const {error} = await deleteEntityHistory(entityId, true); 
                 mutate("/api/entity/"+entityId)
-                return {error}
+                return {error}*/
+                return {}
             }}
         />
     }
@@ -241,9 +212,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
             text1="Hacer público"
             text2="Haciendo público..."
             handleClick={async () => {
-                const {error} = await makeEntityPublic(entityId, true); 
+                /*const {error} = await makeEntityPublic(entityId, true); 
                 mutate("/api/entity/"+entityId)
-                return {error}
+                return {error}*/
+                return {}
             }}
         />
     }
@@ -254,7 +226,8 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
             text1="Actualizar weak references"
             text2="Actualizando..."
             handleClick={async () => {
-                return await updateAllWeakReferences()
+                //return await updateAllWeakReferences()
+                return {}
             }}
         />
     }
@@ -265,9 +238,10 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
             text1="Hacer privado"
             text2="Haciendo privado..."
             handleClick={async () => {
-                const {error} = await makeEntityPublic(entityId, false); 
+                /*const {error} = await makeEntityPublic(entityId, false); 
                 mutate("/api/entity/"+entityId)
-                return {error}
+                return {error}*/
+                return {}
             }}
         />
     }
@@ -389,22 +363,7 @@ export const ArticlePage = ({entityId, paramsVersion, changes, header, userHeade
         </div>}
 
         <div className="mt-4">
-        {selectedPanel == "editing" && <ContentComponentFromId
-            contentId={contentId}
-            isMainPage={true}
-            showingChanges={false}
-            showingAuthors={false}
-            editing={true}
-            setEditing={setEditing}
-        />}
-        {selectedPanel != "editing" && <ContentComponentFromId
-            contentId={contentId}
-            isMainPage={true}
-            showingChanges={selectedPanel == "changes"}
-            showingAuthors={selectedPanel == "authors"}
-            editing={false}
-            setEditing={setEditing}
-        />}
+            {/* TO DO*/}
         </div>
     
     </>

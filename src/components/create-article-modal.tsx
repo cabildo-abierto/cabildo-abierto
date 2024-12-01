@@ -1,7 +1,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useSWRConfig } from "swr";
-import { createEntity } from "../actions/entities";
 import { useUser } from "../app/hooks/user";
 import { CreateAccountLink } from "./create-account-link";
 import StateButton from "./state-button";
@@ -45,7 +44,7 @@ export const CreateArticleModal = ({ open, onClose }: { open: boolean, onClose: 
             <div className="py-4">
                 <StateButton
                     handleClick={async () => {
-                        setErrorOnCreate(null)
+                        /*setErrorOnCreate(null)
                         const { id, error } = await createEntity(entityName, user.user.id);
                         if(error){
                             if(error == "exists"){
@@ -58,7 +57,7 @@ export const CreateArticleModal = ({ open, onClose }: { open: boolean, onClose: 
                         mutate("/api/entities")
                         mutate("/api/entity/"+id)
                         if (goToArticle) router.push(articleUrl(id))
-                        onClose()
+                        onClose()*/
                         return {}
                     }}
                     disabled={!user.user || !validEntityName(entityName)}

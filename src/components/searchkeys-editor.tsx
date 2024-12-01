@@ -9,7 +9,6 @@ import { useSWRConfig } from "swr";
 import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
 import InfoPanel from "./info-panel";
-import { updateEntityCategoriesOrSearchkeys } from "../actions/entities";
 import Button from "@mui/material/Button";
 
 
@@ -76,7 +75,7 @@ export const SearchkeysEditor = ({entity, setEditing}: {entity: EntityProps, set
     const [errorOnSave, setErrorOnSave] = useState(false)
 
     const onSubmitSearchkeys = async () => {
-        setErrorOnSave(false)
+        /*setErrorOnSave(false)
         if(user.user) {
             const {error} = await updateEntityCategoriesOrSearchkeys(entity.id, user.user.id, true, "", undefined, searchkeys)
             if(!error){
@@ -87,7 +86,7 @@ export const SearchkeysEditor = ({entity, setEditing}: {entity: EntityProps, set
                 setErrorOnSave(true)
             }
         }
-        setErrorOnSave(true)
+        setErrorOnSave(true)*/
         return {}
     }
 

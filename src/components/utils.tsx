@@ -768,3 +768,6 @@ export const formatIsoDate = (isoDate) => {
   
     return argentinaTime;
 };
+
+
+export const emptyChar = <>&nbsp;</>

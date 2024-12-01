@@ -2,20 +2,20 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useState } from 'react';
 
-import { ModalBelow } from './modal-below';
-import { hasEditPermission } from './utils';
-import { useUser } from '../app/hooks/user';
+import { ModalBelow } from '../modal-below';
+import { hasEditPermission } from '../utils';
+import { useUser } from '../../app/hooks/user';
 import { IconButton } from '@mui/material';
-import StateButton from './state-button';
+import StateButton from '../state-button';
 import { useSWRConfig } from 'swr';
-import { ContentOptionsChoiceButton } from './content-options/content-options-button';
-import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
-import { inputClassName } from './utils';
-import { validEntityName } from './write-button';
-import { AcceptButtonPanel } from './ui-utils/accept-button-panel';
-import { changeEntityName } from '../actions/entities';
-import { NeedAccountPopup } from './article-page';
-import { WriteButtonIcon } from './icons/write-button-icon';
+import { ContentOptionsChoiceButton } from '../content-options/content-options-button';
+import { BaseFullscreenPopup } from '../ui-utils/base-fullscreen-popup';
+import { inputClassName } from '../utils';
+import { validEntityName } from '../write-button';
+import { AcceptButtonPanel } from '../ui-utils/accept-button-panel';
+//import { changeEntityName } from '../actions/entities';
+import { WriteButtonIcon } from '../icons/write-button-icon';
+import { NeedAccountPopup } from '../need-account-popup';
 
 
 const NewNameModal = ({entity, open, onClose}: {entity: {id: string, name: string, protection: string}, onClose: () => void, open: boolean}) => {
@@ -26,10 +26,11 @@ const NewNameModal = ({entity, open, onClose}: {entity: {id: string, name: strin
     const valid = validEntityName(name)
 
     async function onChange(){
-        const result = await changeEntityName(entity.id, name, user.id)
+        /*const result = await changeEntityName(entity.id, name, user.id)
         onClose()
         await mutate("/api/entity/"+entity.id)
-        return result
+        return result*/
+        return {}
     }
 
     if(!user){

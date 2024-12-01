@@ -10,9 +10,8 @@ import { useContent } from "../app/hooks/contents";
 import { CommentProps, EntityProps } from "../app/lib/definitions";
 import { articleUrl, cleanText, currentVersion, getKeysFromEntity, getVersionInEntity, someKeyInText } from "./utils";
 import { decompress } from "./compression";
-import { contentContextClassName } from "./comment-in-context";
-import { ContentTopRow } from "./content-top-row";
 import { ContentType } from "@prisma/client";
+import { contentContextClassName } from "./short-description";
 
 
 type EntityComponentProps = {
@@ -200,7 +199,7 @@ const EntityEditInFeed = ({entity, content, version}: {
         text = <>Modificó {name} (<ChangesCounter charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}/> caracteres)</>
     }
     return <div className="">
-        <ContentTopRow content={content} icon={<></>}/>
+        {/* TO DO <ContentTopRow content={content} icon={<></>}/>*/}
         <div className="link px-4 py-4">{text}</div>
     </div>
 }

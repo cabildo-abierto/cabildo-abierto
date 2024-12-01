@@ -9,7 +9,7 @@ import WriteButton from "./write-button";
 import { createPortal } from "react-dom";
 import { useUser } from "../app/hooks/user";
 import { TopbarLogo } from "./logo";
-import { NotificationsButton } from "./notifications-button";
+import { NotificationsButton } from "./notifications/notifications-button";
 import { useSearch } from "./search-context";
 import { Button, IconButton } from "@mui/material";
 import { CabildoIcon } from './icons/home-icon';

@@ -1,15 +1,12 @@
 'use server'
 
 import { revalidateTag, unstable_cache } from "next/cache";
-import { ContentType, NotificationType, Prisma } from "@prisma/client";
+import { NotificationType } from "@prisma/client";
 import { db } from "../db";
-import { revalidateEverythingTime, revalidateReferences } from "./utils";
-import { getEntities } from "./entities";
-import { CommentProps, ContentProps } from "../app/lib/definitions";
-import { getUserId, getUsers } from "./users";
-import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getPlainText } from "../components/utils";
-import { compress, decompress } from "../components/compression";
-import { getReferencesSearchKeys } from "./references";
+import { revalidateEverythingTime } from "./utils";
+import { getUserId } from "./users";
+import { getPlainText } from "../components/utils";
+import { compress } from "../components/compression";
 import { getSessionAgent } from "./auth";
 import { RichText } from '@atproto/api'
 
@@ -137,23 +134,6 @@ export async function createNotification(
     return {}
 }
 
-export async function findEntityReferences(text: string): Promise<{error?: string, entityReferences?: {id: string}[]}>{
-    const {entities, error} = await getEntities()
-    if(error) return {error: error}
-
-    return {entityReferences: await findEntityReferencesFromEntities(text, entities)}
-}
-
-
-export async function findMentions(text: string){
-    const {users, error} = await getUsers()
-    if(error) return {error}
-
-    return {mentions: findMentionsFromUsers(text, users)}
-}
-
-
-// TO DO: Atómico
 export const addLike = async (id: string, userId: string, entityId?: string) => {
     return {}
 }
@@ -307,99 +287,6 @@ export async function markNotificationViewed(id: string){
     revalidateTag("notifications:"+notification.userNotifiedId)
     revalidateTag("user:"+notification.userNotifiedId)
     return {}
-}
-
-
-export async function notifyAllMentions(){
-    const notifications = await db.notification.findMany({
-        where: {
-            type: "Mention"
-        }
-    })
-
-    const contents = await db.content.findMany({
-        select: {
-            id: true,
-            authorId: true,
-            usersMentioned: {
-                select: {
-                    id: true
-                }
-            },
-            compressedText: true
-        },
-        where: {
-            isDraft: false,
-            visible: true,
-            type: {
-                notIn: ["UndoEntityContent"]
-            }
-        }
-    })
-
-    for(let i = 0; i < contents.length; i++){
-        const {mentions, error} = await findMentions(decompress(contents[i].compressedText))
-        if(error) return {error}
-
-        if(mentions.length != contents[i].usersMentioned.length){
-            console.log("actualizando menciones de", contents[i].id, "escrito por", contents[i].authorId)
-            console.log("nuevas menciones", mentions)
-            await db.content.update({
-                data: {
-                    usersMentioned: {
-                        connect: mentions
-                    }
-                },
-                where: {
-                    id: contents[i].id
-                }
-            })
-        }
-        if(mentions.length > 0){
-            
-            console.log("actualizando notificaciones de", contents[i].id, "escrito por", contents[i].authorId)
-            console.log("nuevas menciones", mentions)
-            for(let j = 0; j < mentions.length; j++){
-                if(!notifications.some((n) => (n.contentId == contents[i].id && n.userNotifiedId == mentions[j].id))){
-                    await createNotification(
-                        contents[i].authorId,
-                        mentions[j].id,
-                        "Mention",
-                        contents[i].id
-                    )
-                }
-            }
-        }
-    }
-}
-
-
-export async function deleteUser(userId: string){
-    await db.reaction.deleteMany({
-        where: {
-            userById: userId
-        }
-    })
-    await db.notification.deleteMany({
-        where: {
-            userById: userId
-        }
-    })
-    await db.notification.deleteMany({
-        where: {
-            userNotifiedId: userId
-        }
-    })
-    await db.view.deleteMany({
-        where: {
-            userById: userId
-        }
-    })
-    await db.user.delete({
-        where: {
-            id: userId
-        }
-    })
 }
 
 

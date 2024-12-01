@@ -8,7 +8,6 @@ import type {
   
   import './index.css';
   
-  import {createComment as createCommentDB, updateContent} from "../../../../actions/contents"
   import {
     $wrapSelectionInMarkNode,
   } from '@lexical/mark';
@@ -149,7 +148,7 @@ export function CommentInputBox({
   }, [updateLocation]);
 
   const submitComment = async () => {
-      if (!emptyOutput(editor.getEditorState())) {
+      /*if (!emptyOutput(editor.getEditorState())) {
           let quote = editor.getEditorState().read(() => {
               const selection = selectionRef.current;
               return selection ? selection.getTextContent() : '';
@@ -201,7 +200,7 @@ export function CommentInputBox({
           
           submitAddComment()
           selectionRef.current = null;
-      }
+      }*/
       return {}
   };
 

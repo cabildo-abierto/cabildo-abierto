@@ -3,10 +3,10 @@
 import React, { useEffect, useRef } from "react";
 import { CustomLink as Link } from './custom-link';
 import { SearchButton } from "./top-bar";
-import { id2url } from "./content";
 import { useSearch } from "./search-context";
 import { CloseButton } from "./ui-utils/close-button";
 import Image from 'next/image'
+import { id2url } from "./utils";
 
 
 export const UserSearchResult: React.FC<{result: {displayName: string, handle: string, avatar: string}}> = ({ result }) => {

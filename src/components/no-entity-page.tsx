@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation"
 import React from "react"
 import { useSWRConfig } from "swr"
-import { createEntity } from "../actions/entities"
 import { useUser } from "../app/hooks/user"
 import { articleUrl } from "./utils"
 import { validEntityName } from "./write-button"
@@ -25,12 +24,12 @@ export default function NoEntityPage({id}: {id: string}){
     const {mutate} = useSWRConfig()
 
     const handleCreateEntity = async () => {
-        if(user) {
+        /*if(user) {
             await createEntity(name, user.id)
             mutate("/api/entities")
             mutate("/api/entity/"+id)
             router.push(url)
-        }
+        }*/
     }
 
     return <>

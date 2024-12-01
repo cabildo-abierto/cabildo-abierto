@@ -6,12 +6,11 @@ import { commentEditorSettings } from './editor/comment-editor';
 
 import dynamic from 'next/dynamic'
 import { EditorState, LexicalEditor } from 'lexical';
-import { createFakeNewsReport } from '../actions/contents';
 import { useUser } from '../app/hooks/user';
 import { compress } from './compression';
 import { emptyOutput } from './utils';
 import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
-import { NeedAccountPopup } from './article-page';
+import { NeedAccountPopup } from './entity/article-page';
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 
@@ -47,7 +46,7 @@ export const CreateFakeNewsReportModal = ({ contentId, open, onClose }: { conten
             <div className="py-4">
                 <StateButton
                     handleClick={async () => {
-                        if(user.user && editor){
+                        /*if(user.user && editor){
                             const {error, ...newComment} = await createFakeNewsReport(
                                 compress(JSON.stringify(editor.getEditorState())),
                                 user.user.id,
@@ -61,7 +60,7 @@ export const CreateFakeNewsReportModal = ({ contentId, open, onClose }: { conten
                             onClose()
                             return {}
                         }
-                        return {error: "Ocurrió un error al crear el reporte."}
+                        return {error: "Ocurrió un error al crear el reporte."}*/
 
                         
                         /*const compressedText = compress(text)
@@ -77,8 +76,8 @@ export const CreateFakeNewsReportModal = ({ contentId, open, onClose }: { conten
                             console.log("Mutating feed")
                             await mutate("/api/feed/")
                         }
-
-                        return {}*/
+                        */
+                        return {}
                     }}
                     disableElevation={true}
                     text1="Enviar"

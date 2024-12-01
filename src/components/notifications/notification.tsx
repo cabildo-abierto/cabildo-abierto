@@ -1,12 +1,12 @@
 "use client"
 import { useEffect, useState } from "react"
-import { useUser } from "../app/hooks/user"
-import { NotificationProps } from "../app/lib/definitions"
-import { DateSince } from "./date"
+import { useUser } from "../../app/hooks/user"
+import { NotificationProps } from "../../app/lib/definitions"
+import { DateSince } from "../date"
 import { CommentNotification, FollowNotification, MentionNotification, ReactionNotification } from "./notification-components"
-import { markNotificationViewed } from "../actions/contents"
+import { markNotificationViewed } from "../../actions/contents"
 import { useSWRConfig } from "swr"
-import { CustomLink as Link } from './custom-link';
+import { CustomLink as Link } from '../custom-link';
 
 
 

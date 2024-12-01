@@ -12,7 +12,6 @@ import { EntityCategoriesTitle } from "./categories";
 import { useRouteEntities, useContent } from "../app/hooks/contents";
 import { useUser } from "../app/hooks/user";
 import { EntityProps } from "../app/lib/definitions";
-import { updateEntityCategoriesOrSearchkeys } from "../actions/entities";
 import Button from "@mui/material/Button";
 
 function validCategoryElement(e: string){
@@ -185,7 +184,7 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
     const onSubmitCategories = async () => {
         // TO DO: Pedir confirmación si crea una nueva categoría
         // TO DO: Chequear que otro no haya editado en el medio
-        if(user.user) {
+        /*if(user.user) {
             setErrorOnSave(false)
             const {error} = await updateEntityCategoriesOrSearchkeys(entity.id, user.user.id, true, "", JSON.stringify(categories))
             
@@ -198,7 +197,7 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
             }
             return {}
         }
-        setErrorOnSave(true)
+        setErrorOnSave(true)*/
         return {}
     }
 

@@ -1,7 +1,6 @@
 "use client"
 
 import Image from 'next/image'
-import { Authorship, ContentTopRowAuthor } from './content'
 import { DateSince } from './date'
 import { FeedContentProps } from '../app/lib/definitions'
 import { contentUrl, formatIsoDate, userUrl } from './utils'
@@ -12,6 +11,7 @@ import { InactiveLikeIcon } from './icons/inactive-like-icon'
 import { RepostIcon } from './icons/reposts-icon'
 import { ContentOptionsButton } from './content-options/content-options-button'
 import { useRouter } from 'next/navigation'
+import { ContentTopRowAuthor } from './content-top-row-author'
 
 export type ATProtoFastPostProps = {
     content: FeedContentProps
