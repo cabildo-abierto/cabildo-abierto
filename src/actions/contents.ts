@@ -6,9 +6,11 @@ import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
 import { getUserId } from "./users";
 import { getPlainText } from "../components/utils";
-import { compress } from "../components/compression";
+import { compress, decompress } from "../components/compression";
 import { getSessionAgent } from "./auth";
 import { RichText } from '@atproto/api'
+import { FeedContentProps } from "../app/lib/definitions";
+import { ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 
 
 export async function notifyMentions(mentions: {id: string}[], contentId: string, userById: string, isEdit: boolean = false){
@@ -71,43 +73,6 @@ export async function processNewTextFast(text: string, title?: string) {
         //entityReferences: entityReferences.entityReferences,
         compressedPlainText: compress(plainText)
     }
-}
-
-
-export async function createFastPost(
-    text: string
-): Promise<{error?: string}> {
-
-    const {agent} = await getSessionAgent()
-
-    const rt = new RichText({
-      text: text
-    })
-    await rt.detectFacets(agent) // automatically detects mentions and links
-    
-    /*const segments = rt.segments()
-    // rendering as markdown
-    let markdown = ''
-    segments.forEach((segment) => {
-      if (segment.isLink()) {
-        markdown += `[${segment.text}](${segment.link?.uri})`
-      } else if (segment.isMention()) {
-        markdown += `[${segment.text}](https://my-bsky-app.com/profile/${segment.mention?.did})`
-      } else {
-        markdown += segment.text
-      }
-    })*/
-
-    const record = {
-        "$type": "app.bsky.feed.post",
-        text: rt.text,
-        facets: rt.facets,
-        "createdAt": new Date().toISOString()
-    }
-
-    await agent.post(record)
-
-    return {}
 }
 
 
@@ -382,21 +347,136 @@ export async function deleteDraft(contentId: string){
 }
 
 
-export async function getATProtoThread(u: string, id: string){
+export async function getATProtoThread(u: string, id: string, c: string){
     const {agent} = await getSessionAgent()
 
-  /** The handle or DID of the repo. 
-  repo: string
-   The NSID of the record collection. 
-  collection: string
-   The Record Key. 
-  rkey: string
-   The CID of the version of the record. If not specified, then return the most recent version. 
-  cid?: string
-  */
+    /** The handle or DID of the repo. 
+     repo: string
+    The NSID of the record collection. 
+    collection: string
+    The Record Key. 
+    rkey: string
+    The CID of the version of the record. If not specified, then return the most recent version. 
+    cid?: string
+    */
+
+    const uri = "at://" + u + "/" + c + "/" + id
+
+    try {
+        if(c == "app.bsky.feed.post"){
+            const {data} = await agent.getPostThread({uri: uri})
+            return data.thread as ThreadViewPost
+        } else {
+            const {data} = await agent.com.atproto.repo.getRecord({
+                repo: u,
+                collection: c,
+                rkey: id
+            })
+
+
+            let {data: author} = await agent.getProfile({actor: u})
+
+            const {value: record, ...rest} = data
+            return {
+                ...rest,
+                record: record as unknown,
+                author,
+                likeCount: 0,
+                repostCount: 0,
+                quoteCount: 0,
+                replyCount: 0
+            } as FeedContentProps
+        }
+    } catch(err) {
+        console.log("Error getting thread", uri)
+        console.log(err)
+        return null
+    }
+}
+
+
+export async function getBskyThread(u: string, id: string){
+    const {agent} = await getSessionAgent()
+
+    /** The handle or DID of the repo. 
+     repo: string
+    The NSID of the record collection. 
+    collection: string
+    The Record Key. 
+    rkey: string
+    The CID of the version of the record. If not specified, then return the most recent version. 
+    cid?: string
+    */
     const uri = "at://" + u + "/app.bsky.feed.post/" + id
 
     const {data} = await agent.getPostThread({uri: uri})
     
     return data.thread
+}
+
+
+export async function createFastPost(
+    text: string
+): Promise<{error?: string}> {
+
+    const {agent} = await getSessionAgent()
+
+    const rt = new RichText({
+      text: text
+    })
+    await rt.detectFacets(agent) // automatically detects mentions and links
+    
+    /*const segments = rt.segments()
+    // rendering as markdown
+    let markdown = ''
+    segments.forEach((segment) => {
+      if (segment.isLink()) {
+        markdown += `[${segment.text}](${segment.link?.uri})`
+      } else if (segment.isMention()) {
+        markdown += `[${segment.text}](https://my-bsky-app.com/profile/${segment.mention?.did})`
+      } else {
+        markdown += segment.text
+      }
+    })*/
+
+    const record = {
+        "$type": "app.bsky.feed.post",
+        text: rt.text,
+        facets: rt.facets,
+        "createdAt": new Date().toISOString()
+    }
+
+    await agent.post(record)
+
+    return {}
+}
+
+
+export async function createATProtoArticle(compressedText: string, userId: string, title: string){
+
+    const {agent, did} = await getSessionAgent()
+    if(!agent) return {error: "Iniciá sesión para publicar un artículo."}
+
+    const text = decompress(compressedText)
+
+    const record = {
+        "$type": "app.ca.article.post",
+        text: text,
+        title: title,
+        createdAt: new Date().toISOString()
+    }
+
+    try {
+        const res = await agent.com.atproto.repo.createRecord({
+            repo: did,
+            collection: 'app.ca.article.post',
+            record: record,
+        })
+        console.log("Response", res)
+    } catch (err){
+        console.log("Error", err)
+        return {error: "Ocurrió un error al publicar el artículo."}
+    }
+
+    return {}
 }

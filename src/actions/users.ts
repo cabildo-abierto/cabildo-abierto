@@ -899,6 +899,9 @@ export async function createNewCAUserForBskyAccount(did: string){
         if(!exists){
 
             const {agent} = await getSessionAgent()
+            if(did != agent.assertDid){
+                return {error: "El usuario no coincide con la sesión."}
+            }
             
             const {data}: {data: ProfileViewDetailed} = await agent.getProfile({actor: agent.assertDid})
 
@@ -909,7 +912,8 @@ export async function createNewCAUserForBskyAccount(did: string){
                     handle: data.handle,
                     displayName: data.displayName,
                     description: data.description,
-                    avatar: data.avatar
+                    avatar: data.avatar,
+                    banner: data.banner
                 }
             })
         } else {
@@ -919,4 +923,23 @@ export async function createNewCAUserForBskyAccount(did: string){
         return {error: "Error al crear el usuario"}
     }
     return {}
+}
+
+
+export async function unsafeCreateUserFromDid(did: string){
+    const {agent} = await getSessionAgent()
+    
+    const {data}: {data: ProfileViewDetailed} = await agent.getProfile({actor: did})
+
+    await db.user.create({
+        data: {
+            id: did,
+            handle: data.handle,
+            displayName: data.displayName,
+            description: data.description,
+            avatar: data.avatar,
+            banner: data.banner
+        }
+    })
+
 }

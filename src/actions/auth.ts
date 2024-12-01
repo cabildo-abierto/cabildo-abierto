@@ -57,10 +57,10 @@ export async function getSessionAgent(){
 
     try {
         const oauthSession = await oauthClient.restore(session.did)
-        return oauthSession ? {agent: new Agent(oauthSession)} : {}
+        return oauthSession ? {agent: new Agent(oauthSession), did: session.did} : {}
     } catch (err) {
         session.destroy()
-        return {agent: undefined}
+        return {agent: undefined, did: undefined}
     }
 }
 

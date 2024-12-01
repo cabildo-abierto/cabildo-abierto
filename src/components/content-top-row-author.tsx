@@ -22,13 +22,13 @@ export const Authorship = ({content, onlyAuthor=false}: {content: {author: {disp
     </span>
 }
 
-export const ContentTopRowAuthor = ({content, useLink=true} :{content: {author: {handle: string, displayName: string}}, useLink?: boolean}) => {
+export const ContentTopRowAuthor = ({content, useLink=true} :{content: {author: {handle: string, displayName?: string}}, useLink?: boolean}) => {
     const router = useRouter()
     const url = content.author ? id2url(content.author.handle) : ""
     const onClick = stopPropagation(() => {router.push(url)})
 
-    const text = <><span className="hover:underline font-bold mr-1">  {content.author?.displayName}
-    </span>
+    const text = <>{content.author.displayName && <span className="hover:underline font-bold mr-1">  {content.author.displayName}
+    </span>}
     <span className="text-[var(--primary-light)]">
         @{content.author?.handle}
     </span></>

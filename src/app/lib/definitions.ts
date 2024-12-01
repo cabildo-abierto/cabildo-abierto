@@ -330,8 +330,14 @@ export type SearchkeysProps = {
 
 export type FeedContentProps = {
     uri: string
-    author: {handle: string, displayName: string, avatar: string}
-    record: {text: string, createdAt: string}
+    author: {handle: string, displayName?: string, avatar?: string}
+    record: {
+        text: string,
+        facets?: any[],
+        title?: string,
+        createdAt: string,
+        $type: string
+    }
     likeCount: number
     repostCount: number
     quoteCount: number

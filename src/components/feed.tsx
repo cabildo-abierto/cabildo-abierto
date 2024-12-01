@@ -3,7 +3,10 @@ import { NoResults } from "./category-users";
 import { FeedContentProps } from "../app/lib/definitions";
 import LoadingSpinner from "./loading-spinner";
 import { LazyLoadFeed } from "./lazy-load-feed";
-import { ATProtoFastPost } from "./atproto-fast-post";
+import { ATProtoFastPost } from "./feed/atproto-fast-post";
+import { ATProtoArticle } from "./feed/atproto-article";
+import { ATProtoArticlePreview } from "./feed/atproto-article-preview";
+import { ATProtoFastPostPreview } from "./feed/atproto-fast-post-preview";
 
 
 export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, isError: boolean}
@@ -21,10 +24,18 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
     }
 
     function generator(index: number){
-        return {
-            c: <ATProtoFastPost
+        let node
+        if(feed.feed[index].record.$type == "app.ca.article.post"){
+            node = <ATProtoArticlePreview
                 content={feed.feed[index]}
-            />,
+            />
+        } else {
+            node = <ATProtoFastPostPreview
+                content={feed.feed[index]}
+            />
+        }
+        return {
+            c: node,
             key: feed.feed[index].uri
         }
     }
