@@ -8,7 +8,7 @@ import { useUser } from '../app/hooks/user';
 import { IconButton } from '@mui/material';
 import StateButton from './state-button';
 import { useSWRConfig } from 'swr';
-import { ContentOptionsChoiceButton } from './content-options-button';
+import { ContentOptionsChoiceButton } from './content-options/content-options-button';
 import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
 import { inputClassName } from './utils';
 import { validEntityName } from './write-button';

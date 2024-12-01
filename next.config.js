@@ -16,7 +16,7 @@ nextConfig = {
           hostname: "**",
         },
       ],
-    },
+    }
 }
 
 module.exports = withBundleAnalyzer(nextConfig)

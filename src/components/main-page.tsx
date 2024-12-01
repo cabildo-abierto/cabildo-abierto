@@ -1,16 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CreateAccountLink } from "./create-account-link"
 import { MainFeedHeader } from "./main-feed-header"
-import { useSearch } from "./search-context"
-import { ConfiguredFeed } from "./sorted-and-filtered-feed"
 import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents"
 import { useUser } from "../app/hooks/user"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { TrendingArticles } from "./trending-articles"
 import { Route } from "./wiki-categories"
+import Feed from "./feed"
 
 
 type MainPageProps = {
@@ -78,7 +76,11 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                 </div>
             }
 
-            {selected == "En discusión" &&
+            <Feed
+                feed={feed}
+            />
+
+            {/*(selected == "En discusión" || selected == "Siguiendo") &&
                 <ConfiguredFeed
                     feed={feed}
                     order={order}
@@ -86,9 +88,9 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                     setFilter={setFilter}
                     setOrder={setOrder}
                 />
-            }
+            */}
 
-            {selected == "Siguiendo" &&
+            {/*selected == "Siguiendo" &&
             ((user.isLoading || user.user) ? <div className="mt-4">
                 <ConfiguredFeed
                     feed={followingFeed}
@@ -99,7 +101,7 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                     noResultsText={noResultsTextFollowing}
             /></div> : <div className="flex justify-center mt-8"><CreateAccountLink
                 text="Creá una cuenta o iniciá sesión para tener tu muro personal."
-            /></div>)}
+            /></div>)*/}
         </div>
     </div>
 }

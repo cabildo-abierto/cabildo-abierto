@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+/*import { ReactNode } from "react"
 import { decompress } from "./compression"
 import Feed, { LoadingFeedWithData } from "./feed"
 import LoadingSpinner from "./loading-spinner"
@@ -6,38 +6,9 @@ import { useSearch } from "./search-context"
 import { cleanText, listOrderDesc } from "./utils"
 import InfoPanel from "./info-panel"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
-import { ContentType } from "@prisma/client"
 
 
-type ScorableContent = {
-    childrenTree: {authorId: string}[]
-    author: {id: string}
-    type: ContentType
-    reactions: {userById: string}[]
-    uniqueViewsCount: number
-}
 
-
-export function popularityScore(content: ScorableContent){
-    const participants = new Set([
-        ...content.childrenTree.map(({authorId}) => (authorId)),
-        ...content.reactions.map(({userById}) => (userById))
-    ])
-    participants.delete(content.author.id)
-
-    const viewWeight = content.type == "FastPost" ? 0.4 : 1
-
-    //const daysSinceCreation = (new Date().getTime() - new Date(content.createdAt).getTime()) / (1000*60*60*24)
-
-    return [(participants.size) / Math.max(content.uniqueViewsCount * viewWeight, 1), participants.size, content.uniqueViewsCount]
-}
-    
-function isPopularEnough(content: {childrenTree: {authorId: string}[], author: {id: string}, _count: {reactions: number}}){
-    const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
-    commentators.delete(content.author.id)
-    
-    return content._count.reactions + commentators.size > 0
-}
 
 export type ConfiguredFeedProps = {
     feed: LoadingFeedWithData
@@ -92,7 +63,7 @@ export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, se
 
     const recentFeedComponent = <Feed feed={{feed: filteredFeed, isLoading: false, isError: false}} noResultsText={noResultsText}/>
 
-    const infoPopular = <div><p className="font-bold">Publicaciones ordenadas por popularidad</p>Se suman los votos hacia arriba y la cantidad de personas que comentaron y se lo divide por la cantidad de vistas.</div>
+    
 
     function onOnlyPosts(){
         if(filter != "Publicaciones"){
@@ -145,3 +116,4 @@ export const ConfiguredFeed = ({feed, noResultsText, order, setOrder, filter, se
         {order == "Recientes" && recentFeedComponent}
     </>
 }
+*/

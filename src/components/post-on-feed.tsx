@@ -9,7 +9,7 @@ import { DateSince } from "./date";
 import { fetcher } from "../app/hooks/utils";
 import { preload } from "swr";
 import { useUser } from "../app/hooks/user";
-import { ContentOptionsButton } from "./content-options-button";
+import { ContentOptionsButton } from "./content-options/content-options-button";
 import { ContentType } from "@prisma/client";
 
 
@@ -77,7 +77,7 @@ export const PostOnFeed = ({content, onViewComments, viewingComments}: PostOnFee
     }
 
     return <Link
-        href={contentUrl(content.id)}
+        href={contentUrl(content.id, content.author.id)}
         className="flex flex-col transition-colors duration-300 ease-in-out cursor-pointer"
         onMouseEnter={onMouseEnter}
     >

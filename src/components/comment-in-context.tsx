@@ -6,7 +6,12 @@ import { articleUrl, contentUrl } from './utils';
 
 
 export type ShortDescriptionProps = {
-    author: {id: string}, id: string, type: ContentType, parentEntityId?: string, title?: string
+    author: {id: string}
+    id: string
+    type: ContentType
+    parentEntityId?: string
+    title?: string
+    uri: string
 }
 
 
@@ -14,7 +19,7 @@ export function shortDescription(content: ShortDescriptionProps){
     const parentAuthor = content.author.id
     const authorUrl = "/perfil/"+parentAuthor
     const parentEntityId = content.parentEntityId
-    const parentUrl = content.type == "EntityContent" ? articleUrl(parentEntityId) : contentUrl(content.id)
+    const parentUrl = content.type == "EntityContent" ? articleUrl(parentEntityId) : contentUrl(content.uri, content.id)
     
     const parentEntityName = decodeURIComponent(parentEntityId).replaceAll("_", " ")
 
