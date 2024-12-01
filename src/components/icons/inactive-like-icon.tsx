@@ -1,6 +1,5 @@
-
-import { BiUpvote } from "react-icons/bi";
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 export const InactiveLikeIcon = () => {
-    return <BiUpvote fontSize="1.3rem"/>
+    return <FavoriteBorderIcon/>
 }

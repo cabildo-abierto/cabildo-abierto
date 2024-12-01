@@ -4,9 +4,10 @@ import { unstable_cache } from "next/cache";
 import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
 import { entityInRoute } from "../components/utils";
-import { ContentProps } from "../app/lib/definitions";
+import { ContentProps, FeedContentProps, FeedProps } from "../app/lib/definitions";
 import { Prisma } from "@prisma/client";
 import { getUserById, getUserId } from "./users";
+import { getSessionAgent } from "./auth";
 
 
 const revalidateFeedTime = 10*60
@@ -371,4 +372,27 @@ export const getSearchableContents = (route: string[], userId?: string) => {
     }, ["routeSearchableContents", route.join("/")], {
         revalidate: revalidateFeedTime,
         tags: ["routeFeed", "routeFeed:"+route.join("/"), "feed"]})() 
+}
+
+
+export async function getATProtoFeed(): Promise<FeedContentProps[]>{
+    const users = await db.user.findMany({
+        select: {
+            id: true
+        }
+    })
+
+    const {agent} = await getSessionAgent()
+
+    let posts = []
+
+    for(let i = 0; i < users.length; i++){
+        const {data} = await agent.getAuthorFeed({actor: users[i].id})
+        data.feed.forEach((p) => {
+            console.log(p.post)
+            posts.push(p.post)
+        })
+    }
+
+    return posts
 }

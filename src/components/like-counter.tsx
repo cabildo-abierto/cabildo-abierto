@@ -6,6 +6,7 @@ import { useUser } from "../app/hooks/user";
 import { addLike, removeLike } from "../actions/contents";
 import { ActiveLikeIcon } from "./icons/active-like-icon";
 import { InactiveLikeIcon } from "./icons/inactive-like-icon";
+import { IconButton } from "@mui/material";
 
 type LikeCounterProps = {
     content: {
@@ -78,12 +79,10 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
 
 export const FixedCounter = ({count, icon, title}: {count: number, icon: ReactNode, title?: string}) => {
     
-    return <ReactionButton
-        onClick={() => {}}
-        active={true}
-        icon1={icon}
-        disabled={true}
-        count={count}
+    return <div className="text-[var(--text-light)]">
+        <IconButton
         title={title}
-    />
+    >
+        {icon} <span className="text-sm flex items-end">{count}</span>
+    </IconButton></div>
 }

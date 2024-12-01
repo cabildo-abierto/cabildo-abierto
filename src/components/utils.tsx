@@ -511,6 +511,11 @@ export function nextPrice(p: number){
 }
 
 
+export function id2url(handle: string){
+    return "perfil/" + handle
+}
+
+
 export function articleUrl(id: string, index?: number){
     return "/articulo?i=" + id + (index != undefined ? "&v=" + index : "")
 }
@@ -520,8 +525,9 @@ export function userUrl(id: string){
 }
 
 
-export function contentUrl(id: string){
-    return "/contenido?i=" + id
+export function contentUrl(uri: string, authorHandle: string){
+    const split = uri.split("/")
+    return "/contenido?u=" + authorHandle + "&i=" + split[split.length-1]
 }
 
 
@@ -746,3 +752,19 @@ export const inputClassName = "custom-input rounded"
 
 export const supportDid = "did:plc:rup47j6oesjlf44wx4fizu4m"
 export const tomasDid = "did:plc:2356xofv4ntrbu42xeilxjnb"
+
+
+export const formatIsoDate = (isoDate) => {
+    const date = new Date(isoDate);
+    const argentinaTime = new Intl.DateTimeFormat("es-AR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: "America/Argentina/Buenos_Aires",
+    }).format(date);
+  
+    return argentinaTime;
+};

@@ -1,6 +1,5 @@
-
-import { BiSolidUpvote } from "react-icons/bi";
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 export const ActiveLikeIcon = () => {
-    return <BiSolidUpvote fontSize="1.3rem"/>
+    return <FavoriteIcon/>
 }

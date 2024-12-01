@@ -321,18 +321,13 @@ export type SearchkeysProps = {
 
 
 export type FeedContentProps = {
-    id: string
-    author: {id: string, name: string}
-    createdAt: Date | string
-    type: ContentType
-    compressedText: string
-    compressedPlainText: string
-    title?: string
-    childrenTree: {id: string, authorId: string}[]
-    childrenContents: CommentProps[]
-    _count: {reactions: number}
-    uniqueViewsCount: number
-    parentEntityId?: string
+    uri: string
+    author: {handle: string, displayName: string, avatar: string}
+    record: {text: string, createdAt: string}
+    likeCount: number
+    repostCount: number
+    quoteCount: number
+    replyCount: number
 }
 
 export type NotificationProps = {
@@ -364,4 +359,9 @@ export type MatchesType = {
     matches: {x: number, y: number}[]
     common: {x: number, y: number}[]
     perfectMatches: {x: number, y: number}[]
+}
+
+
+export type FeedProps = {
+
 }

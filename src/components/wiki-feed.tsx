@@ -1,7 +1,6 @@
 "use client"
 
 import { useEditsFeed } from "../app/hooks/contents"
-import { UserProps } from "../app/lib/definitions"
 import Feed from "./feed"
 
 

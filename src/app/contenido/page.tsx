@@ -1,10 +1,11 @@
-import React from "react";
-import { ContentWithCommentsFromId } from "../../components/content-with-comments";
 import { ThreeColumnsLayout } from "../../components/three-columns";
-import { getContentById } from "../../actions/contents";
+import { getATProtoThread, getContentById } from "../../actions/contents";
+import { ATProtoFastPost } from "../../components/atproto-fast-post";
+import { FeedContentProps } from "../lib/definitions";
 
 
 export async function generateMetadata({searchParams}: {searchParams: {i: string}}){
+    return null
     const {content} = await getContentById(searchParams.i)
     if(!content){
         return {
@@ -46,15 +47,15 @@ export async function generateMetadata({searchParams}: {searchParams: {i: string
 }
 
 
-const ContentPage: React.FC<{searchParams: {i: string}}> = async ({searchParams}) => {
-    const center = <div className="flex flex-col h-full">
-        <div className="mt-8">
-            <ContentWithCommentsFromId
-                contentId={searchParams.i}
-                isMainPage={true}
-                inCommentSection={false}
-            />
-        </div>
+const ContentPage: React.FC<{searchParams: {i: string, u: string}}> = async ({searchParams}) => {
+    console.log("user", searchParams.u, "i", searchParams.i)
+
+    const thread = await getATProtoThread(searchParams.u, searchParams.i)
+
+    console.log("post", thread.post)
+
+    const center = <div>
+        <ATProtoFastPost content={thread.post as FeedContentProps}/>
     </div>
 
     return <ThreeColumnsLayout center={center}/>

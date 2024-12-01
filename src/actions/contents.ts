@@ -14,203 +14,6 @@ import { getSessionAgent } from "./auth";
 import { RichText } from '@atproto/api'
 
 
-const childrenContentsQuery = {
-    select: {
-        id: true,
-        createdAt: true,
-        type: true,
-        childrenTree: {
-            select: {
-                authorId: true
-            }
-        },
-        reactions: {
-            select: {
-                userById: true
-            }
-        },
-        author: {
-            select: {
-                id: true
-            }
-        },
-        uniqueViewsCount: true
-    },
-    orderBy: {
-        createdAt: "desc" as Prisma.SortOrder
-    }
-}
-
-
-export async function getContentByIdNoCache(id: string, userId?: string){
-    let content: ContentProps = await db.content.findUnique({
-        select: {
-            id: true,
-            type: true,
-            compressedText: true,
-            compressedPlainText: true,
-            childrenTree: {
-                select: {
-                    authorId: true
-                }
-            },
-            title: true,
-            author: {
-                select: {
-                    id: true,
-                    handle: true,
-                    displayName: true,
-                    avatar: true
-                }
-            },
-            createdAt: true,
-            _count: {
-                select: {
-                    reactions: true,
-                    childrenTree: true
-                }
-            },
-            claimsAuthorship: true,
-            rootContentId: true,
-            fakeReportsCount: true,
-            uniqueViewsCount: true,
-            reactions: userId ? {
-                select: {
-                    id: true
-                },
-                where: {
-                    userById: userId
-                }
-            } : false,
-            views: userId ? {
-                select: {
-                    id: true
-                },
-                where: {
-                    userById: userId
-                }
-            } : false,
-            references: {
-                select: {
-                    entityReferenced: {
-                        select: {
-                            id: true,
-                            versions: {
-                                select: {
-                                    id: true,
-                                    categories: true
-                                },
-                                orderBy: {
-                                    createdAt: "asc"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            parentEntity: {
-                select: {
-                    id: true,
-                    isPublic: true,
-                    currentVersion: {
-                        select: {
-                            searchkeys: true
-                        }
-                    }
-                }
-            },
-            accCharsAdded: true,
-            contribution: true,
-            charsAdded: true,
-            charsDeleted: true,
-            diff: true,
-            currentVersionOf: {
-                select: {
-                    id: true
-                }
-            },
-            categories: true,
-            undos: {
-                select: {
-                    id: true,
-                    reportsOportunism: true,
-                    reportsVandalism: true,
-                    authorId: true,
-                    createdAt: true,
-                    compressedText: true
-                },
-                orderBy: {
-                    createdAt: "desc"
-                }
-            },
-            contentUndoneId: true,
-            reportsOportunism: true,
-            reportsVandalism: true,
-            ancestorContent: {
-                select: {
-                    id: true,
-                    authorId: true
-                }
-            },
-            childrenContents: childrenContentsQuery,
-            isContentEdited: true,
-            isDraft: true,
-            usersMentioned: {
-                select: {
-                    id: true
-                }
-            },
-            parentContents: {
-                select: {
-                    id: true,
-                    author: {
-                        select: {
-                            id: true,
-                        }
-                    },
-                    parentEntityId: true,
-                    type: true,
-                    title: true
-                }
-            },
-            rootContent: {
-                select: {
-                    id: true,
-                    author: {
-                        select: {
-                            id: true,
-                        }
-                    },
-                    parentEntityId: true,
-                    type: true,
-                    title: true
-                }
-            },
-        },
-        where: {
-            id: id,
-        }
-    })
-    if(!content) {
-        return {error: "No se encontró el contenido."}
-    }
-    return {content}
-}
-
-export async function getContentById(id: string, userId?: string, useCache: boolean = true): Promise<{content?: ContentProps, error?: string}> {
-    if(!userId) userId = "not logged in"
-
-    if(!useCache) return await getContentByIdNoCache(id, userId)
-    
-    return unstable_cache(async () => {
-        return await getContentByIdNoCache(id, userId)
-    }, ["content", id, userId], {
-        tags: ["content", "content:"+id+":"+userId, "content:"+id],
-        revalidate: revalidateEverythingTime,
-    })()
-}
-
-
 export async function notifyMentions(mentions: {id: string}[], contentId: string, userById: string, isEdit: boolean = false){
     let data = []
 
@@ -274,168 +77,6 @@ export async function processNewTextFast(text: string, title?: string) {
 }
 
 
-export async function processNewText(text: string, title?: string) {
-
-    let entityReferences = await findEntityReferences(text)
-    if(entityReferences.error) return {error: entityReferences.error}
-
-    const {mentions, error: mentionsError} = await findMentions(text)
-    if(mentionsError) return {error: mentionsError}
-
-    const searchkeys = await getReferencesSearchKeys()
-    if(searchkeys.error) return {error: searchkeys.error}
-
-    const {numChars, numWords, numNodes, plainText, error} = getPlainText(text)
-    if(error) return {error}
-
-    const weakReferences = findWeakEntityReferences(
-        plainText+" "+title,
-        searchkeys.searchkeys
-    )
-
-    return {
-        numChars,
-        numWords,
-        numNodes,
-        weakReferences,
-        mentions,
-        entityReferences: entityReferences.entityReferences,
-        compressedPlainText: compress(plainText)
-    }
-}
-
-
-
-type CommentAncestorsDataProps = {
-    rootContentId?: string
-    ancestorContent?: {connect: {id: string}[]}
-    parentContent?: ContentProps
-    error?: string
-}
-
-
-async function getCommentAncestorsData(parentContentId?: string) : Promise<CommentAncestorsDataProps> {
-    let commentData = {}
-    if(parentContentId){
-        const {content, error} = await getContentById(parentContentId)
-        if(error) return {error}
-
-        commentData = {
-            rootContentId: content.rootContent != undefined ? content.rootContent.id : content.id,
-            ancestorContent: {
-                connect: [...content.ancestorContent, {id: content.id}]
-            },
-            parentContents: {
-                connect: [{id: parentContentId}]
-            },
-            parentContent: content
-        }
-    }
-    return commentData
-}
-
-
-export async function notifyAncestors(commentId: string, commentAncestorsData: CommentAncestorsDataProps, userId: string){
-    let ancestorAuthors = new Set<string>()
-
-    const parentContent = commentAncestorsData.parentContent
-
-    for(let i = 0; i < parentContent.ancestorContent.length; i++){
-        ancestorAuthors.add(parentContent.ancestorContent[i].authorId)
-    }
-    ancestorAuthors.delete(parentContent.author.id)
-    ancestorAuthors.delete(userId)
-
-    const ancestorAuthorsArray = Array.from(ancestorAuthors)
-
-    for(let i = 0; i < ancestorAuthorsArray.length; i++){
-        try {
-            await createNotification(
-                userId,
-                ancestorAuthorsArray[i],
-                "CommentToComment",
-                commentId,
-                undefined
-            )
-        } catch {
-            return {error: "Error al notificar a otros usuarios."}
-        }
-    }
-    if(parentContent.author.id != userId){
-        try {
-        await createNotification(
-            userId,
-            parentContent.author.id,
-            "Comment",
-            commentId,
-            undefined
-        )
-        } catch {
-            return {error: "Error al notificar al autor del contenido comentado."}
-        }
-    }
-
-    return {}
-}
-
-
-export async function notifyNewPost(
-    newContentId: string, 
-    commentAncestorsData: CommentAncestorsDataProps,
-    userId: string,
-    mentions: {id: string}[],
-    type: ContentType
-){
-    const res1 = await notifyMentions(mentions, newContentId, userId)
-    if(res1.error) return {error: res1.error}
-    
-    if(type == "Comment" || type == "FakeNewsReport"){
-        const res2 = await notifyAncestors(newContentId, commentAncestorsData, userId)
-        if(res2.error) return {error: res2.error}
-    }
-
-    return {}
-}
-
-
-export async function createComment(compressedText: string, userId: string, parentContentId?: string, parentEntityId?: string){
-    return await oldCreatePost(compressedText, "Comment", false, userId, undefined, parentContentId, parentEntityId)
-}
-
-export async function createFakeNewsReport(compressedText: string, userId: string, parentContentId?: string, parentEntityId?: string){
-    return await oldCreatePost(compressedText, "FakeNewsReport", false, userId, undefined, parentContentId, parentEntityId)
-}
-
-
-export async function incrementFakeNewsCounter(contentId: string){
-    try {
-        await db.content.update({
-            data: {
-                fakeReportsCount: {
-                    increment: 1
-                }
-            },
-            where: {
-                id: contentId
-            }
-        })
-    } catch {
-        return {error: "Error al agregar el reporte."}
-    }
-    revalidateTag("content:"+contentId)
-    return {}
-}
-
-
-type NewPostProps = {
-    id?: string,
-    type?: ContentType,
-    createdAt?: Date | string,
-    _count?: {childrenTree: number}
-    error?: string
-}
-
-
 export async function createFastPost(
     text: string
 ): Promise<{error?: string}> {
@@ -470,87 +111,6 @@ export async function createFastPost(
     await agent.post(record)
 
     return {}
-}
-
-
-export async function oldCreatePost(
-    compressedText: string, type: ContentType, isDraft: boolean, userId: string, title?: string, parentContentId?: string, parentEntityId?: string
-): Promise<{result?: CommentProps, error?: string}> {
-    const text = decompress(compressedText)
-    const processed = await processNewText(text)
-    if(processed.error) return {error: processed.error}
-
-    const {error, parentContent, ...commentData} = await getCommentAncestorsData(parentContentId)
-    if(error) return {error}
-
-    const references = [] // to do: implement
-
-    let result
-    try {
-        result = await db.content.create({
-            data: {
-                compressedText: compressedText,
-                compressedPlainText: processed.compressedPlainText,
-                authorId: userId,
-                type: type,
-                isDraft: isDraft,
-                title: title,
-                ...commentData,
-                numNodes: processed.numNodes,
-                numWords: processed.numWords,
-                numChars: processed.numChars,
-                references: {
-                    create: references
-                },
-                usersMentioned: {
-                    connect: processed.mentions
-                },
-                parentEntityId: parentEntityId
-            },
-        })
-    } catch (error) {
-        console.log("Error:", error)
-        console.log("userId", userId)
-        return {error: "Error al crear el contenido."}
-    }
-    
-    if(!isDraft){
-        const res = await notifyNewPost(
-            result.id, {parentContent, ...commentData}, userId, processed.mentions, type
-        )
-        if(res.error) return {error: res.error}
-
-        if(type == "FakeNewsReport"){
-            const {error} = await incrementFakeNewsCounter(parentContentId)   
-            if(error) return {error}
-        }
-        if(parentEntityId)
-            revalidateTag("entity:"+parentEntityId)
-    
-        revalidateTag("repliesFeed:"+userId)
-        revalidateTag("content:"+parentContentId)
-        revalidateTag("feed")
-        revalidateTag("routeFollowingFeed")
-        revalidateTag("profileFeed:"+userId)
-        if(type == "Post")
-            revalidateTag("userContents:"+userId)
-        revalidateReferences(processed.entityReferences)
-
-    } else {
-        revalidateTag("drafts:"+userId)
-    }
-
-    return {
-        result: {
-            id: result.id,
-            type: result.type,
-            createdAt: result.createdAt,
-            reactions: [],
-            uniqueViewsCount: 0,
-            author: {id: userId},
-            childrenTree: []
-        }
-    }
 }
 
 
@@ -593,151 +153,19 @@ export async function findMentions(text: string){
 }
 
 
-export async function updateContent(compressedText: string, contentId: string, userId: string, title?: string) {
-    const text = decompress(compressedText)
-    const {error: processError, entityReferences, weakReferences, mentions, ...processed} = await processNewText(text)
-    if(processError) return {error: processError}
-
-    const {content, error: getContentError} = await getContentById(contentId)
-    if(getContentError) return {error: getContentError}
-
-    try {
-        await db.content.update({
-            where: {
-                id: contentId
-            },
-            data: {
-                compressedText: compressedText,
-                ...processed,
-                title: title,
-                references: {
-                    create: []
-                },
-                usersMentioned: {
-                    connect: mentions
-                },
-                isContentEdited: content && !content.isDraft
-            }
-        })
-    } catch {
-        return {error: "Error al actualizar el contenido."}
-    }
-
-    if(!content.isDraft){
-        const {error} = await notifyMentions(mentions, contentId, userId, true)
-        if(error) return {error: error}
-
-        revalidateReferences(entityReferences)
-    }
-
-    revalidateTag("content:"+contentId)
-    return {}
-}
-
-
-export async function publishDraft(compressedText: string, contentId: string, userId: string, isPublished: boolean, title?: string) {
-    const {error} = await updateContent(compressedText, contentId, userId, title)
-    if(error) return {error}
-
-    try {
-        await db.content.update({
-            where: {
-                id: contentId
-            },
-            data: {
-                isDraft: false,
-                createdAt: isPublished ? undefined : new Date(),
-                isContentEdited: isPublished
-            }
-        })
-    } catch {
-        return {error: "Error al publicar el borrador."}
-    }
-
-    revalidateTag("content:"+contentId)
-    revalidateTag("feed")
-    revalidateTag("routeFollowingFeed")
-    revalidateTag("profileFeed:"+userId)
-    return {}
-}
-
-
 // TO DO: Atómico
 export const addLike = async (id: string, userId: string, entityId?: string) => {
-    const {content, error} = await getContentById(id, userId)
-    if(error) return {error}
-
-    if(!content.reactions || content.reactions.length == 0){
-        let reaction = null
-        try {
-            if(entityId){
-                reaction = await db.reaction.create({
-                    data: {
-                        userById: userId,
-                        contentId: id,
-                        entityId: entityId
-                    },
-                })
-            } else {
-                reaction = await db.reaction.create({
-                    data: {
-                        userById: userId,
-                        contentId: id
-                    },
-                })
-            }
-        } catch {
-            return {error: "Error al agregar el voto hacia arriba."}
-        }
-
-        revalidateTag("content:"+id)
-        if(entityId)
-            revalidateTag("entity:"+entityId)
-
-        if(content.type == "FastPost" || content.type == "Post"){
-            revalidateTag("feed")
-        }
-        
-        const {error} = await createNotification(
-            userId,
-            content.author.id,
-            "Reaction",
-            content.id,
-            reaction.id
-        )
-        if(error) return {error}
-    }
     return {}
 }
 
 
 export const removeLike = async (id: string, userId: string, entityId?: string) => {
-    try {
-        await db.reaction.deleteMany({
-            where: { 
-                AND: [
-                    {contentId: id},
-                    {userById: userId}
-                ]
-            }
-        })
-    } catch {
-        return {error: "Error al remover el voto hacia arriba."}
-    }
-
-    revalidateTag("content:"+id)
-    if(entityId)
-        revalidateTag("entity:"+entityId)
-    
     return {}
 }
 
 
 
 export const addView = async (id: string, userId: string) => {
-    const {content, error} = await getContentById(id)
-    if(error) return {error}
-
     let exists
     try {
         exists = await db.view.findMany({
@@ -795,10 +223,6 @@ export const addView = async (id: string, userId: string) => {
         } catch {
             return {error: "Ocurrió un error."}
         }
-    }
-    
-    if(content.parentEntity.id == "Cabildo_Abierto"){ // && !exists
-        revalidateTag("user:"+userId)
     }
 
     revalidateTag("content:"+id)
@@ -1068,4 +492,24 @@ export async function deleteDraft(contentId: string){
     }
     revalidateTag("drafts:"+userId)
     return {}
+}
+
+
+export async function getATProtoThread(u: string, id: string){
+    const {agent} = await getSessionAgent()
+
+  /** The handle or DID of the repo. 
+  repo: string
+   The NSID of the record collection. 
+  collection: string
+   The Record Key. 
+  rkey: string
+   The CID of the version of the record. If not specified, then return the most recent version. 
+  cid?: string
+  */
+    const uri = "at://" + u + "/app.bsky.feed.post/" + id
+
+    const {data} = await agent.getPostThread({uri: uri})
+    
+    return data.thread
 }

@@ -12,6 +12,7 @@ import { useUser } from "../hooks/user"
 import React from 'react';
 import { ConfirmPaymentsButton, CreatePromisesButton } from "../payments/create-promises-button"
 import { supportDid, tomasDid } from "../../components/utils"
+import { updatePosts } from "../../actions/atproto-update"
 
 
 
@@ -104,6 +105,9 @@ export default function Page() {
 
             <h2>Actualizar</h2>
 
+            <button className="gray-btn" onClick={async () => {await updatePosts()}}>
+                Actualizar posts
+            </button>
             <button className="gray-btn" onClick={async () => {await updateProfilesFromAT()}}>
                 Actualizar perfiles
             </button>

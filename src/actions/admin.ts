@@ -2,7 +2,6 @@
 
 import { revalidateTag } from "next/cache";
 import { db } from "../db";
-import { getContentById } from "./contents";
 import { EditorStatus } from "@prisma/client";
 import { compress, decompress } from "../components/compression";
 import { getEntityById, updateEntityCurrentVersion, recomputeEntityContributions, getEntities } from "./entities";
@@ -55,57 +54,6 @@ export const deleteEntity = async (entityId: string, userId: string) => {
 
 
 export const deleteContent = async (contentId: string, force: boolean) => {
-
-    const {content, error} = await getContentById(contentId)
-    if(error) return {error}
-
-    if(content.childrenContents.length > 0 && !force){
-        return {error: "No pudimos borrar el contenido porque tiene comentarios. Podés editarlo y borrarle el contenido."}
-    }
-
-    for(let i = 0; i < content.childrenContents.length; i++){
-        await deleteContent(content.childrenContents[i].id, true)
-    }
-
-    await db.view.deleteMany({
-        where: {
-            contentId: contentId
-        }
-    })
-
-    await db.notification.deleteMany({
-        where: {
-            contentId: contentId
-        }
-    })
-
-    await db.noAccountVisit.deleteMany({
-        where: {
-            contentId: contentId
-        }
-    })
-
-    await db.reaction.deleteMany({
-        where: {
-            contentId: contentId
-        }
-    })
-
-    await db.content.delete({
-        where: {
-            id: contentId
-        }
-    })
-
-    // habría que revalidar más tags en realidad
-    revalidateTag("content:"+contentId)
-    if(content.parentContents && content.parentContents.length > 0){
-        revalidateTag("content:"+content.parentContents[0].id)
-    }
-    if(["FastPost", "Post"].includes(content.type) || (content.rootContent && ["FastPost", "Post"].includes(content.rootContent.type))){
-        revalidateTag("feed")
-        revalidateTag("routeFollowingFeed")
-    }
     return {}
 }
 
@@ -382,46 +330,6 @@ export async function decompressContent(contentId: string){
         console.log("couldn't decompress", c.id)
     }
 }
-
-
-export async function takeAuthorship(contentId: string) {
-    const {content, error} = await getContentById(contentId)
-    if(error) return {error}
-    
-    const user = await getUser()
-
-    if(!user || (user.editorStatus != "Administrator" && user.id != "tomas") || user.id == content.author.id){
-        return {error: "No tenés los permisos suficientes para hacer esto."}
-    }
-
-    try {
-        await db.content.update({
-            data: {
-                authorId: user.id
-            },
-            where: {
-                id: contentId
-            }
-        })
-    } catch {
-        return {error: "Error al actualizar la autoría."}
-    }
-
-    revalidateTag("content:"+contentId)
-    revalidateTag("repliesFeed:"+user.id)
-    revalidateTag("repliesFeed:"+content.author.id)
-    revalidateTag("profileFeed:"+user.id)
-    revalidateTag("profileFeed:"+content.author.id)
-    revalidateTag("editsFeed:"+user.id)
-    revalidateTag("editsFeed:"+content.author.id)
-    if(content.parentEntity.id){
-        revalidateTag("entity:"+content.parentEntity.id)
-    }
-    
-    return {}
-}
-
-
 
 
 export async function computeSubscriptorsByDay(minPrice: number) {

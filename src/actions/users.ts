@@ -332,14 +332,9 @@ export async function getUserId(){
 
 
 export async function getUser(){
-    console.log("getting user")
-    const t1 = Date.now()
     const userId = await getUserId()
-    const t2 = Date.now()
     if(userId){
         const {user} = await getUserById(userId)
-        const t3 = Date.now()
-        console.log("User tiems", t2-t1, t3-t2, t3-t1)
         return user ? user : null
     } else {
         return null
