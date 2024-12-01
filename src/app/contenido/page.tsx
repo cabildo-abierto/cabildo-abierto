@@ -1,12 +1,12 @@
 import { ThreeColumnsLayout } from "../../components/three-columns";
-import { getATProtoThread, getContentById } from "../../actions/contents";
+import { getATProtoThread } from "../../actions/contents";
 import { ATProtoFastPost } from "../../components/atproto-fast-post";
 import { FeedContentProps } from "../lib/definitions";
 
 
 export async function generateMetadata({searchParams}: {searchParams: {i: string}}){
     return null
-    const {content} = await getContentById(searchParams.i)
+    /*const {content} = await getContentById(searchParams.i)
     if(!content){
         return {
             title: "Contenido no encontrado",
@@ -43,16 +43,12 @@ export async function generateMetadata({searchParams}: {searchParams: {i: string
         }
     }
 
-    return {}
+    return {}*/
 }
 
 
 const ContentPage: React.FC<{searchParams: {i: string, u: string}}> = async ({searchParams}) => {
-    console.log("user", searchParams.u, "i", searchParams.i)
-
     const thread = await getATProtoThread(searchParams.u, searchParams.i)
-
-    console.log("post", thread.post)
 
     const center = <div>
         <ATProtoFastPost content={thread.post as FeedContentProps}/>

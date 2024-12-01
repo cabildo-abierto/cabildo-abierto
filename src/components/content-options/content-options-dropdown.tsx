@@ -1,11 +1,5 @@
-import { ContentType } from "@prisma/client"
-import { useRouter } from "next/navigation"
-import { useSWRConfig } from "swr"
-import { useUser } from "../../app/hooks/user"
-import { deleteContent } from "../../actions/admin"
 import { RedFlag } from "../icons/red-flag-icon"
 import { WriteButtonIcon } from "../icons/write-button-icon"
-import { editContentUrl } from "../utils"
 import { ContentOptionsChoiceButton } from "./content-options-button"
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ShareContentButton } from "./share-content-button"

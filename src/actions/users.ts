@@ -4,7 +4,6 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
 import { SmallUserProps, UserProps, UserStats } from "../app/lib/definitions";
-import { getEntities } from "./entities";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import { listOrder, subscriptionEnds, supportDid, validSubscription } from "../components/utils";
 import { headers } from "next/headers";
@@ -12,32 +11,6 @@ import { userAgent } from "next/server";
 import { getSubscriptionPrice } from "./payments";
 import { getSessionAgent } from "./auth";
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
-
-
-export async function updateDescription(text: string, userId: string) {
-    await db.user.update({
-        data: {
-            description: text
-        },
-        where: {
-            id: userId
-        }
-    })
-    revalidateTag("user:"+userId)
-}
-
-
-export async function updateDisplayName(newName: string, userId: string){
-    await db.user.update({
-        data: {
-            displayName: newName
-        },
-        where: {
-            id: userId
-        }
-    })
-    revalidateTag("user:"+userId)
-}
 
 
 export const getUsersNoCache = async (): Promise<SmallUserProps[]> => {
@@ -89,7 +62,6 @@ export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: str
     }
 }
     
-
 
 export const getConversations = (userId: string) => {
     return unstable_cache(async () => {
@@ -156,27 +128,6 @@ export const getConversations = (userId: string) => {
         }
     )()
 }
-
-
-export const getUsersWithStats = unstable_cache(async () => {
-    const {users, error} = await getUsers()
-    if(error) return {error}
-
-    const withStats = []
-    for(let i = 0; i < users.length; i++){
-        withStats.push({
-            user: users[i],
-            stats: await getUserStats(users[i].id)
-        })
-    }
-    return withStats
-},
-    ["usersWithStats"],
-    {
-        revalidate: Math.min(3600, revalidateEverythingTime),
-        tags: ["users", "usersWithStats"]
-    }
-)
 
 
 export const getUserById = (userId: string) => {
@@ -367,78 +318,6 @@ export const getUserIncome = async (userId: string) => {
     }
 
     return {income: income, pendingPayIncome: income, pendingConfirmationIncome: pendingConfirmationIncome}
-}
-
-
-export const getUserStats = async (userId: string) => {
-    return unstable_cache(async () => {
-        const userContents = await getUserContents(userId)
-        let entityEdits = 0
-        let editedEntitiesIds = new Set()
-        const postsIds = []
-        
-        let reactionsInPosts = 0
-        let viewsInPosts = 0
-        userContents.forEach((content) => {
-            if(content.type == "EntityContent"){
-                entityEdits ++
-                if(content.parentEntityId)
-                    editedEntitiesIds.add(content.parentEntityId)
-            } else if(content.type == "Post"){
-                postsIds.push(content.id)
-                reactionsInPosts += content._count.reactions
-                viewsInPosts += content._count.views
-            }
-        })
-        
-        const {entities, error} = await getEntities()
-        if(error) return {error: error}
-
-        let entityReactions = 0
-        let entityViews = 0
-        let entityAddedChars = 0
-        for(let i = 0; i < entities.length; i++){
-            const entity = entities[i]
-            if(editedEntitiesIds.has(entity.id)){
-                let isAuthor = false
-                for(let j = 0; j < entity.versions.length; j++){
-                    if(entity.versions[j].authorId == userId){
-                        isAuthor = true
-                    }
-                    if(isAuthor){
-                        for(let k = 0; k < userContents.length; k++){
-                            if(userContents[k].id == entity.versions[j].id){
-                                entityAddedChars += userContents[k].charsAdded
-                                entityReactions += userContents[k]._count.reactions
-                                entityViews += userContents[k]._count.views
-                                break
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        const {income, pendingConfirmationIncome, pendingPayIncome} = await getUserIncome(userId)
-
-        const stats: UserStats = {
-            posts: postsIds.length,
-            entityEdits: entityEdits,
-            editedEntities: editedEntitiesIds.size,
-            reactionsInPosts: reactionsInPosts,
-            reactionsInEntities: entityReactions,
-            income: income,
-            pendingConfirmationIncome: pendingConfirmationIncome,
-            pendingPayIncome: pendingPayIncome,
-            entityAddedChars: entityAddedChars,
-            viewsInPosts: viewsInPosts,
-            viewsInEntities: entityViews
-        }
-        
-        return {stats}
-    }, ["userStats", userId], {
-        revalidate: Math.min(revalidateEverythingTime, 3600),
-        tags: ["userStats", "userStats:"+userId, ""]})()
 }
 
 

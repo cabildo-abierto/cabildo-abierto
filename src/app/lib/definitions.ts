@@ -1,6 +1,5 @@
 import { ContentType, EditorStatus, NotificationType } from '@prisma/client';
 import { z } from 'zod'
-import { ShortDescriptionProps } from '../../components/comment-in-context';
 
 
 export type SmallUserProps = {
@@ -22,6 +21,15 @@ export type UserMonthDistributionProps = {
     end: Date
 }
 
+export type ParentContentProps = {
+    id: string
+    uri: string
+    author: {id: string, handle: string}
+    type: ContentType
+    contribution: string,
+    parentEntityId: string
+}
+
 export type ContentProps = {
     id: string
     createdAt: Date
@@ -29,7 +37,7 @@ export type ContentProps = {
     compressedPlainText?: string
     author: SmallUserProps
     type: ContentType
-    parentContents?: ShortDescriptionProps[]
+    parentContent: ParentContentProps
     usersMentioned: {id: string}[]
     childrenTree: {authorId: string}[]
 
@@ -50,7 +58,7 @@ export type ContentProps = {
 
     references: {entityReferenced: {id: string, versions: {id: string, categories: string}[]}}[]
 
-    rootContent?: ShortDescriptionProps
+    rootContent?: ParentContentProps
     ancestorContent: {id: string, authorId: string}[]
 
     currentVersionOf: {id: string} | null
@@ -334,17 +342,12 @@ export type NotificationProps = {
     id: string
     content: {
         id: string
-        authorId: string
+        author: {id: string, handle: string}
         type: ContentType
         contribution: string
         parentEntityId: string
-        parentContents: {
-            id: string
-            authorId: string
-            type: ContentType
-            contribution: string,
-            parentEntityId: string
-        }[]
+        uri: string
+        parentContent: ParentContentProps
     }
     reactionId?: string
     createdAt: Date

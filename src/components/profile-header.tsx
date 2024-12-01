@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useSWRConfig } from "swr"
-import { addAt } from "./content"
 import { Description } from "./description"
 import SelectionComponent from "./search-selection-component";
 import { unfollow, follow } from "../actions/users"
@@ -10,11 +9,10 @@ import { FixedFakeNewsCounter } from "./fake-news-counter"
 import { PermissionLevel } from "./permission-level"
 import { Button } from "@mui/material"
 import StateButton from "./state-button"
-import { EditProfileModal } from "./edit-profile-modal"
 import { EditorStatus } from "@prisma/client"
 import Image from 'next/image'
 import { ArticleIcon } from "./icons/article-icon"
-import { emptyChar } from "./fast-post"
+import { emptyChar } from "./utils";
 
 
 export type ProfileHeaderData = {
@@ -114,7 +112,7 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
                     {profileUser.displayName}
                 </h3>
                 <div className="text-gray-600">
-                    {addAt(profileUser.handle)}
+                    @{profileUser.handle}
                 </div>
             </div>
             {user && <div className="flex items-center mr-2">
@@ -190,6 +188,6 @@ export function ProfileHeader({profileUser, user, selected, setSelected, setShow
             />
         </div>
 
-        {editProfileOpen && <EditProfileModal onClose={() => {setEditProfileOpen(false)}}/>}
+        {/*TO DO editProfileOpen && <EditProfileModal onClose={() => {setEditProfileOpen(false)}}/>*/}
     </div>
 }

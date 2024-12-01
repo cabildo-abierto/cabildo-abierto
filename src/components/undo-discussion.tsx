@@ -3,17 +3,16 @@
 import { useContent } from "../app/hooks/contents"
 import { ContentProps, EntityProps } from "../app/lib/definitions"
 import { decompress } from "./compression"
-import { CommentCounter, UserIdLink } from "./content"
-import { ContentWithCommentsFromId } from "./content-with-comments"
+import { UserIdLink } from "./content-top-row-author"
 import LoadingSpinner from "./loading-spinner"
 
 
 
 export const UndoDiscussion = ({entity, version}: {entity: EntityProps, version: number}) => {
-
-    return <ContentWithCommentsFromId
+    return <>TO DO</>
+    /*return <ContentWithCommentsFromId
         contentId={entity.versions[version].undos[0].id}
-    />
+    />*/
 }
 
 
@@ -63,11 +62,11 @@ export const UndoDiscussionContent = ({content, onStartReply, onViewComments, vi
             <button className="reply-btn" onClick={onStartReply}>
                 Responder
             </button>
-            <CommentCounter
+            {/* TO DO <CommentCounter
                 content={content}
                 viewingComments={viewingComments}
                 onViewComments={onViewComments}
-            />
+            />*/}
         </div>
     </div>
 }

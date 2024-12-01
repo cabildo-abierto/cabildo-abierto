@@ -5,9 +5,9 @@ import {$createQuoteNode} from '@lexical/rich-text';
 import {$unwrapMarkNode} from '@lexical/mark'
 import { useContent } from '../app/hooks/contents';
 import { ContentType } from '@prisma/client';
-import { ShortDescriptionProps } from './comment-in-context';
 import { decompress } from './compression';
 import ReadOnlyEditor from './editor/read-only-editor';
+import { ParentContentProps } from '../app/lib/definitions';
 
 type CommentContentProps = {
     id: string
@@ -23,8 +23,8 @@ type CommentContentProps = {
     }
     uniqueViewsCount: number
     parentEntity?: {id: string}
-    parentContents?: ShortDescriptionProps[]
-    rootContent?: ShortDescriptionProps
+    parentContents?: ParentContentProps[]
+    rootContent?: ParentContentProps
     childrenContents: {type: ContentType}[]
 }
 

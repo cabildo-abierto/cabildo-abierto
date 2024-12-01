@@ -4,13 +4,13 @@ import { useUser } from "../app/hooks/user"
 import { mutate } from "swr"
 import { createFastPost } from "../actions/contents"
 import { ExtraChars } from "./extra-chars"
-import { ContentTopRowAuthor } from "./content"
 import useModal from "./editor/hooks/useModal"
 import { FastPostImagesEditor } from "./fast-post-images-editor"
 import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
 import { CloseButton } from "./ui-utils/close-button"
 import { AddImageButton } from "./add-image-button"
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import { ContentTopRowAuthor } from "./content-top-row-author"
 
 
 export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () => void, mobile?: boolean}) => {

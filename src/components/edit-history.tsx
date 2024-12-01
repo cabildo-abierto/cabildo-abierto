@@ -1,4 +1,3 @@
-import { Authorship } from "./content"
 import { DateSince } from "./date"
 import { UndoButton } from "./undo-button"
 import { CustomLink as Link } from './custom-link';
@@ -7,7 +6,6 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
-import { confirmChanges, rejectChanges, removeEntityAuthorship } from "../actions/entities"
 import { articleUrl, currentVersion, getEntityMonetizedChars, hasEditPermission, isUndo } from "./utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./ui-utils/accept-button-panel"
@@ -16,7 +14,7 @@ import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 import { toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
 import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
-import { NeedAccountPopup } from "./article-page";
+import { NeedAccountPopup } from "./entity/article-page";
 import { ContentType } from "@prisma/client";
 import { AuthorshipClaimIcon } from "./icons/authorship-claim-icon";
 import { NoAuthorshipClaimIcon } from "./icons/no-authorship-claim-icon";
@@ -25,6 +23,7 @@ import { ActiveCommentIcon } from "./icons/active-comment-icon";
 import { RejectEditIcon } from "./icons/reject-edit-icon";
 import { UndoIcon } from "./icons/undo-icon";
 import { ViewsIcon } from "./icons/views-icon";
+import { Authorship } from "./content-top-row-author";
 
 
 const EditDetails = ({editType}: {editType: ContentType}) => {
@@ -58,7 +57,7 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
     const [pending, setPending] = useState(false)
 
     async function confirm(e){
-        setPending(true)
+        /*setPending(true)
         if(editPermission){
             const {error} = await confirmChanges(entity.id, contentId, user.id)
             if(error) return {error}
@@ -70,11 +69,11 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
             setShowingNoPermissions(true)
             setPending(false)
             return {}
-        }
+        }*/
     }
 
     async function reject(){
-        setPending(true)
+        /*setPending(true)
         if(editPermission){
             const {error} = await rejectChanges(entity.id, contentId, user.id)
             if(error) return {error}
@@ -86,7 +85,7 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
             setShowingNoPermissions(true)
             setPending(false)
             return {}
-        }
+        }*/
     }
 
     if(!editPermission) return <div className="text-center text-[10px]">
@@ -143,7 +142,8 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     const user = useUser()
 
     async function onRemoveAuthorship(){
-        return await removeEntityAuthorship(entity.versions[index].id, entity.id)
+        //return await removeEntityAuthorship(entity.versions[index].id, entity.id)
+        return {}
     }
 
     const selected = viewing == index

@@ -1,9 +1,9 @@
 "use client"
-import { CustomLink as Link } from './custom-link';
-import { BothContributionsProps, NotificationProps } from "../app/lib/definitions"
-import LoadingSpinner from "./loading-spinner"
-import { useUser } from "../app/hooks/user"
-import { articleUrl, contentUrl } from "./utils"
+import { CustomLink as Link } from '../custom-link';
+import { BothContributionsProps, NotificationProps, ParentContentProps } from "../../app/lib/definitions"
+import LoadingSpinner from "../loading-spinner"
+import { useUser } from "../../app/hooks/user"
+import { articleUrl, contentUrl } from "../utils"
 import { ContentType } from '@prisma/client';
 
 
@@ -30,15 +30,15 @@ const EditDescriptionInNotification = ({content}: {content: {parentEntityId: str
 }
 
 
-function PostDescription({content}: {content: {id: string, authorId: string, type: ContentType, contribution: string, parentEntityId: string}}){
+function PostDescription({content}: {content: ParentContentProps}){
     const {user} = useUser()
 
     let post = null
     if(content.type == "EntityContent"){
         post = <EditDescriptionInNotification content={content}/>
     } else {
-        const href = contentUrl(content.id)
-        const isAuthor = user && content.authorId == user.id
+        const href = contentUrl(content.uri, content.author.handle)
+        const isAuthor = user && content.author.id == user.id
         if(content.type == "Comment"){
             post = <>{isAuthor ? "tu" : "un"} <Link href={href}>comentario</Link></>
         } else if(content.type == "Post" || content.type == "FastPost"){
@@ -53,10 +53,10 @@ function PostDescription({content}: {content: {id: string, authorId: string, typ
 
 export const CommentNotification = ({notification}: {notification: NotificationProps}) => {
 
-    if(!notification.content.parentContents[0]) return null
+    if(!notification.content.parentContent) return null
     
     const post = <PostDescription
-        content={notification.content.parentContents[0]}
+        content={notification.content.parentContent}
     />
 
     if(!post) return <LoadingSpinner/>

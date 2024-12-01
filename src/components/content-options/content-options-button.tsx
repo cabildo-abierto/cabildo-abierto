@@ -2,19 +2,9 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { ReactNode, useState } from 'react';
 
-import { CreateFakeNewsReportModal } from '../create-fake-news-report';
 import { ModalBelow } from '../modal-below';
-import { EditCommentModal } from '../edit-comment-modal';
-import { useRouter } from 'next/navigation';
-import { articleUrl, contentUrl, editContentUrl } from '../utils';
-import { useUser } from '../../app/hooks/user';
-import { deleteContent } from '../../actions/admin';
 import { IconButton } from '@mui/material';
 import StateButton, { StateButtonClickHandler } from '../state-button';
-import { useSWRConfig } from 'swr';
-import { ContentType } from '@prisma/client';
-import { RedFlag } from '../icons/red-flag-icon';
-import { WriteButtonIcon } from '../icons/write-button-icon';
 import { FeedContentProps } from '../../app/lib/definitions';
 import { ContentOptionsDropdown } from './content-options-dropdown';
 

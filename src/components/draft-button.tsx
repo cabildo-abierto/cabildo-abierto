@@ -2,7 +2,6 @@
 import { CustomLink as Link } from './custom-link';
 import LoadingSpinner from "./loading-spinner"
 import ReadOnlyEditor from "./editor/read-only-editor";
-import { PostTitleOnFeed } from "./post-on-feed";
 import { useContent } from "../app/hooks/contents";
 import { decompress } from "./compression";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -12,6 +11,11 @@ import { useSWRConfig } from "swr";
 import Button from "@mui/material/Button";
 import { WriteButtonIcon } from './icons/write-button-icon';
 
+export const PostTitleOnFeed = ({title}: {title: string}) => {
+    return <span className="text-lg font-bold title">
+        {title}
+    </span>
+}
 
 
 export const DraftButton: React.FC<{draftId: string}> = ({draftId}) => {

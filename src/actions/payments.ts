@@ -2,7 +2,6 @@
 
 
 import { db } from "../db";
-import { getContentById } from "./contents";
 import { accessToken, contributionsToProportionsMap, formatDate, isPartOfContent, launchDate, subscriptionEnds, supportDid } from "../components/utils";
 import { getUserById } from "./users";
 import { pathLogo } from "../components/logo";
@@ -72,12 +71,16 @@ export async function newContactMail(mail: string){
 }
 
 
+export async function getContentContribution(id: string): Promise<{contribution: string}>{
+    throw Error("Not implemented.")
+}
+
+
 export async function createPaymentPromisesForEntityView(view: {content: {id: string, authorId: string, createdAt: Date}}, viewValue: number, subscriptionId: string){
 
-    const {content, error} = await getContentById(view.content.id)
-    if(error) return {error}
+    const {contribution} = await getContentContribution(view.content.id)
     
-    const bothContributions: BothContributionsProps = JSON.parse(content.contribution)
+    const bothContributions: BothContributionsProps = JSON.parse(contribution)
     const contributions = contributionsToProportionsMap(bothContributions, view.content.authorId)
 
     const authors = Object.keys(contributions)

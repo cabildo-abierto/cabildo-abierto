@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { ArticlePage } from "../../components/article-page"
+import { ArticlePage } from "../../components/entity/article-page"
 import { LoadingScreen } from "../../components/loading-screen";
 import { entityIdToName } from "../../components/utils"
 import { headers } from "next/headers";

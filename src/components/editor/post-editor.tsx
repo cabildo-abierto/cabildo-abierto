@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation"
 import { TitleInput } from "./title-input"
 import { useSWRConfig } from "swr"
 import { useUser } from "../../app/hooks/user"
-import { oldCreatePost, publishDraft, updateContent } from "../../actions/contents"
 import { compress } from "../compression"
 import { ExtraChars } from "../extra-chars"
 import { Button } from "@mui/material"
@@ -107,7 +106,7 @@ const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}
     const {user} = useUser()
 
     async function handleSubmit(){
-        const text = JSON.stringify(editor.getEditorState())
+        /*const text = JSON.stringify(editor.getEditorState())
         const compressedText = compress(text)
 
         const {error} = await publishDraft(compressedText, lastSaved.contentId, user.id, isPublished, !isFast ? title : undefined)
@@ -119,7 +118,8 @@ const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}
         await mutate("/api/following-feed")
         await mutate("/api/profile-feed/"+user.id)
         router.push("/")
-        return {stopResubmit: true}
+        return {stopResubmit: true}*/
+        return {}
 	}
 
     return <StateButton
@@ -199,7 +199,7 @@ const PostEditor = ({
     }
 
     const handleCreateDraftPost: StateButtonClickHandler = async () => {
-        const text = JSON.stringify(editor.getEditorState())
+        /*const text = JSON.stringify(editor.getEditorState())
         const compressedText = compress(text)
         const type = isFast ? "FastPost" : "Post"
 
@@ -210,11 +210,12 @@ const PostEditor = ({
 
         await mutate("/api/content/" + lastSaved.contentId)
         await mutate("/api/drafts")
-        return {stopResubmit: true}
+        return {stopResubmit: true}*/
+        return {}
     }
 
     const handleSaveDraft = async () => {
-        if(!lastSaved.contentId){
+        /*if(!lastSaved.contentId){
             return await handleCreateDraftPost()
         }
 
@@ -229,7 +230,8 @@ const PostEditor = ({
         setLastSaved({text: text, title: title, contentId: lastSaved.contentId})
 
         await mutate("/api/content/" + lastSaved.contentId)
-        await mutate("/api/drafts")
+        await mutate("/api/drafts")*/
+        return {}
     }
 
     const count = editor && editorState ? charCount(editorState) : 0

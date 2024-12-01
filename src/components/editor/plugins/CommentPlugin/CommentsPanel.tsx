@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { NodeKey } from "lexical";
 import { CommentProps } from "../../../../app/lib/definitions";
-import { EntitySidebarCommentSection, SidebarCommentSection } from "../../../comment-section";
 import { ContentType } from "@prisma/client";
 
 
@@ -65,13 +64,13 @@ export function CommentsPanel({
                 <div className="text-[var(--text-light)] text-sm mt-1">Comentarios sobre el texto</div>
                 <button onClick={onClose} className="text-[var(--text-light)] hover:text-[var(--text)] text-sm">cerrar</button>
             </div>
-            <div className="px-2">
+            {/*<div className="px-2">
             {parentContent.type == "EntityContent" ? (
                 <EntitySidebarCommentSection content={parentContent} activeIDs={activeIDs} comments={comments}/>
             ) : (
                 <SidebarCommentSection content={parentContent} activeIDs={activeIDs} comments={comments}/>
             )}
-            </div>
+            </div>*/}
 
             <div
                 className="absolute top-0 left-0 h-full w-2 cursor-ew-resize"

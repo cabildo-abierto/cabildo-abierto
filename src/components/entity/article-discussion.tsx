@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react"
-import { useContent } from "../app/hooks/contents"
-import { CommentSectionCommentEditor } from "./comment-section-comment-editor"
-import { EntityProps } from "../app/lib/definitions"
-import { EntityCommentSection } from "./comment-section"
-import LoadingSpinner from "./loading-spinner"
+import { useContent } from "../../app/hooks/contents"
+import { EntityProps } from "../../app/lib/definitions"
+import LoadingSpinner from "../loading-spinner"
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin"
+import { smoothScrollTo } from "../editor/plugins/TableOfContentsPlugin"
 import { Button } from "@mui/material"
 
 
@@ -42,7 +40,7 @@ export const ArticleDiscussion = ({contentId, entity, version}: {contentId: stri
         <div className="text-[var(--text-light)] text-sm sm:text-base mb-4">
             Todo lo que se habló en Cabildo Abierto sobre el tema.
         </div>
-        <CommentSectionCommentEditor
+        {/*<CommentSectionCommentEditor
             content={content}
             comments={comments}
             setComments={setComments}
@@ -50,13 +48,13 @@ export const ArticleDiscussion = ({contentId, entity, version}: {contentId: stri
             setWritingReply={() => {}}
             startsOpen={true}
             depth={0}
-        />
-        <EntityCommentSection
+        />*/}
+        {/*<EntityCommentSection
             content={content}
             comments={comments}
             writingReply={true}
             depth={0}
-        />
+        />*/}
     </div>
 
 }

@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import TickButton from './tick-button';
 import StateButton from './state-button';
 import { useSWRConfig } from 'swr';
-import { undoChange } from '../actions/entities';
 import { useContent } from '../app/hooks/contents';
 import { useUser } from '../app/hooks/user';
 import { EntityProps } from '../app/lib/definitions';
@@ -12,7 +11,7 @@ import { hasEditPermission } from './utils';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
 import { AcceptButtonPanel } from './ui-utils/accept-button-panel';
 import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
-import { NeedAccountPopup } from './article-page';
+import { NeedAccountPopup } from './entity/article-page';
 
 
 
@@ -66,14 +65,14 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
                 <div className="">
                     <StateButton
                         handleClick={async () => {
-                            if(user.user && content){
+                            /*if(user.user && content){
                                 const result = await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
                                 if(!result) return {error: "Ocurrió un error un inesperado. Es posible que el cambio se haya deshecho correctamente. Contactate con el soporte."}
                                 if(result.error) return {error: result.error}
                                 mutate("/api/entity/"+entity.id)
                                 mutate("/api/entities")
                                 onClose()
-                            }
+                            }*/
                             return {}
                         }}
                         disabled={!validExplanation(explanation)}

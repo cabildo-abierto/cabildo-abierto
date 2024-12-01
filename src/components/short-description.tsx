@@ -1,9 +1,7 @@
-"use client"
+
 import { ContentType } from '@prisma/client';
-import { Comment, CommentComponentProps } from './comment';
 import { CustomLink as Link } from './custom-link';
 import { articleUrl, contentUrl } from './utils';
-
 
 export type ShortDescriptionProps = {
     author: {id: string}
@@ -40,42 +38,3 @@ export function shortDescription(content: ShortDescriptionProps){
 
 
 export const contentContextClassName = "bg-[var(--secondary-light)] px-2 text-sm mx-1 mt-1 link text-[var(--text-light)] rounded "
-
-
-export const CommentInContext = ({
-    content,
-    onViewComments,
-    viewingComments,
-    onStartReply,
-    isFakeNewsReport,
-    inCommentSection=false,
-    inItsOwnCommentSection,
-    depth}: CommentComponentProps) => {
-
-    const comment = <Comment
-        content={content}
-        onViewComments={onViewComments}
-        viewingComments={viewingComments}
-        onStartReply={onStartReply}
-        inCommentSection={inCommentSection}
-        inItsOwnCommentSection={inItsOwnCommentSection}
-        isFakeNewsReport={isFakeNewsReport}
-    />
-
-    if(inItsOwnCommentSection){
-        return comment
-    }
-
-    const parentContent = content.parentContents[0]
-    const rootContent = content.rootContent
-
-    let replyTo = <>En respuesta a {shortDescription(parentContent)}</>
-    let rootIs = parentContent.id != rootContent.id ? <>La discusión empezó en {shortDescription(rootContent)}</> : <></>
-
-    return <div>
-        <div className={contentContextClassName}>
-            {replyTo} {rootIs}
-        </div>
-        {comment}
-    </div>
-}
