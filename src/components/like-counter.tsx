@@ -30,16 +30,18 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
     title
 }) => {
     const {user} = useUser()
-    const initiallyLiked = content.viewer.like != undefined
+    const initiallyLiked = content.viewer != undefined && content.viewer.like != undefined
     const [liked, setLiked] = useState(initiallyLiked)
-
-    console.log("content", content)
 
     let delta = 0
     if(initiallyLiked && !liked) delta = -1
     if(!initiallyLiked && liked) delta = 1
 
     const likeCount = content.likeCount + delta
+
+    if(content.likeCount == undefined){
+        console.log("content without like count", content)
+    }
     
     const onLikeClick = async () => {
         if(!user) return

@@ -1,4 +1,4 @@
-import { FeedContentProps } from "../../app/lib/definitions"
+import {FastPostProps} from "../../app/lib/definitions"
 import { ContentOptionsButton } from "../content-options/content-options-button"
 import { ActiveLikeIcon } from "../icons/active-like-icon"
 import { InactiveCommentIcon } from "../icons/inactive-comment-icon"
@@ -7,7 +7,7 @@ import { RepostIcon } from "../icons/reposts-icon"
 import { FixedCounter, LikeCounter } from "../like-counter"
 
 
-export const EngagementIcons = ({content}: {content: FeedContentProps}) => {
+export const EngagementIcons = ({content}: {content: FastPostProps}) => {
     return <div className="flex space-x-16">
         <FixedCounter
             count={content.replyCount}

@@ -322,13 +322,7 @@ export type UserStats = {
 }
 
 
-export type SearchkeysProps = {
-    id: string
-    keys: string[]
-}[]
-
-
-export type FeedContentProps = {
+export type FastPostProps = {
     uri: string
     cid: string
     author: {handle: string, displayName?: string, avatar?: string}
@@ -351,9 +345,19 @@ export type FeedContentProps = {
     embed?: {
         $type: string,
         images?: {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
-        media?: {images?: 
-            {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
+        media?: {images?:
+                {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
         }
+    }
+}
+
+
+export type FeedContentProps = {
+    post: FastPostProps
+    reason?: {
+        $type: string
+        by: any
+        indexedAt: string
     }
 }
 

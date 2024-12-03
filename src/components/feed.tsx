@@ -25,7 +25,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
 
     function generator(index: number){
         let node
-        if(feed.feed[index].record.$type == "ar.com.cabildoabierto.article"){
+        if(feed.feed[index].post.record.$type == "ar.com.cabildoabierto.article"){
             node = <ATProtoArticlePreview
                 content={feed.feed[index]}
             />

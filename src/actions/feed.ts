@@ -17,19 +17,11 @@ function getRkeyFromURI(uri: string) {
 
 
 export async function getPostWithAuthorFromStrongRef(ref: {uri: string, cid: string}, agent: Agent){
-    const repo = getHandleFromURI(ref.uri)
-    const rkey = getRkeyFromURI(ref.uri)
+    const {data} = await agent.getPosts({uris: [ref.uri]})
 
-    const post = await agent.getPost({repo, rkey, cid: ref.cid})
-    const handle = getHandleFromURI(ref.uri)
-    const {data: author} = await agent.getProfile({actor: handle})
+    const post = data.posts[0]
 
-    return {
-        uri: post.uri,
-        cid: post.cid,
-        record: post.value,
-        author
-    }
+    return post
 }
 
 
@@ -65,9 +57,10 @@ export async function getFeedForUsers(users: {id: string}[], includeReplies: boo
             continue
         }
         for(let j = 0; j < data.feed.length; j++){
+            
             const p = await expandPost(data.feed[j].post, agent)
             posts.push(p)
-
+            
             /*if(p.record.reply){
                 const parent = await agent.getPost(p.record.reply.parent)
                 const root = await agent.getPost(p.record.reply.root)
@@ -125,7 +118,13 @@ export async function getATProtoFeed(): Promise<FeedContentProps[]>{
         }
     })
 
-    return await getFeedForUsers(users, false)
+    const {agent} = await getSessionAgent()
+
+    const { data } = await agent.getTimeline({})
+
+    const timeline = data.feed.filter(({post}) => (!post.record.reply))
+
+    return timeline
 }
 
 
