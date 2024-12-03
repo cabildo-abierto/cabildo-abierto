@@ -25,7 +25,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
 
     function generator(index: number){
         let node
-        if(feed.feed[index].record.$type == "app.ca.article.post"){
+        if(feed.feed[index].record.$type == "ar.com.cabildoabierto.article"){
             node = <ATProtoArticlePreview
                 content={feed.feed[index]}
             />
@@ -44,12 +44,15 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
     if(feed.feed.length == 0){
         content = <NoResults text={noResultsText}/>
     } else {
-        content = <>
+        content = <div className="flex flex-col w-full">
             <LazyLoadFeed
                 maxSize={feed.feed.length}
                 generator={generator}
             />
-        </>
+            <div className="text-center w-full text-[var(--text-light)] pb-64 pt-6">
+                Nada más por acá.
+            </div>
+        </div>
     }
 
     return <div className="h-full w-full flex flex-col items-center space-y-2">

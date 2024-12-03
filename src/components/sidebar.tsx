@@ -7,7 +7,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user";
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
-import { articleUrl, id2url, supportDid, userUrl } from "./utils";
+import { articleUrl, supportDid, userUrl } from "./utils";
 import Button from "@mui/material/Button";
 import { CloseSessionButton } from "./close-session-button";
 import { DashboardIcon } from "./icons/dashboard-icon";
@@ -74,7 +74,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
                     <SidebarButton onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio"/>
                     <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
-                    {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={id2url(user.user.id)}/>}
+                    {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={userUrl(user.user.handle)}/>}
                     <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Panel personal" href="/panel"/>
                     <SidebarButton icon={<DonateIcon fontSize="medium"/>} onClick={onClose} text="Aportar" href="/aportar"/>
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href={articleUrl("Cabildo_Abierto")}/>

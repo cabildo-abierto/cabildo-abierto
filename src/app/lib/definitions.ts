@@ -330,6 +330,7 @@ export type SearchkeysProps = {
 
 export type FeedContentProps = {
     uri: string
+    cid: string
     author: {handle: string, displayName?: string, avatar?: string}
     record: {
         text: string,
@@ -337,11 +338,23 @@ export type FeedContentProps = {
         title?: string,
         createdAt: string,
         $type: string
+        reply?: {
+            parent: FeedContentProps
+            root?: FeedContentProps
+        }
     }
     likeCount: number
     repostCount: number
     quoteCount: number
     replyCount: number
+    viewer: {like?: any}
+    embed?: {
+        $type: string,
+        images?: {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
+        media?: {images?: 
+            {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
+        }
+    }
 }
 
 export type NotificationProps = {

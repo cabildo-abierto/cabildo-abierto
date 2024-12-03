@@ -1,7 +1,9 @@
 import { Button } from "@mui/material"
-import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
 import Link from "next/link"
 import { ReactNode } from "react"
+import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
+
+
 
 export const NeedAccountPopup = ({open, onClose, text}: {text: ReactNode, open: boolean, onClose: () => void}) => {
     return <BaseFullscreenPopup open={open}>

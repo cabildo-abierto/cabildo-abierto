@@ -3,7 +3,7 @@ import { getIronSession } from 'iron-session'
 
 import { Session } from './app/oauth/callback/route'
 import { cookies } from 'next/headers'
-import { env } from 'process'
+
 
 function isNewUserRoute(request: NextRequest){
   return ['/', '/signup', '/login', '/auth'].includes(request.nextUrl.pathname)
@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
 
     const session = await getIronSession<Session>(await cookies(), {
         cookieName: 'sid',
-        password: env.COOKIE_SECRET || "",
+        password: process.env.COOKIE_SECRET || "",
         cookieOptions: {
             sameSite: "lax",
             httpOnly: true,

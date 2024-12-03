@@ -32,7 +32,7 @@ const Stat = ({children}: {children: ReactNode}) => {
 
 
 export default async function Page() {
-    const user = await getUser()
+    const {user} = await getUser()
     if(!user || (user.editorStatus != "Administrator" && user.id != "tomas")){
         return <NotFoundPage/>
     }

@@ -6,17 +6,15 @@ import { SearchButton } from "./top-bar";
 import { useSearch } from "./search-context";
 import { CloseButton } from "./ui-utils/close-button";
 import Image from 'next/image'
-import { id2url } from "./utils";
+import { userUrl } from "./utils";
 
 
 export const UserSearchResult: React.FC<{result: {displayName: string, handle: string, avatar: string}}> = ({ result }) => {
     const className = "px-2 py-1 w-72 text-center"
 
-    console.log("result", result)
-
     return <div className="flex justify-center hover:bg-[var(--secondary-light)] content-container rounded"
     >
-        <Link href={id2url(result.handle)}>
+        <Link href={userUrl(result.handle)}>
             <button className={className}>
                 <div className="flex w-full items-center">
                     <Image

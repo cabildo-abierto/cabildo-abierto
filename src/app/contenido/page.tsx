@@ -5,6 +5,7 @@ import { FeedContentProps } from "../lib/definitions";
 import { ATProtoArticle } from "../../components/feed/atproto-article";
 import { BlockedPost, NotFoundPost, ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 import { ATProtoThread } from "./thread";
+import { NotFoundPage } from "../../components/not-found-page";
 
 
 export async function generateMetadata({searchParams}: {searchParams: {i: string}}){
@@ -56,6 +57,10 @@ export type ThreadProps = ThreadViewPost | FeedContentProps
 const ContentPage: React.FC<{searchParams: {i: string, u: string, c: string}}> = async ({searchParams}) => {
     
     const content: ThreadProps | null = await getATProtoThread(searchParams.u, searchParams.i, searchParams.c)
+
+    if(!content){
+        return <NotFoundPage/>
+    }
 
     let center
     if('post' in content){

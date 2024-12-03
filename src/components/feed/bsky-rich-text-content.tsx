@@ -1,9 +1,7 @@
 
-import { ATProtoPostFrame } from './atproto-post-frame'
 import { RichText } from '@atproto/api'
 import {
     $convertFromMarkdownString,
-    $convertToMarkdownString,
     TRANSFORMERS,
 } from '@lexical/markdown';
 import { FeedContentProps } from '../../app/lib/definitions';

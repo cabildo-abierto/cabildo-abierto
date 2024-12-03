@@ -15,7 +15,7 @@ export const ATProtoThread = ({thread}: {thread: ThreadViewPost}) => {
         <ReplyButton/>
         {thread.replies.map((r, index) => {
             return <div key={index}>
-                <ATProtoFastPostPreview content={r.post as unknown as FeedContentProps}/>
+                <ATProtoFastPostPreview content={r.post as unknown as FeedContentProps} parentIsMainContent={true}/>
             </div>
         })}
     </div>

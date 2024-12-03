@@ -1,5 +1,5 @@
 "use client"
-import React, { ReactNode, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { preload, useSWRConfig } from "swr";
 import { CustomLink as Link } from '../custom-link';
@@ -22,31 +22,11 @@ import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/he
 import { useEntity } from "../../app/hooks/entities";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { smoothScrollTo } from "../editor/plugins/TableOfContentsPlugin";
-import { BaseFullscreenPopup } from "../ui-utils/base-fullscreen-popup";
 import { ArticleDiscussion } from "./article-discussion";
-import LoadingSpinner from "../loading-spinner";
-import { useContent } from "../../app/hooks/contents";
 import Button from "@mui/material/Button";
 import { ArticleOtherOptions } from "./article-other-options";
 import { EntityCategoriesSmall } from "../entity-categories-small";
-
-
-
-export const NeedAccountPopup = ({open, onClose, text}: {text: ReactNode, open: boolean, onClose: () => void}) => {
-    return <BaseFullscreenPopup open={open}>
-        <div className="py-6 sm:text-lg text-base text-center px-2">{text}</div>
-        <div className="flex justify-center items-center space-x-4 px-6 pb-4 text-sm sm:text-base">
-            <Button variant="contained" disableElevation={true} sx={{textTransform: "none"}} onClick={onClose}>
-                Seguir leyendo
-            </Button>
-            <Link href="/">
-                <Button variant="contained" disableElevation={true} sx={{textTransform: "none"}}>
-                    Crear una cuenta o iniciar sesión
-                </Button>
-            </Link>
-        </div>
-    </BaseFullscreenPopup>
-}
+import { NeedAccountPopup } from "../need-account-popup";
 
 
 export const editContentClassName = "article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--lightwhite)] hover:bg-[var(--primary-dark)] disabled:hover:bg-[var(--primary)]"

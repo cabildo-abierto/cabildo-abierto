@@ -8,7 +8,7 @@ import { ConfirmPaymentsButton, CreatePromisesButton } from "./create-promises-b
 
 
 export default async function Page() {
-    const user = await getUser()
+    const {user} = await getUser()
 
     if(!user || (user.editorStatus != "Administrator" && user.id != "tomas")){
         return <NotFoundPage/>

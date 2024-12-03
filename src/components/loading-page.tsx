@@ -10,12 +10,14 @@ const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
     const user = useUser()
 
     let center
+    console.log(user)
 
     if(user.isLoading){
         center = <LoadingScreen/>
     } else {
         center = children
     }
+
 
     return <>
         {center}

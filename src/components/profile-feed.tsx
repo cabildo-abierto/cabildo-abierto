@@ -4,8 +4,8 @@ import Feed from "./feed"
 import LoadingSpinner from "./loading-spinner"
 
 
-export const ProfileFeed = ({profileUser, showingFakeNews}: {profileUser: {id: string, displayName: string}, showingFakeNews: boolean}) => {
-    let feed = useProfileFeed(profileUser.id)
+export const ProfileFeed = ({profileUser, showingFakeNews}: {profileUser: {did: string, handle: string, displayName?: string}, showingFakeNews: boolean}) => {
+    let feed = useProfileFeed(profileUser.did)
 
     if(feed.isLoading){
         return <LoadingSpinner/>
@@ -19,7 +19,9 @@ export const ProfileFeed = ({profileUser, showingFakeNews}: {profileUser: {id: s
 
     const fakeNewsFeed = <Feed feed={{feed: fakeNews, isLoading: false, isError: false}} noResultsText={profileUser.displayName + " no recibió reportes de información falsa."}/>*/
 
-    const normalFeed = <Feed feed={feed} noResultsText={profileUser.displayName + " todavía no publicó nada."}/>
+    const name = profileUser.displayName ? profileUser.displayName : profileUser.handle
+
+    const normalFeed = <Feed feed={feed} noResultsText={name + " todavía no publicó nada."}/>
     
     return normalFeed
 

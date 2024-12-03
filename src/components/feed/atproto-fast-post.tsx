@@ -2,6 +2,7 @@
 
 import { FeedContentProps } from '../../app/lib/definitions'
 import { ATProtoMainPostFrame } from './atproto-main-post-frame';
+import { BskyFastPostImage } from './bsky-fast-post-image';
 import { BskyRichTextContent } from './bsky-rich-text-content';
 
 export type ATProtoFastPostProps = {
@@ -15,5 +16,6 @@ export const ATProtoFastPost = ({content}: ATProtoFastPostProps) => {
         <div className="text-lg">
             <BskyRichTextContent content={content}/>
         </div>
+        <BskyFastPostImage content={content}/>
     </ATProtoMainPostFrame>
 }

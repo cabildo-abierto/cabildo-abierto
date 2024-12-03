@@ -10,7 +10,7 @@ import { useUser } from '../app/hooks/user';
 import { compress } from './compression';
 import { emptyOutput } from './utils';
 import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
-import { NeedAccountPopup } from './entity/article-page';
+import { NeedAccountPopup } from './need-account-popup';
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
 

@@ -5,7 +5,7 @@ import { DateSince } from '../date'
 import { FeedContentProps } from '../../app/lib/definitions'
 import { contentUrl, formatIsoDate, userUrl } from '../utils'
 import Link from 'next/link'
-import { FixedCounter } from '../like-counter'
+import { FixedCounter, LikeCounter } from '../like-counter'
 import { InactiveCommentIcon } from '../icons/inactive-comment-icon'
 import { InactiveLikeIcon } from '../icons/inactive-like-icon'
 import { RepostIcon } from '../icons/reposts-icon'
@@ -14,6 +14,8 @@ import { useRouter } from 'next/navigation'
 import { ContentTopRowAuthor } from '../content-top-row-author'
 import { ReactNode } from 'react'
 import { FollowButton } from './follow-button'
+import { ActiveLikeIcon } from '../icons/active-like-icon'
+import { EngagementIcons } from './engagement-icons'
 
 
 export const ATProtoMainPostFrame = ({children, content}: {children: ReactNode, content: FeedContentProps}) => {
@@ -61,26 +63,8 @@ export const ATProtoMainPostFrame = ({children, content}: {children: ReactNode, 
                 </div>
             </div>
 
-            <div className="flex space-x-16 py-2">
-                <FixedCounter
-                    count={content.replyCount}
-                    icon={<InactiveCommentIcon/>}
-                    title="Cantidad de respuestas."
-                />
-                <FixedCounter
-                    count={content.repostCount}
-                    icon={<RepostIcon/>}
-                    title="Cantidad de republicaciones."
-                />
-                <FixedCounter
-                    count={content.likeCount}
-                    icon={<InactiveLikeIcon/>}
-                    title="Cantidad de me gustas."
-                />
-                <ContentOptionsButton
-                    content={undefined}
-                    optionList={[]}
-                />
+            <div className="py-2">
+                <EngagementIcons content={content}/>
             </div>
         </div>
     </div>   

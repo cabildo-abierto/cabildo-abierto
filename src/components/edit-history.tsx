@@ -14,7 +14,6 @@ import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 import { toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
 import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
-import { NeedAccountPopup } from "./entity/article-page";
 import { ContentType } from "@prisma/client";
 import { AuthorshipClaimIcon } from "./icons/authorship-claim-icon";
 import { NoAuthorshipClaimIcon } from "./icons/no-authorship-claim-icon";
@@ -24,6 +23,7 @@ import { RejectEditIcon } from "./icons/reject-edit-icon";
 import { UndoIcon } from "./icons/undo-icon";
 import { ViewsIcon } from "./icons/views-icon";
 import { Authorship } from "./content-top-row-author";
+import { NeedAccountPopup } from "./need-account-popup";
 
 
 const EditDetails = ({editType}: {editType: ContentType}) => {

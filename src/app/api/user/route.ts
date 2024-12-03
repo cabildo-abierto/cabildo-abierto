@@ -6,6 +6,6 @@ export async function GET(req: NextRequest) {
 
     const user = await getUser()
     
-    return NextResponse.json(user ? user : null)
+    return NextResponse.json(user)
     
 }

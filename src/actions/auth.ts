@@ -32,7 +32,8 @@ export async function login(handle: string){
         console.log(err)
         return {error: "Falló la conexión con Bluesky."}
     }
-    redirect(url.toString())
+    
+    return {url: url.toString()}
 }
 
 
@@ -50,14 +51,17 @@ export async function getSessionAgent(){
     })
 
     if (!session.did) {
-        return {}
-    
+        return {agent: new Agent("https://bsky.social/xrpc"), did: undefined}
     }
     const oauthClient = await createClient()
 
     try {
         const oauthSession = await oauthClient.restore(session.did)
-        return oauthSession ? {agent: new Agent(oauthSession), did: session.did} : {}
+        if(oauthSession){
+            return {agent: new Agent(oauthSession), did: session.did}
+        } else {
+            return {agent: new Agent("https://bsky.social/xrpc"), did: undefined}
+        }
     } catch (err) {
         session.destroy()
         return {agent: undefined, did: undefined}
