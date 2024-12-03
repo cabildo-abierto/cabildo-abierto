@@ -5,8 +5,9 @@ import Feed from "./feed"
 
 
 
-export const RepliesFeed = ({profileUser}: {profileUser: {id: string, displayName: string}}) => {
-    const feed = useRepliesFeed(profileUser.id)
+export const RepliesFeed = ({profileUser}: {profileUser: {did: string, handle: string, displayName?: string}}) => {
+    const feed = useRepliesFeed(profileUser.did)
 
-    return <Feed feed={feed} noResultsText={profileUser.displayName + " todavía no escribió ninguna respuesta."}/>
+    const name = profileUser.displayName ? profileUser.displayName : profileUser.handle
+    return <Feed feed={feed} noResultsText={name + " todavía no escribió ninguna respuesta."}/>
 }

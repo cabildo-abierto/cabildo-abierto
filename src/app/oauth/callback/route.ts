@@ -2,7 +2,6 @@ import { createClient } from "../../../auth/client";
 import assert from "assert";
 import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from 'iron-session'
-import { env } from 'process'
 import { cookies } from "next/headers";
 import { createNewCAUserForBskyAccount } from "../../../actions/users";
 
@@ -13,12 +12,12 @@ export async function GET(req: NextRequest){
     const oauthClient = await createClient()
 
     try {
-        assert(env.COOKIE_SECRET)
+        assert(process.env.COOKIE_SECRET)
         const { session } = await oauthClient.callback(params)
 
         const clientSession = await getIronSession<Session>(await cookies(), {
             cookieName: 'sid',
-            password: env.COOKIE_SECRET || "",
+            password: process.env.COOKIE_SECRET || "",
             cookieOptions: {
                 sameSite: "lax",
                 httpOnly: true,

@@ -3,11 +3,13 @@ import { TextField } from "@mui/material"
 import { useState } from "react"
 import StateButton from "./state-button"
 import { login } from "../actions/auth"
+import { useRouter } from "next/navigation"
 
 
-export const BlueskyLogin = () => {
+export const BlueskyLogin = ({newTab=false}: {newTab?: boolean}) => {
     const [handle, setHandle] = useState("")
     const [error, setError] = useState(undefined)
+    const router = useRouter()
 
     async function handleSubmit(){
         const res = await login(handle)
@@ -16,6 +18,13 @@ export const BlueskyLogin = () => {
             setError(res.error)
         }
 
+        const url = res.url
+        
+        if(newTab){
+            window.open(url, '_blank')
+        } else {
+            router.push(url)
+        }
         return {}
     }
 

@@ -511,11 +511,6 @@ export function nextPrice(p: number){
 }
 
 
-export function id2url(handle: string){
-    return "perfil/" + handle
-}
-
-
 export function articleUrl(id: string, index?: number){
     return "/articulo?i=" + id + (index != undefined ? "&v=" + index : "")
 }
@@ -771,3 +766,5 @@ export const formatIsoDate = (isoDate) => {
 
 
 export const emptyChar = <>&nbsp;</>
+
+export const contentContextClassName = "bg-[var(--secondary-light)] px-2 text-sm mx-1 mt-1 link text-[var(--text-light)] rounded "

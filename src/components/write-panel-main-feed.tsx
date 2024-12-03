@@ -10,17 +10,21 @@ import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
 import { CloseButton } from "./ui-utils/close-button"
 import { AddImageButton } from "./add-image-button"
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
-import { ContentTopRowAuthor } from "./content-top-row-author"
+import Image from 'next/image'
+import { NeedAccountPopup } from "./need-account-popup"
 
 
 export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () => void, mobile?: boolean}) => {
     const { user } = useUser();
     const [editorKey, setEditorKey] = useState(0);
-    const [randomPlaceholder, setRandomPlaceholder] = useState<string>("")
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
     const [modal, showModal] = useModal();
     const [images, setImages] = useState([])
     const [text, setText] = useState("")
+
+    if(!user){
+        return <NeedAccountPopup open={open} text="Necesitás una cuenta para escribir" onClose={onClose}/>
+    }
 
     const charLimit = 300
 
@@ -51,12 +55,12 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
         text1="Publicar"
         handleClick={handleSubmit}
         disabled={disabled}
-        textClassName="title"
+        textClassName="font-bold"
         size="medium"
         disableElevation={true}
     />
 
-    const editorComp = <div className="sm:text-lg py-2 h-full max-h-[400px] w-full" key={editorKey}>
+    const editorComp = <div className="sm:text-lg h-full max-h-[400px] w-full" key={editorKey}>
         <TextareaAutosize
             minRows={3}
             value={text}
@@ -68,16 +72,24 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
     </div>
 
     const center = <>
-        <div className="flex justify-between px-1">
-            <div className="text-sm text-gray-400 flex items-center ml-2">
-                <ContentTopRowAuthor content={{author: user}}/>
-            </div>
+        <div className="flex justify-end px-1">
             <CloseButton onClose={onClose}/>
         </div>
         <div className="min-h-[250px] px-2">
-        <div className="sm:text-lg py-2 px-1 h-full w-full" key={editorKey}>
-            {editorComp}
-        </div>
+            <div className="flex space-x-2">
+                <div>
+                    <Image
+                        src={user.avatar}
+                        alt={"Tu foto de perfil"}
+                        width={100}
+                        height={100}
+                        className="w-8 h-auto rounded-full"
+                    />
+                </div>
+                <div className="sm:text-lg h-full w-full" key={editorKey}>
+                    {editorComp}
+                </div>
+            </div>
             <FastPostImagesEditor images={images} setImages={setImages}/>
         </div>
         <hr className="border-gray-200" />
@@ -92,13 +104,11 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
         {modal}
     </>
 
-    return (
-        <BaseFullscreenPopup open={open} className="w-128">
-            <div className="w-full rounded pb-2 pt-1">
-                {center}
-                {errorOnCreatePost && <div className="flex justify-end text-sm text-red-600">Ocurrió un error al publicar. Intentá de nuevo.</div>}
-            </div>
-        </BaseFullscreenPopup>
-    );
+    return <BaseFullscreenPopup open={open} className="w-128">
+        <div className="w-full rounded pb-2 pt-1">
+            {center}
+            {errorOnCreatePost && <div className="flex justify-end text-sm text-red-600">Ocurrió un error al publicar. Intentá de nuevo.</div>}
+        </div>
+    </BaseFullscreenPopup>
 };
 

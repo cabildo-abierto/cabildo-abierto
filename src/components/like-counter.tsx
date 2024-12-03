@@ -10,13 +10,10 @@ import { IconButton } from "@mui/material";
 
 type LikeCounterProps = {
     content: {
-        parentEntityId?: string
-        reactions?: {id: string}[]
-        _count: {
-            reactions: number
-        }
-        id: string
-        author: {id: string}
+        likeCount: number,
+        uri: string
+        cid: string
+        viewer: {like?: any}
     }
     disabled?: boolean
     icon1?: ReactNode
@@ -33,35 +30,30 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
     title
 }) => {
     const {user} = useUser()
-    const entityId = content.parentEntityId
-    const initiallyLiked = content.reactions != undefined && content.reactions.length > 0
+    const initiallyLiked = content.viewer.like != undefined
     const [liked, setLiked] = useState(initiallyLiked)
+
+    console.log("content", content)
 
     let delta = 0
     if(initiallyLiked && !liked) delta = -1
     if(!initiallyLiked && liked) delta = 1
 
-    const likeCount = content._count.reactions + delta
+    const likeCount = content.likeCount + delta
     
     const onLikeClick = async () => {
         if(!user) return
         if(liked){
-            removeLike(content.id, user.id, entityId)
+            /*removeLike(content.id, user.id, entityId)*/
             setLiked(false)
         } else {
-            addLike(content.id, user.id, entityId)
+            addLike(content.uri, content.cid)
             setLiked(true)
         }
     }
 
-    const isAuthor = user && user.id == content.author.id
-
-    if(!title){
-        if(isAuthor){
-            title = "No podés reaccionar a tus propias publicaciones."
-        } else if(!user){
-            title = "Necesitás una cuenta para reaccionar."
-        }
+    if(!user){
+        title = "Necesitás una cuenta para reaccionar."
     }
     
     return <ReactionButton
@@ -69,7 +61,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
         active={liked}
         icon1={icon1}
         icon2={icon2}
-        disabled={!user || disabled || isAuthor}
+        disabled={!user || disabled}
         count={likeCount}
         title={title}
         className="mt-1 reaction-btn"

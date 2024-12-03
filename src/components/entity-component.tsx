@@ -8,10 +8,9 @@ import { ChangesCounter } from "./changes-counter";
 import { useEntity } from "../app/hooks/entities";
 import { useContent } from "../app/hooks/contents";
 import { CommentProps, EntityProps } from "../app/lib/definitions";
-import { articleUrl, cleanText, currentVersion, getKeysFromEntity, getVersionInEntity, someKeyInText } from "./utils";
+import { articleUrl, cleanText, contentContextClassName, currentVersion, getKeysFromEntity, getVersionInEntity, someKeyInText } from "./utils";
 import { decompress } from "./compression";
 import { ContentType } from "@prisma/client";
-import { contentContextClassName } from "./short-description";
 
 
 type EntityComponentProps = {

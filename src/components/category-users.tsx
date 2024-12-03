@@ -9,7 +9,7 @@ import { cleanText, shuffleArray } from "./utils"
 
 
 export const NoResults = ({text="No se encontraron resultados..."}: {text?: ReactNode}) => {
-    return <div className="text-center max-w-128 text-[var(--text-light)]">{text}</div>
+    return <div className="text-center max-w-128 text-[var(--text-light)] mt-4">{text}</div>
 }
 
 

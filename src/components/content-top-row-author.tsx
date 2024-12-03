@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation"
-import { id2url, stopPropagation, userUrl } from "./utils"
+import { stopPropagation, userUrl } from "./utils"
 import Link from "next/link"
 
 
@@ -24,7 +24,7 @@ export const Authorship = ({content, onlyAuthor=false}: {content: {author: {disp
 
 export const ContentTopRowAuthor = ({content, useLink=true} :{content: {author: {handle: string, displayName?: string}}, useLink?: boolean}) => {
     const router = useRouter()
-    const url = content.author ? id2url(content.author.handle) : ""
+    const url = content.author ? userUrl(content.author.handle) : ""
     const onClick = stopPropagation(() => {router.push(url)})
 
     const text = <>{content.author.displayName && <span className="hover:underline font-bold mr-1">  {content.author.displayName}

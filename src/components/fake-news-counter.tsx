@@ -1,37 +1,7 @@
 "use client"
 
-import React from "react"
 import { ReactionButton } from "./reaction-button";
-import { ContentType } from "@prisma/client";
 import { RedFlag } from "./icons/red-flag-icon";
-
-
-type FakeCounterProps = {
-    content: {
-        childrenContents: {type: ContentType}[]
-    }
-    onClick?: () => void
-}
-
-export const FakeNewsCounter: React.FC<FakeCounterProps> = ({
-    content,
-    onClick
-}) => {
-    let count = 0
-    content.childrenContents.forEach((c) => {
-        if(c.type == "FakeNewsReport") count ++
-    })
-
-    if(count == 0) return <></>
-
-    return <ReactionButton
-        onClick={onClick ? onClick : (() => {})}
-        icon1={<RedFlag/>}
-        count={count}
-        disabled={false}
-        title="Reportes de información falsa"
-    />
-}
 
 
 export const FixedFakeNewsCounter = ({

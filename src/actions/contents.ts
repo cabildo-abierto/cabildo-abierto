@@ -99,13 +99,31 @@ export async function createNotification(
     return {}
 }
 
-export const addLike = async (id: string, userId: string, entityId?: string) => {
-    return {}
+export const addLike = async (uri: string, cid: string) => {
+    const {agent} = await getSessionAgent()
+
+    try {
+        await agent.like(uri, cid)
+        return {}
+    } catch(err) {
+        console.log("Error giving like", err)
+        return {error: "No se pudo agregar el like."}
+    }
 }
 
 
-export const removeLike = async (id: string, userId: string, entityId?: string) => {
-    return {}
+export const removeLike = async (uri: string) => {
+    const {agent} = await getSessionAgent()
+
+    /*const likes = await agent.getLikes()
+
+    try {
+        await agent.deleteLike(likeUri)
+        return {}
+    } catch(err) {
+        console.log("Error giving like", err)
+        return {error: "No se pudo agregar el like."}
+    }*/
 }
 
 
@@ -375,6 +393,8 @@ export async function getATProtoThread(u: string, id: string, c: string){
 
 
             let {data: author} = await agent.getProfile({actor: u})
+            
+            console.log("author", author)
 
             const {value: record, ...rest} = data
             return {
@@ -384,7 +404,8 @@ export async function getATProtoThread(u: string, id: string, c: string){
                 likeCount: 0,
                 repostCount: 0,
                 quoteCount: 0,
-                replyCount: 0
+                replyCount: 0,
+                viewer: {}
             } as FeedContentProps
         }
     } catch(err) {
@@ -460,7 +481,7 @@ export async function createATProtoArticle(compressedText: string, userId: strin
     const text = decompress(compressedText)
 
     const record = {
-        "$type": "app.ca.article.post",
+        "$type": "ar.com.cabildoabierto.article",
         text: text,
         title: title,
         createdAt: new Date().toISOString()
@@ -469,10 +490,9 @@ export async function createATProtoArticle(compressedText: string, userId: strin
     try {
         const res = await agent.com.atproto.repo.createRecord({
             repo: did,
-            collection: 'app.ca.article.post',
+            collection: 'ar.com.cabildoabierto.article',
             record: record,
         })
-        console.log("Response", res)
     } catch (err){
         console.log("Error", err)
         return {error: "Ocurrió un error al publicar el artículo."}

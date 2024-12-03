@@ -6,11 +6,12 @@ import { SettingsProps } from "./lexical-editor"
 
 import dynamic from "next/dynamic";
 import { EditorState, LexicalEditor } from "lexical";
-import { CommentProps, ContentProps } from "../../app/lib/definitions";
-import { useUser } from "../../app/hooks/user";
+import { CommentProps } from "../../app/lib/definitions";
 import { ContentType } from "@prisma/client";
-const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
-
+const MyLexicalEditor = dynamic(() => import('./lexical-editor'), {
+    ssr: false,
+    loading: () => <></>, 
+});
 
 const ReadOnlyEditor = ({
     initialData,
@@ -27,8 +28,6 @@ const ReadOnlyEditor = ({
     },
     editorClassName?: string
 }) => {
-    const user = useUser()
-
     const settings: SettingsProps = {
         disableBeforeInput: false,
         emptyEditor: false,

@@ -6,7 +6,6 @@ import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
 
 import React from 'react';
-import { ConfirmPaymentsButton, CreatePromisesButton } from "../payments/create-promises-button"
 import { supportDid, tomasDid } from "../../components/utils"
 import { updatePosts } from "../../actions/atproto-update"
 import { revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, revalidateSuggestions, updateProfilesFromAT } from "../../actions/admin"

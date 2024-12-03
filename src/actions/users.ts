@@ -130,9 +130,9 @@ export const getConversations = (userId: string) => {
 }
 
 
-export const getUserById = (userId: string) => {
-    console.log("getting user", userId)
-    return unstable_cache(async () => {
+export const getUserById = async (userId: string): Promise<{user?: UserProps, bskyProfile?: ProfileViewDetailed, error?: string}> => {
+
+    const {user, error} = await unstable_cache(async () => {
         let user: UserProps
         try {
             user = await db.user.findFirst(
@@ -209,7 +209,15 @@ export const getUserById = (userId: string) => {
         return user ? {user} : {error : "error on get user " + userId}
     }, ["user", userId], {
         revalidate: revalidateEverythingTime,
-        tags: ["user:"+userId, "user"]})()    
+        tags: ["user:"+userId, "user"]})()
+
+    if(error) return {error}
+
+    const {agent} = await getSessionAgent()
+
+    const {data} = await agent.getProfile({actor: userId})
+
+    return {user, bskyProfile: data}
 }
 
 
@@ -254,41 +262,47 @@ export const getUserContents = (userId: string) => {
 }
 
 
-export async function follow(userToFollowId: string, userId: string) {
-    return {error: "not implemented"}
-    /*revalidateTag("user:"+userToFollowId)
-    revalidateTag("user:"+userId)
-    const {error: errorOnNotify} = await createNotification(userId, userToFollowId, "Follow")
-    if(errorOnNotify) return {error: errorOnNotify}
-    return {updatedUser};*/
+export async function follow(userToFollowId: string) {
+    const {agent} = await getSessionAgent()
+
+    try {
+        await agent.follow(userToFollowId)
+    } catch {
+        return {error: "Error al seguir al usuario."}
+    }
+
+    return {}
 }
 
 
-export async function unfollow(userToUnfollowId: string, userId: string) {
-    return {error: "not implemented"}
+export async function unfollow(followUri: string) {
+    const {agent} = await getSessionAgent()
 
-    /*revalidateTag("user:"+userToUnfollowId)
-    revalidateTag("user:"+userId)
-    return {updatedUser};*/
+    try {
+        await agent.deleteFollow(followUri)
+    } catch {
+        return {error: "Error al seguir al usuario."}
+    }
+
+    return {}
 }
 
 
 export async function getUserId(){
-    const {agent} = await getSessionAgent()
+    const {agent, did} = await getSessionAgent()
 
-    if(!agent) return null
+    if(!did) return null
 
-    return agent.assertDid
+    return did
 }
 
 
 export async function getUser(){
     const userId = await getUserId()
     if(userId){
-        const {user} = await getUserById(userId)
-        return user ? user : null
+        return await getUserById(userId)
     } else {
-        return null
+        return {error: "Sin sesión."}
     }
 }
 
@@ -905,7 +919,6 @@ export async function createNewCAUserForBskyAccount(did: string){
             
             const {data}: {data: ProfileViewDetailed} = await agent.getProfile({actor: agent.assertDid})
 
-            console.log("agentprofile", data)
             await db.user.create({
                 data: {
                     id: did,

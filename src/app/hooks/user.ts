@@ -2,18 +2,16 @@ import useSWR from "swr"
 import { NotificationProps, SmallUserProps, UserProps } from "../lib/definitions"
 import { fetcher } from "./utils"
 import { ChatMessage, ContentType } from "@prisma/client"
-import { useCallback, useContext, useEffect, useState } from "react"
-import { BskyAgent } from "@atproto/api"
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
-import { getUserById } from "../../actions/users"
 
 
 
-export function useUser(): {user: UserProps, isLoading?: boolean, error?: string} {
+export function useUser(): {user: UserProps, bskyProfile: ProfileViewDetailed, isLoading?: boolean, error?: string} {
     const { data, error, isLoading } = useSWR('/api/user', fetcher)
 
     return {
-        user: data,
+        user: data ? data?.user : undefined,
+        bskyProfile: data ? data?.bskyProfile : undefined,
         isLoading,
         error
     }
@@ -29,18 +27,6 @@ export function useUserContents(userId: string): {userContents: {id: string, typ
         isError: error
     }
 }
-
-
-export function useUserLikesContent(contentId: string): {userLikesContent: boolean, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/user-like-content/'+contentId, fetcher)
-  
-    return {
-        userLikesContent: data,
-        isLoading: isLoading,
-        isError: error
-    }
-}
-
 
 
 export function useUsers(): {users: SmallUserProps[], isLoading: boolean, isError: boolean}{

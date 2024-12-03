@@ -11,7 +11,7 @@ import { hasEditPermission } from './utils';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
 import { AcceptButtonPanel } from './ui-utils/accept-button-panel';
 import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
-import { NeedAccountPopup } from './entity/article-page';
+import { NeedAccountPopup } from "./need-account-popup";
 
 
 
