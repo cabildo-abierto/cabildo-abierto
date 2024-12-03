@@ -20,7 +20,6 @@ import type {
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import * as React from 'react';
 import useLayoutEffect from '../../shared/useLayoutEffect';
-import Button from '../../ui/Button';
 import { commentEditorSettings } from '../../comment-editor';
 import { useSWRConfig } from 'swr';
 import { useUser } from '../../../../app/hooks/user';
@@ -30,6 +29,7 @@ import StateButton from '../../../state-button';
 import MyLexicalEditor from '../../lexical-editor'
 import { compress } from '../../../compression';
 import { emptyOutput } from '../../../utils';
+import { Button } from '@mui/material';
 
 
 export function CommentInputBox({
@@ -222,17 +222,22 @@ export function CommentInputBox({
       </div>
       <hr className="border-gray-200"/>
       <div className="flex justify-end py-2 space-x-1">
-        <button
+        <Button
           onClick={cancelAddComment}
-          className="small-btn text-xs lg:text-sm title">
-          <div className="py-1">Cancelar</div>
-        </button>
+          size="small"
+          sx={{textTransform: "none"}}
+          disableElevation={true}
+          variant="text"
+        >
+          <span className="title">Cancelar</span>
+        </Button>
         <StateButton
           handleClick={submitComment}
           disabled={emptyOutput(editor.getEditorState()) || !user.user}
-          className="small-btn text-xs lg:text-sm title"
-          text1={<div className="py-1">Enviar</div>}
-          text2={<div className="py-1">Enviando...</div>}
+          textClassName="title"
+          size="small"
+          text1={"Enviar"}
+          disableElevation={true}
         />
       </div>
     </div>
