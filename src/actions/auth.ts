@@ -12,10 +12,12 @@ import { env } from "process"
 
 
 export async function login(handle: string){
+
+    console.log("creating client")
     const oauthClient = await createClient()
 
     if (typeof handle !== 'string' || !isValidHandle(handle)) {
-        return {error: "Nombre de usuario inválido. Escribilo sin @."}
+        return {error: "Nombre de usuario inválido." + (handle.includes("@") ? " Escribilo sin @." : "")}
     }
 
     /*const resolver = new AppViewHandleResolver('https://api.bsky.app/')

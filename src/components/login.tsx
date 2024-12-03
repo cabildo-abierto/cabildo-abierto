@@ -15,8 +15,8 @@ export const Login = ({newTab=false}: {newTab?: boolean}) => {
 
                 <BlueskyLogin newTab={newTab}/>
 
-                <div className='text-center mx-2'>
-                    ¿No tenés una cuenta de Bluesky? <Link className="link2" target="_blank" href="https://bsky.app">Registrate</Link>.
+                <div className='text-center text-[var(--text-light)] mx-2'>
+                    ¿No tenés una cuenta? <Link className="link2" target="_blank" href="https://bsky.app">Registrate en Bluesky</Link>.
                 </div>
             </div>
         </div>
