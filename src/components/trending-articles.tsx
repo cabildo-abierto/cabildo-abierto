@@ -142,7 +142,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: {e
         {trendingArticles.map(({entity, score}, index) => {
 
             return <Link href={articleUrl(entity.id)} draggable={false}
-                className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] bg-[var(--secondary-light)] hover:bg-[var(--secondary)] text-gray-900 border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)] select-none"
+                className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] bg-[var(--secondary-light)] hover:bg-[var(--secondary)] border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)] select-none"
                 key={entity.id}
                 onMouseLeave={() => {setHovering(undefined)}}
                 onMouseEnter={() => {preload("/api/entity/"+entity.id, fetcher); setHovering(index)}}

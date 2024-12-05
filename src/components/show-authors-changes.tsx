@@ -84,7 +84,7 @@ originalContentText: string, entity: EntityProps, version: number}) => {
     let settings = wikiEditorSettings(true, originalContent, contentText)
 
     return <>
-        <div className="text-gray-800 text-sm text-center block lg:hidden content-container p-1">
+        <div className="text-sm text-center block lg:hidden content-container p-1">
             <p>Para ver qué usuario es autor de cada parte de este tema entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
         </div>
         <div className="flex justify-center py-4">

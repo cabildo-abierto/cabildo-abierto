@@ -5,7 +5,7 @@ import { ReactNode, useState } from 'react';
 import { ModalBelow } from '../modal-below';
 import { IconButton } from '@mui/material';
 import StateButton, { StateButtonClickHandler } from '../state-button';
-import { FeedContentProps } from '../../app/lib/definitions';
+import {FastPostProps, FeedContentProps} from '../../app/lib/definitions';
 import { ContentOptionsDropdown } from './content-options-dropdown';
 
 
@@ -27,7 +27,7 @@ export const ContentOptionsChoiceButton = ({children, onClick, icon}: {children:
 
 
 type ContentOptionsButtonProps = {
-    content: FeedContentProps
+    content: FastPostProps
     optionList: string[]
 }
 
@@ -40,12 +40,14 @@ export const ContentOptionsButton = ({content, optionList}: ContentOptionsButton
     }
 
     return <div style={{ position: 'relative', display: 'inline-block' }}>
-        <IconButton
-            color="inherit"
-            onClick={(e) => {e.preventDefault(); e.stopPropagation(); setAnchorEl(e.target); setIsDropdownOpen(prev => !prev)}}
-        >
-            <MoreHorizIcon fontSize="small" />
-        </IconButton>
+        <div className={"text-[var(--text-light)]"}>
+            <IconButton
+                color="inherit"
+                onClick={(e) => {e.preventDefault(); e.stopPropagation(); setAnchorEl(e.target); setIsDropdownOpen(prev => !prev)}}
+            >
+                <MoreHorizIcon fontSize="small" />
+            </IconButton>
+        </div>
 
         <ModalBelow
             anchorEl={anchorEl}

@@ -64,13 +64,13 @@ const SearchBar: React.FC<{onClose: any, wideScreen: boolean}> = ({onClose, wide
         <div className="flex w-full">
           <SearchInput autoFocus={false}/>
         </div>
-        <div className="text-[var(--text-light)]">
-          {!searchState.searching ? <SearchButton disabled={true}/> : 
+        <div className="text-[var(--accent)]">
+          {!searchState.searching ? <SearchButton disabled={true}/> :
           <div className="py-1"><CloseButton onClose={() => {setSearchState({value: "", searching: false})}} size="small"/></div>}
         </div>
       </div> : 
       <div className="flex border rounded pl-1 pr-1">
-        <div className="text-[var(--text-light)] flex">
+        <div className="text-[var(--accent)] flex">
           <SearchButton disabled={true}/>
           <div className="flex w-full">
             <SearchInput autoFocus={true}/>

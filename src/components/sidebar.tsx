@@ -66,7 +66,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-[51]">
         <div className="flex">
-            <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--topbar)] border-r text-gray-900 safe-padding-mobile">
+            <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--background)] border-r safe-padding-mobile">
                 <div className="flex flex-col mt-4 px-2">
                     {user.user && <SidebarUsername
                         user={user.user}

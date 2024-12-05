@@ -111,19 +111,21 @@ export async function getFeedForUsers(users: {id: string}[], includeReplies: boo
 
 
 export async function getATProtoFeed(): Promise<FeedContentProps[]>{
-    const users = await db.user.findMany({
+    /*const users = await db.user.findMany({
         select: {
             id: true,
             handle: true
         }
-    })
+    })*/
 
     const {agent} = await getSessionAgent()
 
     const { data } = await agent.getTimeline({})
 
+    // @ts-ignore
     const timeline = data.feed.filter(({post}) => (!post.record.reply))
 
+    // @ts-ignore
     return timeline
 }
 

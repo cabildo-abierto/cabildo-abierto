@@ -3,7 +3,7 @@ import { WriteButtonIcon } from "../icons/write-button-icon"
 import { ContentOptionsChoiceButton } from "./content-options-button"
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ShareContentButton } from "./share-content-button"
-import { FeedContentProps } from "../../app/lib/definitions"
+import {FastPostProps, FeedContentProps} from "../../app/lib/definitions"
 
 export const ContentOptionsDropdown = ({
     content,
@@ -12,7 +12,7 @@ export const ContentOptionsDropdown = ({
 }: {
     onClose: () => void,
     optionsList: string[],
-    content: FeedContentProps,
+    content: FastPostProps,
 }) => {
 
     async function onReportFake(){
@@ -45,7 +45,7 @@ export const ContentOptionsDropdown = ({
         return {}
     }
 
-    return <div className="text-base content-container rounded bg-[var(--content)] p-2">
+    return <div className="text-base border rounded bg-[var(--content)] p-2">
         {optionsList.includes("reportFake") && 
         <ContentOptionsChoiceButton 
             onClick={onReportFake}

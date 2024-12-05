@@ -1,24 +1,18 @@
 "use client"
 
 import Image from 'next/image'
-import { DateSince } from '../date'
-import { FeedContentProps } from '../../app/lib/definitions'
-import { contentUrl, formatIsoDate, userUrl } from '../utils'
+import {FastPostProps, FeedContentProps} from '../../app/lib/definitions'
+import { formatIsoDate, userUrl } from '../utils'
 import Link from 'next/link'
-import { FixedCounter, LikeCounter } from '../like-counter'
-import { InactiveCommentIcon } from '../icons/inactive-comment-icon'
-import { InactiveLikeIcon } from '../icons/inactive-like-icon'
-import { RepostIcon } from '../icons/reposts-icon'
-import { ContentOptionsButton } from '../content-options/content-options-button'
-import { useRouter } from 'next/navigation'
-import { ContentTopRowAuthor } from '../content-top-row-author'
 import { ReactNode } from 'react'
 import { FollowButton } from './follow-button'
-import { ActiveLikeIcon } from '../icons/active-like-icon'
 import { EngagementIcons } from './engagement-icons'
 
 
-export const ATProtoMainPostFrame = ({children, content}: {children: ReactNode, content: FeedContentProps}) => {
+type MainPostFrameProps = {children: ReactNode, content: FastPostProps}
+
+
+export const ATProtoMainPostFrame = ({children, content}: MainPostFrameProps) => {
 
     const authorUrl = userUrl(content.author.handle)
 
@@ -43,7 +37,7 @@ export const ATProtoMainPostFrame = ({children, content}: {children: ReactNode, 
                     <div className="flex flex-col">
                         {content.author.displayName && <Link href={authorUrl} className="hover:underline font-bold mr-1">  {content.author.displayName}
                         </Link>}
-                        <Link href={authorUrl} className="text-[var(--primary-light)] text-sm">
+                        <Link href={authorUrl} className="text-[var(--text-light)] text-sm">
                             @{content.author?.handle}
                         </Link>
                     </div>

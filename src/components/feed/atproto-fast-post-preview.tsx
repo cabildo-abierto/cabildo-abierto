@@ -6,28 +6,38 @@ import { ATProtoPostFrame } from './atproto-post-frame'
 import { BskyFastPostImage } from './bsky-fast-post-image';
 import { BskyRichTextContent } from './bsky-rich-text-content';
 import { Username } from './username';
+import {IsReplyMessage} from "./is-reply-message";
+import {RepostedBy} from "./reposted-by";
+import {QuotedPost} from "./quoted-post";
+import {FastPostContent} from "./fast-post-content";
 
 export type ATProtoFastPostProps = {
     content: FeedContentProps
     borderBelow?: boolean
-    showingChildren?: boolean
-    showingParent?: boolean
-    parentIsMainContent?: boolean
+    showChildren?: boolean
+    showParent?: boolean
+    parentIsMainPost?: boolean
 }
 
 
-export const ATProtoFastPostPreview = ({content, borderBelow=true, showingParent=false, showingChildren=false, parentIsMainContent=false}: ATProtoFastPostProps) => {
+export const ATProtoFastPostPreview = ({
+                                           content,
+                                           borderBelow=true,
+                                           parentIsMainPost=false,
+                                           showParent=false,
+                                           showChildren=false}: ATProtoFastPostProps) => {
 
-    const hasParent = content.post.record.reply != undefined
+    const post = content.post
+
+    const hasParent = post.record.reply != undefined
 
     return <div className="flex flex-col w-full">
-        {hasParent && showingParent && 
-            <ATProtoFastPostPreview content={content.post.record.reply.parent} borderBelow={false} showingChildren={true}/>
+        {hasParent && showParent &&
+            <ATProtoFastPostPreview content={{post: post.record.reply.parent}} borderBelow={false} showChildren={true}/>
         }
-        <ATProtoPostFrame content={content} borderBelow={borderBelow} showingParent={hasParent && showingParent} showingChildren={showingChildren}>
-            {hasParent && !showingParent && <div className="text-sm text-[var(--text-light)]"><ReplyIcon fontSize="inherit"/> Respuesta a <Username user={content.post.record.reply.parent.author}/></div>}
-            <BskyRichTextContent content={content}/>
-            <BskyFastPostImage content={content}/>
+        <ATProtoPostFrame content={content} borderBelow={borderBelow} showingParent={hasParent && showParent} showingChildren={showChildren}>
+            {hasParent && !showParent && !parentIsMainPost && <IsReplyMessage author={post.record.reply.parent.author}/>}
+            <FastPostContent post={post}/>
         </ATProtoPostFrame>
     </div>
 }

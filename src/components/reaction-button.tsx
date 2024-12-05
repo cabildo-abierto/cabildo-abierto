@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import React, { ReactNode } from "react"
 import { stopPropagation } from "./utils"
 import { Button, IconButton } from "@mui/material"
 
@@ -15,19 +15,12 @@ type ReactionButtonProps = {
 
 export const ReactionButton = ({onClick, count, icon1, icon2, active=true, disabled=false, title, className="reaction-btn"}: ReactionButtonProps) => {
     
-    return <IconButton
+    return <div className={"text-[var(--text-light)]"}><IconButton
         onClick={stopPropagation(onClick)}
         disabled={disabled}
         title={title}
-        size="small"
+        color={"inherit"}
     >
-        <div className={"flex items-end " + className + (active ? " toggled " : "")}>
-            <span className={"px-[2px]"}>{active ? icon1 : icon2 }</span>
-            <div className="flex justify-center">           
-                <span className="text-xs">
-                    {count}
-                </span>  
-            </div>
-        </div>
-    </IconButton>
+        {active ? icon1 : icon2} <span className="text-sm flex items-end">{count}</span>
+    </IconButton></div>
 }

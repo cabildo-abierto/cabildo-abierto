@@ -3,7 +3,7 @@ import { PostIcon } from "./post-icon";
 
 export const FastAndPostIcon = () => {
     return (
-        <span className="relative inline-block text-gray-900">
+        <span className="relative inline-block">
             <span className="absolute bottom-[-4px] right-[-5px]">
                 <PostIcon />
             </span>

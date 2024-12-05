@@ -2,9 +2,9 @@ import { useState } from "react";
 import { articleUrl, contentUrl } from "../utils";
 import { ContentOptionsChoiceButton } from "./content-options-button";
 import ShareIcon from '@mui/icons-material/Share';
-import { FeedContentProps } from "../../app/lib/definitions";
+import {FastPostProps, FeedContentProps} from "../../app/lib/definitions";
 
-export const ShareContentButton = ({ content }: { content: FeedContentProps }) => {
+export const ShareContentButton = ({ content }: { content: FastPostProps }) => {
     const [onClipboard, setOnClipboard] = useState(false);
 
     const onShare = async () => {

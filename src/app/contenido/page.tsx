@@ -1,9 +1,8 @@
 import { ThreeColumnsLayout } from "../../components/three-columns";
 import { getATProtoThread } from "../../actions/contents";
-import { ATProtoFastPost } from "../../components/feed/atproto-fast-post";
-import { FeedContentProps } from "../lib/definitions";
+import {ArticleProps, FeedContentProps} from "../lib/definitions";
 import { ATProtoArticle } from "../../components/feed/atproto-article";
-import { BlockedPost, NotFoundPost, ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
+import { ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 import { ATProtoThread } from "./thread";
 import { NotFoundPage } from "../../components/not-found-page";
 
@@ -64,9 +63,9 @@ const ContentPage: React.FC<{searchParams: {i: string, u: string, c: string}}> =
 
     let center
     if('post' in content){
-        center = <ATProtoThread thread={content}/>
+        center = <ATProtoThread thread={content as ThreadViewPost}/>
     } else {
-        center = <ATProtoArticle content={content as FeedContentProps}/>
+        center = <ATProtoArticle content={content as ArticleProps}/>
     }
 
     return <ThreeColumnsLayout center={center}/>

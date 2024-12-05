@@ -37,7 +37,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
         }
     }, [])
 
-    const buttonClassName = "sm:text-xl text-base my-4 text-gray-900 rounded-lg px-4 py-2  hover:bg-[var(--secondary-light)]"
+    const buttonClassName = "sm:text-xl text-base my-4 rounded-lg px-4 py-2  hover:bg-[var(--secondary-light)]"
 
     return <div className="w-full h-screen overflow-y-scroll px-2">
         <div className="pt-1">

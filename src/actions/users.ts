@@ -905,11 +905,9 @@ export async function removeSubscriptions(){
 
 export async function createNewCAUserForBskyAccount(did: string){
     try {
-        console.log("checking if exists")
         const exists = await db.user.findFirst({
             where: {id: did}
         })
-        console.log("exists", exists)
         if(!exists){
 
             const {agent} = await getSessionAgent()

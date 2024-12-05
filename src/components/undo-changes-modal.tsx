@@ -32,9 +32,9 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
 
     const infoPanelOportunism = <span>Si te parece que intentó obtener un rédito económico desproporcionado con respecto a la mejora que representa en el contenido.</span>
 
-    const vandalismInfo = <span className="text-gray-800 text-sm">Marcar como vandalismo <InfoPanel text={infoPanelVandalism} className="w-72"/></span>
+    const vandalismInfo = <span className="text-sm">Marcar como vandalismo <InfoPanel text={infoPanelVandalism} className="w-72"/></span>
 
-    const oportunismInfo = <span className="text-gray-800 text-sm">Marcar como oportunismo <InfoPanel text={infoPanelOportunism} className="w-72"/></span>
+    const oportunismInfo = <span className="text-sm">Marcar como oportunismo <InfoPanel text={infoPanelOportunism} className="w-72"/></span>
 
     let modalContent = null
 

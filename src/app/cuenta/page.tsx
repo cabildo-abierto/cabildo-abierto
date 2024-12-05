@@ -17,21 +17,21 @@ const Cuenta: React.FC = () => {
     const center = (
         <div className="py-8 max-w-lg mx-auto">
             <h3 className="text-2xl font-semibold mb-6 text-center">Cuenta</h3>
-            <div className="bg-white shadow rounded-lg p-6">
+            <div className="bg-[var(--background2)] shadow rounded-lg p-6">
                 <div className="mb-4">
-                    <div className="text-gray-600 font-medium">Nombre de usuario:</div>
-                    <div className="text-lg text-gray-900">@{user.handle}</div>
+                    <div className="text-[var(--text-light)] font-medium">Nombre de usuario:</div>
+                    <div className="text-lg ">@{user.handle}</div>
                 </div>
                 <div className="mb-4">
-                    <div className="text-gray-600 font-medium">Nombre visible:</div>
-                    <div className="text-lg text-gray-900">{user.displayName}</div>
+                    <div className="text-[var(--text-light)] font-medium">Nombre visible:</div>
+                    <div className="text-lg ">{user.displayName}</div>
                 </div>
                 <div className="mb-4">
-                    <div className="text-gray-600 font-medium">Mail:</div>
-                    {user.email ? <div className="text-lg text-gray-900">{user.email}</div> : <div className="text-lg text-gray-900">Pendiente</div>}
+                    <div className="text-[var(--text-light)] font-medium">Mail:</div>
+                    {user.email ? <div className="text-lg ">{user.email}</div> : <div className="text-lg ">Pendiente</div>}
                 </div>
                 <div className="mb-4">
-                    <div className="text-gray-600 font-medium">Nivel de permisos de edición:</div>
+                    <div className="text-[var(--text-light)] font-medium">Nivel de permisos de edición:</div>
                     <div className="text-lg">
                         <PermissionLevel level={user.editorStatus}/>
                     </div>

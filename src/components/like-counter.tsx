@@ -38,10 +38,6 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
     if(!initiallyLiked && liked) delta = 1
 
     const likeCount = content.likeCount + delta
-
-    if(content.likeCount == undefined){
-        console.log("content without like count", content)
-    }
     
     const onLikeClick = async () => {
         if(!user) return
@@ -66,7 +62,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
         disabled={!user || disabled}
         count={likeCount}
         title={title}
-        className="mt-1 reaction-btn"
+        className="text-[var(--text-light)]"
     />
 }
 
@@ -75,7 +71,8 @@ export const FixedCounter = ({count, icon, title}: {count: number, icon: ReactNo
     
     return <div className="text-[var(--text-light)]">
         <IconButton
-        title={title}
+            color={"inherit"}
+            title={title}
     >
         {icon} <span className="text-sm flex items-end">{count}</span>
     </IconButton></div>

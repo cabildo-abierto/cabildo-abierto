@@ -1,10 +1,8 @@
 import SelectionComponent from "./search-selection-component";
 import { unfollow, follow } from "../actions/users"
-import { FixedFakeNewsCounter } from "./fake-news-counter"
 import { PermissionLevel } from "./permission-level"
 import { Button } from "@mui/material"
 import StateButton from "./state-button"
-import { EditorStatus } from "@prisma/client"
 import Image from 'next/image'
 import { ArticleIcon } from "./icons/article-icon"
 import { emptyChar } from "./utils";

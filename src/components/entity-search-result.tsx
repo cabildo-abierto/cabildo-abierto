@@ -64,7 +64,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
         <div className="flex w-full items-center">
           <div className="w-full">
             <div className="w-full mt-1 mb-2 px-1">
-              <span className="text-lg text-gray-900">{entity.name}</span>
+              <span className="text-lg ">{entity.name}</span>
             </div>
 
             <EntityCategoriesSmall entity={entity} route={route}/>

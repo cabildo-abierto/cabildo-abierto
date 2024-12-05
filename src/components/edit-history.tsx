@@ -117,7 +117,7 @@ const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: 
 
 
 const EditMessage = ({msg, editType}: {msg?: string, editType: string}) => {
-    return <span className="text-sm text-gray-900">
+    return <span className="text-sm ">
         {(msg != null && msg.length > 0) ? msg : (editType == "Contenido" ? "sin descripción" : "")}
     </span>
 }
@@ -227,7 +227,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                 </div>
                 
                 <div className="flex flex-col w-full mb-1">
-                    <div className="text-xs text-gray-900 flex justify-between w-full items-center">
+                    <div className="text-xs  flex justify-between w-full items-center">
                         <div className="text-sm">
                             <Authorship
                                 content={entityVersion}
@@ -259,10 +259,10 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 
                     
                     <div className="flex justify-between items-center">
-                        <div className="text-xs text-gray-900">
+                        <div className="text-xs ">
                             <EditDetails editType={editType}/>
                         </div>
-                        <div className="items-center space-x-2 text-gray-900 flex">
+                        <div className="items-center space-x-2  flex">
                             {(isCurrent && index > 0) ? <UndoButton entity={entity} version={index}/> : <></>}
                             
                             {(isUndone || isRejected) && <button className="hover:scale-105" onClick={onDiscussionClick}>
@@ -362,7 +362,7 @@ export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: n
 
     return <>
         {history}
-        <div className="text-gray-800 text-sm text-center block lg:hidden">
+        <div className="text-sm text-center block lg:hidden">
             <p>Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
         </div>
     </>
