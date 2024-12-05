@@ -3,14 +3,11 @@ import { NoResults } from "./category-users";
 import { FeedContentProps } from "../app/lib/definitions";
 import LoadingSpinner from "./loading-spinner";
 import { LazyLoadFeed } from "./lazy-load-feed";
-import { ATProtoFastPost } from "./feed/atproto-fast-post";
-import { ATProtoArticle } from "./feed/atproto-article";
 import { ATProtoArticlePreview } from "./feed/atproto-article-preview";
 import { ATProtoFastPostPreview } from "./feed/atproto-fast-post-preview";
 
 
 export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, isError: boolean}
-export type LoadingFeedWithData = {feed: FeedContentProps[], isLoading: boolean, isError: boolean}
 
 
 export type FeedProps = {
@@ -36,7 +33,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
         }
         return {
             c: node,
-            key: feed.feed[index].uri
+            key: feed.feed[index].post.uri
         }
     }
     

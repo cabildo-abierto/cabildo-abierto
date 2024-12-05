@@ -406,33 +406,13 @@ export async function getATProtoThread(u: string, id: string, c: string){
                 quoteCount: 0,
                 replyCount: 0,
                 viewer: {}
-            } as FeedContentProps
+            } as unknown as FeedContentProps
         }
     } catch(err) {
         console.log("Error getting thread", uri)
         console.log(err)
         return null
     }
-}
-
-
-export async function getBskyThread(u: string, id: string){
-    const {agent} = await getSessionAgent()
-
-    /** The handle or DID of the repo. 
-     repo: string
-    The NSID of the record collection. 
-    collection: string
-    The Record Key. 
-    rkey: string
-    The CID of the version of the record. If not specified, then return the most recent version. 
-    cid?: string
-    */
-    const uri = "at://" + u + "/app.bsky.feed.post/" + id
-
-    const {data} = await agent.getPostThread({uri: uri})
-    
-    return data.thread
 }
 
 

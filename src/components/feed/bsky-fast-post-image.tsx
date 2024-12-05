@@ -1,9 +1,40 @@
 "use client"
-import { FeedContentProps } from "../../app/lib/definitions"
+import { FastPostProps } from "../../app/lib/definitions"
 import Image from 'next/image'
 
 
-export const BskyFastPostImage = ({content}: {content: FeedContentProps}) => {
+export const ATProtoImage = ({img, did, className="w-full h-full"}: {img: any, did?: string, className?: string}) => {
+    if(img.image){
+        const src = "https://cdn.bsky.app/img/feed_thumbnail/plain/"+did+"/"+img.image.ref.$link+"@"+img.image.mimeType.split("/")[1]
+        return <Image
+            src={src}
+            alt={img.alt}
+            width={img.aspectRatio ? img.aspectRatio.width : 300}
+            height={img.aspectRatio ? img.aspectRatio.height : 300}
+            className={className}
+        />
+    }
+    return <Image
+        src={img.thumb}
+        alt={img.alt}
+        width={img.aspectRatio ? img.aspectRatio.width : 300}
+        height={img.aspectRatio ? img.aspectRatio.height : 300}
+        className={className}
+    />
+}
+
+
+type ContentWithImageMaybe = {
+    embed?: {
+        images?: {}[]
+        media?: {
+            images?: {}[]
+        }
+    }
+}
+
+
+export const BskyFastPostImage = ({content, did}: {content: ContentWithImageMaybe, did?: string}) => {
 
     let images
     if(content.embed && content.embed.images && content.embed.images.length > 0){
@@ -13,16 +44,9 @@ export const BskyFastPostImage = ({content}: {content: FeedContentProps}) => {
     }
 
     if(images){
-        console.log("images", images)
         if(images.length == 1){
             const img = images[0]
-            return <Image
-                src={img.thumb}
-                alt={img.alt}
-                width={img.aspectRatio ? img.aspectRatio.width : 300}
-                height={img.aspectRatio ? img.aspectRatio.height : 300}
-                className="rounded-lg border mt-2 w-full h-auto"
-            />
+            return <ATProtoImage img={img} did={did} className={"w-full h-auto mt-2 rounded-lg border"}/>
         } else if(images.length == 2){
 
             return <div className="rounded-lg border mt-2 flex space-x-2">

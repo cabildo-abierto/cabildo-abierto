@@ -25,7 +25,6 @@ export const BlueskyLogin = ({newTab=false}: {newTab?: boolean}) => {
         setIsLoading(true)
         const res = await login(handle)
 
-        console.log("res", res)
         if(res && res.error){
             setError(res.error)
             setIsLoading(false)
@@ -46,36 +45,47 @@ export const BlueskyLogin = ({newTab=false}: {newTab?: boolean}) => {
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center'
+                alignItems: 'center',
             }}
         >
-            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: "xs" }}>
-                <FormControl error={error} sx={{width: "100%"}}>
-                <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="username"
-                    label="Nombre de usuario de ATProto"
-                    name="username"
-                    placeholder="Ej. usuario.bsky.social"
-                    autoFocus
-                    autoComplete="off"
-                    color={isValidHandle(handle) ? "success" : "primary"}
-                    value={handle}
-                    onChange={(e) => {setHandle(e.target.value); setError(undefined)}}
-                />
-                <FormHelperText hidden={error == undefined} id="my-helper-text">{error}</FormHelperText>
+            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: "100%" }}>
+                <FormControl error={error} sx={{ width: "100%" }}>
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="username"
+                        label="Nombre de usuario de ATProto"
+                        name="username"
+                        placeholder="Ej. usuario.bsky.social"
+                        autoFocus
+                        autoComplete="off"
+                        variant="outlined"
+                        value={handle}
+                        onChange={(e) => {
+                            setHandle(e.target.value);
+                            setError(undefined);
+                        }}
+                    />
+                    <FormHelperText hidden={error == undefined} id="my-helper-text">
+                        {error}
+                    </FormHelperText>
                 </FormControl>
-                <FormHelperText id="my-helper-text">Tu nombre de usuario de Bluesky, Cabildo Abierto y cualquier otra plataforma que use ATProto.</FormHelperText>
+                <FormHelperText id="my-helper-text">
+                    Tu nombre de usuario de Bluesky, Cabildo Abierto y cualquier otra plataforma que use ATProto.
+                </FormHelperText>
                 <LoadingButton
                     type="submit"
                     loading={isLoading}
                     fullWidth
                     size="large"
                     variant="contained"
-                    sx={{ mt: 3, mb: 2, textTransform: "none" }}
-                    disableElevation={true}
+                    sx={{
+                        mt: 3,
+                        mb: 2,
+                        textTransform: "none",
+                    }}
+                    disableElevation
                 >
                     Iniciar sesión
                 </LoadingButton>

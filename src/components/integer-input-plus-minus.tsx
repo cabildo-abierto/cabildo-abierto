@@ -41,7 +41,7 @@ export const IntegerInputPlusMinus = ({value, onChange}: {value: number, onChang
                 value={"$"+value}
                 autoFocus={true}
                 onChange={handleChange}
-                className="px-4 py-1 border rounded-md focus:outline-none w-32 text-center text-gray-900"
+                className="px-4 py-1 border rounded-md focus:outline-none w-32 text-center "
             />
             <IconButton
                 onClick={handleIncrement}

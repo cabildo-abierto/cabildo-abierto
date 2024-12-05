@@ -322,10 +322,35 @@ export type UserStats = {
 }
 
 
+export type EmbedProps = {
+    $type: string,
+    images?: {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
+    media?: {images?:
+            {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
+    }
+    record?: {
+        uri: string
+        value?: {
+            createdAt: string;
+            $type: string
+            text: string;
+            facets?: any[]
+            embed?: EmbedProps
+        }
+        $type: string
+        text: string
+        facets?: any[]
+        author: {displayName?: string, handle: string, avatar?: string}
+    }
+}
+
+
 export type FastPostProps = {
     uri: string
     cid: string
-    author: {handle: string, displayName?: string, avatar?: string}
+    author: {
+        did: string;
+        handle: string, displayName?: string, avatar?: string}
     record: {
         text: string,
         facets?: any[],
@@ -333,8 +358,8 @@ export type FastPostProps = {
         createdAt: string,
         $type: string
         reply?: {
-            parent: FeedContentProps
-            root?: FeedContentProps
+            parent: FastPostProps
+            root?: FastPostProps
         }
     }
     likeCount: number
@@ -342,23 +367,23 @@ export type FastPostProps = {
     quoteCount: number
     replyCount: number
     viewer: {like?: any}
-    embed?: {
-        $type: string,
-        images?: {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
-        media?: {images?:
-                {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
-        }
-    }
+    embed?: EmbedProps
+}
+
+
+export type ArticleProps = FastPostProps
+
+
+export type FeedContentReasonProps = {
+    $type: string
+    by: any
+    indexedAt: string
 }
 
 
 export type FeedContentProps = {
     post: FastPostProps
-    reason?: {
-        $type: string
-        by: any
-        indexedAt: string
-    }
+    reason?: FeedContentReasonProps
 }
 
 export type NotificationProps = {

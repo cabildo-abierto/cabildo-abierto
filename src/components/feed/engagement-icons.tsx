@@ -26,7 +26,7 @@ export const EngagementIcons = ({content}: {content: FastPostProps}) => {
             title="Cantidad de me gustas."
         />
         <ContentOptionsButton
-            content={undefined}
+            content={content}
             optionList={[]}
         />
     </div>

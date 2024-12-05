@@ -39,7 +39,7 @@ export const CreateArticleModal = ({ open, onClose }: { open: boolean, onClose: 
             </div>
             </div>
             
-            <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir a la página del tema después de crearlo</span>}/>
+            <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-sm">Ir a la página del tema después de crearlo</span>}/>
 
             <div className="py-4">
                 <StateButton

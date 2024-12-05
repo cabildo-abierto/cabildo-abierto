@@ -32,7 +32,7 @@ const HowUsed = () => {
     const {price} = useSubscriptionPrice()
 
     const howUsedText = <div className="text-sm sm:text-base flex flex-col justify-center mt-4 lg:w-96 w-64 link space-y-2 rounded-xl bg-[var(--secondary-light)] p-4">
-        <div className="space-y-2 text-gray-800">
+        <div className="space-y-2 ">
             <div className="flex items-start">
                 <span className="mr-2 text-primary"><ArrowRightIcon/></span>
                 <p>Los aportes voluntarios son el único medio de financiamiento de la plataforma.</p>

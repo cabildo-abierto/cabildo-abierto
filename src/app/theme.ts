@@ -5,23 +5,17 @@ import { createTheme } from '@mui/material/styles';
 // Define your custom colors here
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#455dc0', // Primary color
-    },
-    secondary: {
-      main: '#beaccc', // Secondary color
-    },
-    background: {
-      default: '#fbfbfc', // Background color
-    },
-    text: {
-      primary: '#181b23', // Text color
-    },
+      main: '#8181ff',
+      dark: '#6565ff',
+      light: '#acacff'
+    }
   },
   typography: {
-    // You can also customize typography here
     fontFamily: '"Roboto", sans-serif',
   },
 });
+
 
 export default theme;

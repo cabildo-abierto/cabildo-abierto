@@ -4,17 +4,17 @@ import {
     $convertFromMarkdownString,
     TRANSFORMERS,
 } from '@lexical/markdown';
-import { FeedContentProps } from '../../app/lib/definitions';
+import { FastPostProps } from '../../app/lib/definitions';
 import ReadOnlyEditor from '../editor/read-only-editor';
 import { LexicalEditor } from 'lexical';
 
 
-export const BskyRichTextContent = ({content}: {content: FeedContentProps}) => {
-    const text = content.record.text
+export const BskyRichTextContent = ({record}: {record: {text: string, facets?: any[]}}) => {
+    const text = record.text
     
     const rt = new RichText({
         text: text,
-        facets: content.record.facets
+        facets: record.facets
     })
 
     const segments = Array.from(rt.segments())
