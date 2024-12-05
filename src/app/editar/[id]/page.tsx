@@ -39,7 +39,7 @@ const Editar: React.FC<any> = ({params}) => {
         return <ErrorPage>No se encontró el contenido</ErrorPage>
     }
     
-    if(!user || content.author.id != user.id){
+    if(!user || content.author.did != user.did){
         return <ErrorPage>No sos el autor de este contenido</ErrorPage>
     }
 

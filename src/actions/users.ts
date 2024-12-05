@@ -13,51 +13,45 @@ import { getSessionAgent } from "./auth";
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 
-export const getUsersNoCache = async (): Promise<SmallUserProps[]> => {
+export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
     const users = await db.user.findMany({
         select: {
-            id: true,
-            handle: true,
-            displayName: true,
-            avatar: true,
-            contents: {
-                select: {
-                    _count: {
-                        select: {
-                            reactions: true,
-                        }
-                    }
-                },
-                where: {
-                    type: {
-                        in: ["Comment", "Post", "FastPost"]
-                    }
-                }
-            }
-        },
-        where: {
-            id: {
-                not: "guest"
-            }
+            did: true,
+            handle: true
         }
     })
     return users
 }
 
-
 export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: string}> => {
+    const {users} = await getUsersList();
+    const {agent} = await getSessionAgent()
+
+    try {
+        const {data} = await agent.getProfiles({actors: users.map(({did}) => (did))})
+        return {users: data.profiles}
+    } catch(err){
+        return {error: "Error obteniendo los perfiles."}
+    }
+}
+
+
+export const getUsersList = async (): Promise<{users?: {did: string}[], error?: string}> => {
+    console.log("getting users")
+
     try {
         const users = await unstable_cache(async () => {
-            return await getUsersNoCache()
+            return await getUsersListNoCache()
         },
             ["users"],
             {
                 revalidate: revalidateEverythingTime,
                 tags: ["users"]
             }
-        )() 
+        )()
         return {users}
     } catch {
+        console.log("error getting users")
         return {error: "Error al obtener los usuarios."}
     }
 }
@@ -68,7 +62,7 @@ export const getConversations = (userId: string) => {
         const user = await db.user.findUnique(
             {
                 select: {
-                    id: true,
+                    did: true,
                     messagesSent: {
                         select: {
                             id: true,
@@ -91,7 +85,7 @@ export const getConversations = (userId: string) => {
                     }
                 },
                 where: {
-                    id: userId
+                    did: userId
                 }
             }
         )
@@ -138,25 +132,11 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, bs
             user = await db.user.findFirst(
                 {
                     select: {
-                        id: true,
-                        displayName: true,
+                        did: true,
                         handle: true,
                         email: true,
-                        description: true,
                         createdAt: true,
                         editorStatus: true,
-                        avatar: true,
-                        banner: true,
-                        following: {
-                            select: {
-                                id: true
-                            }
-                        },
-                        followers: {
-                            select: {
-                                id: true
-                            }
-                        },
                         subscriptionsUsed: {
                             orderBy: {
                                 createdAt: "asc"
@@ -193,7 +173,7 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, bs
                     where: {
                         OR: [
                             {
-                                id: userId
+                                did: userId
                             },
                             {
                                 handle:userId
@@ -210,8 +190,6 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, bs
     }, ["user", userId], {
         revalidate: revalidateEverythingTime,
         tags: ["user:"+userId, "user"]})()
-
-    if(error) return {error}
 
     const {agent} = await getSessionAgent()
 
@@ -250,7 +228,7 @@ export const getUserContents = (userId: string) => {
                     },
                 },
                 where: {
-                    id: userId
+                    did: userId
                 }
             }
         )).contents
@@ -461,7 +439,7 @@ export const logVisit = async (contentId: string): Promise<{error?: string, user
     if(!newUser){
         const visit = await db.noAccountVisit.findFirst({
             where: {
-                userId: user.id,
+                userId: user.did,
                 contentId: contentId
             },
             orderBy: {
@@ -476,7 +454,7 @@ export const logVisit = async (contentId: string): Promise<{error?: string, user
         try {
             await db.noAccountVisit.create({
                 data: {
-                    userId: user.id,
+                    userId: user.did,
                     contentId: contentId,
                 }
             })
@@ -691,7 +669,7 @@ export const getFundingPercentage = unstable_cache(async () => {
 
     const usersWithViews = await db.user.findMany({
         select: {
-            id: true,
+            did: true,
             subscriptionsUsed: {
                 select: {
                     endsAt: true
@@ -739,7 +717,7 @@ export const getFundingPercentage = unstable_cache(async () => {
 export async function assignSubscriptions(){
     const usersWithViews = await db.user.findMany({
         select: {
-            id: true,
+            did: true,
             subscriptionsUsed: {
                 select: {
                     endsAt: true
@@ -906,7 +884,7 @@ export async function removeSubscriptions(){
 export async function createNewCAUserForBskyAccount(did: string){
     try {
         const exists = await db.user.findFirst({
-            where: {id: did}
+            where: {did: did}
         })
         if(!exists){
 
@@ -914,23 +892,18 @@ export async function createNewCAUserForBskyAccount(did: string){
             if(did != agent.assertDid){
                 return {error: "El usuario no coincide con la sesión."}
             }
-            
+
             const {data}: {data: ProfileViewDetailed} = await agent.getProfile({actor: agent.assertDid})
 
             await db.user.create({
                 data: {
-                    id: did,
-                    handle: data.handle,
-                    displayName: data.displayName,
-                    description: data.description,
-                    avatar: data.avatar,
-                    banner: data.banner
+                    did: did,
+                    handle: data.handle
                 }
             })
-        } else {
-            console.log("User exists.")
         }
-    } catch {
+    } catch(err) {
+        console.log("error", err)
         return {error: "Error al crear el usuario"}
     }
     return {}
@@ -944,12 +917,8 @@ export async function unsafeCreateUserFromDid(did: string){
 
     await db.user.create({
         data: {
-            id: did,
-            handle: data.handle,
-            displayName: data.displayName,
-            description: data.description,
-            avatar: data.avatar,
-            banner: data.banner
+            did: did,
+            handle: data.handle
         }
     })
 

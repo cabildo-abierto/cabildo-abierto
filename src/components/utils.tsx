@@ -80,7 +80,7 @@ export function sumFromFirstEdit(values: number[], entity: EntityProps, userId: 
     let total = 0
     let firstEdit = 0
     for(let i = 0; i < entity.versions.length; i++){
-        if(entity.versions[i].author.id == userId){
+        if(entity.versions[i].author.did == userId){
             firstEdit = i
             break
         }
@@ -189,7 +189,7 @@ export async function updateEntityContributions(entity: EntityProps){
         
         accCharsAdded += charsAdded
         
-        const author = entity.versions[j].author.id
+        const author = entity.versions[j].author.did
         if(authorAccCharsAdded.has(author)){
             authorAccCharsAdded.set(author, authorAccCharsAdded.get(author) + charsAdded)
         } else {
@@ -628,7 +628,7 @@ export function findMentionsFromUsers(text: string, users: SmallUserProps[]){
 
     let references: {id: string}[] = findMentionsInNode(json.root)
 
-    references = references.filter(({id}) => (users.some((e) => (e.id == id))))
+    references = references.filter(({id}) => (users.some((e) => (e.did == id))))
 
     return references
 }
@@ -725,11 +725,11 @@ export function getEntityMonetizedChars(entity: EntityProps, version: number){
 }
 
 
-export function getEntityMonetizedContributions(entity: {versions: {author: {id: string}, charsAdded: number, undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, confirmedById?: string, editPermission: boolean}[]}, version: number){
+export function getEntityMonetizedContributions(entity: {versions: {author: {did: string}, charsAdded: number, undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, confirmedById?: string, editPermission: boolean}[]}, version: number){
     const authors = new Map()
     for(let i = 0; i <= version; i++){
         if(!isEntityContentDemonetized(entity.versions[i])){
-            const author = entity.versions[i].author.id
+            const author = entity.versions[i].author.did
             
             if(authors.has(author)){
                 authors.set(author, authors.get(author) + entity.versions[i].charsAdded)
@@ -768,3 +768,7 @@ export const formatIsoDate = (isoDate) => {
 export const emptyChar = <>&nbsp;</>
 
 export const contentContextClassName = "bg-[var(--secondary-light)] px-2 text-sm mx-1 mt-1 link text-[var(--text-light)] rounded "
+
+export function getUsername(user: {displayName?: string, handle: string}){
+    return user.displayName ? user.displayName : "@"+user.handle
+}

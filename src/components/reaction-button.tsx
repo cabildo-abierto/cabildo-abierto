@@ -21,6 +21,6 @@ export const ReactionButton = ({onClick, count, icon1, icon2, active=true, disab
         title={title}
         color={"inherit"}
     >
-        {active ? icon1 : icon2} <span className="text-sm flex items-end">{count}</span>
+        {active ? <div className={(active ? "text-red-400" : "")}>{icon1}</div> : icon2} <span className="text-sm flex items-end">{count}</span>
     </IconButton></div>
 }

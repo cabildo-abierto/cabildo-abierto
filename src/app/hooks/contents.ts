@@ -57,7 +57,7 @@ export function useRouteFollowingFeed(route: string[]): {feed: FeedContentProps[
     const { data, error, isLoading } = useSWR('/api/following-feed/'+route.join("/"), fetcher)
     
     return {
-        feed: [],
+        feed: data,
         isLoading,
         isError: error
     }

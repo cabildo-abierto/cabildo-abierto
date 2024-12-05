@@ -5,7 +5,6 @@ import { CustomLink as Link } from '../../components/custom-link';
 import { ThreeColumnsLayout } from '../../components/three-columns';
 import { useUser } from '../hooks/user';
 import { UserProps } from '../lib/definitions';
-import { nextSubscriptionEnd } from '../../components/utils';
 import FundingProgress from '../../components/funding-progress';
 import StateButton from '../../components/state-button';
 import { Desplegable } from '../../components/desplegable';
@@ -20,16 +19,7 @@ import { ExpandLessIcon } from '../../components/icons/expand-less-icon';
 import { ExpandMoreIcon } from '../../components/icons/expand-more-icon';
 
 
-const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
-
-
-function dateToText(date: Date){
-    return date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear()
-}
-
-
 const HowUsed = () => {
-    const {price} = useSubscriptionPrice()
 
     const howUsedText = <div className="text-sm sm:text-base flex flex-col justify-center mt-4 lg:w-96 w-64 link space-y-2 rounded-xl bg-[var(--secondary-light)] p-4">
         <div className="space-y-2 ">
@@ -113,7 +103,7 @@ function DonationPage() {
 
     async function onUniqueChosen(){
         setChoice("unique")
-        const {id, error} = await createPreference(user.id, amount)
+        const {id, error} = await createPreference(user.did, amount)
         if(error) return {error}
         setPreferenceId(id)
         return {}

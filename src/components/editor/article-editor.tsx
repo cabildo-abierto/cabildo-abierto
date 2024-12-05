@@ -110,14 +110,14 @@ const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}
         const text = JSON.stringify(editor.getEditorState())
         const compressedText = compress(text)
 
-        const {error} = await createATProtoArticle(compressedText, user.id, title)
+        const {error} = await createATProtoArticle(compressedText, user.did, title)
         if(error) return {error}
 
         await mutate("/api/content/"+lastSaved.contentId)
-        await mutate("/api/drafts/"+user.id)
+        await mutate("/api/drafts/"+user.did)
         await mutate("/api/feed")
         await mutate("/api/following-feed")
-        await mutate("/api/profile-feed/"+user.id)
+        await mutate("/api/profile-feed/"+user.did)
         router.push("/")
         return {stopResubmit: true}
 	}

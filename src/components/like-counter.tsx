@@ -7,18 +7,18 @@ import { addLike, removeLike } from "../actions/contents";
 import { ActiveLikeIcon } from "./icons/active-like-icon";
 import { InactiveLikeIcon } from "./icons/inactive-like-icon";
 import { IconButton } from "@mui/material";
+import {FastPostProps} from "../app/lib/definitions";
 
 type LikeCounterProps = {
-    content: {
-        likeCount: number,
-        uri: string
-        cid: string
-        viewer: {like?: any}
-    }
+    content: FastPostProps
     disabled?: boolean
     icon1?: ReactNode
     icon2?: ReactNode
     title?: string
+    onLike: () => Promise<{error?: string, uri?: string}>
+    onDislike: (likeUri: string) => Promise<{error?: string}>
+    likeUri?: string
+    initialCount: number
 }
 
 
@@ -27,26 +27,38 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
     disabled=false,
     icon1=<ActiveLikeIcon/>,
     icon2=<InactiveLikeIcon/>,
-    title
+    onLike,
+    onDislike,
+    title,
+    likeUri,
+    initialCount
 }) => {
     const {user} = useUser()
-    const initiallyLiked = content.viewer != undefined && content.viewer.like != undefined
-    const [liked, setLiked] = useState(initiallyLiked)
+    const [newLikeUri, setNewLikeUri] = useState(likeUri)
 
     let delta = 0
-    if(initiallyLiked && !liked) delta = -1
-    if(!initiallyLiked && liked) delta = 1
+    if(likeUri != undefined && newLikeUri == undefined) delta = -1
+    if(likeUri == undefined && newLikeUri != undefined) delta = 1
 
-    const likeCount = content.likeCount + delta
+    const likeCount = initialCount + delta
     
     const onLikeClick = async () => {
         if(!user) return
-        if(liked){
+
+        if(newLikeUri != undefined){
+            if(newLikeUri != "temporary"){
+                onDislike(newLikeUri)
+            }
             /*removeLike(content.id, user.id, entityId)*/
-            setLiked(false)
+            setNewLikeUri(undefined)
         } else {
-            addLike(content.uri, content.cid)
-            setLiked(true)
+            setNewLikeUri("temporary")
+            const {uri} = await onLike()
+            if(uri){
+                setNewLikeUri(uri)
+            } else {
+                setNewLikeUri(undefined)
+            }
         }
     }
 
@@ -56,7 +68,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
     
     return <ReactionButton
         onClick={onLikeClick}
-        active={liked}
+        active={newLikeUri != undefined}
         icon1={icon1}
         icon2={icon2}
         disabled={!user || disabled}

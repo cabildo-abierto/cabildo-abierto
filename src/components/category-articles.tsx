@@ -15,8 +15,8 @@ import { Button } from "@mui/material"
 import { TipIcon } from "./icons/tip-icon"
 
 
-export function countUserReferences(entity: {referencedBy: {referencingContent: {author: {id: string}}}[]}){
-    let s = new Set(entity.referencedBy.map((r) => (r.referencingContent.author.id)))
+export function countUserReferences(entity: {referencedBy: {referencingContent: {author: {did: string}}}[]}){
+    let s = new Set(entity.referencedBy.map((r) => (r.referencingContent.author.did)))
     return s.size
 }
 

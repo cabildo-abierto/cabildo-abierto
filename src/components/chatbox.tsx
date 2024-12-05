@@ -40,7 +40,7 @@ const ChatMessageComponent = ({fromUser, message}: {fromUser: string, message: C
 
 export const Chatbox = ({fromUser, toUser}: {fromUser?: string, toUser: string}) => {
     const user = useUser()
-    if(!fromUser) fromUser = user.user.id
+    if(!fromUser) fromUser = user.user.did
     const chat = useChat(fromUser, toUser)
     const [message, setMessage] = useState("");
     const endOfMessagesRef = useRef(null);

@@ -45,7 +45,7 @@ export const CreateArticleModal = ({ open, onClose }: { open: boolean, onClose: 
                 <StateButton
                     handleClick={async () => {
                         /*setErrorOnCreate(null)
-                        const { id, error } = await createEntity(entityName, user.user.id);
+                        const { id, error } = await createEntity(entityName, user.user.did);
                         if(error){
                             if(error == "exists"){
                                 setErrorOnCreate("Ya existe ese tema.")

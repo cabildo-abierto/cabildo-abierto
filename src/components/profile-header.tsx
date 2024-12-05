@@ -5,7 +5,7 @@ import { Button } from "@mui/material"
 import StateButton from "./state-button"
 import Image from 'next/image'
 import { ArticleIcon } from "./icons/article-icon"
-import { emptyChar } from "./utils";
+import {emptyChar, getUsername} from "./utils";
 import ReadOnlyEditor from "./editor/read-only-editor";
 import { useUser } from "../app/hooks/user";
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
@@ -30,7 +30,7 @@ export function ProfileHeader({profileUser, selected, setSelected, setShowingFak
     const [following, setFollowing] = useState(profileUser.bskyProfile.viewer.following != undefined)
     const followersCount = profileUser.bskyProfile.followersCount
 
-    const isLoggedInUser = user && user.id == profileUser.bskyProfile.did
+    const isLoggedInUser = user && user.did == profileUser.bskyProfile.did
     const followingCount = profileUser.bskyProfile.followsCount
     
     const onUnfollow = async () => {
@@ -131,7 +131,11 @@ export function ProfileHeader({profileUser, selected, setSelected, setShowingFak
         <div className="ml-2 mb-2">
             <ReadOnlyEditor initialData={profileUser.bskyProfile.description}/>
         </div>
-        <div className="flex sm:flex-row flex-col px-2 space-y-1 sm:space-y-0 sm:space-x-4 mb-1">
+
+        {!profileUser.user &&
+            <div className={"px-2 text-sm text-[var(--text-light)]"}>{getUsername(profileUser.bskyProfile) + " todavía no está en Cabildo Abierto."}</div>
+        }
+        <div className="flex sm:flex-row flex-col px-2 space-y-1 sm:space-y-0 sm:space-x-4 mb-1 items-center">
 
             <div className="flex space-x-2 sm:text-base text-sm items-center">
                 <div className="">
@@ -146,7 +150,7 @@ export function ProfileHeader({profileUser, selected, setSelected, setShowingFak
 
                 {/* TO DO: Recover <FixedFakeNewsCounter count={profileUser._count.contents} onClick={() => {setSelected("Publicaciones"); setShowingFakeNews(true)}}/>*/}
 
-                <div className="ml-2 text-sm rounded-lg px-2 py-1 flex items-center justify-center cursor-default" title="Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
+                {profileUser.user && <div className="ml-2 text-sm rounded-lg px-2 py-1 flex items-center justify-center cursor-default" title="Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
                     <span className="text-gray-600 mb-1">
                         <ArticleIcon/>
                     </span>
@@ -154,7 +158,7 @@ export function ProfileHeader({profileUser, selected, setSelected, setShowingFak
                         level={profileUser.user.editorStatus}
                         className="text-[var(--text-light)]"
                     />
-                </div>
+                </div>}
             </div>
         </div>
         <div className="flex">

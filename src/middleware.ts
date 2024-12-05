@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
 
 
 function isNewUserRoute(request: NextRequest){
-  return ['/', '/signup', '/login', '/auth'].includes(request.nextUrl.pathname)
+  return ['/', '/signup', '/login'].includes(request.nextUrl.pathname)
 }
 
 export async function middleware(request: NextRequest) {
@@ -57,9 +57,9 @@ export async function middleware(request: NextRequest) {
       // url.pathname = '/'
       // return NextResponse.redirect(url)
     } else if(loggedIn && isNewUserRoute(request)){
-      const url = request.nextUrl.clone()
-      url.pathname = '/inicio'
-      return NextResponse.redirect(url)
+        const url = request.nextUrl.clone()
+        url.pathname = '/inicio'
+        return NextResponse.redirect(url)
     }
 }
 

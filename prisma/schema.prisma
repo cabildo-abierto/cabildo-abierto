@@ -20,16 +20,9 @@ model AuthState {
 
 
 model User {
-    id                 String         @id @db.VarChar(255) // did
+    did                 String         @id @db.VarChar(255) // did
     handle             String
-    displayName        String
-    description        String
     email              String?
-    avatar             String?
-    banner             String?
-
-    following          User[]         @relation("following")
-    followers          User[]         @relation("following")
 
     createdAt          DateTime       @default(now()) @map("created_at")
 
@@ -66,7 +59,7 @@ model View {
     id                  String         @id @default(cuid())
     createdAt           DateTime       @default(now()) @map("created_at")
 
-    userBy              User           @relation(fields: [userById], references: [id])
+    userBy              User           @relation(fields: [userById], references: [did])
     userById            String
 
     content             Content?       @relation(fields: [contentId], references: [id])
@@ -81,7 +74,7 @@ model Reaction {
     id                  String         @id @default(cuid())
     createdAt           DateTime       @default(now()) @map("created_at")
 
-    userBy              User           @relation(fields: [userById], references: [id])
+    userBy              User           @relation(fields: [userById], references: [did])
     userById            String
 
     content             Content?       @relation(fields: [contentId], references: [id])
@@ -99,8 +92,8 @@ model Subscription {
   createdAt      DateTime  @default(now()) @map("created_at")
   boughtByUserId String
   usedAt         DateTime?
-  boughtBy       User      @relation("bought", fields: [boughtByUserId], references: [id])
-  user           User?     @relation(fields: [userId], references: [id])
+  boughtBy       User      @relation("bought", fields: [boughtByUserId], references: [did])
+  user           User?     @relation(fields: [userId], references: [did])
   price          Int
   paymentId      String?
   endsAt         DateTime?
@@ -122,7 +115,7 @@ model PaymentPromise {
 
   createdAt      DateTime  @default(now()) @map("created_at")
 
-  author         User      @relation("authorPromises", fields: [authorId], references: [id])
+  author         User      @relation("authorPromises", fields: [authorId], references: [did])
   authorId       String
 
   subscription   Subscription  @relation(fields: [subscriptionId], references: [id])
@@ -152,7 +145,7 @@ model Entity {
   deleted      Boolean         @default(false)
   deletedById  String?
   versions     Content[]
-  deletedBy    User?           @relation("entityDelete", fields: [deletedById], references: [id])
+  deletedBy    User?           @relation("entityDelete", fields: [deletedById], references: [did])
 
   reactions    Reaction[]      @relation("entityReactions")
   views        View[]          @relation("entityViews")
@@ -202,14 +195,14 @@ model Content {
   reportsVandalism  Boolean?
   reportsOportunism Boolean?
 
-  confirmedBy      User?       @relation("confirmChange", fields: [confirmedById], references: [id])
+  confirmedBy      User?       @relation("confirmChange", fields: [confirmedById], references: [did])
   confirmedById    String?
-  rejectedBy       User?       @relation("rejectChange", fields: [rejectedById], references: [id])
+  rejectedBy       User?       @relation("rejectChange", fields: [rejectedById], references: [did])
   rejectedById     String?
   confirmedAt      DateTime?
   rejectedAt       DateTime?
 
-  author           User        @relation("author", fields: [authorId], references: [id])
+  author           User        @relation("author", fields: [authorId], references: [did])
   parentEntity     Entity?     @relation(fields: [parentEntityId], references: [id])
   childrenContents Content[]   @relation("ContentToContent")
   parentContents   Content[]   @relation("ContentToContent")
@@ -284,10 +277,10 @@ model Notification {
   reaction         Reaction?   @relation(fields: [reactionId], references: [id])
   reactionId       String?
 
-  userBy           User        @relation("notificationBy", fields: [userById], references: [id])
+  userBy           User        @relation("notificationBy", fields: [userById], references: [did])
   userById         String
 
-  userNotified     User        @relation("notificationTo", fields: [userNotifiedId], references: [id])
+  userNotified     User        @relation("notificationTo", fields: [userNotifiedId], references: [did])
   userNotifiedId   String
 
   viewed           Boolean     @default(false)
@@ -325,10 +318,10 @@ model NoAccountVisit {
 model ChatMessage {
   id               String      @id @default(cuid())
   createdAt        DateTime    @default(now()) @map("created_at")
-  fromUser         User  @relation("messagesSent", fields: [fromUserId], references: [id])
+  fromUser         User  @relation("messagesSent", fields: [fromUserId], references: [did])
   fromUserId       String
 
-  toUser           User  @relation("messagesReceived", fields: [toUserId], references: [id])
+  toUser           User  @relation("messagesReceived", fields: [toUserId], references: [did])
   toUserId         String
 
   text             String

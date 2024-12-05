@@ -54,7 +54,7 @@ export async function getAdminStats(){
 
     const accounts = await db.user.findMany({
         select: {
-            id: true,
+            did: true,
             subscriptionsUsed: {
                 orderBy: {
                     endsAt: "asc"
@@ -122,8 +122,8 @@ export async function getAdminStats(){
     let viewsByDay = []
     for(let i = 0; i < 100; i++) viewsByDay.push(0)
 
-    accounts.forEach(({id, views, createdAt}) => {
-        if(![supportDid, "tomas", "guest"].includes(id)){
+    accounts.forEach(({did, views, createdAt}) => {
+        if(![supportDid, "tomas", "guest"].includes(did)){
             views.forEach((v) => {
                 const time =  Math.floor((v.createdAt.getTime() - createdAt.getTime()) / dayDuration)
                 if(time < 100){
@@ -147,7 +147,7 @@ export async function getAdminStats(){
 
         accounts.forEach((s) => {
             if(s.createdAt <= date)
-                users.add(s.id)
+                users.add(s.did)
         })
 
         const weekEnd = new Date(date.getTime() + weekDuration)
@@ -180,7 +180,7 @@ export async function getAdminStats(){
 
     accounts.forEach((a) => {
         if(a.subscriptionsUsed.length > 0 && !validSubscription(a)){
-            unrenewed.add(a.id)
+            unrenewed.add(a.did)
         }
     })
 
@@ -210,7 +210,7 @@ export async function getAdminStats(){
 export async function getPaymentsStats(){
     const accounts = await db.user.findMany({
         select: {
-            id: true,
+            did: true,
             subscriptionsUsed: true,
             createdAt: true,
             paymentPromises: {
@@ -290,7 +290,7 @@ export async function getPaymentsStats(){
             a.views.forEach((v) => {
                 if(v.createdAt < end && v.createdAt >= start){
                     const versions = v.content.parentEntity.versions
-                    if(!versions.some((v) => (v.authorId == a.id))){
+                    if(!versions.some((v) => (v.authorId == a.did))){
                         viewsOnMonth.push(v)
                     }
                 }
@@ -304,7 +304,7 @@ export async function getPaymentsStats(){
             })
             
             userMonths.push({
-                userId: a.id,
+                userId: a.did,
                 reactions: reactionsOnMonth,
                 views: viewsOnMonth,
                 start: start,
@@ -324,7 +324,7 @@ export async function getPaymentsStats(){
                     charsAdded: true,
                     author: {
                         select: {
-                            id: true
+                            did: true
                         }
                     },
                     undos: {
@@ -353,12 +353,8 @@ export async function getPaymentsStats(){
 export async function updateProfilesFromAT(){
     const users = await db.user.findMany({
         select: {
-            id: true,
-            handle: true,
-            displayName: true,
-            description: true,
-            avatar: true,
-            banner: true
+            did: true,
+            handle: true
         }
     })
 
@@ -366,32 +362,23 @@ export async function updateProfilesFromAT(){
 
     for(let i = 0; i < users.length; i++){
         const u = users[i]
-        const {data: p} = await agent.getProfile({"actor": u.id})
+        const {data: p} = await agent.getProfile({"actor": u.did})
 
         console.log("profile", p)
 
-        if(p.avatar != u.avatar ||
-            p.handle != u.handle ||
-            p.displayName != u.displayName ||
-            p.description != u.description ||
-            p.banner != u.banner
-        ) {
+        if(p.handle != u.handle) {
             console.log("Updating user", u.handle)
             console.log("Prev:")
-            console.log(u.handle, u.displayName, u.description, u.avatar)
+            console.log(u.handle)
             console.log("New:")
-            console.log(p.handle, p.displayName, p.description, p.avatar)
+            console.log(p.handler)
 
             await db.user.update({
                 data: {
-                    handle: p.handle,
-                    displayName: p.displayName,
-                    description: p.description,
-                    avatar: p.avatar,
-                    banner: p.banner
+                    handle: p.handle
                 },
                 where: {
-                    id: u.id
+                    did: u.did
                 }
             })
         }

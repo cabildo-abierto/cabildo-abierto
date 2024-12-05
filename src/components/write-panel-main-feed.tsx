@@ -1,7 +1,6 @@
 import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../app/hooks/user"
-import { mutate } from "swr"
 import { createFastPost } from "../actions/contents"
 import { ExtraChars } from "./extra-chars"
 import useModal from "./editor/hooks/useModal"
@@ -10,19 +9,20 @@ import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
 import { CloseButton } from "./ui-utils/close-button"
 import { AddImageButton } from "./add-image-button"
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
-import Image from 'next/image'
 import { NeedAccountPopup } from "./need-account-popup"
+import {ProfilePic} from "./feed/profile-pic";
 
 
 export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () => void, mobile?: boolean}) => {
-    const { user } = useUser();
+    const { bskyProfile } = useUser();
     const [editorKey, setEditorKey] = useState(0);
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
     const [modal, showModal] = useModal();
     const [images, setImages] = useState([])
     const [text, setText] = useState("")
 
-    if(!user){
+
+    if(!bskyProfile){
         return <NeedAccountPopup open={open} text="Necesitás una cuenta para escribir" onClose={onClose}/>
     }
 
@@ -30,13 +30,10 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
 
     async function handleSubmit() {
         setErrorOnCreatePost(false)
-        if (user) {
+        if (bskyProfile) {
             const {error} = await createFastPost(text);
 
             if(!error){
-                mutate("/api/feed/");
-                mutate("/api/following-feed/")
-                mutate("/api/profile-feed/" + user.id);
                 setEditorKey(editorKey + 1);
                 onClose()
             } else {
@@ -77,15 +74,7 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
         </div>
         <div className="min-h-[250px] px-2">
             <div className="flex space-x-2">
-                <div>
-                    <Image
-                        src={user.avatar}
-                        alt={"Tu foto de perfil"}
-                        width={100}
-                        height={100}
-                        className="w-8 h-auto rounded-full"
-                    />
-                </div>
+                <ProfilePic bskyProfile={bskyProfile} className={"w-8 h-auto rounded-full"}/>
                 <div className="sm:text-lg h-full w-full" key={editorKey}>
                     {editorComp}
                 </div>

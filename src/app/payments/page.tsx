@@ -1,5 +1,4 @@
 import { getPaymentsStats } from "../../actions/admin"
-import { createPaymentPromises } from "../../actions/payments"
 import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
@@ -10,7 +9,7 @@ import { ConfirmPaymentsButton, CreatePromisesButton } from "./create-promises-b
 export default async function Page() {
     const {user} = await getUser()
 
-    if(!user || (user.editorStatus != "Administrator" && user.id != "tomas")){
+    if(!user || (user.editorStatus != "Administrator" && user.did != "tomas")){
         return <NotFoundPage/>
     }
 
@@ -67,7 +66,7 @@ export default async function Page() {
                 })
                 if(total == 0) return <></>
                 return <div key={index} className="flex">
-                    {a.id} {total.toFixed(2)} <div className="flex flex-wrap space-x-2 ml-2">{Array.from(users).map((u, index2) => {return <div key={index2}>{u}</div>})}</div>
+                    {a.did} {total.toFixed(2)} <div className="flex flex-wrap space-x-2 ml-2">{Array.from(users).map((u, index2) => {return <div key={index2}>{u}</div>})}</div>
                 </div>
             })}
             <h1>Pagos confirmados</h1>
@@ -83,7 +82,7 @@ export default async function Page() {
                 })
                 if(total == 0) return <></>
                 return <div key={index} className="flex">
-                    {a.id} {total.toFixed(2)} <div className="flex flex-wrap space-x-2 ml-2">{Array.from(users).map((u, index2) => {return <div key={index2}>{u}</div>})}</div>
+                    {a.did} {total.toFixed(2)} <div className="flex flex-wrap space-x-2 ml-2">{Array.from(users).map((u, index2) => {return <div key={index2}>{u}</div>})}</div>
                 </div>
             })}
         </div>

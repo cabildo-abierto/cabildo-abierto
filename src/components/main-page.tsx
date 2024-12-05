@@ -23,10 +23,10 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
     const user = useUser()
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : (user.user ? "Siguiendo" : "En discusión"))
     const feed = useRouteFeed(route)
+    const followingFeed = useRouteFollowingFeed(route)
 
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
     const [filter, setFilter] = useState("Todas")
-    const [closedIntroPopup, setClosedIntroPopup] = useState(false)
 
     function onSelection(v: string){
         setSelected(v)
@@ -66,9 +66,13 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                 </div>
             }
 
-            <Feed
+            {selected == "En discusión" && <Feed
                 feed={feed}
-            />
+            />}
+
+            {selected == "Siguiendo" && <Feed
+                feed={followingFeed}
+            />}
 
             {/*(selected == "En discusión" || selected == "Siguiendo") &&
                 <ConfiguredFeed

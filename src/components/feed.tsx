@@ -13,9 +13,10 @@ export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, isError
 export type FeedProps = {
     feed: LoadingFeed,
     noResultsText?: ReactNode
+    showReplies?: boolean
 }
 
-const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación."}) => {
+const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación.", showReplies=false}) => {
     if(feed.isLoading){
         return <LoadingSpinner/>
     }
@@ -28,6 +29,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
             />
         } else {
             node = <ATProtoFastPostPreview
+                showParent={showReplies}
                 content={feed.feed[index]}
             />
         }

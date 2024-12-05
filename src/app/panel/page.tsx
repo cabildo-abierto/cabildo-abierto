@@ -17,7 +17,7 @@ const UserStat = ({name, value}: {name: ReactNode, value: ReactNode}) => {
 const ShowUserStats = () => {
     const {user} = useUser()
 
-    const userContents = useUserContents(user.id)
+    const userContents = useUserContents(user.did)
     
     const stats = useUserStats()
     if(stats.isLoading){

@@ -103,8 +103,8 @@ export const addLike = async (uri: string, cid: string) => {
     const {agent} = await getSessionAgent()
 
     try {
-        await agent.like(uri, cid)
-        return {}
+        const res = await agent.like(uri, cid)
+        return {uri: res.uri}
     } catch(err) {
         console.log("Error giving like", err)
         return {error: "No se pudo agregar el like."}
@@ -115,17 +115,40 @@ export const addLike = async (uri: string, cid: string) => {
 export const removeLike = async (uri: string) => {
     const {agent} = await getSessionAgent()
 
-    /*const likes = await agent.getLikes()
-
     try {
-        await agent.deleteLike(likeUri)
-        return {}
+        await agent.deleteLike(uri)
     } catch(err) {
-        console.log("Error giving like", err)
-        return {error: "No se pudo agregar el like."}
-    }*/
+        console.log("Error removing like", err)
+        return {error: "No se pudo eliminar el like."}
+    }
 }
 
+
+export const repost = async (uri: string, cid: string) => {
+    const {agent} = await getSessionAgent()
+
+    try {
+        const res = await agent.repost(uri, cid)
+        return {uri: res.uri}
+    } catch(err) {
+        console.log("Error reposting", err)
+        console.log("uri", uri)
+        return {error: "No se pudo agregar el like."}
+    }
+}
+
+
+export const removeRepost = async (uri: string) => {
+    const {agent} = await getSessionAgent()
+
+    try {
+        await agent.deleteRepost(uri)
+        return {}
+    } catch(err) {
+        console.log("Error eliminando el repost", err)
+        return {error: "No se pudo eliminar la republicación."}
+    }
+}
 
 
 export const addView = async (id: string, userId: string) => {
@@ -393,8 +416,6 @@ export async function getATProtoThread(u: string, id: string, c: string){
 
 
             let {data: author} = await agent.getProfile({actor: u})
-            
-            console.log("author", author)
 
             const {value: record, ...rest} = data
             return {

@@ -7,10 +7,11 @@ import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
 import { articleUrl } from "../components/utils";
 import { BlueskyLogo } from "../components/icons/bluesky-logo";
+import {mainDescription} from "../components/utils/metadata";
 
 export const metadata: Metadata = {
     title: 'Cabildo Abierto',
-    description: 'Una plataforma para la discusión pública. Sumate a conectar con otros y construir conocimiento colectivo.'
+    description: mainDescription,
 }
 
 export default function Page() {

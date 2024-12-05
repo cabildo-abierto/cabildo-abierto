@@ -300,7 +300,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
         return {}
     }
 
-    if(user.editorStatus != "Administrator" && user.id != entity.versions[version].author.id){
+    if(user.editorStatus != "Administrator" && user.did != entity.versions[version].author.did){
         return <AcceptButtonPanel open={true} onClose={onClose}>
             <div className="">
                 <div>
@@ -319,7 +319,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
             <div className="px-6 pb-4">
                 <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
                 <div className="mb-8">
-                    {user.id == entity.versions[version].author.id ? <>Estás por remover la autoría de la modificación que hiciste.</> : <>Estás por remover la autoría de la modificación de @{entity.versions[version].author.id}.</>}
+                    {user.did == entity.versions[version].author.did ? <>Estás por remover la autoría de la modificación que hiciste.</> : <>Estás por remover la autoría de la modificación de @{entity.versions[version].author.did}.</>}
                 </div>
                 <div className="flex justify-center items-center space-x-4 mt-4">
                     <button
