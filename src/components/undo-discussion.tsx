@@ -19,7 +19,7 @@ export const UndoDiscussion = ({entity, version}: {entity: EntityProps, version:
 export const UndoDiscussionContent = ({content, onStartReply, onViewComments, viewingComments}: {
     content: {
         contentUndoneId: string
-        author: {id: string}
+        author: {did: string}
         compressedText?: string
         reportsVandalism: boolean
         reportsOportunism: boolean
@@ -40,7 +40,7 @@ export const UndoDiscussionContent = ({content, onStartReply, onViewComments, vi
     return <div className="px-2 pt-2">
         <h3>Versión deshecha</h3>
         <div>
-            Escrita por <UserIdLink id={content.author.id}/>. Deshecha por <UserIdLink id={content.author.id}/>.
+            Escrita por <UserIdLink id={content.author.did}/>. Deshecha por <UserIdLink id={content.author.did}/>.
         </div>
         <div className="flex">
             <div className="content w-full">

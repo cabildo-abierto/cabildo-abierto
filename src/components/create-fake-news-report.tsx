@@ -49,7 +49,7 @@ export const CreateFakeNewsReportModal = ({ contentId, open, onClose }: { conten
                         /*if(user.user && editor){
                             const {error, ...newComment} = await createFakeNewsReport(
                                 compress(JSON.stringify(editor.getEditorState())),
-                                user.user.id,
+                                user.user.did,
                                 contentId,
                             )
                             if(error) return {error}

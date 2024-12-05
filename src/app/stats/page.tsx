@@ -33,7 +33,7 @@ const Stat = ({children}: {children: ReactNode}) => {
 
 export default async function Page() {
     const {user} = await getUser()
-    if(!user || (user.editorStatus != "Administrator" && user.id != "tomas")){
+    if(!user || (user.editorStatus != "Administrator" && user.did != "tomas")){
         return <NotFoundPage/>
     }
 
@@ -98,7 +98,7 @@ export default async function Page() {
             </h3>
             {stats.lastAccounts.map((u, index) => {
                 return <div key={index}>
-                    {u.id}
+                    {u.did}
                 </div>
             })}
         </div>

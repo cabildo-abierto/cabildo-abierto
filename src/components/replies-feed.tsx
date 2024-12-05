@@ -9,5 +9,5 @@ export const RepliesFeed = ({profileUser}: {profileUser: {did: string, handle: s
     const feed = useRepliesFeed(profileUser.did)
 
     const name = profileUser.displayName ? profileUser.displayName : profileUser.handle
-    return <Feed feed={feed} noResultsText={name + " todavía no escribió ninguna respuesta."}/>
+    return <Feed feed={feed} noResultsText={name + " todavía no escribió ninguna respuesta."} showReplies={true}/>
 }

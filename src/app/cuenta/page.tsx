@@ -8,9 +8,9 @@ import { PermissionLevel } from "../../components/permission-level";
 
 
 const Cuenta: React.FC = () => {
-    const {user} = useUser()
+    const {user, bskyProfile} = useUser()
 
-    if(!user){
+    if(!user || !bskyProfile) {
         return <></>
     }
 
@@ -24,7 +24,7 @@ const Cuenta: React.FC = () => {
                 </div>
                 <div className="mb-4">
                     <div className="text-[var(--text-light)] font-medium">Nombre visible:</div>
-                    <div className="text-lg ">{user.displayName}</div>
+                    <div className="text-lg ">{bskyProfile.displayName ? bskyProfile.displayName : "Sin definir."}</div>
                 </div>
                 <div className="mb-4">
                     <div className="text-[var(--text-light)] font-medium">Mail:</div>
@@ -40,7 +40,7 @@ const Cuenta: React.FC = () => {
                     <Link href="/recuperar/nueva" className="block text-blue-600 hover:underline">
                         Cambiar contraseña
                     </Link>
-                    <Link href={`/perfil/${user.id}`} className="block text-blue-600 hover:underline">
+                    <Link href={`/perfil/${user.did}`} className="block text-blue-600 hover:underline">
                         Ir a mi perfil
                     </Link>
                     <Link href="/panel" className="block text-blue-600 hover:underline">

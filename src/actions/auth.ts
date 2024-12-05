@@ -13,7 +13,6 @@ import { env } from "process"
 
 export async function login(handle: string){
 
-    console.log("creating client")
     const oauthClient = await createClient()
 
     if (typeof handle !== 'string' || !isValidHandle(handle)) {
@@ -21,8 +20,7 @@ export async function login(handle: string){
     }
 
     /*const resolver = new AppViewHandleResolver('https://api.bsky.app/')
-    const did = await resolver.resolve('cabildoabierto.com.ar')
-    console.log("CA did", did)*/
+    const did = await resolver.resolve('cabildoabierto.com.ar')*/
 
     // Initiate the OAuth flow
     let url

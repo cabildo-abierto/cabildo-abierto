@@ -1,6 +1,6 @@
 "use client"
 
-import { assignSubscriptions, buySubscriptions, createNewCAUserForBskyAccount, desassignSubscriptions, recoverSubscriptions, removeSubscriptions, unsafeCreateUserFromDid } from "../../actions/users"
+import { assignSubscriptions, buySubscriptions, desassignSubscriptions, recoverSubscriptions, removeSubscriptions, unsafeCreateUserFromDid } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../hooks/user"
@@ -16,7 +16,7 @@ import { updateAllUniqueCommentators } from "../../actions/contents"
 export default function Page() {
     const {user} = useUser()
 
-    if(!user || (user.editorStatus != "Administrator" && user.id != tomasDid)){
+    if(!user || (user.editorStatus != "Administrator" && user.did != tomasDid)){
         return <NotFoundPage/>
     }
 

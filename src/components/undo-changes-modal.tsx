@@ -66,7 +66,7 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
                     <StateButton
                         handleClick={async () => {
                             /*if(user.user && content){
-                                const result = await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
+                                const result = await undoChange(entity.id, content.id, version, explanation, user.user.did, vandalism, oportunism)
                                 if(!result) return {error: "Ocurrió un error un inesperado. Es posible que el cambio se haya deshecho correctamente. Contactate con el soporte."}
                                 if(result.error) return {error: result.error}
                                 mutate("/api/entity/"+entity.id)

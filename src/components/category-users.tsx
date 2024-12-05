@@ -31,12 +31,14 @@ export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: nu
         </div>
     }
 
+    console.log("users", users)
+
     //const routeUsers = users.users.filter((user) => (entityInRoute(user, route)))
 
     const searchValue = cleanText(searchState.value)
 
     function isMatch(user: SmallUserProps){
-        return cleanText(user.displayName).includes(searchValue) || cleanText(user.handle).includes(searchValue)
+        return (user.displayName && cleanText(user.displayName).includes(searchValue)) || cleanText(user.handle).includes(searchValue)
     }
 
     let filteredUsers = users.users.filter(isMatch)

@@ -9,10 +9,10 @@ import Image from 'next/image'
 import { userUrl } from "./utils";
 
 
-export const UserSearchResult: React.FC<{result: {displayName: string, handle: string, avatar: string}}> = ({ result }) => {
+export const UserSearchResult: React.FC<{result: {displayName?: string, handle: string, avatar?: string}}> = ({ result }) => {
     const className = "px-2 py-1 w-72 text-center"
 
-    return <div className="flex justify-center hover:bg-[var(--secondary-light)] content-container rounded"
+    return <div className="flex justify-center hover:bg-[var(--background-dark)] content-container rounded"
     >
         <Link href={userUrl(result.handle)}>
             <button className={className}>
@@ -25,7 +25,7 @@ export const UserSearchResult: React.FC<{result: {displayName: string, handle: s
                       className="rounded-full h-8 w-8"
                     />
                     <div className="text-center w-full px-1">
-                        {result.displayName} <span className="text-[var(--text-light)]">@{result.handle}</span>
+                        {result.displayName ? result.displayName : undefined} <span className="text-[var(--text-light)]">@{result.handle}</span>
                     </div>
                 </div>                  
             </button>

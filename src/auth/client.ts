@@ -7,18 +7,21 @@ export const createClient = async () => {
   const enc = encodeURIComponent
   return new NodeOAuthClient({
     clientMetadata: {
-      client_name: 'Cabildo Abierto',
       client_id: publicUrl
-        ? `${url}/client-metadata.json`
-        : `http://localhost?redirect_uri=${enc(`${url}/oauth/callback`)}&scope=${enc('atproto transition:generic')}`,
-      client_uri: url,
-      redirect_uris: [`${url}/oauth/callback`],
-      scope: 'atproto transition:generic',
-      grant_types: ['authorization_code', 'refresh_token'],
-      response_types: ['code'],
+          ? `${url}/client-metadata.json`
+          : `http://localhost?redirect_uri=${enc(`${url}/oauth/callback`)}&scope=${enc('atproto transition:generic')}`,
+      client_name: 'Cabildo Abierto',
       application_type: 'web',
-      token_endpoint_auth_method: 'none',
+      grant_types: ['authorization_code', 'refresh_token'],
+      scope: 'atproto transition:generic',
+      response_types: ['code'],
+      redirect_uris: [`${url}/oauth/callback`],
       dpop_bound_access_tokens: true,
+      client_uri: url,
+      token_endpoint_auth_method: 'none',
+      logo_uri: 'https://www.cabildoabierto.com.ar/logo.svg',
+      tos_uri: 'https://www.cabildoabierto.com.ar/articulo?i=Cabildo_Abierto%3A_T%C3%A9rminos_y_condiciones',
+      policy_uri: 'https://www.cabildoabierto.com.ar/articulo?i=Cabildo_Abierto%3A_Pol%C3%ADtica_de_privacidad'
     },
     stateStore: new StateStore(),
     sessionStore: new SessionStore(),

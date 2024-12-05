@@ -1,14 +1,8 @@
 "use client"
 
 import { FeedContentProps } from '../../app/lib/definitions'
-import ReplyIcon from '../icons/reply-icon';
 import { ATProtoPostFrame } from './atproto-post-frame'
-import { BskyFastPostImage } from './bsky-fast-post-image';
-import { BskyRichTextContent } from './bsky-rich-text-content';
-import { Username } from './username';
 import {IsReplyMessage} from "./is-reply-message";
-import {RepostedBy} from "./reposted-by";
-import {QuotedPost} from "./quoted-post";
 import {FastPostContent} from "./fast-post-content";
 
 export type ATProtoFastPostProps = {

@@ -3,13 +3,10 @@ import { z } from 'zod'
 
 
 export type SmallUserProps = {
-    id: string
-    displayName: string
+    did: string
     handle: string
-    avatar: string
-    contents?: {
-        _count: {reactions: number}
-    }[]
+    displayName?: string
+    avatar?: string
 }
 
 
@@ -24,7 +21,7 @@ export type UserMonthDistributionProps = {
 export type ParentContentProps = {
     id: string
     uri: string
-    author: {id: string, handle: string}
+    author: {did: string, handle: string}
     type: ContentType
     contribution: string,
     parentEntityId: string
@@ -38,7 +35,7 @@ export type ContentProps = {
     author: SmallUserProps
     type: ContentType
     parentContent: ParentContentProps
-    usersMentioned: {id: string}[]
+    usersMentioned: {did: string}[]
     childrenTree: {authorId: string}[]
 
     title: string | null
@@ -91,7 +88,7 @@ export type CommentProps = {
     type: ContentType
     reactions: {userById: string}[]
     childrenTree: {authorId: string}[]
-    author: {id: string}
+    author: {did: string}
     uniqueViewsCount: number
 }
 
@@ -148,7 +145,7 @@ export type EntityVersionProps = {
     rejectedById?: string,
     compressedText?: string
     author: {
-        id: string
+        did: string
         handle: string
         displayName: string
     }
@@ -174,10 +171,6 @@ export type EntityVersionProps = {
 }
 
 export type ContributionsProps = [string, number][]
-
-export type ContributionsArray = ContributionsProps[]
-
-export type ErrorProps = {error: string}
 
 export type SmallEntityProps = {
     id: string,
@@ -219,92 +212,16 @@ export type SubscriptionProps = {
 
 
 export type UserProps = {
-    id: string
+    did: string
     handle: string
-    displayName: string
-    description: string
-    avatar: string
-    banner: string
-    email: string
+    email?: string
     createdAt: Date
-    following: {id: string}[]
-    followers: {id: string}[]
     editorStatus: EditorStatus
     subscriptionsUsed: SubscriptionProps[]
     subscriptionsBought: {id: string, price: number}[]
     _count: {notifications: number, contents: number}
     closedFollowSuggestionsAt?: Date | string
 };
-
-
-export const UsernameFormSchema = z.object({
-    username: z
-        .string()
-        .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
-        .regex(/^[a-zA-Z0-9]+$/, {
-            message: 'Solo puede contener letras y números.',
-        })
-        .trim()
-})
-
-const nameReqs = z
-    .string()
-    .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
-    .max(60, { message: 'Como máximo 60 caracteres.' })
-    .trim()
-
-export const NameFormSchema = z.object({
-    name: nameReqs
-})
-
-
-export const SignupFormSchema = z.object({
-    name: nameReqs,
-    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim(),
-    password: z
-        .string()
-        .min(8, { message: 'Tiene que tener al menos 8 caracteres.' })
-        .regex(/[a-zA-Z]/, { message: 'Tiene que tener al menos una letra.' })
-        .regex(/[0-9]/, { message: 'Tiene que tener al menos un número.' })
-        .trim()
-});
-
-
-export const LoginFormSchema = z.object({
-    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim(),
-    password: z
-        .string()
-        .min(1, { message: 'Ingresá tu contraseña' })
-})
-
-
-export const RecoverPwFormSchema = z.object({
-    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim()
-});
-
-
-export const UpdatePwFormSchema = z.object({
-    password: z
-        .string()
-        .min(8, { message: 'Tiene que tener al menos 8 caracteres.' })
-        .regex(/[a-zA-Z]/, { message: 'Tiene que tener al menos una letra.' })
-        .regex(/[0-9]/, { message: 'Tiene que tener al menos un número.' })
-        .trim(),
-});
-
-
-export type LoadingUser = {
-    user: UserProps,
-    isLoading: boolean,
-    isError: boolean
-}
-
-
-export type LoadingEntities = {
-    entities: EntityProps[]
-    isLoading: boolean
-    isError: boolean
-}
 
 
 export type UserStats = {
@@ -366,7 +283,7 @@ export type FastPostProps = {
     repostCount: number
     quoteCount: number
     replyCount: number
-    viewer: {like?: any}
+    viewer: {like?: string, repost?: string}
     embed?: EmbedProps
 }
 
@@ -410,9 +327,4 @@ export type MatchesType = {
     matches: {x: number, y: number}[]
     common: {x: number, y: number}[]
     perfectMatches: {x: number, y: number}[]
-}
-
-
-export type FeedProps = {
-
 }

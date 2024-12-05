@@ -123,7 +123,7 @@ export async function createPaymentPromisesForEntityViews(user: UserProps, amoun
             }
         },
         where: {
-            userById: user.id,
+            userById: user.did,
             content: {
                 type: "EntityContent",
                 parentEntity: {
@@ -146,7 +146,7 @@ export async function createPaymentPromisesForEntityViews(user: UserProps, amoun
     })
 
     function notEntityAuthor(e){
-        return !e.content.parentEntity.versions.some((v) => (v.authorId == user.id))
+        return !e.content.parentEntity.versions.some((v) => (v.authorId == user.did))
     }
 
     entityViews = entityViews.filter(notEntityAuthor)
@@ -174,7 +174,7 @@ export async function createPaymentPromisesForContentReactions(user: UserProps, 
             }
         },
         where: {
-            userById: user.id,
+            userById: user.did,
             content: {
                 type: "Post"
             },
@@ -367,7 +367,7 @@ export async function createPaymentPromises(){
 
     let users = await db.user.findMany({
         select: {
-            id: true,
+            did: true,
             subscriptionsUsed: {
                 select: {
                     id: true,
@@ -386,7 +386,7 @@ export async function createPaymentPromises(){
             break
         }
         const subscription = subscriptions[j]
-        const userId = users[i].id
+        const userId = users[i].did
 
         const creation = users[i].createdAt > launchDate ? users[i].createdAt : launchDate
 

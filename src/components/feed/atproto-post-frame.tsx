@@ -12,7 +12,7 @@ import { EngagementIcons } from './engagement-icons'
 import {RepostedBy} from "./reposted-by";
 
 const ReplyVerticalLine = ({className=""}: {className?: string}) => {
-    return <div className={"w-[2px] bg-[var(--secondary)] " + className}></div>
+    return <div className={"w-[2px] bg-[var(--accent)] " + className}></div>
 }
 
 type ATProtoPostFrameProps = {

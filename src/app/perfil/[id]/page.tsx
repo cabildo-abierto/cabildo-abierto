@@ -3,16 +3,17 @@ import { getUserById } from "../../../actions/users";
 import { ErrorPage } from "../../../components/error-page";
 import { ThreeColumnsLayout } from "../../../components/three-columns";
 import { FullProfile } from "../../../components/profile-header";
+import {getUsername} from "../../../components/utils";
 
 export async function generateMetadata({params}: {params: {id: string}}){
-    const {user, error} = await getUserById(params.id)
+    const {bskyProfile, error} = await getUserById(params.id)
 
-    if(!user){
+    if(!bskyProfile){
         return {title: "Usuario no encontrado"}
     }
 
     return {
-        title: "Perfil de " + user.displayName
+        title: "Perfil de " + getUsername(bskyProfile)
     }
 }
 
@@ -22,7 +23,7 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
 
     const user = await getUserById(username)
 
-    if (!user.bskyProfile || !user.user) {
+    if (!user.bskyProfile) {
         return <ErrorPage>El usuario @{username} no existe</ErrorPage>
     }
 

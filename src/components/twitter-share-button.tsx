@@ -7,7 +7,7 @@ const XShareButton = () => {
     const {user} = useUser()
     const url = "https://www.cabildoabierto.com.ar"
 
-    const text = user ? "Me pueden encontrar en Cabildo Abierto como @"+user.id+". Es como Twitter, pero argentina, sin bots, y mucho mejor." : 
+    const text = user ? "Me pueden encontrar en Cabildo Abierto como @"+user.did+". Es como Twitter, pero argentina, sin bots, y mucho mejor." :
     "Los invito a sumarse a Cabildo Abierto. Es como Twitter, pero argentina, sin bots, y mucho mejor."
     const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
 
