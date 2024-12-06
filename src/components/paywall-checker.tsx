@@ -21,11 +21,6 @@ export const NeedAccountPaywall: React.FC<any> = ({ children }) => {
 };
 
 
-export const UserName = ({name}: {name: string}) => {
-    return <span className="text-[var(--primary)]">{name}</span>
-}
-
-
 const PaywallChecker: React.FC<{children: ReactNode, requireAccount?: boolean}> = ({children, requireAccount=true}) => {
     const user = useUser()
     

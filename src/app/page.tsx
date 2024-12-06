@@ -8,6 +8,7 @@ import { isMobile } from 'react-device-detect'
 import { articleUrl } from "../components/utils";
 import { BlueskyLogo } from "../components/icons/bluesky-logo";
 import {mainDescription} from "../components/utils/metadata";
+import {FormHelperText} from "@mui/material";
 
 export const metadata: Metadata = {
     title: 'Cabildo Abierto',
@@ -144,7 +145,7 @@ export default function Page() {
                     </div>
                     <div className="max-w-[400px] h-full flex flex-col justify-center text-lg text-center">
                         <h2 className="">El cabildo es solo para personas reales</h2>
-                        <p className="mt-4">Para participar en la discusión tenés que validar tu cuenta con una foto del DNI.</p>
+                        <p className="mt-4">Para participar en la discusión tenés que validar tu cuenta con una foto del DNI o pasaporte.</p>
                         <p className="mt-4">Después de la verificación tu cuenta puede ser anónima.</p>
                         <p className="mt-4">Gracias a esto, todas las interacciones y métricas de popularidad son representativas.</p>
                     </div>
@@ -207,9 +208,9 @@ export default function Page() {
                 </div>
                 </div>
                 <div>
-                    <h3 className="">
-                        Abiertos en serio.
-                    </h3>
+                    <h2 className="">
+                        Abiertos en serio
+                    </h2>
                     <div className="text-lg mt-4">
                         <p>
                             Cabildo Abierto usa <span className="">AT</span><span>Protocol</span>, el mismo sistema que Bluesky, que permite que nadie más que vos sea dueño de tus datos.
@@ -217,14 +218,14 @@ export default function Page() {
                         <p className="mt-4">
                             Gracias a eso, te podés mover libremente entre plataformas sin perder nada: las cuentas y contenidos se comparten.
                         </p>
-                        <p className="link mt-4 text-right">
+                        {false && <p className="link mt-4 text-right">
                             <Link href={articleUrl("ATProtocol")}>Leer más.</Link>
-                        </p>
+                        </p>}
                     </div>
                 </div>
             </div>
 
-            <Footer />
+            <Footer showCA={false} />
         </div>
     </div>
 }

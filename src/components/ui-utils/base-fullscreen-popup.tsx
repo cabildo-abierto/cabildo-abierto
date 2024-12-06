@@ -25,7 +25,7 @@ export const BaseFullscreenPopup = ({
             }}
             disableEnforceFocus={true}
         >
-            <Box className={"absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg bg-[var(--background)] rounded-lg " + className}>
+            <Box className={"absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 shadow-lg bg-[var(--background)] rounded-lg " + className}>
                 {closeButton && (
                     <div className="flex justify-end mr-1 mt-1">
                         <CloseButton onClose={onClose} />

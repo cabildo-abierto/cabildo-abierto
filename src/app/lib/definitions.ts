@@ -214,6 +214,7 @@ export type SubscriptionProps = {
 export type UserProps = {
     did: string
     handle: string
+    hasAccess: boolean
     email?: string
     createdAt: Date
     editorStatus: EditorStatus

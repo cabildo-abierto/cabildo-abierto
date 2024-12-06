@@ -24,6 +24,8 @@ model User {
     handle             String
     email              String?
 
+    hasAccess          Boolean         @default(false)
+
     createdAt          DateTime       @default(now()) @map("created_at")
 
     editorStatus        EditorStatus   @default(Beginner)
