@@ -136,6 +136,7 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, bs
                         handle: true,
                         email: true,
                         createdAt: true,
+                        hasAccess: true,
                         editorStatus: true,
                         subscriptionsUsed: {
                             orderBy: {
@@ -922,4 +923,20 @@ export async function unsafeCreateUserFromDid(did: string){
         }
     })
 
+}
+
+
+export async function updateEmail(email: string){
+    const {user} = await getUser()
+    try {
+        await db.user.update({
+            data: {email: email},
+            where: {did: user.did}
+        })
+        revalidateTag("user:"+user.did)
+    } catch (error) {
+        console.log(error)
+        return {error: "Ups... Ocurrió un error al guardar el mail. Volvé a intentarlo."}
+    }
+    return {}
 }

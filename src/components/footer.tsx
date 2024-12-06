@@ -8,12 +8,12 @@ import { FaXTwitter } from "react-icons/fa6";
 import { SiBluesky } from "react-icons/si";
 
 
-export default function Footer() {
+export default function Footer({showCA=true}: {showCA?: boolean}) {
     return <footer className="w-screen sm:px-16">
         <div className="relative">
-        <hr className="border-0 h-[1px] bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+        <hr className="border-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent" />
         </div>
-        <div className="my-16 flex justify-between sm:px-12 px-2 space-x-4">
+        <div className="my-16 flex justify-between sm:px-12 px-4 space-x-4">
             <div className="flex flex-col justify-between">
                 <button onClick={() => {smoothScrollTo(0)}} className="">
                     <Logo className="w-10 h-10 hover:brightness-90 transition duration-200"/>
@@ -25,7 +25,7 @@ export default function Footer() {
             </div>
 
             <div className="flex flex-wrap gap-x-12 gap-y-4">
-                <div className="flex flex-col space-y-1">
+                {showCA && <div className="flex flex-col space-y-1">
                     <h4>Cabildo Abierto</h4>
                     <Link href={articleUrl("Cabildo_Abierto")} className="link3">FAQ</Link>
                     <Link
@@ -40,7 +40,7 @@ export default function Footer() {
                         href={articleUrl("Cabildo_Abierto%3A_Política_de_privacidad")}
                         className="link3"
                     >Política de privacidad</Link>
-                </div>
+                </div>}
 
                 <div className="flex flex-col space-y-1">
                     <h4>Contacto</h4>

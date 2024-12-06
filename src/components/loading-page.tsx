@@ -11,6 +11,8 @@ const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
 
     let center
 
+    console.log("user in loading page", user)
+
     if(user.isLoading){
         center = <LoadingScreen/>
     } else {

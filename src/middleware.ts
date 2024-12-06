@@ -6,7 +6,11 @@ import { cookies } from 'next/headers'
 
 
 function isNewUserRoute(request: NextRequest){
-  return ['/', '/signup', '/login'].includes(request.nextUrl.pathname)
+  return ['/', '/signup', '/login', "/oauth/callback"].includes(request.nextUrl.pathname)
+}
+
+function isPublicRoute(request){
+    return ["/v1"].includes(request.nextUrl.pathnam)
 }
 
 export async function middleware(request: NextRequest) {
@@ -48,19 +52,23 @@ export async function middleware(request: NextRequest) {
     })
 
     const loggedIn = session.did != undefined
-    
-    if (
-      !loggedIn && !isNewUserRoute(request)
-    ) {
-      // no user, potentially respond by redirecting the user to the login page
-      // const url = request.nextUrl.clone()
-      // url.pathname = '/'
-      // return NextResponse.redirect(url)
-    } else if(loggedIn && isNewUserRoute(request)){
-        const url = request.nextUrl.clone()
-        url.pathname = '/inicio'
-        return NextResponse.redirect(url)
+
+    if(!isPublicRoute(request)){
+        if (
+            !loggedIn && !isNewUserRoute(request)
+        ) {
+            // no user, potentially respond by redirecting the user to the login page
+            console.log("redirecting to /")
+            const url = request.nextUrl.clone()
+            url.pathname = '/'
+            return NextResponse.redirect(url)
+        } else if(loggedIn && isNewUserRoute(request)){
+            const url = request.nextUrl.clone()
+            url.pathname = '/inicio'
+            return NextResponse.redirect(url)
+        }
     }
+
 }
 
 export const config = {
