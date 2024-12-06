@@ -1,7 +1,6 @@
 "use client"
 
 import { CustomLink as Link } from './custom-link';
-import { InactiveCommentIcon, LinkIcon, TextLengthIcon, ViewsIcon } from "./icons"
 import { FixedCounter } from "./like-counter"
 import { SmallEntityProps } from "../app/lib/definitions"
 import { articleUrl, currentVersion } from "./utils"
@@ -9,6 +8,9 @@ import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { DateSince } from "./date"
 import { EntityCategoriesSmall } from './entity-categories-small';
+import { InactiveCommentIcon } from './icons/inactive-comment-icon';
+import { LinkIcon } from './icons/link-icon';
+import { TextLengthIcon } from './icons/text-length-icon';
 
 
 export function getEntityChildrenCount(entity: SmallEntityProps){
@@ -62,7 +64,7 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
         <div className="flex w-full items-center">
           <div className="w-full">
             <div className="w-full mt-1 mb-2 px-1">
-              <span className="text-lg text-gray-900">{entity.name}</span>
+              <span className="text-lg ">{entity.name}</span>
             </div>
 
             <EntityCategoriesSmall entity={entity} route={route}/>
@@ -78,11 +80,6 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
               icon={<InactivePraiseIcon />}
               title='Cantidad de votos hacia arriba que recibió'
               />*/}
-              <FixedCounter
-              count={entity.uniqueViewsCount}
-              icon={<ViewsIcon />}
-              title="Cantidad de personas distintas que lo vieron."
-              />
               <FixedCounter
                 count={entity.referencedBy.length}
                 icon={<LinkIcon />}

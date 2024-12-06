@@ -7,12 +7,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import WriteButton from "./write-button";
 import { createPortal } from "react-dom";
-import { CabildoIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
 import { TopbarLogo } from "./logo";
-import { NotificationsButton } from "./notifications-button";
+import { NotificationsButton } from "./notifications/notifications-button";
 import { useSearch } from "./search-context";
 import { Button, IconButton } from "@mui/material";
+import { CabildoIcon } from './icons/home-icon';
 
 
 function FeedButton() {
@@ -35,10 +35,15 @@ export const SearchButton = ({ onClick, disabled=false }: {onClick?: () => void,
     return <IconButton
             onClick={onClick}
             disabled={disabled}
+            sx={{
+                '&.Mui-disabled': {
+                    color: 'inherit', // Set the desired disabled color here
+                }
+            }}
             color="inherit"
             size="small"
         >
-            <SearchIcon />
+            <SearchIcon color={"inherit"}/>
     </IconButton>
 }
 
@@ -63,7 +68,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
     const searchBarAvailable = true
     
     return <div className="flex items-center w-screen justify-between">
-        <div className="flex items-center sm:w-72 text-gray-900">
+        <div className="flex items-center sm:w-72 text-[var(--text-light)]">
             {((!searchBarOpen && user.user) || wideScreen) && <div className="ml-1"><TopbarLogo somethingSpecial={false}/></div>}
             {(!searchBarOpen || wideScreen) && <OpenSidebarButton onClick={onOpenSidebar}/>}
             {(!searchBarOpen || wideScreen) && <FeedButton />}
@@ -94,7 +99,7 @@ function TopbarLoggedIn({ onOpenSidebar, setSearchValue }: TopbarLoggedInProps) 
                         display: "flex",
                         flexDirection: "column",
                         lineHeight: 1.2,
-                        gap: "2px"
+                        gap: "2px",
                     }}
                     disableElevation={true}
                 >

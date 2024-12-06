@@ -20,8 +20,8 @@ export const SidebarButton: React.FC<SidebarButtonProps> = ({text, onClick, icon
                 size="large"
                 sx={{
                     textTransform: 'none',
-                    justifyContent: 'flex-start',  // Align icon and text to the left
-                    paddingLeft: 2,                // Optional: add padding to the left to give space
+                    justifyContent: 'flex-start',
+                    paddingLeft: 2,
                 }}
                 onClick={onClick}
                 startIcon={icon}

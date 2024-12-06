@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getChatBetween, getUserId } from '../../../../../actions/users';
+import { supportDid, tomasDid } from '../../../../../components/utils';
 
 
 function hasAccess(loggedInUser: string, userId: string){
-    if(loggedInUser == "tomas" && userId == "soporte"){
+    if(loggedInUser == tomasDid && userId == supportDid){
         return true
     }
     return loggedInUser == userId
@@ -14,7 +15,9 @@ export async function GET(req: NextRequest,
   { params }: { params: { id: string, idTo: string } }
 ) {
 
-    if(!hasAccess(await getUserId(), params.id)){
+    const userId = await getUserId()
+
+    if(!hasAccess(userId, params.id)){
       return NextResponse.json(null)
     }
 

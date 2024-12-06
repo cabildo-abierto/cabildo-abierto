@@ -4,17 +4,18 @@ import { CustomLink as Link } from './custom-link';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import { useSWRConfig } from "swr";
-import StateButton from "./state-button";
-import { id2url } from "./content";
-import {CabildoIcon, DashboardIcon, DonateIcon, ManageAccountIcon, SupportIcon} from "./icons";
-import { useRouter } from "next/navigation";
-import { signOut } from "../actions/auth";
 import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user";
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
-import { articleUrl } from "./utils";
-import { Button } from "@mui/material";
+import { articleUrl, supportDid, userUrl } from "./utils";
+import Button from "@mui/material/Button";
+import { CloseSessionButton } from "./close-session-button";
+import { DashboardIcon } from "./icons/dashboard-icon";
+import { DonateIcon } from "./icons/donate-icon";
+import { CabildoIcon } from "./icons/home-icon";
+import { ManageAccountIcon } from "./icons/manage-account-icon";
+import { SupportIcon } from "./icons/support-icon";
+import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 
 function unseenCount(chat: ChatMessage[], userId: string){
@@ -29,8 +30,8 @@ function unseenCount(chat: ChatMessage[], userId: string){
 
 
 const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () => void}) => {
-    const chat = useChat(user.id, "soporte")
-    const newSupportCount = chat.chat ? unseenCount(chat.chat, user.id) : 0
+    const chat = useChat(user.did, supportDid)
+    const newSupportCount = chat.chat ? unseenCount(chat.chat, user.did) : 0
     return <SidebarButton icon={<SupportIcon newCount={newSupportCount}/>} onClick={onClose} text="Soporte" href="/soporte"/>
 }
 
@@ -42,36 +43,11 @@ const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}
 }
 
 
-export const CloseSessionButton = () => {
-    const router = useRouter()
-    const {mutate} = useSWRConfig()
-
-    const onLogout = async () => {
-        const {error} = await signOut()
-        if(!error){
-            router.push("/")
-            await mutate("/api/user", null)
-        }
-        return {}
-    }
-
-    return <div className="flex justify-center">
-        <StateButton
-            variant="text"
-            size="small"
-            color="primary"
-            handleClick={onLogout}
-            text1="CERRAR SESIÓN"
-        />
-    </div>
-}
-
-
-const SidebarUsername = ({user}: {user: UserProps}) => {
-    return <div className="flex flex-col items-center">
-        <Link href={`/perfil/${user.id}`}>
+const SidebarUsername = ({bskyProfile}: {bskyProfile: ProfileViewDetailed}) => {
+    return <div className="flex flex-col items-center space-y-1">
+        <Link href={userUrl(bskyProfile.handle)}>
             <Button variant="text" color="inherit" sx={{ textTransform: 'none' }}>
-                {user.name}
+                {bskyProfile.displayName ? bskyProfile.displayName : "@"+bskyProfile.handle}
             </Button>
         </Link>
         <CloseSessionButton/>
@@ -91,15 +67,15 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
 
     return <div className ="h-screen w-screen fixed top-0 left-0 z-[51]">
         <div className="flex">
-            <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--topbar)] border-r text-gray-900 safe-padding-mobile">
+            <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--background)] border-r safe-padding-mobile">
                 <div className="flex flex-col mt-4 px-2">
                     {user.user && <SidebarUsername
-                        user={user.user}
+                        bskyProfile={user.bskyProfile}
                     />}
                     {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
                     <SidebarButton onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio"/>
                     <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
-                    {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={id2url(user.user.id)}/>}
+                    {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={userUrl(user.user.handle)}/>}
                     <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Panel personal" href="/panel"/>
                     <SidebarButton icon={<DonateIcon fontSize="medium"/>} onClick={onClose} text="Aportar" href="/aportar"/>
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href={articleUrl("Cabildo_Abierto")}/>

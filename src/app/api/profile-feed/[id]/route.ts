@@ -5,7 +5,7 @@ export async function GET(req: NextRequest,
     { params }: { params: { id: string } }
 ) {
 
-    let feed: {id: string}[] | null = await getProfileFeed(params.id)
+    let feed = await getProfileFeed(params.id, false)
 
     return NextResponse.json(feed);
 }

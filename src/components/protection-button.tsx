@@ -1,7 +1,5 @@
 "use client"
 
-import { setProtection } from "../actions/admin";
-import { articleButtonClassname } from "./editor/wiki-editor";
 import StateButton from "./state-button";
 
 function protectionToName(protection: string){
@@ -20,7 +18,7 @@ export const SetProtectionButton = ({entity} : {entity: {id: string, protection:
     const protection = entity.protection
     
     async function onClick(){
-        await setProtection(entity.id, otherProtection(protection))
+        //await setProtection(entity.id, otherProtection(protection))
         return {}
     }
 

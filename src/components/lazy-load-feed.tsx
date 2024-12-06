@@ -39,7 +39,7 @@ export const LazyLoadFeed = ({ generator, maxSize, initialCount = 10, loadMoreCo
     }, [handleObserver]);
 
     return (
-        <div className="w-full flex flex-col items-center space-y-2">
+        <div className="w-full flex flex-col items-center">
             {Array.from({ length: Math.min(visibleCount, maxSize) }, (_, index) => {
                 const {c, key} = generator(index)
                 return <div key={key} className="w-full flex justify-center">

@@ -1,11 +1,10 @@
 
 import { CustomLink as Link } from './custom-link';
 import { useEntity } from "../app/hooks/entities"
-import { currentVersion, getEntityMonetizedChars, getEntityMonetizedContributions } from "./utils"
+import { getEntityMonetizedChars } from "./utils"
 import { Button } from "@mui/material"
 import { useState } from "react"
-import { BothContributionsProps } from "../actions/entities"
-import { ContributionsProps } from "../app/lib/definitions"
+import { BothContributionsProps, ContributionsProps } from "../app/lib/definitions"
 
 
 
@@ -20,41 +19,7 @@ export function toPercentage(chars: number, total: number){
 }
 
 
-export const ShowUserContribution = ({entityId, userId}: 
-    {entityId: string, userId?: string}) => {
-    const {entity, isLoading} = useEntity(entityId)
-
-    if(isLoading) return <></>
-
-    const lastVersion = entity.versions[currentVersion(entity)]
-    const firstVersion = entity.versions[0]
-    
-    if(lastVersion.accCharsAdded == 0){
-        return <div className="flex">
-            <span className="mr-1">Creado por</span>
-            <div className="flex space-x-2 link">
-                <Link href={"/perfil/"+firstVersion.author.id}>@{firstVersion.author.id}</Link>
-            </div>.
-        </div>
-    }
-
-    let contributions: [string, number][] = JSON.parse(lastVersion.contribution).monetized
-    
-    const total = lastVersion.accCharsAdded
-
-    contributions = contributions.filter(([authorId, _]) => (authorId == userId))
-
-    if(contributions.length > 0)
-        return <span>
-            Contribución: {toPercentage(contributions[0][1], total)}%
-        </span>
-    else {
-        return <span>Contribución: Tema vacío</span>
-    }
-}
-
-
-export const ShowContributors = ({entityId, userId}: 
+export const ShowContributors = ({entityId}:
     {entityId: string, userId?: string}) => {
     const {entity, isLoading} = useEntity(entityId)
     const [monetized, setMonetized] = useState(false)
@@ -67,7 +32,7 @@ export const ShowContributors = ({entityId, userId}:
     if(lastVersion.accCharsAdded == 0){
         return <div className="flex">
             <div className="flex space-x-2 link">
-                <Link href={"/perfil/"+firstVersion.author.id}>@{firstVersion.author.id}</Link>
+                <Link href={"/perfil/"+firstVersion.author.did}>@{firstVersion.author.did}</Link>
             </div>.
         </div>
     }
@@ -84,7 +49,7 @@ export const ShowContributors = ({entityId, userId}:
         return <></>
     }
 
-    function comp(a, b){
+    function comp(a: any, b: any){
         return b[1] - a[1]
     }
 

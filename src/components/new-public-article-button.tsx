@@ -1,4 +1,4 @@
-import { ArticleIcon } from "./icons";
+import { ArticleIcon } from "./icons/article-icon";
 import { WriteButtonButton } from "./write-button";
 
 

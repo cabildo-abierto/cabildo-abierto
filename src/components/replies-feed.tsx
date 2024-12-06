@@ -1,13 +1,13 @@
 "use client"
 
 import { useRepliesFeed } from "../app/hooks/contents"
-import { UserProps } from "../app/lib/definitions"
 import Feed from "./feed"
 
 
 
-export const RepliesFeed = ({profileUser}: {profileUser: UserProps}) => {
-    const feed = useRepliesFeed(profileUser.id)
+export const RepliesFeed = ({profileUser}: {profileUser: {did: string, handle: string, displayName?: string}}) => {
+    const feed = useRepliesFeed(profileUser.did)
 
-    return <Feed feed={feed} noResultsText={profileUser.name + " todavía no escribió ninguna respuesta."}/>
+    const name = profileUser.displayName ? profileUser.displayName : profileUser.handle
+    return <Feed feed={feed} noResultsText={name + " todavía no escribió ninguna respuesta."} showReplies={true}/>
 }

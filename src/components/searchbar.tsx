@@ -3,23 +3,29 @@
 import React, { useEffect, useRef } from "react";
 import { CustomLink as Link } from './custom-link';
 import { SearchButton } from "./top-bar";
-import { id2url } from "./content";
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import { useSearch } from "./search-context";
-import { CloseButton } from "./close-button";
+import { CloseButton } from "./ui-utils/close-button";
+import Image from 'next/image'
+import { userUrl } from "./utils";
 
 
-export const UserSearchResult: React.FC<{result: {id: string, name: string}}> = ({ result }) => {
-    const className = "px-2 py-1 w-72 text-center hover:bg-[var(--secondary-light)]"
+export const UserSearchResult: React.FC<{result: {displayName?: string, handle: string, avatar?: string}}> = ({ result }) => {
+    const className = "px-2 py-1 w-72 text-center"
 
-    return <div className="flex justify-center content-container rounded"
+    return <div className="flex justify-center hover:bg-[var(--background-dark)] content-container rounded"
     >
-        <Link href={id2url(result.id)}>
+        <Link href={userUrl(result.handle)}>
             <button className={className}>
                 <div className="flex w-full items-center">
-                    <AccountBoxIcon fontSize="small"/>
+                    <Image
+                      src={result.avatar}
+                      alt={"Foto de perfil de @" + result.handle}
+                      width={100}
+                      height={100}
+                      className="rounded-full h-8 w-8"
+                    />
                     <div className="text-center w-full px-1">
-                        {result.name} <span className="text-[var(--text-light)]">@{result.id}</span>
+                        {result.displayName ? result.displayName : undefined} <span className="text-[var(--text-light)]">@{result.handle}</span>
                     </div>
                 </div>                  
             </button>
@@ -58,13 +64,13 @@ const SearchBar: React.FC<{onClose: any, wideScreen: boolean}> = ({onClose, wide
         <div className="flex w-full">
           <SearchInput autoFocus={false}/>
         </div>
-        <div className="text-[var(--text-light)]">
-          {!searchState.searching ? <SearchButton disabled={true}/> : 
+        <div className="text-[var(--accent)]">
+          {!searchState.searching ? <SearchButton disabled={true}/> :
           <div className="py-1"><CloseButton onClose={() => {setSearchState({value: "", searching: false})}} size="small"/></div>}
         </div>
       </div> : 
       <div className="flex border rounded pl-1 pr-1">
-        <div className="text-[var(--text-light)] flex">
+        <div className="text-[var(--accent)] flex">
           <SearchButton disabled={true}/>
           <div className="flex w-full">
             <SearchInput autoFocus={true}/>

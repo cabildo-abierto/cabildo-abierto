@@ -11,8 +11,8 @@ const Page = () => {
         </div>
         <div className="flex h-full items-center mt-4 justify-center flex-col text-center">
             <h1 className="lg:text-[3rem] text-[2.3rem]">Cabildo Abierto</h1>
-            <div className="text-gray-600 text-[1rem] lg:text-[1.3rem] sm:mt-2 my-0 py-0">
-                Una plataforma para la discusión pública.
+            <div className="text-[1rem] lg:text-[1.3rem] sm:mt-2 my-0 py-0">
+                El lugar donde el país se reúne a discutir.
             </div>
         </div>
     </div>

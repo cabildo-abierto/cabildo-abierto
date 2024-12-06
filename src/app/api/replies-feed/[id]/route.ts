@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRepliesFeed } from '../../../../actions/feed';
+import { getProfileFeed } from '../../../../actions/feed';
 
 export async function GET(req: NextRequest,
     { params }: { params: { id: string } }
 ) {
 
-    let feed: {id: string}[] | null = await getRepliesFeed(params.id)
+    let feed = await getProfileFeed(params.id, true)
 
     return NextResponse.json(feed);
 }

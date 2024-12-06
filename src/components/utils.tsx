@@ -1,10 +1,9 @@
-import { UserProps, EntityProps, SmallEntityProps, EntityVersionProps, ContentProps, SmallUserProps } from "../app/lib/definitions"
+import { UserProps, EntityProps, SmallEntityProps, EntityVersionProps, ContentProps, SmallUserProps, BothContributionsProps } from "../app/lib/definitions"
 import { charDiffFromJSONString, getAllText } from "./diff"
 import { db } from "../db"
 import { decompress } from "./compression"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
 import { ContentType } from "@prisma/client"
-import { BothContributionsProps } from "../actions/entities"
 
 
 export const splitPost = (text: string) => {
@@ -81,7 +80,7 @@ export function sumFromFirstEdit(values: number[], entity: EntityProps, userId: 
     let total = 0
     let firstEdit = 0
     for(let i = 0; i < entity.versions.length; i++){
-        if(entity.versions[i].author.id == userId){
+        if(entity.versions[i].author.did == userId){
             firstEdit = i
             break
         }
@@ -190,7 +189,7 @@ export async function updateEntityContributions(entity: EntityProps){
         
         accCharsAdded += charsAdded
         
-        const author = entity.versions[j].author.id
+        const author = entity.versions[j].author.did
         if(authorAccCharsAdded.has(author)){
             authorAccCharsAdded.set(author, authorAccCharsAdded.get(author) + charsAdded)
         } else {
@@ -521,8 +520,9 @@ export function userUrl(id: string){
 }
 
 
-export function contentUrl(id: string){
-    return "/contenido?i=" + id
+export function contentUrl(uri: string, collection: string, authorHandle: string){
+    const split = uri.split("/")
+    return "/contenido?u=" + authorHandle + "&i=" + split[split.length-1] + "&c=" + collection
 }
 
 
@@ -536,7 +536,7 @@ export function inRange(i, n){
 }
 
 
-export function isPublic(content: {type: string, parentEntity: {isPublic: boolean}}, isMainPage: boolean){
+export function isPublic(content: {type: ContentType, parentEntity: {isPublic: boolean}}, isMainPage: boolean){
     if(content.type == "EntityContent"){
         return content.parentEntity.isPublic
     }
@@ -628,7 +628,7 @@ export function findMentionsFromUsers(text: string, users: SmallUserProps[]){
 
     let references: {id: string}[] = findMentionsInNode(json.root)
 
-    references = references.filter(({id}) => (users.some((e) => (e.id == id))))
+    references = references.filter(({id}) => (users.some((e) => (e.did == id))))
 
     return references
 }
@@ -725,11 +725,11 @@ export function getEntityMonetizedChars(entity: EntityProps, version: number){
 }
 
 
-export function getEntityMonetizedContributions(entity: {versions: {author: {id: string}, charsAdded: number, undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, confirmedById?: string, editPermission: boolean}[]}, version: number){
+export function getEntityMonetizedContributions(entity: {versions: {author: {did: string}, charsAdded: number, undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, confirmedById?: string, editPermission: boolean}[]}, version: number){
     const authors = new Map()
     for(let i = 0; i <= version; i++){
         if(!isEntityContentDemonetized(entity.versions[i])){
-            const author = entity.versions[i].author.id
+            const author = entity.versions[i].author.did
             
             if(authors.has(author)){
                 authors.set(author, authors.get(author) + entity.versions[i].charsAdded)
@@ -739,4 +739,36 @@ export function getEntityMonetizedContributions(entity: {versions: {author: {id:
         }
     }
     return Array.from(authors)
+}
+
+
+export const inputClassName = "custom-input rounded"
+
+
+export const supportDid = "did:plc:rup47j6oesjlf44wx4fizu4m"
+export const tomasDid = "did:plc:2356xofv4ntrbu42xeilxjnb"
+
+
+export const formatIsoDate = (isoDate) => {
+    const date = new Date(isoDate);
+    const argentinaTime = new Intl.DateTimeFormat("es-AR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: "America/Argentina/Buenos_Aires",
+    }).format(date);
+  
+    return argentinaTime;
+};
+
+
+export const emptyChar = <>&nbsp;</>
+
+export const contentContextClassName = "bg-[var(--secondary-light)] px-2 text-sm mx-1 mt-1 link text-[var(--text-light)] rounded "
+
+export function getUsername(user: {displayName?: string, handle: string}){
+    return user.displayName ? user.displayName : "@"+user.handle
 }
