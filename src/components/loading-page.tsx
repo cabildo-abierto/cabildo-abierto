@@ -4,7 +4,6 @@ import React, { ReactNode } from 'react';
 import ReadOnlyEditor from './editor/read-only-editor';
 import { useUser } from '../app/hooks/user';
 import { LoadingScreen } from './loading-screen';
-import { SelectUsernamePopup } from './select-username-popup';
 
 
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
@@ -12,15 +11,14 @@ const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
 
     let center
 
+    console.log("user in loading page", user)
+
     if(user.isLoading){
         center = <LoadingScreen/>
-    } else if(user.error == "not defined yet"){
-        center = <>
-            <SelectUsernamePopup/>
-        </>
     } else {
         center = children
     }
+
 
     return <>
         {center}

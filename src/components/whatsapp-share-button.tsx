@@ -6,7 +6,7 @@ import { useUser } from "../app/hooks/user";
 export const WhatsAppShareButton = () => {
     const {user} = useUser()
 
-    const message = user ? "¡Sumate a Cabildo Abierto! Me podés encontrar como @"+user.id+"." : "¡Sumate a Cabildo Abierto!"
+    const message = user ? "¡Sumate a Cabildo Abierto! Me podés encontrar como @"+user.did+"." : "¡Sumate a Cabildo Abierto!"
     const url = "https://www.cabildoabierto.com.ar"; // Replace with your website URL
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}%20${encodeURIComponent(url)}`;
   

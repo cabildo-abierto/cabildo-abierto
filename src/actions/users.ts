@@ -2,108 +2,67 @@
 
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
-import { createClient } from "../utils/supabase/server";
 import { revalidateEverythingTime } from "./utils";
 import { SmallUserProps, UserProps, UserStats } from "../app/lib/definitions";
-import { getEntities } from "./entities";
-import { createNotification } from "./contents";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-import { listOrder, listOrderDesc, subscriptionEnds, validSubscription } from "../components/utils";
+import { listOrder, subscriptionEnds, supportDid, validSubscription } from "../components/utils";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
 import { getSubscriptionPrice } from "./payments";
+import { getSessionAgent } from "./auth";
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 
-export async function updateDescription(text: string, userId: string) {
-    await db.user.update({
-        data: {
-            description: text
-        },
-        where: {
-            id: userId
-        }
-    })
-    revalidateTag("user:"+userId)
-}
-
-
-export async function updateName(newName: string, userId: string){
-    await db.user.update({
-        data: {
-            name: newName
-        },
-        where: {
-            id: userId
-        }
-    })
-    revalidateTag("user:"+userId)
-}
-
-
-
-export const getUsersNoCache = async (): Promise<SmallUserProps[]> => {
+export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
     const users = await db.user.findMany({
         select: {
-            id: true,
-            name: true,
-            following: {select: {id: true}},
-            contents: {
-                select: {
-                    _count: {
-                        select: {
-                            reactions: true,
-                        }
-                    },
-                    uniqueViewsCount: true
-                },
-                where: {
-                    type: {
-                        in: ["Comment", "Post", "FastPost"]
-                    }
-                }
-            }
-        },
-        where: {
-            id: {
-                not: "guest"
-            }
+            did: true,
+            handle: true
         }
     })
     return users
 }
 
-
 export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: string}> => {
+    const {users} = await getUsersList();
+    const {agent} = await getSessionAgent()
+
+    try {
+        const {data} = await agent.getProfiles({actors: users.map(({did}) => (did))})
+        return {users: data.profiles}
+    } catch(err){
+        return {error: "Error obteniendo los perfiles."}
+    }
+}
+
+
+export const getUsersList = async (): Promise<{users?: {did: string}[], error?: string}> => {
+    console.log("getting users")
+
     try {
         const users = await unstable_cache(async () => {
-            return await getUsersNoCache()
+            return await getUsersListNoCache()
         },
             ["users"],
             {
                 revalidate: revalidateEverythingTime,
                 tags: ["users"]
             }
-        )() 
+        )()
         return {users}
     } catch {
+        console.log("error getting users")
         return {error: "Error al obtener los usuarios."}
     }
 }
     
-
 
 export const getConversations = (userId: string) => {
     return unstable_cache(async () => {
         const user = await db.user.findUnique(
             {
                 select: {
-                    id: true,
-                    name: true,
-                    following: {
-                        select: {
-                            id: true
-                        }
-                    },
+                    did: true,
                     messagesSent: {
                         select: {
                             id: true,
@@ -126,10 +85,11 @@ export const getConversations = (userId: string) => {
                     }
                 },
                 where: {
-                    id: userId
+                    did: userId
                 }
             }
         )
+        if(!user) return []
 
         let users = new Map<string, {date: Date, seen: boolean}>()
 
@@ -153,7 +113,7 @@ export const getConversations = (userId: string) => {
 
         const usersArray = Array.from(users).map(([u, d]) => ({id: u, date: d.date, seen: d.seen}))
 
-        return [...usersArray, ...user.following.map(({id}) => ({id: id, date: null, seen: null}))]
+        return usersArray
     },
         ["conversations", userId],
         {
@@ -164,38 +124,19 @@ export const getConversations = (userId: string) => {
 }
 
 
-export const getUsersWithStats = unstable_cache(async () => {
-    const {users, error} = await getUsers()
-    if(error) return {error}
+export const getUserById = async (userId: string): Promise<{user?: UserProps, bskyProfile?: ProfileViewDetailed, error?: string}> => {
 
-    const withStats = []
-    for(let i = 0; i < users.length; i++){
-        withStats.push({
-            user: users[i],
-            stats: await getUserStats(users[i].id)
-        })
-    }
-    return withStats
-},
-    ["usersWithStats"],
-    {
-        revalidate: Math.min(3600, revalidateEverythingTime),
-        tags: ["users", "usersWithStats"]
-    }
-)
-
-
-export const getUserById = (userId: string) => {
-    return unstable_cache(async () => {
+    const {user, error} = await unstable_cache(async () => {
         let user: UserProps
         try {
-            user = await db.user.findUnique(
+            user = await db.user.findFirst(
                 {
                     select: {
-                        id: true,
-                        name: true,
+                        did: true,
+                        handle: true,
+                        email: true,
                         createdAt: true,
-                        authenticated: true,
+                        hasAccess: true,
                         editorStatus: true,
                         subscriptionsUsed: {
                             orderBy: {
@@ -213,14 +154,6 @@ export const getUserById = (userId: string) => {
                                 }
                             }
                         },
-                        following: {select: {id: true}},
-                        followedBy: {select: {id: true}},
-                        authUser: {
-                            select: {
-                                email: true,
-                            }
-                        },
-                        description: true,
                         _count: {
                             select: {
                                 notifications: {
@@ -228,36 +161,42 @@ export const getUserById = (userId: string) => {
                                         viewed: false
                                     }
                                 },
-                                views: {
-                                    where: {
-                                        content: {
-                                            parentEntityId: "Cabildo_Abierto"
-                                        }
-                                    }
-                                },
                                 contents: {
                                     where: {
-                                        NOT: {
-                                            fakeReportsCount: {
-                                                equals: 0
-                                            }
+                                        fakeReportsCount: {
+                                            not: 0
                                         }
                                     }
                                 }
                             }
-                        },
-                        closedFollowSuggestionsAt: true
+                        }
                     },
-                    where: {id:userId}
+                    where: {
+                        OR: [
+                            {
+                                did: userId
+                            },
+                            {
+                                handle:userId
+                            }
+                        ]
+                    }
                 }
             )
         } catch {
+            console.log("error con get user", userId)
             return {error: "error on get user " + userId}
         }
         return user ? {user} : {error : "error on get user " + userId}
     }, ["user", userId], {
         revalidate: revalidateEverythingTime,
-        tags: ["user:"+userId, "user"]})()    
+        tags: ["user:"+userId, "user"]})()
+
+    const {agent} = await getSessionAgent()
+
+    const {data} = await agent.getProfile({actor: userId})
+
+    return {user, bskyProfile: data}
 }
 
 
@@ -290,7 +229,7 @@ export const getUserContents = (userId: string) => {
                     },
                 },
                 where: {
-                    id: userId
+                    did: userId
                 }
             }
         )).contents
@@ -302,115 +241,48 @@ export const getUserContents = (userId: string) => {
 }
 
 
-export const getUserIdByAuthId = (authId: string) => {
-    return unstable_cache(async () => {
-        const userId = await db.user.findUnique(
-            {
-                select: {
-                    id: true,
-                },
-                where: {
-                    authUserId: authId
-                }
-            }
-        )
-        if(!userId){
-            return "not defined yet"
-        }
-        return userId?.id
-    }, ["userIdByAuthId", authId], {
-        revalidate: revalidateEverythingTime,
-        tags: ["userIdByAuthId", "userIdByAuthId:"+authId]})()    
+export async function follow(userToFollowId: string) {
+    const {agent} = await getSessionAgent()
+
+    try {
+        await agent.follow(userToFollowId)
+    } catch {
+        return {error: "Error al seguir al usuario."}
+    }
+
+    return {}
 }
 
 
-export async function getUser(): Promise<{error?: string, user?: UserProps}> {
+export async function unfollow(followUri: string) {
+    const {agent} = await getSessionAgent()
+
+    try {
+        await agent.deleteFollow(followUri)
+    } catch {
+        return {error: "Error al seguir al usuario."}
+    }
+
+    return {}
+}
+
+
+export async function getUserId(){
+    const {agent, did} = await getSessionAgent()
+
+    if(!did) return null
+
+    return did
+}
+
+
+export async function getUser(){
     const userId = await getUserId()
-    if(userId == "not defined yet"){
-        return {error: "not defined yet"}
+    if(userId){
+        return await getUserById(userId)
+    } else {
+        return {error: "Sin sesión."}
     }
-    if(!userId) return {error: "no user id"}
-
-    return await getUserById(userId)
-}
-
-
-export async function getUserId() {
-    const {userAuthId} = await getUserAuthId()
-    if(!userAuthId) return null
-
-    return await getUserIdByAuthId(userAuthId)
-}
-
-
-export async function getUserAuthId() {
-
-    const supabase = createClient()
-    const {data} = await supabase.auth.getUser()
-
-    const userId = data?.user?.id
-
-    return {userAuthId: userId, name: data?.user?.user_metadata?.name}
-}
-
-
-export async function follow(userToFollowId: string, userId: string) {
-    const {user, error} = await getUserById(userId)
-    if(error) return {error}
-
-    if(user.following.some(({id}) => (userToFollowId == id))){
-        return {error: "already follows"}
-    }
-
-    let updatedUser
-
-    try {
-        const updatedUser = await db.user.update({
-            where: {
-                id: userId,
-            },
-            data: {
-                following: {
-                    connect: {
-                        id: userToFollowId,
-                    },
-                },
-            },
-        })
-    } catch {
-        return {error: "error on update user"}
-    }
-
-    revalidateTag("user:"+userToFollowId)
-    revalidateTag("user:"+userId)
-    const {error: errorOnNotify} = await createNotification(userId, userToFollowId, "Follow")
-    if(errorOnNotify) return {error: errorOnNotify}
-    return {updatedUser};
-}
-
-
-export async function unfollow(userToUnfollowId: string, userId: string) {
-    let updatedUser
-    try {
-        updatedUser = await db.user.update({
-            where: {
-                id: userId,
-            },
-            data: {
-                following: {
-                    disconnect: {
-                        id: userToUnfollowId,
-                    },
-                },
-            },
-        })
-    } catch {
-        return {error: "error on update user"}
-    }
-
-    revalidateTag("user:"+userToUnfollowId)
-    revalidateTag("user:"+userId)
-    return {updatedUser};
 }
 
 
@@ -439,78 +311,6 @@ export const getUserIncome = async (userId: string) => {
     }
 
     return {income: income, pendingPayIncome: income, pendingConfirmationIncome: pendingConfirmationIncome}
-}
-
-
-export const getUserStats = async (userId: string) => {
-    return unstable_cache(async () => {
-        const userContents = await getUserContents(userId)
-        let entityEdits = 0
-        let editedEntitiesIds = new Set()
-        const postsIds = []
-        
-        let reactionsInPosts = 0
-        let viewsInPosts = 0
-        userContents.forEach((content) => {
-            if(content.type == "EntityContent"){
-                entityEdits ++
-                if(content.parentEntityId)
-                    editedEntitiesIds.add(content.parentEntityId)
-            } else if(content.type == "Post"){
-                postsIds.push(content.id)
-                reactionsInPosts += content._count.reactions
-                viewsInPosts += content._count.views
-            }
-        })
-        
-        const {entities, error} = await getEntities()
-        if(error) return {error: error}
-
-        let entityReactions = 0
-        let entityViews = 0
-        let entityAddedChars = 0
-        for(let i = 0; i < entities.length; i++){
-            const entity = entities[i]
-            if(editedEntitiesIds.has(entity.id)){
-                let isAuthor = false
-                for(let j = 0; j < entity.versions.length; j++){
-                    if(entity.versions[j].authorId == userId){
-                        isAuthor = true
-                    }
-                    if(isAuthor){
-                        for(let k = 0; k < userContents.length; k++){
-                            if(userContents[k].id == entity.versions[j].id){
-                                entityAddedChars += userContents[k].charsAdded
-                                entityReactions += userContents[k]._count.reactions
-                                entityViews += userContents[k]._count.views
-                                break
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        const {income, pendingConfirmationIncome, pendingPayIncome} = await getUserIncome(userId)
-
-        const stats: UserStats = {
-            posts: postsIds.length,
-            entityEdits: entityEdits,
-            editedEntities: editedEntitiesIds.size,
-            reactionsInPosts: reactionsInPosts,
-            reactionsInEntities: entityReactions,
-            income: income,
-            pendingConfirmationIncome: pendingConfirmationIncome,
-            pendingPayIncome: pendingPayIncome,
-            entityAddedChars: entityAddedChars,
-            viewsInPosts: viewsInPosts,
-            viewsInEntities: entityViews
-        }
-        
-        return {stats}
-    }, ["userStats", userId], {
-        revalidate: Math.min(revalidateEverythingTime, 3600),
-        tags: ["userStats", "userStats:"+userId, ""]})()
 }
 
 
@@ -588,24 +388,6 @@ export async function getDonatedSubscription(userId: string) {
     }
 }
 
-export const getSubscriptionPoolSize = unstable_cache(async () => {
-    try {
-        const available = await db.subscription.findMany({
-            select: {id: true},
-            where: {usedAt: null, isDonation: true}
-        })
-        return {poolSize: available.length}
-    } catch {
-        return {error: "error getting subscription poolsize"}
-    }
-},
-    ["poolsize"],
-    {
-        revalidate: revalidateEverythingTime,
-        tags: ["poolsize"]
-    }
-)
-
 
 const min_time_between_visits = 60*60*1000 // una hora
 
@@ -658,7 +440,7 @@ export const logVisit = async (contentId: string): Promise<{error?: string, user
     if(!newUser){
         const visit = await db.noAccountVisit.findFirst({
             where: {
-                userId: user.id,
+                userId: user.did,
                 contentId: contentId
             },
             orderBy: {
@@ -673,7 +455,7 @@ export const logVisit = async (contentId: string): Promise<{error?: string, user
         try {
             await db.noAccountVisit.create({
                 data: {
-                    userId: user.id,
+                    userId: user.did,
                     contentId: contentId,
                 }
             })
@@ -807,7 +589,7 @@ export const getSupportNotRespondedCount = unstable_cache(async () => {
                 toUserId: true
             },
             where: {
-                OR: [{toUserId: "soporte"}, {fromUserId: "soporte"}]
+                OR: [{toUserId: supportDid}, {fromUserId: supportDid}]
             },
             orderBy: {
                 createdAt: "asc"
@@ -818,7 +600,7 @@ export const getSupportNotRespondedCount = unstable_cache(async () => {
 
     for(let i = 0; i < messages.length; i++){
         const m = messages[i]
-        if(m.fromUserId == "soporte"){
+        if(m.fromUserId == supportDid){
             c.delete(m.toUserId)
         } else {
             c.add(m.fromUserId)
@@ -851,62 +633,6 @@ export async function addDonatedSubscriptionsManually(boughtByUserId: string, am
         data: data
     })
     
-}
-
-
-export async function getUserFollowSuggestions(userId: string): Promise<{suggestions?: any[], error?: string}> {
-    if(!userId) return {suggestions: undefined, error: "not logged in"}
-
-    return await unstable_cache(async () => {
-        const {user, error} = await getUserById(userId)
-        if(error) return {error}
-        const {users, error: usersError} = await getUsers()
-        if(usersError) return {error: usersError}
-
-        const following = new Set<string>(user.following.map(({id}) => (id)))
-
-        function filter(u: {id: string}){
-            return !following.has(u.id) && u.id != user.id
-        }
-
-        function suggestionScore(s: {id: string, contents?: {_count: {reactions:number}, uniqueViewsCount?: number}[], following?: {id: string}[]}){
-            let n = 0
-            for(let i = 0; i < s.following.length; i++){
-                if(following.has(s.following[i].id)) n++
-            }
-
-            let writingScore = 0
-            for(let i = 0; i < s.contents.length; i++){
-                writingScore += s.contents[i]._count.reactions / s.contents[i].uniqueViewsCount
-            }
-            writingScore /= Math.max(s.contents.length, 1)
-
-            return [n, writingScore, Math.random()]
-        }
-
-        let suggestions = users.filter(filter)
-
-        let scores = suggestions.map((u) => ({user: u, score: suggestionScore(u)}))
-
-        scores = scores.sort(listOrderDesc)
-        
-        return {suggestions: scores.map(({user}) => (user))}
-
-    }, ["followSuggestions", userId], {revalidate: revalidateEverythingTime, tags: ["followSuggestions", userId]})()
-}
-
-
-export async function updateClosedFollowSuggestions(userId: string){
-    await db.user.update({
-        data: {
-            closedFollowSuggestionsAt: new Date()
-        },
-        where: {
-            id: userId
-        }
-    })
-    revalidateTag("user:"+userId)
-    return true
 }
 
 
@@ -944,7 +670,7 @@ export const getFundingPercentage = unstable_cache(async () => {
 
     const usersWithViews = await db.user.findMany({
         select: {
-            id: true,
+            did: true,
             subscriptionsUsed: {
                 select: {
                     endsAt: true
@@ -992,7 +718,7 @@ export const getFundingPercentage = unstable_cache(async () => {
 export async function assignSubscriptions(){
     const usersWithViews = await db.user.findMany({
         select: {
-            id: true,
+            did: true,
             subscriptionsUsed: {
                 select: {
                     endsAt: true
@@ -1009,11 +735,6 @@ export async function assignSubscriptions(){
                 orderBy: {
                     createdAt: "desc"
                 }
-            }
-        },
-        where: {
-            id: {
-                notIn: ["guest", "soporte"]
             }
         }
     })
@@ -1158,4 +879,64 @@ export async function removeSubscriptions(){
             }
         }
     })
+}
+
+
+export async function createNewCAUserForBskyAccount(did: string){
+    try {
+        const exists = await db.user.findFirst({
+            where: {did: did}
+        })
+        if(!exists){
+
+            const {agent} = await getSessionAgent()
+            if(did != agent.assertDid){
+                return {error: "El usuario no coincide con la sesión."}
+            }
+
+            const {data}: {data: ProfileViewDetailed} = await agent.getProfile({actor: agent.assertDid})
+
+            await db.user.create({
+                data: {
+                    did: did,
+                    handle: data.handle
+                }
+            })
+        }
+    } catch(err) {
+        console.log("error", err)
+        return {error: "Error al crear el usuario"}
+    }
+    return {}
+}
+
+
+export async function unsafeCreateUserFromDid(did: string){
+    const {agent} = await getSessionAgent()
+    
+    const {data}: {data: ProfileViewDetailed} = await agent.getProfile({actor: did})
+
+    await db.user.create({
+        data: {
+            did: did,
+            handle: data.handle
+        }
+    })
+
+}
+
+
+export async function updateEmail(email: string){
+    const {user} = await getUser()
+    try {
+        await db.user.update({
+            data: {email: email},
+            where: {did: user.did}
+        })
+        revalidateTag("user:"+user.did)
+    } catch (error) {
+        console.log(error)
+        return {error: "Ups... Ocurrió un error al guardar el mail. Volvé a intentarlo."}
+    }
+    return {}
 }

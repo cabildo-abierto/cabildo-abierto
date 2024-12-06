@@ -32,22 +32,16 @@ const Page = () => {
                             height={64}
                             alt="smt"
                         />
-                        <span className="text-sm text-gray-800 mb-2">
+                        <span className="text-sm mb-2">
                             Grupo Scout San Martín de Tours
                         </span>
-                        {/*<Link href="/inicio" className="flex items-center flex-col">
-                            <div className="text-sm text-gray-800 mb-2 text-center">
-                                <p className="text-xs">En colaboración con</p>
-                                <p>www.cabildoabierto.com.ar</p>
-                            </div>
-                        </Link>*/}
                     </div>
                 </div>
             </div>
             <div className="p-4 flex justify-center items-center flex-col">
                 <div className="flex justify-center items-center px-2">
                     <h2 
-                        className="text-gray-800 hover:text-blue-600 cursor-pointer text-4xl font-bold text-center"
+                        className="hover:text-blue-600 cursor-pointer text-4xl font-bold text-center"
                         onClick={handleBingoClick}
                     >
                         Bingo!
@@ -76,7 +70,7 @@ const Page = () => {
                 )}
             </div>
             <div className="hidden w-64 lg:flex flex-col items-center justify-end h-screen px-4">
-                <div className="text-xl text-gray-800 mb-4 flex flex-col items-center">
+                <div className="text-xl  mb-4 flex flex-col items-center">
                     <h3 className="font-bold text-2xl">Cartones</h3>
                     <p>1 x $1000</p>
                     <p>2 x $1500</p>

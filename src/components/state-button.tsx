@@ -1,8 +1,8 @@
 "use client";
 
-import LoadingButton from '@mui/lab/LoadingButton';
+import { LoadingButton } from '@mui/lab';
 import { ReactNode, useEffect, useState } from 'react';
-import { AcceptButtonPanel } from './accept-button-panel';
+import { AcceptButtonPanel } from './ui-utils/accept-button-panel';
 
 type StateButtonProps = {
   handleClick: StateButtonClickHandler;

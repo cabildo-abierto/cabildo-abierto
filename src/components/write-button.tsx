@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef, ReactNode } from 'react';
-import { createPortal } from 'react-dom';
-import { ArticleIcon, FastPostIcon, PostIcon, WriteButtonIcon } from './icons';
+import React, { useState, ReactNode } from 'react';
 import InfoPanel from './info-panel';
 import { NewTopicButton } from './new-public-article-button';
 import { ModalBelow } from './modal-below';
 import { NewFastPostButton } from './new-fast-post-button';
 import { Button, IconButton } from '@mui/material';
 import { CustomLink as Link } from './custom-link';
-import { CreateFastPostModal } from './create-fast-post-modal';
 import { CreateArticleModal } from './create-article-modal';
+import { WritePanelMainFeed } from './write-panel-main-feed';
+import { PostIcon } from './icons/post-icon';
+import { ArticleIcon } from './icons/article-icon';
+import { WriteButtonIcon } from './icons/write-button-icon';
 
 export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100 && !name.includes("/");
@@ -92,7 +93,7 @@ const WriteButton = () => {
                 </div>
                 </div>
             </ModalBelow>
-            <CreateFastPostModal open={isFastPostModalOpen} onClose={() => setIsFastPostModalOpen(false)} />
+            <WritePanelMainFeed open={isFastPostModalOpen} onClose={() => setIsFastPostModalOpen(false)} />
             <CreateArticleModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)} />
         </div>
     );

@@ -23,7 +23,7 @@ export function DateSince({ date }: { date: string | Date}) {
             new Intl.RelativeTimeFormat('es', {
                 localeMatcher: 'best fit',
                 numeric: 'auto',
-                style: 'short',
+                style: 'narrow',
             }),
         [],
     );

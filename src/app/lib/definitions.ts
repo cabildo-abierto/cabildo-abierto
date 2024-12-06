@@ -1,16 +1,12 @@
-import { ContentType } from '@prisma/client';
+import { ContentType, EditorStatus, NotificationType } from '@prisma/client';
 import { z } from 'zod'
-import { ShortDescriptionProps } from '../../components/comment-in-context';
 
 
 export type SmallUserProps = {
-    id: string,
-    name: string,
-    following?: {id: string}[],
-    contents?: {
-        _count: {reactions: number},    
-        uniqueViewsCount: number
-    }[]
+    did: string
+    handle: string
+    displayName?: string
+    avatar?: string
 }
 
 
@@ -22,21 +18,29 @@ export type UserMonthDistributionProps = {
     end: Date
 }
 
+export type ParentContentProps = {
+    id: string
+    uri: string
+    author: {did: string, handle: string}
+    type: ContentType
+    contribution: string,
+    parentEntityId: string
+}
+
 export type ContentProps = {
     id: string
-    createdAt: string | Date
+    createdAt: Date
     compressedText?: string
     compressedPlainText?: string
     author: SmallUserProps
     type: ContentType
-    parentContents?: ShortDescriptionProps[]
-    usersMentioned: {id: string}[]
+    parentContent: ParentContentProps
+    usersMentioned: {did: string}[]
     childrenTree: {authorId: string}[]
 
     title: string | null
 
     categories: string | null
-    parentEntityId: string | null
     parentEntity: {id: string, isPublic: boolean, currentVersion: {searchkeys: string[]}}
     charsAdded: number,
     charsDeleted: number,
@@ -45,14 +49,13 @@ export type ContentProps = {
     diff: string
 
     fakeReportsCount: number,
-    reactions?: {id: string}[],
-    views?: {id: string}[],
+    reactions: {userById: string}[],
     _count: {reactions: number, childrenTree: number},
     uniqueViewsCount: number,
 
-    entityReferences: {id: string, versions: {id: string, categories: string}[]}[]
+    references: {entityReferenced: {id: string, versions: {id: string, categories: string}[]}}[]
 
-    rootContent?: ShortDescriptionProps
+    rootContent?: ParentContentProps
     ancestorContent: {id: string, authorId: string}[]
 
     currentVersionOf: {id: string} | null
@@ -80,37 +83,39 @@ export type ContentProps = {
 
 
 export type CommentProps = {
-    id: string | null
-    createdAt: Date | string
+    id: string
+    createdAt: Date
     type: ContentType
-    _count: {
-        childrenTree: number
-        reactions: number
-    }
+    reactions: {userById: string}[]
     childrenTree: {authorId: string}[]
-    author: {id: string}
+    author: {did: string}
     uniqueViewsCount: number
 }
 
 
 export type ReferenceProps = {
-    id: string
-    createdAt: string | Date
-    type: string
-    author: {
+    isStrong: boolean
+    referencingContent: {
         id: string
-        name: string
-    },
-    _count: {
-        reactions: number
-        childrenTree: number
-    },
-    currentVersionOf: {
-        id: string
+        createdAt: Date
+        type: ContentType
+        author: {
+            id: string
+        },
+        uniqueViewsCount: number
+        childrenTree: {authorId: string, createdAt: Date}[]
+        reactions: {userById: string, createdAt: Date}[]
+        currentVersionOf: {
+            id: string
+        }
+        parentEntityId: string
     }
-    parentEntityId?: string
-    childrenTree: {authorId: string}[]
-    uniqueViewsCount: number
+}
+
+
+export type BothContributionsProps = {
+    monetized: [string, number][]
+    all: [string, number][]
 }
 
 
@@ -123,8 +128,6 @@ export type EntityProps = {
     referencedBy: ReferenceProps[]
     deleted: boolean,
     currentVersionId: string
-    uniqueViewsCount: number
-    weakReferences: ReferenceProps[]
     currentVersion: {
         categories: string
         searchkeys: string[]
@@ -135,15 +138,16 @@ export type EntityProps = {
 
 export type EntityVersionProps = {
     id: string,
-    type: string
+    type: ContentType
     categories: string,
-    createdAt: string | Date,
+    createdAt: Date,
     confirmedById?: string,
     rejectedById?: string,
     compressedText?: string
     author: {
-        id: string
-        name: string
+        did: string
+        handle: string
+        displayName: string
     }
     editPermission: boolean,
     accCharsAdded: number,
@@ -158,23 +162,15 @@ export type EntityVersionProps = {
         reportsVandalism: boolean
         reportsOportunism: boolean
         authorId: string
-        createdAt: Date | string
-        compressedText?: string
+        createdAt: Date
+        compressedText: string
     }[]
-    _count: {
-        reactions: number
-    }
     uniqueViewsCount: number
     editMsg?: string
-    entityReferences: {id: string}[]
-    weakReferences: {id: string}[]
+    references: {entityReferenced: {id: string}}[]
 }
 
 export type ContributionsProps = [string, number][]
-
-export type ContributionsArray = ContributionsProps[]
-
-export type ErrorProps = {error: string}
 
 export type SmallEntityProps = {
     id: string,
@@ -189,20 +185,16 @@ export type SmallEntityProps = {
         reactions: {userById: string}[]
     }[]
     referencedBy: {
-        authorId: string
-        reactions: {userById: string, createdAt: Date}[]
-        childrenTree: {authorId: string, createdAt: Date, reactions: {userById: string, createdAt: Date}[]}[]
-        createdAt: Date
-    }[]
-    weakReferences: {
-        authorId: string
-        createdAt: Date
-        reactions: {userById: string, createdAt: Date}[]
-        childrenTree: {authorId: string, createdAt: Date, reactions: {userById: string, createdAt: Date}[]}[]
+        isStrong: boolean
+        referencingContent: {
+            authorId: string
+            reactions: {userById: string, createdAt: Date}[]
+            childrenTree: {authorId: string, createdAt: Date, reactions: {userById: string, createdAt: Date}[]}[]
+            createdAt: Date
+        }
     }[]
     views?: number,
-    reactions?: {userById: string, createdAt: Date}[],
-    uniqueViewsCount: number
+    reactions?: {userById: string, createdAt: Date}[]
     currentVersionId: string
     currentVersion: {searchkeys: string[]}
 }
@@ -211,99 +203,26 @@ export type SmallEntityProps = {
 export type SubscriptionProps = {
     id: string
     userId?: string
-    createdAt: string | Date
+    createdAt: Date
     boughtByUserId: string
-    usedAt: string | Date | null
-    endsAt: string | Date | null
+    usedAt: Date | null
+    endsAt: Date | null
     price: number
 }
 
 
 export type UserProps = {
-    id: string
-    name: string
-    createdAt: string | Date
-    authenticated: Boolean
-    editorStatus: string
+    did: string
+    handle: string
+    hasAccess: boolean
+    email?: string
+    createdAt: Date
+    editorStatus: EditorStatus
     subscriptionsUsed: SubscriptionProps[]
     subscriptionsBought: {id: string, price: number}[]
-    following: {id: string}[]
-    followedBy: {id: string}[]
-    authUser: {email: string | null} | null
-    description: string | null
-    _count: {notifications: number, contents: number, views: number}
+    _count: {notifications: number, contents: number}
     closedFollowSuggestionsAt?: Date | string
 };
-
-
-export const UsernameFormSchema = z.object({
-    username: z
-        .string()
-        .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
-        .regex(/^[a-zA-Z0-9]+$/, {
-            message: 'Solo puede contener letras y números.',
-        })
-        .trim()
-})
-
-const nameReqs = z
-    .string()
-    .min(2, { message: 'Tiene que tener al menos 2 caracteres.' })
-    .max(60, { message: 'Como máximo 60 caracteres.' })
-    .trim()
-
-export const NameFormSchema = z.object({
-    name: nameReqs
-})
-
-
-export const SignupFormSchema = z.object({
-    name: nameReqs,
-    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim(),
-    password: z
-        .string()
-        .min(8, { message: 'Tiene que tener al menos 8 caracteres.' })
-        .regex(/[a-zA-Z]/, { message: 'Tiene que tener al menos una letra.' })
-        .regex(/[0-9]/, { message: 'Tiene que tener al menos un número.' })
-        .trim()
-});
-
-
-export const LoginFormSchema = z.object({
-    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim(),
-    password: z
-        .string()
-        .min(1, { message: 'Ingresá tu contraseña' })
-})
-
-
-export const RecoverPwFormSchema = z.object({
-    email: z.string().email({ message: 'Ingresá un mail válido.' }).trim()
-});
-
-
-export const UpdatePwFormSchema = z.object({
-    password: z
-        .string()
-        .min(8, { message: 'Tiene que tener al menos 8 caracteres.' })
-        .regex(/[a-zA-Z]/, { message: 'Tiene que tener al menos una letra.' })
-        .regex(/[0-9]/, { message: 'Tiene que tener al menos un número.' })
-        .trim(),
-});
-
-
-export type LoadingUser = {
-    user: UserProps,
-    isLoading: boolean,
-    isError: boolean
-}
-
-
-export type LoadingEntities = {
-    entities: EntityProps[]
-    isLoading: boolean
-    isError: boolean
-}
 
 
 export type UserStats = {
@@ -321,66 +240,87 @@ export type UserStats = {
 }
 
 
-export type SearchkeysProps = {
-    id: string
-    keys: string[]
-}[]
+export type EmbedProps = {
+    $type: string,
+    images?: {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
+    media?: {images?:
+            {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
+    }
+    record?: {
+        uri: string
+        value?: {
+            createdAt: string;
+            $type: string
+            text: string;
+            facets?: any[]
+            embed?: EmbedProps
+        }
+        $type: string
+        text: string
+        facets?: any[]
+        author: {displayName?: string, handle: string, avatar?: string}
+    }
+}
 
 
-export type SmallContentProps = {
-    id: string
-    author: {name: string, id: string}
-    type: ContentType
-    compressedPlainText?: string
-    title?: string
-    createdAt?: string | Date
-    entityReferences?: {id: string, versions: {id: string, categories: string}[]}[]
-    weakReferences?: {id: string, versions: {id: string, categories: string}[]}[]
-    _count: {reactions: number, childrenTree: number}
-    currentVersionOf?: {id: (string | null)}
-    fakeReportsCount?: number;
-    uniqueViewsCount?: number
-    childrenTree: {authorId: string}[]
+export type FastPostProps = {
+    uri: string
+    cid: string
+    author: {
+        did: string;
+        handle: string, displayName?: string, avatar?: string}
+    record: {
+        text: string,
+        facets?: any[],
+        title?: string,
+        createdAt: string,
+        $type: string
+        reply?: {
+            parent: FastPostProps
+            root?: FastPostProps
+        }
+    }
+    likeCount: number
+    repostCount: number
+    quoteCount: number
+    replyCount: number
+    viewer: {like?: string, repost?: string}
+    embed?: EmbedProps
+}
+
+
+export type ArticleProps = FastPostProps
+
+
+export type FeedContentReasonProps = {
+    $type: string
+    by: any
+    indexedAt: string
 }
 
 
 export type FeedContentProps = {
-    id: string
-    author: {id: string, name: string}
-    createdAt: Date | string
-    type: string
-    compressedText: string
-    compressedPlainText: string
-    title?: string
-    childrenTree: {id: string, authorId: string}[]
-    childrenContents: CommentProps[]
-    _count: {reactions: number}
-    uniqueViewsCount: number
-    parentEntityId?: string
+    post: FastPostProps
+    reason?: FeedContentReasonProps
 }
 
 export type NotificationProps = {
     id: string
     content: {
-        id: string,
-        authorId: string,
-        type: string,
-        contribution: string,
+        id: string
+        author: {id: string, handle: string}
+        type: ContentType
+        contribution: string
         parentEntityId: string
-        parentContents: {
-            id: string
-            authorId: string,
-            type: string,
-            contribution: string,
-            parentEntityId: string
-        }[]
+        uri: string
+        parentContent: ParentContentProps
     }
     reactionId?: string
-    createdAt: string | Date
+    createdAt: Date
     userById: string
     userNotifiedId: string
     viewed: boolean
-    type: string
+    type: NotificationType
 }
 
 

@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { CloseButton } from './close-button'
+import { CloseButton } from './ui-utils/close-button'
 
 
 

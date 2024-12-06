@@ -6,6 +6,7 @@ import { SerializedAuthorNode } from "./editor/nodes/AuthorNode"
 import { editorStateFromJSON } from "./utils"
 import { wikiEditorSettings } from "./editor/wiki-editor"
 import { ShowContributors } from "./show-contributors"
+import { ContentType } from "@prisma/client"
 
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
@@ -35,7 +36,7 @@ function showAuthors(entity: EntityProps, version: number, versionText: string){
         if(!parsedVersion) continue
         const nodes = parsedVersion.root.children
         const {matches} = JSON.parse(entity.versions[i].diff)
-        const versionAuthor = entity.versions[i].author.id
+        const versionAuthor = entity.versions[i].author.did
         let nodeAuthors: string[] = []
         for(let j = 0; j < nodes.length; j++){
             let authors = null
@@ -72,7 +73,7 @@ function showAuthors(entity: EntityProps, version: number, versionText: string){
 
 export const ShowArticleAuthors = ({originalContent, originalContentText, entity, version}: {originalContent: {
     id: string
-    type: string
+    type: ContentType
     childrenContents: CommentProps[]
     compressedText?: string
 }, 
@@ -83,7 +84,7 @@ originalContentText: string, entity: EntityProps, version: number}) => {
     let settings = wikiEditorSettings(true, originalContent, contentText)
 
     return <>
-        <div className="text-gray-800 text-sm text-center block lg:hidden content-container p-1">
+        <div className="text-sm text-center block lg:hidden content-container p-1">
             <p>Para ver qué usuario es autor de cada parte de este tema entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
         </div>
         <div className="flex justify-center py-4">

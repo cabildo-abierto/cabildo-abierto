@@ -1,6 +1,6 @@
 import { listOrder, listOrderDesc } from "./utils"
 
-export type ConversationStateProps = {id: string, date: string, seen: boolean}
+export type ConversationStateProps = {id: string, date: Date, seen: boolean}
 
 type ChatSelectorProps = {
     users: ConversationStateProps[],

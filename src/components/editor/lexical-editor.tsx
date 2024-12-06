@@ -69,6 +69,7 @@ import { usePageLeave } from '../prevent-leave';
 import { v4 as uuidv4 } from 'uuid';
 import {ImageNode} from './nodes/ImageNode'
 import {InlineImageNode} from './nodes/InlineImageNode/InlineImageNode';
+import { ContentType } from '@prisma/client';
 
 
 export type SettingsProps = {
@@ -104,7 +105,7 @@ export type SettingsProps = {
   editorClassName: string,
   content?: {
     id: string
-    type: string
+    type: ContentType
     title?: string
     parentEntityId?: string
     compressedText?: string
@@ -327,7 +328,7 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
             initialData = undefined
           }
       } catch {
-          initialData = undefined
+          initialData = initializeEmpty(initialData as string)
       }
   }
 

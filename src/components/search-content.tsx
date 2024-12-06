@@ -5,8 +5,6 @@ import { CategoryUsers } from "./category-users";
 import { useSearchableContents } from "../app/hooks/contents";
 import { preload } from "swr";
 import { fetcher } from "../app/hooks/utils";
-import { ConfiguredFeed } from "./sorted-and-filtered-feed";
-import { useSearch } from "./search-context";
 import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
 
 
@@ -39,7 +37,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
         }
     }, [])
 
-    const buttonClassName = "sm:text-xl text-base my-4 text-gray-900 rounded-lg px-4 py-2  hover:bg-[var(--secondary-light)]"
+    const buttonClassName = "sm:text-xl text-base my-4 rounded-lg px-4 py-2  hover:bg-[var(--secondary-light)]"
 
     return <div className="w-full h-screen overflow-y-scroll px-2">
         <div className="pt-1">
@@ -65,7 +63,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
                     <CategoryArticles route={route} onSearchPage={true}/>
                 }
 
-                {selected == "Publicaciones" &&
+                {/*selected == "Publicaciones" &&
                     <ConfiguredFeed
                         feed={contents}
                         setOrder={setOrder}
@@ -73,7 +71,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
                         filter={filter}
                         setFilter={setFilter}
                     />
-                }
+                */}
 
                 {selected == "Usuarios" && <CategoryUsers route={route}/>}
                 </div>
@@ -104,7 +102,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
                         <div className="px-4 w-full">
                             <hr className="border-1 border-[var(--accent)] w-full"/>
                         </div>
-                        <div className="w-full pb-4  flex flex-col items-center">
+                        {/*<div className="w-full pb-4  flex flex-col items-center">
                             <button 
                                 className={buttonClassName}
                                 onClick={() => {setSelected("Publicaciones")}}
@@ -120,7 +118,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
                                 maxCount={3}
                                 noResultsText="No se encontró ninguna publicación o comentario"
                             />
-                        </div>
+                        </div>*/}
                     </div>
                 }
 

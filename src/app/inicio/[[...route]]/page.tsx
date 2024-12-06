@@ -1,8 +1,6 @@
 "use client"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
-import { preload } from "swr"
-import { fetcher } from "../../hooks/utils"
 import { MainPage } from "../../../components/main-page"
 
 
@@ -11,16 +9,6 @@ const TopicsPage: React.FC<{
     searchParams: { [key: string]: string }
 }> = ({params, searchParams}) => {
     const decodedRoute = params.route ? params.route.map(decodeURIComponent) : []
-
-    useEffect(() => {
-        preload("/api/users", fetcher)
-        preload("/api/entities", fetcher)
-  
-        // probablemente estos dos no tenga sentido ponerlos acá
-        preload("/api/feed/", fetcher)
-        preload("/api/following-feed/", fetcher)
-        preload("/api/notifications", fetcher)
-    }, [])
 
     const [route, setRoute] = useState(decodedRoute)
 

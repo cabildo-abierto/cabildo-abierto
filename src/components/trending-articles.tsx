@@ -1,7 +1,7 @@
 import { useRouteEntities } from "../app/hooks/contents"
 import { SmallEntityProps } from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
-import { articleUrl, currentVersion, listOrderDesc } from "./utils"
+import { articleUrl, currentVersion, listOrderDesc, supportDid } from "./utils"
 import { useDraggable } from "react-use-draggable-scroll";
 
 import { useEffect, useRef, useState } from 'react';
@@ -12,7 +12,7 @@ import InfoPanel from "./info-panel";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PersonIcon from '@mui/icons-material/Person';
 import { CustomLink as Link } from './custom-link';
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 
 
 export function countUserInteractions(entity: SmallEntityProps, since?: Date){
@@ -24,8 +24,8 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
     //}
     // autores de los contenidos que referenciaron
 
-    function recentEnough(date: Date | string){
-        return !since || new Date(date) > since
+    function recentEnough(date: Date){
+        return !since || date > since
     }
 
     function addMany(g: {authorId: string, createdAt: Date}[]){
@@ -38,19 +38,19 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
 
     let s = new Set()
 
-    entity.referencedBy.forEach((r) => {
-        if(recentEnough(r.createdAt)){
-            s.add(r.authorId)
+    entity.referencedBy.forEach(({referencingContent}) => {
+        if(recentEnough(referencingContent.createdAt)){
+            s.add(referencingContent.authorId)
         }
     })
 
     for(let i = 0; i < entity.referencedBy.length; i++){
-        
-        addMany(entity.referencedBy[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
-        for(let j = 0; j < entity.referencedBy[i].childrenTree.length; j++){
-            addMany(entity.referencedBy[i].childrenTree[j].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
+        const referencingContent = entity.referencedBy[i].referencingContent
+        addMany(referencingContent.childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
+        for(let j = 0; j < referencingContent.childrenTree.length; j++){
+            addMany(referencingContent.childrenTree[j].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
         }
-        addMany(entity.referencedBy[i].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
+        addMany(referencingContent.reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
     }
 
     //if(entity.name == entityId) console.log("Referencias", s)
@@ -65,28 +65,12 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
         // comentarios y subcomentarios de las versiones
         addMany(entity.versions[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
     }
-
-    addMany(entity.weakReferences.map(({authorId, createdAt}) => ({authorId, createdAt})))
-
-    for(let i = 0; i < entity.weakReferences.length; i++){
-        addMany(entity.weakReferences[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
-        
-        //if(entity.name == entityId && entity.weakReferences[i].authorId == "mariamisionser"){
-        //    console.log(entity)
-        //    console.log(recentEnough(entity.weakReferences[i].createdAt))
-        //}
-
-        for(let j = 0; j < entity.weakReferences[i].childrenTree.length; j++){
-            addMany(entity.weakReferences[i].childrenTree[j].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
-        }
-        addMany(entity.weakReferences[i].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
-    }
-
+    
     //if(entity.name == entityId) console.log("weak refs", s)
 
     //if(entity.name == entityId) console.log("Total", entity.name, s.size, s)
 
-    s.delete("soporte")
+    s.delete(supportDid)
     return s.size
 }
 
@@ -158,7 +142,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: {e
         {trendingArticles.map(({entity, score}, index) => {
 
             return <Link href={articleUrl(entity.id)} draggable={false}
-                className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] bg-[var(--secondary-light)] hover:bg-[var(--secondary)] text-gray-900 border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)] select-none"
+                className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] bg-[var(--secondary-light)] hover:bg-[var(--secondary)] border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)] select-none"
                 key={entity.id}
                 onMouseLeave={() => {setHovering(undefined)}}
                 onMouseEnter={() => {preload("/api/entity/"+entity.id, fetcher); setHovering(index)}}

@@ -12,7 +12,6 @@ import LoadingSpinner from "../loading-spinner"
 import { ChangesCounter } from "../changes-counter"
 import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getSearchkeysFromEntities, hasChanged } from "../utils"
 import { CommentProps, ContentProps, EntityProps, SmallEntityProps, SmallUserProps } from "../../app/lib/definitions"
-import { updateEntityContent } from "../../actions/entities"
 import { useUser, useUsers } from "../../app/hooks/user"
 import { compress, decompress } from "../compression"
 import { ShowArticleChanges } from "../show-article-changes"
@@ -21,8 +20,9 @@ import { SaveEditPopup } from "../save-edit-popup"
 import { fetcher } from "../../app/hooks/utils"
 import { SearchkeysEditor } from "../searchkeys-editor"
 import { useRouteEntities } from "../../app/hooks/contents"
-import { editContentClassName } from "../article-page"
 import { SettingsProps } from "./lexical-editor"
+import { ContentType } from "@prisma/client"
+import { editContentClassName } from "../entity/article-page"
 
 
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
@@ -34,7 +34,7 @@ export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:
 const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este tema no tiene contenido! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
 
 
-export const wikiEditorSettings = (readOnly: boolean, content: {type: string, title?: string, parentEntityId?: string, id: string, compressedText?: string, childrenContents: CommentProps[]}, contentText: string): SettingsProps => {
+export const wikiEditorSettings = (readOnly: boolean, content: {type: ContentType, title?: string, parentEntityId?: string, id: string, compressedText?: string, childrenContents: CommentProps[]}, contentText: string): SettingsProps => {
     
     let initialData = null
     let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
@@ -98,7 +98,7 @@ type WikiEditorProps = {
     content: {
         compressedText?: string
         id: string
-        type: string
+        type: ContentType
         charsAdded: number
         charsDeleted: number
         diff: string
@@ -144,6 +144,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
     }
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{error?: string}>{
+        /*
         if(!editor) return {error: "Ocurrió un error con el editor."}
         if(!entities || !users) return {error: "Ocurrió un error al guardar los cambios. Intentá de nuevo."}
 
@@ -177,6 +178,8 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
             setEditing(false)
             return {}
         })
+        */
+        return {}
     }
 
     const SaveEditButton = () => {

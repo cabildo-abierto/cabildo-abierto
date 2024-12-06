@@ -1,3 +1,6 @@
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
 
 nextConfig = {
     logging: {
@@ -13,7 +16,7 @@ nextConfig = {
           hostname: "**",
         },
       ],
-    },
+    }
 }
 
-module.exports = nextConfig
+module.exports = withBundleAnalyzer(nextConfig)

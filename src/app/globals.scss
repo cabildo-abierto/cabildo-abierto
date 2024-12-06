@@ -2,51 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-$text: #181b23;
-$lightwhite: #f8f8f9;
-$primary: #455dc0;
-$primary2: #64aaff;
-$secondary: #beaccc;
-$accent: #8790b0;
-$background: #fbfbfc;
-$comments-panel-bg: rgba(lighten($secondary, 20%), 0.5);
+$text: #fbfbfc;
+$primary: #6ca0e4;
+$accent: #2e364c;
+$background: #181b23;
 
 :root {
   --text: #{$text};
-  --lightwhite: #{$lightwhite};
-
-  --background: #{$background};
-  --background-dark: #{darken($background, 20%)};
-  --background-transparent: rgba(red($background), green($background), blue($background), 0.8);
-
-  --topbar: #{lighten($secondary, 25%)};
   --primary: #{$primary};
-  --secondary: #{$secondary};
   --accent: #{$accent};
-  --content: #{$background};//#{lighten($secondary, 25%)};
-  --content2: #{lighten($secondary, 20%)};//#{lighten($secondary, 23%)};
+  --background: #{$background};
+
+  --background-light: #{darken($background, 20%)};
+  --background-dark: #{lighten($background, 5%)};
   
-  --primary-dark: #{darken($primary, 20%)};
-  --primary-darker: #{darken($primary, 30%)};
+  --primary-dark: #{lighten($primary, 20%)};
+  --primary-darker: #{lighten($primary, 30%)};
+  --primary-light: #{darken($primary, 20%)};
 
-  --secondary-slight: #{lighten($secondary, 20%)};
-  --secondary-light: #{lighten($secondary, 20%)};
-  --secondary-xlight: #{lighten($secondary, 25%)};
-  --secondary-lighter: #{lighten($secondary, 27%)};
-  --secondary-dark: #{darken($secondary, 20%)};
-  --comments-panel-bg: #{$comments-panel-bg};
+  --accent-dark: #{lighten($accent, 20%)};
+  --accent-light: #{darken($accent, 20%)};
 
-  --primary-light: #{lighten($primary, 20%)};
-  --accent-dark: #{darken($accent, 20%)};
-  --accent-light: #{lighten($accent, 20%)};
-  --text-light: #{lighten($text, 20%)};
-  --text-lighter: #{lighten($text, 50%)};
+  --text-light: #{darken($text, 20%)};
+  --text-lighter: #{darken($text, 50%)};
+
   font-optical-sizing: auto;
   font-style: normal;
 }
 
 body {
 	background-color: var(--background);
+	color: var(--text);
 }
 
 * {
@@ -467,15 +453,6 @@ ol {
 	border-bottom: 3px solid var(--accent-dark);
 }
 
-.reaction-btn {
-}
-
-.reaction-btn:hover {
-}
-
-.reaction-btn:disabled:hover {
-}
-
 .reaction-btn.toggled {
 	color: #be6666
 }
@@ -625,7 +602,7 @@ ol {
 
 .topbar-container {
 	border-bottom-width: 1px;
-	background-color: var(--topbar);
+	background-color: var(--background);
 	height: 3rem;
 	display: flex;
 	align-items: center;
@@ -634,7 +611,7 @@ ol {
 }
 
 .topbar-container-transparent {
-	border-bottom: 1px solid;
+	border-bottom-width: 1px;
 	background-color: rgba($background, 0.5);
 	height: 3rem;
 	display: flex;
@@ -686,10 +663,8 @@ ol {
   
 
 .content-container {
-	border: 1px solid;
+	border-width: 1px;
 	border-color: $accent;
-	border-bottom-width: 2px;
-	border-right-width: 2px;
 }
 
 

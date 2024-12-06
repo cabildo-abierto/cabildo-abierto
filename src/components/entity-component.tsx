@@ -8,10 +8,9 @@ import { ChangesCounter } from "./changes-counter";
 import { useEntity } from "../app/hooks/entities";
 import { useContent } from "../app/hooks/contents";
 import { CommentProps, EntityProps } from "../app/lib/definitions";
-import { articleUrl, cleanText, currentVersion, getKeysFromEntity, getVersionInEntity, someKeyInText } from "./utils";
+import { articleUrl, cleanText, contentContextClassName, currentVersion, getKeysFromEntity, getVersionInEntity, someKeyInText } from "./utils";
 import { decompress } from "./compression";
-import { contentContextClassName } from "./comment-in-context";
-import { ContentTopRow } from "./content-top-row";
+import { ContentType } from "@prisma/client";
 
 
 type EntityComponentProps = {
@@ -20,13 +19,13 @@ type EntityComponentProps = {
         compressedText?: string
         charsAdded: number
         charsDeleted: number
-        type: string
+        type: ContentType
         diff: string
         title?: string
         parentEntityId?: string
         isContentEdited: boolean
-        createdAt: string | Date
-        author: {name: string, id: string}
+        createdAt: Date
+        author: {id: string, handle: string, displayName: string}
         fakeReportsCount: number
         childrenContents: CommentProps[]
     }
@@ -181,10 +180,10 @@ const EntityEditInFeed = ({entity, content, version}: {
         id: string
         isContentEdited: boolean
         createdAt: Date | string
-        type: string
-        author: {name: string, id: string}
+        type: ContentType
+        author: {id: string, handle: string, displayName: string}
         fakeReportsCount: number
-        childrenContents: {type: string}[]
+        childrenContents: {type: ContentType}[]
     },
     entity: EntityProps,
     version: number}) => {
@@ -199,7 +198,7 @@ const EntityEditInFeed = ({entity, content, version}: {
         text = <>Modificó {name} (<ChangesCounter charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}/> caracteres)</>
     }
     return <div className="">
-        <ContentTopRow content={content} icon={<></>}/>
+        {/* TO DO <ContentTopRow content={content} icon={<></>}/>*/}
         <div className="link px-4 py-4">{text}</div>
     </div>
 }

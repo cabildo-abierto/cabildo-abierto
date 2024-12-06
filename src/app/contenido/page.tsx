@@ -1,11 +1,15 @@
-import React from "react";
-import { ContentWithCommentsFromId } from "../../components/content-with-comments";
 import { ThreeColumnsLayout } from "../../components/three-columns";
-import { getContentById } from "../../actions/contents";
+import { getATProtoThread } from "../../actions/contents";
+import {ArticleProps, FeedContentProps} from "../lib/definitions";
+import { ATProtoArticle } from "../../components/feed/atproto-article";
+import { ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
+import { ATProtoThread } from "./thread";
+import { NotFoundPage } from "../../components/not-found-page";
 
 
 export async function generateMetadata({searchParams}: {searchParams: {i: string}}){
-    const {content} = await getContentById(searchParams.i)
+    return null
+    /*const {content} = await getContentById(searchParams.i)
     if(!content){
         return {
             title: "Contenido no encontrado",
@@ -42,20 +46,27 @@ export async function generateMetadata({searchParams}: {searchParams: {i: string
         }
     }
 
-    return {}
+    return {}*/
 }
 
 
-const ContentPage: React.FC<{searchParams: {i: string}}> = async ({searchParams}) => {
-    const center = <div className="flex flex-col h-full">
-        <div className="mt-8">
-            <ContentWithCommentsFromId
-                contentId={searchParams.i}
-                isMainPage={true}
-                inCommentSection={false}
-            />
-        </div>
-    </div>
+export type ThreadProps = ThreadViewPost | FeedContentProps
+
+
+const ContentPage: React.FC<{searchParams: {i: string, u: string, c: string}}> = async ({searchParams}) => {
+    
+    const content: ThreadProps | null = await getATProtoThread(searchParams.u, searchParams.i, searchParams.c)
+
+    if(!content){
+        return <NotFoundPage/>
+    }
+
+    let center
+    if('post' in content){
+        center = <ATProtoThread thread={content as ThreadViewPost}/>
+    } else {
+        center = <ATProtoArticle content={content as ArticleProps}/>
+    }
 
     return <ThreeColumnsLayout center={center}/>
 }

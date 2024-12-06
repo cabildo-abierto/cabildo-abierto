@@ -3,17 +3,15 @@ import { createPortal } from 'react-dom';
 import TickButton from './tick-button';
 import StateButton from './state-button';
 import { useSWRConfig } from 'swr';
-import { undoChange } from '../actions/entities';
 import { useContent } from '../app/hooks/contents';
 import { useUser } from '../app/hooks/user';
 import { EntityProps } from '../app/lib/definitions';
 import InfoPanel from './info-panel';
-import { CloseButtonIcon, CloseButtonIconWithHover } from './icons';
 import { hasEditPermission } from './utils';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
-import { AcceptButtonPanel } from './accept-button-panel';
-import { BaseFullscreenPopup } from './base-fullscreen-popup';
-import { NeedAccountPopup } from './article-page';
+import { AcceptButtonPanel } from './ui-utils/accept-button-panel';
+import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
+import { NeedAccountPopup } from "./need-account-popup";
 
 
 
@@ -34,9 +32,9 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
 
     const infoPanelOportunism = <span>Si te parece que intentó obtener un rédito económico desproporcionado con respecto a la mejora que representa en el contenido.</span>
 
-    const vandalismInfo = <span className="text-gray-800 text-sm">Marcar como vandalismo <InfoPanel text={infoPanelVandalism} className="w-72"/></span>
+    const vandalismInfo = <span className="text-sm">Marcar como vandalismo <InfoPanel text={infoPanelVandalism} className="w-72"/></span>
 
-    const oportunismInfo = <span className="text-gray-800 text-sm">Marcar como oportunismo <InfoPanel text={infoPanelOportunism} className="w-72"/></span>
+    const oportunismInfo = <span className="text-sm">Marcar como oportunismo <InfoPanel text={infoPanelOportunism} className="w-72"/></span>
 
     let modalContent = null
 
@@ -67,14 +65,14 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
                 <div className="">
                     <StateButton
                         handleClick={async () => {
-                            if(user.user && content){
-                                const result = await undoChange(entity.id, content.id, version, explanation, user.user.id, vandalism, oportunism)
+                            /*if(user.user && content){
+                                const result = await undoChange(entity.id, content.id, version, explanation, user.user.did, vandalism, oportunism)
                                 if(!result) return {error: "Ocurrió un error un inesperado. Es posible que el cambio se haya deshecho correctamente. Contactate con el soporte."}
                                 if(result.error) return {error: result.error}
                                 mutate("/api/entity/"+entity.id)
                                 mutate("/api/entities")
                                 onClose()
-                            }
+                            }*/
                             return {}
                         }}
                         disabled={!validExplanation(explanation)}

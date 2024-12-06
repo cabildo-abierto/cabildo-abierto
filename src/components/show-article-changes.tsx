@@ -7,6 +7,7 @@ import { wikiEditorSettings } from './editor/wiki-editor';
 import { useContent } from '../app/hooks/contents';
 import { decompress } from './compression';
 import LoadingSpinner from './loading-spinner';
+import { ContentType } from '@prisma/client';
 
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
@@ -73,7 +74,7 @@ type ShowArticleChangesProps = {
     originalContent: {
         id: string
         diff: string
-        type: string
+        type: ContentType
         childrenContents: CommentProps[]
         compressedText?: string
     },
@@ -100,7 +101,7 @@ export const ShowArticleChanges = ({
     let settings = wikiEditorSettings(true, originalContent, contentText)
 
     return <>
-        <div className="text-gray-800 text-sm text-center block lg:hidden content-container p-1 w-full">
+        <div className="text-sm text-center block lg:hidden content-container p-1 w-full">
             <p>Para ver qué cambió en esta versión del tema entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
         </div>
         <div className="lg:block hidden">

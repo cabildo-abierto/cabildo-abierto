@@ -1,14 +1,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getRouteFeed } from '../../../../actions/feed';
-import { getUserId } from '../../../../actions/users';
+import {getEnDiscusion} from '../../../../actions/feed';
 
 
 export async function GET(req: NextRequest,
     { params }: { params: { route: string[] } }
 ) {
-    const route = params.route ? params.route.map(decodeURIComponent) : []
-    let feed = await getRouteFeed(route, await getUserId())
+    //const route = params.route ? params.route.map(decodeURIComponent) : []
 
-    return NextResponse.json(feed);
+    let feed = await getEnDiscusion()
+
+    return NextResponse.json(feed)
 }

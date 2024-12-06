@@ -2,24 +2,23 @@
 
 import React, { ReactNode, useState } from "react"
 import { ReactionButton } from "./reaction-button";
-import { ActiveLikeIcon, InactiveLikeIcon } from "./icons";
 import { useUser } from "../app/hooks/user";
 import { addLike, removeLike } from "../actions/contents";
+import { ActiveLikeIcon } from "./icons/active-like-icon";
+import { InactiveLikeIcon } from "./icons/inactive-like-icon";
+import { IconButton } from "@mui/material";
+import {FastPostProps} from "../app/lib/definitions";
 
 type LikeCounterProps = {
-    content: {
-        parentEntityId?: string
-        reactions?: {id: string}[]
-        _count: {
-            reactions: number
-        }
-        id: string
-        author: {id: string}
-    }
+    content: FastPostProps
     disabled?: boolean
     icon1?: ReactNode
     icon2?: ReactNode
     title?: string
+    onLike: () => Promise<{error?: string, uri?: string}>
+    onDislike: (likeUri: string) => Promise<{error?: string}>
+    likeUri?: string
+    initialCount: number
 }
 
 
@@ -28,61 +27,65 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
     disabled=false,
     icon1=<ActiveLikeIcon/>,
     icon2=<InactiveLikeIcon/>,
-    title
+    onLike,
+    onDislike,
+    title,
+    likeUri,
+    initialCount
 }) => {
     const {user} = useUser()
-    const entityId = content.parentEntityId
-    const initiallyLiked = content.reactions != undefined && content.reactions.length > 0
-    const [liked, setLiked] = useState(initiallyLiked)
+    const [newLikeUri, setNewLikeUri] = useState(likeUri)
 
     let delta = 0
-    if(initiallyLiked && !liked) delta = -1
-    if(!initiallyLiked && liked) delta = 1
+    if(likeUri != undefined && newLikeUri == undefined) delta = -1
+    if(likeUri == undefined && newLikeUri != undefined) delta = 1
 
-    const likeCount = content._count.reactions + delta
+    const likeCount = initialCount + delta
     
     const onLikeClick = async () => {
         if(!user) return
-        if(liked){
-            removeLike(content.id, user.id, entityId)
-            setLiked(false)
+
+        if(newLikeUri != undefined){
+            if(newLikeUri != "temporary"){
+                onDislike(newLikeUri)
+            }
+            /*removeLike(content.id, user.id, entityId)*/
+            setNewLikeUri(undefined)
         } else {
-            addLike(content.id, user.id, entityId)
-            setLiked(true)
+            setNewLikeUri("temporary")
+            const {uri} = await onLike()
+            if(uri){
+                setNewLikeUri(uri)
+            } else {
+                setNewLikeUri(undefined)
+            }
         }
     }
 
-    const isAuthor = user && user.id == content.author.id
-
-    if(!title){
-        if(isAuthor){
-            title = "No podés reaccionar a tus propias publicaciones."
-        } else if(!user){
-            title = "Necesitás una cuenta para reaccionar."
-        }
+    if(!user){
+        title = "Necesitás una cuenta para reaccionar."
     }
     
     return <ReactionButton
         onClick={onLikeClick}
-        active={liked}
+        active={newLikeUri != undefined}
         icon1={icon1}
         icon2={icon2}
-        disabled={!user || disabled || isAuthor}
+        disabled={!user || disabled}
         count={likeCount}
         title={title}
-        className="mt-1 reaction-btn"
+        className="text-[var(--text-light)]"
     />
 }
 
 
 export const FixedCounter = ({count, icon, title}: {count: number, icon: ReactNode, title?: string}) => {
     
-    return <ReactionButton
-        onClick={() => {}}
-        active={true}
-        icon1={icon}
-        disabled={true}
-        count={count}
-        title={title}
-    />
+    return <div className="text-[var(--text-light)]">
+        <IconButton
+            color={"inherit"}
+            title={title}
+    >
+        {icon} <span className="text-sm flex items-end">{count}</span>
+    </IconButton></div>
 }

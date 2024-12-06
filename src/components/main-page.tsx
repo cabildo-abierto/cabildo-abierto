@@ -1,18 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CreateAccountLink } from "./create-account-link"
 import { MainFeedHeader } from "./main-feed-header"
-import { useSearch } from "./search-context"
-import { ConfiguredFeed } from "./sorted-and-filtered-feed"
 import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents"
 import { useUser } from "../app/hooks/user"
 import { fetcher } from "../app/hooks/utils"
 import { preload } from "swr"
 import { TrendingArticles } from "./trending-articles"
-import { TutorialPopup } from "./tutorial-popup"
-import { FollowSuggestions } from "./follow-suggestions"
 import { Route } from "./wiki-categories"
+import Feed from "./feed"
 
 
 type MainPageProps = {
@@ -31,16 +27,6 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
 
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
     const [filter, setFilter] = useState("Todas")
-    const [closedIntroPopup, setClosedIntroPopup] = useState(false)
-
-    useEffect(() => {
-        preload("/api/users", fetcher)
-        preload("/api/entities", fetcher)
-
-        // probablemente estos dos no tenga sentido ponerlos acá
-        preload("/api/feed/", fetcher)
-        preload("/api/following-feed/", fetcher)
-    }, [])
 
     function onSelection(v: string){
         setSelected(v)
@@ -54,8 +40,6 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
     </div>
 
     return <div className="w-full">
-        {false && user.user != undefined && !closedIntroPopup && <TutorialPopup onClose={() => {setClosedIntroPopup(true)}}/>}
-        
         <MainFeedHeader
             route={route}
             setRoute={setRoute}
@@ -76,13 +60,21 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                 </div>
             }
             
-            {selected == "En discusión" && 
-                <div className="pt-4 pb-6">
+            {false && selected == "En discusión" && 
+                <div className="pt-4 pb-6 px-2">
                     <TrendingArticles route={route}/>
                 </div>
             }
 
-            {selected == "En discusión" &&
+            {selected == "En discusión" && <Feed
+                feed={feed}
+            />}
+
+            {selected == "Siguiendo" && <Feed
+                feed={followingFeed}
+            />}
+
+            {/*(selected == "En discusión" || selected == "Siguiendo") &&
                 <ConfiguredFeed
                     feed={feed}
                     order={order}
@@ -90,15 +82,9 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                     setFilter={setFilter}
                     setOrder={setOrder}
                 />
-            }
+            */}
 
-            {selected == "Siguiendo" && 
-            <div className="">
-                <FollowSuggestions/>
-                </div>
-            }
-
-            {selected == "Siguiendo" &&
+            {/*selected == "Siguiendo" &&
             ((user.isLoading || user.user) ? <div className="mt-4">
                 <ConfiguredFeed
                     feed={followingFeed}
@@ -109,7 +95,7 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                     noResultsText={noResultsTextFollowing}
             /></div> : <div className="flex justify-center mt-8"><CreateAccountLink
                 text="Creá una cuenta o iniciá sesión para tener tu muro personal."
-            /></div>)}
+            /></div>)*/}
         </div>
     </div>
 }

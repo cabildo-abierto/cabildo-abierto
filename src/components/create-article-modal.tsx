@@ -1,16 +1,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useSWRConfig } from "swr";
-import { createEntity } from "../actions/entities";
 import { useUser } from "../app/hooks/user";
 import { CreateAccountLink } from "./create-account-link";
 import StateButton from "./state-button";
 import TickButton from "./tick-button";
-import { articleUrl } from "./utils";
+import { articleUrl, inputClassName } from "./utils";
 import { ErrorMsg, validEntityName } from "./write-button";
-import { BaseFullscreenPopup } from "./base-fullscreen-popup";
-import { DidYouKnow } from "./did-you-know";
-import { inputClassName } from "./signup-form";
+import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup";
 
 
 
@@ -42,13 +39,13 @@ export const CreateArticleModal = ({ open, onClose }: { open: boolean, onClose: 
             </div>
             </div>
             
-            <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-gray-800 text-sm">Ir a la página del tema después de crearlo</span>}/>
+            <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0" text={<span className="text-sm">Ir a la página del tema después de crearlo</span>}/>
 
             <div className="py-4">
                 <StateButton
                     handleClick={async () => {
-                        setErrorOnCreate(null)
-                        const { id, error } = await createEntity(entityName, user.user.id);
+                        /*setErrorOnCreate(null)
+                        const { id, error } = await createEntity(entityName, user.user.did);
                         if(error){
                             if(error == "exists"){
                                 setErrorOnCreate("Ya existe ese tema.")
@@ -60,7 +57,7 @@ export const CreateArticleModal = ({ open, onClose }: { open: boolean, onClose: 
                         mutate("/api/entities")
                         mutate("/api/entity/"+id)
                         if (goToArticle) router.push(articleUrl(id))
-                        onClose()
+                        onClose()*/
                         return {}
                     }}
                     disabled={!user.user || !validEntityName(entityName)}

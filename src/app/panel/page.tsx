@@ -5,7 +5,7 @@ import LoadingSpinner from "../../components/loading-spinner"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import InfoPanel from "../../components/info-panel"
 import { ReactNode } from "react"
-import { StatsIcon } from "../../components/icons"
+import { StatsIcon } from "../../components/icons/stats-icon"
 
 const UserStat = ({name, value}: {name: ReactNode, value: ReactNode}) => {
     return <div className="flex justify-between border-b py-2">
@@ -17,7 +17,7 @@ const UserStat = ({name, value}: {name: ReactNode, value: ReactNode}) => {
 const ShowUserStats = () => {
     const {user} = useUser()
 
-    const userContents = useUserContents(user.id)
+    const userContents = useUserContents(user.did)
     
     const stats = useUserStats()
     if(stats.isLoading){
@@ -69,7 +69,7 @@ const ShowUserStats = () => {
 
 
 const Page = () => {
-    const {user} = useUser()
+    const {user} = useUser() // TO DO: No usar y hacer server render
 
     const center = <div className="mt-8 flex flex-col items-center">
         <h2 className="mb-8">Tus estadísticas <StatsIcon/></h2>

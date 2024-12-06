@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { EntityProps } from '../app/lib/definitions';
-import { UndoIcon } from './icons';
 import { UndoChangesModal } from './undo-changes-modal';
+import { UndoIcon } from './icons/undo-icon';
 
 
 export const UndoButton = ({entity, version}: {entity: EntityProps, version: number}) => {

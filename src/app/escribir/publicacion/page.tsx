@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import PostEditor from "../../../components/editor/post-editor"
+import PostEditor from "../../../components/editor/article-editor"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
 
 export const metadata: Metadata = {
@@ -10,9 +10,14 @@ export const metadata: Metadata = {
 
 const Publicacion: React.FC = () => {
 
-    return <ThreeColumnsLayout center={<PostEditor
+    const center = <PostEditor
         isFast={false}
-    />}/>
+    />
+
+    return <ThreeColumnsLayout 
+        border={false}
+        center={center}
+    />
 }
 
 export default Publicacion

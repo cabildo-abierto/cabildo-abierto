@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useChat, useUser } from "../app/hooks/user"
-import { SendIcon } from "./icons"
 import { sendMessage, setMessageSeen } from "../actions/users"
 import { DateSince } from "./date"
 import StateButton from "./state-button"
 import LoadingSpinner from "./loading-spinner"
 import { ChatMessage } from "@prisma/client"
 import { useSWRConfig } from "swr"
+import { SendIcon } from "./icons/send-icon"
 
 
 
@@ -40,7 +40,7 @@ const ChatMessageComponent = ({fromUser, message}: {fromUser: string, message: C
 
 export const Chatbox = ({fromUser, toUser}: {fromUser?: string, toUser: string}) => {
     const user = useUser()
-    if(!fromUser) fromUser = user.user.id
+    if(!fromUser) fromUser = user.user.did
     const chat = useChat(fromUser, toUser)
     const [message, setMessage] = useState("");
     const endOfMessagesRef = useRef(null);

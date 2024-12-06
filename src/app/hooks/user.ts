@@ -1,68 +1,24 @@
 import useSWR from "swr"
-import { NotificationProps, UserProps } from "../lib/definitions"
+import { NotificationProps, SmallUserProps, UserProps } from "../lib/definitions"
 import { fetcher } from "./utils"
-import { ChatMessage } from "@prisma/client"
+import { ChatMessage, ContentType } from "@prisma/client"
+import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 
-export function useUser(): {user: UserProps | null, isLoading: boolean, error?: string}{
+
+export function useUser(): {user: UserProps, bskyProfile: ProfileViewDetailed, isLoading?: boolean, error?: string} {
     const { data, error, isLoading } = useSWR('/api/user', fetcher)
 
-    if(data && data.status == "not logged in"){
-        return {
-            user: undefined,
-            isLoading: false
-        }
-    }
-    if(data && data.error){
-        return {
-            user: undefined,
-            isLoading: isLoading,
-            error: data.error
-        }
-    }
     return {
-        user: data ? data.user : undefined,
-        isLoading: isLoading,
-        error: undefined
+        user: data ? data?.user : undefined,
+        bskyProfile: data ? data?.bskyProfile : undefined,
+        isLoading,
+        error
     }
 }
 
 
-export function useAuthUser(): {authUser: {name: string} | null, isLoading: boolean, error?: string}{
-    const { data, error, isLoading } = useSWR('/api/auth-user', fetcher)
-
-    return {
-        authUser: data,
-        isLoading: isLoading,
-        error: error
-    }
-}
-
-
-
-export function useUserFollowSuggestions(): {suggestions: {id: string, name: string}[] | null, isLoading: boolean, error: boolean}{
-    const { data, error, isLoading } = useSWR('/api/follow-suggestions', fetcher)
-    
-    return {
-        suggestions: data,
-        isLoading: isLoading,
-        error: error
-    }
-}
-
-
-export function useUserId(): {userId: string | null, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/userid', fetcher)
-  
-    return {
-        userId: data,
-        isLoading: isLoading,
-        isError: error
-    }
-}
-
-
-export function useUserContents(userId: string): {userContents: {id: string, type: string, parentEntityId: string}[], isLoading: boolean, isError: boolean}{
+export function useUserContents(userId: string): {userContents: {id: string, type: ContentType, parentEntityId: string}[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/userContents/'+userId, fetcher)
   
     return {
@@ -73,19 +29,7 @@ export function useUserContents(userId: string): {userContents: {id: string, typ
 }
 
 
-export function useUserLikesContent(contentId: string): {userLikesContent: boolean, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/user-like-content/'+contentId, fetcher)
-  
-    return {
-        userLikesContent: data,
-        isLoading: isLoading,
-        isError: error
-    }
-}
-
-
-
-export function useUsers(): {users: UserProps[], isLoading: boolean, isError: boolean}{
+export function useUsers(): {users: SmallUserProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/users', fetcher)
   
     return {

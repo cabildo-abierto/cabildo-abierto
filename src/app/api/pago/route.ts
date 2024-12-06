@@ -36,9 +36,6 @@ export async function POST(req) {
 
     const {error} = await buySubscriptions(userId, donated_amount, paymentId)
     if(error) {
-      console.log("error", error)
-      console.log("details", paymentDetails)
-      console.log(userId, donated_amount, paymentId)
       return NextResponse.json({status: 500})
     }
 

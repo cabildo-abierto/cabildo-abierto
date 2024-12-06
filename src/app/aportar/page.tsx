@@ -1,4 +1,4 @@
-import ActiveSubscription from "../../components/active-subscription"
+import ActiveSubscription from "./active-subscription"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 
 

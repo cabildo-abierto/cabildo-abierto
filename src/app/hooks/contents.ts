@@ -1,5 +1,5 @@
 import useSWR from "swr"
-import { ContentProps, SmallEntityProps, UserStats } from "../lib/definitions"
+import { ContentProps, FeedContentProps, SmallEntityProps, UserStats } from "../lib/definitions"
 import { fetcher } from "./utils"
 
 
@@ -31,7 +31,7 @@ export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: 
 }
 
 
-export function useSearchableContents(): {feed: ContentProps[], isLoading: boolean, isError: boolean}{
+export function useSearchableContents(): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/searchable-contents', fetcher)
   
     return {
@@ -42,7 +42,7 @@ export function useSearchableContents(): {feed: ContentProps[], isLoading: boole
 }
 
 
-export function useRouteFeed(route: string[]): {feed: ContentProps[], isLoading: boolean, isError: boolean}{
+export function useRouteFeed(route: string[]): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/feed/'+route.join("/"), fetcher)
   
     return {
@@ -53,9 +53,9 @@ export function useRouteFeed(route: string[]): {feed: ContentProps[], isLoading:
 }
 
 
-export function useRouteFollowingFeed(route: string[]): {feed: ContentProps[], isLoading: boolean, isError: boolean}{
+export function useRouteFollowingFeed(route: string[]): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/following-feed/'+route.join("/"), fetcher)
-  
+    
     return {
         feed: data,
         isLoading,
@@ -75,7 +75,7 @@ export function useRouteEntities(route: string[]): {entities: SmallEntityProps[]
 }
 
 
-export function useProfileFeed(id: string): {feed: ContentProps[], isLoading: boolean, isError: boolean}{
+export function useProfileFeed(id: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/profile-feed/'+id, fetcher)
   
     return {
@@ -86,7 +86,7 @@ export function useProfileFeed(id: string): {feed: ContentProps[], isLoading: bo
 }
 
 
-export function useEditsFeed(id: string): {feed: ContentProps[], isLoading: boolean, isError: boolean}{
+export function useEditsFeed(id: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/edits-feed/'+id, fetcher)
   
     return {
@@ -97,7 +97,7 @@ export function useEditsFeed(id: string): {feed: ContentProps[], isLoading: bool
 }
 
 
-export function useRepliesFeed(id: string): {feed: ContentProps[], isLoading: boolean, isError: boolean}{
+export function useRepliesFeed(id: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/replies-feed/'+id, fetcher)
 
     return {

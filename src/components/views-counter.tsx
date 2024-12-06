@@ -2,7 +2,7 @@
 
 import React from "react"
 import { ReactionButton } from "./reaction-button";
-import { ViewsIcon } from "./icons";
+import { ViewsIcon } from "./icons/views-icon";
 
 
 const title = "Cantidad de personas distintas que vieron este contenido. No se cuentan segundas visitas y tampoco personas sin cuenta."

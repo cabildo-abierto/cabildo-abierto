@@ -1,6 +1,4 @@
-import { ContentProps } from "../app/lib/definitions"
-import { AcceptButtonPanel } from "./accept-button-panel"
-import { BaseFullscreenPopup } from "./base-fullscreen-popup"
+import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
 import CopyUrlButton from "./copy-url-button"
 import FacebookShareButton from "./facebook-share-button"
 import XShareButton from "./twitter-share-button"

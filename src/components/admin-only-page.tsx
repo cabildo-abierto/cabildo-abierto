@@ -1,14 +1,16 @@
+"use client"
 import { ReactNode } from "react"
 import { NotFoundPage } from "./not-found-page"
-import { getUser } from "../actions/users"
+import { useUser } from "../app/hooks/user"
+import { tomasDid } from "./utils"
 
 
 
 
-export const AdminOnlyPage = async ({children}: {children: ReactNode}) => {
-    const {user, error} = await getUser()
+export const AdminOnlyPage = ({children}: {children: ReactNode}) => {
+    const {user, error} = useUser()
 
-    if(user && (user.editorStatus == "Administrator" || user.id == "tomas")){
+    if(user && (user.editorStatus == "Administrator" || user.did == tomasDid)){
         return <>{children}</>
     } else {
         return <NotFoundPage/>

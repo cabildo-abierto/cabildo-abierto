@@ -9,7 +9,7 @@ import { cleanText, shuffleArray } from "./utils"
 
 
 export const NoResults = ({text="No se encontraron resultados..."}: {text?: ReactNode}) => {
-    return <div className="text-center max-w-128 text-[var(--text-light)]">{text}</div>
+    return <div className="text-center max-w-128 text-[var(--text-light)] mt-4">{text}</div>
 }
 
 
@@ -31,12 +31,14 @@ export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: nu
         </div>
     }
 
+    console.log("users", users)
+
     //const routeUsers = users.users.filter((user) => (entityInRoute(user, route)))
 
     const searchValue = cleanText(searchState.value)
 
     function isMatch(user: SmallUserProps){
-        return cleanText(user.name).includes(searchValue) || cleanText(user.id).includes(searchValue)
+        return (user.displayName && cleanText(user.displayName).includes(searchValue)) || cleanText(user.handle).includes(searchValue)
     }
 
     let filteredUsers = users.users.filter(isMatch)

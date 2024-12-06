@@ -1,122 +1,39 @@
-import { LexicalEditor, EditorState } from "lexical"
-import { useState, useEffect, JSX, useRef } from "react"
-import dynamic from 'next/dynamic'
-import { commentEditorSettings } from "./editor/comment-editor"
+import { useState } from "react"
 import StateButton from "./state-button"
-import { FastPostIcon, LinkIcon } from "./icons"
 import { useUser } from "../app/hooks/user"
-import { mutate } from "swr"
-import { createPost } from "../actions/contents"
-import { compress } from "./compression"
-import { charCount, emptyOutput, validPost } from "./utils"
+import { createFastPost } from "../actions/contents"
 import { ExtraChars } from "./extra-chars"
-import { CloseButton } from "./close-button"
-import { ContentTopRowAuthor } from "./content"
-import { DialogButtonsList } from "./editor/ui/Dialog"
-import { Button } from "@mui/material"
-import { InsertImagePayload, InsertImageUploadedDialogBody, InsertImageUriDialogBody, UploadImageButton } from "./editor/plugins/ImagesPlugin"
 import useModal from "./editor/hooks/useModal"
-import Image from "next/image"
 import { FastPostImagesEditor } from "./fast-post-images-editor"
-
-const MyLexicalEditor = dynamic(() => import('./editor/lexical-editor'), { ssr: false });
-
-
-
-export function InsertImageDialog({
-    onSubmit,
-  }: {
-    onSubmit: (payload: InsertImagePayload) => void;
-  }): JSX.Element {
-    const [mode, setMode] = useState<null | 'url' | 'file'>(null);
-
-    return (
-      <div className="max-w-screen flex flex-col items-center">
-        <div className="w-48">
-        {!mode && (
-          <DialogButtonsList>
-            <Button
-              variant="contained"
-              sx={{textTransform: "none"}}
-              disableElevation={true}
-              startIcon={<LinkIcon/>}
-              onClick={() => setMode('url')}>
-              Desde un URL
-            </Button>
-            <UploadImageButton
-                onSubmit={onSubmit}
-            />
-          </DialogButtonsList>
-        )}
-        </div>
-        {mode === 'url' && <InsertImageUriDialogBody onClick={onSubmit} />}
-      </div>
-    );
-}
+import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
+import { CloseButton } from "./ui-utils/close-button"
+import { AddImageButton } from "./add-image-button"
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import { NeedAccountPopup } from "./need-account-popup"
+import {ProfilePic} from "./feed/profile-pic";
 
 
-export const AddImageButton = ({images, setImages, showModal}: {images: InsertImagePayload[], setImages: (images: InsertImagePayload[]) => void, showModal: any}) => {
-    return <button
-        onClick={() => {
-        showModal('Insertar una imágen', (onClose: any) => (
-            <InsertImageDialog
-            onSubmit={(payload: InsertImagePayload) => {
-                setImages([...images, payload])
-                onClose()
-            }}
-            />
-        ));
-        }}
-        disabled={images.length >= 4}
-        type="button"
-        title="Insertar imágen"
-        className="toolbar-item spaced"
-        aria-label="Insertar imágen">
-        <i className="format image" />
-    </button>
-}
-
-
-export const WritePanelMainFeed = ({onClose}: {onClose: () => void, mobile?: boolean}) => {
-    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined);
-    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
-    const { user } = useUser();
+export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () => void, mobile?: boolean}) => {
+    const { bskyProfile } = useUser();
     const [editorKey, setEditorKey] = useState(0);
-    const [randomPlaceholder, setRandomPlaceholder] = useState<string>("")
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
     const [modal, showModal] = useModal();
     const [images, setImages] = useState([])
+    const [text, setText] = useState("")
 
-    const placeholders = [
-        "Una ráfaga comunicacional de menos de 300 caracteres...",
-    ];
 
-    useEffect(() => {
-        const randomIndex = Math.floor(Math.random() * placeholders.length);
-        setRandomPlaceholder(placeholders[randomIndex]);
-    }, []);
+    if(!bskyProfile){
+        return <NeedAccountPopup open={open} text="Necesitás una cuenta para escribir" onClose={onClose}/>
+    }
 
-    const settings = { ...commentEditorSettings };
-    settings.placeholder = randomPlaceholder;
-    settings.editorClassName = "min-h-[50px] w-full content comment"
-    settings.placeholderClassName = "absolute top-0 text-[var(--text-lighter)] pointer-events-none"
-    settings.imageClassName = "fastpost-image"
+    const charLimit = 300
 
     async function handleSubmit() {
         setErrorOnCreatePost(false)
-        if (editor && user) {
-            const json = editor.getEditorState().toJSON()
+        if (bskyProfile) {
+            const {error} = await createFastPost(text);
 
-            json["images"] = images
-
-            const text = JSON.stringify(json);
-            
-            const compressedText = compress(text);
-            const {error} = await createPost(compressedText, "FastPost", false, user.id, undefined);
             if(!error){
-                mutate("/api/feed/");
-                mutate("/api/following-feed/")
-                mutate("/api/profile-feed/" + user.id);
                 setEditorKey(editorKey + 1);
                 onClose()
             } else {
@@ -127,42 +44,41 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void, mobile?: boo
         return {}
     }
 
-    const valid = validPost(editorState, settings.charLimit, "FastPost", images)
+    const valid = text.length > 0 && text.length <= 300
 
-    const count = editor && editorState ? charCount(editorState) : 0;
-    let disabled = valid.problem != undefined;
-
-    console.log("disabled:", editor, emptyOutput(editorState), images.length, valid.problem)
+    let disabled = !valid
 
     const sendButton = <StateButton
         text1="Publicar"
         handleClick={handleSubmit}
         disabled={disabled}
-        textClassName="title"
+        textClassName="font-bold"
         size="medium"
         disableElevation={true}
     />
 
-    const editorComp = <div className="sm:text-lg py-2 h-full max-h-[400px] w-full" key={editorKey}>
-        <MyLexicalEditor
-            settings={settings}
-            setEditorState={setEditorState}
-            setEditor={setEditor}
+    const editorComp = <div className="sm:text-lg h-full max-h-[400px] w-full" key={editorKey}>
+        <TextareaAutosize
+            minRows={3}
+            value={text}
+            onChange={(e) => {setText(e.target.value)}}
+            placeholder="¿Qué está pasando?"
+            className="w-full outline-none resize-none"
         />
-        {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
+        {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
     </div>
 
     const center = <>
-        <div className="flex justify-between px-1">
-            <div className="text-sm text-gray-400 flex items-center ml-2">
-                <ContentTopRowAuthor content={{author: user}}/>
-            </div>
+        <div className="flex justify-end px-1">
             <CloseButton onClose={onClose}/>
         </div>
         <div className="min-h-[250px] px-2">
-        <div className="sm:text-lg py-2 px-1 h-full w-full" key={editorKey}>
-            {editorComp}
-        </div>
+            <div className="flex space-x-2">
+                <ProfilePic bskyProfile={bskyProfile} className={"w-8 h-auto rounded-full"}/>
+                <div className="sm:text-lg h-full w-full" key={editorKey}>
+                    {editorComp}
+                </div>
+            </div>
             <FastPostImagesEditor images={images} setImages={setImages}/>
         </div>
         <hr className="border-gray-200" />
@@ -177,11 +93,11 @@ export const WritePanelMainFeed = ({onClose}: {onClose: () => void, mobile?: boo
         {modal}
     </>
 
-    return (
+    return <BaseFullscreenPopup open={open} className="w-128">
         <div className="w-full rounded pb-2 pt-1">
             {center}
             {errorOnCreatePost && <div className="flex justify-end text-sm text-red-600">Ocurrió un error al publicar. Intentá de nuevo.</div>}
         </div>
-    );
+    </BaseFullscreenPopup>
 };
 

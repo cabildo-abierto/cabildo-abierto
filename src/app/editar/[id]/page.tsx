@@ -6,7 +6,7 @@ import LoadingSpinner from "../../../components/loading-spinner";
 import { ErrorPage } from "../../../components/error-page";
 import { ThreeColumnsLayout } from "../../../components/three-columns";
 import { decompress } from "../../../components/compression";
-import PostEditor from "../../../components/editor/post-editor";
+import PostEditor from "../../../components/editor/article-editor";
 import { useUser } from "../../hooks/user";
 import { ContentProps } from "../../lib/definitions";
 
@@ -39,7 +39,7 @@ const Editar: React.FC<any> = ({params}) => {
         return <ErrorPage>No se encontró el contenido</ErrorPage>
     }
     
-    if(!user || content.author.id != user.id){
+    if(!user || content.author.did != user.did){
         return <ErrorPage>No sos el autor de este contenido</ErrorPage>
     }
 
