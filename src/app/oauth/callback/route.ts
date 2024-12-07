@@ -4,12 +4,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from 'iron-session'
 import { cookies } from "next/headers";
 import { createNewCAUserForBskyAccount } from "../../../actions/users";
+import {env} from "process";
 
 export type Session = {did: string}
 
 export async function GET(req: NextRequest){
     const params = new URLSearchParams(req.url.split('?')[1])
     const oauthClient = await createClient()
+
+    const baseUrl = env.PUBLIC_URL ? env.PUBLIC_URL : "http://localhost:3000"
 
     try {
         assert(process.env.COOKIE_SECRET)
@@ -34,10 +37,10 @@ export async function GET(req: NextRequest){
         const res = await createNewCAUserForBskyAccount(session.did)
 
         if(res.error){
-            return NextResponse.redirect('http://localhost:3000/login')
+            return NextResponse.redirect(baseUrl + '/login')
         }
     } catch (err) {
-        return NextResponse.redirect('http://localhost:3000/login')
+        return NextResponse.redirect(baseUrl + '/login')
     }
-    return NextResponse.redirect('http://localhost:3000/inicio')
+    return NextResponse.redirect(baseUrl + '/inicio')
 }
