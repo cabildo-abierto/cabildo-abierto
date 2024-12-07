@@ -14,7 +14,7 @@ const Page = () => {
             <p>
                 Al iniciar sesión en la nueva versión vas a poder recuperar todas tus publicaciones. Si necesitás acceder a algo antes escribinos a soporte@cabildoabierto.com.ar.
             </p>
-            <p className={"flex justify-end link"}>
+            <p className={"flex justify-end link text-sm"}>
                 <Link href={"/login"}>Volver</Link>
             </p>
         </div>
