@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Page = () => {
     return <div className={"flex flex-col w-screen items-center justify-center h-screen"}>
-        <h1>Migrar desde la primera versión</h1>
+        <h1>Migración desde la primera versión</h1>
         <div className={"mt-8 text-lg max-w-[600px] space-y-2 text-[var(--text-light)]"}>
             <p>Estamos construyendo una nueva versión con bastantes cambios y cosas nuevas.
                 Pero no te preocupes, todo lo que tenía la primera versión se va a mantener y no vas a perder tus publicaciones.
