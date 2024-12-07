@@ -37,7 +37,6 @@ export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: str
 
 
 export const getUsersList = async (): Promise<{users?: {did: string}[], error?: string}> => {
-    console.log("getting users")
 
     try {
         const users = await unstable_cache(async () => {

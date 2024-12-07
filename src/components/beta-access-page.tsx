@@ -61,7 +61,7 @@ export const BetaAccessPage = ({children}: {children: ReactNode}) => {
                         handleClick={handleSave}
                         text1={"Guardar"}
                     />
-                </div></> : <div className={"space-x-1 mt-4 flex flex-col items-center text-lg"}>
+                </div></> : <div className={"space-x-1 mt-4 flex flex-col items-center"}>
             <div className={""}>
                 <div>Te vamos a escribir a <span
                     className={"text-[var(--text-light)]"}>{email ? email : user.email}</span> para avisarte cuando

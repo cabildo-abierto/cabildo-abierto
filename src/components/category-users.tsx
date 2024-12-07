@@ -31,8 +31,6 @@ export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: nu
         </div>
     }
 
-    console.log("users", users)
-
     //const routeUsers = users.users.filter((user) => (entityInRoute(user, route)))
 
     const searchValue = cleanText(searchState.value)
