@@ -1,9 +1,11 @@
 import { NodeOAuthClient } from '@atproto/oauth-client-node'
 import { SessionStore, StateStore } from './storage'
+import { env } from "process"
 
 export const createClient = async () => {
-  const publicUrl = undefined
+  const publicUrl = env.PUBLIC_URL
   const url = publicUrl || `http://127.0.0.1:3000`
+
   const enc = encodeURIComponent
   return new NodeOAuthClient({
     clientMetadata: {

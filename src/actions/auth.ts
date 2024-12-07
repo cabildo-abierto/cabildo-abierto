@@ -1,7 +1,6 @@
 'use server'
 
 import { isValidHandle } from "@atproto/syntax"
-import { redirect } from "next/navigation"
 import { createClient } from "../auth/client"
 import { Session } from "../app/oauth/callback/route"
 import { Agent } from "@atproto/api"
@@ -9,7 +8,6 @@ import { getIronSession } from "iron-session"
 import { cookies } from "next/headers"
 import { env } from "process"
 import {AppViewHandleResolver} from "@atproto/oauth-client-node";
-//import { AppViewHandleResolver } from '@atproto-labs/handle-resolver'
 
 
 export async function login(handle: string){

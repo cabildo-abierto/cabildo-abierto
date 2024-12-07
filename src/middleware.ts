@@ -9,8 +9,8 @@ function isNewUserRoute(request: NextRequest){
   return ['/', '/signup', '/login', "/oauth/callback"].includes(request.nextUrl.pathname)
 }
 
-function isPublicRoute(request){
-    return ["/v1"].includes(request.nextUrl.pathnam)
+function isPublicRoute(request: NextRequest){
+    return ["/v1", "/.well-known/atproto-did", "/client-metadata.json"].includes(request.nextUrl.pathname)
 }
 
 export async function middleware(request: NextRequest) {
@@ -53,19 +53,24 @@ export async function middleware(request: NextRequest) {
 
     const loggedIn = session.did != undefined
 
+    console.log(request.nextUrl.pathname)
     if(!isPublicRoute(request)){
         if (
             !loggedIn && !isNewUserRoute(request)
         ) {
             // no user, potentially respond by redirecting the user to the login page
+            console.log("Redirecting to /")
             const url = request.nextUrl.clone()
             url.pathname = '/'
             return NextResponse.redirect(url)
         } else if(loggedIn && isNewUserRoute(request)){
+            console.log("Redirecting to /inicio")
             const url = request.nextUrl.clone()
             url.pathname = '/inicio'
             return NextResponse.redirect(url)
         }
+    } else {
+        console.log("Public route")
     }
 
 }
