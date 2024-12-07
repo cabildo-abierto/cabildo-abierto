@@ -84,7 +84,7 @@ export const BetaAccessPage = ({children}: {children: ReactNode}) => {
             Si ya tenías una cuenta de la primera versión, <Link className="link2" href={"/v1"}>hacé click acá</Link>.
         </div>
 
-        <div className={"mt-48 text-[var(--text-light)]"}>
+        <div className={"mt-24 text-[var(--text-light)]"}>
             <Footer showCA={false}/>
         </div>
     </div>

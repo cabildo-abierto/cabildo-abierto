@@ -1,17 +1,20 @@
 import { NodeOAuthClient } from '@atproto/oauth-client-node'
 import { SessionStore, StateStore } from './storage'
-import { env } from "process"
+
 
 export const createClient = async () => {
-  const publicUrl = env.PUBLIC_URL
+  const publicUrl = process.env.PUBLIC_URL ? process.env.PUBLIC_URL : undefined
   const url = publicUrl || `http://127.0.0.1:3000`
 
   const enc = encodeURIComponent
+
+  const client_id = publicUrl
+      ? `${url}/client-metadata.json`
+      : `http://localhost?redirect_uri=${enc(`${url}/oauth/callback`)}&scope=${enc('atproto transition:generic')}`
+
   return new NodeOAuthClient({
     clientMetadata: {
-      client_id: publicUrl
-          ? `${url}/client-metadata.json`
-          : `http://localhost?redirect_uri=${enc(`${url}/oauth/callback`)}&scope=${enc('atproto transition:generic')}`,
+      client_id: client_id,
       client_name: 'Cabildo Abierto',
       application_type: 'web',
       grant_types: ['authorization_code', 'refresh_token'],
