@@ -4,6 +4,7 @@ import { db } from "../db"
 import { decompress } from "./compression"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
 import { ContentType } from "@prisma/client"
+import {SessionOptions} from "iron-session";
 
 
 export const splitPost = (text: string) => {
@@ -747,6 +748,17 @@ export const inputClassName = "custom-input rounded"
 
 export const supportDid = "did:plc:rup47j6oesjlf44wx4fizu4m"
 export const tomasDid = "did:plc:2356xofv4ntrbu42xeilxjnb"
+
+export const myCookieOptions: SessionOptions = {
+    cookieName: 'sid',
+    password: process.env.COOKIE_SECRET || "",
+    cookieOptions: {
+        sameSite: "lax",
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        path: "/"
+    }
+}
 
 
 export const formatIsoDate = (isoDate) => {

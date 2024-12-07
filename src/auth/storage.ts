@@ -18,7 +18,6 @@ export class StateStore implements NodeSavedStateStore {
 
         if (!result) return
         return JSON.parse(result.state) as NodeSavedState
-        
     }
     async set(key: string, val: NodeSavedState) {
         const state = JSON.stringify(val)

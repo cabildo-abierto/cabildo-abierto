@@ -1,14 +1,14 @@
 import { Metadata } from "next";
-import Footer from "../components/footer"
-import { LogoAndSlogan } from "../components/presentation"
+import Footer from "../../components/footer"
+import { LogoAndSlogan } from "../../components/presentation"
 import Link from "next/link";
 import Button from "@mui/material/Button";
 import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
-import { articleUrl } from "../components/utils";
-import { BlueskyLogo } from "../components/icons/bluesky-logo";
-import {mainDescription} from "../components/utils/metadata";
-import {FormHelperText} from "@mui/material";
+import { articleUrl } from "../../components/utils";
+import { BlueskyLogo } from "../../components/icons/bluesky-logo";
+import {mainDescription} from "../../components/utils/metadata";
+import {CloseSessionButton} from "../../components/close-session-button";
 
 export const metadata: Metadata = {
     title: 'Cabildo Abierto',

@@ -6,8 +6,8 @@ import { Session } from "../app/oauth/callback/route"
 import { Agent } from "@atproto/api"
 import { getIronSession } from "iron-session"
 import { cookies } from "next/headers"
-import { env } from "process"
 import {AppViewHandleResolver} from "@atproto/oauth-client-node";
+import {myCookieOptions} from "../components/utils";
 
 
 export async function login(handle: string){
@@ -26,6 +26,8 @@ export async function login(handle: string){
         })
     } catch (err) {
         // TO DO: Esto no debería hacer falta...
+        console.log("error", err)
+
         const resolver = new AppViewHandleResolver('https://api.bsky.app/')
         const did = await resolver.resolve(handle)
 
@@ -34,7 +36,8 @@ export async function login(handle: string){
                 url = await oauthClient.authorize(did, {
                     scope: 'atproto transition:generic'
                 })
-            } catch {
+            } catch(err) {
+                console.log("error on did authorize", err)
                 return {error: "Falló la conexión con Bluesky."}
             }
         } else {
@@ -48,20 +51,12 @@ export async function login(handle: string){
 
 export async function getSessionAgent(){
 
-    const session = await getIronSession<Session>(await cookies(), {
-        cookieName: 'sid',
-        password: env.COOKIE_SECRET || "",
-        cookieOptions: {
-            sameSite: "lax",
-            httpOnly: true,
-            secure: false,
-            path: "/"
-        }
-    })
+    const session = await getIronSession<Session>(cookies(), myCookieOptions)
 
     if (!session.did) {
         return {agent: new Agent("https://bsky.social/xrpc"), did: undefined}
     }
+
     const oauthClient = await createClient()
 
     try {
@@ -72,6 +67,7 @@ export async function getSessionAgent(){
             return {agent: new Agent("https://bsky.social/xrpc"), did: undefined}
         }
     } catch (err) {
+        console.log("error", err)
         session.destroy()
         return {agent: undefined, did: undefined}
     }
@@ -79,19 +75,10 @@ export async function getSessionAgent(){
 
 
 export async function logout(){
+    const client = await createClient()
 
-    const session = await getIronSession<Session>(await cookies(), {
-        cookieName: 'sid',
-        password: env.COOKIE_SECRET || "",
-        cookieOptions: {
-            sameSite: "lax",
-            httpOnly: true,
-            secure: false,
-            path: "/"
-        }
-    })
+    const session = await getIronSession<Session>(cookies(), myCookieOptions)
 
-    if(session){
-        session.destroy()
-    }
+    await client.revoke(session.did)
+    session.destroy()
 }

@@ -3,14 +3,15 @@ import { getIronSession } from 'iron-session'
 
 import { Session } from './app/oauth/callback/route'
 import { cookies } from 'next/headers'
+import {myCookieOptions} from "./components/utils";
 
 
 function isNewUserRoute(request: NextRequest){
-  return ['/', '/signup', '/login', "/oauth/callback"].includes(request.nextUrl.pathname)
+  return ['/signup', '/login'].includes(request.nextUrl.pathname)
 }
 
 function isPublicRoute(request: NextRequest){
-    return ["/v1", "/.well-known/atproto-did", "/client-metadata.json"].includes(request.nextUrl.pathname)
+    return ["/v1", "/.well-known/atproto-did", "/client-metadata.json", "/presentacion", "/oauth/callback"].includes(request.nextUrl.pathname)
 }
 
 export async function middleware(request: NextRequest) {
@@ -40,39 +41,26 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(articleUrl)
     }
 
-    const session = await getIronSession<Session>(await cookies(), {
-        cookieName: 'sid',
-        password: process.env.COOKIE_SECRET || "",
-        cookieOptions: {
-            sameSite: "lax",
-            httpOnly: true,
-            secure: false,
-            path: "/"
-        }
-    })
+    const session = await getIronSession<Session>(cookies(), myCookieOptions)
 
     const loggedIn = session.did != undefined
 
-    console.log(request.nextUrl.pathname)
     if(!isPublicRoute(request)){
-        if (
-            !loggedIn && !isNewUserRoute(request)
-        ) {
-            // no user, potentially respond by redirecting the user to the login page
-            console.log("Redirecting to /")
-            const url = request.nextUrl.clone()
+        if(request.nextUrl.pathname == "/") {
+            if(loggedIn){
+                url.pathname = '/inicio'
+            } else {
+                url.pathname = "/presentacion"
+            }
+        } else if (!loggedIn && !isNewUserRoute(request)) {
             url.pathname = '/'
-            return NextResponse.redirect(url)
         } else if(loggedIn && isNewUserRoute(request)){
-            console.log("Redirecting to /inicio")
-            const url = request.nextUrl.clone()
             url.pathname = '/inicio'
-            return NextResponse.redirect(url)
+        } else {
+            return
         }
-    } else {
-        console.log("Public route")
+        return NextResponse.redirect(url)
     }
-
 }
 
 export const config = {
