@@ -58,7 +58,6 @@ export async function middleware(request: NextRequest) {
             !loggedIn && !isNewUserRoute(request)
         ) {
             // no user, potentially respond by redirecting the user to the login page
-            console.log("redirecting to /")
             const url = request.nextUrl.clone()
             url.pathname = '/'
             return NextResponse.redirect(url)

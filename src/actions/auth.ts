@@ -8,6 +8,7 @@ import { Agent } from "@atproto/api"
 import { getIronSession } from "iron-session"
 import { cookies } from "next/headers"
 import { env } from "process"
+import {AppViewHandleResolver} from "@atproto/oauth-client-node";
 //import { AppViewHandleResolver } from '@atproto-labs/handle-resolver'
 
 
@@ -19,18 +20,28 @@ export async function login(handle: string){
         return {error: "Nombre de usuario inválido." + (handle.includes("@") ? " Escribilo sin @." : "")}
     }
 
-    /*const resolver = new AppViewHandleResolver('https://api.bsky.app/')
-    const did = await resolver.resolve('cabildoabierto.com.ar')*/
-
     // Initiate the OAuth flow
     let url
     try {
         url = await oauthClient.authorize(handle, {
-            scope: 'atproto transition:generic',
+            scope: 'atproto transition:generic'
         })
     } catch (err) {
-        console.log(err)
-        return {error: "Falló la conexión con Bluesky."}
+        // TO DO: Esto no debería hacer falta...
+        const resolver = new AppViewHandleResolver('https://api.bsky.app/')
+        const did = await resolver.resolve(handle)
+
+        if(did){
+            try {
+                url = await oauthClient.authorize(did, {
+                    scope: 'atproto transition:generic'
+                })
+            } catch {
+                return {error: "Falló la conexión con Bluesky."}
+            }
+        } else {
+            return {error: "Falló la conexión con Bluesky."}
+        }
     }
     
     return {url: url.toString()}
