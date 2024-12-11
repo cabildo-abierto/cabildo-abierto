@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { MainFeedHeader } from "./main-feed-header"
-import { useRouteFeed, useRouteFollowingFeed } from "../app/hooks/contents"
-import { useUser } from "../app/hooks/user"
-import { fetcher } from "../app/hooks/utils"
+import { useRouteFeed, useRouteFollowingFeed } from "../hooks/contents"
+import { useUser } from "../hooks/user"
+import { fetcher } from "../hooks/utils"
 import { preload } from "swr"
 import { TrendingArticles } from "./trending-articles"
 import { Route } from "./wiki-categories"

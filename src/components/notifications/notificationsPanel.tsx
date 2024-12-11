@@ -1,4 +1,4 @@
-import { useNotifications } from "../../app/hooks/user"
+import { useNotifications } from "../../hooks/user"
 import LoadingSpinner from "../loading-spinner"
 import { NotificationComponent } from "./notification"
 import { CloseButton } from "../ui-utils/close-button"

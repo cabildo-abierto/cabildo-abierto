@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { EntityProps } from '../app/lib/definitions';
+import { TopicProps } from '../app/lib/definitions';
 import { UndoChangesModal } from './undo-changes-modal';
 import { UndoIcon } from './icons/undo-icon';
 
 
-export const UndoButton = ({entity, version}: {entity: EntityProps, version: number}) => {
+export const UndoButton = ({entity, version}: {entity: TopicProps, version: number}) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     return <div className="relative">

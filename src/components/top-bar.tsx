@@ -7,7 +7,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import WriteButton from "./write-button";
 import { createPortal } from "react-dom";
-import { useUser } from "../app/hooks/user";
+import { useUser } from "../hooks/user";
 import { TopbarLogo } from "./logo";
 import { NotificationsButton } from "./notifications/notifications-button";
 import { useSearch } from "./search-context";

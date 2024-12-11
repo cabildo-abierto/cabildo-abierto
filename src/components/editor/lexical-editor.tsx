@@ -21,7 +21,6 @@ import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import {TableNode} from '@lexical/table';
-import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { CAN_USE_DOM } from './shared/canUseDOM';
 
@@ -57,7 +56,6 @@ import { CustomMarkNode } from './nodes/CustomMarkNode';
 import { $createParagraphNode, $createTextNode, $getRoot, LexicalEditor as OriginalLexicalEditor } from 'lexical';
 import { DiffNode } from './nodes/DiffNode';
 import { AuthorNode } from './nodes/AuthorNode';
-import { CommentProps } from '../../app/lib/definitions';
 import TableCellResizer from './plugins/TableCellResizer';
 import { TableContext } from './plugins/TablePlugin';
 import { CustomTableNode } from './nodes/CustomTableNode';
@@ -69,7 +67,6 @@ import { usePageLeave } from '../prevent-leave';
 import { v4 as uuidv4 } from 'uuid';
 import {ImageNode} from './nodes/ImageNode'
 import {InlineImageNode} from './nodes/InlineImageNode/InlineImageNode';
-import { ContentType } from '@prisma/client';
 
 
 export type SettingsProps = {
@@ -104,12 +101,12 @@ export type SettingsProps = {
   isAutofocus: boolean,
   editorClassName: string,
   content?: {
-    id: string
-    type: ContentType
+    cid: string
+    type: string
     title?: string
     parentEntityId?: string
-    compressedText?: string
-    childrenContents: CommentProps[]
+    text?: string
+    childrenContents?: any[]
   },
   placeholderClassName: string,
   showingChanges?: string,

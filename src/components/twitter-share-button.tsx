@@ -1,7 +1,7 @@
 
 import { CustomLink as Link } from './custom-link';
 import React from 'react';
-import { useUser } from '../app/hooks/user';
+import { useUser } from '../hooks/user';
 
 const XShareButton = () => {
     const {user} = useUser()

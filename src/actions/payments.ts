@@ -2,12 +2,11 @@
 
 
 import { db } from "../db";
-import { accessToken, contributionsToProportionsMap, formatDate, isPartOfContent, launchDate, subscriptionEnds, supportDid } from "../components/utils";
+import { accessToken, contributionsToProportionsMap, formatDate, launchDate, subscriptionEnds, supportDid } from "../components/utils";
 import { getUserById } from "./users";
 import { pathLogo } from "../components/logo";
 import MercadoPagoConfig, { Preference } from "mercadopago";
 import { BothContributionsProps, SubscriptionProps, UserProps } from "../app/lib/definitions";
-import { ContentType } from "@prisma/client";
 
 
 const baseUrl = "https://www.cabildoabierto.com.ar"
@@ -62,21 +61,12 @@ export async function getSubscriptionPrice() {
 }
 
 
-export async function newContactMail(mail: string){
-    await db.contactEmails.create({
-        data: {
-          mail: mail
-        }
-    })
-}
-
-
 export async function getContentContribution(id: string): Promise<{contribution: string}>{
     throw Error("Not implemented.")
 }
 
 
-export async function createPaymentPromisesForEntityView(view: {content: {id: string, authorId: string, createdAt: Date}}, viewValue: number, subscriptionId: string){
+/*export async function createPaymentPromisesForEntityView(view: {content: {id: string, authorId: string, createdAt: Date}}, viewValue: number, subscriptionId: string){
 
     const {contribution} = await getContentContribution(view.content.id)
     
@@ -98,10 +88,10 @@ export async function createPaymentPromisesForEntityView(view: {content: {id: st
     }
 
     return {}
-}
+}*/
 
 
-export async function createPaymentPromisesForEntityViews(user: UserProps, amount: number, start: Date, end: Date, subscriptionId: string){
+/*export async function createPaymentPromisesForEntityViews(user: UserProps, amount: number, start: Date, end: Date, subscriptionId: string){
     let entityViews = await db.view.findMany({
         select: {
             content: {
@@ -159,10 +149,10 @@ export async function createPaymentPromisesForEntityViews(user: UserProps, amoun
         await createPaymentPromisesForEntityView(view, viewValue, subscriptionId)
     }
     return true
-}
+}*/
 
 
-export async function createPaymentPromisesForContentReactions(user: UserProps, amount: number, start: Date, end: Date, subscriptionId: string){
+/*export async function createPaymentPromisesForContentReactions(user: UserProps, amount: number, start: Date, end: Date, subscriptionId: string){
     const contentReactions = await db.reaction.findMany({
         select: {
             content: {
@@ -202,10 +192,10 @@ export async function createPaymentPromisesForContentReactions(user: UserProps, 
         })
     }
     return true
-}
+}*/
 
 
-export async function createPromises(userId: string, amount: number, start: Date, end: Date, subscriptionId: string){
+/*export async function createPromises(userId: string, amount: number, start: Date, end: Date, subscriptionId: string){
     const {user, error} = await getUserById(userId)
     if(error) return {error}
 
@@ -251,10 +241,10 @@ export async function createPromises(userId: string, amount: number, start: Date
 
 
     return {}
-}
+}*/
 
 
-export async function reassignPromise(p: {id: string, amount: number, subscription: SubscriptionProps}) {
+/*export async function reassignPromise(p: {id: string, amount: number, subscription: SubscriptionProps}) {
     await db.paymentPromise.update({
         data: {
             status: "Canceled"
@@ -264,10 +254,10 @@ export async function reassignPromise(p: {id: string, amount: number, subscripti
         }
     })
     // TO DO: Implement
-}
+}*/
 
 
-function confirmWaitPassed(content: {createdAt: Date, undos: {createdAt: Date}[], type: ContentType}){
+/*function confirmWaitPassed(content: {createdAt: Date, undos: {createdAt: Date}[], type: ContentType}){
     const now = new Date()
     let lastUpdateDate = content.createdAt
     if(content.type == "EntityContent"){
@@ -277,11 +267,12 @@ function confirmWaitPassed(content: {createdAt: Date, undos: {createdAt: Date}[]
         })
     }
     return now.getTime() - lastUpdateDate.getTime() > 1000*30*24*60*60
-}
+}*/
 
 
 export async function confirmPayments() {
-    const promises = await db.paymentPromise.findMany({
+    return
+    /*const promises = await db.paymentPromise.findMany({
         select: {
             id: true,
             amount: true,
@@ -338,10 +329,13 @@ export async function confirmPayments() {
     }
     console.log("Promsesas confirmadas", totalConfirmed)
     console.log("Pagos totales", totalAmount)
+     */
 }
 
 
 export async function createPaymentPromises(){
+    return
+    /*
     let subscriptions = await db.subscription.findMany({
         select: {
             paymentPromises: {
@@ -405,4 +399,5 @@ export async function createPaymentPromises(){
         await createPromises(userId, subscription.price, nextSubscriptionStart, nextSubscriptionEnd, subscription.id)
         break
     }
+     */
 }

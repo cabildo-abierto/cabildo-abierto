@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ThreeColumnsLayout } from "../../components/three-columns";
-import { useUser } from "../hooks/user";
+import { useUser } from "../../hooks/user";
 import { CustomLink as Link } from '../../components/custom-link';
 import { PermissionLevel } from "../../components/permission-level";
 

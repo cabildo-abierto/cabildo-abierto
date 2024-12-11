@@ -1,16 +1,15 @@
 import dynamic from "next/dynamic"
-import { CommentProps, ContentProps, EntityProps } from "../app/lib/definitions"
 import { decompress } from "./compression"
 import { getAllText } from "./diff"
 import { SerializedAuthorNode } from "./editor/nodes/AuthorNode"
 import { editorStateFromJSON } from "./utils"
 import { wikiEditorSettings } from "./editor/wiki-editor"
 import { ShowContributors } from "./show-contributors"
-import { ContentType } from "@prisma/client"
+import {TopicProps} from "../app/lib/definitions";
 
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
-function showAuthors(entity: EntityProps, version: number, versionText: string){
+function showAuthors(topic: TopicProps, version: number, versionText: string){
     function newAuthorNode(authors: string[], childNode){
         const authorNode: SerializedAuthorNode = {
             children: [childNode],
@@ -32,11 +31,11 @@ function showAuthors(entity: EntityProps, version: number, versionText: string){
     let prevAuthors = []
 
     for(let i = 0; i <= version; i++){
-        const parsedVersion = editorStateFromJSON(decompress(entity.versions[i].compressedText))
+        const parsedVersion = editorStateFromJSON(decompress(topic.versions[i].text))
         if(!parsedVersion) continue
         const nodes = parsedVersion.root.children
-        const {matches} = JSON.parse(entity.versions[i].diff)
-        const versionAuthor = entity.versions[i].author.did
+        const {matches} = JSON.parse(topic.versions[i].diff)
+        const versionAuthor = topic.versions[i].author.did
         let nodeAuthors: string[] = []
         for(let j = 0; j < nodes.length; j++){
             let authors = null
@@ -71,17 +70,21 @@ function showAuthors(entity: EntityProps, version: number, versionText: string){
 }
 
 
-export const ShowArticleAuthors = ({originalContent, originalContentText, entity, version}: {originalContent: {
-    id: string
-    type: ContentType
-    childrenContents: CommentProps[]
-    compressedText?: string
-}, 
-originalContentText: string, entity: EntityProps, version: number}) => {
+export const ShowArticleAuthors = ({
+                                       originalContent, originalContentText, topic, version
+}: {
+    originalContent: {
+        cid: string
+        text: string
+    },
+    originalContentText: string,
+    topic: TopicProps,
+    version: number
+}) => {
     
-    const contentText = showAuthors(entity, version, originalContentText)
+    const contentText = showAuthors(topic, version, originalContentText)
 
-    let settings = wikiEditorSettings(true, originalContent, contentText)
+    let settings = wikiEditorSettings(true, {...originalContent, parentEntityId: topic.id, childrenContents: []}, contentText)
 
     return <>
         <div className="text-sm text-center block lg:hidden content-container p-1">
@@ -90,7 +93,7 @@ originalContentText: string, entity: EntityProps, version: number}) => {
         <div className="flex justify-center py-4">
             <div className="content-container bg-[var(--secondary-light)] rounded px-2 pb-2 text-sm sm:text-base flex flex-col items-center justify-center">
                 <div className="text-[var(--text-light)]">Autores</div>
-                <ShowContributors entityId={entity.id}/>
+                <ShowContributors topicId={topic.id}/>
             </div>
         </div>
         <div className="hidden lg:block">

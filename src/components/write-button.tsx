@@ -1,11 +1,11 @@
 import React, { useState, ReactNode } from 'react';
 import InfoPanel from './info-panel';
-import { NewTopicButton } from './new-public-article-button';
+import { NewTopicButton } from './new-topic-button';
 import { ModalBelow } from './modal-below';
 import { NewFastPostButton } from './new-fast-post-button';
 import { Button, IconButton } from '@mui/material';
 import { CustomLink as Link } from './custom-link';
-import { CreateArticleModal } from './create-article-modal';
+import { CreateTopicModal } from './create-topic-modal';
 import { WritePanelMainFeed } from './write-panel-main-feed';
 import { PostIcon } from './icons/post-icon';
 import { ArticleIcon } from './icons/article-icon';
@@ -94,7 +94,7 @@ const WriteButton = () => {
                 </div>
             </ModalBelow>
             <WritePanelMainFeed open={isFastPostModalOpen} onClose={() => setIsFastPostModalOpen(false)} />
-            <CreateArticleModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)} />
+            <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)} />
         </div>
     );
 };

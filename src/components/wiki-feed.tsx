@@ -1,6 +1,6 @@
 "use client"
 
-import { useEditsFeed } from "../app/hooks/contents"
+import { useEditsFeed } from "../hooks/contents"
 import Feed from "./feed"
 
 

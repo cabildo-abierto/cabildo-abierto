@@ -2,7 +2,7 @@
 import { UserSearchResult } from "./searchbar"
 import { useSearch } from "./search-context"
 import { SmallUserProps } from "../app/lib/definitions"
-import { useUser, useUsers } from "../app/hooks/user"
+import { useUser, useUsers } from "../hooks/user"
 import LoadingSpinner from "./loading-spinner"
 import { ReactNode } from "react"
 import { cleanText, shuffleArray } from "./utils"

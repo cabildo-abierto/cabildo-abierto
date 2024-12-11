@@ -1,23 +1,12 @@
-import { useEffect, useState } from "react"
-import { useContent } from "../../app/hooks/contents"
-import { EntityProps } from "../../app/lib/definitions"
-import LoadingSpinner from "../loading-spinner"
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { smoothScrollTo } from "../editor/plugins/TableOfContentsPlugin"
 import { Button } from "@mui/material"
+import {TopicProps} from "../../app/lib/definitions";
 
 
 
-export const ArticleDiscussion = ({contentId, entity, version}: {contentId: string, entity: EntityProps, version: number}) => {
-    const {content} = useContent(contentId)
-
-    const [comments, setComments] = useState([])
-
-    useEffect(() => {
-        if(content) setComments(content.childrenContents)
-    }, [content])
-
-    if(!content) return <LoadingSpinner/>
+export const ArticleDiscussion = ({topic, version}: {topic: TopicProps, version: number}) => {
+    const content = topic.versions[version]
 
     function onGoToInformation() {
         const targetElement = document.getElementById('information-start');
@@ -25,7 +14,7 @@ export const ArticleDiscussion = ({contentId, entity, version}: {contentId: stri
         return smoothScrollTo(targetElement, 300)
     }
 
-    return <div className="w-full p-4 rounded-lg content-container">
+    return <div className="w-full p-4">
         <div className="flex justify-between">
             <div>
                 <h2>Discusión</h2>
@@ -33,7 +22,7 @@ export const ArticleDiscussion = ({contentId, entity, version}: {contentId: stri
 
             <div className="text-[var(--text-light)]">
                 <Button variant="outlined" onClick={onGoToInformation} size="small" color="inherit" endIcon={<ArrowUpwardIcon/>}>
-                    Información
+                    Consenso
                 </Button>
             </div>
         </div>

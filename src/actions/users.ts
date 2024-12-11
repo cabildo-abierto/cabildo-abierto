@@ -4,10 +4,7 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
 import { SmallUserProps, UserProps, UserStats } from "../app/lib/definitions";
-import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-import { listOrder, subscriptionEnds, supportDid, validSubscription } from "../components/utils";
-import { headers } from "next/headers";
-import { userAgent } from "next/server";
+import {supportDid, validSubscription} from "../components/utils";
 import { getSubscriptionPrice } from "./payments";
 import { getSessionAgent } from "./auth";
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
@@ -146,26 +143,10 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, bs
                             select: {
                                 id: true,
                                 price: true
-                            }, 
+                            },
                             where: {
                                 price: {
                                     gte: 500
-                                }
-                            }
-                        },
-                        _count: {
-                            select: {
-                                notifications: {
-                                    where: {
-                                        viewed: false
-                                    }
-                                },
-                                contents: {
-                                    where: {
-                                        fakeReportsCount: {
-                                            not: 0
-                                        }
-                                    }
                                 }
                             }
                         }
@@ -176,7 +157,7 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, bs
                                 did: userId
                             },
                             {
-                                handle:userId
+                                handle: userId
                             }
                         ]
                     }
@@ -196,47 +177,6 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, bs
     const {data} = await agent.getProfile({actor: userId})
 
     return {user, bskyProfile: data}
-}
-
-
-export const getUserContents = (userId: string) => {
-    return unstable_cache(async () => {
-        const contents = (await db.user.findUnique(
-            {
-                select: {
-                    contents: {
-                        select: {
-                            id: true,
-                            type: true,
-                            parentEntityId: true,
-                            _count: {
-                                select: {
-                                    reactions: true,
-                                    views: true
-                                }
-                            },
-                            charsAdded: true
-                        },
-                        where: {
-                            type: {
-                                in: ["Post", "EntityContent"]
-                            }
-                        },
-                        orderBy: {
-                            createdAt: "desc"
-                        },
-                    },
-                },
-                where: {
-                    did: userId
-                }
-            }
-        )).contents
-
-        return contents ? contents : undefined
-    }, ["userContents", userId], {
-        revalidate: revalidateEverythingTime,
-        tags: ["userContents:"+userId]})()    
 }
 
 
@@ -285,34 +225,6 @@ export async function getUser(){
 }
 
 
-export const getUserIncome = async (userId: string) => {
-    let income = 0
-    let pendingConfirmationIncome = 0
-
-    const promises = await db.paymentPromise.findMany({
-        select: {
-            amount: true,
-            status: true
-        },
-        where: {
-            authorId: userId
-        }
-    })
-    
-    for(let i = 0; i < promises.length; i++){
-        const p = promises[i]
-        if(p.status == "Canceled") continue
-        if(p.status == "Pending"){
-            pendingConfirmationIncome += p.amount
-        } else {
-            income += p.amount
-        }
-    }
-
-    return {income: income, pendingPayIncome: income, pendingConfirmationIncome: pendingConfirmationIncome}
-}
-
-
 export async function buySubscriptions(userId: string, donatedAmount: number, paymentId: string) {
     const {user, error} = await getUserById(userId)
     if(error) return {error}
@@ -348,163 +260,12 @@ export async function buySubscriptions(userId: string, donatedAmount: number, pa
 }
 
 
-// TO DO: Atómico
-export async function getDonatedSubscription(userId: string) {
-    let subscription
-    try {
-        subscription = await db.subscription.findFirst({
-            where: {
-                usedAt: null
-            }
-        })
-    } catch {
-        return {error: "error finding donated subscription"}
-    }
-
-    if(!subscription){
-        return {error: "no donated subscription"}
-    } else {
-        const usedAt = new Date()
-        const endsAt = subscriptionEnds(usedAt)
-        try {
-            await db.subscription.update({
-                data: {
-                    usedAt: usedAt,
-                    endsAt: endsAt,
-                    userId: userId
-                },
-                where: {
-                    id: subscription.id
-                }
-            })
-        } catch {
-            return {error: "error on use donated subscription"}
-        }
-        revalidateTag("user:"+userId)
-        revalidateTag("poolsize")
-        revalidateTag("fundingProgress")
-        return {}
-    }
-}
-
-
 const min_time_between_visits = 60*60*1000 // una hora
 
 
 function olderThan(date: Date, ms: number){
     return new Date().getTime() - date.getTime() <= ms
 }
-
-
-export const logVisit = async (contentId: string): Promise<{error?: string, user?: NoAccountUserProps}> => {
-    const header = headers()
-    const agent = userAgent({headers: header})
-
-    const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
-
-    let user
-    try {
-        user = await db.noAccountUser.findFirst({
-            where: {
-                ip: ip,
-                browser: JSON.stringify(agent.browser),
-                engine: JSON.stringify(agent.engine),
-                os: JSON.stringify(agent.os),
-                device: JSON.stringify(agent.device),
-                cpu: JSON.stringify(agent.cpu),
-                isBot: agent.isBot
-            }
-        })
-    } catch {
-        return {error: "error finding no account user"}
-    }
-
-    const newUser = user == null
-    if(newUser){
-        user = await db.noAccountUser.create({
-            data: {
-                ip: ip,
-                ua: agent.ua,
-                browser: JSON.stringify(agent.browser),
-                engine: JSON.stringify(agent.engine),
-                os: JSON.stringify(agent.os),
-                device: JSON.stringify(agent.device),
-                cpu: JSON.stringify(agent.cpu),
-                isBot: agent.isBot
-            }
-        })
-    }
-
-    let recentVisit = false
-    if(!newUser){
-        const visit = await db.noAccountVisit.findFirst({
-            where: {
-                userId: user.did,
-                contentId: contentId
-            },
-            orderBy: {
-                createdAt: "desc"
-            }
-        })
-        if(visit && olderThan(visit.createdAt, min_time_between_visits)){ 
-            recentVisit = true
-        }
-    }
-    if(!recentVisit){
-        try {
-            await db.noAccountVisit.create({
-                data: {
-                    userId: user.did,
-                    contentId: contentId,
-                }
-            })
-        } catch {
-            return {error: "error creating no account visit"}
-        }
-    }
-    return await getNoAccountUser(header, agent)
-}
-
-
-export type NoAccountUserProps = {
-    id: string
-    visits: {
-        createdAt: Date
-    }[]
-}
-
-
-export const getNoAccountUser = async (header: ReadonlyHeaders, agent: any): Promise<{error?: string, user?: NoAccountUserProps}> => {
-    const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
-
-    try {
-        let user = await db.noAccountUser.findFirst({
-            where: {
-                ip: ip,
-                browser: JSON.stringify(agent.browser),
-                engine: JSON.stringify(agent.engine),
-                os: JSON.stringify(agent.os),
-                device: JSON.stringify(agent.device),
-                cpu: JSON.stringify(agent.cpu),
-                isBot: agent.isBot
-            },
-            select: {
-                id: true,
-                visits: {
-                    select: {
-                        createdAt: true
-                    }
-                }
-            }
-        })
-
-        return {user}
-    } catch {
-        return {error: "error on get no account user"}
-    }
-}
-
-
 
 export const getChatBetween = (userId: string, anotherUserId: string) => {
     return unstable_cache(async () => {
@@ -653,212 +414,6 @@ export async function getUsersByLocation(){
 }
 
 
-export const getFundingPercentage = unstable_cache(async () => {
-    const available = await db.subscription.findMany({
-        select: {id: true},
-        where: {
-            usedAt: null,
-            price: {
-                gte: 500
-            }
-        }
-    })
-    if(available.length > 0){
-        return 100
-    }
-
-    const usersWithViews = await db.user.findMany({
-        select: {
-            did: true,
-            subscriptionsUsed: {
-                select: {
-                    endsAt: true
-                },
-                orderBy: {
-                    endsAt: "asc"
-                }
-            },
-            views: {
-                select: {
-                    createdAt: true
-                },
-                orderBy: {
-                    createdAt: "desc"
-                }
-            }
-        },
-    })
-
-    let activeUsers = 0
-    let activeNoSubscription = 0
-    usersWithViews.forEach((u) => {
-        if(u.views.length > 0 && new Date().getTime() - u.views[0].createdAt.getTime() < 1000*3600*24*30){
-            activeUsers ++
-            if(!validSubscription(u)){
-                activeNoSubscription ++
-            }
-        }
-    })
-
-    console.log("active users", activeUsers)
-    console.log("active no subs", activeNoSubscription)
-
-    return (1 - (activeNoSubscription / activeUsers))*100
-
-},
-    ["fundingPercentage"],
-    {
-        revalidate: 5,
-        tags: ["fundingPercentage"]
-    }
-)
-
-
-export async function assignSubscriptions(){
-    const usersWithViews = await db.user.findMany({
-        select: {
-            did: true,
-            subscriptionsUsed: {
-                select: {
-                    endsAt: true
-                },
-                orderBy: {
-                    usedAt: "asc"
-                }
-            },
-            createdAt: true,
-            views: {
-                select: {
-                    createdAt: true
-                },
-                orderBy: {
-                    createdAt: "desc"
-                }
-            }
-        }
-    })
-
-    let usersRequiringSubscription = []
-
-    usersWithViews.forEach((u) => {
-        if(u.views.length > 0 && new Date().getTime() - u.views[0].createdAt.getTime() < 1000*3600*24*30){
-            if(!validSubscription(u)){
-                usersRequiringSubscription.push(u)
-            }
-        }
-    })
-
-    //console.log("users requiring", usersRequiringSubscription.map(({id}) => (id)))
-
-    function userScore(u){
-        if(u.subscriptionsUsed.length > 0){
-            return [u.subscriptionsUsed[u.subscriptionsUsed.length-1].usedAt]
-        } else {
-            return [u.createdAt]
-        }
-    }
-
-    usersRequiringSubscription = usersRequiringSubscription.map((u) => ({user: u, score: userScore(u)})).sort(listOrder).map(({user}) => (user))
-
-    //console.log("sorted", usersRequiringSubscription.map(({id}) => (id)))
-
-    const available = await db.subscription.findMany({
-        select: {id: true},
-        where: {
-            usedAt: null,
-            price: {
-                gte: 500
-            }
-        }
-    })
-
-    //console.log("available subscriptions", available.length)
-    for(let i = 0; i < usersRequiringSubscription.length; i++){
-        if(i >= available.length) break
-        const usedAt = new Date()
-        const endsAt = subscriptionEnds(usedAt)
-        await db.subscription.update({
-            data: {
-                usedAt: usedAt,
-                userId: usersRequiringSubscription[i].id,
-                endsAt: endsAt,
-            },
-            where: {
-                id: available[i].id
-            }
-        })    
-        console.log("assigned subscription", available[i].id, "to", usersRequiringSubscription[i].id)
-    }
-
-    revalidateTag("fundingPercentage")
-}
-
-
-export async function recoverSubscriptions(){
-    const sellsByUser = await db.subscription.groupBy({
-        by: ['boughtByUserId'],
-        _count: {
-          boughtByUserId: true,
-        },
-        where: {
-            price: {
-                gte: 500
-            }
-        }
-    })
-    console.log(sellsByUser)
-}
-
-
-export const getDonationsDistribution = unstable_cache(async () => {
-    const users = await db.user.findMany({
-        select: {
-            subscriptionsBought: {
-                select: {
-                    price: true
-                }
-            },
-            createdAt: true
-        }
-    })
-
-    const today = new Date()
-    let data: number[] = []
-    users.forEach((u) => {
-        let t = 0
-        u.subscriptionsBought.forEach(({price}) => {
-            t += price
-        })
-        const months = Math.ceil((today.getTime() - u.createdAt.getTime()) / (1000*3600*24*30))
-        data.push(t / months)
-    })
-    data.sort((a, b) => {return Math.sign(a-b)})
-    //console.log("data", data)
-
-    const percentiles = data.map((value, index) => {
-        return {value, p: index / data.length}
-    })
-
-    //console.log("percentiles", percentiles)
-
-    const inverse = []
-    let j = 0
-    for(let i = 0; i < 100; i++){
-        while(percentiles[j].p < i / 100 && j < percentiles.length-1) j++
-        inverse.push(percentiles[j].value)
-    }
-
-    //console.log("inverse", inverse)
-    return inverse
-},
-    ["donationsDistribution"],
-    {
-        revalidate: 5,
-        tags: ["donationsDistribution"]
-    }
-)
-
-
 export async function desassignSubscriptions(){
     await db.subscription.updateMany({
         data: {
@@ -939,3 +494,113 @@ export async function updateEmail(email: string){
     }
     return {}
 }
+
+
+export const getFundingPercentage = unstable_cache(async () => {
+        const available = await db.subscription.findMany({
+            select: {id: true},
+            where: {
+                usedAt: null,
+                price: {
+                    gte: 500
+                }
+            }
+        })
+        if(available.length > 0){
+            return 100
+        }
+
+        const usersWithViews = await db.user.findMany({
+            select: {
+                did: true,
+                subscriptionsUsed: {
+                    select: {
+                        endsAt: true
+                    },
+                    orderBy: {
+                        endsAt: "asc"
+                    }
+                },
+                views: {
+                    select: {
+                        createdAt: true
+                    },
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                }
+            },
+        })
+
+        let activeUsers = 0
+        let activeNoSubscription = 0
+        usersWithViews.forEach((u) => {
+            if(u.views.length > 0 && new Date().getTime() - u.views[0].createdAt.getTime() < 1000*3600*24*30){
+                activeUsers ++
+                if(!validSubscription(u)){
+                    activeNoSubscription ++
+                }
+            }
+        })
+
+        console.log("active users", activeUsers)
+        console.log("active no subs", activeNoSubscription)
+
+        return (1 - (activeNoSubscription / activeUsers))*100
+
+    },
+    ["fundingPercentage"],
+    {
+        revalidate: 5,
+        tags: ["fundingPercentage"]
+    }
+)
+
+
+export const getDonationsDistribution = unstable_cache(async () => {
+        const users = await db.user.findMany({
+            select: {
+                subscriptionsBought: {
+                    select: {
+                        price: true
+                    }
+                },
+                createdAt: true
+            }
+        })
+
+        const today = new Date()
+        let data: number[] = []
+        users.forEach((u) => {
+            let t = 0
+            u.subscriptionsBought.forEach(({price}) => {
+                t += price
+            })
+            const months = Math.ceil((today.getTime() - u.createdAt.getTime()) / (1000*3600*24*30))
+            data.push(t / months)
+        })
+        data.sort((a, b) => {return Math.sign(a-b)})
+        //console.log("data", data)
+
+        const percentiles = data.map((value, index) => {
+            return {value, p: index / data.length}
+        })
+
+        //console.log("percentiles", percentiles)
+
+        const inverse = []
+        let j = 0
+        for(let i = 0; i < 100; i++){
+            while(percentiles[j].p < i / 100 && j < percentiles.length-1) j++
+            inverse.push(percentiles[j].value)
+        }
+
+        //console.log("inverse", inverse)
+        return inverse
+    },
+    ["donationsDistribution"],
+    {
+        revalidate: 5,
+        tags: ["donationsDistribution"]
+    }
+)

@@ -6,10 +6,11 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
 import { useSWRConfig } from "swr";
-import { useUser } from "../app/hooks/user";
-import { EntityProps } from "../app/lib/definitions";
+import { useUser } from "../hooks/user";
+import { TopicProps } from "../app/lib/definitions";
 import InfoPanel from "./info-panel";
 import Button from "@mui/material/Button";
+import {getTopicTitle} from "./topic/utils";
 
 
 function validSearchkey(k: string){
@@ -68,9 +69,9 @@ export const EntitySearchkeysTitle = ({name}: {name: string}) => {
 
 
 
-export const SearchkeysEditor = ({entity, setEditing}: {entity: EntityProps, setEditing: (v: boolean) => void}) => {
+export const SearchkeysEditor = ({entity, setEditing}: {entity: TopicProps, setEditing: (v: boolean) => void}) => {
     const user = useUser()
-    const [searchkeys, setSearchkeys] = useState(entity.currentVersion.searchkeys)
+    const [searchkeys, setSearchkeys] = useState(entity.currentVersion.synonyms)
     const {mutate} = useSWRConfig()
     const [errorOnSave, setErrorOnSave] = useState(false)
 
@@ -117,7 +118,7 @@ export const SearchkeysEditor = ({entity, setEditing}: {entity: EntityProps, set
     return <div className="w-full">
         <hr className="py-3"/>
         <EntitySearchkeysTitle
-            name={entity.name}
+            name={getTopicTitle(entity)}
         />
         <div className="flex flex-col w-full">
 
@@ -148,14 +149,14 @@ export const SearchkeysEditor = ({entity, setEditing}: {entity: EntityProps, set
                 size="small"
                 variant="outlined"
                 sx={{textTransform: "none"}}
-                disabled={areSearchkeysEqual(searchkeys, entity.currentVersion.searchkeys)}
+                disabled={areSearchkeysEqual(searchkeys, entity.currentVersion.synonyms)}
                 onClick={() => {setEditing(false)}}>
                 Cancelar
             </Button>
             <StateButton
                 size="small"
                 variant="outlined"
-                disabled={areSearchkeysEqual(searchkeys, entity.currentVersion.searchkeys) || !validSearchkeys(searchkeys)}
+                disabled={areSearchkeysEqual(searchkeys, entity.currentVersion.synonyms) || !validSearchkeys(searchkeys)}
                 handleClick={onSubmitSearchkeys}
                 text1="Confirmar"
             />

@@ -1,6 +1,6 @@
 "use client"
 import {ReactNode, useState} from "react";
-import {useUser} from "../app/hooks/user";
+import {useUser} from "../hooks/user";
 import {getUsername} from "./utils";
 import {TextField} from "@mui/material";
 import {CloseSessionButton} from "./close-session-button";

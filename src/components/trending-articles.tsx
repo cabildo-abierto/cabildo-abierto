@@ -1,21 +1,22 @@
-import { useRouteEntities } from "../app/hooks/contents"
-import { SmallEntityProps } from "../app/lib/definitions"
+import { useRouteTopics } from "../hooks/contents"
+import { SmallTopicProps } from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
 import { articleUrl, currentVersion, listOrderDesc, supportDid } from "./utils"
 import { useDraggable } from "react-use-draggable-scroll";
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from "next/navigation"
-import { fetcher } from "../app/hooks/utils"
+import { fetcher } from "../hooks/utils"
 import { preload } from "swr"
 import InfoPanel from "./info-panel";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PersonIcon from '@mui/icons-material/Person';
 import { CustomLink as Link } from './custom-link';
 import Button from "@mui/material/Button";
+import {getTopicTitle} from "./topic/utils";
 
 
-export function countUserInteractions(entity: SmallEntityProps, since?: Date){
+export function countUserInteractions(entity: SmallTopicProps, since?: Date){
     //const entityId = "Cabildo Abierto"
     //if(entity.name == entityId) console.log("Interacciones", entity.name)
 
@@ -75,13 +76,13 @@ export function countUserInteractions(entity: SmallEntityProps, since?: Date){
 }
 
 
-export function topicPopularityScore(entity: SmallEntityProps, since?: Date){
+export function topicPopularityScore(entity: SmallTopicProps, since?: Date){
     return [countUserInteractions(entity, since), entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0, new Date(entity.versions[currentVersion(entity)].createdAt).getTime()]
 }
 
 
 export const TrendingArticles = ({route}: {route: string[]}) => {
-    const entities = useRouteEntities(route);
+    const entities = useRouteTopics(route);
     const [recent, setRecent] = useState(route.length == 0)
 
     useEffect(() => {
@@ -94,7 +95,7 @@ export const TrendingArticles = ({route}: {route: string[]}) => {
 
     const since = recent ? new Date(new Date().getTime() - (7*24*60*60*1000)) : undefined
 
-    let entitiesWithScore = entities.entities.map((entity) => ({ entity: entity, score: topicPopularityScore(entity, since) }))
+    let entitiesWithScore = entities.topics.map((entity) => ({ entity: entity, score: topicPopularityScore(entity, since) }))
 
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
     
@@ -126,7 +127,8 @@ export const TrendingArticles = ({route}: {route: string[]}) => {
 };
 
 
-export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: {entity: SmallEntityProps, score: number[]}[]}) => {
+export const TrendingArticlesSlider = ({trendingArticles}: {
+    trendingArticles: {entity: SmallTopicProps, score: number[]}[]}) => {
     const ref =
     useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
     const { events } = useDraggable(ref);
@@ -160,7 +162,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {trendingArticles: {e
                 >
                     <div className="flex items-center justify-center px-2 w-28 sm:w-48 title h-full">
                         <span className={"overflow-hidden" + (hovering == index ? " line-clamp-none" : " line-clamp-2")}>
-                            {entity.name}
+                            {getTopicTitle(entity)}
                         </span>
                     </div>
 

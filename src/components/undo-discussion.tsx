@@ -1,14 +1,13 @@
 "use client"
 
-import { useContent } from "../app/hooks/contents"
-import { ContentProps, EntityProps } from "../app/lib/definitions"
+import { TopicProps } from "../app/lib/definitions"
 import { decompress } from "./compression"
 import { UserIdLink } from "./content-top-row-author"
 import LoadingSpinner from "./loading-spinner"
 
 
 
-export const UndoDiscussion = ({entity, version}: {entity: EntityProps, version: number}) => {
+export const UndoDiscussion = ({entity, version}: {entity: TopicProps, version: number}) => {
     return <>TO DO</>
     /*return <ContentWithCommentsFromId
         contentId={entity.versions[version].undos[0].id}
@@ -31,7 +30,10 @@ export const UndoDiscussionContent = ({content, onStartReply, onViewComments, vi
     onViewComments: () => void
     viewingComments: boolean
 }) => {
-    const undone = useContent(content.contentUndoneId)
+    return <div>
+        Sin implementar
+    </div>
+    /*const undone = useContent(content.contentUndoneId)
 
     if(undone.isLoading){
         return <LoadingSpinner/>
@@ -62,11 +64,11 @@ export const UndoDiscussionContent = ({content, onStartReply, onViewComments, vi
             <button className="reply-btn" onClick={onStartReply}>
                 Responder
             </button>
-            {/* TO DO <CommentCounter
+            <CommentCounter
                 content={content}
                 viewingComments={viewingComments}
                 onViewComments={onViewComments}
-            />*/}
+            />
         </div>
-    </div>
+    </div>*/
 }

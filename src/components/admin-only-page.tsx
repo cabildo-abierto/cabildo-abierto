@@ -1,7 +1,7 @@
 "use client"
 import { ReactNode } from "react"
 import { NotFoundPage } from "./not-found-page"
-import { useUser } from "../app/hooks/user"
+import { useUser } from "../hooks/user"
 import { tomasDid } from "./utils"
 
 

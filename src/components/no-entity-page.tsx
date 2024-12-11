@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import React from "react"
 import { useSWRConfig } from "swr"
-import { useUser } from "../app/hooks/user"
+import { useUser } from "../hooks/user"
 import { articleUrl } from "./utils"
 import { validEntityName } from "./write-button"
 

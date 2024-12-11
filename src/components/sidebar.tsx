@@ -4,7 +4,7 @@ import { CustomLink as Link } from './custom-link';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import { useChat, useSupportNotRespondedCount, useUser } from "../app/hooks/user";
+import { useChat, useSupportNotRespondedCount, useUser } from "../hooks/user";
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
 import { articleUrl, supportDid, userUrl } from "./utils";

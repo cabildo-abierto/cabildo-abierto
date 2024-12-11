@@ -1,6 +1,6 @@
 
 import { CustomLink as Link } from './custom-link';
-import { useUser } from "../app/hooks/user";
+import { useUser } from "../hooks/user";
 
 
 export const WhatsAppShareButton = () => {

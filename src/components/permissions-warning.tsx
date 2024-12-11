@@ -1,12 +1,12 @@
 "use client"
-import { useUser } from "../app/hooks/user"
-import { EntityProps } from "../app/lib/definitions"
+import { useUser } from "../hooks/user"
+import { TopicProps } from "../app/lib/definitions"
 import InfoPanel from "./info-panel"
 import { PermissionLevel } from "./permission-level"
 
 
 
-export const NotEnoughPermissionsWarning = ({entity}: {entity: EntityProps}) => {
+export const NotEnoughPermissionsWarning = ({entity}: {entity: TopicProps}) => {
     const user = useUser()
 
     const status = user.user.editorStatus

@@ -1,23 +1,6 @@
 import useSWR from "swr"
-import { ContentProps, FeedContentProps, SmallEntityProps, UserStats } from "../lib/definitions"
+import { FeedContentProps, SmallTopicProps, UserStats } from "../app/lib/definitions"
 import { fetcher } from "./utils"
-
-
-export function useContent(id: string): {content: ContentProps | undefined, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/content/'+id, fetcher)
-    
-    if(data && data.error){
-        return {content: undefined,
-            isLoading: false,
-            isError: true
-        }
-    }
-    return {
-        content: data ? data.content : undefined,
-        isLoading,
-        isError: error
-    }
-}
 
 
 export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: boolean}{
@@ -64,11 +47,11 @@ export function useRouteFollowingFeed(route: string[]): {feed: FeedContentProps[
 }
 
 
-export function useRouteEntities(route: string[]): {entities: SmallEntityProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/entities/'+route.join("/"), fetcher)
+export function useRouteTopics(route: string[]): {topics: SmallTopicProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/topics/'+route.join("/"), fetcher)
   
     return {
-        entities: data,
+        topics: data,
         isLoading,
         isError: error
     }

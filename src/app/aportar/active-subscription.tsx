@@ -1,9 +1,9 @@
 "use client"
 import LoadingSpinner from '../../components/loading-spinner';
-import { useDonationsDistribution, useFundingPercentage, useSubscriptionPrice } from '../hooks/subscriptions';
+import { useDonationsDistribution, useFundingPercentage, useSubscriptionPrice } from '../../hooks/subscriptions';
 import { CustomLink as Link } from '../../components/custom-link';
 import { ThreeColumnsLayout } from '../../components/three-columns';
-import { useUser } from '../hooks/user';
+import { useUser } from '../../hooks/user';
 import { UserProps } from '../lib/definitions';
 import FundingProgress from '../../components/funding-progress';
 import StateButton from '../../components/state-button';

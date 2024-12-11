@@ -1,5 +1,5 @@
 import { Button } from "@mui/material"
-import { useUser } from "../../app/hooks/user"
+import { useUser } from "../../hooks/user"
 import Image from 'next/image'
 import {ProfilePic} from "./profile-pic";
 

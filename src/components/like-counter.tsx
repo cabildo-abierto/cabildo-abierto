@@ -2,8 +2,7 @@
 
 import React, { ReactNode, useState } from "react"
 import { ReactionButton } from "./reaction-button";
-import { useUser } from "../app/hooks/user";
-import { addLike, removeLike } from "../actions/contents";
+import { useUser } from "../hooks/user";
 import { ActiveLikeIcon } from "./icons/active-like-icon";
 import { InactiveLikeIcon } from "./icons/inactive-like-icon";
 import { IconButton } from "@mui/material";

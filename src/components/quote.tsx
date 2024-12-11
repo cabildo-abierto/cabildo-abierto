@@ -3,17 +3,15 @@ import {$getRoot, LexicalEditor} from 'lexical'
 import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
 import {$createQuoteNode} from '@lexical/rich-text';
 import {$unwrapMarkNode} from '@lexical/mark'
-import { useContent } from '../app/hooks/contents';
-import { ContentType } from '@prisma/client';
 import { decompress } from './compression';
 import ReadOnlyEditor from './editor/read-only-editor';
-import { ParentContentProps } from '../app/lib/definitions';
+
 
 type CommentContentProps = {
     id: string
     author: {id: string, handle: string, displayName: string}
     compressedText?: string
-    type: ContentType
+    type: string
     isContentEdited: boolean
     createdAt: Date | string
     fakeReportsCount: number
@@ -23,9 +21,9 @@ type CommentContentProps = {
     }
     uniqueViewsCount: number
     parentEntity?: {id: string}
-    parentContents?: ParentContentProps[]
-    rootContent?: ParentContentProps
-    childrenContents: {type: ContentType}[]
+    parentContents?: any[]
+    rootContent?: any
+    childrenContents: {type: string}[]
 }
 
 
@@ -73,7 +71,7 @@ export function getAllQuoteIds(node: any): any {
 }
 
 
-export const CommentQuote = ({content}: {content: CommentContentProps}) => {
+/*export const CommentQuote = ({content}: {content: CommentContentProps}) => {
     const parentId = content.parentContents[0].id
     let snode = null
     const parentContent = useContent(parentId)
@@ -117,4 +115,4 @@ export const CommentQuote = ({content}: {content: CommentContentProps}) => {
     } else {
         return <></>
     }
-}
+}*/

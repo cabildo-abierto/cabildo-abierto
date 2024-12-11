@@ -1,7 +1,7 @@
 import useSWR from "swr"
-import { NotificationProps, SmallUserProps, UserProps } from "../lib/definitions"
+import { SmallUserProps, UserProps } from "../app/lib/definitions"
 import { fetcher } from "./utils"
-import { ChatMessage, ContentType } from "@prisma/client"
+import { ChatMessage } from "@prisma/client"
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 
@@ -18,7 +18,7 @@ export function useUser(): {user: UserProps, bskyProfile: ProfileViewDetailed, i
 }
 
 
-export function useUserContents(userId: string): {userContents: {id: string, type: ContentType, parentEntityId: string}[], isLoading: boolean, isError: boolean}{
+export function useUserContents(userId: string): {userContents: {id: string, type: string, parentEntityId: string}[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/userContents/'+userId, fetcher)
   
     return {
@@ -62,12 +62,12 @@ export function useSupportNotRespondedCount(): {count: number, isLoading: boolea
 }
 
 
-export function useNotifications(): {notifications: NotificationProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/notifications', fetcher)
-    
+export function useNotifications(): {notifications: any[], isLoading: boolean, isError: boolean}{
+    //const { data, error, isLoading } = useSWR('/api/notifications', fetcher)
+
     return {
-        notifications: data,
-        isLoading: isLoading,
-        isError: error
+        notifications: [],
+        isLoading: false,
+        isError: false
     }
 }

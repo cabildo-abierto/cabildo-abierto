@@ -8,7 +8,7 @@ export async function GET(req: NextRequest,
 ) {
     //const route = params.route ? params.route.map(decodeURIComponent) : []
 
-    let feed = await getEnDiscusion()
+    let {feed} = await getEnDiscusion()
 
     return NextResponse.json(feed)
 }

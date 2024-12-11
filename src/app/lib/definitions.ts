@@ -1,5 +1,64 @@
-import { ContentType, EditorStatus, NotificationType } from '@prisma/client';
-import { z } from 'zod'
+import {EditorStatus} from '@prisma/client';
+
+
+export type TopicProps = {
+    id: string
+    versions: TopicVersionProps[]
+    protection: EditorStatus
+    currentVersion: {
+        cid: string,
+        synonyms: string[]
+    }
+}
+
+
+export type TopicVersionProps = {
+    topicId: string
+    uri: string
+    createdAt: Date
+    text: string
+    author: {did: string, handle: string}
+    cid: string
+    message: string
+    title?: string
+
+    diff?: string
+    charsAdded?: number
+    charsDeleted?: number
+    accCharsAdded?: number
+    contribution?: string
+
+    authorship: boolean
+
+    accepts: TopicVersionAccept[]
+    rejects: TopicVersionReject[]
+
+    categories?: string
+    synonyms?: string[]
+}
+
+
+export type TopicVersionAccept = {
+    uri: string
+    cid: string
+    createdAt: Date
+    author: {
+        did: string
+        handle: string
+    }
+}
+
+
+export type TopicVersionReject = {
+    uri: string
+    cid: string
+    createdAt: Date
+    text: string
+    author: {
+        did: string
+        handle: string
+    }
+}
 
 
 export type SmallUserProps = {
@@ -18,171 +77,26 @@ export type UserMonthDistributionProps = {
     end: Date
 }
 
-export type ParentContentProps = {
-    id: string
-    uri: string
-    author: {did: string, handle: string}
-    type: ContentType
-    contribution: string,
-    parentEntityId: string
-}
-
-export type ContentProps = {
-    id: string
-    createdAt: Date
-    compressedText?: string
-    compressedPlainText?: string
-    author: SmallUserProps
-    type: ContentType
-    parentContent: ParentContentProps
-    usersMentioned: {did: string}[]
-    childrenTree: {authorId: string}[]
-
-    title: string | null
-
-    categories: string | null
-    parentEntity: {id: string, isPublic: boolean, currentVersion: {searchkeys: string[]}}
-    charsAdded: number,
-    charsDeleted: number,
-    accCharsAdded: number,
-    contribution: string,
-    diff: string
-
-    fakeReportsCount: number,
-    reactions: {userById: string}[],
-    _count: {reactions: number, childrenTree: number},
-    uniqueViewsCount: number,
-
-    references: {entityReferenced: {id: string, versions: {id: string, categories: string}[]}}[]
-
-    rootContent?: ParentContentProps
-    ancestorContent: {id: string, authorId: string}[]
-
-    currentVersionOf: {id: string} | null
-
-    claimsAuthorship: boolean
-
-    undos: {
-        id: string
-        reportsVandalism: boolean
-        reportsOportunism: boolean
-        authorId: string
-        createdAt: Date | string
-        compressedText?: string
-    }[]
-    contentUndoneId: string
-    reportsOportunism: boolean
-    reportsVandalism: boolean
-
-    childrenContents: CommentProps[]
-
-    isContentEdited: boolean
-
-    isDraft?: boolean
-}
-
-
-export type CommentProps = {
-    id: string
-    createdAt: Date
-    type: ContentType
-    reactions: {userById: string}[]
-    childrenTree: {authorId: string}[]
-    author: {did: string}
-    uniqueViewsCount: number
-}
-
-
-export type ReferenceProps = {
-    isStrong: boolean
-    referencingContent: {
-        id: string
-        createdAt: Date
-        type: ContentType
-        author: {
-            id: string
-        },
-        uniqueViewsCount: number
-        childrenTree: {authorId: string, createdAt: Date}[]
-        reactions: {userById: string, createdAt: Date}[]
-        currentVersionOf: {
-            id: string
-        }
-        parentEntityId: string
-    }
-}
-
 
 export type BothContributionsProps = {
     monetized: [string, number][]
     all: [string, number][]
 }
 
-
-export type EntityProps = {
-    id: string
-    name: string
-    protection: string
-    isPublic: boolean,
-    versions: EntityVersionProps[]
-    referencedBy: ReferenceProps[]
-    deleted: boolean,
-    currentVersionId: string
-    currentVersion: {
-        categories: string
-        searchkeys: string[]
-        compressedText: string
-    }
-}
-
-
-export type EntityVersionProps = {
-    id: string,
-    type: ContentType
-    categories: string,
-    createdAt: Date,
-    confirmedById?: string,
-    rejectedById?: string,
-    compressedText?: string
-    author: {
-        did: string
-        handle: string
-        displayName: string
-    }
-    editPermission: boolean,
-    accCharsAdded: number,
-    charsAdded: number
-    charsDeleted: number
-    contribution: string
-    childrenContents: CommentProps[]
-    diff: string
-    claimsAuthorship: boolean,
-    undos: {
-        id: string
-        reportsVandalism: boolean
-        reportsOportunism: boolean
-        authorId: string
-        createdAt: Date
-        compressedText: string
-    }[]
-    uniqueViewsCount: number
-    editMsg?: string
-    references: {entityReferenced: {id: string}}[]
-}
-
 export type ContributionsProps = [string, number][]
 
-export type SmallEntityProps = {
-    id: string,
-    name: string,
+export type SmallTopicProps = {
+    id: string
+    currentVersion: {cid: string, synonyms: string[]}
     versions: {
-        id: string,
-        categories: string,
-        createdAt: Date,
+        cid: string
+        title: string
+        categories: string
+        createdAt: Date
         authorId: string
         numWords: number
         childrenTree: {authorId: string, createdAt: Date}[]
-        reactions: {userById: string}[]
+        synonyms: string[]
     }[]
     referencedBy: {
         isStrong: boolean
@@ -193,10 +107,6 @@ export type SmallEntityProps = {
             createdAt: Date
         }
     }[]
-    views?: number,
-    reactions?: {userById: string, createdAt: Date}[]
-    currentVersionId: string
-    currentVersion: {searchkeys: string[]}
 }
 
 
@@ -220,8 +130,6 @@ export type UserProps = {
     editorStatus: EditorStatus
     subscriptionsUsed: SubscriptionProps[]
     subscriptionsBought: {id: string, price: number}[]
-    _count: {notifications: number, contents: number}
-    closedFollowSuggestionsAt?: Date | string
 };
 
 
@@ -302,25 +210,6 @@ export type FeedContentReasonProps = {
 export type FeedContentProps = {
     post: FastPostProps
     reason?: FeedContentReasonProps
-}
-
-export type NotificationProps = {
-    id: string
-    content: {
-        id: string
-        author: {id: string, handle: string}
-        type: ContentType
-        contribution: string
-        parentEntityId: string
-        uri: string
-        parentContent: ParentContentProps
-    }
-    reactionId?: string
-    createdAt: Date
-    userById: string
-    userNotifiedId: string
-    viewed: boolean
-    type: NotificationType
 }
 
 

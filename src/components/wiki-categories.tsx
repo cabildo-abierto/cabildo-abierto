@@ -4,16 +4,8 @@ import { CustomLink as Link } from './custom-link';
 import { SubcategoriesDropDown } from "./subcategories-dropdown";
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { getNextCategories } from "./utils";
-import { ContentProps, SmallEntityProps } from "../app/lib/definitions";
-import { useRouteEntities } from "../app/hooks/contents";
-
-
-export type LoadingContent = {
-    content: ContentProps
-    isLoading: boolean
-    isError: boolean
-    routeEntities: SmallEntityProps[]
-}
+import { SmallTopicProps } from "../app/lib/definitions";
+import { useRouteTopics } from "../hooks/contents";
 
 
 function routeUrl(route: string[]){
@@ -42,8 +34,8 @@ const RouteElement = ({route, c, index, setRoute}: {route: string[], c: string, 
 
 
 export const Route = ({route, setRoute, selected}: {route: string[], setRoute?: (r: string[]) => void, selected?: string}) => {
-    const routeEntities = useRouteEntities(route)
-    const nextCategories = routeEntities.entities ? getNextCategories(route, routeEntities.entities) : null
+    const routeTopics = useRouteTopics(route)
+    const nextCategories = routeTopics.topics ? getNextCategories(route, routeTopics.topics) : null
 
     return <div className="flex items-center flex-wrap">
         {route.map((c: string, index: number) => {

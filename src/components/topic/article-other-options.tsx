@@ -4,8 +4,8 @@ import { useState } from 'react';
 
 import { ModalBelow } from '../modal-below';
 import { hasEditPermission } from '../utils';
-import { useUser } from '../../app/hooks/user';
-import { IconButton } from '@mui/material';
+import { useUser } from '../../hooks/user';
+import {IconButton, TextField} from '@mui/material';
 import StateButton from '../state-button';
 import { useSWRConfig } from 'swr';
 import { ContentOptionsChoiceButton } from '../content-options/content-options-button';
@@ -16,10 +16,11 @@ import { AcceptButtonPanel } from '../ui-utils/accept-button-panel';
 //import { changeEntityName } from '../actions/entities';
 import { WriteButtonIcon } from '../icons/write-button-icon';
 import { NeedAccountPopup } from '../need-account-popup';
+import {getTopicTitle} from "./utils";
 
 
-const NewNameModal = ({entity, open, onClose}: {entity: {id: string, name: string, protection: string}, onClose: () => void, open: boolean}) => {
-    const [name, setName] = useState(entity.name)
+const NewNameModal = ({topic, open, onClose}: {topic: {id: string, versions: {title?: string}[], protection: string}, onClose: () => void, open: boolean}) => {
+    const [name, setName] = useState(getTopicTitle(topic))
     const {user} = useUser()
     const {mutate} = useSWRConfig()
 
@@ -37,7 +38,7 @@ const NewNameModal = ({entity, open, onClose}: {entity: {id: string, name: strin
         return <NeedAccountPopup text="Necesitás una cuenta para hacer ediciones." open={open} onClose={onClose}/>
     }
 
-    const editPermissions = hasEditPermission(user, entity.protection)
+    const editPermissions = hasEditPermission(user, topic.protection)
 
     if(!editPermissions){
         return <AcceptButtonPanel open={true} onClose={onClose}>
@@ -57,22 +58,24 @@ const NewNameModal = ({entity, open, onClose}: {entity: {id: string, name: strin
             <div className="lg:text-base text-sm text-[var(--text-light)] mb-2 flex justify-center">
                 Ingresá un nuevo nombre
             </div>
-        <input
-            className={inputClassName}
-            value={name}
-            onChange={(e) => {setName(e.target.value)}}
-        />
+            <TextField
+                size={"small"}
+                fullWidth={true}
+                value={name}
+                inputProps={{autoComplete: "off"}}
+                onChange={(e) => {setName(e.target.value)}}
+            />
         </div>
         
-        <div className="mt-4 pb-4">
-        {!valid && <div className="text-[var(--text-light)] h-8 text-sm">Entre 2 y 100 caracteres y sin &quot;/&quot;.</div>}
-        {valid && <div className="h-8">&nbsp;</div>}
-        <StateButton
-            handleClick={onChange}
-            text1="Cambiar"
-            disabled={!valid}
-            disableElevation={true}
-        />
+        <div className="mt-4 pb-4 flex flex-col items-center">
+            {!valid && <div className="text-[var(--text-light)] h-8 text-sm">Entre 2 y 100 caracteres y sin &quot;/&quot;.</div>}
+            {valid && <div className="h-8">&nbsp;</div>}
+            <StateButton
+                handleClick={onChange}
+                text1="Cambiar"
+                disabled={!valid}
+                disableElevation={true}
+            />
         </div>
 
         </div>
@@ -81,16 +84,16 @@ const NewNameModal = ({entity, open, onClose}: {entity: {id: string, name: strin
 
 
 export const ContentOptionsDropdown = ({
-    entity,
+    topic,
     onClose,
     optionsList
 }: {
     onClose: () => void,
     optionsList: string[],
-    entity: {
-        name: string
+    topic: {
         protection: string
         id: string
+        versions: {title?: string}[]
     }
 }) => {
     const [isNewNameModalopen, setIsNewNameModalOpen] = useState(false)
@@ -106,7 +109,7 @@ export const ContentOptionsDropdown = ({
             </ContentOptionsChoiceButton>    
         </div>}
         <NewNameModal
-            entity={entity}
+            topic={topic}
             onClose={() => {onClose(); setIsNewNameModalOpen(false)}}
             open={isNewNameModalopen}
         />
@@ -115,15 +118,15 @@ export const ContentOptionsDropdown = ({
 
 
 type ContentOptionsButtonProps = {
-    entity: {
-        name: string
+    topic: {
         id: string
         protection: string
+        versions: {title?: string}[]
     }
     optionList: string[]
 }
 
-export const ArticleOtherOptions = ({entity, optionList}: ContentOptionsButtonProps) => {
+export const ArticleOtherOptions = ({topic, optionList}: ContentOptionsButtonProps) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null)
 
@@ -147,7 +150,7 @@ export const ArticleOtherOptions = ({entity, optionList}: ContentOptionsButtonPr
             noShadow={true}
         >
             <ContentOptionsDropdown
-                entity={entity}
+                topic={topic}
                 onClose={onClose}
                 optionsList={[...optionList, "share"]}
             />

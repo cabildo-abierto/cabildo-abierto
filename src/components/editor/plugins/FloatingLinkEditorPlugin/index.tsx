@@ -36,10 +36,11 @@ import {createPortal} from 'react-dom';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl} from '../../utils/url';
-import { useRouteEntities } from '../../../../app/hooks/contents';
-import { SmallEntityProps, EntityProps } from '../../../../app/lib/definitions';
+import { useRouteTopics } from '../../../../hooks/contents';
+import { SmallTopicProps, TopicProps } from '../../../../app/lib/definitions';
 import { articleUrl } from '../../../utils';
 import { CustomLink as Link } from '../../../../components/custom-link';
+import {getTopicTitle} from "../../../topic/utils";
 
 function FloatingLinkEditor({
   editor,
@@ -63,9 +64,9 @@ function FloatingLinkEditor({
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
-  const [results, setResults] = useState<SmallEntityProps[]>([])
+  const [results, setResults] = useState<SmallTopicProps[]>([])
   const [currentUrl, setCurrentUrl] = useState('');
-  const entities = useRouteEntities([])
+  const entities = useRouteTopics([])
 
   useEffect(() => {
     // Check if the code is running on the client side
@@ -252,7 +253,7 @@ function FloatingLinkEditor({
 
   async function searchEntities(query: string){
       if(query && !entities.isLoading){
-        const filtered = entities.entities.filter((entity) => (entity.name.toLowerCase().includes(query.toLowerCase())))
+        const filtered = entities.topics.filter((entity) => (getTopicTitle(entity).toLowerCase().includes(query.toLowerCase())))
         setResults(filtered)
       } else {
         setResults([])
@@ -262,14 +263,14 @@ function FloatingLinkEditor({
   const SearchResults = ({results, setValue}: any) => {
     if(results.length == 0) return <></>
     return <div className="mb-2">
-      {results.slice(0, 5).map((entity: EntityProps) => {
+      {results.slice(0, 5).map((topic: TopicProps) => {
           return <button
-              key={entity.id}
+              key={topic.id}
               className="mx-[12px] flex justify-center items-center mt-1 hover:bg-gray-100 rounded"
-              onClick={() => {setValue(articleUrl(entity.id))}}
+              onClick={() => {setValue(articleUrl(topic.id))}}
             >
               <div className="py-1 px-2 text-left">
-                {entity.name}
+                {getTopicTitle(topic)}
               </div>
         </button>
       })}

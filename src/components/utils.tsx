@@ -1,10 +1,14 @@
-import { UserProps, EntityProps, SmallEntityProps, EntityVersionProps, ContentProps, SmallUserProps, BothContributionsProps } from "../app/lib/definitions"
-import { charDiffFromJSONString, getAllText } from "./diff"
-import { db } from "../db"
-import { decompress } from "./compression"
+import {
+    UserProps,
+    SmallTopicProps,
+    SmallUserProps,
+    BothContributionsProps,
+    TopicVersionProps, TopicProps
+} from "../app/lib/definitions"
+import { getAllText } from "./diff"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
-import { ContentType } from "@prisma/client"
 import {SessionOptions} from "iron-session";
+import {getTopicTitle} from "./topic/utils";
 
 
 export const splitPost = (text: string) => {
@@ -77,26 +81,12 @@ export const hasEditPermission = (user: UserProps | null, level: string) => {
 }
 
 
-export function sumFromFirstEdit(values: number[], entity: EntityProps, userId: string) {
-    let total = 0
-    let firstEdit = 0
-    for(let i = 0; i < entity.versions.length; i++){
-        if(entity.versions[i].author.did == userId){
-            firstEdit = i
-            break
-        }
-    }
-    for(let i = firstEdit; i < values.length; i++) total += values[i]
-    return total
-}
-
-
 export function arraySum(a: any[]) {
     return a.reduce((acc, curr) => acc + curr, 0)
 }
 
 
-function currentCategories(entity: {versions: {id: string, categories: string}[]}){
+function currentCategories(entity: {versions: {cid: string, categories: string}[]}){
     return JSON.parse(entity.versions[entity.versions.length-1].categories)
 }
 
@@ -115,10 +105,10 @@ export function isPrefix(p: any[], q: any[]){
     return areArraysEqual(p, q.slice(0, p.length))
 }
 
-export function getNextCategories(route: string[], entities: SmallEntityProps[]){
+export function getNextCategories(route: string[], entities: SmallTopicProps[]){
     const nextCategories = new Set<string>()
     
-    entities.forEach((entity: SmallEntityProps) => {
+    entities.forEach((entity: SmallTopicProps) => {
         const categories: string[][] = currentCategories(entity)
         if(!categories) return
         categories.forEach((category: string[]) => {
@@ -133,7 +123,7 @@ export function getNextCategories(route: string[], entities: SmallEntityProps[])
     return Array.from(nextCategories)
 }
 
-export function entityInRoute(entity: {versions: {id: string, categories: string}[]}, route: string[]){
+export function entityInRoute(entity: {versions: {cid: string, categories: string}[]}, route: string[]){
     const categories = currentCategories(entity)
     if(route.length == 0) return true
     if(!categories) return false // esto no debería pasar
@@ -179,62 +169,24 @@ export function visitsThisMonth(visits: {createdAt: Date}[]){
 //export const accessToken = "TEST-8751944294701489-091623-4f6d3596d15c9b3fd4c1308124c73f6e-536751662"
 export const accessToken = "APP_USR-8751944294701489-091623-00cbcdbdbb328be11bd3e67a76ff0369-536751662"
 
-
-export async function updateEntityContributions(entity: EntityProps){
-    let accCharsAdded = 0
-    const authorAccCharsAdded = new Map<string, number>()
-
-    for(let j = 0; j < entity.versions.length; j++){
-        const {charsAdded, charsDeleted, matches, common, perfectMatches} = j == 0 ? {charsAdded: 0, charsDeleted: 0, matches: [], common: [], perfectMatches: []} :
-            charDiffFromJSONString(decompress(entity.versions[j-1].compressedText), decompress(entity.versions[j].compressedText))
-        
-        accCharsAdded += charsAdded
-        
-        const author = entity.versions[j].author.did
-        if(authorAccCharsAdded.has(author)){
-            authorAccCharsAdded.set(author, authorAccCharsAdded.get(author) + charsAdded)
-        } else {
-            authorAccCharsAdded.set(author, charsAdded)
-        }
-        
-        const diff = JSON.stringify({matches: matches, common: common, perfectMatches: perfectMatches})
-        await db.content.update({
-            data: {
-                contribution: JSON.stringify(Array.from(authorAccCharsAdded)),
-                accCharsAdded: accCharsAdded,
-                charsAdded: charsAdded,
-                charsDeleted: charsDeleted,
-                diff: diff
-            },
-            where: {
-                id: entity.versions[j].id
-            }
-        })
-    }
-}
-
-
 export function route2Text(route: string[]){
     return ["Inicio", ...route].join("/")
 }
 
 
-export function currentVersion(entity: {versions: {id: string}[], currentVersionId: string}){
-    for(let i = 0; i < entity.versions.length; i++){
-        if(entity.versions[i].id == entity.currentVersionId){
+export function currentVersion(entity: {versions: {cid: string}[]}){
+    /*for(let i = 0; i < entity.versions.length; i++){
+        if(entity.versions[i].cid == entity.currentVersionId){
             return i
         }
-    }
+    }*/
+    // TO DO: Implementar
     return entity.versions.length-1
 }
 
 
-export function currentVersionContent(entity: {versions: EntityVersionProps[], currentVersionId: string}){
+export function currentVersionContent(entity: {versions: TopicVersionProps[], currentVersionId: string}){
     return entity.versions[currentVersion(entity)]
-}
-
-export function entityIdToName(s: string){
-    return decodeURIComponent(s).replaceAll("_", " ")
 }
 
 
@@ -263,37 +215,24 @@ export function getPlainText(jsonStr: string){
 }
 
 
-export function isUndo(entityVersion: {undos: {id: string}[]}) {
-    return entityVersion.undos.length > 0
-}
-
-
 export function isRejected(content: {rejectedById?: string}) {
     return content.rejectedById != null
 }
 
 
-export function isEntityContentDemonetized(content: {undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, charsAdded: number, confirmedById?: string, editPermission: boolean}){
-
-    return !isPartOfContent(content) || !content.claimsAuthorship
+export function isTopicVersionDemonetized(content: TopicVersionProps){
+    return false
 }
 
 
-export function isPartOfContent(
-    content: {
-        undos: {id: string}[]
-        rejectedById?: string
-        claimsAuthorship: boolean
-        editPermission: boolean
-        confirmedById?: string
-    }){
-    return !isUndo(content) && (content.editPermission || content.confirmedById)
+export function isPartOfTopic(content: TopicVersionProps){
+    return true
 }
 
 
-export function getVersionInEntity(contentId: string, entity: EntityProps){
+export function getVersionInEntity(cid: string, entity: TopicProps){
     for(let i = 0; i < entity.versions.length; i++){
-        if(entity.versions[i].id == contentId){
+        if(entity.versions[i].cid == cid){
             return i
         }
     }
@@ -434,24 +373,6 @@ function getImageCount(state: EditorState){
 }
 
 
-export function validPost(state: EditorState | undefined, charLimit: number, type: ContentType, images: {src: string}[], title?: string){
-    if(type == "Post" && (!title || title.length == 0)) return {problem: "no title"}
-    if(state != undefined && !emptyOutput(state)){
-        if(charLimit){
-            const count = charCount(state)
-            if(count > charLimit) return {problem: "too many characters"}
-        }
-        return {}
-    } else {
-        if(images.length > 0){
-            return {}
-        } else {
-            return {problem: "no state"}
-        }
-    }
-}
-
-
 export function nodesEqual(node1: any, node2: any){
     if(node1.type != node2.type){
         return false
@@ -512,8 +433,8 @@ export function nextPrice(p: number){
 }
 
 
-export function articleUrl(id: string, index?: number){
-    return "/articulo?i=" + id + (index != undefined ? "&v=" + index : "")
+export function articleUrl(title: string, index?: number){
+    return "/tema?i=" + encodeURIComponent(title) + (index != undefined ? "&v=" + index : "")
 }
 
 export function userUrl(id: string){
@@ -537,17 +458,6 @@ export function inRange(i, n){
 }
 
 
-export function isPublic(content: {type: ContentType, parentEntity: {isPublic: boolean}}, isMainPage: boolean){
-    if(content.type == "EntityContent"){
-        return content.parentEntity.isPublic
-    }
-    if(content.type == "Post" && isMainPage){
-        return false
-    }
-    return true
-}
-
-
 export function isKeyInText(key: string, text: string){
     const escapedKey = key.replace(/[.*+?^${}()|[\]\\/[\\]/g, '\\$&');
     
@@ -564,8 +474,8 @@ export function someKeyInText(keys: string[], text: string){
 }
 
 
-export function getKeysFromEntity(entity: {currentVersion: {searchkeys: string[]}, id: string}){
-    return [...entity.currentVersion.searchkeys, entityIdToName(entity.id)].map(cleanText)
+export function getKeysFromEntity(entity: {currentVersion: {synonyms: string[]}, id: string}){
+    return [...entity.currentVersion.synonyms, entity.id].map(cleanText)
 }
 
 
@@ -575,7 +485,7 @@ export function findWeakEntityReferences(text: string, searchkeys: {id: string, 
 
     for(let i = 0; i < searchkeys.length; i++){
         const keys = getKeysFromEntity({
-            currentVersion: {searchkeys: searchkeys[i].keys},
+            currentVersion: {synonyms: searchkeys[i].keys},
             id: searchkeys[i].id
         })
 
@@ -588,7 +498,7 @@ export function findWeakEntityReferences(text: string, searchkeys: {id: string, 
 }
 
 
-export function getSearchkeysFromEntities(entities: SmallEntityProps[]){
+export function getSearchkeysFromEntities(entities: SmallTopicProps[]){
     let searchkeys: {id: string, keys: string[]}[] = []
 
     for(let i = 0; i < entities.length; i++){
@@ -635,7 +545,7 @@ export function findMentionsFromUsers(text: string, users: SmallUserProps[]){
 }
 
 
-export function findEntityReferencesFromEntities(text: string, entities: SmallEntityProps[]){
+export function findEntityReferencesFromEntities(text: string, entities: SmallTopicProps[]){
     function findReferencesInNode(node: any): {id: string}[] {
         let references: {id: string}[] = []
         if(node.type === "link"){
@@ -678,11 +588,11 @@ export function findEntityReferencesFromEntities(text: string, entities: SmallEn
 }
 
 
-export function entityExists(name: string, entities: SmallEntityProps[]){
+export function entityExists(name: string, entities: SmallTopicProps[]){
     name = cleanText(name).replaceAll(" ", "")
     
     for(let i = 0; i < entities.length; i++){
-        const clean = cleanText(entities[i].name).replaceAll(" ", "")
+        const clean = cleanText(getTopicTitle(entities[i])).replaceAll(" ", "")
         if(clean == name){
             return true
         }
@@ -713,29 +623,44 @@ export function formatDate(date: Date) {
 export const launchDate = new Date(2024, 9, 10) // 10 de octubre de 2024
 
 
+export function validPost(state: EditorState | undefined, charLimit: number, type: string, images: {src: string}[], title?: string){
+    if(type == "Post" && (!title || title.length == 0)) return {problem: "no title"}
+    if(state != undefined && !emptyOutput(state)){
+        if(charLimit){
+            const count = charCount(state)
+            if(count > charLimit) return {problem: "too many characters"}
+        }
+        return {}
+    } else {
+        if(images.length > 0){
+            return {}
+        } else {
+            return {problem: "no state"}
+        }
+    }
+}
 
-
-export function getEntityMonetizedChars(entity: EntityProps, version: number){
+export function getTopicMonetizedChars(topic: TopicProps, version: number){
     let monetizedCharsAdded = 0
     for(let i = 0; i <= version; i++){
-        if(!isEntityContentDemonetized(entity.versions[i])){
-            monetizedCharsAdded += entity.versions[i].charsAdded
+        if(!isTopicVersionDemonetized(topic.versions[i])){
+            monetizedCharsAdded += topic.versions[i].charsAdded
         }
     }
     return monetizedCharsAdded
 }
 
 
-export function getEntityMonetizedContributions(entity: {versions: {author: {did: string}, charsAdded: number, undos: {id: string}[], rejectedById?: string, claimsAuthorship: boolean, confirmedById?: string, editPermission: boolean}[]}, version: number){
+export function getEntityMonetizedContributions(topic: TopicProps, version: number){
     const authors = new Map()
     for(let i = 0; i <= version; i++){
-        if(!isEntityContentDemonetized(entity.versions[i])){
-            const author = entity.versions[i].author.did
+        if(!isTopicVersionDemonetized(topic.versions[i])){
+            const author = topic.versions[i].author.did
             
             if(authors.has(author)){
-                authors.set(author, authors.get(author) + entity.versions[i].charsAdded)
+                authors.set(author, authors.get(author) + topic.versions[i].charsAdded)
             } else {
-                authors.set(author, entity.versions[i].charsAdded)
+                authors.set(author, topic.versions[i].charsAdded)
             }
         }
     }
@@ -783,4 +708,14 @@ export const contentContextClassName = "bg-[var(--secondary-light)] px-2 text-sm
 
 export function getUsername(user: {displayName?: string, handle: string}){
     return user.displayName ? user.displayName : "@"+user.handle
+}
+
+
+export function getDidFromUri (uri: string) {
+    return uri.split("/")[2]
+}
+
+export function getRkeyFromUri(uri: string){
+    const s = uri.split("/")
+    return s[s.length-1]
 }

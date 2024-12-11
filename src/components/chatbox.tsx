@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useChat, useUser } from "../app/hooks/user"
+import { useChat, useUser } from "../hooks/user"
 import { sendMessage, setMessageSeen } from "../actions/users"
 import { DateSince } from "./date"
 import StateButton from "./state-button"

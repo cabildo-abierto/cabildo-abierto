@@ -1,18 +1,15 @@
 "use client"
 import { useEffect, useState } from "react"
-import { NotificationProps } from "../../app/lib/definitions"
 import { DateSince } from "../date"
-import { markNotificationViewed } from "../../actions/contents"
 import { useSWRConfig } from "swr"
-import { CustomLink as Link } from '../custom-link';
 
 
 
-export const NotificationComponent = ({notification}: {notification: NotificationProps}) => {
+export const NotificationComponent = ({notification}: {notification: any}) => {
     const {mutate} = useSWRConfig()
     const [viewed, setViewed] = useState(notification.viewed)
 
-    useEffect(() => {
+    /*useEffect(() => {
         return () => {
             if(!notification.viewed){
                 markNotificationViewed(notification.id)
@@ -20,7 +17,7 @@ export const NotificationComponent = ({notification}: {notification: Notificatio
                 mutate("/api/notifications")
             }
         };
-    }, [notification])
+    }, [notification])*/
     
     let content = null
 

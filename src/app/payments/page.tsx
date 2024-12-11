@@ -1,4 +1,4 @@
-import { getPaymentsStats } from "../../actions/admin"
+//import { getPaymentsStats } from "../../actions/admin"
 import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
@@ -13,9 +13,10 @@ export default async function Page() {
         return <NotFoundPage/>
     }
 
-    const {userMonths, entities, accounts} = await getPaymentsStats()
+    //const {userMonths, entities, accounts} = await getPaymentsStats()
 
-    const center = <div className="flex items-center flex-col">
+
+    /*const center = <div className="flex items-center flex-col">
         <h1>Pagos</h1>
         
         <div>
@@ -86,7 +87,9 @@ export default async function Page() {
                 </div>
             })}
         </div>
-    </div>
+    </div>*/
+
+    const center = <div>TO  DO</div>
 
     return <ThreeColumnsLayout center={center}/>
 }

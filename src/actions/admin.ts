@@ -50,164 +50,43 @@ export async function revalidateSuggestions(){
 }
 
 
-export async function getAdminStats(){
-
-    const accounts = await db.user.findMany({
+export async function updateProfilesFromAT(){
+    const users = await db.user.findMany({
         select: {
             did: true,
-            subscriptionsUsed: {
-                orderBy: {
-                    endsAt: "asc"
-                }
-            },
-            createdAt: true,
-            views: {
-                select: {
-                    createdAt: true
-                }
-            },
-            _count: {
-                select: {
-                    contents: {
-                        where: {
-                            isDraft: false
-                        }
-                    },
-                    subscriptionsBought: {
-                        where: {
-                            price: {
-                                gte: 500
-                            }
-                        }
-                    }
-                }
-            }
+            handle: true
         }
     })
 
-    const reactions = await db.reaction.findMany({
-        select: {
-            createdAt: true
-        }
-    })
+    const {agent} = await getSessionAgent()
 
-    const contents = await db.content.findMany({
-        select: {
-            createdAt: true
-        }
-    })
+    for(let i = 0; i < users.length; i++){
+        const u = users[i]
+        const {data: p} = await agent.getProfile({"actor": u.did})
 
-    const subscriptions = await db.subscription.findMany({
-        select: {
-            usedAt: true,
-            endsAt: true,
-            userId: true
-        }
-    })
+        console.log("profile", p)
 
-    const sellsByPrice = await db.subscription.groupBy({
-        by: ['price'],
-        _count: {
-          price: true,
-        },
-        where: {
-            price: {
-                gte: 500
-            }
-        }
-    });
+        if(p.handle != u.handle) {
+            console.log("Updating user", u.handle)
+            console.log("Prev:")
+            console.log(u.handle)
+            console.log("New:")
+            console.log(p.handler)
 
-    const dayDuration = 60*60*24*1000
-
-    let viewsByDay = []
-    for(let i = 0; i < 100; i++) viewsByDay.push(0)
-
-    accounts.forEach(({did, views, createdAt}) => {
-        if(![supportDid, "tomas", "guest"].includes(did)){
-            views.forEach((v) => {
-                const time =  Math.floor((v.createdAt.getTime() - createdAt.getTime()) / dayDuration)
-                if(time < 100){
-                    viewsByDay[time] ++
+            await db.user.update({
+                data: {
+                    handle: p.handle
+                },
+                where: {
+                    did: u.did
                 }
             })
         }
-    })
-    
-    const firstMonday = new Date(launchDate);
-    firstMonday.setDate(firstMonday.getDate() - ((firstMonday.getDay() + 6) % 7));
-
-    const currentDate = new Date();
-    const weekDuration = 7 * dayDuration;
-
-
-    let eventsByWeek: {date: Date, accounts: number, reactions: number, contents: number}[] = []
-    for (let date = firstMonday; date <= currentDate; date = new Date(date.getTime() + weekDuration)) {
-
-        let users = new Set()
-
-        accounts.forEach((s) => {
-            if(s.createdAt <= date)
-                users.add(s.did)
-        })
-
-        const weekEnd = new Date(date.getTime() + weekDuration)
-
-        let weekReactions = new Set()
-        reactions.forEach((r) => {
-            if(r.createdAt >= date && r.createdAt < weekEnd)
-                weekReactions.add(r.createdAt)
-        })
-
-
-        let weekContents = new Set()
-        contents.forEach((c) => {
-            if(c.createdAt >= date && c.createdAt < weekEnd)
-                weekContents.add(c.createdAt)
-        })
-
-        eventsByWeek.push({ date, accounts: users.size, reactions: weekReactions.size, contents: weekContents.size });
-    }
-
-    const today = new Date()
-    const subscriptors = new Set()
-    subscriptions.forEach((s) => {
-        if(s.usedAt && s.usedAt < today && s.endsAt >= today){
-            subscriptors.add(s.userId)
-        }
-    })
-
-    const unrenewed = new Set()
-
-    accounts.forEach((a) => {
-        if(a.subscriptionsUsed.length > 0 && !validSubscription(a)){
-            unrenewed.add(a.did)
-        }
-    })
-
-
-    const contentsByUser = await db.content.groupBy({
-        by: ['authorId'],
-        _count: {
-          authorId: true,
-        },
-        where: {
-            isDraft: false
-        }
-    });
-
-    return {
-        accounts: accounts.length,
-        sellsByPrice,
-        viewsByDay,
-        eventsByWeek,
-        unrenewed,
-        contentsByUser,
-        lastAccounts: accounts.sort((a, b) => (b.createdAt.getTime() - a.createdAt.getTime())).slice(0, 5)
     }
 }
 
 
-export async function getPaymentsStats(){
+/*export async function getPaymentsStats(){
     const accounts = await db.user.findMany({
         select: {
             did: true,
@@ -216,7 +95,6 @@ export async function getPaymentsStats(){
             paymentPromises: {
                 select: {
                     amount: true,
-                    contentId: true,
                     status: true,
                     subscription: {
                         select: {
@@ -302,7 +180,7 @@ export async function getPaymentsStats(){
                     reactionsOnMonth.push(r)
                 }
             })
-            
+
             userMonths.push({
                 userId: a.did,
                 reactions: reactionsOnMonth,
@@ -313,74 +191,141 @@ export async function getPaymentsStats(){
         }
     })
 
-    const entities = await db.entity.findMany({
+    const entities = await db.topic.findMany({
         select: {
             id: true,
-            name: true,
             versions: {
                 select: {
+                    title: true,
                     contribution: true,
-                    editPermission: true,
                     charsAdded: true,
                     author: {
                         select: {
                             did: true
                         }
                     },
-                    undos: {
-                        select: {
-                            id: true
-                        }
-                    },
-                    rejectedById: true,
-                    confirmedById: true,
-                    claimsAuthorship: true
                 },
                 orderBy: {
                     createdAt: "desc"
                 },
-                where: {
-                    type: "EntityContent"
-                }
             }
         }
     })
 
     return {userMonths, entities, accounts}
-}
+}*/
 
 
-export async function updateProfilesFromAT(){
-    const users = await db.user.findMany({
+export async function getAdminStats(){
+
+    const accounts = await db.user.findMany({
         select: {
             did: true,
-            handle: true
+            subscriptionsUsed: {
+                orderBy: {
+                    endsAt: "asc"
+                }
+            },
+            createdAt: true,
+            views: {
+                select: {
+                    createdAt: true
+                }
+            },
+            _count: {
+                select: {
+                    subscriptionsBought: {
+                        where: {
+                            price: {
+                                gte: 500
+                            }
+                        }
+                    }
+                }
+            }
         }
     })
 
-    const {agent} = await getSessionAgent()
+    const subscriptions = await db.subscription.findMany({
+        select: {
+            usedAt: true,
+            endsAt: true,
+            userId: true
+        }
+    })
 
-    for(let i = 0; i < users.length; i++){
-        const u = users[i]
-        const {data: p} = await agent.getProfile({"actor": u.did})
+    const sellsByPrice = await db.subscription.groupBy({
+        by: ['price'],
+        _count: {
+            price: true,
+        },
+        where: {
+            price: {
+                gte: 500
+            }
+        }
+    });
 
-        console.log("profile", p)
+    const dayDuration = 60*60*24*1000
 
-        if(p.handle != u.handle) {
-            console.log("Updating user", u.handle)
-            console.log("Prev:")
-            console.log(u.handle)
-            console.log("New:")
-            console.log(p.handler)
+    let viewsByDay = []
+    for(let i = 0; i < 100; i++) viewsByDay.push(0)
 
-            await db.user.update({
-                data: {
-                    handle: p.handle
-                },
-                where: {
-                    did: u.did
+    accounts.forEach(({did, views, createdAt}) => {
+        if(![supportDid, "tomas", "guest"].includes(did)){
+            views.forEach((v) => {
+                const time =  Math.floor((v.createdAt.getTime() - createdAt.getTime()) / dayDuration)
+                if(time < 100){
+                    viewsByDay[time] ++
                 }
             })
         }
+    })
+
+    const firstMonday = new Date(launchDate);
+    firstMonday.setDate(firstMonday.getDate() - ((firstMonday.getDay() + 6) % 7));
+
+    const currentDate = new Date();
+    const weekDuration = 7 * dayDuration;
+
+
+    let eventsByWeek: {date: Date, accounts: number}[] = []
+    for (let date = firstMonday; date <= currentDate; date = new Date(date.getTime() + weekDuration)) {
+
+        let users = new Set()
+
+        accounts.forEach((s) => {
+            if(s.createdAt <= date)
+                users.add(s.did)
+        })
+
+        const weekEnd = new Date(date.getTime() + weekDuration)
+
+        eventsByWeek.push({ date, accounts: users.size });
+    }
+
+    const today = new Date()
+    const subscriptors = new Set()
+    subscriptions.forEach((s) => {
+        if(s.usedAt && s.usedAt < today && s.endsAt >= today){
+            subscriptors.add(s.userId)
+        }
+    })
+
+    const unrenewed = new Set()
+
+    accounts.forEach((a) => {
+        if(a.subscriptionsUsed.length > 0 && !validSubscription(a)){
+            unrenewed.add(a.did)
+        }
+    })
+
+    return {
+        accounts: accounts.length,
+        sellsByPrice,
+        viewsByDay,
+        eventsByWeek,
+        unrenewed,
+        lastAccounts: accounts.sort((a, b) => (b.createdAt.getTime() - a.createdAt.getTime())).slice(0, 5)
     }
 }

@@ -1,9 +1,8 @@
-import { ContentType } from "@prisma/client"
 
 type ScorableContent = {
     childrenTree: {authorId: string}[]
     author: {id: string}
-    type: ContentType
+    type: string
     reactions: {userById: string}[]
     uniqueViewsCount: number
 }

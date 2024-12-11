@@ -4,7 +4,7 @@ import { FeedContentProps } from "../app/lib/definitions";
 import LoadingSpinner from "./loading-spinner";
 import { LazyLoadFeed } from "./lazy-load-feed";
 import { ATProtoArticlePreview } from "./feed/atproto-article-preview";
-import { ATProtoFastPostPreview } from "./feed/atproto-fast-post-preview";
+import { FastPostPreview } from "./feed/fast-post-preview";
 
 
 export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, isError: boolean}
@@ -28,7 +28,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
                 content={feed.feed[index]}
             />
         } else {
-            node = <ATProtoFastPostPreview
+            node = <FastPostPreview
                 showParent={showReplies}
                 content={feed.feed[index]}
             />

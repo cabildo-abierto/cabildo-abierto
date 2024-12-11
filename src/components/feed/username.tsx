@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import {getUsername, userUrl} from "../utils"
-import {useUser} from "../../app/hooks/user";
+import {useUser} from "../../hooks/user";
 
 export const Username = ({user}: {user: {displayName?: string, handle: string}}) => {
     const session = useUser()
