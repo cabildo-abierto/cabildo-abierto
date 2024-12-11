@@ -23,7 +23,7 @@ type ATProtoPostFrameProps = {
     showingChildren?: boolean
 }
 
-export const ATProtoPostFrame = ({children, content, borderBelow=true, showingParent=false, showingChildren=false}: ATProtoPostFrameProps) => {
+export const FastPostPreviewFrame = ({children, content, borderBelow=true, showingParent=false, showingChildren=false}: ATProtoPostFrameProps) => {
     const router = useRouter()
 
     const post = content.post

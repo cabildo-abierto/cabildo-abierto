@@ -6,8 +6,7 @@ import { SettingsProps } from "./lexical-editor"
 
 import dynamic from "next/dynamic";
 import { EditorState, LexicalEditor } from "lexical";
-import { CommentProps } from "../../app/lib/definitions";
-import { ContentType } from "@prisma/client";
+
 const MyLexicalEditor = dynamic(() => import('./lexical-editor'), {
     ssr: false,
     loading: () => <></>, 
@@ -20,10 +19,10 @@ const ReadOnlyEditor = ({
 }: {
     initialData: InitialEditorStateType,
     content?: {
-        type: ContentType
+        type: string
         isContentEdited: boolean
-        id: string
-        childrenContents: CommentProps[]
+        cid: string
+        childrenContents: any[]
         compressedText?: string
     },
     editorClassName?: string
@@ -65,7 +64,7 @@ const ReadOnlyEditor = ({
         preventLeave: true
     }
     
-    return <div key={content ? (content.id + content.isContentEdited) : 0}>
+    return <div key={content ? (content.cid + content.isContentEdited) : 0}>
         <MyLexicalEditor
             settings={settings}
             setEditor={(editor: LexicalEditor) => {}}

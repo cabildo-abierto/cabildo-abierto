@@ -1,20 +1,16 @@
+"use client"
 import {FastPostProps} from "../../app/lib/definitions";
 import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {ContentTopRowAuthor} from "../content-top-row-author";
 import Image from 'next/image'
 import {DateSince} from "../date";
-import Link from "next/link";
-import {contentUrl} from "../utils";
+import {contentUrl, getDidFromUri} from "../utils";
 import {BskyFastPostImage} from "./bsky-fast-post-image";
-
-
-export function getDidFromUri (uri: string) {
-    return uri.split("/")[2]
-}
+import {useRouter} from "next/navigation";
 
 
 export const QuotedPost = ({content}: {content: FastPostProps}) => {
-
+    const router = useRouter()
 
     if(!content.embed || content.embed.$type != "app.bsky.embed.record#view"){
         return <></>
@@ -22,7 +18,7 @@ export const QuotedPost = ({content}: {content: FastPostProps}) => {
 
     const url = contentUrl(content.embed.record.uri, content.embed.record.value.$type, content.embed.record.author.handle)
 
-    return <Link onClick={(e) => {e.preventDefault(); e.stopPropagation()}} href={url}>
+    return <div onClick={(e) => {e.preventDefault(); e.stopPropagation(); router.push(url)}}>
         <div className={"rounded-lg border p-3 mt-2"}>
             <div className={"flex items-center space-x-1 text-[var(--text-light)]"}>
                 <div>
@@ -43,5 +39,5 @@ export const QuotedPost = ({content}: {content: FastPostProps}) => {
             </div>
             <BskyFastPostImage content={content.embed.record.value} did={getDidFromUri(content.embed.record.uri)}/>
         </div>
-    </Link>
+    </div>
 }

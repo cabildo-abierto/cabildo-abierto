@@ -2,8 +2,8 @@
 import { EntitySearchResult } from "./entity-search-result"
 import { useSearch } from "./search-context"
 import { NoResults } from "./category-users"
-import { SmallEntityProps } from "../app/lib/definitions"
-import { useRouteEntities } from "../app/hooks/contents"
+import { SmallTopicProps } from "../app/lib/definitions"
+import { useRouteTopics } from "../hooks/contents"
 import LoadingSpinner from "./loading-spinner"
 import { cleanText, listOrderDesc } from "./utils"
 import { LazyLoadFeed } from "./lazy-load-feed"
@@ -13,6 +13,7 @@ import SelectionComponent from "./search-selection-component"
 import { topicPopularityScore } from "./trending-articles"
 import { Button } from "@mui/material"
 import { TipIcon } from "./icons/tip-icon"
+import {getTopicTitle} from "./topic/utils";
 
 
 export function countUserReferences(entity: {referencedBy: {referencingContent: {author: {did: string}}}[]}){
@@ -21,21 +22,21 @@ export function countUserReferences(entity: {referencedBy: {referencingContent: 
 }
 
 
-function recentEditScore(entity: SmallEntityProps){
+function recentEditScore(entity: SmallTopicProps){
     return [new Date(entity.versions[entity.versions.length-1].createdAt).getTime()]
 }
 
 
 const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: { 
-    entities: SmallEntityProps[], 
+    entities: SmallTopicProps[], 
     route: string[],
     sortBy: string,
     maxCount?: number
  }) => {
     const { searchState } = useSearch();
 
-    function isMatch(entity: SmallEntityProps) {
-        return cleanText(entity.name).includes(cleanText(searchState.value));
+    function isMatch(topic: SmallTopicProps) {
+        return cleanText(getTopicTitle(topic)).includes(cleanText(searchState.value));
     }
 
     let filteredEntities = searchState.value.length > 0 ? entities.filter(isMatch) : entities;
@@ -47,10 +48,10 @@ const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: {
     entitiesWithScore = entitiesWithScore.sort(listOrderDesc)
     
     function generator(index: number){
-        const entity = entitiesWithScore[index]?.entity;
+        const topic = entitiesWithScore[index]?.entity;
         return {
-            c: entity ? <EntitySearchResult route={route} entity={entity} /> : null,
-            key: entity.id
+            c: topic ? <EntitySearchResult route={route} topic={topic} /> : null,
+            key: topic.id
         }
     }
 
@@ -69,7 +70,7 @@ const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: {
 
 
 export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: string[], onSearchPage?: boolean, maxCount?: number}) => {
-    const {entities: routeEntities, isLoading, isError} = useRouteEntities(route)
+    const {topics: routeEntities, isLoading, isError} = useRouteTopics(route)
     const [sortBy, setSortBy] = useState("Populares")
 
     if(isLoading) return <LoadingSpinner/>

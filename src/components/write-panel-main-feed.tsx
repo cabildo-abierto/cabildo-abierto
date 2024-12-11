@@ -1,6 +1,6 @@
 import { useState } from "react"
 import StateButton from "./state-button"
-import { useUser } from "../app/hooks/user"
+import { useUser } from "../hooks/user"
 import { createFastPost } from "../actions/contents"
 import { ExtraChars } from "./extra-chars"
 import useModal from "./editor/hooks/useModal"

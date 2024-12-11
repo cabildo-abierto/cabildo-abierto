@@ -1,7 +1,7 @@
 "use client"
 
 import { FeedContentProps } from '../../app/lib/definitions'
-import { ATProtoPostFrame } from './atproto-post-frame'
+import { FastPostPreviewFrame } from './fast-post-preview-frame'
 import {IsReplyMessage} from "./is-reply-message";
 import {FastPostContent} from "./fast-post-content";
 
@@ -14,7 +14,7 @@ export type ATProtoFastPostProps = {
 }
 
 
-export const ATProtoFastPostPreview = ({
+export const FastPostPreview = ({
                                            content,
                                            borderBelow=true,
                                            parentIsMainPost=false,
@@ -27,11 +27,11 @@ export const ATProtoFastPostPreview = ({
 
     return <div className="flex flex-col w-full">
         {hasParent && showParent &&
-            <ATProtoFastPostPreview content={{post: post.record.reply.parent}} borderBelow={false} showChildren={true}/>
+            <FastPostPreview content={{post: post.record.reply.parent}} borderBelow={false} showChildren={true}/>
         }
-        <ATProtoPostFrame content={content} borderBelow={borderBelow} showingParent={hasParent && showParent} showingChildren={showChildren}>
+        <FastPostPreviewFrame content={content} borderBelow={borderBelow} showingParent={hasParent && showParent} showingChildren={showChildren}>
             {hasParent && !showParent && !parentIsMainPost && <IsReplyMessage author={post.record.reply.parent.author}/>}
             <FastPostContent post={post}/>
-        </ATProtoPostFrame>
+        </FastPostPreviewFrame>
     </div>
 }

@@ -9,7 +9,7 @@ import { CLEAR_EDITOR_COMMAND, EditorState, LexicalEditor } from "lexical"
 import dynamic from 'next/dynamic'
 import LoadingSpinner from "../loading-spinner"
 import { SettingsProps } from "./lexical-editor"
-import { useUser } from "../../app/hooks/user"
+import { useUser } from "../../hooks/user"
 import { ExtraChars } from "../extra-chars"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 

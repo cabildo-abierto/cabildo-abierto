@@ -1,6 +1,6 @@
 "use client"
-import { useUser, useUserContents } from "../hooks/user"
-import { useUserStats } from "../hooks/contents"
+import { useUser, useUserContents } from "../../hooks/user"
+import { useUserStats } from "../../hooks/contents"
 import LoadingSpinner from "../../components/loading-spinner"
 import { ThreeColumnsLayout } from "../../components/three-columns"
 import InfoPanel from "../../components/info-panel"

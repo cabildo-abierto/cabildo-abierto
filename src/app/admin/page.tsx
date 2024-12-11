@@ -1,15 +1,15 @@
 "use client"
 
-import { assignSubscriptions, buySubscriptions, desassignSubscriptions, recoverSubscriptions, removeSubscriptions, unsafeCreateUserFromDid } from "../../actions/users"
+import { buySubscriptions, desassignSubscriptions, removeSubscriptions, unsafeCreateUserFromDid } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
-import { useUser } from "../hooks/user"
+import { useUser } from "../../hooks/user"
 
 import React from 'react';
 import { supportDid, tomasDid } from "../../components/utils"
 import { updatePosts } from "../../actions/atproto-update"
 import { revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, revalidateSuggestions, updateProfilesFromAT } from "../../actions/admin"
-import { updateAllUniqueCommentators } from "../../actions/contents"
+import {deleteTopicVersionsForUser, updateTopics} from "../../actions/topics";
 
 
 
@@ -26,59 +26,75 @@ export default function Page() {
     let center = <div className="flex flex-col items-center mt-8">
         <h1>Panel de administrador</h1>
         <div className="py-8 flex flex-col items-center space-y-2 w-64 text-center">
-            
+
             <h2>Usuarios</h2>
 
-            <button className="gray-btn" onClick={async () => {await unsafeCreateUserFromDid(userId)}}>
+            <button className="gray-btn" onClick={async () => {
+                await unsafeCreateUserFromDid(userId)
+            }}>
                 Crear usuario {userId}
             </button>
 
             <h2>Pagos</h2>
 
-            <button className="gray-btn" onClick={async () => {await buySubscriptions(supportDid, 500, "hola")}}>
+            <button className="gray-btn" onClick={async () => {
+                await buySubscriptions(supportDid, 500, "hola")
+            }}>
                 Comprar suscripciones
             </button>
 
-            <button className="gray-btn" onClick={async () => {await recoverSubscriptions()}}>
-                Recuperar suscripciones
-            </button>
-
-            <button className="gray-btn" onClick={async (e) => {desassignSubscriptions()}}>
+            <button className="gray-btn" onClick={async (e) => {
+                desassignSubscriptions()
+            }}>
                 Desasignar suscripciones
             </button>
 
-            <button className="gray-btn" onClick={async (e) => {removeSubscriptions()}}>
+            <button className="gray-btn" onClick={async (e) => {
+                removeSubscriptions()
+            }}>
                 Eliminar suscripciones
-            </button>
-
-            <button className="gray-btn" onClick={async () => {await assignSubscriptions()}}>
-                Asignar suscripciones
             </button>
 
             <h2>Revalidar</h2>
 
-            <button className="gray-btn" onClick={async () => {await revalidateEntities()}}>
+            <button className="gray-btn" onClick={async () => {
+                await revalidateEntities()
+            }}>
                 Revalidar temas
             </button>
-            <button className="gray-btn" onClick={async () => {await revalidateContents()}}>
+            <button className="gray-btn" onClick={async () => {
+                await revalidateContents()
+            }}>
                 Revalidar contenidos
             </button>
-            <button className="gray-btn" onClick={async () => {await revalidateNotifications()}}>
+            <button className="gray-btn" onClick={async () => {
+                await revalidateNotifications()
+            }}>
                 Revalidar notificaciones
             </button>
-            <button className="gray-btn" onClick={async () => {await revalidateUsers()}}>
+            <button className="gray-btn" onClick={async () => {
+                await revalidateUsers()
+            }}>
                 Revalidar usuarios
             </button>
-            <button className="gray-btn" onClick={async () => {await revalidateFeed()}}>
+            <button className="gray-btn" onClick={async () => {
+                await revalidateFeed()
+            }}>
                 Revalidar feed
             </button>
-            <button className="gray-btn" onClick={async () => {await revalidateDrafts()}}>
+            <button className="gray-btn" onClick={async () => {
+                await revalidateDrafts()
+            }}>
                 Revalidar drafts
             </button>
-            <button className="gray-btn" onClick={async () => {await revalidateSearchkeys()}}>
+            <button className="gray-btn" onClick={async () => {
+                await revalidateSearchkeys()
+            }}>
                 Revalidar search keys
             </button>
-            <button className="gray-btn" onClick={async () => {await revalidateSuggestions()}}>
+            <button className="gray-btn" onClick={async () => {
+                await revalidateSuggestions()
+            }}>
                 Revalidar sugerencias
             </button>
 
@@ -86,14 +102,24 @@ export default function Page() {
 
             <h2>Actualizar</h2>
 
-            <button className="gray-btn" onClick={async () => {await updatePosts()}}>
+            <button className="gray-btn" onClick={async () => {
+                await updateTopics()
+            }}>
+                Actualizar temas
+            </button>
+            <button className="gray-btn" onClick={async () => {
+                await updatePosts()
+            }}>
                 Actualizar posts
             </button>
-            <button className="gray-btn" onClick={async () => {await updateProfilesFromAT()}}>
+            <button className="gray-btn" onClick={async () => {
+                await updateProfilesFromAT()
+            }}>
                 Actualizar perfiles
             </button>
-            <button className="gray-btn" onClick={async () => {await updateAllUniqueCommentators()}}>
-                Actualizar unique comentators
+
+            <button className="gray-btn" onClick={async () => {await deleteTopicVersionsForUser()}}>
+                Eliminar temas
             </button>
 
         </div>

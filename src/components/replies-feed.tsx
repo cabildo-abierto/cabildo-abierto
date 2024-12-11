@@ -1,6 +1,6 @@
 "use client"
 
-import { useRepliesFeed } from "../app/hooks/contents"
+import { useRepliesFeed } from "../hooks/contents"
 import Feed from "./feed"
 
 

@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react"
 import { CategoryArticles } from "./category-articles";
 import { CategoryUsers } from "./category-users";
-import { useSearchableContents } from "../app/hooks/contents";
+import { useSearchableContents } from "../hooks/contents";
 import { preload } from "swr";
-import { fetcher } from "../app/hooks/utils";
+import { fetcher } from "../hooks/utils";
 import { smoothScrollTo } from "./editor/plugins/TableOfContentsPlugin";
 
 
@@ -25,8 +25,6 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
 
     useEffect(() => {
         preload("/api/users", fetcher)
-        preload("/api/entities", fetcher)
-        preload("/api/searchable-contents", fetcher)
 
         // probablemente estos dos no tenga sentido ponerlos acá
         preload("/api/feed/", fetcher)

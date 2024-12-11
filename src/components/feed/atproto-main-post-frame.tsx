@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { ReactNode } from 'react'
 import { FollowButton } from './follow-button'
 import { EngagementIcons } from './engagement-icons'
+import {ReplyButton} from "./reply-button";
 
 
 type MainPostFrameProps = {children: ReactNode, content: FastPostProps}

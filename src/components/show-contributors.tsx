@@ -1,10 +1,10 @@
 
 import { CustomLink as Link } from './custom-link';
-import { useEntity } from "../app/hooks/entities"
-import { getEntityMonetizedChars } from "./utils"
 import { Button } from "@mui/material"
 import { useState } from "react"
 import { BothContributionsProps, ContributionsProps } from "../app/lib/definitions"
+import {getTopicMonetizedChars} from "./utils";
+import {useTopic} from "../hooks/topics";
 
 
 
@@ -19,15 +19,15 @@ export function toPercentage(chars: number, total: number){
 }
 
 
-export const ShowContributors = ({entityId}:
-    {entityId: string, userId?: string}) => {
-    const {entity, isLoading} = useEntity(entityId)
+export const ShowContributors = ({topicId}:
+    {topicId: string, userId?: string}) => {
+    const {topic, isLoading} = useTopic(topicId)
     const [monetized, setMonetized] = useState(false)
 
     if(isLoading) return <></>
 
-    const lastVersion = entity.versions[entity.versions.length-1]
-    const firstVersion = entity.versions[0]
+    const lastVersion = topic.versions[topic.versions.length-1]
+    const firstVersion = topic.versions[0]
 
     if(lastVersion.accCharsAdded == 0){
         return <div className="flex">
@@ -55,7 +55,7 @@ export const ShowContributors = ({entityId}:
 
     let total = lastVersion.accCharsAdded
     if(monetized){
-        total = getEntityMonetizedChars(entity, entity.versions.length-1)
+        total = getTopicMonetizedChars(topic, topic.versions.length-1)
     }
 
     contributions = contributions.sort(comp)

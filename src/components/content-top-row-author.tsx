@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation"
-import { stopPropagation, userUrl } from "./utils"
+import {getUsername, stopPropagation, userUrl} from "./utils"
 import Link from "next/link"
 
 
@@ -14,10 +14,11 @@ export const UserIdLink = ({id}: {id:string}) => {
 }
 
 
-export const Authorship = ({content, onlyAuthor=false}: {content: {author: {displayName: string, handle: string}}, onlyAuthor?: boolean}) => {
+export const Authorship = ({content, onlyAuthor=false}: {content: {author: {displayName?: string, handle: string}}, onlyAuthor?: boolean}) => {
     return <span className="link">
-        {onlyAuthor ? "" : "Por "}<Link href={userUrl(content.author?.handle)}>
-            {content.author?.displayName}
+        {onlyAuthor ? "" : "Por "}
+        <Link href={userUrl(content.author?.handle)}>
+            {getUsername(content.author)}
         </Link>
     </span>
 }

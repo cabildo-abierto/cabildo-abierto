@@ -3,8 +3,8 @@
 import { EditorState } from "lexical";
 import { CustomLink as Link } from './custom-link';
 import React, { useEffect, useState } from "react";
-import { useUser } from "../app/hooks/user";
-import { EntityProps } from "../app/lib/definitions";
+import { useUser } from "../hooks/user";
+import { TopicProps } from "../app/lib/definitions";
 import { charDiffFromJSONString, getAllText } from "./diff";
 import InfoPanel from "./info-panel";
 import { NotEnoughPermissionsWarning } from "./permissions-warning";
@@ -14,16 +14,21 @@ import { articleUrl, hasEditPermission } from "./utils";
 import { ChangesCounter, ChangesCounterWithText } from "./changes-counter";
 import Button from "@mui/material/Button";
 import { AcceptButtonPanel } from "./ui-utils/accept-button-panel";
+import {TextField} from "@mui/material";
 
 
 const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: string) => void}) => {
-    return <input
-        className="custom-input"
+    return <TextField
         value={value}
+        size={"small"}
+        fullWidth={true}
         onChange={(e) => {setValue(e.target.value)}}
         placeholder="Una descripción de lo que cambiaste (opcional)"
-        maxLength={50}
+        inputProps={{
+            autoComplete: 'off',
+        }}
     />
+    // TO DO: Max length 120
 }
 
 
@@ -33,7 +38,7 @@ export const SaveEditPopup = ({
         currentVersion: string
         onClose: () => void
         onSave: (v: boolean, editMsg: string) => Promise<{error?: string}>,
-        entity: EntityProps
+        entity: TopicProps
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useUser()

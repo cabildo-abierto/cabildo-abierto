@@ -1,37 +1,62 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useSWRConfig } from "swr";
-import { useUser } from "../app/hooks/user";
+import { useUser } from "../hooks/user";
 import { CreateAccountLink } from "./create-account-link";
 import StateButton from "./state-button";
 import TickButton from "./tick-button";
-import { articleUrl, inputClassName } from "./utils";
+import { articleUrl } from "./utils";
 import { ErrorMsg, validEntityName } from "./write-button";
 import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup";
+import {TextField} from "@mui/material";
+import {createTopic} from "../actions/topics";
 
 
 
-export const CreateArticleModal = ({ open, onClose }: { open: boolean, onClose: () => void }) => {
+export const CreateTopicModal = ({ open, onClose }: { open: boolean, onClose: () => void }) => {
     const user = useUser();
-    const [entityName, setEntityName] = useState("");
+    const [topicName, setTopicName] = useState("");
     const [errorOnCreate, setErrorOnCreate] = useState(null)
     const { mutate } = useSWRConfig();
     const router = useRouter();
     const [goToArticle, setGoToArticle] = useState(true);
 
+    async function onSubmit(){
+        setErrorOnCreate(null)
+        const { error } = await createTopic(topicName);
+
+        if(error){
+            if(error == "exists"){
+                setErrorOnCreate("Ya existe ese tema.")
+                return {}
+            } else {
+                return {error}
+            }
+        }
+        mutate("/api/entities")
+        mutate("/api/entity/"+topicName)
+        if (goToArticle) router.push(articleUrl(topicName))
+        onClose()
+        return {}
+    }
+
     return <BaseFullscreenPopup open={open} closeButton={true} onClose={onClose}>
         <div className="space-y-3 px-6 mb-2 flex flex-col items-center">
             <h3>Nuevo tema</h3>
             <div>
-                <input
-                    className={inputClassName}
-                    value={entityName}
-                    onChange={(e) => setEntityName(e.target.value)}
+                <TextField
+                    value={topicName}
+                    label={"Título"}
+                    size={"small"}
+                    onChange={(e) => setTopicName(e.target.value)}
                     placeholder="Título"
+                    inputProps={{
+                        autoComplete: 'off', // Disables browser autocomplete
+                    }}
                 />
             </div>
             {errorOnCreate && <ErrorMsg text={errorOnCreate}/>}
-            {entityName.includes("/") && <ErrorMsg text="El nombre no puede incluír el caracter '/'."/>}
+            {topicName.includes("/") && <ErrorMsg text="El nombre no puede incluír el caracter '/'."/>}
 
             <div className="flex justify-center">
             <div className="text-[var(--text-light)] text-xs sm:text-sm text-center max-w-64">
@@ -43,24 +68,8 @@ export const CreateArticleModal = ({ open, onClose }: { open: boolean, onClose: 
 
             <div className="py-4">
                 <StateButton
-                    handleClick={async () => {
-                        /*setErrorOnCreate(null)
-                        const { id, error } = await createEntity(entityName, user.user.did);
-                        if(error){
-                            if(error == "exists"){
-                                setErrorOnCreate("Ya existe ese tema.")
-                                return {}
-                            } else {
-                                return {error}
-                            }
-                        }
-                        mutate("/api/entities")
-                        mutate("/api/entity/"+id)
-                        if (goToArticle) router.push(articleUrl(id))
-                        onClose()*/
-                        return {}
-                    }}
-                    disabled={!user.user || !validEntityName(entityName)}
+                    handleClick={onSubmit}
+                    disabled={!user.user || !validEntityName(topicName)}
                     textClassName="title px-4"
                     text1="Crear"
                 />

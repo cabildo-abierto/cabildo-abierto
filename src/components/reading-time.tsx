@@ -3,8 +3,8 @@ import { getAllText } from "./diff"
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 
-export const ReadingTime = ({content}: {content: {compressedText?: string}}) => {
-    if(!content.compressedText) return <></>
+export const ReadingTime = ({content}: {content: {record: {text: string}}}) => {
+    /*if(!content.compressedText) return <></>
     try {
         const json = JSON.parse(decompress(content.compressedText))
         const text = getAllText(json.root)
@@ -17,6 +17,7 @@ export const ReadingTime = ({content}: {content: {compressedText?: string}}) => 
         </div>
     } catch {
         return <></>
-    }
+    }*/
+    return <></>
     
 }

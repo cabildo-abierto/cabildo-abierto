@@ -7,7 +7,7 @@ import type {
   } from 'lexical';
   
   import './index.css';
-  
+
   import {
     $wrapSelectionInMarkNode,
   } from '@lexical/mark';
@@ -17,16 +17,13 @@ import type {
     $isRangeSelection,
   } from 'lexical';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import * as React from 'react';
 import useLayoutEffect from '../../shared/useLayoutEffect';
 import { commentEditorSettings } from '../../comment-editor';
 import { useSWRConfig } from 'swr';
-import { useUser } from '../../../../app/hooks/user';
-import { CommentProps, ContentProps } from '../../../../app/lib/definitions';
+import { useUser } from '../../../../hooks/user';
 import StateButton from '../../../state-button';
 
 import MyLexicalEditor from '../../lexical-editor'
-import { compress } from '../../../compression';
 import { emptyOutput } from '../../../utils';
 import { Button } from '@mui/material';
 
@@ -40,10 +37,10 @@ export function CommentInputBox({
 }: {
   cancelAddComment: () => void
   editor: LexicalEditor
-  parentContent: {id: string}
+  parentContent: {cid: string}
   submitAddComment: () => void
-  comments: CommentProps[]
-  setComments: (c: CommentProps[]) => void
+  comments: any[]
+  setComments: (c: any[]) => void
 }) {
   const [commentEditor, setCommentEditor] = useState<LexicalEditor | undefined>(undefined)
   const [commentEditorState, setCommentEditorState] = useState<EditorState | undefined>(undefined)

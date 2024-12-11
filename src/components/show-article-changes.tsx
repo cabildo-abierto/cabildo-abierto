@@ -1,13 +1,9 @@
 import dynamic from 'next/dynamic';
-import { getNodeList, nodesFromJSONStr } from './diff';
+import { nodesFromJSONStr } from './diff';
 import { SerializedDiffNode } from './editor/nodes/DiffNode';
-import { CommentProps, ContentProps, EntityProps, MatchesType } from '../app/lib/definitions';
-import { Content } from 'next/font/google';
+import { TopicProps, MatchesType } from '../app/lib/definitions';
 import { wikiEditorSettings } from './editor/wiki-editor';
-import { useContent } from '../app/hooks/contents';
 import { decompress } from './compression';
-import LoadingSpinner from './loading-spinner';
-import { ContentType } from '@prisma/client';
 
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );
 
@@ -72,29 +68,23 @@ function showChanges(initialData: string, withRespectToContent: string, diff: Ma
 
 type ShowArticleChangesProps = {
     originalContent: {
-        id: string
-        diff: string
-        type: ContentType
-        childrenContents: CommentProps[]
-        compressedText?: string
+        cid: string
+        diff?: string
+        text: string
     },
     originalContentText: string,
-    entity: EntityProps,
+    entity: TopicProps,
     version: number
 }
 
 
 export const ShowArticleChanges = ({
     originalContent, originalContentText, entity, version}: ShowArticleChangesProps) => {
-    const changesContent = useContent(entity.versions[version-1].id)
-
-    if(changesContent.isLoading){
-        return <LoadingSpinner/>
-    }
+    const changesContent = entity.versions[version-1]
 
     const contentText = showChanges(
         originalContentText,
-        decompress(changesContent.content.compressedText),
+        decompress(changesContent.text),
         JSON.parse(originalContent.diff)
     )
 

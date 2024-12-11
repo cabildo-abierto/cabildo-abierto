@@ -11,9 +11,10 @@ export const EntityCategorySmall = ({c, route}: {c: string[], route: string[]}) 
 }
 
 
-export const EntityCategoriesSmall = ({route, entity}: {
-  entity: {versions: {categories: string, id: string}[], currentVersionId: string}, route: string[]}) => {
-  const c: string[][] = JSON.parse(entity.versions[currentVersion(entity)].categories)
+export const EntityCategoriesSmall = ({route, topic}: {
+  topic: {versions: {categories?: string, cid: string}[], currentVersion: {cid: string}}, route: string[]}) => {
+  const c: string[][] | undefined = JSON.parse(topic.versions[currentVersion(topic)].categories)
+  if(!c) return <></>
   return <div className="flex flex-wrap gap-x-1 gap-y-1">
     {c.map((cat: string[], index) => (
       <div key={index}>

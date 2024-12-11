@@ -48,8 +48,6 @@ export default async function Page() {
         </Stat>
 
         <SubscriptorsByDate name="Cuentas" data={stats.eventsByWeek.map(({date, accounts}) => ({date, count: accounts}))}/>
-        <SubscriptorsByDate name="Contenidos" data={stats.eventsByWeek.map(({date, contents}) => ({date, count: contents}))}/>
-        <SubscriptorsByDate name="Reacciones" data={stats.eventsByWeek.map(({date, reactions}) => ({date, count: reactions}))}/>
 
         <div>
             <h3>Suscripciones por precio: </h3>
@@ -99,17 +97,6 @@ export default async function Page() {
             {stats.lastAccounts.map((u, index) => {
                 return <div key={index}>
                     {u.did}
-                </div>
-            })}
-        </div>
-
-        <div className="mt-8">
-            <h3>
-                Contenidos por usuario
-            </h3>
-            {stats.contentsByUser.map((u, index) => {
-                return <div key={index}>
-                    {u.authorId} {u._count.authorId}
                 </div>
             })}
         </div>

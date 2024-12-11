@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { ArticleIcon } from "./icons/article-icon"
 import {emptyChar, getUsername} from "./utils";
 import ReadOnlyEditor from "./editor/read-only-editor";
-import { useUser } from "../app/hooks/user";
+import { useUser } from "../hooks/user";
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import { UserProps } from "../app/lib/definitions";
 import { useState } from "react";

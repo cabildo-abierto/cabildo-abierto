@@ -2,18 +2,19 @@
 
 import { CustomLink as Link } from './custom-link';
 import { FixedCounter } from "./like-counter"
-import { SmallEntityProps } from "../app/lib/definitions"
+import { SmallTopicProps } from "../app/lib/definitions"
 import { articleUrl, currentVersion } from "./utils"
-import { fetcher } from "../app/hooks/utils"
+import { fetcher } from "../hooks/utils"
 import { preload } from "swr"
 import { DateSince } from "./date"
 import { EntityCategoriesSmall } from './entity-categories-small';
 import { InactiveCommentIcon } from './icons/inactive-comment-icon';
 import { LinkIcon } from './icons/link-icon';
 import { TextLengthIcon } from './icons/text-length-icon';
+import {getTopicTitle} from "./topic/utils";
 
 
-export function getEntityChildrenCount(entity: SmallEntityProps){
+export function getEntityChildrenCount(entity: SmallTopicProps){
     let count = 0
     for(let i = 0; i < entity.versions.length; i++){
         count += entity.versions[i].childrenTree.length
@@ -22,12 +23,12 @@ export function getEntityChildrenCount(entity: SmallEntityProps){
 }
 
 
-const DateLastEdit = ({entity}: {entity: SmallEntityProps}) => {
-  const lastVersion = entity.versions[entity.versions.length-1]
+const DateLastEdit = ({topic}: {topic: SmallTopicProps}) => {
+  const lastVersion = topic.versions[topic.versions.length-1]
 
   const className = "text-[var(--text-light)] text-xs px-1"
 
-  if(entity.versions.length == 1){
+  if(topic.versions.length == 1){
     return <div className={className}>
       Creado <DateSince date={lastVersion.createdAt}/>
     </div>
@@ -39,13 +40,13 @@ const DateLastEdit = ({entity}: {entity: SmallEntityProps}) => {
 }
 
 
-export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityProps}> = ({ route, entity }) => {
+export const EntitySearchResult: React.FC<{route: string[], topic: SmallTopicProps}> = ({ route, topic }) => {
 
   function onMouseEnter(){
-    preload("/api/entity/"+entity.id, fetcher)
+    preload("/api/topic/"+topic.id, fetcher)
   }
 
-  const numWords = entity.versions[currentVersion(entity)].numWords
+  const numWords = topic.versions[currentVersion(topic)].numWords
   
   return (
     <div className="relative flex flex-col max-w-[384px] w-full">
@@ -57,20 +58,20 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
         </div>
       )}
       <Link
-        href={articleUrl(entity.id)}
+        href={articleUrl(topic.id)}
         className={"px-2 content-container rounded hover:bg-[var(--secondary-light)] bg-[var(--content)] " + (numWords == 0 ? "mt-1" : "")}
         onMouseEnter={onMouseEnter}
       >
         <div className="flex w-full items-center">
           <div className="w-full">
             <div className="w-full mt-1 mb-2 px-1">
-              <span className="text-lg ">{entity.name}</span>
+              <span className="text-lg ">{getTopicTitle(topic)}</span>
             </div>
 
-            <EntityCategoriesSmall entity={entity} route={route}/>
+            <EntityCategoriesSmall topic={topic} route={route}/>
 
             <div className="mt-1 mb-2">
-              <DateLastEdit entity={entity}/>
+              <DateLastEdit topic={topic}/>
             </div>
 
             {false && <div className="flex justify-end">
@@ -80,16 +81,16 @@ export const EntitySearchResult: React.FC<{route: string[], entity: SmallEntityP
               icon={<InactivePraiseIcon />}
               title='Cantidad de votos hacia arriba que recibió'
               />*/}
-              <FixedCounter
+                {/*<FixedCounter
                 count={entity.referencedBy.length}
                 icon={<LinkIcon />}
                 title="Cantidad de veces que fue referenciado."
-              />
-              <FixedCounter
+              />*/}
+                {/*<FixedCounter
                 count={getEntityChildrenCount(entity)}
                 icon={<InactiveCommentIcon />}
                 title="Cantidad de comentarios (y comentarios de los comentarios)."
-              />
+              />*/}
               <FixedCounter count={numWords} icon={<TextLengthIcon/>} title="Cantidad de palabras."/>
             </div>}
           </div>

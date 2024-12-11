@@ -2,7 +2,7 @@
 
 import LoadingPage from "./loading-page"
 import { ReactNode } from "react";
-import { useUser } from "../app/hooks/user";
+import { useUser } from "../hooks/user";
 import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup";
 import { Login } from "./login";
 

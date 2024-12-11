@@ -5,14 +5,15 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
-import { currentVersionContent, getNextCategories } from "./utils";
+import {currentVersion, currentVersionContent, getNextCategories} from "./utils";
 import { useSWRConfig } from "swr";
 import LoadingSpinner from "./loading-spinner";
 import { EntityCategoriesTitle } from "./categories";
-import { useRouteEntities, useContent } from "../app/hooks/contents";
-import { useUser } from "../app/hooks/user";
-import { EntityProps } from "../app/lib/definitions";
+import { useRouteTopics } from "../hooks/contents";
+import { useUser } from "../hooks/user";
+import { TopicProps } from "../app/lib/definitions";
 import Button from "@mui/material/Button";
+import {getTopicTitle} from "./topic/utils";
 
 function validCategoryElement(e: string){
     return e.length > 0
@@ -77,18 +78,18 @@ const CategoryInput = ({
 const RouteEditor = ({category, removeCategory, updateCategory, routeIndex}: 
     RouteEditorProps
 ) => {
-    const entities = useRouteEntities([])
+    const topics = useRouteTopics([])
 
     function updateCategoryAt(i: number, value: string){
         updateCategory([...category.slice(0, i), value, ...category.slice(i+1)])
     }
 
     let newIndex = 0
-    if(!entities.isLoading){
-        let next = getNextCategories(category.slice(0, newIndex), entities.entities)
+    if(!topics.isLoading){
+        let next = getNextCategories(category.slice(0, newIndex), topics.topics)
         while(newIndex < category.length && next.some((c) => (c == category[newIndex]))){
             newIndex ++
-            next = getNextCategories(category.slice(0, newIndex), entities.entities)
+            next = getNextCategories(category.slice(0, newIndex), topics.topics)
         }
     } else {
         return <LoadingSpinner/>
@@ -104,7 +105,7 @@ const RouteEditor = ({category, removeCategory, updateCategory, routeIndex}:
         </button>
         {category.map((c, i) => {
             const isNew = i >= newIndex
-            const next = getNextCategories(category.slice(0, i),entities.entities)
+            const next = getNextCategories(category.slice(0, i), topics.topics)
             const id = i + " " + routeIndex + " " + category.slice(0, i).join("/")
             return <div key={i}>
                 <CategoryInput
@@ -145,15 +146,14 @@ function areCategoriesEqual(cat1: string[][], cat2: string[][]){
 }
 
 
-export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEditing: (v: boolean) => void}) => {
+export const RoutesEditor = ({topic, setEditing}: {topic: TopicProps, setEditing: (v: boolean) => void}) => {
     const user = useUser()
-    const {content, isLoading} = useContent(currentVersionContent(entity).id)
+    const content = topic.versions[currentVersion(topic)]
     const entityCategories = (content && content.categories) ? JSON.parse(content.categories) : null
     const [categories, setCategories] = useState<string[][]>(entityCategories)
     const {mutate} = useSWRConfig()
     const [errorOnSave, setErrorOnSave] = useState(false)
 
-    if(isLoading) return <LoadingSpinner/>
     if(!content || !content.categories){
         return <>Ocurrió un error</>
     }
@@ -204,7 +204,7 @@ export const RoutesEditor = ({entity, setEditing}: {entity: EntityProps, setEdit
     return <div className="w-full">
         <hr className="py-3"/>
         <EntityCategoriesTitle
-            name={entity.name}
+            name={getTopicTitle(topic)}
             editing={true}
         />
         <div className="flex flex-col w-full">

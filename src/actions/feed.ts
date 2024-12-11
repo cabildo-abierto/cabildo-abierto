@@ -4,6 +4,7 @@ import { db } from "../db";
 import { FeedContentProps } from "../app/lib/definitions";
 import { getSessionAgent } from "./auth";
 import { Agent } from "@atproto/api";
+import {getUsers} from "./users";
 
 
 function getHandleFromURI(uri: string) {
@@ -68,8 +69,9 @@ export async function getArticlesFeedForUser(user: string, agent: Agent){
             repo: user,
             collection: 'ar.com.cabildoabierto.article',
         })
-        articles = res.data
+        articles = (res.data.records as any[]).filter((a) => (a.value.format != undefined))
     } catch(err) {
+        console.log("error", err)
         return []
     }
 
@@ -82,8 +84,8 @@ export async function getArticlesFeedForUser(user: string, agent: Agent){
     }
 
     let posts = []
-    for(let j = 0; j < articles.records.length; j++){
-        const {value, ...record} = articles.records[j]
+    for(let j = 0; j < articles.length; j++){
+        const {value, ...record} = articles[j]
         posts.push({post: {
                 ...record,
                 record: value,
@@ -100,6 +102,8 @@ export async function getArticlesFeedForUser(user: string, agent: Agent){
 
 export async function getFeedForUsers(users: {did: string}[], includeReplies: boolean, onlyArticles: boolean = false){
     const {agent, did} = await getSessionAgent()
+    const {users: CAUsers, error} = await getUsers()
+    if(error) return {error}
 
     let posts: FeedContentProps[] = []
 
@@ -110,38 +114,52 @@ export async function getFeedForUsers(users: {did: string}[], includeReplies: bo
             posts = [...posts, ...expandedPosts]
         }
 
-        const articles = await getArticlesFeedForUser(users[i].did, agent)
+        if(CAUsers.some((u) => (u.did == users[i].did))){
+            const articles = await getArticlesFeedForUser(users[i].did, agent)
 
-        posts = [...posts, ...articles]
+            posts = [...posts, ...articles]
+        }
     }
 
     function cmp(a, b){
         return new Date(b.post.record.createdAt).getTime() - new Date(a.post.record.createdAt).getTime()
     }
 
-    return posts.sort(cmp)
+    return {feed: posts.sort(cmp)}
 }
 
 
 export async function getArticlesTimeline(agent: Agent){
 
+    const t1 = Date.now()
     const {data} = await agent.getFollows({actor: agent.did})
+    const t2 = Date.now()
 
     const follows = [...data.follows.map(({did}) => ({did})), {did: data.subject.did}]
 
     const feed = await getFeedForUsers(follows, false, true)
 
+    const t3 = Date.now()
+
+    console.log("feed for users", t3-t2, "follows", t2-t1)
     return feed
 }
 
 
-export async function getATProtoFeed(): Promise<FeedContentProps[]>{
+export async function getATProtoFeed(): Promise<{feed?: FeedContentProps[], error?: string}>{
 
     const {agent} = await getSessionAgent()
 
+    const t1 = Date.now()
     const { data } = await agent.getTimeline({})
+    const t2 = Date.now()
 
-    const articles = await getArticlesTimeline(agent)
+    const {feed: articles, error} = await getArticlesTimeline(agent)
+    if(error) return {error}
+    const t3 = Date.now()
+
+    console.log("articles", t3-t2)
+    console.log("timeline", t2-t1)
 
     // @ts-ignore
     let timeline: FeedContentProps[] = data.feed.filter(({post}) => (!post.record.reply))

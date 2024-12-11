@@ -1,28 +1,25 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { EditorState, LexicalEditor } from "lexical"
-import StateButton from "../state-button"
 
 import { RoutesEditor } from "../routes-editor"
-import { preload, useSWRConfig } from "swr"
 
 import dynamic from 'next/dynamic'
 import { ToggleButton } from "../toggle-button"
-import LoadingSpinner from "../loading-spinner"
 import { ChangesCounter } from "../changes-counter"
-import { findEntityReferencesFromEntities, findMentionsFromUsers, findWeakEntityReferences, getSearchkeysFromEntities, hasChanged } from "../utils"
-import { CommentProps, ContentProps, EntityProps, SmallEntityProps, SmallUserProps } from "../../app/lib/definitions"
-import { useUser, useUsers } from "../../app/hooks/user"
-import { compress, decompress } from "../compression"
+import {
+    currentVersion,
+    hasChanged
+} from "../utils"
+import { TopicProps} from "../../app/lib/definitions"
+import {compress, decompress} from "../compression"
 import { ShowArticleChanges } from "../show-article-changes"
 import { ShowArticleAuthors } from "../show-authors-changes"
 import { SaveEditPopup } from "../save-edit-popup"
-import { fetcher } from "../../app/hooks/utils"
 import { SearchkeysEditor } from "../searchkeys-editor"
-import { useRouteEntities } from "../../app/hooks/contents"
 import { SettingsProps } from "./lexical-editor"
-import { ContentType } from "@prisma/client"
-import { editContentClassName } from "../entity/article-page"
+import { useSWRConfig } from "swr"
+import {createTopicVersion} from "../../actions/topics";
 
 
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
@@ -34,7 +31,7 @@ export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:
 const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este tema no tiene contenido! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
 
 
-export const wikiEditorSettings = (readOnly: boolean, content: {type: ContentType, title?: string, parentEntityId?: string, id: string, compressedText?: string, childrenContents: CommentProps[]}, contentText: string): SettingsProps => {
+export const wikiEditorSettings = (readOnly: boolean, content: {title?: string, parentEntityId?: string, cid: string, text?: string, childrenContents?: any[]}, contentText: string): SettingsProps => {
     
     let initialData = null
     let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
@@ -74,7 +71,7 @@ export const wikiEditorSettings = (readOnly: boolean, content: {type: ContentTyp
         initialData: initialData,
         editorClassName: "content",
         isReadOnly: readOnly,
-        content: content,
+        content: {...content, type: "Topic"},
         isAutofocus: false,
         placeholderClassName: "ContentEditable__placeholder",
         imageClassName: "",
@@ -83,29 +80,8 @@ export const wikiEditorSettings = (readOnly: boolean, content: {type: ContentTyp
 }
 
 
-function findReferencesInClient(text: string, entities: SmallEntityProps[], users: SmallUserProps[]){
-    const searchkeys = getSearchkeysFromEntities(entities)
-    const weakReferences = findWeakEntityReferences(text, searchkeys)
-    const mentions = findMentionsFromUsers(text, users)
-    const entityReferences = findEntityReferencesFromEntities(text, entities)
-
-    return {weakReferences: weakReferences, mentions: mentions, entityReferences: entityReferences}
-}
-
-
 type WikiEditorProps = {
-    entity: EntityProps,
-    content: {
-        compressedText?: string
-        id: string
-        type: ContentType
-        charsAdded: number
-        charsDeleted: number
-        diff: string
-        title?: string
-        parentEntityId?: string
-        childrenContents: CommentProps[]
-    }
+    topic: TopicProps
     version: number,
     readOnly?: boolean,
     showingChanges?: boolean
@@ -114,39 +90,31 @@ type WikiEditorProps = {
 }
 
 
-const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=false, showingAuthors=false, setEditing}: WikiEditorProps) => {
+const WikiEditor = ({topic, version, readOnly=false, showingChanges=false, showingAuthors=false, setEditing}: WikiEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
-    const {mutate} = useSWRConfig()
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const [editingSearchkeys, setEditingSearchkeys] = useState(false)
-    const {entities} = useRouteEntities([])
-    const {users} = useUsers()
-
-    const user = useUser()
+    const {mutate} = useSWRConfig()
     
-    if(version == null || version >= entity.versions.length || version < 0){
-        version = entity.versions.length-1
+    if(version == null || version >= topic.versions.length || version < 0){
+        version = currentVersion(topic)
     }
 
-    const contentText = decompress(content.compressedText)
+    const content = topic.versions[version]
+
+    const contentText = decompress(content.text)
     
-    useEffect(() => {
+    /* TO DO: Recuperar useEffect(() => {
         if(version > 0){
-            const changesContentId = entity.versions[version-1].id
+            const changesContentId = entity.versions[version-1].cid
             preload("/api/content/"+changesContentId, fetcher)
         }
-    }, [])
-
-    if(user.isLoading){
-        return <LoadingSpinner/>
-    }
+    }, [])*/
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{error?: string}>{
-        /*
         if(!editor) return {error: "Ocurrió un error con el editor."}
-        if(!entities || !users) return {error: "Ocurrió un error al guardar los cambios. Intentá de nuevo."}
 
         return await editor.read(async () => {
             let text
@@ -156,35 +124,30 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
                 return {error: "Ocurrió un error con el editor."}
             }
 
-            const {weakReferences, entityReferences, mentions} = findReferencesInClient(text, entities, users)
-
-            const result = await updateEntityContent(
-                entity.id, 
-                user.user.id,
-                claimsAuthorship,
-                editMsg,
-                compress(text),
-                weakReferences,
-                entityReferences,
-                mentions
+            const result = await createTopicVersion(
+                {
+                    id: topic.id,
+                    text: compress(text),
+                    claimsAuthorship,
+                    message: editMsg
+                }
             )
             
             if(!result) return {error: "Ocurrió un error al guardar los cambios. e02."}
             if(result.error) return {error: result.error}
             
-            mutate("/api/entity/"+entity.id)
-            mutate("/api/entities")
+            mutate("/api/topic/"+topic.id)
+            mutate("/api/topics")
             setShowingSaveEditPopup(false)
             setEditing(false)
             return {}
         })
-        */
         return {}
     }
 
     const SaveEditButton = () => {
         return <button
-            className={editContentClassName}
+            className={articleButtonClassname}
             onClick={(e) => {setShowingSaveEditPopup(true)}}
             disabled={!editorState || !hasChanged(editorState, contentText)}
         >
@@ -224,17 +187,17 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
             currentVersion={contentText}
             onSave={saveEdit}
             onClose={() => {setShowingSaveEditPopup(false)}}
-            entity={entity}
+            entity={topic}
         />}
 
         {editingRoutes &&
         <div className="py-4">
-            <RoutesEditor entity={entity} setEditing={setEditingRoutes}/>
+            <RoutesEditor topic={topic} setEditing={(v: boolean) => {setEditingRoutes(v)}}/>
         </div>}
 
         {editingSearchkeys && 
         <div className="py-4">
-            <SearchkeysEditor entity={entity} setEditing={setEditingSearchkeys}/>    
+            <SearchkeysEditor entity={topic} setEditing={setEditingSearchkeys}/>
         </div>}
         
         <div className="text-center">
@@ -244,7 +207,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
         </div>
         <div id="editor">
             {(((!showingChanges || version == 0) && !showingAuthors)) && 
-            <div className="px-2" key={content.id+readOnly}>
+            <div className="px-2" key={content.cid+readOnly}>
                 <MyLexicalEditor
                 settings={wikiEditorSettings(readOnly, content, contentText)}
                 setEditor={setEditor}
@@ -255,7 +218,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
                 <ShowArticleChanges
                     originalContent={content}
                     originalContentText={contentText}
-                    entity={entity}
+                    entity={topic}
                     version={version}
                 />
             }
@@ -263,7 +226,7 @@ const WikiEditor = ({content, entity, version, readOnly=false, showingChanges=fa
                 <ShowArticleAuthors
                     originalContent={content}
                     originalContentText={contentText}
-                    entity={entity}
+                    topic={topic}
                     version={version}
                 />
             }

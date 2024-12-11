@@ -7,12 +7,17 @@
         "key": "tid",
         "record": {
           "type": "object",
-          "required": ["text", "title", "createdAt"],
+          "required": ["text", "title", "createdAt", "format"],
           "properties": {
             "text": {
               "type": "string",
               "minLength": 1,
               "maxLength": 1000000
+            },
+            "format": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
             },
             "title": {
               "type": "string",

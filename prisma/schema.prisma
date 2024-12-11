@@ -18,7 +18,6 @@ model AuthState {
   state String
 }
 
-
 model User {
     did                 String         @id @db.VarChar(255) // did
     handle             String
@@ -30,63 +29,24 @@ model User {
 
     editorStatus        EditorStatus   @default(Beginner)
 
-    contents            Content[]      @relation("author")
-
     subscriptionsBought Subscription[] @relation("bought")
     subscriptionsUsed   Subscription[]
-
-    reactions           Reaction[]
-
-    views               View[]
-
-    notificationsGenerated Notification[] @relation("notificationBy")
-    notifications       Notification[] @relation("notificationTo")
 
     messagesSent        ChatMessage[]  @relation("messagesSent")
     messagesReceived    ChatMessage[]  @relation("messagesReceived")
 
-    confirmed           Content[]       @relation("confirmChange")
-    rejected            Content[]       @relation("rejectChange")
-
     paymentPromises     PaymentPromise[]   @relation("authorPromises")
 
-    mentionedIn         Content[]       @relation("userMention")
-    deletedEntities     Entity[]       @relation("entityDelete")
+    topicVersions       TopicVersion[]
 
-    closedFollowSuggestionsAt DateTime?
+    topicVersionAccepts TopicVersionAccept[]
+    topicVersionRejects TopicVersionReject[]
+
+    views               View[]
 }
 
 
-model View {
-    id                  String         @id @default(cuid())
-    createdAt           DateTime       @default(now()) @map("created_at")
 
-    userBy              User           @relation(fields: [userById], references: [did])
-    userById            String
-
-    content             Content?       @relation(fields: [contentId], references: [id])
-    contentId           String?
-
-    entity              Entity?        @relation("entityViews", fields: [entityId], references: [id])
-    entityId            String?
-}
-
-
-model Reaction {
-    id                  String         @id @default(cuid())
-    createdAt           DateTime       @default(now()) @map("created_at")
-
-    userBy              User           @relation(fields: [userById], references: [did])
-    userById            String
-
-    content             Content?       @relation(fields: [contentId], references: [id])
-    contentId           String?
-
-    entity              Entity?        @relation("entityReactions", fields: [entityId], references: [id])
-    entityId            String?
-
-    notifications       Notification[]
-}
 
 model Subscription {
   id             String    @id @default(cuid())
@@ -106,9 +66,9 @@ model Subscription {
 
 
 enum PromiseStatus {
-  Pending
-  Confirmed
-  Canceled
+    Pending
+    Confirmed
+    Canceled
 }
 
 
@@ -125,195 +85,122 @@ model PaymentPromise {
 
   amount         Float // errores numéricos?
 
-  contentId      String
-  content        Content  @relation(fields: [contentId], references: [id])
+  contentUri     String
 
   status         PromiseStatus  @default(Pending) // true cuando el contenido pasó su período de gracia
 }
 
 
-model ContactEmails {
-  id             String    @id @default(cuid())
-  mail           String
-  createdAt      DateTime  @default(now()) @map("created_at")
-}
-
-
-model Entity {
+model Topic {
   id           String          @id
-  name         String          @unique @db.VarChar(255)
   protection   EditorStatus    @default(Beginner)
-  isPublic     Boolean         @default(false)
-  deleted      Boolean         @default(false)
-  deletedById  String?
-  versions     Content[]
-  deletedBy    User?           @relation("entityDelete", fields: [deletedById], references: [did])
-
-  reactions    Reaction[]      @relation("entityReactions")
-  views        View[]          @relation("entityViews")
-
-  currentVersionId String?     @unique
-  currentVersion Content?  @relation("currentVersion", fields: [currentVersionId], references: [id])
-
-  referencedBy  Reference[]
+  versions     TopicVersion[]
+  currentVersion TopicVersion? @relation("currentVersion", fields: [currentVersionId], references: [cid])
+  currentVersionId String?      @unique
 }
 
 
-model Reference {
-  id                    String    @id
-  entityReferencedId    String
-  entityReferenced      Entity    @relation(fields: [entityReferencedId], references: [id])
+model TopicVersion {
+    cid             String    @id @default(cuid())
+    uri            String
 
-  referencingContentId  String
-  referencingContent    Content   @relation(fields: [referencingContentId], references: [id])
+    title          String?
+    text           String
+    author         User      @relation(fields: [authorId], references: [did])
+    authorId       String
 
-  isStrong              Boolean
-}
+    createdAt      DateTime  @default(now()) @map("created_at")
 
-model Content {
-  id               String      @id @default(cuid())
-  createdAt        DateTime    @default(now()) @map("created_at")
-  type             ContentType
-  authorId         String
-  isDraft          Boolean?    @default(false)
-  visible          Boolean     @default(true)
-  text             String?
-  plainText        String?      @default("")
-  compressedText      String      @default("")
-  compressedPlainText String      @default("")
+    topic          Topic     @relation(fields: [topicId], references: [id])
+    topicId        String
 
-  numChars         Int         @default(0)
-  numWords         Int         @default(0)
-  numNodes         Int         @default(0)
-  
-  title            String?
-  categories       String      @default("[]")
-  parentEntityId   String?
-  
-  undos            Content[]  @relation("undo")
+    message          String  @default("")
 
-  contentUndone    Content?   @relation("undo", fields: [contentUndoneId], references: [id])
-  contentUndoneId  String? 
-  reportsVandalism  Boolean?
-  reportsOportunism Boolean?
+    charsAdded       Int?
+    charsDeleted     Int?
+    accCharsAdded    Int?
+    contribution     String?
+    diff             String?
 
-  confirmedBy      User?       @relation("confirmChange", fields: [confirmedById], references: [did])
-  confirmedById    String?
-  rejectedBy       User?       @relation("rejectChange", fields: [rejectedById], references: [did])
-  rejectedById     String?
-  confirmedAt      DateTime?
-  rejectedAt       DateTime?
+    categories       String?
+    synonyms         String[]
 
-  author           User        @relation("author", fields: [authorId], references: [did])
-  parentEntity     Entity?     @relation(fields: [parentEntityId], references: [id])
-  childrenContents Content[]   @relation("ContentToContent")
-  parentContents   Content[]   @relation("ContentToContent")
+    authorship       Boolean  @default(true)
 
-  reactions        Reaction[]
+    accepts          TopicVersionAccept[]
+    rejects          TopicVersionReject[]
 
-  views            View[]
-  
-  charsAdded       Int?
-  charsDeleted     Int?
-  accCharsAdded    Int?
-  contribution     String?
-  diff             String?
+    currentVersionOf Topic?   @relation("currentVersion")
 
-  rootContentId    String?
-  rootContent      Content?     @relation("rootContent", fields: [rootContentId], references: [id])
-  rootOf           Content[]    @relation("rootContent")
-  
-  ancestorContent  Content[]    @relation("ancestorContent")
-  childrenTree     Content[]    @relation("ancestorContent")
-
-  notifications    Notification[]
-
-  noAccountVisits  NoAccountVisit[]
-
-  currentVersionOf Entity? @relation("currentVersion")
-
-  claimsAuthorship Boolean @default(true)
-  removedAuthorshipAt DateTime?
-  
-  editPermission   Boolean @default(true)
-
-  paymentPromises  PaymentPromise[]
-
-  stallPaymentUntil  DateTime?
-
-  editMsg          String?
-
-  isContentEdited  Boolean   @default(false)
-
-  usersMentioned  User[]    @relation("userMention")
-
-  uniqueCommentators Int    @default(0)
-
-  references  Reference[]
-
-  searchkeys  String[]
-
-  uniqueViewsCount    Int            @default(0)
-  fakeReportsCount    Int            @default(0)
-}
-
-enum NotificationType {
-  Comment
-  CommentToComment
-  Reaction
-  Follow
-  Edit
-  Mention
-  EditMention
-}
-
-model Notification {
-  id               String      @id @default(cuid())
-  createdAt        DateTime    @default(now()) @map("created_at")
-  type             NotificationType
-
-  // Comment, EntityContent, o contenido al que se reaccionó
-  content          Content?    @relation(fields: [contentId], references: [id])
-  contentId        String?
-
-  reaction         Reaction?   @relation(fields: [reactionId], references: [id])
-  reactionId       String?
-
-  userBy           User        @relation("notificationBy", fields: [userById], references: [did])
-  userById         String
-
-  userNotified     User        @relation("notificationTo", fields: [userNotifiedId], references: [did])
-  userNotifiedId   String
-
-  viewed           Boolean     @default(false)
+    views            View[]
 }
 
 
-model NoAccountUser {
-  id               String      @id @default(cuid())
-  createdAt        DateTime    @default(now()) @map("created_at")
+model TopicVersionAccept {
+    cid              String          @id
+    uri              String
 
-  ip               String
-  ua               String
-  browser          String
-  engine           String
-  os               String
-  device           String
-  cpu              String
-  isBot            Boolean
+    topicVersionId   String
+    topicVersion     TopicVersion    @relation(fields: [topicVersionId], references: [cid])
 
-  visits           NoAccountVisit[]
+    authorId         String
+    author           User            @relation(fields: [authorId], references: [did])
+
+    createdAt        DateTime        @default(now()) @map("created_at")
 }
 
 
-model NoAccountVisit {
-  id               String      @id @default(cuid())
-  createdAt        DateTime    @default(now()) @map("created_at")
-  user             NoAccountUser  @relation(fields: [userId], references: [id])
-  userId           String
+model TopicVersionReject {
+    cid              String          @id
+    uri              String
 
-  contentId        String
-  content          Content  @relation(fields: [contentId], references: [id])
+    topicVersionId   String
+    topicVersion     TopicVersion    @relation(fields: [topicVersionId], references: [cid])
+
+    text             String
+
+    authorId         String
+    author           User            @relation(fields: [authorId], references: [did])
+
+    createdAt        DateTime        @default(now()) @map("created_at")
+}
+
+
+model FastPost {
+    cid              String    @id
+    uri              String
+    views            View[]
+}
+
+
+model Article {
+    cid              String   @id
+    uri              String
+    views            View[]
+}
+
+
+model View {
+    id               String      @id @default(cuid())
+    createdAt        DateTime    @default(now()) @map("created_at")
+    type             ViewType
+    userBy           User        @relation(fields: [userById], references: [did])
+    userById         String
+
+    topicVersionId   String?
+    topicVersion     TopicVersion?   @relation(fields: [topicVersionId], references: [cid])
+
+    fastPostId   String?
+    fastPost     FastPost?   @relation(fields: [fastPostId], references: [cid])
+
+    articleId   String?
+    article     Article?    @relation(fields: [articleId], references: [cid])
+}
+
+enum ViewType {
+    TopicVersionView
+    FastPostView
+    ArticleView
 }
 
 
@@ -330,6 +217,7 @@ model ChatMessage {
 
   seen             Boolean @default(false)
 }
+
 
 enum EditorStatus {
   Beginner

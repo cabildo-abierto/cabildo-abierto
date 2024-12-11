@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
 import TickButton from './tick-button';
 import StateButton from './state-button';
-import { useSWRConfig } from 'swr';
-import { useContent } from '../app/hooks/contents';
-import { useUser } from '../app/hooks/user';
-import { EntityProps } from '../app/lib/definitions';
+import { useUser } from '../hooks/user';
+import { TopicProps } from '../app/lib/definitions';
 import InfoPanel from './info-panel';
 import { hasEditPermission } from './utils';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
 import { AcceptButtonPanel } from './ui-utils/accept-button-panel';
 import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
 import { NeedAccountPopup } from "./need-account-popup";
+import {getTopicTitle} from "./topic/utils";
 
 
 
@@ -19,14 +17,13 @@ export function validExplanation(text: string) {
     return text.length > 0
 }
 
-export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => void, entity: EntityProps, version: number}) => {
+export const UndoChangesModal = ({ onClose, entity, version }: {
+    onClose: () => void, entity: TopicProps, version: number
+}) => {
     const user = useUser()
     const [explanation, setExplanation] = useState("")
     const [vandalism, setVandalism] = useState(false)
     const [oportunism, setOportunism] = useState(false)
-    const {content} = useContent(entity.versions[version].id)
-
-    const {mutate} = useSWRConfig()
 
     const infoPanelVandalism = <span>Si te parece que empeoró la calidad del contenido intencionalmente.</span>
 
@@ -48,7 +45,7 @@ export const UndoChangesModal = ({ onClose, entity, version }: { onClose: () => 
     if(hasEditPermission(user.user, entity.protection)){
         return <BaseFullscreenPopup open={true} closeButton={true} onClose={onClose}>
             <div className="space-y-6 px-6 mb-4 flex flex-col items-center">
-                <h3>Deshacer el último cambio en {entity.name}</h3>
+                <h3>Deshacer el último cambio en {getTopicTitle(entity)}</h3>
                 <div className="w-full">
                     <textarea
                         rows={4}

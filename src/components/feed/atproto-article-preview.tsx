@@ -1,6 +1,6 @@
-import {ArticleProps, FeedContentProps} from '../../app/lib/definitions'
-import { PostTitleOnFeed } from '../draft-button'
-import { ATProtoPostFrame } from './atproto-post-frame'
+import {FeedContentProps} from '../../app/lib/definitions'
+import { FastPostPreviewFrame } from './fast-post-preview-frame'
+import {PostTitleOnFeed} from "./post-title-on-feed";
 
 export type ATProtoArticleProps = {
     content: FeedContentProps
@@ -13,8 +13,8 @@ export const ATProtoArticlePreview = (
 ) => {
     
     return <div className="flex w-full">
-        <ATProtoPostFrame content={content} borderBelow={borderBelow}>
+        <FastPostPreviewFrame content={content} borderBelow={borderBelow}>
             <PostTitleOnFeed title={content.post.record.title}/>
-        </ATProtoPostFrame>
+        </FastPostPreviewFrame>
     </div>
 }

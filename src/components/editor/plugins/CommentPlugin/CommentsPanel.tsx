@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { NodeKey } from "lexical";
-import { CommentProps } from "../../../../app/lib/definitions";
-import { ContentType } from "@prisma/client";
 
 
 export function CommentsPanel({
@@ -12,9 +10,9 @@ export function CommentsPanel({
     onClose
 }: {
     activeIDs: string[],
-    parentContent: {id: string, type: ContentType, compressedText?: string, childrenContents: CommentProps[]},
+    parentContent: {cid: string, type: any, text?: string, childrenContents?: any[]},
     markNodeMap: Map<string, Set<NodeKey>>
-    comments: CommentProps[]
+    comments: any[]
     onClose: () => void
 }): JSX.Element {
     const [width, setWidth] = useState(350); // Set initial width

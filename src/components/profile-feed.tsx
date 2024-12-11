@@ -1,5 +1,5 @@
 "use client"
-import { useProfileFeed } from "../app/hooks/contents"
+import { useProfileFeed } from "../hooks/contents"
 import Feed from "./feed"
 import LoadingSpinner from "./loading-spinner"
 

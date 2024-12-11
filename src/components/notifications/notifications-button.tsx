@@ -1,5 +1,5 @@
 "use client"
-import { useNotifications, useUser } from "../../app/hooks/user"
+import { useNotifications, useUser } from "../../hooks/user"
 import { useState } from "react"
 import { NotificationsPanel } from "./notificationsPanel"
 import { createPortal } from "react-dom"

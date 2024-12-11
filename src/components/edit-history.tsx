@@ -1,12 +1,12 @@
 import { DateSince } from "./date"
 import { UndoButton } from "./undo-button"
 import { CustomLink as Link } from './custom-link';
-import { EntityProps, UserProps } from "../app/lib/definitions"
+import {TopicProps, UserProps} from "../app/lib/definitions"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import StateButton from "./state-button"
-import { useUser } from "../app/hooks/user"
-import { articleUrl, currentVersion, getEntityMonetizedChars, hasEditPermission, isUndo } from "./utils"
+import { useUser } from "../hooks/user"
+import { articleUrl, currentVersion, getTopicMonetizedChars, hasEditPermission } from "./utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./ui-utils/accept-button-panel"
 import { NoEditPermissionsMsg } from "./no-edit-permissions-msg"
@@ -14,7 +14,6 @@ import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 import { toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
 import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
-import { ContentType } from "@prisma/client";
 import { AuthorshipClaimIcon } from "./icons/authorship-claim-icon";
 import { NoAuthorshipClaimIcon } from "./icons/no-authorship-claim-icon";
 import { ConfirmEditIcon } from "./icons/confirm-edit-icon";
@@ -26,20 +25,20 @@ import { Authorship } from "./content-top-row-author";
 import { NeedAccountPopup } from "./need-account-popup";
 
 
-const EditDetails = ({editType}: {editType: ContentType}) => {
+const EditDetails = ({editType}: {editType: string}) => {
     return <span>{editType}</span>
 }
 
 type EditElementProps = {
-    entity: EntityProps,
+    entity: TopicProps,
     index: number,
     viewing?: number,
     isCurrent: boolean
 }
 
 
-const AuthorshipClaim = ({entity, version, setShowingRemoveAuthorshipPanel}: {entity: EntityProps, version: number, setShowingRemoveAuthorshipPanel: (v: boolean) => void}) => {
-    if(entity.versions[version].claimsAuthorship){
+const AuthorshipClaim = ({entity, version, setShowingRemoveAuthorshipPanel}: {entity: TopicProps, version: number, setShowingRemoveAuthorshipPanel: (v: boolean) => void}) => {
+    if(entity.versions[version].authorship){
         return <button className="underline hover:text-[var(--primary)] text-xs"
             onClick={(e) => {e.stopPropagation(); e.preventDefault(); setShowingRemoveAuthorshipPanel(true)}}
         >
@@ -51,7 +50,7 @@ const AuthorshipClaim = ({entity, version, setShowingRemoveAuthorshipPanel}: {en
 }
 
 
-const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: EntityProps, contentId: string, user: UserProps, editPermission: boolean}) => {
+const ConfirmEditButtons = ({entity, contentId, user, editPermission}: {entity: TopicProps, contentId: string, user: UserProps, editPermission: boolean}) => {
     const {mutate} = useSWRConfig()
     const [showingNoPermissions, setShowingNoPermissions] = useState(false)
     const [pending, setPending] = useState(false)
@@ -123,11 +122,11 @@ const EditMessage = ({msg, editType}: {msg?: string, editType: string}) => {
 }
 
 
-const MonetizationPortion = ({entity, index}: {entity: EntityProps, index: number}) => {
+const MonetizationPortion = ({entity, index}: {entity: TopicProps, index: number}) => {
 
     const charsAdded = entity.versions[index].charsAdded
 
-    let monetizedCharsAdded = getEntityMonetizedChars(entity, entity.versions.length-1)
+    let monetizedCharsAdded = getTopicMonetizedChars(entity, entity.versions.length-1)
 
     return <span title="Porcentaje sobre las contribuciones monetizadas">
         {toPercentage(charsAdded, monetizedCharsAdded)}%
@@ -147,12 +146,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     }
 
     const selected = viewing == index
-    const isUndone = isUndo(entity.versions[index])
-    const isRejected = entity.versions[index].rejectedById != null
-    const isConfirmed = entity.versions[index].confirmedById != null
-    const isPending = !entity.versions[index].editPermission && !isConfirmed && !isRejected
     const isContentChange = index > 0 && (entity.versions[index].charsAdded != 0 || entity.versions[index].charsDeleted != 0)
-    const hasAuthorshipClaim = isContentChange && !isUndone && !isPending && !isRejected
     const editPermission = hasEditPermission(user.user, entity.protection)
 
     async function onDiscussionClick(e){
@@ -165,7 +159,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 
     let baseMsg = null
 
-    if(isUndone){
+    /*if(isUndone){
         baseMsg = <span><UndoIcon/> </span>
     } else if(isCurrent){
         baseMsg = <span><DoubleArrowIcon/></span>
@@ -178,17 +172,19 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
         baseMsg = <span><RejectEditIcon/></span>
     } else {
         baseMsg = <span></span>
-    }
+    }*/
+
+    const isRejected = false
 
     let className = "w-full px-2 py-2 link cursor-pointer mr-1 flex items-center rounded " + (selected ? "border-2" : "border")
 
-    className = className + ((isUndone || isRejected) ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
+    className = className + isRejected ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]"
 
     let editType
     if(index == 0){
         editType = "Creación"
-    } else if(entity.versions[index].compressedText == entity.versions[index-1].compressedText){
-        if(entity.versions[index].editMsg.startsWith("nuevo nombre:")){
+    } else if(entity.versions[index].text == entity.versions[index-1].text){
+        if(entity.versions[index].message.startsWith("nuevo nombre:")){
             editType = "Cambio de nombre"
         } else if(entity.versions[index].categories == entity.versions[index-1].categories){
             editType = "Sinónimos"
@@ -200,10 +196,6 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     }
 
     const entityVersion = entity.versions[index]
-
-    if(entity.versions[index].type == "Comment"){
-        return <></>
-    }
 
     return <div className="flex items-center w-full pb-1">
         {<div className={"px-2 " + (selected ? "text-gray-400" : "text-transparent")}>
@@ -249,9 +241,9 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                             Ver cambios
                         </div>}
 
-                        {entity.versions[index].editMsg && 
+                        {entity.versions[index].message &&
                             <EditMessage
-                                msg={entity.versions[index].editMsg}
+                                msg={entity.versions[index].message}
                                 editType={editType}
                             />
                         }
@@ -265,13 +257,13 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                         <div className="items-center space-x-2  flex">
                             {(isCurrent && index > 0) ? <UndoButton entity={entity} version={index}/> : <></>}
                             
-                            {(isUndone || isRejected) && <button className="hover:scale-105" onClick={onDiscussionClick}>
+                            {isRejected && <button className="hover:scale-105" onClick={onDiscussionClick}>
                                 <ActiveCommentIcon/>
                             </button>}
 
-                            {hasAuthorshipClaim && <AuthorshipClaim entity={entity} version={index} setShowingRemoveAuthorshipPanel={setShowingRemoveAuthorshipPanel}/>}
+                            {entity.versions[index].authorship && <AuthorshipClaim entity={entity} version={index} setShowingRemoveAuthorshipPanel={setShowingRemoveAuthorshipPanel}/>}
 
-                            {(hasAuthorshipClaim && entity.versions[index].claimsAuthorship) && <MonetizationPortion
+                            {entity.versions[index].authorship && <MonetizationPortion
                                 entity={entity}
                                 index={index}
                             />}
@@ -284,7 +276,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 }
 
 
-export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {entity: EntityProps, onClose: () => void, version: number, onRemove: () => Promise<{error?: string}>}) => {
+export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {entity: TopicProps, onClose: () => void, version: number, onRemove: () => Promise<{error?: string}>}) => {
     const {user} = useUser()
     const {mutate} = useSWRConfig()
 
@@ -342,7 +334,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
 
 
 
-export const EditHistory = ({entity, viewing}: {entity: EntityProps, viewing?: number}) => {
+export const EditHistory = ({entity, viewing}: {entity: TopicProps, viewing?: number}) => {
     const currentIndex = currentVersion(entity)
 
     // const lastDiff = JSON.parse(entity.versions[entity.versions.length-1].diff)

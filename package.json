@@ -28,6 +28,7 @@
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@headlessui/react": "^2.2.0",
+    "@ipld/dag-cbor": "^9.2.2",
     "@lexical/react": "0.17.0",
     "@lexical/utils": "0.17.0",
     "@mercadopago/sdk-react": "^0.0.19",

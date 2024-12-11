@@ -14,8 +14,6 @@ import './index.css';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {TableOfContentsPlugin as LexicalTableOfContentsPlugin} from '@lexical/react/LexicalTableOfContentsPlugin';
 import {useEffect, useRef, useState} from 'react';
-import { entityIdToName } from '../../../utils';
-import { ContentType } from '@prisma/client';
 
 
 const HEADING_WIDTH = 30;
@@ -241,7 +239,7 @@ function TableOfContentsList({
 
 export default function TableOfContentsPlugin({content, marginAboveEditor}: {
   content: {
-    type: ContentType
+    type: string
     title?: string
     parentEntityId?: string
   }
@@ -254,7 +252,7 @@ export default function TableOfContentsPlugin({content, marginAboveEditor}: {
         if(content.type == "Post"){
           title = content.title
         } else if(content.type == "EntityContent"){
-          title = entityIdToName(content.parentEntityId) 
+          title = content.parentEntityId
         }
         if(tableOfContents.length == 0){
           return <></>
