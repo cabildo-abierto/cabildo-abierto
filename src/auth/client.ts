@@ -25,8 +25,8 @@ export const createClient = async () => {
       client_uri: url,
       token_endpoint_auth_method: 'none',
       logo_uri: 'https://www.cabildoabierto.com.ar/logo.svg',
-      tos_uri: 'https://www.cabildoabierto.com.ar/articulo?i=Cabildo_Abierto%3A_T%C3%A9rminos_y_condiciones',
-      policy_uri: 'https://www.cabildoabierto.com.ar/articulo?i=Cabildo_Abierto%3A_Pol%C3%ADtica_de_privacidad'
+      //tos_uri: 'https://www.cabildoabierto.com.ar/articulo?i=Cabildo_Abierto%3A_T%C3%A9rminos_y_condiciones',
+      //policy_uri: 'https://www.cabildoabierto.com.ar/articulo?i=Cabildo_Abierto%3A_Pol%C3%ADtica_de_privacidad'
     },
     stateStore: new StateStore(),
     sessionStore: new SessionStore(),
