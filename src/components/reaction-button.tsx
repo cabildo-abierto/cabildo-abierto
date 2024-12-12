@@ -15,12 +15,16 @@ type ReactionButtonProps = {
 
 export const ReactionButton = ({onClick, count, icon1, icon2, active=true, disabled=false, title, className="reaction-btn"}: ReactionButtonProps) => {
     
-    return <div className={"text-[var(--text-light)]"}><IconButton
-        onClick={stopPropagation(onClick)}
-        disabled={disabled}
-        title={title}
-        color={"inherit"}
-    >
-        {active ? <div className={(active ? "text-red-400" : "")}>{icon1}</div> : icon2} <span className="text-sm flex items-end">{count}</span>
-    </IconButton></div>
+    return <div className={"text-[var(--text-light)]"}>
+        <button
+            className={"rounded-lg hover:bg-[var(--background-dark)] px-1"}
+            onClick={stopPropagation(onClick)}
+            disabled={disabled}
+            title={title}
+        >
+            <div className={"flex items-center"}>
+                {active ? <div className={(active ? "text-red-400" : "")}>{icon1}</div> : <div>{icon2}</div>} <div className="text-sm flex items-end">{count}</div>
+            </div>
+        </button>
+    </div>
 }

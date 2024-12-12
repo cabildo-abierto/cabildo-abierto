@@ -1,35 +1,15 @@
 "use client"
 import { useEffect, useState } from "react"
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { preload, useSWRConfig } from "swr";
-import { CustomLink as Link } from '../custom-link';
-import StateButton from "../state-button";
-import { useRouter, useSearchParams } from "next/navigation";
-import { DateSince } from "../date";
-import { ToggleButton } from "../toggle-button";
-import { EntityCategories } from "../categories";
-import { EditHistory } from "../edit-history";
-import { SetProtectionButton } from "../protection-button";
+import { useSearchParams } from "next/navigation";
 import { ThreeColumnsLayout } from "../three-columns";
-import { articleUrl, currentVersion, hasEditPermission, inRange } from "../utils";
-import { articleButtonClassname } from "../editor/wiki-editor";
+import { currentVersion, inRange } from "../utils";
 import { LoadingScreen } from "../loading-screen";
 import NoEntityPage from "../no-entity-page";
-import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { smoothScrollTo } from "../editor/plugins/TableOfContentsPlugin";
 import { ArticleDiscussion } from "./article-discussion";
-import Button from "@mui/material/Button";
-import { ArticleOtherOptions } from "./article-other-options";
 import { EntityCategoriesSmall } from "../entity-categories-small";
-import { NeedAccountPopup } from "../need-account-popup";
-import {useUser} from "../../hooks/user";
 import {useTopic} from "../../hooks/topics";
 import {getTopicTitle} from "./utils";
 import {TopicContent} from "./topic-content";
-
-
-export const editContentClassName = "article-btn lg:text-base text-sm px-1 lg:px-2 bg-[var(--primary)] text-[var(--lightwhite)] hover:bg-[var(--primary-dark)] disabled:hover:bg-[var(--primary)]"
 
 
 export const TopicPage = ({topicId, paramsVersion, changes}: {
@@ -73,16 +53,14 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     const titleFontSize = getTopicTitle(topic.topic).length > 60 ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl"
 
     const center = <div className="flex flex-col items-center w-full">
-        <div className="w-full mt-8">
-            <div className="flex flex-col border-b p-4">
-                <div className="text-[var(--text-light)] text-sm mb-2">
-                    Tema
-                </div>
-                <h1 className={"mb-2 " + titleFontSize}>
-                    {getTopicTitle(topic.topic)}
-                </h1>
-                <EntityCategoriesSmall topic={topic.topic} route={[]}/>
+        <div className="flex flex-col border-b p-4 w-full">
+            <div className="text-[var(--text-light)] text-sm mb-2">
+                Tema
             </div>
+            <h1 className={"mb-2 " + titleFontSize}>
+                {getTopicTitle(topic.topic)}
+            </h1>
+            <EntityCategoriesSmall topic={topic.topic} route={[]}/>
         </div>
         <TopicContent topic={topic.topic} version={version} selectedPanel={selectedPanel} setSelectedPanel={setSelectedPanel}/>
 
@@ -94,7 +72,5 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
         </div>}
     </div>
 
-    return <>
-        <ThreeColumnsLayout center={center} leftMinWidth="250px"/>
-    </>
+    return <ThreeColumnsLayout center={center} leftMinWidth="250px"/>
 }

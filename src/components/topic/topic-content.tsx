@@ -3,7 +3,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {DateSince} from "../date";
 import {CustomLink as Link} from "../custom-link";
-import {articleUrl, currentVersion, hasEditPermission, inRange} from "../utils";
+import {articleUrl, currentVersion, hasChanged, hasEditPermission, inRange} from "../utils";
 import {ArticleOtherOptions} from "./article-other-options";
 import {SetProtectionButton} from "../protection-button";
 import {EntityCategories} from "../categories";
@@ -12,57 +12,110 @@ import {EditHistory} from "../edit-history";
 import { TopicProps } from "../../app/lib/definitions";
 import { useUser } from "../../hooks/user";
 import {ToggleButton} from "../toggle-button";
-import {articleButtonClassname} from "../editor/wiki-editor";
+import {wikiEditorSettings} from "../editor/wiki-editor";
 import {NeedAccountPopup} from "../need-account-popup";
 import {useState} from "react";
 import StateButton from "../state-button";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
+import {createTopicVersion} from "../../actions/topics";
+import {compress, decompress} from "../compression";
+import {EditorState, LexicalEditor} from "lexical";
+import {useSWRConfig} from "swr";
+import {SaveEditPopup} from "../save-edit-popup";
+import {RoutesEditor} from "../routes-editor";
+import {SearchkeysEditor} from "../searchkeys-editor";
+import {ChangesCounter} from "../changes-counter";
+import {ShowArticleChanges} from "../show-article-changes";
+import {ShowArticleAuthors} from "../show-authors-changes";
+import dynamic from "next/dynamic";
+const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
+
+export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:px-2 py-1"
 
 
 export const TopicContent = ({
                                  topic, version, selectedPanel, setSelectedPanel}: {
     topic: TopicProps, version: number, selectedPanel: string, setSelectedPanel: (v: string) => void}) => {
     const user = useUser()
+    const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
+    const [editingRoutes, setEditingRoutes] = useState(false)
+    const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
+    const [editingSearchkeys, setEditingSearchkeys] = useState(false)
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
+    const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
+    const {mutate} = useSWRConfig()
 
     const lastUpdated = topic.versions[topic.versions.length-1].content.createdAt
 
     const currentIndex = currentVersion(topic)
     const isCurrent = version == currentIndex
 
-    async function onEdit(v){
-        if(!v || user.user != null){
-            setSelectedPanel("editing")
-        } else if(user.user == null){
-            setShowingNeedAccountPopup(true)
-        }
+    const content = topic.versions[version]
+
+    const contentText = decompress(content.content.text)
+
+    async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{error?: string}>{
+        if(!editor) return {error: "Ocurrió un error con el editor."}
+
+        return await editor.read(async () => {
+            let text
+            try {
+                text = JSON.stringify(editor.getEditorState())
+            } catch {
+                return {error: "Ocurrió un error con el editor."}
+            }
+
+            const result = await createTopicVersion(
+                {
+                    id: topic.id,
+                    text: compress(text),
+                    claimsAuthorship,
+                    message: editMsg
+                }
+            )
+
+            if(!result) return {error: "Ocurrió un error al guardar los cambios. e02."}
+            if(result.error) return {error: result.error}
+
+            mutate("/api/topic/"+topic.id)
+            mutate("/api/topics")
+            setShowingSaveEditPopup(false)
+            setSelectedPanel("none")
+            return {}
+        })
+        return {}
+    }
+
+    const SaveEditButton = () => {
+        return <button
+            className={articleButtonClassname}
+            onClick={(e) => {setShowingSaveEditPopup(true)}}
+            disabled={!editorState || !hasChanged(editorState, contentText)}
+        >
+            Guardar edición
+        </button>
     }
 
     const EditButton = () => {
-        if(hasEditPermission(user.user, topic.protection)){
-            return <ToggleButton
-                text="Editar"
-                toggledText="Cancelar edición"
-                className={articleButtonClassname}
-                setToggled={onEdit}
-                disabled={!isCurrent}
-                toggled={selectedPanel == "editing"}
-            />
-        } else {
-            return <ToggleButton
-                text="Proponer edición"
-                toggledText="Cancelar edición"
-                className={articleButtonClassname}
-                setToggled={onEdit}
-                disabled={!isCurrent}
-                toggled={selectedPanel == "editing"}
-            />
+        async function onEdit(){
+            if(user.user == null){
+                setShowingNeedAccountPopup(true)
+            } else {
+                if(selectedPanel == "editing"){
+                    setSelectedPanel("none")
+                } else {
+                    setSelectedPanel("editing")
+                }
+            }
         }
-    }
 
-
-    function setEditing(v: boolean){
-        if(v) setSelectedPanel("editing"); else setSelectedPanel("none")
+        return <button
+            onClick={() => {onEdit()}}
+            disabled={!isCurrent}
+            className={articleButtonClassname}
+        >
+            {selectedPanel == "editing" ? "Cancelar edición" : (hasEditPermission(user.user, topic.protection) ? "Editar" : "Proponer edición")}
+        </button>
     }
 
     const ViewHistoryButton = () => {
@@ -148,20 +201,6 @@ export const TopicContent = ({
         />
     }
 
-    const MakePublicButton = () => {
-        return <StateButton
-            variant="text"
-            text1="Hacer público"
-            text2="Haciendo público..."
-            handleClick={async () => {
-                /*const {error} = await makeEntityPublic(entityId, true);
-                mutate("/api/entity/"+entityId)
-                return {error}*/
-                return {}
-            }}
-        />
-    }
-
     const UpdateWeakReferencesButton = () => {
         return <StateButton
             variant="text"
@@ -169,20 +208,6 @@ export const TopicContent = ({
             text2="Actualizando..."
             handleClick={async () => {
                 //return await updateAllWeakReferences()
-                return {}
-            }}
-        />
-    }
-
-    const MakePrivateButton = () => {
-        return <StateButton
-            variant="text"
-            text1="Hacer privado"
-            text2="Haciendo privado..."
-            handleClick={async () => {
-                /*const {error} = await makeEntityPublic(entityId, false);
-                mutate("/api/entity/"+entityId)
-                return {error}*/
                 return {}
             }}
         />
@@ -196,7 +221,7 @@ export const TopicContent = ({
 
     const info = <>
         <div className="flex justify-between items-center">
-            {selectedPanel != "editing" && <div className="flex flex-col link text-xs sm:text-sm">
+            {<div className="flex flex-col link text-xs sm:text-sm">
 
                 <span className="text-[var(--text-light)] mt-2 flex items-center">
                     <div className="mr-1 flex items-center"><AccessTimeIcon fontSize="inherit"/></div> <span>Última actualización <DateSince date={lastUpdated}/>.</span>
@@ -212,15 +237,33 @@ export const TopicContent = ({
         </div>
 
         <div className="">
-            {selectedPanel != "editing" && <div className="flex flex-wrap w-full items-center border-b mt-4">
+            <div className="flex flex-wrap w-full items-center border-b mt-4">
+                {selectedPanel == "editing" && <SaveEditButton/>}
                 {isCurrent && <EditButton/>}
-                <ViewHistoryButton/>
-                <ViewLastChangesButton/>
-                <ViewAuthorsButton/>
-                <ArticleOtherOptions
-                    optionList={["change-name"]}
-                    topic={topic}
-                />
+                {selectedPanel != "editing" && <>
+                    <ViewHistoryButton/>
+                    <ViewLastChangesButton/>
+                    <ViewAuthorsButton/>
+                </>}
+
+                {selectedPanel == "editing" && <>
+                    <ToggleButton
+                        className={articleButtonClassname}
+                        toggled={editingRoutes}
+                        setToggled={(v) => {setEditingRoutes(v); if(v) setEditingSearchkeys(false)}}
+                        text="Editar categorías"
+                    />
+                    <ToggleButton
+                        className={articleButtonClassname}
+                        toggled={editingSearchkeys}
+                        setToggled={(v) => {setEditingSearchkeys(v); if(v) setEditingRoutes(false)}}
+                        text="Editar sinónimos"
+                    />
+                    <ArticleOtherOptions
+                        optionList={["change-name"]}
+                        topic={topic}
+                    />
+                </>}
 
                 {(user.user && (user.user.editorStatus == "Administrator")) &&
                     <div className="flex justify-center">
@@ -246,7 +289,7 @@ export const TopicContent = ({
                     </div>
                 </>
                 }
-            </div>}
+            </div>
         </div>
         {selectedPanel == "categories" && <div className="px-2 content-container my-2">
             <EntityCategories
@@ -261,10 +304,61 @@ export const TopicContent = ({
             />
         </div>
         }
-
     </>
 
-    return <div className="w-full p-4 border-b" id="information-start">
+    const editorComp = <>
+
+        {showingSaveEditPopup && <SaveEditPopup
+            editorState={editorState}
+            currentVersion={contentText}
+            onSave={saveEdit}
+            onClose={() => {setShowingSaveEditPopup(false)}}
+            entity={topic}
+        />}
+
+        {editingRoutes &&
+            <div className="py-4">
+                <RoutesEditor topic={topic} setEditing={(v: boolean) => {setEditingRoutes(v)}}/>
+            </div>}
+
+        {editingSearchkeys &&
+            <div className="py-4">
+                <SearchkeysEditor entity={topic} setEditing={setEditingSearchkeys}/>
+            </div>}
+
+        <div className="text-center">
+            {selectedPanel == "changes" && version > 0 && <ChangesCounter
+                charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}/>}
+        </div>
+        <div id="editor">
+            {(((selectedPanel != "changes" || version == 0) && selectedPanel != "authors")) &&
+                <div className="px-2" key={content.cid+selectedPanel}>
+                    <MyLexicalEditor
+                        settings={wikiEditorSettings(selectedPanel != "editing", content, contentText)}
+                        setEditor={setEditor}
+                        setEditorState={setEditorState}
+                    />
+                </div>}
+            {(selectedPanel == "changes" && version > 0) &&
+                <ShowArticleChanges
+                    originalContent={content}
+                    originalContentText={contentText}
+                    entity={topic}
+                    version={version}
+                />
+            }
+            {(selectedPanel == "authors") &&
+                <ShowArticleAuthors
+                    originalContent={content}
+                    originalContentText={contentText}
+                    topic={topic}
+                    version={version}
+                />
+            }
+        </div>
+    </>
+
+    return <div className={"w-full p-4" + (selectedPanel == "editing" ? "" : " border-b")} id="information-start">
         <div className="flex justify-between mb-2">
             <div>
                 <h2 className="">
@@ -284,6 +378,7 @@ export const TopicContent = ({
             Si no estás de acuerdo con algo editalo o comentá. También podés agregar información.
         </div>
         {info}
+        {editorComp}
         <NeedAccountPopup
             text="Necesitás una cuenta para hacer ediciones."
             open={showingNeedAccountPopup}

@@ -15,6 +15,7 @@ $background: #181b23;
 
   --background-light: #{darken($background, 20%)};
   --background-dark: #{lighten($background, 5%)};
+  --background-dark2: #{lighten($background, 10%)};
   
   --primary-dark: #{lighten($primary, 20%)};
   --primary-darker: #{lighten($primary, 30%)};
@@ -842,7 +843,7 @@ th {
 }
   
 .article-btn:hover {
-	background-color: var(--secondary-light);
+	background-color: var(--background-dark);
 }
 
 .article-btn:disabled {
@@ -854,7 +855,7 @@ th {
 }
 
 .article-btn.toggled {
-	border-color: $accent
+	border-color: var(--accent-dark)
 }
 
 .min-h-screen-minus-footer {

@@ -433,8 +433,8 @@ export function nextPrice(p: number){
 }
 
 
-export function articleUrl(title: string, index?: number){
-    return "/tema?i=" + encodeURIComponent(title) + (index != undefined ? "&v=" + index : "")
+export function articleUrl(title: string, index?: number, changes: boolean = false){
+    return "/tema?i=" + encodeURIComponent(title) + (index != undefined ? "&v=" + index : "") + (changes ? "&c=true" : "")
 }
 
 export function userUrl(id: string){
@@ -718,4 +718,64 @@ export function getDidFromUri (uri: string) {
 export function getRkeyFromUri(uri: string){
     const s = uri.split("/")
     return s[s.length-1]
+}
+
+type EntitySearchKeysProps = {
+    id: string
+    currentVersion: {synonyms: string[]}
+}
+
+function findMentionNode(node: any, entity: EntitySearchKeysProps){
+    if(node.type == "link" || node.type == "autolink"){
+        const url: string = node.url
+        if(url.includes("/articulo/") && url.split("/articulo/")[1] == entity.id)
+            return node
+    }
+
+    if(!node.children) {
+        const text = cleanText(getAllText(node))
+        if(someKeyInText(getKeysFromEntity(entity), text)){
+            return node
+        } else {
+            return null
+        }
+    }
+    for(let i = 0; i < node.children.length; i++){
+        const found = findMentionNode(node.children[i], entity)
+        if(found) return found
+    }
+}
+
+
+function findMentionAncestors(node: any, entity: EntitySearchKeysProps){
+    if(!node.children){
+        return [node]
+    }
+    for(let i = 0; i < node.children.length; i++){
+        const mentionNode = findMentionNode(node.children[i], entity)
+        if(mentionNode){
+            return [node, ...findMentionAncestors(node.children[i], entity)]
+        }
+    }
+    return [node]
+}
+
+
+function findFragment(text: string, entity: EntitySearchKeysProps){
+    const parsed = JSON.parse(text)
+    const mentionNode = findMentionNode(parsed.root, entity)
+    if(!mentionNode){
+        return "Parece haber una mención pero no la encontramos"
+    }
+    const ancestors = findMentionAncestors(parsed.root, entity)
+    let best = null
+    let bestFitness = null
+    for(let i = 0; i < ancestors.length; i++){
+        const fitness = Math.abs(getAllText(ancestors[i]).length - 80)
+        if(!best || fitness < bestFitness){
+            best = ancestors[i]
+            bestFitness = fitness
+        }
+    }
+    return getAllText(best)
 }

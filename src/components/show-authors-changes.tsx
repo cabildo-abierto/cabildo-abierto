@@ -81,7 +81,13 @@ export const ShowArticleAuthors = ({
     topic: TopicProps,
     version: number
 }) => {
-    
+
+    if(topic.versions[version].diff == undefined){
+        return <div className={"text-[var(--text-light)] text-center mt-4"}>
+            Todavía no se calcularon las contribuciones.
+        </div>
+    }
+
     const contentText = showAuthors(topic, version, originalContentText)
 
     let settings = wikiEditorSettings(true, {...originalContent, parentEntityId: topic.id, childrenContents: []}, contentText)

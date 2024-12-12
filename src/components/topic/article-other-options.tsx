@@ -48,7 +48,7 @@ const NewNameModal = ({topic, open, onClose}: {topic: {id: string, versions: {ti
         </AcceptButtonPanel>
     }
 
-    return <BaseFullscreenPopup open={true} onClose={onClose} closeButton={true}>
+    return <BaseFullscreenPopup open={open} onClose={onClose} closeButton={true}>
         <div className="flex flex-col items-center justify-between">
         <h2 className="">
             Cambio de nombre
@@ -103,7 +103,7 @@ export const ContentOptionsDropdown = ({
         {optionsList.includes("change-name") && <div>
             <ContentOptionsChoiceButton
                 icon={<WriteButtonIcon/>}
-                onClick={async () => {setIsNewNameModalOpen(true); return {}}}
+                onClick={async () => {setIsNewNameModalOpen(true); console.log("change name was clicked"); return {}}}
             >
                 <div className="whitespace-nowrap">Cambiar nombre</div>
             </ContentOptionsChoiceButton>    

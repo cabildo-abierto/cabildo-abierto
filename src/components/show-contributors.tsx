@@ -29,6 +29,12 @@ export const ShowContributors = ({topicId}:
     const lastVersion = topic.versions[topic.versions.length-1]
     const firstVersion = topic.versions[0]
 
+    if(lastVersion.diff == undefined){
+        return <div className={"text-sm text-[var(--text-light)]"}>
+            Todavía no se calcularon las contribuciones.
+        </div>
+    }
+
     if(lastVersion.accCharsAdded == 0){
         return <div className="flex">
             <div className="flex space-x-2 link">

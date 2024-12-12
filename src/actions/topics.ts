@@ -54,6 +54,17 @@ export async function createTopicVersion({id, text = "", title, claimsAuthorship
 export async function createTopicVersionCA({uri, cid, text, title, message, did, id, claimsAuthorship}: {
     uri: string, cid: string, text: string, title: string, message: string, did: string, id: string, claimsAuthorship: boolean}){
     try {
+        await db.topic.upsert({
+            create: {
+                id: id
+            },
+            update: {
+
+            },
+            where: {
+                id: id
+            }
+        })
         await db.topicVersion.create({
             data: {
                 authorship: claimsAuthorship,
@@ -73,14 +84,8 @@ export async function createTopicVersionCA({uri, cid, text, title, message, did,
                     }
                 },
                 topic: {
-                    connectOrCreate: {
-                        where: {
-                            id: id
-                        },
-                        create: {
-                            id: id,
-                            currentVersionId: cid
-                        }
+                    connect: {
+                        id: id
                     }
                 }
             }

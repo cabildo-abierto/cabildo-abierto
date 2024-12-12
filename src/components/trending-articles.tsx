@@ -80,7 +80,7 @@ export function topicPopularityScore(entity: SmallTopicProps, since?: Date){
 }
 
 
-export const TrendingArticles = ({route}: {route: string[]}) => {
+export const TrendingArticles = ({route, selected}: {route: string[], selected: string}) => {
     const entities = useRouteTopics(route);
     const [recent, setRecent] = useState(route.length == 0)
 
@@ -103,7 +103,7 @@ export const TrendingArticles = ({route}: {route: string[]}) => {
         <p>Según la cantidad de personas que participó en la discusión. Las participaciones incluyen menciones, comentarios y ediciones.</p>
     </div>
 
-    return <div className="">
+    return <div className="px-2">
         {false && <div className="text-[var(--text-light)] text-xs sm:text-sm flex justify-end mb-1">
             <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={text}/>
         </div>}
@@ -131,7 +131,6 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
     const ref =
     useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
     const { events } = useDraggable(ref);
-    const router = useRouter()
     const [hovering, setHovering] = useState<number>(undefined)
 
     return (
@@ -143,7 +142,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
         {trendingArticles.map(({entity, score}, index) => {
 
             return <Link href={articleUrl(entity.id)} draggable={false}
-                className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] bg-[var(--secondary-light)] hover:bg-[var(--secondary)] border-b-2 border-r-2 border-[var(--secondary)] hover:border-[var(--secondary-dark)] select-none"
+                className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] border hover:bg-[var(--secondary)] select-none"
                 key={entity.id}
                 onMouseLeave={() => {setHovering(undefined)}}
                 onMouseEnter={() => {preload("/api/entity/"+entity.id, fetcher); setHovering(index)}}
@@ -166,7 +165,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                     </div>
 
                     <div
-                        className="text-gray-700 text-xs sm:text-sm flex items-end justify-end px-1 w-full"
+                        className="text-[var(--text-light)] text-xs sm:text-sm flex items-end justify-end px-1 w-full"
                     >
                         <div title="La cantidad de usuarios que participaron en la discusión.">{score[0]} <PersonIcon fontSize="inherit"/></div>
                     </div>
