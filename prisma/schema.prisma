@@ -225,9 +225,10 @@ model Reference {
 model Like {
     cid         String    @id
     uri         String
-    createdAt        DateTime    @default(now()) @map("created_at")
+    createdAt   DateTime    @default(now()) @map("created_at")
 
-    content     Content
+    contentId   String
+    content     Content   @relation(fields: [contentId], references: [cid])
 
     userById    String
     userBy      User      @relation(fields: [userById], references: [did])

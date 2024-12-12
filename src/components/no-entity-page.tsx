@@ -1,19 +1,21 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import React from "react"
 import { useSWRConfig } from "swr"
 import { useUser } from "../hooks/user"
 import { articleUrl } from "./utils"
 import { validEntityName } from "./write-button"
+import {Button} from "@mui/material";
+import {createTopic} from "../actions/topics";
 
 const CreateEntityButton: React.FC<any> = ({onClick}) => {
-    return <button 
-            className="gray-btn"
+    return <Button
+            variant={"contained"}
             onClick={onClick}
+            sx={{textTransform: "none"}}
         >
             Crear tema
-    </button>
+    </Button>
 }
 
 export default function NoEntityPage({id}: {id: string}){
@@ -24,12 +26,12 @@ export default function NoEntityPage({id}: {id: string}){
     const {mutate} = useSWRConfig()
 
     const handleCreateEntity = async () => {
-        /*if(user) {
-            await createEntity(name, user.id)
-            mutate("/api/entities")
-            mutate("/api/entity/"+id)
+        if(user) {
+            await createTopic(name)
+            mutate("/api/topics")
+            mutate("/api/topic/"+id)
             router.push(url)
-        }*/
+        }
     }
 
     return <>

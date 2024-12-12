@@ -2,10 +2,9 @@
 
 ### Instalar
 
-Descargar el repo y desde la raíz ejecutar:
+Clonar el repositorio y desde la raíz ejecutar:
 ```bash
 npm install
-npx prisma generate // No estoy seguro de si hace falta
 ```
 
 ### Arrancar el servidor de desarrollo
@@ -13,15 +12,9 @@ npx prisma generate // No estoy seguro de si hace falta
 ```bash
 npm run dev
 ```
-Para que funcione además hay que tener el .env
+Para que funcione además hay que tener el .env y el .env.local.
 
 ### Build
 ```
 npm run build
-```
-
-### Actualizar el esquema de la base de datos
-```
-npx prisma generate
-npx prisma db push
 ```
