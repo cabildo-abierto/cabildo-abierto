@@ -70,7 +70,7 @@ type ShowArticleChangesProps = {
     originalContent: {
         cid: string
         diff?: string
-        text: string
+        content: {text: string}
     },
     originalContentText: string,
     entity: TopicProps,
@@ -84,7 +84,7 @@ export const ShowArticleChanges = ({
 
     const contentText = showChanges(
         originalContentText,
-        decompress(changesContent.text),
+        decompress(changesContent.content.text),
         JSON.parse(originalContent.diff)
     )
 

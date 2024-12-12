@@ -23,7 +23,7 @@ export function countUserReferences(entity: {referencedBy: {referencingContent: 
 
 
 function recentEditScore(entity: SmallTopicProps){
-    return [new Date(entity.versions[entity.versions.length-1].createdAt).getTime()]
+    return [new Date(entity.versions[entity.versions.length-1].content.createdAt).getTime()]
 }
 
 

@@ -25,7 +25,7 @@ export const TopicContent = ({
     const user = useUser()
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
 
-    const lastUpdated = topic.versions[topic.versions.length-1].createdAt
+    const lastUpdated = topic.versions[topic.versions.length-1].content.createdAt
 
     const currentIndex = currentVersion(topic)
     const isCurrent = version == currentIndex
@@ -203,7 +203,7 @@ export const TopicContent = ({
                 </span>
 
                 {!isCurrent && <div className="flex text-[var(--text-light)]">
-                    <span className="mr-1">Estás viendo la versión {version} (publicada <DateSince date={topic.versions[version].createdAt}/>).</span>
+                    <span className="mr-1">Estás viendo la versión {version} (publicada <DateSince date={topic.versions[version].content.createdAt}/>).</span>
                     <span><Link href={articleUrl(topic.id)}>Ir a la versión actual</Link>.</span>
                 </div>
                 }

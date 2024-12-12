@@ -37,12 +37,13 @@ model User {
 
     paymentPromises     PaymentPromise[]   @relation("authorPromises")
 
-    topicVersions       TopicVersion[]
-
     topicVersionAccepts TopicVersionAccept[]
     topicVersionRejects TopicVersionReject[]
 
     views               View[]
+
+    contents            Content[]
+    likes               Like[]
 }
 
 
@@ -92,47 +93,63 @@ model PaymentPromise {
 
 
 model Topic {
-  id           String          @id
-  protection   EditorStatus    @default(Beginner)
-  versions     TopicVersion[]
-  currentVersion TopicVersion? @relation("currentVersion", fields: [currentVersionId], references: [cid])
-  currentVersionId String?      @unique
+    id           String          @id
+    protection   EditorStatus    @default(Beginner)
+    versions     TopicVersion[]
+    currentVersion TopicVersion? @relation("currentVersion", fields: [currentVersionId], references: [cid])
+    currentVersionId String?      @unique
+    referencedBy   Reference[]
+}
+
+
+model Content {
+    cid            String    @id @default(cuid())
+    uri            String
+
+    type           ContentType
+
+    text           String
+    author         User      @relation(fields: [authorId], references: [did])
+    authorId       String
+    createdAt      DateTime  @default(now()) @map("created_at")
+    views            View[]
+    numWords         Int?
+    references       Reference[]
+
+
+    children    Content[]      @relation("children")
+    parent      Content?       @relation("children", fields: [parentId], references: [cid])
+    parentId    String
+
+    childrenTree  Content[]    @relation("childrenTree")
+    ancestors     Content[]    @relation("childrenTree")
+
+    topicVersion  TopicVersion?
+    article       Article?
+
+    likes         Like[]
 }
 
 
 model TopicVersion {
-    cid             String    @id @default(cuid())
-    uri            String
+    cid              String    @id
+    content          Content   @relation(fields: [cid], references: [cid])
 
     title          String?
-    text           String
-    author         User      @relation(fields: [authorId], references: [did])
-    authorId       String
-
-    createdAt      DateTime  @default(now()) @map("created_at")
-
-    topic          Topic     @relation(fields: [topicId], references: [id])
-    topicId        String
-
+    topic            Topic     @relation(fields: [topicId], references: [id])
+    topicId          String
     message          String  @default("")
-
     charsAdded       Int?
     charsDeleted     Int?
     accCharsAdded    Int?
     contribution     String?
     diff             String?
-
     categories       String?
     synonyms         String[]
-
     authorship       Boolean  @default(true)
-
     accepts          TopicVersionAccept[]
     rejects          TopicVersionReject[]
-
     currentVersionOf Topic?   @relation("currentVersion")
-
-    views            View[]
 }
 
 
@@ -166,17 +183,10 @@ model TopicVersionReject {
 }
 
 
-model FastPost {
-    cid              String    @id
-    uri              String
-    views            View[]
-}
-
-
 model Article {
-    cid              String   @id
-    uri              String
-    views            View[]
+    cid              String    @id
+    content          Content   @relation(fields: [cid], references: [cid])
+    title            String
 }
 
 
@@ -187,20 +197,53 @@ model View {
     userBy           User        @relation(fields: [userById], references: [did])
     userById         String
 
-    topicVersionId   String?
-    topicVersion     TopicVersion?   @relation(fields: [topicVersionId], references: [cid])
-
-    fastPostId   String?
-    fastPost     FastPost?   @relation(fields: [fastPostId], references: [cid])
-
-    articleId   String?
-    article     Article?    @relation(fields: [articleId], references: [cid])
+    contentId        String
+    content          Content     @relation(fields: [contentId], references: [cid])
 }
+
 
 enum ViewType {
     TopicVersionView
     FastPostView
     ArticleView
+}
+
+
+model Reference {
+    id           String          @id @default(cuid())
+    type         ReferenceType
+    contentType  ContentType
+
+    referencedTopicId            String
+    referencedTopic    Topic           @relation(fields: [referencedTopicId], references: [id])
+
+    referencingContentId    String
+    referencingContent      Content    @relation(fields: [referencingContentId], references: [cid])
+}
+
+
+model Like {
+    cid         String    @id
+    uri         String
+    createdAt        DateTime    @default(now()) @map("created_at")
+
+    content     Content
+
+    userById    String
+    userBy      User      @relation(fields: [userById], references: [did])
+}
+
+
+enum ContentType {
+    FastPostContent
+    ArticleContent
+    TopicVersionContent
+}
+
+
+enum ReferenceType {
+    Strong
+    Weak
 }
 
 
@@ -223,13 +266,4 @@ enum EditorStatus {
   Beginner
   Editor
   Administrator
-}
-
-enum ContentType {
-  Comment
-  Post
-  FastPost
-  EntityContent
-  FakeNewsReport
-  UndoEntityContent
 }

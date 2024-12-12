@@ -183,7 +183,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     let editType
     if(index == 0){
         editType = "Creación"
-    } else if(entity.versions[index].text == entity.versions[index-1].text){
+    } else if(entity.versions[index].content.text == entity.versions[index-1].content.text){
         if(entity.versions[index].message.startsWith("nuevo nombre:")){
             editType = "Cambio de nombre"
         } else if(entity.versions[index].categories == entity.versions[index-1].categories){
@@ -222,11 +222,11 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                     <div className="text-xs  flex justify-between w-full items-center">
                         <div className="text-sm">
                             <Authorship
-                                content={entityVersion}
+                                content={entityVersion.content}
                                 onlyAuthor={true}
                             />
                         </div>
-                        <DateSince date={entityVersion.createdAt}/>
+                        <DateSince date={entityVersion.content.createdAt}/>
                     </div>
                     
                     <div className="text-sm space-x-2 flex">
@@ -292,7 +292,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
         return {}
     }
 
-    if(user.editorStatus != "Administrator" && user.did != entity.versions[version].author.did){
+    if(user.editorStatus != "Administrator" && user.did != entity.versions[version].content.author.did){
         return <AcceptButtonPanel open={true} onClose={onClose}>
             <div className="">
                 <div>
@@ -311,7 +311,7 @@ export const RemoveAuthorshipPanel = ({ entity, version, onClose, onRemove }: {e
             <div className="px-6 pb-4">
                 <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
                 <div className="mb-8">
-                    {user.did == entity.versions[version].author.did ? <>Estás por remover la autoría de la modificación que hiciste.</> : <>Estás por remover la autoría de la modificación de @{entity.versions[version].author.did}.</>}
+                    {user.did == entity.versions[version].content.author.did ? <>Estás por remover la autoría de la modificación que hiciste.</> : <>Estás por remover la autoría de la modificación de @{entity.versions[version].content.author.did}.</>}
                 </div>
                 <div className="flex justify-center items-center space-x-4 mt-4">
                     <button

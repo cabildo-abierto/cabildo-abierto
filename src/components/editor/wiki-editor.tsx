@@ -104,7 +104,7 @@ const WikiEditor = ({topic, version, readOnly=false, showingChanges=false, showi
 
     const content = topic.versions[version]
 
-    const contentText = decompress(content.text)
+    const contentText = decompress(content.content.text)
     
     /* TO DO: Recuperar useEffect(() => {
         if(version > 0){
