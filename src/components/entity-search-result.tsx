@@ -17,7 +17,7 @@ import {getTopicTitle} from "./topic/utils";
 export function getEntityChildrenCount(entity: SmallTopicProps){
     let count = 0
     for(let i = 0; i < entity.versions.length; i++){
-        count += entity.versions[i].childrenTree.length
+        count += entity.versions[i].content.childrenTree.length
     }
     return count
 }
@@ -30,12 +30,12 @@ const DateLastEdit = ({topic}: {topic: SmallTopicProps}) => {
 
   if(topic.versions.length == 1){
     return <div className={className}>
-      Creado <DateSince date={lastVersion.createdAt}/>
+      Creado <DateSince date={lastVersion.content.createdAt}/>
     </div>
   }
 
   return <div className={className}>
-    Última edición <DateSince date={lastVersion.createdAt}/>
+    Última edición <DateSince date={lastVersion.content.createdAt}/>
   </div>
 }
 

@@ -41,17 +41,17 @@ export function countUserInteractions(entity: SmallTopicProps, since?: Date){
 
     entity.referencedBy.forEach(({referencingContent}) => {
         if(recentEnough(referencingContent.createdAt)){
-            s.add(referencingContent.authorId)
+            s.add(referencingContent.author.did)
         }
     })
 
     for(let i = 0; i < entity.referencedBy.length; i++){
         const referencingContent = entity.referencedBy[i].referencingContent
-        addMany(referencingContent.childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
+        addMany(referencingContent.childrenTree.map(({author, createdAt}) => ({authorId: author.did, createdAt})))
         for(let j = 0; j < referencingContent.childrenTree.length; j++){
-            addMany(referencingContent.childrenTree[j].reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
+            addMany(referencingContent.childrenTree[j].likes.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
         }
-        addMany(referencingContent.reactions.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
+        addMany(referencingContent.likes.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
     }
 
     //if(entity.name == entityId) console.log("Referencias", s)
@@ -59,16 +59,15 @@ export function countUserInteractions(entity: SmallTopicProps, since?: Date){
     for(let i = 0; i < entity.versions.length; i++){
         // autores de las versiones
 
-        if(recentEnough(entity.versions[i].createdAt)){
-            s.add(entity.versions[i].authorId)
+        if(recentEnough(entity.versions[i].content.createdAt)){
+            s.add(entity.versions[i].content.author.did)
         }
 
         // comentarios y subcomentarios de las versiones
-        addMany(entity.versions[i].childrenTree.map(({authorId, createdAt}) => ({authorId, createdAt})))
+        addMany(entity.versions[i].content.childrenTree.map(({author, createdAt}) => ({authorId: author.did, createdAt})))
     }
     
     //if(entity.name == entityId) console.log("weak refs", s)
-
     //if(entity.name == entityId) console.log("Total", entity.name, s.size, s)
 
     s.delete(supportDid)
@@ -77,7 +76,7 @@ export function countUserInteractions(entity: SmallTopicProps, since?: Date){
 
 
 export function topicPopularityScore(entity: SmallTopicProps, since?: Date){
-    return [countUserInteractions(entity, since), entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0, new Date(entity.versions[currentVersion(entity)].createdAt).getTime()]
+    return [countUserInteractions(entity, since), entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0, new Date(entity.versions[currentVersion(entity)].content.createdAt).getTime()]
 }
 
 

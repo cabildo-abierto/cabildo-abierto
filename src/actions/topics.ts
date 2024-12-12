@@ -2,10 +2,10 @@
 
 import {getSessionAgent} from "./auth";
 import {getUsers} from "./users";
-import {TopicProps} from "../app/lib/definitions";
+import {SmallTopicProps, TopicProps} from "../app/lib/definitions";
 import {db} from "../db";
 import {getDidFromUri, getRkeyFromUri} from "../components/utils";
-
+import {ContentType} from '@prisma/client'
 
 export async function createTopic(id: string){
     return await createTopicVersion({id, claimsAuthorship: true})
@@ -56,15 +56,20 @@ export async function createTopicVersionCA({uri, cid, text, title, message, did,
     try {
         await db.topicVersion.create({
             data: {
-                uri: uri,
-                cid: cid,
                 authorship: claimsAuthorship,
-                text: text,
                 title: title,
                 message: message,
-                author: {
-                    connect: {
-                        did: did
+                content: {
+                    create: {
+                        cid: cid,
+                        uri: uri,
+                        text: text,
+                        type: ContentType.TopicVersionContent,
+                        author: {
+                            connect: {
+                                did: did
+                            }
+                        }
                     }
                 },
                 topic: {
@@ -87,69 +92,102 @@ export async function createTopicVersionCA({uri, cid, text, title, message, did,
 }
 
 
-export async function getTopics(route: string[]): Promise<{error?: string, topics?: TopicProps[]}> {
-    try {
-        const topics: TopicProps[] = await db.topic.findMany({
-            select: {
-                id: true,
-                protection: true,
-                currentVersion: {
-                    select: {
-                        cid: true,
-                        synonyms: true
-                    },
-                },
-                versions: {
-                    select: {
-                        topicId: true,
-                        cid: true,
-                        uri: true,
-                        text: true,
-                        createdAt: true,
-                        title: true,
-                        message: true,
-                        author: {
-                            select: {
-                                did: true,
-                                handle: true
-                            }
-                        },
-                        diff: true,
-                        charsAdded: true,
-                        accCharsAdded: true,
-                        contribution: true,
-                        authorship: true,
-                        categories: true,
-                        accepts: {
-                            select: {
-                                cid: true,
-                                uri: true,
-                                createdAt: true,
-                                author: {
-                                    select: {
-                                        did: true,
-                                        handle: true
-                                    }
-                                }
-                            }
-                        },
-                        rejects: {
-                            select: {
-                                cid: true,
-                                uri: true,
-                                createdAt: true,
-                                text: true,
-                                author: {
-                                    select: {
-                                        did: true,
-                                        handle: true
-                                    }
-                                }
-                            }
+const contentQuery = (includeText: boolean) => ({
+    uri: true,
+    text: includeText,
+    createdAt: true,
+    author: {
+        select: {
+            did: true,
+            handle: true
+        }
+    },
+    likes: {
+        select: {
+            userById: true,
+            createdAt: true,
+        }
+    }
+})
+
+
+const fullTopicQuery = (includeText: boolean) => ({
+    id: true,
+    protection: true,
+    currentVersion: {
+        select: {
+            cid: true,
+            synonyms: true
+        },
+    },
+    referencedBy: {
+        select: {
+            referencingContent: {
+                select: {
+                    ...contentQuery(includeText),
+                    childrenTree: {
+                        select: contentQuery(false)
+                    }
+                }
+            },
+        }
+    },
+    versions: {
+        select: {
+            cid: true,
+            content: {
+                select: {
+                    ...contentQuery(includeText),
+                    childrenTree: {
+                        select: contentQuery(false)
+                    }
+                }
+            },
+            topicId: true,
+            title: true,
+            message: true,
+            diff: true,
+            charsAdded: true,
+            accCharsAdded: true,
+            contribution: true,
+            authorship: true,
+            categories: true,
+            accepts: {
+                select: {
+                    cid: true,
+                    uri: true,
+                    createdAt: true,
+                    author: {
+                        select: {
+                            did: true,
+                            handle: true
                         }
                     }
                 }
-            }
+            },
+            rejects: {
+                select: {
+                    cid: true,
+                    uri: true,
+                    createdAt: true,
+                    text: true,
+                    author: {
+                        select: {
+                            did: true,
+                            handle: true
+                        }
+                    }
+                }
+            },
+        }
+    }
+})
+
+
+export async function getTopics(route: string[]): Promise<{error?: string, topics?: SmallTopicProps[]}> {
+    try {
+        const topics: SmallTopicProps[] = await db.topic.findMany({
+            select: fullTopicQuery(false)
         })
         return {topics: topics}
     } catch (err) {
@@ -160,17 +198,18 @@ export async function getTopics(route: string[]): Promise<{error?: string, topic
 
 
 export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
-    const {topics} = await getTopics([])
 
-    console.log("Topics", topics)
-    console.log("searching", id)
-
-    for(let i = 0; i < topics.length; i++){
-        if(topics[i].id == id){
-            return {topic: {...topics[i], protection: "Beginner"}}
-        }
+    try {
+        const topic = await db.topic.findUnique({
+            select: fullTopicQuery(true),
+            where: {
+                id: id
+            }
+        })
+        return {topic: topic}
+    } catch {
+        return {error: "No se encontró el tema."}
     }
-    return {error: "No se encontró el tema."}
 }
 
 export type ATProtoTopicVersion = {

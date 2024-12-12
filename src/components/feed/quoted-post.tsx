@@ -16,6 +16,10 @@ export const QuotedPost = ({content}: {content: FastPostProps}) => {
         return <></>
     }
 
+    if(content.embed.record.$type == "app.bsky.embed.record#viewBlocked"){
+        return <div className={"rounded-lg border p-3 mt-2"}>Bloqueado</div>
+    }
+
     const url = contentUrl(content.embed.record.uri, content.embed.record.value.$type, content.embed.record.author.handle)
 
     return <div onClick={(e) => {e.preventDefault(); e.stopPropagation(); router.push(url)}}>

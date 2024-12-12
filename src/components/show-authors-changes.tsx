@@ -31,11 +31,11 @@ function showAuthors(topic: TopicProps, version: number, versionText: string){
     let prevAuthors = []
 
     for(let i = 0; i <= version; i++){
-        const parsedVersion = editorStateFromJSON(decompress(topic.versions[i].text))
+        const parsedVersion = editorStateFromJSON(decompress(topic.versions[i].content.text))
         if(!parsedVersion) continue
         const nodes = parsedVersion.root.children
         const {matches} = JSON.parse(topic.versions[i].diff)
-        const versionAuthor = topic.versions[i].author.did
+        const versionAuthor = topic.versions[i].content.author.did
         let nodeAuthors: string[] = []
         for(let j = 0; j < nodes.length; j++){
             let authors = null
@@ -75,7 +75,7 @@ export const ShowArticleAuthors = ({
 }: {
     originalContent: {
         cid: string
-        text: string
+        content: {text: string}
     },
     originalContentText: string,
     topic: TopicProps,

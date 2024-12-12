@@ -86,8 +86,8 @@ export function arraySum(a: any[]) {
 }
 
 
-function currentCategories(entity: {versions: {cid: string, categories: string}[]}){
-    return JSON.parse(entity.versions[entity.versions.length-1].categories)
+function currentCategories(entity: {versions: {cid: string, categories?: string}[]}){
+    return JSON.parse(entity.versions[currentVersion(entity)].categories)
 }
 
 
@@ -655,7 +655,7 @@ export function getEntityMonetizedContributions(topic: TopicProps, version: numb
     const authors = new Map()
     for(let i = 0; i <= version; i++){
         if(!isTopicVersionDemonetized(topic.versions[i])){
-            const author = topic.versions[i].author.did
+            const author = topic.versions[i].content.author.did
             
             if(authors.has(author)){
                 authors.set(author, authors.get(author) + topic.versions[i].charsAdded)

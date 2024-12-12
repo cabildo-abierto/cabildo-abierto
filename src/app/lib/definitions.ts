@@ -9,16 +9,39 @@ export type TopicProps = {
         cid: string,
         synonyms: string[]
     }
+    referencedBy: ReferenceProps[]
 }
 
 
-export type TopicVersionProps = {
-    topicId: string
-    uri: string
+export type ReferenceProps = {
+    referencingContent: SmallContentProps
+}
+
+
+export type SmallTopicProps = Omit<TopicProps, 'versions'> & {versions: SmallTopicVersionProps[]}
+
+
+export type ContentProps = {
     createdAt: Date
     text: string
     author: {did: string, handle: string}
+    uri: string
+    childrenTree: CommentProps[]
+    likes: {userById: string, createdAt: Date}[]
+}
+
+
+export type CommentProps = Omit<ContentProps, "childrenTree">
+
+
+export type SmallContentProps = Omit<ContentProps, 'text'>
+
+
+export type TopicVersionProps = {
     cid: string
+    content: ContentProps
+
+    topicId: string
     message: string
     title?: string
 
@@ -35,7 +58,12 @@ export type TopicVersionProps = {
 
     categories?: string
     synonyms?: string[]
+
+    numWords?: number
 }
+
+
+export type SmallTopicVersionProps = Omit<TopicVersionProps, 'content'> & { content: SmallContentProps }
 
 
 export type TopicVersionAccept = {
@@ -84,30 +112,6 @@ export type BothContributionsProps = {
 }
 
 export type ContributionsProps = [string, number][]
-
-export type SmallTopicProps = {
-    id: string
-    currentVersion: {cid: string, synonyms: string[]}
-    versions: {
-        cid: string
-        title: string
-        categories: string
-        createdAt: Date
-        authorId: string
-        numWords: number
-        childrenTree: {authorId: string, createdAt: Date}[]
-        synonyms: string[]
-    }[]
-    referencedBy: {
-        isStrong: boolean
-        referencingContent: {
-            authorId: string
-            reactions: {userById: string, createdAt: Date}[]
-            childrenTree: {authorId: string, createdAt: Date, reactions: {userById: string, createdAt: Date}[]}[]
-            createdAt: Date
-        }
-    }[]
-}
 
 
 export type SubscriptionProps = {
@@ -197,7 +201,10 @@ export type FastPostProps = {
 }
 
 
-export type ArticleProps = FastPostProps
+export type ArticleProps = FastPostProps & {
+    title: string
+    numWords?: number
+}
 
 
 export type FeedContentReasonProps = {
