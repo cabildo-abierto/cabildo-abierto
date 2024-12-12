@@ -59,12 +59,10 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                     <Route route={route} setRoute={setRoute} selected={selected}/>
                 </div>
             }
-            
-            {false && selected == "En discusión" && 
-                <div className="pt-4 pb-6 px-2">
-                    <TrendingArticles route={route}/>
-                </div>
-            }
+
+            <div className="pt-4 pb-6 border-b">
+                <TrendingArticles route={route} selected={selected}/>
+            </div>
 
             {selected == "En discusión" && <Feed
                 feed={feed}

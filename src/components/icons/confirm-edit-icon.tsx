@@ -1,6 +1,6 @@
 
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckIcon from '@mui/icons-material/Check';
 
 export const ConfirmEditIcon = () => {
-    return <span className="text-green-400"><CheckCircleIcon/></span>
+    return <CheckIcon/>
 }

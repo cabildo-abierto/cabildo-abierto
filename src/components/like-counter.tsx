@@ -9,7 +9,6 @@ import { IconButton } from "@mui/material";
 import {FastPostProps} from "../app/lib/definitions";
 
 type LikeCounterProps = {
-    content: FastPostProps
     disabled?: boolean
     icon1?: ReactNode
     icon2?: ReactNode
@@ -22,7 +21,6 @@ type LikeCounterProps = {
 
 
 export const LikeCounter: React.FC<LikeCounterProps> = ({
-    content,
     disabled=false,
     icon1=<ActiveLikeIcon/>,
     icon2=<InactiveLikeIcon/>,

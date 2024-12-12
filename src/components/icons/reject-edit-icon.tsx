@@ -1,6 +1,5 @@
-
-import CancelIconMui from '@mui/icons-material/Cancel';
+import ClearIcon from '@mui/icons-material/Clear';
 
 export const RejectEditIcon = () => {
-    return <span className="text-red-400"><CancelIconMui/></span>
+    return <ClearIcon/>
 }

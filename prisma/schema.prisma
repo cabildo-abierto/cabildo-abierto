@@ -119,7 +119,7 @@ model Content {
 
     children    Content[]      @relation("children")
     parent      Content?       @relation("children", fields: [parentId], references: [cid])
-    parentId    String
+    parentId    String?
 
     childrenTree  Content[]    @relation("childrenTree")
     ancestors     Content[]    @relation("childrenTree")

@@ -99,13 +99,14 @@ export const SaveEditPopup = ({
                         <TickButton
                             ticked={claimsAuthorship}
                             setTicked={setClaimsAuthorship}
-                            text={<span className="text-sm text-gray-700">Soy autor/a de los caracteres agregados. <InfoPanel text={infoAuthorship} className="w-72"/></span>}
+                            text={<span className="text-sm text-[var(--text-light)]">Soy autor/a de los caracteres agregados. <InfoPanel text={infoAuthorship} className="w-72"/></span>}
                         />
                     </div>}
                     <div className="flex justify-center items-center space-x-4 mt-4">
                         <Button
                             color="primary"
                             variant="text"
+                            sx={{textTransform: "none"}}
                             onClick={async () => {onClose()}}
                         >
                             Volver
