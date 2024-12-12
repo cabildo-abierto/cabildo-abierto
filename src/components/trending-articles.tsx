@@ -98,7 +98,7 @@ export function topicPopularityScore(entity: SmallEntityProps, since?: Date){
 
 export const TrendingArticles = ({route}: {route: string[]}) => {
     const entities = useRouteEntities(route);
-    const [recent, setRecent] = useState(route.length == 0)
+    const [recent, setRecent] = useState(false)
 
     useEffect(() => {
         setRecent(route.length == 0)
