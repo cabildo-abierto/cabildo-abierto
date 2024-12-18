@@ -4,12 +4,12 @@ import { ContentOptionsChoiceButton } from "./content-options-button";
 import ShareIcon from '@mui/icons-material/Share';
 import {FastPostProps, FeedContentProps} from "../../app/lib/definitions";
 
-export const ShareContentButton = ({ content }: { content: FastPostProps }) => {
+export const ShareContentButton = ({ content }: { content: FeedContentProps }) => {
     const [onClipboard, setOnClipboard] = useState(false);
 
     const onShare = async () => {
         try {
-            const url = contentUrl(content.uri, content.record.$type, content.author.handle)
+            const url = contentUrl(content.uri, content.collection, content.author.handle)
 
             navigator.clipboard.writeText(url).then(
                 () => {

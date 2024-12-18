@@ -4,16 +4,9 @@ import { ContentOptionsChoiceButton } from "./content-options-button"
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ShareContentButton } from "./share-content-button"
 import {FastPostProps, FeedContentProps} from "../../app/lib/definitions"
+import {ReactNode} from "react";
 
-export const ContentOptionsDropdown = ({
-    content,
-    onClose,
-    optionsList,
-}: {
-    onClose: () => void,
-    optionsList: string[],
-    content: FastPostProps,
-}) => {
+export const ContentOptions = ({optionsList, content}: {optionsList: string[], content: any}) => {
 
     async function onReportFake(){
         /*setIsFakeNewsModalOpen(true)
@@ -46,13 +39,13 @@ export const ContentOptionsDropdown = ({
     }
 
     return <div className="text-base border rounded bg-[var(--content)] p-2">
-        {optionsList.includes("reportFake") && 
-        <ContentOptionsChoiceButton 
-            onClick={onReportFake}
-            icon={<RedFlag/>}
-        >
-            <div className="whitespace-nowrap">Reportar información falsa</div>
-        </ContentOptionsChoiceButton>}
+        {optionsList.includes("reportFake") &&
+            <ContentOptionsChoiceButton
+                onClick={onReportFake}
+                icon={<RedFlag/>}
+            >
+                <div className="whitespace-nowrap">Reportar información falsa</div>
+            </ContentOptionsChoiceButton>}
 
         {false && optionsList.includes("edit") && <ContentOptionsChoiceButton
             onClick={onEdit}
@@ -69,5 +62,15 @@ export const ContentOptionsDropdown = ({
 
         {optionsList.includes("share") && <ShareContentButton content={content}/>}
 
+    </div>
+}
+
+export const ContentOptionsDropdown = ({
+    options
+}: {
+    options: ReactNode
+}) => {
+    return <div className="text-base border rounded bg-[var(--content)] p-2">
+        {options}
     </div>
 }

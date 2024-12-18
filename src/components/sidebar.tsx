@@ -43,11 +43,11 @@ const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}
 }
 
 
-const SidebarUsername = ({bskyProfile}: {bskyProfile: ProfileViewDetailed}) => {
+const SidebarUsername = ({user}: {user: {displayName?: string, handle: string}}) => {
     return <div className="flex flex-col items-center space-y-1">
-        <Link href={userUrl(bskyProfile.handle)}>
+        <Link href={userUrl(user.handle)}>
             <Button variant="text" color="inherit" sx={{ textTransform: 'none' }}>
-                {bskyProfile.displayName ? bskyProfile.displayName : "@"+bskyProfile.handle}
+                {user.displayName ? user.displayName : "@"+user.handle}
             </Button>
         </Link>
         <CloseSessionButton/>
@@ -70,7 +70,7 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
             <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--background)] border-r safe-padding-mobile">
                 <div className="flex flex-col mt-4 px-2">
                     {user.user && <SidebarUsername
-                        bskyProfile={user.bskyProfile}
+                        user={user.user}
                     />}
                     {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
                     <SidebarButton onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio"/>

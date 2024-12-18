@@ -45,7 +45,7 @@ export const TopicContent = ({
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const {mutate} = useSWRConfig()
 
-    const lastUpdated = topic.versions[topic.versions.length-1].content.createdAt
+    const lastUpdated = topic.versions[topic.versions.length-1].content.record.createdAt
 
     const currentIndex = currentVersion(topic)
     const isCurrent = version == currentIndex
@@ -228,7 +228,7 @@ export const TopicContent = ({
                 </span>
 
                 {!isCurrent && <div className="flex text-[var(--text-light)]">
-                    <span className="mr-1">Estás viendo la versión {version} (publicada <DateSince date={topic.versions[version].content.createdAt}/>).</span>
+                    <span className="mr-1">Estás viendo la versión {version} (publicada <DateSince date={topic.versions[version].content.record.createdAt}/>).</span>
                     <span><Link href={articleUrl(topic.id)}>Ir a la versión actual</Link>.</span>
                 </div>
                 }

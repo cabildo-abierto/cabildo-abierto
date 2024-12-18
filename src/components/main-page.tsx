@@ -1,14 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { MainFeedHeader } from "./main-feed-header"
-import { useRouteFeed, useRouteFollowingFeed } from "../hooks/contents"
+import { useFeed } from "../hooks/contents"
 import { useUser } from "../hooks/user"
-import { fetcher } from "../hooks/utils"
-import { preload } from "swr"
 import { TrendingArticles } from "./trending-articles"
 import { Route } from "./wiki-categories"
-import Feed from "./feed"
+import Feed from "./feed/feed"
 
 
 type MainPageProps = {
@@ -22,8 +20,8 @@ type MainPageProps = {
 export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: MainPageProps) => {
     const user = useUser()
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : (user.user ? "Siguiendo" : "En discusión"))
-    const feed = useRouteFeed(route)
-    const followingFeed = useRouteFollowingFeed(route)
+    const feed = null //useFeed(route, "InDiscussion")
+    const followingFeed = useFeed(route, "Following")
 
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
     const [filter, setFilter] = useState("Todas")
@@ -64,9 +62,9 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                 <TrendingArticles route={route} selected={selected}/>
             </div>
 
-            {selected == "En discusión" && <Feed
+            {/*selected == "En discusión" && <Feed
                 feed={feed}
-            />}
+            />*/}
 
             {selected == "Siguiendo" && <Feed
                 feed={followingFeed}

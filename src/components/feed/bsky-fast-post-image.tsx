@@ -1,6 +1,6 @@
 "use client"
-import { FastPostProps } from "../../app/lib/definitions"
 import Image from 'next/image'
+import {FastPostProps} from "../../app/lib/definitions";
 
 
 export const ATProtoImage = ({img, did, className="w-full h-full"}: {img: any, did?: string, className?: string}) => {
@@ -24,23 +24,18 @@ export const ATProtoImage = ({img, did, className="w-full h-full"}: {img: any, d
 }
 
 
-type ContentWithImageMaybe = {
-    embed?: {
-        images?: {}[]
-        media?: {
-            images?: {}[]
-        }
+export const BskyFastPostImage = ({post, did}: {post: FastPostProps, did?: string}) => {
+
+    if(!post.content.post.embed){
+        return null
     }
-}
-
-
-export const BskyFastPostImage = ({content, did}: {content: ContentWithImageMaybe, did?: string}) => {
+    const embed = JSON.parse(post.content.post.embed)
 
     let images
-    if(content.embed && content.embed.images && content.embed.images.length > 0){
-        images = content.embed.images
-    } else if(content.embed && content.embed.media && content.embed.media.images && content.embed.media.images.length > 0){
-        images = content.embed.media.images
+    if(embed.images && embed.images.length > 0){
+        images = embed.images
+    } else if(embed.media && embed.media.images && embed.media.images.length > 0){
+        images = embed.media.images
     }
 
     if(images){

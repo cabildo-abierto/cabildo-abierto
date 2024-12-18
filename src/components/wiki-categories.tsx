@@ -4,8 +4,7 @@ import { CustomLink as Link } from './custom-link';
 import { SubcategoriesDropDown } from "./subcategories-dropdown";
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { getNextCategories } from "./utils";
-import { SmallTopicProps } from "../app/lib/definitions";
-import { useRouteTopics } from "../hooks/contents";
+import { useTopics } from "../hooks/contents";
 
 
 function routeUrl(route: string[]){
@@ -34,7 +33,7 @@ const RouteElement = ({route, c, index, setRoute}: {route: string[], c: string, 
 
 
 export const Route = ({route, setRoute, selected}: {route: string[], setRoute?: (r: string[]) => void, selected?: string}) => {
-    const routeTopics = useRouteTopics(route)
+    const routeTopics = useTopics(route)
     const nextCategories = routeTopics.topics ? getNextCategories(route, routeTopics.topics) : null
 
     return <div className="flex items-center flex-wrap">

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../hooks/user"
-import { articleUrl, currentVersion, getTopicMonetizedChars, hasEditPermission } from "./utils"
+import {articleUrl, countInArray, countReactions, currentVersion, getTopicMonetizedChars} from "./utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "./ui-utils/accept-button-panel"
 import { toPercentage } from "./show-contributors"
@@ -15,7 +15,6 @@ import { AuthorshipClaimIcon } from "./icons/authorship-claim-icon";
 import { NoAuthorshipClaimIcon } from "./icons/no-authorship-claim-icon";
 import { ConfirmEditIcon } from "./icons/confirm-edit-icon";
 import { RejectEditIcon } from "./icons/reject-edit-icon";
-import { ViewsIcon } from "./icons/views-icon";
 import { Authorship } from "./content-top-row-author";
 import { NeedAccountPopup } from "./need-account-popup";
 import {ProfilePic} from "./feed/profile-pic";
@@ -86,14 +85,14 @@ const ConfirmEditButtons = ({topic, version}: {topic: TopicProps, version: numbe
             icon2={<ConfirmEditIcon/>}
             onLike={async () => {return {error: "Sin implementar"}}}
             onDislike={async () => {return {error: "Sin implementar"}}}
-            initialCount={topic.versions[version].accepts.length}
+            initialCount={countReactions(topic.versions[version].content.record.reactions, "ar.com.cabildoabierto.wiki.accept")}
         />
         <LikeCounter
             icon1={<RejectEditIcon/>}
             icon2={<RejectEditIcon/>}
             onLike={async () => {return {error: "Sin implementar"}}}
             onDislike={async () => {return {error: "Sin implementar"}}}
-            initialCount={topic.versions[version].rejects.length}
+            initialCount={countReactions(topic.versions[version].content.record.reactions, "ar.com.cabildoabierto.wiki.reject")}
         />
     </div>
 }
@@ -110,7 +109,7 @@ const AssignAuthorshipButtons = ({topic, version}: {topic: TopicProps, version: 
             onDislike={async () => {
                 return {error: "Sin implementar"}
             }}
-            initialCount={topic.versions[version].accepts.length}
+            initialCount={countReactions(topic.versions[version].content.record.reactions, "ar.com.cabildoabierto.wiki.accept")}
         />
         <LikeCounter
             icon1={<NoAuthorshipClaimIcon/>}
@@ -121,7 +120,7 @@ const AssignAuthorshipButtons = ({topic, version}: {topic: TopicProps, version: 
             onDislike={async () => {
                 return {error: "Sin implementar"}
             }}
-            initialCount={topic.versions[version].rejects.length}
+            initialCount={countReactions(topic.versions[version].content.record.reactions, "ar.com.cabildoabierto.wiki.reject")}
         />
     </div>
 }
@@ -195,14 +194,14 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
             <div className={"flex flex-col w-full"}>
                 <div className={"flex justify-between w-full"}>
                     <div className="text-sm flex space-x-1">
-                        <ProfilePic className={"w-5 h-5 rounded-full"} bskyProfile={user.bskyProfile}/>
+                        <ProfilePic className={"w-5 h-5 rounded-full"} user={user.user}/>
                         <Authorship
-                            content={entityVersion.content}
+                            content={entityVersion.content.record}
                             onlyAuthor={true}
                         />
                     </div>
                     <div className="text-xs">
-                        <DateSince date={entityVersion.content.createdAt}/>
+                        <DateSince date={entityVersion.content.record.createdAt}/>
                     </div>
                 </div>
                 <div className={"flex justify-between w-full"}>
@@ -270,7 +269,7 @@ export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
         return {}
     }
 
-    if (user.editorStatus != "Administrator" && user.did != entity.versions[version].content.author.did) {
+    if (user.editorStatus != "Administrator" && user.did != entity.versions[version].content.record.author.did) {
         return <AcceptButtonPanel open={true} onClose={onClose}>
             <div className="">
                 <div>
@@ -290,9 +289,9 @@ export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
                 <div className="px-6 pb-4">
                     <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
                     <div className="mb-8">
-                        {user.did == entity.versions[version].content.author.did ? <>Estás por remover la autoría de la
+                        {user.did == entity.versions[version].content.record.author.did ? <>Estás por remover la autoría de la
                             modificación que hiciste.</> : <>Estás por remover la autoría de la modificación de
-                            @{entity.versions[version].content.author.did}.</>}
+                            @{entity.versions[version].content.record.author.did}.</>}
                     </div>
                     <div className="flex justify-center items-center space-x-4 mt-4">
                         <button

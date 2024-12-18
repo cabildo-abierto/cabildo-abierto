@@ -23,15 +23,15 @@ export const Authorship = ({content, onlyAuthor=false}: {content: {author: {disp
     </span>
 }
 
-export const ContentTopRowAuthor = ({content} :{content: {author: {handle: string, displayName?: string}}}) => {
-    const url = content.author ? userUrl(content.author.handle) : ""
+export const ContentTopRowAuthor = ({author} : {author: {handle: string, displayName?: string}}) => {
+    const url = author ? userUrl(author.handle) : ""
 
     const text = <>
-        {content.author.displayName &&
-            <span className="hover:underline font-bold mr-1">  {content.author.displayName}
+        {author.displayName &&
+            <span className="hover:underline font-bold mr-1">  {author.displayName}
         </span>}
         <span className="text-[var(--text-light)]">
-            @{content.author?.handle}
+            @{author?.handle}
         </span>
     </>
 

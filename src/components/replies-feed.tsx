@@ -1,7 +1,7 @@
 "use client"
 
 import { useRepliesFeed } from "../hooks/contents"
-import Feed from "./feed"
+import Feed from "./feed/feed"
 
 
 

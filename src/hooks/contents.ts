@@ -1,5 +1,5 @@
 import useSWR from "swr"
-import { FeedContentProps, SmallTopicProps, UserStats } from "../app/lib/definitions"
+import {FeedContentProps, TrendingTopicProps, UserStats} from "../app/lib/definitions"
 import { fetcher } from "./utils"
 
 
@@ -25,19 +25,9 @@ export function useSearchableContents(): {feed: FeedContentProps[], isLoading: b
 }
 
 
-export function useRouteFeed(route: string[]): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/feed/'+route.join("/"), fetcher)
-  
-    return {
-        feed: data,
-        isLoading,
-        isError: error
-    }
-}
+export function useFeed(route: string[], feed: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
 
-
-export function useRouteFollowingFeed(route: string[]): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/following-feed/'+route.join("/"), fetcher)
+    const { data, error, isLoading } = useSWR('/api/feed/'+[...route, feed].join("/"), fetcher)
     
     return {
         feed: data,
@@ -47,9 +37,20 @@ export function useRouteFollowingFeed(route: string[]): {feed: FeedContentProps[
 }
 
 
-export function useRouteTopics(route: string[]): {topics: SmallTopicProps[], isLoading: boolean, isError: boolean}{
+export function useTopics(route: string[]): {topics: any[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/topics/'+route.join("/"), fetcher)
   
+    return {
+        topics: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useTrendingTopics(route: string[]): {topics: TrendingTopicProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/trending-topics/'+route.join("/"), fetcher)
+
     return {
         topics: data,
         isLoading,

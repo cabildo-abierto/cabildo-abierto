@@ -6,7 +6,7 @@ import { NewFastPostButton } from './new-fast-post-button';
 import { Button, IconButton } from '@mui/material';
 import { CustomLink as Link } from './custom-link';
 import { CreateTopicModal } from './create-topic-modal';
-import { WritePanelMainFeed } from './write-panel-main-feed';
+import { WritePanel } from './write-panel';
 import { PostIcon } from './icons/post-icon';
 import { ArticleIcon } from './icons/article-icon';
 import { WriteButtonIcon } from './icons/write-button-icon';
@@ -93,7 +93,7 @@ const WriteButton = () => {
                 </div>
                 </div>
             </ModalBelow>
-            <WritePanelMainFeed open={isFastPostModalOpen} onClose={() => setIsFastPostModalOpen(false)} />
+            <WritePanel open={isFastPostModalOpen} onClose={() => setIsFastPostModalOpen(false)} />
             <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)} />
         </div>
     );

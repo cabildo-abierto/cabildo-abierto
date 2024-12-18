@@ -1,11 +1,10 @@
-import { useRouteTopics } from "../hooks/contents"
-import { SmallTopicProps } from "../app/lib/definitions"
+import {useTopics, useTrendingTopics} from "../hooks/contents"
+import {TrendingTopicProps} from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
-import { articleUrl, currentVersion, listOrderDesc, supportDid } from "./utils"
+import { articleUrl, listOrderDesc } from "./utils"
 import { useDraggable } from "react-use-draggable-scroll";
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from "next/navigation"
 import { fetcher } from "../hooks/utils"
 import { preload } from "swr"
 import InfoPanel from "./info-panel";
@@ -16,87 +15,28 @@ import Button from "@mui/material/Button";
 import {getTopicTitle} from "./topic/utils";
 
 
-export function countUserInteractions(entity: SmallTopicProps, since?: Date){
-    //const entityId = "Cabildo Abierto"
-    //if(entity.name == entityId) console.log("Interacciones", entity.name)
-
-    //if(entity.name == entityId){
-    //    console.log(entity.weakReferences)
-    //}
-    // autores de los contenidos que referenciaron
-
-    function recentEnough(date: Date){
-        return !since || date > since
-    }
-
-    function addMany(g: {authorId: string, createdAt: Date}[]){
-        for(let i = 0; i < g.length; i++) {
-            if(recentEnough(g[i].createdAt)){
-                s.add(g[i].authorId)
-            }
-        }
-    }
-
-    let s = new Set()
-
-    entity.referencedBy.forEach(({referencingContent}) => {
-        if(recentEnough(referencingContent.createdAt)){
-            s.add(referencingContent.author.did)
-        }
-    })
-
-    for(let i = 0; i < entity.referencedBy.length; i++){
-        const referencingContent = entity.referencedBy[i].referencingContent
-        addMany(referencingContent.childrenTree.map(({author, createdAt}) => ({authorId: author.did, createdAt})))
-        for(let j = 0; j < referencingContent.childrenTree.length; j++){
-            addMany(referencingContent.childrenTree[j].likes.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
-        }
-        addMany(referencingContent.likes.map(({userById, createdAt}) => ({authorId: userById, createdAt})))
-    }
-
-    //if(entity.name == entityId) console.log("Referencias", s)
-    //if(entity.name == entityId) console.log("Reacciones", s)
-    for(let i = 0; i < entity.versions.length; i++){
-        // autores de las versiones
-
-        if(recentEnough(entity.versions[i].content.createdAt)){
-            s.add(entity.versions[i].content.author.did)
-        }
-
-        // comentarios y subcomentarios de las versiones
-        addMany(entity.versions[i].content.childrenTree.map(({author, createdAt}) => ({authorId: author.did, createdAt})))
-    }
-    
-    //if(entity.name == entityId) console.log("weak refs", s)
-    //if(entity.name == entityId) console.log("Total", entity.name, s.size, s)
-
-    s.delete(supportDid)
-    return s.size
-}
-
-
-export function topicPopularityScore(entity: SmallTopicProps, since?: Date){
-    return [countUserInteractions(entity, since), entity.versions[currentVersion(entity)].numWords > 0 ? 1 : 0, new Date(entity.versions[currentVersion(entity)].content.createdAt).getTime()]
+export function topicPopularityScore(topic: TrendingTopicProps){
+    return topic.score
 }
 
 
 export const TrendingArticles = ({route, selected}: {route: string[], selected: string}) => {
-    const entities = useRouteTopics(route);
+    const topics = useTrendingTopics(route);
     const [recent, setRecent] = useState(route.length == 0)
 
     useEffect(() => {
         setRecent(route.length == 0)
     }, [route])
 
-    if (entities.isLoading) {
+    if (topics.isLoading) {
         return <LoadingSpinner />
     }
 
     const since = recent ? new Date(new Date().getTime() - (7*24*60*60*1000)) : undefined
 
-    let entitiesWithScore = entities.topics.map((entity) => ({ entity: entity, score: topicPopularityScore(entity, since) }))
+    let topicsWithScore = topics.topics.map((topic) => ({ entity: topic, score: topicPopularityScore(topic) }))
 
-    entitiesWithScore = entitiesWithScore.sort(listOrderDesc);
+    topicsWithScore = topicsWithScore.sort(listOrderDesc);
     
     const text = <div>
         <p className="font-bold">Temas ordenados por popularidad</p>
@@ -121,13 +61,13 @@ export const TrendingArticles = ({route, selected}: {route: string[], selected: 
                 histórico
             </button>
         </div>
-        <TrendingArticlesSlider trendingArticles={entitiesWithScore}/>
+        <TrendingArticlesSlider trendingArticles={topicsWithScore}/>
     </div>
 };
 
 
 export const TrendingArticlesSlider = ({trendingArticles}: {
-    trendingArticles: {entity: SmallTopicProps, score: number[]}[]}) => {
+    trendingArticles: {entity: TrendingTopicProps, score: number[]}[]}) => {
     const ref =
     useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
     const { events } = useDraggable(ref);

@@ -1,13 +1,14 @@
 "use client"
-import {ProfileHeader, FullProfile} from "./profile-header";
+import {ProfileHeader} from "./profile-header";
 import {ProfileFeed} from "./profile-feed";
 import {useState} from "react";
 import {RepliesFeed} from "./replies-feed";
 import {WikiFeed} from "./wiki-feed";
+import {UserProps} from "../app/lib/definitions";
 
 
 type ProfilePageProps = {
-    profileUser: FullProfile
+    profileUser: UserProps
 }
 
 export const ProfilePage = ({profileUser}: ProfilePageProps) => {
@@ -21,9 +22,9 @@ export const ProfilePage = ({profileUser}: ProfilePageProps) => {
             profileUser={profileUser}
             setSelected={setSelected}
         />
-        {selected == "Publicaciones" && !showingFakeNews && <ProfileFeed profileUser={profileUser.bskyProfile} showingFakeNews={false}/>}
-        {selected == "Publicaciones" && showingFakeNews && <ProfileFeed profileUser={profileUser.bskyProfile} showingFakeNews={true}/>}
-        {selected == "Respuestas" && <RepliesFeed profileUser={profileUser.bskyProfile}/>}
-        {selected == "Ediciones" && <WikiFeed profileUser={profileUser.bskyProfile}/>}
+        {selected == "Publicaciones" && !showingFakeNews && <ProfileFeed profileUser={profileUser} showingFakeNews={false}/>}
+        {selected == "Publicaciones" && showingFakeNews && <ProfileFeed profileUser={profileUser} showingFakeNews={true}/>}
+        {selected == "Respuestas" && <RepliesFeed profileUser={profileUser}/>}
+        {selected == "Ediciones" && <WikiFeed profileUser={profileUser}/>}
     </div>
 }

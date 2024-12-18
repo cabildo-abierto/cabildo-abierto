@@ -7,6 +7,7 @@ import { ActiveLikeIcon } from "./icons/active-like-icon";
 import { InactiveLikeIcon } from "./icons/inactive-like-icon";
 import { IconButton } from "@mui/material";
 import {FastPostProps} from "../app/lib/definitions";
+import {stopPropagation} from "./utils";
 
 type LikeCounterProps = {
     disabled?: boolean
@@ -46,7 +47,6 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
             if(newLikeUri != "temporary"){
                 onDislike(newLikeUri)
             }
-            /*removeLike(content.id, user.id, entityId)*/
             setNewLikeUri(undefined)
         } else {
             setNewLikeUri("temporary")
@@ -78,11 +78,15 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
 
 export const FixedCounter = ({count, icon, title}: {count: number, icon: ReactNode, title?: string}) => {
     
-    return <div className="text-[var(--text-light)]">
-        <IconButton
-            color={"inherit"}
+    return <div className={"text-[var(--text-light)]"}>
+        <button
+            className={"rounded-lg hover:bg-[var(--background-dark2)] py-1 px-1"}
             title={title}
-    >
-        {icon} <span className="text-sm flex items-end">{count}</span>
-    </IconButton></div>
+        >
+            <div className={"flex items-center"}>
+                <div>{icon}</div>
+                <div className="text-sm">{count}</div>
+            </div>
+        </button>
+    </div>
 }

@@ -8,9 +8,9 @@ import { PermissionLevel } from "../../components/permission-level";
 
 
 const Cuenta: React.FC = () => {
-    const {user, bskyProfile} = useUser()
+    const {user} = useUser()
 
-    if(!user || !bskyProfile) {
+    if(!user) {
         return <></>
     }
 
@@ -24,7 +24,7 @@ const Cuenta: React.FC = () => {
                 </div>
                 <div className="mb-4">
                     <div className="text-[var(--text-light)] font-medium">Nombre visible:</div>
-                    <div className="text-lg ">{bskyProfile.displayName ? bskyProfile.displayName : "Sin definir."}</div>
+                    <div className="text-lg ">{user.displayName ? user.displayName : "Sin definir."}</div>
                 </div>
                 <div className="mb-4">
                     <div className="text-[var(--text-light)] font-medium">Mail:</div>

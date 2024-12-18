@@ -1,11 +1,10 @@
 "use server"
 
 import {getSessionAgent} from "./auth";
-import {getUsers} from "./users";
-import {SmallTopicProps, TopicProps} from "../app/lib/definitions";
+import {TopicProps, TrendingTopicProps} from "../app/lib/definitions";
 import {db} from "../db";
-import {getDidFromUri, getRkeyFromUri} from "../components/utils";
-import {ContentType} from '@prisma/client'
+import {getRkeyFromUri, supportDid} from "../components/utils";
+
 
 export async function createTopic(id: string){
     return await createTopicVersion({id, claimsAuthorship: true})
@@ -28,20 +27,10 @@ export async function createTopicVersion({id, text = "", title, claimsAuthorship
         createdAt: new Date().toISOString()
     }
     try {
-        const {data} = await agent.com.atproto.repo.createRecord({
+        await agent.com.atproto.repo.createRecord({
             repo: did,
             collection: 'ar.com.cabildoabierto.topic',
             record: record,
-        })
-        await createTopicVersionCA({
-            id,
-            text,
-            title,
-            claimsAuthorship,
-            uri: data.uri,
-            cid: data.cid,
-            message,
-            did
         })
     } catch (e) {
         return {error: "Ocurrió un error al publicar en ATProto."}
@@ -50,225 +39,317 @@ export async function createTopicVersion({id, text = "", title, claimsAuthorship
     return {}
 }
 
+const smallContentQuery = {
+    record: {
+        select: {
+            createdAt: true,
+            authorId: true
+        }
+    }
+}
 
-export async function createTopicVersionCA({uri, cid, text, title, message, did, id, claimsAuthorship}: {
-    uri: string, cid: string, text: string, title: string, message: string, did: string, id: string, claimsAuthorship: boolean}){
-    try {
-        await db.topic.upsert({
-            create: {
-                id: id
-            },
-            update: {
 
-            },
-            where: {
-                id: id
+const topicVersionReactionsQuery = {
+    select: {
+        reactsTo: {
+            select: {
+                record: {
+                    select: {
+                        cid: true,
+                        uri: true,
+                        createdAt: true,
+                        authorId: true
+                    }
+                }
             }
-        })
-        await db.topicVersion.create({
-            data: {
-                authorship: claimsAuthorship,
-                title: title,
-                message: message,
-                content: {
-                    create: {
-                        cid: cid,
-                        uri: uri,
-                        text: text,
-                        type: ContentType.TopicVersionContent,
-                        author: {
-                            connect: {
-                                did: did
+        },
+    },
+    where: {
+        reactsTo: {
+            record: {
+                collection: {
+                    in: ["ar.com.cabildoabierto.topic.accept", "ar.com.cabildoabierto.topic.reject"]
+                }
+            }
+        }
+    }
+}
+
+
+type TopicUserInteractionsProps = {
+    referencedBy: {
+        referencingContent: {
+            record: {
+                createdAt: Date
+                authorId: string
+            }
+            childrenTree: {
+                record: {
+                    createdAt: Date
+                    authorId: string
+                }
+                reactions: {
+                    record: {
+                        createdAt: Date
+                        authorId: string
+                    }
+                }[]
+            }[]
+            reactions: {
+                record: {
+                    createdAt: Date
+                    authorId: string
+                }
+            }[]
+        }
+    }[]
+    versions: {
+        title?: string
+        categories?: string
+        content: {
+            record: {
+                authorId: string
+                createdAt: Date
+            }
+            childrenTree: {
+                record: {
+                    createdAt: Date
+                    authorId: string
+                }
+                reactions: {
+                    record: {
+                        createdAt: Date
+                        authorId: string
+                    }
+                }[]
+            }[]
+        }
+    }[]
+}
+
+
+function countUserInteractions(entity: TopicUserInteractionsProps, since?: Date){
+    function recentEnough(date: Date){
+        return !since || date > since
+    }
+
+    function addMany(g: {authorId: string, createdAt: Date}[]){
+        for(let i = 0; i < g.length; i++) {
+            if(recentEnough(g[i].createdAt)){
+                s.add(g[i].authorId)
+            }
+        }
+    }
+
+    let s = new Set()
+
+    entity.referencedBy.forEach(({referencingContent}) => {
+        if(recentEnough(referencingContent.record.createdAt)){
+            s.add(referencingContent.record.authorId)
+        }
+    })
+
+    for(let i = 0; i < entity.referencedBy.length; i++){
+        const referencingContent = entity.referencedBy[i].referencingContent
+        addMany(referencingContent.childrenTree.map(({record}) => (record)))
+        for(let j = 0; j < referencingContent.childrenTree.length; j++){
+            addMany(referencingContent.childrenTree[j].reactions.map(({record}) => (record)))
+        }
+        addMany(referencingContent.reactions.map(({record}) => (record)))
+    }
+
+    //if(entity.name == entityId) console.log("Referencias", s)
+    //if(entity.name == entityId) console.log("Reacciones", s)
+    for(let i = 0; i < entity.versions.length; i++){
+        // autores de las versiones
+
+        if(recentEnough(entity.versions[i].content.record.createdAt)){
+            s.add(entity.versions[i].content.record.authorId)
+        }
+
+        // comentarios y subcomentarios de las versiones
+        addMany(entity.versions[i].content.childrenTree.map(({record}) => (record)))
+    }
+
+    //if(entity.name == entityId) console.log("weak refs", s)
+    //if(entity.name == entityId) console.log("Total", entity.name, s.size, s)
+
+    s.delete(supportDid)
+    return s.size
+}
+
+
+export async function getTrendingTopics(since: Date): Promise<{error?: string, topics?: TrendingTopicProps[]}> {
+    const topics = await db.topic.findMany({
+        select: {
+            id: true,
+            versions: {
+                select: {
+                    title: true
+                }
+            }
+        }
+    })
+    const topicsWithScore = topics.map((t) => ({...t, score: [1]}))
+    return {topics: topicsWithScore}
+    // [topic.score, topic.currentVersion.content.numWords > 0 ? 1 : 0, new Date(topic.currentVersion.content.record.createdAt).getTime()]
+    /*try {
+
+        const topics = await db.topic.findMany({
+            select: {
+                id: true,
+                currentVersion: {
+                    select: {
+                        content: {
+                            select: {
+                                numWords: true,
+                                record: {
+                                    select: {
+                                        createdAt: true
+                                    }
+                                }
                             }
                         }
                     }
                 },
-                topic: {
-                    connect: {
-                        id: id
+                referencedBy: {
+                    select: {
+                        referencingContent: {
+                            select: {
+                                ...smallContentQuery,
+                                childrenTree: {
+                                    select: {
+                                        ...smallContentQuery,
+                                        reactions: {
+                                            select: smallContentQuery
+                                        }
+                                    }
+                                },
+                                reactions: {
+                                    select: smallContentQuery
+                                }
+                            }
+                        },
+                    }
+                },
+                versions: {
+                    select: {
+                        title: true,
+                        categories: true,
+                        content: {
+                            select: {
+                                ...smallContentQuery,
+                                numWords: true,
+                                childrenTree: {
+                                    select: {
+                                        ...smallContentQuery,
+                                        reactions: {
+                                            select: smallContentQuery
+                                        }
+                                    }
+                                },
+                                reactions: topicVersionReactionsQuery
+                            }
+                        }
+                    },
+                    orderBy: {
+                        content: {
+                            record: {
+                                createdAt: "asc"
+                            }
+                        }
                     }
                 }
             }
         })
-    } catch (err){
-        console.log("Error", err)
-        return {error: "Ocurrió un error al crear la nueva versión del tema."}
-    }
-}
-
-
-const contentQuery = (includeText: boolean) => ({
-    uri: true,
-    text: includeText,
-    createdAt: true,
-    author: {
-        select: {
-            did: true,
-            handle: true
-        }
-    },
-    likes: {
-        select: {
-            userById: true,
-            createdAt: true,
-        }
-    }
-})
-
-
-const fullTopicQuery = (includeText: boolean) => ({
-    id: true,
-    protection: true,
-    currentVersion: {
-        select: {
-            cid: true,
-            synonyms: true
-        },
-    },
-    referencedBy: {
-        select: {
-            referencingContent: {
-                select: {
-                    ...contentQuery(includeText),
-                    childrenTree: {
-                        select: contentQuery(false)
-                    }
-                }
-            },
-        }
-    },
-    versions: {
-        select: {
-            cid: true,
-            content: {
-                select: {
-                    ...contentQuery(includeText),
-                    childrenTree: {
-                        select: contentQuery(false)
-                    }
-                }
-            },
-            topicId: true,
-            title: true,
-            message: true,
-            diff: true,
-            charsAdded: true,
-            accCharsAdded: true,
-            contribution: true,
-            authorship: true,
-            categories: true,
-            accepts: {
-                select: {
-                    cid: true,
-                    uri: true,
-                    createdAt: true,
-                    author: {
-                        select: {
-                            did: true,
-                            handle: true
-                        }
-                    }
-                }
-            },
-            rejects: {
-                select: {
-                    cid: true,
-                    uri: true,
-                    createdAt: true,
-                    text: true,
-                    author: {
-                        select: {
-                            did: true,
-                            handle: true
-                        }
-                    }
-                }
-            },
-        }
-    }
-})
-
-
-export async function getTopics(route: string[]): Promise<{error?: string, topics?: SmallTopicProps[]}> {
-    try {
-        const topics: SmallTopicProps[] = await db.topic.findMany({
-            select: fullTopicQuery(false)
+        const topicsWithScore = topics.map((topic) => {
+            return {
+                ...topic,
+                score: countUserInteractions(topic, since)
+            }
         })
-        return {topics: topics}
+        return {topics: topicsWithScore}
     } catch (err) {
         console.log("Error", err)
         return {error: "Error al buscar los temas."}
-    }
+    }*/
+}
+
+
+export async function getTopics(){
+    return {topics: []}
 }
 
 
 export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
-
     try {
-        const topic = await db.topic.findUnique({
-            select: fullTopicQuery(true),
+        const topic: TopicProps = await db.topic.findUnique({
+            select: {
+                id: true,
+                protection: true,
+                currentVersion: {
+                    select: {
+                        cid: true
+                    },
+                },
+                versions: {
+                    select: {
+                        cid: true,
+                        content: {
+                            select: {
+                                record: {
+                                    select: {
+                                        createdAt: true,
+                                        author: {
+                                            select: {
+                                                did: true,
+                                                handle: true,
+                                                avatar: true,
+                                                displayName: true
+                                            }
+                                        },
+                                        reactions: {
+                                            select: {
+                                                record: {
+                                                    select: {
+                                                        authorId: true,
+                                                        collection: true
+                                                    }
+                                                }
+                                            },
+                                            where: {
+                                                reactsTo: {
+                                                    collection: {
+                                                        in: ["ar.com.cabildoabierto.topic.accept", "ar.com.cabildoabierto.topic.reject"]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                text: true,
+                            }
+                        },
+                        topicId: true,
+                        title: true,
+                        message: true,
+                        diff: true,
+                        charsAdded: true,
+                        accCharsAdded: true,
+                        contribution: true,
+                        authorship: true,
+                        categories: true
+                    }
+                }
+            },
             where: {
                 id: id
             }
         })
+
         return {topic: topic}
     } catch {
         return {error: "No se encontró el tema."}
-    }
-}
-
-export type ATProtoTopicVersion = {
-    uri: string
-    cid: string
-    value: {
-        id: string
-        text: string
-        createdAt: Date
-        title: string
-        message: string
-    }
-}
-
-export async function updateTopics(){
-    const {agent, did} = await getSessionAgent()
-
-    const {users, error} = await getUsers()
-    if(error) return {error}
-
-    let topicVersions: ATProtoTopicVersion[] = []
-    for(let i = 0; i < users.length; i++){
-        if(users[i].handle != "tomasdelgado.ar") continue
-
-        console.log("getting topic versions for user", users[i].handle)
-        try {
-            const res = await agent.com.atproto.repo.listRecords({
-                repo: users[i].did,
-                collection: 'ar.com.cabildoabierto.topic',
-            })
-            topicVersions = [...topicVersions, ...res.data.records as ATProtoTopicVersion[]]
-        } catch(err){
-            console.log("Error", err)
-        }
-    }
-
-    const curTopicVersions = await db.topicVersion.findMany({
-        select: {cid: true, topicId: true}
-    })
-
-    for(let i = 0; i < topicVersions.length; i++){
-        const v = topicVersions[i]
-        if(!curTopicVersions.some((t) => (t.cid == v.cid))){
-            await createTopicVersionCA({
-                uri: v.uri,
-                cid: v.cid,
-                id: v.value.id,
-                text: v.value.text,
-                title: v.value.title,
-                message: v.value.message,
-                claimsAuthorship: false,
-                did: did
-            })
-        }
     }
 }
 

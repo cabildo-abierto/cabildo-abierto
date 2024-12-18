@@ -1,5 +1,5 @@
 "use client"
-import {FastPostProps} from "../../app/lib/definitions";
+import {EmbedProps, FastPostProps} from "../../app/lib/definitions";
 import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {ContentTopRowAuthor} from "../content-top-row-author";
 import Image from 'next/image'
@@ -9,39 +9,48 @@ import {BskyFastPostImage} from "./bsky-fast-post-image";
 import {useRouter} from "next/navigation";
 
 
-export const QuotedPost = ({content}: {content: FastPostProps}) => {
+
+export const QuotedPost = ({post}: {post: FastPostProps}) => {
     const router = useRouter()
 
-    if(!content.embed || content.embed.$type != "app.bsky.embed.record#view"){
+    const embedStr = post.content.post.embed
+
+    if(!embedStr){
         return <></>
     }
 
-    if(content.embed.record.$type == "app.bsky.embed.record#viewBlocked"){
+    const embed: EmbedProps = JSON.parse(embedStr)
+
+    if(embed.$type != "app.bsky.embed.record#view"){
+        return <></>
+    }
+
+    if(embed.record.$type == "app.bsky.embed.record#viewBlocked"){
         return <div className={"rounded-lg border p-3 mt-2"}>Bloqueado</div>
     }
 
-    const url = contentUrl(content.embed.record.uri, content.embed.record.value.$type, content.embed.record.author.handle)
+    const url = contentUrl(embed.record.uri, embed.record.value.$type, embed.record.author.handle)
 
     return <div onClick={(e) => {e.preventDefault(); e.stopPropagation(); router.push(url)}}>
         <div className={"rounded-lg border p-3 mt-2"}>
             <div className={"flex items-center space-x-1 text-[var(--text-light)]"}>
                 <div>
                     <Image
-                        src={content.embed.record.author.avatar}
-                        alt={"Foto de perfil de @" + content.embed.record.author.handle}
+                        src={embed.record.author.avatar}
+                        alt={"Foto de perfil de @" + embed.record.author.handle}
                         width={50}
                         height={50}
                         className={"w-4 h-4 rounded-full"}
                     />
                 </div>
-                <ContentTopRowAuthor content={content.embed.record}/>
+                <ContentTopRowAuthor author={embed.record.author}/>
                 <span className="">•</span>
-                <div><DateSince date={content.embed.record.value.createdAt}/></div>
+                <div><DateSince date={embed.record.value.createdAt}/></div>
             </div>
             <div>
-                <BskyRichTextContent record={content.embed.record.value}/>
+                <BskyRichTextContent content={embed.record.value}/>
             </div>
-            <BskyFastPostImage content={content.embed.record.value} did={getDidFromUri(content.embed.record.uri)}/>
+            <BskyFastPostImage post={post} did={getDidFromUri(embed.record.uri)}/>
         </div>
     </div>
 }

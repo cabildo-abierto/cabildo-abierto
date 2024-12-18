@@ -36,8 +36,8 @@ import {createPortal} from 'react-dom';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl} from '../../utils/url';
-import { useRouteTopics } from '../../../../hooks/contents';
-import { SmallTopicProps, TopicProps } from '../../../../app/lib/definitions';
+import { useTopics } from '../../../../hooks/contents';
+import { TopicProps } from '../../../../app/lib/definitions';
 import { articleUrl } from '../../../utils';
 import { CustomLink as Link } from '../../../../components/custom-link';
 import {getTopicTitle} from "../../../topic/utils";
@@ -64,9 +64,9 @@ function FloatingLinkEditor({
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
-  const [results, setResults] = useState<SmallTopicProps[]>([])
+  const [results, setResults] = useState<any[]>([])
   const [currentUrl, setCurrentUrl] = useState('');
-  const entities = useRouteTopics([])
+  const entities = useTopics([])
 
   useEffect(() => {
     // Check if the code is running on the client side

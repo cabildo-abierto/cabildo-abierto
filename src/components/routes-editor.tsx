@@ -9,7 +9,7 @@ import {currentVersion, currentVersionContent, getNextCategories} from "./utils"
 import { useSWRConfig } from "swr";
 import LoadingSpinner from "./loading-spinner";
 import { EntityCategoriesTitle } from "./categories";
-import { useRouteTopics } from "../hooks/contents";
+import { useTopics } from "../hooks/contents";
 import { useUser } from "../hooks/user";
 import { TopicProps } from "../app/lib/definitions";
 import Button from "@mui/material/Button";
@@ -78,7 +78,7 @@ const CategoryInput = ({
 const RouteEditor = ({category, removeCategory, updateCategory, routeIndex}: 
     RouteEditorProps
 ) => {
-    const topics = useRouteTopics([])
+    const topics = useTopics([])
 
     function updateCategoryAt(i: number, value: string){
         updateCategory([...category.slice(0, i), value, ...category.slice(i+1)])

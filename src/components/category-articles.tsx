@@ -2,8 +2,7 @@
 import { EntitySearchResult } from "./entity-search-result"
 import { useSearch } from "./search-context"
 import { NoResults } from "./category-users"
-import { SmallTopicProps } from "../app/lib/definitions"
-import { useRouteTopics } from "../hooks/contents"
+import { useTopics } from "../hooks/contents"
 import LoadingSpinner from "./loading-spinner"
 import { cleanText, listOrderDesc } from "./utils"
 import { LazyLoadFeed } from "./lazy-load-feed"
@@ -22,20 +21,20 @@ export function countUserReferences(entity: {referencedBy: {referencingContent: 
 }
 
 
-function recentEditScore(entity: SmallTopicProps){
-    return [new Date(entity.versions[entity.versions.length-1].content.createdAt).getTime()]
+function recentEditScore(entity: any){
+    return [new Date(entity.versions[entity.versions.length-1].content.record.createdAt).getTime()]
 }
 
 
 const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: { 
-    entities: SmallTopicProps[], 
+    entities: any[],
     route: string[],
     sortBy: string,
     maxCount?: number
  }) => {
     const { searchState } = useSearch();
 
-    function isMatch(topic: SmallTopicProps) {
+    function isMatch(topic: any) {
         return cleanText(getTopicTitle(topic)).includes(cleanText(searchState.value));
     }
 
@@ -70,7 +69,7 @@ const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: {
 
 
 export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: string[], onSearchPage?: boolean, maxCount?: number}) => {
-    const {topics: routeEntities, isLoading, isError} = useRouteTopics(route)
+    const {topics: routeEntities, isLoading, isError} = useTopics(route)
     const [sortBy, setSortBy] = useState("Populares")
 
     if(isLoading) return <LoadingSpinner/>

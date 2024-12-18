@@ -6,8 +6,6 @@ import {ReadingTime} from "../reading-time";
 import {DateSince} from "../date";
 import {decompress} from "../compression";
 import {EngagementIcons} from "./engagement-icons";
-import {ReplyButton} from "./reply-button";
-import {PostTitleOnFeed} from "./post-title-on-feed";
 
 
 export const Article = ({content}: {content: ArticleProps}) => {
@@ -17,21 +15,22 @@ export const Article = ({content}: {content: ArticleProps}) => {
             <div className={"text-lg mb-2"}>
                 Artículo
             </div>
-            <PostTitleOnFeed title={content.record.title}/>
+            <h1 className="font-bold title">
+                {content.content.article.title}
+            </h1>
             <div className="sm:space-x-1 text-sm sm:text-base flex flex-col sm:flex-row sm:items-center">
-                <span><Authorship content={content} onlyAuthor={true}/>, <DateSince date={content.record.createdAt}/>.</span>
+                <span><Authorship content={content} onlyAuthor={true}/>, <DateSince date={content.createdAt}/>.</span>
                 {/*<span className="first-letter:capitalize"><TextViewsCounter content={content}/>.</span>*/}
-                <ReadingTime content={content}/>
+                <ReadingTime numWords={content.content.numWords}/>
             </div>
             <div className={"mt-4"}>
-                <ReadOnlyEditor initialData={decompress(content.record.text)}/>
+                <ReadOnlyEditor initialData={decompress(content.content.text)}/>
             </div>
 
         </div>
         <div className={"py-2 px-3 border-b"}>
-            <EngagementIcons content={content}/>
+            <EngagementIcons counters={content} record={content} options={null}/>
         </div>
-        <ReplyButton/>
     </div>
 }
 

@@ -7,7 +7,7 @@ import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
 import { useSWRConfig } from "swr";
 import { useUser } from "../hooks/user";
-import { TopicProps } from "../app/lib/definitions";
+import {TopicProps, TopicVersionProps} from "../app/lib/definitions";
 import InfoPanel from "./info-panel";
 import Button from "@mui/material/Button";
 import {getTopicTitle} from "./topic/utils";
@@ -68,10 +68,27 @@ export const EntitySearchkeysTitle = ({name}: {name: string}) => {
 }
 
 
+export function isAccepted(version: TopicVersionProps){
+    return true
+}
+
+
+export function getTopicSynonyms(topics: TopicProps){
+    let synonyms = undefined
+    for(let i = 0; i < topics.versions.length; i++){
+        const v = topics.versions[i]
+        if(v.synonyms && isAccepted(v)){
+            synonyms = v.synonyms
+        }
+    }
+    return synonyms
+}
+
+
 
 export const SearchkeysEditor = ({entity, setEditing}: {entity: TopicProps, setEditing: (v: boolean) => void}) => {
     const user = useUser()
-    const [searchkeys, setSearchkeys] = useState(entity.currentVersion.synonyms)
+    const [searchkeys, setSearchkeys] = useState(getTopicSynonyms(entity))
     const {mutate} = useSWRConfig()
     const [errorOnSave, setErrorOnSave] = useState(false)
 
@@ -149,14 +166,14 @@ export const SearchkeysEditor = ({entity, setEditing}: {entity: TopicProps, setE
                 size="small"
                 variant="outlined"
                 sx={{textTransform: "none"}}
-                disabled={areSearchkeysEqual(searchkeys, entity.currentVersion.synonyms)}
+                disabled={areSearchkeysEqual(searchkeys, getTopicSynonyms(entity))}
                 onClick={() => {setEditing(false)}}>
                 Cancelar
             </Button>
             <StateButton
                 size="small"
                 variant="outlined"
-                disabled={areSearchkeysEqual(searchkeys, entity.currentVersion.synonyms) || !validSearchkeys(searchkeys)}
+                disabled={areSearchkeysEqual(searchkeys, getTopicSynonyms(entity)) || !validSearchkeys(searchkeys)}
                 handleClick={onSubmitSearchkeys}
                 text1="Confirmar"
             />

@@ -14,17 +14,11 @@ const MyLexicalEditor = dynamic(() => import('./lexical-editor'), {
 
 const ReadOnlyEditor = ({
     initialData,
-    content, 
+    allowTextComments = false,
     editorClassName="link"
 }: {
     initialData: InitialEditorStateType,
-    content?: {
-        type: string
-        isContentEdited: boolean
-        cid: string
-        childrenContents: any[]
-        compressedText?: string
-    },
+    allowTextComments?: boolean,
     editorClassName?: string
 }) => {
     const settings: SettingsProps = {
@@ -47,7 +41,7 @@ const ReadOnlyEditor = ({
         tableCellMerge: false,
         showActions: false,
         showToolbar: false,
-        isComments: content && (content.type == "EntityContent" || content.type == "Post"),
+        isComments: allowTextComments,
         isDraggableBlock: false,
         useSuperscript: false,
         useStrikethrough: false,
@@ -58,19 +52,17 @@ const ReadOnlyEditor = ({
         isAutofocus: true,
         editorClassName: editorClassName,
         isReadOnly: true,
-        content: content,
+        content: undefined,
         placeholderClassName: "",
-        imageClassName: (content && content.type == "FastPost") ? "fastpost-image" : "",
+        imageClassName: "",
         preventLeave: true
     }
     
-    return <div key={content ? (content.cid + content.isContentEdited) : 0}>
-        <MyLexicalEditor
-            settings={settings}
-            setEditor={(editor: LexicalEditor) => {}}
-            setEditorState={(state: EditorState) => {}}
-        />
-    </div>
+    return <MyLexicalEditor
+        settings={settings}
+        setEditor={(editor: LexicalEditor) => {}}
+        setEditorState={(state: EditorState) => {}}
+    />
 }
 
 export default ReadOnlyEditor
