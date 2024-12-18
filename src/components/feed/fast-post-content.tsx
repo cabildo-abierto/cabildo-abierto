@@ -7,9 +7,9 @@ import {FastPostProps} from "../../app/lib/definitions";
 export const FastPostContent = ({post, isMainPost=false}: {post: FastPostProps, isMainPost?: boolean}) => {
     return <>
         <div className={isMainPost ? "text-lg" : undefined}>
-            <BskyRichTextContent record={post.record}/>
+            <BskyRichTextContent content={post.content}/>
         </div>
-        <BskyFastPostImage content={post} did={post.author.did}/>
-        <QuotedPost content={post}/>
+        <BskyFastPostImage post={post} did={post.author.did}/>
+        <QuotedPost post={post}/>
     </>
 }

@@ -1,5 +1,7 @@
 node_modules/
 .next/
 .DS_STORE
-.env.*
+.env*
 .vercel
+.idea
+package-lock.json

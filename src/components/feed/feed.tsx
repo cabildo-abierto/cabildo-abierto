@@ -1,10 +1,11 @@
 import React, { ReactNode } from "react"
-import { NoResults } from "./category-users";
-import { FeedContentProps } from "../app/lib/definitions";
-import LoadingSpinner from "./loading-spinner";
-import { LazyLoadFeed } from "./lazy-load-feed";
-import { ATProtoArticlePreview } from "./feed/atproto-article-preview";
-import { FastPostPreview } from "./feed/fast-post-preview";
+import { NoResults } from "../category-users";
+import { FeedContentProps } from "../../app/lib/definitions";
+import LoadingSpinner from "../loading-spinner";
+import { LazyLoadFeed } from "../lazy-load-feed";
+import { ArticlePreview } from "./article-preview";
+import { FastPostPreview } from "./fast-post-preview";
+import {FeedElement} from "./feed-element";
 
 
 export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, isError: boolean}
@@ -22,20 +23,10 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
     }
 
     function generator(index: number){
-        let node
-        if(feed.feed[index].post.record.$type == "ar.com.cabildoabierto.article"){
-            node = <ATProtoArticlePreview
-                content={feed.feed[index]}
-            />
-        } else {
-            node = <FastPostPreview
-                showParent={showReplies}
-                content={feed.feed[index]}
-            />
-        }
+        const node = <FeedElement elem={feed.feed[index]} showReplies={showReplies}/>
         return {
             c: node,
-            key: feed.feed[index].post.uri
+            key: feed.feed[index].uri
         }
     }
     

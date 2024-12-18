@@ -11,18 +11,59 @@ import { AddImageButton } from "./add-image-button"
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { NeedAccountPopup } from "./need-account-popup"
 import {ProfilePic} from "./feed/profile-pic";
+import {FastPostProps, FastPostReplyProps, FeedContentProps} from "../app/lib/definitions";
 
+type WritePanelProps = {
+    replyTo?: FeedContentProps
+    open: boolean
+    onClose: () => void
+}
 
-export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () => void, mobile?: boolean}) => {
-    const { bskyProfile } = useUser();
+function replyFromParentElement(replyTo: FeedContentProps): FastPostReplyProps {
+
+    if(replyTo.collection == "app.bsky.feed.post"){
+        const post = replyTo as FastPostProps
+        const parent = {
+            uri: post.uri,
+            cid: post.cid
+        }
+        if(post.content.post.root){
+            return {
+                parent,
+                root: {
+                    uri: post.content.post.root.uri,
+                    cid: post.content.post.root.cid
+                }
+            }
+        } else {
+            return {
+                parent,
+                root: {...parent}
+            }
+        }
+    } else if(replyTo.collection == "ar.com.cabildoabierto.article"){
+        const parent = {
+            uri: replyTo.uri,
+            cid: replyTo.cid
+        }
+        return {
+            parent,
+            root: parent
+        }
+    } else {
+        throw Error("Not implemented.")
+    }
+}
+
+export const WritePanel = ({replyTo, open, onClose}: WritePanelProps) => {
+    const { user } = useUser();
     const [editorKey, setEditorKey] = useState(0);
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
     const [modal, showModal] = useModal();
     const [images, setImages] = useState([])
     const [text, setText] = useState("")
 
-
-    if(!bskyProfile){
+    if(!user){
         return <NeedAccountPopup open={open} text="Necesitás una cuenta para escribir" onClose={onClose}/>
     }
 
@@ -30,8 +71,11 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
 
     async function handleSubmit() {
         setErrorOnCreatePost(false)
-        if (bskyProfile) {
-            const {error} = await createFastPost(text);
+        if (user) {
+            console.log("replyTo", replyTo)
+            const reply = replyFromParentElement(replyTo)
+            console.log("reply", reply)
+            const {error} = await createFastPost({text: text, reply: reply});
 
             if(!error){
                 setEditorKey(editorKey + 1);
@@ -49,7 +93,7 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
     let disabled = !valid
 
     const sendButton = <StateButton
-        text1="Publicar"
+        text1={replyTo == undefined ? "Publicar" : "Responder"}
         handleClick={handleSubmit}
         disabled={disabled}
         textClassName="font-bold"
@@ -57,31 +101,31 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
         disableElevation={true}
     />
 
-    const editorComp = <div className="sm:text-lg h-full max-h-[400px] w-full" key={editorKey}>
+    const editorComp = <>
         <TextareaAutosize
             minRows={3}
             value={text}
             onChange={(e) => {setText(e.target.value)}}
-            placeholder="¿Qué está pasando?"
-            className="w-full outline-none resize-none"
+            placeholder={replyTo == undefined ? "¿Qué está pasando?" : "Escribí una respuesta"}
+            className={"outline-none resize-none bg-transparent w-full"}
         />
         {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
-    </div>
+    </>
 
     const center = <>
         <div className="flex justify-end px-1">
             <CloseButton onClose={onClose}/>
         </div>
-        <div className="min-h-[250px] px-2">
-            <div className="flex space-x-2">
-                <ProfilePic bskyProfile={bskyProfile} className={"w-8 h-auto rounded-full"}/>
-                <div className="sm:text-lg h-full w-full" key={editorKey}>
+        <div className="px-2 w-full">
+            <div className="flex space-x-2 w-full">
+                <ProfilePic user={user} className={"w-8 h-8 rounded-full"}/>
+                <div className="sm:text-lg w-full" key={editorKey}>
                     {editorComp}
                 </div>
             </div>
             <FastPostImagesEditor images={images} setImages={setImages}/>
         </div>
-        <hr className="border-gray-200" />
+        <hr className="" />
         <div className="flex justify-between mt-2 px-2">
             <AddImageButton
                 images={images}
@@ -94,7 +138,7 @@ export const WritePanelMainFeed = ({open, onClose}: {open: boolean, onClose: () 
     </>
 
     return <BaseFullscreenPopup open={open} className="w-128">
-        <div className="w-full rounded pb-2 pt-1">
+        <div className="w-full rounded pb-2 pt-1 border">
             {center}
             {errorOnCreatePost && <div className="flex justify-end text-sm text-red-600">Ocurrió un error al publicar. Intentá de nuevo.</div>}
         </div>

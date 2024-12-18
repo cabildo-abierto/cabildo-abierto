@@ -38,7 +38,7 @@ export const ShowContributors = ({topicId}:
     if(lastVersion.accCharsAdded == 0){
         return <div className="flex">
             <div className="flex space-x-2 link">
-                <Link href={"/perfil/"+firstVersion.content.author.did}>@{firstVersion.content.author.did}</Link>
+                <Link href={"/perfil/"+firstVersion.content.record.author.did}>@{firstVersion.content.record.author.did}</Link>
             </div>.
         </div>
     }

@@ -1,4 +1,3 @@
-import {FastPostProps} from "../../app/lib/definitions"
 import { ContentOptionsButton } from "../content-options/content-options-button"
 import { ActiveLikeIcon } from "../icons/active-like-icon"
 import { InactiveCommentIcon } from "../icons/inactive-comment-icon"
@@ -6,39 +5,53 @@ import { InactiveLikeIcon } from "../icons/inactive-like-icon"
 import { RepostIcon } from "../icons/reposts-icon"
 import { FixedCounter, LikeCounter } from "../like-counter"
 import {addLike, removeLike, removeRepost, repost} from "../../actions/contents";
+import {ReactNode} from "react";
 
+type EngagementIconsProps = {
+    counters: {
+        replyCount: number
+        repostCount: number
+        likeCount: number
+        viewer?: {
+            like?: string
+            repost?: string
+        }
+    }
+    options: ReactNode
+    record: {
+        uri: string
+        cid: string
+    }
+}
 
-export const EngagementIcons = ({content}: {content: FastPostProps}) => {
+export const EngagementIcons = ({counters, record, options}: EngagementIconsProps) => {
 
-    return <div className="flex space-x-16">
+    return <div className="flex space-x-16 items-center">
         <FixedCounter
-            count={content.replyCount}
+            count={counters.replyCount}
             icon={<InactiveCommentIcon/>}
             title="Cantidad de respuestas."
         />
         <LikeCounter
-            content={content}
-            icon1={<RepostIcon/>}
-            icon2={<RepostIcon/>}
-            onLike={async () => {return await repost(content.uri, content.cid)}}
+            icon1={<RepostIcon fontSize={"small"}/>}
+            icon2={<RepostIcon fontSize={"small"}/>}
+            onLike={async () => {return await repost(record.uri, record.cid)}}
             onDislike={removeRepost}
             title="Cantidad de republicaciones."
-            likeUri={content.viewer ? content.viewer.repost : undefined}
-            initialCount={content.repostCount}
+            likeUri={counters.viewer ? counters.viewer.repost : undefined}
+            initialCount={counters.repostCount}
         />
         <LikeCounter
-            content={content}
-            icon1={<ActiveLikeIcon/>}
-            icon2={<InactiveLikeIcon/>}
-            onLike={async () => {return await addLike(content.uri, content.cid)}}
+            icon1={<ActiveLikeIcon fontSize={"small"}/>}
+            icon2={<InactiveLikeIcon fontSize={"small"}/>}
+            onLike={async () => {return await addLike(record.uri, record.cid)}}
             onDislike={removeLike}
             title="Cantidad de me gustas."
-            likeUri={content.viewer ? content.viewer.like : undefined}
-            initialCount={content.likeCount}
+            likeUri={counters.viewer ? counters.viewer.like : undefined}
+            initialCount={counters.likeCount}
         />
         <ContentOptionsButton
-            content={content}
-            optionList={[]}
+            options={options}
         />
     </div>
 }

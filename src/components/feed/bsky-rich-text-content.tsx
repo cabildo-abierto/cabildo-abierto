@@ -4,17 +4,16 @@ import {
     $convertFromMarkdownString,
     TRANSFORMERS,
 } from '@lexical/markdown';
-import { FastPostProps } from '../../app/lib/definitions';
 import ReadOnlyEditor from '../editor/read-only-editor';
 import { LexicalEditor } from 'lexical';
 
 
-export const BskyRichTextContent = ({record}: {record: {text: string, facets?: any[]}}) => {
-    const text = record.text
+export const BskyRichTextContent = ({content}: {content: {text: string, post?: {facets?: string}}}) => {
+    const text = content.text
     
     const rt = new RichText({
         text: text,
-        facets: record.facets
+        facets: content.post && content.post.facets ? JSON.parse(content.post.facets) : undefined
     })
 
     const segments = Array.from(rt.segments())

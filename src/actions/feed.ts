@@ -1,19 +1,99 @@
 'use server'
 
 import { db } from "../db";
-import { FeedContentProps } from "../app/lib/definitions";
+import {FeedContentProps} from "../app/lib/definitions";
 import { getSessionAgent } from "./auth";
 import { Agent } from "@atproto/api";
-import {getUsers} from "./users";
+import { getUsers } from "./users";
+import {addCounters, processReactions} from "./utils";
 
 
-function getHandleFromURI(uri: string) {
-    return uri.split("/")[2]
-}
-
-
-function getRkeyFromURI(uri: string) {
-    return uri.split("/")[4]
+export async function getFollowingFeed(): Promise<{feed?: FeedContentProps[], error?: string}>{
+    try {
+        const {agent, did} = await getSessionAgent()
+        const {data: following} = await agent.getFollows({actor: did})
+        const feed = await db.record.findMany({
+            select: {
+                cid: true,
+                uri: true,
+                collection: true,
+                createdAt: true,
+                author: {
+                    select: {
+                        did: true,
+                        handle: true,
+                        displayName: true,
+                        avatar: true
+                    }
+                },
+                content: {
+                    select: {
+                        text: true,
+                        article: {
+                            select: {
+                                title: true,
+                                format: true
+                            }
+                        },
+                        post: {
+                            select: {
+                                facets: true,
+                                embed: true
+                            }
+                        }
+                    },
+                },
+                reactions: {
+                    select: {
+                        record: {
+                            select: {
+                                uri: true,
+                                collection: true,
+                                authorId: true
+                            }
+                        }
+                    }
+                },
+                _count: {
+                    select: {
+                        replies: true,
+                    }
+                }
+            },
+            where: {
+                authorId: {
+                    in: [...following.follows.map(({did}) => (did)), did]
+                },
+                content: {
+                    OR: [
+                        {
+                            post: {
+                                replyToId: null
+                            }
+                        },
+                        {
+                            record: {
+                                collection: "ar.com.cabildoabierto.article"
+                            }
+                        }
+                    ]
+                },
+                collection: {
+                    in: ["ar.com.cabildoabierto.article", "app.bsky.feed.post"]
+                }
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+        const readyForFeed: FeedContentProps[] = feed.map((elem) => {
+            return addCounters(did, elem, elem.reactions)
+        })
+        return {feed: readyForFeed}
+    } catch (err) {
+        console.log("Error getting feed", err)
+        return {error: "Error al obtener el feed."}
+    }
 }
 
 
@@ -87,13 +167,13 @@ export async function getArticlesFeedForUser(user: string, agent: Agent){
     for(let j = 0; j < articles.length; j++){
         const {value, ...record} = articles[j]
         posts.push({post: {
-                ...record,
-                record: value,
-                author,
-                likeCount: 0,
-                repostCount: 0,
-                replyCount: 0,
-                quoteCount: 0
+            ...record,
+            record: value,
+            author,
+            likeCount: 0,
+            repostCount: 0,
+            replyCount: 0,
+            quoteCount: 0
         }})
     }
     return posts
@@ -146,41 +226,13 @@ export async function getArticlesTimeline(agent: Agent){
 }
 
 
-export async function getATProtoFeed(): Promise<{feed?: FeedContentProps[], error?: string}>{
-
-    const {agent} = await getSessionAgent()
-
-    const t1 = Date.now()
-    const { data } = await agent.getTimeline({})
-    const t2 = Date.now()
-
-    const {feed: articles, error} = await getArticlesTimeline(agent)
-    if(error) return {error}
-    const t3 = Date.now()
-
-    console.log("articles", t3-t2)
-    console.log("timeline", t2-t1)
-
-    // @ts-ignore
-    let timeline: FeedContentProps[] = data.feed.filter(({post}) => (!post.record.reply))
-
-    timeline = [...timeline, ...articles]
-
-    function cmp(a: {post: {record: {createdAt: string}}}, b: {post: {record: {createdAt: string}}}) {
-        return new Date(b.post.record.createdAt).getTime() - new Date(a.post.record.createdAt).getTime()
-    }
-
-    // @ts-ignore
-    return timeline.sort(cmp)
-}
-
-
 export async function getProfileFeed(userId: string, includeReplies: boolean){
     return await getFeedForUsers([{did: userId}], includeReplies)
 }
 
 
-export async function getEnDiscusion(){
+export async function getEnDiscusion(): Promise<{feed: FeedContentProps[]}> {
+    return {feed: []} /*
     const users = await db.user.findMany({
         select: {
             did: true,
@@ -190,5 +242,5 @@ export async function getEnDiscusion(){
 
     const feed = await getFeedForUsers(users, false, false)
 
-    return feed
+    return feed*/
 }

@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getEnDiscusion} from '../../../../actions/feed';
+import {getEnDiscusion, getFollowingFeed} from '../../../../actions/feed';
 
 
 export async function GET(req: NextRequest,
@@ -8,7 +8,16 @@ export async function GET(req: NextRequest,
 ) {
     //const route = params.route ? params.route.map(decodeURIComponent) : []
 
-    let {feed} = await getEnDiscusion()
 
-    return NextResponse.json(feed)
+    const kind = params.route[params.route.length-1]
+
+    let feed
+    if(kind == "InDiscussion"){
+        feed = (await getEnDiscusion()).feed
+    } else if(kind == "Following"){
+        feed = (await getFollowingFeed()).feed
+    }
+
+
+    return NextResponse.json(feed == undefined ? null : feed)
 }

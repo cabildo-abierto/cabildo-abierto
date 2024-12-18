@@ -17,13 +17,14 @@ export const ReactionButton = ({onClick, count, icon1, icon2, active=true, disab
     
     return <div className={"text-[var(--text-light)]"}>
         <button
-            className={"rounded-lg hover:bg-[var(--background-dark)] px-1"}
+            className={"rounded-lg hover:bg-[var(--background-dark2)] py-1 px-1"}
             onClick={stopPropagation(onClick)}
             disabled={disabled}
             title={title}
         >
             <div className={"flex items-center"}>
-                {active ? <div className={(active ? "text-red-400" : "")}>{icon1}</div> : <div>{icon2}</div>} <div className="text-sm flex items-end">{count}</div>
+                {active ? <div className={"text-red-400"}>{icon1}</div> : <div>{icon2}</div>}
+                <div className="text-sm">{count}</div>
             </div>
         </button>
     </div>

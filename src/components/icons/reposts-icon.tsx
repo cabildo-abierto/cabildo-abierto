@@ -1,5 +1,6 @@
-import { BiRepost } from "react-icons/bi";
+import RepeatIcon from '@mui/icons-material/Repeat';
+import {FontSizeType} from "./icon-utils";
 
-export const RepostIcon = () => {
-    return <BiRepost/>
+export const RepostIcon = ({fontSize}: {fontSize?: FontSizeType}) => {
+    return <RepeatIcon fontSize={fontSize}/>
 }

@@ -12,7 +12,7 @@ import {useSWRConfig} from "swr";
 
 
 export const BetaAccessPage = ({children}: {children: ReactNode}) => {
-    const {user, bskyProfile} = useUser()
+    const {user} = useUser()
     const [email, setEmail] = useState<string>("")
     const [status, setStatus] = useState(user && user.email ? "email set" : "no email")
     const {mutate} = useSWRConfig()
@@ -33,7 +33,7 @@ export const BetaAccessPage = ({children}: {children: ReactNode}) => {
             <CloseSessionButton/>
         </div>
         <h1 className={"mt-16 text-center"}>
-            ¡Bienvenido/a {getUsername(bskyProfile)}!
+            ¡Bienvenido/a {getUsername(user)}!
         </h1>
         <h2 className={"text-[var(--text-light)] py-4"}>
             Gracias por registrarte

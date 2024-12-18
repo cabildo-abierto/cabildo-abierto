@@ -1,45 +1,56 @@
 import {EditorStatus} from '@prisma/client';
 
 
-export type TopicProps = {
-    id: string
-    versions: TopicVersionProps[]
-    protection: EditorStatus
-    currentVersion: {
-        cid: string,
-        synonyms: string[]
-    }
-    referencedBy: ReferenceProps[]
-}
-
-
-export type ReferenceProps = {
-    referencingContent: SmallContentProps
-}
-
-
-export type SmallTopicProps = Omit<TopicProps, 'versions'> & {versions: SmallTopicVersionProps[]}
-
-
-export type ContentProps = {
-    createdAt: Date
-    text: string
-    author: {did: string, handle: string}
+export type ATProtoStrongRef = {
     uri: string
-    childrenTree: CommentProps[]
-    likes: {userById: string, createdAt: Date}[]
+    cid: string
+}
+
+export type RecordProps = {
+    uri: string
+    cid: string
+    collection: string
+    createdAt: Date
+    author: {
+        did: string
+        handle: string
+        displayName?: string
+        avatar?: string
+    }
+}
+
+export type FastPostReplyProps = {
+    parent: ATProtoStrongRef
+    root: ATProtoStrongRef
 }
 
 
-export type CommentProps = Omit<ContentProps, "childrenTree">
+export type BasicUserProps = {
+    did: string
+    handle: string
+    avatar?: string
+    displayName?: string
+}
 
 
-export type SmallContentProps = Omit<ContentProps, 'text'>
+export type TopicVersionContentProps = {
+    text: string
+    record: {
+        author: BasicUserProps
+        createdAt: Date
+        reactions: {
+            record: {
+                authorId: string
+                collection: string
+            }
+        }[]
+    }
+}
 
 
 export type TopicVersionProps = {
     cid: string
-    content: ContentProps
+    content: TopicVersionContentProps
 
     topicId: string
     message: string
@@ -53,17 +64,52 @@ export type TopicVersionProps = {
 
     authorship: boolean
 
-    accepts: TopicVersionAccept[]
-    rejects: TopicVersionReject[]
-
     categories?: string
-    synonyms?: string[]
-
-    numWords?: number
+    synonyms?: string
 }
 
 
-export type SmallTopicVersionProps = Omit<TopicVersionProps, 'content'> & { content: SmallContentProps }
+export type TopicProps = {
+    id: string
+    versions: TopicVersionProps[]
+    protection: EditorStatus
+    currentVersion: {
+        cid: string
+    }
+}
+
+
+export type TrendingTopicProps = {
+    id: string
+    score: number[]
+    versions: {
+        title?: string
+    }[]
+}
+
+
+export type ReactionProps = {
+    reactsToId: string
+    record: RecordProps
+}
+
+
+export type ReferenceProps = {
+    referencingContent: {
+        authorId: string
+        record: {createdAt: Date}
+        reactions: {
+
+        }
+        childrenTree: {
+            authorId: string
+            record: {createdAt: Date}
+        }[]
+    }
+}
+
+
+export type FeedContentProps = FastPostProps | ArticleProps
 
 
 export type TopicVersionAccept = {
@@ -128,12 +174,19 @@ export type SubscriptionProps = {
 export type UserProps = {
     did: string
     handle: string
+    displayName?: string
+    avatar?: string
+    banner?: string
+    description?: string
     hasAccess: boolean
     email?: string
     createdAt: Date
     editorStatus: EditorStatus
     subscriptionsUsed: SubscriptionProps[]
     subscriptionsBought: {id: string, price: number}[]
+    viewer?: {following?: string}
+    followersCount: number
+    followsCount: number
 };
 
 
@@ -175,35 +228,60 @@ export type EmbedProps = {
 }
 
 
-export type FastPostProps = {
-    uri: string
-    cid: string
-    author: {
-        did: string;
-        handle: string, displayName?: string, avatar?: string}
-    record: {
-        text: string,
-        facets?: any[],
-        title?: string,
-        createdAt: string,
-        $type: string
-        reply?: {
-            parent: FastPostProps
-            root?: FastPostProps
+/*export type FastPostProps = {
+    facets?: string
+    embed?: string
+    content: {
+        text: string
+        record: {
+            cid: string
+            uri: string
+            createdAt: Date
+            author: SmallUserProps
+            collection: string
         }
     }
     likeCount: number
     repostCount: number
-    quoteCount: number
     replyCount: number
-    viewer: {like?: string, repost?: string}
-    embed?: EmbedProps
+    viewer?: {like?: string, repost?: string}
+}*/
+
+
+export type ArticleProps = RecordProps & EngagementProps & {
+    content: {
+        text: string
+        numWords?: number
+        article: {
+            title: string
+            format: string
+        }
+    }
+}
+
+export type EngagementProps = {
+    likeCount: number
+    repostCount: number
+    replyCount: number
+    viewer?: {like?: string, repost?: string}
+}
+
+export type FastPostProps = RecordProps & EngagementProps & {
+    content: {
+        text: string
+        post: {
+            facets?: string
+            embed?: string
+            replyTo?: ATProtoStrongRef
+            root?: ATProtoStrongRef
+        }
+    }
 }
 
 
-export type ArticleProps = FastPostProps & {
-    title: string
-    numWords?: number
+export type ThreadProps = {
+    post: FastPostProps | ArticleProps
+    replies: FastPostProps[]
 }
 
 
@@ -211,12 +289,6 @@ export type FeedContentReasonProps = {
     $type: string
     by: any
     indexedAt: string
-}
-
-
-export type FeedContentProps = {
-    post: FastPostProps
-    reason?: FeedContentReasonProps
 }
 
 

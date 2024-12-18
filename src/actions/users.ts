@@ -21,14 +21,22 @@ export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
 }
 
 export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: string}> => {
-    const {users} = await getUsersList();
-    const {agent} = await getSessionAgent()
-
     try {
-        const {data} = await agent.getProfiles({actors: users.map(({did}) => (did))})
-        return {users: data.profiles}
-    } catch(err){
-        return {error: "Error obteniendo los perfiles."}
+        const users = await db.user.findMany({
+            select: {
+                did: true,
+                handle: true,
+                displayName: true,
+                avatar: true
+            },
+            where: {
+                inCA: true,
+                hasAccess: true
+            }
+        })
+        return {users: users}
+    } catch (error) {
+        return {error: "Error al obtener a los usuarios."}
     }
 }
 
@@ -120,16 +128,19 @@ export const getConversations = (userId: string) => {
 }
 
 
-export const getUserById = async (userId: string): Promise<{user?: UserProps, bskyProfile?: ProfileViewDetailed, error?: string}> => {
+export const getUserById = async (userId: string): Promise<{user?: UserProps, error?: string}> => {
 
-    const {user, error} = await unstable_cache(async () => {
-        let user: UserProps
+    const {user, error} = await unstable_cache(async (): Promise<{user?: UserProps, error?: string}> => {
         try {
-            user = await db.user.findFirst(
+            let user = await db.user.findFirst(
                 {
                     select: {
                         did: true,
                         handle: true,
+                        avatar: true,
+                        banner: true,
+                        displayName: true,
+                        description: true,
                         email: true,
                         createdAt: true,
                         hasAccess: true,
@@ -163,20 +174,26 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, bs
                     }
                 }
             )
+
+            return {
+                user: {
+                    ...user,
+                    followersCount: 0,
+                    followsCount: 0,
+                    viewer: {
+
+                    }
+                },
+            }
         } catch {
             console.log("error con get user", userId)
             return {error: "error on get user " + userId}
         }
-        return user ? {user} : {error : "error on get user " + userId}
     }, ["user", userId], {
         revalidate: revalidateEverythingTime,
         tags: ["user:"+userId, "user"]})()
 
-    const {agent} = await getSessionAgent()
-
-    const {data} = await agent.getProfile({actor: userId})
-
-    return {user, bskyProfile: data}
+    return {user}
 }
 
 

@@ -35,7 +35,7 @@ function showAuthors(topic: TopicProps, version: number, versionText: string){
         if(!parsedVersion) continue
         const nodes = parsedVersion.root.children
         const {matches} = JSON.parse(topic.versions[i].diff)
-        const versionAuthor = topic.versions[i].content.author.did
+        const versionAuthor = topic.versions[i].content.record.author.did
         let nodeAuthors: string[] = []
         for(let j = 0; j < nodes.length; j++){
             let authors = null

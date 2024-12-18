@@ -10,6 +10,6 @@ export const Username = ({user}: {user: {displayName?: string, handle: string}})
     if(!user) return <span>No user</span>
 
     return <Link className="hover:underline" href={userUrl(user.handle)}>
-        {session.bskyProfile.handle == user.handle ? "vos" : getUsername(user)}
+        {session.user.handle == user.handle ? "vos" : getUsername(user)}
     </Link>
 }

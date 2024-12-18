@@ -18,36 +18,43 @@ model AuthState {
   state String
 }
 
-model User {
-    did                 String         @id @db.VarChar(255) // did
-    handle             String
-    email              String?
-
-    hasAccess          Boolean         @default(false)
-
-    createdAt          DateTime       @default(now()) @map("created_at")
-
-    editorStatus        EditorStatus   @default(Beginner)
-
-    subscriptionsBought Subscription[] @relation("bought")
-    subscriptionsUsed   Subscription[]
-
-    messagesSent        ChatMessage[]  @relation("messagesSent")
-    messagesReceived    ChatMessage[]  @relation("messagesReceived")
-
-    paymentPromises     PaymentPromise[]   @relation("authorPromises")
-
-    topicVersionAccepts TopicVersionAccept[]
-    topicVersionRejects TopicVersionReject[]
-
-    views               View[]
-
-    contents            Content[]
-    likes               Like[]
+enum MirrorStatus {
+  Dirty
+  InProcess
+  Sync
 }
 
+model User {
+  did         String  @id @db.VarChar(255) // did
+  handle      String?
+  displayName String?
+  avatar      String?
+  banner      String?
+  email       String?
+  description String?
 
+  hasAccess    Boolean      @default(false)
+  inCA         Boolean      @default(false)
+  mirrorStatus MirrorStatus @default(Dirty)
+  rev          String?
 
+  createdAt DateTime @default(now()) @map("created_at")
+
+  editorStatus EditorStatus @default(Beginner)
+
+  subscriptionsBought Subscription[] @relation("bought")
+  subscriptionsUsed   Subscription[]
+
+  messagesSent     ChatMessage[] @relation("messagesSent")
+  messagesReceived ChatMessage[] @relation("messagesReceived")
+
+  paymentPromises PaymentPromise[] @relation("authorPromises")
+
+  views   View[]
+  records Record[]
+
+  followers Follow[]
+}
 
 model Subscription {
   id             String    @id @default(cuid())
@@ -62,206 +69,183 @@ model Subscription {
   endsAt         DateTime?
 
   paymentPromises PaymentPromise[]
-  promisesCreated Boolean  @default(false)
+  promisesCreated Boolean          @default(false)
 }
-
 
 enum PromiseStatus {
-    Pending
-    Confirmed
-    Canceled
+  Pending
+  Confirmed
+  Canceled
 }
-
 
 model PaymentPromise {
-  id             String    @id @default(cuid())
+  id String @id @default(cuid())
 
-  createdAt      DateTime  @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  author         User      @relation("authorPromises", fields: [authorId], references: [did])
-  authorId       String
+  author   User   @relation("authorPromises", fields: [authorId], references: [did])
+  authorId String
 
-  subscription   Subscription  @relation(fields: [subscriptionId], references: [id])
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
   subscriptionId String
 
-  amount         Float // errores numéricos?
+  amount Float // errores numéricos?
 
-  contentUri     String
+  contentUri String
 
-  status         PromiseStatus  @default(Pending) // true cuando el contenido pasó su período de gracia
+  status PromiseStatus @default(Pending) // true cuando el contenido pasó su período de gracia
 }
-
 
 model Topic {
-    id           String          @id
-    protection   EditorStatus    @default(Beginner)
-    versions     TopicVersion[]
-    currentVersion TopicVersion? @relation("currentVersion", fields: [currentVersionId], references: [cid])
-    currentVersionId String?      @unique
-    referencedBy   Reference[]
+  id               String         @id
+  protection       EditorStatus   @default(Beginner)
+  versions         TopicVersion[]
+  currentVersion   TopicVersion?  @relation("currentVersion", fields: [currentVersionId], references: [cid])
+  currentVersionId String?        @unique
+  referencedBy     Reference[]
 }
 
+model Record {
+  cid        String @id
+  uri        String
+  collection String
+  rkey       String
+
+  author   User   @relation(fields: [authorId], references: [did])
+  authorId String
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  content  Content?
+  reaction Reaction?
+  follow   Follow?
+
+  record String?
+
+  reactions Reaction[] @relation("reactsTo")
+  replies   Post[]     @relation("reply")
+  rootOf    Post[]     @relation("root")
+}
+
+model Follow {
+  cid            String @id
+  record         Record @relation(fields: [cid], references: [cid])
+  userFollowedId String
+  userFollowed   User   @relation(fields: [userFollowedId], references: [did])
+}
+
+model Reaction {
+  cid        String @id
+  record     Record @relation(fields: [cid], references: [cid])
+  reactsToId String
+  reactsTo   Record @relation("reactsTo", fields: [reactsToId], references: [cid])
+}
 
 model Content {
-    cid            String    @id @default(cuid())
-    uri            String
+  cid    String @id
+  record Record @relation(fields: [cid], references: [cid])
 
-    type           ContentType
+  text String
 
-    text           String
-    author         User      @relation(fields: [authorId], references: [did])
-    authorId       String
-    createdAt      DateTime  @default(now()) @map("created_at")
-    views            View[]
-    numWords         Int?
-    references       Reference[]
+  numWords Int?
 
+  topicVersion TopicVersion?
+  article      Article?
+  post         Post?
 
-    children    Content[]      @relation("children")
-    parent      Content?       @relation("children", fields: [parentId], references: [cid])
-    parentId    String?
-
-    childrenTree  Content[]    @relation("childrenTree")
-    ancestors     Content[]    @relation("childrenTree")
-
-    topicVersion  TopicVersion?
-    article       Article?
-
-    likes         Like[]
+  views      View[]
+  references Reference[]
 }
-
 
 model TopicVersion {
-    cid              String    @id
-    content          Content   @relation(fields: [cid], references: [cid])
+  cid     String  @id
+  content Content @relation(fields: [cid], references: [cid])
 
-    title          String?
-    topic            Topic     @relation(fields: [topicId], references: [id])
-    topicId          String
-    message          String  @default("")
-    charsAdded       Int?
-    charsDeleted     Int?
-    accCharsAdded    Int?
-    contribution     String?
-    diff             String?
-    categories       String?
-    synonyms         String[]
-    authorship       Boolean  @default(true)
-    accepts          TopicVersionAccept[]
-    rejects          TopicVersionReject[]
-    currentVersionOf Topic?   @relation("currentVersion")
+  title   String?
+  topic   Topic   @relation(fields: [topicId], references: [id])
+  topicId String
+  message String  @default("")
+
+  synonyms   String?
+  categories String?
+
+  authorship Boolean @default(true)
+
+  currentVersionOf Topic? @relation("currentVersion")
+
+  charsAdded    Int?
+  charsDeleted  Int?
+  accCharsAdded Int?
+  contribution  String?
+  diff          String?
 }
-
-
-model TopicVersionAccept {
-    cid              String          @id
-    uri              String
-
-    topicVersionId   String
-    topicVersion     TopicVersion    @relation(fields: [topicVersionId], references: [cid])
-
-    authorId         String
-    author           User            @relation(fields: [authorId], references: [did])
-
-    createdAt        DateTime        @default(now()) @map("created_at")
-}
-
-
-model TopicVersionReject {
-    cid              String          @id
-    uri              String
-
-    topicVersionId   String
-    topicVersion     TopicVersion    @relation(fields: [topicVersionId], references: [cid])
-
-    text             String
-
-    authorId         String
-    author           User            @relation(fields: [authorId], references: [did])
-
-    createdAt        DateTime        @default(now()) @map("created_at")
-}
-
 
 model Article {
-    cid              String    @id
-    content          Content   @relation(fields: [cid], references: [cid])
-    title            String
+  cid     String  @id
+  content Content @relation(fields: [cid], references: [cid])
+  title   String
+  format  String
 }
 
+model Post {
+  cid     String  @id
+  content Content @relation(fields: [cid], references: [cid])
+
+  facets    String?
+  embed     String?
+  replyToId String?
+  replyTo   Record? @relation("reply", fields: [replyToId], references: [cid])
+
+  rootId String?
+  root   Record? @relation("root", fields: [rootId], references: [cid])
+}
 
 model View {
-    id               String      @id @default(cuid())
-    createdAt        DateTime    @default(now()) @map("created_at")
-    type             ViewType
-    userBy           User        @relation(fields: [userById], references: [did])
-    userById         String
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  type      ViewType
+  userBy    User     @relation(fields: [userById], references: [did])
+  userById  String
 
-    contentId        String
-    content          Content     @relation(fields: [contentId], references: [cid])
+  contentId String
+  content   Content @relation(fields: [contentId], references: [cid])
 }
-
 
 enum ViewType {
-    TopicVersionView
-    FastPostView
-    ArticleView
+  TopicVersionView
+  FastPostView
+  ArticleView
 }
-
 
 model Reference {
-    id           String          @id @default(cuid())
-    type         ReferenceType
-    contentType  ContentType
+  id   String        @id @default(cuid())
+  type ReferenceType
 
-    referencedTopicId            String
-    referencedTopic    Topic           @relation(fields: [referencedTopicId], references: [id])
+  referencedTopicId String
+  referencedTopic   Topic  @relation(fields: [referencedTopicId], references: [id])
 
-    referencingContentId    String
-    referencingContent      Content    @relation(fields: [referencingContentId], references: [cid])
+  referencingContentId String
+  referencingContent   Content @relation(fields: [referencingContentId], references: [cid])
 }
-
-
-model Like {
-    cid         String    @id
-    uri         String
-    createdAt   DateTime    @default(now()) @map("created_at")
-
-    contentId   String
-    content     Content   @relation(fields: [contentId], references: [cid])
-
-    userById    String
-    userBy      User      @relation(fields: [userById], references: [did])
-}
-
-
-enum ContentType {
-    FastPostContent
-    ArticleContent
-    TopicVersionContent
-}
-
 
 enum ReferenceType {
-    Strong
-    Weak
+  Strong
+  Weak
 }
-
 
 model ChatMessage {
-  id               String      @id @default(cuid())
-  createdAt        DateTime    @default(now()) @map("created_at")
-  fromUser         User  @relation("messagesSent", fields: [fromUserId], references: [did])
-  fromUserId       String
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now()) @map("created_at")
+  fromUser   User     @relation("messagesSent", fields: [fromUserId], references: [did])
+  fromUserId String
 
-  toUser           User  @relation("messagesReceived", fields: [toUserId], references: [did])
-  toUserId         String
+  toUser   User   @relation("messagesReceived", fields: [toUserId], references: [did])
+  toUserId String
 
-  text             String
+  text String
 
-  seen             Boolean @default(false)
+  seen Boolean @default(false)
 }
-
 
 enum EditorStatus {
   Beginner

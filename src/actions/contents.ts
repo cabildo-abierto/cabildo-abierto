@@ -1,14 +1,10 @@
 'use server'
 
-import { revalidateTag } from "next/cache";
-import { db } from "../db";
-import { getUserId } from "./users";
-import { getPlainText } from "../components/utils";
-import { compress } from "../components/compression";
 import { getSessionAgent } from "./auth";
 import { RichText } from '@atproto/api'
-import { FeedContentProps } from "../app/lib/definitions";
-import { ThreadViewPost } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
+import {db} from "../db";
+import {FastPostReplyProps, ThreadProps} from "../app/lib/definitions";
+import {addCounters, processReactions} from "./utils";
 
 
 export const addLike = async (uri: string, cid: string) => {
@@ -26,7 +22,7 @@ export const addLike = async (uri: string, cid: string) => {
 
 export const removeLike = async (uri: string) => {
     const {agent} = await getSessionAgent()
-
+    console.log("Remove like", uri)
     try {
         await agent.deleteLike(uri)
     } catch(err) {
@@ -63,47 +59,116 @@ export const removeRepost = async (uri: string) => {
 }
 
 
-export async function getFastPostThread(u: string, id: string, c: string){
-    const {agent} = await getSessionAgent()
+const authorQuery = {
+    select: {
+        did: true,
+        handle: true,
+        displayName: true,
+        avatar: true,
+    }
+}
 
-    const uri = "at://" + u + "/" + c + "/" + id
+
+const feedElemQuery = (collection: string) => {
+    return {
+        cid: true,
+        uri: true,
+        createdAt: true,
+        author: authorQuery,
+        collection: true,
+        _count: {
+            select: {
+                replies: true
+            }
+        },
+        reactions: {
+            select: {
+                record: {
+                    select: {
+                        collection: true,
+                        authorId: true,
+                        uri: true
+                    }
+                }
+            }
+        },
+        content: {
+            select: {
+                text: true,
+                numWords: true,
+                article: {
+                    select: {
+                        title: true,
+                        format: true,
+                    }
+                },
+                post: {
+                    select: {
+                        facets: true,
+                        embed: true,
+                        replyTo: {
+                            select: {
+                                uri: true,
+                                cid: true
+                            }
+                        },
+                        root: {
+                            select: {
+                                uri: true,
+                                cid: true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+
+export async function getThread(did: string, rkey: string, collection: string): Promise<{thread?: ThreadProps, error?: string}> {
+    const uri = "at://" + did + "/" + collection + "/" + rkey
 
     try {
-        if(c == "app.bsky.feed.post"){
-            const {data} = await agent.getPostThread({uri: uri})
-            return data.thread as ThreadViewPost
-        } else {
-            const {data} = await agent.com.atproto.repo.getRecord({
-                repo: u,
-                collection: c,
-                rkey: id
+        const mainPostQ = db.record.findFirst({
+            select: feedElemQuery(collection),
+            where: {
+                authorId: did,
+                rkey: rkey
+            }
+        })
+        const repliesQ = db.record.findMany({
+            select: feedElemQuery(collection),
+            where: {
+                content: {
+                    post: {
+                        replyTo: {
+                            authorId: did,
+                            rkey: rkey
+                        }
+                    }
+                }
+            }
+        })
+        const [mainPost, replies] = await db.$transaction([mainPostQ, repliesQ])
+        const threadForFeed: ThreadProps = {
+            post: addCounters(did, mainPost, mainPost.reactions),
+            replies: replies.map((r) => {
+                return addCounters(did, r, r.reactions)
             })
-
-
-            let {data: author} = await agent.getProfile({actor: u})
-
-            const {value: record, ...rest} = data
-            return {
-                ...rest,
-                record: record as unknown,
-                author,
-                likeCount: 0,
-                repostCount: 0,
-                quoteCount: 0,
-                replyCount: 0,
-                viewer: {}
-            } as unknown as FeedContentProps
         }
+        return {thread: threadForFeed}
     } catch(err) {
         console.log("Error getting thread", uri)
         console.log(err)
-        return null
+        return {error: "No se pudo obtener el thread."}
     }
 }
 
 
 export async function createFastPost(
-    text: string
+    {text, reply}: {text: string, reply?: FastPostReplyProps}
 ): Promise<{error?: string}> {
 
     const {agent} = await getSessionAgent()
@@ -120,7 +185,15 @@ export async function createFastPost(
         "createdAt": new Date().toISOString()
     }
 
-    await agent.post(record)
+    console.log("creating fast post with reply", reply)
+    if(reply){
+        await agent.post({
+            ...record,
+            reply: reply
+        })
+    } else {
+        await agent.post(record)
+    }
 
     return {}
 }

@@ -19,6 +19,16 @@
               "minLength": 1,
               "maxLength": 1000000
             },
+            "synonyms": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10000
+            },
+            "categories": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10000
+            },
             "message": {
               "type": "string",
               "minLength": 1,

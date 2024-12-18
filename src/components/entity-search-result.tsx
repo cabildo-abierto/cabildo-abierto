@@ -2,19 +2,16 @@
 
 import { CustomLink as Link } from './custom-link';
 import { FixedCounter } from "./like-counter"
-import { SmallTopicProps } from "../app/lib/definitions"
 import { articleUrl, currentVersion } from "./utils"
 import { fetcher } from "../hooks/utils"
 import { preload } from "swr"
 import { DateSince } from "./date"
 import { EntityCategoriesSmall } from './entity-categories-small';
-import { InactiveCommentIcon } from './icons/inactive-comment-icon';
-import { LinkIcon } from './icons/link-icon';
 import { TextLengthIcon } from './icons/text-length-icon';
 import {getTopicTitle} from "./topic/utils";
 
 
-export function getEntityChildrenCount(entity: SmallTopicProps){
+export function getEntityChildrenCount(entity: any){
     let count = 0
     for(let i = 0; i < entity.versions.length; i++){
         count += entity.versions[i].content.childrenTree.length
@@ -23,24 +20,24 @@ export function getEntityChildrenCount(entity: SmallTopicProps){
 }
 
 
-const DateLastEdit = ({topic}: {topic: SmallTopicProps}) => {
+const DateLastEdit = ({topic}: {topic: any}) => {
   const lastVersion = topic.versions[topic.versions.length-1]
 
   const className = "text-[var(--text-light)] text-xs px-1"
 
   if(topic.versions.length == 1){
     return <div className={className}>
-      Creado <DateSince date={lastVersion.content.createdAt}/>
+      Creado <DateSince date={lastVersion.content.author.createdAt}/>
     </div>
   }
 
   return <div className={className}>
-    Última edición <DateSince date={lastVersion.content.createdAt}/>
+    Última edición <DateSince date={lastVersion.content.author.createdAt}/>
   </div>
 }
 
 
-export const EntitySearchResult: React.FC<{route: string[], topic: SmallTopicProps}> = ({ route, topic }) => {
+export const EntitySearchResult: React.FC<{route: string[], topic: any}> = ({ route, topic }) => {
 
   function onMouseEnter(){
     preload("/api/topic/"+topic.id, fetcher)

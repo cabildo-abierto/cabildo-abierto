@@ -1,6 +1,5 @@
 import {
     UserProps,
-    SmallTopicProps,
     SmallUserProps,
     BothContributionsProps,
     TopicVersionProps, TopicProps
@@ -105,7 +104,9 @@ export function isPrefix(p: any[], q: any[]){
     return areArraysEqual(p, q.slice(0, p.length))
 }
 
-export function getNextCategories(route: string[], entities: SmallTopicProps[]){
+export function getNextCategories(route: string[], topics: {}[]){
+    return []
+    /*
     const nextCategories = new Set<string>()
     
     entities.forEach((entity: SmallTopicProps) => {
@@ -120,7 +121,7 @@ export function getNextCategories(route: string[], entities: SmallTopicProps[]){
         })
     })
 
-    return Array.from(nextCategories)
+    return Array.from(nextCategories)*/
 }
 
 export function entityInRoute(entity: {versions: {cid: string, categories: string}[]}, route: string[]){
@@ -174,7 +175,7 @@ export function route2Text(route: string[]){
 }
 
 
-export function currentVersion(entity: {versions: {cid: string}[]}){
+export function currentVersion(entity: {versions: {}[]}){
     /*for(let i = 0; i < entity.versions.length; i++){
         if(entity.versions[i].cid == entity.currentVersionId){
             return i
@@ -433,6 +434,20 @@ export function nextPrice(p: number){
 }
 
 
+export function countReactions(reactions: {record: {collection: string}}[], c: string){
+    return countInArray(reactions, (v) => {return v.record.collection == c})
+}
+
+
+export function countInArray<T>(a: T[], f: (v: T) => boolean): number{
+    let c = 0
+    a.forEach((v) => {
+        if(f(v)) c ++
+    })
+    return c
+}
+
+
 export function articleUrl(title: string, index?: number, changes: boolean = false){
     return "/tema?i=" + encodeURIComponent(title) + (index != undefined ? "&v=" + index : "") + (changes ? "&c=true" : "")
 }
@@ -445,6 +460,11 @@ export function userUrl(id: string){
 export function contentUrl(uri: string, collection: string, authorHandle: string){
     const split = uri.split("/")
     return "/contenido?u=" + authorHandle + "&i=" + split[split.length-1] + "&c=" + collection
+}
+
+
+export function urlFromRecord(record: {uri: string, collection: string, author: {did: string}}){
+    return contentUrl(record.uri, record.collection, record.author.did)
 }
 
 
@@ -498,14 +518,16 @@ export function findWeakEntityReferences(text: string, searchkeys: {id: string, 
 }
 
 
-export function getSearchkeysFromEntities(entities: SmallTopicProps[]){
+export function getSearchkeysFromEntities(entities: {}[]){
+    return []
+    /*
     let searchkeys: {id: string, keys: string[]}[] = []
 
     for(let i = 0; i < entities.length; i++){
         let keys = getKeysFromEntity(entities[i]).map(cleanText)
         searchkeys.push({id: entities[i].id, keys: keys})
     }
-    return searchkeys
+    return searchkeys*/
 }
 
 
@@ -545,8 +567,9 @@ export function findMentionsFromUsers(text: string, users: SmallUserProps[]){
 }
 
 
-export function findEntityReferencesFromEntities(text: string, entities: SmallTopicProps[]){
-    function findReferencesInNode(node: any): {id: string}[] {
+export function findEntityReferencesFromEntities(text: string, entities: {}[]){
+    return []
+    /*function findReferencesInNode(node: any): {id: string}[] {
         let references: {id: string}[] = []
         if(node.type === "link"){
             if(node.url.startsWith("/articulo?i=")){
@@ -584,11 +607,13 @@ export function findEntityReferencesFromEntities(text: string, entities: SmallTo
 
     references = references.filter(({id}) => (entities.some((e) => (e.id == id))))
 
-    return references
+    return references*/
 }
 
 
-export function entityExists(name: string, entities: SmallTopicProps[]){
+export function entityExists(name: string, entities: {}[]){
+    return false
+    /*
     name = cleanText(name).replaceAll(" ", "")
     
     for(let i = 0; i < entities.length; i++){
@@ -597,7 +622,7 @@ export function entityExists(name: string, entities: SmallTopicProps[]){
             return true
         }
     }
-    return false
+    return false*/
 }
 
 
@@ -655,7 +680,7 @@ export function getEntityMonetizedContributions(topic: TopicProps, version: numb
     const authors = new Map()
     for(let i = 0; i <= version; i++){
         if(!isTopicVersionDemonetized(topic.versions[i])){
-            const author = topic.versions[i].content.author.did
+            const author = topic.versions[i].content.record.author.did
             
             if(authors.has(author)){
                 authors.set(author, authors.get(author) + topic.versions[i].charsAdded)

@@ -2,14 +2,14 @@
 
 import Image from 'next/image'
 import { DateSince } from '../date'
-import {FastPostProps, FeedContentProps} from '../../app/lib/definitions'
-import { contentUrl, emptyChar, formatIsoDate, userUrl } from '../utils'
+import {EngagementProps, FastPostProps, RecordProps} from '../../app/lib/definitions'
+import {emptyChar, formatIsoDate, urlFromRecord, userUrl} from '../utils'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ContentTopRowAuthor } from '../content-top-row-author'
 import { ReactNode } from 'react'
 import { EngagementIcons } from './engagement-icons'
-import {RepostedBy} from "./reposted-by";
+
 
 const ReplyVerticalLine = ({className=""}: {className?: string}) => {
     return <div className={"w-[2px] bg-[var(--accent)] " + className}></div>
@@ -17,30 +17,29 @@ const ReplyVerticalLine = ({className=""}: {className?: string}) => {
 
 type ATProtoPostFrameProps = {
     children: ReactNode
-    content: FeedContentProps
+    post: RecordProps & EngagementProps
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
 }
 
-export const FastPostPreviewFrame = ({children, content, borderBelow=true, showingParent=false, showingChildren=false}: ATProtoPostFrameProps) => {
+export const FastPostPreviewFrame = ({children, post, borderBelow=true, showingParent=false, showingChildren=false}: ATProtoPostFrameProps) => {
     const router = useRouter()
 
-    const post = content.post
-
-    const url = contentUrl(post.uri, post.record.$type, post.author.handle)
+    const record = post
+    const url = urlFromRecord(record)
 
     return <div className={"w-full bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")} onClick={() => {router.push(url)}}>
 
-        {content.reason && content.reason.$type == "app.bsky.feed.defs#reasonRepost" && <RepostedBy reason={content.reason}/>}
+        {/*content.collection == "app.bsky.feed.repost" && <RepostedBy reason={content.reason}/>*/}
 
         <div className={"flex"}>
             <div className="w-[80px] flex flex-col items-center h-full pl-2">
                 {showingParent ? <ReplyVerticalLine className="h-3"/> : <div className="h-3">{emptyChar}</div>}
-                <Link href={userUrl(post.author.handle)} className="w-11 h-11 flex items-center justify-center">
+                <Link href={userUrl(record.author.handle)} className="w-11 h-11 flex items-center justify-center">
                     <Image
-                        src={post.author.avatar}
-                        alt={"Perfil de "+post.author.handle}
+                        src={record.author.avatar}
+                        alt={"Perfil de "+record.author.handle}
                         width={300}
                         height={300}
                         className="rounded-full w-11 h-11"
@@ -52,11 +51,11 @@ export const FastPostPreviewFrame = ({children, content, borderBelow=true, showi
             <div className="flex w-[520px] flex-col py-3 text-sm pr-2">
                 <div className="flex items-center gap-x-1">
                     <span className="truncate">
-                        <ContentTopRowAuthor content={post} />
+                        <ContentTopRowAuthor author={record.author} />
                     </span>
                     <span className="text-[var(--text-light)]">•</span>
-                    <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(post.record.createdAt)}>
-                        <DateSince date={post.record.createdAt} />
+                    <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(record.createdAt)}>
+                        <DateSince date={record.createdAt} />
                     </span>
                 </div>
                 <div>
@@ -64,7 +63,7 @@ export const FastPostPreviewFrame = ({children, content, borderBelow=true, showi
                 </div>
 
                 <div className={"mt-1"}>
-                    <EngagementIcons content={post}/>
+                    <EngagementIcons counters={post} record={post} options={null}/>
                 </div>
             </div>
         </div>

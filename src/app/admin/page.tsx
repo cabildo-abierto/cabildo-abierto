@@ -7,9 +7,7 @@ import { useUser } from "../../hooks/user"
 
 import React from 'react';
 import { supportDid, tomasDid } from "../../components/utils"
-import { updatePosts } from "../../actions/atproto-update"
 import { revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, revalidateSuggestions, updateProfilesFromAT } from "../../actions/admin"
-import {deleteTopicVersionsForUser, updateTopics} from "../../actions/topics";
 
 
 
@@ -96,30 +94,6 @@ export default function Page() {
                 await revalidateSuggestions()
             }}>
                 Revalidar sugerencias
-            </button>
-
-            <h2>Contenido</h2>
-
-            <h2>Actualizar</h2>
-
-            <button className="gray-btn" onClick={async () => {
-                await updateTopics()
-            }}>
-                Actualizar temas
-            </button>
-            <button className="gray-btn" onClick={async () => {
-                await updatePosts()
-            }}>
-                Actualizar posts
-            </button>
-            <button className="gray-btn" onClick={async () => {
-                await updateProfilesFromAT()
-            }}>
-                Actualizar perfiles
-            </button>
-
-            <button className="gray-btn" onClick={async () => {await deleteTopicVersionsForUser()}}>
-                Eliminar temas
             </button>
 
         </div>

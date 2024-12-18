@@ -27,11 +27,11 @@ export const ContentOptionsChoiceButton = ({children, onClick, icon}: {children:
 
 
 type ContentOptionsButtonProps = {
-    content: FastPostProps
+    content: FeedContentProps
     optionList: string[]
 }
 
-export const ContentOptionsButton = ({content, optionList}: ContentOptionsButtonProps) => {
+export const ContentOptionsButton = ({options}: { options: ReactNode }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null)
 
@@ -55,9 +55,7 @@ export const ContentOptionsButton = ({content, optionList}: ContentOptionsButton
             onClose={() => {setIsDropdownOpen(false)}}
         >
             <ContentOptionsDropdown
-                content={content}
-                onClose={onClose}
-                optionsList={[...optionList, "share"]}
+                options={options}
             />
         </ModalBelow>
     </div>

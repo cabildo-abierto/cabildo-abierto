@@ -2,7 +2,7 @@
 
 import { revalidateTag } from "next/cache";
 import { db } from "../db";
-import { launchDate, subscriptionEnds, supportDid, validSubscription } from "../components/utils";
+import {getRkeyFromUri, launchDate, subscriptionEnds, supportDid, validSubscription} from "../components/utils";
 import { UserMonthDistributionProps } from "../app/lib/definitions";
 import { getSessionAgent } from "./auth";
 
@@ -327,5 +327,30 @@ export async function getAdminStats(){
         eventsByWeek,
         unrenewed,
         lastAccounts: accounts.sort((a, b) => (b.createdAt.getTime() - a.createdAt.getTime())).slice(0, 5)
+    }
+}
+
+
+export async function setRkeys(){
+    const records = await db.record.findMany({
+        select: {
+            cid: true,
+            uri: true,
+            rkey: true
+        },
+        where: {
+            rkey: "no key"
+        }
+    })
+    for(let i = 0; i < records.length; i++){
+        const r = records[i]
+        await db.record.update({
+            data: {
+                rkey: getRkeyFromUri(r.uri)
+            },
+            where: {
+                cid: r.cid
+            }
+        })
     }
 }

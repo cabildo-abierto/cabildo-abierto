@@ -1,7 +1,7 @@
 "use client"
 
 import { useEditsFeed } from "../hooks/contents"
-import Feed from "./feed"
+import Feed from "./feed/feed"
 
 
 export const WikiFeed = ({profileUser}: {profileUser: {did: string, handle: string, displayName?: string}}) => {

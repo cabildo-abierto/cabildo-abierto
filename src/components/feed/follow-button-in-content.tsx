@@ -2,7 +2,7 @@ import { Button } from "@mui/material"
 
 
 
-export const FollowButton = () => {
+export const FollowButtonInContent = ({}) => {
     return <Button
         variant="outlined"
         size="small"
