@@ -21,7 +21,7 @@ export function topicPopularityScore(topic: TrendingTopicProps){
 
 
 export const TrendingArticles = ({route, selected}: {route: string[], selected: string}) => {
-    const topics = useTrendingTopics(route);
+    const topics = useTrendingTopics(route, "alltime");
     const [recent, setRecent] = useState(route.length == 0)
 
     useEffect(() => {

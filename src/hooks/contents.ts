@@ -48,8 +48,8 @@ export function useTopics(route: string[]): {topics: any[], isLoading: boolean, 
 }
 
 
-export function useTrendingTopics(route: string[]): {topics: TrendingTopicProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/trending-topics/'+route.join("/"), fetcher)
+export function useTrendingTopics(route: string[], kind: string): {topics: TrendingTopicProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/trending-topics/'+route.join("/")+"?since="+kind, fetcher)
 
     return {
         topics: data,
