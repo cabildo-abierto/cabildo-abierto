@@ -354,3 +354,15 @@ export async function setRkeys(){
         })
     }
 }
+
+
+export async function updateRecord(){
+    const {agent} = await getSessionAgent()
+
+    await agent.com.atproto.repo.putRecord()
+}
+
+
+export async function clearAllRecords() {
+
+}

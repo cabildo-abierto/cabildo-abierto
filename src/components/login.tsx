@@ -30,7 +30,7 @@ export const Login = ({newTab=false}: {newTab?: boolean}) => {
 
                 <div className='text-sm text-center text-[var(--text-light)] mx-2 flex flex-col'>
                     <div>¿Ya tenías una cuenta de la primera versión de Cabildo Abierto? </div>
-                    <div><Link className="link2" href="/v1">Hacé click acá</Link>.</div>
+                    <div><Link className="link2" href="/v1">Más información acá</Link>.</div>
                 </div>
                 <div className={"w-full link flex justify-center text-sm"}>
                     <Link href={"/"}>Volver al inicio</Link>

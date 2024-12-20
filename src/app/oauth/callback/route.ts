@@ -3,8 +3,9 @@ import assert from "assert";
 import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from 'iron-session'
 import { cookies } from "next/headers";
-import { createNewCAUserForBskyAccount } from "../../../actions/users";
+import {setATProtoProfile} from "../../../actions/users";
 import {myCookieOptions} from "../../../components/utils";
+
 
 export type Session = {did: string}
 
@@ -24,9 +25,9 @@ export async function GET(req: NextRequest){
 
         await clientSession.save()
 
-        const {error: createError} = await createNewCAUserForBskyAccount(session.did)
+        const {error: setATProtoError} = await setATProtoProfile(session.did)
 
-        if(createError){
+        if(setATProtoError){
             return NextResponse.redirect(baseUrl + '/login')
         }
         return NextResponse.redirect(baseUrl + '/')
