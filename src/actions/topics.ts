@@ -39,13 +39,9 @@ export async function createTopicVersion({id, text = "", title, claimsAuthorship
     return {}
 }
 
-const smallContentQuery = {
-    record: {
-        select: {
-            createdAt: true,
-            authorId: true
-        }
-    }
+const smallRecordQuery = {
+    createdAt: true,
+    authorId: true
 }
 
 
@@ -53,23 +49,17 @@ const topicVersionReactionsQuery = {
     select: {
         reactsTo: {
             select: {
-                record: {
-                    select: {
-                        cid: true,
-                        uri: true,
-                        createdAt: true,
-                        authorId: true
-                    }
-                }
+                cid: true,
+                uri: true,
+                createdAt: true,
+                authorId: true
             }
         },
     },
     where: {
-        reactsTo: {
-            record: {
-                collection: {
-                    in: ["ar.com.cabildoabierto.topic.accept", "ar.com.cabildoabierto.topic.reject"]
-                }
+        record: {
+            collection: {
+                in: ["ar.com.cabildoabierto.topic.accept", "ar.com.cabildoabierto.topic.reject"]
             }
         }
     }
@@ -77,30 +67,41 @@ const topicVersionReactionsQuery = {
 
 
 type TopicUserInteractionsProps = {
+    id: string
+    currentVersion?: {
+        content: {
+            numWords?: number
+            record: {
+                createdAt: Date
+            }
+        }
+    }
     referencedBy: {
         referencingContent: {
             record: {
                 createdAt: Date
                 authorId: string
-            }
-            childrenTree: {
-                record: {
-                    createdAt: Date
-                    authorId: string
-                }
+                rootOf: {
+                    content: {
+                        record: {
+                            createdAt: Date
+                            authorId: string
+                            reactions: {
+                                record: {
+                                    createdAt: Date
+                                    authorId: string
+                                }
+                            }[]
+                        }
+                    }
+                }[]
                 reactions: {
                     record: {
                         createdAt: Date
                         authorId: string
                     }
                 }[]
-            }[]
-            reactions: {
-                record: {
-                    createdAt: Date
-                    authorId: string
-                }
-            }[]
+            }
         }
     }[]
     versions: {
@@ -110,19 +111,21 @@ type TopicUserInteractionsProps = {
             record: {
                 authorId: string
                 createdAt: Date
-            }
-            childrenTree: {
-                record: {
-                    createdAt: Date
-                    authorId: string
-                }
-                reactions: {
-                    record: {
-                        createdAt: Date
-                        authorId: string
+                rootOf: {
+                    content: {
+                        record: {
+                            createdAt: Date
+                            authorId: string
+                            reactions: {
+                                record: {
+                                    createdAt: Date
+                                    authorId: string
+                                }
+                            }[]
+                        }
                     }
                 }[]
-            }[]
+            }
         }
     }[]
 }
@@ -151,49 +154,44 @@ function countUserInteractions(entity: TopicUserInteractionsProps, since?: Date)
 
     for(let i = 0; i < entity.referencedBy.length; i++){
         const referencingContent = entity.referencedBy[i].referencingContent
-        addMany(referencingContent.childrenTree.map(({record}) => (record)))
-        for(let j = 0; j < referencingContent.childrenTree.length; j++){
-            addMany(referencingContent.childrenTree[j].reactions.map(({record}) => (record)))
+        addMany(referencingContent.record.rootOf.map((post) => (post.content.record)))
+        for(let j = 0; j < referencingContent.record.rootOf.length; j++){
+            addMany(referencingContent.record.rootOf[j].content.record.reactions.map(({record}) => (record)))
         }
-        addMany(referencingContent.reactions.map(({record}) => (record)))
+        addMany(referencingContent.record.reactions.map(({record}) => (record)))
     }
 
     //if(entity.name == entityId) console.log("Referencias", s)
     //if(entity.name == entityId) console.log("Reacciones", s)
     for(let i = 0; i < entity.versions.length; i++){
         // autores de las versiones
-
         if(recentEnough(entity.versions[i].content.record.createdAt)){
             s.add(entity.versions[i].content.record.authorId)
         }
 
         // comentarios y subcomentarios de las versiones
-        addMany(entity.versions[i].content.childrenTree.map(({record}) => (record)))
+        addMany(entity.versions[i].content.record.rootOf.map((post) => (post.content.record)))
     }
 
     //if(entity.name == entityId) console.log("weak refs", s)
     //if(entity.name == entityId) console.log("Total", entity.name, s.size, s)
 
     s.delete(supportDid)
-    return s.size
+
+    return [
+        s.size,
+        entity.currentVersion && entity.currentVersion.content.numWords > 0 ? 1 : 0,
+        entity.currentVersion ? new Date(entity.currentVersion.content.record.createdAt).getTime() : 0
+    ]
+
 }
 
 
-export async function getTrendingTopics(since: Date): Promise<{error?: string, topics?: TrendingTopicProps[]}> {
-    const topics = await db.topic.findMany({
-        select: {
-            id: true,
-            versions: {
-                select: {
-                    title: true
-                }
-            }
-        }
-    })
-    const topicsWithScore = topics.map((t) => ({...t, score: [1]}))
-    return {topics: topicsWithScore}
-    // [topic.score, topic.currentVersion.content.numWords > 0 ? 1 : 0, new Date(topic.currentVersion.content.record.createdAt).getTime()]
-    /*try {
+export async function getTrendingTopics(sinceKind: string): Promise<{error?: string, topics?: TrendingTopicProps[]}> {
+    // sinceKind is always alltime
+    const since = undefined
+
+    try {
 
         const topics = await db.topic.findMany({
             select: {
@@ -216,18 +214,38 @@ export async function getTrendingTopics(since: Date): Promise<{error?: string, t
                     select: {
                         referencingContent: {
                             select: {
-                                ...smallContentQuery,
-                                childrenTree: {
+                                record: {
                                     select: {
-                                        ...smallContentQuery,
+                                        ...smallRecordQuery,
+                                        rootOf: {
+                                            select: {
+                                                content: {
+                                                    select: {
+                                                        record: {
+                                                            select: {
+                                                                ...smallRecordQuery,
+                                                                reactions: {
+                                                                    select: {
+                                                                        record: {
+                                                                            select: smallRecordQuery
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
                                         reactions: {
-                                            select: smallContentQuery
+                                            select: {
+                                                record: {
+                                                    select: smallRecordQuery
+                                                }
+                                            }
                                         }
                                     }
                                 },
-                                reactions: {
-                                    select: smallContentQuery
-                                }
                             }
                         },
                     }
@@ -238,17 +256,33 @@ export async function getTrendingTopics(since: Date): Promise<{error?: string, t
                         categories: true,
                         content: {
                             select: {
-                                ...smallContentQuery,
                                 numWords: true,
-                                childrenTree: {
+                                record: {
                                     select: {
-                                        ...smallContentQuery,
-                                        reactions: {
-                                            select: smallContentQuery
-                                        }
+                                        ...smallRecordQuery,
+                                        reactions: topicVersionReactionsQuery,
+                                        rootOf: {
+                                            select: {
+                                                content: {
+                                                    select: {
+                                                        record: {
+                                                            select: {
+                                                                ...smallRecordQuery,
+                                                                reactions: {
+                                                                    select: {
+                                                                        record: {
+                                                                            select: smallRecordQuery
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
                                     }
                                 },
-                                reactions: topicVersionReactionsQuery
                             }
                         }
                     },
@@ -272,7 +306,7 @@ export async function getTrendingTopics(since: Date): Promise<{error?: string, t
     } catch (err) {
         console.log("Error", err)
         return {error: "Error al buscar los temas."}
-    }*/
+    }
 }
 
 
@@ -339,6 +373,13 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
                         contribution: true,
                         authorship: true,
                         categories: true
+                    },
+                    orderBy: {
+                        content: {
+                            record: {
+                                createdAt: "asc"
+                            }
+                        }
                     }
                 }
             },

@@ -4,11 +4,14 @@ import {getTrendingTopics} from "../../../../actions/topics";
 
 
 export async function GET(req: NextRequest,
-    { params }: { params: { route: string[], since: string } }
+    { params }: { params: { route: string[] } }
 ) {
     //const route = params.route ? params.route.map(decodeURIComponent) : []
 
-    let {topics} = await getTrendingTopics(new Date(params.since))
+    const url = new URL(req.url);
+    const searchParams = url.searchParams;
+
+    let {topics} = await getTrendingTopics(searchParams.get("since"))
 
     return NextResponse.json(topics)
 }
