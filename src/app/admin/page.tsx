@@ -7,7 +7,7 @@ import { useUser } from "../../hooks/user"
 
 import React from 'react';
 import { supportDid, tomasDid } from "../../components/utils"
-import { revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, revalidateSuggestions, updateProfilesFromAT } from "../../actions/admin"
+import { revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, revalidateSuggestions } from "../../actions/admin"
 
 
 

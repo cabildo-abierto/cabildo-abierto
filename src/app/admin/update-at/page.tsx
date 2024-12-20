@@ -1,7 +1,7 @@
 "use client"
 
 
-import {allRecords, updateEverything} from "../../../actions/atproto-update";
+import {allRecords, deleteAllRecords, updateEverything} from "../../../actions/atproto-update";
 import {deleteTopicVersionsForUser} from "../../../actions/topics";
 import React from "react";
 import {BasicButton} from "../../../components/ui-utils/basic-button";
@@ -40,6 +40,12 @@ const Page = () => {
             await setRkeys()
         }}>
             Set rkeys
+        </BasicButton>
+
+        <BasicButton onClick={async () => {
+            await deleteAllRecords()
+        }}>
+            Eliminar todos los records
         </BasicButton>
     </div>
 }

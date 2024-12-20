@@ -39,27 +39,60 @@ export async function updateProfile(did: string, agent: Agent){
 }
 
 
-export async function deleteRecord(cid: string){
-    await db.post.deleteMany({
+export async function deleteRecords(cids: string[]){
+    const d1 = db.follow.deleteMany({
         where: {
-            cid: cid
+            cid: {
+                in: cids
+            }
         }
     })
-    await db.article.deleteMany({
+    const d2 = db.post.deleteMany({
         where: {
-            cid: cid
+            cid: {
+                in: cids
+            }
         }
     })
-    await db.content.deleteMany({
+    const d3 = db.article.deleteMany({
         where: {
-            cid: cid
+            cid: {
+                in: cids
+            }
         }
     })
+    const d4 = db.content.deleteMany({
+        where: {
+            cid: {
+                in: cids
+            }
+        }
+    })
+    const d5 = db.reaction.deleteMany({
+        where: {
+            cid: {
+                in: cids
+            }
+        }
+    })
+    await db.$transaction([d1, d2, d3, d4, d5])
     await db.record.deleteMany({
         where: {
-            cid: cid
+            cid: {
+                in: cids
+            }
         }
     })
+}
+
+
+export async function deleteAllRecords(){
+    const records = await db.record.findMany({
+        select: {
+            cid: true
+        }
+    })
+    await deleteRecords(records.map(({cid}) => (cid)))
 }
 
 

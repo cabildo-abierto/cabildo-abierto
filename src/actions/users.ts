@@ -4,10 +4,11 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
 import { SmallUserProps, UserProps, UserStats } from "../app/lib/definitions";
-import {supportDid, validSubscription} from "../components/utils";
+import {getRkeyFromUri, supportDid, validSubscription} from "../components/utils";
 import { getSubscriptionPrice } from "./payments";
 import { getSessionAgent } from "./auth";
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+import {Agent} from "@atproto/api";
 
 
 export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
@@ -160,6 +161,34 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, er
                                     gte: 500
                                 }
                             }
+                        },
+                        records: {
+                            select: {
+                                cid: true,
+                                follow: {
+                                    select: {
+                                        userFollowedId: true
+                                    }
+                                }
+                            },
+                            where: {
+                                collection: "app.bsky.graph.follow",
+                                follow: {
+                                    userFollowed: {
+                                        inCA: true
+                                    }
+                                }
+                            }
+                        },
+                        followers: {
+                            select: {
+                                cid: true,
+                                record: {
+                                    select: {
+                                        authorId: true
+                                    }
+                                }
+                            }
                         }
                     },
                     where: {
@@ -175,13 +204,30 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, er
                 }
             )
 
+            let following = undefined
+            for(let i = 0; i < user.followers.length; i++) {
+                const f = user.followers[i]
+                if(f.record.authorId == userId){
+                    following = f.cid
+                }
+            }
+
+            let followed = undefined
+            for(let i = 0; i < user.records.length; i++){
+                const r = user.records[i]
+                if(r.follow.userFollowedId == userId){
+                    followed = r.cid
+                }
+            }
+
             return {
                 user: {
                     ...user,
-                    followersCount: 0,
-                    followsCount: 0,
+                    followersCount: user.followers.length,
+                    followsCount: user.records.length,
                     viewer: {
-
+                        following,
+                        followed
                     }
                 },
             }
@@ -453,17 +499,12 @@ export async function removeSubscriptions(){
 }
 
 
-export async function createNewCAUserForBskyAccount(did: string){
+/*export async function createNewCAUserForBskyAccount(did: string, agent: Agent){
     try {
         const exists = await db.user.findFirst({
             where: {did: did}
         })
         if(!exists){
-
-            const {agent} = await getSessionAgent()
-            if(did != agent.assertDid){
-                return {error: "El usuario no coincide con la sesión."}
-            }
 
             const {data}: {data: ProfileViewDetailed} = await agent.getProfile({actor: agent.assertDid})
 
@@ -479,6 +520,45 @@ export async function createNewCAUserForBskyAccount(did: string){
         return {error: "Error al crear el usuario"}
     }
     return {}
+}*/
+
+
+export async function setATProtoProfile(did: string){
+
+    try {
+        const {agent} = await getSessionAgent()
+
+        const {data} = await agent.com.atproto.repo.listRecords({
+            repo: did,
+            collection: "ar.com.cabildoabierto.profile"
+        })
+        if(data.records.some((r) => (getRkeyFromUri(r.uri) == "self"))){
+            const rec = {
+                repo: did,
+                collection: 'ar.com.cabildoabierto.profile',
+                rkey: getRkeyFromUri(data.records[0].uri),
+                record: {
+                    createdAt: new Date().toISOString(),
+                },
+            }
+            await agent.com.atproto.repo.putRecord(rec)
+            return {}
+        }
+
+        await agent.com.atproto.repo.createRecord({
+            repo: did,
+            collection: 'ar.com.cabildoabierto.profile',
+            rkey: "self",
+            record: {
+                createdAt: new Date().toISOString(),
+            },
+        })
+
+        return {}
+    } catch (err) {
+        console.log("Error", err)
+        return {error: "Error al conectar con ATProto."}
+    }
 }
 
 

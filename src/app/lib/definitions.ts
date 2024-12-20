@@ -184,7 +184,7 @@ export type UserProps = {
     editorStatus: EditorStatus
     subscriptionsUsed: SubscriptionProps[]
     subscriptionsBought: {id: string, price: number}[]
-    viewer?: {following?: string}
+    viewer?: {following?: string, followed?: string}
     followersCount: number
     followsCount: number
 };

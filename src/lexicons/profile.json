@@ -1,0 +1,17 @@
+{
+  "lexicon": 1,
+  "id": "ar.com.cabildoabierto.profile",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A declaration of a Cabildo Abierto account profile.",
+      "key": "literal:self",
+      "record": {
+        "type": "object",
+        "properties": {
+          "createdAt": { "type": "string", "format": "datetime" }
+        }
+      }
+    }
+  }
+}
