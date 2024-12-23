@@ -1,0 +1,74 @@
+{
+  "lexicon": 1,
+  "id": "ar.com.cabildoabierto.quotePost",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Record containing a post that quotes part of an article or topic version.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["text", "createdAt", "quote"],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 3000,
+            "maxGraphemes": 300,
+            "description": "The primary post content. May be an empty string, if there are embeds."
+          },
+          "quote": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "A description of the selected segment in the text. Depends on the reply record format."
+          },
+          "facets": {
+            "type": "array",
+            "description": "Annotations of text (mentions, URLs, hashtags, etc)",
+            "items": { "type": "ref", "ref": "app.bsky.richtext.facet" }
+          },
+          "reply": { "type": "ref", "ref": "#replyRef" },
+          "embed": {
+            "type": "union",
+            "refs": [
+              "app.bsky.embed.images",
+              "app.bsky.embed.video",
+              "app.bsky.embed.external",
+              "app.bsky.embed.record",
+              "app.bsky.embed.recordWithMedia"
+            ]
+          },
+          "langs": {
+            "type": "array",
+            "description": "Indicates human language of post primary text content.",
+            "maxLength": 3,
+            "items": { "type": "string", "format": "language" }
+          },
+          "labels": {
+            "type": "union",
+            "description": "Self-label values for this post. Effectively content warnings.",
+            "refs": ["com.atproto.label.defs#selfLabels"]
+          },
+          "tags": {
+            "type": "array",
+            "description": "Additional hashtags, in addition to any included in post text and facets.",
+            "maxLength": 8,
+            "items": { "type": "string", "maxLength": 640, "maxGraphemes": 64 }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp when this post was originally created."
+          }
+        }
+      }
+    },
+    "replyRef": {
+      "type": "object",
+      "required": ["root", "parent"],
+      "properties": {
+        "root": { "type": "ref", "ref": "com.atproto.repo.strongRef" },
+        "parent": { "type": "ref", "ref": "com.atproto.repo.strongRef" }
+      }
+    }
+  }
+}

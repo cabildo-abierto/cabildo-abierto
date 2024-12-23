@@ -22,11 +22,12 @@ type EngagementIconsProps = {
         uri: string
         cid: string
     }
+    className?: string
 }
 
-export const EngagementIcons = ({counters, record, options}: EngagementIconsProps) => {
+export const EngagementIcons = ({counters, record, options, className="space-x-16"}: EngagementIconsProps) => {
 
-    return <div className="flex space-x-16 items-center">
+    return <div className={"flex items-center " + className}>
         <FixedCounter
             count={counters.replyCount}
             icon={<InactiveCommentIcon/>}

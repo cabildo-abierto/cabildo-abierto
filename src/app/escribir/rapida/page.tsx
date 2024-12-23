@@ -1,6 +1,7 @@
 import PostEditor from "../../../components/editor/article-editor"
 import { ThreeColumnsLayout } from "../../../components/three-columns"
 import { Metadata } from "next"
+import {NotFoundPage} from "../../../components/not-found-page";
 
 
 export const metadata: Metadata = {
@@ -10,9 +11,7 @@ export const metadata: Metadata = {
 
 
 const PublicacionRapida: React.FC = () => {
-    const center = <PostEditor isFast={true}/>
-
-    return <ThreeColumnsLayout center={center}/>
+    return <NotFoundPage/>
 }
 
 export default PublicacionRapida

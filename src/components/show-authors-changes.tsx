@@ -75,6 +75,7 @@ export const ShowArticleAuthors = ({
 }: {
     originalContent: {
         cid: string
+        uri: string
         content: {text: string}
     },
     originalContentText: string,
@@ -90,7 +91,7 @@ export const ShowArticleAuthors = ({
 
     const contentText = showAuthors(topic, version, originalContentText)
 
-    let settings = wikiEditorSettings(true, {...originalContent, parentEntityId: topic.id, childrenContents: []}, contentText)
+    let settings = wikiEditorSettings(true, originalContent, contentText)
 
     return <>
         <div className="text-sm text-center block lg:hidden content-container p-1">

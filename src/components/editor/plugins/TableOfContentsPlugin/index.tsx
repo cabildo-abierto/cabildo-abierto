@@ -237,23 +237,13 @@ function TableOfContentsList({
 
 
 
-export default function TableOfContentsPlugin({content, marginAboveEditor}: {
-  content: {
-    type: string
-    title?: string
-    parentEntityId?: string
-  }
+export default function TableOfContentsPlugin({title, marginAboveEditor}: {
+  title?: string
   marginAboveEditor: number
 }) {
 
   return <LexicalTableOfContentsPlugin>
       {(tableOfContents) => {
-        let title = undefined
-        if(content.type == "Post"){
-          title = content.title
-        } else if(content.type == "EntityContent"){
-          title = content.parentEntityId
-        }
         if(tableOfContents.length == 0){
           return <></>
         }

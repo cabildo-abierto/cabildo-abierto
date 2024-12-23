@@ -31,7 +31,7 @@ export class CustomTableNode extends TableNode {
     exportJSON(): SerializedCustomTableNode {
         return {
             ...super.exportJSON(),
-            type: 'custom-table',  // Ensure the correct type is set
+            type: 'custom-table',
         };
     }
 }

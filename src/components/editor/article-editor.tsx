@@ -17,9 +17,14 @@ import dynamic from "next/dynamic"
 import useModal from "./hooks/useModal"
 import { FastPostImagesEditor } from "../fast-post-images-editor"
 import { AddImageButton } from "../add-image-button"
-import { createATProtoArticle } from "../../actions/contents"
+import { createArticle } from "../../actions/contents"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
-
+import {
+    $convertFromMarkdownString,
+    $convertToMarkdownString,
+    TRANSFORMERS,
+} from '@lexical/markdown';
+import {PLAYGROUND_TRANSFORMERS} from "./plugins/MarkdownTransformers";
 
 const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsProps = (isFast, initialData) => {
     return {
@@ -107,17 +112,17 @@ const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}
     const {user} = useUser()
 
     async function handleSubmit(){
-        const text = JSON.stringify(editor.getEditorState())
+        const text = JSON.stringify(editor.getEditorState().toJSON())
         const compressedText = compress(text)
 
-        const {error} = await createATProtoArticle(compressedText, user.did, title)
+        const {error} = await createArticle(compressedText, user.did, title)
         if(error) return {error}
 
-        await mutate("/api/content/"+lastSaved.contentId)
+        /*await mutate("/api/content/"+lastSaved.contentId)
         await mutate("/api/drafts/"+user.did)
         await mutate("/api/feed")
         await mutate("/api/following-feed")
-        await mutate("/api/profile-feed/"+user.did)
+        await mutate("/api/profile-feed/"+user.did)*/
         router.push("/")
         return {stopResubmit: true}
 	}

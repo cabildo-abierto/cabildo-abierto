@@ -306,6 +306,8 @@ export const TopicContent = ({
         }
     </>
 
+    const originalContent = {cid: content.content.record.cid, uri: content.content.record.uri, diff: content.diff, content: {text: content.content.text}}
+
     const editorComp = <>
 
         {showingSaveEditPopup && <SaveEditPopup
@@ -332,16 +334,17 @@ export const TopicContent = ({
         </div>
         <div id="editor">
             {(((selectedPanel != "changes" || version == 0) && selectedPanel != "authors")) &&
-                <div className="px-2" key={content.cid+selectedPanel}>
+                <div className="px-2" key={content.content.record.cid+selectedPanel}>
                     <MyLexicalEditor
-                        settings={wikiEditorSettings(selectedPanel != "editing", content, contentText)}
+                        settings={wikiEditorSettings(selectedPanel != "editing", content.content.record, contentText)}
                         setEditor={setEditor}
                         setEditorState={setEditorState}
                     />
-                </div>}
+                </div>
+            }
             {(selectedPanel == "changes" && version > 0) &&
                 <ShowArticleChanges
-                    originalContent={content}
+                    originalContent={originalContent}
                     originalContentText={contentText}
                     entity={topic}
                     version={version}
@@ -349,7 +352,7 @@ export const TopicContent = ({
             }
             {(selectedPanel == "authors") &&
                 <ShowArticleAuthors
-                    originalContent={content}
+                    originalContent={originalContent}
                     originalContentText={contentText}
                     topic={topic}
                     version={version}

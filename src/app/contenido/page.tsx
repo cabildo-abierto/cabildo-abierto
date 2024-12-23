@@ -49,7 +49,7 @@ export async function generateMetadata({searchParams}: {searchParams: {i: string
 
 const ContentPage: React.FC<{searchParams: {i: string, u: string, c: string}}> = async ({searchParams}) => {
     
-    const {thread} = await getThread(searchParams.u, searchParams.i, searchParams.c)
+    const {thread} = await getThread({did: searchParams.u, rkey: searchParams.i, collection: searchParams.c})
 
     if(!thread){
         return <NotFoundPage/>

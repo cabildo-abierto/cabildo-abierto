@@ -69,6 +69,7 @@ function showChanges(initialData: string, withRespectToContent: string, diff: Ma
 type ShowArticleChangesProps = {
     originalContent: {
         cid: string
+        uri: string
         diff?: string
         content: {text: string}
     },

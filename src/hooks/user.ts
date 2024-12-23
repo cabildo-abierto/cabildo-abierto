@@ -1,17 +1,25 @@
 import useSWR from "swr"
-import { SmallUserProps, UserProps } from "../app/lib/definitions"
+import {ArticleProps, SmallUserProps, UserProps} from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import { ChatMessage } from "@prisma/client"
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
 
 
+export function useArticle(cid: string): {article: ArticleProps, isLoading?: boolean, error?: string} {
+    const { data, error, isLoading } = useSWR('/api/article/'+cid, fetcher)
 
-export function useUser(): {user: UserProps, bskyProfile: ProfileViewDetailed, isLoading?: boolean, error?: string} {
+    return {
+        article: data,
+        isLoading,
+        error
+    }
+}
+
+export function useUser(): {user: UserProps, isLoading?: boolean, error?: string} {
     const { data, error, isLoading } = useSWR('/api/user', fetcher)
 
     return {
         user: data ? data?.user : undefined,
-        bskyProfile: data ? data?.bskyProfile : undefined,
         isLoading,
         error
     }

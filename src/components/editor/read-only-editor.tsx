@@ -6,6 +6,7 @@ import { SettingsProps } from "./lexical-editor"
 
 import dynamic from "next/dynamic";
 import { EditorState, LexicalEditor } from "lexical";
+import {FastPostProps} from "../../app/lib/definitions";
 
 const MyLexicalEditor = dynamic(() => import('./lexical-editor'), {
     ssr: false,
@@ -15,11 +16,19 @@ const MyLexicalEditor = dynamic(() => import('./lexical-editor'), {
 const ReadOnlyEditor = ({
     initialData,
     allowTextComments = false,
-    editorClassName="link"
+    editorClassName="link",
+    content,
+    quoteReplies,
+    pinnedReplies,
+    setPinnedReplies,
 }: {
-    initialData: InitialEditorStateType,
-    allowTextComments?: boolean,
+    initialData: InitialEditorStateType
+    allowTextComments?: boolean
     editorClassName?: string
+    content?: {cid: string, uri: string}
+    quoteReplies?: FastPostProps[]
+    pinnedReplies?: string[]
+    setPinnedReplies?: (v: string[]) => void
 }) => {
     const settings: SettingsProps = {
         disableBeforeInput: false,
@@ -52,10 +61,13 @@ const ReadOnlyEditor = ({
         isAutofocus: true,
         editorClassName: editorClassName,
         isReadOnly: true,
-        content: undefined,
+        content: content,
         placeholderClassName: "",
         imageClassName: "",
-        preventLeave: true
+        preventLeave: true,
+        quoteReplies: quoteReplies,
+        pinnedReplies: pinnedReplies,
+        setPinnedReplies: setPinnedReplies
     }
     
     return <MyLexicalEditor

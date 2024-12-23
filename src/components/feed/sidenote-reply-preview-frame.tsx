@@ -1,0 +1,71 @@
+"use client"
+
+import Image from 'next/image'
+import { DateSince } from '../date'
+import {EngagementProps, FastPostProps, RecordProps} from '../../app/lib/definitions'
+import {emptyChar, formatIsoDate, urlFromRecord, userUrl} from '../utils'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { ContentTopRowAuthor } from '../content-top-row-author'
+import { ReactNode } from 'react'
+import { EngagementIcons } from './engagement-icons'
+
+
+const ReplyVerticalLine = ({className=""}: {className?: string}) => {
+    return <div className={"w-[2px] bg-[var(--accent)] " + className}></div>
+}
+
+type ATProtoPostFrameProps = {
+    children: ReactNode
+    post: RecordProps & EngagementProps
+    borderBelow?: boolean
+    showingParent?: boolean
+    showingChildren?: boolean
+}
+
+export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, showingParent=false, showingChildren=false}: ATProtoPostFrameProps) => {
+    const router = useRouter()
+
+    const record = post
+    const url = urlFromRecord(record)
+
+    return <div className={"w-64 rounded border bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")} onClick={() => {router.push(url)}}>
+
+        {/*content.collection == "app.bsky.feed.repost" && <RepostedBy reason={content.reason}/>*/}
+
+        <div className={"flex"}>
+            <div className="w-10 flex flex-col items-center h-full ml-2">
+                {showingParent ? <ReplyVerticalLine className="h-3"/> : <div className="h-3">{emptyChar}</div>}
+                <Link href={userUrl(record.author.handle)} className="w-8 h-11 flex items-center justify-center">
+                    <Image
+                        src={record.author.avatar}
+                        alt={"Perfil de "+record.author.handle}
+                        width={300}
+                        height={300}
+                        className="rounded-full w-6 h-6"
+                    />
+                </Link>
+                {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}
+            </div>
+
+            <div className="flex w-52 flex-col py-3 text-sm pr-2">
+                <div className="flex items-center gap-x-1">
+                    <span className="truncate">
+                        <ContentTopRowAuthor author={record.author} />
+                    </span>
+                    <span className="text-[var(--text-light)]">•</span>
+                    <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(record.createdAt)}>
+                        <DateSince date={record.createdAt} />
+                    </span>
+                </div>
+                <div>
+                    {children}
+                </div>
+
+                <div className={"mt-1"}>
+                    <EngagementIcons counters={post} record={post} options={null} className={"space-x-5"}/>
+                </div>
+            </div>
+        </div>
+    </div>   
+}

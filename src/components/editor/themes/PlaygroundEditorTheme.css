@@ -359,22 +359,22 @@
   color: #dd4a68;
 }
 .PlaygroundEditorTheme__mark {
-  background: rgba(255, 212, 0, 0.14);
-  border-bottom: 2px solid rgba(255, 212, 0, 0.3);
+  background: var(--primary);
+  border-bottom: 2px solid var(--primary-light);
   padding-bottom: 2px;
 }
 .PlaygroundEditorTheme__markOverlap {
-  background: rgba(255, 212, 0, 0.3);
-  border-bottom: 2px solid rgba(255, 212, 0, 0.7);
+  background: var(--primary-light);
+  border-bottom: 2px solid var(--primary-light);
 }
-.PlaygroundEditorTheme__mark.selected {
+/*.PlaygroundEditorTheme__mark.selected {
   background: rgba(255, 212, 0, 0.5);
   border-bottom: 2px solid rgba(255, 212, 0, 1);
 }
 .PlaygroundEditorTheme__markOverlap.selected {
   background: rgba(255, 212, 0, 0.7);
   border-bottom: 2px solid rgba(255, 212, 0, 0.7);
-}
+}*/
 .PlaygroundEditorTheme__embedBlock {
   user-select: none;
 }
