@@ -33,7 +33,6 @@ export async function GET(req: NextRequest){
         return NextResponse.redirect(baseUrl + '/')
     } catch (err) {
         console.log("error", err)
-        console.log("redirecting to /login")
         return NextResponse.redirect(baseUrl + '/login')
     }
 }

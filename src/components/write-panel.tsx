@@ -72,9 +72,7 @@ export const WritePanel = ({replyTo, open, onClose}: WritePanelProps) => {
     async function handleSubmit() {
         setErrorOnCreatePost(false)
         if (user) {
-            console.log("replyTo", replyTo)
             const reply = replyFromParentElement(replyTo)
-            console.log("reply", reply)
             const {error} = await createFastPost({text: text, reply: reply});
 
             if(!error){

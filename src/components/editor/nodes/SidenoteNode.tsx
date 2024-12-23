@@ -26,7 +26,7 @@ import {
 } from '@lexical/utils';
 import {$applyNodeReplacement, $isRangeSelection, ElementNode} from 'lexical';
   
-export type SerializedCustomMarkNode = Spread<
+export type SerializedSidenoteNode = Spread<
     {
       ids: Array<string>;
     },
@@ -34,32 +34,32 @@ export type SerializedCustomMarkNode = Spread<
 >;
   
 
-export class CustomMarkNode extends MarkNode {
+export class SidenoteNode extends MarkNode {
     static getType(): string {
-      return 'custom-mark';
+      return 'sidenote';
     }
   
-    static clone(node: CustomMarkNode): CustomMarkNode {
-      return new CustomMarkNode(Array.from(node.__ids), node.__key);
+    static clone(node: SidenoteNode): SidenoteNode {
+      return new SidenoteNode(Array.from(node.__ids), node.__key);
     }
   
     static importDOM(): null {
       return null;
     }
   
-    static importJSON(serializedNode: SerializedCustomMarkNode): CustomMarkNode {
-      const node = $createMarkNode(serializedNode.ids);
+    static importJSON(serializedNode: SerializedSidenoteNode): SidenoteNode {
+      const node = $createSidenoteNode(serializedNode.ids);
       node.setFormat(serializedNode.format);
       node.setIndent(serializedNode.indent);
       node.setDirection(serializedNode.direction);
       return node;
     }
   
-    exportJSON(): SerializedCustomMarkNode {
+    exportJSON(): SerializedSidenoteNode {
       return {
         ...super.exportJSON(),
         ids: this.getIDs(),
-        type: 'custom-mark',
+        type: 'sidenote',
         version: 1,
       };
     }
@@ -67,22 +67,18 @@ export class CustomMarkNode extends MarkNode {
     constructor(ids: Array<string>, key?: NodeKey) {
       super(ids, key);
     }
-  
+
     createDOM(config: EditorConfig): HTMLElement {
         const element = document.createElement('mark');
-        addClassNamesToElement(element, config.theme.mark);
-
-        if (this.__ids.length > 1) {
-            addClassNamesToElement(element, config.theme.markOverlap);
-        }
+        addClassNamesToElement(element, "mymark");
         if(this.__ids.length > 0) {
             element.setAttribute("id", this.__ids[0])
         }
         return element;
     }
-  
+
     updateDOM(
-      prevNode: CustomMarkNode,
+      prevNode: SidenoteNode,
       element: HTMLElement,
       config: EditorConfig,
     ): boolean {
@@ -91,7 +87,7 @@ export class CustomMarkNode extends MarkNode {
       const prevIDsCount = prevIDs.length;
       const nextIDsCount = nextIDs.length;
       const overlapTheme = config.theme.markOverlap;
-  
+
       if (prevIDsCount !== nextIDsCount) {
         if (prevIDsCount === 1) {
           if (nextIDsCount === 2) {
@@ -103,7 +99,7 @@ export class CustomMarkNode extends MarkNode {
       }
       return false;
     }
-  
+
     hasID(id: string): boolean {
       const ids = this.getIDs();
       for (let i = 0; i < ids.length; i++) {
@@ -116,12 +112,12 @@ export class CustomMarkNode extends MarkNode {
   
     getIDs(): Array<string> {
       const self = this.getLatest();
-      return $isMarkNode(self) ? self.__ids : [];
+      return $isSidenoteNode(self) ? self.__ids : [];
     }
-  
+
     addID(id: string): void {
       const self = this.getWritable();
-      if ($isMarkNode(self)) {
+      if ($isSidenoteNode(self)) {
         const ids = self.__ids;
         self.__ids = ids;
         for (let i = 0; i < ids.length; i++) {
@@ -133,10 +129,10 @@ export class CustomMarkNode extends MarkNode {
         ids.push(id);
       }
     }
-  
+
     deleteID(id: string): void {
       const self = this.getWritable();
-      if ($isMarkNode(self)) {
+      if ($isSidenoteNode(self)) {
         const ids = self.__ids;
         self.__ids = ids;
         for (let i = 0; i < ids.length; i++) {
@@ -147,32 +143,32 @@ export class CustomMarkNode extends MarkNode {
         }
       }
     }
-  
+
     insertNewAfter(
       selection: RangeSelection,
       restoreSelection = true,
     ): null | ElementNode {
-      const markNode = $createMarkNode(this.__ids);
+      const markNode = $createSidenoteNode(this.__ids);
       this.insertAfter(markNode, restoreSelection);
       return markNode;
     }
-  
+
     canInsertTextBefore(): false {
       return false;
     }
-  
+
     canInsertTextAfter(): false {
       return false;
     }
-  
+
     canBeEmpty(): false {
       return false;
     }
-  
+
     isInline(): true {
       return true;
     }
-  
+
     extractWithChild(
       child: LexicalNode,
       selection: BaseSelection,
@@ -195,17 +191,17 @@ export class CustomMarkNode extends MarkNode {
         this.getTextContent().length === selectionLength
       );
     }
-  
+
     excludeFromCopy(destination: 'clone' | 'html'): boolean {
       return destination !== 'clone';
     }
   }
   
-  export function $createMarkNode(ids: Array<string>): CustomMarkNode {
-    return $applyNodeReplacement(new CustomMarkNode(ids));
+  export function $createSidenoteNode(ids: Array<string>): SidenoteNode {
+    return $applyNodeReplacement(new SidenoteNode(ids));
   }
   
-  export function $isMarkNode(node: LexicalNode | null): node is CustomMarkNode {
-    return node instanceof CustomMarkNode;
+  export function $isSidenoteNode(node: LexicalNode | null): node is SidenoteNode {
+    return node instanceof SidenoteNode;
   }
   

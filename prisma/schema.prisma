@@ -22,6 +22,7 @@ enum MirrorStatus {
   Dirty
   InProcess
   Sync
+  Failed
 }
 
 model User {
@@ -195,6 +196,8 @@ model Post {
   embed     String?
   replyToId String?
   replyTo   Record? @relation("reply", fields: [replyToId], references: [cid])
+
+  quote String?
 
   rootId String?
   root   Record? @relation("root", fields: [rootId], references: [cid])

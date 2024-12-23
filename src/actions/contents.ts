@@ -106,6 +106,7 @@ const feedElemQuery = (collection: string) => {
                     select: {
                         facets: true,
                         embed: true,
+                        quote: true,
                         replyTo: {
                             select: {
                                 uri: true,
@@ -127,40 +128,33 @@ const feedElemQuery = (collection: string) => {
 }
 
 
-export async function getThread(did: string, rkey: string, collection: string): Promise<{thread?: ThreadProps, error?: string}> {
-    const uri = "at://" + did + "/" + collection + "/" + rkey
-
+export async function getThread({collection, did, rkey, cid}: {collection: string, did?: string, rkey?: string, cid?: string}): Promise<{thread?: ThreadProps, error?: string}> {
+    const {did: viewerDid} = await getSessionAgent()
+    const threadId = rkey != undefined ? {rkey, authorId: did} : {cid}
     try {
         const mainPostQ = db.record.findFirst({
             select: feedElemQuery(collection),
-            where: {
-                authorId: did,
-                rkey: rkey
-            }
+            where: threadId
         })
         const repliesQ = db.record.findMany({
             select: feedElemQuery(collection),
             where: {
                 content: {
                     post: {
-                        replyTo: {
-                            authorId: did,
-                            rkey: rkey
-                        }
+                        replyTo: threadId
                     }
                 }
             }
         })
         const [mainPost, replies] = await db.$transaction([mainPostQ, repliesQ])
         const threadForFeed: ThreadProps = {
-            post: addCounters(did, mainPost, mainPost.reactions),
+            post: addCounters(viewerDid, mainPost, mainPost.reactions),
             replies: replies.map((r) => {
-                return addCounters(did, r, r.reactions)
+                return addCounters(viewerDid, r, r.reactions)
             })
         }
         return {thread: threadForFeed}
     } catch(err) {
-        console.log("Error getting thread", uri)
         console.log(err)
         return {error: "No se pudo obtener el thread."}
     }
@@ -168,7 +162,7 @@ export async function getThread(did: string, rkey: string, collection: string): 
 
 
 export async function createFastPost(
-    {text, reply}: {text: string, reply?: FastPostReplyProps}
+    {text, reply, quote}: {text: string, reply?: FastPostReplyProps, quote?: string}
 ): Promise<{error?: string}> {
 
     const {agent} = await getSessionAgent()
@@ -178,28 +172,38 @@ export async function createFastPost(
     })
     await rt.detectFacets(agent)
 
-    const record = {
-        "$type": "app.bsky.feed.post",
-        text: rt.text,
-        facets: rt.facets,
-        "createdAt": new Date().toISOString()
-    }
+    if(!quote){
+        const record = {
+            "$type": "app.bsky.feed.post",
+            text: rt.text,
+            facets: rt.facets,
+            createdAt: new Date().toISOString(),
+            reply
+        }
 
-    console.log("creating fast post with reply", reply)
-    if(reply){
-        await agent.post({
-            ...record,
-            reply: reply
-        })
-    } else {
         await agent.post(record)
+    } else {
+        const record = {
+            "$type": "ar.com.cabildoabierto.quotePost",
+            text: rt.text,
+            facets: rt.facets,
+            createdAt: new Date().toISOString(),
+            reply,
+            quote
+        }
+
+        await agent.com.atproto.repo.createRecord({
+            repo: agent.did,
+            collection: record.$type,
+            record
+        })
     }
 
     return {}
 }
 
 
-export async function createATProtoArticle(compressedText: string, userId: string, title: string){
+export async function createArticle(compressedText: string, userId: string, title: string){
 
     const {agent, did} = await getSessionAgent()
     if(!agent) return {error: "Iniciá sesión para publicar un artículo."}

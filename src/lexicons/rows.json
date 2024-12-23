@@ -1,0 +1,37 @@
+{
+  "lexicon": 1,
+  "id": "ar.com.cabildoabierto.rows",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["id", "createdAt", "data"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "data": {
+            "type": "array",
+            "minLength": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp when this post was originally created."
+          },
+          "$type": {
+            "type": "string",
+            "const": "ar.com.cabildoabierto.rows"
+          }
+        }
+      }
+    }
+  }
+}

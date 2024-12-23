@@ -53,7 +53,13 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 
 import {MarkNode} from '@lexical/mark';
 import { CustomMarkNode } from './nodes/CustomMarkNode';
-import { $createParagraphNode, $createTextNode, $getRoot, LexicalEditor as OriginalLexicalEditor } from 'lexical';
+import {
+  $createParagraphNode,
+  $createTextNode,
+  $getRoot,
+  $getSelection,
+  LexicalEditor as OriginalLexicalEditor
+} from 'lexical';
 import { DiffNode } from './nodes/DiffNode';
 import { AuthorNode } from './nodes/AuthorNode';
 import TableCellResizer from './plugins/TableCellResizer';
@@ -67,7 +73,15 @@ import { usePageLeave } from '../prevent-leave';
 import { v4 as uuidv4 } from 'uuid';
 import {ImageNode} from './nodes/ImageNode'
 import {InlineImageNode} from './nodes/InlineImageNode/InlineImageNode';
+import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'
 
+import {
+  $convertFromMarkdownString,
+  $convertToMarkdownString,
+} from '@lexical/markdown';
+import {PLAYGROUND_TRANSFORMERS} from "./plugins/MarkdownTransformers";
+import {FastPostProps} from "../../app/lib/definitions";
+import {SidenoteNode} from "./nodes/SidenoteNode";
 
 export type SettingsProps = {
   disableBeforeInput: boolean,
@@ -102,17 +116,17 @@ export type SettingsProps = {
   editorClassName: string,
   content?: {
     cid: string
-    type: string
-    title?: string
-    parentEntityId?: string
-    text?: string
-    childrenContents?: any[]
+    uri: string
   },
+  title?: string
   placeholderClassName: string,
   showingChanges?: string,
   imageClassName: string,
   preventLeave: boolean,
-  allowImages: boolean
+  allowImages: boolean,
+  quoteReplies?: FastPostProps[]
+  pinnedReplies?: string[]
+  setPinnedReplies?: (v: string[]) => void
 }
 
 
@@ -168,7 +182,10 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
     placeholderClassName,
     charLimit,
     preventLeave,
-    allowImages
+    allowImages,
+    quoteReplies,
+    pinnedReplies,
+    setPinnedReplies
   } = settings;
 
   const isEditable = useLexicalEditable();
@@ -236,21 +253,33 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
         <OnChangePlugin
           onChange={(editorState) => {
             setEditorState(editorState);
-            if(!isReadOnly && preventLeave && !uniqueId){
+            editorState.read(() => {
+              const selection = $getSelection()
+              //console.log("selection", selection)
+
+
+              const markdown = $convertToMarkdownString(PLAYGROUND_TRANSFORMERS)
+              // console.log("markdown", markdown)
+            })
+            if (!isReadOnly && preventLeave && !uniqueId) {
               const newUniqueId = uuidv4()
               setUniqueId(newUniqueId)
               const newStoppers = leaveStoppers.add(newUniqueId)
               setLeaveStoppers(newStoppers);
-            }        
+            }
           }}
         />
-        <HashtagPlugin />
-        <AutoLinkPlugin />
-        {isComments && content && <CommentPlugin
-          parentContent={content}
+        <MarkdownShortcutPlugin/>
+        <HashtagPlugin/>
+        <AutoLinkPlugin/>
+        {isComments && <CommentPlugin
+            parentContent={content}
+            quoteReplies={quoteReplies}
+            pinnedReplies={pinnedReplies}
+            setPinnedReplies={setPinnedReplies}
         />}
         {isRichText ? (
-          <>
+            <>
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
               contentEditable={
@@ -265,7 +294,6 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
             <ListPlugin />
             <CheckListPlugin />
             <ListMaxIndentLevelPlugin maxDepth={7} />
-
             <LinkPlugin />
             <ClickableLinkPlugin disabled={isEditable} newTab={false} />
 
@@ -295,7 +323,7 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JS
           </>
         )}
         <div className="hidden lg:block">
-          {showTableOfContents && <TableOfContentsPlugin content={content} marginAboveEditor={marginAboveEditor} />}
+          {showTableOfContents && <TableOfContentsPlugin title={settings.title} marginAboveEditor={marginAboveEditor} />}
         </div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
       </div>
@@ -318,17 +346,6 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorProps) => {
   let {isReadOnly, initialData, imageClassName, allowImages} = settings
 
-  if(typeof initialData === 'string'){
-      try {
-          const root = JSON.parse(initialData).root
-          if(getAllText(root).length == 0){
-            initialData = undefined
-          }
-      } catch {
-          initialData = initializeEmpty(initialData as string)
-      }
-  }
-
   let nodes = [...PlaygroundNodes]
 
   if(allowImages){
@@ -342,6 +359,7 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
       ...createBeautifulMentionNode(CustomMentionComponent),
       ...nodes,
       CustomMarkNode,
+      SidenoteNode,
       {
         replace: MarkNode,
         with: (node: MarkNode) => {
@@ -351,7 +369,7 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
       DiffNode,
       AuthorNode,
       CustomTableNode,
-      { replace: TableNode, with: (node: TableNode) => new CustomTableNode(), withKlass: CustomTableNode } 
+      { replace: TableNode, with: (node: TableNode) => new CustomTableNode(), withKlass: CustomTableNode }
     ],
     onError: (error: Error) => {
       throw error;
@@ -372,7 +390,7 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
           </div>
         </TableContext>
       </SharedHistoryContext>
-    </LexicalComposer>
+  </LexicalComposer>
 }
 
 

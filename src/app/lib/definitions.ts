@@ -36,6 +36,8 @@ export type BasicUserProps = {
 export type TopicVersionContentProps = {
     text: string
     record: {
+        uri: string
+        cid: string
         author: BasicUserProps
         createdAt: Date
         reactions: {
@@ -274,6 +276,7 @@ export type FastPostProps = RecordProps & EngagementProps & {
             embed?: string
             replyTo?: ATProtoStrongRef
             root?: ATProtoStrongRef
+            quote?: string
         }
     }
 }

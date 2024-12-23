@@ -7,6 +7,10 @@
  *
  */
 
+.mymark {
+  color: var(--text)
+}
+
 .CommentPlugin_AddCommentBox {
   border-radius: 20px;
   background-color: var(--background);
@@ -17,7 +21,7 @@
 }
 
 .CommentPlugin_AddCommentBox:hover {
-  background-color: var(--secondary-light);
+  /* background-color: var(--secondary-light);*/
 }
 
 i.add-comment {

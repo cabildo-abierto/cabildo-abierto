@@ -334,6 +334,8 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
                                 record: {
                                     select: {
                                         createdAt: true,
+                                        cid: true,
+                                        uri: true,
                                         author: {
                                             select: {
                                                 did: true,

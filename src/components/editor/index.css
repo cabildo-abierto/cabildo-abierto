@@ -43,7 +43,6 @@
 
 pre {
   line-height: 1.1;
-  color: var(--background);
   margin: 0;
   padding: 10px;
   font-size: 12px;
@@ -53,8 +52,7 @@ pre {
 
 .tree-view-output {
   display: block;
-  background: #222;
-  color: var(--background);
+  color: white;
   padding: 0;
   font-size: 12px;
   margin: 1px auto 10px auto;

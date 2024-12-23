@@ -8,7 +8,7 @@ import { useSWRConfig } from "swr"
 const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este tema no tiene contenido! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
 
 
-export const wikiEditorSettings = (readOnly: boolean, content: {title?: string, parentEntityId?: string, cid: string, text?: string, childrenContents?: any[]}, contentText: string): SettingsProps => {
+export const wikiEditorSettings = (readOnly: boolean, content: {cid: string, uri: string}, contentText: string): SettingsProps => {
     
     let initialData = null
     let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
@@ -48,7 +48,7 @@ export const wikiEditorSettings = (readOnly: boolean, content: {title?: string, 
         initialData: initialData,
         editorClassName: "content",
         isReadOnly: readOnly,
-        content: {...content, type: "Topic"},
+        content: {...content},
         isAutofocus: false,
         placeholderClassName: "ContentEditable__placeholder",
         imageClassName: "",
