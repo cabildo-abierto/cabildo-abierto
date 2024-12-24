@@ -90,51 +90,7 @@ export type TrendingTopicProps = {
 }
 
 
-export type ReactionProps = {
-    reactsToId: string
-    record: RecordProps
-}
-
-
-export type ReferenceProps = {
-    referencingContent: {
-        authorId: string
-        record: {createdAt: Date}
-        reactions: {
-
-        }
-        childrenTree: {
-            authorId: string
-            record: {createdAt: Date}
-        }[]
-    }
-}
-
-
 export type FeedContentProps = FastPostProps | ArticleProps
-
-
-export type TopicVersionAccept = {
-    uri: string
-    cid: string
-    createdAt: Date
-    author: {
-        did: string
-        handle: string
-    }
-}
-
-
-export type TopicVersionReject = {
-    uri: string
-    cid: string
-    createdAt: Date
-    text: string
-    author: {
-        did: string
-        handle: string
-    }
-}
 
 
 export type SmallUserProps = {
@@ -299,4 +255,20 @@ export type MatchesType = {
     matches: {x: number, y: number}[]
     common: {x: number, y: number}[]
     perfectMatches: {x: number, y: number}[]
+}
+
+
+export type DatasetProps = RecordProps & {
+    dataset: {
+        title: string
+        columns: string[]
+        dataBlocks: {
+            record: RecordProps,
+            format: string,
+            blob: {
+                cid: string
+                authorId: string
+            }
+        }[]
+    }
 }

@@ -1,25 +1,24 @@
 {
   "lexicon": 1,
-  "id": "ar.com.cabildoabierto.rows",
+  "id": "ar.com.cabildoabierto.dataBlock",
   "defs": {
     "main": {
       "type": "record",
       "key": "tid",
       "record": {
         "type": "object",
-        "required": ["id", "createdAt", "data"],
+        "required": ["dataset", "createdAt", "data", "format"],
         "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 120
+          "dataset": {
+            "type": "link"
           },
           "data": {
-            "type": "array",
+            "type": "blob"
+          },
+          "format": {
+            "type": "string",
             "minLength": 1,
-            "items": {
-              "type": "string"
-            }
+            "maxLength": 50
           },
           "createdAt": {
             "type": "string",
@@ -28,7 +27,7 @@
           },
           "$type": {
             "type": "string",
-            "const": "ar.com.cabildoabierto.rows"
+            "const": "ar.com.cabildoabierto.dataBlock"
           }
         }
       }
