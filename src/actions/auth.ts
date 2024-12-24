@@ -61,6 +61,7 @@ export async function getSessionAgent(){
 
     try {
         const oauthSession = await oauthClient.restore(session.did)
+        const token = await oauthSession.getTokenInfo()
         if(oauthSession){
             return {agent: new Agent(oauthSession), did: session.did}
         } else {

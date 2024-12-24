@@ -16,6 +16,8 @@ import { CabildoIcon } from "./icons/home-icon";
 import { ManageAccountIcon } from "./icons/manage-account-icon";
 import { SupportIcon } from "./icons/support-icon";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+import DatasetIcon from "./icons/dataset-icon";
+import VisualizationsIcon from "@mui/icons-material/AutoGraph";
 
 
 function unseenCount(chat: ChatMessage[], userId: string){
@@ -77,6 +79,8 @@ export default function Sidebar({onClose}: {onClose: () => void}) {
                     <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
                     {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={userUrl(user.user.handle)}/>}
                     <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Panel personal" href="/panel"/>
+                    <SidebarButton icon={<DatasetIcon fontSize="medium"/>} onClick={onClose} text="Datos" href="/datasets"/>
+                    <SidebarButton icon={<VisualizationsIcon fontSize="medium"/>} onClick={onClose} text="Visualizaciones" href="/visualizaciones"/>
                     <SidebarButton icon={<DonateIcon fontSize="medium"/>} onClick={onClose} text="Aportar" href="/aportar"/>
                     <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href={articleUrl("Cabildo_Abierto")}/>
                     <SidebarButton icon={<ManageAccountIcon/>} onClick={onClose} text="Cuenta" href="/cuenta"/>

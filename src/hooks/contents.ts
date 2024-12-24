@@ -1,5 +1,5 @@
 import useSWR from "swr"
-import {FeedContentProps, TrendingTopicProps, UserStats} from "../app/lib/definitions"
+import {DatasetProps, FeedContentProps, TrendingTopicProps, UserStats} from "../app/lib/definitions"
 import { fetcher } from "./utils"
 
 
@@ -42,6 +42,28 @@ export function useTopics(route: string[]): {topics: any[], isLoading: boolean, 
   
     return {
         topics: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useDatasets(): {datasets: DatasetProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/datasets', fetcher)
+
+    return {
+        datasets: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useDataset(cid: string): {dataset: {dataset: DatasetProps, data: any[]}, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/dataset/'+cid, fetcher)
+
+    return {
+        dataset: data,
         isLoading,
         isError: error
     }

@@ -10,14 +10,8 @@ import {SessionOptions} from "iron-session";
 import {getTopicTitle} from "./topic/utils";
 
 
-export const splitPost = (text: string) => {
-    if(!text.includes("</h1>")) return null
-    const split = text.split("</h1>")
-    if(!split[0].includes("<h1>")) return null
-    if(split[1].length == 0) return null
-    const title = split[0].split("<h1>")[1]
-    if(title == "&nbsp;") return null
-    return {title: title, text: split[1]}
+export function getUri(did: string, collection: string, rkey: string){
+    return "at://" + did + "/" + collection + "/" + rkey
 }
 
 

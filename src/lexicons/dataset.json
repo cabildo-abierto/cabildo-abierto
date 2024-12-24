@@ -19,11 +19,6 @@
             "format": "datetime",
             "description": "Client-declared timestamp when this post was originally created."
           },
-          "format": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 50
-          },
           "columns": {
             "type": "array",
             "items": {

@@ -53,6 +53,7 @@ model User {
 
   views   View[]
   records Record[]
+  blobs   Blob[]
 
   followers Follow[]
 }
@@ -107,7 +108,7 @@ model Topic {
 }
 
 model Record {
-  cid        String @id
+  cid        String @id @unique
   uri        String
   collection String
   rkey       String
@@ -117,9 +118,11 @@ model Record {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  content  Content?
-  reaction Reaction?
-  follow   Follow?
+  content   Content?
+  reaction  Reaction?
+  follow    Follow?
+  dataset   Dataset?
+  dataBlock DataBlock?
 
   record String?
 
@@ -201,6 +204,32 @@ model Post {
 
   rootId String?
   root   Record? @relation("root", fields: [rootId], references: [cid])
+}
+
+model Dataset {
+  cid        String      @id
+  record     Record      @relation(fields: [cid], references: [cid])
+  columns    String[]
+  title      String
+  dataBlocks DataBlock[]
+}
+
+model Blob {
+  cid      String @id @unique
+  author   User   @relation(fields: [authorId], references: [did])
+  authorId String
+
+  dataBlock DataBlock?
+}
+
+model DataBlock {
+  cid       String  @id
+  record    Record  @relation(fields: [cid], references: [cid])
+  dataset   Dataset @relation(fields: [datasetId], references: [cid])
+  datasetId String
+  format    String
+  blob      Blob    @relation(fields: [blobId], references: [cid])
+  blobId    String  @unique
 }
 
 model View {

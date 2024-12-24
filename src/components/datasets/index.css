@@ -1,0 +1,21 @@
+/* Global Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+    height: 8px; /* Height for horizontal scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-dark); /* Use your primary color */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-dark2); /* Change color on hover */
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-dark2); /* Background of the scrollbar track */
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+    background-color: var(--accent); /* Match it with the scrollbar track */
+}
