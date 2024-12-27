@@ -59,34 +59,6 @@ const UploadDatasetButton = ({onSubmit}: {onSubmit: (file: any, filename: string
 }
 
 
-const ImageUploadButton = ({onSubmit}: {onSubmit: (f: File) => void}) => {
-    const loadImage = async (e) => {
-        if (e.target.files !== null) {
-            const file = e.target.files[0];
-
-            onSubmit(file)
-        }
-    }
-    return <Button
-        component="label"
-        role={undefined}
-        variant="contained"
-        tabIndex={-1}
-        sx={{textTransform: "none"}}
-        disableElevation={true}
-        startIcon={<CloudUploadIcon />}
-    >
-        Subir imagen
-        <VisuallyHiddenInput
-            type="file"
-            onChange={loadImage}
-            multiple={false}
-        />
-    </Button>
-}
-
-
-
 const Page = () => {
     const [data, setData] = useState(null)
     const [columns, setColumns] = useState<string[] | null>()

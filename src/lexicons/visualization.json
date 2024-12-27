@@ -9,7 +9,7 @@
         "type": "object",
         "required": ["createdAt"],
         "properties": {
-          "generator": {
+          "spec": {
             "type": "string"
           },
           "createdAt": {
