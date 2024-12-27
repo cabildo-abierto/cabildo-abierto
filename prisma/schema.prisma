@@ -118,11 +118,12 @@ model Record {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  content   Content?
-  reaction  Reaction?
-  follow    Follow?
-  dataset   Dataset?
-  dataBlock DataBlock?
+  content       Content?
+  reaction      Reaction?
+  follow        Follow?
+  dataset       Dataset?
+  dataBlock     DataBlock?
+  visualization Visualization?
 
   record String?
 
@@ -195,8 +196,9 @@ model Post {
   cid     String  @id
   content Content @relation(fields: [cid], references: [cid])
 
-  facets    String?
-  embed     String?
+  facets String?
+  embed  String?
+
   replyToId String?
   replyTo   Record? @relation("reply", fields: [replyToId], references: [cid])
 
@@ -212,6 +214,8 @@ model Dataset {
   columns    String[]
   title      String
   dataBlocks DataBlock[]
+
+  visualizations Visualization[]
 }
 
 model Blob {
@@ -241,6 +245,16 @@ model View {
 
   contentId String
   content   Content @relation(fields: [contentId], references: [cid])
+}
+
+model Visualization {
+  cid    String @id
+  record Record @relation(fields: [cid], references: [cid])
+
+  spec String
+
+  dataset   Dataset? @relation(fields: [datasetId], references: [cid])
+  datasetId String?
 }
 
 enum ViewType {

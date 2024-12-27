@@ -272,3 +272,18 @@ export type DatasetProps = RecordProps & {
         }[]
     }
 }
+
+
+export type PlotConfigProps = {
+    dataset?: DatasetProps
+    filters?: FilterProps[]
+    kind?: string
+    [key: string]: any
+}
+
+
+export type FilterProps = {
+    value: any
+    op: "igual a" | "distinto de"
+    column: string
+}

@@ -6,6 +6,9 @@ import Papa from 'papaparse';
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import JSZip from "jszip";
+import {DidResolver} from "@atproto/identity";
+import {VisualizationSpec} from "react-vega";
+import {getUser} from "./users";
 
 
 export async function createDataset(title: string, columns: string[], formData: FormData, format: string): Promise<{error?: string}>{
@@ -130,6 +133,44 @@ export async function getDatasets(): Promise<DatasetProps[]>{
 }
 
 
+export async function fetchBlob(blob: {cid: string, authorId: string}) {
+
+    const didres: DidResolver = new DidResolver({})
+    const doc = await didres.resolve(blob.authorId)
+    if (doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint) {
+        const url = doc.service[0].serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
+
+        const data = await fetch(url)
+            .then((response) => {
+                const reader = response.body.getReader();
+                return new ReadableStream({
+                    start(controller) {
+                        return pump();
+                        function pump() {
+                            return reader.read().then(({ done, value }) => {
+                                // When no more data needs to be consumed, close the stream
+                                if (done) {
+                                    controller.close();
+                                    return;
+                                }
+                                // Enqueue the next data chunk into our target stream
+                                controller.enqueue(value);
+                                return pump();
+                            });
+                        }
+                    },
+                });
+            })
+            // Create a new response out of the stream
+            .then((stream) => new Response(stream))
+            // Create an object URL for the response
+            .then((response) => response.blob())
+        return data
+    }
+
+    return null
+}
+
 export async function getDataset(cid: string){
     const dataset: DatasetProps = await db.record.findUnique({
         select: datasetQuery,
@@ -137,18 +178,22 @@ export async function getDataset(cid: string){
             cid: cid
         }
     })
-    const {agent} = await getSessionAgent()
+
     let data = []
     const blocks = dataset.dataset.dataBlocks
     for(let i = 0; i < blocks.length; i++){
         const blob = blocks[i].blob
-        const {data: uint8Array} = await agent.com.atproto.sync.getBlob({did: blob.authorId, cid: blob.cid})
+
+        const uint8Array = await fetchBlob(blob)
+        if(!uint8Array){
+            return {error: "Ocurrió un error al obtener los datos del dataset."}
+        }
 
         let strContent = undefined
         if(blocks[i].format == "zip"){
             const zip = new JSZip();
 
-            const unzipped = await zip.loadAsync(uint8Array);
+            const unzipped = await zip.loadAsync(await uint8Array.arrayBuffer())
 
             const fileNames = Object.keys(unzipped.files);
             if (fileNames.length === 0) {
@@ -157,7 +202,7 @@ export async function getDataset(cid: string){
 
             strContent = await unzipped.file(fileNames[0])!.async('string')
         } else {
-            strContent = uint8Array.toString()
+            strContent = await uint8Array.text()
         }
 
         const parsedData = Papa.parse(strContent, {
@@ -168,5 +213,51 @@ export async function getDataset(cid: string){
         data = [...data, ...parsedData.data];
     }
 
-    return {dataset, data: data}
+    return data
+}
+
+
+export async function saveVisualization(spec: VisualizationSpec){
+
+    const {agent, did} = await getSessionAgent()
+
+    try {
+        const record = {
+            spec: spec,
+            createdAt: new Date().toISOString()
+        }
+
+        await agent.com.atproto.repo.createRecord({
+            repo: did,
+            collection: "ar.com.cabildoabierto.visualization",
+            record: record
+        })
+    } catch (err) {
+        return {error: "Ocurrió un error al guardar la visualización"}
+    }
+
+    return {}
+}
+
+export async function getVisualizations(){
+    const v = await db.record.findMany({
+        select: {
+            ...recordQuery,
+            visualization: {
+                select: {
+                    spec: true,
+                    dataset: {
+                        select: {
+                            cid: true,
+                            title: true
+                        }
+                    }
+                }
+            }
+        },
+        where: {
+            collection: "ar.com.cabildoabierto.visualization"
+        }
+    })
+    return v
 }
