@@ -8,7 +8,6 @@ export const FeedElement = ({elem, showReplies}: {
     elem: FeedContentProps
     showReplies?: boolean
 }) => {
-
     if(elem.collection == "ar.com.cabildoabierto.article"){
         return <ArticlePreview
             elem={elem as ArticleProps}

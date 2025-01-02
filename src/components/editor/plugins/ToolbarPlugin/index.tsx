@@ -78,6 +78,8 @@ import {
 } from '../ImagesPlugin';
 import {InsertTableDialog} from '../TablePlugin';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+import VisualizationsIcon from '../../../icons/visualization-icon';
+import {InsertVisualizationModal} from "../../../writing/insert-visualization-modal";
 
 const blockTypeToBlockName = {
   bullet: 'Lista',
@@ -483,6 +485,8 @@ export default function ToolbarPlugin({
   const [codeLanguage, setCodeLanguage] = useState<string>('');
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [isImageCaption, setIsImageCaption] = useState(false);
+  const [visualization, setVisualization] = useState(null)
+  const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -777,202 +781,217 @@ export default function ToolbarPlugin({
   const canViewerSeeInsertCodeButton = !isImageCaption;
 
   return (
-    <div className="toolbar">
-      <button
-        disabled={!canUndo || !isEditable}
-        onClick={() => {
-          activeEditor.dispatchCommand(UNDO_COMMAND, undefined);
-        }}
-        title={IS_APPLE ? 'Deshacer (⌘Z)' : 'Deshacer (Ctrl+Z)'}
-        type="button"
-        className="toolbar-item spaced"
-        aria-label="Undo">
-        <i className="format undo" />
-      </button>
-      <button
-        disabled={!canRedo || !isEditable}
-        onClick={() => {
-          activeEditor.dispatchCommand(REDO_COMMAND, undefined);
-        }}
-        title={IS_APPLE ? 'Rehacer (⇧⌘Z)' : 'Rehacer (Ctrl+Y)'}
-        type="button"
-        className="toolbar-item"
-        aria-label="Redo">
-        <i className="format redo" />
-      </button>
-      <Divider />
-      {blockType in blockTypeToBlockName && activeEditor === editor && (
-        <>
-          <BlockFormatDropDown
-            disabled={!isEditable}
-            blockType={blockType}
-            rootType={rootType}
-            editor={activeEditor}
-          />
-          <Divider />
-        </>
-      )}
-      {blockType === 'code' ? (
-        <DropDown
-          disabled={!isEditable}
-          buttonClassName="toolbar-item code-language"
-          buttonLabel={getLanguageFriendlyName(codeLanguage)}
-          buttonAriaLabel="Select language">
-          {CODE_LANGUAGE_OPTIONS.map(([value, name]) => {
-            return (
-              <DropDownItem
-                className={`item ${dropDownActiveClass(
-                  value === codeLanguage,
-                )}`}
-                onClick={() => onCodeLanguageSelect(value)}
-                key={value}>
-                <span className="text">{name}</span>
-              </DropDownItem>
-            );
-          })}
-        </DropDown>
-      ) : (
-        <>
-          <button
-            disabled={!isEditable}
+      <div className="toolbar">
+        <button
+            disabled={!canUndo || !isEditable}
             onClick={() => {
-              activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+              activeEditor.dispatchCommand(UNDO_COMMAND, undefined);
             }}
-            className={'toolbar-item spaced ' + (isBold ? 'active' : '')}
-            title={IS_APPLE ? 'Negrita (⌘B)' : 'Negrita (Ctrl+B)'}
+            title={IS_APPLE ? 'Deshacer (⌘Z)' : 'Deshacer (Ctrl+Z)'}
             type="button"
-            aria-label={`Format text as bold. Shortcut: ${
-              IS_APPLE ? '⌘B' : 'Ctrl+B'
-            }`}>
-            <i className="format bold" />
-          </button>
-          <button
-            disabled={!isEditable}
+            className="toolbar-item spaced"
+            aria-label="Undo">
+          <i className="format undo"/>
+        </button>
+        <button
+            disabled={!canRedo || !isEditable}
             onClick={() => {
-              activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+              activeEditor.dispatchCommand(REDO_COMMAND, undefined);
             }}
-            className={'toolbar-item spaced ' + (isItalic ? 'active' : '')}
-            title={IS_APPLE ? 'Itálica (⌘I)' : 'Itálica (Ctrl+I)'}
+            title={IS_APPLE ? 'Rehacer (⇧⌘Z)' : 'Rehacer (Ctrl+Y)'}
             type="button"
-            aria-label={`Format text as italics. Shortcut: ${
-              IS_APPLE ? '⌘I' : 'Ctrl+I'
-            }`}>
-            <i className="format italic" />
-          </button>
-          <button
-            disabled={!isEditable}
-            onClick={() => {
-              activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
-            }}
-            className={'toolbar-item spaced ' + (isUnderline ? 'active' : '')}
-            title={IS_APPLE ? 'Subrayado (⌘U)' : 'Subrayado (Ctrl+U)'}
-            type="button"
-            aria-label={`Format text to underlined. Shortcut: ${
-              IS_APPLE ? '⌘U' : 'Ctrl+U'
-            }`}>
-            <i className="format underline" />
-          </button>
-          <button
-            disabled={!isEditable}
-            onClick={insertLink}
-            className={'toolbar-item spaced ' + (isLink ? 'active' : '')}
-            aria-label="Insertar vínculo"
-            title="Insertar vínculo"
-            type="button">
-            <i className="format link" />
-          </button>
-          {(canViewerSeeInsertDropdown) && (
+            className="toolbar-item"
+            aria-label="Redo">
+          <i className="format redo"/>
+        </button>
+        <Divider/>
+        {blockType in blockTypeToBlockName && activeEditor === editor && (
             <>
-              <Divider />
-              <DropDown
-                disabled={!isEditable}
-                buttonClassName="toolbar-item spaced"
-                buttonLabel="Insertar"
-                buttonAriaLabel="Insert specialized editor node"
-                buttonIconClassName="icon plus">
-                <DropDownItem
-                  onClick={() => {
-                    activeEditor.dispatchCommand(
-                      INSERT_HORIZONTAL_RULE_COMMAND,
-                      undefined,
-                    );
-                  }}
-                  className="item">
-                  <i className="icon horizontal-rule" />
-                  <span className="text">Línea horizontal</span>
-                </DropDownItem>
-                <DropDownItem
-                  onClick={() => {
-                    showModal('Insert Image', (onClose: any) => (
-                      <InsertImageDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
-                  }}
-                  className="item">
-                  <i className="icon image" />
-                  <span className="text">Imagen</span>
-                </DropDownItem>
-                <DropDownItem
-                  onClick={() => {
-                    showModal('Insert Table', (onClose: any) => (
-                      <InsertTableDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
-                  }}
-                  className="item">
-                  <i className="icon table" />
-                  <span className="text">Tabla</span>
-                </DropDownItem>
-              </DropDown>
+              <BlockFormatDropDown
+                  disabled={!isEditable}
+                  blockType={blockType}
+                  rootType={rootType}
+                  editor={activeEditor}
+              />
+              <Divider/>
             </>
-          )}
-        </>
-      )}
-      
-      <Divider />
-      <button
-        onClick={() => {
-          showModal('Insertar tabla', (onClose: any) => (
-            <InsertTableDialog
-              activeEditor={activeEditor}
-              onClose={onClose}
-            />
-          ));
-        }}
-        type="button"
-        title="Insertar tabla"
-        className="toolbar-item spaced"
-        aria-label="Insertar tabla">
-        <i className="format table" />
-      </button>
-      <button
-        onClick={() => {
-          showModal('Insertar una imágen', (onClose: any) => (
-            <InsertImageDialog
-              activeEditor={activeEditor}
-              onClose={onClose}
-            />
-          ));
-        }}
-        type="button"
-        title="Insertar imágen"
-        className="toolbar-item spaced"
-        aria-label="Insertar imágen">
-        <i className="format image" />
-      </button>
+        )}
+        {blockType === 'code' ? (
+            <DropDown
+                disabled={!isEditable}
+                buttonClassName="toolbar-item code-language"
+                buttonLabel={getLanguageFriendlyName(codeLanguage)}
+                buttonAriaLabel="Select language">
+              {CODE_LANGUAGE_OPTIONS.map(([value, name]) => {
+                return (
+                    <DropDownItem
+                        className={`item ${dropDownActiveClass(
+                            value === codeLanguage,
+                        )}`}
+                        onClick={() => onCodeLanguageSelect(value)}
+                        key={value}>
+                      <span className="text">{name}</span>
+                    </DropDownItem>
+                );
+              })}
+            </DropDown>
+        ) : (
+            <>
+              <button
+                  disabled={!isEditable}
+                  onClick={() => {
+                    activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+                  }}
+                  className={'toolbar-item spaced ' + (isBold ? 'active' : '')}
+                  title={IS_APPLE ? 'Negrita (⌘B)' : 'Negrita (Ctrl+B)'}
+                  type="button"
+                  aria-label={`Format text as bold. Shortcut: ${
+                      IS_APPLE ? '⌘B' : 'Ctrl+B'
+                  }`}>
+                <i className="format bold"/>
+              </button>
+              <button
+                  disabled={!isEditable}
+                  onClick={() => {
+                    activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+                  }}
+                  className={'toolbar-item spaced ' + (isItalic ? 'active' : '')}
+                  title={IS_APPLE ? 'Itálica (⌘I)' : 'Itálica (Ctrl+I)'}
+                  type="button"
+                  aria-label={`Format text as italics. Shortcut: ${
+                      IS_APPLE ? '⌘I' : 'Ctrl+I'
+                  }`}>
+                <i className="format italic"/>
+              </button>
+              <button
+                  disabled={!isEditable}
+                  onClick={() => {
+                    activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
+                  }}
+                  className={'toolbar-item spaced ' + (isUnderline ? 'active' : '')}
+                  title={IS_APPLE ? 'Subrayado (⌘U)' : 'Subrayado (Ctrl+U)'}
+                  type="button"
+                  aria-label={`Format text to underlined. Shortcut: ${
+                      IS_APPLE ? '⌘U' : 'Ctrl+U'
+                  }`}>
+                <i className="format underline"/>
+              </button>
+              <button
+                  disabled={!isEditable}
+                  onClick={insertLink}
+                  className={'toolbar-item spaced ' + (isLink ? 'active' : '')}
+                  aria-label="Insertar vínculo"
+                  title="Insertar vínculo"
+                  type="button">
+                <i className="format link"/>
+              </button>
+              {(canViewerSeeInsertDropdown) && (
+                  <>
+                    <Divider/>
+                    <DropDown
+                        disabled={!isEditable}
+                        buttonClassName="toolbar-item spaced"
+                        buttonLabel="Insertar"
+                        buttonAriaLabel="Insert specialized editor node"
+                        buttonIconClassName="icon plus">
+                      <DropDownItem
+                          onClick={() => {
+                            activeEditor.dispatchCommand(
+                                INSERT_HORIZONTAL_RULE_COMMAND,
+                                undefined,
+                            );
+                          }}
+                          className="item">
+                        <i className="icon horizontal-rule"/>
+                        <span className="text">Línea horizontal</span>
+                      </DropDownItem>
+                      <DropDownItem
+                          onClick={() => {
+                            showModal('Insert Image', (onClose: any) => (
+                                <InsertImageDialog
+                                    activeEditor={activeEditor}
+                                    onClose={onClose}
+                                />
+                            ));
+                          }}
+                          className="item">
+                        <i className="icon image"/>
+                        <span className="text">Imagen</span>
+                      </DropDownItem>
+                      <DropDownItem
+                          onClick={() => {
+                            showModal('Insert Table', (onClose: any) => (
+                                <InsertTableDialog
+                                    activeEditor={activeEditor}
+                                    onClose={onClose}
+                                />
+                            ));
+                          }}
+                          className="item">
+                        <i className="icon table"/>
+                        <span className="text">Tabla</span>
+                      </DropDownItem>
+                    </DropDown>
+                  </>
+              )}
+            </>
+        )}
 
-      <ElementFormatDropdown
-        disabled={!isEditable}
-        value={elementFormat}
-        editor={activeEditor}
-        isRTL={isRTL}
-      />
-      
-      {modal}
-    </div>
+        <Divider/>
+        <button
+            onClick={() => {
+              showModal('Insertar tabla', (onClose: any) => (
+                  <InsertTableDialog
+                      activeEditor={activeEditor}
+                      onClose={onClose}
+                  />
+              ));
+            }}
+            type="button"
+            title="Insertar tabla"
+            className="toolbar-item spaced"
+            aria-label="Insertar tabla">
+          <i className="format table"/>
+        </button>
+        <button
+            onClick={() => {
+              showModal('Insertar una imágen', (onClose: any) => (
+                  <InsertImageDialog
+                      activeEditor={activeEditor}
+                      onClose={onClose}
+                  />
+              ));
+            }}
+            type="button"
+            title="Insertar imágen"
+            className="toolbar-item spaced"
+            aria-label="Insertar imágen">
+          <i className="format image"/>
+        </button>
+        <button
+            onClick={() => {
+            }}
+            type="button"
+            title="Insertar visualización"
+            className="toolbar-item spaced"
+            aria-label="Insertar visualización">
+          <VisualizationsIcon/>
+        </button>
+
+        <ElementFormatDropdown
+            disabled={!isEditable}
+            value={elementFormat}
+            editor={activeEditor}
+            isRTL={isRTL}
+        />
+
+        {modal}
+
+        <InsertVisualizationModal
+            open={visualizationModalOpen}
+            onClose={() => {setVisualizationModalOpen(false)}}
+            setVisualization={setVisualization}
+        />
+      </div>
   );
 }

@@ -275,7 +275,7 @@ const PostEditor = ({
                 {!isPublished && <SaveDraftDialog/>}
             </div>
 			<div className="sm:w-64 w-auto flex space-x-2">
-                {isFast && <AddImageButton images={images} setImages={setImages} showModal={showModal}/>}
+                {isFast && <AddImageButton images={images} setImages={setImages} disabled={false}/>}
                 <PublishButton
                     editor={editor}
                     lastSaved={lastSaved}

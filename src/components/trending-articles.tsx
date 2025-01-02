@@ -85,7 +85,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                 className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] border hover:bg-[var(--secondary)] select-none"
                 key={entity.id}
                 onMouseLeave={() => {setHovering(undefined)}}
-                onMouseEnter={() => {preload("/api/entity/"+entity.id, fetcher); setHovering(index)}}
+                onMouseEnter={() => {/*preload("/api/entity/"+entity.id, fetcher);*/ setHovering(index)}}
             >
                 <Button
                     color="inherit"

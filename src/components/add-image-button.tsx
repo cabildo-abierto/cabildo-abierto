@@ -1,19 +1,18 @@
-import { InsertImagePayload } from "./editor/plugins/ImagesPlugin";
-import { InsertImageDialog } from "./insert-image-dialog";
+import {InsertImagePayload} from "./editor/plugins/ImagesPlugin";
 
-export const AddImageButton = ({images, setImages, showModal}: {images: InsertImagePayload[], setImages: (images: InsertImagePayload[]) => void, showModal: any}) => {
+export const AddImageButton = ({
+                                   images, disabled, setImages}: {
+    images: InsertImagePayload[], disabled: boolean, setImages: (images: InsertImagePayload[]) => void
+}) => {
+    // TO DO: Reimplement
+    function onSubmit(payload: InsertImagePayload) {
+        setImages([...images, payload])
+    }
+
     return <button
         onClick={() => {
-        showModal('Insertar una imágen', (onClose: any) => (
-            <InsertImageDialog
-            onSubmit={(payload: InsertImagePayload) => {
-                setImages([...images, payload])
-                onClose()
-            }}
-            />
-        ));
         }}
-        disabled={images.length >= 4}
+        disabled={disabled}
         type="button"
         title="Insertar imágen"
         className="toolbar-item spaced"

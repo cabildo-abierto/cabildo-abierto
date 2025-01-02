@@ -21,7 +21,6 @@ export const FastPostPreview = ({
                                            showParent=false,
                                            onClickQuote,
                                            showChildren=false}: FastPostPreviewProps) => {
-
     return <div className={"flex flex-col w-full"}>
         {/*hasParent && showParent &&
             <FastPostPreview content={content} borderBelow={false} showChildren={true}/>

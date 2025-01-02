@@ -4,29 +4,15 @@ import {VegaLite, VisualizationSpec} from "react-vega";
 import {useEffect, useState} from "react";
 import LoadingSpinner from "../loading-spinner";
 import {getSpecForConfig} from "./spec";
+import {useDataset} from "../../hooks/contents";
 
 
 export const Plot = ({config}: {config: PlotConfigProps}) => {
-    const [data, setData] = useState<any[] | null>()
+    const {dataset} = useDataset(config.dataset.uri)
 
-    const dataUrl = "/dataset/" + config.dataset.cid
+    if(!dataset) return <LoadingSpinner/>
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const response = await fetch(dataUrl);
-                const json = await response.json();
-                setData(json)
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        }
-        fetchData();
-    }, [dataUrl])
-
-    if(!data) return <LoadingSpinner/>
-
-    const spec = getSpecForConfig(config, data)
+    const spec = getSpecForConfig(config, dataset.data)
 
     return (
         <div className={"flex justify-center"}>

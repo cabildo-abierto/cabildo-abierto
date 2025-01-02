@@ -264,7 +264,7 @@ export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
     async function handleClick() {
         const {error} = await onRemove()
         if (error) return {error}
-        mutate("/api/entity/" + entity.id)
+        //mutate("/api/entity/" + entity.id)
         onClose()
         return {}
     }

@@ -148,7 +148,7 @@ export function getSpecForConfig(config: PlotConfigProps, data?: any): any {
         }
     } else {
         dataSpec = {
-            url: "/dataset/" + config.dataset.cid,
+            url: "/dataset/" + config.dataset.author.did + "/" + config.dataset.rkey,
             type: "json"
         }
     }

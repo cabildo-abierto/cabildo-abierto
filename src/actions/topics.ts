@@ -323,12 +323,12 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
                 protection: true,
                 currentVersion: {
                     select: {
-                        cid: true
+                        uri: true
                     },
                 },
                 versions: {
                     select: {
-                        cid: true,
+                        uri: true,
                         content: {
                             select: {
                                 record: {

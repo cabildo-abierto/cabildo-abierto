@@ -3,8 +3,9 @@
 import { getSessionAgent } from "./auth";
 import { RichText } from '@atproto/api'
 import {db} from "../db";
-import {FastPostReplyProps, ThreadProps} from "../app/lib/definitions";
+import {FastPostReplyProps, ThreadProps, VisualizationProps} from "../app/lib/definitions";
 import {addCounters, processReactions} from "./utils";
+import {getVisualizationTitle} from "../components/utils";
 
 
 export const addLike = async (uri: string, cid: string) => {
@@ -162,7 +163,7 @@ export async function getThread({collection, did, rkey, cid}: {collection: strin
 
 
 export async function createFastPost(
-    {text, reply, quote}: {text: string, reply?: FastPostReplyProps, quote?: string}
+    {text, reply, quote, visualization}: {text: string, reply?: FastPostReplyProps, quote?: string, visualization?: VisualizationProps}
 ): Promise<{error?: string}> {
 
     const {agent} = await getSessionAgent()
@@ -172,7 +173,27 @@ export async function createFastPost(
     })
     await rt.detectFacets(agent)
 
-    if(!quote){
+    if(visualization){
+        const record = {
+            "$type": "app.bsky.feed.post",
+            text: rt.text,
+            facets: rt.facets,
+            createdAt: new Date().toISOString(),
+            reply,
+            embed: {
+                $type: "app.bsky.embed.external",
+                external: {
+                    uri: "https://www.cabildoabierto.com.ar/visual/"+visualization.author.did+"/"+visualization.rkey,
+                    title: getVisualizationTitle(visualization),
+                    description: "Mirá la visualización interactiva en Cabildo Abierto."
+                }
+            }
+        }
+        console.log("posting record", record)
+
+        const res = await agent.post(record)
+        console.log("created record", res.uri, res.cid)
+    } else if(!quote){
         const record = {
             "$type": "app.bsky.feed.post",
             text: rt.text,

@@ -1,14 +1,13 @@
 "use server"
 import {getSessionAgent} from "./auth";
 import {db} from "../db";
-import {DatasetProps} from "../app/lib/definitions";
+import {DatasetProps, VisualizationProps} from "../app/lib/definitions";
 import Papa from 'papaparse';
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import JSZip from "jszip";
 import {DidResolver} from "@atproto/identity";
 import {VisualizationSpec} from "react-vega";
-import {getUser} from "./users";
 
 
 export async function createDataset(title: string, columns: string[], formData: FormData, format: string): Promise<{error?: string}>{
@@ -79,6 +78,7 @@ export async function createDataset(title: string, columns: string[], formData: 
 const recordQuery = {
     uri: true,
     cid: true,
+    rkey: true,
     collection: true,
     createdAt: true,
     author: {
@@ -171,13 +171,21 @@ export async function fetchBlob(blob: {cid: string, authorId: string}) {
     return null
 }
 
-export async function getDataset(cid: string){
-    const dataset: DatasetProps = await db.record.findUnique({
-        select: datasetQuery,
-        where: {
-            cid: cid
-        }
-    })
+export async function getDataset(uri: string){
+
+    let dataset: DatasetProps
+    try {
+        dataset = await db.record.findUnique({
+            select: datasetQuery,
+            where: {
+                uri: uri
+            }
+        })
+    } catch (err) {
+        console.log("Error getting dataset with uri", uri)
+        console.log(err)
+        return {error: "Error al obtener el dataset."}
+    }
 
     let data = []
     const blocks = dataset.dataset.dataBlocks
@@ -213,7 +221,7 @@ export async function getDataset(cid: string){
         data = [...data, ...parsedData.data];
     }
 
-    return data
+    return {dataset: dataset, data: data}
 }
 
 
@@ -240,7 +248,7 @@ export async function saveVisualization(spec: VisualizationSpec){
 }
 
 export async function getVisualizations(){
-    const v = await db.record.findMany({
+    const v: VisualizationProps[] = await db.record.findMany({
         select: {
             ...recordQuery,
             visualization: {
@@ -248,8 +256,12 @@ export async function getVisualizations(){
                     spec: true,
                     dataset: {
                         select: {
-                            cid: true,
-                            title: true
+                            uri: true,
+                            dataset: {
+                                select: {
+                                    title: true
+                                }
+                            }
                         }
                     }
                 }
@@ -257,6 +269,35 @@ export async function getVisualizations(){
         },
         where: {
             collection: "ar.com.cabildoabierto.visualization"
+        }
+    })
+    return v
+}
+
+
+export async function getVisualization(uri: string){
+    console.log("getting visualization", uri)
+    const v: VisualizationProps = await db.record.findUnique({
+        select: {
+            ...recordQuery,
+            visualization: {
+                select: {
+                    spec: true,
+                    dataset: {
+                        select: {
+                            uri: true,
+                            dataset: {
+                                select: {
+                                    title: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        where: {
+            uri: uri
         }
     })
     return v

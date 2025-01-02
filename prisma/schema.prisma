@@ -102,14 +102,14 @@ model Topic {
   id               String         @id
   protection       EditorStatus   @default(Beginner)
   versions         TopicVersion[]
-  currentVersion   TopicVersion?  @relation("currentVersion", fields: [currentVersionId], references: [cid])
+  currentVersion   TopicVersion?  @relation("currentVersion", fields: [currentVersionId], references: [uri])
   currentVersionId String?        @unique
   referencedBy     Reference[]
 }
 
 model Record {
-  cid        String @id @unique
-  uri        String
+  uri        String  @id @unique
+  cid        String?
   collection String
   rkey       String
 
@@ -118,12 +118,16 @@ model Record {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  content       Content?
-  reaction      Reaction?
-  follow        Follow?
-  dataset       Dataset?
-  dataBlock     DataBlock?
-  visualization Visualization?
+  content             Content?
+  reaction            Reaction?
+  follow              Follow?
+  dataset             Dataset?
+  dataBlock           DataBlock?
+  visualization       Visualization?
+  visualizationsUsing Visualization[] @relation("visualizationUsesDataset")
+
+  embeddedIn      Record?  @relation("embeddings", fields: [uri], references: [uri])
+  embeddedRecords Record[] @relation("embeddings")
 
   record String?
 
@@ -133,22 +137,22 @@ model Record {
 }
 
 model Follow {
-  cid            String @id
-  record         Record @relation(fields: [cid], references: [cid])
+  uri            String @id
+  record         Record @relation(fields: [uri], references: [uri])
   userFollowedId String
   userFollowed   User   @relation(fields: [userFollowedId], references: [did])
 }
 
 model Reaction {
-  cid        String @id
-  record     Record @relation(fields: [cid], references: [cid])
+  uri        String @id
+  record     Record @relation(fields: [uri], references: [uri])
   reactsToId String
-  reactsTo   Record @relation("reactsTo", fields: [reactsToId], references: [cid])
+  reactsTo   Record @relation("reactsTo", fields: [reactsToId], references: [uri])
 }
 
 model Content {
-  cid    String @id
-  record Record @relation(fields: [cid], references: [cid])
+  uri    String @id
+  record Record @relation(fields: [uri], references: [uri])
 
   text String
 
@@ -163,8 +167,8 @@ model Content {
 }
 
 model TopicVersion {
-  cid     String  @id
-  content Content @relation(fields: [cid], references: [cid])
+  uri     String  @id
+  content Content @relation(fields: [uri], references: [uri])
 
   title   String?
   topic   Topic   @relation(fields: [topicId], references: [id])
@@ -186,36 +190,34 @@ model TopicVersion {
 }
 
 model Article {
-  cid     String  @id
-  content Content @relation(fields: [cid], references: [cid])
+  uri     String  @id
+  content Content @relation(fields: [uri], references: [uri])
   title   String
   format  String
 }
 
 model Post {
-  cid     String  @id
-  content Content @relation(fields: [cid], references: [cid])
+  uri     String  @id
+  content Content @relation(fields: [uri], references: [uri])
 
   facets String?
   embed  String?
 
   replyToId String?
-  replyTo   Record? @relation("reply", fields: [replyToId], references: [cid])
+  replyTo   Record? @relation("reply", fields: [replyToId], references: [uri])
 
   quote String?
 
   rootId String?
-  root   Record? @relation("root", fields: [rootId], references: [cid])
+  root   Record? @relation("root", fields: [rootId], references: [uri])
 }
 
 model Dataset {
-  cid        String      @id
-  record     Record      @relation(fields: [cid], references: [cid])
+  uri        String      @id
+  record     Record      @relation(fields: [uri], references: [uri])
   columns    String[]
   title      String
   dataBlocks DataBlock[]
-
-  visualizations Visualization[]
 }
 
 model Blob {
@@ -227,9 +229,9 @@ model Blob {
 }
 
 model DataBlock {
-  cid       String  @id
-  record    Record  @relation(fields: [cid], references: [cid])
-  dataset   Dataset @relation(fields: [datasetId], references: [cid])
+  uri       String  @id
+  record    Record  @relation(fields: [uri], references: [uri])
+  dataset   Dataset @relation(fields: [datasetId], references: [uri])
   datasetId String
   format    String
   blob      Blob    @relation(fields: [blobId], references: [cid])
@@ -244,16 +246,16 @@ model View {
   userById  String
 
   contentId String
-  content   Content @relation(fields: [contentId], references: [cid])
+  content   Content @relation(fields: [contentId], references: [uri])
 }
 
 model Visualization {
-  cid    String @id
-  record Record @relation(fields: [cid], references: [cid])
+  uri    String @id
+  record Record @relation(fields: [uri], references: [uri])
 
   spec String
 
-  dataset   Dataset? @relation(fields: [datasetId], references: [cid])
+  dataset   Record? @relation("visualizationUsesDataset", fields: [datasetId], references: [uri])
   datasetId String?
 }
 
@@ -271,7 +273,7 @@ model Reference {
   referencedTopic   Topic  @relation(fields: [referencedTopicId], references: [id])
 
   referencingContentId String
-  referencingContent   Content @relation(fields: [referencingContentId], references: [cid])
+  referencingContent   Content @relation(fields: [referencingContentId], references: [uri])
 }
 
 enum ReferenceType {
