@@ -182,7 +182,7 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, er
                         },
                         followers: {
                             select: {
-                                cid: true,
+                                uri: true,
                                 record: {
                                     select: {
                                         authorId: true
@@ -208,7 +208,7 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, er
             for(let i = 0; i < user.followers.length; i++) {
                 const f = user.followers[i]
                 if(f.record.authorId == userId){
-                    following = f.cid
+                    following = f.uri
                 }
             }
 
@@ -231,8 +231,9 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, er
                     }
                 },
             }
-        } catch {
-            console.log("error con get user", userId)
+        } catch (err) {
+            console.log("Error getting user", userId)
+            console.log(err)
             return {error: "error on get user " + userId}
         }
     }, ["user", userId], {

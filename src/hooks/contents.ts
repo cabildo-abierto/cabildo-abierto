@@ -1,6 +1,7 @@
 import useSWR from "swr"
-import {DatasetProps, FeedContentProps, TrendingTopicProps, UserStats} from "../app/lib/definitions"
+import {DatasetProps, FeedContentProps, TrendingTopicProps, UserStats, VisualizationProps} from "../app/lib/definitions"
 import { fetcher } from "./utils"
+import {getDidFromUri, getRkeyFromUri, uriToEndpoint} from "../components/utils";
 
 
 export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: boolean}{
@@ -59,11 +60,22 @@ export function useDatasets(): {datasets: DatasetProps[], isLoading: boolean, is
 }
 
 
-export function useDataset(cid: string): {dataset: {dataset: DatasetProps, data: any[]}, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/dataset/'+cid, fetcher)
+export function useDataset(uri: string): {dataset: {dataset: DatasetProps, data: any[]}, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher)
 
     return {
         dataset: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useVisualization(uri: string): {visualization: VisualizationProps, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/visualization/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher)
+
+    return {
+        visualization: data,
         isLoading,
         isError: error
     }

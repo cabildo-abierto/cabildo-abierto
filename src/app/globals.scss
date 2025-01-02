@@ -883,3 +883,7 @@ th {
 .no-scroll {
     overflow: hidden;
 }
+
+#vg-tooltip-element {
+	z-index: 20000;
+}

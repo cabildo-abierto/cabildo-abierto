@@ -225,9 +225,9 @@ export function isPartOfTopic(content: TopicVersionProps){
 }
 
 
-export function getVersionInEntity(cid: string, entity: TopicProps){
+export function getVersionInEntity(uri: string, entity: TopicProps){
     for(let i = 0; i < entity.versions.length; i++){
-        if(entity.versions[i].cid == cid){
+        if(entity.versions[i].uri == uri){
             return i
         }
     }
@@ -797,4 +797,15 @@ function findFragment(text: string, entity: EntitySearchKeysProps){
         }
     }
     return getAllText(best)
+}
+
+
+export function getVisualizationTitle(v: {visualization: {spec: string}}){
+    const spec = JSON.parse(v.visualization.spec)
+    return spec.title.text
+}
+
+
+export function uriToEndpoint(uri: string){
+    return uri.replace("at:/", "")
 }

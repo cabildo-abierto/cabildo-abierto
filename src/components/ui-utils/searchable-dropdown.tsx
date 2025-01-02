@@ -1,15 +1,16 @@
 "use client"
-import React, {useEffect, useState} from 'react';
+import React, {ReactNode, useEffect, useState} from 'react';
 import { TextField, MenuItem, Paper, List, ListItem, ListItemText } from '@mui/material';
 
 interface SearchableDropdownProps {
   options: string[]
+  optionViews?: ReactNode[]
   onSelect: (value: string) => void
   label: string
   size: "small" | "medium"
 }
 
-const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ options, label, onSelect, size }) => {
+const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ options, optionViews, label, onSelect, size }) => {
   const [searchText, setSearchText] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -61,7 +62,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ options, label,
                         className="cursor-pointer hover:bg-[var(--background-dark)]"
                         component="div"
                     >
-                      <ListItemText primary={option}/>
+                      {optionViews == null ? <ListItemText primary={option}/> : optionViews[index]}
                     </ListItem>
                 ))}
               </List>

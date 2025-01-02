@@ -39,47 +39,75 @@ export async function updateProfile(did: string, agent: Agent){
 }
 
 
-export async function deleteRecords(cids: string[]){
+export async function deleteRecords(uris: string[]){
     const d1 = db.follow.deleteMany({
         where: {
-            cid: {
-                in: cids
+            uri: {
+                in: uris
             }
         }
     })
     const d2 = db.post.deleteMany({
         where: {
-            cid: {
-                in: cids
+            uri: {
+                in: uris
             }
         }
     })
     const d3 = db.article.deleteMany({
         where: {
-            cid: {
-                in: cids
+            uri: {
+                in: uris
             }
         }
     })
     const d4 = db.content.deleteMany({
         where: {
-            cid: {
-                in: cids
+            uri: {
+                in: uris
             }
         }
     })
     const d5 = db.reaction.deleteMany({
         where: {
-            cid: {
-                in: cids
+            uri: {
+                in: uris
             }
         }
     })
-    await db.$transaction([d1, d2, d3, d4, d5])
+    const d6 = db.topicVersion.deleteMany({
+        where: {
+            uri: {
+                in: uris
+            }
+        }
+    })
+    const d7 = db.visualization.deleteMany({
+        where: {
+            uri: {
+                in: uris
+            }
+        }
+    })
+    const d8 = db.dataBlock.deleteMany({
+        where: {
+            uri: {
+                in: uris
+            }
+        }
+    })
+    const d9 = db.dataset.deleteMany({
+        where: {
+            uri: {
+                in: uris
+            }
+        }
+    })
+    await db.$transaction([d1, d2, d3, d5, d6, d7, d8, d9, d4])
     await db.record.deleteMany({
         where: {
             cid: {
-                in: cids
+                in: uris
             }
         }
     })

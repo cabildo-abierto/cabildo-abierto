@@ -8,12 +8,11 @@ import {ProfilePic} from "../../../components/feed/profile-pic";
 import {DatasetView} from "../../../components/datasets/dataset-view";
 
 
-const Page = ({params}: {params: {cid: string}}) => {
-    const {dataset, isLoading} = useDataset(params.cid)
+const Page = ({params}: {params: {uri: string}}) => {
+    const {dataset, isLoading} = useDataset(params.uri)
 
     if(isLoading) return <LoadingSpinner/>
     if(!dataset) return <ErrorPage>Error</ErrorPage>
-
 
     const center = <div className={"px-2 mt-4"}>
         <div className={"text-[var(--text-light)]"}>

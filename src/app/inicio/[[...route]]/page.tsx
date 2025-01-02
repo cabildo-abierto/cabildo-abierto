@@ -4,7 +4,7 @@ import { ThreeColumnsLayout } from "../../../components/three-columns"
 import { MainPage } from "../../../components/main-page"
 
 
-const TopicsPage: React.FC<{
+const Page: React.FC<{
     params: {route: string[]}
     searchParams: { [key: string]: string }
 }> = ({params, searchParams}) => {
@@ -19,4 +19,4 @@ const TopicsPage: React.FC<{
     
     return <ThreeColumnsLayout center={center} />
 }
-export default TopicsPage
+export default Page

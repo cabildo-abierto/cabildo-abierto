@@ -11,6 +11,7 @@ export type RecordProps = {
     cid: string
     collection: string
     createdAt: Date
+    rkey: string
     author: {
         did: string
         handle: string
@@ -51,7 +52,7 @@ export type TopicVersionContentProps = {
 
 
 export type TopicVersionProps = {
-    cid: string
+    uri: string
     content: TopicVersionContentProps
 
     topicId: string
@@ -76,7 +77,7 @@ export type TopicProps = {
     versions: TopicVersionProps[]
     protection: EditorStatus
     currentVersion: {
-        cid: string
+        uri: string
     }
 }
 
@@ -233,6 +234,7 @@ export type FastPostProps = RecordProps & EngagementProps & {
             replyTo?: ATProtoStrongRef
             root?: ATProtoStrongRef
             quote?: string
+            visualization?: VisualizationProps
         }
     }
 }
@@ -286,4 +288,17 @@ export type FilterProps = {
     value: any
     op: "igual a" | "distinto de"
     column: string
+}
+
+
+export type VisualizationProps = RecordProps & {
+    visualization: {
+        spec: string
+        dataset?: {
+            uri: string
+            dataset: {
+                title: string
+            }
+        }
+    }
 }

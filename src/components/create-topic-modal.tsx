@@ -33,8 +33,8 @@ export const CreateTopicModal = ({ open, onClose }: { open: boolean, onClose: ()
                 return {error}
             }
         }
-        mutate("/api/entities")
-        mutate("/api/entity/"+topicName)
+        //mutate("/api/entities")
+        //mutate("/api/entity/"+topicName)
         if (goToArticle) router.push(articleUrl(topicName))
         onClose()
         return {}

@@ -3,7 +3,6 @@ import StateButton from "./state-button"
 import { useUser } from "../hooks/user"
 import { createFastPost } from "../actions/contents"
 import { ExtraChars } from "./extra-chars"
-import useModal from "./editor/hooks/useModal"
 import { FastPostImagesEditor } from "./fast-post-images-editor"
 import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
 import { CloseButton } from "./ui-utils/close-button"
@@ -12,6 +11,13 @@ import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { NeedAccountPopup } from "./need-account-popup"
 import {ProfilePic} from "./feed/profile-pic";
 import {FastPostProps, FastPostReplyProps, FeedContentProps} from "../app/lib/definitions";
+import {AddVisualizationButton} from "./add-visualization-button";
+import {TextField} from "@mui/material";
+import SearchableDropdown from "./ui-utils/searchable-dropdown";
+import {InsertVisualizationModal} from "./writing/insert-visualization-modal";
+import {Plot} from "./visualizations/plot";
+import {VegaLite} from "react-vega";
+import {UploadImageButton} from "./editor/plugins/ImagesPlugin";
 
 type WritePanelProps = {
     replyTo?: FeedContentProps
@@ -59,9 +65,10 @@ export const WritePanel = ({replyTo, open, onClose}: WritePanelProps) => {
     const { user } = useUser();
     const [editorKey, setEditorKey] = useState(0);
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
-    const [modal, showModal] = useModal();
     const [images, setImages] = useState([])
     const [text, setText] = useState("")
+    const [visualization, setVisualization] = useState(null)
+    const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
 
     if(!user){
         return <NeedAccountPopup open={open} text="Necesitás una cuenta para escribir" onClose={onClose}/>
@@ -72,8 +79,8 @@ export const WritePanel = ({replyTo, open, onClose}: WritePanelProps) => {
     async function handleSubmit() {
         setErrorOnCreatePost(false)
         if (user) {
-            const reply = replyFromParentElement(replyTo)
-            const {error} = await createFastPost({text: text, reply: reply});
+            const reply = replyTo ? replyFromParentElement(replyTo) : undefined
+            const {error} = await createFastPost({text, reply, visualization});
 
             if(!error){
                 setEditorKey(editorKey + 1);
@@ -86,7 +93,7 @@ export const WritePanel = ({replyTo, open, onClose}: WritePanelProps) => {
         return {}
     }
 
-    const valid = text.length > 0 && text.length <= 300
+    const valid = (text.length > 0 && text.length <= 300) || images.length > 0 || visualization != null
 
     let disabled = !valid
 
@@ -112,7 +119,7 @@ export const WritePanel = ({replyTo, open, onClose}: WritePanelProps) => {
 
     const center = <>
         <div className="flex justify-end px-1">
-            <CloseButton onClose={onClose}/>
+            <CloseButton onClose={() => {setVisualization(null); onClose()}}/>
         </div>
         <div className="px-2 w-full">
             <div className="flex space-x-2 w-full">
@@ -121,25 +128,42 @@ export const WritePanel = ({replyTo, open, onClose}: WritePanelProps) => {
                     {editorComp}
                 </div>
             </div>
+            {visualization && <div className={"flex justify-center z-[20000]"}>
+                <VegaLite spec={JSON.parse(visualization.visualization.spec)} actions={false}/>
+            </div>}
             <FastPostImagesEditor images={images} setImages={setImages}/>
         </div>
-        <hr className="" />
+        <hr className=""/>
         <div className="flex justify-between mt-2 px-2">
-            <AddImageButton
-                images={images}
-                setImages={setImages}
-                showModal={showModal}
-            />
+            <div className={"flex space-x-2"}>
+                <AddImageButton
+                    images={images}
+                    disabled={images.length == 4 || visualization != null}
+                    setImages={setImages}
+                />
+                <AddVisualizationButton
+                    setVisualization={setVisualization}
+                    disabled={images.length > 0}
+                    modalOpen={visualizationModalOpen}
+                    setModalOpen={setVisualizationModalOpen}
+                />
+            </div>
             {sendButton}
         </div>
-        {modal}
     </>
 
-    return <BaseFullscreenPopup open={open} className="w-128">
-        <div className="w-full rounded pb-2 pt-1 border">
-            {center}
-            {errorOnCreatePost && <div className="flex justify-end text-sm text-red-600">Ocurrió un error al publicar. Intentá de nuevo.</div>}
-        </div>
-    </BaseFullscreenPopup>
+    return <>
+        <BaseFullscreenPopup open={open} className="w-128">
+            <div className="w-full rounded pb-2 pt-1 border">
+                {center}
+                {errorOnCreatePost && <div className="flex justify-end text-sm text-red-600">Ocurrió un error al publicar. Intentá de nuevo.</div>}
+            </div>
+        </BaseFullscreenPopup>
+        <InsertVisualizationModal
+            open={visualizationModalOpen}
+            onClose={() => {setVisualizationModalOpen(false)}}
+            setVisualization={setVisualization}
+        />
+    </>
 };
 

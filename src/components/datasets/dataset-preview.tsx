@@ -11,7 +11,7 @@ export const DatasetPreview = ({dataset}: {dataset: DatasetProps}) => {
     const router = useRouter()
 
     function onClick () {
-        router.push("/datasets/"+dataset.cid)
+        router.push("/datasets/"+dataset.author.did+"/"+dataset.rkey)
     }
 
     return <div className={"border-b px-2 hover:bg-[var(--background-dark)] cursor-pointer py-2"} onClick={onClick}>

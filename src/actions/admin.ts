@@ -349,7 +349,7 @@ export async function setRkeys(){
                 rkey: getRkeyFromUri(r.uri)
             },
             where: {
-                cid: r.cid
+                uri: r.uri
             }
         })
     }
