@@ -1,5 +1,3 @@
-import { InsertImagePayload } from "./editor/plugins/ImagesPlugin";
-import { InsertVisualizationDialog } from "./insert-visualization-dialog";
 import VisualizationsIcon from "@mui/icons-material/AutoGraph";
 
 

@@ -1,8 +1,8 @@
 "use client"
 
-import { charCount, emptyOutput, validPost } from "../utils"
+import { charCount, validPost } from "../utils"
 import { useState } from "react"
-import StateButton, { StateButtonClickHandler } from "../state-button"
+import StateButton from "../state-button"
 import { CLEAR_EDITOR_COMMAND, EditorState, LexicalEditor } from "lexical"
 
 

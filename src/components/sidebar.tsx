@@ -1,23 +1,26 @@
-import React from "react";
+import React, {useState} from "react";
 import { SidebarButton } from "./sidebar-button";
 import { CustomLink as Link } from './custom-link';
 import PersonIcon from '@mui/icons-material/Person';
-import InfoIcon from '@mui/icons-material/Info';
-import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useChat, useSupportNotRespondedCount, useUser } from "../hooks/user";
 import { ChatMessage } from "@prisma/client";
 import { UserProps } from "../app/lib/definitions";
-import { articleUrl, supportDid, userUrl } from "./utils";
-import Button from "@mui/material/Button";
-import { CloseSessionButton } from "./close-session-button";
+import { supportDid, userUrl } from "./utils";
 import { DashboardIcon } from "./icons/dashboard-icon";
 import { DonateIcon } from "./icons/donate-icon";
 import { CabildoIcon } from "./icons/home-icon";
-import { ManageAccountIcon } from "./icons/manage-account-icon";
 import { SupportIcon } from "./icons/support-icon";
-import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
-import DatasetIcon from "./icons/dataset-icon";
 import VisualizationsIcon from "@mui/icons-material/AutoGraph";
+import {ProfilePic} from "./feed/profile-pic";
+import SettingsIcon from "./icons/settings-icon";
+import TopicsIcon from "@mui/icons-material/CollectionsBookmark";
+import {NotificationsIcon} from "./icons/notifications-icon";
+import {usePathname} from "next/navigation";
+import SearchIcon from "@mui/icons-material/Search";
+import {BasicButton} from "./ui-utils/basic-button";
+import {WritePanel} from "./write-panel";
+import {WriteButtonIcon} from "./icons/write-button-icon";
+import {IconButton} from "@mui/material";
 
 
 function unseenCount(chat: ChatMessage[], userId: string){
@@ -31,28 +34,34 @@ function unseenCount(chat: ChatMessage[], userId: string){
 }
 
 
-const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () => void}) => {
+export const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () => void}) => {
     const chat = useChat(user.did, supportDid)
     const newSupportCount = chat.chat ? unseenCount(chat.chat, user.did) : 0
-    return <SidebarButton icon={<SupportIcon newCount={newSupportCount}/>} onClick={onClose} text="Soporte" href="/soporte"/>
+    return <Link href={"/soporte"} className={"text-[var(--text-light)]"}>
+        <BasicButton
+            variant={"text"}
+            size={"small"}
+            color={"inherit"}
+            startIcon={<SupportIcon newCount={newSupportCount}/>} onClick={onClose}
+        >
+            Soporte
+        </BasicButton>
+    </Link>
 }
 
 
-const HelpDeskButton = ({user, onClose}: {user?: UserProps, onClose: () => void}) => {
+const HelpDeskButton = ({user, onClose, showText, setShowText}: {showText: boolean, setShowText: (v: boolean) => void, user?: UserProps, onClose: () => void}) => {
     const count = useSupportNotRespondedCount()
 
-    return <SidebarButton icon={<SupportIcon newCount={count.count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
+    return <SidebarButton showText={showText} setShowText={setShowText} icon={<SupportIcon newCount={count.count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
 }
 
 
-const SidebarUsername = ({user}: {user: {displayName?: string, handle: string}}) => {
-    return <div className="flex flex-col items-center space-y-1">
+const SidebarUsername = ({user}: {user: {displayName?: string, handle: string, avatar?: string}}) => {
+    return <div className="ml-4 py-2">
         <Link href={userUrl(user.handle)}>
-            <Button variant="text" color="inherit" sx={{ textTransform: 'none' }}>
-                {user.displayName ? user.displayName : "@"+user.handle}
-            </Button>
+            <ProfilePic user={user} className={"w-12 h-12 rounded-full border"}/>
         </Link>
-        <CloseSessionButton/>
     </div>
 }
 
@@ -64,36 +73,115 @@ const SidebarUsernameNoUser = () => {
 }
 
 
-export default function Sidebar({onClose}: {onClose: () => void}) {
-    const user = useUser()
-
-    return <div className ="h-screen w-screen fixed top-0 left-0 z-[51]">
-        <div className="flex">
-            <div className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--background)] border-r safe-padding-mobile">
-                <div className="flex flex-col mt-4 px-2">
-                    {user.user && <SidebarUsername
-                        user={user.user}
-                    />}
-                    {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
-                    <SidebarButton onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio"/>
-                    <SidebarButton onClick={onClose} icon={<EditNoteIcon/>} text="Borradores" href="/borradores"/>
-                    {user.user && <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil" href={userUrl(user.user.handle)}/>}
-                    <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Panel personal" href="/panel"/>
-                    <SidebarButton icon={<DatasetIcon fontSize="medium"/>} onClick={onClose} text="Datos" href="/datasets"/>
-                    <SidebarButton icon={<VisualizationsIcon fontSize="medium"/>} onClick={onClose} text="Visualizaciones" href="/visualizaciones"/>
-                    <SidebarButton icon={<DonateIcon fontSize="medium"/>} onClick={onClose} text="Aportar" href="/aportar"/>
-                    <SidebarButton icon={<InfoIcon/>} onClick={onClose} text="Cabildo Abierto" href={articleUrl("Cabildo_Abierto")}/>
-                    <SidebarButton icon={<ManageAccountIcon/>} onClick={onClose} text="Cuenta" href="/cuenta"/>
-                    {user.user && <SupportButton user={user.user} onClose={onClose}/>}
-                    {user.user && user.user.editorStatus == "Administrator" && 
-                    <HelpDeskButton user={user.user} onClose={onClose}/>}
-                </div>
-            </div>
-            <button
-                className="h-screen w-full"
-                onClick={onClose}
+const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: () => void}) => {
+    return <div className={"my-2"}>
+        {showText ? <BasicButton
+            fullWidth={true}
+            startIcon={<WriteButtonIcon/>}
+            size={"large"}
+            color={"primary"}
+            onClick={(e) => {onClick()}}
+        >
+            Escribir
+        </BasicButton> :
+            <IconButton
+                color={"primary"}
+                onClick={(e) => {onClick()}}
             >
-            </button>
-        </div>
+                <WriteButtonIcon/>
+            </IconButton>
+        }
     </div>
+}
+
+
+export const SidebarContent = ({onClose, startClosed=false}: { onClose: () => void, startClosed?: boolean }) => {
+    const user = useUser()
+    const pathname = usePathname()
+    const [writePanelOpen, setWritePanelOpen] = useState(false)
+    const [showText, setShowText] = useState(!startClosed)
+
+    return <div className={"mt-4 w-56 px-2"}>
+        <div className={"flex flex-col"} onMouseEnter={() => {setShowText(true)}} onMouseLeave={() => {if(startClosed) setShowText(false)}}>
+        {user.user && <SidebarUsername
+            user={user.user}
+        />}
+        {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
+        <SidebarButton
+            showText={showText} setShowText={setShowText}
+            onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio" selected={pathname.startsWith("/inicio")}/>
+
+        <SidebarButton
+            showText={showText} setShowText={setShowText}
+            icon={<SearchIcon fontSize={"medium"}/>} onClick={onClose} text="Buscar"
+                       href="/buscar"
+        />
+
+        <SidebarButton
+            showText={showText} setShowText={setShowText}
+            onClick={onClose} icon={<NotificationsIcon count={0}/>}
+            text="Notificaciones" href="/notificaciones" selected={pathname.startsWith("/notificaciones")}
+        />
+
+        <SidebarButton icon={<TopicsIcon fontSize="medium"/>} onClick={onClose}
+                       text="Temas"
+                       href="/temas"
+                       showText={showText} setShowText={setShowText}
+                       selected={pathname.startsWith("/temas")}
+        />
+        <SidebarButton icon={<VisualizationsIcon fontSize="medium"/>} onClick={onClose}
+                       text="Datos"
+                       href="/datos"
+                       selected={pathname.startsWith("/datos")}
+                       showText={showText} setShowText={setShowText}
+        />
+        {user.user &&
+        <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil"
+                       href={userUrl(user.user.handle)}
+                       selected={pathname == userUrl(user.user.handle)}
+                       showText={showText} setShowText={setShowText}
+        />}
+        <SidebarButton icon={<DonateIcon fontSize="medium"/>} onClick={onClose} text="Aportar"
+                       href="/aportar"
+                       showText={showText} setShowText={setShowText}
+        />
+        <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Remuneración" href="/panel"
+               selected={pathname.startsWith("/panel")}
+                       showText={showText} setShowText={setShowText}
+        />
+        {user.user && user.user.editorStatus == "Administrator" &&
+            <HelpDeskButton showText={showText} setShowText={setShowText} user={user.user} onClose={onClose}/>}
+        <SidebarButton icon={<SettingsIcon/>} onClick={onClose} text="Ajustes" href="/ajustes"
+                       selected={pathname.startsWith("/ajustes")}
+                       showText={showText} setShowText={setShowText}
+        />
+        <SidebarWriteButton showText={showText} onClick={() => {setWritePanelOpen(true)}}/>
+        <WritePanel open={writePanelOpen} onClose={() => {setWritePanelOpen(false)}}/>
+    </div>
+    </div>
+}
+
+
+export default function Sidebar({onClose}: { onClose: () => void }) {
+    const mobile = false
+
+    if(mobile){
+        return <div className="h-screen w-screen fixed top-0 left-0 z-[51]">
+            <div className="flex">
+                <div
+                    className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--background)] safe-padding-mobile">
+                    <SidebarContent onClose={onClose}/>
+                </div>
+                <button
+                    className="h-screen w-full"
+                    onClick={onClose}
+                >
+                </button>
+            </div>
+        </div>
+    } else {
+        return <div className="h-screen flex justify-end">
+            <SidebarContent onClose={onClose}/>
+        </div>
+    }
 }

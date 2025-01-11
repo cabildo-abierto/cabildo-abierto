@@ -1,5 +1,3 @@
-import { decompress } from "./compression"
-import { getAllText } from "./diff"
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 

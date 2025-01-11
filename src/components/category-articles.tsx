@@ -1,18 +1,19 @@
 "use client"
 import { EntitySearchResult } from "./entity-search-result"
 import { useSearch } from "./search-context"
-import { NoResults } from "./category-users"
-import { useTopics } from "../hooks/contents"
+import {useTrendingTopics} from "../hooks/contents"
 import LoadingSpinner from "./loading-spinner"
 import { cleanText, listOrderDesc } from "./utils"
 import { LazyLoadFeed } from "./lazy-load-feed"
-import { DidYouKnow } from "./did-you-know"
-import { useState } from "react"
+import React, { useState } from "react"
 import SelectionComponent from "./search-selection-component"
 import { topicPopularityScore } from "./trending-articles"
 import { Button } from "@mui/material"
-import { TipIcon } from "./icons/tip-icon"
 import {getTopicTitle} from "./topic/utils";
+import {NoResults} from "./no-results";
+import {CreateTopicModal} from "./create-topic-modal";
+import {TrendingTopicProps} from "../app/lib/definitions";
+import AddIcon from "@mui/icons-material/Add";
 
 
 export function countUserReferences(entity: {referencedBy: {referencingContent: {author: {did: string}}}[]}){
@@ -27,7 +28,7 @@ function recentEditScore(entity: any){
 
 
 const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: { 
-    entities: any[],
+    entities: TrendingTopicProps[],
     route: string[],
     sortBy: string,
     maxCount?: number
@@ -69,28 +70,34 @@ const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: {
 
 
 export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: string[], onSearchPage?: boolean, maxCount?: number}) => {
-    const {topics: routeEntities, isLoading, isError} = useTopics(route)
+    const {topics: routeEntities, isLoading, isError} = useTrendingTopics(route, "7days")
     const [sortBy, setSortBy] = useState("Populares")
+    const [newTopicOpen, setNewTopicOpen] = useState(false)
+    const {searchState} = useSearch()
 
     if(isLoading) return <LoadingSpinner/>
     if(isError){
         return <></>
     }
 
-    const infoText = <span>Ordenados por cantidad de usuarios que participaron en la discusión del tema (ya sea mencionándolo, comentando o agregando un voto hacia arriba).</span>
+    if(onSearchPage && searchState.value.length == 0){
+        return null
+    }
 
     function optionsNodes(o: string, isSelected: boolean){
-        return <div className="w-full">
+        return <div className="text-[var(--text)] w-40">
             <Button
-                variant="outlined"
-                size="small"
+                onClick={() => {}}
+                variant="text"
+                color="inherit"
                 fullWidth={true}
+                disableElevation={true}
                 sx={{
                     textTransform: "none",
-                    background: (isSelected ? "var(--secondary-light)" : undefined)
+                    paddingY: 0
                 }}
             >
-                <div className="">
+                <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
                     {o}
                 </div>
             </Button>
@@ -98,49 +105,43 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
     }
 
     return <>
-
-        {/*!onSearchPage && <div className="mt-2"><DidYouKnow text={<>¿Sabías que si editás el contenido de un tema Cabildo Abierto te remunera por cada persona que entre a leerlo en el futuro? <Link className="link2" href={articleUrl("Cabildo_Abierto%3A_Remuneraciones")}>Leer más.</Link></>}/></div>*/}
-
-        {!onSearchPage && <div className="mt-4">
-            <DidYouKnow text={<div className="flex items-center">
-                <div className="px-2"><TipIcon/></div> Elegí un tema de la lista para agregarle información o creá un nuevo tema.</div>}/>
-        </div>}
-        
-        {!onSearchPage && <div className="flex justify-center py-4">
+        {!onSearchPage && <div className="flex justify-between border-b pr-2 items-center">
+            <SelectionComponent
+                onSelection={setSortBy}
+                options={["Populares", "Ediciones recientes"]}
+                selected={sortBy}
+                optionsNodes={optionsNodes}
+                className="flex justify-between"
+            />
             <Button
                 color="primary"
-                variant="contained"
+                variant="text"
                 disableElevation={true}
-                sx={{textTransform: "none"}}
+                startIcon={<AddIcon/>}
+                size={"small"}
+                sx={{textTransform: "none", height: "32px"}}
+                onClick={() => {setNewTopicOpen(true)}}
             >
                 Nuevo tema
             </Button>
-        </div>}
-        
-        {!onSearchPage && <div className="flex flex-1 justify-center text-sm space-x-1 mb-4">
-                <div className="w-full max-w-[384px]">
-                    <SelectionComponent
-                        onSelection={setSortBy}
-                        selected={sortBy}
-                        className="space-x-2"
-                        options={["Populares", "Ediciones recientes"]}
-                        optionsNodes={optionsNodes}
-                    />
-                </div>
-            </div>
+        </div>
         }
 
-        {routeEntities.length > 0 ? 
-            <ArticlesWithSearch
-                entities={routeEntities}
-                route={route}
-                sortBy={sortBy}
-                maxCount={maxCount}
-            />
-             : 
-        <div className="flex justify-center">
-            No se encontraron temas.
-        </div>}
 
+            {routeEntities.length > 0 ?
+                <ArticlesWithSearch
+                    entities={routeEntities}
+                    route={route}
+                    sortBy={sortBy}
+                    maxCount={maxCount}
+                />
+                :
+                <div className="flex justify-center">
+            No se encontraron temas.
+        </div>
+
+        }
+
+        <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)} />
     </>
 }

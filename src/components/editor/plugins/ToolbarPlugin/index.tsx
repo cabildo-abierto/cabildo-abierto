@@ -72,14 +72,13 @@ import useModal from '../../hooks/useModal';
 import DropDown, {DropDownItem} from '../../ui/DropDown';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {
-  INSERT_IMAGE_COMMAND,
   InsertImageDialog,
-  InsertImagePayload,
+
 } from '../ImagesPlugin';
 import {InsertTableDialog} from '../TablePlugin';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import VisualizationsIcon from '../../../icons/visualization-icon';
-import {InsertVisualizationModal} from "../../../writing/insert-visualization-modal";
+import {InsertVisualizationDialog} from "../PlotPlugin";
 
 const blockTypeToBlockName = {
   bullet: 'Lista',
@@ -485,7 +484,6 @@ export default function ToolbarPlugin({
   const [codeLanguage, setCodeLanguage] = useState<string>('');
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [isImageCaption, setIsImageCaption] = useState(false);
-  const [visualization, setVisualization] = useState(null)
   const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
 
   const $updateToolbar = useCallback(() => {
@@ -773,12 +771,8 @@ export default function ToolbarPlugin({
     },
     [activeEditor, selectedElementKey],
   );
-  const insertGifOnClick = (payload: InsertImagePayload) => {
-    activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
-  };
 
   const canViewerSeeInsertDropdown = false // !isImageCaption;
-  const canViewerSeeInsertCodeButton = !isImageCaption;
 
   return (
       <div className="toolbar">
@@ -970,6 +964,7 @@ export default function ToolbarPlugin({
         </button>
         <button
             onClick={() => {
+              setVisualizationModalOpen(true)
             }}
             type="button"
             title="Insertar visualización"
@@ -987,10 +982,10 @@ export default function ToolbarPlugin({
 
         {modal}
 
-        <InsertVisualizationModal
+        <InsertVisualizationDialog
+            activeEditor={activeEditor}
             open={visualizationModalOpen}
             onClose={() => {setVisualizationModalOpen(false)}}
-            setVisualization={setVisualization}
         />
       </div>
   );

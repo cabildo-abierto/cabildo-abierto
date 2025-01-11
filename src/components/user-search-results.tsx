@@ -4,28 +4,29 @@ import { useSearch } from "./search-context"
 import { SmallUserProps } from "../app/lib/definitions"
 import { useUser, useUsers } from "../hooks/user"
 import LoadingSpinner from "./loading-spinner"
-import { ReactNode } from "react"
+import React from "react"
 import { cleanText, shuffleArray } from "./utils"
+import {NoResults} from "./no-results";
+import {Button} from "@mui/material";
+import {useRouter} from "next/navigation";
 
 
-export const NoResults = ({text="No se encontraron resultados..."}: {text?: ReactNode}) => {
-    return <div className="text-center max-w-128 text-[var(--text-light)] mt-4">{text}</div>
-}
-
-
-export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: number}) => {
+export const UserSearchResults = ({maxCount, showSearchButton=true}: {maxCount?: number, showSearchButton?: boolean}) => {
     const users = useUsers()
     const {searchState} = useSearch()
     const {user} = useUser()
+    const router = useRouter()
 
     if(searchState.value.length == 0){
-        return <div className="text-center text-[var(--text-light)] text-sm sm:text-base">Buscá un usuario en la barra de arriba</div>
+        return null
     }
-    if(users.isLoading){
-        return <LoadingSpinner/>
+    if(users.isLoading) {
+        return <div className="flex justify-center py-4">
+            <LoadingSpinner/>
+        </div>
     }
 
-    if(!user){
+    if (!user) {
         return <div className="text-center text-[var(--text-light)] text-sm sm:text-base">
             Creá una cuenta para buscar usuarios.
         </div>
@@ -46,7 +47,24 @@ export const CategoryUsers = ({route, maxCount}: {route: string[], maxCount?: nu
     const rightIndex = maxCount != undefined ? maxCount : filteredUsers.length
 
     return <div className="flex flex-col items-center">
-        <div className="flex flex-col justify-center">
+        <div className="flex flex-col justify-center mt-1">
+            {showSearchButton && <Button
+                variant={"text"}
+                color={"inherit"}
+                onClick={() => {router.push("/buscar?q="+encodeURIComponent(searchState.value))}}
+                sx={{
+                    textTransform: "none",
+                    backgroundColor: "var(--background-dark)",
+                    ":hover": {
+                        backgroundColor: "var(--background-dark2)"
+                    }
+                }}
+            >
+                <div className={"space-x-1"}>
+                    <span>Buscar</span>
+                    <span className={"text-[var(--text-light)]"}>{searchState.value}</span>
+                </div>
+            </Button>}
             {filteredUsers.length > 0 ? filteredUsers.slice(0, rightIndex).map((user, index) => (
                 <div key={index} className="py-1">
                     <UserSearchResult result={user}/>

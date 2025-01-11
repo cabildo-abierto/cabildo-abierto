@@ -1,6 +1,5 @@
 "use client"
-import React, { useState } from "react"
-import { ThreeColumnsLayout } from "../../../components/three-columns"
+import React, {useState} from "react"
 import { MainPage } from "../../../components/main-page"
 
 
@@ -12,11 +11,9 @@ const Page: React.FC<{
 
     const [route, setRoute] = useState(decodedRoute)
 
-    const center = <MainPage
+    return <MainPage
         route={route}
         setRoute={setRoute}
     />
-    
-    return <ThreeColumnsLayout center={center} />
 }
 export default Page

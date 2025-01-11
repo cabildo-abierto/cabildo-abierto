@@ -1,4 +1,4 @@
-import { Button } from "@mui/material"
+import {Button, IconButton} from "@mui/material"
 import { ReactNode } from "react"
 import { CustomLink } from "./custom-link"
 
@@ -8,13 +8,16 @@ type SidebarButtonProps = {
     icon: ReactNode
     href: string
     disabled?: boolean
+    selected?: boolean
+    showText: boolean
+    setShowText: (showText: boolean) => void
 }
 
-export const SidebarButton: React.FC<SidebarButtonProps> = ({text, onClick, icon, href, disabled=false}) => {
+export const SidebarButton: React.FC<SidebarButtonProps> = ({showText, setShowText, text, onClick, icon, href, disabled=false, selected=false}) => {
 
-    return (
+    return <>
         <CustomLink href={href} className="mt-1">
-            <Button
+            {true ? <Button
                 variant="text"
                 color="inherit"
                 size="large"
@@ -28,8 +31,21 @@ export const SidebarButton: React.FC<SidebarButtonProps> = ({text, onClick, icon
                 fullWidth
                 disabled={disabled}
             >
-                {text}
-            </Button>
+                <span className={selected ? "font-bold" : "" + (showText ? "" : " text-transparent")}>{text}</span>
+            </Button> :
+            <IconButton
+                color="inherit"
+                sx={{
+                    textTransform: 'none',
+                    justifyContent: 'flex-start',
+                    paddingLeft: 2,
+                }}
+                onClick={onClick}
+                disabled={disabled}
+            >
+                {icon}
+            </IconButton>
+            }
         </CustomLink>
-    )
+    </>
 }

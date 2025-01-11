@@ -1,19 +1,7 @@
+"use client"
 import {FastPostProps} from "../../app/lib/definitions";
-import {VegaLite} from "react-vega";
-import {getSpecForConfig} from "../visualizations/spec";
 import {getUri} from "../utils";
-import {useDataset, useVisualization} from "../../hooks/contents";
-
-
-export const PlotFromUri = ({uri}: {uri: string}) => {
-    const {visualization, isLoading} = useVisualization(uri)
-
-    if(!visualization) return null
-
-    return <div className={"flex justify-center border rounded bg-[var(--background)]"}>
-        <VegaLite spec={JSON.parse(visualization.visualization.spec)} actions={false}/>
-    </div>
-}
+import {PlotFromUri} from "./plot-from-uri";
 
 
 export const PlotInPost = ({post}: {post: FastPostProps}) => {
@@ -29,8 +17,6 @@ export const PlotInPost = ({post}: {post: FastPostProps}) => {
     if (!url.startsWith("https://www.cabildoabierto.com.ar/visual/")) {
         return null
     }
-
-    console.log("Showing plot")
 
     const [did, rkey] = url.replace("https://www.cabildoabierto.com.ar/visual/", "").split("/");
 

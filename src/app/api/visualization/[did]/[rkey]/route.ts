@@ -1,7 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getTopics} from "../../../../../actions/topics";
-import {getDataset, getDatasets, getVisualization} from "../../../../../actions/data";
+import {getVisualization} from "../../../../../actions/data";
 
 
 export async function GET(req: NextRequest, { params }: { params: { did: string, rkey: string } }) {

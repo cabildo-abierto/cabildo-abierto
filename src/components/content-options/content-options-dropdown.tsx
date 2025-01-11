@@ -3,7 +3,6 @@ import { WriteButtonIcon } from "../icons/write-button-icon"
 import { ContentOptionsChoiceButton } from "./content-options-button"
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ShareContentButton } from "./share-content-button"
-import {FastPostProps, FeedContentProps} from "../../app/lib/definitions"
 import {ReactNode} from "react";
 
 export const ContentOptions = ({optionsList, content}: {optionsList: string[], content: any}) => {

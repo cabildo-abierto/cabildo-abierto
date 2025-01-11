@@ -5,7 +5,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
-import {currentVersion, currentVersionContent, getNextCategories} from "./utils";
+import {currentVersion, getNextCategories} from "./utils";
 import { useSWRConfig } from "swr";
 import LoadingSpinner from "./loading-spinner";
 import { EntityCategoriesTitle } from "./categories";

@@ -1,5 +1,4 @@
-import { useRouter } from "next/navigation"
-import {getUsername, stopPropagation, userUrl} from "./utils"
+import {getUsername, userUrl} from "./utils"
 import Link from "next/link"
 
 

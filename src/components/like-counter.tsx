@@ -5,9 +5,6 @@ import { ReactionButton } from "./reaction-button";
 import { useUser } from "../hooks/user";
 import { ActiveLikeIcon } from "./icons/active-like-icon";
 import { InactiveLikeIcon } from "./icons/inactive-like-icon";
-import { IconButton } from "@mui/material";
-import {FastPostProps} from "../app/lib/definitions";
-import {stopPropagation} from "./utils";
 
 type LikeCounterProps = {
     disabled?: boolean

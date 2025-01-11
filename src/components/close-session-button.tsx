@@ -2,8 +2,6 @@
 import { useRouter } from "next/navigation"
 import { logout } from "../actions/auth"
 import StateButton from "./state-button"
-import {createClient} from "../auth/client";
-
 
 
 export const CloseSessionButton = () => {

@@ -1,11 +1,10 @@
+"use client"
 import React, { ReactNode } from "react"
-import { NoResults } from "../category-users";
 import { FeedContentProps } from "../../app/lib/definitions";
 import LoadingSpinner from "../loading-spinner";
 import { LazyLoadFeed } from "../lazy-load-feed";
-import { ArticlePreview } from "./article-preview";
-import { FastPostPreview } from "./fast-post-preview";
 import {FeedElement} from "./feed-element";
+import {NoResults} from "../no-results";
 
 
 export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, isError: boolean}

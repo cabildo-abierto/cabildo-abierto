@@ -3,13 +3,14 @@ import InfoPanel from './info-panel';
 import { NewTopicButton } from './new-topic-button';
 import { ModalBelow } from './modal-below';
 import { NewFastPostButton } from './new-fast-post-button';
-import { Button, IconButton } from '@mui/material';
+import { Button } from '@mui/material';
 import { CustomLink as Link } from './custom-link';
 import { CreateTopicModal } from './create-topic-modal';
 import { WritePanel } from './write-panel';
 import { PostIcon } from './icons/post-icon';
 import { ArticleIcon } from './icons/article-icon';
 import { WriteButtonIcon } from './icons/write-button-icon';
+import {BasicButton} from "./ui-utils/basic-button";
 
 export function validEntityName(name: string) {
     return name.length >= 2 && name.length < 100 && !name.includes("/");
@@ -54,12 +55,17 @@ const WriteButton = () => {
 
     return (
         <div className="relative">
-            <IconButton
-                color="inherit"
+            <div className={"mx-2 my-2"}>
+            <BasicButton
+                fullWidth={true}
+                startIcon={<WriteButtonIcon/>}
+                size={"large"}
+                color={"primary"}
                 onClick={(e) => {setIsDropdownOpen(!isDropdownOpen); setAnchorEl(e.target)}}
             >
-                <WriteButtonIcon />
-            </IconButton>
+                Escribir
+            </BasicButton>
+            </div>
 
             <ModalBelow open={isDropdownOpen} onClose={() => {setIsDropdownOpen(false)}} anchorEl={anchorEl} noShadow={true}>
                 <div className="">

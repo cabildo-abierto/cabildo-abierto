@@ -2,10 +2,11 @@
 import {ThreeColumnsLayout} from "../../../components/three-columns";
 import { getVisualization } from "../../../actions/data";
 import {useEffect, useState} from "react";
-import {getVisualizationTitle} from "../../../components/utils";
-import {VegaLite} from "react-vega";
 import {ContentTopRowAuthor} from "../../../components/content-top-row-author";
-
+import dynamic from "next/dynamic";
+const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
+    ssr: false,
+});
 
 const Page = ({params}: {params: {cid: string}}) => {
     const [visualization, setVisualization] = useState(null)

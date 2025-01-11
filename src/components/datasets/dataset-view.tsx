@@ -1,4 +1,3 @@
-import {DatasetProps} from "../../app/lib/definitions";
 import './index.css'
 
 export const DatasetView = ({data}: {data: any[]}) => {

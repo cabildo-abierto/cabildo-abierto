@@ -2,7 +2,7 @@ import InfoPanel from "./info-panel"
 import { Route } from "./wiki-categories"
 
 export const EntityCategoriesTitle = ({name, editing}: {name: string, editing: boolean}) => {
-    let info = null
+    let info
     if(editing){
         info = "Cada tema puede estar en una o más categorías y subcategorías. Al asignar un tema a una categoría que no existe todavía (borde azul) se crea automáticamente esa categoría."
     } else {

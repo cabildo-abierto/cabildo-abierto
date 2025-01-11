@@ -1,7 +1,6 @@
-
+"use client"
 import { Button } from "@mui/material"
 import SelectionComponent from "./search-selection-component"
-import { Route } from "./wiki-categories"
 
 
 type MainFeedHeaderProps = {
@@ -42,12 +41,12 @@ export const MainFeedHeader = ({
     }
 
     return <div className="flex border-b">
-        <SelectionComponent
+        {<SelectionComponent
             onSelection={onSelection}
             options={["Siguiendo", "En discusión"]}
             selected={selected}
             optionsNodes={optionsNodes}
             className="flex justify-between"
-        />
+        />}
     </div>
 }

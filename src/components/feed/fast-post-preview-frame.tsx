@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { DateSince } from '../date'
-import {EngagementProps, FastPostProps, RecordProps} from '../../app/lib/definitions'
+import {EngagementProps, RecordProps} from '../../app/lib/definitions'
 import {emptyChar, formatIsoDate, urlFromRecord, userUrl} from '../utils'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'

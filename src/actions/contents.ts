@@ -4,7 +4,7 @@ import { getSessionAgent } from "./auth";
 import { RichText } from '@atproto/api'
 import {db} from "../db";
 import {FastPostReplyProps, ThreadProps, VisualizationProps} from "../app/lib/definitions";
-import {addCounters, processReactions} from "./utils";
+import {addCounters} from "./utils";
 import {getVisualizationTitle} from "../components/utils";
 
 

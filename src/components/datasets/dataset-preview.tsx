@@ -1,10 +1,8 @@
 "use client"
 import {DatasetProps} from "../../app/lib/definitions";
 import {useRouter} from "next/navigation";
-import {ContentTopRowAuthor} from "../content-top-row-author";
-import {ProfilePic} from "../feed/profile-pic";
-import {ContentOptionsButton} from "../content-options/content-options-button";
-import {DateSince} from "../date";
+import {FastPostPreviewFrame} from "../feed/fast-post-preview-frame";
+import {PostTitleOnFeed} from "../feed/post-title-on-feed";
 
 
 export const DatasetPreview = ({dataset}: {dataset: DatasetProps}) => {
@@ -14,7 +12,23 @@ export const DatasetPreview = ({dataset}: {dataset: DatasetProps}) => {
         router.push("/datasets/"+dataset.author.did+"/"+dataset.rkey)
     }
 
-    return <div className={"border-b px-2 hover:bg-[var(--background-dark)] cursor-pointer py-2"} onClick={onClick}>
+    return <FastPostPreviewFrame
+        post={dataset}
+    >
+        <div className={"flex flex-col"}>
+            <PostTitleOnFeed title={dataset.dataset.title}/>
+            <div className={"text-[var(--text-light)] mt-1 flex space-x-2"}>
+                <div>
+                    {dataset.dataset.columns.length} columnas
+                </div>
+                <div>
+                    {/*arraySum(dataset.dataset.dataBlocks, (b) => (b.))*/}
+                </div>
+            </div>
+        </div>
+    </FastPostPreviewFrame>
+
+    /*return <div className={"px-2 hover:bg-[var(--background-dark)] cursor-pointer py-2"} onClick={onClick}>
         <div className={"flex flex-col space-y-2"}>
             <div className={"flex justify-between"}>
                 <div className={"font-bold text-lg flex"}>
@@ -33,5 +47,5 @@ export const DatasetPreview = ({dataset}: {dataset: DatasetProps}) => {
                 </div>
             </div>
         </div>
-    </div>
+    </div>*/
 }

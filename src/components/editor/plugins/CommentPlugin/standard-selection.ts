@@ -1,4 +1,4 @@
-import {$createPoint, $getRoot, $getSelection, $isElementNode, EditorState, LexicalNode, PointType} from "lexical";
+import {$createPoint, $getSelection, $isElementNode, EditorState, LexicalNode, PointType} from "lexical";
 
 
 export function getNodeFromIndex(node: LexicalNode, index: number[]){

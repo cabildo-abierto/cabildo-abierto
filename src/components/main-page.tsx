@@ -4,7 +4,6 @@ import { useState } from "react"
 import { MainFeedHeader } from "./main-feed-header"
 import { useFeed } from "../hooks/contents"
 import { useUser } from "../hooks/user"
-import { TrendingArticles } from "./trending-articles"
 import { Route } from "./wiki-categories"
 import Feed from "./feed/feed"
 
@@ -20,7 +19,7 @@ type MainPageProps = {
 export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: MainPageProps) => {
     const user = useUser()
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : (user.user ? "Siguiendo" : "En discusión"))
-    const feed = null //useFeed(route, "InDiscussion")
+    const feed = useFeed(route, "InDiscussion")
     const followingFeed = useFeed(route, "Following")
 
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
@@ -58,13 +57,13 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
                 </div>
             }
 
-            <div className="pt-4 pb-6 border-b">
+            {/*<div className="pt-4 pb-6 border-b">
                 <TrendingArticles route={route} selected={selected}/>
-            </div>
+            </div>*/}
 
-            {/*selected == "En discusión" && <Feed
+            {selected == "En discusión" && <Feed
                 feed={feed}
-            />*/}
+            />}
 
             {selected == "Siguiendo" && <Feed
                 feed={followingFeed}

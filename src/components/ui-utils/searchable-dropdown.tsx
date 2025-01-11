@@ -1,6 +1,6 @@
 "use client"
 import React, {ReactNode, useEffect, useState} from 'react';
-import { TextField, MenuItem, Paper, List, ListItem, ListItemText } from '@mui/material';
+import { TextField, Paper, List, ListItem, ListItemText } from '@mui/material';
 
 interface SearchableDropdownProps {
   options: string[]

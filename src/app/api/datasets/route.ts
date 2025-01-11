@@ -1,6 +1,5 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getTopics} from "../../../actions/topics";
 import {getDatasets} from "../../../actions/data";
 
 

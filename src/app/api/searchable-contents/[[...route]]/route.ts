@@ -1,14 +1,16 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-//import { getSearchableContents } from '../../../../actions/feed';
-import { getUserId } from '../../../../actions/users';
+import { getSearchableContents } from '../../../../actions/feed';
 
 
 export async function GET(req: NextRequest,
     { params }: { params: { route: string[] } }
 ) {
-    //const route = params.route ? params.route.map(decodeURIComponent) : []
-    //let feed = await getSearchableContents(route, await getUserId())
+    let feed = await getSearchableContents()
 
-    return NextResponse.json([]);
+    if(feed.error){
+        return NextResponse.error()
+    }
+
+    return NextResponse.json(feed.feed);
 }

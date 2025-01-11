@@ -4,6 +4,8 @@ import {getSessionAgent} from "./auth";
 import {TopicProps, TrendingTopicProps} from "../app/lib/definitions";
 import {db} from "../db";
 import {getRkeyFromUri, supportDid} from "../components/utils";
+import {Prisma} from ".prisma/client";
+import SortOrder = Prisma.SortOrder;
 
 
 export async function createTopic(id: string){
@@ -198,6 +200,7 @@ export async function getTrendingTopics(sinceKind: string): Promise<{error?: str
                 id: true,
                 currentVersion: {
                     select: {
+                        uri: true,
                         content: {
                             select: {
                                 numWords: true,
@@ -252,6 +255,7 @@ export async function getTrendingTopics(sinceKind: string): Promise<{error?: str
                 },
                 versions: {
                     select: {
+                        uri: true,
                         title: true,
                         categories: true,
                         content: {
@@ -261,6 +265,12 @@ export async function getTrendingTopics(sinceKind: string): Promise<{error?: str
                                     select: {
                                         ...smallRecordQuery,
                                         reactions: topicVersionReactionsQuery,
+                                        author: {
+                                            select: {
+                                                handle: true
+                                            }
+                                        },
+                                        createdAt: true,
                                         rootOf: {
                                             select: {
                                                 content: {
@@ -310,81 +320,88 @@ export async function getTrendingTopics(sinceKind: string): Promise<{error?: str
 }
 
 
+const topicQuery = (includeText: boolean) => ({
+    id: true,
+    protection: true,
+    currentVersion: {
+        select: {
+            uri: true
+        },
+    },
+    versions: {
+        select: {
+            uri: true,
+            content: {
+                select: {
+                    text: includeText,
+                    record: {
+                        select: {
+                            createdAt: true,
+                            cid: true,
+                            uri: true,
+                            author: {
+                                select: {
+                                    did: true,
+                                    handle: true,
+                                    avatar: true,
+                                    displayName: true
+                                }
+                            },
+                            reactions: {
+                                select: {
+                                    record: {
+                                        select: {
+                                            authorId: true,
+                                            collection: true
+                                        }
+                                    }
+                                },
+                                where: {
+                                    reactsTo: {
+                                        collection: {
+                                            in: ["ar.com.cabildoabierto.topic.accept", "ar.com.cabildoabierto.topic.reject"]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                }
+            },
+            topicId: true,
+            title: true,
+            message: true,
+            diff: true,
+            charsAdded: true,
+            accCharsAdded: true,
+            contribution: true,
+            authorship: true,
+            categories: true
+        },
+        orderBy: {
+            content: {
+                record: {
+                    createdAt: "asc" as SortOrder
+                }
+            }
+        }
+    }
+})
+
+
 export async function getTopics(){
-    return {topics: []}
+    const topics = await db.topic.findMany({
+        select: topicQuery(false)
+    })
+
+    return {topics: topics}
 }
 
 
 export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
     try {
         const topic: TopicProps = await db.topic.findUnique({
-            select: {
-                id: true,
-                protection: true,
-                currentVersion: {
-                    select: {
-                        uri: true
-                    },
-                },
-                versions: {
-                    select: {
-                        uri: true,
-                        content: {
-                            select: {
-                                record: {
-                                    select: {
-                                        createdAt: true,
-                                        cid: true,
-                                        uri: true,
-                                        author: {
-                                            select: {
-                                                did: true,
-                                                handle: true,
-                                                avatar: true,
-                                                displayName: true
-                                            }
-                                        },
-                                        reactions: {
-                                            select: {
-                                                record: {
-                                                    select: {
-                                                        authorId: true,
-                                                        collection: true
-                                                    }
-                                                }
-                                            },
-                                            where: {
-                                                reactsTo: {
-                                                    collection: {
-                                                        in: ["ar.com.cabildoabierto.topic.accept", "ar.com.cabildoabierto.topic.reject"]
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                text: true,
-                            }
-                        },
-                        topicId: true,
-                        title: true,
-                        message: true,
-                        diff: true,
-                        charsAdded: true,
-                        accCharsAdded: true,
-                        contribution: true,
-                        authorship: true,
-                        categories: true
-                    },
-                    orderBy: {
-                        content: {
-                            record: {
-                                createdAt: "asc"
-                            }
-                        }
-                    }
-                }
-            },
+            select: topicQuery(true),
             where: {
                 id: id
             }

@@ -7,7 +7,6 @@ import {
 import { getAllText } from "./diff"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
 import {SessionOptions} from "iron-session";
-import {getTopicTitle} from "./topic/utils";
 
 
 export function getUri(did: string, collection: string, rkey: string){
@@ -17,6 +16,16 @@ export function getUri(did: string, collection: string, rkey: string){
 
 export function stopPropagation(func: () => void) {
     return (e: any) => {e.preventDefault(); e.stopPropagation(); func()}
+}
+
+
+export function isValidJSON(s: string){
+    try {
+        JSON.parse(s)
+    } catch {
+        return false
+    }
+    return true
 }
 
 

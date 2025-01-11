@@ -5,7 +5,66 @@ import {FeedContentProps} from "../app/lib/definitions";
 import { getSessionAgent } from "./auth";
 import { Agent } from "@atproto/api";
 import { getUsers } from "./users";
-import {addCounters, processReactions} from "./utils";
+import {addCounters} from "./utils";
+import {popularityScore} from "../components/popularity-score";
+import {listOrder} from "../components/utils";
+
+
+const feedQuery = {
+    cid: true,
+    uri: true,
+    collection: true,
+    createdAt: true,
+    author: {
+        select: {
+            did: true,
+            handle: true,
+            displayName: true,
+            avatar: true
+        }
+    },
+    content: {
+        select: {
+            text: true,
+            article: {
+                select: {
+                    title: true,
+                    format: true
+                }
+            },
+            post: {
+                select: {
+                    facets: true,
+                    embed: true,
+                    replyToId: true
+                }
+            }
+        },
+    },
+    reactions: {
+        select: {
+            record: {
+                select: {
+                    uri: true,
+                    collection: true,
+                    authorId: true
+                }
+            }
+        }
+    },
+    _count: {
+        select: {
+            replies: true,
+        }
+    }
+}
+
+
+function addCountersToFeed(feed: any[], did: string): FeedContentProps[]{
+    return feed.map((elem) => {
+        return addCounters(did, elem, elem.reactions)
+    })
+}
 
 
 export async function getFollowingFeed(): Promise<{feed?: FeedContentProps[], error?: string}>{
@@ -13,53 +72,7 @@ export async function getFollowingFeed(): Promise<{feed?: FeedContentProps[], er
         const {agent, did} = await getSessionAgent()
         const {data: following} = await agent.getFollows({actor: did})
         const feed = await db.record.findMany({
-            select: {
-                cid: true,
-                uri: true,
-                collection: true,
-                createdAt: true,
-                author: {
-                    select: {
-                        did: true,
-                        handle: true,
-                        displayName: true,
-                        avatar: true
-                    }
-                },
-                content: {
-                    select: {
-                        text: true,
-                        article: {
-                            select: {
-                                title: true,
-                                format: true
-                            }
-                        },
-                        post: {
-                            select: {
-                                facets: true,
-                                embed: true
-                            }
-                        }
-                    },
-                },
-                reactions: {
-                    select: {
-                        record: {
-                            select: {
-                                uri: true,
-                                collection: true,
-                                authorId: true
-                            }
-                        }
-                    }
-                },
-                _count: {
-                    select: {
-                        replies: true,
-                    }
-                }
-            },
+            select: feedQuery,
             where: {
                 authorId: {
                     in: [...following.follows.map(({did}) => (did)), did]
@@ -86,14 +99,17 @@ export async function getFollowingFeed(): Promise<{feed?: FeedContentProps[], er
                 createdAt: "desc"
             }
         })
-        const readyForFeed: FeedContentProps[] = feed.map((elem) => {
-            return addCounters(did, elem, elem.reactions)
-        })
+        const readyForFeed = addCountersToFeed(feed, did)
         return {feed: readyForFeed}
     } catch (err) {
         console.log("Error getting feed", err)
         return {error: "Error al obtener el feed."}
     }
+}
+
+
+export async function getSearchableContents(){
+    return getFollowingFeed() // también debería incluir las respuestas
 }
 
 
@@ -182,8 +198,11 @@ export async function getArticlesFeedForUser(user: string, agent: Agent){
 
 export async function getFeedForUsers(users: {did: string}[], includeReplies: boolean, onlyArticles: boolean = false){
     const {agent, did} = await getSessionAgent()
+    if(!did) return {feed: []}
     const {users: CAUsers, error} = await getUsers()
     if(error) return {error}
+
+    console.log("agent did", did)
 
     let posts: FeedContentProps[] = []
 
@@ -209,38 +228,48 @@ export async function getFeedForUsers(users: {did: string}[], includeReplies: bo
 }
 
 
-export async function getArticlesTimeline(agent: Agent){
+export async function getProfileFeed(userId: string, kind: string){
+    let feed
+    try {
+        feed = await db.record.findMany({
+            select: feedQuery,
+            where: {
+                authorId: userId,
+                collection: {
+                    in: ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "ar.com.cabildoabierto.quotePost"]
+                }
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+    } catch {
+        return {error: "No se pudo obtener el feed."}
+    }
 
-    const t1 = Date.now()
-    const {data} = await agent.getFollows({actor: agent.did})
-    const t2 = Date.now()
+    if(kind == "main"){
+        feed = feed.filter((e) => (e.collection == "ar.com.cabildoabierto.article" || e.content.post.replyToId == null))
+    }
 
-    const follows = [...data.follows.map(({did}) => ({did})), {did: data.subject.did}]
-
-    const feed = await getFeedForUsers(follows, false, true)
-
-    const t3 = Date.now()
-
-    console.log("feed for users", t3-t2, "follows", t2-t1)
-    return feed
+    const readyForFeed = addCountersToFeed(feed, userId)
+    return {feed: readyForFeed}
 }
 
 
-export async function getProfileFeed(userId: string, includeReplies: boolean){
-    return await getFeedForUsers([{did: userId}], includeReplies)
-}
+export async function getEnDiscusion(): Promise<{feed?: FeedContentProps[], error?: string}> {
 
+    const feed = await getFollowingFeed()
 
-export async function getEnDiscusion(): Promise<{feed: FeedContentProps[]}> {
-    return {feed: []} /*
-    const users = await db.user.findMany({
-        select: {
-            did: true,
-            handle: true
-        }
-    })
+    if(feed.error){
+        return {error: feed.error}
+    }
 
-    const feed = await getFeedForUsers(users, false, false)
+    const sortedFeed = feed.feed.map((e) => ({
+        element: e,
+        score: popularityScore(e)
+    })).sort(listOrder).map(({element}) => (element))
 
-    return feed*/
+    console.log("sorted feed", sortedFeed)
+
+    return {feed: sortedFeed}
 }

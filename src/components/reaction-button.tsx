@@ -1,6 +1,5 @@
 import React, { ReactNode } from "react"
 import { stopPropagation } from "./utils"
-import { Button, IconButton } from "@mui/material"
 
 type ReactionButtonProps = {
     onClick: () => void

@@ -1,3 +1,4 @@
+"use client"
 import { ReactNode, useEffect, useState, useRef, useCallback } from 'react';
 
 interface LazyLoadFeedProps {

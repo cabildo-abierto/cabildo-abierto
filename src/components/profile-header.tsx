@@ -8,7 +8,6 @@ import { ArticleIcon } from "./icons/article-icon"
 import {emptyChar, getUsername} from "./utils";
 import ReadOnlyEditor from "./editor/read-only-editor";
 import { useUser } from "../hooks/user";
-import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import { UserProps } from "../app/lib/definitions";
 import { useState } from "react";
 
@@ -72,24 +71,26 @@ export function ProfileHeader({profileUser, selected, setSelected, setShowingFak
 
     return <div className="flex flex-col border-b">
         <div>
-            {profileUser.banner ? <Image
+            {profileUser.banner ? <button onClick={() => {}}><Image
                 src={profileUser.banner}
                 width={800}
                 height={300}
                 alt={profileUser.handle + " banner"}
                 className="w-full h-[150px]"
-            /> : 
-            <div className="w-full h-[150px] bg-slate-200">
+                /></button> :
+            <div className="w-full h-[150px] bg-[var(--background-dark)] border-b">
                 {emptyChar}
             </div>
             }
-            <Image
-                src={profileUser.avatar}
-                width={400}
-                height={400}
-                alt={profileUser.handle + " avatar"}
-                className="w-24 h-24 rounded-full ml-6 mt-[-48px]"
-            />
+            <button onClick={() => {}}>
+                <Image
+                    src={profileUser.avatar}
+                    width={400}
+                    height={400}
+                    alt={profileUser.handle + " avatar"}
+                    className="w-16 h-16 rounded-full ml-6 mt-[-36px]"
+                />
+            </button>
         </div>
         <div className="flex justify-between">
             <div className="ml-2 py-2">

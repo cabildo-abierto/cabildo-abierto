@@ -1,12 +1,3 @@
-import {MarkNode} from '@lexical/mark';
-import {$getRoot, LexicalEditor} from 'lexical'
-import {$generateNodesFromSerializedNodes} from '@lexical/clipboard'
-import {$createQuoteNode} from '@lexical/rich-text';
-import {$unwrapMarkNode} from '@lexical/mark'
-import { decompress } from './compression';
-import ReadOnlyEditor from './editor/read-only-editor';
-
-
 type CommentContentProps = {
     id: string
     author: {id: string, handle: string, displayName: string}

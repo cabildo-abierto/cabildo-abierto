@@ -27,7 +27,7 @@ export const FastPostPreview = ({
         */}
         <FastPostPreviewFrame post={post} borderBelow={borderBelow} showingParent={false} showingChildren={showChildren}>
             {/*hasParent && !showParent && !parentIsMainPost && <IsReplyMessage author={content.parent.author}/>*/}
-            <FastPostContent post={post} onClickQuote={onClickQuote}/>
+            {<FastPostContent post={post} onClickQuote={onClickQuote}/>}
         </FastPostPreviewFrame>
     </div>
 }

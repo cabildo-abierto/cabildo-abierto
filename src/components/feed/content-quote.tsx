@@ -2,8 +2,6 @@ import {FastPostProps} from "../../app/lib/definitions";
 import {useArticle} from "../../hooks/user";
 import {decompress} from "../compression";
 import ReadOnlyEditor from "../editor/read-only-editor";
-import {EditorState, LexicalEditor} from "lexical";
-import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 
 
 function filterOutsideSelection(node: any, start: number[] | undefined, startOffset: number | undefined, end: number[] | undefined, endOffset: number | undefined){

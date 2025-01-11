@@ -5,7 +5,6 @@ import {FastPostProps} from '../../app/lib/definitions'
 import {formatIsoDate, getUsername, userUrl} from '../utils'
 import Link from 'next/link'
 import { ReactNode } from 'react'
-import { FollowButtonInContent } from './follow-button-in-content'
 import { EngagementIcons } from './engagement-icons'
 
 

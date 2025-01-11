@@ -1,5 +1,3 @@
-import PostEditor from "../../../components/editor/article-editor"
-import { ThreeColumnsLayout } from "../../../components/three-columns"
 import { Metadata } from "next"
 import {NotFoundPage} from "../../../components/not-found-page";
 

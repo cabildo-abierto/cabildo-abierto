@@ -4,9 +4,9 @@ import {useDatasets} from "../../../hooks/contents";
 import LoadingSpinner from "../../../components/loading-spinner";
 import {ErrorPage} from "../../../components/error-page";
 import {useEffect, useState} from "react";
-import {getDataset, saveVisualization} from "../../../actions/data";
+import {saveVisualization} from "../../../actions/data";
 import SearchableDropdown from "../../../components/ui-utils/searchable-dropdown";
-import {DatasetProps, FilterProps, PlotConfigProps} from "../../lib/definitions";
+import {FilterProps, PlotConfigProps} from "../../lib/definitions";
 import {BasicButton} from "../../../components/ui-utils/basic-button";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -14,10 +14,18 @@ import {IconButton, TextField} from "@mui/material";
 import StateButton from "../../../components/state-button";
 import {Plot} from "../../../components/visualizations/plot";
 import { getSpecForConfig } from "../../../components/visualizations/spec";
+import {BackButton} from "../../../components/back-button";
 
 function readyToSave(config: PlotConfigProps){
     if(config.kind == null) return false
-
+    if(config.dataset == null) return false
+    if(config.kind == "Histograma"){
+        if(!config["Columna"] || config["Columna"].length == 0) return false
+    } else if(config.kind == "Gráfico de barras" || config.kind == "Gráfico de línea"){
+        if(!config["Eje x"] || config["Eje x"].length == 0) return false
+        if(!config["Eje y"] || config["Eje y"].length == 0) return false
+    }
+    if(!config["Título"] || config["Título"].length == 0) return false
     return true
 }
 
@@ -82,6 +90,11 @@ const Page = () => {
     const saveDisabled = !readyToSave(config)
 
     const center = <div className={"px-2 mt-8"}>
+        <div>
+        <BackButton
+            url={"/datos"}
+        />
+        </div>
         <div className={"text-center"}>
             <h1>Nueva visualización</h1>
         </div>
@@ -201,7 +214,7 @@ const Page = () => {
                 {config.dataset != null && <div className={"flex justify-end my-4"}>
                     <StateButton
                         handleClick={onSave}
-                        text1={"Guardar"}
+                        text1={"Publicar"}
                         disabled={saveDisabled}
                     />
                 </div>}

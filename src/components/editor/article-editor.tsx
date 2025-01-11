@@ -19,12 +19,6 @@ import { FastPostImagesEditor } from "../fast-post-images-editor"
 import { AddImageButton } from "../add-image-button"
 import { createArticle } from "../../actions/contents"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
-import {
-    $convertFromMarkdownString,
-    $convertToMarkdownString,
-    TRANSFORMERS,
-} from '@lexical/markdown';
-import {PLAYGROUND_TRANSFORMERS} from "./plugins/MarkdownTransformers";
 
 const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsProps = (isFast, initialData) => {
     return {
@@ -266,7 +260,7 @@ const PostEditor = ({
 	}
 
     return <div className="p-1 rounded">
-        <div className="text-sm text-gray-400 text-center">{isFast ? "Publicación rápida" : "Publicación"}</div>
+        <div className="text-sm text-gray-400 text-center">{isFast ? "Post" : "Artículo"}</div>
         <div className="flex justify-between mt-3 items-center w-full">
             <div className="hidden sm:block w-64">
                 {isPublished ? <div></div> : <DraftsButton/>}

@@ -1,5 +1,4 @@
 import { createServerClient } from '@supabase/ssr'
-import { NextURL } from 'next/dist/server/web/next-url'
 import { NextResponse, type NextRequest } from 'next/server'
 
 function isNewUserRoute(request: NextRequest){
