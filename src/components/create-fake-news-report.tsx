@@ -7,7 +7,6 @@ import { commentEditorSettings } from './editor/comment-editor';
 import dynamic from 'next/dynamic'
 import { EditorState, LexicalEditor } from 'lexical';
 import { useUser } from '../hooks/user';
-import { compress } from './compression';
 import { emptyOutput } from './utils';
 import { BaseFullscreenPopup } from './ui-utils/base-fullscreen-popup';
 import { NeedAccountPopup } from './need-account-popup';

@@ -3,12 +3,11 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
-import { SmallUserProps, UserProps, UserStats } from "../app/lib/definitions";
+import { SmallUserProps, UserProps } from "../app/lib/definitions";
 import {getRkeyFromUri, supportDid, validSubscription} from "../components/utils";
 import { getSubscriptionPrice } from "./payments";
 import { getSessionAgent } from "./auth";
 import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
-import {Agent} from "@atproto/api";
 
 
 export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
@@ -272,7 +271,7 @@ export async function unfollow(followUri: string) {
 
 export async function getUserId(){
     const {agent, did} = await getSessionAgent()
-
+    console.log("Current session", did)
     if(!did) return null
 
     return did

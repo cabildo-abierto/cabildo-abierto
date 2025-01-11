@@ -1,6 +1,6 @@
 "use client"
 import {ThreeColumnsLayout} from "../../../components/three-columns";
-import {useDataset, useDatasets} from "../../../hooks/contents";
+import {useDataset} from "../../../hooks/contents";
 import {ErrorPage} from "../../../components/error-page";
 import LoadingSpinner from "../../../components/loading-spinner";
 import {ContentTopRowAuthor} from "../../../components/content-top-row-author";

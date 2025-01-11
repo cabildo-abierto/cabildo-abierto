@@ -1,5 +1,4 @@
 import Image from "next/image";
-import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 
 export const ProfilePic = ({user, className}: {className?: string, user: { avatar?: string, handle: string }}) => {

@@ -1,28 +1,18 @@
-
-type ScorableContent = {
-    childrenTree: {authorId: string}[]
-    author: {id: string}
-    type: string
-    reactions: {userById: string}[]
-    uniqueViewsCount: number
-}
+import {FeedContentProps} from "../app/lib/definitions";
 
 
-const infoPopular = <div><p className="font-bold">Publicaciones ordenadas por popularidad</p>Se suman los votos hacia arriba y la cantidad de personas que comentaron y se lo divide por la cantidad de vistas.</div>
+export function popularityScore(content: FeedContentProps){
+    if(content.participantsCount == undefined || content.uniqueViewsCount == undefined){
+        return [0]
+    }
 
+    const participants = content.participantsCount
 
-export function popularityScore(content: ScorableContent){
-    const participants = new Set([
-        ...content.childrenTree.map(({authorId}) => (authorId)),
-        ...content.reactions.map(({userById}) => (userById))
-    ])
-    participants.delete(content.author.id)
-
-    const viewWeight = content.type == "FastPost" ? 0.4 : 1
+    const viewWeight = content.collection == "app.bsky.feed.post" ? 0.4 : 1
 
     //const daysSinceCreation = (new Date().getTime() - new Date(content.createdAt).getTime()) / (1000*60*60*24)
 
-    return [(participants.size) / Math.max(content.uniqueViewsCount * viewWeight, 1), participants.size, content.uniqueViewsCount]
+    return [participants / Math.max(content.uniqueViewsCount * viewWeight, 1), participants, content.uniqueViewsCount]
 }
     
 function isPopularEnough(content: {childrenTree: {authorId: string}[], author: {id: string}, _count: {reactions: number}}){

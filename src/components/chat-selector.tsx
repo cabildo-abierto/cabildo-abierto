@@ -1,4 +1,4 @@
-import { listOrder, listOrderDesc } from "./utils"
+import { listOrderDesc } from "./utils"
 
 export type ConversationStateProps = {id: string, date: Date, seen: boolean}
 

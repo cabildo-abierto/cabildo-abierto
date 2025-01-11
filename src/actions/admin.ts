@@ -2,8 +2,7 @@
 
 import { revalidateTag } from "next/cache";
 import { db } from "../db";
-import {getRkeyFromUri, launchDate, subscriptionEnds, supportDid, validSubscription} from "../components/utils";
-import { UserMonthDistributionProps } from "../app/lib/definitions";
+import {getRkeyFromUri, launchDate, supportDid, validSubscription} from "../components/utils";
 import { getSessionAgent } from "./auth";
 
 export async function revalidateEntities(){

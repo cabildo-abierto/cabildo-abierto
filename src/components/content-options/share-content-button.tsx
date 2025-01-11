@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { articleUrl, contentUrl } from "../utils";
+import { contentUrl } from "../utils";
 import { ContentOptionsChoiceButton } from "./content-options-button";
 import ShareIcon from '@mui/icons-material/Share';
-import {FastPostProps, FeedContentProps} from "../../app/lib/definitions";
+import {FeedContentProps} from "../../app/lib/definitions";
 
 export const ShareContentButton = ({ content }: { content: FeedContentProps }) => {
     const [onClipboard, setOnClipboard] = useState(false);

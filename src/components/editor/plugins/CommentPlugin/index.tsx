@@ -7,18 +7,16 @@
  */
 
 import {
-  $createRangeSelection, $nodesOfType,
-  $setSelection,
+  $nodesOfType,
   LexicalCommand,
-  NodeKey, RangeSelection
+  NodeKey
 } from 'lexical';
 
 import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$wrapNodeInElement, markSelection, mergeRegister, registerNestedElementResolver} from '@lexical/utils';
+import {$wrapNodeInElement, mergeRegister} from '@lexical/utils';
 import {
-  $getNodeByKey,
   $getRoot,
   $getSelection,
   $isRangeSelection,
@@ -27,14 +25,14 @@ import {
   createCommand,
 } from 'lexical';
 
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {createPortal} from 'react-dom';
 
 import { AddCommentBox } from './AddCommentBox';
 import { CommentInputBox } from './ui';
 
 import {FastPostProps} from "../../../../app/lib/definitions";
-import {QuoteDirProps, ShowQuoteReplyButton} from "./show-quote-reply";
+import {QuoteDirProps} from "./show-quote-reply";
 import {$createSidenoteNode, SidenoteNode} from "../../nodes/SidenoteNode";
 import {NodeQuoteReplies} from "./node-quote-replies";
 

@@ -4,14 +4,15 @@ import {BaseFullscreenPopup} from "../ui-utils/base-fullscreen-popup";
 import {useEffect, useState} from "react";
 import {getVisualizations} from "../../actions/data";
 import {getVisualizationTitle} from "../utils";
+import {VisualizationProps} from "../../app/lib/definitions";
 
 
 export const InsertVisualizationModal = ({open, onClose, setVisualization}: {
     open: boolean
     onClose: () => void;
-    setVisualization: (v: string) => void
+    setVisualization: (v: VisualizationProps) => void
 }) => {
-    const [visualizations, setVisualizations] = useState([])
+    const [visualizations, setVisualizations] = useState<VisualizationProps[]>([])
 
     useEffect(
         () => {

@@ -1,12 +1,9 @@
 'use server'
 
 
-import { db } from "../db";
-import { accessToken, contributionsToProportionsMap, formatDate, launchDate, subscriptionEnds, supportDid } from "../components/utils";
-import { getUserById } from "./users";
+import { accessToken } from "../components/utils";
 import { pathLogo } from "../components/logo";
 import MercadoPagoConfig, { Preference } from "mercadopago";
-import { BothContributionsProps, SubscriptionProps, UserProps } from "../app/lib/definitions";
 
 
 const baseUrl = "https://www.cabildoabierto.com.ar"

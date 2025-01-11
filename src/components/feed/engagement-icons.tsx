@@ -9,9 +9,9 @@ import {ReactNode} from "react";
 
 type EngagementIconsProps = {
     counters: {
-        replyCount: number
-        repostCount: number
-        likeCount: number
+        replyCount?: number
+        repostCount?: number
+        likeCount?: number
         viewer?: {
             like?: string
             repost?: string
@@ -26,14 +26,13 @@ type EngagementIconsProps = {
 }
 
 export const EngagementIcons = ({counters, record, options, className="space-x-16"}: EngagementIconsProps) => {
-
     return <div className={"flex items-center " + className}>
-        <FixedCounter
+        {counters.replyCount != undefined && <FixedCounter
             count={counters.replyCount}
             icon={<InactiveCommentIcon/>}
             title="Cantidad de respuestas."
-        />
-        <LikeCounter
+        />}
+        {counters.repostCount != undefined && <LikeCounter
             icon1={<RepostIcon fontSize={"small"}/>}
             icon2={<RepostIcon fontSize={"small"}/>}
             onLike={async () => {return await repost(record.uri, record.cid)}}
@@ -41,8 +40,8 @@ export const EngagementIcons = ({counters, record, options, className="space-x-1
             title="Cantidad de republicaciones."
             likeUri={counters.viewer ? counters.viewer.repost : undefined}
             initialCount={counters.repostCount}
-        />
-        <LikeCounter
+        />}
+        {counters.likeCount != undefined && <LikeCounter
             icon1={<ActiveLikeIcon fontSize={"small"}/>}
             icon2={<InactiveLikeIcon fontSize={"small"}/>}
             onLike={async () => {return await addLike(record.uri, record.cid)}}
@@ -50,7 +49,7 @@ export const EngagementIcons = ({counters, record, options, className="space-x-1
             title="Cantidad de me gustas."
             likeUri={counters.viewer ? counters.viewer.like : undefined}
             initialCount={counters.likeCount}
-        />
+        />}
         <ContentOptionsButton
             options={options}
         />

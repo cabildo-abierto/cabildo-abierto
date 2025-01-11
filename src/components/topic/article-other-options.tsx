@@ -10,7 +10,6 @@ import StateButton from '../state-button';
 import { useSWRConfig } from 'swr';
 import { ContentOptionsChoiceButton } from '../content-options/content-options-button';
 import { BaseFullscreenPopup } from '../ui-utils/base-fullscreen-popup';
-import { inputClassName } from '../utils';
 import { validEntityName } from '../write-button';
 import { AcceptButtonPanel } from '../ui-utils/accept-button-panel';
 //import { changeEntityName } from '../actions/entities';

@@ -1,8 +1,6 @@
 "use client"
 
-import { TopicProps} from "../../app/lib/definitions"
 import { SettingsProps } from "./lexical-editor"
-import { useSWRConfig } from "swr"
 
 
 const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este tema no tiene contenido! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`

@@ -8,7 +8,6 @@ import { isMobile } from 'react-device-detect'
 import { articleUrl } from "../../components/utils";
 import { BlueskyLogo } from "../../components/icons/bluesky-logo";
 import {mainDescription} from "../../components/utils/metadata";
-import {CloseSessionButton} from "../../components/close-session-button";
 
 export const metadata: Metadata = {
     title: 'Cabildo Abierto',

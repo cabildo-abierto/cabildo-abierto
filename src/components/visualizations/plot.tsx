@@ -1,7 +1,6 @@
 "use client"
-import {DatasetProps, FilterProps, PlotConfigProps} from "../../app/lib/definitions";
-import {VegaLite, VisualizationSpec} from "react-vega";
-import {useEffect, useState} from "react";
+import {PlotConfigProps} from "../../app/lib/definitions";
+import {VegaLite} from "react-vega";
 import LoadingSpinner from "../loading-spinner";
 import {getSpecForConfig} from "./spec";
 import {useDataset} from "../../hooks/contents";

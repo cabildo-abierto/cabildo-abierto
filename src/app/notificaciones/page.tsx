@@ -1,0 +1,17 @@
+"use client"
+import NotificationsIconMui from '@mui/icons-material/Notifications';
+
+
+const Page = () => {
+    return <div className={"flex flex-col"}>
+        <div className={"ml-6 mt-6 title flex items-center space-x-2"}>
+            <div className={"text-5xl"}><NotificationsIconMui fontSize={"inherit"}/></div> <div className={"text-4xl"}>Notificaciones</div>
+        </div>
+        <div className={"text-center mt-8"}>
+            Ninguna notificación por ahora.
+        </div>
+    </div>
+}
+
+
+export default Page

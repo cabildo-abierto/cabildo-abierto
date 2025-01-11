@@ -1,8 +1,8 @@
-import useSWR from "swr"
+
 import {ArticleProps, SmallUserProps, UserProps} from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import { ChatMessage } from "@prisma/client"
-import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs"
+import useSWR from "swr"
 
 
 export function useArticle(cid: string): {article: ArticleProps, isLoading?: boolean, error?: string} {

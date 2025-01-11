@@ -1,9 +1,6 @@
 "use client"
-import {DatasetProps, FilterProps, PlotConfigProps} from "../../app/lib/definitions";
-import {VegaLite, VisualizationSpec} from "react-vega";
-import {useEffect, useState} from "react";
-import LoadingSpinner from "../loading-spinner";
-
+import {FilterProps, PlotConfigProps} from "../../app/lib/definitions";
+import {VisualizationSpec} from "react-vega";
 
 function getMark(config: PlotConfigProps): any {
     if(config.kind == "Gráfico de barras") {

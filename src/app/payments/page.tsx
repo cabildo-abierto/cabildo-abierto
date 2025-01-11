@@ -2,8 +2,6 @@
 import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
 import { ThreeColumnsLayout } from "../../components/three-columns"
-import { formatDate, getEntityMonetizedContributions } from "../../components/utils"
-import { ConfirmPaymentsButton, CreatePromisesButton } from "./create-promises-button"
 
 
 export default async function Page() {

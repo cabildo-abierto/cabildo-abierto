@@ -1,7 +1,7 @@
 import useSWR from "swr"
 import {DatasetProps, FeedContentProps, TrendingTopicProps, UserStats, VisualizationProps} from "../app/lib/definitions"
 import { fetcher } from "./utils"
-import {getDidFromUri, getRkeyFromUri, uriToEndpoint} from "../components/utils";
+import {getDidFromUri, getRkeyFromUri} from "../components/utils";
 
 
 export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: boolean}{
@@ -60,6 +60,17 @@ export function useDatasets(): {datasets: DatasetProps[], isLoading: boolean, is
 }
 
 
+export function useVisualizations(): {visualizations: VisualizationProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/visualizations', fetcher)
+
+    return {
+        visualizations: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
 export function useDataset(uri: string): {dataset: {dataset: DatasetProps, data: any[]}, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher)
 
@@ -93,8 +104,8 @@ export function useTrendingTopics(route: string[], kind: string): {topics: Trend
 }
 
 
-export function useProfileFeed(id: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/profile-feed/'+id, fetcher)
+export function useProfileFeed(id: string, kind: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/profile-feed/'+id+"/"+kind, fetcher)
   
     return {
         feed: data,
@@ -107,17 +118,6 @@ export function useProfileFeed(id: string): {feed: FeedContentProps[], isLoading
 export function useEditsFeed(id: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/edits-feed/'+id, fetcher)
   
-    return {
-        feed: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useRepliesFeed(id: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/replies-feed/'+id, fetcher)
-
     return {
         feed: data,
         isLoading,

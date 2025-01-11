@@ -18,7 +18,7 @@ import type {
   
   import {
     addClassNamesToElement,
-    removeClassNamesFromElement,
+
   } from '@lexical/utils';
   import {$applyNodeReplacement, $isRangeSelection, ElementNode} from 'lexical';
   

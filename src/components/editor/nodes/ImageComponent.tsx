@@ -58,7 +58,6 @@ import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import {$isImageNode} from './ImageNode';
 import {KeywordNode} from './KeywordNode';
-import ImageNext from 'next/image';
 
 const imageCache = new Set();
 

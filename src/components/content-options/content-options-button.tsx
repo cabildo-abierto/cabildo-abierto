@@ -5,7 +5,7 @@ import { ReactNode, useState } from 'react';
 import { ModalBelow } from '../modal-below';
 import { IconButton } from '@mui/material';
 import StateButton, { StateButtonClickHandler } from '../state-button';
-import {FastPostProps, FeedContentProps} from '../../app/lib/definitions';
+import {FeedContentProps} from '../../app/lib/definitions';
 import { ContentOptionsDropdown } from './content-options-dropdown';
 
 

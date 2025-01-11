@@ -1,6 +1,3 @@
-import { ToggleButtonGroup } from "@mui/material"
-import { ToggleButton as MuiToggleButton } from "@mui/material"
-
 type ToggleButtonProps = {
     text: string,
     className?: string

@@ -1,7 +1,7 @@
 'use server'
 import { db } from "../db";
 import { getSessionAgent } from "./auth";
-import {Agent, AtUri} from "@atproto/api";
+import {Agent} from "@atproto/api";
 import {getUserById} from "./users";
 import {revalidateTag} from "next/cache";
 

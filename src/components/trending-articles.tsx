@@ -1,14 +1,10 @@
-import {useTopics, useTrendingTopics} from "../hooks/contents"
+import {useTrendingTopics} from "../hooks/contents"
 import {TrendingTopicProps} from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
 import { articleUrl, listOrderDesc } from "./utils"
 import { useDraggable } from "react-use-draggable-scroll";
 
 import { useEffect, useRef, useState } from 'react';
-import { fetcher } from "../hooks/utils"
-import { preload } from "swr"
-import InfoPanel from "./info-panel";
-import SwapVertIcon from '@mui/icons-material/SwapVert';
 import PersonIcon from '@mui/icons-material/Person';
 import { CustomLink as Link } from './custom-link';
 import Button from "@mui/material/Button";
@@ -37,29 +33,26 @@ export const TrendingArticles = ({route, selected}: {route: string[], selected: 
     let topicsWithScore = topics.topics.map((topic) => ({ entity: topic, score: topicPopularityScore(topic) }))
 
     topicsWithScore = topicsWithScore.sort(listOrderDesc);
-    
-    const text = <div>
-        <p className="font-bold">Temas ordenados por popularidad</p>
-        <p>Según la cantidad de personas que participó en la discusión. Las participaciones incluyen menciones, comentarios y ediciones.</p>
-    </div>
 
-    return <div className="px-2">
-        {false && <div className="text-[var(--text-light)] text-xs sm:text-sm flex justify-end mb-1">
-            <InfoPanel iconClassName="text-gray-600" icon={<SwapVertIcon fontSize="small"/>} text={text}/>
-        </div>}
-        <div className="flex justify-end space-x-2">
-            <button 
-                className={"rounded-lg text-[10px] sm:text-xs border px-2 text-[var(--text-light)] hover:bg-[var(--secondary-light)]" + (recent ? " bg-[var(--secondary-light)]" : "")}
-                onClick={() => {setRecent(true)}}
-            >
-                últimos 7 días
-            </button>
-            <button 
-                className={"rounded-lg text-[10px] sm:text-xs border px-2 text-[var(--text-light)] hover:bg-[var(--secondary-light)]" + (!recent ? " bg-[var(--secondary-light)]" : "")}
-                onClick={() => {setRecent(false)}}
-            >
-                histórico
-            </button>
+    return <div className="border rounded p-4 w-full space-y-4">
+        <div className="flex justify-between space-x-4 items-center">
+            <Link className={"text-sm text-[var(--text-light)]"} href={"/temas"}>
+                Temas
+            </Link>
+            <div className={"flex space-x-2 items-center"}>
+                <button
+                    className={"rounded-lg text-[10px] sm:text-xs border px-2 text-[var(--text-light)] hover:bg-[var(--secondary-light)]" + (recent ? " bg-[var(--secondary-light)]" : "")}
+                    onClick={() => {setRecent(true)}}
+                >
+                    últimos 7 días
+                </button>
+                <button
+                    className={"rounded-lg text-[10px] sm:text-xs border px-2 text-[var(--text-light)] hover:bg-[var(--secondary-light)]" + (!recent ? " bg-[var(--secondary-light)]" : "")}
+                    onClick={() => {setRecent(false)}}
+                >
+                    histórico
+                </button>
+            </div>
         </div>
         <TrendingArticlesSlider trendingArticles={topicsWithScore}/>
     </div>
@@ -75,7 +68,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
 
     return (
     <div
-        className="flex space-x-3 overflow-x-scroll no-scrollbar py-2"
+        className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar px-2"
         {...events}
         ref={ref} // add reference and events to the wrapping div
     >

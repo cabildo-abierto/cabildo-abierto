@@ -1,5 +1,5 @@
 import Button from "@mui/material/Button";
-import { InsertImagePayload, InsertImageUriDialogBody, UploadImageButton } from "./editor/plugins/ImagesPlugin";
+import { InsertImageUriDialogBody, UploadImageButton } from "./editor/plugins/ImagesPlugin";
 import { DialogButtonsList } from "./editor/ui/Dialog";
 import { LinkIcon } from "./icons/link-icon";
 import { useState } from "react";

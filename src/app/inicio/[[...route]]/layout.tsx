@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  return <MainLayout>
+    return <MainLayout>
       <PaywallChecker requireAccount={true}>
       {children}
       </PaywallChecker>

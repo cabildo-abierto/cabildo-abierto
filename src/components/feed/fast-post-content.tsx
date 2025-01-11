@@ -1,9 +1,10 @@
+"use client"
+
 import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {BskyFastPostImage} from "./bsky-fast-post-image";
 import {QuotedPost} from "./quoted-post";
 import {FastPostProps} from "../../app/lib/definitions";
 import {ContentQuote} from "./content-quote";
-import {VisualizationInFastPost} from "./visualization-in-fast-post";
 import {PlotInPost} from "./plot-in-post";
 
 
@@ -14,7 +15,6 @@ export const FastPostContent = ({post, isMainPost=false, hideQuote=false, onClic
             <BskyRichTextContent content={post.content}/>
         </div>
         <BskyFastPostImage post={post} did={post.author.did}/>
-        <VisualizationInFastPost post={post}/>
         <QuotedPost post={post}/>
         <PlotInPost post={post}/>
     </>

@@ -3,7 +3,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {DateSince} from "../date";
 import {CustomLink as Link} from "../custom-link";
-import {articleUrl, currentVersion, hasChanged, hasEditPermission, inRange} from "../utils";
+import {articleUrl, currentVersion, hasChanged, hasEditPermission} from "../utils";
 import {ArticleOtherOptions} from "./article-other-options";
 import {SetProtectionButton} from "../protection-button";
 import {EntityCategories} from "../categories";

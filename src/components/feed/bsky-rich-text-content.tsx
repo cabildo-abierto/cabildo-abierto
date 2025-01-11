@@ -1,4 +1,4 @@
-
+"use client"
 import { RichText } from '@atproto/api'
 import {
     $convertFromMarkdownString,

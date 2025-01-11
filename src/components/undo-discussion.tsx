@@ -1,10 +1,6 @@
 "use client"
 
 import { TopicProps } from "../app/lib/definitions"
-import { decompress } from "./compression"
-import { UserIdLink } from "./content-top-row-author"
-import LoadingSpinner from "./loading-spinner"
-
 
 
 export const UndoDiscussion = ({entity, version}: {entity: TopicProps, version: number}) => {

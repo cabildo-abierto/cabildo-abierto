@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { BlueskyLogin } from "./bsky-login"
 import { TopbarLogo } from "./logo"
-import Button from "@mui/material/Button";
 
 
 export const Login = ({newTab=false}: {newTab?: boolean}) => {

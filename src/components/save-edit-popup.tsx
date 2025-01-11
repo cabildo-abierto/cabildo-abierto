@@ -11,7 +11,7 @@ import { NotEnoughPermissionsWarning } from "./permissions-warning";
 import StateButton from "./state-button";
 import TickButton from "./tick-button";
 import { articleUrl, hasEditPermission } from "./utils";
-import { ChangesCounter, ChangesCounterWithText } from "./changes-counter";
+import { ChangesCounterWithText } from "./changes-counter";
 import Button from "@mui/material/Button";
 import { AcceptButtonPanel } from "./ui-utils/accept-button-panel";
 import {TextField} from "@mui/material";

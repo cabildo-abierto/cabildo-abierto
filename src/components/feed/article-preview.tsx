@@ -1,3 +1,4 @@
+"use client"
 import {ArticleProps} from '../../app/lib/definitions'
 import { FastPostPreviewFrame } from './fast-post-preview-frame'
 import {PostTitleOnFeed} from "./post-title-on-feed";

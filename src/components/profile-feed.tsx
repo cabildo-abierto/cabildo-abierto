@@ -5,7 +5,7 @@ import LoadingSpinner from "./loading-spinner"
 
 
 export const ProfileFeed = ({profileUser, showingFakeNews}: {profileUser: {did: string, handle: string, displayName?: string}, showingFakeNews: boolean}) => {
-    let feed = useProfileFeed(profileUser.did)
+    let feed = useProfileFeed(profileUser.did, "main")
 
     if(feed.isLoading){
         return <LoadingSpinner/>
