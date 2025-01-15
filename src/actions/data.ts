@@ -8,6 +8,7 @@ import SortOrder = Prisma.SortOrder;
 import JSZip from "jszip";
 import {DidResolver} from "@atproto/identity";
 import {VisualizationSpec} from "react-vega";
+import {recordQuery} from "./utils";
 
 
 export async function createDataset(title: string, columns: string[], formData: FormData, format: string): Promise<{error?: string}>{
@@ -74,22 +75,6 @@ export async function createDataset(title: string, columns: string[], formData: 
     return {}
 }
 
-
-const recordQuery = {
-    uri: true,
-    cid: true,
-    rkey: true,
-    collection: true,
-    createdAt: true,
-    author: {
-        select: {
-            did: true,
-            handle: true,
-            displayName: true,
-            avatar: true
-        }
-    }
-}
 
 const datasetQuery = {
     ...recordQuery,

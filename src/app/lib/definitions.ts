@@ -108,6 +108,14 @@ export type TrendingTopicProps = {
 export type FeedContentProps = (FastPostProps | ArticleProps | DatasetProps | VisualizationProps) & EngagementProps
 
 
+export type CabildoProps = {
+    cabildo: {
+        name: string
+        members: {did: string}[]
+    }
+} & RecordProps
+
+
 export type SmallUserProps = {
     did: string
     handle: string

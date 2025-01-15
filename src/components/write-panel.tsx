@@ -206,7 +206,7 @@ const WriteFastPost = ({replyTo, onClose}) => {
         setErrorOnCreatePost(false)
         if (user) {
             const reply = replyTo ? replyFromParentElement(replyTo) : undefined
-            const {error} = await createFastPost({text, reply, visualization});
+            const {error} = await createFastPost({text, reply, visualization, cabildo: "Argentina"});
 
             if (!error) {
                 setEditorKey(editorKey + 1);

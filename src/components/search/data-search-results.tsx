@@ -1,5 +1,5 @@
 import {useDatasets, useVisualizations} from "../../hooks/contents";
-import {useSearch} from "../search-context";
+import {useSearch} from "./search-context";
 import LoadingSpinner from "../loading-spinner";
 import {DatasetProps, VisualizationProps} from "../../app/lib/definitions";
 import {cleanText} from "../utils";

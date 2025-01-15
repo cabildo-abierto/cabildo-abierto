@@ -1,6 +1,6 @@
 "use client"
 import { UserSearchResult } from "./searchbar"
-import { useSearch } from "./search-context"
+import { useSearch } from "./search/search-context"
 import { SmallUserProps } from "../app/lib/definitions"
 import { useUser, useUsers } from "../hooks/user"
 import LoadingSpinner from "./loading-spinner"

@@ -4,8 +4,6 @@ import SelectionComponent from "./search-selection-component"
 
 
 type MainFeedHeaderProps = {
-    route: string[]
-    setRoute: (v: string[]) => void
     selected: string
     onSelection: (v: string) => void
     showRoute: boolean
@@ -16,8 +14,7 @@ type MainFeedHeaderProps = {
 }
 
 
-export const MainFeedHeader = ({
-    route, setRoute, selected, onSelection, showRoute, order, setOrder, filter, setFilter
+export const MainFeedHeader = ({selected, onSelection, showRoute, order, setOrder, filter, setFilter
 }: MainFeedHeaderProps) => {
 
     function optionsNodes(o: string, isSelected: boolean){
@@ -43,7 +40,7 @@ export const MainFeedHeader = ({
     return <div className="flex border-b">
         {<SelectionComponent
             onSelection={onSelection}
-            options={["Siguiendo", "En discusión"]}
+            options={["En discusión", "Siguiendo"]}
             selected={selected}
             optionsNodes={optionsNodes}
             className="flex justify-between"

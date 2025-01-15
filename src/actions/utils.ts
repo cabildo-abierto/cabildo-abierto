@@ -38,3 +38,20 @@ export function addCounters(did: string, elem: any, reactions: {record: {authorI
         repostCount
     }
 }
+
+
+export const recordQuery = {
+    uri: true,
+    cid: true,
+    rkey: true,
+    collection: true,
+    createdAt: true,
+    author: {
+        select: {
+            did: true,
+            handle: true,
+            displayName: true,
+            avatar: true
+        }
+    }
+}

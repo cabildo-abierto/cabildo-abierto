@@ -1,6 +1,6 @@
 "use client"
 import { EntitySearchResult } from "./entity-search-result"
-import { useSearch } from "./search-context"
+import { useSearch } from "./search/search-context"
 import {useTrendingTopics} from "../hooks/contents"
 import LoadingSpinner from "./loading-spinner"
 import { cleanText, listOrderDesc } from "./utils"

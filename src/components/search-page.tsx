@@ -2,7 +2,7 @@
 import { usePathname, useParams } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { SearchContent } from "./search-content";
-import { useSearch } from "./search-context";
+import { useSearch } from "./search/search-context";
 import { ThreeColumnsLayout } from "./three-columns";
 
 

@@ -1,5 +1,12 @@
 import useSWR from "swr"
-import {DatasetProps, FeedContentProps, TrendingTopicProps, UserStats, VisualizationProps} from "../app/lib/definitions"
+import {
+    CabildoProps,
+    DatasetProps,
+    FeedContentProps,
+    TrendingTopicProps,
+    UserStats,
+    VisualizationProps
+} from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import {getDidFromUri, getRkeyFromUri} from "../components/utils";
 
@@ -120,6 +127,17 @@ export function useEditsFeed(id: string): {feed: FeedContentProps[], isLoading: 
   
     return {
         feed: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useCabildos(): {cabildos: CabildoProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/cabildos', fetcher)
+
+    return {
+        cabildos: data,
         isLoading,
         isError: error
     }
