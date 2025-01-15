@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import { CustomLink as Link } from './custom-link';
 import { SearchButton } from "./top-bar";
-import { useSearch } from "./search-context";
+import { useSearch } from "./search/search-context";
 import { CloseButton } from "./ui-utils/close-button";
 import Image from 'next/image'
 import { userUrl } from "./utils";

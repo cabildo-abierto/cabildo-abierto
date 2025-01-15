@@ -21,6 +21,7 @@ import {BasicButton} from "./ui-utils/basic-button";
 import {WritePanel} from "./write-panel";
 import {WriteButtonIcon} from "./icons/write-button-icon";
 import {IconButton} from "@mui/material";
+import {People} from "@mui/icons-material";
 
 
 function unseenCount(chat: ChatMessage[], userId: string){
@@ -133,6 +134,12 @@ export const SidebarContent = ({onClose, startClosed=false}: { onClose: () => vo
                        text="Datos"
                        href="/datos"
                        selected={pathname.startsWith("/datos")}
+                       showText={showText} setShowText={setShowText}
+        />
+        <SidebarButton icon={<People fontSize={"medium"}/>} onClick={onClose}
+                       text="Cabildos"
+                       href="/cabildos"
+                       selected={pathname.startsWith("/cabildos")}
                        showText={showText} setShowText={setShowText}
         />
         {user.user &&

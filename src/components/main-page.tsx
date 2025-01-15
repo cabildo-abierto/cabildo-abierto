@@ -9,18 +9,16 @@ import Feed from "./feed/feed"
 
 
 type MainPageProps = {
-    route: string[],
-    setRoute: (v: string[]) => void
     paramsSelected?: string
     showRoute?: boolean
 }
 
 
-export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: MainPageProps) => {
+export const MainPage = ({paramsSelected, showRoute=true}: MainPageProps) => {
     const user = useUser()
-    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : (user.user ? "Siguiendo" : "En discusión"))
-    const feed = useFeed(route, "InDiscussion")
-    const followingFeed = useFeed(route, "Following")
+    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "En discusión")
+    const feed = useFeed([], "InDiscussion")
+    const followingFeed = useFeed([], "Following")
 
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
     const [filter, setFilter] = useState("Todas")
@@ -38,8 +36,6 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
 
     return <div className="w-full">
         <MainFeedHeader
-            route={route}
-            setRoute={setRoute}
             selected={selected}
             onSelection={onSelection}
             showRoute={showRoute}
@@ -50,16 +46,6 @@ export const MainPage = ({route, setRoute, paramsSelected, showRoute=true}: Main
         />
         
         <div className="">
-
-            {false && showRoute && selected == "En discusión" && 
-                <div className="flex items-center px-2 mt-2">
-                    <Route route={route} setRoute={setRoute} selected={selected}/>
-                </div>
-            }
-
-            {/*<div className="pt-4 pb-6 border-b">
-                <TrendingArticles route={route} selected={selected}/>
-            </div>*/}
 
             {selected == "En discusión" && <Feed
                 feed={feed}

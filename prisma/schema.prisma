@@ -56,6 +56,8 @@ model User {
   blobs   Blob[]
 
   followers Follow[]
+
+  cabildosJoined Cabildo[] @relation("cabildosJoined")
 }
 
 model Subscription {
@@ -124,6 +126,7 @@ model Record {
   dataset             Dataset?
   dataBlock           DataBlock?
   visualization       Visualization?
+  cabildo             Cabildo?
   visualizationsUsing Visualization[] @relation("visualizationUsesDataset")
 
   embeddedIn      Record?  @relation("embeddings", fields: [uri], references: [uri])
@@ -257,6 +260,17 @@ model Visualization {
 
   dataset   Record? @relation("visualizationUsesDataset", fields: [datasetId], references: [uri])
   datasetId String?
+}
+
+model Cabildo {
+  uri    String @id
+  record Record @relation(fields: [uri], references: [uri])
+
+  name    String
+  members User[] @relation("cabildosJoined")
+
+  // isPrivate
+  // admins
 }
 
 enum ViewType {

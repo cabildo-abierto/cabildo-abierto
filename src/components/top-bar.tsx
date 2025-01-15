@@ -10,7 +10,7 @@ import { createPortal } from "react-dom";
 import { useUser } from "../hooks/user";
 import { TopbarLogo } from "./logo";
 import { NotificationsButton } from "./notifications/notifications-button";
-import { useSearch } from "./search-context";
+import { useSearch } from "./search/search-context";
 import { Button, IconButton } from "@mui/material";
 import { CabildoIcon } from './icons/home-icon';
 

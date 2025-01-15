@@ -163,7 +163,9 @@ export async function getThread({collection, did, rkey, cid}: {collection: strin
 
 
 export async function createFastPost(
-    {text, reply, quote, visualization}: {text: string, reply?: FastPostReplyProps, quote?: string, visualization?: VisualizationProps}
+    {text, reply, quote, visualization, cabildo}: {
+        text: string, reply?: FastPostReplyProps, quote?: string, visualization?: VisualizationProps, cabildo?: string
+    }
 ): Promise<{error?: string}> {
 
     const {agent} = await getSessionAgent()
@@ -173,6 +175,8 @@ export async function createFastPost(
     })
     await rt.detectFacets(agent)
 
+    const tags = cabildo != undefined ? ["cabildo/"+cabildo] : undefined
+
     if(visualization){
         const record = {
             "$type": "app.bsky.feed.post",
@@ -180,6 +184,7 @@ export async function createFastPost(
             facets: rt.facets,
             createdAt: new Date().toISOString(),
             reply,
+            tags,
             embed: {
                 $type: "app.bsky.embed.external",
                 external: {
@@ -198,6 +203,7 @@ export async function createFastPost(
             "$type": "app.bsky.feed.post",
             text: rt.text,
             facets: rt.facets,
+            tags,
             createdAt: new Date().toISOString(),
             reply
         }
@@ -208,6 +214,7 @@ export async function createFastPost(
             "$type": "ar.com.cabildoabierto.quotePost",
             text: rt.text,
             facets: rt.facets,
+            tags,
             createdAt: new Date().toISOString(),
             reply,
             quote

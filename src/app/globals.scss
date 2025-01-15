@@ -16,6 +16,7 @@ $background: #181b23;
   --background-light: #{darken($background, 20%)};
   --background-dark: #{lighten($background, 5%)};
   --background-dark2: #{lighten($background, 10%)};
+  --background-dark3: #{lighten($background, 15%)};
   
   --primary-dark: #{lighten($primary, 20%)};
   --primary-darker: #{lighten($primary, 30%)};

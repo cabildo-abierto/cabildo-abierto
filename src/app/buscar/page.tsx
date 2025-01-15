@@ -1,7 +1,7 @@
 "use client"
 import SearchBar from "../../components/searchbar";
 import {useEffect} from "react";
-import {useSearch} from "../../components/search-context";
+import {useSearch} from "../../components/search/search-context";
 import {SearchContent} from "../../components/search-content";
 
 
