@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { CustomLink as Link } from '../../../components/custom-link';
-import { ThreeColumnsLayout } from "../../../components/three-columns";
 
 export const metadata: Metadata = {
     title: 'Pago exitoso'
@@ -17,5 +16,5 @@ export default function Page(){
         <Link href="/inicio" className="gray-btn">Ir al inicio</Link>
     </div>
 
-    return <ThreeColumnsLayout center={center} maxWidthCenter="400px"/>
+    return center
 }

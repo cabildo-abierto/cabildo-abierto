@@ -18,7 +18,7 @@ const Page = ({searchParams}: {searchParams: {q: string}}) => {
 
     return <div className={""}>
         <div className={"p-3"}>
-            <SearchBar onClose={() => {}} wideScreen={false} className={"h-10"}/>
+            <SearchBar onClose={() => {}} wideScreen={false} className={"h-10"} autoFocus={true}/>
         </div>
         <div>
             <SearchContent route={[]} setRoute={(v: string[]) => {}}/>

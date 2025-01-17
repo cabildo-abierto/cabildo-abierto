@@ -17,7 +17,7 @@ export const SidebarButton: React.FC<SidebarButtonProps> = ({showText, setShowTe
 
     return <>
         <CustomLink href={href} className="mt-1">
-            {true ? <Button
+            {showText ? <Button
                 variant="text"
                 color="inherit"
                 size="large"
@@ -31,21 +31,12 @@ export const SidebarButton: React.FC<SidebarButtonProps> = ({showText, setShowTe
                 fullWidth
                 disabled={disabled}
             >
-                <span className={selected ? "font-bold" : "" + (showText ? "" : " text-transparent")}>{text}</span>
-            </Button> :
-            <IconButton
-                color="inherit"
-                sx={{
-                    textTransform: 'none',
-                    justifyContent: 'flex-start',
-                    paddingLeft: 2,
-                }}
-                onClick={onClick}
-                disabled={disabled}
+                <span className={selected ? "font-bold" : ""}>{showText ? text : ""}</span>
+            </Button> : <div className={"py-1"}><IconButton
+
             >
                 {icon}
-            </IconButton>
-            }
+            </IconButton></div>}
         </CustomLink>
     </>
 }

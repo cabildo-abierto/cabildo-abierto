@@ -1,5 +1,4 @@
 "use client"
-import {ThreeColumnsLayout} from "../../../components/three-columns";
 import { getVisualization } from "../../../actions/data";
 import {useEffect, useState} from "react";
 import {ContentTopRowAuthor} from "../../../components/content-top-row-author";
@@ -34,7 +33,7 @@ const Page = ({params}: {params: {cid: string}}) => {
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }
 
 export default Page;

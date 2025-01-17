@@ -102,8 +102,8 @@ export const SidebarContent = ({onClose, startClosed=false}: { onClose: () => vo
     const [writePanelOpen, setWritePanelOpen] = useState(false)
     const [showText, setShowText] = useState(!startClosed)
 
-    return <div className={"mt-4 w-56 px-2"}>
-        <div className={"flex flex-col"} onMouseEnter={() => {setShowText(true)}} onMouseLeave={() => {if(startClosed) setShowText(false)}}>
+    return <div className={"mt-4 px-2 " + (showText ? "w-56" : "")}>
+        <div className={"flex flex-col " + (showText ? "" : "items-center")} onMouseEnter={() => {setShowText(true)}} onMouseLeave={() => {if(startClosed) setShowText(false)}}>
         {user.user && <SidebarUsername
             user={user.user}
         />}

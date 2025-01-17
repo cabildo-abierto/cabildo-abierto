@@ -260,7 +260,6 @@ const PostEditor = ({
 	}
 
     return <div className="p-1 rounded">
-        <div className="text-sm text-gray-400 text-center">{isFast ? "Post" : "Artículo"}</div>
         <div className="flex justify-between mt-3 items-center w-full">
             <div className="hidden sm:block w-64">
                 {isPublished ? <div></div> : <DraftsButton/>}

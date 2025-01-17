@@ -196,38 +196,6 @@ export async function getArticlesFeedForUser(user: string, agent: Agent){
 }
 
 
-export async function getFeedForUsers(users: {did: string}[], includeReplies: boolean, onlyArticles: boolean = false){
-    const {agent, did} = await getSessionAgent()
-    if(!did) return {feed: []}
-    const {users: CAUsers, error} = await getUsers()
-    if(error) return {error}
-
-    console.log("agent did", did)
-
-    let posts: FeedContentProps[] = []
-
-    for(let i = 0; i < users.length; i++){
-
-        if(!onlyArticles){
-            const expandedPosts = await getExpandedUserFeed(users[i].did, includeReplies, agent)
-            posts = [...posts, ...expandedPosts]
-        }
-
-        if(CAUsers.some((u) => (u.did == users[i].did))){
-            const articles = await getArticlesFeedForUser(users[i].did, agent)
-
-            posts = [...posts, ...articles]
-        }
-    }
-
-    function cmp(a, b){
-        return new Date(b.post.record.createdAt).getTime() - new Date(a.post.record.createdAt).getTime()
-    }
-
-    return {feed: posts.sort(cmp)}
-}
-
-
 export async function getProfileFeed(userId: string, kind: string){
     let feed
     try {

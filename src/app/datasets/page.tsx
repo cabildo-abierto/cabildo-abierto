@@ -1,5 +1,4 @@
 "use client"
-import {ThreeColumnsLayout} from "../../components/three-columns";
 import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {styled, TextField} from "@mui/material";
@@ -106,7 +105,7 @@ const Page = () => {
             })}
         </div>
 
-        return <ThreeColumnsLayout center={center}/>
+        return center
     }
 
     async function onUpload(){
@@ -163,7 +162,7 @@ const Page = () => {
             <DatasetView data={rows}/>
         </div>
     </div>
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }
 
 

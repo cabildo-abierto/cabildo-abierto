@@ -2,17 +2,6 @@ import {getUsername, userUrl} from "./utils"
 import Link from "next/link"
 
 
-
-
-export const UserIdLink = ({id}: {id:string}) => {
-    return <span className="link">
-        <Link href={"/perfil/"+id}>
-            @{id}
-        </Link>
-    </span>
-}
-
-
 export const Authorship = ({content, onlyAuthor=false}: {content: {author: {displayName?: string, handle: string}}, onlyAuthor?: boolean}) => {
     return <span className="link">
         {onlyAuthor ? "" : "Por "}

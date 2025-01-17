@@ -23,7 +23,7 @@ const MainLayoutContent = ({children, distractionFree=false}: {children: ReactNo
     const pathname = usePathname()
     const params = useParams()
 
-    const left = <div className="fixed top-0 bottom-0 left-auto right-auto">
+    const left = <div className={"fixed top-0 bottom-0 right-auto "+(distractionFree ? "left-0 border-r" : "left-auto")}>
         <SidebarContent onClose={() => {}} startClosed={distractionFree}/>
     </div>
 

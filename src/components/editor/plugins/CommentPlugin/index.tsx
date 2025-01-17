@@ -52,15 +52,17 @@ export default function CommentPlugin({parentContent, quoteReplies, pinnedReplie
   const [showCommentInput, setShowCommentInput] = useState(false)
 
   const nodeIds = new Map<number, string[]>
-  for(let i = 0; i < quoteReplies.length; i++){
-    const quote: QuoteDirProps = JSON.parse(quoteReplies[i].content.post.quote)
+  if(quoteReplies){
+    for(let i = 0; i < quoteReplies.length; i++){
+      const quote: QuoteDirProps = JSON.parse(quoteReplies[i].content.post.quote)
 
-    const id = quoteReplies[i].cid
-    const node = quote.start.node[0]
+      const id = quoteReplies[i].cid
+      const node = quote.start.node[0]
 
-    const cur = nodeIds.get(node)
-    if(cur) nodeIds.set(node, [...cur, id])
-    else nodeIds.set(node, [id])
+      const cur = nodeIds.get(node)
+      if(cur) nodeIds.set(node, [...cur, id])
+      else nodeIds.set(node, [id])
+    }
   }
 
   useEffect(() => {
@@ -143,9 +145,11 @@ export default function CommentPlugin({parentContent, quoteReplies, pinnedReplie
   }
 
   const quoteRepliesMap = new Map<string, FastPostProps>()
-  quoteReplies.forEach((r) => {
-    quoteRepliesMap.set(r.cid, r)
-  })
+  if(quoteReplies) {
+    quoteReplies.forEach((r) => {
+      quoteRepliesMap.set(r.cid, r)
+    })
+  }
 
   return (
     <>

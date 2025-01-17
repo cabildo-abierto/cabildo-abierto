@@ -235,6 +235,85 @@ export const TopicContent = ({
 
             </div>}
         </div>
+    </>
+
+    const originalContent = {cid: content.content.record.cid, uri: content.content.record.uri, diff: content.diff, content: {text: content.content.text}}
+
+    const editorComp = <>
+
+        {showingSaveEditPopup && <SaveEditPopup
+            editorState={editorState}
+            currentVersion={contentText}
+            onSave={saveEdit}
+            onClose={() => {setShowingSaveEditPopup(false)}}
+            entity={topic}
+        />}
+
+        {editingRoutes &&
+            <div className="py-4">
+                <RoutesEditor topic={topic} setEditing={(v: boolean) => {setEditingRoutes(v)}}/>
+            </div>}
+
+        {editingSearchkeys &&
+            <div className="py-4">
+                <SearchkeysEditor entity={topic} setEditing={setEditingSearchkeys}/>
+            </div>}
+
+        <div className="text-center">
+            {selectedPanel == "changes" && version > 0 && <ChangesCounter
+                charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}/>}
+        </div>
+        <div id="editor">
+            {(((selectedPanel != "changes" || version == 0) && selectedPanel != "authors")) &&
+                <div className="px-2" key={content.content.record.cid+selectedPanel}>
+                    <MyLexicalEditor
+                        settings={wikiEditorSettings(selectedPanel != "editing", content.content.record, contentText)}
+                        setEditor={setEditor}
+                        setEditorState={setEditorState}
+                    />
+                </div>
+            }
+            {(selectedPanel == "changes" && version > 0) &&
+                <ShowArticleChanges
+                    originalContent={originalContent}
+                    originalContentText={contentText}
+                    entity={topic}
+                    version={version}
+                />
+            }
+            {(selectedPanel == "authors") &&
+                <ShowArticleAuthors
+                    originalContent={originalContent}
+                    originalContentText={contentText}
+                    topic={topic}
+                    version={version}
+                />
+            }
+        </div>
+    </>
+
+    return <div className={"w-full py-4" + (selectedPanel == "editing" ? "" : " border-b")} id="information-start">
+        <div className={"flex flex-col px-4"}>
+            <div className="flex justify-between mb-2">
+                <div>
+                    <h3 className="">
+                        Consenso
+                    </h3>
+                </div>
+
+                <div className="text-[var(--text-light)]">
+                    {selectedPanel != "editing" &&
+                        <Button variant="outlined" onClick={onGoToDiscussion} size="small" color="inherit"
+                                endIcon={<ArrowDownwardIcon/>}>
+                            Discusión
+                        </Button>}
+                </div>
+            </div>
+            <div className="text-[var(--text-light)] text-xs sm:text-sm">
+                Si no estás de acuerdo con algo editalo o comentá. También podés agregar información.
+            </div>
+            {info}
+        </div>
 
         <div className="">
             <div className="flex flex-wrap w-full items-center border-b mt-4">
@@ -297,91 +376,16 @@ export const TopicContent = ({
                 name={getTopicTitle(topic)}
             />
         </div>}
-        {selectedPanel == "history" && <div className="my-2">
+        {selectedPanel == "history" && <div className="my-2 px-2">
             <EditHistory
                 entity={topic}
                 viewing={version}
             />
         </div>
         }
-    </>
-
-    const originalContent = {cid: content.content.record.cid, uri: content.content.record.uri, diff: content.diff, content: {text: content.content.text}}
-
-    const editorComp = <>
-
-        {showingSaveEditPopup && <SaveEditPopup
-            editorState={editorState}
-            currentVersion={contentText}
-            onSave={saveEdit}
-            onClose={() => {setShowingSaveEditPopup(false)}}
-            entity={topic}
-        />}
-
-        {editingRoutes &&
-            <div className="py-4">
-                <RoutesEditor topic={topic} setEditing={(v: boolean) => {setEditingRoutes(v)}}/>
-            </div>}
-
-        {editingSearchkeys &&
-            <div className="py-4">
-                <SearchkeysEditor entity={topic} setEditing={setEditingSearchkeys}/>
-            </div>}
-
-        <div className="text-center">
-            {selectedPanel == "changes" && version > 0 && <ChangesCounter
-                charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}/>}
+        <div className={""}>
+            {editorComp}
         </div>
-        <div id="editor">
-            {(((selectedPanel != "changes" || version == 0) && selectedPanel != "authors")) &&
-                <div className="px-2" key={content.content.record.cid+selectedPanel}>
-                    <MyLexicalEditor
-                        settings={wikiEditorSettings(selectedPanel != "editing", content.content.record, contentText)}
-                        setEditor={setEditor}
-                        setEditorState={setEditorState}
-                    />
-                </div>
-            }
-            {(selectedPanel == "changes" && version > 0) &&
-                <ShowArticleChanges
-                    originalContent={originalContent}
-                    originalContentText={contentText}
-                    entity={topic}
-                    version={version}
-                />
-            }
-            {(selectedPanel == "authors") &&
-                <ShowArticleAuthors
-                    originalContent={originalContent}
-                    originalContentText={contentText}
-                    topic={topic}
-                    version={version}
-                />
-            }
-        </div>
-    </>
-
-    return <div className={"w-full p-4" + (selectedPanel == "editing" ? "" : " border-b")} id="information-start">
-        <div className="flex justify-between mb-2">
-            <div>
-                <h2 className="">
-                    Consenso
-                </h2>
-            </div>
-
-            <div className="text-[var(--text-light)]">
-                {selectedPanel != "editing" &&
-                    <Button variant="outlined" onClick={onGoToDiscussion} size="small" color="inherit"
-                            endIcon={<ArrowDownwardIcon/>}>
-                        Discusión
-                    </Button>}
-            </div>
-        </div>
-        <div className="text-[var(--text-light)] text-xs sm:text-sm">
-            Si no estás de acuerdo con algo editalo o comentá. También podés agregar información.
-        </div>
-        {info}
-        {editorComp}
         <NeedAccountPopup
             text="Necesitás una cuenta para hacer ediciones."
             open={showingNeedAccountPopup}

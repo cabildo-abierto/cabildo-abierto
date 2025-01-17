@@ -12,6 +12,7 @@ import { pathLogo } from '../components/logo'
 import { ThemeProvider } from '@mui/material';
 import theme from './theme'; // Adjust the path if needed
 import { PageLeaveProvider } from '../components/prevent-leave';
+import React from "react";
 
 
 const merriweather = Merriweather({

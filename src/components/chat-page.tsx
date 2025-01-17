@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { ChatSelector, ConversationStateProps } from "./chat-selector"
 import { Chatbox } from "./chatbox"
-import { ThreeColumnsLayout } from "./three-columns"
 
 export const NoConversationsChatPage = () => {
     return <div className="text-center mt-16">
@@ -28,5 +27,5 @@ export const ChatPage = ({fromUser, conversations, initialSelection}: {fromUser?
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }

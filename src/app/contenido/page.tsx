@@ -1,4 +1,3 @@
-import { ThreeColumnsLayout } from "../../components/three-columns";
 import {getThread} from "../../actions/contents";
 import {Thread} from "../../components/feed/thread";
 import { NotFoundPage } from "../../components/not-found-page";
@@ -55,9 +54,7 @@ const ContentPage: React.FC<{searchParams: {i: string, u: string, c: string}}> =
         return <NotFoundPage/>
     }
 
-    const center = <Thread thread={thread}/>
-
-    return <ThreeColumnsLayout center={center}/>
+    return <Thread thread={thread}/>
 }
 
 export default ContentPage

@@ -1,5 +1,4 @@
 import ActiveSubscription from "./active-subscription"
-import { ThreeColumnsLayout } from "../../components/three-columns"
 
 
 export default function Aportar() {
@@ -8,5 +7,5 @@ export default function Aportar() {
         <ActiveSubscription/>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }

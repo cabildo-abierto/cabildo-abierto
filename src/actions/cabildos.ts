@@ -4,6 +4,7 @@ import {getSessionAgent} from "./auth";
 import {db} from "../db";
 import {recordQuery} from "./utils";
 import {CabildoProps} from "../app/lib/definitions";
+import {getUser} from "./users";
 
 
 export async function createCabildo(name: string){
@@ -49,4 +50,27 @@ export async function getCabildos(){
         }
     })
     return cabildos
+}
+
+
+export async function joinCabildo(uri: string){
+    // TO DO: Should be done through ATProto
+    const user = await getUser()
+    try {
+        await db.cabildo.update({
+            data: {
+                members: {
+                    connect: {
+                        did: user.user.did
+                    }
+                }
+            },
+            where: {
+                uri: uri
+            }
+        })
+        return {}
+    } catch {
+        return {error: "Error al unirse al cabildo."}
+    }
 }
