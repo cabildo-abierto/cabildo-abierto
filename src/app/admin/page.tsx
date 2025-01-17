@@ -2,7 +2,6 @@
 
 import { buySubscriptions, desassignSubscriptions, removeSubscriptions, unsafeCreateUserFromDid } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
-import { ThreeColumnsLayout } from "../../components/three-columns"
 import { useUser } from "../../hooks/user"
 
 import React from 'react';
@@ -99,5 +98,5 @@ export default function Page() {
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }

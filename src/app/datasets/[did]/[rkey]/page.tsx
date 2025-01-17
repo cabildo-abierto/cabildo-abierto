@@ -1,5 +1,4 @@
 "use client"
-import {ThreeColumnsLayout} from "../../../../components/three-columns";
 import {useDataset} from "../../../../hooks/contents";
 import {ErrorPage} from "../../../../components/error-page";
 import LoadingSpinner from "../../../../components/loading-spinner";
@@ -28,8 +27,7 @@ const Page = ({params}: {params: {did: string, rkey: string}}) => {
         <DatasetView data={dataset.data}/>
     </div>
 
-    return <ThreeColumnsLayout
-    center={center}/>
+    return center
 }
 
 export default Page;

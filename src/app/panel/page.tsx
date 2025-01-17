@@ -2,7 +2,6 @@
 import { useUser, useUserContents } from "../../hooks/user"
 import { useUserStats } from "../../hooks/contents"
 import LoadingSpinner from "../../components/loading-spinner"
-import { ThreeColumnsLayout } from "../../components/three-columns"
 import InfoPanel from "../../components/info-panel"
 import { ReactNode } from "react"
 import { StatsIcon } from "../../components/icons/stats-icon"
@@ -78,7 +77,7 @@ const Page = () => {
         </div>}
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }
 
 export default Page

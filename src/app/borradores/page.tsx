@@ -1,7 +1,5 @@
 import React from "react";
 //import { DraftsPreview } from "../../components/drafts-preview";
-import { ThreeColumnsLayout } from "../../components/three-columns";
-
 
 const Drafts: React.FC = () => {
 
@@ -10,7 +8,7 @@ const Drafts: React.FC = () => {
         {/*<DraftsPreview/>*/}
     </>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 };
 
 export default Drafts;

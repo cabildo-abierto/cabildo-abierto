@@ -1,7 +1,6 @@
 import { ProfilePage } from "../../../components/profile-page";
 import { getUserById } from "../../../actions/users";
 import { ErrorPage } from "../../../components/error-page";
-import { ThreeColumnsLayout } from "../../../components/three-columns";
 import {getUsername} from "../../../components/utils";
 
 export async function generateMetadata({params}: {params: {id: string}}){
@@ -30,7 +29,7 @@ const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => 
         profileUser={user}
     />
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }
 
 export default UserProfile

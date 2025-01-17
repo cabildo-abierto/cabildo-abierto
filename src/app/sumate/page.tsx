@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { ThreeColumnsLayout } from "../../components/three-columns";
 import { TopbarLogo } from "../../components/logo";
 
 
@@ -28,5 +27,5 @@ export default function Page() {
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }

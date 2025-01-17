@@ -17,7 +17,7 @@ export const ArticleDiscussion = ({topic, version}: {topic: TopicProps, version:
     return <div className="w-full p-4">
         <div className="flex justify-between">
             <div>
-                <h2>Discusión</h2>
+                <h3>Discusión</h3>
             </div>
 
             <div className="text-[var(--text-light)]">
@@ -26,7 +26,7 @@ export const ArticleDiscussion = ({topic, version}: {topic: TopicProps, version:
                 </Button>
             </div>
         </div>
-        <div className="text-[var(--text-light)] text-sm sm:text-base mb-4">
+        <div className="text-[var(--text-light)] text-sm mb-4">
             Todo lo que se habló en Cabildo Abierto sobre el tema.
         </div>
         {/*<CommentSectionCommentEditor

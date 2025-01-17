@@ -20,6 +20,7 @@ import type {
 import {$applyNodeReplacement, DecoratorNode} from 'lexical';
 import {Suspense} from 'react';
 import dynamic from "next/dynamic";
+import LoadingSpinner from "../../loading-spinner";
 const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
   ssr: false,
 });
@@ -98,12 +99,9 @@ export class VisualizationNode extends DecoratorNode<JSX.Element> {
   }
 
   decorate(): JSX.Element {
+    console.log("spec is", this.__spec)
     return (
-      <Suspense fallback={null}>
-        <div>
-          <VegaLite spec={JSON.parse(this.__spec)} actions={null}/>
-        </div>
-      </Suspense>
+        <VegaLite spec={JSON.parse(this.__spec)} actions={false}/>
     );
   }
 }

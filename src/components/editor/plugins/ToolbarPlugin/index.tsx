@@ -408,7 +408,6 @@ function ElementFormatDropdown({
   return (
     <DropDown
       disabled={disabled}
-      buttonLabel={formatOption.name}
       buttonIconClassName={`icon ${
         isRTL ? formatOption.iconRTL : formatOption.icon
       }`}
@@ -968,9 +967,9 @@ export default function ToolbarPlugin({
             }}
             type="button"
             title="Insertar visualización"
-            className="toolbar-item spaced"
+            className="toolbar-item spaced text-[var(--text-light)]"
             aria-label="Insertar visualización">
-          <VisualizationsIcon/>
+          <VisualizationsIcon color={"inherit"}/>
         </button>
 
         <ElementFormatDropdown

@@ -1,7 +1,6 @@
 //import { getPaymentsStats } from "../../actions/admin"
 import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
-import { ThreeColumnsLayout } from "../../components/three-columns"
 
 
 export default async function Page() {
@@ -89,5 +88,5 @@ export default async function Page() {
 
     const center = <div>TO  DO</div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }

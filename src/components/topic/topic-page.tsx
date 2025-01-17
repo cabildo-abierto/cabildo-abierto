@@ -1,15 +1,14 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation";
-import { ThreeColumnsLayout } from "../three-columns";
 import { currentVersion, inRange } from "../utils";
-import { LoadingScreen } from "../loading-screen";
 import NoEntityPage from "../no-entity-page";
 import { ArticleDiscussion } from "./article-discussion";
 import { EntityCategoriesSmall } from "../entity-categories-small";
 import {useTopic} from "../../hooks/topics";
 import {getTopicTitle} from "./utils";
 import {TopicContent} from "./topic-content";
+import LoadingSpinner from "../loading-spinner";
 
 
 export const TopicPage = ({topicId, paramsVersion, changes}: {
@@ -36,7 +35,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     }, [entity])*/
 
     if(topic.isLoading){
-        return <LoadingScreen/>
+        return <LoadingSpinner/>
     }
 
     if(!topic.topic || topic.isError || topic.error){
@@ -52,7 +51,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
 
     const titleFontSize = getTopicTitle(topic.topic).length > 60 ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl"
 
-    const center = <div className="flex flex-col items-center w-full">
+    return <div className="flex flex-col items-center w-full">
         <div className="flex flex-col border-b p-4 w-full">
             <div className="text-[var(--text-light)] text-sm mb-2">
                 Tema
@@ -71,6 +70,4 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
             />
         </div>}
     </div>
-
-    return <ThreeColumnsLayout center={center} leftMinWidth="250px"/>
 }

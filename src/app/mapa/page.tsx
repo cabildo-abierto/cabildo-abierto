@@ -1,6 +1,5 @@
 import { getUsersByLocation } from "../../actions/users";
 import ArgentinaMap from "../../components/map";
-import { ThreeColumnsLayout } from "../../components/three-columns";
 
 
 
@@ -12,5 +11,5 @@ export default async function Page(){
         <ArgentinaMap usersByLocation={usersByLocation}/>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }

@@ -1,6 +1,5 @@
 import { Metadata } from "next"
-import { CustomLink as Link } from './../../../components/custom-link';
-import { ThreeColumnsLayout } from "../../../components/three-columns"
+import { CustomLink as Link } from './../../../components/custom-link'
 
 export const metadata: Metadata = {
     title: 'Error en el pago'
@@ -17,5 +16,5 @@ export default function Page(){
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }

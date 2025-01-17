@@ -1,5 +1,4 @@
 import { Chatbox } from "../../components/chatbox";
-import { ThreeColumnsLayout } from "../../components/three-columns";
 import { supportDid } from "../../components/utils";
 
 
@@ -18,5 +17,5 @@ export default async function Page() {
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }

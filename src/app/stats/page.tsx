@@ -2,7 +2,6 @@ import { ReactNode } from "react"
 import { getAdminStats } from "../../actions/admin"
 import { getUser } from "../../actions/users"
 import { NotFoundPage } from "../../components/not-found-page"
-import { ThreeColumnsLayout } from "../../components/three-columns"
 import { SubscriptorsByDate } from "../../components/subscriptors-by-week"
 import { ViewsByDaySinceSignup } from "../../components/views-since-signup"
 
@@ -103,5 +102,5 @@ export default async function Page() {
 
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }

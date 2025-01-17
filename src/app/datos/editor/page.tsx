@@ -1,5 +1,4 @@
 "use client"
-import {ThreeColumnsLayout} from "../../../components/three-columns";
 import {useDatasets} from "../../../hooks/contents";
 import LoadingSpinner from "../../../components/loading-spinner";
 import {ErrorPage} from "../../../components/error-page";
@@ -222,7 +221,7 @@ const Page = () => {
         </div>
     </div>
 
-    return <ThreeColumnsLayout center={center}/>
+    return center
 }
 
 export default Page

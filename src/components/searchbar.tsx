@@ -54,13 +54,13 @@ export const SearchInput = ({ autoFocus, className="" }: {
 }
 
 
-const SearchBar: React.FC<{onClose: any, wideScreen: boolean, className?: string}> = ({onClose, wideScreen, className=""}) => {
+const SearchBar: React.FC<{onClose: any, wideScreen: boolean, className?: string, autoFocus?: boolean}> = ({onClose, wideScreen, className="", autoFocus=false}) => {
     const {searchState, setSearchState} = useSearch()
 
     return wideScreen ?
         <div className="flex border rounded pl-3 pr-1">
             <div className="flex w-full">
-                <SearchInput autoFocus={false} className={className}/>
+                <SearchInput autoFocus={autoFocus} className={className}/>
             </div>
             <div className="text-[var(--accent)]">
                 {!searchState.searching ? <SearchButton disabled={true}/> :
@@ -72,7 +72,7 @@ const SearchBar: React.FC<{onClose: any, wideScreen: boolean, className?: string
                 <SearchButton disabled={true}/>
             </div>
             <div className="flex w-full items-center">
-                <SearchInput autoFocus={true} className={className}/>
+                <SearchInput autoFocus={autoFocus} className={className}/>
                 <div className={"py-1 " + (searchState.value.length == 0 ? "text-transparent" : "")}>
                     <CloseButton onClose={() => {onClose(); setSearchState({value: "", searching: false})}} size="small"/>
                 </div>

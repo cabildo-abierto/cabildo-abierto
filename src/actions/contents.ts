@@ -257,15 +257,3 @@ export async function createArticle(compressedText: string, userId: string, titl
 
     return {}
 }
-
-
-export async function createPastPost(){
-    const {agent} = await getSessionAgent()
-    const record = {
-        "$type": "app.bsky.feed.post",
-        text: "Este post fue escrito el 7 de diciembre.",
-        "createdAt": new Date("12/01/2024").toISOString()
-    }
-
-    await agent.post(record)
-}

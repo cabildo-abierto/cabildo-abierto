@@ -176,7 +176,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 
     const entityVersion = entity.versions[index]
 
-    let className = "w-full px-2 py-2 link cursor-pointer mr-1 flex items-center rounded " + (selected ? "border-2 border-[var(--accent-dark)]" : "border")
+    let className = "w-full px-2 py-2 link cursor-pointer flex items-center rounded " + (selected ? "border-2 border-[var(--accent-dark)]" : "border")
 
     className = className + (isRejected ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
 
