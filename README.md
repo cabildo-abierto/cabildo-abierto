@@ -4,9 +4,9 @@
  - src/components: componentes usadas por el frontend.
  - src/actions: server actions (backend).
  - prisma/schema.prisma: esquema de prisma.
- - src/lexicons: definiciones de los [https://atproto.com/specs/lexicon](lexicons de ATProto).
+ - src/lexicons: definiciones de los [lexicons de ATProto](https://atproto.com/specs/lexicon).
  - src/public: imágenes y otros archivos multimedia.
- - src/hooks: hooks de [https://swr.vercel.app/](SWR).
+ - src/hooks: hooks de [SWR](https://swr.vercel.app).
 
 ## Setup
 
