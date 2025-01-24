@@ -12,17 +12,18 @@
 
 ### Instalar
 
-Clonar el repositorio y desde la raíz ejecutar:
+1. Clonar el repositorio y desde la raíz ejecutar:
 ```bash
 npm install
 ```
+
+2. Copiar archivos .env y .env.local a la raíz.
 
 ### Arrancar el servidor de desarrollo
 
 ```bash
 npm run dev
 ```
-**Para que funcione además hay que tener los archivos .env y el .env.local.**
 
 ### Build
 ```
