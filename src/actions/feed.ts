@@ -1,63 +1,21 @@
 'use server'
 
 import { db } from "../db";
-import {FeedContentProps} from "../app/lib/definitions";
+import {
+    ATProtoStrongRef,
+    EngagementProps,
+    FastPostProps,
+    FeedContentProps,
+    FeedContentPropsNoRepost,
+    RecordProps, RepostProps
+} from "../app/lib/definitions";
 import { getSessionAgent } from "./auth";
 import { Agent } from "@atproto/api";
-import { getUsers } from "./users";
-import {addCounters} from "./utils";
+import {getUserId, getUsers} from "./users";
+import {addCounters, feedQuery, feedQueryWithReposts} from "./utils";
 import {popularityScore} from "../components/popularity-score";
-import {listOrder} from "../components/utils";
-
-
-const feedQuery = {
-    cid: true,
-    uri: true,
-    collection: true,
-    createdAt: true,
-    author: {
-        select: {
-            did: true,
-            handle: true,
-            displayName: true,
-            avatar: true
-        }
-    },
-    content: {
-        select: {
-            text: true,
-            article: {
-                select: {
-                    title: true,
-                    format: true
-                }
-            },
-            post: {
-                select: {
-                    facets: true,
-                    embed: true,
-                    replyToId: true
-                }
-            }
-        },
-    },
-    reactions: {
-        select: {
-            record: {
-                select: {
-                    uri: true,
-                    collection: true,
-                    authorId: true
-                }
-            }
-        }
-    },
-    _count: {
-        select: {
-            replies: true,
-        }
-    }
-}
+import {getRkeyFromUri, listOrder} from "../components/utils";
+import {FeedViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 
 
 function addCountersToFeed(feed: any[], did: string): FeedContentProps[]{
@@ -67,39 +25,54 @@ function addCountersToFeed(feed: any[], did: string): FeedContentProps[]{
 }
 
 
-export async function getFollowingFeed(): Promise<{feed?: FeedContentProps[], error?: string}>{
+export async function getFeed({onlyFollowing, reposts=true}: {onlyFollowing: boolean, reposts?: boolean}): Promise<{feed?: FeedContentProps[], error?: string}>{
     try {
         const {agent, did} = await getSessionAgent()
-        const {data: following} = await agent.getFollows({actor: did})
+
+        let authors = undefined
+        if(onlyFollowing) {
+            const {data: following} = await agent.getFollows({actor: did})
+            authors = {
+                in: [...following.follows.map(({did}) => (did)), did]
+            }
+        }
+
         const feed = await db.record.findMany({
-            select: feedQuery,
+            select: feedQueryWithReposts,
             where: {
-                authorId: {
-                    in: [...following.follows.map(({did}) => (did)), did]
-                },
-                content: {
-                    OR: [
-                        {
-                            post: {
-                                replyToId: null
+                authorId: authors,
+                OR: [
+                    {
+                        AND: [
+                            {
+                                content: {
+                                    post: {
+                                        replyToId: null
+                                    }
+                                }
+                            },
+                            {
+                                collection: "app.bsky.feed.post"
                             }
-                        },
-                        {
-                            record: {
-                                collection: "ar.com.cabildoabierto.article"
-                            }
+                        ]
+                    },
+                    {
+                        collection: {
+                            in: ["ar.com.cabildoabierto.article", ...(reposts ? ["app.bsky.feed.repost"] : [])]
                         }
-                    ]
-                },
-                collection: {
-                    in: ["ar.com.cabildoabierto.article", "app.bsky.feed.post"]
-                }
+                    }
+                ],
             },
             orderBy: {
                 createdAt: "desc"
             }
         })
+
+
         const readyForFeed = addCountersToFeed(feed, did)
+
+        // console.log("feed", feed.map((e) => (e.collection)))
+
         return {feed: readyForFeed}
     } catch (err) {
         console.log("Error getting feed", err)
@@ -108,91 +81,107 @@ export async function getFollowingFeed(): Promise<{feed?: FeedContentProps[], er
 }
 
 
-export async function getSearchableContents(){
-    return getFollowingFeed() // también debería incluir las respuestas
-}
+function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
+    const record = e.post.record as {text: string, createdAt: string, $type: string, embed?: string}
+    const replyTo = e.reply ? e.reply.parent as ATProtoStrongRef : undefined
+    const root = e.reply && e.reply.root ? e.reply.root as ATProtoStrongRef : e.reply.parent as ATProtoStrongRef
 
-
-export async function getPostWithAuthorFromStrongRef(ref: {uri: string, cid: string}, agent: Agent){
-    const {data} = await agent.getPosts({uris: [ref.uri]})
-
-    const post = data.posts[0]
-
-    return post
-}
-
-
-export async function expandPost(post: any, agent: Agent): Promise<FeedContentProps> {
-    if(post.record.reply){
-        const parent = await getPostWithAuthorFromStrongRef(post.record.reply.parent, agent)
-        post.record.reply.parent = parent
-        if(post.record.reply.root){
-            const root = await getPostWithAuthorFromStrongRef(post.record.reply.root, agent)
-            post.record.reply.root = root
+    const recordProps = {
+        uri: e.post.uri,
+        cid: e.post.cid,
+        collection: record.$type,
+        createdAt: new Date(record.createdAt),
+        rkey: getRkeyFromUri(e.post.uri),
+        author: {
+            did: e.post.author.did,
+            handle: e.post.author.handle,
+            displayName: e.post.author.displayName,
+            avatar: e.post.author.avatar
         }
     }
 
-    return post
+    const content = {
+        text: record.text,
+        post: {
+            replyTo,
+            root,
+            embed: record.embed ? JSON.stringify(record.embed) : undefined
+        }
+    }
+
+    const engagementProps = {
+        likeCount: e.post.likeCount,
+        repostCount: e.post.repostCount,
+        replyCount: e.post.replyCount,
+        viewer: e.post.viewer
+    }
+
+    const post = {
+        ...recordProps,
+        content,
+        ...engagementProps
+    }
+
+    if(e.reason && e.reason.$type == "app.bsky.feed.defs#reasonRepost"){
+        const repostRecordProps = {
+            author: e.reason.by as {did: string, handle: string, displayName?: string},
+            collection: "app.bsky.feed.repost",
+        }
+
+        return {
+            ...repostRecordProps,
+            reaction: {
+                reactsTo: post
+            }
+        }
+    } else {
+        return post
+    }
+
 }
 
 
-export async function getExpandedUserFeed(user: string, includeReplies: boolean, agent: Agent){
-    const filter = includeReplies ? "posts_with_replies" : "posts_no_replies"
-
-    let data
-    try {
-        const res = await agent.getAuthorFeed({actor: user, filter: filter})
-        data = res.data
-    } catch(err) {
-        console.log("error getting author feed", user)
-        console.log(err)
-        return []
+export async function getFollowingFeed(){
+    const feedCA = await getFeed({onlyFollowing: true, reposts: true})
+    if(feedCA.error) return feedCA
+    const {agent, did} = await getSessionAgent()
+    if(!did){
+        return feedCA
     }
 
-    const posts = []
-    for(let j = 0; j < data.feed.length; j++){
-        const p = await expandPost(data.feed[j].post, agent)
-        posts.push({post: p, reason: data.feed[j].reason})
+    const {data} = await agent.getTimeline()
+
+    const feedBsky = data.feed
+
+    const usersCA = await getUsers()
+    if(usersCA.error) return {error: usersCA.error}
+
+    const didsCA = new Set(usersCA.users.map((u) => (u.did)))
+
+    const feedBskyOnly = []
+    for(let i = 0; i < feedBsky.length; i++){
+        const did = feedBsky[i].post.author.did
+        if(!didsCA.has(did)){
+            if(!feedBsky[i].reply){
+                feedBskyOnly.push(feedBsky[i])
+            }
+        }
     }
-    return posts
+
+    const feedBskyWithCAFormat: FeedContentProps[] = feedBskyOnly.map(formatBskyFeedElement)
+
+    const fullFeed = [...feedBskyWithCAFormat, ...feedCA.feed]
+
+    function cmp(a: FeedContentProps, b: FeedContentProps) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    }
+
+    return {feed: fullFeed.sort(cmp)}
 }
 
 
-export async function getArticlesFeedForUser(user: string, agent: Agent){
-    let articles
-    try {
-        const res = await agent.com.atproto.repo.listRecords({
-            repo: user,
-            collection: 'ar.com.cabildoabierto.article',
-        })
-        articles = (res.data.records as any[]).filter((a) => (a.value.format != undefined))
-    } catch(err) {
-        console.log("error", err)
-        return []
-    }
-
-    let author
-    try {
-        let res = await agent.getProfile({actor: user})
-        author = res.data
-    } catch(err) {
-        return []
-    }
-
-    let posts = []
-    for(let j = 0; j < articles.length; j++){
-        const {value, ...record} = articles[j]
-        posts.push({post: {
-            ...record,
-            record: value,
-            author,
-            likeCount: 0,
-            repostCount: 0,
-            replyCount: 0,
-            quoteCount: 0
-        }})
-    }
-    return posts
+export async function getSearchableContents(){
+    return getFeed({onlyFollowing: false, reposts: false}) // también debería incluir las respuestas
 }
 
 
@@ -200,7 +189,7 @@ export async function getProfileFeed(userId: string, kind: string){
     let feed
     try {
         feed = await db.record.findMany({
-            select: feedQuery,
+            select: feedQueryWithReposts,
             where: {
                 authorId: userId,
                 collection: {
@@ -216,7 +205,7 @@ export async function getProfileFeed(userId: string, kind: string){
     }
 
     if(kind == "main"){
-        feed = feed.filter((e) => (e.collection == "ar.com.cabildoabierto.article" || e.content.post.replyToId == null))
+        feed = feed.filter((e) => (e.collection == "ar.com.cabildoabierto.article" || e.content.post.replyTo == null))
     }
 
     const readyForFeed = addCountersToFeed(feed, userId)
@@ -224,20 +213,48 @@ export async function getProfileFeed(userId: string, kind: string){
 }
 
 
-export async function getEnDiscusion(): Promise<{feed?: FeedContentProps[], error?: string}> {
+export async function getEnDiscusion(): Promise<{feed?: FeedContentPropsNoRepost[], error?: string}> {
 
-    const feed = await getFollowingFeed()
+    const feed = await getFeed({onlyFollowing: false, reposts: false})
 
     if(feed.error){
         return {error: feed.error}
     }
 
     const sortedFeed = feed.feed.map((e) => ({
-        element: e,
-        score: popularityScore(e)
+        element: e as FeedContentPropsNoRepost,
+        score: popularityScore(e as FeedContentPropsNoRepost)
     })).sort(listOrder).map(({element}) => (element))
 
-    console.log("sorted feed", sortedFeed)
-
     return {feed: sortedFeed}
+}
+
+
+export async function getTopicFeed(id: string): Promise<{feed: FeedContentProps[]}> {
+    const did = await getUserId()
+
+    const feed = await db.record.findMany({
+        select: feedQuery,
+        where: {
+            collection: {
+                in: ["app.bsky.feed.post", "ar.com.cabildoabierto.quotePost"]
+            },
+            content: {
+                post: {
+                    replyTo: {
+                        collection: "ar.com.cabildoabierto.topic"
+                    }
+                }
+            }
+        },
+        orderBy: {
+            createdAt: "desc"
+        }
+    })
+
+    console.log("feed length", feed.length)
+
+    const readyForFeed = addCountersToFeed(feed, did)
+
+    return {feed: readyForFeed}
 }

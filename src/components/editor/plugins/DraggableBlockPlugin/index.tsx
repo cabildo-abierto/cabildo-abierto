@@ -9,6 +9,7 @@ import './index.css';
 
 import {DraggableBlockPlugin_EXPERIMENTAL} from '@lexical/react/LexicalDraggableBlockPlugin';
 import {useRef} from 'react';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 const DRAGGABLE_BLOCK_MENU_CLASSNAME = 'draggable-block-menu';
 
@@ -30,8 +31,8 @@ export default function DraggableBlockPlugin({
       menuRef={menuRef}
       targetLineRef={targetLineRef}
       menuComponent={
-        <div ref={menuRef} className="icon draggable-block-menu">
-          <div className="icon" />
+        <div ref={menuRef} className="flex items-center icon draggable-block-menu hover:bg-[var(--background-dark)]">
+          <DragIndicatorIcon fontSize={"small"}/>
         </div>
       }
       targetLineComponent={

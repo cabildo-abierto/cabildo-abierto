@@ -1,11 +1,13 @@
 "use server"
 
 import {getSessionAgent} from "./auth";
-import {TopicProps, TrendingTopicProps} from "../app/lib/definitions";
+import {FeedContentProps, TopicProps, TopicVersionProps, TrendingTopicProps} from "../app/lib/definitions";
 import {db} from "../db";
 import {getRkeyFromUri, supportDid} from "../components/utils";
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
+import {feedQuery, recordQuery} from "./utils";
+import {getUserId} from "./users";
 
 
 export async function createTopic(id: string){
@@ -320,7 +322,7 @@ export async function getTrendingTopics(sinceKind: string): Promise<{error?: str
 }
 
 
-const topicQuery = (includeText: boolean) => ({
+const topicQuery = (includeText: boolean, includeReplies: boolean) => ({
     id: true,
     protection: true,
     currentVersion: {
@@ -363,7 +365,19 @@ const topicQuery = (includeText: boolean) => ({
                                         }
                                     }
                                 }
-                            }
+                            },
+                            replies: includeReplies ? {
+                                select: {
+                                    content: {
+                                        select: {
+                                            text: true,
+                                            record: {
+                                                select: recordQuery,
+                                            }
+                                        }
+                                    }
+                                }
+                            } : undefined
                         }
                     },
                 }
@@ -391,7 +405,7 @@ const topicQuery = (includeText: boolean) => ({
 
 export async function getTopics(){
     const topics = await db.topic.findMany({
-        select: topicQuery(false)
+        select: topicQuery(false, false)
     })
 
     return {topics: topics}
@@ -401,9 +415,43 @@ export async function getTopics(){
 export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
     try {
         const topic: TopicProps = await db.topic.findUnique({
-            select: topicQuery(true),
+            select: topicQuery(true, true),
             where: {
                 id: id
+            }
+        })
+
+        return {topic: topic}
+    } catch {
+        return {error: "No se encontró el tema."}
+    }
+}
+
+
+export async function getTopicVersion(uri: string){
+    try {
+        const topic: TopicVersionProps = await db.topicVersion.findUnique({
+            select: {
+                uri: true,
+                topicId: true,
+                message: true,
+                title: true,
+                diff: true,
+                charsAdded: true,
+                accCharsAdded: true,
+                contribution: true,
+                authorship: true,
+                content: {
+                    select: {
+                        text: true,
+                        record: {
+                            select: recordQuery,
+                        },
+                    },
+                }
+            },
+            where: {
+                uri: uri
             }
         })
 

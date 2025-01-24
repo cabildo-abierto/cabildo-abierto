@@ -144,6 +144,7 @@ export function CommentInputBox({
                 parent: {uri: parentContent.uri, cid: parentContent.cid},
                 root: {uri: parentContent.uri, cid: parentContent.cid}
             }
+
             const selection = getStandardSelection(editor.getEditorState())
 
             const {error} = await createFastPost(

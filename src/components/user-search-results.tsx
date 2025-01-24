@@ -20,11 +20,6 @@ export const UserSearchResults = ({maxCount, showSearchButton=true}: {maxCount?:
     if(searchState.value.length == 0){
         return null
     }
-    if(users.isLoading) {
-        return <div className="flex justify-center py-4">
-            <LoadingSpinner/>
-        </div>
-    }
 
     if (!user) {
         return <div className="text-center text-[var(--text-light)] text-sm sm:text-base">
@@ -40,7 +35,10 @@ export const UserSearchResults = ({maxCount, showSearchButton=true}: {maxCount?:
         return (user.displayName && cleanText(user.displayName).includes(searchValue)) || cleanText(user.handle).includes(searchValue)
     }
 
-    let filteredUsers = users.users.filter(isMatch)
+    let filteredUsers: SmallUserProps[] = []
+    if(!users.isLoading){
+        filteredUsers = users.users.filter(isMatch)
+    }
 
     filteredUsers = shuffleArray(filteredUsers)
 
@@ -60,16 +58,17 @@ export const UserSearchResults = ({maxCount, showSearchButton=true}: {maxCount?:
                     }
                 }}
             >
-                <div className={"space-x-1"}>
+                <div className={"space-x-1 w-full"}>
                     <span>Buscar</span>
                     <span className={"text-[var(--text-light)]"}>{searchState.value}</span>
                 </div>
             </Button>}
-            {filteredUsers.length > 0 ? filteredUsers.slice(0, rightIndex).map((user, index) => (
+            {!users.isLoading && (filteredUsers.length > 0 ? filteredUsers.slice(0, rightIndex).map((user, index) => (
                 <div key={index} className="py-1">
                     <UserSearchResult result={user}/>
                 </div>
-            )) : <NoResults text="No se encontró ningún usuario."/>}
+            )) : <NoResults text="No se encontró ningún usuario."/>)}
+            {users.isLoading && <LoadingSpinner/>}
         </div>
     </div>
 }

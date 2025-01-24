@@ -93,7 +93,7 @@ export const ShowArticleChanges = ({
         JSON.parse(originalContent.diff)
     )
 
-    let settings = wikiEditorSettings(true, originalContent, contentText)
+    let settings = wikiEditorSettings(true, originalContent, contentText, true, false)
 
     return <>
         <div className="text-sm text-center block lg:hidden content-container p-1 w-full">

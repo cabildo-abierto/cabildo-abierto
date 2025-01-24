@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { SidebarButton } from "./sidebar-button";
 import { CustomLink as Link } from './custom-link';
 import PersonIcon from '@mui/icons-material/Person';
@@ -22,6 +22,7 @@ import {WritePanel} from "./write-panel";
 import {WriteButtonIcon} from "./icons/write-button-icon";
 import {IconButton} from "@mui/material";
 import {People} from "@mui/icons-material";
+import { useLayoutConfig } from "./layout/layout-config-context";
 
 
 function unseenCount(chat: ChatMessage[], userId: string){
@@ -59,11 +60,9 @@ const HelpDeskButton = ({user, onClose, showText, setShowText}: {showText: boole
 
 
 const SidebarUsername = ({user}: {user: {displayName?: string, handle: string, avatar?: string}}) => {
-    return <div className="ml-4 py-2">
-        <Link href={userUrl(user.handle)}>
-            <ProfilePic user={user} className={"w-12 h-12 rounded-full border"}/>
-        </Link>
-    </div>
+    return <Link href={userUrl(user.handle)}>
+        <ProfilePic user={user} className={"w-12 h-12 rounded-full border"}/>
+    </Link>
 }
 
 
@@ -96,17 +95,25 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
 }
 
 
-export const SidebarContent = ({onClose, startClosed=false}: { onClose: () => void, startClosed?: boolean }) => {
+export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     const user = useUser()
     const pathname = usePathname()
     const [writePanelOpen, setWritePanelOpen] = useState(false)
-    const [showText, setShowText] = useState(!startClosed)
+    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    const [showText, setShowText] = useState(!layoutConfig.distractionFree)
+
+    useEffect(() => {
+        if(showText == layoutConfig.distractionFree){
+            setShowText(!layoutConfig.distractionFree)
+        }
+    }, [layoutConfig])
 
     return <div className={"mt-4 px-2 " + (showText ? "w-56" : "")}>
-        <div className={"flex flex-col " + (showText ? "" : "items-center")} onMouseEnter={() => {setShowText(true)}} onMouseLeave={() => {if(startClosed) setShowText(false)}}>
-        {user.user && <SidebarUsername
+        <div className={"flex flex-col " + (showText ? "" : "items-center")} onMouseEnter={() => {setShowText(true)}} onMouseLeave={() => {if(layoutConfig.distractionFree) setShowText(false)}}>
+        {user.user && <div className={"w-full flex justify-center"}>
+            <SidebarUsername
             user={user.user}
-        />}
+        /></div>}
         {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
         <SidebarButton
             showText={showText} setShowText={setShowText}
@@ -134,12 +141,6 @@ export const SidebarContent = ({onClose, startClosed=false}: { onClose: () => vo
                        text="Datos"
                        href="/datos"
                        selected={pathname.startsWith("/datos")}
-                       showText={showText} setShowText={setShowText}
-        />
-        <SidebarButton icon={<People fontSize={"medium"}/>} onClick={onClose}
-                       text="Cabildos"
-                       href="/cabildos"
-                       selected={pathname.startsWith("/cabildos")}
                        showText={showText} setShowText={setShowText}
         />
         {user.user &&

@@ -3,9 +3,9 @@
 import { getSessionAgent } from "./auth";
 import { RichText } from '@atproto/api'
 import {db} from "../db";
-import {FastPostReplyProps, ThreadProps, VisualizationProps} from "../app/lib/definitions";
-import {addCounters} from "./utils";
-import {getVisualizationTitle} from "../components/utils";
+import {FastPostProps, FastPostReplyProps, ThreadProps, VisualizationProps} from "../app/lib/definitions";
+import {addCounters, feedQuery, feedQueryWithReposts} from "./utils";
+import {getDidFromUri, getVisualizationTitle, splitUri} from "../components/utils";
 
 
 export const addLike = async (uri: string, cid: string) => {
@@ -60,6 +60,55 @@ export const removeRepost = async (uri: string) => {
 }
 
 
+export const addView = async (uri: string, did: string) => {
+    console.log("adding view", uri, did)
+
+    let exists
+    try {
+        exists = await db.view.findMany({
+            select: {
+                createdAt: true
+            },
+            where: {
+                AND: [{
+                    userById: did
+                },{
+                    recordId: uri
+                }]
+            },
+            orderBy: {
+                createdAt: "asc"
+            }
+        })
+    } catch {
+        return {error: "Ocurrió un error."}
+    }
+
+    function olderThan(seconds: number){
+        const dateLast = new Date(exists[exists.length-1].createdAt).getTime()
+        const currentDate = new Date().getTime()
+        const difference = (currentDate - dateLast) / 1000
+        return difference > seconds
+    }
+
+    if(exists.length == 0 || olderThan(3600)){
+
+        try {
+            await db.view.create({
+                data: {
+                    userById: did,
+                    recordId: uri
+                },
+            })
+        } catch {
+            return {error: "Ocurrió un error"}
+        }
+    }
+
+    return {}
+}
+
+
 const authorQuery = {
     select: {
         did: true,
@@ -70,75 +119,16 @@ const authorQuery = {
 }
 
 
-const feedElemQuery = (collection: string) => {
-    return {
-        cid: true,
-        uri: true,
-        createdAt: true,
-        author: authorQuery,
-        collection: true,
-        _count: {
-            select: {
-                replies: true
-            }
-        },
-        reactions: {
-            select: {
-                record: {
-                    select: {
-                        collection: true,
-                        authorId: true,
-                        uri: true
-                    }
-                }
-            }
-        },
-        content: {
-            select: {
-                text: true,
-                numWords: true,
-                article: {
-                    select: {
-                        title: true,
-                        format: true,
-                    }
-                },
-                post: {
-                    select: {
-                        facets: true,
-                        embed: true,
-                        quote: true,
-                        replyTo: {
-                            select: {
-                                uri: true,
-                                cid: true
-                            }
-                        },
-                        root: {
-                            select: {
-                                uri: true,
-                                cid: true
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-}
-
-
 export async function getThread({collection, did, rkey, cid}: {collection: string, did?: string, rkey?: string, cid?: string}): Promise<{thread?: ThreadProps, error?: string}> {
     const {did: viewerDid} = await getSessionAgent()
     const threadId = rkey != undefined ? {rkey, authorId: did} : {cid}
     try {
         const mainPostQ = db.record.findFirst({
-            select: feedElemQuery(collection),
+            select: feedQuery,
             where: threadId
         })
         const repliesQ = db.record.findMany({
-            select: feedElemQuery(collection),
+            select: feedQuery,
             where: {
                 content: {
                     post: {
@@ -163,8 +153,8 @@ export async function getThread({collection, did, rkey, cid}: {collection: strin
 
 
 export async function createFastPost(
-    {text, reply, quote, visualization, cabildo}: {
-        text: string, reply?: FastPostReplyProps, quote?: string, visualization?: VisualizationProps, cabildo?: string
+    {text, reply, quote, visualization}: {
+        text: string, reply?: FastPostReplyProps, quote?: string, visualization?: VisualizationProps
     }
 ): Promise<{error?: string}> {
 
@@ -175,8 +165,6 @@ export async function createFastPost(
     })
     await rt.detectFacets(agent)
 
-    const tags = cabildo != undefined ? ["cabildo/"+cabildo] : undefined
-
     if(visualization){
         const record = {
             "$type": "app.bsky.feed.post",
@@ -184,7 +172,6 @@ export async function createFastPost(
             facets: rt.facets,
             createdAt: new Date().toISOString(),
             reply,
-            tags,
             embed: {
                 $type: "app.bsky.embed.external",
                 external: {
@@ -203,7 +190,6 @@ export async function createFastPost(
             "$type": "app.bsky.feed.post",
             text: rt.text,
             facets: rt.facets,
-            tags,
             createdAt: new Date().toISOString(),
             reply
         }
@@ -214,7 +200,6 @@ export async function createFastPost(
             "$type": "ar.com.cabildoabierto.quotePost",
             text: rt.text,
             facets: rt.facets,
-            tags,
             createdAt: new Date().toISOString(),
             reply,
             quote
@@ -256,4 +241,29 @@ export async function createArticle(compressedText: string, userId: string, titl
     }
 
     return {}
+}
+
+
+export async function getBskyFastPost(uri: string){
+    const {agent} = await getSessionAgent()
+    const {did, rkey} = splitUri(uri)
+    const {value, uri: postUri} = await agent.getPost({repo: did, rkey})
+
+    const postDid = getDidFromUri(postUri)
+    const {data: authorData} = await agent.app.bsky.actor.getProfile({actor: postDid})
+
+    const formattedPost: FastPostProps = {
+        uri: uri,
+        createdAt: new Date(value.createdAt),
+        collection: value.$type as string,
+        author: authorData,
+        content: {
+            text: value.text,
+            post: {
+                embed: JSON.stringify(value.embed)
+            }
+        }
+    }
+
+    return formattedPost
 }

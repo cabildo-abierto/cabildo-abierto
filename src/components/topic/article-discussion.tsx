@@ -1,49 +1,28 @@
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { smoothScrollTo } from "../editor/plugins/TableOfContentsPlugin"
-import { Button } from "@mui/material"
 import {TopicProps} from "../../app/lib/definitions";
+import {ReplyButton} from "../feed/reply-button";
+import {useState} from "react";
+import {TopicFeed} from "./topic-feed";
+import {WritePanel} from "../write-panel";
 
 
 
-export const ArticleDiscussion = ({topic, version}: {topic: TopicProps, version: number}) => {
+export const ArticleDiscussion = ({topic, version, onClickQuote}: {
+    topic: TopicProps, version: number, onClickQuote: (cid: string) => void}) => {
     const content = topic.versions[version]
+    const [writingReply, setWritingReply] = useState(false)
 
-    function onGoToInformation() {
-        const targetElement = document.getElementById('information-start');
 
-        return smoothScrollTo(targetElement, 300)
-    }
-
-    return <div className="w-full p-4">
-        <div className="flex justify-between">
-            <div>
-                <h3>Discusión</h3>
-            </div>
-
-            <div className="text-[var(--text-light)]">
-                <Button variant="outlined" onClick={onGoToInformation} size="small" color="inherit" endIcon={<ArrowUpwardIcon/>}>
-                    Consenso
-                </Button>
-            </div>
-        </div>
-        <div className="text-[var(--text-light)] text-sm mb-4">
-            Todo lo que se habló en Cabildo Abierto sobre el tema.
-        </div>
-        {/*<CommentSectionCommentEditor
-            content={content}
-            comments={comments}
-            setComments={setComments}
-            setViewComments={() => {}}
-            setWritingReply={() => {}}
-            startsOpen={true}
-            depth={0}
-        />*/}
-        {/*<EntityCommentSection
-            content={content}
-            comments={comments}
-            writingReply={true}
-            depth={0}
-        />*/}
+    return <div className="w-full">
+        <ReplyButton
+            text={"Responder al tema"}
+            onClick={() => {setWritingReply(true)}}
+        />
+        <WritePanel open={writingReply} onClose={() => {setWritingReply(false)}} replyToTopic={content}/>
+        <TopicFeed
+            topicId={topic.id}
+            onClickQuote={onClickQuote}
+        />
     </div>
 
 }

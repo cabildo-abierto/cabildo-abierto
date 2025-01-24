@@ -10,7 +10,13 @@ import { AddImageButton } from "./add-image-button"
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { NeedAccountPopup } from "./need-account-popup"
 import {ProfilePic} from "./feed/profile-pic";
-import {FastPostProps, FastPostReplyProps, FeedContentProps} from "../app/lib/definitions";
+import {
+    FastPostProps,
+    FastPostReplyProps,
+    FeedContentProps,
+    TopicProps,
+    TopicVersionProps
+} from "../app/lib/definitions";
 import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./writing/insert-visualization-modal";
 import dynamic from "next/dynamic";
@@ -21,7 +27,7 @@ import {ErrorMsg, validEntityName} from "./write-button";
 import TickButton from "./tick-button";
 import {useSWRConfig} from "swr";
 import {createTopic} from "../actions/topics";
-import {articleUrl} from "./utils";
+import {articleUrl, emptyChar} from "./utils";
 import Link from "next/link";
 import {BasicButton} from "./ui-utils/basic-button";
 
@@ -65,8 +71,22 @@ function replyFromParentElement(replyTo: FeedContentProps): FastPostReplyProps {
     }
 }
 
+
+function replyFromParentTopic(replyToTopic: TopicVersionProps): FastPostReplyProps {
+    const parent = {
+        uri: replyToTopic.content.record.uri,
+        cid: replyToTopic.content.record.cid
+    }
+    return {
+        parent,
+        root: parent
+    }
+}
+
+
 type WritePanelProps = {
     replyTo?: FeedContentProps
+    replyToTopic?: TopicVersionProps
     open: boolean
     onClose: () => void
 }
@@ -166,15 +186,17 @@ const CreateTopic = ({onClose}: {onClose: () => void}) => {
 }
 
 
-const WriteFastPost = ({replyTo, onClose}) => {
-    const {user} = useUser();
-    const [editorKey, setEditorKey] = useState(0);
+const WriteFastPost = ({replyTo, onClose, replyToTopic}: {
+    replyTo: FeedContentProps,
+    onClose: () => void,
+    replyToTopic: TopicVersionProps}) => {
+    const {user} = useUser()
+    const [editorKey, setEditorKey] = useState(0)
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
     const [images, setImages] = useState([])
     const [text, setText] = useState("")
     const [visualization, setVisualization] = useState(null)
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
-
 
     const charLimit = 300
 
@@ -182,8 +204,12 @@ const WriteFastPost = ({replyTo, onClose}) => {
 
     let disabled = !valid
 
+    const isReply = replyTo != undefined || replyToTopic != undefined
+
+    const placeholder = !isReply ? "¿Qué está pasando?" : (replyToTopic == undefined ? "Escribí una respuesta" : "Respondé al tema " + replyToTopic.topicId)
+
     const sendButton = <StateButton
-        text1={replyTo == undefined ? "Publicar" : "Responder"}
+        text1={isReply ? "Responder" : "Publicar"}
         handleClick={handleSubmit}
         disabled={disabled}
         textClassName="font-bold"
@@ -196,7 +222,7 @@ const WriteFastPost = ({replyTo, onClose}) => {
             minRows={5}
             value={text}
             onChange={(e) => {setText(e.target.value)}}
-            placeholder={replyTo == undefined ? "¿Qué está pasando?" : "Escribí una respuesta"}
+            placeholder={placeholder}
             className={"outline-none resize-none bg-transparent w-full"}
         />
         {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
@@ -205,8 +231,8 @@ const WriteFastPost = ({replyTo, onClose}) => {
     async function handleSubmit() {
         setErrorOnCreatePost(false)
         if (user) {
-            const reply = replyTo ? replyFromParentElement(replyTo) : undefined
-            const {error} = await createFastPost({text, reply, visualization, cabildo: "Argentina"});
+            const reply = replyTo ? replyFromParentElement(replyTo) : (replyToTopic ? replyFromParentTopic(replyToTopic) : undefined)
+            const {error} = await createFastPost({text, reply, visualization});
 
             if (!error) {
                 setEditorKey(editorKey + 1);
@@ -262,10 +288,12 @@ const WriteFastPost = ({replyTo, onClose}) => {
 }
 
 
-export const WritePanel = ({replyTo, open, onClose}: WritePanelProps) => {
+export const WritePanel = ({replyTo, replyToTopic, open, onClose}: WritePanelProps) => {
     const {user} = useUser();
     const [selected, setSelected] = useState("Post")
     const router = useRouter()
+
+    const isReply = replyTo != undefined || replyToTopic != undefined
 
     if (!user) {
         return <NeedAccountPopup open={open} text="Necesitás una cuenta para escribir" onClose={onClose}/>
@@ -305,16 +333,16 @@ export const WritePanel = ({replyTo, open, onClose}: WritePanelProps) => {
 
     const center = <>
         <div className="flex justify-between px-1">
-            {!replyTo && <SelectionComponent
+            {isReply ? <div>{emptyChar}</div> : <SelectionComponent
                 onSelection={onSelection}
                 selected={selected}
                 optionsNodes={optionsNodes}
                 options={["Post", "Artículo", "Tema"]}
                 className={"flex space-x-2"}
             />}
-            <CloseButton onClose={onClose}/>
+            <CloseButton size="small" onClose={onClose}/>
         </div>
-        {selected == "Post" && <WriteFastPost onClose={onClose} replyTo={replyTo}/>}
+        {selected == "Post" && <WriteFastPost onClose={onClose} replyTo={replyTo} replyToTopic={replyToTopic}/>}
         {selected == "Tema" && <CreateTopic onClose={onClose}/>}
     </>
 

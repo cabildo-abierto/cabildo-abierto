@@ -9,6 +9,21 @@ import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, E
 import {SessionOptions} from "iron-session";
 
 
+export function isFastPost(e: {collection: string}){
+    return e.collection == "app.bsky.feed.post" || isQuotePost(e)
+}
+
+
+export function isQuotePost(e: {collection: string}){
+    return e.collection == "ar.com.cabildoabierto.quotePost"
+}
+
+
+export function getCollectionFromUri(uri: string){
+    return uri.split("/")[3]
+}
+
+
 export function getUri(did: string, collection: string, rkey: string){
     return "at://" + did + "/" + collection + "/" + rkey
 }
@@ -460,19 +475,27 @@ export function userUrl(id: string){
 }
 
 
-export function cabildoUrl(name: string){
-    return "/c/" + encodeURIComponent(name)
+export function splitUri(uri: string){
+    const split = uri.split('/')
+    return {
+        did: split[2],
+        collection: split[3],
+        rkey: split[4]
+    }
 }
 
 
-export function contentUrl(uri: string, collection: string, authorHandle: string){
-    const split = uri.split("/")
-    return "/contenido?u=" + authorHandle + "&i=" + split[split.length-1] + "&c=" + collection
+export function contentUrl(uri: string, handle?: string){
+    const {did, collection, rkey} = splitUri(uri)
+
+    const userId = handle ? handle : did
+
+    return "/contenido?u=" + userId + "&i=" + rkey + "&c=" + collection
 }
 
 
-export function urlFromRecord(record: {uri: string, collection: string, author: {did: string}}){
-    return contentUrl(record.uri, record.collection, record.author.did)
+export function urlFromRecord(record: {uri: string, collection: string, author: {did: string, handle?: string}}){
+    return contentUrl(record.uri, record.author.handle ? record.author.handle : record.author.did)
 }
 
 

@@ -11,7 +11,8 @@ export type FastPostPreviewProps = {
     showParent?: boolean
     parentIsMainPost?: boolean
     className?: string
-    onClickQuote?: () => void
+    onClickQuote?: (cid: string) => void
+    repostedBy?: {handle: string, displayName?: string}
 }
 
 export const FastPostPreview = ({
@@ -20,14 +21,15 @@ export const FastPostPreview = ({
                                            parentIsMainPost=false,
                                            showParent=false,
                                            onClickQuote,
-                                           showChildren=false}: FastPostPreviewProps) => {
+                                           showChildren=false,
+                                           repostedBy}: FastPostPreviewProps) => {
     return <div className={"flex flex-col w-full"}>
         {/*hasParent && showParent &&
             <FastPostPreview content={content} borderBelow={false} showChildren={true}/>
         */}
-        <FastPostPreviewFrame post={post} borderBelow={borderBelow} showingParent={false} showingChildren={showChildren}>
+        <FastPostPreviewFrame post={post} borderBelow={borderBelow} showingParent={false} repostedBy={repostedBy} showingChildren={showChildren}>
             {/*hasParent && !showParent && !parentIsMainPost && <IsReplyMessage author={content.parent.author}/>*/}
-            {<FastPostContent post={post} onClickQuote={onClickQuote}/>}
+            <FastPostContent post={post} onClickQuote={onClickQuote}/>
         </FastPostPreviewFrame>
     </div>
 }

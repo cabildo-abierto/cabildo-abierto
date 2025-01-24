@@ -1,4 +1,4 @@
-import MainLayout from "../../../components/main-layout";
+import MainLayout from "../../../components/layout/main-layout";
 import PaywallChecker from "../../../components/paywall-checker";
 
 import { Metadata } from "next";

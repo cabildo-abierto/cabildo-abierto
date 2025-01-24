@@ -7,11 +7,11 @@ export type ATProtoStrongRef = {
 }
 
 export type RecordProps = {
-    uri: string
-    cid: string
+    uri?: string
+    cid?: string
     collection: string
-    createdAt: Date
-    rkey: string
+    createdAt?: Date
+    rkey?: string
     author: {
         did: string
         handle: string
@@ -41,10 +41,16 @@ export type TopicVersionContentProps = {
         cid: string
         author: BasicUserProps
         createdAt: Date
-        reactions: {
+        reactions?: {
             record: {
                 authorId: string
                 collection: string
+            }
+        }[]
+        replies?: {
+            content: {
+                text: string
+                record: RecordProps
             }
         }[]
     }
@@ -105,16 +111,9 @@ export type TrendingTopicProps = {
 }
 
 
-export type FeedContentProps = (FastPostProps | ArticleProps | DatasetProps | VisualizationProps) & EngagementProps
+export type FeedContentProps = FeedContentPropsNoRepost | RepostProps
 
-
-export type CabildoProps = {
-    cabildo: {
-        name: string
-        members: {did: string}[]
-    }
-} & RecordProps
-
+export type FeedContentPropsNoRepost = (FastPostProps | ArticleProps | DatasetProps | VisualizationProps) & EngagementProps
 
 export type SmallUserProps = {
     did: string
@@ -255,11 +254,18 @@ export type FastPostProps = RecordProps & EngagementProps & {
         post: {
             facets?: string
             embed?: string
-            replyTo?: ATProtoStrongRef
-            root?: ATProtoStrongRef
+            replyTo?: {uri: string, cid: string}
+            root?: {uri: string, cid: string}
             quote?: string
             visualization?: VisualizationProps
         }
+    }
+}
+
+
+export type RepostProps = RecordProps & {
+    reaction: {
+        reactsTo: FeedContentPropsNoRepost
     }
 }
 

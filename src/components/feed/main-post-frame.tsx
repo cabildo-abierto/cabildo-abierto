@@ -60,7 +60,7 @@ export const MainPostFrame = ({
             </div>
 
             <div className="py-2">
-                <EngagementIcons counters={post} record={post} options={null}/>
+                <EngagementIcons counters={post} record={post as {uri: string, cid: string}} options={null}/>
             </div>
         </div>
     </div>   

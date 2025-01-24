@@ -1,10 +1,9 @@
-import {FeedContentReasonProps} from "../../app/lib/definitions";
 import {RepostIcon} from "../icons/reposts-icon";
 import {Username} from "./username";
 
 
-export const RepostedBy = ({reason}: {reason: FeedContentReasonProps}) => {
+export const RepostedBy = ({user}: {user: {displayName?: string, handle: string}}) => {
     return <div className={"text-sm flex space-x-1 items-center ml-6 text-[var(--text-light)] mt-1"}>
-        <RepostIcon/> <span>Republicado por</span> <Username user={reason.by}/>
+        <RepostIcon fontSize={"inherit"}/> <span>Republicado por</span> <Username user={user}/>
     </div>
 }

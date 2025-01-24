@@ -32,8 +32,7 @@ export const SidebarButton: React.FC<SidebarButtonProps> = ({showText, setShowTe
                 disabled={disabled}
             >
                 <span className={selected ? "font-bold" : ""}>{showText ? text : ""}</span>
-            </Button> : <div className={"py-1"}><IconButton
-
+            </Button> : <div className={""}><IconButton
             >
                 {icon}
             </IconButton></div>}

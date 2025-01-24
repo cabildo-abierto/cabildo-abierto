@@ -3,10 +3,11 @@ import {ArticleProps, SmallUserProps, UserProps} from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import { ChatMessage } from "@prisma/client"
 import useSWR from "swr"
+import {getDidFromUri, getRkeyFromUri} from "../components/utils";
 
 
-export function useArticle(cid: string): {article: ArticleProps, isLoading?: boolean, error?: string} {
-    const { data, error, isLoading } = useSWR('/api/article/'+cid, fetcher)
+export function useArticle(uri: string): {article: ArticleProps, isLoading?: boolean, error?: string} {
+    const { data, error, isLoading } = useSWR('/api/article/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher)
 
     return {
         article: data,

@@ -2,6 +2,9 @@ import {FastPostProps} from "../../app/lib/definitions";
 import {useArticle} from "../../hooks/user";
 import {decompress} from "../compression";
 import ReadOnlyEditor from "../editor/read-only-editor";
+import {getCollectionFromUri} from "../utils";
+import {useTopic, useTopicVersion} from "../../hooks/contents";
+import LoadingSpinner from "../loading-spinner";
 
 
 function filterOutsideSelection(node: any, start: number[] | undefined, startOffset: number | undefined, end: number[] | undefined, endOffset: number | undefined){
@@ -48,18 +51,54 @@ function getSelectionFromJSONState(state: any, selection: {start: {node: number[
     })
 }
 
+const ArticleQuote = ({post, quoteStr}: {post: FastPostProps, quoteStr: string}) => {
+    const parent = useArticle(post.content.post.replyTo.uri)
+
+    if(!parent.article){
+        return <LoadingSpinner size={"20px"}/>
+    }
+
+    const quote = JSON.parse(quoteStr)
+    const parentContent = JSON.parse(decompress(parent.article.content.text))
+
+    const initialData = getSelectionFromJSONState(parentContent, quote)
+
+    return <ReadOnlyEditor
+        initialData={initialData}
+    />
+}
+
+
+const TopicQuote = ({post, quoteStr}: {post: FastPostProps, quoteStr: string}) => {
+    const parent = useTopicVersion(post.content.post.replyTo.uri)
+
+    if(!parent.topic){
+        return <LoadingSpinner size={"20px"}/>
+    }
+
+
+    const quote = JSON.parse(quoteStr)
+    const parentContent = JSON.parse(decompress(parent.topic.content.text))
+
+    const initialData = getSelectionFromJSONState(parentContent, quote)
+
+    return <ReadOnlyEditor
+        initialData={initialData}
+    />
+}
+
 
 export const ContentQuote = ({post, onClick}: {post: FastPostProps, onClick?: () => void}) => {
-    const parent = useArticle(post.content.post.replyTo.cid)
-    if(!parent.article) return null
     const quoteStr = post.content.post.quote
     if(!quoteStr){
         return null
     }
-    const parentContent = JSON.parse(decompress(parent.article.content.text))
-    const quote = JSON.parse(quoteStr)
 
-    const initialData = getSelectionFromJSONState(parentContent, quote)
+    const collection = getCollectionFromUri(post.content.post.replyTo.uri)
+    const center = collection == "ar.com.cabildoabierto.article" ?
+        <ArticleQuote post={post} quoteStr={quoteStr}/> : <TopicQuote post={post} quoteStr={quoteStr}/>
+
+
 
     function handleClick(e) {
         e.stopPropagation()
@@ -68,8 +107,6 @@ export const ContentQuote = ({post, onClick}: {post: FastPostProps, onClick?: ()
     }
 
     return <div className={"bg-[var(--background-dark2)] rounded p-2 my-1"} onClick={handleClick}>
-        <ReadOnlyEditor
-            initialData={initialData}
-        />
+        {center}
     </div>
 }

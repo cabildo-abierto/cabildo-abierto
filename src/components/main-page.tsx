@@ -44,39 +44,36 @@ export const MainPage = ({paramsSelected, showRoute=true}: MainPageProps) => {
             filter={filter}
             setFilter={setFilter}
         />
-        
-        <div className="">
 
-            {selected == "En discusión" && <Feed
+        {selected == "En discusión" && <Feed
+            feed={feed}
+        />}
+
+        {selected == "Siguiendo" && <Feed
+            feed={followingFeed}
+        />}
+
+        {/*(selected == "En discusión" || selected == "Siguiendo") &&
+            <ConfiguredFeed
                 feed={feed}
-            />}
+                order={order}
+                filter={filter}
+                setFilter={setFilter}
+                setOrder={setOrder}
+            />
+        */}
 
-            {selected == "Siguiendo" && <Feed
+        {/*selected == "Siguiendo" &&
+        ((user.isLoading || user.user) ? <div className="mt-4">
+            <ConfiguredFeed
                 feed={followingFeed}
-            />}
-
-            {/*(selected == "En discusión" || selected == "Siguiendo") &&
-                <ConfiguredFeed
-                    feed={feed}
-                    order={order}
-                    filter={filter}
-                    setFilter={setFilter}
-                    setOrder={setOrder}
-                />
-            */}
-
-            {/*selected == "Siguiendo" &&
-            ((user.isLoading || user.user) ? <div className="mt-4">
-                <ConfiguredFeed
-                    feed={followingFeed}
-                    order={order}
-                    setOrder={setOrder}
-                    filter={filter}
-                    setFilter={setFilter}
-                    noResultsText={noResultsTextFollowing}
-            /></div> : <div className="flex justify-center mt-8"><CreateAccountLink
-                text="Creá una cuenta o iniciá sesión para tener tu muro personal."
-            /></div>)*/}
-        </div>
+                order={order}
+                setOrder={setOrder}
+                filter={filter}
+                setFilter={setFilter}
+                noResultsText={noResultsTextFollowing}
+        /></div> : <div className="flex justify-center mt-8"><CreateAccountLink
+            text="Creá una cuenta o iniciá sesión para tener tu muro personal."
+        /></div>)*/}
     </div>
 }

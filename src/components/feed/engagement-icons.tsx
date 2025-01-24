@@ -6,17 +6,11 @@ import { RepostIcon } from "../icons/reposts-icon"
 import { FixedCounter, LikeCounter } from "../like-counter"
 import {addLike, removeLike, removeRepost, repost} from "../../actions/contents";
 import {ReactNode} from "react";
+import {EngagementProps} from "../../app/lib/definitions";
+import {ViewsIcon} from "../icons/views-icon";
 
 type EngagementIconsProps = {
-    counters: {
-        replyCount?: number
-        repostCount?: number
-        likeCount?: number
-        viewer?: {
-            like?: string
-            repost?: string
-        }
-    }
+    counters: EngagementProps
     options: ReactNode
     record: {
         uri: string
@@ -50,6 +44,13 @@ export const EngagementIcons = ({counters, record, options, className="space-x-1
             likeUri={counters.viewer ? counters.viewer.like : undefined}
             initialCount={counters.likeCount}
         />}
+        {counters.uniqueViewsCount != undefined && <FixedCounter
+            icon={<ViewsIcon/>}
+            count={counters.uniqueViewsCount+1} // always count the author
+            title={"Cantidad de impresiones."}
+        />
+        }
+
         <ContentOptionsButton
             options={options}
         />

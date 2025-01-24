@@ -27,7 +27,7 @@ export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, sho
     const router = useRouter()
 
     const record = post
-    const url = urlFromRecord(record)
+    const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
 
     return <div className={"w-64 rounded border bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")} onClick={() => {router.push(url)}}>
 
@@ -63,7 +63,7 @@ export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, sho
                 </div>
 
                 <div className={"mt-1"}>
-                    <EngagementIcons counters={post} record={post} options={null} className={"space-x-5"}/>
+                    <EngagementIcons counters={post} record={post as {uri: string, cid: string}} options={null} className={"space-x-5"}/>
                 </div>
             </div>
         </div>

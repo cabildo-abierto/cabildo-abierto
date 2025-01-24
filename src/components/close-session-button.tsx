@@ -13,13 +13,11 @@ export const CloseSessionButton = () => {
         return {}
     }
 
-    return <div className="flex justify-center">
-        <StateButton
-            variant="text"
-            size="small"
-            color="primary"
-            handleClick={onLogout}
-            text1="CERRAR SESIÓN"
-        />
-    </div>
+    return <StateButton
+        variant="text"
+        size="medium"
+        color="error"
+        handleClick={onLogout}
+        text1="Cerrar sesión"
+    />
 }

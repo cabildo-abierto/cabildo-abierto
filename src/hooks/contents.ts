@@ -1,8 +1,7 @@
 import useSWR from "swr"
 import {
-    CabildoProps,
     DatasetProps,
-    FeedContentProps,
+    FeedContentProps, TopicProps, TopicVersionProps,
     TrendingTopicProps,
     UserStats,
     VisualizationProps
@@ -44,12 +43,44 @@ export function useFeed(route: string[], feed: string): {feed: FeedContentProps[
     }
 }
 
-
 export function useTopics(route: string[]): {topics: any[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/topics/'+route.join("/"), fetcher)
-  
+
     return {
         topics: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useTopic(id: string): {topic: TopicProps, error?: string, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/topic/'+id, fetcher)
+
+    return {
+        topic: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useTopicVersion(id: string): {topic: TopicVersionProps, error?: string, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/topic-version/'+getDidFromUri(id)+"/"+getRkeyFromUri(id), fetcher)
+
+    return {
+        topic: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useTopicFeed(id: string): {feed: FeedContentProps[], error?: string, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/topic-feed/'+id, fetcher)
+
+    return {
+        feed: data,
         isLoading,
         isError: error
     }
@@ -127,17 +158,6 @@ export function useEditsFeed(id: string): {feed: FeedContentProps[], isLoading: 
   
     return {
         feed: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useCabildos(): {cabildos: CabildoProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/cabildos', fetcher)
-
-    return {
-        cabildos: data,
         isLoading,
         isError: error
     }
