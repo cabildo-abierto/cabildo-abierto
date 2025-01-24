@@ -63,8 +63,6 @@ export async function updateProfilesFromAT(){
         const u = users[i]
         const {data: p} = await agent.getProfile({"actor": u.did})
 
-        console.log("profile", p)
-
         if(p.handle != u.handle) {
             console.log("Updating user", u.handle)
             console.log("Prev:")

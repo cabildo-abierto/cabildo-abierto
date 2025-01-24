@@ -56,8 +56,6 @@ model User {
   blobs   Blob[]
 
   followers Follow[]
-
-  cabildosJoined Cabildo[] @relation("cabildosJoined")
 }
 
 model Subscription {
@@ -126,7 +124,6 @@ model Record {
   dataset             Dataset?
   dataBlock           DataBlock?
   visualization       Visualization?
-  cabildo             Cabildo?
   visualizationsUsing Visualization[] @relation("visualizationUsesDataset")
 
   embeddedIn      Record?  @relation("embeddings", fields: [uri], references: [uri])
@@ -137,6 +134,8 @@ model Record {
   reactions Reaction[] @relation("reactsTo")
   replies   Post[]     @relation("reply")
   rootOf    Post[]     @relation("root")
+
+  views View[]
 }
 
 model Follow {
@@ -165,7 +164,6 @@ model Content {
   article      Article?
   post         Post?
 
-  views      View[]
   references Reference[]
 }
 
@@ -244,12 +242,11 @@ model DataBlock {
 model View {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")
-  type      ViewType
   userBy    User     @relation(fields: [userById], references: [did])
   userById  String
 
-  contentId String
-  content   Content @relation(fields: [contentId], references: [uri])
+  recordId String
+  record   Record @relation(fields: [recordId], references: [uri])
 }
 
 model Visualization {
@@ -260,23 +257,6 @@ model Visualization {
 
   dataset   Record? @relation("visualizationUsesDataset", fields: [datasetId], references: [uri])
   datasetId String?
-}
-
-model Cabildo {
-  uri    String @id
-  record Record @relation(fields: [uri], references: [uri])
-
-  name    String
-  members User[] @relation("cabildosJoined")
-
-  // isPrivate
-  // admins
-}
-
-enum ViewType {
-  TopicVersionView
-  FastPostView
-  ArticleView
 }
 
 model Reference {

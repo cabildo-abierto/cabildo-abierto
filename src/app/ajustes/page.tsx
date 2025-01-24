@@ -4,6 +4,7 @@ import React from "react";
 import { useUser } from "../../hooks/user";
 import { CustomLink as Link } from '../../components/custom-link';
 import { PermissionLevel } from "../../components/permission-level";
+import {CloseSessionButton} from "../../components/close-session-button";
 
 
 const Cuenta: React.FC = () => {
@@ -45,6 +46,9 @@ const Cuenta: React.FC = () => {
                     <Link href="/panel" className="block text-blue-600 hover:underline">
                         Ver mis estadísticas
                     </Link>
+                </div>
+                <div className={"mt-4 flex justify-end"}>
+                    <CloseSessionButton/>
                 </div>
             </div>
         </div>

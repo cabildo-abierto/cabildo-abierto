@@ -57,7 +57,6 @@ export function ProfileHeader({profileUser, selected, setSelected, setShowingFak
                 disableElevation={true}
                 sx={{textTransform: "none",
                     paddingY: 0
-
                 }}
             >
                 <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
@@ -70,17 +69,19 @@ export function ProfileHeader({profileUser, selected, setSelected, setShowingFak
     const isOwner = isLoggedInUser !== undefined ? isLoggedInUser : false
 
     return <div className="flex flex-col border-b">
-        <div>
-            {profileUser.banner ? <button onClick={() => {}}><Image
+        <div className={"flex flex-col"}>
+            {profileUser.banner ? <button onClick={() => {}}>
+                <Image
                 src={profileUser.banner}
                 width={800}
                 height={300}
                 alt={profileUser.handle + " banner"}
                 className="w-full h-[150px]"
-                /></button> :
-            <div className="w-full h-[150px] bg-[var(--background-dark)] border-b">
+                />
+            </button> :
+            <button className="w-full h-[150px] bg-[var(--background-dark)]">
                 {emptyChar}
-            </div>
+            </button>
             }
             <button onClick={() => {}}>
                 <Image
@@ -88,7 +89,7 @@ export function ProfileHeader({profileUser, selected, setSelected, setShowingFak
                     width={400}
                     height={400}
                     alt={profileUser.handle + " avatar"}
-                    className="w-16 h-16 rounded-full ml-6 mt-[-36px]"
+                    className="w-16 h-16 rounded-full ml-6 mt-[-36px] border"
                 />
             </button>
         </div>

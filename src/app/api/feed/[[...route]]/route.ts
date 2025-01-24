@@ -6,9 +6,6 @@ import {getEnDiscusion, getFollowingFeed} from '../../../../actions/feed';
 export async function GET(req: NextRequest,
     { params }: { params: { route: string[] } }
 ) {
-    //const route = params.route ? params.route.map(decodeURIComponent) : []
-
-
     const kind = params.route[params.route.length-1]
 
     let feed

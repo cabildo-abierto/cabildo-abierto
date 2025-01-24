@@ -6,6 +6,7 @@ import {ReadingTime} from "../reading-time";
 import {DateSince} from "../date";
 import {decompress} from "../compression";
 import {EngagementIcons} from "./engagement-icons";
+import {ProfilePic} from "./profile-pic";
 
 type ArticleCompProps = {
     content: ArticleProps,
@@ -18,22 +19,29 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
 
     return <div className="w-full">
         <div className={"p-3 border-b"}>
-            <div className={"text-lg mb-2"}>
+            <div className={"text-base text-[var(--text-light)]"}>
                 Artículo
             </div>
             <h1 className="font-bold title">
                 {content.content.article.title}
             </h1>
             <div className="sm:space-x-1 text-sm sm:text-base flex flex-col sm:flex-row sm:items-center">
+                <div>
+                    <ProfilePic user={content.author} className={"w-5 h-5 rounded-full"}/>
+                </div>
+                <div>
                 <span><Authorship content={content} onlyAuthor={true}/>, <DateSince date={content.createdAt}/>.</span>
+                </div>
                 {/*<span className="first-letter:capitalize"><TextViewsCounter content={content}/>.</span>*/}
-                <ReadingTime numWords={content.content.numWords}/>
+                <div>
+                    <ReadingTime numWords={content.content.numWords}/>
+                </div>
             </div>
             <div className={"mt-4"}>
                 <ReadOnlyEditor
                     initialData={decompress(content.content.text)}
                     allowTextComments={true}
-                    content={content}
+                    content={content as {uri: string, cid: string}}
                     quoteReplies={quoteReplies}
                     pinnedReplies={pinnedReplies}
                     setPinnedReplies={setPinnedReplies}
@@ -41,7 +49,7 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
             </div>
         </div>
         <div className={"py-2 px-3 border-b"}>
-            <EngagementIcons counters={content} record={content} options={null}/>
+            <EngagementIcons counters={content} record={content as {uri: string, cid: string}} options={null}/>
         </div>
         <div>
         </div>

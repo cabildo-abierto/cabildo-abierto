@@ -614,9 +614,9 @@ i.page-break,
   }
 }
 
-.icon {
+/*.icon {
   filter: invert(80%)
-}
+}*/
 
 .icon.paragraph {
   background-image: url(images/icons/text-paragraph.svg);

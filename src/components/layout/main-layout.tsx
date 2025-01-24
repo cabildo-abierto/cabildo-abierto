@@ -1,40 +1,37 @@
 "use client"
 import React, { ReactNode } from "react";
-import LoadingPage from "./loading-page";
-import {SearchProvider, useSearch} from "./search/search-context";
-import {BetaAccessPage} from "./beta-access-page";
-import {ThreeColumnsLayout} from "./three-columns";
-import {SidebarContent, SupportButton} from "./sidebar";
-import { TrendingArticles } from "./trending-articles";
-import SearchBar from "./searchbar";
-import {UserSearchResults} from "./user-search-results";
-import {useUser} from "../hooks/user";
+import LoadingPage from "../loading-page";
+import {SearchProvider, useSearch} from "../search/search-context";
+import {BetaAccessPage} from "../beta-access-page";
+import {ThreeColumnsLayout} from "../three-columns";
+import {SidebarContent, SupportButton} from "../sidebar";
+import { TrendingArticles } from "../trending-articles";
+import SearchBar from "../searchbar";
+import {UserSearchResults} from "../user-search-results";
+import {useUser} from "../../hooks/user";
 import {useParams, usePathname} from "next/navigation";
 import InfoIcon from "@mui/icons-material/Info";
-import {articleUrl} from "./utils";
-import {BasicButton} from "./ui-utils/basic-button";
-import {CustomLink as Link} from "./custom-link";
-import {CurrentCabildo} from "./cabildos/current-cabildo";
+import {articleUrl} from "../utils";
+import {BasicButton} from "../ui-utils/basic-button";
+import {CustomLink as Link} from "../custom-link";
+import {LayoutConfigProvider, useLayoutConfig} from "./layout-config-context";
 
 
-const MainLayoutContent = ({children, distractionFree=false}: {children: ReactNode, distractionFree?: boolean}) => {
-    const {searchState, setSearchState} = useSearch()
+const MainLayoutContent = ({children}: {children: ReactNode, distractionFree?: boolean}) => {
+    const {searchState} = useSearch()
+    const {layoutConfig} = useLayoutConfig()
     const {user} = useUser()
     const pathname = usePathname()
-    const params = useParams()
 
-    const left = <div className={"fixed top-0 bottom-0 right-auto "+(distractionFree ? "left-0 border-r" : "left-auto")}>
-        <SidebarContent onClose={() => {}} startClosed={distractionFree}/>
+    const left = <div className={"fixed top-0 bottom-0 right-auto "+(layoutConfig.distractionFree ? "left-0 border-r" : "left-auto")}>
+        <SidebarContent onClose={() => {}}/>
     </div>
 
     const inSearchPage = pathname.startsWith("/buscar")
 
     let right
-    if(!distractionFree){
+    if(!layoutConfig.distractionFree){
         right = <div className={"fixed top-0 bottom-0 left-auto right-auto h-screen"}>
-            <div className={"mt-8 ml-8 max-w-[300px] w-full"}>
-                <CurrentCabildo curCabildoName={params.name ? decodeURIComponent(params.name as string) : undefined}/>
-            </div>
             {!inSearchPage && <div className={"ml-8 mt-8 max-w-[300px] w-full"}>
                 <SearchBar onClose={() => {}} wideScreen={false}/>
             </div>}
@@ -60,7 +57,7 @@ const MainLayoutContent = ({children, distractionFree=false}: {children: ReactNo
         </div>
     }
 
-    return <ThreeColumnsLayout left={left} center={children} right={right} leftMinWidth={"224px"} border={!distractionFree}/>
+    return <ThreeColumnsLayout left={left} center={children} right={right} leftMinWidth={"224px"} border={!layoutConfig.distractionFree}/>
 }
 
 
@@ -70,9 +67,11 @@ const MainLayout: React.FC<{children: ReactNode, distractionFree?: boolean}> = (
         <LoadingPage>
             <BetaAccessPage>
                 <SearchProvider>
-                    <MainLayoutContent distractionFree={distractionFree}>
-                        {children}
-                    </MainLayoutContent>
+                    <LayoutConfigProvider distractionFree={distractionFree}>
+                        <MainLayoutContent>
+                            {children}
+                        </MainLayoutContent>
+                    </LayoutConfigProvider>
                 </SearchProvider>
             </BetaAccessPage>
         </LoadingPage>

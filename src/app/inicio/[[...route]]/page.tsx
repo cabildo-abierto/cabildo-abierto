@@ -8,7 +8,6 @@ const Page: React.FC<{
     searchParams: { [key: string]: string }
 }> = ({params, searchParams}) => {
 
-    return <MainPage
-    />
+    return <MainPage/>
 }
 export default Page

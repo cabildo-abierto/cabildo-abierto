@@ -1,7 +1,7 @@
-import MainLayout from "../../components/main-layout";
+import MainLayout from "../../components/layout/main-layout";
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  return <MainLayout distractionFree={true}>
+  return <MainLayout distractionFree={false}>
       {children}
     </MainLayout>
 }

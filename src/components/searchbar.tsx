@@ -2,18 +2,20 @@
 
 import React, { useEffect, useRef } from "react";
 import { CustomLink as Link } from './custom-link';
-import { SearchButton } from "./top-bar";
 import { useSearch } from "./search/search-context";
 import { CloseButton } from "./ui-utils/close-button";
 import Image from 'next/image'
 import { userUrl } from "./utils";
+import {SearchButton} from "./ui-utils/search-button";
 
 
 export const UserSearchResult: React.FC<{result: {displayName?: string, handle: string, avatar?: string}}> = ({ result }) => {
+    const {setSearchState} = useSearch();
+
     const className = "px-2 py-1 w-72 text-center h-full"
 
     return <Link href={userUrl(result.handle)} className="flex justify-center hover:bg-[var(--background-dark)] content-container rounded h-14">
-        <button className={className}>
+        <button className={className} onClick={() => {setSearchState({value: "", searching: false})}}>
             <div className="flex w-full items-center">
                 <Image
                   src={result.avatar}

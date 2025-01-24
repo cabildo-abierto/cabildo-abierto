@@ -51,6 +51,7 @@ export default function CommentPlugin({parentContent, quoteReplies, pinnedReplie
   const [activeAnchorKey, setActiveAnchorKey] = useState<NodeKey | null>();
   const [showCommentInput, setShowCommentInput] = useState(false)
 
+  // a map from nodeIds to lists of cids, nodes only include children of the root
   const nodeIds = new Map<number, string[]>
   if(quoteReplies){
     for(let i = 0; i < quoteReplies.length; i++){

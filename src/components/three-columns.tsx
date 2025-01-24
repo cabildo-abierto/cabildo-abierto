@@ -59,7 +59,7 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = ({
 
             {/* Center Column */}
             <div
-                className={"flex-grow lg:px-0 min-h-screen" + (border ? " border-l border-r" : "")}
+                className={"flex-grow min-h-screen" + (border ? " border-l border-r" : "")}
                 style={{
                     minWidth: "0", // Allow center column to shrink as needed
                     maxWidth: maxWidthCenter,

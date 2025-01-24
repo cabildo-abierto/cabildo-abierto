@@ -4,7 +4,7 @@ import { Button } from "@mui/material"
 import { useState } from "react"
 import { BothContributionsProps, ContributionsProps } from "../app/lib/definitions"
 import {getTopicMonetizedChars} from "./utils";
-import {useTopic} from "../hooks/topics";
+import {useTopic} from "../hooks/contents";
 
 
 

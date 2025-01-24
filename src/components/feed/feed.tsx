@@ -5,6 +5,7 @@ import LoadingSpinner from "../loading-spinner";
 import { LazyLoadFeed } from "../lazy-load-feed";
 import {FeedElement} from "./feed-element";
 import {NoResults} from "../no-results";
+import {ViewMonitor} from "../view-monitor";
 
 
 export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, isError: boolean}
@@ -14,18 +15,22 @@ export type FeedProps = {
     feed: LoadingFeed,
     noResultsText?: ReactNode
     showReplies?: boolean
+    onClickQuote?: (cid: string) => void
 }
 
-const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación.", showReplies=false}) => {
+const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación.", showReplies=false, onClickQuote}) => {
     if(feed.isLoading){
         return <LoadingSpinner/>
     }
 
     function generator(index: number){
-        const node = <FeedElement elem={feed.feed[index]} showReplies={showReplies}/>
+        const node = <ViewMonitor uri={feed.feed[index].uri}>
+            <FeedElement elem={feed.feed[index]} showReplies={showReplies} onClickQuote={onClickQuote}/>
+        </ViewMonitor>
+
         return {
             c: node,
-            key: feed.feed[index].uri
+            key: (feed.feed[index].uri + " " + index.toString())
         }
     }
     
@@ -44,9 +49,9 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
         </div>
     }
 
-    return <div className="h-full w-full flex flex-col items-center space-y-2">
+    return <>
         {content}
-    </div>
+    </>
 }
 
 export default Feed

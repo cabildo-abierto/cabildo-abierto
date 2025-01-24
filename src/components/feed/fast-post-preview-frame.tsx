@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { ContentTopRowAuthor } from '../content-top-row-author'
 import { ReactNode } from 'react'
 import { EngagementIcons } from './engagement-icons'
+import {RepostedBy} from "./reposted-by";
 
 
 const ReplyVerticalLine = ({className=""}: {className?: string}) => {
@@ -21,18 +22,18 @@ type ATProtoPostFrameProps = {
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
+    repostedBy?: {handle: string, displayName?: string}
 }
 
-export const FastPostPreviewFrame = ({children, post, borderBelow=true, showingParent=false, showingChildren=false}: ATProtoPostFrameProps) => {
+export const FastPostPreviewFrame = ({
+     children, post, borderBelow=true, showingParent=false, showingChildren=false, repostedBy}: ATProtoPostFrameProps) => {
     const router = useRouter()
 
     const record = post
-    const url = urlFromRecord(record)
+    const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
 
     return <div className={"w-full bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")} onClick={() => {router.push(url)}}>
-
-        {/*content.collection == "app.bsky.feed.repost" && <RepostedBy reason={content.reason}/>*/}
-
+        {repostedBy && <RepostedBy user={repostedBy}/>}
         <div className={"flex"}>
             <div className="w-[80px] flex flex-col items-center h-full pl-2">
                 {showingParent ? <ReplyVerticalLine className="h-3"/> : <div className="h-3">{emptyChar}</div>}
@@ -63,7 +64,7 @@ export const FastPostPreviewFrame = ({children, post, borderBelow=true, showingP
                 </div>
 
                 <div className={"mt-1"}>
-                    <EngagementIcons counters={post} record={post} options={null}/>
+                    <EngagementIcons counters={post} record={post as {uri: string, cid: string}} options={null}/>
                 </div>
             </div>
         </div>
