@@ -84,7 +84,7 @@ export async function getFeed({onlyFollowing, reposts=true}: {onlyFollowing: boo
 function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
     const record = e.post.record as {text: string, createdAt: string, $type: string, embed?: string}
     const replyTo = e.reply ? e.reply.parent as ATProtoStrongRef : undefined
-    const root = e.reply && e.reply.root ? e.reply.root as ATProtoStrongRef : e.reply.parent as ATProtoStrongRef
+    const root = e.reply && e.reply.root ? e.reply.root as ATProtoStrongRef : replyTo
 
     const recordProps = {
         uri: e.post.uri,
