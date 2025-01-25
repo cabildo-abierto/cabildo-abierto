@@ -485,16 +485,26 @@ export function splitUri(uri: string){
 }
 
 
+export function datasetViewUrl(uri: string){
+    return "/c/" + getDidFromUri(uri) + "/" + getRkeyFromUri(uri)
+}
+
+
 export function contentUrl(uri: string, handle?: string){
     const {did, collection, rkey} = splitUri(uri)
 
     const userId = handle ? handle : did
 
-    return "/contenido?u=" + userId + "&i=" + rkey + "&c=" + collection
+    return "/c?u=" + userId + "&i=" + rkey + "&c=" + collection
 }
 
 
 export function urlFromRecord(record: {uri: string, collection: string, author: {did: string, handle?: string}}){
+    if(record.collection == "ar.com.cabildoabierto.visualization"){
+        return "/c/" + record.author.did + "/" + getRkeyFromUri(record.uri)
+    } else if(record.collection == "ar.com.cabildoabierto.dataset"){
+        return "/c/" + record.author.did + "/" + getRkeyFromUri(record.uri)
+    }
     return contentUrl(record.uri, record.author.handle ? record.author.handle : record.author.did)
 }
 

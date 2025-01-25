@@ -3,9 +3,9 @@ import './index.css'
 export const DatasetView = ({data}: {data: any[]}) => {
     const rows = data
     return <div>
-        {rows != null && <span className={"text-[var(--text-light)]"}>{rows.length} filas.</span>}
+        {rows != null && <div className={"text-[var(--text-light)] py-2"}>{rows.length} filas.</div>}
         {rows != null && (
-            <div className="overflow-x-auto w-full overflow-y-auto max-h-[600px] custom-scrollbar text-sm">
+            <div className="border-t mb-4 overflow-x-auto w-full overflow-y-auto max-h-[600px] custom-scrollbar text-sm">
                 <table className="table-auto w-full border-collapse border">
                     <thead className="bg-[var(--background-dark2)]">
                     <tr>

@@ -271,7 +271,7 @@ export type RepostProps = RecordProps & {
 
 
 export type ThreadProps = {
-    post: FastPostProps | ArticleProps
+    post: FeedContentProps
     replies: FastPostProps[]
 }
 
@@ -330,5 +330,6 @@ export type VisualizationProps = RecordProps & {
                 title: string
             }
         }
+        previewBlobCid?: string
     }
 }

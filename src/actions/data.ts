@@ -8,7 +8,7 @@ import SortOrder = Prisma.SortOrder;
 import JSZip from "jszip";
 import {DidResolver} from "@atproto/identity";
 import {VisualizationSpec} from "react-vega";
-import {recordQuery} from "./utils";
+import {datasetQuery, recordQuery, visualizationQuery} from "./utils";
 
 
 export async function createDataset(title: string, columns: string[], formData: FormData, format: string): Promise<{error?: string}>{
@@ -76,38 +76,12 @@ export async function createDataset(title: string, columns: string[], formData: 
 }
 
 
-const datasetQuery = {
-    ...recordQuery,
-    dataset: {
-        select: {
-            title: true,
-            columns: true,
-            dataBlocks: {
-                select: {
-                    record: {
-                        select: recordQuery
-                    },
-                    format: true,
-                    blob: {
-                        select: {
-                            cid: true,
-                            authorId: true
-                        }
-                    }
-                },
-                orderBy: {
-                    record: {
-                        createdAt: "asc" as SortOrder
-                    }
-                }
-            }
-        }
-    }
-}
-
 export async function getDatasets(): Promise<DatasetProps[]>{
     const datasets: DatasetProps[] = await db.record.findMany({
-        select: datasetQuery,
+        select: {
+            ...recordQuery,
+            dataset: datasetQuery
+        },
         where: {
             collection: "ar.com.cabildoabierto.dataset"
         }
@@ -124,6 +98,8 @@ export async function fetchBlob(blob: {cid: string, authorId: string}) {
     const doc = await didres.resolve(blob.authorId)
     if (doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint) {
         const url = doc.service[0].serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
+
+        console.log("fetching url", url)
 
         const data = await fetch(url)
             .then((response) => {
@@ -150,7 +126,12 @@ export async function fetchBlob(blob: {cid: string, authorId: string}) {
             .then((stream) => new Response(stream))
             // Create an object URL for the response
             .then((response) => response.blob())
-        return data
+
+        console.log("data fetched", data)
+
+        const data2 = await fetch(url)
+
+        return data2
     }
 
     return null
@@ -161,7 +142,10 @@ export async function getDataset(uri: string){
     let dataset: DatasetProps
     try {
         dataset = await db.record.findUnique({
-            select: datasetQuery,
+            select: {
+                ...recordQuery,
+                dataset: datasetQuery
+            },
             where: {
                 uri: uri
             }
@@ -210,22 +194,40 @@ export async function getDataset(uri: string){
 }
 
 
-export async function saveVisualization(spec: VisualizationSpec){
+export async function saveVisualization(spec: VisualizationSpec, preview: FormData){
 
     const {agent, did} = await getSessionAgent()
 
     try {
+
+        const data = Object.fromEntries(preview);
+        const f = data.data as File
+
+        const headers: Record<string, string> = {
+            "Content-Length": f.size.toString()
+        }
+
+        const res = await agent.uploadBlob(f, {headers})
+        const blob = res.data.blob
+
         const record = {
-            spec: spec,
-            createdAt: new Date().toISOString()
+            spec: JSON.stringify(spec),
+            createdAt: new Date().toISOString(),
+            preview: {
+                ref: blob.ref,
+                mimeType: blob.mimeType,
+                size: blob.size,
+                $type: "blob"
+            },
         }
 
         await agent.com.atproto.repo.createRecord({
             repo: did,
             collection: "ar.com.cabildoabierto.visualization",
-            record: record
+            record: record,
         })
     } catch (err) {
+        console.log("error", err)
         return {error: "Ocurrió un error al guardar la visualización"}
     }
 
@@ -236,54 +238,32 @@ export async function getVisualizations(){
     const v: VisualizationProps[] = await db.record.findMany({
         select: {
             ...recordQuery,
-            visualization: {
-                select: {
-                    spec: true,
-                    dataset: {
-                        select: {
-                            uri: true,
-                            dataset: {
-                                select: {
-                                    title: true
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            visualization: visualizationQuery
         },
         where: {
             collection: "ar.com.cabildoabierto.visualization"
+        },
+        orderBy: {
+            createdAt: "desc"
         }
     })
     return v
 }
 
 
-export async function getVisualization(uri: string){
-    console.log("getting visualization", uri)
+
+
+
+export async function getVisualization(uri: string) {
     const v: VisualizationProps = await db.record.findUnique({
         select: {
             ...recordQuery,
-            visualization: {
-                select: {
-                    spec: true,
-                    dataset: {
-                        select: {
-                            uri: true,
-                            dataset: {
-                                select: {
-                                    title: true
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            visualization: visualizationQuery
         },
         where: {
             uri: uri
         }
     })
+
     return v
 }

@@ -45,7 +45,7 @@ export const UserSearchResults = ({maxCount, showSearchButton=true}: {maxCount?:
     const rightIndex = maxCount != undefined ? maxCount : filteredUsers.length
 
     return <div className="flex flex-col items-center">
-        <div className="flex flex-col justify-center mt-1">
+        <div className="flex flex-col justify-center w-full px-1 mt-1">
             {showSearchButton && <Button
                 variant={"text"}
                 color={"inherit"}
@@ -55,7 +55,8 @@ export const UserSearchResults = ({maxCount, showSearchButton=true}: {maxCount?:
                     backgroundColor: "var(--background-dark)",
                     ":hover": {
                         backgroundColor: "var(--background-dark2)"
-                    }
+                    },
+                    width: "100%"
                 }}
             >
                 <div className={"space-x-1 w-full"}>

@@ -1,4 +1,6 @@
 import { revalidateTag } from "next/cache"
+import {Prisma} from ".prisma/client";
+import SortOrder = Prisma.SortOrder;
 
 
 export const revalidateEverythingTime = 5
@@ -8,6 +10,23 @@ export function revalidateReferences(references: {id: string}[]){
     references.forEach(({id}) => {
         revalidateTag("entity:"+id)
     })
+}
+
+
+export const recordQuery = {
+    uri: true,
+    cid: true,
+    rkey: true,
+    collection: true,
+    createdAt: true,
+    author: {
+        select: {
+            did: true,
+            handle: true,
+            displayName: true,
+            avatar: true
+        }
+    }
 }
 
 export function processReactions(did: string, reactions: {record: {authorId: string, collection: string, uri: string}}[]){
@@ -57,6 +76,51 @@ export function addCounters(did: string, elem: any, reactions: {record: {authorI
 }
 
 
+export const visualizationQuery = {
+    select: {
+        spec: true,
+        dataset: {
+            select: {
+                uri: true,
+                dataset: {
+                    select: {
+                        title: true
+                    }
+                }
+            }
+        },
+        previewBlobCid: true
+    }
+}
+
+
+export const datasetQuery = {
+    select: {
+        title: true,
+        columns: true,
+        dataBlocks: {
+            select: {
+                record: {
+                    select: recordQuery
+                },
+                format: true,
+                blob: {
+                    select: {
+                        cid: true,
+                        authorId: true
+                    }
+                }
+            },
+            orderBy: {
+                record: {
+                    createdAt: "asc" as SortOrder
+                }
+            }
+        }
+    }
+}
+
+
 export const feedQuery = {
     cid: true,
     uri: true,
@@ -100,6 +164,8 @@ export const feedQuery = {
             }
         },
     },
+    visualization: visualizationQuery,
+    dataset: datasetQuery,
     reactions: {
         select: {
             record: {
@@ -146,23 +212,6 @@ export const feedQueryWithReposts = {
             reactsTo: {
                 select: feedQuery
             }
-        }
-    }
-}
-
-
-export const recordQuery = {
-    uri: true,
-    cid: true,
-    rkey: true,
-    collection: true,
-    createdAt: true,
-    author: {
-        select: {
-            did: true,
-            handle: true,
-            displayName: true,
-            avatar: true
         }
     }
 }

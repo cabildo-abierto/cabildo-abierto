@@ -57,7 +57,7 @@ function replyFromParentElement(replyTo: FeedContentProps): FastPostReplyProps {
                 root: {...parent}
             }
         }
-    } else if(replyTo.collection == "ar.com.cabildoabierto.article"){
+    } else if(["ar.com.cabildoabierto.article", "ar.com.cabildoabierto.visualization", "ar.com.cabildoabierto.dataset"].includes(replyTo.collection)){
         const parent = {
             uri: replyTo.uri,
             cid: replyTo.cid
