@@ -7,12 +7,12 @@ const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite),
 });
 
 export const PlotFromUri = ({uri}: {uri: string}) => {
-    const {visualization, isLoading} = useVisualization(uri)
+    const {visualization} = useVisualization(uri)
 
     if(!visualization) return null
 
     const spec: VisualizationSpec = JSON.parse(visualization.visualization.spec)
-    return <div className={"flex justify-center border rounded bg-[var(--background)]"}>
+    return <div className={"flex justify-center border rousnded bg-[var(--background)]"}>
         <VegaLite spec={spec} actions={false}/>
     </div>
 }

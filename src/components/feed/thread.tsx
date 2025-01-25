@@ -1,6 +1,6 @@
 "use client"
 import { FastPost } from "./fast-post"
-import {ArticleProps, FastPostProps, ThreadProps} from "../../app/lib/definitions"
+import {ArticleProps, DatasetProps, FastPostProps, ThreadProps, VisualizationProps} from "../../app/lib/definitions"
 import { ReplyButton } from "./reply-button"
 import { FastPostPreview } from "./fast-post-preview"
 import {useEffect, useState} from "react";
@@ -10,6 +10,8 @@ import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {decompress} from "../compression";
 import {QuoteDirProps} from "../editor/plugins/CommentPlugin/show-quote-reply";
 import {useLayoutConfig} from "../layout/layout-config-context";
+import {Visualization} from "../visualizations/visualization";
+import {DatasetOnThread} from "../datasets/dataset-on-thread";
 
 
 function validQuotePointer(indexes: number[], node: any){
@@ -24,6 +26,7 @@ function validQuotePointer(indexes: number[], node: any){
 
 
 export function validQuotePost(compressedText: string, r: FastPostProps){
+    if(!compressedText) return false
     try {
 
         const quote: QuoteDirProps = JSON.parse(r.content.post.quote)
@@ -56,11 +59,15 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
         }
     }, [])
 
-    const replies = thread.replies.filter((r) => {return validQuotePost(thread.post.content.text, r)})
+    const text = thread.post.collection == "ar.com.cabildoabierto.article" ? (thread.post as ArticleProps).content.text : undefined
 
-    let quoteReplies = undefined
+    const replies = thread.replies.filter((r) => {return !r.content.post.quote || validQuotePost(text, r)})
+
+    let quoteReplies = []
     if(thread.post.collection == "ar.com.cabildoabierto.article"){
-        quoteReplies = replies.filter((r) => (r.content.post.quote != undefined))
+        if(thread.post.collection == "ar.com.cabildoabierto.article"){
+            quoteReplies = replies.filter((r) => (r.content.post.quote != undefined))
+        }
     }
 
     return <div>
@@ -72,6 +79,12 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
             quoteReplies={quoteReplies}
             pinnedReplies={pinnedReplies}
             setPinnedReplies={setPinnedReplies}
+        />}
+        {thread.post.collection == "ar.com.cabildoabierto.visualization" && <Visualization
+            visualization={thread.post as VisualizationProps}
+        />}
+        {thread.post.collection == "ar.com.cabildoabierto.dataset" && <DatasetOnThread
+            dataset={thread.post as DatasetProps}
         />}
         <ReplyButton onClick={() => {setOpenReplyPanel(true)}}/>
         {replies.map((r, index) => {
@@ -91,6 +104,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
                 />
             </div>
         })}
+        {replies.length == 0 && <div className={"text-center text-[var(--text-light)] pt-4 pb-8"}>Todavía no hubo ninguna respuesta.</div>}
         <WritePanel replyTo={thread.post} open={openReplyPanel} onClose={() => {setOpenReplyPanel(false)}}/>
     </div>
 }

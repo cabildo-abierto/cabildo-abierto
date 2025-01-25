@@ -14,6 +14,7 @@ import {useDatasets} from "../../hooks/contents";
 import {DatasetPreview} from "../../components/datasets/dataset-preview";
 import {DatasetView} from "../../components/datasets/dataset-view";
 import JSZip from "jszip";
+import {BackButton} from "../../components/back-button";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -95,14 +96,13 @@ const Page = () => {
     }, [data])
 
     if(!columns){
-        const center = <div className={"flex flex-col mt-8"}>
+        const center = <div className={"mt-8 px-2"}>
+            <BackButton url={"/datos"}/>
+            <div className={"flex flex-col items-center space-y-8"}>
+            <h2>Nuevo dataset</h2>
+                <div className={"text-[var(--text-light)]"}>Subí un archivo en formato csv</div>
             <UploadDatasetButton onSubmit={onSubmit}/>
-            <h2 className={"border-b mt-8 px-2"}>Datasets</h2>
-            {datasets && datasets.map((d) => {
-                return <div key={d.cid}>
-                    <DatasetPreview dataset={d}/>
-                </div>
-            })}
+            </div>
         </div>
 
         return center

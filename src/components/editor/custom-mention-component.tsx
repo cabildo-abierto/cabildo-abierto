@@ -60,7 +60,7 @@ export const queryMentions = async (trigger: string, query: string | undefined |
     const cleanQuery = cleanText(query)
 
     const data = users.filter((user) =>
-        cleanText(user.displayName).includes(cleanQuery) || cleanText(user.handle).includes(cleanQuery),
+        (user.displayName && cleanText(user.displayName).includes(cleanQuery)) || cleanText(user.handle).includes(cleanQuery),
     )
     return data.map(({ id, name }: any) => ({ id, value: name, name: name}))
 };

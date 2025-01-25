@@ -23,7 +23,6 @@ export const addLike = async (uri: string, cid: string) => {
 
 export const removeLike = async (uri: string) => {
     const {agent} = await getSessionAgent()
-    console.log("Remove like", uri)
     try {
         await agent.deleteLike(uri)
     } catch(err) {
@@ -119,9 +118,10 @@ const authorQuery = {
 }
 
 
-export async function getThread({collection, did, rkey, cid}: {collection: string, did?: string, rkey?: string, cid?: string}): Promise<{thread?: ThreadProps, error?: string}> {
+export async function getThread({did, rkey}: {did: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
     const {did: viewerDid} = await getSessionAgent()
-    const threadId = rkey != undefined ? {rkey, authorId: did} : {cid}
+    const threadId = {rkey, authorId: did}
+    console.log("getting thread", threadId)
     try {
         const mainPostQ = db.record.findFirst({
             select: feedQuery,

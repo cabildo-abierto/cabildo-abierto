@@ -227,6 +227,7 @@ model Blob {
   authorId String
 
   dataBlock DataBlock?
+  previewOf Visualization[]
 }
 
 model DataBlock {
@@ -257,6 +258,9 @@ model Visualization {
 
   dataset   Record? @relation("visualizationUsesDataset", fields: [datasetId], references: [uri])
   datasetId String?
+
+  previewBlobCid String?
+  previewBlob    Blob?   @relation(fields: [previewBlobCid], references: [cid])
 }
 
 model Reference {

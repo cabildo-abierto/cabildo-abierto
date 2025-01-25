@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {getThread} from "../../../../../actions/contents"
 import {getTopicVersion} from "../../../../../actions/topics";
 import {getUri} from "../../../../../components/utils";
 

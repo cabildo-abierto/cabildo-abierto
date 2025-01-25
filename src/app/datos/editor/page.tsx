@@ -2,7 +2,7 @@
 import {useDatasets} from "../../../hooks/contents";
 import LoadingSpinner from "../../../components/loading-spinner";
 import {ErrorPage} from "../../../components/error-page";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {saveVisualization} from "../../../actions/data";
 import SearchableDropdown from "../../../components/ui-utils/searchable-dropdown";
 import {FilterProps, PlotConfigProps} from "../../lib/definitions";
@@ -11,9 +11,10 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import {IconButton, TextField} from "@mui/material";
 import StateButton from "../../../components/state-button";
-import {Plot} from "../../../components/visualizations/plot";
+import {VisualizationOnEditor} from "../../../components/visualizations/visualization-on-editor";
 import { getSpecForConfig } from "../../../components/visualizations/spec";
 import {BackButton} from "../../../components/back-button";
+import {View} from "vega";
 
 function readyToSave(config: PlotConfigProps){
     if(config.kind == null) return false
@@ -53,6 +54,8 @@ const Page = () => {
     const {datasets, isLoading} = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>({filters: []})
     const [columns, setColumns] = useState<string[] | null>(null)
+    const [currentView, setCurrentView] = useState<View | null>(null)
+
 
     useEffect(() => {
         if(config.dataset != null){
@@ -78,13 +81,38 @@ const Page = () => {
 
     const datasetTitles = datasets.map((d) => (d.dataset.title))
 
+    const dataURLToFile = (dataURL: string) => {
+        // Extract the Base64-encoded string from the data URL
+        const arr = dataURL.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1]; // Extract the MIME type (e.g., image/png)
+        const bstr = atob(arr[1]); // Decode the Base64 string
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+
+        // Convert the decoded string into a byte array
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+
+        // Create and return a File object
+        return new File([u8arr], "f", { type: mime });
+    };
+
     async function onSave(){
         const spec = getSpecForConfig(config)
 
-        const {error} = await saveVisualization(spec)
+        const canvas = await currentView.toCanvas(10);
+        const dataURL = canvas.toDataURL("image/png")
+
+        const file = dataURLToFile(dataURL)
+        const formData = new FormData()
+        formData.set("data", file)
+        console.log("uploading file", file.size)
+        const {error} = await saveVisualization(spec, formData)
 
         return {error}
     }
+
 
     const saveDisabled = !readyToSave(config)
 
@@ -205,7 +233,7 @@ const Page = () => {
                 {
                     config.dataset != null && config.kind != null &&
                     <>
-                        <Plot config={config}/>
+                        <VisualizationOnEditor config={config} setCurrentView={setCurrentView}/>
                     </>
                 }
             </div>

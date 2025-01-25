@@ -23,23 +23,17 @@ export async function login(handle: string){
     // Initiate the OAuth flow
     let url
     try {
-        console.log("authorizing")
         url = await oauthClient.authorize(handle, {
             scope: 'atproto transition:generic'
         })
-        console.log("done")
     } catch (err) {
         // TO DO: Esto no debería hacer falta...
-        console.log("error", err)
 
-        console.log("resolving handle")
         const resolver = new AppViewHandleResolver('https://api.bsky.app/')
-        console.log("resolving did")
         const did = await resolver.resolve(handle)
 
         if(did){
             try {
-                console.log("authorizing did")
                 url = await oauthClient.authorize(did, {
                     scope: 'atproto transition:generic'
                 })
@@ -57,7 +51,6 @@ export async function login(handle: string){
 
 
 export async function getSessionAgent(){
-    console.log("getting session agent")
     const session = await getIronSession<Session>(cookies(), myCookieOptions)
 
     if (!session.did) {
