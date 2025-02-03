@@ -15,17 +15,34 @@ export async function createTopic(id: string){
 }
 
 
-export async function createTopicVersion({id, text = "", title, claimsAuthorship, message, createOnATProto=true}: {
-    id: string, text?: string, title?: string, claimsAuthorship: boolean, message?: string, createOnATProto?: boolean}){
+export async function createTopicVersion({id, text, format="markdown", title, claimsAuthorship, message, createOnATProto=true}: {
+    id: string, text?: FormData, format?: string, title?: string, claimsAuthorship: boolean, message?: string, createOnATProto?: boolean}){
 
     const {agent, did} = await getSessionAgent()
     if(!did) return {error: "Iniciá sesión para crear un tema."}
 
+    let blob = null
+    if(text){
+        const data = Object.fromEntries(text);
+        let f = data.data as File
+        console.log("f", f)
+        const headers: Record<string, string> = {
+            "Content-Length": f.size.toString()
+        }
+        const res = await agent.uploadBlob(f, {headers})
+        blob = res.data.blob
+    }
+
     const record = {
         "$type": "ar.com.cabildoabierto.topic",
-        text: text,
+        text: blob ? {
+            ref: blob.ref,
+            mimeType: blob.mimeType,
+            size: blob.size,
+            $type: "blob"
+        } : null,
         title: title,
-        format: "lexical-compressed",
+        format: format,
         message: message,
         id: id,
         createdAt: new Date().toISOString()
@@ -37,6 +54,7 @@ export async function createTopicVersion({id, text = "", title, claimsAuthorship
             record: record,
         })
     } catch (e) {
+        console.log("error", e)
         return {error: "Ocurrió un error al publicar en ATProto."}
     }
 
@@ -306,6 +324,12 @@ export async function getTrendingTopics(sinceKind: string): Promise<{error?: str
                         }
                     }
                 }
+            },
+            where: {
+                versions: {
+                    some: {
+                    }
+                }
             }
         })
         const topicsWithScore = topics.map((topic) => {
@@ -336,6 +360,7 @@ const topicQuery = (includeText: boolean, includeReplies: boolean) => ({
             content: {
                 select: {
                     text: includeText,
+                    format: true,
                     record: {
                         select: {
                             createdAt: true,
@@ -405,7 +430,13 @@ const topicQuery = (includeText: boolean, includeReplies: boolean) => ({
 
 export async function getTopics(){
     const topics = await db.topic.findMany({
-        select: topicQuery(false, false)
+        select: topicQuery(false, false),
+        where: {
+            versions: {
+                some: {
+                }
+            }
+        }
     })
 
     return {topics: topics}
@@ -444,6 +475,7 @@ export async function getTopicVersion(uri: string){
                 content: {
                     select: {
                         text: true,
+                        format: true,
                         record: {
                             select: recordQuery,
                         },

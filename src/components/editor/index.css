@@ -249,10 +249,6 @@ i.subscript {
   background-image: url(images/icons/type-subscript.svg);
 }
 
-i {
-  filter: invert(100%)
-}
-
 i.superscript {
   background-image: url(images/icons/type-superscript.svg);
 }
@@ -614,9 +610,13 @@ i.page-break,
   }
 }
 
-/*.icon {
+.icon {
   filter: invert(80%)
-}*/
+}
+
+i {
+  filter: invert(80%)
+}
 
 .icon.paragraph {
   background-image: url(images/icons/text-paragraph.svg);

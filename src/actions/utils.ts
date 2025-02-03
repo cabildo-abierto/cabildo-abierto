@@ -139,8 +139,7 @@ export const feedQuery = {
             text: true,
             article: {
                 select: {
-                    title: true,
-                    format: true
+                    title: true
                 }
             },
             post: {
@@ -160,6 +159,15 @@ export const feedQuery = {
                         }
                     },
                     quote: true
+                }
+            },
+            topicVersion: {
+                select: {
+                    topicId: true,
+                    categories: true,
+                    synonyms: true,
+                    charsAdded: true,
+                    charsDeleted: true
                 }
             }
         },

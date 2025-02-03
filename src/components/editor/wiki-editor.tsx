@@ -2,29 +2,74 @@
 
 import { SettingsProps } from "./lexical-editor"
 import {FastPostProps} from "../../app/lib/definitions";
+import {decompress} from "../compression";
+import {InitialEditorStateType} from "@lexical/react/LexicalComposer";
+import {$insertNodes, LexicalEditor} from "lexical";
+import {
+    $convertFromMarkdownString,
+    $convertToMarkdownString,
+    TRANSFORMERS,
+} from '@lexical/markdown';
+import {
+    $generateNodesFromDOM
+} from '@lexical/html'
+
+const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Este tema está vacío. Editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
 
 
-const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"¡Este tema no tiene contenido! Si tenés información relevante o te interesa investigar el tema, editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
+function getInitialData(text: string, textFormat: string, readOnly: boolean): InitialEditorStateType{
+    if(textFormat == "lexical-compressed"){
+        const contentText = decompress(text)
+        let initialData = null
+        let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
+        if(readOnly && emptyContent){
+            initialData = initialValue
+        } else {
+            initialData = contentText
+        }
+
+        return initialData
+    } else if(textFormat == "markdown"){
+        const initialData = (editor: LexicalEditor) => {
+            $convertFromMarkdownString(text, TRANSFORMERS)
+        }
+        return initialData
+    } else if(textFormat == "markdown-compressed"){
+        const contentText = decompress(text)
+        const initialData = (editor: LexicalEditor) => {
+            $convertFromMarkdownString(contentText, TRANSFORMERS)
+        }
+        return initialData
+    } else if(textFormat == "html"){
+        const initialData = (editor: LexicalEditor) => {
+            const parser = new DOMParser();
+            const dom = parser.parseFromString(text, "text/html");
+            const nodes = $generateNodesFromDOM(editor, dom);
+
+            $insertNodes(nodes);
+        }
+        return initialData
+
+    } else {
+        throw Error("Unknown format " + textFormat)
+    }
+
+}
 
 
 export const wikiEditorSettings = (
     readOnly: boolean,
     content: {cid: string, uri: string},
-    contentText: string,
+    text: string,
+    textFormat: string,
     enableTableOfContents: boolean = true,
     enableComments: boolean,
     quoteReplies?: FastPostProps[],
     pinnedReplies?: string[],
     setPinnedReplies?: (v: string[]) => void): SettingsProps => {
-    
-    let initialData = null
-    let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
-    if(readOnly && emptyContent){
-        initialData = initialValue
-    } else {
-        initialData = contentText
-    }
-        
+
+    const initialData = getInitialData(text, textFormat, readOnly)
+
     return {
         disableBeforeInput: false,
         emptyEditor: false,
@@ -51,7 +96,7 @@ export const wikiEditorSettings = (
         useStrikethrough: false,
         useSubscript: false,
         useCodeblock: false,
-        placeholder: "Explicá el tema del título o agregá información...",
+        placeholder: "Agregá información sobre el tema...",
         initialData: initialData,
         editorClassName: "content",
         isReadOnly: readOnly,

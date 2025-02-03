@@ -15,6 +15,7 @@ import {DatasetPreview} from "../../components/datasets/dataset-preview";
 import {DatasetView} from "../../components/datasets/dataset-view";
 import JSZip from "jszip";
 import {BackButton} from "../../components/back-button";
+import {useRouter} from "next/navigation";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -64,8 +65,7 @@ const Page = () => {
     const [columns, setColumns] = useState<string[] | null>()
     const [rows, setRows] = useState<any[] | null>()
     const [title, setTitle] = useState<string>("")
-    const {user} = useUser()
-    const {datasets} = useDatasets()
+    const router = useRouter()
 
     function onSubmit(f: File, filename: string){
         setData(f)
@@ -121,6 +121,11 @@ const Page = () => {
         const formData = new FormData()
         formData.set("data", zipData)
         const {error} = await createDataset(title, columns, formData, "zip")
+
+        if(!error){
+            router.push("/datos")
+        }
+
         return {error}
     }
 

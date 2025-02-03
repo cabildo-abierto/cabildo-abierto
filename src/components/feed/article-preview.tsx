@@ -2,6 +2,8 @@
 import {ArticleProps} from '../../app/lib/definitions'
 import { FastPostPreviewFrame } from './fast-post-preview-frame'
 import {PostTitleOnFeed} from "./post-title-on-feed";
+import {ContentOptions} from "../content-options/content-options";
+import {useUser} from "../../hooks/user";
 
 export type ArticlePreviewProps = {
     elem: ArticleProps

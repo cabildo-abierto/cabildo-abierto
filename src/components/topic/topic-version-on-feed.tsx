@@ -1,0 +1,34 @@
+import {TopicVersionOnFeedProps} from "../../app/lib/definitions";
+import {ContentTopRowAuthor} from "../content-top-row-author";
+import {ProfilePic} from "../feed/profile-pic";
+import {formatIsoDate} from "../utils";
+import {DateSince} from "../date";
+
+
+const CharDiff = ({diff}: {diff: {charsAdded?: number, charsDeleted?: number}}) => {
+    if(diff.charsAdded == undefined) return null
+    if(diff.charsDeleted == undefined) return null
+    return <div className={"flex"}>
+        (<span className={"text-green-400"}>+{diff.charsAdded} </span>
+        <span className={"text-red-400"}>-{diff.charsDeleted}</span>)
+    </div>
+}
+
+export const TopicVersionOnFeed = ({topicVersion}: {topicVersion: TopicVersionOnFeedProps}) => {
+    return <div className={"flex flex-col w-full p-2 border-b"}>
+        <div className={"text-sm flex space-x-1"}>
+            <ProfilePic user={topicVersion.author} className={"w-5 h-5 rounded-full mr-1"}/>
+            <ContentTopRowAuthor author={topicVersion.author}/>
+            <span className="text-[var(--text-light)]">•</span>
+            <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(topicVersion.createdAt)}>
+                <DateSince date={topicVersion.createdAt}/>
+            </span>
+        </div>
+        <div className={"flex px-2 mt-2 space-x-1"}>
+            <span>Nueva versión de</span>
+            <span className={"font-bold"}>{topicVersion.content.topicVersion.topicId}</span>
+            <CharDiff diff={topicVersion.content.topicVersion}/>.
+        </div>
+
+    </div>
+}

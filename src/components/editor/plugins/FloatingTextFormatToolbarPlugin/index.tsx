@@ -30,6 +30,8 @@ import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPosition} from '../../utils/setFloatingElemPosition';
 import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import {FormatItalic, FormatUnderlined, InsertLink} from "@mui/icons-material";
 
 function TextFormatFloatingToolbar({
   editor,
@@ -198,27 +200,27 @@ function TextFormatFloatingToolbar({
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
             }}
-            className={'popup-item spaced ' + (isBold ? 'active' : '')}
+            className={'popup-item spaced ' + (isBold ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
             aria-label="Format text as bold">
-            <i className="format bold" />
+            <FormatBoldIcon fontSize={"small"} color={"inherit"}/>
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
             }}
-            className={'popup-item spaced ' + (isItalic ? 'active' : '')}
+            className={'popup-item spaced ' + (isItalic ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
             aria-label="Format text as italics">
-            <i className="format italic" />
+            <FormatItalic fontSize={"small"} color={"inherit"}/>
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
             }}
-            className={'popup-item spaced ' + (isUnderline ? 'active' : '')}
+            className={'popup-item spaced ' + (isUnderline ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
             aria-label="Format text to underlined">
-            <i className="format underline" />
+            <FormatUnderlined fontSize={"small"} color={"inherit"}/>
           </button>
           {useStrikethrough && <button
             type="button"
@@ -261,9 +263,9 @@ function TextFormatFloatingToolbar({
           <button
             type="button"
             onClick={insertLink}
-            className={'popup-item spaced ' + (isLink ? 'active' : '')}
+            className={'popup-item spaced ' + (isLink ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
             aria-label="Insert link">
-            <i className="format link" />
+            <InsertLink fontSize={"small"} color={"inherit"}/>
           </button>
         </>
       )}

@@ -5,7 +5,7 @@ import { ReactNode, useState } from 'react';
 import { ModalBelow } from '../modal-below';
 import { IconButton } from '@mui/material';
 import StateButton, { StateButtonClickHandler } from '../state-button';
-import {FeedContentProps} from '../../app/lib/definitions';
+import {FeedContentProps, RecordProps} from '../../app/lib/definitions';
 import { ContentOptionsDropdown } from './content-options-dropdown';
 
 
@@ -26,23 +26,15 @@ export const ContentOptionsChoiceButton = ({children, onClick, icon}: {children:
 }
 
 
-type ContentOptionsButtonProps = {
-    content: FeedContentProps
-    optionList: string[]
-}
-
-export const ContentOptionsButton = ({options}: { options: ReactNode }) => {
+export const ContentOptionsButton = ({record}: { record?: RecordProps }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null)
-
-    function onClose() {
-        setIsDropdownOpen(false)
-    }
 
     return <div style={{ position: 'relative', display: 'inline-block' }}>
         <div className={"text-[var(--text-light)]"}>
             <IconButton
                 color="inherit"
+                size={"small"}
                 onClick={(e) => {e.preventDefault(); e.stopPropagation(); setAnchorEl(e.target); setIsDropdownOpen(prev => !prev)}}
             >
                 <MoreHorizIcon fontSize="small" />
@@ -55,7 +47,8 @@ export const ContentOptionsButton = ({options}: { options: ReactNode }) => {
             onClose={() => {setIsDropdownOpen(false)}}
         >
             <ContentOptionsDropdown
-                options={options}
+                record={record}
+                onClose={() => {setIsDropdownOpen(false)}}
             />
         </ModalBelow>
     </div>

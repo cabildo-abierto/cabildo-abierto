@@ -42,7 +42,10 @@ function getEncoding(config: PlotConfigProps): any {
             },
             color: {value: "#6ca0e4"},
             tooltip: [
-                {field: config["Eje x"], type: "ordinal", title: config["Eje x"]},
+                {
+                    field: config["Eje x"],
+                    type: "ordinal",
+                    title: config["Eje x"]},
                 {
                     field: config["Eje y"],
                     type: "quantitative",
@@ -55,7 +58,7 @@ function getEncoding(config: PlotConfigProps): any {
         return {
             x: {
                 field: config["Eje x"],
-                type: "quantitative",
+                type: "temporal",
                 axis: {title: config["Eje x"], labelAngle: 0, grid: false},
             },
             y: {

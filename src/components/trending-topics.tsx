@@ -9,6 +9,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import { CustomLink as Link } from './custom-link';
 import Button from "@mui/material/Button";
 import {getTopicTitle} from "./topic/utils";
+import {ContentOptionsButton} from "./content-options/content-options-button";
 
 
 export function topicPopularityScore(topic: TrendingTopicProps){
@@ -16,7 +17,7 @@ export function topicPopularityScore(topic: TrendingTopicProps){
 }
 
 
-export const TrendingArticles = ({route, selected}: {route: string[], selected: string}) => {
+export const TrendingTopics = ({route, selected}: {route: string[], selected: string}) => {
     const topics = useTrendingTopics(route, "alltime");
     const [recent, setRecent] = useState(route.length == 0)
 
@@ -39,20 +40,7 @@ export const TrendingArticles = ({route, selected}: {route: string[], selected: 
             <Link className={"text-sm text-[var(--text-light)]"} href={"/temas"}>
                 Temas
             </Link>
-            <div className={"flex space-x-2 items-center"}>
-                <button
-                    className={"rounded-lg text-[10px] sm:text-xs border px-2 text-[var(--text-light)] hover:bg-[var(--secondary-light)]" + (recent ? " bg-[var(--secondary-light)]" : "")}
-                    onClick={() => {setRecent(true)}}
-                >
-                    últimos 7 días
-                </button>
-                <button
-                    className={"rounded-lg text-[10px] sm:text-xs border px-2 text-[var(--text-light)] hover:bg-[var(--secondary-light)]" + (!recent ? " bg-[var(--secondary-light)]" : "")}
-                    onClick={() => {setRecent(false)}}
-                >
-                    histórico
-                </button>
-            </div>
+            <ContentOptionsButton record={null}/>
         </div>
         <TrendingArticlesSlider trendingArticles={topicsWithScore}/>
     </div>
@@ -68,7 +56,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
 
     return (
     <div
-        className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar px-2"
+        className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar max-h-[350px] px-2"
         {...events}
         ref={ref} // add reference and events to the wrapping div
     >

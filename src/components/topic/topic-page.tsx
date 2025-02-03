@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation";
 import {currentVersion, inRange, isFastPost, isQuotePost} from "../utils";
 import NoEntityPage from "../no-entity-page";
-import { ArticleDiscussion } from "./article-discussion";
+import { TopicDiscussion } from "./topic-discussion";
 import { EntityCategoriesSmall } from "../entity-categories-small";
 import {useTopic, useTopicFeed} from "../../hooks/contents";
 import {getTopicTitle} from "./utils";
@@ -26,7 +26,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     const [selectedPanel, setSelectedPanel] = useState(initialSelection)
     const searchParams = useSearchParams()
     const [pinnedReplies, setPinnedReplies] = useState([])
-    const [viewingContent, setViewingContent] = useState(false)
+    const [viewingContent, setViewingContent] = useState(paramsVersion != undefined)
     const {setLayoutConfig} = useLayoutConfig()
     const [shouldGoTo, setShouldGoTo] = useState(null)
 
@@ -35,7 +35,6 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
             const observer = new MutationObserver(() => {
                 const elem = document.getElementById(shouldGoTo);
                 if (elem) {
-                    console.log("Found element:", elem, shouldGoTo);
                     smoothScrollTo(elem);
                     setShouldGoTo(null);
                     observer.disconnect();
@@ -46,6 +45,12 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
             return () => observer.disconnect();
         }
     }, [shouldGoTo, viewingContent]);
+
+    useEffect(() => {
+        if(viewingContent){
+            setLayoutConfig({distractionFree: true})
+        }
+    }, [viewingContent])
 
 
     useEffect(() => {
@@ -65,7 +70,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
         return <LoadingSpinner/>
     }
 
-    if(!topic.topic || topic.isError || topic.error || !feed.feed){
+    if(!topic.topic || topic.isError || topic.error || !feed.feed || topic.topic.versions.length == 0){
         return <NoEntityPage id={topicId}/>
     }
 
@@ -77,7 +82,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
         version = currentIndex
     }
 
-    const replies = feed.feed.filter((r) => {return isQuotePost(r) && validQuotePost(topic.topic.versions[version].content.text, r as FastPostProps)})
+    const replies = feed.feed.filter((r) => {return isQuotePost(r) && validQuotePost(topic.topic.versions[version].content, r as FastPostProps)})
 
     let quoteReplies = undefined
     quoteReplies = replies.filter((r) => ((r as FastPostProps).content.post.quote != undefined))
@@ -119,11 +124,11 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
         />
 
         {selectedPanel != "editing" && <div className="w-full" id="discussion-start">
-            <ArticleDiscussion
+            {<TopicDiscussion
                 topic={topic.topic}
                 version={version}
                 onClickQuote={onClickQuote}
-            />
+            />}
         </div>}
     </div>
 }

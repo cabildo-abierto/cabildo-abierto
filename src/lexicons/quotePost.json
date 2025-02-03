@@ -18,8 +18,15 @@
           },
           "quote": {
             "type": "string",
-            "maxLength": 500,
-            "description": "A description of the selected segment in the text. Depends on the reply record format."
+            "description": "A reference to the selected segment in the text. Depends on the reply record format."
+          },
+          "quoteContent": {
+            "type": "string",
+            "description": "The content of the selected segment in the text."
+          },
+          "quoteContentFormat": {
+            "type": "string",
+            "description": "The format of the quoteContent."
           },
           "facets": {
             "type": "array",

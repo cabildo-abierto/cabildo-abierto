@@ -4,6 +4,7 @@ import { getSessionAgent } from "./auth";
 import {Agent} from "@atproto/api";
 import {getUserById} from "./users";
 import {revalidateTag} from "next/cache";
+import {getCollectionFromUri, getRkeyFromUri} from "../components/utils";
 
 
 export async function updateProfile(did: string, agent: Agent){
@@ -40,6 +41,16 @@ export async function updateProfile(did: string, agent: Agent){
 
 
 export async function deleteRecords(uris: string[]){
+    const {agent, did} = await getSessionAgent()
+
+    for(let i = 0; i < uris.length; i++){
+        await agent.com.atproto.repo.deleteRecord({
+            repo: did,
+            rkey: getRkeyFromUri(uris[i]),
+            collection: getCollectionFromUri(uris[i])
+        })
+    }
+
     const d1 = db.follow.deleteMany({
         where: {
             uri: {
@@ -103,14 +114,14 @@ export async function deleteRecords(uris: string[]){
             }
         }
     })
-    await db.$transaction([d1, d2, d3, d5, d6, d7, d8, d9, d4])
-    await db.record.deleteMany({
+    const d10 = db.record.deleteMany({
         where: {
-            cid: {
+            uri: {
                 in: uris
             }
         }
     })
+    await db.$transaction([d1, d2, d3, d5, d6, d7, d8, d9, d4, d10])
 }
 
 

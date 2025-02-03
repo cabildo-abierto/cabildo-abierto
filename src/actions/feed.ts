@@ -186,6 +186,15 @@ export async function getSearchableContents(){
 
 
 export async function getProfileFeed(userId: string, kind: string){
+    let collections = []
+    if(kind == "main"){
+        collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post"]
+    } else if(kind == "replies"){
+        collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "ar.com.cabildoabierto.quotePost"]
+    } else if(kind == "edits"){
+        collections = ["ar.com.cabildoabierto.topic"]
+    }
+
     let feed
     try {
         feed = await db.record.findMany({
@@ -193,7 +202,7 @@ export async function getProfileFeed(userId: string, kind: string){
             where: {
                 authorId: userId,
                 collection: {
-                    in: ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "ar.com.cabildoabierto.quotePost"]
+                    in: collections
                 }
             },
             orderBy: {
@@ -207,6 +216,8 @@ export async function getProfileFeed(userId: string, kind: string){
     if(kind == "main"){
         feed = feed.filter((e) => (e.collection == "ar.com.cabildoabierto.article" || e.content.post.replyTo == null))
     }
+
+    console.log("feed", feed)
 
     const readyForFeed = addCountersToFeed(feed, userId)
     return {feed: readyForFeed}
@@ -230,31 +241,46 @@ export async function getEnDiscusion(): Promise<{feed?: FeedContentPropsNoRepost
 }
 
 
-export async function getTopicFeed(id: string): Promise<{feed: FeedContentProps[]}> {
+export async function getTopicFeed(id: string): Promise<{feed?: FeedContentProps[], error?: string}> {
     const did = await getUserId()
 
-    const feed = await db.record.findMany({
-        select: feedQuery,
-        where: {
-            collection: {
-                in: ["app.bsky.feed.post", "ar.com.cabildoabierto.quotePost"]
-            },
-            content: {
-                post: {
-                    replyTo: {
-                        collection: "ar.com.cabildoabierto.topic"
+    id = decodeURIComponent(id)
+    console.log("getting topic feed for", id)
+
+    try {
+
+        const feed = await db.record.findMany({
+            select: feedQuery,
+            where: {
+                collection: {
+                    in: ["app.bsky.feed.post", "ar.com.cabildoabierto.quotePost"]
+                },
+                content: {
+                    post: {
+                        replyTo: {
+                            collection: "ar.com.cabildoabierto.topic",
+                            content: {
+                                topicVersion: {
+                                    topicId: id
+                                }
+                            }
+                        }
                     }
                 }
+            },
+            orderBy: {
+                createdAt: "desc"
             }
-        },
-        orderBy: {
-            createdAt: "desc"
-        }
-    })
+        })
 
-    console.log("feed length", feed.length)
+        console.log("feed length", feed.length)
 
-    const readyForFeed = addCountersToFeed(feed, did)
+        const readyForFeed = addCountersToFeed(feed, did)
 
-    return {feed: readyForFeed}
+        return {feed: readyForFeed}
+    } catch (e) {
+        console.log("Error getting topic feed for", id)
+        console.log(e)
+        return {error: "Ocurrió un error al obtener el feed del tema " + id}
+    }
 }

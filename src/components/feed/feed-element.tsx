@@ -5,12 +5,13 @@ import {
     ArticleProps,
     DatasetProps,
     FastPostProps,
-    FeedContentProps, RepostProps,
+    FeedContentProps, RepostProps, TopicVersionOnFeedProps,
     VisualizationProps
 } from "../../app/lib/definitions";
 import {DatasetPreview} from "../datasets/dataset-preview";
 import {VisualizationOnFeed} from "./visualization-on-feed";
 import {Repost} from "./repost";
+import {TopicVersionOnFeed} from "../topic/topic-version-on-feed";
 
 
 export const FeedElement = ({elem, showReplies, onClickQuote, repostedBy}: {
@@ -40,5 +41,7 @@ export const FeedElement = ({elem, showReplies, onClickQuote, repostedBy}: {
         />
     } else if(elem.collection == "app.bsky.feed.repost"){
         return <Repost repost={elem as RepostProps}/>
+    } else if(elem.collection == "ar.com.cabildoabierto.topic"){
+        return <TopicVersionOnFeed topicVersion={elem as TopicVersionOnFeedProps}/>
     }
 }

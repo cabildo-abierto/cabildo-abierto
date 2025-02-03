@@ -6,6 +6,8 @@ import {formatIsoDate, getUsername, userUrl} from '../utils'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 import { EngagementIcons } from './engagement-icons'
+import {ContentOptions} from "../content-options/content-options";
+import {useUser} from "../../hooks/user";
 
 
 type MainPostFrameProps = {children: ReactNode, post: FastPostProps}
@@ -14,6 +16,7 @@ type MainPostFrameProps = {children: ReactNode, post: FastPostProps}
 export const MainPostFrame = ({
                                          children, post
 }: MainPostFrameProps) => {
+    const {user} = useUser()
 
     const author = post.author
     const authorUrl = userUrl(author.handle)
@@ -60,7 +63,7 @@ export const MainPostFrame = ({
             </div>
 
             <div className="py-2">
-                <EngagementIcons counters={post} record={post as {uri: string, cid: string}} options={null}/>
+                <EngagementIcons counters={post} record={post}/>
             </div>
         </div>
     </div>   

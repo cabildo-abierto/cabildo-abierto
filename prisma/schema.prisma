@@ -139,24 +139,25 @@ model Record {
 }
 
 model Follow {
-  uri            String @id
-  record         Record @relation(fields: [uri], references: [uri])
-  userFollowedId String
-  userFollowed   User   @relation(fields: [userFollowedId], references: [did])
+  uri            String  @id
+  record         Record  @relation(fields: [uri], references: [uri])
+  userFollowedId String?
+  userFollowed   User?   @relation(fields: [userFollowedId], references: [did])
 }
 
 model Reaction {
-  uri        String @id
-  record     Record @relation(fields: [uri], references: [uri])
-  reactsToId String
-  reactsTo   Record @relation("reactsTo", fields: [reactsToId], references: [uri])
+  uri        String  @id
+  record     Record  @relation(fields: [uri], references: [uri])
+  reactsToId String?
+  reactsTo   Record? @relation("reactsTo", fields: [reactsToId], references: [uri])
 }
 
 model Content {
   uri    String @id
   record Record @relation(fields: [uri], references: [uri])
 
-  text String
+  text   String
+  format String @default("lexical-compressed")
 
   numWords Int?
 
@@ -194,7 +195,6 @@ model Article {
   uri     String  @id
   content Content @relation(fields: [uri], references: [uri])
   title   String
-  format  String
 }
 
 model Post {
@@ -231,13 +231,13 @@ model Blob {
 }
 
 model DataBlock {
-  uri       String  @id
-  record    Record  @relation(fields: [uri], references: [uri])
-  dataset   Dataset @relation(fields: [datasetId], references: [uri])
-  datasetId String
+  uri       String   @id
+  record    Record   @relation(fields: [uri], references: [uri])
+  dataset   Dataset? @relation(fields: [datasetId], references: [uri])
+  datasetId String?
   format    String
-  blob      Blob    @relation(fields: [blobId], references: [cid])
-  blobId    String  @unique
+  blob      Blob?    @relation(fields: [blobId], references: [cid])
+  blobId    String?  @unique
 }
 
 model View {
@@ -246,8 +246,8 @@ model View {
   userBy    User     @relation(fields: [userById], references: [did])
   userById  String
 
-  recordId String
-  record   Record @relation(fields: [recordId], references: [uri])
+  recordId String?
+  record   Record? @relation(fields: [recordId], references: [uri])
 }
 
 model Visualization {

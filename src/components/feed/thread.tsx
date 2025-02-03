@@ -25,21 +25,22 @@ function validQuotePointer(indexes: number[], node: any){
 }
 
 
-export function validQuotePost(compressedText: string, r: FastPostProps){
-    if(!compressedText) return false
+export function validQuotePost(content: {text?: string, format?: string}, r: FastPostProps){
+    if(!content.text) return false
+    if(content.format == "markdown") return false // TO DO
+    console.log("validating quote", content, r)
     try {
 
         const quote: QuoteDirProps = JSON.parse(r.content.post.quote)
 
-        const content = JSON.parse(decompress(compressedText))
+        const jsonContent = JSON.parse(decompress(content.text))
 
-        if(!validQuotePointer(quote.start.node, content.root)) return false
-        if(!validQuotePointer(quote.end.node, content.root)) return false
+        if(!validQuotePointer(quote.start.node, jsonContent.root)) return false
+        if(!validQuotePointer(quote.end.node, jsonContent.root)) return false
         return true
     } catch (e) {
         console.log("error validating quote")
         console.log(r.content.post.quote)
-        console.log(decompress(compressedText))
         console.log(e)
         return false
     }
@@ -59,7 +60,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
         }
     }, [])
 
-    const text = thread.post.collection == "ar.com.cabildoabierto.article" ? (thread.post as ArticleProps).content.text : undefined
+    const text = thread.post.collection == "ar.com.cabildoabierto.article" ? (thread.post as ArticleProps).content : undefined
 
     const replies = thread.replies.filter((r) => {return !r.content.post.quote || validQuotePost(text, r)})
 

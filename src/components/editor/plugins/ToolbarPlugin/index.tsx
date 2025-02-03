@@ -79,6 +79,14 @@ import {InsertTableDialog} from '../TablePlugin';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import VisualizationsIcon from '../../../icons/visualization-icon';
 import {InsertVisualizationDialog} from "../PlotPlugin";
+import {
+  FormatBold,
+  FormatItalic,
+  FormatUnderlined,
+  ImageOutlined,
+  InsertLink,
+  TableChartOutlined
+} from "@mui/icons-material";
 
 const blockTypeToBlockName = {
   bullet: 'Lista',
@@ -272,7 +280,7 @@ function BlockFormatDropDown({
     <DropDown
       disabled={disabled}
       buttonClassName="toolbar-item block-controls"
-      buttonIconClassName={'icon block-type ' + blockType}
+      buttonIconClassName={'icon block-type text-red border-red bg-red ' + blockType}
       buttonLabel={blockTypeToBlockName[blockType]}
       buttonAriaLabel="Formatting options for text style">
       <DropDownItem
@@ -835,48 +843,48 @@ export default function ToolbarPlugin({
                   onClick={() => {
                     activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
                   }}
-                  className={'toolbar-item spaced ' + (isBold ? 'active' : '')}
+                  className={'toolbar-item spaced ' + (isBold ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
                   title={IS_APPLE ? 'Negrita (⌘B)' : 'Negrita (Ctrl+B)'}
                   type="button"
                   aria-label={`Format text as bold. Shortcut: ${
                       IS_APPLE ? '⌘B' : 'Ctrl+B'
                   }`}>
-                <i className="format bold"/>
+                <FormatBold fontSize={"small"} color={"inherit"}/>
               </button>
               <button
                   disabled={!isEditable}
                   onClick={() => {
                     activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
                   }}
-                  className={'toolbar-item spaced ' + (isItalic ? 'active' : '')}
+                  className={'toolbar-item spaced ' + (isItalic ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
                   title={IS_APPLE ? 'Itálica (⌘I)' : 'Itálica (Ctrl+I)'}
                   type="button"
                   aria-label={`Format text as italics. Shortcut: ${
                       IS_APPLE ? '⌘I' : 'Ctrl+I'
                   }`}>
-                <i className="format italic"/>
+                <FormatItalic fontSize={"small"} color={"inherit"}/>
               </button>
               <button
                   disabled={!isEditable}
                   onClick={() => {
                     activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
                   }}
-                  className={'toolbar-item spaced ' + (isUnderline ? 'active' : '')}
+                  className={'toolbar-item spaced ' + (isUnderline ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
                   title={IS_APPLE ? 'Subrayado (⌘U)' : 'Subrayado (Ctrl+U)'}
                   type="button"
                   aria-label={`Format text to underlined. Shortcut: ${
                       IS_APPLE ? '⌘U' : 'Ctrl+U'
                   }`}>
-                <i className="format underline"/>
+                <FormatUnderlined fontSize={"small"} color={"inherit"}/>
               </button>
               <button
                   disabled={!isEditable}
                   onClick={insertLink}
-                  className={'toolbar-item spaced ' + (isLink ? 'active' : '')}
+                  className={'toolbar-item spaced text-[var(--text-light)] ' + (isLink ? 'active' : '')}
                   aria-label="Insertar vínculo"
                   title="Insertar vínculo"
                   type="button">
-                <i className="format link"/>
+                <InsertLink fontSize={"small"} color={"inherit"}/>
               </button>
               {(canViewerSeeInsertDropdown) && (
                   <>
@@ -942,9 +950,9 @@ export default function ToolbarPlugin({
             }}
             type="button"
             title="Insertar tabla"
-            className="toolbar-item spaced"
+            className="toolbar-item spaced text-[var(--text-light)]"
             aria-label="Insertar tabla">
-          <i className="format table"/>
+          <TableChartOutlined fontSize={"small"} color={"inherit"}/>
         </button>
         <button
             onClick={() => {
@@ -957,9 +965,9 @@ export default function ToolbarPlugin({
             }}
             type="button"
             title="Insertar imágen"
-            className="toolbar-item spaced"
+            className="toolbar-item spaced text-[var(--text-light)]"
             aria-label="Insertar imágen">
-          <i className="format image"/>
+          <ImageOutlined fontSize={"small"} color={"inherit"}/>
         </button>
         <button
             onClick={() => {

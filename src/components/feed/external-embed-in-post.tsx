@@ -57,7 +57,7 @@ export const ExternalEmbedInPost = ({post}: {post: FastPostProps}) => {
             <ImageFromThumb thumb={embed.external.thumb} authorDid={post.author.did}/>
         </div>}
         <div className={embed.external.thumb ? "border-t p-2" : "p-2"}>
-            <div className={"font-bold"}>{embed.external.title}</div>
+            <div className={"font-bold mb-1"}>{embed.external.title}</div>
             <div className={""}>{embed.external.description}</div>
             <hr className={"py-1"}/>
             <div className={"text-sm text-[var(--text-light)]"}>

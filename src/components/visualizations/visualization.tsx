@@ -5,19 +5,22 @@ import Link from "next/link";
 import {datasetViewUrl} from "../utils";
 import {VisualizationProps} from "../../app/lib/definitions";
 import dynamic from "next/dynamic";
+import {ContentOptions} from "../content-options/content-options";
+import {useUser} from "../../hooks/user";
 const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
     ssr: false,
 });
 
 
 export const Visualization = ({visualization}: {visualization: VisualizationProps}) => {
+
     return <div className={"px-2 mt-4 space-y-2 pb-2 border-b"}>
         <div className={"flex justify-between items-center"}>
             <div className={"font-bold text-xl"}>
                 Visualización
             </div>
             <div>
-                <ContentOptionsButton options={<></>}/>
+                <ContentOptionsButton record={visualization}/>
             </div>
         </div>
         <div className={"flex items-center space-x-2 text-sm"}>

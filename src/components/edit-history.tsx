@@ -19,6 +19,8 @@ import { Authorship } from "./content-top-row-author";
 import { NeedAccountPopup } from "./need-account-popup";
 import {ProfilePic} from "./feed/profile-pic";
 import {LikeCounter} from "./like-counter";
+import {ContentOptionsButton} from "./content-options/content-options-button";
+import {ContentOptions} from "./content-options/content-options";
 
 
 const EditDetails = ({editType}: {editType: string}) => {
@@ -192,16 +194,19 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
             onClick={() => {router.push(articleUrl(entity.id, index))}}
         >
             <div className={"flex flex-col w-full"}>
-                <div className={"flex justify-between w-full"}>
+                <div className={"flex justify-between items-center w-full"}>
                     <div className="text-sm flex space-x-1">
-                        <ProfilePic className={"w-5 h-5 rounded-full"} user={user.user}/>
+                        <ProfilePic className={"w-5 h-5 rounded-full"} user={entityVersion.content.record.author}/>
                         <Authorship
                             content={entityVersion.content.record}
                             onlyAuthor={true}
                         />
                     </div>
-                    <div className="text-xs">
-                        <DateSince date={entityVersion.content.record.createdAt}/>
+                    <div className="text-xs space-x-2 flex items-center">
+                        <div>
+                            <DateSince date={entityVersion.content.record.createdAt}/>
+                        </div>
+                        <ContentOptionsButton record={{collection: "ar.com.cabildoabierto.topic", ...entityVersion.content.record}}/>
                     </div>
                 </div>
                 <div className={"flex justify-between w-full"}>

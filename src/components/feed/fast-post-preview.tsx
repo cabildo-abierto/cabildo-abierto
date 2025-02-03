@@ -3,6 +3,8 @@
 import {FastPostProps} from '../../app/lib/definitions'
 import { FastPostPreviewFrame } from './fast-post-preview-frame'
 import {FastPostContent} from "./fast-post-content";
+import {ContentOptions} from "../content-options/content-options";
+import {useUser} from "../../hooks/user";
 
 export type FastPostPreviewProps = {
     post: FastPostProps
@@ -23,11 +25,17 @@ export const FastPostPreview = ({
                                            onClickQuote,
                                            showChildren=false,
                                            repostedBy}: FastPostPreviewProps) => {
+
     return <div className={"flex flex-col w-full"}>
         {/*hasParent && showParent &&
             <FastPostPreview content={content} borderBelow={false} showChildren={true}/>
         */}
-        <FastPostPreviewFrame post={post} borderBelow={borderBelow} showingParent={false} repostedBy={repostedBy} showingChildren={showChildren}>
+        <FastPostPreviewFrame
+            post={post}
+            borderBelow={borderBelow}
+            showingParent={false}
+            repostedBy={repostedBy}
+            showingChildren={showChildren}>
             {/*hasParent && !showParent && !parentIsMainPost && <IsReplyMessage author={content.parent.author}/>*/}
             <FastPostContent post={post} onClickQuote={onClickQuote}/>
         </FastPostPreviewFrame>

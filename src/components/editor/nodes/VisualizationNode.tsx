@@ -99,9 +99,16 @@ export class VisualizationNode extends DecoratorNode<JSX.Element> {
   }
 
   decorate(): JSX.Element {
-    console.log("spec is", this.__spec)
+    const i18n = {
+      CLICK_TO_VIEW_ACTIONS: 'Hacé click para ver las acciones',
+      COMPILED_ACTION: 'Ver Vega compilado',
+      EDITOR_ACTION: 'Abrir en editor Vega',
+      PNG_ACTION: 'Guardar como PNG',
+      SOURCE_ACTION: 'Ver código fuente',
+      SVG_ACTION: 'Guardar como SVG',
+    };
     return (
-        <VegaLite spec={JSON.parse(this.__spec)} actions={false}/>
+        <VegaLite spec={JSON.parse(this.__spec)} actions={true} i18n={i18n}/>
     );
   }
 }

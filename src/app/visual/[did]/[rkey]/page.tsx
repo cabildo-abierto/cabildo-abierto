@@ -7,14 +7,16 @@ import {ProfilePic} from "../../../../components/feed/profile-pic";
 import Link from "next/link";
 import {ContentOptionsButton} from "../../../../components/content-options/content-options-button";
 import dynamic from "next/dynamic";
+import {ContentOptions} from "../../../../components/content-options/content-options";
+import {useUser} from "../../../../hooks/user";
 const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
     ssr: false,
 });
 
 
-
 const Page = ({params}: {params: {did: string, rkey: string}}) => {
     const {visualization, isLoading} = useVisualization(getUri(params.did, "ar.com.cabildoabierto.visualization", params.rkey));
+    const {user} = useUser()
 
     if(isLoading) return <LoadingSpinner/>
     if(!visualization) return <></>
@@ -25,7 +27,7 @@ const Page = ({params}: {params: {did: string, rkey: string}}) => {
                 Visualización
             </div>
             <div>
-                <ContentOptionsButton options={<></>}/>
+                <ContentOptionsButton record={visualization}/>
             </div>
         </div>
         <div className={"flex items-center space-x-2 text-sm"}>
