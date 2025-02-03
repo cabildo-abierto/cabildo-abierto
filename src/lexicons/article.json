@@ -10,9 +10,7 @@
           "required": ["text", "title", "createdAt", "format"],
           "properties": {
             "text": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 1000000
+              "type": "blob"
             },
             "format": {
               "type": "string",

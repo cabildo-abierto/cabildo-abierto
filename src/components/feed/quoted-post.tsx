@@ -18,7 +18,7 @@ import {ExternalEmbedInPost} from "./external-embed-in-post";
 
 
 const QuotedPostFromUri = ({uri}: {uri: string}) => {
-    const [post, setPost] = useState<FastPostProps | null>(null)
+    const [post, setPost] = useState<{post?: FastPostProps, error?: string} | null>(null)
 
     useEffect(() => {
         async function getPost(){
@@ -36,7 +36,7 @@ const QuotedPostFromUri = ({uri}: {uri: string}) => {
         return <LoadingSpinner/>
     }
 
-    return <QuotedPost post={post}/>
+    return <QuotedPost maybePost={post}/>
 }
 
 
@@ -52,8 +52,16 @@ export const QuotedPostFromEmbed = ({embedStr}: {embedStr: string}) => {
 
 
 // "post" is the quoted post
-export const QuotedPost = ({post}: {post: FastPostProps}) => {
+export const QuotedPost = ({maybePost}: {maybePost: {post?: FastPostProps, error?: string}}) => {
     const router = useRouter()
+
+    if(maybePost.error) {
+        return <div className={"rounded-lg border p-3 mt-2"}>
+            No se encontró el post.
+        </div>
+    }
+
+    const post = maybePost.post
 
     const url = contentUrl(post.uri, post.author.handle)
 

@@ -11,6 +11,15 @@ import {VisualizationSpec} from "react-vega";
 import {datasetQuery, recordQuery, visualizationQuery} from "./utils";
 
 
+export async function createBlobFromFile(f: File){
+    const {agent, did} = await getSessionAgent()
+    const headers: Record<string, string> = {
+        "Content-Length": f.size.toString()
+    }
+    const res = await agent.uploadBlob(f, {headers})
+}
+
+
 export async function createDataset(title: string, columns: string[], formData: FormData, format: string): Promise<{error?: string}>{
     const data = Object.fromEntries(formData);
 
@@ -137,6 +146,16 @@ export async function fetchBlob(blob: {cid: string, authorId: string}) {
     return null
 }
 
+function transformToISO8601(date: string): string {
+    const [year, month, day] = date.split('-');
+
+    // Create a new Date object for the given date in UTC
+    const isoDate = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+
+    // Return the full ISO 8601 format
+    return isoDate.toISOString();
+}
+
 export async function getDataset(uri: string){
 
     let dataset: DatasetProps
@@ -190,6 +209,12 @@ export async function getDataset(uri: string){
         data = [...data, ...parsedData.data];
     }
 
+    /*for(let i = 0; i < data.length; i++){
+        if("fecha" in data[i]){
+            data[i].fecha = transformToISO8601(data[i].fecha)
+        }
+    }*/
+
     return {dataset: dataset, data: data}
 }
 
@@ -241,7 +266,10 @@ export async function getVisualizations(){
             visualization: visualizationQuery
         },
         where: {
-            collection: "ar.com.cabildoabierto.visualization"
+            collection: "ar.com.cabildoabierto.visualization",
+            visualization: {
+                isNot: null
+            }
         },
         orderBy: {
             createdAt: "desc"

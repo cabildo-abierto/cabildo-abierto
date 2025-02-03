@@ -20,7 +20,7 @@ export type FeedProps = {
 
 const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación.", showReplies=false, onClickQuote}) => {
     if(feed.isLoading){
-        return <LoadingSpinner/>
+        return <div className={"mt-8"}><LoadingSpinner/></div>
     }
 
     function generator(index: number){

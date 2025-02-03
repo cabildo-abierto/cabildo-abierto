@@ -47,6 +47,8 @@ export const ShowQuoteReplyButton = ({reply, pinnedReplies, setPinned, editor}: 
                 rangeSelection.anchor = startNode
                 rangeSelection.focus = endNode
 
+                console.log("rangeSelection", rangeSelection)
+
                 $wrapSelectionInMarkNode(rangeSelection, false, "h"+reply.cid, $createMarkNode)
             })
         } else {

@@ -4,7 +4,7 @@ import { EditorState } from "lexical";
 import { CustomLink as Link } from './custom-link';
 import React, { useEffect, useState } from "react";
 import { useUser } from "../hooks/user";
-import { TopicProps } from "../app/lib/definitions";
+import {TopicProps, TopicVersionProps} from "../app/lib/definitions";
 import { charDiffFromJSONString, getAllText } from "./diff";
 import InfoPanel from "./info-panel";
 import { NotEnoughPermissionsWarning } from "./permissions-warning";
@@ -32,10 +32,15 @@ const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: strin
 }
 
 
+function charsDiffFromStateAndCurrentVersion(editorState: EditorState, currentVersion: TopicVersionProps) {
+    return {charsAdded: 0}
+}
+
+
 export const SaveEditPopup = ({ 
     editorState, currentVersion, onClose, onSave, entity }: {
         editorState: EditorState,
-        currentVersion: string
+        currentVersion: TopicVersionProps
         onClose: () => void
         onSave: (v: boolean, editMsg: string) => Promise<{error?: string}>,
         entity: TopicProps
@@ -47,8 +52,10 @@ export const SaveEditPopup = ({
     const [newVersionSize, setNewVersionSize] = useState(undefined)
 
     useEffect(() => {
+        const d = charsDiffFromStateAndCurrentVersion(editorState, currentVersion)
+
         const jsonState = JSON.stringify(editorState)
-        const d = charDiffFromJSONString(currentVersion, jsonState, true)
+        //const d = charDiffFromJSONString(currentVersion, jsonState, true)
 
         if(!d){
             setDiff("too big")

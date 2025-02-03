@@ -1,11 +1,10 @@
 "use client"
 import {PlotConfigProps} from "../../app/lib/definitions";
-import {VegaLite} from "react-vega";
 import LoadingSpinner from "../loading-spinner";
 import {getSpecForConfig} from "./spec";
 import {useDataset} from "../../hooks/contents";
-import embed, { Result } from "vega-embed";
-import {MutableRefObject, useEffect, useRef, useState} from "react";
+import embed from "vega-embed";
+import {useEffect, useRef} from "react";
 import {View} from "vega";
 
 
@@ -35,7 +34,6 @@ export const VisualizationOnEditor = ({config, setCurrentView}: {
     return (
         <div className={"flex justify-center"}>
             <div ref={chartRef}/>
-            {/*<VegaLite spec={spec} actions={false}/>*/}
         </div>
     );
 }

@@ -2,7 +2,7 @@
 
 import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {FastPostImage} from "./fast-post-image";
-import {QuotedPost, QuotedPostFromEmbed} from "./quoted-post";
+import {QuotedPostFromEmbed} from "./quoted-post";
 import {FastPostProps} from "../../app/lib/definitions";
 import {ContentQuote} from "./content-quote";
 import {PlotInPost} from "./plot-in-post";

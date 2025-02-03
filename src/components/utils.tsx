@@ -493,9 +493,7 @@ export function datasetViewUrl(uri: string){
 export function contentUrl(uri: string, handle?: string){
     const {did, collection, rkey} = splitUri(uri)
 
-    const userId = handle ? handle : did
-
-    return "/c?u=" + userId + "&i=" + rkey + "&c=" + collection
+    return "/c/" + did + "/" + rkey
 }
 
 
@@ -506,6 +504,12 @@ export function urlFromRecord(record: {uri: string, collection: string, author: 
         return "/c/" + record.author.did + "/" + getRkeyFromUri(record.uri)
     }
     return contentUrl(record.uri, record.author.handle ? record.author.handle : record.author.did)
+}
+
+
+export function getBlueskyUrl(uri: string){
+    const {did, collection, rkey} = splitUri(uri)
+    return "https://bsky.app/profile/" + did + "/post/" + rkey
 }
 
 

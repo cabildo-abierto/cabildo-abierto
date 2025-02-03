@@ -16,7 +16,7 @@ const ReplyVerticalLine = ({className=""}: {className?: string}) => {
     return <div className={"w-[2px] bg-[var(--accent)] " + className}></div>
 }
 
-type ATProtoPostFrameProps = {
+type FastPostPreviewFrameProps = {
     children: ReactNode
     post: RecordProps & EngagementProps
     borderBelow?: boolean
@@ -26,7 +26,7 @@ type ATProtoPostFrameProps = {
 }
 
 export const FastPostPreviewFrame = ({
-     children, post, borderBelow=true, showingParent=false, showingChildren=false, repostedBy}: ATProtoPostFrameProps) => {
+     children, post, borderBelow=true, showingParent=false, showingChildren=false, repostedBy}: FastPostPreviewFrameProps) => {
     const router = useRouter()
 
     const record = post
@@ -39,7 +39,10 @@ export const FastPostPreviewFrame = ({
         <div className={"flex"}>
             <div className="w-[80px] flex flex-col items-center h-full pl-2">
                 {showingParent ? <ReplyVerticalLine className="h-3"/> : <div className="h-3">{emptyChar}</div>}
-                <Link href={userUrl(record.author.handle)} className="w-11 h-11 flex items-center justify-center">
+                <Link
+                    href={userUrl(record.author.handle)}
+                    onClick={(e) => {e.stopPropagation()}}
+                    className="w-11 h-11 flex items-center justify-center">
                     <Image
                         src={record.author.avatar}
                         alt={"Perfil de "+record.author.handle}
@@ -66,7 +69,7 @@ export const FastPostPreviewFrame = ({
                 </div>
 
                 <div className={"mt-1"}>
-                    <EngagementIcons counters={post} record={post as {uri: string, cid: string}} options={null}/>
+                    <EngagementIcons counters={post} record={post}/>
                 </div>
             </div>
         </div>

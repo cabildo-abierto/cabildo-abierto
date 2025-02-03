@@ -4,27 +4,29 @@ import { ContentOptionsChoiceButton } from "./content-options-button"
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ShareContentButton } from "./share-content-button"
 import {ReactNode} from "react";
+import {RecordProps} from "../../app/lib/definitions";
+import {ContentOptions} from "./content-options";
 
-export const ContentOptions = ({optionsList, content}: {optionsList: string[], content: any}) => {
+/*export const ContentOptions = ({optionsList, content}: {optionsList: string[], content: any}) => {
 
     async function onReportFake(){
-        /*setIsFakeNewsModalOpen(true)
-        onClose()*/
+        setIsFakeNewsModalOpen(true)
+        onClose()
         return {}
     }
 
     async function onEdit(){
-        /*if(content.type == "Comment"){
+        if(content.type == "Comment"){
             setIsEditModalOpen(true)
         } else {
             router.push(editContentUrl(content.id))
         }
-        onClose()*/
+        onClose()
         return {}
     }
 
     async function onDelete(){
-        /*const result = await deleteContent(content.id, false)
+        const result = await deleteContent(content.id, false)
         mutate("/api/content/"+content.id)
         if(content.parentContents && content.parentContents.length > 0){
             mutate("/api/content"+content.parentContents[0].id)
@@ -32,7 +34,7 @@ export const ContentOptions = ({optionsList, content}: {optionsList: string[], c
         if(["Post", "FastPost"].includes(content.type) || (content.rootContent && ["Post", "FastPost"].includes(content.rootContent.type))){
             mutate("/api/feed/")
         }
-        onClose()*/
+        onClose()
         //return result
         return {}
     }
@@ -62,14 +64,16 @@ export const ContentOptions = ({optionsList, content}: {optionsList: string[], c
         {optionsList.includes("share") && <ShareContentButton content={content}/>}
 
     </div>
-}
+}*/
 
 export const ContentOptionsDropdown = ({
-    options
+    onClose,
+    record
 }: {
-    options: ReactNode
+    onClose: () => void
+    record?: RecordProps
 }) => {
     return <div className="text-base border rounded bg-[var(--content)] p-2">
-        {options}
+        {record && <ContentOptions record={record} onClose={onClose}/>}
     </div>
 }

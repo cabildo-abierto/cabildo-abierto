@@ -36,6 +36,7 @@ export type BasicUserProps = {
 
 export type TopicVersionContentProps = {
     text?: string
+    format: string
     record: {
         uri: string
         cid: string
@@ -113,7 +114,7 @@ export type TrendingTopicProps = {
 
 export type FeedContentProps = FeedContentPropsNoRepost | RepostProps
 
-export type FeedContentPropsNoRepost = (FastPostProps | ArticleProps | DatasetProps | VisualizationProps) & EngagementProps
+export type FeedContentPropsNoRepost = (FastPostProps | ArticleProps | DatasetProps | VisualizationProps | TopicVersionOnFeedProps) & EngagementProps
 
 export type SmallUserProps = {
     did: string
@@ -258,6 +259,20 @@ export type FastPostProps = RecordProps & EngagementProps & {
             root?: {uri: string, cid: string}
             quote?: string
             visualization?: VisualizationProps
+        }
+    }
+}
+
+
+export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
+    content: {
+        numWords?: number
+        topicVersion: {
+            title?: string
+            topicId: string
+            message?: string
+            charsAdded?: number
+            charsDeleted?: number
         }
     }
 }

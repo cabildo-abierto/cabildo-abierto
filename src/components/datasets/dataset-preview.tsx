@@ -3,14 +3,11 @@ import {DatasetProps} from "../../app/lib/definitions";
 import {useRouter} from "next/navigation";
 import {FastPostPreviewFrame} from "../feed/fast-post-preview-frame";
 import {PostTitleOnFeed} from "../feed/post-title-on-feed";
+import {ContentOptions} from "../content-options/content-options";
+import {useUser} from "../../hooks/user";
 
 
 export const DatasetPreview = ({dataset}: {dataset: DatasetProps}) => {
-    const router = useRouter()
-
-    function onClick () {
-        router.push("/datasets/"+dataset.author.did+"/"+dataset.rkey)
-    }
 
     return <FastPostPreviewFrame
         post={dataset}

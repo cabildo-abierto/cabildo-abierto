@@ -5,7 +5,9 @@ import { RichText } from '@atproto/api'
 import {db} from "../db";
 import {FastPostProps, FastPostReplyProps, ThreadProps, VisualizationProps} from "../app/lib/definitions";
 import {addCounters, feedQuery, feedQueryWithReposts} from "./utils";
-import {getDidFromUri, getVisualizationTitle, splitUri} from "../components/utils";
+import {getDidFromUri, getUri, getVisualizationTitle, splitUri} from "../components/utils";
+import {getUsers} from "./users";
+import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 
 
 export const addLike = async (uri: string, cid: string) => {
@@ -118,10 +120,73 @@ const authorQuery = {
 }
 
 
+function threadViewPostToThread(thread: ThreadViewPost) {
+    const record = thread.post.record as {createdAt: string, text: string, facets?: any, embed?: any}
+
+    console.log("threadviewposttothread", thread)
+
+    const post: FastPostProps = {
+        uri: thread.post.uri,
+        cid: thread.post.cid,
+        author: thread.post.author,
+        collection: "app.bsky.feed.post",
+        createdAt: new Date(record.createdAt),
+        content: {
+            text: record.text,
+            post: {
+                facets: record.facets ? JSON.stringify(record.facets) : undefined,
+                embed: record.embed ? JSON.stringify(record.embed) : undefined
+            }
+        },
+        replyCount: thread.post.replyCount,
+        repostCount: thread.post.repostCount,
+        likeCount: thread.post.likeCount
+    }
+
+    const replies: FastPostProps[] = thread.replies ? thread.replies.map((r) => {
+        if(r.notFound || r.blocked) return null
+        const replyThread = r as ThreadViewPost
+        if(replyThread.$type == "app.bsky.feed.defs#threadViewPost"){
+            return threadViewPostToThread(replyThread).thread.post
+        } else {
+            return null
+        }
+    }).filter((r) => (r != null)) : []
+
+    return {thread: {post, replies}}
+}
+
+
+export async function getThreadFromATProto({did, rkey}: {did: string, rkey: string}) {
+
+    const {agent, did: viewerDid} = await getSessionAgent()
+
+    const {data} = await agent.getPostThread({
+        uri: getUri(did, "app.bsky.feed.post", rkey)
+    })
+
+    if(!data.notFound && !data.blocked){
+        const thread = data.thread as ThreadViewPost
+
+        return threadViewPostToThread(thread)
+    } else {
+        return {error: "No se encontró el post."}
+    }
+}
+
+
 export async function getThread({did, rkey}: {did: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
+
+    const {users, error} = await getUsers()
+    if(error) return {error}
+    if(!users.some((u) => (u.did == did))){
+        return await getThreadFromATProto({did, rkey})
+    }
+
     const {did: viewerDid} = await getSessionAgent()
     const threadId = {rkey, authorId: did}
-    console.log("getting thread", threadId)
+
+
     try {
         const mainPostQ = db.record.findFirst({
             select: feedQuery,
@@ -138,6 +203,7 @@ export async function getThread({did, rkey}: {did: string, rkey: string}): Promi
             }
         })
         const [mainPost, replies] = await db.$transaction([mainPostQ, repliesQ])
+
         const threadForFeed: ThreadProps = {
             post: addCounters(viewerDid, mainPost, mainPost.reactions),
             replies: replies.map((r) => {
@@ -244,26 +310,30 @@ export async function createArticle(compressedText: string, userId: string, titl
 }
 
 
-export async function getBskyFastPost(uri: string){
+export async function getBskyFastPost(uri: string): Promise<{post?: FastPostProps, error?: string}>{
     const {agent} = await getSessionAgent()
     const {did, rkey} = splitUri(uri)
-    const {value, uri: postUri} = await agent.getPost({repo: did, rkey})
 
-    const postDid = getDidFromUri(postUri)
-    const {data: authorData} = await agent.app.bsky.actor.getProfile({actor: postDid})
+    try {
+        const {value, uri: postUri} = await agent.getPost({repo: did, rkey})
+        const postDid = getDidFromUri(postUri)
+        const {data: authorData} = await agent.app.bsky.actor.getProfile({actor: postDid})
 
-    const formattedPost: FastPostProps = {
-        uri: uri,
-        createdAt: new Date(value.createdAt),
-        collection: value.$type as string,
-        author: authorData,
-        content: {
-            text: value.text,
-            post: {
-                embed: JSON.stringify(value.embed)
+        const formattedPost: FastPostProps = {
+            uri: uri,
+            createdAt: new Date(value.createdAt),
+            collection: value.$type as string,
+            author: authorData,
+            content: {
+                text: value.text,
+                post: {
+                    embed: JSON.stringify(value.embed)
+                }
             }
         }
+        return {post: formattedPost}
+    } catch (e) {
+        return {error: "Post not found"}
     }
 
-    return formattedPost
 }

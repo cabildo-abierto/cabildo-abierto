@@ -7,6 +7,8 @@ import {DateSince} from "../date";
 import {decompress} from "../compression";
 import {EngagementIcons} from "./engagement-icons";
 import {ProfilePic} from "./profile-pic";
+import {ContentOptions} from "../content-options/content-options";
+import {useUser} from "../../hooks/user";
 
 type ArticleCompProps = {
     content: ArticleProps,
@@ -49,7 +51,7 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
             </div>
         </div>
         <div className={"py-2 px-3 border-b"}>
-            <EngagementIcons counters={content} record={content as {uri: string, cid: string}} options={null}/>
+            <EngagementIcons counters={content} record={content}/>
         </div>
         <div>
         </div>

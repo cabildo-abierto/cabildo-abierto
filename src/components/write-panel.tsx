@@ -247,7 +247,7 @@ const WriteFastPost = ({replyTo, onClose, replyToTopic}: {
 
     return <div className={"min-h-64 flex flex-col justify-between"}>
         <div className="px-2 w-full">
-            <div className="flex space-x-2 w-full">
+            <div className="flex space-x-2 w-full mt-2">
                 <ProfilePic user={user} className={"w-8 h-8 rounded-full"}/>
                 <div className="sm:text-lg w-full" key={editorKey}>
                     {editorComp}

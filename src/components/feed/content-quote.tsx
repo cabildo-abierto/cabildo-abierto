@@ -45,13 +45,13 @@ function filterOutsideSelection(node: any, start: number[] | undefined, startOff
 
 
 function getSelectionFromJSONState(state: any, selection: {start: {node: number[], offset: number}, end: {node: number[], offset:number}}){
-
     return JSON.stringify({
         root: filterOutsideSelection(state.root, selection.start.node, selection.start.offset, selection.end.node, selection.end.offset)
     })
 }
 
-const ArticleQuote = ({post, quoteStr}: {post: FastPostProps, quoteStr: string}) => {
+const ArticleQuote = ({post}: {post: FastPostProps}) => {
+    const quoteStr = post.content.post.quote
     const parent = useArticle(post.content.post.replyTo.uri)
 
     if(!parent.article){
@@ -69,18 +69,29 @@ const ArticleQuote = ({post, quoteStr}: {post: FastPostProps, quoteStr: string})
 }
 
 
-const TopicQuote = ({post, quoteStr}: {post: FastPostProps, quoteStr: string}) => {
+const TopicQuote = ({post}: {post: FastPostProps}) => {
+    const quoteStr = post.content.post.quote
     const parent = useTopicVersion(post.content.post.replyTo.uri)
+
+    console.log("topic quote", post)
 
     if(!parent.topic){
         return <LoadingSpinner size={"20px"}/>
     }
 
-
     const quote = JSON.parse(quoteStr)
-    const parentContent = JSON.parse(decompress(parent.topic.content.text))
 
-    const initialData = getSelectionFromJSONState(parentContent, quote)
+    console.log("format", parent.topic.content.format)
+
+    let initialData
+    if(parent.topic.content.format == "lexical-compressed"){
+        const parentContent = JSON.parse(decompress(parent.topic.content.text))
+        initialData = getSelectionFromJSONState(parentContent, quote)
+    } else if(parent.topic.content.format == "markdown"){
+        throw Error("Not implemented")
+    } else {
+        throw Error("Not implemented")
+    }
 
     return <ReadOnlyEditor
         initialData={initialData}
@@ -89,16 +100,13 @@ const TopicQuote = ({post, quoteStr}: {post: FastPostProps, quoteStr: string}) =
 
 
 export const ContentQuote = ({post, onClick}: {post: FastPostProps, onClick?: () => void}) => {
-    const quoteStr = post.content.post.quote
-    if(!quoteStr){
+    if(!post.content.post.quote){
         return null
     }
 
     const collection = getCollectionFromUri(post.content.post.replyTo.uri)
     const center = collection == "ar.com.cabildoabierto.article" ?
-        <ArticleQuote post={post} quoteStr={quoteStr}/> : <TopicQuote post={post} quoteStr={quoteStr}/>
-
-
+        <ArticleQuote post={post}/> : <TopicQuote post={post}/>
 
     function handleClick(e) {
         e.stopPropagation()

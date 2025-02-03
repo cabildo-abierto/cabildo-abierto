@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation'
 import { ContentTopRowAuthor } from '../content-top-row-author'
 import { ReactNode } from 'react'
 import { EngagementIcons } from './engagement-icons'
+import {ContentOptions} from "../content-options/content-options";
+import {useUser} from "../../hooks/user";
 
 
 const ReplyVerticalLine = ({className=""}: {className?: string}) => {
@@ -63,7 +65,7 @@ export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, sho
                 </div>
 
                 <div className={"mt-1"}>
-                    <EngagementIcons counters={post} record={post as {uri: string, cid: string}} options={null} className={"space-x-5"}/>
+                    <EngagementIcons counters={post} record={post} className={"space-x-5"}/>
                 </div>
             </div>
         </div>

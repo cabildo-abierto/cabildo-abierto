@@ -7,7 +7,7 @@ import { cleanText, listOrderDesc } from "./utils"
 import { LazyLoadFeed } from "./lazy-load-feed"
 import React, { useState } from "react"
 import SelectionComponent from "./search-selection-component"
-import { topicPopularityScore } from "./trending-articles"
+import { topicPopularityScore } from "./trending-topics"
 import { Button } from "@mui/material"
 import {getTopicTitle} from "./topic/utils";
 import {NoResults} from "./no-results";

@@ -42,7 +42,7 @@ export const CreateTopicModal = ({ open, onClose }: { open: boolean, onClose: ()
 
     return <BaseFullscreenPopup open={open} closeButton={true} onClose={onClose}>
         <div className="space-y-3 px-6 mb-2 flex flex-col items-center">
-            <h3>Nuevo tema</h3>
+            <div className={"text-xl"}>Nuevo tema</div>
             <div>
                 <TextField
                     value={topicName}
@@ -72,6 +72,7 @@ export const CreateTopicModal = ({ open, onClose }: { open: boolean, onClose: ()
                     disabled={!user.user || !validEntityName(topicName)}
                     textClassName="title px-4"
                     text1="Crear"
+                    disableElevation={true}
                 />
                 {!user.isLoading && !user.user && <CreateAccountLink
                     text="Creá una cuenta o iniciá sesión para crear un tema"

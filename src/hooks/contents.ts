@@ -77,7 +77,7 @@ export function useTopicVersion(id: string): {topic: TopicVersionProps, error?: 
 
 
 export function useTopicFeed(id: string): {feed: FeedContentProps[], error?: string, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topic-feed/'+id, fetcher)
+    const { data, error, isLoading } = useSWR('/api/topic-feed/'+encodeURIComponent(id), fetcher)
 
     return {
         feed: data,
@@ -154,7 +154,7 @@ export function useProfileFeed(id: string, kind: string): {feed: FeedContentProp
 
 
 export function useEditsFeed(id: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/edits-feed/'+id, fetcher)
+    const { data, error, isLoading } = useSWR('/api/profile-feed/'+id+"/edits", fetcher)
   
     return {
         feed: data,

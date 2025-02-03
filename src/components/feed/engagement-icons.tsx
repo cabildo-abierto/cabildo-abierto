@@ -6,21 +6,18 @@ import { RepostIcon } from "../icons/reposts-icon"
 import { FixedCounter, LikeCounter } from "../like-counter"
 import {addLike, removeLike, removeRepost, repost} from "../../actions/contents";
 import {ReactNode} from "react";
-import {EngagementProps} from "../../app/lib/definitions";
+import {EngagementProps, RecordProps} from "../../app/lib/definitions";
 import {ViewsIcon} from "../icons/views-icon";
 
 type EngagementIconsProps = {
     counters: EngagementProps
-    options: ReactNode
-    record: {
-        uri: string
-        cid: string
-    }
+    record: RecordProps
     className?: string
 }
 
-export const EngagementIcons = ({counters, record, options, className="space-x-16"}: EngagementIconsProps) => {
+export const EngagementIcons = ({counters, record, className="space-x-16"}: EngagementIconsProps) => {
     return <div className={"flex items-center " + className}>
+        {record.collection != "ar.com.cabildoabierto.topic" && <>
         {counters.replyCount != undefined && <FixedCounter
             count={counters.replyCount}
             icon={<InactiveCommentIcon/>}
@@ -49,10 +46,10 @@ export const EngagementIcons = ({counters, record, options, className="space-x-1
             count={counters.uniqueViewsCount+1} // always count the author
             title={"Cantidad de impresiones."}
         />
-        }
+        }</>}
 
         <ContentOptionsButton
-            options={options}
+            record={record}
         />
     </div>
 }

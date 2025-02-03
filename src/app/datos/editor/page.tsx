@@ -15,6 +15,7 @@ import {VisualizationOnEditor} from "../../../components/visualizations/visualiz
 import { getSpecForConfig } from "../../../components/visualizations/spec";
 import {BackButton} from "../../../components/back-button";
 import {View} from "vega";
+import {useRouter} from "next/navigation";
 
 function readyToSave(config: PlotConfigProps){
     if(config.kind == null) return false
@@ -55,7 +56,7 @@ const Page = () => {
     const [config, setConfig] = useState<PlotConfigProps>({filters: []})
     const [columns, setColumns] = useState<string[] | null>(null)
     const [currentView, setCurrentView] = useState<View | null>(null)
-
+    const router = useRouter()
 
     useEffect(() => {
         if(config.dataset != null){
@@ -107,9 +108,9 @@ const Page = () => {
         const file = dataURLToFile(dataURL)
         const formData = new FormData()
         formData.set("data", file)
-        console.log("uploading file", file.size)
         const {error} = await saveVisualization(spec, formData)
 
+        if(!error) router.push("/datos")
         return {error}
     }
 

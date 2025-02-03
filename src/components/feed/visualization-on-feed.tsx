@@ -9,7 +9,9 @@ import Image from 'next/image'
 export const VisualizationOnFeed = ({visualization}: {visualization: VisualizationProps}) => {
     const previewCid = visualization.visualization.previewBlobCid
 
-    return <FastPostPreviewFrame post={visualization}>
+    return <FastPostPreviewFrame
+            post={visualization}
+    >
         {!previewCid ? <div className={"flex justify-center my-2"} onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault()

@@ -97,7 +97,6 @@ export const ContentOptionsDropdown = ({
 }) => {
     const [isNewNameModalopen, setIsNewNameModalOpen] = useState(false)
 
-
     return <div className="text-base content-container rounded bg-[var(--content)] p-2">
         {optionsList.includes("change-name") && <div>
             <ContentOptionsChoiceButton

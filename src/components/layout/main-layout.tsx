@@ -5,7 +5,7 @@ import {SearchProvider, useSearch} from "../search/search-context";
 import {BetaAccessPage} from "../beta-access-page";
 import {ThreeColumnsLayout} from "../three-columns";
 import {SidebarContent, SupportButton} from "../sidebar";
-import { TrendingArticles } from "../trending-articles";
+import { TrendingTopics } from "../trending-topics";
 import SearchBar from "../searchbar";
 import {UserSearchResults} from "../user-search-results";
 import {useUser} from "../../hooks/user";
@@ -39,9 +39,9 @@ const MainLayoutContent = ({children}: {children: ReactNode, distractionFree?: b
                 <UserSearchResults/>
             </div>}
             <div className={"ml-8 mt-8 flex justify-center w-full max-h-[600px] max-w-[300px]"}>
-                <TrendingArticles route={[]} selected={"7days"}/>
+                <TrendingTopics route={[]} selected={"7days"}/>
             </div>
-            <div className={"ml-8 mt-4 w-full max-w-[300px] space-x-2"}>
+            <div className={"ml-8 mt-4 w-full max-w-[300px] flex flex-wrap gap-x-2"}>
                 <SupportButton user={user} onClose={() => {}}/>
                 <Link href={articleUrl("Cabildo_Abierto")} className={"text-[var(--text-light)]"}>
                     <BasicButton
@@ -57,7 +57,7 @@ const MainLayoutContent = ({children}: {children: ReactNode, distractionFree?: b
         </div>
     }
 
-    return <ThreeColumnsLayout left={left} center={children} right={right} leftMinWidth={"224px"} border={!layoutConfig.distractionFree}/>
+    return <ThreeColumnsLayout maxWidthCenter={layoutConfig.distractionFree ? "800px" : "600px"} left={left} center={children} right={right} leftMinWidth={"224px"} border={!layoutConfig.distractionFree}/>
 }
 
 
