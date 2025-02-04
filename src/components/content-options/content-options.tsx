@@ -18,7 +18,7 @@ export const ContentOptions = ({onClose, record}: {onClose: () => void, record: 
     const {user} = useUser()
 
     async function onDelete() {
-        await deleteRecords([record.uri])
+        await deleteRecords({uris: [record.uri], atproto: true})
     }
 
     const inBluesky = record.collection == "app.bsky.feed.post"

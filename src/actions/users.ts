@@ -130,116 +130,110 @@ export const getConversations = (userId: string) => {
 
 export const getUserById = async (userId: string): Promise<{user?: UserProps, error?: string}> => {
 
-    const {user, error} = await unstable_cache(async (): Promise<{user?: UserProps, error?: string}> => {
-        try {
-            let user = await db.user.findFirst(
-                {
-                    select: {
-                        did: true,
-                        handle: true,
-                        avatar: true,
-                        banner: true,
-                        displayName: true,
-                        description: true,
-                        email: true,
-                        createdAt: true,
-                        hasAccess: true,
-                        editorStatus: true,
-                        subscriptionsUsed: {
-                            orderBy: {
-                                createdAt: "asc"
-                            }
+    try {
+        let user = await db.user.findFirst(
+            {
+                select: {
+                    did: true,
+                    handle: true,
+                    avatar: true,
+                    banner: true,
+                    displayName: true,
+                    description: true,
+                    email: true,
+                    createdAt: true,
+                    hasAccess: true,
+                    editorStatus: true,
+                    subscriptionsUsed: {
+                        orderBy: {
+                            createdAt: "asc"
+                        }
+                    },
+                    subscriptionsBought: {
+                        select: {
+                            id: true,
+                            price: true
                         },
-                        subscriptionsBought: {
-                            select: {
-                                id: true,
-                                price: true
-                            },
-                            where: {
-                                price: {
-                                    gte: 500
+                        where: {
+                            price: {
+                                gte: 500
+                            }
+                        }
+                    },
+                    records: {
+                        select: {
+                            cid: true,
+                            follow: {
+                                select: {
+                                    userFollowedId: true
                                 }
                             }
                         },
-                        records: {
-                            select: {
-                                cid: true,
-                                follow: {
-                                    select: {
-                                        userFollowedId: true
-                                    }
-                                }
-                            },
-                            where: {
-                                collection: "app.bsky.graph.follow",
-                                follow: {
-                                    userFollowed: {
-                                        inCA: true
-                                    }
-                                }
-                            }
-                        },
-                        followers: {
-                            select: {
-                                uri: true,
-                                record: {
-                                    select: {
-                                        authorId: true
-                                    }
+                        where: {
+                            collection: "app.bsky.graph.follow",
+                            follow: {
+                                userFollowed: {
+                                    inCA: true
                                 }
                             }
                         }
                     },
-                    where: {
-                        OR: [
-                            {
-                                did: userId
-                            },
-                            {
-                                handle: userId
+                    followers: {
+                        select: {
+                            uri: true,
+                            record: {
+                                select: {
+                                    authorId: true
+                                }
                             }
-                        ]
-                    }
-                }
-            )
-
-            let following = undefined
-            for(let i = 0; i < user.followers.length; i++) {
-                const f = user.followers[i]
-                if(f.record.authorId == userId){
-                    following = f.uri
-                }
-            }
-
-            let followed = undefined
-            for(let i = 0; i < user.records.length; i++){
-                const r = user.records[i]
-                if(r.follow.userFollowedId == userId){
-                    followed = r.cid
-                }
-            }
-
-            return {
-                user: {
-                    ...user,
-                    followersCount: user.followers.length,
-                    followsCount: user.records.length,
-                    viewer: {
-                        following,
-                        followed
+                        }
                     }
                 },
+                where: {
+                    OR: [
+                        {
+                            did: userId
+                        },
+                        {
+                            handle: userId
+                        }
+                    ]
+                }
             }
-        } catch (err) {
-            console.log("Error getting user", userId)
-            console.log(err)
-            return {error: "error on get user " + userId}
-        }
-    }, ["user", userId], {
-        revalidate: revalidateEverythingTime,
-        tags: ["user:"+userId, "user"]})()
+        )
 
-    return {user}
+        let following = undefined
+        for(let i = 0; i < user.followers.length; i++) {
+            const f = user.followers[i]
+            if(f.record.authorId == userId){
+                following = f.uri
+            }
+        }
+
+        let followed = undefined
+        for(let i = 0; i < user.records.length; i++){
+            const r = user.records[i]
+            if(r.follow.userFollowedId == userId){
+                followed = r.cid
+            }
+        }
+
+        return {
+            user: {
+                ...user,
+                followersCount: user.followers.length,
+                followsCount: user.records.length,
+                viewer: {
+                    following,
+                    followed
+                }
+            },
+        }
+    } catch (err) {
+        console.log("Error getting user", userId)
+        console.log(err)
+        return {error: "error on get user " + userId}
+    }
 }
 
 
@@ -284,6 +278,17 @@ export async function getUser(){
         return await getUserById(userId)
     } else {
         return {error: "Sin sesión."}
+    }
+}
+
+
+export async function getBskyUser(): Promise<{bskyUser?: ProfileViewDetailed, error?: string}>{
+    const {agent, did} = await getSessionAgent()
+    try {
+        const {data} = await agent.getProfile({actor: did})
+        return {bskyUser: data}
+    } catch {
+        return {error: "User not found."}
     }
 }
 
@@ -578,13 +583,13 @@ export async function unsafeCreateUserFromDid(did: string){
 
 
 export async function updateEmail(email: string){
-    const {user} = await getUser()
+    const {bskyUser} = await getBskyUser()
     try {
-        await db.user.update({
-            data: {email: email},
-            where: {did: user.did}
+        await db.user.upsert({
+            update: {email: email},
+            create: {did: bskyUser.did, handle: bskyUser.handle, displayName: bskyUser.displayName, email: email},
+            where: {did: bskyUser.did}
         })
-        revalidateTag("user:"+user.did)
     } catch (error) {
         console.log(error)
         return {error: "Ups... Ocurrió un error al guardar el mail. Volvé a intentarlo."}

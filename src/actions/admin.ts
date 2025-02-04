@@ -4,6 +4,7 @@ import { revalidateTag } from "next/cache";
 import { db } from "../db";
 import {getRkeyFromUri, launchDate, supportDid, validSubscription} from "../components/utils";
 import { getSessionAgent } from "./auth";
+import {deleteRecords} from "./atproto-update";
 
 export async function revalidateEntities(){
     revalidateTag("entity")
@@ -360,6 +361,18 @@ export async function updateRecord(){
 }
 
 
-export async function clearAllRecords() {
-
+export async function deleteUser(userId: string) {
+    await deleteRecords({author: userId, atproto: false})
+    await db.user.deleteMany({
+        where: {
+            OR: [
+                {
+                    did: userId
+                },
+                {
+                    handle: userId
+                }
+            ]
+        }
+    })
 }
