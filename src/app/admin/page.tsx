@@ -6,7 +6,17 @@ import { useUser } from "../../hooks/user"
 
 import React from 'react';
 import { supportDid, tomasDid } from "../../components/utils"
-import { revalidateEntities, revalidateContents, revalidateNotifications, revalidateUsers, revalidateFeed, revalidateDrafts, revalidateSearchkeys, revalidateSuggestions } from "../../actions/admin"
+import {
+    revalidateEntities,
+    revalidateContents,
+    revalidateNotifications,
+    revalidateUsers,
+    revalidateFeed,
+    revalidateDrafts,
+    revalidateSearchkeys,
+    revalidateSuggestions,
+    deleteUser
+} from "../../actions/admin"
 
 
 
@@ -17,7 +27,7 @@ export default function Page() {
         return <NotFoundPage/>
     }
 
-    const userId = "did:plc:of56nmyuqzvjta7qlf7gwht6"
+    const userId = "usuariodepruebas2.bsky.social"
     const entityId = "Proyecto_de_ley_S984%2F24%3A_Financiamiento_de_la_educaci%C3%B3n_universitaria"
 
     let center = <div className="flex flex-col items-center mt-8">
@@ -30,6 +40,12 @@ export default function Page() {
                 await unsafeCreateUserFromDid(userId)
             }}>
                 Crear usuario {userId}
+            </button>
+
+            <button className="gray-btn" onClick={async () => {
+                await deleteUser(userId)
+            }}>
+                Eliminar usuario {userId}
             </button>
 
             <h2>Pagos</h2>

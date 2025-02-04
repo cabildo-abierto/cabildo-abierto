@@ -4,6 +4,7 @@ import { fetcher } from "./utils"
 import { ChatMessage } from "@prisma/client"
 import useSWR from "swr"
 import {getDidFromUri, getRkeyFromUri} from "../components/utils";
+import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 
 export function useArticle(uri: string): {article: ArticleProps, isLoading?: boolean, error?: string} {
@@ -21,6 +22,17 @@ export function useUser(): {user: UserProps, isLoading?: boolean, error?: string
 
     return {
         user: data ? data?.user : undefined,
+        isLoading,
+        error
+    }
+}
+
+
+export function useBskyUser(): {bskyUser: ProfileViewDetailed, isLoading?: boolean, error?: string} {
+    const { data, error, isLoading } = useSWR('/api/user/bsky', fetcher)
+
+    return {
+        bskyUser: data ? data?.bskyUser : undefined,
         isLoading,
         error
     }

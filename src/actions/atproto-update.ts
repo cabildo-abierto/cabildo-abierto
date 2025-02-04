@@ -40,15 +40,39 @@ export async function updateProfile(did: string, agent: Agent){
 }
 
 
-export async function deleteRecords(uris: string[]){
+export async function deleteRecords({uris, author, atproto}: {uris?: string[], author?: string, atproto: boolean}){
     const {agent, did} = await getSessionAgent()
 
-    for(let i = 0; i < uris.length; i++){
-        await agent.com.atproto.repo.deleteRecord({
-            repo: did,
-            rkey: getRkeyFromUri(uris[i]),
-            collection: getCollectionFromUri(uris[i])
-        })
+    if(atproto){
+        for(let i = 0; i < uris.length; i++){
+            await agent.com.atproto.repo.deleteRecord({
+                repo: did,
+                rkey: getRkeyFromUri(uris[i]),
+                collection: getCollectionFromUri(uris[i])
+            })
+        }
+    }
+
+    if(!uris){
+        uris = (await db.record.findMany({
+            select: {
+                uri: true
+            },
+            where: {
+                OR: [
+                    {
+                        author: {
+                            did: author
+                        }
+                    },
+                    {
+                        author: {
+                            handle: author
+                        }
+                    }
+                ]
+            }
+        })).map((r) => (r.uri))
     }
 
     const d1 = db.follow.deleteMany({
@@ -131,7 +155,7 @@ export async function deleteAllRecords(){
             cid: true
         }
     })
-    await deleteRecords(records.map(({cid}) => (cid)))
+    await deleteRecords({uris: records.map(({cid}) => (cid)), atproto: false})
 }
 
 

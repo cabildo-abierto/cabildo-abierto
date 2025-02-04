@@ -1,6 +1,6 @@
 "use client"
 import {ReactNode, useState} from "react";
-import {useUser} from "../hooks/user";
+import {useBskyUser, useUser} from "../hooks/user";
 import {getUsername} from "./utils";
 import {TextField} from "@mui/material";
 import {CloseSessionButton} from "./close-session-button";
@@ -9,16 +9,23 @@ import {updateEmail} from "../actions/users";
 import Link from "next/link";
 import Footer from "./footer";
 import {useSWRConfig} from "swr";
+import LoadingSpinner from "./loading-spinner";
+import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+
+function getUsernameBskyUser(user: ProfileViewDetailed){
+    return user.displayName ? user.displayName : user.handle ? user.handle : user.did
+}
 
 
 export const BetaAccessPage = ({children}: {children: ReactNode}) => {
-    const {user} = useUser()
+    const {bskyUser, isLoading: bskyUserLoading} = useBskyUser()
+    const {user, isLoading} = useUser()
     const [email, setEmail] = useState<string>("")
     const [status, setStatus] = useState(user && user.email ? "email set" : "no email")
     const {mutate} = useSWRConfig()
 
-    if(!user) return <></>
-    if(user.hasAccess) return <>{children}</>
+    if(isLoading || bskyUserLoading) return <div className={"mt-32"}><LoadingSpinner/></div>
+    if(user && user.hasAccess) return <>{children}</>
 
     async function handleSave(){
         const {error} = await updateEmail(email)
@@ -32,16 +39,16 @@ export const BetaAccessPage = ({children}: {children: ReactNode}) => {
         <div className={"flex justify-end sm:px-14 pt-2 w-screen"}>
             <CloseSessionButton/>
         </div>
-        <h1 className={"mt-16 text-center"}>
-            ¡Bienvenido/a {getUsername(user)}!
+        <h1 className={"mt-16 text-center text-xl lg:text-2xl"}>
+            ¡Bienvenido/a {getUsernameBskyUser(bskyUser)}!
         </h1>
-        <h2 className={"text-[var(--text-light)] py-4"}>
+        <h2 className={"text-[var(--text-light)] text-lg lg:text-xl py-4"}>
             Gracias por registrarte
         </h2>
         <div className={"mt-16 text-lg text-center"}>Estamos dando acceso al período de prueba por orden de llegada.</div>
 
         <div className={"bg-[var(--background-dark)] p-4 rounded-lg mt-8"}>
-            {!user.email || status == "changing email" ? <><p className={"text-[var(--text-light)]"}>
+            {(!user || !user.email || status == "changing email") ? <><p className={"text-[var(--text-light)]"}>
                     Dejanos tu mail así te avisamos cuando puedas acceder
                 </p>
                 <div className={"py-4 space-x-2 flex items-center justify-center"}>
@@ -67,13 +74,12 @@ export const BetaAccessPage = ({children}: {children: ReactNode}) => {
                     className={"text-[var(--text-light)]"}>{email ? email : user.email}</span> para avisarte cuando
                     puedas acceder.
                 </div>
-                <div className={"flex w-full justify-end"}>
+                <div className={"flex justify-center"}>
                     <button onClick={() => {
                         setStatus("changing email")
                     }} className={"link2 text-[var(--text-light)] text-sm"}>
                         Cambiar mail
                     </button>
-                    .
                 </div>
             </div>
         </div>
