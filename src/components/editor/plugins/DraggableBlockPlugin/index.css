@@ -1,11 +1,8 @@
 .draggable-block-menu {
-  border-radius: 4px;
-  padding: 2px 1px;
-  cursor: grab;
   opacity: 0;
   position: absolute;
-  left: -25px;
-  top: 2px;
+  left: -35px;
+  top: 1px;
   will-change: transform;
 }
 
@@ -15,7 +12,7 @@
 
 .draggable-block-target-line {
   pointer-events: none;
-  background: var(--text-light);
+  /*background: var(--text-light);*/
   height: 4px;
   position: absolute;
   left: 0;

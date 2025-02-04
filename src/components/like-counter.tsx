@@ -42,7 +42,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
 
         if(newLikeUri != undefined){
             if(newLikeUri != "temporary"){
-                onDislike(newLikeUri)
+                onDislike(newLikeUri) // TO DO: Qué pasa si saca el like antes de que termine de agregarse el like?
             }
             setNewLikeUri(undefined)
         } else {

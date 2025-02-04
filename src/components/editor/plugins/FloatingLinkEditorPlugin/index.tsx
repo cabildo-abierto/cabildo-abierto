@@ -41,6 +41,7 @@ import { TopicProps } from '../../../../app/lib/definitions';
 import { articleUrl } from '../../../utils';
 import { CustomLink as Link } from '../../../../components/custom-link';
 import {getTopicTitle} from "../../../topic/utils";
+import {BasicButton} from "../../../ui-utils/basic-button";
 
 function FloatingLinkEditor({
   editor,
@@ -262,26 +263,24 @@ function FloatingLinkEditor({
 
   const SearchResults = ({results, setValue}: any) => {
     if(results.length == 0) return <></>
-    return <div className="mb-2">
+    return <div className="mb-2 px-1 space-y-1">
       {results.slice(0, 5).map((topic: TopicProps) => {
           return <button
               key={topic.id}
-              className="mx-[12px] flex justify-center items-center mt-1 hover:bg-gray-100 rounded"
+              className={"text-left hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
               onClick={() => {setValue(articleUrl(topic.id))}}
             >
-              <div className="py-1 px-2 text-left">
-                {getTopicTitle(topic)}
-              </div>
+              {getTopicTitle(topic)}
         </button>
       })}
     </div>
   }
 
-  const linkEditComp = <div className="w-64 sm:w-96 p-1 border rounded bg-white">
+  const linkEditComp = <div className="w-64 sm:w-96 p-1 border rounded bg-[var(--background)]">
     <div className="flex items-center justify-between">
       <input
         ref={inputRef}
-        className="p-1 outline-none w-full"
+        className="p-1 outline-none w-full bg-[var(--background)]"
         placeholder="Ingresá un link o un tema a referenciar"
         value={editedLinkUrl}
         onChange={async (event) => {
@@ -313,7 +312,7 @@ function FloatingLinkEditor({
   </div>
 
 const linkViewComp = (
-  <div className="rounded p-1 w-64 sm:w-96 border bg-white">
+  <div className="rounded p-1 w-64 sm:w-96 border bg-[var(--background)]">
     <div className="flex items-center">
       <div className="flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis p-1">
         <Link
