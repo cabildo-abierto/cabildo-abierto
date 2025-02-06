@@ -4,10 +4,12 @@ import dynamic from "next/dynamic";
 const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
     ssr: false,
 });
-import Image from 'next/image'
 
 export const VisualizationOnFeed = ({visualization}: {visualization: VisualizationProps}) => {
     const previewCid = visualization.visualization.previewBlobCid
+
+    console.log("author", visualization.author.did)
+    console.log("preview cid", previewCid)
 
     return <FastPostPreviewFrame
             post={visualization}
@@ -19,9 +21,9 @@ export const VisualizationOnFeed = ({visualization}: {visualization: Visualizati
                 <VegaLite spec={JSON.parse(visualization.visualization.spec)} actions={false}/>
             </div> :
             <div className={"flex justify-center my-2"}>
-                <Image
+                <img
                     src={"/visual/" + visualization.author.did + "/preview/" + previewCid}
-                    alt={"visualization"}
+                    alt={"visualización"}
                     width={400}
                     height={300}
                     className={"w-full h-auto"}
