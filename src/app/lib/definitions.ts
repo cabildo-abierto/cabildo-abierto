@@ -36,6 +36,10 @@ export type BasicUserProps = {
 
 export type TopicVersionContentProps = {
     text?: string
+    textBlob?: {
+        cid: string,
+        authorId: string
+    }
     format: string
     record: {
         uri: string
@@ -100,7 +104,7 @@ export type TrendingTopicProps = {
         title?: string
         categories?: string
         content: {
-            numWords: number
+            numWords?: number
             record: {
                 createdAt: Date,
                 author: {

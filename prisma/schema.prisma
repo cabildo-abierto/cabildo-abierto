@@ -156,7 +156,10 @@ model Content {
   uri    String @id
   record Record @relation(fields: [uri], references: [uri])
 
-  text   String
+  text       String?
+  textBlobId String?
+  textBlob   Blob?   @relation(fields: [textBlobId], references: [cid])
+
   format String @default("lexical-compressed")
 
   numWords Int?
@@ -227,6 +230,7 @@ model Blob {
   authorId String
 
   dataBlock DataBlock?
+  contentOf Content[]
   previewOf Visualization[]
 }
 

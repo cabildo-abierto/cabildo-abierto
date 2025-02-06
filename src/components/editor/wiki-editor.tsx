@@ -1,6 +1,6 @@
 "use client"
 
-import { SettingsProps } from "./lexical-editor"
+import {initializeEmpty, SettingsProps} from "./lexical-editor"
 import {FastPostProps} from "../../app/lib/definitions";
 import {decompress} from "../compression";
 import {InitialEditorStateType} from "@lexical/react/LexicalComposer";
@@ -17,7 +17,10 @@ import {
 const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Este tema está vacío. Editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
 
 
-function getInitialData(text: string, textFormat: string, readOnly: boolean): InitialEditorStateType{
+function getInitialData(text: string | undefined, textFormat: string, readOnly: boolean): InitialEditorStateType{
+    if(!text){
+        return ""
+    }
     if(textFormat == "lexical-compressed"){
         const contentText = decompress(text)
         let initialData = null

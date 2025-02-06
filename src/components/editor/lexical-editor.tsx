@@ -358,6 +358,8 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
       initialData = initializeEmpty(initialData)
   }
 
+  if(initialData == null) initialData = initializeEmpty("") // para que arranque con un párrafo y el placeholder se vea bien
+
   const initialConfig: InitialConfigType = {
     namespace: 'Playground',
     editorState: initialData,
