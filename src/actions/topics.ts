@@ -8,6 +8,7 @@ import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import {feedQuery, recordQuery} from "./utils";
 import {getUserId} from "./users";
+import {fetchBlob} from "./data";
 
 
 export async function createTopic(id: string){
@@ -25,7 +26,6 @@ export async function createTopicVersion({id, text, format="markdown", title, cl
     if(text){
         const data = Object.fromEntries(text);
         let f = data.data as File
-        console.log("f", f)
         const headers: Record<string, string> = {
             "Content-Length": f.size.toString()
         }
@@ -360,6 +360,12 @@ const topicQuery = (includeText: boolean, includeReplies: boolean) => ({
             content: {
                 select: {
                     text: includeText,
+                    textBlob: {
+                        select: {
+                            cid: true,
+                            authorId: true
+                        }
+                    },
                     format: true,
                     record: {
                         select: {
@@ -443,6 +449,13 @@ export async function getTopics(){
 }
 
 
+export async function getTextFromBlob(blob: {cid: string, authorId: string}){
+    const response = await fetchBlob(blob)
+    const responseBlob = await response.blob()
+    return await responseBlob.text()
+}
+
+
 export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
     try {
         const topic: TopicProps = await db.topic.findUnique({
@@ -452,8 +465,17 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
             }
         })
 
+        for(let i = 0; i < topic.versions.length; i++){
+            if(topic.versions[i].content.textBlob != undefined){
+                topic.versions[i].content.text = await getTextFromBlob(topic.versions[i].content.textBlob)
+            }
+            console.log("topic version", i, topic.versions[i])
+        }
+
         return {topic: topic}
-    } catch {
+    } catch (e) {
+        console.log("Error on getTopicById with id", id)
+        console.log(e)
         return {error: "No se encontró el tema."}
     }
 }

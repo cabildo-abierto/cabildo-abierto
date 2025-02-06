@@ -82,7 +82,6 @@ export const TopicContent = ({
             setSelectedPanel("none")
             return {}
         })
-        return {}
     }
 
     const SaveEditButton = () => {
@@ -141,21 +140,6 @@ export const TopicContent = ({
             className={articleButtonClassname}
             setToggled={(v) => {if(v) setSelectedPanel("authors"); else setSelectedPanel("none")}}
             toggled={selectedPanel == "authors"}
-        />
-    }
-
-    const DeleteArticleButton = () => {
-        return <StateButton
-            text1="Eliminar tema"
-            text2="Eliminando..."
-            variant="text"
-            handleClick={async () => {
-                /*const {error} = await deleteEntity(entityId, user.user.id)
-                mutate("/api/entities")
-                router.push("/inicio")
-                return {error}*/
-                return {}
-            }}
         />
     }
 
@@ -276,7 +260,7 @@ export const TopicContent = ({
         </div>
     </>
 
-    return <div className={"w-full " + (selectedPanel == "editing" ? "" : " border-b")} id="information-start">
+    return <div className={"w-full " + (selectedPanel == "editing" ? "" : " border-b") + (viewingContent ? " min-h-[500px]" : " min-h-[100px]")} id="information-start">
 
         {viewingContent && <div className="flex justify-between items-center border-b">
             <div className="flex flex-wrap w-full items-center">
@@ -324,9 +308,6 @@ export const TopicContent = ({
                         <SetProtectionButton entity={topic}/>
                     </div>
                     <div className="flex justify-center py-2">
-                        <DeleteArticleButton/>
-                    </div>
-                    <div className="flex justify-center py-2">
                         <UpdateWeakReferencesButton/>
                     </div>
                     <div className="flex justify-center py-2">
@@ -362,7 +343,7 @@ export const TopicContent = ({
                 setViewingContent(true);
                 setLayoutConfig({distractionFree: true});
             }}
-            className={`relative group ${!viewingContent ? "max-h-[200px] overflow-y-clip bg-[var(--background)] cursor-pointer hover:bg-gradient-to-b hover:from-[var(--background)] hover:to-[var(--background-dark)]" : ""}`}
+            className={`relative group ${!viewingContent ? "min-h-[100px] max-h-[200px] overflow-y-clip bg-[var(--background)] cursor-pointer hover:bg-gradient-to-b hover:from-[var(--background)] hover:to-[var(--background-dark)]" : ""}`}
         >
             {editorComp}
             {!viewingContent && (

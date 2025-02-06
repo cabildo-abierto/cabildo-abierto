@@ -107,40 +107,7 @@ export async function fetchBlob(blob: {cid: string, authorId: string}) {
     const doc = await didres.resolve(blob.authorId)
     if (doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint) {
         const url = doc.service[0].serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
-
-        console.log("fetching url", url)
-
-        const data = await fetch(url)
-            .then((response) => {
-                const reader = response.body.getReader();
-                return new ReadableStream({
-                    start(controller) {
-                        return pump();
-                        function pump() {
-                            return reader.read().then(({ done, value }) => {
-                                // When no more data needs to be consumed, close the stream
-                                if (done) {
-                                    controller.close();
-                                    return;
-                                }
-                                // Enqueue the next data chunk into our target stream
-                                controller.enqueue(value);
-                                return pump();
-                            });
-                        }
-                    },
-                });
-            })
-            // Create a new response out of the stream
-            .then((stream) => new Response(stream))
-            // Create an object URL for the response
-            .then((response) => response.blob())
-
-        console.log("data fetched", data)
-
-        const data2 = await fetch(url)
-
-        return data2
+        return await fetch(url)
     }
 
     return null
