@@ -6,7 +6,7 @@ import {SearchContent} from "../../components/search-content";
 
 
 const Page = ({searchParams}: {searchParams: {q: string}}) => {
-    const {setSearchState} = useSearch()
+    const {searchState, setSearchState} = useSearch()
 
     useEffect(() => {
         if(searchParams.q && searchParams.q.length > 0){
@@ -21,7 +21,7 @@ const Page = ({searchParams}: {searchParams: {q: string}}) => {
             <SearchBar onClose={() => {}} wideScreen={false} className={"h-10"} autoFocus={true}/>
         </div>
         <div>
-            <SearchContent route={[]} setRoute={(v: string[]) => {}}/>
+            <SearchContent/>
         </div>
     </div>
 }

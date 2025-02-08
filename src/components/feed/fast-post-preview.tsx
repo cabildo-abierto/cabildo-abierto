@@ -3,8 +3,6 @@
 import {FastPostProps} from '../../app/lib/definitions'
 import { FastPostPreviewFrame } from './fast-post-preview-frame'
 import {FastPostContent} from "./fast-post-content";
-import {ContentOptions} from "../content-options/content-options";
-import {useUser} from "../../hooks/user";
 
 export type FastPostPreviewProps = {
     post: FastPostProps

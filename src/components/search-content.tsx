@@ -9,17 +9,13 @@ import { DataSearchResults } from "./search/data-search-results";
 
 
 type RouteContentProps = {
-    route: string[],
-    setRoute: (v: string[]) => void
     paramsSelected?: string
     showRoute?: boolean
 }
 
 
-export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}: RouteContentProps) => {
+export const SearchContent = ({paramsSelected}: RouteContentProps) => {
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "Publicaciones")
-    const [filter, setFilter] = useState("Todas")
-    const [order, setOrder] = useState("Populares")
 
     function optionsNodes(o: string, isSelected: boolean){
         return <div className="text-[var(--text)] w-32">
@@ -53,7 +49,7 @@ export const SearchContent = ({route, setRoute, paramsSelected, showRoute=true}:
         </div>
 
         {selected == "Temas" &&
-            <CategoryArticles route={route} onSearchPage={true}/>
+            <CategoryArticles route={[]} onSearchPage={true}/>
         }
 
         {selected == "Publicaciones" &&

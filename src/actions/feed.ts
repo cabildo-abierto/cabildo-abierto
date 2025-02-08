@@ -11,7 +11,7 @@ import {
 } from "../app/lib/definitions";
 import { getSessionAgent } from "./auth";
 import { Agent } from "@atproto/api";
-import {getUserId, getUsers} from "./users";
+import {getUserById, getUserId, getUsers} from "./users";
 import {addCounters, feedQuery, feedQueryWithReposts} from "./utils";
 import {popularityScore} from "../components/popularity-score";
 import {getRkeyFromUri, listOrder} from "../components/utils";
@@ -195,32 +195,44 @@ export async function getProfileFeed(userId: string, kind: string){
         collections = ["ar.com.cabildoabierto.topic"]
     }
 
+    const {agent} = await getSessionAgent()
+
     let feed
-    try {
-        feed = await db.record.findMany({
-            select: feedQueryWithReposts,
-            where: {
-                authorId: userId,
-                collection: {
-                    in: collections
+    const user = await getUserById(userId)
+    if(!user.user || !user.user.inCA){
+        const {data} = await agent.getAuthorFeed({actor: userId})
+        feed = []
+        for(let i = 0; i < data.feed.length; i++){
+            feed.push(formatBskyFeedElement(data.feed[i]))
+        }
+        return {feed: feed}
+    } else {
+        try {
+            feed = await db.record.findMany({
+                select: feedQueryWithReposts,
+                where: {
+                    authorId: userId,
+                    collection: {
+                        in: collections
+                    }
+                },
+                orderBy: {
+                    createdAt: "desc"
                 }
-            },
-            orderBy: {
-                createdAt: "desc"
-            }
-        })
-    } catch {
-        return {error: "No se pudo obtener el feed."}
+            })
+        } catch {
+            return {error: "No se pudo obtener el feed."}
+        }
+
+        if(kind == "main"){
+            feed = feed.filter((e) => (e.collection == "ar.com.cabildoabierto.article" || e.content.post.replyTo == null))
+        }
+
+        console.log("feed", feed)
+
+        const readyForFeed = addCountersToFeed(feed, userId)
+        return {feed: readyForFeed}
     }
-
-    if(kind == "main"){
-        feed = feed.filter((e) => (e.collection == "ar.com.cabildoabierto.article" || e.content.post.replyTo == null))
-    }
-
-    console.log("feed", feed)
-
-    const readyForFeed = addCountersToFeed(feed, userId)
-    return {feed: readyForFeed}
 }
 
 

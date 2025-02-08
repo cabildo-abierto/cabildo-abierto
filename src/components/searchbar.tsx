@@ -5,35 +5,59 @@ import { CustomLink as Link } from './custom-link';
 import { useSearch } from "./search/search-context";
 import { CloseButton } from "./ui-utils/close-button";
 import Image from 'next/image'
-import { userUrl } from "./utils";
+import {emptyChar, userUrl} from "./utils";
 import {SearchButton} from "./ui-utils/search-button";
+import ReadOnlyEditor from "./editor/read-only-editor";
 
 
-export const UserSearchResult: React.FC<{result: {displayName?: string, handle: string, avatar?: string}}> = ({ result }) => {
-    const {setSearchState} = useSearch();
+export const UserSearchResult: React.FC<{result: {displayName?: string, handle: string, avatar?: string, description?: string}}> = ({ result }) => {
 
-    const className = "px-2 py-1 w-72 text-center h-full"
-
-    return <Link href={userUrl(result.handle)} className="flex justify-center hover:bg-[var(--background-dark)] content-container rounded h-14">
-        <button className={className} onClick={() => {setSearchState({value: "", searching: false})}}>
-            <div className="flex w-full items-center">
-                <Image
-                  src={result.avatar}
-                  alt={"Foto de perfil de @" + result.handle}
-                  width={100}
-                  height={100}
-                  className="rounded-full h-8 w-8"
-                />
-                <div className="text-center w-full px-1">
-                    {result.displayName ? result.displayName : undefined} <span className="text-[var(--text-light)]">@{result.handle}</span>
-                </div>
+    return <Link href={userUrl(result.handle)}
+         className="flex flex-col hover:bg-[var(--background-dark)] border-b p-3">
+        <div className={"flex space-x-4 ml-4"}>
+            {result.avatar ? <Image
+              src={result.avatar}
+              alt={"Foto de perfil de @" + result.handle}
+              width={100}
+              height={100}
+              className="rounded-full h-14 w-14"
+            /> : <div className={"h-14 w-14"}>{emptyChar}</div>}
+            <div className="flex flex-col">
+                {result.displayName ? result.displayName : <>@{result.handle}</>}
+                {result.displayName && <span className="text-[var(--text-light)]">@{result.handle}</span>}
+                {result.description && result.description.length > 0 && <div className={"text-sm mt-1"}>
+                    <ReadOnlyEditor initialData={result.description}/>
+                </div>}
             </div>
-        </button>
+        </div>
     </Link>
 }
 
 
-export const SearchInput = ({ autoFocus, className="" }: {
+export const SmallUserSearchResult: React.FC<{result: {displayName?: string, handle: string, avatar?: string, description?: string}}> = ({ result }) => {
+    const {setSearchState} = useSearch()
+
+    return <Link href={userUrl(result.handle)}
+                 onClick={() => {setSearchState({value: "", searching: false})}}
+                 className="flex flex-col hover:bg-[var(--background-dark)] border-b p-2">
+        <div className={"flex space-x-4 items-center"}>
+            {result.avatar ? <Image
+                src={result.avatar}
+                alt={"Foto de perfil de @" + result.handle}
+                width={100}
+                height={100}
+                className="rounded-full h-10 w-10"
+            /> : <div className={"h-14 w-14"}>{emptyChar}</div>}
+            <div className="flex flex-col">
+                {result.displayName ? result.displayName : <>@{result.handle}</>}
+                {result.displayName && <span className="text-[var(--text-light)] text-sm">@{result.handle}</span>}
+            </div>
+        </div>
+    </Link>
+}
+
+
+export const SearchInput = ({autoFocus, className = "" }: {
   autoFocus: boolean,
     className?: string
 }) => {

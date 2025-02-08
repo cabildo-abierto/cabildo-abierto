@@ -44,11 +44,10 @@ export class SessionStore implements NodeSavedSessionStore {
 
       if (!result) return
       return JSON.parse(result.session) as NodeSavedSession
-  
+
   }
     async set(key: string, val: NodeSavedSession) {
         const session = JSON.stringify(val)
-
 
         await db.authSession.upsert({
             where: { key }, 

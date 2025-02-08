@@ -27,7 +27,8 @@ export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: str
                 did: true,
                 handle: true,
                 displayName: true,
-                avatar: true
+                avatar: true,
+                description: true
             },
             where: {
                 inCA: true,
@@ -128,8 +129,21 @@ export const getConversations = (userId: string) => {
 }
 
 
-export const getUserById = async (userId: string): Promise<{user?: UserProps, error?: string}> => {
+export async function getATProtoUserById(userId: string): Promise<{profile?: ProfileViewDetailed, error?: string}> {
+    try {
+        const {agent} = await getSessionAgent()
+        const {data} = await agent.getProfile({
+            actor: userId
+        })
+        return {profile: data}
+    } catch {
+        return {error: "Error getting ATProto user"}
+    }
+}
 
+
+export const getUserById = async (userId: string): Promise<{user?: UserProps, atprotoProfile?: ProfileViewDetailed, error?: string}> => {
+    const atprotoProfile = await getATProtoUserById(userId)
     try {
         let user = await db.user.findFirst(
             {
@@ -143,6 +157,7 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, er
                     email: true,
                     createdAt: true,
                     hasAccess: true,
+                    inCA: true,
                     editorStatus: true,
                     subscriptionsUsed: {
                         orderBy: {
@@ -201,6 +216,9 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, er
                 }
             }
         )
+        if(!user){
+            return {atprotoProfile: atprotoProfile.profile ? atprotoProfile.profile : null}
+        }
 
         let following = undefined
         for(let i = 0; i < user.followers.length; i++) {
@@ -228,6 +246,7 @@ export const getUserById = async (userId: string): Promise<{user?: UserProps, er
                     followed
                 }
             },
+            atprotoProfile: atprotoProfile.profile ? atprotoProfile.profile : undefined
         }
     } catch (err) {
         console.log("Error getting user", userId)
@@ -706,3 +725,13 @@ export const getDonationsDistribution = unstable_cache(async () => {
         tags: ["donationsDistribution"]
     }
 )
+
+
+export async function searchATProtoUsers(q: string){
+    const {agent} = await getSessionAgent()
+
+    const {data} = await agent.searchActors({
+        q
+    })
+    return data.actors
+}

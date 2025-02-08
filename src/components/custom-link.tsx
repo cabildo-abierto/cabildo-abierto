@@ -11,10 +11,11 @@ type CustomLinkProps = {
   rel?: string
   onMouseEnter?: any
   onMouseLeave?: any
+  onClick?: any
   draggable?: boolean
 };
 
-export function CustomLink({ href, children, className, target, rel, onMouseEnter, onMouseLeave, draggable }: CustomLinkProps) {
+export function CustomLink({ href, children, className, onClick, target, rel, onMouseEnter, onMouseLeave, draggable }: CustomLinkProps) {
   const router = useRouter();
   const { leaveStoppers, setLeaveStoppers } = usePageLeave();
 
@@ -25,6 +26,7 @@ export function CustomLink({ href, children, className, target, rel, onMouseEnte
             e.preventDefault();
         }
     }
+    onClick && onClick(e)
   };
 
   return (

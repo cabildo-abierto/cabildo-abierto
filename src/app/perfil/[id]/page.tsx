@@ -4,14 +4,14 @@ import { ErrorPage } from "../../../components/error-page";
 import {getUsername} from "../../../components/utils";
 
 export async function generateMetadata({params}: {params: {id: string}}){
-    const {user, error} = await getUserById(params.id)
+    const {atprotoProfile, error} = await getUserById(params.id)
 
-    if(!user){
+    if(!atprotoProfile){
         return {title: "Usuario no encontrado"}
     }
 
     return {
-        title: "Perfil de " + getUsername(user)
+        title: "Perfil de " + getUsername(atprotoProfile)
     }
 }
 
@@ -19,14 +19,17 @@ export async function generateMetadata({params}: {params: {id: string}}){
 const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
     const username = decodeURIComponent(params?.id)
 
-    const {user} = await getUserById(username)
+    const {user, atprotoProfile} = await getUserById(username)
 
-    if (!user) {
-        return <ErrorPage>El usuario @{username} no existe</ErrorPage>
+    if(!atprotoProfile){
+        return <ErrorPage>
+            No se encontró el perfil {username}.
+        </ErrorPage>
     }
 
     const center = <ProfilePage
         profileUser={user}
+        atprotoProfile={atprotoProfile}
     />
 
     return center
