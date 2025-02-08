@@ -10,7 +10,11 @@ import { LexicalEditor } from 'lexical';
 
 export const BskyRichTextContent = ({content}: {content: {text: string, post?: {facets?: string}}}) => {
     const text = content.text
-    
+
+    if(!content.text || content.text.length == 0){
+        return <></>
+    }
+
     const rt = new RichText({
         text: text,
         facets: content.post && content.post.facets ? JSON.parse(content.post.facets) : undefined

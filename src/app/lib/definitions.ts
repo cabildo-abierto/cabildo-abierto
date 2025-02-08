@@ -165,6 +165,7 @@ export type UserProps = {
     description?: string
     hasAccess: boolean
     email?: string
+    inCA: boolean
     createdAt: Date
     editorStatus: EditorStatus
     subscriptionsUsed: SubscriptionProps[]
@@ -235,7 +236,7 @@ export type EmbedProps = {
 
 export type ArticleProps = RecordProps & EngagementProps & {
     content: {
-        text: string
+        text?: string
         numWords?: number
         article: {
             title: string

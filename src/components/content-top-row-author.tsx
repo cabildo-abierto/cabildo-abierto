@@ -24,6 +24,7 @@ export const ContentTopRowAuthor = ({author} : {author: {handle: string, display
     </>
 
     return <Link
+        onClick={(e) => {e.stopPropagation()}}
         href={url}
     >
         {text}

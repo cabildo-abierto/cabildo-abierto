@@ -33,7 +33,9 @@ const QuotedPostFromUri = ({uri}: {uri: string}) => {
     }, [])
 
     if(!post){
-        return <LoadingSpinner/>
+        return <div className={"h-full py-4"}>
+            <LoadingSpinner/>
+        </div>
     }
 
     return <QuotedPost maybePost={post}/>

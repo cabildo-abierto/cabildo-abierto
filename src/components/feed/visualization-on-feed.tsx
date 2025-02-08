@@ -8,9 +8,6 @@ const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite),
 export const VisualizationOnFeed = ({visualization}: {visualization: VisualizationProps}) => {
     const previewCid = visualization.visualization.previewBlobCid
 
-    console.log("author", visualization.author.did)
-    console.log("preview cid", previewCid)
-
     return <FastPostPreviewFrame
             post={visualization}
     >

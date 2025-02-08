@@ -13,11 +13,11 @@ import { compress } from "../compression"
 import { ExtraChars } from "../extra-chars"
 import { Button } from "@mui/material"
 import { CustomLink } from "../custom-link"
-import dynamic from "next/dynamic"
 import useModal from "./hooks/useModal"
 import { FastPostImagesEditor } from "../fast-post-images-editor"
 import { AddImageButton } from "../add-image-button"
 import { createArticle } from "../../actions/contents"
+import dynamic from "next/dynamic"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsProps = (isFast, initialData) => {

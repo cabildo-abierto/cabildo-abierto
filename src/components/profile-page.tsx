@@ -5,13 +5,15 @@ import {useState} from "react";
 import {RepliesFeed} from "./replies-feed";
 import {WikiFeed} from "./wiki-feed";
 import {UserProps} from "../app/lib/definitions";
+import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 
 type ProfilePageProps = {
-    profileUser: UserProps
+    profileUser?: UserProps
+    atprotoProfile: ProfileViewDetailed
 }
 
-export const ProfilePage = ({profileUser}: ProfilePageProps) => {
+export const ProfilePage = ({atprotoProfile, profileUser}: ProfilePageProps) => {
     const [selected, setSelected] = useState("Publicaciones")
     const [showingFakeNews, setShowingFakeNews] = useState(false)
 
@@ -20,11 +22,12 @@ export const ProfilePage = ({profileUser}: ProfilePageProps) => {
             setShowingFakeNews={setShowingFakeNews}
             selected={selected}
             profileUser={profileUser}
+            atprotoProfile={atprotoProfile}
             setSelected={setSelected}
         />
-        {selected == "Publicaciones" && !showingFakeNews && <ProfileFeed profileUser={profileUser} showingFakeNews={false}/>}
-        {selected == "Publicaciones" && showingFakeNews && <ProfileFeed profileUser={profileUser} showingFakeNews={true}/>}
-        {selected == "Respuestas" && <RepliesFeed profileUser={profileUser}/>}
-        {selected == "Ediciones" && <WikiFeed profileUser={profileUser}/>}
+        {selected == "Publicaciones" && !showingFakeNews && <ProfileFeed profileUser={atprotoProfile} showingFakeNews={false}/>}
+        {selected == "Publicaciones" && showingFakeNews && <ProfileFeed profileUser={atprotoProfile} showingFakeNews={true}/>}
+        {selected == "Respuestas" && <RepliesFeed profileUser={atprotoProfile}/>}
+        {selected == "Ediciones" && <WikiFeed profileUser={atprotoProfile}/>}
     </div>
 }

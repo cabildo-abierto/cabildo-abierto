@@ -1,52 +1,77 @@
 "use client"
-import { UserSearchResult } from "./searchbar"
+import {SmallUserSearchResult, UserSearchResult } from "./searchbar"
 import { useSearch } from "./search/search-context"
 import { SmallUserProps } from "../app/lib/definitions"
-import { useUser, useUsers } from "../hooks/user"
+import { useUsers } from "../hooks/user"
 import LoadingSpinner from "./loading-spinner"
-import React from "react"
-import { cleanText, shuffleArray } from "./utils"
-import {NoResults} from "./no-results";
+import React, {useEffect, useState} from "react"
+import { cleanText } from "./utils"
 import {Button} from "@mui/material";
 import {useRouter} from "next/navigation";
+import {searchATProtoUsers} from "../actions/users";
 
 
-export const UserSearchResults = ({maxCount, showSearchButton=true}: {maxCount?: number, showSearchButton?: boolean}) => {
-    const users = useUsers()
-    const {searchState} = useSearch()
-    const {user} = useUser()
-    const router = useRouter()
+export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCount?: number; showSearchButton?: boolean }) => {
+    const users = useUsers();
+    const { searchState } = useSearch();
+    const router = useRouter();
+    const [results, setResults] = useState<SmallUserProps[] | null>(null);
+
+    useEffect(() => {
+        const debounceTimeout = setTimeout(async () => {
+            if (searchState.value.length === 0 || users.isLoading) return;
+            setResults(null)
+
+            const atprotoUsers = await searchATProtoUsers(searchState.value);
+            const searchValue = cleanText(searchState.value);
+
+            function isMatch(user: SmallUserProps) {
+                return (
+                    (user.displayName && cleanText(user.displayName).includes(searchValue)) ||
+                    cleanText(user.handle).includes(searchValue)
+                );
+            }
+
+            const filteredUsers = users.users.filter(isMatch);
+
+            atprotoUsers.forEach((u1) => {
+                if(!filteredUsers.some((u2) => (u2.did == u1.did))){
+                    filteredUsers.push(u1)
+                }
+            })
+
+            setResults(filteredUsers);
+        }, 300); // 300ms debounce delay
+
+
+        return () => {
+            clearTimeout(debounceTimeout);
+        };
+    }, [searchState.value, users.isLoading]);
 
     if(searchState.value.length == 0){
-        return null
-    }
-
-    if (!user) {
-        return <div className="text-center text-[var(--text-light)] text-sm sm:text-base">
-            Creá una cuenta para buscar usuarios.
+        return <div className={"mt-8 text-[var(--text-light)] border-b"}>
+            Buscá un usuario
         </div>
     }
 
-    //const routeUsers = users.users.filter((user) => (entityInRoute(user, route)))
-
-    const searchValue = cleanText(searchState.value)
-
-    function isMatch(user: SmallUserProps){
-        return (user.displayName && cleanText(user.displayName).includes(searchValue)) || cleanText(user.handle).includes(searchValue)
+    if(results == null){
+        return <div className={showSearchButton ? "border-b flex items-center h-full" : "mt-8"}>
+            <LoadingSpinner/>
+        </div>
     }
 
-    let filteredUsers: SmallUserProps[] = []
-    if(!users.isLoading){
-        filteredUsers = users.users.filter(isMatch)
+    if(results && results.length == 0){
+        return <div className={"mt-8 text-[var(--text-light)] border-b"}>
+            No se encontraron resultados
+        </div>
     }
 
-    filteredUsers = shuffleArray(filteredUsers)
-
-    const rightIndex = maxCount != undefined ? maxCount : filteredUsers.length
+    const rightIndex = maxCount != undefined ? maxCount : results.length
 
     return <div className="flex flex-col items-center">
-        <div className="flex flex-col justify-center w-full px-1 mt-1">
-            {showSearchButton && <Button
+        <div className="flex flex-col justify-center w-full">
+            {showSearchButton && <div className={"border-b"}><Button
                 variant={"text"}
                 color={"inherit"}
                 onClick={() => {router.push("/buscar?q="+encodeURIComponent(searchState.value))}}
@@ -63,13 +88,12 @@ export const UserSearchResults = ({maxCount, showSearchButton=true}: {maxCount?:
                     <span>Buscar</span>
                     <span className={"text-[var(--text-light)]"}>{searchState.value}</span>
                 </div>
-            </Button>}
-            {!users.isLoading && (filteredUsers.length > 0 ? filteredUsers.slice(0, rightIndex).map((user, index) => (
-                <div key={index} className="py-1">
-                    <UserSearchResult result={user}/>
+            </Button></div>}
+            {results.slice(0, rightIndex).map((user, index) => (
+                <div key={index} className="">
+                    {showSearchButton ? <SmallUserSearchResult result={user}/> : <UserSearchResult result={user}/>}
                 </div>
-            )) : <NoResults text="No se encontró ningún usuario."/>)}
-            {users.isLoading && <LoadingSpinner/>}
+            ))}
         </div>
     </div>
 }

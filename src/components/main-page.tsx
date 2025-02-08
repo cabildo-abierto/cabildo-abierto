@@ -15,7 +15,6 @@ type MainPageProps = {
 
 
 export const MainPage = ({paramsSelected, showRoute=true}: MainPageProps) => {
-    const user = useUser()
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "En discusión")
     const feed = useFeed([], "InDiscussion")
     const followingFeed = useFeed([], "Following")
@@ -28,11 +27,6 @@ export const MainPage = ({paramsSelected, showRoute=true}: MainPageProps) => {
         if(v == "Siguiendo" && order != "Recientes") setOrder("Recientes")
         if(v == "En discusión" && order != "Populares") setOrder("Populares")
     }
-
-    const noResultsTextFollowing = <div className="text-sm">
-        <div>No se encontró ninguna publicación.</div>
-        <div>Seguí a más personas para encontrar más contenidos en esta sección.</div>
-    </div>
 
     return <div className="w-full">
         <MainFeedHeader
@@ -52,28 +46,5 @@ export const MainPage = ({paramsSelected, showRoute=true}: MainPageProps) => {
         {selected == "Siguiendo" && <Feed
             feed={followingFeed}
         />}
-
-        {/*(selected == "En discusión" || selected == "Siguiendo") &&
-            <ConfiguredFeed
-                feed={feed}
-                order={order}
-                filter={filter}
-                setFilter={setFilter}
-                setOrder={setOrder}
-            />
-        */}
-
-        {/*selected == "Siguiendo" &&
-        ((user.isLoading || user.user) ? <div className="mt-4">
-            <ConfiguredFeed
-                feed={followingFeed}
-                order={order}
-                setOrder={setOrder}
-                filter={filter}
-                setFilter={setFilter}
-                noResultsText={noResultsTextFollowing}
-        /></div> : <div className="flex justify-center mt-8"><CreateAccountLink
-            text="Creá una cuenta o iniciá sesión para tener tu muro personal."
-        /></div>)*/}
     </div>
 }
