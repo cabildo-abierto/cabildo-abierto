@@ -80,10 +80,10 @@ export default function Page() {
                 </div>
             </div>
 
-            <div className="flex flex-col items-center space-x-6 md:mt-64 mt-32">
+            <div className="flex flex-col items-center space-x-6 md:mt-64 mt-32 w-full">
                 <h2 className="text-center">Todo abierto a discusión</h2>
-                <div className="mt-16 flex flex-col md:flex-row justify-center md:space-y-0 md:space-x-10 space-y-16">
-                    <div className="flex flex-col items-center text-center">
+                <div className="mt-16 flex flex-col md:flex-row justify-center">
+                    <div className="flex flex-col items-center text-center flex-1 md:px-4">
                         <h4>Comentá sobre el texto</h4>
                         <div className="text-lg">
                             <p>Opiná sobre lo que leés</p><p>directamente donde lo leés.</p>
@@ -96,7 +96,7 @@ export default function Page() {
                             className="rounded-lg shadow-xl w-[300px] h-auto mt-10"
                         />
                     </div>
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center flex-1 md:px-4">
                         <h4>Escribí publicaciones</h4>
                         <div className="text-lg">
                             Sin límite de caracteres.
@@ -109,7 +109,7 @@ export default function Page() {
                             className="rounded-lg shadow-xl w-[200px] h-auto mt-10"
                         />
                     </div>
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center flex-1 md:px-4">
                         <h4>Hacé publicaciones rápidas</h4>
                         <div className="text-lg">
                             Hasta 300 caracteres.

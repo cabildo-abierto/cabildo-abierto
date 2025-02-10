@@ -277,7 +277,12 @@ export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
         numWords?: number
         topicVersion: {
             title?: string
-            topicId: string
+            topic: {
+                id: string
+                versions: {
+                    uri: string
+                }[]
+            }
             message?: string
             charsAdded?: number
             charsDeleted?: number

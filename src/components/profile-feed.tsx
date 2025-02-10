@@ -1,7 +1,6 @@
 "use client"
 import { useProfileFeed } from "../hooks/contents"
 import Feed from "./feed/feed"
-import LoadingSpinner from "./loading-spinner"
 
 
 export const ProfileFeed = ({profileUser, showingFakeNews}: {profileUser: {did: string, handle: string, displayName?: string}, showingFakeNews: boolean}) => {

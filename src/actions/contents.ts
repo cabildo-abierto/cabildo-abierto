@@ -207,6 +207,7 @@ export async function getThread({did, rkey}: {did: string, rkey: string}): Promi
                 return addCounters(viewerDid, r, r.reactions)
             })
         }
+
         return {thread: threadForFeed}
     } catch(err) {
         console.log(err)

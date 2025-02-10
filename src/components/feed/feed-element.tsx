@@ -31,21 +31,16 @@ export const FeedElement = ({elem, onClickQuote, repostedBy,
     showReplyTo?: SmallUserProps
 }) => {
     if(elem.blocked){
-        return <div className={"py-4 px-2"}>
+        return <div className={"py-4 px-2 w-full"}>
             Contenido bloqueado
         </div>
     } else if(elem.notFound){
-        return <div className={"py-4 px-2"}>Contenido no encontrado</div>
-    }
-    elem = elem as FeedContentProps
-    if(elem.author.inCA != undefined && !elem.author.inCA){
-        return <div className={"border-b py-6 w-full text-center"}>
-            Este post no está en la base de datos de Cabildo Abierto.
-        </div>
+        return <div className={"py-4 px-2 w-full"}>Contenido no encontrado</div>
     }
     if(elem.collection == "ar.com.cabildoabierto.article"){
         return <ArticlePreview
             elem={elem as ArticleProps}
+            repostedBy={repostedBy}
         />
     } else if(elem.collection == "app.bsky.feed.post" || elem.collection == "ar.com.cabildoabierto.quotePost"){
         return <FastPostPreview

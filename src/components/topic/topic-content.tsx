@@ -331,7 +331,7 @@ export const TopicContent = ({
                 name={getTopicTitle(topic)}
             />
         </div>}
-        {selectedPanel == "history" && <div className="my-2 px-2">
+        {selectedPanel == "history" && <div className="my-2 px-2 border-b">
             <EditHistory
                 entity={topic}
                 viewing={version}

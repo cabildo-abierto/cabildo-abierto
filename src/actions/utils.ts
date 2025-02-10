@@ -164,7 +164,23 @@ export const feedQuery = {
             },
             topicVersion: {
                 select: {
-                    topicId: true,
+                    topic: {
+                        select: {
+                            id: true,
+                            versions: {
+                                select: {
+                                    uri: true
+                                },
+                                orderBy: {
+                                    content: {
+                                        record: {
+                                            createdAt: "asc" as SortOrder
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     categories: true,
                     synonyms: true,
                     charsAdded: true,
