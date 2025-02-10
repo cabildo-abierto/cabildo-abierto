@@ -10,7 +10,7 @@ export const VisualizationOnFeed = ({visualization}: {visualization: Visualizati
     const previewCid = visualization.visualization.previewBlobCid
 
     return <FastPostPreviewFrame
-            post={visualization}
+        post={visualization}
     >
         {!previewCid ? <div className={"flex justify-center my-2"} onClick={(e) => {
                 e.stopPropagation();

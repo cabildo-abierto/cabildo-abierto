@@ -28,12 +28,12 @@ export const ImageFromThumb = ({thumb, authorDid}: {thumb: any, authorDid: strin
 
     if(thumb.$type == "blob"){
         return <Image
-                src={imageSrcFromBlob(thumb.ref.$link, authorDid)}
-                alt=""
-                className={"w-full max-h-[268px] overflow-clip rounded-t-lg"}
-                width={400}
-                height={300}
-            />
+            src={imageSrcFromBlob(thumb.ref.$link, authorDid)}
+            alt=""
+            className="w-full max-h-[296px] object-cover rounded-t-lg"
+            width={400}
+            height={300}
+        />
     } else if(thumb.$type == "??"){
         return <div>
             {JSON.stringify(thumb)}
@@ -52,7 +52,7 @@ export const ExternalEmbedInPost = ({post}: {post: FastPostProps}) => {
 
     if(embed.external.uri.includes("cabildoabierto.com.ar")) return null
 
-    return <div onClick={(e) => {e.preventDefault(); e.stopPropagation(); window.open(embed.external.uri, '_blank')}} className={"border rounded-lg mt-1"}>
+    return <div onClick={(e) => {e.preventDefault(); e.stopPropagation(); window.open(embed.external.uri, '_blank')}} className={"border rounded-lg cursor-pointer mt-1"}>
         {embed.external.thumb && <div>
             <ImageFromThumb thumb={embed.external.thumb} authorDid={post.author.did}/>
         </div>}

@@ -15,6 +15,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
 import {BlueskyLogo} from "./icons/bluesky-logo";
 import Link from "next/link";
+import {FullscreenImageViewer} from "./feed/fast-post-image";
 
 
 type ProfileHeaderProps = {
@@ -78,6 +79,8 @@ export function ProfileHeader({
                               }: ProfileHeaderProps) {
     const {user} = useUser()
     const [following, setFollowing] = useState(atprotoProfile.viewer && atprotoProfile.viewer.following != undefined)
+    const [viewingProfilePic, setViewingProfilePic] = useState(null)
+    const [viewingBanner, setViewingBanner] = useState(null)
 
     const inCA = profileUser && profileUser.inCA
     const isLoggedInUser = user && user.did == atprotoProfile.did
@@ -119,28 +122,42 @@ export function ProfileHeader({
 
     return <div className="flex flex-col border-b">
         <div className={"flex flex-col"}>
-            {atprotoProfile.banner ? <button onClick={() => {}}>
-                <Image
-                src={atprotoProfile.banner}
-                width={800}
-                height={300}
-                alt={atprotoProfile.handle + " banner"}
-                className="w-full h-[150px]"
+            {atprotoProfile.banner ? <div>
+                <FullscreenImageViewer
+                    images={[atprotoProfile.banner]}
+                    viewing={viewingBanner}
+                    setViewing={setViewingBanner}
+                    className={"min-w-[700px]"}
                 />
-            </button> :
-            <button className="w-full h-[150px] bg-[var(--background-dark)]">
+                <Image
+                    src={atprotoProfile.banner}
+                    width={800}
+                    height={300}
+                    alt={atprotoProfile.handle + " banner"}
+                    className="w-full h-[150px] cursor-pointer"
+                    onClick={() => {setViewingBanner(0)}}
+                />
+            </div> :
+            <div className="w-full h-[150px] bg-[var(--background-dark)]">
                 {emptyChar}
-            </button>
+            </div>
             }
             {atprotoProfile.avatar ? <div>
+                <FullscreenImageViewer
+                    images={[atprotoProfile.avatar]}
+                    viewing={viewingProfilePic}
+                    setViewing={setViewingProfilePic}
+                    className={"rounded-full border"}
+                />
                 <Image
                     src={atprotoProfile.avatar}
                     width={400}
                     height={400}
                     alt={atprotoProfile.handle + " avatar"}
-                    className="w-16 h-16 rounded-full ml-6 mt-[-36px] border"
+                    className="w-24 h-24 rounded-full ml-6 mt-[-48px] border cursor-pointer"
+                    onClick={() => {setViewingProfilePic(0)}}
                 />
-            </div> : <div className={"w-16 h-16 ml-6 mt-[-36px"}>
+            </div> : <div className={"w-24 h-24 ml-6 mt-[-48px"}>
                 {emptyChar}
             </div>}
         </div>
