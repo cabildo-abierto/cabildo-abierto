@@ -1,13 +1,40 @@
 "use client"
 import {DatasetProps} from "../../app/lib/definitions";
-import {useRouter} from "next/navigation";
 import {FastPostPreviewFrame} from "../feed/fast-post-preview-frame";
 import {PostTitleOnFeed} from "../feed/post-title-on-feed";
-import {ContentOptions} from "../content-options/content-options";
-import {useUser} from "../../hooks/user";
+import {Authorship} from "../content-top-row-author";
+import {DateSince} from "../date";
+import { FaExternalLinkAlt } from "react-icons/fa";
+import Link from "next/link";
+import {IconButton} from "@mui/material";
+import { contentUrl } from "../utils";
+
+export const DatasetPreviewSmall = ({dataset, selected, onClick}: {dataset: DatasetProps, selected: boolean, onClick: () => void}) => {
+    return <div className={"py-1 border rounded px-2 cursor-pointer hover:bg-[var(--background-dark2)] " + (selected ? "bg-[var(--background-dark2)]" : "")} onClick={onClick}>
+        <div className={"flex justify-between space-x-1"}>
+            <div className={"font-bold text-lg break-all"}>
+                {dataset.dataset.title}
+            </div>
+            <Link href={contentUrl(dataset.uri)} target={"_blank"} className={"text-[var(--text-light)]"} onClick={(e) => {e.stopPropagation()}}>
+                <IconButton color={"inherit"}>
+                    <FaExternalLinkAlt fontSize={12} color={"inherit"}/>
+                </IconButton>
+            </Link>
+        </div>
+        <div>
+            {dataset.dataset.columns.length} columnas
+        </div>
+        <div className={"text-sm"}>
+            Publicado por <Authorship content={dataset} onlyAuthor={true}/>
+        </div>
+        <div className={"flex justify-end text-[var(--text-light)] text-sm"}>
+            <DateSince date={dataset.createdAt}/>
+        </div>
+    </div>
+}
 
 
-export const DatasetPreview = ({dataset}: {dataset: DatasetProps}) => {
+export const DatasetPreview = ({dataset}: { dataset: DatasetProps }) => {
 
     return <FastPostPreviewFrame
         post={dataset}
@@ -24,25 +51,4 @@ export const DatasetPreview = ({dataset}: {dataset: DatasetProps}) => {
             </div>
         </div>
     </FastPostPreviewFrame>
-
-    /*return <div className={"px-2 hover:bg-[var(--background-dark)] cursor-pointer py-2"} onClick={onClick}>
-        <div className={"flex flex-col space-y-2"}>
-            <div className={"flex justify-between"}>
-                <div className={"font-bold text-lg flex"}>
-                    {dataset.dataset.title}
-                </div>
-                <div>
-                    <ContentOptionsButton options={null}/>
-                </div>
-            </div>
-            <div className={"text-sm flex space-x-2"}>
-                <ProfilePic user={dataset.author} className={"rounded-full h-4 w-4"}/>
-                <ContentTopRowAuthor author={dataset.author}/>
-                <span>•</span>
-                <div className={"text-[var(--text-light)]"}>
-                    Última actualización: <DateSince date={dataset.createdAt}/>
-                </div>
-            </div>
-        </div>
-    </div>*/
 }

@@ -55,7 +55,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
     useEffect(() => {
         if(thread.post.collection == "ar.com.cabildoabierto.article"){
             if(layoutConfig.distractionFree == false){
-                setLayoutConfig({distractionFree: true})
+                setLayoutConfig({distractionFree: true, ...layoutConfig})
             }
         }
     }, [])

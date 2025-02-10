@@ -3,46 +3,10 @@ import {Thread} from "../../../../components/feed/thread";
 import { NotFoundPage } from "../../../../components/not-found-page";
 
 
-export async function generateMetadata({searchParams}: {searchParams: {i: string}}){
-    return null
-    /*const {content} = await getContentById(searchParams.i)
-    if(!content){
-        return {
-            title: "Contenido no encontrado",
-            description: ""
-        }
+export async function generateMetadata({params}: {params: {did: string, rkey: string}}){
+    return {
+        title: "Cabildo Abierto"
     }
-
-    const description = "Publicación de @" + content.author.id + " en Cabildo Abierto"
-
-    if(content.type == "Post"){
-        return {title: content.title,
-            description
-        }
-    }
-
-    if(content.type == "FastPost"){
-        return {
-            title: "Publicación rápida de @" + content.author.id,
-            description
-        }
-    }
-
-    if(content.type == "Comment"){
-        return {
-            title: "Comentario de @" + content.author.id,
-            description
-        }
-    }
-
-    if(content.type == "FakeNewsReport"){
-        return {
-            title: "Reporte de @" + content.author.id,
-            description
-        }
-    }
-
-    return {}*/
 }
 
 

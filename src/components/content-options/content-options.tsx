@@ -11,7 +11,8 @@ const collection2displayText = {
     "app.bsky.feed.post": "post",
     "ar.com.cabildoabierto.article": "artículo",
     "ar.com.cabildoabierto.quotePost": "respuesta",
-    "ar.com.cabildoabierto.topic": "versión"
+    "ar.com.cabildoabierto.topic": "versión",
+    "ar.com.cabildoabierto.dataset": "conjunto de datos"
 }
 
 export const ContentOptions = ({onClose, record}: {onClose: () => void, record: RecordProps}) => {

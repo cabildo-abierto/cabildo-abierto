@@ -1,5 +1,5 @@
 import MainLayout from "../../components/layout/main-layout";
-import PaywallChecker from "../../components/paywall-checker";
+import AccountChecker from "../../components/account-checker";
 import { Metadata } from "next"
 
 
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function Layout({children}: Readonly<{ children: React.ReactNode; }>) {
   return <MainLayout>
-      <PaywallChecker>
+      <AccountChecker>
         {children}
-      </PaywallChecker>
+      </AccountChecker>
     </MainLayout>
 }

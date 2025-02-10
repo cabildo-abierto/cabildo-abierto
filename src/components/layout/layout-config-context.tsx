@@ -4,6 +4,8 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 
 export type LayoutConfigProps = {
     distractionFree: boolean
+    maxWidthCenter: string
+    leftMinWidth: string
 }
 
 
@@ -21,8 +23,8 @@ export const useLayoutConfig = () => {
 };
 
 
-export const LayoutConfigProvider: React.FC<{ children: ReactNode, distractionFree: boolean }> = ({ children, distractionFree }) => {
-    const [layoutConfig, setLayoutConfig] = useState({distractionFree: distractionFree});
+export const LayoutConfigProvider: React.FC<{ children: ReactNode, distractionFree: boolean, maxWidthCenter: string, leftMinWidth }> = ({ children, distractionFree, maxWidthCenter, leftMinWidth }) => {
+    const [layoutConfig, setLayoutConfig] = useState({distractionFree, maxWidthCenter, leftMinWidth});
 
     return (
         <LayoutConfigContext.Provider value={{ layoutConfig, setLayoutConfig }}>

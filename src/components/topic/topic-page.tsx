@@ -27,7 +27,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     const searchParams = useSearchParams()
     const [pinnedReplies, setPinnedReplies] = useState([])
     const [viewingContent, setViewingContent] = useState(paramsVersion != undefined)
-    const {setLayoutConfig} = useLayoutConfig()
+    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
     const [shouldGoTo, setShouldGoTo] = useState(null)
 
     useEffect(() => {
@@ -48,7 +48,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
 
     useEffect(() => {
         if(viewingContent){
-            setLayoutConfig({distractionFree: true})
+            setLayoutConfig({distractionFree: true, ...layoutConfig})
         }
     }, [viewingContent])
 
@@ -96,7 +96,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
             smoothScrollTo(elem)
         } else {
             setViewingContent(true)
-            setLayoutConfig({distractionFree: true})
+            setLayoutConfig({distractionFree: true, ...layoutConfig})
             setShouldGoTo(cid)
         }
     }

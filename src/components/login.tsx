@@ -14,7 +14,7 @@ export const Login = ({newTab=false}: {newTab?: boolean}) => {
                 <h1 className="">Iniciar sesión</h1>
 
                 <div className={"flex flex-col items-center link space-y-1 text-[var(--text-light)] text-center"}>
-                    <div>Por ahora la plataforma está abierta solo por invitación.</div>
+                    <div>Estamos dando acceso por orden de llegada durante el período de prueba.</div>
                     <div className={""}>
                         Iniciá sesión para sumarte a la lista de espera.
                     </div>

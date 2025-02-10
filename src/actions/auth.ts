@@ -39,10 +39,10 @@ export async function login(handle: string){
                 })
             } catch(err) {
                 console.log("error on did authorize", err)
-                return {error: "Falló la conexión con Bluesky."}
+                return {error: "Falló la conexión."}
             }
         } else {
-            return {error: "Falló la conexión con Bluesky."}
+            return {error: "Falló la conexión."}
         }
     }
     

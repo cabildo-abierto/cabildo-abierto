@@ -7,7 +7,6 @@ import { cleanText, listOrderDesc } from "./utils"
 import { LazyLoadFeed } from "./lazy-load-feed"
 import React, { useState } from "react"
 import SelectionComponent from "./search-selection-component"
-import { topicPopularityScore } from "./trending-topics"
 import { Button } from "@mui/material"
 import {getTopicTitle} from "./topic/utils";
 import {NoResults} from "./no-results";
@@ -41,7 +40,7 @@ const ArticlesWithSearch = ({ entities, route, sortBy, maxCount }: {
 
     let filteredEntities = searchState.value.length > 0 ? entities.filter(isMatch) : entities;
 
-    const scoreFunc = sortBy == "Populares" ? topicPopularityScore : recentEditScore
+    const scoreFunc = sortBy == "Populares" ? (t: TrendingTopicProps) => (t.score) : recentEditScore
 
     let entitiesWithScore = filteredEntities.map((entity) => ({ entity: entity, score: scoreFunc(entity) }));
 

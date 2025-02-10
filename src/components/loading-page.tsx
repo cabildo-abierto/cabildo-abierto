@@ -20,7 +20,6 @@ const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
 
     return <>
         {center}
-        <ReadOnlyEditor initialData={null}/>
     </>
 }
 

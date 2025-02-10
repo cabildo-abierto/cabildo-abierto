@@ -1,11 +1,17 @@
 import MainLayout from "../../components/layout/main-layout";
-import PaywallChecker from "../../components/paywall-checker";
+import AccountChecker from "../../components/account-checker";
 
+export async function generateMetadata({params}: {params: {id: string}}){
+
+    return {
+        title: "Cabildo Abierto"
+    }
+}
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
   return <MainLayout>
-      <PaywallChecker>
+      <AccountChecker>
       {children}
-      </PaywallChecker>
+      </AccountChecker>
     </MainLayout>
 }

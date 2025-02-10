@@ -15,11 +15,11 @@ import {LayoutConfigProvider, useLayoutConfig} from "./layout-config-context";
 import {SearchPanelOnRightColumn} from "./search-panel-on-right-column";
 
 
-const MainLayoutContent = ({children}: {children: ReactNode, distractionFree?: boolean}) => {
+const MainLayoutContent = ({children}: {children: ReactNode}) => {
     const {layoutConfig} = useLayoutConfig()
     const {user} = useUser()
 
-    const left = <div className={"fixed top-0 bottom-0 right-auto "+(layoutConfig.distractionFree ? "left-0 border-r" : "left-auto")}>
+    const left = <div className={"fixed top-0 bottom-0 z-[1000] right-auto "+(layoutConfig.distractionFree ? "left-0 border-r" : "left-auto")}>
         <SidebarContent onClose={() => {}}/>
     </div>
 
@@ -46,17 +46,17 @@ const MainLayoutContent = ({children}: {children: ReactNode, distractionFree?: b
         </div>
     }
 
-    return <ThreeColumnsLayout maxWidthCenter={layoutConfig.distractionFree ? "800px" : "600px"} left={left} center={children} right={right} leftMinWidth={"224px"} border={!layoutConfig.distractionFree}/>
+    return <ThreeColumnsLayout maxWidthCenter={layoutConfig.maxWidthCenter} left={left} center={children} right={right} leftMinWidth={layoutConfig.leftMinWidth} border={!layoutConfig.distractionFree}/>
 }
 
 
-const MainLayout: React.FC<{children: ReactNode, distractionFree?: boolean}> = ({children, distractionFree=false}) => {
+const MainLayout: React.FC<{children: ReactNode, distractionFree?: boolean, maxWidthCenter?: string, leftMinWidth?: string}> = ({children, distractionFree=false, maxWidthCenter="600px", leftMinWidth="224px"}) => {
 
     return <>
         <LoadingPage>
             <BetaAccessPage>
                 <SearchProvider>
-                    <LayoutConfigProvider distractionFree={distractionFree}>
+                    <LayoutConfigProvider distractionFree={distractionFree} maxWidthCenter={maxWidthCenter} leftMinWidth={leftMinWidth}>
                         <MainLayoutContent>
                             {children}
                         </MainLayoutContent>

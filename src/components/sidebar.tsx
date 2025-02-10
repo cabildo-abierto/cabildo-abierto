@@ -108,7 +108,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
         }
     }, [layoutConfig])
 
-    return <div className={"mt-4 px-2 " + (showText ? "w-56" : "")}>
+    return <div className={"pt-4 px-2 bg-[var(--background)] h-screen " + (showText ? "w-56" : "")}>
         <div className={"flex flex-col " + (showText ? "" : "items-center")} onMouseEnter={() => {setShowText(true)}} onMouseLeave={() => {if(layoutConfig.distractionFree) setShowText(false)}}>
         {user.user && <div className={"w-full flex justify-center"}>
             <SidebarUsername

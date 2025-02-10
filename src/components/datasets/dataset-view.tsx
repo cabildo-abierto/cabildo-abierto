@@ -1,11 +1,11 @@
 import './index.css'
 
-export const DatasetView = ({data}: {data: any[]}) => {
+export const DatasetView = ({data, maxHeight="600px"}: {data: any[], maxHeight?: string}) => {
     const rows = data
     return <div>
         {rows != null && <div className={"text-[var(--text-light)] py-2"}>{rows.length} filas.</div>}
         {rows != null && (
-            <div className="border-t mb-4 overflow-x-auto w-full overflow-y-auto max-h-[600px] custom-scrollbar text-sm">
+            <div className={"border-t mb-4 overflow-x-auto w-full overflow-y-auto custom-scrollbar text-sm"} style={{maxHeight}}>
                 <table className="table-auto w-full border-collapse border">
                     <thead className="bg-[var(--background-dark2)]">
                     <tr>

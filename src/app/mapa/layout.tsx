@@ -1,12 +1,12 @@
 import MainLayout from "../../components/layout/main-layout";
-import PaywallChecker from "../../components/paywall-checker";
+import AccountChecker from "../../components/account-checker";
 import React from "react";
 
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
   return <MainLayout>
-      <PaywallChecker requireAccount={false}>
+      <AccountChecker requireAccount={false}>
       {children}
-      </PaywallChecker>
+      </AccountChecker>
     </MainLayout>
 }
