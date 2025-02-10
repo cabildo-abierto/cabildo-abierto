@@ -62,7 +62,6 @@ export const removeRepost = async (uri: string) => {
 
 
 export const addView = async (uri: string, did: string) => {
-    console.log("adding view")
     let exists
     try {
         exists = await db.view.findMany({

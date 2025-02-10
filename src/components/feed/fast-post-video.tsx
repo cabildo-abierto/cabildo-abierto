@@ -14,7 +14,7 @@ export const FastPostVideo = ({post}: {post: FastPostProps}) => {
         return <div
             onClick={(e) => {
                 e.preventDefault(); e.stopPropagation(); window.open(bskyUrl, '_blank')}}
-            className={"border rounded-lg p-2 hover:bg-[var(--background-dark2)]"}
+            className={"border rounded-lg mt-2 p-2 hover:bg-[var(--background-dark2)]"}
         >
             <Link target="_blank" href={bskyUrl}>Ver video en Bluesky</Link>
         </div>

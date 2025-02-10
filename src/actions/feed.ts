@@ -46,7 +46,7 @@ export async function getFeed({onlyFollowing, reposts=true}: {onlyFollowing: boo
             }
         }
 
-        const feed = await db.record.findMany({
+        let feed = await db.record.findMany({
             select: feedQueryWithReposts,
             where: {
                 authorId: authors,
@@ -76,6 +76,8 @@ export async function getFeed({onlyFollowing, reposts=true}: {onlyFollowing: boo
                 createdAt: "desc"
             }
         })
+
+        feed = feed.filter((e) => {return validFeedElement(e, "main")})
 
         const readyForFeed = addCountersToFeed(feed, did)
 
@@ -222,6 +224,22 @@ export async function getSearchableContents(){
 }
 
 
+function validFeedElement(e, kind){
+    if(e.collection == "ar.com.cabildoabierto.article"){
+        return true
+    }
+    if(e.collection == "app.bsky.feed.repost"){
+        if(e.reaction == null || e.reaction.reactsTo == null){
+            return false
+        }
+        if(e.reaction.reactsTo.collection == "app.bsky.feed.post"){
+            return e.reaction.reactsTo.content != undefined
+        }
+        return true
+    }
+    return kind != "main" || e.content.post.replyTo == null
+}
+
 export async function getProfileFeed(userId: string, kind: "main" | "replies" | "edits"): Promise<{error?: string, feed?: FeedContentProps[]}>{
 
     let feed: FeedContentProps[] = []
@@ -234,22 +252,6 @@ export async function getProfileFeed(userId: string, kind: "main" | "replies" | 
         for(let i = 0; i < data.feed.length; i++){
             feed.push(formatBskyFeedElement(data.feed[i]))
         }
-    }
-
-    function validFeedElement(e){
-        if(e.collection == "ar.com.cabildoabierto.article"){
-            return true
-        }
-        if(e.collection == "app.bsky.feed.repost"){
-            if(e.reaction == null || e.reaction.reactsTo == null){
-                return false
-            }
-            if(e.reaction.reactsTo.collection == "app.bsky.feed.post"){
-                return e.reaction.reactsTo.content != undefined
-            }
-            return true
-        }
-        return kind != "main" || e.content.post.replyTo == null
     }
 
     if(user.user && user.user.inCA){
@@ -276,7 +278,7 @@ export async function getProfileFeed(userId: string, kind: "main" | "replies" | 
                 }
             })
 
-            feedCA = feedCA.filter((e) => {return validFeedElement(e)})
+            feedCA = feedCA.filter((e) => {return validFeedElement(e, kind)})
 
             const readyForFeed = addCountersToFeed(feedCA, did)
 
