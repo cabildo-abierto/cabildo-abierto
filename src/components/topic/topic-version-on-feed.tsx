@@ -1,8 +1,9 @@
 import {TopicVersionOnFeedProps} from "../../app/lib/definitions";
 import {ContentTopRowAuthor} from "../content-top-row-author";
 import {ProfilePic} from "../feed/profile-pic";
-import {formatIsoDate} from "../utils";
+import {contentUrl, formatIsoDate, topicVersionUrl} from "../utils";
 import {DateSince} from "../date";
+import {useRouter} from "next/navigation";
 
 
 const CharDiff = ({diff}: {diff: {charsAdded?: number, charsDeleted?: number}}) => {
@@ -15,7 +16,11 @@ const CharDiff = ({diff}: {diff: {charsAdded?: number, charsDeleted?: number}}) 
 }
 
 export const TopicVersionOnFeed = ({topicVersion}: {topicVersion: TopicVersionOnFeedProps}) => {
-    return <div className={"flex flex-col w-full p-2 border-b"}>
+    const router = useRouter()
+
+    return <div className={"flex flex-col w-full p-2 border-b hover:bg-[var(--background-dark)] cursor-pointer"}
+        onClick={() => {router.push(topicVersionUrl(topicVersion))}}
+    >
         <div className={"text-sm flex space-x-1"}>
             <ProfilePic user={topicVersion.author} className={"w-5 h-5 rounded-full mr-1"}/>
             <ContentTopRowAuthor author={topicVersion.author}/>
@@ -26,9 +31,8 @@ export const TopicVersionOnFeed = ({topicVersion}: {topicVersion: TopicVersionOn
         </div>
         <div className={"flex px-2 mt-2 space-x-1"}>
             <span>Nueva versión de</span>
-            <span className={"font-bold"}>{topicVersion.content.topicVersion.topicId}</span>
+            <span className={"font-bold"}>{topicVersion.content.topicVersion.topic.id}</span>
             <CharDiff diff={topicVersion.content.topicVersion}/>.
         </div>
-
     </div>
 }

@@ -155,17 +155,6 @@ export function useProfileFeed(id: string, kind: string): {feed: FeedContentProp
 }
 
 
-export function useEditsFeed(id: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/profile-feed/'+id+"/edits", fetcher)
-  
-    return {
-        feed: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
 export function useDrafts(): {drafts: {id: string}[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/drafts', fetcher)
   

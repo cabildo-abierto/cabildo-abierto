@@ -39,7 +39,7 @@ export const ViewMonitor = ({children, uri}: {children: ReactNode, uri: string})
     }, [isVisible, user, uri]);
 
     // agregamos ref a children directamente
-    return <div ref={contentRef} className={"block"}>
+    return <div ref={contentRef} className={"block w-full"}>
         {children}
     </div>
 }

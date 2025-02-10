@@ -2,7 +2,7 @@ import {
     UserProps,
     SmallUserProps,
     BothContributionsProps,
-    TopicVersionProps, TopicProps
+    TopicVersionProps, TopicProps, TopicVersionOnFeedProps
 } from "../app/lib/definitions"
 import { getAllText } from "./diff"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
@@ -494,6 +494,22 @@ export function contentUrl(uri: string, handle?: string){
     const {did, collection, rkey} = splitUri(uri)
 
     return "/c/" + did + "/" + rkey
+}
+
+
+function getTopicVersionIndex(topicVersion: TopicVersionOnFeedProps){
+    const versions = topicVersion.content.topicVersion.topic.versions
+    for(let i = 0; i < versions.length; i++){
+        if(versions[i].uri == topicVersion.uri){
+            return i
+        }
+    }
+}
+
+
+export function topicVersionUrl(topicVersion: TopicVersionOnFeedProps){
+    const index = getTopicVersionIndex(topicVersion)
+    return "/tema?i=" + topicVersion.content.topicVersion.topic.id + "&v=" + index
 }
 
 

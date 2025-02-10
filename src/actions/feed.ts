@@ -26,6 +26,9 @@ import {
 
 function addCountersToFeed(feed: any[], did: string): FeedContentProps[]{
     return feed.map((elem) => {
+        if(elem.collection == "app.bsky.feed.repost"){
+            return {...elem, reaction: {...elem.reaction, reactsTo: addCounters(did, elem.reaction.reactsTo, elem.reaction.reactsTo.reactions)}}
+        }
         return addCounters(did, elem, elem.reactions)
     })
 }
@@ -76,8 +79,6 @@ export async function getFeed({onlyFollowing, reposts=true}: {onlyFollowing: boo
 
         const readyForFeed = addCountersToFeed(feed, did)
 
-        // console.log("feed", feed.map((e) => (e.collection)))
-
         return {feed: readyForFeed}
     } catch (err) {
         console.log("Error getting feed", err)
@@ -121,16 +122,6 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
     const root = e.reply && e.reply.root ? formatBskyPostViewAsFeedElement(e.reply.root) : (record.reply && record.reply.root ? record.reply.root : replyTo)
     const grandparentAuthor = e.reply ? e.reply.grandparentAuthor : undefined
 
-    if(record.text.includes("un sabio") || record.text.includes("progenitores") || record.text.includes("tuvieron capital inicial")) {
-        console.log(e)
-        console.log(e.reply && e.reply.grandparentAuthor ? e.reply.grandparentAuthor.associated : undefined)
-        console.log(e.reply && e.reply.grandparentAuthor ? e.reply.grandparentAuthor.viewer : undefined)
-        console.log(e.reply.parent.viewer)
-        console.log(e.reply.root.viewer)
-        console.log("parent record", e.reply.parent.record)
-        console.log("post reply", record.reply)
-    }
-
     const recordProps = {
         uri: e.post.uri,
         cid: e.post.cid,
@@ -172,6 +163,7 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
         const repostRecordProps = {
             author: e.reason.by as {did: string, handle: string, displayName?: string},
             collection: "app.bsky.feed.repost",
+            createdAt: new Date(e.reason.indexedAt as string),
         }
 
         return {
@@ -183,7 +175,6 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
     } else {
         return post
     }
-
 }
 
 
@@ -231,30 +222,48 @@ export async function getSearchableContents(){
 }
 
 
-export async function getProfileFeed(userId: string, kind: "main" | "replies"){
-    let collections = []
-    if(kind == "main"){
-        collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "app.bsky.feed.repost"]
-    } else if(kind == "replies"){
-        collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "ar.com.cabildoabierto.quotePost", "app.bsky.feed.repost"]
-    } else if(kind == "edits"){
-        collections = ["ar.com.cabildoabierto.topic", "app.bsky.feed.repost"]
-    }
+export async function getProfileFeed(userId: string, kind: "main" | "replies" | "edits"): Promise<{error?: string, feed?: FeedContentProps[]}>{
 
+    let feed: FeedContentProps[] = []
     const user = await getUserById(userId)
-    if(!user.user || !user.user.inCA){
-        const {agent} = await getSessionAgent()
+
+    const {agent, did} = await getSessionAgent()
+    if(kind == "main" || kind == "replies"){
         const filter = kind == "main" ? "posts_no_replies" : "posts_with_replies"
         const {data} = await agent.getAuthorFeed({actor: userId, filter: filter})
-        let feed = []
         for(let i = 0; i < data.feed.length; i++){
             feed.push(formatBskyFeedElement(data.feed[i]))
         }
-        return {feed: feed}
-    } else {
-        let feed
+    }
+
+    function validFeedElement(e){
+        if(e.collection == "ar.com.cabildoabierto.article"){
+            return true
+        }
+        if(e.collection == "app.bsky.feed.repost"){
+            if(e.reaction == null || e.reaction.reactsTo == null){
+                return false
+            }
+            if(e.reaction.reactsTo.collection == "app.bsky.feed.post"){
+                return e.reaction.reactsTo.content != undefined
+            }
+            return true
+        }
+        return kind != "main" || e.content.post.replyTo == null
+    }
+
+    if(user.user && user.user.inCA){
+        let collections = []
+        if(kind == "main"){
+            collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "app.bsky.feed.repost"]
+        } else if(kind == "replies"){
+            collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "ar.com.cabildoabierto.quotePost", "app.bsky.feed.repost"]
+        } else if(kind == "edits"){
+            collections = ["ar.com.cabildoabierto.topic", "app.bsky.feed.repost"]
+        }
+
         try {
-            feed = await db.record.findMany({
+            let feedCA = await db.record.findMany({
                 select: feedQueryWithReposts,
                 where: {
                     authorId: userId,
@@ -266,18 +275,26 @@ export async function getProfileFeed(userId: string, kind: "main" | "replies"){
                     createdAt: "desc"
                 }
             })
-        } catch {
+
+            feedCA = feedCA.filter((e) => {return validFeedElement(e)})
+
+            const readyForFeed = addCountersToFeed(feedCA, did)
+
+            for(let i = 0; i < readyForFeed.length; i++){
+                if(!feed.some((f) => (f.uri == readyForFeed[i].uri))){
+                    feed.push(readyForFeed[i])
+                }
+            }
+
+            feed = feed.sort((a, b) => (b.createdAt.getTime() - a.createdAt.getTime()))
+        } catch (error) {
+            console.log("error", error)
             return {error: "No se pudo obtener el feed."}
         }
 
-        if(kind == "main"){
-            feed = feed.filter((e) => ((e.collection == "ar.com.cabildoabierto.article" || e.collection == "app.bsky.feed.repost") || e.content.post.replyTo == null))
-        }
-
-        const readyForFeed = addCountersToFeed(feed, userId)
-
-        return {feed: readyForFeed}
     }
+
+    return {feed: feed}
 }
 
 

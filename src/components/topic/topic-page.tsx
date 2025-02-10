@@ -103,7 +103,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
 
     return <div className="flex flex-col items-center w-full">
         <div className="flex flex-col border-b px-2 py-1 w-full">
-            <div className="text-[var(--text-light)] text-sm mb-2">
+            <div className="text-[var(--text-light)] text-sm">
                 Tema
             </div>
             <h1 className={" " + titleFontSize}>
