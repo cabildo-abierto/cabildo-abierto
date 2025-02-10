@@ -131,7 +131,8 @@ export const feedQuery = {
             did: true,
             handle: true,
             displayName: true,
-            avatar: true
+            avatar: true,
+            inCA: true
         }
     },
     content: {

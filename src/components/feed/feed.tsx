@@ -25,7 +25,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
 
     function generator(index: number){
         const node = <ViewMonitor uri={feed.feed[index].uri}>
-            <FeedElement elem={feed.feed[index]} showReplies={showReplies} onClickQuote={onClickQuote}/>
+            <FeedElement elem={feed.feed[index]} showChildren={showReplies} showParent={showReplies} onClickQuote={onClickQuote}/>
         </ViewMonitor>
 
         return {
@@ -38,7 +38,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
     if(feed.feed.length == 0){
         content = <NoResults text={noResultsText}/>
     } else {
-        content = <div className="flex flex-col w-full">
+        content = <div className="flex flex-col w-full border-inherit">
             <LazyLoadFeed
                 maxSize={feed.feed.length}
                 generator={generator}

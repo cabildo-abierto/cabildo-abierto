@@ -62,8 +62,7 @@ export const removeRepost = async (uri: string) => {
 
 
 export const addView = async (uri: string, did: string) => {
-    console.log("adding view", uri, did)
-
+    console.log("adding view")
     let exists
     try {
         exists = await db.view.findMany({
@@ -122,8 +121,6 @@ const authorQuery = {
 
 function threadViewPostToThread(thread: ThreadViewPost) {
     const record = thread.post.record as {createdAt: string, text: string, facets?: any, embed?: any}
-
-    console.log("threadviewposttothread", thread)
 
     const post: FastPostProps = {
         uri: thread.post.uri,

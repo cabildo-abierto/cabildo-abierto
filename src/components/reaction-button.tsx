@@ -9,10 +9,17 @@ type ReactionButtonProps = {
     active?: boolean
     disabled?: boolean
     title?: string
-    className?: string
 }
 
-export const ReactionButton = ({onClick, count, icon1, icon2, active=true, disabled=false, title, className="reaction-btn"}: ReactionButtonProps) => {
+export const ReactionButton = ({
+                                   onClick,
+                                   count,
+                                   icon1,
+                                   icon2,
+                                   active=true,
+                                   disabled=false,
+                                   title
+}: ReactionButtonProps) => {
     
     return <div className={"text-[var(--text-light)]"}>
         <button
@@ -22,7 +29,7 @@ export const ReactionButton = ({onClick, count, icon1, icon2, active=true, disab
             title={title}
         >
             <div className={"flex items-center"}>
-                {active ? <div className={"text-red-400"}>{icon1}</div> : <div>{icon2}</div>}
+                {active ? <div>{icon1}</div> : <div>{icon2}</div>}
                 <div className="text-sm">{count}</div>
             </div>
         </button>

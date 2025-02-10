@@ -17,6 +17,7 @@ export type RecordProps = {
         handle: string
         displayName?: string
         avatar?: string
+        inCA?: boolean
     }
 }
 
@@ -118,7 +119,8 @@ export type TrendingTopicProps = {
 
 export type FeedContentProps = FeedContentPropsNoRepost | RepostProps
 
-export type FeedContentPropsNoRepost = (FastPostProps | ArticleProps | DatasetProps | VisualizationProps | TopicVersionOnFeedProps) & EngagementProps
+export type FeedContentPropsNoRepost = ((FastPostProps | ArticleProps | DatasetProps | VisualizationProps | TopicVersionOnFeedProps | {}) & RecordProps & EngagementProps)
+export type FeedContentPropsNoRepostMaybe = FeedContentPropsNoRepost & {blocked?: boolean, notFound?: boolean}
 
 export type SmallUserProps = {
     did: string
@@ -260,8 +262,9 @@ export type FastPostProps = RecordProps & EngagementProps & {
         post: {
             facets?: string
             embed?: string
-            replyTo?: {uri: string, cid: string}
-            root?: {uri: string, cid: string}
+            replyTo?: (FeedContentPropsNoRepostMaybe | ATProtoStrongRef) & {collection?: string}
+            root?: (FeedContentPropsNoRepostMaybe | ATProtoStrongRef) & {collection?: string}
+            grandparentAuthor?: SmallUserProps
             quote?: string
             visualization?: VisualizationProps
         }

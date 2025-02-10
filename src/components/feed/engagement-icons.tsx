@@ -5,7 +5,6 @@ import { InactiveLikeIcon } from "../icons/inactive-like-icon"
 import { RepostIcon } from "../icons/reposts-icon"
 import { FixedCounter, LikeCounter } from "../like-counter"
 import {addLike, removeLike, removeRepost, repost} from "../../actions/contents";
-import {ReactNode} from "react";
 import {EngagementProps, RecordProps} from "../../app/lib/definitions";
 import {ViewsIcon} from "../icons/views-icon";
 
@@ -24,7 +23,7 @@ export const EngagementIcons = ({counters, record, className="space-x-16"}: Enga
             title="Cantidad de respuestas."
         />}
         {counters.repostCount != undefined && <LikeCounter
-            icon1={<RepostIcon fontSize={"small"}/>}
+            icon1={<span className={"text-green-400"}><RepostIcon fontSize={"small"}/></span>}
             icon2={<RepostIcon fontSize={"small"}/>}
             onLike={async () => {return await repost(record.uri, record.cid)}}
             onDislike={removeRepost}
@@ -33,7 +32,7 @@ export const EngagementIcons = ({counters, record, className="space-x-16"}: Enga
             initialCount={counters.repostCount}
         />}
         {counters.likeCount != undefined && <LikeCounter
-            icon1={<ActiveLikeIcon fontSize={"small"}/>}
+            icon1={<span className={"text-red-400"}><ActiveLikeIcon fontSize={"small"}/></span>}
             icon2={<InactiveLikeIcon fontSize={"small"}/>}
             onLike={async () => {return await addLike(record.uri, record.cid)}}
             onDislike={removeLike}

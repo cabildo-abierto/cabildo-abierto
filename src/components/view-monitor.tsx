@@ -1,5 +1,5 @@
 "use client"
-import {ReactNode, useEffect, useRef, useState} from "react";
+import React, {ReactNode, useEffect, useRef, useState} from "react";
 import {useUser} from "../hooks/user";
 import {addView} from "../actions/contents";
 
@@ -38,7 +38,8 @@ export const ViewMonitor = ({children, uri}: {children: ReactNode, uri: string})
         recordView()
     }, [isVisible, user, uri]);
 
-    return <div ref={contentRef} style={{ display: 'contents' }}>
+    // agregamos ref a children directamente
+    return <div ref={contentRef} className={"block"}>
         {children}
     </div>
 }

@@ -321,11 +321,11 @@ export function editorStateFromJSON(text: string){
 }
 
 
-function removeAccents(str) {
+function removeAccents(str: string): string {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-export function cleanText(s: string){
+export function cleanText(s: string): string {
     return removeAccents(s.toLowerCase())
 }
 

@@ -68,7 +68,6 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
         disabled={!user || disabled}
         count={likeCount}
         title={title}
-        className="text-[var(--text-light)]"
     />
 }
 

@@ -15,7 +15,13 @@ import {getUserById, getUserId, getUsers} from "./users";
 import {addCounters, feedQuery, feedQueryWithReposts} from "./utils";
 import {popularityScore} from "../components/popularity-score";
 import {getRkeyFromUri, listOrder} from "../components/utils";
-import {FeedViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
+import {
+    BlockedPost,
+    FeedViewPost,
+    NotFoundPost,
+    PostView,
+    ReplyRef
+} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 
 
 function addCountersToFeed(feed: any[], did: string): FeedContentProps[]{
@@ -68,7 +74,6 @@ export async function getFeed({onlyFollowing, reposts=true}: {onlyFollowing: boo
             }
         })
 
-
         const readyForFeed = addCountersToFeed(feed, did)
 
         // console.log("feed", feed.map((e) => (e.collection)))
@@ -81,10 +86,50 @@ export async function getFeed({onlyFollowing, reposts=true}: {onlyFollowing: boo
 }
 
 
+function formatBskyPostViewAsFeedElement(e: PostView | NotFoundPost | BlockedPost | {[p: string]: unknown, $type: string}): {blocked?: boolean, notFound?: boolean} & FeedContentPropsNoRepost {
+    if(e.notFound) return {notFound: true, collection: "", author: {did: "", handle: ""}}
+    if(e.blocked) return {blocked: true, collection: "", author: {did: "", handle: ""}}
+
+    let post = e as PostView
+    const record = post.record as {text: string, createdAt: string, facets: any, embed: any, $type: string, reply?: {parent: ATProtoStrongRef, root?: ATProtoStrongRef}}
+    const caPost: FastPostProps & EngagementProps = {
+        uri: post.uri,
+        cid: post.cid,
+        author: {
+            ...post.author,
+        },
+        collection: record.$type,
+        createdAt: new Date(record.createdAt),
+        content: {
+            text: record.text,
+            post: {
+                facets: JSON.stringify(record.facets),
+                embed: JSON.stringify(record.embed),
+                replyTo: record.reply ? record.reply.parent : undefined,
+                root: record.reply && record.reply.root ? record.reply.root : undefined
+            }
+        },
+        ...post
+    }
+    return caPost
+}
+
+
 function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
-    const record = e.post.record as {text: string, createdAt: string, $type: string, embed?: string}
-    const replyTo = e.reply ? e.reply.parent as ATProtoStrongRef : undefined
-    const root = e.reply && e.reply.root ? e.reply.root as ATProtoStrongRef : replyTo
+    const record = e.post.record as {text: string, createdAt: string, $type: string, embed?: string, reply?: {parent: ATProtoStrongRef, root?: ATProtoStrongRef}}
+    const replyTo = e.reply && e.reply.parent ? formatBskyPostViewAsFeedElement(e.reply.parent) : (record.reply ? record.reply.parent : undefined)
+    const root = e.reply && e.reply.root ? formatBskyPostViewAsFeedElement(e.reply.root) : (record.reply && record.reply.root ? record.reply.root : replyTo)
+    const grandparentAuthor = e.reply ? e.reply.grandparentAuthor : undefined
+
+    if(record.text.includes("un sabio") || record.text.includes("progenitores") || record.text.includes("tuvieron capital inicial")) {
+        console.log(e)
+        console.log(e.reply && e.reply.grandparentAuthor ? e.reply.grandparentAuthor.associated : undefined)
+        console.log(e.reply && e.reply.grandparentAuthor ? e.reply.grandparentAuthor.viewer : undefined)
+        console.log(e.reply.parent.viewer)
+        console.log(e.reply.root.viewer)
+        console.log("parent record", e.reply.parent.record)
+        console.log("post reply", record.reply)
+    }
 
     const recordProps = {
         uri: e.post.uri,
@@ -105,6 +150,7 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
         post: {
             replyTo,
             root,
+            grandparentAuthor,
             embed: record.embed ? JSON.stringify(record.embed) : undefined
         }
     }
@@ -116,7 +162,7 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
         viewer: e.post.viewer
     }
 
-    const post = {
+    const post: FastPostProps = {
         ...recordProps,
         content,
         ...engagementProps
@@ -185,28 +231,28 @@ export async function getSearchableContents(){
 }
 
 
-export async function getProfileFeed(userId: string, kind: string){
+export async function getProfileFeed(userId: string, kind: "main" | "replies"){
     let collections = []
     if(kind == "main"){
-        collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post"]
+        collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "app.bsky.feed.repost"]
     } else if(kind == "replies"){
-        collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "ar.com.cabildoabierto.quotePost"]
+        collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "ar.com.cabildoabierto.quotePost", "app.bsky.feed.repost"]
     } else if(kind == "edits"){
-        collections = ["ar.com.cabildoabierto.topic"]
+        collections = ["ar.com.cabildoabierto.topic", "app.bsky.feed.repost"]
     }
 
-    const {agent} = await getSessionAgent()
-
-    let feed
     const user = await getUserById(userId)
     if(!user.user || !user.user.inCA){
-        const {data} = await agent.getAuthorFeed({actor: userId})
-        feed = []
+        const {agent} = await getSessionAgent()
+        const filter = kind == "main" ? "posts_no_replies" : "posts_with_replies"
+        const {data} = await agent.getAuthorFeed({actor: userId, filter: filter})
+        let feed = []
         for(let i = 0; i < data.feed.length; i++){
             feed.push(formatBskyFeedElement(data.feed[i]))
         }
         return {feed: feed}
     } else {
+        let feed
         try {
             feed = await db.record.findMany({
                 select: feedQueryWithReposts,
@@ -225,10 +271,11 @@ export async function getProfileFeed(userId: string, kind: string){
         }
 
         if(kind == "main"){
-            feed = feed.filter((e) => (e.collection == "ar.com.cabildoabierto.article" || e.content.post.replyTo == null))
+            feed = feed.filter((e) => ((e.collection == "ar.com.cabildoabierto.article" || e.collection == "app.bsky.feed.repost") || e.content.post.replyTo == null))
         }
 
         const readyForFeed = addCountersToFeed(feed, userId)
+
         return {feed: readyForFeed}
     }
 }
@@ -255,7 +302,6 @@ export async function getTopicFeed(id: string): Promise<{feed?: FeedContentProps
     const did = await getUserId()
 
     id = decodeURIComponent(id)
-    console.log("getting topic feed for", id)
 
     try {
 
