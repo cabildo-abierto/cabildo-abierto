@@ -40,7 +40,7 @@ export const TopicContent = ({
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const {mutate} = useSWRConfig()
-    const {setLayoutConfig} = useLayoutConfig()
+    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
     const lastUpdated = topic.versions[topic.versions.length-1].content.record.createdAt
 
@@ -321,7 +321,7 @@ export const TopicContent = ({
             {selectedPanel != "editing" && <CloseButton size="small" onClose={() => {
                 setViewingContent(false);
                 setPinnedReplies([])
-                setLayoutConfig({distractionFree: false})
+                setLayoutConfig({distractionFree: false, ...layoutConfig})
                 setSelectedPanel("none")
             }}/>}
         </div>}
@@ -341,7 +341,7 @@ export const TopicContent = ({
         <div
             onClick={() => {
                 setViewingContent(true);
-                setLayoutConfig({distractionFree: true});
+                setLayoutConfig({distractionFree: true, ...layoutConfig});
             }}
             className={`relative group ${!viewingContent ? "min-h-[100px] max-h-[200px] overflow-y-clip bg-[var(--background)] cursor-pointer hover:bg-gradient-to-b hover:from-[var(--background)] hover:to-[var(--background-dark)]" : ""}`}
         >

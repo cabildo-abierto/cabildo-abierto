@@ -21,7 +21,7 @@ export const NeedAccountPaywall: React.FC<any> = ({ children }) => {
 };
 
 
-const PaywallChecker: React.FC<{children: ReactNode, requireAccount?: boolean}> = ({children, requireAccount=true}) => {
+const AccountChecker: React.FC<{children: ReactNode, requireAccount?: boolean}> = ({children, requireAccount=true}) => {
     const user = useUser()
     
     if(user.isLoading){
@@ -37,4 +37,4 @@ const PaywallChecker: React.FC<{children: ReactNode, requireAccount?: boolean}> 
     }
 }
 
-export default PaywallChecker
+export default AccountChecker

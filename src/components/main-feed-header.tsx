@@ -38,12 +38,12 @@ export const MainFeedHeader = ({selected, onSelection, showRoute, order, setOrde
     }
 
     return <div className="flex border-b">
-        {<SelectionComponent
+        <SelectionComponent
             onSelection={onSelection}
             options={["En discusión", "Siguiendo"]}
             selected={selected}
             optionsNodes={optionsNodes}
             className="flex justify-between"
-        />}
+        />
     </div>
 }

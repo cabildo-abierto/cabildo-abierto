@@ -1,6 +1,6 @@
 "use client"
 import React, {ReactNode, useEffect, useState} from 'react';
-import { TextField, Paper, List, ListItem, ListItemText } from '@mui/material';
+import {TextField, Paper, List, ListItem, ListItemText, MenuItem} from '@mui/material';
 
 interface SearchableDropdownProps {
   options: string[]
@@ -53,17 +53,17 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ options, option
             InputProps={{autoComplete: "off"}}
         />
         {showDropdown && (
-            <Paper className="absolute z-10 w-full mt-1">
+            <Paper className="absolute z-10 mt-1 min-w-full max-w-max">
               <List>
                 {filteredOptions.map((option, index) => (
-                    <ListItem
+                    <MenuItem
                         key={index}
                         onClick={() => handleOptionSelect(option)}
                         className="cursor-pointer hover:bg-[var(--background-dark)]"
                         component="div"
                     >
-                      {optionViews == null ? <ListItemText primary={option}/> : optionViews[index]}
-                    </ListItem>
+                      {optionViews == null ? <span className={"text-sm"}>{option}</span> : optionViews[index]}
+                    </MenuItem>
                 ))}
               </List>
             </Paper>

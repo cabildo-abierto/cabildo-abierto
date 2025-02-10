@@ -109,13 +109,15 @@ export function useVisualizations(): {visualizations: VisualizationProps[], isLo
 }
 
 
-export function useDataset(uri: string): {dataset: {dataset: DatasetProps, data: any[]}, isLoading: boolean, isError: boolean}{
+export function useDataset(uri: string): {dataset: {dataset: DatasetProps, data: any[]}, isLoading: boolean, error?: string}{
     const { data, error, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher)
 
+    if(data && data.error){
+        return {error: data.error, isLoading: false, dataset: undefined}
+    }
     return {
         dataset: data,
-        isLoading,
-        isError: error
+        isLoading
     }
 }
 

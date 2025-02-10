@@ -12,11 +12,6 @@ import {getTopicTitle} from "./topic/utils";
 import {ContentOptionsButton} from "./content-options/content-options-button";
 
 
-export function topicPopularityScore(topic: TrendingTopicProps){
-    return topic.score
-}
-
-
 export const TrendingTopics = ({route, selected}: {route: string[], selected: string}) => {
     const topics = useTrendingTopics(route, "alltime");
     const [recent, setRecent] = useState(route.length == 0)
@@ -29,12 +24,6 @@ export const TrendingTopics = ({route, selected}: {route: string[], selected: st
         return <LoadingSpinner />
     }
 
-    const since = recent ? new Date(new Date().getTime() - (7*24*60*60*1000)) : undefined
-
-    let topicsWithScore = topics.topics.map((topic) => ({ entity: topic, score: topicPopularityScore(topic) }))
-
-    topicsWithScore = topicsWithScore.sort(listOrderDesc);
-
     return <div className="border rounded p-4 w-full space-y-4">
         <div className="flex justify-between space-x-4 items-center">
             <Link className={"text-sm text-[var(--text-light)]"} href={"/temas"}>
@@ -42,13 +31,13 @@ export const TrendingTopics = ({route, selected}: {route: string[], selected: st
             </Link>
             <ContentOptionsButton record={null}/>
         </div>
-        <TrendingArticlesSlider trendingArticles={topicsWithScore}/>
+        <TrendingArticlesSlider trendingArticles={topics.topics}/>
     </div>
 };
 
 
 export const TrendingArticlesSlider = ({trendingArticles}: {
-    trendingArticles: {entity: TrendingTopicProps, score: number[]}[]}) => {
+    trendingArticles: TrendingTopicProps[]}) => {
     const ref =
     useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
     const { events } = useDraggable(ref);
@@ -60,11 +49,12 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
         {...events}
         ref={ref} // add reference and events to the wrapping div
     >
-        {trendingArticles.map(({entity, score}, index) => {
+        {trendingArticles.map((topic, index) => {
 
-            return <Link href={articleUrl(entity.id)} draggable={false}
-                className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] border hover:bg-[var(--secondary)] select-none"
-                key={entity.id}
+            const title = getTopicTitle(topic)
+            return <Link href={articleUrl(topic.id)} draggable={false}
+                className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] border hover:bg-[var(--background-dark)] select-none"
+                key={topic.id}
                 onMouseLeave={() => {setHovering(undefined)}}
                 onMouseEnter={() => {/*preload("/api/entity/"+entity.id, fetcher);*/ setHovering(index)}}
             >
@@ -80,15 +70,15 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                     }}
                 >
                     <div className="flex items-center justify-center px-2 w-28 sm:w-48 title h-full">
-                        <span className={"overflow-hidden" + (hovering == index ? " line-clamp-none" : " line-clamp-2")}>
-                            {getTopicTitle(entity)}
+                        <span className={"overflow-hidden" + (hovering ? "line-clamp-none" : "line-clamp-2")}>
+                            {title}
                         </span>
                     </div>
 
                     <div
                         className="text-[var(--text-light)] text-xs sm:text-sm flex items-end justify-end px-1 w-full"
                     >
-                        <div title="La cantidad de usuarios que participaron en la discusión.">{score[0]} <PersonIcon fontSize="inherit"/></div>
+                        <div title="La cantidad de usuarios que participaron en la discusión.">{topic.score[0]} <PersonIcon fontSize="inherit"/></div>
                     </div>
                 </Button>
             </Link>

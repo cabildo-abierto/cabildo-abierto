@@ -228,8 +228,6 @@ export async function getProfileFeed(userId: string, kind: string){
             feed = feed.filter((e) => (e.collection == "ar.com.cabildoabierto.article" || e.content.post.replyTo == null))
         }
 
-        console.log("feed", feed)
-
         const readyForFeed = addCountersToFeed(feed, userId)
         return {feed: readyForFeed}
     }
@@ -284,8 +282,6 @@ export async function getTopicFeed(id: string): Promise<{feed?: FeedContentProps
                 createdAt: "desc"
             }
         })
-
-        console.log("feed length", feed.length)
 
         const readyForFeed = addCountersToFeed(feed, did)
 

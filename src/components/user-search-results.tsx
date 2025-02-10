@@ -15,14 +15,18 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
     const users = useUsers();
     const { searchState } = useSearch();
     const router = useRouter();
-    const [results, setResults] = useState<SmallUserProps[] | null>(null);
+    const [results, setResults] = useState<SmallUserProps[] | null | string>(null);
 
     useEffect(() => {
         const debounceTimeout = setTimeout(async () => {
             if (searchState.value.length === 0 || users.isLoading) return;
             setResults(null)
 
-            const atprotoUsers = await searchATProtoUsers(searchState.value);
+            const {users: atprotoUsers, error} = await searchATProtoUsers(searchState.value)
+            if(error){
+                setResults(error)
+                return
+            }
             const searchValue = cleanText(searchState.value);
 
             function isMatch(user: SmallUserProps) {
@@ -58,6 +62,12 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
     if(results == null){
         return <div className={showSearchButton ? "border-b flex items-center h-full" : "mt-8"}>
             <LoadingSpinner/>
+        </div>
+    }
+
+    if(typeof results == "string"){
+        return <div className={"text-[var(--text-light)] text-center px-2"}>
+            {results}
         </div>
     }
 

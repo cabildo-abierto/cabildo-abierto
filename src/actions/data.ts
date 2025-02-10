@@ -107,20 +107,10 @@ export async function fetchBlob(blob: {cid: string, authorId: string}) {
     const doc = await didres.resolve(blob.authorId)
     if (doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint) {
         const url = doc.service[0].serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
-        return await fetch(url)
+        return await fetch(url, {cache: "no-store"})
     }
 
     return null
-}
-
-function transformToISO8601(date: string): string {
-    const [year, month, day] = date.split('-');
-
-    // Create a new Date object for the given date in UTC
-    const isoDate = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
-
-    // Return the full ISO 8601 format
-    return isoDate.toISOString();
 }
 
 export async function getDataset(uri: string){
@@ -137,11 +127,10 @@ export async function getDataset(uri: string){
             }
         })
     } catch (err) {
-        console.log("Error getting dataset with uri", uri)
-        console.log(err)
-        return {error: "Error al obtener el dataset."}
+        return {error: "Ocurrió un error al obtener el dataset."}
     }
 
+    let acumSize = 0
     let data = []
     const blocks = dataset.dataset.dataBlocks
     for(let i = 0; i < blocks.length; i++){
@@ -156,7 +145,15 @@ export async function getDataset(uri: string){
         if(blocks[i].format == "zip"){
             const zip = new JSZip();
 
-            const unzipped = await zip.loadAsync(await uint8Array.arrayBuffer())
+            const buffer = await uint8Array.arrayBuffer()
+
+            acumSize += buffer.byteLength
+
+            if(acumSize > 1000000){
+                return {error: "No podemos mostrar el conjunto de datos porque pesa más de 1mb."}
+            }
+
+            const unzipped = await zip.loadAsync(buffer)
 
             const fileNames = Object.keys(unzipped.files);
             if (fileNames.length === 0) {
@@ -176,13 +173,28 @@ export async function getDataset(uri: string){
         data = [...data, ...parsedData.data];
     }
 
-    /*for(let i = 0; i < data.length; i++){
-        if("fecha" in data[i]){
-            data[i].fecha = transformToISO8601(data[i].fecha)
+    const columnValues = new Map<string, Set<any>>()
+    for(let i = 0; i < dataset.dataset.columns.length; i++){
+        columnValues.set(dataset.dataset.columns[i], new Set())
+    }
+    for(let i = 0; i < data.length; i++){
+        for(let j = 0; j < dataset.dataset.columns.length; j++){
+            const c = dataset.dataset.columns[j]
+            columnValues.get(c).add(data[i][c])
         }
-    }*/
+    }
 
-    return {dataset: dataset, data: data}
+    function setValuesToListValues(s: Map<string, Set<any>>){
+        const r = new Map<string, any[]>()
+        s.forEach((v, k) => {
+            r.set(k, Array.from(v).sort())
+        })
+        return r
+    }
+
+    const datasetWithColumnValues: DatasetProps = {...dataset, dataset: {...dataset.dataset, columnValues: setValuesToListValues(columnValues)}}
+
+    return {dataset: datasetWithColumnValues, data: data}
 }
 
 

@@ -3,7 +3,7 @@
 import {getSessionAgent} from "./auth";
 import {FeedContentProps, TopicProps, TopicVersionProps, TrendingTopicProps} from "../app/lib/definitions";
 import {db} from "../db";
-import {getRkeyFromUri, supportDid} from "../components/utils";
+import {getRkeyFromUri, listOrder, listOrderDesc, supportDid} from "../components/utils";
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import {feedQuery, recordQuery} from "./utils";
@@ -337,7 +337,7 @@ export async function getTrendingTopics(sinceKind: string): Promise<{error?: str
                 ...topic,
                 score: countUserInteractions(topic, since)
             }
-        })
+        }).sort(listOrderDesc).slice(0, 10)
         return {topics: topicsWithScore}
     } catch (err) {
         console.log("Error", err)

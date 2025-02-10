@@ -3,8 +3,6 @@
 import { useState } from "react"
 import { MainFeedHeader } from "./main-feed-header"
 import { useFeed } from "../hooks/contents"
-import { useUser } from "../hooks/user"
-import { Route } from "./wiki-categories"
 import Feed from "./feed/feed"
 
 

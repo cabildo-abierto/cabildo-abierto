@@ -33,7 +33,7 @@ export const FastPostPreviewFrame = ({
     const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
 
     return <div
-        className={"w-full bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")}
+        className={"w-full bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-200 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")}
         onClick={(e) => {router.push(url)}}>
         {repostedBy && <RepostedBy user={repostedBy}/>}
         <div className={"flex"}>

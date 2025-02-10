@@ -11,6 +11,8 @@ import Footer from "./footer";
 import {useSWRConfig} from "swr";
 import LoadingSpinner from "./loading-spinner";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+import LoadingPage from "./loading-page";
+import {LoadingScreen} from "./loading-screen";
 
 function getUsernameBskyUser(user: ProfileViewDetailed){
     return user.displayName ? user.displayName : user.handle ? user.handle : user.did
@@ -18,14 +20,14 @@ function getUsernameBskyUser(user: ProfileViewDetailed){
 
 
 export const BetaAccessPage = ({children}: {children: ReactNode}) => {
-    const {bskyUser, isLoading: bskyUserLoading} = useBskyUser()
+    const {bskyUser, isLoading: loadingBskyUser} = useBskyUser()
     const {user, isLoading} = useUser()
     const [email, setEmail] = useState<string>("")
     const [status, setStatus] = useState(user && user.email ? "email set" : "no email")
     const {mutate} = useSWRConfig()
 
-    if(isLoading || bskyUserLoading) return <div className={"mt-32"}><LoadingSpinner/></div>
     if(user && user.hasAccess) return <>{children}</>
+    if(isLoading || loadingBskyUser) return <LoadingScreen />
 
     async function handleSave(){
         const {error} = await updateEmail(email)

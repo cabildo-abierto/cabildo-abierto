@@ -1,5 +1,5 @@
 "use client"
-import {PlotConfigProps} from "../../app/lib/definitions";
+import {DatasetProps, PlotConfigProps} from "../../app/lib/definitions";
 import LoadingSpinner from "../loading-spinner";
 import {getSpecForConfig} from "./spec";
 import {useDataset} from "../../hooks/contents";
@@ -8,9 +8,11 @@ import {useEffect, useRef} from "react";
 import {View} from "vega";
 
 
-export const VisualizationOnEditor = ({config, setCurrentView}: {
-    config: PlotConfigProps, setCurrentView: (v: View) => void}) => {
-    const {dataset} = useDataset(config.dataset.uri)
+export const VisualizationOnEditor = ({config, setCurrentView, dataset}: {
+    config: PlotConfigProps
+    setCurrentView: (v: View) => void
+    dataset: { data?: any[], dataset?: DatasetProps }
+}) => {
     const chartRef = useRef()
 
     useEffect(() => {
@@ -24,16 +26,13 @@ export const VisualizationOnEditor = ({config, setCurrentView}: {
         };
 
         if(dataset && dataset.data){
+            console.log("rendering chart")
             renderChart()
         }
     },[config, dataset])
 
-    if(!dataset) return <LoadingSpinner/>
+    if(!dataset || !dataset.data) return <LoadingSpinner/>
 
 
-    return (
-        <div className={"flex justify-center"}>
-            <div ref={chartRef}/>
-        </div>
-    );
+    return <div className="h-full flex items-center justify-center" ref={chartRef}/>
 }

@@ -7,7 +7,7 @@ import { SmallUserProps, UserProps } from "../app/lib/definitions";
 import {getRkeyFromUri, supportDid, validSubscription} from "../components/utils";
 import { getSubscriptionPrice } from "./payments";
 import { getSessionAgent } from "./auth";
-import { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 
 export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
@@ -727,11 +727,16 @@ export const getDonationsDistribution = unstable_cache(async () => {
 )
 
 
-export async function searchATProtoUsers(q: string){
-    const {agent} = await getSessionAgent()
+export async function searchATProtoUsers(q: string): Promise<{users?: ProfileView[], error?: string}> {
+    try {
+        const {agent} = await getSessionAgent()
 
-    const {data} = await agent.searchActors({
-        q
-    })
-    return data.actors
+        const {data} = await agent.searchActors({
+            q
+        })
+        return {users: data.actors}
+    } catch (error) {
+        console.log(error)
+        return {error: "Ocurrió un error en la búsqueda de usuarios de Bluesky."}
+    }
 }
