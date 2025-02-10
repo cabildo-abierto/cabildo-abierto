@@ -72,7 +72,7 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
     }
 
     if(results && results.length == 0){
-        return <div className={"mt-8 text-[var(--text-light)] border-b"}>
+        return <div className={"text-[var(--text-light)] border-b text-center " + (showSearchButton ? "py-4" : "")}>
             No se encontraron resultados
         </div>
     }

@@ -12,8 +12,8 @@ import { EngagementIcons } from './engagement-icons'
 import {RepostedBy} from "./reposted-by";
 
 
-const ReplyVerticalLine = ({className=""}: {className?: string}) => {
-    return <div className={"w-[2px] bg-[var(--accent)] " + className}></div>
+export const ReplyVerticalLine = ({className=""}: {className?: string}) => {
+    return <div className={"w-[2px] bg-[var(--accent)] " + className}>{emptyChar}</div>
 }
 
 type FastPostPreviewFrameProps = {
@@ -33,11 +33,11 @@ export const FastPostPreviewFrame = ({
     const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
 
     return <div
-        className={"w-full bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-200 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")}
+        className={"w-full flex flex-col hover:bg-[var(--background-dark)] transition duration-200 ease-in-out cursor-pointer " + (borderBelow ? " border-b" : "")}
         onClick={(e) => {router.push(url)}}>
         {repostedBy && <RepostedBy user={repostedBy}/>}
-        <div className={"flex"}>
-            <div className="w-[80px] flex flex-col items-center h-full pl-2">
+        <div className={"flex h-full items-stretch"}>
+            <div className="w-[79px] flex flex-col items-center pl-2 ">
                 {showingParent ? <ReplyVerticalLine className="h-3"/> : <div className="h-3">{emptyChar}</div>}
                 <Link
                     href={userUrl(record.author.handle)}
@@ -54,7 +54,7 @@ export const FastPostPreviewFrame = ({
                 {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}
             </div>
 
-            <div className="flex w-[520px] flex-col py-3 text-sm pr-2">
+            <div className="flex w-[519px] flex-col py-3 text-sm pr-2">
                 <div className="flex items-center gap-x-1">
                     <span className="truncate">
                         <ContentTopRowAuthor author={record.author} />
@@ -73,5 +73,5 @@ export const FastPostPreviewFrame = ({
                 </div>
             </div>
         </div>
-    </div>   
+    </div>
 }
