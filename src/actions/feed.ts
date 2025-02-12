@@ -33,44 +33,78 @@ function addCountersToFeed(feed: any[], did: string): FeedContentProps[]{
 }
 
 
-export async function getFeed({onlyFollowing, reposts=true}: {onlyFollowing: boolean, reposts?: boolean}): Promise<{feed?: FeedContentProps[], error?: string}>{
-    try {
-        const {agent, did} = await getSessionAgent()
-
-        let authors = undefined
-        if(onlyFollowing) {
-            const {data: following} = await agent.getFollows({actor: did})
-            authors = {
-                in: [...following.follows.map(({did}) => (did)), did]
+export async function getFollowingInCA(did: string): Promise<string[]>{
+    return (await db.record.findMany({
+        select: {
+            follow: {
+                select: {
+                    userFollowedId: true
+                }
             }
+        },
+        where: {
+            collection: "app.bsky.graph.follow",
+            authorId: did,
+            follow: {
+                userFollowed: {
+                    inCA: true
+                }
+            }
+        }
+    })).map(({follow}) => (follow.userFollowedId));
+}
+
+
+export async function getFeed({onlyFollowing, did, reposts=true}: {onlyFollowing: boolean, did: string, reposts?: boolean}): Promise<{feed?: FeedContentProps[], error?: string}>{
+    try {
+
+        const authorCond = onlyFollowing ? {
+            author: {
+                OR: [
+                    {
+                    followers: {
+                        some: {
+                            record: {
+                                authorId: did
+                            }
+                        }
+                    }
+                    },
+                    {
+                        did: did
+                    }
+                ]
+            }
+        } : {}
+
+        const cond = {
+            ...authorCond,
+            OR: [
+                {
+                    AND: [
+                        {
+                            content: {
+                                post: {
+                                    replyToId: null
+                                }
+                            }
+                        },
+                        {
+                            collection: "app.bsky.feed.post"
+                        }
+                    ]
+                },
+                {
+                    collection: {
+                        in: ["ar.com.cabildoabierto.article", ...(reposts ? ["app.bsky.feed.repost"] : [])]
+                    }
+                }
+            ],
         }
 
         let feed = await db.record.findMany({
             select: feedQueryWithReposts,
-            where: {
-                authorId: authors,
-                OR: [
-                    {
-                        AND: [
-                            {
-                                content: {
-                                    post: {
-                                        replyToId: null
-                                    }
-                                }
-                            },
-                            {
-                                collection: "app.bsky.feed.post"
-                            }
-                        ]
-                    },
-                    {
-                        collection: {
-                            in: ["ar.com.cabildoabierto.article", ...(reposts ? ["app.bsky.feed.repost"] : [])]
-                        }
-                    }
-                ],
-            },
+            where: cond,
             orderBy: {
                 createdAt: "desc"
             }
@@ -181,58 +215,40 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
 
 
 export async function getFollowingFeed(){
-    const feedCA = await getFeed({onlyFollowing: true, reposts: true})
-    if(feedCA.error) return feedCA
-
     const {agent, did} = await getSessionAgent()
+
     if(!did){
         return {error: "No nos pudimos conectar con Bluesky."}
     }
 
-    let feedBsky: FeedViewPost[]
-    try {
-        const {data} = await agent.getTimeline()
+    const feedCAPromise = getFeed({onlyFollowing: true, did, reposts: true})
+    const timelinePromise = agent.getTimeline()
 
-        feedBsky = data.feed
-    } catch (e) {
-        console.log(e)
-        return {error: "No pudimos obtener tu timeline. Falló la conexión con Bluesky."}
-    }
+    const [feedCA, {data}] = await Promise.all([feedCAPromise, timelinePromise])
 
-    const usersCA = await getUsers()
-    if(usersCA.error) return {error: usersCA.error}
+    const feedBsky = data.feed
 
-    const didsCA = new Set(usersCA.users.map((u) => (u.did)))
-
-    const feedBskyOnly = []
-    for(let i = 0; i < feedBsky.length; i++){
-        const did = feedBsky[i].post.author.did
-        if(!didsCA.has(did)){
-            if(!feedBsky[i].reply){
-                feedBskyOnly.push(feedBsky[i])
-            }
-        }
-    }
+    let feed: FeedContentProps[] = feedBsky.map(formatBskyFeedElement)
 
     function cmp(a: FeedContentProps, b: FeedContentProps) {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     }
 
-    try {
-        const feedBskyWithCAFormat: FeedContentProps[] = feedBskyOnly.map(formatBskyFeedElement)
-
-        const fullFeed = [...feedBskyWithCAFormat, ...feedCA.feed]
-
-        return {feed: fullFeed.sort(cmp)}
-    } catch (e) {
-        console.log(e)
-        return {error: "Ocurrió un error al leer tu timeline."}
+    for(let i = 0; i < feedCA.feed.length; i++){
+        if(feedCA.feed[i].collection != "app.bsky.feed.post"){
+            feed.push(feedCA.feed[i])
+        }
     }
+
+    const sorted = feed.sort(cmp)
+
+    return {feed: sorted}
 }
 
 
 export async function getSearchableContents(){
-    return getFeed({onlyFollowing: false, reposts: false}) // también debería incluir las respuestas
+    const {did} = await getSessionAgent()
+    return getFeed({onlyFollowing: false, did: did, reposts: false}) // también debería incluir las respuestas
 }
 
 
@@ -316,8 +332,8 @@ export async function getProfileFeed(userId: string, kind: "main" | "replies" | 
 
 
 export async function getEnDiscusion(): Promise<{feed?: FeedContentPropsNoRepost[], error?: string}> {
-
-    const feed = await getFeed({onlyFollowing: false, reposts: false})
+    const {did} = await getSessionAgent()
+    const feed = await getFeed({onlyFollowing: false, did: did, reposts: false})
 
     if(feed.error){
         return {error: feed.error}
