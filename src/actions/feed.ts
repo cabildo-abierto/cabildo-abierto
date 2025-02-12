@@ -119,7 +119,7 @@ function formatBskyPostViewAsFeedElement(e: PostView | NotFoundPost | BlockedPos
 
 
 function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
-    const record = e.post.record as {text: string, createdAt: string, $type: string, embed?: string, reply?: {parent: ATProtoStrongRef, root?: ATProtoStrongRef}}
+    const record = e.post.record as {text: string, createdAt: string, $type: string, embed?: string, facets?: any, reply?: {parent: ATProtoStrongRef, root?: ATProtoStrongRef}}
     const replyTo = e.reply && e.reply.parent ? formatBskyPostViewAsFeedElement(e.reply.parent) : (record.reply ? record.reply.parent : undefined)
     const root = e.reply && e.reply.root ? formatBskyPostViewAsFeedElement(e.reply.root) : (record.reply && record.reply.root ? record.reply.root : replyTo)
     const grandparentAuthor = e.reply ? e.reply.grandparentAuthor : undefined
@@ -144,6 +144,7 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
             replyTo,
             root,
             grandparentAuthor,
+            facets: record.facets ? JSON.stringify(record.facets) : undefined,
             embed: record.embed ? JSON.stringify(record.embed) : undefined
         }
     }

@@ -28,7 +28,7 @@ function validQuotePointer(indexes: number[], node: any){
 export function validQuotePost(content: {text?: string, format?: string}, r: FastPostProps){
     if(!content.text) return false
     if(content.format == "markdown") return false // TO DO
-    console.log("validating quote", content, r)
+
     try {
 
         const quote: QuoteDirProps = JSON.parse(r.content.post.quote)
@@ -54,8 +54,8 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
 
     useEffect(() => {
         if(thread.post.collection == "ar.com.cabildoabierto.article"){
-            if(layoutConfig.distractionFree == false){
-                setLayoutConfig({distractionFree: true, ...layoutConfig})
+            if(!layoutConfig.distractionFree){
+                setLayoutConfig({...layoutConfig, distractionFree: true, maxWidthCenter: "800px"})
             }
         }
     }, [])
@@ -72,8 +72,8 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
     }
 
     return <div>
-        {thread.post.collection == "app.bsky.feed.post" && <FastPost
-            content={thread.post as FastPostProps}
+        {(thread.post.collection == "app.bsky.feed.post" || thread.post.collection == "ar.com.cabildoabierto.quotePost") && <FastPost
+            post={thread.post as FastPostProps}
         />}
         {thread.post.collection == "ar.com.cabildoabierto.article" && <Article
             content={thread.post as ArticleProps}

@@ -11,6 +11,7 @@ import { ReactNode } from 'react'
 import { EngagementIcons } from './engagement-icons'
 import {ContentOptions} from "../content-options/content-options";
 import {useUser} from "../../hooks/user";
+import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 
 
 const ReplyVerticalLine = ({className=""}: {className?: string}) => {
@@ -31,7 +32,16 @@ export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, sho
     const record = post
     const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
 
-    return <div className={"w-64 rounded border bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")} onClick={() => {router.push(url)}}>
+    return <div
+        className={"w-64 rounded border bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")}
+        onClick={() => {
+            const element = document.getElementById(post.uri)
+            smoothScrollTo(element)
+            element.classList.add('hover-effect'); // Add hover effect
+            setTimeout(() => {
+                element.classList.remove('hover-effect'); // Remove after 1 second
+            }, 1000);
+        }}>
 
         {/*content.collection == "app.bsky.feed.repost" && <RepostedBy reason={content.reason}/>*/}
 
@@ -65,7 +75,7 @@ export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, sho
                 </div>
 
                 <div className={"mt-1"}>
-                    <EngagementIcons counters={post} record={post} className={"space-x-5"}/>
+                    <EngagementIcons counters={post} record={post} className={"space-x-2"}/>
                 </div>
             </div>
         </div>

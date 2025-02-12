@@ -24,8 +24,8 @@ export const TrendingTopics = ({route, selected}: {route: string[], selected: st
         return <LoadingSpinner />
     }
 
-    return <div className="border rounded p-4 w-full space-y-4">
-        <div className="flex justify-between space-x-4 items-center">
+    return <div className="border rounded py-4 w-full space-y-4">
+        <div className="flex justify-between space-x-4 px-4 items-center">
             <Link className={"text-sm text-[var(--text-light)]"} href={"/temas"}>
                 Temas
             </Link>
@@ -38,22 +38,17 @@ export const TrendingTopics = ({route, selected}: {route: string[], selected: st
 
 export const TrendingArticlesSlider = ({trendingArticles}: {
     trendingArticles: TrendingTopicProps[]}) => {
-    const ref =
-    useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
-    const { events } = useDraggable(ref);
     const [hovering, setHovering] = useState<number>(undefined)
 
     return (
     <div
-        className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar max-h-[350px] px-2"
-        {...events}
-        ref={ref} // add reference and events to the wrapping div
+        className="flex flex-col overflow-y-scroll max-h-[350px] no-scrollbar space-y-3"
     >
         {trendingArticles.map((topic, index) => {
 
             const title = getTopicTitle(topic)
             return <Link href={articleUrl(topic.id)} draggable={false}
-                className="flex flex-col justify-between rounded text-center sm:text-sm text-xs text-[0.72rem] border hover:bg-[var(--background-dark)] select-none"
+                className="flex flex-col justify-between border rounded mx-4 text-center sm:text-sm text-xs text-[0.72rem]"
                 key={topic.id}
                 onMouseLeave={() => {setHovering(undefined)}}
                 onMouseEnter={() => {/*preload("/api/entity/"+entity.id, fetcher);*/ setHovering(index)}}
@@ -65,12 +60,14 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                         textTransform: "none",
                         display: "flex",
                         flexDirection: "column",
-                        justifyContent: "space-between",
-                        height: "100%"
+                        justifyContent: "center",
+                        height: "100%",
+                        minHeight: "64px",
+                        borderRadius: "0",
                     }}
                 >
-                    <div className="flex items-center justify-center px-2 w-28 sm:w-48 title h-full">
-                        <span className={"overflow-hidden" + (hovering ? "line-clamp-none" : "line-clamp-2")}>
+                    <div className="flex items-center justify-center px-2 font-bold">
+                        <span className={"overflow-hidden " + (hovering == index ? "line-clamp-none" : "line-clamp-2")}>
                             {title}
                         </span>
                     </div>

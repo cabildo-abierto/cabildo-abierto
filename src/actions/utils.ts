@@ -229,6 +229,147 @@ export const feedQuery = {
     }
 }
 
+export const basicUserQuery = {
+    select: {
+        did: true,
+        handle: true,
+        displayName: true,
+        avatar: true,
+        inCA: true
+    }
+}
+
+export const threadQuery = {
+    cid: true,
+    uri: true,
+    collection: true,
+    createdAt: true,
+    author: basicUserQuery,
+    content: {
+        select: {
+            text: true,
+            article: {
+                select: {
+                    title: true
+                }
+            },
+            post: {
+                select: {
+                    facets: true,
+                    embed: true,
+                    replyTo: {
+                        select: {
+                            uri: true,
+                            cid: true,
+                            author: basicUserQuery,
+                            content: {
+                                select: {
+                                    article: {
+                                        select: {
+                                            title: true
+                                        }
+                                    },
+                                    topicVersion: {
+                                        select: {
+                                            topic: {
+                                                select: {
+                                                    id: true,
+                                                    versions: {
+                                                        select: {
+                                                            title: true
+                                                        },
+                                                        orderBy: {
+                                                            content: {
+                                                                record: {
+                                                                    createdAt: "asc" as SortOrder
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    root: {
+                        select: {
+                            uri: true,
+                            cid: true
+                        }
+                    },
+                    quote: true
+                }
+            },
+            topicVersion: {
+                select: {
+                    topic: {
+                        select: {
+                            id: true,
+                            versions: {
+                                select: {
+                                    uri: true
+                                },
+                                orderBy: {
+                                    content: {
+                                        record: {
+                                            createdAt: "asc" as SortOrder
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    categories: true,
+                    synonyms: true,
+                    charsAdded: true,
+                    charsDeleted: true
+                }
+            }
+        },
+    },
+    visualization: visualizationQuery,
+    dataset: datasetQuery,
+    reactions: {
+        select: {
+            record: {
+                select: {
+                    uri: true,
+                    collection: true,
+                    authorId: true
+                }
+            }
+        }
+    },
+    _count: {
+        select: {
+            replies: true,
+        }
+    },
+    views: {
+        select: {
+            createdAt: true,
+            userById: true
+        }
+    },
+    replies: {
+        select: {
+            content: {
+                select: {
+                    record: {
+                        select: {
+                            createdAt: true,
+                            authorId: true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 export const feedQueryWithReposts = {
     ...feedQuery,

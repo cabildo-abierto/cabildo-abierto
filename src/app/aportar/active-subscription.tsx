@@ -16,6 +16,7 @@ import { ArrowRightIcon } from '../../components/icons/arrow-right-icon';
 import { DonateIcon } from '../../components/icons/donate-icon';
 import { ExpandLessIcon } from '../../components/icons/expand-less-icon';
 import { ExpandMoreIcon } from '../../components/icons/expand-more-icon';
+import { BasicButton } from '../../components/ui-utils/basic-button';
 
 
 const HowUsed = () => {
@@ -116,11 +117,17 @@ function DonationPage() {
         }
     }
 
-    const donationInput = <div className="mt-8">
+    const donationInput = <div className="mt-8 flex flex-col items-center">
+        <h1>
+            Aportar
+        </h1>
+        <div className={"text-center text-lg"}>
+            Comprá tu suscripción o doná para hacer crecer Cabildo Abierto
+        </div>
         {choice == "none" && <div className="flex justify-center">
             <div className="flex flex-col justify-center items-center">
-                <div className="flex items-center flex-col bg-[var(--secondary-light)] p-4 rounded-lg  mt-4">
-                    <div className="text-center text-[var(--text-light)] mb-2 title">
+                <div className="flex items-center flex-col bg-[var(--secondary-light)] p-4 rounded-lg  mt-12">
+                    <div className="text-center text-[var(--text-light)] mb-2 font-bold">
                         Estado de financiamiento
                     </div>
                     <div className="w-full px-6">
@@ -135,12 +142,12 @@ function DonationPage() {
                 {user && <DonatedSoFar user={user} donationsDistribution={donationsDistribution}/>}
             </div>
         </div>}
-        {choice == "aportar" && <div className="flex justify-center mt-8">
+        {choice == "aportar" && <div className="flex justify-center mt-24">
             <div className="w-72 lg:w-96">
                 <div className="flex justify-center">
                     <div className="flex flex-col items-center">
                         <div className="flex flex-col items-center">
-                            <label htmlFor="integer-input" className="mb-2 text-gray-700 text-sm sm:text-base">
+                            <label htmlFor="integer-input" className="mb-2 text-[var(--text-light)] text-sm sm:text-base">
                                 Elegí una cantidad
                             </label>
                             <IntegerInputPlusMinus value={amount} onChange={handleAmountChange}/>
@@ -157,11 +164,12 @@ function DonationPage() {
                 </div>}
                 
                 <div className="flex justify-center space-x-4 mt-12">
-                    <StateButton
-                        text1="Continuar"
+                    <BasicButton
                         disabled={!validAmount}
-                        handleClick={onUniqueChosen}
-                    />
+                        onClick={onUniqueChosen}
+                    >
+                        Continuar
+                    </BasicButton>
                     <BackButton onClick={() => {setChoice("none")}}/>
                 </div>
             </div>

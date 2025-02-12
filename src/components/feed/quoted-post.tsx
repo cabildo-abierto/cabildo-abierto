@@ -4,14 +4,12 @@ import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {ContentTopRowAuthor} from "../content-top-row-author";
 import Image from 'next/image'
 import {DateSince} from "../date";
-import {contentUrl, getDidFromUri, splitUri} from "../utils";
+import {contentUrl} from "../utils";
 import {FastPostImage} from "./fast-post-image";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import LoadingSpinner from "../loading-spinner";
-import {getSessionAgent} from "../../actions/auth";
 import {getBskyFastPost} from "../../actions/contents";
-import {ContentQuote} from "./content-quote";
 import {FastPostVideo} from "./fast-post-video";
 import {PlotInPost} from "./plot-in-post";
 import {ExternalEmbedInPost} from "./external-embed-in-post";

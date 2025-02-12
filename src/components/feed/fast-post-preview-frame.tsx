@@ -33,6 +33,7 @@ export const FastPostPreviewFrame = ({
     const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
 
     return <div
+        id={post.uri}
         className={"w-full flex flex-col hover:bg-[var(--background-dark)] transition duration-200 ease-in-out cursor-pointer " + (borderBelow ? " border-b" : "")}
         onClick={(e) => {router.push(url)}}>
         {repostedBy && <RepostedBy user={repostedBy}/>}
@@ -54,8 +55,8 @@ export const FastPostPreviewFrame = ({
                 {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}
             </div>
 
-            <div className="flex w-[519px] flex-col py-3 text-sm pr-2">
-                <div className="flex items-center gap-x-1">
+            <div className="flex w-[519px] flex-col py-3 pr-2">
+                <div className="flex items-center gap-x-1 text-sm">
                     <span className="truncate">
                         <ContentTopRowAuthor author={record.author} />
                     </span>
@@ -68,7 +69,7 @@ export const FastPostPreviewFrame = ({
                     {children}
                 </div>
 
-                <div className={"mt-1"}>
+                <div className={"mt-1 text-sm"}>
                     <EngagementIcons counters={post} record={post}/>
                 </div>
             </div>

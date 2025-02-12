@@ -20,6 +20,9 @@ const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
 
     return <>
         {center}
+        <div style={{display: "none"}}>
+            <ReadOnlyEditor initialData={""}/>
+        </div>
     </>
 }
 

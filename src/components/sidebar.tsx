@@ -149,10 +149,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                        selected={pathname == userUrl(user.user.handle)}
                        showText={showText} setShowText={setShowText}
         />}
-        <SidebarButton icon={<DonateIcon fontSize="medium"/>} onClick={onClose} text="Aportar"
-                       href="/aportar"
-                       showText={showText} setShowText={setShowText}
-        />
         <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Remuneración" href="/panel"
                selected={pathname.startsWith("/panel")}
                        showText={showText} setShowText={setShowText}

@@ -281,6 +281,7 @@ export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
                 id: string
                 versions: {
                     uri: string
+                    title: string
                 }[]
             }
             message?: string

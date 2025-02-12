@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import StateButton, { StateButtonClickHandler } from "../state-button"
 import { EditorState, LexicalEditor } from "lexical"
 import {charCount, validPost} from "../utils"
-import { useRouter } from "next/navigation"
+import {usePathname, useRouter} from "next/navigation"
 import { TitleInput } from "./title-input"
 import { useSWRConfig } from "swr"
 import { useUser } from "../../hooks/user"
@@ -124,7 +124,7 @@ const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}
     return <StateButton
         handleClick={handleSubmit}
         text1={isPublished ? "Guardar cambios" : "Publicar"}
-        textClassName="title whitespace-nowrap px-2"
+        textClassName="whitespace-nowrap px-2"
         disabled={disabled}
         size="medium"
         disableElevation={true}
@@ -142,6 +142,7 @@ const PostEditor = ({
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const router = useRouter()
+    const path = usePathname()
     const {user} = useUser()
     const {mutate} = useSWRConfig()
     const [errorOnSubmit, setErrorOnSubmit] = useState(false)

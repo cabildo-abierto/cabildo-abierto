@@ -11,13 +11,14 @@ import {getDidFromUri, getRkeyFromUri} from "../components/utils";
 
 
 export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/user-stats', fetcher)
+    return {stats: {} as UserStats, isLoading: false, isError: true}
+    /*const { data, error, isLoading } = useSWR('/api/user-stats', fetcher)
   
     return {
         stats: data,
         isLoading,
         isError: error
-    }
+    }*/
 }
 
 

@@ -3,7 +3,7 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
-import { SmallUserProps, UserProps } from "../app/lib/definitions";
+import {SmallUserProps, UserProps, UserStats} from "../app/lib/definitions";
 import {getRkeyFromUri, supportDid, validSubscription} from "../components/utils";
 import { getSubscriptionPrice } from "./payments";
 import { getSessionAgent } from "./auth";
@@ -739,4 +739,22 @@ export async function searchATProtoUsers(q: string): Promise<{users?: ProfileVie
         console.log(error)
         return {error: "Ocurrió un error en la búsqueda de usuarios de Bluesky."}
     }
+}
+
+
+export async function getUserStats(): Promise<{stats?: UserStats, error?: string}>{
+    const stats = {
+        posts: 0,
+        entityEdits: 0,
+        editedEntities: 0,
+        reactionsInPosts: 0,
+        reactionsInEntities: 0,
+        income: 0,
+        pendingConfirmationIncome: 0,
+        pendingPayIncome: 0,
+        entityAddedChars: 0,
+        viewsInPosts: 0,
+        viewsInEntities: 0
+    }
+    return {stats}
 }

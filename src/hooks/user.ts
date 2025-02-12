@@ -40,13 +40,14 @@ export function useBskyUser(): {bskyUser: ProfileViewDetailed, isLoading?: boole
 
 
 export function useUserContents(userId: string): {userContents: {id: string, type: string, parentEntityId: string}[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/userContents/'+userId, fetcher)
+    return {userContents: [], isError: true, isLoading: false}
+    /*const { data, error, isLoading } = useSWR('/api/user-contents/'+userId, fetcher)
   
     return {
         userContents: data ? data : undefined,
         isLoading: isLoading,
         isError: error
-    }
+    }*/
 }
 
 
