@@ -183,14 +183,21 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
 export async function getFollowingFeed(){
     const feedCA = await getFeed({onlyFollowing: true, reposts: true})
     if(feedCA.error) return feedCA
+
     const {agent, did} = await getSessionAgent()
     if(!did){
-        return feedCA
+        return {error: "No nos pudimos conectar con Bluesky."}
     }
 
-    const {data} = await agent.getTimeline()
+    let feedBsky: FeedViewPost[]
+    try {
+        const {data} = await agent.getTimeline()
 
-    const feedBsky = data.feed
+        feedBsky = data.feed
+    } catch (e) {
+        console.log(e)
+        return {error: "No pudimos obtener tu timeline. Falló la conexión con Bluesky."}
+    }
 
     const usersCA = await getUsers()
     if(usersCA.error) return {error: usersCA.error}
@@ -207,15 +214,20 @@ export async function getFollowingFeed(){
         }
     }
 
-    const feedBskyWithCAFormat: FeedContentProps[] = feedBskyOnly.map(formatBskyFeedElement)
-
-    const fullFeed = [...feedBskyWithCAFormat, ...feedCA.feed]
-
     function cmp(a: FeedContentProps, b: FeedContentProps) {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     }
 
-    return {feed: fullFeed.sort(cmp)}
+    try {
+        const feedBskyWithCAFormat: FeedContentProps[] = feedBskyOnly.map(formatBskyFeedElement)
+
+        const fullFeed = [...feedBskyWithCAFormat, ...feedCA.feed]
+
+        return {feed: fullFeed.sort(cmp)}
+    } catch (e) {
+        console.log(e)
+        return {error: "Ocurrió un error al leer tu timeline."}
+    }
 }
 
 
@@ -234,6 +246,9 @@ function validFeedElement(e, kind){
         }
         if(e.reaction.reactsTo.collection == "app.bsky.feed.post"){
             return e.reaction.reactsTo.content != undefined
+        }
+        if(e.reaction.reactsTo.author.did == e.author.did){
+            return false
         }
         return true
     }
@@ -261,7 +276,7 @@ export async function getProfileFeed(userId: string, kind: "main" | "replies" | 
         } else if(kind == "replies"){
             collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "ar.com.cabildoabierto.quotePost", "app.bsky.feed.repost"]
         } else if(kind == "edits"){
-            collections = ["ar.com.cabildoabierto.topic", "app.bsky.feed.repost"]
+            collections = ["ar.com.cabildoabierto.topic"]
         }
 
         try {

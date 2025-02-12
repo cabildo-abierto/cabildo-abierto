@@ -34,5 +34,5 @@ export const DataSearchResults = () => {
 
     joined = joined.sort((a, b) => (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()))
 
-    return <Feed feed={{feed: joined, isLoading: false, isError: false}}/>
+    return <Feed feed={{feed: joined, isLoading: false, error: undefined}}/>
 }

@@ -33,14 +33,18 @@ export function useSearchableContents(): {feed: FeedContentProps[], isLoading: b
 }
 
 
-export function useFeed(route: string[], feed: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
+export function useFeed(route: string[], feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
 
-    const { data, error, isLoading } = useSWR('/api/feed/'+[...route, feed].join("/"), fetcher)
-    
+    const { data, isLoading } = useSWR('/api/feed/'+[...route, feed].join("/"), fetcher)
+
+    if(data && data.error){
+        return {feed: undefined, isLoading: false, error: data.error}
+    }
+
     return {
-        feed: data,
+        feed: data && data.feed ? data.feed : undefined,
         isLoading,
-        isError: error
+        error: data && data.error ? data.error : undefined
     }
 }
 
@@ -77,13 +81,17 @@ export function useTopicVersion(id: string): {topic: TopicVersionProps, error?: 
 }
 
 
-export function useTopicFeed(id: string): {feed: FeedContentProps[], error?: string, isLoading: boolean, isError: boolean}{
+export function useTopicFeed(id: string): {feed: FeedContentProps[], error: string, isLoading: boolean}{
     const { data, error, isLoading } = useSWR('/api/topic-feed/'+encodeURIComponent(id), fetcher)
 
+    if(data && data.error){
+        return {feed: undefined, isLoading: false, error: data.error}
+    }
+
     return {
-        feed: data,
+        feed: data && data.feed ? data.feed : undefined,
         isLoading,
-        isError: error
+        error: data && data.error ? data.error : undefined
     }
 }
 
@@ -145,13 +153,17 @@ export function useTrendingTopics(route: string[], kind: string): {topics: Trend
 }
 
 
-export function useProfileFeed(id: string, kind: string): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
+export function useProfileFeed(id: string, kind: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
     const { data, error, isLoading } = useSWR('/api/profile-feed/'+id+"/"+kind, fetcher)
-  
+
+    if(data && data.error){
+        return {feed: undefined, isLoading: false, error: data.error}
+    }
+
     return {
-        feed: data,
+        feed: data && data.feed ? data.feed : undefined,
         isLoading,
-        isError: error
+        error: data && data.error ? data.error : undefined
     }
 }
 

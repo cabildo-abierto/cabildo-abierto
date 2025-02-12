@@ -10,11 +10,10 @@ export async function GET(req: NextRequest,
 
     let feed
     if(kind == "InDiscussion"){
-        feed = (await getEnDiscusion()).feed
+        feed = await getEnDiscusion()
     } else if(kind == "Following"){
-        feed = (await getFollowingFeed()).feed
+        feed = await getFollowingFeed()
     }
 
-
-    return NextResponse.json(feed == undefined ? null : feed)
+    return NextResponse.json(feed)
 }

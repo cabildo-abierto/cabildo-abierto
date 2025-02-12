@@ -7,9 +7,9 @@
  */
 
 import {
-  $nodesOfType,
-  LexicalCommand,
-  NodeKey
+    $nodesOfType, $setSelection,
+    LexicalCommand,
+    NodeKey
 } from 'lexical';
 
 import './index.css';
@@ -111,7 +111,6 @@ export default function CommentPlugin({
         editor.registerUpdateListener(({editorState, tags}) => {
           editorState.read(() => {
             const selection = $getSelection();
-            let hasActiveIds = false;
             let hasAnchorKey = false;
 
             if ($isRangeSelection(selection)) {
@@ -152,10 +151,13 @@ export default function CommentPlugin({
       const selection = $getSelection();
       // Restore selection
       if (selection !== null) {
-        selection.dirty = true;
+        selection.dirty = true
       }
+      $setSelection(null)
     });
-    setShowCommentInput(false);
+    setActiveAnchorKey(null)
+    window.getSelection().removeAllRanges()
+    setShowCommentInput(false)
   }, [editor])
 
   const onAddComment = () => {
