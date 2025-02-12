@@ -4,7 +4,7 @@ import {SetProtectionButton} from "../protection-button";
 import {EntityCategories} from "../categories";
 import {getTopicTitle} from "./utils";
 import {EditHistory} from "../edit-history";
-import {FastPostProps, TopicProps} from "../../app/lib/definitions";
+import {FastPostProps, TopicProps, TopicVersionProps} from "../../app/lib/definitions";
 import { useUser } from "../../hooks/user";
 import {ToggleButton} from "../toggle-button";
 import {wikiEditorSettings} from "../editor/wiki-editor";
@@ -23,9 +23,21 @@ import dynamic from "next/dynamic";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {CloseButton} from "../ui-utils/close-button";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
+import {ReplyToContent} from "../editor/plugins/CommentPlugin";
 const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
 
 export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:px-2 py-1"
+
+
+function topicVersionPropsToReplyToContent(topicVersion: TopicVersionProps): ReplyToContent {
+    return {
+        uri: topicVersion.uri,
+        cid: topicVersion.content.record.cid,
+        collection: "ar.com.cabildoabierto.topic",
+        author: topicVersion.content.record.author,
+        content: topicVersion.content
+    }
+}
 
 
 export const TopicContent = ({
@@ -242,7 +254,7 @@ export const TopicContent = ({
                     <MyLexicalEditor
                         settings={wikiEditorSettings(
                             selectedPanel != "editing",
-                            content.content.record,
+                            topicVersionPropsToReplyToContent(content),
                             content.content.text,
                             content.content.format,
                             viewingContent,

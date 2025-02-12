@@ -7,6 +7,7 @@ import { SettingsProps } from "./lexical-editor"
 import dynamic from "next/dynamic";
 import { EditorState, LexicalEditor } from "lexical";
 import {FastPostProps} from "../../app/lib/definitions";
+import {ReplyToContent} from "./plugins/CommentPlugin";
 
 const MyLexicalEditor = dynamic(() => import('./lexical-editor'), {
     ssr: false,
@@ -25,7 +26,7 @@ const ReadOnlyEditor = ({
     initialData: InitialEditorStateType
     allowTextComments?: boolean
     editorClassName?: string
-    content?: {cid: string, uri: string}
+    content?: ReplyToContent
     quoteReplies?: FastPostProps[]
     pinnedReplies?: string[]
     setPinnedReplies?: (v: string[]) => void

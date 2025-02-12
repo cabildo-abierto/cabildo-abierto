@@ -82,8 +82,8 @@ export const ShowArticleAuthors = ({
     topic: TopicProps,
     version: number
 }) => {
-
-    if(topic.versions[version].diff == undefined){
+    return <></>
+    /*if(topic.versions[version].diff == undefined){
         return <div className={"text-[var(--text-light)] text-center mt-4"}>
             Todavía no se calcularon las contribuciones.
         </div>
@@ -110,5 +110,5 @@ export const ShowArticleAuthors = ({
                 setEditorState={() => {}}
             />
         </div>
-    </>
+    </>*/
 }

@@ -80,8 +80,10 @@ type ShowArticleChangesProps = {
 
 
 export const ShowArticleChanges = ({
-    originalContent, originalContentText, entity, version}: ShowArticleChangesProps) => {
-    const changesContent = entity.versions[version-1]
+    originalContent, originalContentText, entity, version
+}: ShowArticleChangesProps) => {
+    return <></>
+    /*const changesContent = entity.versions[version-1]
 
     if(!originalContent.diff){
         return <div className={"text-[var(--text-light)] text-center"}>Todavía no se calcularon los cambios.</div>
@@ -106,5 +108,5 @@ export const ShowArticleChanges = ({
             setEditorState={() => {}}
         />
         </div>
-    </>
+    </>*/
 }

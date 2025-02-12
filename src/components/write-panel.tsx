@@ -30,6 +30,8 @@ import {createTopic} from "../actions/topics";
 import {articleUrl, emptyChar} from "./utils";
 import Link from "next/link";
 import {BasicButton} from "./ui-utils/basic-button";
+import {ReplyToContent} from "./editor/plugins/CommentPlugin";
+import {ContentQuote} from "./feed/content-quote";
 
 const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
     ssr: false,
@@ -57,7 +59,7 @@ function replyFromParentElement(replyTo: FeedContentProps): FastPostReplyProps {
                 root: {...parent}
             }
         }
-    } else if(["ar.com.cabildoabierto.article", "ar.com.cabildoabierto.visualization", "ar.com.cabildoabierto.dataset"].includes(replyTo.collection)){
+    } else if(["ar.com.cabildoabierto.article", "ar.com.cabildoabierto.visualization", "ar.com.cabildoabierto.dataset", "ar.com.cabildoabierto.topic"].includes(replyTo.collection)){
         const parent = {
             uri: replyTo.uri,
             cid: replyTo.cid
@@ -69,26 +71,6 @@ function replyFromParentElement(replyTo: FeedContentProps): FastPostReplyProps {
     } else {
         throw Error("Not implemented.")
     }
-}
-
-
-function replyFromParentTopic(replyToTopic: TopicVersionProps): FastPostReplyProps {
-    const parent = {
-        uri: replyToTopic.content.record.uri,
-        cid: replyToTopic.content.record.cid
-    }
-    return {
-        parent,
-        root: parent
-    }
-}
-
-
-type WritePanelProps = {
-    replyTo?: FeedContentProps
-    replyToTopic?: TopicVersionProps
-    open: boolean
-    onClose: () => void
 }
 
 
@@ -186,10 +168,9 @@ const CreateTopic = ({onClose}: {onClose: () => void}) => {
 }
 
 
-const WriteFastPost = ({replyTo, onClose, replyToTopic}: {
-    replyTo: FeedContentProps,
-    onClose: () => void,
-    replyToTopic: TopicVersionProps}) => {
+const WriteFastPost = ({replyTo, onClose}: {
+    replyTo: ReplyToContent,
+    onClose: () => void}) => {
     const {user} = useUser()
     const [editorKey, setEditorKey] = useState(0)
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
@@ -204,9 +185,18 @@ const WriteFastPost = ({replyTo, onClose, replyToTopic}: {
 
     let disabled = !valid
 
-    const isReply = replyTo != undefined || replyToTopic != undefined
+    const isReply = replyTo != undefined
 
-    const placeholder = !isReply ? "¿Qué está pasando?" : (replyToTopic == undefined ? "Escribí una respuesta" : "Respondé al tema " + replyToTopic.topicId)
+    let placeholder: string
+    if(!isReply){
+        placeholder = "¿Qué está pasando?"
+    } else if(replyTo.collection == "ar.com.cabildoabierto.post"){
+        placeholder = "Escribí una respuesta"
+    } else if(replyTo.collection == "ar.com.cabildoabierto.article"){
+        placeholder = "Respondé al artículo"
+    } else if(replyTo.collection == "ar.com.cabildoabierto.topic"){
+        placeholder = "Respondé al tema"
+    }
 
     const sendButton = <StateButton
         text1={isReply ? "Responder" : "Publicar"}
@@ -231,7 +221,7 @@ const WriteFastPost = ({replyTo, onClose, replyToTopic}: {
     async function handleSubmit() {
         setErrorOnCreatePost(false)
         if (user) {
-            const reply = replyTo ? replyFromParentElement(replyTo) : (replyToTopic ? replyFromParentTopic(replyToTopic) : undefined)
+            const reply = replyTo ? replyFromParentElement(replyTo) : undefined
             const {error} = await createFastPost({text, reply, visualization});
 
             if (!error) {
@@ -277,23 +267,30 @@ const WriteFastPost = ({replyTo, onClose, replyToTopic}: {
                 {sendButton}
             </div>
         </div>
-
         <InsertVisualizationModal
             open={visualizationModalOpen}
             onClose={() => {setVisualizationModalOpen(false)}}
             setVisualization={setVisualization}
         />
-
     </div>
 }
 
 
-export const WritePanel = ({replyTo, replyToTopic, open, onClose}: WritePanelProps) => {
+type WritePanelProps = {
+    replyTo?: ReplyToContent
+    open: boolean
+    onClose: () => void
+    quote?: string
+}
+
+
+export const WritePanel = ({
+       replyTo, open, onClose, quote}: WritePanelProps) => {
     const {user} = useUser();
     const [selected, setSelected] = useState("Post")
     const router = useRouter()
 
-    const isReply = replyTo != undefined || replyToTopic != undefined
+    const isReply = replyTo != undefined
 
     if (!user) {
         return <NeedAccountPopup open={open} text="Necesitás una cuenta para escribir" onClose={onClose}/>
@@ -332,23 +329,35 @@ export const WritePanel = ({replyTo, replyToTopic, open, onClose}: WritePanelPro
     }
 
     const center = <>
-        <div className="flex justify-between px-1">
-            {isReply ? <div>{emptyChar}</div> : <SelectionComponent
-                onSelection={onSelection}
-                selected={selected}
-                optionsNodes={optionsNodes}
-                options={["Post", "Artículo", "Tema"]}
-                className={"flex space-x-2"}
-            />}
+        <div className="flex justify-between items-start space-x-2 px-1">
+            {isReply ?
+                (replyTo.collection == "ar.com.cabildoabierto.topic" || replyTo.collection == "ar.com.cabildoabierto.article" ?
+                    <div>
+                        <ContentQuote
+                            quotedContent={replyTo}
+                            quote={quote}
+                        />
+                    </div> :
+                    <div>
+                        {emptyChar}
+                    </div>) :
+                <SelectionComponent
+                    onSelection={onSelection}
+                    selected={selected}
+                    optionsNodes={optionsNodes}
+                    options={["Post", "Artículo", "Tema"]}
+                    className={"flex space-x-2"}
+                />
+            }
             <CloseButton size="small" onClose={onClose}/>
         </div>
-        {selected == "Post" && <WriteFastPost onClose={onClose} replyTo={replyTo} replyToTopic={replyToTopic}/>}
+        {selected == "Post" && <WriteFastPost onClose={onClose} replyTo={replyTo}/>}
         {selected == "Tema" && <CreateTopic onClose={onClose}/>}
     </>
 
     return <>
         <BaseFullscreenPopup open={open} className="w-128">
-            <div className="w-full rounded pb-2 pt-1 border">
+            <div className="w-full rounded pb-2 pt-1 border max-h-[80vh] overflow-y-scroll">
                 {center}
             </div>
         </BaseFullscreenPopup>

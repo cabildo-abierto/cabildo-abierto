@@ -28,10 +28,10 @@ import {
 import {useCallback, useEffect, useState} from 'react';
 import {createPortal} from 'react-dom';
 
-import { AddCommentBox } from './AddCommentBox';
-import { CommentInputBox } from './ui';
+import { AddCommentButton } from './add-comment-button';
+import { CommentInputBox } from './comment-input-box';
 
-import {FastPostProps} from "../../../../app/lib/definitions";
+import {FastPostProps, FeedContentProps, SmallUserProps} from "../../../../app/lib/definitions";
 import {QuoteDirProps} from "./show-quote-reply";
 import {$createSidenoteNode, SidenoteNode} from "../../nodes/SidenoteNode";
 import {NodeQuoteReplies} from "./node-quote-replies";
@@ -41,9 +41,34 @@ export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
 );
 
 
-export default function CommentPlugin({parentContent, quoteReplies, pinnedReplies, setPinnedReplies}: {
-  parentContent: {cid: string, uri: string}
-  quoteReplies?: FastPostProps[],
+export type ReplyToContent = {
+    uri?: string
+    cid?: string
+    collection: string
+    author: SmallUserProps
+    content?: {
+        text?: string
+        format?: string
+        article?: {
+          title: string
+        }
+        topicVersion?: {
+            topic: {
+                id: string
+                versions: {
+                    title?: string
+                }[]
+            }
+        }
+    }
+}
+
+
+export default function CommentPlugin({
+      parentContent, quoteReplies, pinnedReplies, setPinnedReplies
+}: {
+  parentContent: ReplyToContent
+  quoteReplies?: FastPostProps[]
   pinnedReplies: string[]
   setPinnedReplies: (v: string[]) => void
 }): JSX.Element {
@@ -163,21 +188,18 @@ export default function CommentPlugin({parentContent, quoteReplies, pinnedReplie
           editor={editor}
         />, document.body)}</div>
       })}
-      {showCommentInput &&
-        createPortal(
-          <CommentInputBox
-            editor={editor}
-            cancelAddComment={cancelAddComment}
-            submitAddComment={submitAddComment}
-            parentContent={parentContent}
-          />,
-          document.body,
-        )}
+      <CommentInputBox
+        editor={editor}
+        cancelAddComment={cancelAddComment}
+        submitAddComment={submitAddComment}
+        parentContent={parentContent}
+        open={showCommentInput}
+      />
       {activeAnchorKey !== null &&
         activeAnchorKey !== undefined &&
         !showCommentInput &&
         createPortal(
-          <AddCommentBox
+          <AddCommentButton
             anchorKey={activeAnchorKey}
             editor={editor}
             onAddComment={onAddComment}

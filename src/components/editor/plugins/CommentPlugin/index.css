@@ -11,28 +11,6 @@
   color: var(--text)
 }
 
-.CommentPlugin_AddCommentBox {
-  border-radius: 20px;
-  background-color: var(--background);
-  width: 40px;
-  height: 60px;
-  border-width: 1px;
-  z-index: 52;
-}
-
-.CommentPlugin_AddCommentBox:hover {
-  /* background-color: var(--secondary-light);*/
-}
-
-i.add-comment {
-  background-size: contain;
-  display: inline-block;
-  height: 20px;
-  width: 20px;
-  vertical-align: -10px;
-  background-image: url(../../images/icons/chat-left-text.svg);
-}
-
 @keyframes show-input-box {
   0% {
     opacity: 0;

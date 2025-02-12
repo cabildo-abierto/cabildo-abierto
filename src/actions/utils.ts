@@ -121,6 +121,17 @@ export const datasetQuery = {
 }
 
 
+export const basicUserQuery = {
+    select: {
+        did: true,
+        handle: true,
+        displayName: true,
+        avatar: true,
+        inCA: true
+    }
+}
+
+
 export const feedQuery = {
     cid: true,
     uri: true,
@@ -150,7 +161,32 @@ export const feedQuery = {
                     replyTo: {
                         select: {
                             uri: true,
-                            cid: true
+                            cid: true,
+                            author: basicUserQuery,
+                            content: {
+                                select: {
+                                    text: true,
+                                    article: {
+                                        select: {
+                                            title: true
+                                        }
+                                    },
+                                    topicVersion: {
+                                        select: {
+                                            topic: {
+                                                select: {
+                                                    id: true,
+                                                    versions: {
+                                                        select: {
+                                                            title: true
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     root: {
@@ -226,16 +262,6 @@ export const feedQuery = {
                 }
             }
         }
-    }
-}
-
-export const basicUserQuery = {
-    select: {
-        did: true,
-        handle: true,
-        displayName: true,
-        avatar: true,
-        inCA: true
     }
 }
 
