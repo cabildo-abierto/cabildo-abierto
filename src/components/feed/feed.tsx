@@ -6,9 +6,10 @@ import { LazyLoadFeed } from "../lazy-load-feed";
 import {FeedElement} from "./feed-element";
 import {NoResults} from "../no-results";
 import {ViewMonitor} from "../view-monitor";
+import {ErrorPage} from "../error-page";
 
 
-export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, isError: boolean}
+export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, error: string}
 
 
 export type FeedProps = {
@@ -22,6 +23,9 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
     if(feed.isLoading){
         return <div className={"mt-8"}><LoadingSpinner/></div>
     }
+    if(!feed.feed){
+        return <ErrorPage>{feed.error}</ErrorPage>
+    }
 
     function generator(index: number){
         const node = <ViewMonitor uri={feed.feed[index].uri}>
@@ -34,7 +38,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
         }
     }
     
-    let content = null
+    let content
     if(feed.feed.length == 0){
         content = <NoResults text={noResultsText}/>
     } else {

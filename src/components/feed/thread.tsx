@@ -71,7 +71,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
         }
     }
 
-    return <div>
+    return <div className={"flex flex-col items-center"}>
         {(thread.post.collection == "app.bsky.feed.post" || thread.post.collection == "ar.com.cabildoabierto.quotePost") && <FastPost
             post={thread.post as FastPostProps}
         />}
@@ -87,25 +87,28 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
         {thread.post.collection == "ar.com.cabildoabierto.dataset" && <DatasetOnThread
             dataset={thread.post as DatasetProps}
         />}
-        <ReplyButton onClick={() => {setOpenReplyPanel(true)}}/>
-        {replies.map((r, index) => {
+        <div className={"w-[600px] border-l border-r"}>
+            <ReplyButton onClick={() => {setOpenReplyPanel(true)}}/>
+            {replies.map((r, index) => {
 
-            function onClickQuote(){
-                setPinnedReplies([...pinnedReplies, r.cid])
-                const elem = document.getElementById(r.cid)
-                smoothScrollTo(elem)
-            }
+                function onClickQuote(){
+                    setPinnedReplies([...pinnedReplies, r.cid])
+                    const elem = document.getElementById(r.cid)
+                    smoothScrollTo(elem)
+                }
 
-            return <div key={index}>
-                <FastPostPreview
-                    post={r}
-                    showParent={false}
-                    parentIsMainPost={true}
-                    onClickQuote={onClickQuote}
-                />
-            </div>
-        })}
-        {replies.length == 0 && <div className={"text-center text-[var(--text-light)] pt-4 pb-8"}>Todavía no hubo ninguna respuesta.</div>}
+                return <div key={index}>
+                    <FastPostPreview
+                        post={r}
+                        showParent={false}
+                        parentIsMainPost={true}
+                        onClickQuote={onClickQuote}
+                    />
+                </div>
+            })}
+            {replies.length == 0 && <div className={"text-center text-[var(--text-light)] pt-4 pb-8"}>Todavía no hubo ninguna respuesta.</div>}
+        </div>
+
         <WritePanel
             replyTo={thread.post}
             open={openReplyPanel}

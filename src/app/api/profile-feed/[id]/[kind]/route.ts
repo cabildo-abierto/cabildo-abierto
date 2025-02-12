@@ -11,11 +11,5 @@ export async function GET(req: NextRequest, { params }: { params: { id: string, 
 
     let profileFeed = await getProfileFeed(params.id, params.kind as "main" | "replies" | "edits")
 
-    if(profileFeed.error){
-        return NextResponse.error()
-    }
-
-    console.log("profile feed feed", profileFeed.feed)
-
-    return NextResponse.json(profileFeed.feed)
+    return NextResponse.json(profileFeed)
 }

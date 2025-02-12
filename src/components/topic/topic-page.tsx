@@ -48,7 +48,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
 
     useEffect(() => {
         if(viewingContent){
-            setLayoutConfig({distractionFree: true, ...layoutConfig})
+            setLayoutConfig({...layoutConfig, distractionFree: true, maxWidthCenter: "800px"})
         }
     }, [viewingContent])
 

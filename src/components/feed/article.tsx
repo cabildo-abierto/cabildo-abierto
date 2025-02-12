@@ -42,7 +42,7 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
             <div className={"text-base text-[var(--text-light)]"}>
                 Artículo
             </div>
-            <h1 className="font-bold title">
+            <h1 className="font-bold">
                 {content.content.article.title}
             </h1>
             <div className="sm:space-x-1 text-sm sm:text-base flex flex-col sm:flex-row sm:items-center">

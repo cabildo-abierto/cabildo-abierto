@@ -5,7 +5,7 @@ export async function GET(req: NextRequest,
     { params }: { params: { id: string } }
 ) {
 
-    let {feed} = await getTopicFeed(params.id)
+    let feed = await getTopicFeed(params.id)
 
-    return NextResponse.json(feed ? feed : null);
+    return NextResponse.json(feed);
 }

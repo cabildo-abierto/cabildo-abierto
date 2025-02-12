@@ -32,5 +32,5 @@ export const ContentsSearchResults = () => {
         }
     })
 
-    return <Feed feed={{feed: filteredContents, isLoading: false, isError: false}}/>
+    return <Feed feed={{feed: filteredContents, isLoading: false, error: undefined}}/>
 }

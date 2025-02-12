@@ -5,14 +5,10 @@ import LoadingSpinner from "../loading-spinner";
 
 
 export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuote: (cid: string) => void}) => {
-    let {feed, isLoading} = useTopicFeed(topicId)
-
-    if(isLoading) {
-        return <LoadingSpinner/>
-    }
+    let feed = useTopicFeed(topicId)
 
     return <Feed
-        feed={{isLoading: false, isError: false, feed: feed ? feed : []}}
+        feed={feed}
         onClickQuote={onClickQuote}
     />
 }
