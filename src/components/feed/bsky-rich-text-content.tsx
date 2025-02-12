@@ -33,6 +33,13 @@ export const BskyRichTextContent = ({content}: {content: {text: string, post?: {
       }
     })
 
+    if(text.includes("Elon Musk")){
+        console.log("text", text)
+        console.log("segments", segments)
+        console.log("facets", content.post.facets)
+        console.log("markdown", markdown)
+    }
+
     const initialData = (editor: LexicalEditor) => {$convertFromMarkdownString(markdown, TRANSFORMERS)}
 
     return <ReadOnlyEditor initialData={initialData}/>

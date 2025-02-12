@@ -1,10 +1,19 @@
-import {FastPostProps} from "../../app/lib/definitions";
+import {
+    ArticleProps,
+    FastPostProps,
+    FeedContentPropsNoRepost, RecordProps,
+    TopicVersionOnFeedProps
+} from "../../app/lib/definitions";
 import {useArticle} from "../../hooks/user";
 import {decompress} from "../compression";
 import ReadOnlyEditor from "../editor/read-only-editor";
-import {getCollectionFromUri} from "../utils";
+import {contentUrl, getCollectionFromUri} from "../utils";
 import {useTopic, useTopicVersion} from "../../hooks/contents";
 import LoadingSpinner from "../loading-spinner";
+import {Authorship} from "../content-top-row-author";
+import {getTopicTitle} from "../topic/utils";
+import Link from "next/link";
+import {useRouter} from "next/navigation";
 
 
 function filterOutsideSelection(node: any, start: number[] | undefined, startOffset: number | undefined, end: number[] | undefined, endOffset: number | undefined){
@@ -73,15 +82,11 @@ const TopicQuote = ({post}: {post: FastPostProps}) => {
     const quoteStr = post.content.post.quote
     const parent = useTopicVersion(post.content.post.replyTo.uri)
 
-    console.log("topic quote", post)
-
     if(!parent.topic){
         return <LoadingSpinner size={"20px"}/>
     }
 
     const quote = JSON.parse(quoteStr)
-
-    console.log("format", parent.topic.content.format)
 
     let initialData
     if(parent.topic.content.format == "lexical-compressed"){
@@ -99,7 +104,9 @@ const TopicQuote = ({post}: {post: FastPostProps}) => {
 }
 
 
-export const ContentQuote = ({post, onClick}: {post: FastPostProps, onClick?: () => void}) => {
+export const ContentQuote = ({post, onClick, showContext=false}: {post: FastPostProps, onClick?: () => void, showContext?: boolean}) => {
+    const router = useRouter()
+
     if(!post.content.post.quote){
         return null
     }
@@ -111,10 +118,35 @@ export const ContentQuote = ({post, onClick}: {post: FastPostProps, onClick?: ()
     function handleClick(e) {
         e.stopPropagation()
         e.preventDefault()
-        onClick()
+        if(onClick){
+            onClick()
+        } else {
+            router.push(contentUrl(post.content.post.replyTo.uri)+"#"+post.cid)
+
+        }
     }
 
-    return <div className={"bg-[var(--background-dark2)] rounded p-2 my-1"} onClick={handleClick}>
+    let context = null
+    if(showContext){
+        const kind = collection == "ar.com.cabildoabierto.article" ? "artículo" : "tema"
+
+        const parent = post.content.post.replyTo as RecordProps
+
+        const title = kind == "artículo" ?
+            (parent as ArticleProps).content.article.title : getTopicTitle((parent as TopicVersionOnFeedProps).content.topicVersion.topic)
+
+        const href = contentUrl(parent.uri, parent.author.handle)
+
+        context = <div className={"text-sm text-[var(--text-light)]"}>
+            <Authorship onlyAuthor={true} content={parent}/> en <Link className="font-bold" onClick={(e) => {e.stopPropagation()}} href={href}>{title}</Link>
+        </div>
+    }
+
+    return <blockquote
+        className={"ml-3 bg-[var(--background-dark2)] border-l-4 border-[var(--text-light)] hover:bg-[var(--background-dark3)] cursor-pointer rounded py-2 px-3 my-1"}
+        onClick={handleClick}
+    >
+        {context}
         {center}
-    </div>
+    </blockquote>
 }

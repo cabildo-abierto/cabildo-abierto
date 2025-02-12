@@ -10,9 +10,11 @@ import {ExternalEmbedInPost} from "./external-embed-in-post";
 import {FastPostVideo} from "./fast-post-video";
 
 
-export const FastPostContent = ({post, isMainPost=false, hideQuote=false, onClickQuote}: {post: FastPostProps, isMainPost?: boolean, hideQuote?: boolean, onClickQuote?: (cid: string) => void}) => {
+export const FastPostContent = ({post, isMainPost=false, hideQuote=false, showQuoteContext=false, onClickQuote}: {
+    post: FastPostProps, isMainPost?: boolean, hideQuote?: boolean, showQuoteContext?: boolean, onClickQuote?: (cid: string) => void}) => {
+
     return <div className={"flex flex-col"}>
-        {!hideQuote && post.content.post.replyTo && <ContentQuote post={post} onClick={() => {onClickQuote(post.cid)}}/>}
+        {!hideQuote && post.content.post.replyTo && <ContentQuote post={post} onClick={onClickQuote ? () => {onClickQuote(post.cid)} : undefined} showContext={showQuoteContext}/>}
         <div className={isMainPost ? "text-lg" : undefined}>
             <BskyRichTextContent content={post.content}/>
         </div>

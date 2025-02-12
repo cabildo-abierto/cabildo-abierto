@@ -9,7 +9,7 @@ import { useUser } from "../../hooks/user";
 import {ToggleButton} from "../toggle-button";
 import {wikiEditorSettings} from "../editor/wiki-editor";
 import {NeedAccountPopup} from "../need-account-popup";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import StateButton from "../state-button";
 import {createTopicVersion} from "../../actions/topics";
 import {compress} from "../compression";
@@ -19,11 +19,10 @@ import {SaveEditPopup} from "../save-edit-popup";
 import {RoutesEditor} from "../routes-editor";
 import {SearchkeysEditor} from "../searchkeys-editor";
 import {ChangesCounter} from "../changes-counter";
-import {ShowArticleChanges} from "../show-article-changes";
-import {ShowArticleAuthors} from "../show-authors-changes";
 import dynamic from "next/dynamic";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {CloseButton} from "../ui-utils/close-button";
+import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
 
 export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:px-2 py-1"
@@ -41,6 +40,22 @@ export const TopicContent = ({
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const {mutate} = useSWRConfig()
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    useEffect(() => {
+        const hash = window.location.hash
+        if (hash) {
+            const id = hash.split("#")[1]
+            const scrollToElement = () => {
+                const element = document.getElementById(id);
+                if (element) {
+                    smoothScrollTo(element)
+                    setPinnedReplies([...pinnedReplies, id])
+                } else {
+                    setTimeout(scrollToElement, 100);
+                }
+            };
+            scrollToElement();
+        }
+    }, []);
 
     const lastUpdated = topic.versions[topic.versions.length-1].content.record.createdAt
 
@@ -321,7 +336,7 @@ export const TopicContent = ({
             {selectedPanel != "editing" && <CloseButton size="small" onClose={() => {
                 setViewingContent(false);
                 setPinnedReplies([])
-                setLayoutConfig({distractionFree: false, ...layoutConfig})
+                setLayoutConfig({...layoutConfig, distractionFree: false})
                 setSelectedPanel("none")
             }}/>}
         </div>}
@@ -341,7 +356,7 @@ export const TopicContent = ({
         <div
             onClick={() => {
                 setViewingContent(true);
-                setLayoutConfig({distractionFree: true, ...layoutConfig});
+                setLayoutConfig({...layoutConfig, distractionFree: true});
             }}
             className={`relative group ${!viewingContent ? "min-h-[100px] max-h-[200px] overflow-y-clip bg-[var(--background)] cursor-pointer hover:bg-gradient-to-b hover:from-[var(--background)] hover:to-[var(--background-dark)]" : ""}`}
         >

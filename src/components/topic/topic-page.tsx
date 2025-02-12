@@ -96,7 +96,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
             smoothScrollTo(elem)
         } else {
             setViewingContent(true)
-            setLayoutConfig({distractionFree: true, ...layoutConfig})
+            setLayoutConfig({...layoutConfig, distractionFree: true})
             setShouldGoTo(cid)
         }
     }

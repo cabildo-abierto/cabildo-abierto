@@ -9,7 +9,7 @@ export const InfoPanel = ({text, className, iconClassName="text-gray-600", icon=
       <div
           onMouseEnter={(e) => {setAnchorEl(e.target)}}
           onMouseLeave={() => {setAnchorEl(null)}}
-          className={iconClassName}
+          className={iconClassName + " cursor-pointer"}
       >
         {icon}
       </div>

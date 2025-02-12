@@ -26,16 +26,18 @@ export const MainPage = ({paramsSelected, showRoute=true}: MainPageProps) => {
         if(v == "En discusión" && order != "Populares") setOrder("Populares")
     }
 
-    return <div className="w-full">
-        <MainFeedHeader
-            selected={selected}
-            onSelection={onSelection}
-            showRoute={showRoute}
-            order={order}
-            setOrder={setOrder}
-            filter={filter}
-            setFilter={setFilter}
-        />
+    return <div className="w-full mt-10">
+        <div className={"fixed top-0 bg-[var(--background)] w-[598px] z-[1000]"}>
+            <MainFeedHeader
+                selected={selected}
+                onSelection={onSelection}
+                showRoute={showRoute}
+                order={order}
+                setOrder={setOrder}
+                filter={filter}
+                setFilter={setFilter}
+            />
+        </div>
 
         {selected == "En discusión" && <Feed
             feed={feed}

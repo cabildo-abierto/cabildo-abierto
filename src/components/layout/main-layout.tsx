@@ -13,6 +13,8 @@ import {BasicButton} from "../ui-utils/basic-button";
 import {CustomLink as Link} from "../custom-link";
 import {LayoutConfigProvider, useLayoutConfig} from "./layout-config-context";
 import {SearchPanelOnRightColumn} from "./search-panel-on-right-column";
+import {SidebarButton} from "../sidebar-button";
+import {DonateIcon} from "../icons/donate-icon";
 
 
 const MainLayoutContent = ({children}: {children: ReactNode}) => {
@@ -30,7 +32,7 @@ const MainLayoutContent = ({children}: {children: ReactNode}) => {
             <div className={"ml-8 mt-8 flex justify-center w-full max-h-[600px] max-w-[300px]"}>
                 <TrendingTopics route={[]} selected={"7days"}/>
             </div>
-            <div className={"ml-8 mt-4 w-full max-w-[300px] flex flex-wrap gap-x-2"}>
+            <div className={"ml-8 mt-4 w-full max-w-[300px] flex flex-col space-y-1"}>
                 <SupportButton user={user} onClose={() => {}}/>
                 <Link href={articleUrl("Cabildo_Abierto")} className={"text-[var(--text-light)]"}>
                     <BasicButton
@@ -40,6 +42,16 @@ const MainLayoutContent = ({children}: {children: ReactNode}) => {
                         startIcon={<InfoIcon/>}
                     >
                         Acerca de Cabildo Abierto
+                    </BasicButton>
+                </Link>
+                <Link href={"/aportar"} className={"text-[var(--text-light)]"}>
+                    <BasicButton
+                        variant={"text"}
+                        size={"small"}
+                        color={"inherit"}
+                        startIcon={<DonateIcon fontSize={"small"}/>}
+                    >
+                        Aportar
                     </BasicButton>
                 </Link>
             </div>

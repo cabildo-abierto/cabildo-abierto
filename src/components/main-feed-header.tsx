@@ -18,7 +18,7 @@ export const MainFeedHeader = ({selected, onSelection, showRoute, order, setOrde
 }: MainFeedHeaderProps) => {
 
     function optionsNodes(o: string, isSelected: boolean){
-        return <div className="text-[var(--text)] w-32">
+        return <div className="text-[var(--text)] w-32 h-10">
             <Button
                 onClick={() => {}}
                 variant="text"
@@ -26,8 +26,8 @@ export const MainFeedHeader = ({selected, onSelection, showRoute, order, setOrde
                 fullWidth={true}
                 disableElevation={true}
                 sx={{textTransform: "none",
-                    paddingY: 0
-
+                    paddingY: 0,
+                    borderRadius: 0
                 }}
             >
                 <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>

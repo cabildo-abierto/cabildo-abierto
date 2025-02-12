@@ -20,8 +20,6 @@ export const IntegerInputPlusMinus = ({value, onChange}: {value: number, onChang
         }
     };
 
-    const btnClassname = "bg-[var(--primary)] hover:bg-[var(--primary-dark)] w-7 h-7 text-white rounded disabled:bg-gray-500"
-
     return (
         <div className="flex items-center space-x-2">
             <IconButton
@@ -34,15 +32,15 @@ export const IntegerInputPlusMinus = ({value, onChange}: {value: number, onChang
                 <RemoveIcon/>
             </IconButton>
 
-
             <input
                 id="integer-input"
                 type="text"
                 value={"$"+value}
                 autoFocus={true}
                 onChange={handleChange}
-                className="px-4 py-1 border rounded-md focus:outline-none w-32 text-center "
+                className="px-4 py-1 border text-gray-900 rounded-md focus:outline-none w-32 text-center "
             />
+
             <IconButton
                 onClick={handleIncrement}
                 color="primary"

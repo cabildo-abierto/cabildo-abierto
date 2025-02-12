@@ -4,7 +4,7 @@ import { getSessionAgent } from "./auth";
 import { RichText } from '@atproto/api'
 import {db} from "../db";
 import {FastPostProps, FastPostReplyProps, ThreadProps, VisualizationProps} from "../app/lib/definitions";
-import {addCounters, feedQuery, feedQueryWithReposts} from "./utils";
+import {addCounters, feedQuery, feedQueryWithReposts, threadQuery} from "./utils";
 import {getDidFromUri, getUri, getVisualizationTitle, splitUri} from "../components/utils";
 import {getUsers} from "./users";
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
@@ -185,7 +185,7 @@ export async function getThread({did, rkey}: {did: string, rkey: string}): Promi
 
     try {
         const mainPostQ = db.record.findFirst({
-            select: feedQuery,
+            select: threadQuery,
             where: threadId
         })
         const repliesQ = db.record.findMany({

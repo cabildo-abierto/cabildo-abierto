@@ -11,7 +11,7 @@ const FundingProgress = ({ p }: { p: number }) => {
 
   return (
     <div>
-      <div className="flex items-center w-full">
+      <div className="flex items-center w-full space-x-1">
         <div className="w-full bg-gray-200 rounded-full h-8 overflow-hidden shadow-inner relative">
           <div
             className={`h-full ${progressColor} text-white text-center font-bold flex items-center justify-center`}

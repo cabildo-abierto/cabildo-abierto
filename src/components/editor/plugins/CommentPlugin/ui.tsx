@@ -170,7 +170,7 @@ export function CommentInputBox({
 
     return (
       <div ref={boxRef} className="absolute block z-24 px-2 w-screen sm:w-[24rem]">
-      <div className="min-h-[80px] bg-[var(--background)] border rounded-lg px-2">
+      <div className="min-h-[150px] bg-[var(--background)] border rounded-lg px-2">
         <div className="mt-2 px-2 py-2">
           <TextareaAutosize
               minRows={3}
@@ -181,7 +181,7 @@ export function CommentInputBox({
           />
           {charLimit && <ExtraChars charLimit={charLimit} count={commentText.length}/>}
         </div>
-        <hr className="border-gray-200"/>
+        <hr className=""/>
         <div className="flex justify-end py-2 space-x-1">
           <Button
             onClick={cancelAddComment}
@@ -190,12 +190,12 @@ export function CommentInputBox({
             disableElevation={true}
             variant="text"
           >
-            <span className="title">Cancelar</span>
+            <span className="">Cancelar</span>
           </Button>
           <StateButton
             handleClick={submitComment}
             disabled={emptyOutput(editor.getEditorState()) || !user.user}
-            textClassName="title"
+            textClassName=""
             size="small"
             text1={"Enviar"}
             disableElevation={true}

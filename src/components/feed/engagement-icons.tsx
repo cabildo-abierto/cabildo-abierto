@@ -12,6 +12,7 @@ type EngagementIconsProps = {
     counters: EngagementProps
     record: RecordProps
     className?: string
+    small?: boolean
 }
 
 export const EngagementIcons = ({counters, record, className="space-x-16"}: EngagementIconsProps) => {

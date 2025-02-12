@@ -7,8 +7,9 @@ import {DateSince} from "../date";
 import {decompress} from "../compression";
 import {EngagementIcons} from "./engagement-icons";
 import {ProfilePic} from "./profile-pic";
-import {ContentOptions} from "../content-options/content-options";
-import {useUser} from "../../hooks/user";
+import {useEffect} from "react";
+import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
+import {useHash} from "../ui-utils/use-url-anchor";
 
 type ArticleCompProps = {
     content: ArticleProps,
@@ -18,6 +19,23 @@ type ArticleCompProps = {
 }
 
 export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}: ArticleCompProps) => {
+
+    useEffect(() => {
+        const hash = window.location.hash
+        if (hash) {
+            const id = hash.split("#")[1]
+            const scrollToElement = () => {
+                const element = document.getElementById(id);
+                if (element) {
+                    smoothScrollTo(element)
+                    setPinnedReplies([...pinnedReplies, id])
+                } else {
+                    setTimeout(scrollToElement, 100);
+                }
+            };
+            scrollToElement();
+        }
+    }, []);
 
     return <div className="w-full">
         <div className={"p-3 border-b"}>
