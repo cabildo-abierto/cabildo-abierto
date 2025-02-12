@@ -33,28 +33,6 @@ function addCountersToFeed(feed: any[], did: string): FeedContentProps[]{
 }
 
 
-export async function getFollowingInCA(did: string): Promise<string[]>{
-    return (await db.record.findMany({
-        select: {
-            follow: {
-                select: {
-                    userFollowedId: true
-                }
-            }
-        },
-        where: {
-            collection: "app.bsky.graph.follow",
-            authorId: did,
-            follow: {
-                userFollowed: {
-                    inCA: true
-                }
-            }
-        }
-    })).map(({follow}) => (follow.userFollowedId));
-}
-
-
 export async function getFeed({onlyFollowing, did, reposts=true}: {onlyFollowing: boolean, did: string, reposts?: boolean}): Promise<{feed?: FeedContentProps[], error?: string}>{
     try {
 
@@ -226,7 +204,9 @@ export async function getFollowingFeed(){
 
     const [feedCA, {data}] = await Promise.all([feedCAPromise, timelinePromise])
 
-    const feedBsky = data.feed
+    const feedBsky = data.feed.filter((r) => {
+        return (r.post.record as {reply?: any}).reply == undefined
+    })
 
     let feed: FeedContentProps[] = feedBsky.map(formatBskyFeedElement)
 
@@ -235,7 +215,8 @@ export async function getFollowingFeed(){
     }
 
     for(let i = 0; i < feedCA.feed.length; i++){
-        if(feedCA.feed[i].collection != "app.bsky.feed.post"){
+        const r = feedCA.feed[i]
+        if(r.collection != "app.bsky.feed.post"){
             feed.push(feedCA.feed[i])
         }
     }
