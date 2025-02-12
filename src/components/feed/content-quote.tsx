@@ -59,16 +59,10 @@ function getSelectionFromJSONState(state: any, selection: {start: {node: number[
     })
 }
 
-const ArticleQuote = ({post}: {post: FastPostProps}) => {
-    const quoteStr = post.content.post.quote
-    const parent = useArticle(post.content.post.replyTo.uri)
-
-    if(!parent.article){
-        return <LoadingSpinner size={"20px"}/>
-    }
+const ArticleQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedContent: QuotedContent}) => {
 
     const quote = JSON.parse(quoteStr)
-    const parentContent = JSON.parse(decompress(parent.article.content.text))
+    const parentContent = JSON.parse(decompress(quotedContent.content.text))
 
     const initialData = getSelectionFromJSONState(parentContent, quote)
 
@@ -78,9 +72,9 @@ const ArticleQuote = ({post}: {post: FastPostProps}) => {
 }
 
 
-const TopicQuote = ({post}: {post: FastPostProps}) => {
-    const quoteStr = post.content.post.quote
-    const parent = useTopicVersion(post.content.post.replyTo.uri)
+const TopicQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedContent: QuotedContent}) => {
+
+    const parent = useTopicVersion(quotedContent.uri)
 
     if(!parent.topic){
         return <LoadingSpinner size={"20px"}/>
@@ -104,16 +98,46 @@ const TopicQuote = ({post}: {post: FastPostProps}) => {
 }
 
 
-export const ContentQuote = ({post, onClick, showContext=false}: {post: FastPostProps, onClick?: () => void, showContext?: boolean}) => {
+export type QuotedContent = {
+    uri?: string
+    author: {
+        displayName?: string
+        handle: string
+    }
+    content?: {
+        text?: string
+        article?: {
+            title: string
+        }
+        topicVersion?: {
+            topic: {
+                id: string
+                versions: {
+                    title?: string
+                }[]
+            }
+        }
+    }
+}
+
+
+export const ContentQuote = ({
+    post, quote, onClick, quotedContent, showContext=false}: {
+    quotedContent: QuotedContent
+    quote?: string
+    post?: {cid?: string}
+    onClick?: () => void
+    showContext?: boolean
+}) => {
     const router = useRouter()
 
-    if(!post.content.post.quote){
+    if(!quote || !quotedContent.content){
         return null
     }
 
-    const collection = getCollectionFromUri(post.content.post.replyTo.uri)
+    const collection = getCollectionFromUri(quotedContent.uri)
     const center = collection == "ar.com.cabildoabierto.article" ?
-        <ArticleQuote post={post}/> : <TopicQuote post={post}/>
+        <ArticleQuote quoteStr={quote} quotedContent={quotedContent}/> : <TopicQuote quoteStr={quote} quotedContent={quotedContent}/>
 
     function handleClick(e) {
         e.stopPropagation()
@@ -121,8 +145,7 @@ export const ContentQuote = ({post, onClick, showContext=false}: {post: FastPost
         if(onClick){
             onClick()
         } else {
-            router.push(contentUrl(post.content.post.replyTo.uri)+"#"+post.cid)
-
+            router.push(contentUrl(quotedContent.uri)+"#"+post.cid)
         }
     }
 
@@ -130,20 +153,20 @@ export const ContentQuote = ({post, onClick, showContext=false}: {post: FastPost
     if(showContext){
         const kind = collection == "ar.com.cabildoabierto.article" ? "artículo" : "tema"
 
-        const parent = post.content.post.replyTo as RecordProps
-
         const title = kind == "artículo" ?
-            (parent as ArticleProps).content.article.title : getTopicTitle((parent as TopicVersionOnFeedProps).content.topicVersion.topic)
+            quotedContent.content.article.title : getTopicTitle(quotedContent.content.topicVersion.topic)
 
-        const href = contentUrl(parent.uri, parent.author.handle)
+        const href = contentUrl(quotedContent.uri, quotedContent.author.handle)
 
         context = <div className={"text-sm text-[var(--text-light)]"}>
-            <Authorship onlyAuthor={true} content={parent}/> en <Link className="font-bold" onClick={(e) => {e.stopPropagation()}} href={href}>{title}</Link>
+            <Authorship onlyAuthor={true} content={quotedContent}/> en <Link className="font-bold" onClick={(e) => {e.stopPropagation()}} href={href}>{title}</Link>
         </div>
     }
 
+    const clickable = onClick != undefined || (post && post.cid)
+
     return <blockquote
-        className={"ml-3 bg-[var(--background-dark2)] border-l-4 border-[var(--text-light)] hover:bg-[var(--background-dark3)] cursor-pointer rounded py-2 px-3 my-1"}
+        className={"ml-3 bg-[var(--background-dark2)] border-l-4 border-[var(--text-light)] rounded py-2 px-3 my-1 " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
         onClick={handleClick}
     >
         {context}

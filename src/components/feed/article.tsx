@@ -61,7 +61,7 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
                 <ReadOnlyEditor
                     initialData={decompress(content.content.text)}
                     allowTextComments={true}
-                    content={content as {uri: string, cid: string}}
+                    content={content}
                     quoteReplies={quoteReplies}
                     pinnedReplies={pinnedReplies}
                     setPinnedReplies={setPinnedReplies}

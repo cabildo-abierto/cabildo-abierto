@@ -10,7 +10,6 @@ import {
     RecordProps, RepostProps
 } from "../app/lib/definitions";
 import { getSessionAgent } from "./auth";
-import { Agent } from "@atproto/api";
 import {getUserById, getUserId, getUsers} from "./users";
 import {addCounters, feedQuery, feedQueryWithReposts} from "./utils";
 import {popularityScore} from "../components/popularity-score";

@@ -27,7 +27,7 @@ import { CAN_USE_DOM } from './shared/canUseDOM';
 import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
-import CommentPlugin from './plugins/CommentPlugin';
+import CommentPlugin, {ReplyToContent} from './plugins/CommentPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
@@ -78,7 +78,7 @@ import {
   $convertToMarkdownString,
 } from '@lexical/markdown';
 import {PLAYGROUND_TRANSFORMERS} from "./plugins/MarkdownTransformers";
-import {FastPostProps} from "../../app/lib/definitions";
+import {FastPostProps, FeedContentProps} from "../../app/lib/definitions";
 import {SidenoteNode} from "./nodes/SidenoteNode";
 import PlotPlugin from "./plugins/PlotPlugin";
 import {VisualizationNode} from "./nodes/VisualizationNode";
@@ -115,10 +115,7 @@ export type SettingsProps = {
   isReadOnly: boolean,
   isAutofocus: boolean,
   editorClassName: string,
-  content?: {
-    cid: string
-    uri: string
-  },
+  content?: ReplyToContent,
   title?: string
   placeholderClassName: string,
   showingChanges?: string,

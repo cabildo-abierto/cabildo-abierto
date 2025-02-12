@@ -16,14 +16,10 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import useLayoutEffect from '../../shared/useLayoutEffect';
 import { commentEditorSettings } from '../../comment-editor';
 import { useUser } from '../../../../hooks/user';
-import StateButton from '../../../state-button';
-
-import { emptyOutput } from '../../../utils';
-import { Button } from '@mui/material';
-import {TextareaAutosize} from "@mui/base/TextareaAutosize";
-import {ExtraChars} from "../../../extra-chars";
 import {getStandardSelection} from "./standard-selection";
 import {createFastPost} from "../../../../actions/contents";
+import {WritePanel} from "../../../write-panel";
+import {ReplyToContent} from "./index";
 
 
 export function CommentInputBox({
@@ -31,11 +27,13 @@ export function CommentInputBox({
     parentContent,
     cancelAddComment,
     submitAddComment,
+    open
 }: {
     cancelAddComment: () => void
     editor: LexicalEditor
-    parentContent: {cid: string, uri: string}
-    submitAddComment: () => void
+    parentContent: ReplyToContent
+    submitAddComment: () => void,
+    open: boolean
 }) {
     const [commentText, setCommentText] = useState('');
     const user = useUser()
@@ -164,11 +162,19 @@ export function CommentInputBox({
 
     const settings = {...commentEditorSettings}
     settings.editorClassName = "min-h-[150px] sm:text-base text-sm"
-    const charLimit = 300
 
     if(!user.user) settings.placeholder = "Necesitás una cuenta para agregar un comentario."
 
-    return (
+    const selection = getStandardSelection(editor.getEditorState())
+
+    return <WritePanel
+        open={open}
+        onClose={cancelAddComment}
+        replyTo={parentContent}
+        quote={JSON.stringify(selection)}
+    />
+
+    /*return (
       <div ref={boxRef} className="absolute block z-24 px-2 w-screen sm:w-[24rem]">
       <div className="min-h-[150px] bg-[var(--background)] border rounded-lg px-2">
         <div className="mt-2 px-2 py-2">
@@ -203,7 +209,7 @@ export function CommentInputBox({
         </div>
       </div>
       </div>
-    )
+    )*/
 }
 
 

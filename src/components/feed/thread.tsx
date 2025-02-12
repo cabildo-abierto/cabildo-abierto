@@ -106,6 +106,10 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
             </div>
         })}
         {replies.length == 0 && <div className={"text-center text-[var(--text-light)] pt-4 pb-8"}>Todavía no hubo ninguna respuesta.</div>}
-        <WritePanel replyTo={thread.post} open={openReplyPanel} onClose={() => {setOpenReplyPanel(false)}}/>
+        <WritePanel
+            replyTo={thread.post}
+            open={openReplyPanel}
+            onClose={() => {setOpenReplyPanel(false)}}
+        />
     </div>
 }

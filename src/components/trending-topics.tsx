@@ -1,10 +1,9 @@
 import {useTrendingTopics} from "../hooks/contents"
 import {TrendingTopicProps} from "../app/lib/definitions"
 import LoadingSpinner from "./loading-spinner"
-import { articleUrl, listOrderDesc } from "./utils"
-import { useDraggable } from "react-use-draggable-scroll";
+import { articleUrl } from "./utils"
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import PersonIcon from '@mui/icons-material/Person';
 import { CustomLink as Link } from './custom-link';
 import Button from "@mui/material/Button";
