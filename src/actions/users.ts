@@ -284,7 +284,6 @@ export async function unfollow(followUri: string) {
 
 export async function getUserId(){
     const {agent, did} = await getSessionAgent()
-    console.log("Current session", did)
     if(!did) return null
 
     return did
