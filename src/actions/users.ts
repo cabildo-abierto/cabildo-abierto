@@ -8,6 +8,7 @@ import {getRkeyFromUri, supportDid, validSubscription} from "../components/utils
 import { getSubscriptionPrice } from "./payments";
 import { getSessionAgent } from "./auth";
 import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+import { Prisma } from "@prisma/client";
 
 
 export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
@@ -142,116 +143,116 @@ export async function getATProtoUserById(userId: string): Promise<{profile?: Pro
 }
 
 
-export const getUserById = async (userId: string): Promise<{user?: UserProps, atprotoProfile?: ProfileViewDetailed, error?: string}> => {
-    const atprotoProfile = await getATProtoUserById(userId)
-    try {
-        let user = await db.user.findFirst(
-            {
+const fullUserQuery = {
+    did: true,
+    handle: true,
+    avatar: true,
+    banner: true,
+    displayName: true,
+    description: true,
+    email: true,
+    createdAt: true,
+    hasAccess: true,
+    inCA: true,
+    editorStatus: true,
+    subscriptionsUsed: {
+        orderBy: {
+            createdAt: "asc" as Prisma.SortOrder
+        }
+    },
+    subscriptionsBought: {
+        select: {
+            id: true,
+            price: true
+        },
+        where: {
+            price: {
+                gte: 500
+            }
+        }
+    },
+    records: {
+        select: {
+            cid: true,
+            follow: {
                 select: {
-                    did: true,
-                    handle: true,
-                    avatar: true,
-                    banner: true,
-                    displayName: true,
-                    description: true,
-                    email: true,
-                    createdAt: true,
-                    hasAccess: true,
-                    inCA: true,
-                    editorStatus: true,
-                    subscriptionsUsed: {
-                        orderBy: {
-                            createdAt: "asc"
-                        }
+                    userFollowedId: true
+                }
+            }
+        },
+        where: {
+            collection: "app.bsky.graph.follow",
+            follow: {
+                userFollowed: {
+                    inCA: true
+                }
+            }
+        }
+    },
+    followers: {
+        select: {
+            uri: true,
+            record: {
+                select: {
+                    authorId: true
+                }
+            }
+        }
+    }
+}
+
+
+export const getUserById = async (userId: string): Promise<{user?: UserProps, atprotoProfile?: ProfileViewDetailed, error?: string}> => {
+    const promiseATProtoProfile = getATProtoUserById(userId)
+    const promiseCAUser = db.user.findFirst(
+        {
+            select: fullUserQuery,
+            where: {
+                OR: [
+                    {
+                        did: userId
                     },
-                    subscriptionsBought: {
-                        select: {
-                            id: true,
-                            price: true
-                        },
-                        where: {
-                            price: {
-                                gte: 500
-                            }
-                        }
-                    },
-                    records: {
-                        select: {
-                            cid: true,
-                            follow: {
-                                select: {
-                                    userFollowedId: true
-                                }
-                            }
-                        },
-                        where: {
-                            collection: "app.bsky.graph.follow",
-                            follow: {
-                                userFollowed: {
-                                    inCA: true
-                                }
-                            }
-                        }
-                    },
-                    followers: {
-                        select: {
-                            uri: true,
-                            record: {
-                                select: {
-                                    authorId: true
-                                }
-                            }
-                        }
+                    {
+                        handle: userId
                     }
-                },
-                where: {
-                    OR: [
-                        {
-                            did: userId
-                        },
-                        {
-                            handle: userId
-                        }
-                    ]
-                }
-            }
-        )
-        if(!user){
-            return {atprotoProfile: atprotoProfile.profile ? atprotoProfile.profile : null}
-        }
-
-        let following = undefined
-        for(let i = 0; i < user.followers.length; i++) {
-            const f = user.followers[i]
-            if(f.record.authorId == userId){
-                following = f.uri
+                ]
             }
         }
+    )
 
-        let followed = undefined
-        for(let i = 0; i < user.records.length; i++){
-            const r = user.records[i]
-            if(r.follow.userFollowedId == userId){
-                followed = r.cid
+    const [CAUser, ATProtoProfile] = await Promise.all([promiseCAUser, promiseATProtoProfile])
+
+    if(!CAUser){
+        return {atprotoProfile: ATProtoProfile.profile ? ATProtoProfile.profile : null}
+    }
+
+    let following = undefined
+    for(let i = 0; i < CAUser.followers.length; i++) {
+        const f = CAUser.followers[i]
+        if(f.record.authorId == userId){
+            following = f.uri
+        }
+    }
+
+    let followed = undefined
+    for(let i = 0; i < CAUser.records.length; i++){
+        const r = CAUser.records[i]
+        if(r.follow.userFollowedId == userId){
+            followed = r.cid
+        }
+    }
+
+    return {
+        user: {
+            ...CAUser,
+            followersCount: CAUser.followers.length,
+            followsCount: CAUser.records.length,
+            viewer: {
+                following,
+                followed
             }
-        }
-
-        return {
-            user: {
-                ...user,
-                followersCount: user.followers.length,
-                followsCount: user.records.length,
-                viewer: {
-                    following,
-                    followed
-                }
-            },
-            atprotoProfile: atprotoProfile.profile ? atprotoProfile.profile : undefined
-        }
-    } catch (err) {
-        console.log("Error getting user", userId)
-        console.log(err)
-        return {error: "error on get user " + userId}
+        },
+        atprotoProfile: ATProtoProfile.profile ? ATProtoProfile.profile : undefined
     }
 }
 

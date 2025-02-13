@@ -17,6 +17,19 @@ export function useArticle(uri: string): {article: ArticleProps, isLoading?: boo
     }
 }
 
+
+export function useFullProfile(did: string): {user: UserProps, atprotoProfile: ProfileViewDetailed, isLoading?: boolean, error?: string} {
+    const { data, error, isLoading } = useSWR('/api/user/'+did, fetcher)
+
+    return {
+        user: data && data.user ? data.user : undefined,
+        atprotoProfile: data && data.atprotoProfile ? data.atprotoProfile : undefined,
+        isLoading,
+        error
+    }
+}
+
+
 export function useUser(): {user: UserProps, isLoading?: boolean, error?: string} {
     const { data, error, isLoading } = useSWR('/api/user', fetcher)
 

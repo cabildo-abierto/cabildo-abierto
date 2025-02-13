@@ -80,6 +80,7 @@ export async function getFeed({onlyFollowing, did, reposts=true}: {onlyFollowing
             ],
         }
 
+        //const t1 = new Date().getTime()
         let feed = await db.record.findMany({
             select: feedQueryWithReposts,
             where: cond,
@@ -87,6 +88,7 @@ export async function getFeed({onlyFollowing, did, reposts=true}: {onlyFollowing
                 createdAt: "desc"
             }
         })
+        //console.log("feed query took", new Date().getTime() - t1)
 
         feed = feed.filter((e) => {return validFeedElement(e, "main")})
 

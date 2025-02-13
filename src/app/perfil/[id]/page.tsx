@@ -1,30 +1,20 @@
+"use client"
 import { ProfilePage } from "../../../components/profile-page";
-import { getUserById } from "../../../actions/users";
 import { ErrorPage } from "../../../components/error-page";
-import {getUsername} from "../../../components/utils";
-
-export async function generateMetadata({params}: {params: {id: string}}){
-    const {atprotoProfile, error} = await getUserById(params.id)
-
-    if(!atprotoProfile){
-        return {title: "Usuario no encontrado"}
-    }
-
-    return {
-        title: "Perfil de " + getUsername(atprotoProfile)
-    }
-}
+import LoadingSpinner from "../../../components/loading-spinner";
+import {useFullProfile} from "../../../hooks/user";
 
 
-const UserProfile: React.FC<{ params: { id: string } }> = async ({ params }) => {
+const UserProfile: React.FC<{ params: { id: string } }> = ({ params }) => {
     const username = decodeURIComponent(params?.id)
+    const {user, atprotoProfile, isLoading, error} = useFullProfile(username)
 
-    const {user, atprotoProfile} = await getUserById(username)
+    if(isLoading){
+        return <div className={"mt-8"}><LoadingSpinner/></div>
+    }
 
-    if(!atprotoProfile){
-        return <ErrorPage>
-            No se encontró el perfil {username}.
-        </ErrorPage>
+    if(error){
+        return <ErrorPage>{error}</ErrorPage>
     }
 
     const center = <ProfilePage
