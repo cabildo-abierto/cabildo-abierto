@@ -84,7 +84,7 @@ export const CategoryArticles = ({route, onSearchPage=false, maxCount}: {route: 
     }
 
     function optionsNodes(o: string, isSelected: boolean){
-        return <div className="text-[var(--text)] w-40">
+        return <div className="text-[var(--text)] w-44">
             <Button
                 onClick={() => {}}
                 variant="text"

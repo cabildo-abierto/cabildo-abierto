@@ -469,7 +469,6 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
             if(topic.versions[i].content.textBlob != undefined){
                 topic.versions[i].content.text = await getTextFromBlob(topic.versions[i].content.textBlob)
             }
-            console.log("topic version", i, topic.versions[i])
         }
 
         return {topic: topic}
