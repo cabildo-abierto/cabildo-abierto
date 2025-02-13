@@ -37,6 +37,8 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
         }
     }, []);
 
+    console.log("text", content.content.text)
+
     return <div className="w-full">
         <div className={"p-3 border-b"}>
             <div className={"text-base text-[var(--text-light)]"}>

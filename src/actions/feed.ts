@@ -254,58 +254,63 @@ function validFeedElement(e, kind){
 
 export async function getProfileFeed(userId: string, kind: "main" | "replies" | "edits"): Promise<{error?: string, feed?: FeedContentProps[]}>{
 
-    let feed: FeedContentProps[] = []
-    const user = await getUserById(userId)
-
     const {agent, did} = await getSessionAgent()
+
+    let feed: FeedContentProps[] = []
+
+    let collections = []
+    if(kind == "main"){
+        collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "app.bsky.feed.repost"]
+    } else if(kind == "replies"){
+        collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "ar.com.cabildoabierto.quotePost", "app.bsky.feed.repost"]
+    } else if(kind == "edits"){
+        collections = ["ar.com.cabildoabierto.topic"]
+    }
+
+    const promiseFeedCA = db.record.findMany({
+        select: feedQueryWithReposts,
+        where: {
+            authorId: userId,
+            collection: {
+                in: collections
+            }
+        },
+        orderBy: {
+            createdAt: "desc"
+        }
+    })
+
+    let promises: any = [promiseFeedCA]
     if(kind == "main" || kind == "replies"){
         const filter = kind == "main" ? "posts_no_replies" : "posts_with_replies"
-        const {data} = await agent.getAuthorFeed({actor: userId, filter: filter})
+        promises.push(agent.getAuthorFeed({actor: userId, filter: filter}))
+    }
+
+    const feeds = await Promise.all(promises)
+    let feedCA = feeds[0]
+
+    if(kind == "main" || kind == "replies"){
+        const {data} = feeds[1]
         for(let i = 0; i < data.feed.length; i++){
             feed.push(formatBskyFeedElement(data.feed[i]))
         }
     }
 
-    if(user.user && user.user.inCA){
-        let collections = []
-        if(kind == "main"){
-            collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "app.bsky.feed.repost"]
-        } else if(kind == "replies"){
-            collections = ["ar.com.cabildoabierto.article", "app.bsky.feed.post", "ar.com.cabildoabierto.quotePost", "app.bsky.feed.repost"]
-        } else if(kind == "edits"){
-            collections = ["ar.com.cabildoabierto.topic"]
-        }
+    try {
+        feedCA = feedCA.filter((e) => {return validFeedElement(e, kind)})
 
-        try {
-            let feedCA = await db.record.findMany({
-                select: feedQueryWithReposts,
-                where: {
-                    authorId: userId,
-                    collection: {
-                        in: collections
-                    }
-                },
-                orderBy: {
-                    createdAt: "desc"
-                }
-            })
+        const readyForFeed = addCountersToFeed(feedCA, did)
 
-            feedCA = feedCA.filter((e) => {return validFeedElement(e, kind)})
-
-            const readyForFeed = addCountersToFeed(feedCA, did)
-
-            for(let i = 0; i < readyForFeed.length; i++){
-                if(!feed.some((f) => (f.uri == readyForFeed[i].uri))){
-                    feed.push(readyForFeed[i])
-                }
+        for(let i = 0; i < readyForFeed.length; i++){
+            if(!feed.some((f) => (f.uri == readyForFeed[i].uri))){
+                feed.push(readyForFeed[i])
             }
-
-            feed = feed.sort((a, b) => (b.createdAt.getTime() - a.createdAt.getTime()))
-        } catch (error) {
-            console.log("error", error)
-            return {error: "No se pudo obtener el feed."}
         }
 
+        feed = feed.sort((a, b) => (b.createdAt.getTime() - a.createdAt.getTime()))
+    } catch (error) {
+        console.log("error", error)
+        return {error: "No se pudo obtener el feed."}
     }
 
     return {feed: feed}

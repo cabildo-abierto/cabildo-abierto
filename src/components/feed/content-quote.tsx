@@ -60,7 +60,6 @@ function getSelectionFromJSONState(state: any, selection: {start: {node: number[
 }
 
 const ArticleQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedContent: QuotedContent}) => {
-
     const quote = JSON.parse(quoteStr)
     const parentContent = JSON.parse(decompress(quotedContent.content.text))
 

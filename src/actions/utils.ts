@@ -290,6 +290,7 @@ export const threadQuery = {
                             author: basicUserQuery,
                             content: {
                                 select: {
+                                    text: true,
                                     article: {
                                         select: {
                                             title: true
