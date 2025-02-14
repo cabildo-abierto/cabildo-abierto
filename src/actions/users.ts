@@ -41,26 +41,6 @@ export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: str
         return {error: "Error al obtener a los usuarios."}
     }
 }
-
-
-export const getUsersList = async (): Promise<{users?: {did: string}[], error?: string}> => {
-
-    try {
-        const users = await unstable_cache(async () => {
-            return await getUsersListNoCache()
-        },
-            ["users"],
-            {
-                revalidate: revalidateEverythingTime,
-                tags: ["users"]
-            }
-        )()
-        return {users}
-    } catch {
-        console.log("error getting users")
-        return {error: "Error al obtener los usuarios."}
-    }
-}
     
 
 export const getConversations = (userId: string) => {
@@ -198,12 +178,33 @@ const fullUserQuery = {
                 }
             }
         }
+    },
+    messagesReceived: {
+        select: {
+            createdAt: true,
+            id: true,
+            text: true,
+            fromUserId: true,
+            toUserId: true,
+            seen: true
+        }
+    },
+    messagesSent: {
+        select: {
+            createdAt: true,
+            id: true,
+            text: true,
+            fromUserId: true,
+            toUserId: true,
+            seen: true
+        }
     }
 }
 
 
 export const getUserById = async (userId: string): Promise<{user?: UserProps, atprotoProfile?: ProfileViewDetailed, error?: string}> => {
     const promiseATProtoProfile = getATProtoUserById(userId)
+
     const promiseCAUser = db.user.findFirst(
         {
             select: fullUserQuery,

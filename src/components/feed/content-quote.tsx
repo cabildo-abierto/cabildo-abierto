@@ -1,14 +1,7 @@
-import {
-    ArticleProps,
-    FastPostProps,
-    FeedContentPropsNoRepost, RecordProps,
-    TopicVersionOnFeedProps
-} from "../../app/lib/definitions";
-import {useArticle} from "../../hooks/user";
 import {decompress} from "../compression";
 import ReadOnlyEditor from "../editor/read-only-editor";
 import {contentUrl, getCollectionFromUri} from "../utils";
-import {useTopic, useTopicVersion} from "../../hooks/contents";
+import {useTopicVersion} from "../../hooks/contents";
 import LoadingSpinner from "../loading-spinner";
 import {Authorship} from "../content-top-row-author";
 import {getTopicTitle} from "../topic/utils";

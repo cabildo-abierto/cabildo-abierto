@@ -31,7 +31,11 @@ export function useFullProfile(did: string): {user: UserProps, atprotoProfile: P
 
 
 export function useUser(): {user: UserProps, isLoading?: boolean, error?: string} {
-    const { data, error, isLoading } = useSWR('/api/user', fetcher)
+    const { data, error, isLoading } = useSWR('/api/user', fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false
+    })
 
     return {
         user: data ? data?.user : undefined,
@@ -42,7 +46,11 @@ export function useUser(): {user: UserProps, isLoading?: boolean, error?: string
 
 
 export function useBskyUser(): {bskyUser: ProfileViewDetailed, isLoading?: boolean, error?: string} {
-    const { data, error, isLoading } = useSWR('/api/user/bsky', fetcher)
+    const { data, error, isLoading } = useSWR('/api/user/bsky', fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false
+    })
 
     return {
         bskyUser: data ? data?.bskyUser : undefined,

@@ -35,7 +35,7 @@ export const FastPostPreviewFrame = ({
     return <div
         id={post.uri}
         className={"w-full flex flex-col hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
-        onClick={(e) => {router.push(url)}}>
+        onClick={() => {router.push(url)}}>
         {repostedBy && <RepostedBy user={repostedBy}/>}
         <div className={"flex h-full items-stretch"}>
             <div className="w-[79px] flex flex-col items-center pl-2 ">

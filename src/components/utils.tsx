@@ -490,10 +490,32 @@ export function datasetViewUrl(uri: string){
 }
 
 
+export function shortCollectionToCollection(collection: string){
+    if(collection == "article"){
+        return "ar.com.cabildoabierto.article"
+    }
+    if(collection == "post"){
+        return "app.bsky.feed.post"
+    }
+    return collection
+}
+
+
+export function collectionToShortCollection(collection: string){
+    if(collection == "ar.com.cabildoabierto.article"){
+        return "article"
+    }
+    if(collection == "app.bsky.feed.post"){
+        return "post"
+    }
+    return collection
+}
+
+
 export function contentUrl(uri: string, handle?: string){
     const {did, collection, rkey} = splitUri(uri)
 
-    return "/c/" + did + "/" + rkey
+    return "/c/" + did + "/" + collectionToShortCollection(collection) + "/" + rkey
 }
 
 
@@ -770,6 +792,7 @@ export const myCookieOptions: SessionOptions = {
 
 
 export const formatIsoDate = (isoDate) => {
+    console.log("date", isoDate)
     const date = new Date(isoDate);
     const argentinaTime = new Intl.DateTimeFormat("es-AR", {
       year: "numeric",

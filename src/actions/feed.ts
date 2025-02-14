@@ -13,7 +13,7 @@ import { getSessionAgent } from "./auth";
 import {getUserById, getUserId, getUsers} from "./users";
 import {addCounters, feedQuery, feedQueryWithReposts} from "./utils";
 import {popularityScore} from "../components/popularity-score";
-import {getRkeyFromUri, listOrder} from "../components/utils";
+import {getCollectionFromUri, getRkeyFromUri, listOrder} from "../components/utils";
 import {
     BlockedPost,
     FeedViewPost,
@@ -292,9 +292,22 @@ export async function getProfileFeed(userId: string, kind: "main" | "replies" | 
     let feedCA = feeds[0]
 
     if(kind == "main" || kind == "replies"){
-        const {data} = feeds[1]
-        for(let i = 0; i < data.feed.length; i++){
-            feed.push(formatBskyFeedElement(data.feed[i]))
+        const feedBsky: FeedViewPost[]  = feeds[1].data.feed
+        for(let i = 0; i < feed.length; i++){
+            const record = feedBsky[i].post.record as {reply: {parent: ATProtoStrongRef, root?: ATProtoStrongRef}, text: string, $type: string}
+            if(record.$type == "app.bsky.feed.post"){
+                if(feedBsky[i].reply){
+                    const reply = record.reply
+                    const parentCollection = getCollectionFromUri(reply.parent.uri)
+                    const rootCollection = reply.root ? getCollectionFromUri(reply.root.uri) : undefined
+                    if(!parentCollection.startsWith("app.bsky.feed") && (!rootCollection || rootCollection.startsWith("app.bsky.feed"))){
+                        continue
+                    }
+                }
+                feed.push(formatBskyFeedElement(feedBsky[i]))
+            } else if(record.$type == "app.bsky.feed.repost"){
+                feed.push(formatBskyFeedElement(feedBsky[i]))
+            }
         }
     }
 

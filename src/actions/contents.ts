@@ -1,13 +1,14 @@
 'use server'
 
 import { getSessionAgent } from "./auth";
-import { RichText } from '@atproto/api'
+import {Agent, RichText} from '@atproto/api'
 import {db} from "../db";
 import {FastPostProps, FastPostReplyProps, ThreadProps, VisualizationProps} from "../app/lib/definitions";
 import {addCounters, feedQuery, feedQueryWithReposts, threadQuery} from "./utils";
 import {getDidFromUri, getUri, getVisualizationTitle, splitUri} from "../components/utils";
 import {getUsers} from "./users";
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
+import {unstable_cache} from "next/cache";
 
 
 export const addLike = async (uri: string, cid: string) => {
@@ -153,9 +154,7 @@ function threadViewPostToThread(thread: ThreadViewPost) {
 }
 
 
-export async function getThreadFromATProto({did, rkey}: {did: string, rkey: string}) {
-
-    const {agent, did: viewerDid} = await getSessionAgent()
+export async function getThreadFromATProto({agent, did, rkey}: {agent: Agent, did: string, rkey: string}) {
 
     const {data} = await agent.getPostThread({
         uri: getUri(did, "app.bsky.feed.post", rkey)
@@ -170,18 +169,35 @@ export async function getThreadFromATProto({did, rkey}: {did: string, rkey: stri
     }
 }
 
-
 export async function getThread({did, rkey}: {did: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
+
+    const {agent, did: viewerDid} = await getSessionAgent()
+
+    return await unstable_cache(
+        async () => {
+            const r = await getThreadNoCache({did, viewerDid, rkey, agent})
+            return r
+        },
+        ["thread:"+did+":"+rkey+":"+viewerDid],
+        {
+            tags: [
+                "thread",
+                "thread:"+did+":"+rkey+":"+viewerDid
+            ]
+        }
+    )()
+}
+
+
+export async function getThreadNoCache({did, rkey, viewerDid, agent}: {did: string, rkey: string, viewerDid: string, agent: Agent}): Promise<{thread?: ThreadProps, error?: string}> {
 
     const {users, error} = await getUsers()
     if(error) return {error}
     if(!users.some((u) => (u.did == did))){
-        return await getThreadFromATProto({did, rkey})
+        return await getThreadFromATProto({agent, did, rkey})
     }
 
-    const {did: viewerDid} = await getSessionAgent()
     const threadId = {rkey, authorId: did}
-
 
     try {
         const mainPostQ = db.record.findFirst({

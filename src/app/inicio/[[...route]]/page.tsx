@@ -1,12 +1,12 @@
-"use client"
-import React, {useState} from "react"
+import React from "react"
 import { MainPage } from "../../../components/main-page"
+import {getEnDiscusion, getFeed, getFollowingFeed} from "../../../actions/feed";
 
 
 const Page: React.FC<{
     params: {route: string[]}
     searchParams: { [key: string]: string }
-}> = ({params, searchParams}) => {
+}> = async ({params, searchParams}) => {
 
     return <MainPage/>
 }

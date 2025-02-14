@@ -132,6 +132,51 @@ export const basicUserQuery = {
 }
 
 
+const replyToQuery = {
+    select: {
+        uri: true,
+        cid: true,
+        collection: true,
+        createdAt: true,
+        author: basicUserQuery,
+        content: {
+            select: {
+                text: true,
+                post: {
+                    select: {
+                        replyTo: {
+                            select: {
+                                uri: true,
+                                collection: true
+                            }
+                        }
+                    }
+                },
+                article: {
+                    select: {
+                        title: true
+                    }
+                },
+                topicVersion: {
+                    select: {
+                        topic: {
+                            select: {
+                                id: true,
+                                versions: {
+                                    select: {
+                                        title: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 export const feedQuery = {
     cid: true,
     uri: true,
@@ -158,43 +203,8 @@ export const feedQuery = {
                 select: {
                     facets: true,
                     embed: true,
-                    replyTo: {
-                        select: {
-                            uri: true,
-                            cid: true,
-                            author: basicUserQuery,
-                            content: {
-                                select: {
-                                    text: true,
-                                    article: {
-                                        select: {
-                                            title: true
-                                        }
-                                    },
-                                    topicVersion: {
-                                        select: {
-                                            topic: {
-                                                select: {
-                                                    id: true,
-                                                    versions: {
-                                                        select: {
-                                                            title: true
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    root: {
-                        select: {
-                            uri: true,
-                            cid: true
-                        }
-                    },
+                    replyTo: replyToQuery,
+                    root: replyToQuery,
                     quote: true
                 }
             },

@@ -9,7 +9,6 @@ export async function GET(req: NextRequest,
     // TO DO: No debería traer un blob cualquiera esto, solo debería funcionar para previews
     let data = await fetchBlob({authorId: params.did, cid: params.cid})
 
-    console.log("fetched blob", data)
     return data
     return NextResponse.json(data);
 }

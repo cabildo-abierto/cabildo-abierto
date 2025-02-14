@@ -25,10 +25,12 @@ import {People} from "@mui/icons-material";
 import { useLayoutConfig } from "./layout/layout-config-context";
 
 
-function unseenCount(chat: ChatMessage[], userId: string){
+function unseenSupportMessagesCount(user: UserProps){
     let count = 0
-    for(let i = chat.length-1; i >= 0; i--){
-        if(chat[i].fromUserId == userId) break
+    function cmp(a, b) { return a.createdAt - b.createdAt}
+    const chat = [...user.messagesReceived, ...user.messagesSent].sort(cmp)
+    for(let i = user.messagesReceived.length-1; i >= 0; i--){
+        if(chat[i].fromUserId == user.did) break
         if(!chat[i].seen) count ++
         else break
     }
@@ -37,8 +39,8 @@ function unseenCount(chat: ChatMessage[], userId: string){
 
 
 export const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () => void}) => {
-    const chat = useChat(user.did, supportDid)
-    const newSupportCount = chat.chat ? unseenCount(chat.chat, user.did) : 0
+
+    const newSupportCount = user ? unseenSupportMessagesCount(user) : 0
     return <Link href={"/soporte"} className={"text-[var(--text-light)]"}>
         <BasicButton
             variant={"text"}
