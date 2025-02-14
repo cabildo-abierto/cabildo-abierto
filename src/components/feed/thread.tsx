@@ -100,7 +100,6 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
                 return <div key={index}>
                     <FastPostPreview
                         post={r}
-                        showParent={false}
                         parentIsMainPost={true}
                         onClickQuote={onClickQuote}
                     />

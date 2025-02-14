@@ -7,6 +7,7 @@ import {FeedElement} from "./feed-element";
 import {contentUrl, emptyChar} from "../utils";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
+import {useUser} from "../../hooks/user";
 
 const ShowThreadButton = ({root}: {root: RecordProps}) => {
     const url = contentUrl(root.uri, root.author.handle)
@@ -29,52 +30,52 @@ const ShowThreadButton = ({root}: {root: RecordProps}) => {
 
 export type FastPostPreviewProps = {
     post: FastPostProps
-    showChildren?: boolean
-    showParent?: boolean
     showingChildren?: boolean
     showingParent?: boolean
     parentIsMainPost?: boolean
     className?: string
     onClickQuote?: (cid: string) => void
     repostedBy?: {handle: string, displayName?: string}
-    showReplyTo?: SmallUserProps
 }
 
 export const FastPostPreview = ({
                                            post,
-                                           parentIsMainPost=false,
-                                           showParent=false,
                                            showingChildren=false,
                                            showingParent=false,
                                            onClickQuote,
-                                           showChildren=false,
-                                           showReplyTo,
                                            repostedBy}: FastPostPreviewProps) => {
+    const {user} = useUser()
 
     const replyTo = post.content.post.replyTo
+    const replyToAvailable = replyTo && (replyTo as FeedContentPropsNoRepostMaybe).createdAt != undefined
+
     const root = post.content.post.root
-    const hasParent = replyTo != undefined && replyTo.collection != undefined
-    const hasRoot = root != undefined && root.collection != undefined && root.uri != replyTo.uri
-    const showingRoot = hasRoot && showParent
+    const rootAvailable = root && (root as FeedContentPropsNoRepostMaybe).createdAt != undefined
 
-    const parentReplyTo = hasParent ? (replyTo as FastPostProps).content.post.replyTo : undefined
+    const parentReplyTo = replyToAvailable && replyTo.collection == "ar.com.cabildoabierto.post" ? (replyTo as FastPostProps).content.post.replyTo : undefined
 
-    const showThreadButton = parentReplyTo && hasRoot && parentReplyTo.uri != root.uri
+    const showThreadButton = replyToAvailable && rootAvailable && parentReplyTo && parentReplyTo.uri != root.uri
+
+    const replyToPost = replyTo && (replyTo.collection == "app.bsky.feed.post" || replyTo.collection == "app.bsky.feed.quotePost")
 
     return <div className={"flex flex-col w-full"}>
-        {showingRoot && <FeedElement elem={root as FeedContentPropsNoRepostMaybe} showingChildren={true}/>}
+        {rootAvailable && <FeedElement elem={root as FeedContentPropsNoRepostMaybe} showingChildren={true}/>}
         {showThreadButton && <ShowThreadButton root={root as FeedContentPropsNoRepostMaybe}/>}
-        {hasParent && showParent &&
-            <FeedElement elem={replyTo as FeedContentPropsNoRepostMaybe} showingChildren={true} showingParent={hasRoot} showReplyTo={showThreadButton ? post.content.post.grandparentAuthor : undefined}/>
+        {replyToAvailable && replyToPost &&
+            <FeedElement elem={replyTo as FeedContentPropsNoRepostMaybe} showingChildren={true} showingParent={rootAvailable}/>
         }
         <FastPostPreviewFrame
             post={post}
             repostedBy={repostedBy}
             showingChildren={showingChildren}
-            showingParent={showingParent || (hasParent && showParent)}
+            showingParent={replyToAvailable && replyToPost}
             borderBelow={!showingChildren}
         >
-            {showReplyTo && <IsReplyMessage author={showReplyTo}/>}
+            {(replyToAvailable && !replyToPost) && <IsReplyMessage
+                author={(replyTo as FeedContentPropsNoRepostMaybe).author}
+                did={user.did}
+                collection={(replyTo as FeedContentPropsNoRepostMaybe).collection}
+            />}
             <FastPostContent post={post} onClickQuote={onClickQuote}/>
         </FastPostPreviewFrame>
     </div>

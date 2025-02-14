@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { MainFeedHeader } from "./main-feed-header"
-import { useFeed } from "../hooks/contents"
 import Feed from "./feed/feed"
+import {useFeed} from "../hooks/contents";
 
 
 type MainPageProps = {
@@ -13,9 +13,9 @@ type MainPageProps = {
 
 
 export const MainPage = ({paramsSelected, showRoute=true}: MainPageProps) => {
-    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "En discusión")
     const feed = useFeed([], "InDiscussion")
     const followingFeed = useFeed([], "Following")
+    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "En discusión")
 
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
     const [filter, setFilter] = useState("Todas")

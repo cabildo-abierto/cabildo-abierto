@@ -1,7 +1,7 @@
 import useSWR from "swr"
 import {
     DatasetProps,
-    FeedContentProps, TopicProps, TopicVersionProps,
+    FeedContentProps, ThreadProps, TopicProps, TopicVersionProps,
     TrendingTopicProps,
     UserStats,
     VisualizationProps
@@ -35,7 +35,13 @@ export function useSearchableContents(): {feed: FeedContentProps[], isLoading: b
 
 export function useFeed(route: string[], feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
 
-    const { data, isLoading } = useSWR('/api/feed/'+[...route, feed].join("/"), fetcher)
+    const { data, isLoading } = useSWR('/api/feed/'+[...route, feed].join("/"), fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
 
     if(data && data.error){
         return {feed: undefined, isLoading: false, error: data.error}
@@ -118,6 +124,17 @@ export function useVisualizations(): {visualizations: VisualizationProps[], isLo
 }
 
 
+export function useThread({did, viewerDid, rkey}: {did: string, viewerDid: string, rkey: string}): {thread: ThreadProps, isLoading: boolean, error?: string}{
+    const { data, error, isLoading } = useSWR('/api/thread/'+did+"/"+rkey+"/"+viewerDid, fetcher)
+
+    return {
+        thread: data && data.thread ? data.thread : undefined,
+        isLoading,
+        error: data && data.error ? data.error : undefined
+    }
+}
+
+
 export function useDataset(uri: string): {dataset: {dataset: DatasetProps, data: any[]}, isLoading: boolean, error?: string}{
     const { data, error, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher)
 
@@ -143,7 +160,15 @@ export function useVisualization(uri: string): {visualization: VisualizationProp
 
 
 export function useTrendingTopics(route: string[], kind: string): {topics: TrendingTopicProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/trending-topics/'+route.join("/")+"?since="+kind, fetcher)
+    const { data, error, isLoading } = useSWR(
+        '/api/trending-topics/'+route.join("/")+"?since="+kind,
+        fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
 
     return {
         topics: data,

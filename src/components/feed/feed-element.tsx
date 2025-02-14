@@ -14,21 +14,18 @@ import {Repost} from "./repost";
 import {TopicVersionOnFeed} from "../topic/topic-version-on-feed";
 
 
-export const FeedElement = ({elem, onClickQuote, repostedBy,
-    showChildren=false,
-    showParent=false,
+export const FeedElement = ({
+    elem,
+    onClickQuote,
+    repostedBy,
     showingChildren=false,
-    showingParent=false,
-    showReplyTo
+    showingParent=false
 }: {
     elem: FeedContentProps & {blocked?: boolean, notFound?: boolean}
     onClickQuote?: (cid: string) => void
     repostedBy?: {displayName?: string, handle: string}
     showingChildren?: boolean
     showingParent?: boolean
-    showParent?: boolean
-    showChildren?: boolean
-    showReplyTo?: SmallUserProps
 }) => {
     if(elem.blocked){
         return <div className={"py-4 px-2 w-full"}>
@@ -44,14 +41,11 @@ export const FeedElement = ({elem, onClickQuote, repostedBy,
         />
     } else if(elem.collection == "app.bsky.feed.post" || elem.collection == "ar.com.cabildoabierto.quotePost"){
         return <FastPostPreview
-            showChildren={showChildren}
             post={elem as FastPostProps}
             onClickQuote={onClickQuote}
             repostedBy={repostedBy}
-            showParent={showParent}
             showingParent={showingParent}
             showingChildren={showingChildren}
-            showReplyTo={showReplyTo}
         />
     } else if(elem.collection == "ar.com.cabildoabierto.dataset"){
         return <DatasetPreview

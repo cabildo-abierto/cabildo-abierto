@@ -175,7 +175,19 @@ export type UserProps = {
     viewer?: {following?: string, followed?: string}
     followersCount: number
     followsCount: number
+    messagesSent: MessageProps[]
+    messagesReceived: MessageProps[]
 };
+
+
+export type MessageProps = {
+    createdAt: Date,
+    id: string,
+    text: string,
+    fromUserId: string,
+    toUserId: string,
+    seen: boolean
+}
 
 
 export type UserStats = {

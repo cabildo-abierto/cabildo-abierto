@@ -29,7 +29,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
 
     function generator(index: number){
         const node = <ViewMonitor uri={feed.feed[index].uri}>
-            <FeedElement elem={feed.feed[index]} showChildren={showReplies} showParent={showReplies} onClickQuote={onClickQuote}/>
+            <FeedElement elem={feed.feed[index]} onClickQuote={onClickQuote}/>
         </ViewMonitor>
 
         return {
