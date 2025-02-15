@@ -4,11 +4,11 @@ import { getSessionAgent } from "./auth";
 import {Agent, RichText} from '@atproto/api'
 import {db} from "../db";
 import {FastPostProps, FastPostReplyProps, ThreadProps, VisualizationProps} from "../app/lib/definitions";
-import {addCounters, feedQuery, feedQueryWithReposts, threadQuery} from "./utils";
-import {getDidFromUri, getUri, getVisualizationTitle, splitUri} from "../components/utils";
+import {addCounters, feedQuery, feedQueryWithReposts, revalidateEverythingTime, threadQuery} from "./utils";
+import {getDidFromUri, getRkeyFromUri, getUri, getVisualizationTitle, splitUri} from "../components/utils";
 import {getUsers} from "./users";
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
-import {unstable_cache} from "next/cache";
+import {revalidateTag, unstable_cache} from "next/cache";
 
 
 export const addLike = async (uri: string, cid: string) => {
@@ -182,8 +182,10 @@ export async function getThread({did, rkey}: {did: string, rkey: string}): Promi
         {
             tags: [
                 "thread",
+                "thread:"+did+":"+rkey,
                 "thread:"+did+":"+rkey+":"+viewerDid
-            ]
+            ],
+            revalidate: revalidateEverythingTime
         }
     )()
 }
@@ -289,6 +291,11 @@ export async function createFastPost(
             collection: record.$type,
             record
         })
+    }
+
+    if(reply){
+        revalidateTag("thread:"+getDidFromUri(reply.parent.uri)+":"+getRkeyFromUri(reply.parent.uri))
+        revalidateTag("thread:"+getDidFromUri(reply.root.uri)+":"+getRkeyFromUri(reply.root.uri))
     }
 
     return {}

@@ -6,9 +6,10 @@ import {db} from "../db";
 import {getRkeyFromUri, listOrder, listOrderDesc, supportDid} from "../components/utils";
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
-import {feedQuery, recordQuery} from "./utils";
+import {feedQuery, recordQuery, revalidateEverythingTime} from "./utils";
 import {getUserId} from "./users";
 import {fetchBlob} from "./data";
+import {unstable_cache} from "next/cache";
 
 
 export async function createTopic(id: string){
@@ -209,7 +210,21 @@ function countUserInteractions(entity: TopicUserInteractionsProps, since?: Date)
 }
 
 
-export async function getTrendingTopics(sinceKind: string): Promise<{error?: string, topics?: TrendingTopicProps[]}> {
+export async function getTrendingTopics(sinceKind: string = "alltime"): Promise<{error?: string, topics?: TrendingTopicProps[]}> {
+    return await unstable_cache(async () => {
+        return await getTrendingTopicsNoCache(sinceKind)
+    },
+        ["tt:"+sinceKind],
+        {
+            tags: ["tt", "tt:"+sinceKind],
+            revalidate: revalidateEverythingTime
+        }
+    )()
+}
+
+
+
+export async function getTrendingTopicsNoCache(sinceKind: string): Promise<{error?: string, topics?: TrendingTopicProps[]}> {
     // sinceKind is always alltime
     const since = undefined
 
