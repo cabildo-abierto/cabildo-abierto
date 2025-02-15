@@ -3,7 +3,7 @@ import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 
 
-export const revalidateEverythingTime = 5
+export const revalidateEverythingTime = 60*60
 
 
 export function revalidateReferences(references: {id: string}[]){

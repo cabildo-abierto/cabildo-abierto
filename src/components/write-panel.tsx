@@ -27,7 +27,7 @@ import {ErrorMsg, validEntityName} from "./write-button";
 import TickButton from "./tick-button";
 import {useSWRConfig} from "swr";
 import {createTopic} from "../actions/topics";
-import {articleUrl, emptyChar} from "./utils";
+import {articleUrl, emptyChar, getDidFromUri, getRkeyFromUri} from "./utils";
 import Link from "next/link";
 import {BasicButton} from "./ui-utils/basic-button";
 import {ReplyToContent} from "./editor/plugins/CommentPlugin";
@@ -168,8 +168,9 @@ const CreateTopic = ({onClose}: {onClose: () => void}) => {
 }
 
 
-const WriteFastPost = ({replyTo, onClose}: {
+const WriteFastPost = ({replyTo, onClose, quote}: {
     replyTo: ReplyToContent,
+    quote?: string
     onClose: () => void}) => {
     const {user} = useUser()
     const [editorKey, setEditorKey] = useState(0)
@@ -178,6 +179,7 @@ const WriteFastPost = ({replyTo, onClose}: {
     const [text, setText] = useState("")
     const [visualization, setVisualization] = useState(null)
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
+    const {mutate} = useSWRConfig()
 
     const charLimit = 300
 
@@ -222,7 +224,11 @@ const WriteFastPost = ({replyTo, onClose}: {
         setErrorOnCreatePost(false)
         if (user) {
             const reply = replyTo ? replyFromParentElement(replyTo) : undefined
-            const {error} = await createFastPost({text, reply, visualization});
+            const {error} = await createFastPost({text, reply, visualization, quote})
+            if(reply){
+                mutate("/api/thread/"+getDidFromUri(reply.parent.uri)+"/"+getRkeyFromUri(reply.parent.uri))
+                mutate("/api/thread/"+getDidFromUri(reply.root.uri)+"/"+getRkeyFromUri(reply.root.uri))
+            }
 
             if (!error) {
                 setEditorKey(editorKey + 1);
@@ -351,7 +357,7 @@ export const WritePanel = ({
             }
             <CloseButton size="small" onClose={onClose}/>
         </div>
-        {selected == "Post" && <WriteFastPost onClose={onClose} replyTo={replyTo}/>}
+        {selected == "Post" && <WriteFastPost onClose={onClose} replyTo={replyTo} quote={quote}/>}
         {selected == "Tema" && <CreateTopic onClose={onClose}/>}
     </>
 
