@@ -5,10 +5,10 @@ import { articleUrl, currentVersion } from "./utils"
 import { fetcher } from "../hooks/utils"
 import { preload } from "swr"
 import { DateSince } from "./date"
-import { EntityCategoriesSmall } from './entity-categories-small';
 import {getTopicTitle} from "./topic/utils";
-import {TrendingTopicProps} from "../app/lib/definitions";
+import {SmallTopicProps} from "../app/lib/definitions";
 import PersonIcon from "@mui/icons-material/Person";
+import {TopicCategories} from "./entity-categories-small";
 
 
 const DateLastEdit = ({topic}: {topic: {versions: {content: {record: {createdAt: Date}}}[]}}) => {
@@ -28,7 +28,7 @@ const DateLastEdit = ({topic}: {topic: {versions: {content: {record: {createdAt:
 }
 
 
-export const EntitySearchResult: React.FC<{route: string[], topic: TrendingTopicProps}> = ({ route, topic }) => {
+export const EntitySearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic }) => {
 
     function onMouseEnter(){
         preload("/api/topic/"+topic.id, fetcher)
@@ -38,13 +38,13 @@ export const EntitySearchResult: React.FC<{route: string[], topic: TrendingTopic
   
     return (
         <div className="relative flex flex-col w-full">
-            {numWords == 0 && (
+            {/*numWords == 0 && (
                 <div className="absolute top-[-9px] right-2 z-10">
                     <span className="text-xs border px-1 text-[var(--text-light)] bg-[var(--background-dark)]">
                         ¡Tema sin información! Completalo
                     </span>
                 </div>
-            )}
+            )*/}
             <Link
                 href={articleUrl(topic.id)}
                 className={"px-2 border-b hover:bg-[var(--background-dark)] bg-[var(--background)] " + (numWords == 0 ? "mt-1" : "")}
@@ -56,7 +56,7 @@ export const EntitySearchResult: React.FC<{route: string[], topic: TrendingTopic
                             <span className="text-lg ">{getTopicTitle(topic)}</span>
                         </div>
 
-                        <EntityCategoriesSmall topic={topic} route={route}/>
+                        <TopicCategories topic={topic}/>
 
                         <div className={"flex justify-between items-center"}>
                             <div className="mt-1 mb-2">

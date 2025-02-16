@@ -49,7 +49,7 @@ export const SearchContent = ({paramsSelected}: RouteContentProps) => {
         </div>
 
         {selected == "Temas" &&
-            <CategoryArticles route={[]} onSearchPage={true}/>
+            <CategoryArticles sortedBy={"Populares"} categories={[]} onSearchPage={true}/>
         }
 
         {selected == "Publicaciones" &&

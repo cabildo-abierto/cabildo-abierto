@@ -55,9 +55,8 @@ export const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () =>
 
 
 const HelpDeskButton = ({user, onClose, showText, setShowText}: {showText: boolean, setShowText: (v: boolean) => void, user?: UserProps, onClose: () => void}) => {
-    const count = useSupportNotRespondedCount()
-
-    return <SidebarButton showText={showText} setShowText={setShowText} icon={<SupportIcon newCount={count.count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
+    const count = 0 // TO DO: Implement
+    return <SidebarButton showText={showText} setShowText={setShowText} icon={<SupportIcon newCount={count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
 }
 
 

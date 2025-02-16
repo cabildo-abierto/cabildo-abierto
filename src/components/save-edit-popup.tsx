@@ -87,7 +87,7 @@ export const SaveEditPopup = ({
         <>
             <div className="fixed inset-0 z-10 flex justify-center items-center px-1">
                 
-                <div className="bg-[var(--background)] rounded border-2 border-black p-4 z-10 text-center max-w-lg w-full">
+                <div className="bg-[var(--background)] rounded border p-4 z-10 text-center max-w-lg w-full">
                     <h2 className="py-4 text-lg">Confirmar cambios</h2>
                     {diff !== "too big" && diff != undefined && <div className="mb-8">
                         <ChangesCounterWithText charsAdded={diff.charsAdded} charsDeleted={diff.charsDeleted}/>

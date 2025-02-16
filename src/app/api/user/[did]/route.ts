@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {getUserById} from "../../../../actions/users";
+import {getFullProfileById} from "../../../../actions/users";
 
 export async function GET(req: NextRequest,
     { params }: { params: { did: string } }
 ) {
 
-    let {user, atprotoProfile} = await getUserById(params.did)
+    let {user, atprotoProfile} = await getFullProfileById(params.did)
 
     return NextResponse.json({user, atprotoProfile});
 }

@@ -11,7 +11,7 @@ export async function GET(req: NextRequest,
     const url = new URL(req.url);
     const searchParams = url.searchParams;
 
-    let {topics} = await getTrendingTopics(searchParams.get("since"))
+    let {topics} = await getTrendingTopics(searchParams.get("since"), [], 10)
 
     return NextResponse.json(topics)
 }

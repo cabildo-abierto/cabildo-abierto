@@ -1,13 +1,12 @@
 "use server"
 
 import {getSessionAgent} from "./auth";
-import {FeedContentProps, TopicProps, TopicVersionProps, TrendingTopicProps} from "../app/lib/definitions";
+import {TopicProps, TopicVersionProps, SmallTopicProps} from "../app/lib/definitions";
 import {db} from "../db";
-import {getRkeyFromUri, listOrder, listOrderDesc, supportDid} from "../components/utils";
+import {currentCategories, getRkeyFromUri, listOrderDesc, supportDid} from "../components/utils";
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
-import {feedQuery, recordQuery, revalidateEverythingTime} from "./utils";
-import {getUserId} from "./users";
+import {recordQuery, revalidateEverythingTime} from "./utils";
 import {fetchBlob} from "./data";
 import {unstable_cache} from "next/cache";
 
@@ -17,8 +16,17 @@ export async function createTopic(id: string){
 }
 
 
-export async function createTopicVersion({id, text, format="markdown", title, claimsAuthorship, message, createOnATProto=true}: {
-    id: string, text?: FormData, format?: string, title?: string, claimsAuthorship: boolean, message?: string, createOnATProto?: boolean}){
+export async function createTopicVersion({
+    id, text, format="markdown", title, claimsAuthorship, message, createOnATProto=true, categories}: {
+    id: string,
+    text?: FormData,
+    format?: string,
+    title?: string
+    claimsAuthorship: boolean
+    message?: string
+    createOnATProto?: boolean
+    categories?: string[]
+}){
 
     const {agent, did} = await getSessionAgent()
     if(!did) return {error: "Iniciá sesión para crear un tema."}
@@ -42,10 +50,11 @@ export async function createTopicVersion({id, text, format="markdown", title, cl
             size: blob.size,
             $type: "blob"
         } : null,
-        title: title,
-        format: format,
-        message: message,
-        id: id,
+        title,
+        format,
+        message,
+        categories: JSON.stringify(categories),
+        id,
         createdAt: new Date().toISOString()
     }
     try {
@@ -61,6 +70,18 @@ export async function createTopicVersion({id, text, format="markdown", title, cl
 
     return {}
 }
+
+
+export async function updateCategoriesInTopic({topicId, categories}: {topicId: string, categories: string[]}) {
+
+    await createTopicVersion({
+        id: topicId,
+        categories,
+        claimsAuthorship: false,
+    })
+}
+
+
 
 const smallRecordQuery = {
     createdAt: true,
@@ -210,11 +231,11 @@ function countUserInteractions(entity: TopicUserInteractionsProps, since?: Date)
 }
 
 
-export async function getTrendingTopics(sinceKind: string = "alltime"): Promise<{error?: string, topics?: TrendingTopicProps[]}> {
+export async function getTrendingTopics(sinceKind: string = "alltime", categories: string[], limit: number = 10, sortedby: string = "Populares"): Promise<{error?: string, topics?: SmallTopicProps[]}> {
     return await unstable_cache(async () => {
-        return await getTrendingTopicsNoCache(sinceKind)
+        return await getTrendingTopicsNoCache(sinceKind, categories, sortedby, limit)
     },
-        ["tt:"+sinceKind],
+        ["tt:"+sinceKind+":"+categories.join(":")+":"+limit+":"+sortedby],
         {
             tags: ["tt", "tt:"+sinceKind],
             revalidate: revalidateEverythingTime
@@ -224,9 +245,10 @@ export async function getTrendingTopics(sinceKind: string = "alltime"): Promise<
 
 
 
-export async function getTrendingTopicsNoCache(sinceKind: string): Promise<{error?: string, topics?: TrendingTopicProps[]}> {
+export async function getTrendingTopicsNoCache(sincekind: string, categories: string[], sortedby: string, limit: number): Promise<{error?: string, topics?: SmallTopicProps[]}> {
     // sinceKind is always alltime
     const since = undefined
+    console.log("getting trending topics no cache", sincekind, categories, sortedby, limit)
 
     try {
 
@@ -347,13 +369,27 @@ export async function getTrendingTopicsNoCache(sinceKind: string): Promise<{erro
                 }
             }
         })
-        const topicsWithScore = topics.map((topic) => {
+
+        let topicsWithScore: SmallTopicProps[] = topics.map((topic) => {
             return {
                 ...topic,
                 score: countUserInteractions(topic, since)
             }
-        }).sort(listOrderDesc).slice(0, 10)
-        return {topics: topicsWithScore}
+        })
+        if(sortedby == "popular") {
+            topicsWithScore.sort(listOrderDesc)
+        }
+
+        let filteredTopics = topicsWithScore.filter((t) => {
+            if(categories.length == 0) return true
+            const current = currentCategories(t)
+
+            return !categories.some((c) => (!current.includes(c)))
+        })
+
+        filteredTopics = limit ? filteredTopics.slice(0, limit) : filteredTopics
+        return {topics: filteredTopics}
+
     } catch (err) {
         console.log("Error", err)
         return {error: "Error al buscar los temas."}
@@ -449,18 +485,37 @@ const topicQuery = (includeText: boolean, includeReplies: boolean) => ({
 })
 
 
-export async function getTopics(){
+export async function getCategories() {
+    return unstable_cache(async () => {
+        return await getCategoriesNoCache()
+    },
+        ["categories"],
+        {
+            tags: ["categories"],
+            revalidate: revalidateEverythingTime
+        }
+    )()
+}
+
+
+export async function getCategoriesNoCache() {
     const topics = await db.topic.findMany({
-        select: topicQuery(false, false),
-        where: {
+        select: {
             versions: {
-                some: {
+                select: {
+                    categories: true
                 }
             }
         }
     })
-
-    return {topics: topics}
+    let categories = new Set<string>()
+    for(let i = 0; i < topics.length; i++){
+        const current = currentCategories(topics[i])
+        for(let j = 0; j < current.length; j++){
+            categories.add(current[j])
+        }
+    }
+    return Array.from(categories)
 }
 
 
@@ -473,6 +528,7 @@ export async function getTextFromBlob(blob: {cid: string, authorId: string}){
 
 export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
     try {
+        console.log("getting topic", id)
         const topic: TopicProps = await db.topic.findUnique({
             select: topicQuery(true, true),
             where: {

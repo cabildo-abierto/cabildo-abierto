@@ -159,7 +159,7 @@ const CreateTopic = ({onClose}: {onClose: () => void}) => {
             <StateButton
                 handleClick={onSubmit}
                 disabled={!user.user || !validEntityName(topicName)}
-                textClassName="title px-4"
+                textClassName="font-bold px-4"
                 text1="Crear tema"
             />
         </div>

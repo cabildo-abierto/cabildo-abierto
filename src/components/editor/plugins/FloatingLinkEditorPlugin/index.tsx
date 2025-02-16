@@ -67,7 +67,7 @@ function FloatingLinkEditor({
   );
   const [results, setResults] = useState<any[]>([])
   const [currentUrl, setCurrentUrl] = useState('');
-  const entities = useTopics([])
+  const entities = useTopics([], "recent")
 
   useEffect(() => {
     // Check if the code is running on the client side
