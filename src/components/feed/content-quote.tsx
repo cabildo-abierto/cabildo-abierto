@@ -65,20 +65,14 @@ const ArticleQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedConten
 
 
 const TopicQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedContent: QuotedContent}) => {
-
-    const parent = useTopicVersion(quotedContent.uri)
-
-    if(!parent.topic){
-        return <LoadingSpinner size={"20px"}/>
-    }
-
     const quote = JSON.parse(quoteStr)
 
+
     let initialData
-    if(parent.topic.content.format == "lexical-compressed"){
-        const parentContent = JSON.parse(decompress(parent.topic.content.text))
+    if(quotedContent.content.format == "lexical-compressed"){
+        const parentContent = JSON.parse(decompress(quotedContent.content.text))
         initialData = getSelectionFromJSONState(parentContent, quote)
-    } else if(parent.topic.content.format == "markdown"){
+    } else if(quotedContent.content.format == "markdown"){
         throw Error("Not implemented")
     } else {
         throw Error("Not implemented")
@@ -98,6 +92,7 @@ export type QuotedContent = {
     }
     content?: {
         text?: string
+        format?: string
         article?: {
             title: string
         }
@@ -137,7 +132,9 @@ export const ContentQuote = ({
         if(onClick){
             onClick()
         } else {
-            router.push(contentUrl(quotedContent.uri)+"#"+post.cid)
+            if(post){
+                router.push(contentUrl(quotedContent.uri)+"#"+post.cid)
+            }
         }
     }
 
@@ -157,11 +154,13 @@ export const ContentQuote = ({
 
     const clickable = onClick != undefined || (post && post.cid)
 
-    return <blockquote
-        className={"ml-3 bg-[var(--background-dark2)] border-l-4 border-[var(--text-light)] rounded py-2 px-3 my-1 " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
-        onClick={handleClick}
-    >
-        {context}
-        {center}
-    </blockquote>
+    return <div className={"content"}>
+        <blockquote
+            className={" my-1 " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
+            onClick={handleClick}
+        >
+            {context}
+            {center}
+        </blockquote>
+    </div>
 }

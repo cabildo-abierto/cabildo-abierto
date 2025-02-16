@@ -2,7 +2,7 @@ import useSWR from "swr"
 import {
     DatasetProps,
     FeedContentProps, ThreadProps, TopicProps, TopicVersionProps,
-    TrendingTopicProps,
+    SmallTopicProps,
     UserStats,
     VisualizationProps
 } from "../app/lib/definitions"
@@ -54,8 +54,8 @@ export function useFeed(route: string[], feed: string): {feed: FeedContentProps[
     }
 }
 
-export function useTopics(route: string[]): {topics: any[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topics/'+route.join("/"), fetcher)
+export function useTopics(categories: string[], sortedBy: string): {topics: any[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/topics/alltime/'+sortedBy+'/'+categories.join("/"), fetcher)
 
     return {
         topics: data,
@@ -65,8 +65,31 @@ export function useTopics(route: string[]): {topics: any[], isLoading: boolean, 
 }
 
 
+export function useCategories(): {categories: string[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/categories', fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        categories: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
 export function useTopic(id: string): {topic: TopicProps, error?: string, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topic/'+id, fetcher)
+    const { data, error, isLoading } = useSWR('/api/topic/'+id, fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
 
     return {
         topic: data,
@@ -88,7 +111,11 @@ export function useTopicVersion(id: string): {topic: TopicVersionProps, error?: 
 
 
 export function useTopicFeed(id: string): {feed: FeedContentProps[], error: string, isLoading: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topic-feed/'+encodeURIComponent(id), fetcher)
+    const { data, error, isLoading } = useSWR('/api/topic-feed/'+encodeURIComponent(id), fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false
+    })
 
     if(data && data.error){
         return {feed: undefined, isLoading: false, error: data.error}
@@ -159,7 +186,7 @@ export function useVisualization(uri: string): {visualization: VisualizationProp
 }
 
 
-export function useTrendingTopics(route: string[], kind: string): {topics: TrendingTopicProps[], isLoading: boolean, isError: boolean}{
+export function useTrendingTopics(route: string[], kind: string): {topics: SmallTopicProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR(
         '/api/trending-topics/'+route.join("/")+"?since="+kind,
         fetcher,

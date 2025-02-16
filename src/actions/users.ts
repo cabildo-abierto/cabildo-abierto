@@ -9,6 +9,7 @@ import { getSubscriptionPrice } from "./payments";
 import { getSessionAgent } from "./auth";
 import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import { Prisma } from "@prisma/client";
+import {NextResponse} from "next/server";
 
 
 export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
@@ -202,7 +203,7 @@ const fullUserQuery = {
 }
 
 
-export const getUserById = async (userId: string): Promise<{user?: UserProps, atprotoProfile?: ProfileViewDetailed, error?: string}> => {
+export const getFullProfileById = async (userId: string): Promise<{user?: UserProps, atprotoProfile?: ProfileViewDetailed, error?: string}> => {
     const promiseATProtoProfile = getATProtoUserById(userId)
 
     const promiseCAUser = db.user.findFirst(
@@ -285,7 +286,7 @@ export async function unfollow(followUri: string) {
 
 
 export async function getUserId(){
-    const {agent, did} = await getSessionAgent()
+    const {did} = await getSessionAgent()
     if(!did) return null
 
     return did
@@ -302,6 +303,43 @@ export async function getUser(){
 }
 
 
+export async function getUserById(userId: string){
+    return await unstable_cache(async () => {
+        return await getUserByIdNoCache(userId)
+    },
+        ["user:"+userId],
+        {
+            tags: ["user:"+userId, "user"],
+            revalidate: revalidateEverythingTime
+        }
+    )()
+}
+
+
+export async function getUserByIdNoCache(userId: string){
+    try {
+        const user = await db.user.findFirst(
+            {
+                select: fullUserQuery,
+                where: {
+                    OR: [
+                        {
+                            did: userId
+                        },
+                        {
+                            handle: userId
+                        }
+                    ]
+                }
+            }
+        )
+        return {user}
+    } catch {
+        return {error: "No se pudo obtener el usuario."}
+    }
+}
+
+
 export async function getBskyUser(): Promise<{bskyUser?: ProfileViewDetailed, error?: string}>{
     const {agent, did} = await getSessionAgent()
     try {
@@ -314,8 +352,8 @@ export async function getBskyUser(): Promise<{bskyUser?: ProfileViewDetailed, er
 
 
 export async function buySubscriptions(userId: string, donatedAmount: number, paymentId: string) {
-    const {user, error} = await getUserById(userId)
-    if(error) return {error}
+    const did = await getUserId()
+    if(!did || did != userId) return {error: "Error de autenticación"}
 
     const queries: {boughtByUserId: string, price: number, paymentId: string, isDonation: boolean, userId: string | null, usedAt: Date | null, endsAt: Date | null}[] = []
     
@@ -428,7 +466,12 @@ export async function setMessageSeen(id: string, userFrom: string, userTo: strin
 }
 
 
-export const getSupportNotRespondedCount = unstable_cache(async () => {
+export const getSupportNotRespondedCount = async () => {
+    const {user} = await getUser()
+    if(!user || user.editorStatus != "Administrator"){
+        return {error: "Sin permisos suficientes."}
+    }
+
     const messages = await db.chatMessage.findMany(
         {
             select: {
@@ -455,14 +498,8 @@ export const getSupportNotRespondedCount = unstable_cache(async () => {
         }
     }
 
-    return c.size
-},
-    ["not-responded-count"],
-    {
-        revalidate: revalidateEverythingTime,
-        tags: ["not-responded-count"]
-    }
-)
+    return {count: c.size}
+}
 
 
 export async function addDonatedSubscriptionsManually(boughtByUserId: string, amount: number, price: number, paymentId?: string){

@@ -1,4 +1,4 @@
-import {TrendingTopicProps} from "../../app/lib/definitions";
+import {SmallTopicProps} from "../../app/lib/definitions";
 import {useState} from "react";
 import {getTopicTitle} from "../topic/utils";
 import {CustomLink as Link} from "../custom-link";
@@ -7,7 +7,7 @@ import Button from "@mui/material/Button";
 import PersonIcon from "@mui/icons-material/Person";
 
 export const TrendingArticlesSlider = ({trendingArticles}: {
-    trendingArticles: TrendingTopicProps[]}) => {
+    trendingArticles: SmallTopicProps[]}) => {
     const [hovering, setHovering] = useState<number>(undefined)
 
     return (

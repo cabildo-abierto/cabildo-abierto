@@ -1,38 +1,23 @@
 "use client"
 
 import { useState } from "react"
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { areArraysEqual } from "@mui/base";
 import StateButton from "./state-button";
-import {currentVersion, getNextCategories} from "./utils";
-import { useSWRConfig } from "swr";
-import LoadingSpinner from "./loading-spinner";
-import { EntityCategoriesTitle } from "./categories";
-import { useTopics } from "../hooks/contents";
-import { useUser } from "../hooks/user";
+import {currentCategories} from "./utils";
 import { TopicProps } from "../app/lib/definitions";
-import Button from "@mui/material/Button";
-import {getTopicTitle} from "./topic/utils";
+import {BasicButton} from "./ui-utils/basic-button";
+import {IconButton} from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
+import {updateCategoriesInTopic} from "../actions/topics";
 
 function validCategoryElement(e: string){
     return e.length > 0
 }
 
-function validCategory(category: string[]){
-    return category.length > 0 && !category.some((e) => !validCategoryElement(e))
-}
-
-
-function validCategories(categories: string[][]){
-    return !categories.some((cat: string[]) => (!validCategory(cat)))
-}
-
-type RouteEditorProps = {
-    category: string[],
-    removeCategory: () => void,
-    updateCategory: (a: string[]) => void
-    routeIndex: number
+function validCategories(categories: string[]){
+    return categories.length > 0 && !categories.some((e) => !validCategoryElement(e))
 }
 
 
@@ -74,173 +59,90 @@ const CategoryInput = ({
 };
 
 
+const NewCategory = ({addCategory}: {addCategory: (c: string) => void}) => {
+    const [category, setCategory] = useState("")
+    const [writingCategory, setWritingCategory] = useState(false)
 
-const RouteEditor = ({category, removeCategory, updateCategory, routeIndex}: 
-    RouteEditorProps
-) => {
-    const topics = useTopics([])
-
-    function updateCategoryAt(i: number, value: string){
-        updateCategory([...category.slice(0, i), value, ...category.slice(i+1)])
+    if(writingCategory){
+        return <div className={"space-x-2 flex items-center"}>
+            <input
+                value={category}
+                className={"rounded-lg bg-[var(--accent)] py-1 px-2 outline-none"}
+                autoFocus={true}
+                onChange={(e) => {setCategory(e.target.value)}}
+            />
+            <IconButton onClick={() => {addCategory(category); setCategory(""); setWritingCategory(false)}}>
+                <CheckIcon fontSize="small"/>
+            </IconButton>
+            <IconButton onClick={() => {setCategory(""); setWritingCategory(false)}}>
+                <CloseIcon fontSize="small"/>
+            </IconButton>
+        </div>
     }
 
-    let newIndex = 0
-    if(!topics.isLoading){
-        let next = getNextCategories(category.slice(0, newIndex), topics.topics)
-        while(newIndex < category.length && next.some((c) => (c == category[newIndex]))){
-            newIndex ++
-            next = getNextCategories(category.slice(0, newIndex), topics.topics)
-        }
-    } else {
-        return <LoadingSpinner/>
-    }
-
-    return <div className="flex items-center py-2 flex-wrap">
-        <button className="flex items-center" onClick={removeCategory}
-            title="Remover categoría"
-        >
-            <div className="px-1 py-1 flex items-center">
-            <RemoveCircleOutlineIcon fontSize="small"/>
-            </div>
-        </button>
-        {category.map((c, i) => {
-            const isNew = i >= newIndex
-            const next = getNextCategories(category.slice(0, i), topics.topics)
-            const id = i + " " + routeIndex + " " + category.slice(0, i).join("/")
-            return <div key={i}>
-                <CategoryInput
-                    isNew={isNew}
-                    update={(v) => {updateCategoryAt(i, v)}}
-                    category={c}
-                    availableCategories={next}
-                    id={id}
-                />
-            </div>
-        })}
-        <button className="px-1 py-1" onClick={() => {updateCategory(category.concat([""]))}} title="Nueva subcategoría">
-            <AddCircleOutlineIcon fontSize="small"/>
-        </button>
-    </div>
+    return <IconButton size="small" onClick={() => {setWritingCategory(true)}}>
+        <AddIcon fontSize={"small"}/>
+    </IconButton>
 }
 
 
-const NewCategory = ({addCategory}: any) => {
-
-    return <div className="flex items-center py-2">
-        <button className="" onClick={addCategory} title="Nueva categoría">
-            <div className="px-1 py-1 flex items-center">
-                <AddCircleOutlineIcon fontSize="small"/>
-            </div>
-        </button>
-    </div>
-}
-
-
-function areCategoriesEqual(cat1: string[][], cat2: string[][]){
-    function comp(a: string[], b: string[]){
-        return areArraysEqual(a, b)
-    }
-
-    const result = areArraysEqual(cat1, cat2, comp)
-    return result
+export const Category = ({category, removeCategory}: {category: string, removeCategory: () => void}) => {
+    const [hovering, setHovering] = useState(false)
+    return <button className={"px-2 py-1 border rounded-lg bg-[var(--accent)] flex space-x-1 items-center"}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+        onClick={removeCategory}
+    >
+        <div>
+        {category}
+        </div>
+        {hovering ? <CloseIcon fontSize={"small"}/> : null}
+    </button>
 }
 
 
 export const RoutesEditor = ({topic, setEditing}: {topic: TopicProps, setEditing: (v: boolean) => void}) => {
-    const user = useUser()
-    const content = topic.versions[currentVersion(topic)]
-    const entityCategories = (content && content.categories) ? JSON.parse(content.categories) : null
-    const [categories, setCategories] = useState<string[][]>(entityCategories)
-    const {mutate} = useSWRConfig()
-    const [errorOnSave, setErrorOnSave] = useState(false)
+    const current = currentCategories(topic)
+    const [categories, setCategories] = useState(current)
 
-    if(!content || !content.categories){
-        return <>Ocurrió un error</>
-    }
 
-    function addCategory() {
-        setCategories([...categories, [""]])
-    }
-
-    const updateCategory = (i: number) => {
-        return (newValue: string[]) => {
-            setCategories([
-                ...categories.slice(0, i),
-                newValue,
-                ...categories.slice(i+1)
-            ])
-        }
-    }
-
-    const removeCategory = (i: number) => {
+    function removeCategory(i: number) {
         return () => {
-            setCategories([
-                ...categories.slice(0, i),
-                ...categories.slice(i+1)
-            ])
+            setCategories([...categories.slice(0, i), ...categories.slice(i+1)])
         }
     }
 
-    const onSubmitCategories = async () => {
-        // TO DO: Pedir confirmación si crea una nueva categoría
-        // TO DO: Chequear que otro no haya editado en el medio
-        /*if(user.user) {
-            setErrorOnSave(false)
-            const {error} = await updateEntityCategoriesOrSearchkeys(entity.id, user.user.id, true, "", JSON.stringify(categories))
-            
-            if(!error){
-                mutate("/api/entitiy/"+entity.id)
-                mutate("/api/entities")
-                setEditing(false)
-            } else {
-                setErrorOnSave(true)
-            }
-            return {}
-        }
-        setErrorOnSave(true)*/
+
+    async function saveCategories(){
+        await updateCategoriesInTopic({topicId: topic.id, categories})
+        setEditing(false)
         return {}
     }
 
-    return <div className="w-full">
-        <hr className="py-3"/>
-        <EntityCategoriesTitle
-            name={getTopicTitle(topic)}
-            editing={true}
-        />
-        <div className="flex flex-col w-full">
-            {categories.length > 0 ? categories.map((cat: string[], i: number) => {
+
+    return <div className={"px-2"}>
+        {categories.length == 0 && <div className={"mb-2 text-[var(--text-light)]"}>Tocá el + para agregar una categoría.</div>}
+        <div className={"flex flex-wrap gap-x-2 items-center"}>
+            {categories.map((c, i) => {
                 return <div key={i}>
-                    <RouteEditor
-                        category={cat}
-                        removeCategory={removeCategory(i)}
-                        updateCategory={updateCategory(i)}
-                        routeIndex={i}
-                    />
+                    <Category category={c} removeCategory={removeCategory(i)}/>
                 </div>
-            }) : 
-            <></>}
-            <NewCategory
-                addCategory={addCategory}
-            />
+            })}
+            <NewCategory addCategory={(c: string) => {setCategories([...categories, c])}}/>
         </div>
-        <div className="flex justify-end space-x-2">
-            <Button
-                size="small"
-                variant="outlined"
-                sx={{textTransform: "none"}}
-                disabled={areCategoriesEqual(categories, entityCategories)}
-                onClick={() => {setCategories(entityCategories); setEditing(false)}}>
+        <div className={"flex justify-end mt-2 space-x-2"}>
+            <BasicButton
+                variant={"text"}
+                onClick={() => {setCategories(current)}}
+                disabled={areArraysEqual(current, categories)}
+            >
                 Cancelar
-            </Button>
+            </BasicButton>
             <StateButton
-                size="small"
-                variant="outlined"
-                disabled={areCategoriesEqual(categories, entityCategories) || !validCategories(categories)}
-                handleClick={onSubmitCategories}
-                text1="Confirmar"
+                handleClick={saveCategories}
+                disabled={areArraysEqual(current, categories)}
+                text1={"Guardar categorías"}
             />
         </div>
-        {errorOnSave && <div className="text-red-600 flex justify-end sm:text-sm text-xs mt-1">Ocurrió un error al guardar. Intentá de nuevo.</div>}
-        <div className="py-3"><hr/></div>
     </div>
 }

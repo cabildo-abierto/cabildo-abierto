@@ -1,16 +1,8 @@
-import { revalidateTag } from "next/cache"
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 
 
 export const revalidateEverythingTime = 60*60
-
-
-export function revalidateReferences(references: {id: string}[]){
-    references.forEach(({id}) => {
-        revalidateTag("entity:"+id)
-    })
-}
 
 
 export const recordQuery = {

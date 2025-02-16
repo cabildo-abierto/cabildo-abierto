@@ -1,5 +1,4 @@
 import InfoPanel from "./info-panel"
-import { Route } from "./wiki-categories"
 
 export const EntityCategoriesTitle = ({name, editing}: {name: string, editing: boolean}) => {
     let info
@@ -12,21 +11,5 @@ export const EntityCategoriesTitle = ({name, editing}: {name: string, editing: b
     return <div className="ml-1 mb-4 flex items-center">
         <span className="mr-1 text-lg">Categorías de {name}</span>
         <InfoPanel text={info} className="w-96"/>
-    </div>
-}
-
-export const EntityCategories = ({categories, name}: {categories: string, name: string}) => {
-
-    const parsedCategories: string[][] = JSON.parse(categories)
-
-    return <div className="flex flex-col py-4">
-        <EntityCategoriesTitle name={name} editing={false}/>
-        {parsedCategories.length > 0 ? parsedCategories.map((category: string[], index: number) => {
-            return <div key={index}>
-                <Route route={category}/>
-            </div>
-        }): 
-        <span>Ninguna categoría asignada.</span>
-        }
     </div>
 }

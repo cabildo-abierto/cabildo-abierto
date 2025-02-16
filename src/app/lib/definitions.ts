@@ -94,9 +94,9 @@ export type TopicProps = {
 }
 
 
-export type TrendingTopicProps = {
+export type SmallTopicProps = {
     id: string
-    score: number[]
+    score?: number[]
     currentVersion: {
         uri: string
     }

@@ -1,8 +1,6 @@
 import {currentVersion, hasChanged, hasEditPermission} from "../utils";
 import {ArticleOtherOptions} from "./article-other-options";
 import {SetProtectionButton} from "../protection-button";
-import {EntityCategories} from "../categories";
-import {getTopicTitle} from "./utils";
 import {EditHistory} from "../edit-history";
 import {FastPostProps, TopicProps, TopicVersionProps} from "../../app/lib/definitions";
 import { useUser } from "../../hooks/user";
@@ -52,6 +50,8 @@ export const TopicContent = ({
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const {mutate} = useSWRConfig()
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+
+
     useEffect(() => {
         const hash = window.location.hash
         if (hash) {
@@ -237,7 +237,8 @@ export const TopicContent = ({
         {editingRoutes &&
             <div className="py-4">
                 <RoutesEditor topic={topic} setEditing={(v: boolean) => {setEditingRoutes(v)}}/>
-            </div>}
+            </div>
+        }
 
         {editingSearchkeys &&
             <div className="py-4">
@@ -348,15 +349,9 @@ export const TopicContent = ({
             {selectedPanel != "editing" && <CloseButton size="small" onClose={() => {
                 setViewingContent(false);
                 setPinnedReplies([])
-                setLayoutConfig({...layoutConfig, distractionFree: false})
+                setLayoutConfig({...layoutConfig, distractionFree: false, maxWidthCenter: "600px"})
                 setSelectedPanel("none")
             }}/>}
-        </div>}
-        {selectedPanel == "categories" && <div className="px-2 content-container my-2">
-            <EntityCategories
-                categories={topic.versions[version].categories}
-                name={getTopicTitle(topic)}
-            />
         </div>}
         {selectedPanel == "history" && <div className="my-2 px-2 border-b">
             <EditHistory

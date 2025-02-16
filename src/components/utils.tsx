@@ -103,11 +103,6 @@ export function arraySum(a: any[]) {
 }
 
 
-function currentCategories(entity: {versions: {cid: string, categories?: string}[]}){
-    return JSON.parse(entity.versions[currentVersion(entity)].categories)
-}
-
-
 function areArraysEqual(a: any[], b: any[]){
     if(a.length != b.length) return false
     for(let i = 0; i < a.length; i++){
@@ -122,37 +117,9 @@ export function isPrefix(p: any[], q: any[]){
     return areArraysEqual(p, q.slice(0, p.length))
 }
 
-export function getNextCategories(route: string[], topics: {}[]){
-    return []
-    /*
-    const nextCategories = new Set<string>()
-    
-    entities.forEach((entity: SmallTopicProps) => {
-        const categories: string[][] = currentCategories(entity)
-        if(!categories) return
-        categories.forEach((category: string[]) => {
-            if(isPrefix(route, category)){
-                if(category.length > route.length){
-                    nextCategories.add(category[route.length])
-                }
-            }
-        })
-    })
 
-    return Array.from(nextCategories)*/
-}
-
-export function entityInRoute(entity: {versions: {cid: string, categories: string}[]}, route: string[]){
-    const categories = currentCategories(entity)
-    if(route.length == 0) return true
-    if(!categories) return false // esto no debería pasar
-    return categories.some((c: string[]) => {
-        return isPrefix(route, c)
-    })
-}
-
-
-export function listOrder(a: {score: number[]}, b: {score: number[]}){
+export function listOrder(a: {score?: number[]}, b: {score?: number[]}){
+    if(!a.score || !b.score) return 0
     for(let i = 0; i < a.score.length; i++){
         if(a.score[i] > b.score[i]){
             return 1
@@ -164,7 +131,8 @@ export function listOrder(a: {score: number[]}, b: {score: number[]}){
 }
 
 
-export function listOrderDesc(a: {score: number[]}, b: {score: number[]}){
+export function listOrderDesc(a: {score?: number[]}, b: {score?: number[]}){
+
     return -listOrder(a, b)
 }
 
@@ -201,6 +169,16 @@ export function currentVersion(entity: {versions: {}[]}){
     }*/
     // TO DO: Implementar
     return entity.versions.length-1
+}
+
+
+export function currentCategories(topic: {versions: {categories?: string}[]}) {
+    for(let i = topic.versions.length-1; i > 0; i--){
+        if(topic.versions[i].categories != null){
+            return JSON.parse(topic.versions[i].categories) as string[]
+        }
+    }
+    return []
 }
 
 

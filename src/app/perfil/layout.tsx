@@ -1,7 +1,5 @@
 import MainLayout from "../../components/layout/main-layout";
 import AccountChecker from "../../components/account-checker";
-import {getUserById} from "../../actions/users";
-import {getUsername} from "../../components/utils";
 
 
 export async function generateMetadata({params}: {params: {id: string}}){

@@ -1,17 +1,23 @@
 "use client"
 import { useState } from "react"
 import { CategoryArticles } from "../../components/category-articles"
+import {CategorySelector} from "../../components/categories/category-selector";
+import {TopicsPageHeader, TopicsSortOrder} from "../../components/topics-page-header";
 
 
 const Temas = () => {
-    const [route, setRoute] = useState([])
+    const [categories, setCategories] = useState([])
+    const [sortedBy, setSortedBy] = useState<TopicsSortOrder>("Populares")
 
     return <div>
-        {/*<div className="bg-[var(--content)] content-container  rounded mt-1">
-            <span className="text-[var(--text-light)] px-2 sm:text-sm text-xs">Categoría</span>
-            <Route route={route} setRoute={setRoute}/>
-        </div>*/}
-        <CategoryArticles route={route} onSearchPage={false}/>
+        <TopicsPageHeader
+            sortedBy={sortedBy}
+            setSortedBy={setSortedBy}
+        />
+        <div className={"px-2 py-2"}>
+            <CategorySelector categories={categories} setCategories={setCategories}/>
+        </div>
+        <CategoryArticles sortedBy={sortedBy} categories={categories} onSearchPage={false}/>
     </div>
 }
 

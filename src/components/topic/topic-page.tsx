@@ -1,15 +1,15 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation";
-import {currentVersion, inRange, isFastPost, isQuotePost} from "../utils";
+import {currentVersion, inRange, isQuotePost} from "../utils";
 import NoEntityPage from "../no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
-import { EntityCategoriesSmall } from "../entity-categories-small";
+import {TopicCategories} from "../entity-categories-small";
 import {useTopic, useTopicFeed} from "../../hooks/contents";
 import {getTopicTitle} from "./utils";
 import {TopicContent} from "./topic-content";
 import LoadingSpinner from "../loading-spinner";
-import {ArticleProps, FastPostProps} from "../../app/lib/definitions";
+import {FastPostProps} from "../../app/lib/definitions";
 import {validQuotePost} from "../feed/thread";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useLayoutConfig} from "../layout/layout-config-context";
@@ -87,7 +87,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     let quoteReplies = undefined
     quoteReplies = replies.filter((r) => ((r as FastPostProps).content.post.quote != undefined))
 
-    const titleFontSize = getTopicTitle(topic.topic).length > 60 ? "text-lg sm:text-xl" : "text-xl sm:text-2xl"
+    const titleFontSize = getTopicTitle(topic.topic).length > 60 ? "text-lg sm:text-2xl" : "text-xl sm:text-3xl"
 
     const onClickQuote = (cid: string) => {
         setPinnedReplies([...pinnedReplies, cid])
@@ -102,14 +102,14 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     }
 
     return <div className="flex flex-col items-center w-full">
-        <div className="flex flex-col border-b px-2 py-1 w-full">
+        <div className="flex flex-col px-2 py-1 w-full">
             <div className="text-[var(--text-light)] text-sm">
                 Tema
             </div>
-            <h1 className={" " + titleFontSize}>
+            <h1 className={"mb-2 " + titleFontSize}>
                 {getTopicTitle(topic.topic)}
             </h1>
-            <EntityCategoriesSmall topic={topic.topic} route={[]}/>
+            <TopicCategories topic={topic.topic}/>
         </div>
         <TopicContent
             topic={topic.topic}
