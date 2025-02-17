@@ -67,11 +67,15 @@ export const BlueskyLogin = ({newTab=false}: {newTab?: boolean}) => {
                             setError(undefined);
                         }}
                     />
-                    <FormHelperText hidden={error == undefined} id="my-helper-text">
+
+                    <FormHelperText
+                        hidden={error == undefined}
+                        id="my-helper-text"
+                    >
                         {error}
                     </FormHelperText>
                 </FormControl>
-                <FormHelperText id="my-helper-text">
+                <FormHelperText id="my-helper-text" sx={{color: "var(--text-light)"}}>
                     Tu nombre de usuario de Bluesky, Cabildo Abierto y cualquier otra plataforma que use ATProto.
                 </FormHelperText>
                 <LoadingButton
@@ -80,6 +84,7 @@ export const BlueskyLogin = ({newTab=false}: {newTab?: boolean}) => {
                     fullWidth
                     size="large"
                     variant="contained"
+                    color={"primary"}
                     sx={{
                         mt: 3,
                         mb: 2,
