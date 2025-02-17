@@ -10,7 +10,7 @@ const Page = () => {
             <div className={"text-2xl"}>Notificaciones
         </div>
         </div>
-        <div className={"text-center mt-8"}>
+        <div className={"text-center mt-8 text-[var(--text-light)]"}>
             Ninguna notificación por ahora.
         </div>
     </div>

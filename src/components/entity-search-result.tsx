@@ -53,7 +53,7 @@ export const EntitySearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic }
                 <div className="flex w-full items-center">
                     <div className="w-full">
                         <div className="w-full mt-1 mb-2 px-1">
-                            <span className="text-lg ">{getTopicTitle(topic)}</span>
+                            <span className="text-[15px]" style={{fontStretch: "normal"}}>{getTopicTitle(topic)}</span>
                         </div>
 
                         <TopicCategories topic={topic}/>

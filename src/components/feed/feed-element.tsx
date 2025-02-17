@@ -19,45 +19,49 @@ export const FeedElement = ({
     onClickQuote,
     repostedBy,
     showingChildren=false,
-    showingParent=false
+    showingParent=false,
+    showReplyMessage=false
 }: {
     elem: FeedContentProps & {blocked?: boolean, notFound?: boolean}
     onClickQuote?: (cid: string) => void
     repostedBy?: {displayName?: string, handle: string}
     showingChildren?: boolean
     showingParent?: boolean
+    showReplyMessage?: boolean
 }) => {
-    if(elem.blocked){
+    if (elem.blocked) {
         return <div className={"py-4 px-2 w-full"}>
             Contenido bloqueado
         </div>
-    } else if(elem.notFound){
+    } else if (elem.notFound) {
         return <div className={"py-4 px-2 w-full"}>Contenido no encontrado</div>
     }
-    if(elem.collection == "ar.com.cabildoabierto.article"){
+    if (elem.collection == "ar.com.cabildoabierto.article") {
         return <ArticlePreview
             elem={elem as ArticleProps}
-            repostedBy={repostedBy}
+            showingChildren={showingChildren}
         />
-    } else if(elem.collection == "app.bsky.feed.post" || elem.collection == "ar.com.cabildoabierto.quotePost"){
+    } else if (elem.collection == "app.bsky.feed.post" || elem.collection == "ar.com.cabildoabierto.quotePost") {
         return <FastPostPreview
             post={elem as FastPostProps}
             onClickQuote={onClickQuote}
-            repostedBy={repostedBy}
             showingParent={showingParent}
+            showReplyMessage={showReplyMessage}
             showingChildren={showingChildren}
         />
-    } else if(elem.collection == "ar.com.cabildoabierto.dataset"){
+    } else if (elem.collection == "ar.com.cabildoabierto.dataset") {
         return <DatasetPreview
             dataset={elem as DatasetProps}
         />
-    } else if(elem.collection == "ar.com.cabildoabierto.visualization") {
+    } else if (elem.collection == "ar.com.cabildoabierto.visualization") {
         return <VisualizationOnFeed
             visualization={elem as VisualizationProps}
         />
-    } else if(elem.collection == "app.bsky.feed.repost"){
-        return <Repost repost={elem as RepostProps}/>
     } else if(elem.collection == "ar.com.cabildoabierto.topic"){
         return <TopicVersionOnFeed topicVersion={elem as TopicVersionOnFeedProps}/>
+    } else {
+        return <div className={"py-4"}>
+            Error: No pudimos mostrar un elemento de la colección {elem.collection}
+        </div>
     }
 }

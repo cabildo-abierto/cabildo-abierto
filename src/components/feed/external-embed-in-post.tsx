@@ -52,18 +52,19 @@ export const ExternalEmbedInPost = ({post}: {post: FastPostProps}) => {
 
     if(embed.external.uri.includes("cabildoabierto.com.ar")) return null
 
-    return <div onClick={(e) => {e.preventDefault(); e.stopPropagation(); window.open(embed.external.uri, '_blank')}} className={"border rounded-lg cursor-pointer mt-1"}>
+    return <div
+        onClick={(e) => {e.preventDefault(); e.stopPropagation(); window.open(embed.external.uri, '_blank')}}
+        className={"border rounded-lg cursor-pointer mt-1 hover:bg-[var(--background-dark2)]"}>
         {embed.external.thumb && <div>
             <ImageFromThumb thumb={embed.external.thumb} authorDid={post.author.did}/>
         </div>}
         <div className={embed.external.thumb ? "border-t p-2" : "p-2"}>
-            <div className={"font-bold mb-1"}>{embed.external.title}</div>
-            <div className={""}>{embed.external.description}</div>
+            <div className={"text-[15px] font-semibold mb-1"}>{embed.external.title}</div>
+            <div className={"text-[14px]"}>{embed.external.description}</div>
             <hr className={"py-1"}/>
             <div className={"text-sm text-[var(--text-light)]"}>
                 <Domain url={embed.external.uri}/>
             </div>
-            {/*<Image src={embed.external.thumb.uri} width={400} height={300} alt={"A external embed."}/>*/}
         </div>
     </div>
 }

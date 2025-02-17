@@ -50,6 +50,12 @@ export async function login(handle: string){
 }
 
 
+export async function getSessionDid() {
+    const session = await getIronSession<Session>(cookies(), myCookieOptions);
+    return session.did
+}
+
+
 export async function getSessionAgent(){
     const session = await getIronSession<Session>(cookies(), myCookieOptions)
 

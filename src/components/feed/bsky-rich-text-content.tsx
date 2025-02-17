@@ -8,7 +8,7 @@ import ReadOnlyEditor from '../editor/read-only-editor';
 import { LexicalEditor } from 'lexical';
 
 
-export const BskyRichTextContent = ({content}: {content: {text: string, post?: {facets?: string}}}) => {
+export const BskyRichTextContent = ({content, className=""}: {className?: string, content: {text: string, post?: {facets?: string}}}) => {
     const text = content.text
 
     if(!content.text || content.text.length == 0){
@@ -33,14 +33,7 @@ export const BskyRichTextContent = ({content}: {content: {text: string, post?: {
       }
     })
 
-    if(text.includes("Elon Musk")){
-        console.log("text", text)
-        console.log("segments", segments)
-        console.log("facets", content.post.facets)
-        console.log("markdown", markdown)
-    }
-
     const initialData = (editor: LexicalEditor) => {$convertFromMarkdownString(markdown, TRANSFORMERS)}
 
-    return <ReadOnlyEditor initialData={initialData}/>
+    return <ReadOnlyEditor initialData={initialData} editorClassName={className}/>
 }

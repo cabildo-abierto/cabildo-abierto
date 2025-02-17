@@ -1,21 +1,21 @@
-/* Global Scrollbar Styles */
-::-webkit-scrollbar {
-    width: 8px; /* Width of the scrollbar */
-    height: 8px; /* Height for horizontal scrollbar */
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-::-webkit-scrollbar-thumb {
-    background: var(--accent-dark); /* Use your primary color */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--accent-dark);
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-dark2); /* Change color on hover */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-dark2);
 }
 
-::-webkit-scrollbar-track {
-    background: var(--background-dark2); /* Background of the scrollbar track */
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--background-dark2);
 }
 
 .custom-scrollbar::-webkit-scrollbar-corner {
-    background-color: var(--accent); /* Match it with the scrollbar track */
+    background-color: var(--accent);
 }

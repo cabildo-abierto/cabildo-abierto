@@ -53,7 +53,7 @@
   height: 4px;
   width: 4px;
   padding: 3px;
-  background-color: #3578e5;
+  background-color: var(--primary);
   border: solid 4px white;
   border-radius: 50%;
   z-index: 1001; /* Ensure it's above the scrollbar */
@@ -81,7 +81,7 @@
 }
 
 .selected-heading {
-  color: #3578e5;
+  color: var(--primary);
   position: relative;
 }
 

@@ -14,8 +14,6 @@ import {
     FastPostProps,
     FastPostReplyProps,
     FeedContentProps,
-    TopicProps,
-    TopicVersionProps
 } from "../app/lib/definitions";
 import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./writing/insert-visualization-modal";
@@ -23,11 +21,10 @@ import dynamic from "next/dynamic";
 import SelectionComponent from "./search-selection-component";
 import {Button, TextField} from "@mui/material";
 import {useRouter} from "next/navigation";
-import {ErrorMsg, validEntityName} from "./write-button";
 import TickButton from "./tick-button";
 import {useSWRConfig} from "swr";
 import {createTopic} from "../actions/topics";
-import {articleUrl, emptyChar, getDidFromUri, getRkeyFromUri} from "./utils";
+import {articleUrl, emptyChar, ErrorMsg, getDidFromUri, getRkeyFromUri, validEntityName} from "./utils";
 import Link from "next/link";
 import {BasicButton} from "./ui-utils/basic-button";
 import {ReplyToContent} from "./editor/plugins/CommentPlugin";
@@ -192,7 +189,7 @@ const WriteFastPost = ({replyTo, onClose, quote}: {
     let placeholder: string
     if(!isReply){
         placeholder = "¿Qué está pasando?"
-    } else if(replyTo.collection == "ar.com.cabildoabierto.post"){
+    } else if(replyTo.collection == "app.bsky.feed.post" || replyTo.collection == "ar.com.cabildoabierto.quotePost"){
         placeholder = "Escribí una respuesta"
     } else if(replyTo.collection == "ar.com.cabildoabierto.article"){
         placeholder = "Respondé al artículo"
@@ -204,7 +201,7 @@ const WriteFastPost = ({replyTo, onClose, quote}: {
         text1={isReply ? "Responder" : "Publicar"}
         handleClick={handleSubmit}
         disabled={disabled}
-        textClassName="font-bold"
+        textClassName="font-semibold"
         size="medium"
         disableElevation={true}
     />

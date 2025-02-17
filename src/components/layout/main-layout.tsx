@@ -14,6 +14,9 @@ import {CustomLink as Link} from "../custom-link";
 import {LayoutConfigProvider, useLayoutConfig} from "./layout-config-context";
 import {SearchPanelOnRightColumn} from "./search-panel-on-right-column";
 import {DonateIcon} from "../icons/donate-icon";
+import {PageLeaveProvider} from "../prevent-leave";
+import { ThemeProvider } from '@mui/material';
+import theme from '../theme';
 
 
 const MainLayoutContent = ({children}: {children: ReactNode}) => {
@@ -64,17 +67,21 @@ const MainLayoutContent = ({children}: {children: ReactNode}) => {
 const MainLayout: React.FC<{children: ReactNode, distractionFree?: boolean, maxWidthCenter?: string, leftMinWidth?: string}> = ({children, distractionFree=false, maxWidthCenter="600px", leftMinWidth="224px"}) => {
 
     return <>
-        <LoadingPage>
-            <BetaAccessPage>
-                <SearchProvider>
-                    <LayoutConfigProvider distractionFree={distractionFree} maxWidthCenter={maxWidthCenter} leftMinWidth={leftMinWidth}>
-                        <MainLayoutContent>
-                            {children}
-                        </MainLayoutContent>
-                    </LayoutConfigProvider>
-                </SearchProvider>
-            </BetaAccessPage>
-        </LoadingPage>
+        <ThemeProvider theme={theme}>
+            <PageLeaveProvider>
+                <LoadingPage>
+                    <BetaAccessPage>
+                        <SearchProvider>
+                            <LayoutConfigProvider distractionFree={distractionFree} maxWidthCenter={maxWidthCenter} leftMinWidth={leftMinWidth}>
+                                <MainLayoutContent>
+                                    {children}
+                                </MainLayoutContent>
+                            </LayoutConfigProvider>
+                        </SearchProvider>
+                    </BetaAccessPage>
+                </LoadingPage>
+            </PageLeaveProvider>
+        </ThemeProvider>
     </>
 };
 

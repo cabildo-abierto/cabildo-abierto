@@ -1,11 +1,9 @@
-"use client"
-
-import { CustomLink as Link } from './custom-link';
+import Link from "next/link";
 import { articleUrl } from "./utils";
 import { Logo } from './logo';
-import { smoothScrollTo } from './editor/plugins/TableOfContentsPlugin';
 import { FaXTwitter } from "react-icons/fa6";
 import { SiBluesky } from "react-icons/si";
+import {ScrollToButton} from "./ui-utils/scroll-to-button";
 
 
 export default function Footer({showCA=true}: {showCA?: boolean}) {
@@ -15,9 +13,9 @@ export default function Footer({showCA=true}: {showCA?: boolean}) {
         </div>
         <div className="my-16 flex justify-between sm:px-12 px-4 space-x-4">
             <div className="flex flex-col justify-between">
-                <button onClick={() => {smoothScrollTo(0)}} className="">
+                <ScrollToButton>
                     <Logo className="w-10 h-10 hover:brightness-90 transition duration-200"/>
-                </button>
+                </ScrollToButton>
                 <div className="flex space-x-1">
                     <Link target="blank" href="https://bsky.app/profile/cabildoabierto.com.ar" className="hover:text-gray-700 transition duration-200"><SiBluesky fontSize="25"/></Link>
                     <Link target="blank" href="https://x.com/CabildoAbiertoX" className="hover:text-gray-700 transition duration-200"><FaXTwitter fontSize="25"/></Link>

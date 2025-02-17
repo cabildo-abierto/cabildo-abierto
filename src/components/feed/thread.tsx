@@ -87,8 +87,10 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
         {thread.post.collection == "ar.com.cabildoabierto.dataset" && <DatasetOnThread
             dataset={thread.post as DatasetProps}
         />}
-        <div className={"w-[600px] border-l border-r"}>
+        <div className={"w-full"}>
             <ReplyButton onClick={() => {setOpenReplyPanel(true)}}/>
+        </div>
+        <div className={"w-[600px] border-l border-r"}>
             {replies.map((r, index) => {
 
                 function onClickQuote(){

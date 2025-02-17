@@ -3,9 +3,9 @@ import Link from "next/link"
 
 
 export const Authorship = ({content, onlyAuthor=false}: {content: {author: {displayName?: string, handle: string}}, onlyAuthor?: boolean}) => {
-    return <span className="link">
+    return <span className="">
         {onlyAuthor ? "" : "Por "}
-        <Link href={userUrl(content.author?.handle)}>
+        <Link href={userUrl(content.author?.handle)} className={"hover:underline font-medium"}>
             {getUsername(content.author)}
         </Link>
     </span>

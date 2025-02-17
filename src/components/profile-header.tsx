@@ -46,7 +46,7 @@ const FollowCounters = ({user, atprotoProfile}: {user?: UserProps, atprotoProfil
         </div></>
     } else {
         content = <><div className="">
-            <span className="font-bold">{followersCountAT}</span> {followersCountCA == 1 ? "seguidor" : "seguidores"}
+            <span className="font-bold">{followersCountAT}</span> {followersCountAT == 1 ? "seguidor" : "seguidores"}
         </div>
         <div className="sm:text-base text-sm">
             <span className="font-bold">{followingCountAT}</span> siguiendo

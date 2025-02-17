@@ -21,7 +21,7 @@ export const CategorySelector = ({categories, setCategories}: {categories: strin
         {allCategories.map((c, index) => {
             return <button
                 key={index}
-                className={"rounded-lg text-sm text-[var(--text-light)] bg-[var(--background-dark2)] px-2 hover:bg-[var(--background-dark3)] " + (categories.includes(c) ? "bg-[var(--accent-dark)]" : "")}
+                className={"rounded-lg text-sm px-2 " + (categories.includes(c) ? "bg-[var(--primary)] hover:bg-[var(--primary-dark)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark4)] bg-[var(--background-dark2)]")}
                 onClick={() => {onClick(c)}}>
                 {c}
             </button>

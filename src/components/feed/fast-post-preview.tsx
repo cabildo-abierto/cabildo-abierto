@@ -1,10 +1,10 @@
 "use client"
 
-import {FastPostProps, FeedContentPropsNoRepostMaybe, RecordProps, SmallUserProps} from '../../app/lib/definitions'
+import {FastPostProps, FeedContentPropsMaybe, ReasonProps, RecordProps, SmallUserProps} from '../../app/lib/definitions'
 import {FastPostPreviewFrame, ReplyVerticalLine} from './fast-post-preview-frame'
 import {FastPostContent} from "./fast-post-content";
 import {FeedElement} from "./feed-element";
-import {contentUrl, emptyChar} from "../utils";
+import {contentUrl, emptyChar, isPost} from "../utils";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {useUser} from "../../hooks/user";
@@ -29,12 +29,13 @@ const ShowThreadButton = ({root}: {root: RecordProps}) => {
 
 
 export type FastPostPreviewProps = {
-    post: FastPostProps
+    post: FastPostProps & ReasonProps
     showingChildren?: boolean
     showingParent?: boolean
     parentIsMainPost?: boolean
     className?: string
     onClickQuote?: (cid: string) => void
+    showReplyMessage?: boolean
     repostedBy?: {handle: string, displayName?: string}
 }
 
@@ -42,39 +43,48 @@ export const FastPostPreview = ({
                                            post,
                                            showingChildren=false,
                                            showingParent=false,
-                                           onClickQuote,
-                                           repostedBy}: FastPostPreviewProps) => {
+                                           showReplyMessage=false,
+                                           onClickQuote}: FastPostPreviewProps) => {
     const {user} = useUser()
 
+    if(!post.content){
+        return <div className={"py-4"}>
+            Un post sin contenido
+        </div>
+    }
+
+
     const replyTo = post.content.post.replyTo
-    const replyToAvailable = replyTo && (replyTo as FeedContentPropsNoRepostMaybe).createdAt != undefined
+    const replyToAvailable = replyTo && (replyTo as FeedContentPropsMaybe).createdAt != undefined
 
     const root = post.content.post.root
-    const rootAvailable = root && (root as FeedContentPropsNoRepostMaybe).createdAt != undefined
+    const rootAvailable = root && (root as FeedContentPropsMaybe).createdAt != undefined && root.uri != replyTo.uri
 
-    const parentReplyTo = replyToAvailable && replyTo.collection == "ar.com.cabildoabierto.post" ? (replyTo as FastPostProps).content.post.replyTo : undefined
+    const parentReplyTo = replyToAvailable && isPost(replyTo.collection) ? (replyTo as FastPostProps).content.post.replyTo : undefined
 
     const showThreadButton = replyToAvailable && rootAvailable && parentReplyTo && parentReplyTo.uri != root.uri
 
-    const replyToPost = replyTo && (replyTo.collection == "app.bsky.feed.post" || replyTo.collection == "app.bsky.feed.quotePost")
-
-    return <div className={"flex flex-col w-full"}>
-        {rootAvailable && <FeedElement elem={root as FeedContentPropsNoRepostMaybe} showingChildren={true}/>}
-        {showThreadButton && <ShowThreadButton root={root as FeedContentPropsNoRepostMaybe}/>}
-        {replyToAvailable && replyToPost &&
-            <FeedElement elem={replyTo as FeedContentPropsNoRepostMaybe} showingChildren={true} showingParent={rootAvailable}/>
+    return <div className={"flex flex-col w-full text-[15px]"}>
+        {rootAvailable && <FeedElement elem={root as FeedContentPropsMaybe} showingChildren={true}/>}
+        {showThreadButton && <ShowThreadButton root={root as FeedContentPropsMaybe}/>}
+        {replyToAvailable &&
+            <FeedElement
+                elem={replyTo as FeedContentPropsMaybe}
+                showingChildren={true}
+                showingParent={rootAvailable}
+                showReplyMessage={showThreadButton}
+            />
         }
         <FastPostPreviewFrame
             post={post}
-            repostedBy={repostedBy}
             showingChildren={showingChildren}
-            showingParent={replyToAvailable && replyToPost}
+            showingParent={replyToAvailable || showingParent}
             borderBelow={!showingChildren}
         >
-            {(replyToAvailable && !replyToPost) && <IsReplyMessage
-                author={(replyTo as FeedContentPropsNoRepostMaybe).author}
+            {replyTo && !replyToAvailable && showReplyMessage && <IsReplyMessage
+                author={(replyTo as FeedContentPropsMaybe).author}
                 did={user.did}
-                collection={(replyTo as FeedContentPropsNoRepostMaybe).collection}
+                collection={(replyTo as FeedContentPropsMaybe).collection}
             />}
             <FastPostContent post={post} onClickQuote={onClickQuote}/>
         </FastPostPreviewFrame>

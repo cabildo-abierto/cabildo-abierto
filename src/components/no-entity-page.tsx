@@ -3,8 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useSWRConfig } from "swr"
 import { useUser } from "../hooks/user"
-import { articleUrl } from "./utils"
-import { validEntityName } from "./write-button"
+import {articleUrl, validEntityName} from "./utils"
 import {Button} from "@mui/material";
 import {createTopic} from "../actions/topics";
 

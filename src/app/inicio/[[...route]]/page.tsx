@@ -1,6 +1,5 @@
 import React from "react"
 import { MainPage } from "../../../components/main-page"
-import {getEnDiscusion, getFeed, getFollowingFeed} from "../../../actions/feed";
 
 
 const Page: React.FC<{

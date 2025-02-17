@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 $text: #fbfbfc;
-$primary: #6ca0e4;
+$primary: #8181ff;
 $accent: #2e364c;
 $background: #181b23;
 
@@ -17,20 +17,36 @@ $background: #181b23;
   --background-dark: #{lighten($background, 5%)};
   --background-dark2: #{lighten($background, 10%)};
   --background-dark3: #{lighten($background, 15%)};
-  
-  --primary-dark: #{lighten($primary, 20%)};
-  --primary-darker: #{lighten($primary, 30%)};
+  --background-dark4: #{lighten($background, 20%)};
+
   --primary-light: #{darken($primary, 20%)};
+  --primary-lighter: #{darken($primary, 30%)};
+  --primary-dark: #{lighten($primary, 5%)};
+  --primary-dark2: #{lighten($primary, 10%)};
+  --primary-dark3: #{lighten($primary, 15%)};
+  --primary-dark4: #{lighten($primary, 20%)};
+  --primary-xlight: #39399b;
 
   --accent-dark: #{lighten($accent, 20%)};
   --accent-dark2: #{lighten($accent, 25%)};
   --accent-light: #{darken($accent, 20%)};
 
   --text-light: #{darken($text, 20%)};
-  --text-lighter: #{darken($text, 50%)};
+  --text-lighter: #{darken($text, 40%)};
 
+  font-family: 'Roboto_Flex', sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+@font-face {
+	font-family: 'Roboto_Flex';
+	src: url('/fonts/roboto_flex/RobotoFlex-VariableFont_GRAD,XOPQ,XTRA,YOPQ,YTAS,YTDE,YTFI,YTLC,YTUC,opsz,slnt,wdth,wght.ttf') format('truetype');
+	font-weight: 100 900;
+	font-stretch: 75% 100%;
+	font-display: swap;
 }
 
 body {
@@ -86,13 +102,13 @@ h1, h2, h3, h4, h5, h6 {
     text-decoration: none;
 }
 
-.link a:hover {
-    text-decoration: underline;
+.content a {
+	color: var(--primary);
+	text-decoration: none;
 }
 
-.content a {
-    color: var(--primary);
-    text-decoration: none;
+.link a:hover {
+    text-decoration: underline;
 }
 
 .content a:hover {
@@ -135,9 +151,18 @@ h4 {
   	margin-top: 10px
 }
 
-.content p, ul, li {
+.content p,
+.content ul,
+.content li {
 	margin-top: 10px;
 }
+
+.no-margin-first p:first-of-type,
+.no-margin-first ul:first-of-type,
+.no-margin-first li:first-of-type {
+	margin-top: 0px;
+}
+
 
 .content.no-margin-top p, ul, li {
 	margin-top: 0px;
@@ -155,13 +180,15 @@ h4 {
 .content blockquote {
 	margin-left: 10px;
 	margin-top: 10px;
+	padding-top: 10px;
 	padding-bottom: 10px;
 	padding-right: 10px;
 	padding-left: 16px;
 	border-left-width: 4px;
 	border-left-style: solid;
 	border-color: var(--text-light);
-	background-color: var(--background-dark)
+	background-color: var(--background-dark2);
+	border-radius: 2px;
 }
 
 ul {
@@ -623,11 +650,6 @@ ol {
 	z-index: 10
 }
 
-.explainable p {
-	margin-top: 5px;
-	margin-bottom: 5px;
-}
-
 
 .fancy-text {
 	//text-decoration: underline;
@@ -874,10 +896,10 @@ th {
 
 .no-scrollbar::-webkit-scrollbar {
 	display: none;
-  }
+}
   
   /* For Firefox */
-  .no-scrollbar {
+.no-scrollbar {
 	scrollbar-width: none;
 }
 

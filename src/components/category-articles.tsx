@@ -15,13 +15,15 @@ export const CategoryArticles = ({sortedBy, categories, onSearchPage=false, maxC
     const {topics, isLoading, isError} = useTopics(categories, sortedBy == "Populares" ? "popular" : "recent")
     const {searchState} = useSearch()
 
-    if(isLoading) return <LoadingSpinner/>
-    if(isError || !topics){
-        return <></>
+    if(onSearchPage && searchState.value.length == 0) {
+        return <div className={"mt-8 text-[var(--text-light)] text-center"}>
+            Buscá un tema
+        </div>
     }
 
-    if(onSearchPage && searchState.value.length == 0){
-        return null
+    if (isLoading) return <LoadingSpinner/>
+    if (isError || !topics) {
+        return <></>
     }
 
 

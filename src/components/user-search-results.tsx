@@ -13,14 +13,14 @@ import {searchATProtoUsers} from "../actions/users";
 
 export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCount?: number; showSearchButton?: boolean }) => {
     const users = useUsers();
-    const { searchState } = useSearch();
+    const { searchState, setSearchState } = useSearch();
     const router = useRouter();
     const [results, setResults] = useState<SmallUserProps[] | null | string>(null);
 
     useEffect(() => {
         const debounceTimeout = setTimeout(async () => {
-            if (searchState.value.length === 0 || users.isLoading) return;
             setResults(null)
+            if (searchState.value.length === 0 || users.isLoading) return;
 
             const {users: atprotoUsers, error} = await searchATProtoUsers(searchState.value)
             if(error){
@@ -45,7 +45,7 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
             })
 
             setResults(filteredUsers);
-        }, 300); // 300ms debounce delay
+        }, 300);
 
 
         return () => {
@@ -54,7 +54,7 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
     }, [searchState.value, users.isLoading]);
 
     if(searchState.value.length == 0){
-        return <div className={"mt-8 text-[var(--text-light)] border-b"}>
+        return <div className={"mt-8 text-center text-[var(--text-light)] " + (showSearchButton ? " border-b " : "")}>
             Buscá un usuario
         </div>
     }
@@ -66,7 +66,7 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
     }
 
     if(typeof results == "string"){
-        return <div className={"text-[var(--text-light)] text-center px-2"}>
+        return <div className={"text-[var(--text-light)] text-center px-2 " + (showSearchButton ? "" : "mt-8")}>
             {results}
         </div>
     }
