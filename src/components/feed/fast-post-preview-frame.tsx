@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { DateSince } from '../date'
-import {EngagementProps, RecordProps} from '../../app/lib/definitions'
+import {EngagementProps, ReasonProps, RecordProps} from '../../app/lib/definitions'
 import {emptyChar, formatIsoDate, urlFromRecord, userUrl} from '../utils'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -18,15 +18,14 @@ export const ReplyVerticalLine = ({className=""}: {className?: string}) => {
 
 type FastPostPreviewFrameProps = {
     children: ReactNode
-    post: RecordProps & EngagementProps
+    post: RecordProps & EngagementProps & ReasonProps
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
-    repostedBy?: {handle: string, displayName?: string}
 }
 
 export const FastPostPreviewFrame = ({
-     children, post, borderBelow=true, showingParent=false, showingChildren=false, repostedBy}: FastPostPreviewFrameProps) => {
+     children, post, borderBelow=true, showingParent=false, showingChildren=false}: FastPostPreviewFrameProps) => {
     const router = useRouter()
 
     const record = post
@@ -36,7 +35,7 @@ export const FastPostPreviewFrame = ({
         id={post.uri}
         className={"w-full flex flex-col hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
         onClick={() => {router.push(url)}}>
-        {repostedBy && <RepostedBy user={repostedBy}/>}
+        {post.reason && post.reason.collection == "app.bsky.feed.repost" && <RepostedBy user={post.reason.by}/>}
         <div className={"flex h-full items-stretch"}>
             <div className="w-[79px] flex flex-col items-center pl-2 ">
                 {showingParent ? <ReplyVerticalLine className="h-3"/> : <div className="h-3">{emptyChar}</div>}
@@ -56,7 +55,7 @@ export const FastPostPreviewFrame = ({
             </div>
 
             <div className="flex w-[519px] flex-col py-3 pr-2">
-                <div className="flex items-center gap-x-1 text-sm">
+                <div className="flex items-center gap-x-1">
                     <span className="truncate">
                         <ContentTopRowAuthor author={record.author} />
                     </span>

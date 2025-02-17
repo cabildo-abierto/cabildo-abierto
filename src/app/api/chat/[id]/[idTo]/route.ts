@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getChatBetween, getUserId } from '../../../../../actions/users';
+import { getChatBetween } from '../../../../../actions/users';
 import { supportDid, tomasDid } from '../../../../../components/utils';
+import {getSessionDid} from "../../../../../actions/auth";
 
 
 function hasAccess(loggedInUser: string, userId: string){
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest,
   { params }: { params: { id: string, idTo: string } }
 ) {
 
-    const userId = await getUserId()
+    const userId = await getSessionDid()
 
     if(!hasAccess(userId, params.id)){
       return NextResponse.json(null)

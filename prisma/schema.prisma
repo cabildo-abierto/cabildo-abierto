@@ -138,20 +138,6 @@ model Record {
   views View[]
 }
 
-model Follow {
-  uri            String  @id
-  record         Record  @relation(fields: [uri], references: [uri])
-  userFollowedId String?
-  userFollowed   User?   @relation(fields: [userFollowedId], references: [did])
-}
-
-model Reaction {
-  uri        String  @id
-  record     Record  @relation(fields: [uri], references: [uri])
-  reactsToId String?
-  reactsTo   Record? @relation("reactsTo", fields: [reactsToId], references: [uri])
-}
-
 model Content {
   uri    String @id
   record Record @relation(fields: [uri], references: [uri])
@@ -169,6 +155,36 @@ model Content {
   post         Post?
 
   references Reference[]
+}
+
+model Post {
+  uri     String  @id
+  content Content @relation(fields: [uri], references: [uri])
+
+  facets String?
+  embed  String?
+
+  replyToId String?
+  replyTo   Record? @relation("reply", fields: [replyToId], references: [uri])
+
+  quote String?
+
+  rootId String?
+  root   Record? @relation("root", fields: [rootId], references: [uri])
+}
+
+model Follow {
+  uri            String  @id
+  record         Record  @relation(fields: [uri], references: [uri])
+  userFollowedId String?
+  userFollowed   User?   @relation(fields: [userFollowedId], references: [did])
+}
+
+model Reaction {
+  uri        String  @id
+  record     Record  @relation(fields: [uri], references: [uri])
+  reactsToId String?
+  reactsTo   Record? @relation("reactsTo", fields: [reactsToId], references: [uri])
 }
 
 model TopicVersion {
@@ -198,22 +214,6 @@ model Article {
   uri     String  @id
   content Content @relation(fields: [uri], references: [uri])
   title   String
-}
-
-model Post {
-  uri     String  @id
-  content Content @relation(fields: [uri], references: [uri])
-
-  facets String?
-  embed  String?
-
-  replyToId String?
-  replyTo   Record? @relation("reply", fields: [replyToId], references: [uri])
-
-  quote String?
-
-  rootId String?
-  root   Record? @relation("root", fields: [rootId], references: [uri])
 }
 
 model Dataset {

@@ -1,6 +1,6 @@
-import {FeedContentPropsNoRepost} from "../app/lib/definitions";
+import {FeedContentProps} from "../app/lib/definitions";
 
-export function popularityScore(content: FeedContentPropsNoRepost){
+export function popularityScore(content: FeedContentProps){
     if(content.participantsCount == undefined || content.uniqueViewsCount == undefined){
         return [0]
     }
@@ -16,10 +16,10 @@ export function popularityScore(content: FeedContentPropsNoRepost){
 
     return [participants / Math.max(views * viewWeight, 1), participants, views]
 }
-    
-function isPopularEnough(content: {childrenTree: {authorId: string}[], author: {id: string}, _count: {reactions: number}}){
+
+/*function isPopularEnough(content: {childrenTree: {authorId: string}[], author: {id: string}, _count: {reactions: number}}){
     const commentators = new Set(content.childrenTree.map(({authorId}) => (authorId)))
     commentators.delete(content.author.id)
-    
+
     return content._count.reactions + commentators.size > 0
-}
+}*/

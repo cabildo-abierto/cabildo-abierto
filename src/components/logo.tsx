@@ -1,7 +1,6 @@
-
-import { CustomLink as Link } from './custom-link';
 import Image from 'next/image'
 import { IconButton } from "@mui/material"
+import Link from "next/link";
 
 export const pathLogo = "/logo.svg"
 

@@ -57,7 +57,7 @@ export const SearchContent = ({paramsSelected}: RouteContentProps) => {
         }
 
         {selected == "Datos" &&
-            <DataSearchResults/>
+            <DataSearchResults onSearchPage={true}/>
         }
 
         {selected == "Usuarios" && <UserSearchResults showSearchButton={false}/>}

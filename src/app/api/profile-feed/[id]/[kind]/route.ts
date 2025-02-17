@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {getProfileFeed} from "../../../../../actions/feed";
+import {getProfileFeed} from "../../../../../actions/feed/profile";
 
 
 export async function GET(req: NextRequest, { params }: { params: { id: string, kind: string } }) {

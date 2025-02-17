@@ -22,9 +22,10 @@ import {useLayoutConfig} from "../layout/layout-config-context";
 import {CloseButton} from "../ui-utils/close-button";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {ReplyToContent} from "../editor/plugins/CommentPlugin";
+import {getCurrentContentVersion} from "./utils";
 const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
 
-export const articleButtonClassname = "article-btn lg:text-base text-sm px-1 lg:px-2 py-1"
+export const articleButtonClassname = "article-btn sm:min-w-24 sm:text-[15px] text-sm px-1 lg:px-2 py-1"
 
 
 function topicVersionPropsToReplyToContent(topicVersion: TopicVersionProps): ReplyToContent {
@@ -69,12 +70,8 @@ export const TopicContent = ({
         }
     }, []);
 
-    const lastUpdated = topic.versions[topic.versions.length-1].content.record.createdAt
-
     const currentIndex = currentVersion(topic)
     const isCurrent = version == currentIndex
-
-    const content = topic.versions[version]
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{error?: string}>{
         if(!editor) return {error: "Ocurrió un error con el editor."}
@@ -223,7 +220,8 @@ export const TopicContent = ({
         />
     }
 
-    const originalContent = {cid: content.content.record.cid, uri: content.content.record.uri, diff: content.diff, content: {text: content.content.text}}
+    const currentContentVersion = getCurrentContentVersion(topic, version)
+    const content = topic.versions[currentContentVersion]
 
     const editorComp = <>
         {showingSaveEditPopup && <SaveEditPopup

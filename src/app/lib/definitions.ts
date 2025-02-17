@@ -116,11 +116,25 @@ export type SmallTopicProps = {
     }[]
 }
 
-
-export type FeedContentProps = FeedContentPropsNoRepost | RepostProps
-
-export type FeedContentPropsNoRepost = ((FastPostProps | ArticleProps | DatasetProps | VisualizationProps | TopicVersionOnFeedProps | {}) & RecordProps & EngagementProps)
-export type FeedContentPropsNoRepostMaybe = FeedContentPropsNoRepost & {blocked?: boolean, notFound?: boolean}
+type ReactionProps = {
+    reactions?: {
+        record: {
+            uri: string,
+            collection: string
+            author: {did: string, handle: string, displayName?: string}
+            createdAt: Date
+        }
+    }[]
+}
+export type ReasonProps = {
+    reason?: {
+        createdAt: Date
+        collection: string
+        by: SmallUserProps
+    }
+}
+export type FeedContentProps = ((FastPostProps | ArticleProps | DatasetProps | VisualizationProps | TopicVersionOnFeedProps | {}) & RecordProps & EngagementProps & ReactionProps & ReasonProps)
+export type FeedContentPropsMaybe = FeedContentProps & {blocked?: boolean, notFound?: boolean}
 
 export type SmallUserProps = {
     did: string
@@ -254,7 +268,6 @@ export type ArticleProps = RecordProps & EngagementProps & {
         numWords?: number
         article: {
             title: string
-            format: string
         }
     }
 }
@@ -274,8 +287,8 @@ export type FastPostProps = RecordProps & EngagementProps & {
         post: {
             facets?: string
             embed?: string
-            replyTo?: (FeedContentPropsNoRepostMaybe | ATProtoStrongRef) & {collection?: string}
-            root?: (FeedContentPropsNoRepostMaybe | ATProtoStrongRef) & {collection?: string}
+            replyTo?: (FeedContentPropsMaybe | ATProtoStrongRef) & {collection?: string}
+            root?: (FeedContentPropsMaybe | ATProtoStrongRef) & {collection?: string}
             grandparentAuthor?: SmallUserProps
             quote?: string
             visualization?: VisualizationProps
@@ -306,7 +319,7 @@ export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
 
 export type RepostProps = RecordProps & {
     reaction: {
-        reactsTo: FeedContentPropsNoRepost
+        reactsTo: FeedContentProps
     }
 }
 

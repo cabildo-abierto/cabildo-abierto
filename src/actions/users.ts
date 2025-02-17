@@ -6,7 +6,7 @@ import { revalidateEverythingTime } from "./utils";
 import {SmallUserProps, UserProps, UserStats} from "../app/lib/definitions";
 import {getRkeyFromUri, supportDid, validSubscription} from "../components/utils";
 import { getSubscriptionPrice } from "./payments";
-import { getSessionAgent } from "./auth";
+import {getSessionAgent, getSessionDid} from "./auth";
 import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import { Prisma } from "@prisma/client";
 import {NextResponse} from "next/server";
@@ -285,18 +285,10 @@ export async function unfollow(followUri: string) {
 }
 
 
-export async function getUserId(){
-    const {did} = await getSessionAgent()
-    if(!did) return null
-
-    return did
-}
-
-
 export async function getUser(){
-    const userId = await getUserId()
-    if(userId){
-        return await getUserById(userId)
+    const did = await getSessionDid()
+    if(did){
+        return await getUserById(did)
     } else {
         return {error: "Sin sesión."}
     }
@@ -352,7 +344,7 @@ export async function getBskyUser(): Promise<{bskyUser?: ProfileViewDetailed, er
 
 
 export async function buySubscriptions(userId: string, donatedAmount: number, paymentId: string) {
-    const did = await getUserId()
+    const did = await getSessionDid()
     if(!did || did != userId) return {error: "Error de autenticación"}
 
     const queries: {boughtByUserId: string, price: number, paymentId: string, isDonation: boolean, userId: string | null, usedAt: Date | null, endsAt: Date | null}[] = []
@@ -795,4 +787,22 @@ export async function getUserStats(): Promise<{stats?: UserStats, error?: string
         viewsInEntities: 0
     }
     return {stats}
+}
+
+
+export async function getFollowing(did: string) : Promise<string[]> {
+    const follows = await db.record.findMany({
+        select: {
+            follow: {
+                select: {
+                    userFollowedId: true
+                }
+            }
+        },
+        where: {
+            collection: "app.bsky.graph.follow",
+            authorId: did
+        }
+    })
+    return follows.map((f) => (f.follow.userFollowedId))
 }

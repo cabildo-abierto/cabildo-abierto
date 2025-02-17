@@ -2,12 +2,10 @@ import React, {useEffect, useState} from "react";
 import { SidebarButton } from "./sidebar-button";
 import { CustomLink as Link } from './custom-link';
 import PersonIcon from '@mui/icons-material/Person';
-import { useChat, useSupportNotRespondedCount, useUser } from "../hooks/user";
-import { ChatMessage } from "@prisma/client";
+import { useUser } from "../hooks/user";
 import { UserProps } from "../app/lib/definitions";
-import { supportDid, userUrl } from "./utils";
+import { userUrl } from "./utils";
 import { DashboardIcon } from "./icons/dashboard-icon";
-import { DonateIcon } from "./icons/donate-icon";
 import { CabildoIcon } from "./icons/home-icon";
 import { SupportIcon } from "./icons/support-icon";
 import VisualizationsIcon from "@mui/icons-material/AutoGraph";
@@ -19,10 +17,9 @@ import {usePathname} from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
 import {BasicButton} from "./ui-utils/basic-button";
 import {WritePanel} from "./write-panel";
-import {WriteButtonIcon} from "./icons/write-button-icon";
 import {IconButton} from "@mui/material";
-import {People} from "@mui/icons-material";
 import { useLayoutConfig } from "./layout/layout-config-context";
+import {WriteButtonIcon} from "./icons/write-button-icon";
 
 
 function unseenSupportMessagesCount(user: UserProps){
@@ -80,6 +77,11 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
             fullWidth={true}
             startIcon={<WriteButtonIcon/>}
             size={"large"}
+            sx={{
+                borderRadius: "20px",
+                width: "160px",
+                marginLeft: "10px"
+            }}
             color={"primary"}
             onClick={(e) => {onClick()}}
         >
@@ -100,7 +102,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     const user = useUser()
     const pathname = usePathname()
     const [writePanelOpen, setWritePanelOpen] = useState(false)
-    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    const {layoutConfig} = useLayoutConfig()
     const [showText, setShowText] = useState(!layoutConfig.distractionFree)
 
     useEffect(() => {
@@ -123,7 +125,8 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
         <SidebarButton
             showText={showText} setShowText={setShowText}
             icon={<SearchIcon fontSize={"medium"}/>} onClick={onClose} text="Buscar"
-                       href="/buscar"
+            selected={pathname.startsWith("/buscar")}
+            href="/buscar"
         />
 
         <SidebarButton

@@ -7,6 +7,7 @@ import {
 import { getAllText } from "./diff"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
 import {SessionOptions} from "iron-session";
+import React from "react";
 
 
 export function isFastPost(e: {collection: string}){
@@ -71,6 +72,11 @@ export function validSubscription(user: {subscriptionsUsed: {endsAt: string | Da
 }
 
 
+export function isPost(collection: string){
+    return collection == "ar.com.cabildoabierto.quotePost" || collection == "app.bsky.feed.post"
+}
+
+
 export const permissionToPrintable = (level: string) => {
     if(level == "Administrator"){
         return "Administrador"
@@ -115,6 +121,17 @@ function areArraysEqual(a: any[], b: any[]){
 export function isPrefix(p: any[], q: any[]){
     if(p.length > q.length) return false
     return areArraysEqual(p, q.slice(0, p.length))
+}
+
+
+export function newestFirst(a: {createdAt?: Date}, b: {createdAt?: Date}){
+    if(!a.createdAt || !b.createdAt) return 0
+    return b.createdAt.getTime() - a.createdAt.getTime()
+}
+
+
+export function oldestFirst(a: {createdAt?: Date}, b: {createdAt?: Date}){
+    return -newestFirst(a, b)
 }
 
 
@@ -770,7 +787,6 @@ export const myCookieOptions: SessionOptions = {
 
 
 export const formatIsoDate = (isoDate) => {
-    console.log("date", isoDate)
     const date = new Date(isoDate);
     const argentinaTime = new Intl.DateTimeFormat("es-AR", {
       year: "numeric",
@@ -873,4 +889,15 @@ export function getVisualizationTitle(v: {visualization: {spec: string}}){
 
 export function uriToEndpoint(uri: string){
     return uri.replace("at:/", "")
+}
+
+
+export function validEntityName(name: string) {
+    return name.length >= 2 && name.length < 100 && !name.includes("/");
+}
+
+export const ErrorMsg = ({text}: {text: string}) => {
+    return <div className="text-red-600 text-sm">
+        {text}
+    </div>
 }

@@ -4,24 +4,37 @@ import LoadingSpinner from "../loading-spinner";
 import {ArticleProps, FastPostProps, FeedContentProps} from "../../app/lib/definitions";
 import {cleanText} from "../utils";
 import Feed from "../feed/feed";
+import {ErrorPage} from "../error-page";
 
 
 export const ContentsSearchResults = () => {
     const {searchState} = useSearch()
-    const contents = useSearchableContents()
-
-    if(contents.isLoading || !contents.feed){
-        return <LoadingSpinner/>
-    }
+    const {feed, isLoading} = useSearchableContents()
 
     const searchValue = cleanText(searchState.value)
 
     if(searchValue.length == 0){
-        return null
+        return <div className={"mt-8 text-[var(--text-light)] text-center"}>
+            Buscá un post, respuesta o artículo
+        </div>
     }
 
-    let filteredContents = contents.feed.filter((c: FeedContentProps) => {
+    if(isLoading){
+        return <div className={"mt-8"}><LoadingSpinner/></div>
+    }
+
+    if(!feed){
+        return <ErrorPage>Ocurrió un error al buscar los resultados.</ErrorPage>
+    }
+
+    console.log("feed", feed)
+
+    let filteredContents = feed.filter((c: FeedContentProps) => {
         if(c.collection == "app.bsky.feed.post"){
+            if(!(c as FastPostProps).content){
+                console.log("c", c)
+                return false
+            }
             const text = cleanText((c as FastPostProps).content.text)
             return text.includes(searchValue)
         } else if(c.collection == "ar.com.cabildoabierto.article"){

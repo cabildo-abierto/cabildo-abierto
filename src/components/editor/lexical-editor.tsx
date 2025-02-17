@@ -345,7 +345,6 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorProps) => {
   let {isReadOnly, initialData, imageClassName, allowImages} = settings
 
-
   let nodes = [...PlaygroundNodes]
 
   if(allowImages){

@@ -20,7 +20,6 @@ import { NeedAccountPopup } from "./need-account-popup";
 import {ProfilePic} from "./feed/profile-pic";
 import {LikeCounter} from "./like-counter";
 import {ContentOptionsButton} from "./content-options/content-options-button";
-import {ContentOptions} from "./content-options/content-options";
 
 
 const EditDetails = ({editType}: {editType: string}) => {
@@ -32,19 +31,6 @@ type EditElementProps = {
     index: number,
     viewing?: number,
     isCurrent: boolean
-}
-
-
-const AuthorshipClaim = ({entity, version, setShowingRemoveAuthorshipPanel}: {entity: TopicProps, version: number, setShowingRemoveAuthorshipPanel: (v: boolean) => void}) => {
-    if(entity.versions[version].authorship){
-        return <button className="underline hover:text-[var(--primary)] text-xs"
-            onClick={(e) => {e.stopPropagation(); e.preventDefault(); setShowingRemoveAuthorshipPanel(true)}}
-        >
-            <AuthorshipClaimIcon/>
-        </button>
-    } else {
-        return <NoAuthorshipClaimIcon/>
-    }
 }
 
 
@@ -150,7 +136,6 @@ const MonetizationPortion = ({entity, index}: { entity: TopicProps, index: numbe
 const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     const [showingRemoveAuthorshipPanel, setShowingRemoveAuthorshipPanel] = useState(false)
     const router = useRouter()
-    const user = useUser()
 
     async function onRemoveAuthorship(){
         //return await removeEntityAuthorship(entity.versions[index].id, entity.id)
@@ -178,9 +163,9 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 
     const entityVersion = entity.versions[index]
 
-    let className = "w-full px-2 py-2 link cursor-pointer flex items-center rounded " + (selected ? "border-2 border-[var(--accent-dark)]" : "border")
+    let className = "w-full px-2 py-2 cursor-pointer flex items-center rounded " + (selected ? "border-2 border-[var(--accent-dark)]" : "border")
 
-    className = className + (isRejected ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--secondary-light)]")
+    className = className + (isRejected ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--background-dark)]")
 
     return <div className="flex items-center w-full pb-1">
         {showingRemoveAuthorshipPanel && <RemoveAuthorshipPanel
@@ -341,8 +326,8 @@ export const EditHistory = ({entity, viewing}: { entity: TopicProps, viewing?: n
 
     return <>
         {history}
-        <div className="text-sm text-center block lg:hidden">
-            <p>Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
+        <div className="text-sm text-center block lg:hidden text-[var(--text-light)]">
+            <p className={"py-2"}>Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
         </div>
     </>
 }

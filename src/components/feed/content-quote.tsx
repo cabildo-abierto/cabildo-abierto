@@ -67,15 +67,14 @@ const ArticleQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedConten
 const TopicQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedContent: QuotedContent}) => {
     const quote = JSON.parse(quoteStr)
 
-
     let initialData
-    if(quotedContent.content.format == "lexical-compressed"){
+    if(!quotedContent.content.format || quotedContent.content.format == "lexical-compressed"){
         const parentContent = JSON.parse(decompress(quotedContent.content.text))
         initialData = getSelectionFromJSONState(parentContent, quote)
     } else if(quotedContent.content.format == "markdown"){
-        throw Error("Not implemented")
+        throw Error("Markdown comments not implemented.")
     } else {
-        throw Error("Not implemented")
+        throw Error(quotedContent.content.format + " comments not implemented.")
     }
 
     return <ReadOnlyEditor
@@ -154,9 +153,9 @@ export const ContentQuote = ({
 
     const clickable = onClick != undefined || (post && post.cid)
 
-    return <div className={"content"}>
+    return <div className={"content no-margin-first"}>
         <blockquote
-            className={" my-1 " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
+            className={"my-1 " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
             onClick={handleClick}
         >
             {context}

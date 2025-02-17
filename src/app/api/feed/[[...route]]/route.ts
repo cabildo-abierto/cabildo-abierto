@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getEnDiscusion, getFollowingFeed} from '../../../../actions/feed';
+import {getEnDiscusion, getFollowingFeed} from "../../../../actions/feed/inicio";
 
 
 export async function GET(req: NextRequest,

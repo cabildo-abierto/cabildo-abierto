@@ -3,16 +3,14 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useState } from 'react';
 
 import { ModalBelow } from '../modal-below';
-import { hasEditPermission } from '../utils';
+import {hasEditPermission, validEntityName} from '../utils';
 import { useUser } from '../../hooks/user';
 import {IconButton, TextField} from '@mui/material';
 import StateButton from '../state-button';
 import { useSWRConfig } from 'swr';
 import { ContentOptionsChoiceButton } from '../content-options/content-options-button';
 import { BaseFullscreenPopup } from '../ui-utils/base-fullscreen-popup';
-import { validEntityName } from '../write-button';
 import { AcceptButtonPanel } from '../ui-utils/accept-button-panel';
-//import { changeEntityName } from '../actions/entities';
 import { WriteButtonIcon } from '../icons/write-button-icon';
 import { NeedAccountPopup } from '../need-account-popup';
 import {getTopicTitle} from "./utils";
