@@ -38,13 +38,10 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = ({
             }
         };
 
-        // Initial layout check
         updateLayout();
 
-        // Add resize listener
         window.addEventListener("resize", updateLayout);
 
-        // Cleanup event listener on unmount
         return () => {
             window.removeEventListener("resize", updateLayout);
         };

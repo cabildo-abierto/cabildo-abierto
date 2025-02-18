@@ -5,12 +5,11 @@ import {
     ArticleProps,
     DatasetProps,
     FastPostProps,
-    FeedContentProps, RepostProps, SmallUserProps, TopicVersionOnFeedProps,
+    FeedContentProps, TopicVersionOnFeedProps,
     VisualizationProps
 } from "../../app/lib/definitions";
 import {DatasetPreview} from "../datasets/dataset-preview";
 import {VisualizationOnFeed} from "./visualization-on-feed";
-import {Repost} from "./repost";
 import {TopicVersionOnFeed} from "../topic/topic-version-on-feed";
 
 

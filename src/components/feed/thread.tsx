@@ -50,6 +50,7 @@ export function validQuotePost(content: {text?: string, format?: string}, r: Fas
 export const Thread = ({thread}: {thread: ThreadProps}) => {
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const [pinnedReplies, setPinnedReplies] = useState([])
+    const {layoutConfig} = useLayoutConfig()
 
     const text = thread.post.collection == "ar.com.cabildoabierto.article" ? (thread.post as ArticleProps).content : undefined
 
@@ -81,7 +82,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
         <div className={"w-full"}>
             <ReplyButton onClick={() => {setOpenReplyPanel(true)}}/>
         </div>
-        <div className={"w-[600px] mt-20 border-t"}>
+        <div className={"w-[600px] " + (layoutConfig.maxWidthCenter != "600px" ? "mt-20 border-t" : "")}>
             {replies.map((r, index) => {
 
                 function onClickQuote(){

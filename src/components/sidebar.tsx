@@ -189,7 +189,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 icon={<VisualizationsIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
                 iconInactive={<VisualizationsIcon/>}
                 onClick={onClose}
-                text="Datos"
+                text="Explorar datos"
                 href="/datos"
                 selected={pathname.startsWith("/datos")}
                 showText={showText}
@@ -210,7 +210,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 icon={<DashboardIcon/>}
                 iconInactive={<AccountBalanceOutlinedIcon/>}
                 onClick={onClose}
-                text="Panel personal"
+                text="Mis estadísticas"
                 href="/panel"
                 selected={pathname.startsWith("/panel")}
                 showText={showText}

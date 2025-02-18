@@ -7,6 +7,7 @@ import { FixedCounter, LikeCounter } from "../like-counter"
 import {addLike, removeLike, removeRepost, repost} from "../../actions/contents";
 import {EngagementProps, RecordProps} from "../../app/lib/definitions";
 import {ViewsIcon} from "../icons/views-icon";
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 
 type EngagementIconsProps = {
     counters: EngagementProps
@@ -46,7 +47,14 @@ export const EngagementIcons = ({counters, record, className="space-x-16"}: Enga
             count={counters.uniqueViewsCount+1} // always count the author
             title={"Cantidad de impresiones."}
         />
-        }</>}
+        }
+        {counters.visualizationsUsingCount != undefined && <FixedCounter
+            count={counters.visualizationsUsingCount}
+            icon={<AutoGraphIcon/>}
+            title="Cantidad de visualizaciones que lo usaron."
+        />}
+
+        </>}
 
         <ContentOptionsButton
             record={record}

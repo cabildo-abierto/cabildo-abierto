@@ -1,10 +1,9 @@
 "use client"
 import SearchableDropdown from "../ui-utils/searchable-dropdown";
 import {BaseFullscreenPopup} from "../ui-utils/base-fullscreen-popup";
-import {useEffect, useState} from "react";
-import {getVisualizations} from "../../actions/data";
 import {getVisualizationTitle} from "../utils";
 import {VisualizationProps} from "../../app/lib/definitions";
+import {useVisualizations} from "../../hooks/contents";
 
 
 export const InsertVisualizationModal = ({open, onClose, setVisualization}: {
@@ -12,21 +11,7 @@ export const InsertVisualizationModal = ({open, onClose, setVisualization}: {
     onClose: () => void;
     setVisualization: (v: VisualizationProps) => void
 }) => {
-    const [visualizations, setVisualizations] = useState<VisualizationProps[]>([])
-
-    useEffect(
-        () => {
-            async function fetchVisualizations(){
-                if(visualizations.length == 0){
-                    const v = await getVisualizations()
-                    setVisualizations(v)
-                }
-            }
-
-            fetchVisualizations();
-        },
-        []
-    )
+    const {visualizations} = useVisualizations()
 
     return <BaseFullscreenPopup
         open={open}
@@ -38,8 +23,8 @@ export const InsertVisualizationModal = ({open, onClose, setVisualization}: {
                 Insertar una visualización
             </h2>
             <SearchableDropdown
-                options={visualizations.map(({cid}) => (cid))}
-                optionViews={visualizations.map((v) => (getVisualizationTitle(v)))}
+                options={visualizations ? visualizations.map(({cid}) => (cid)) : []}
+                optionViews={visualizations ? visualizations.map((v) => (getVisualizationTitle(v))) : []}
                 onSelect={(v: string) => {
                     for(let i = 0; i < visualizations.length; i++) {
                         if(visualizations[i].cid == v) {

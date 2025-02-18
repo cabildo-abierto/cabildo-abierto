@@ -1,14 +1,15 @@
 "use server"
-import {getSessionAgent} from "./auth";
+import {getSessionAgent, getSessionDid} from "./auth";
 import {db} from "../db";
-import {DatasetProps, VisualizationProps} from "../app/lib/definitions";
+import {DatasetProps, FeedContentProps, VisualizationProps} from "../app/lib/definitions";
 import Papa from 'papaparse';
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import JSZip from "jszip";
 import {DidResolver} from "@atproto/identity";
 import {VisualizationSpec} from "react-vega";
-import {datasetQuery, recordQuery, visualizationQuery} from "./utils";
+import {datasetQuery, enDiscusionQuery, recordQuery, visualizationQuery} from "./utils";
+import {addCountersToFeed} from "./feed/utils";
 
 
 export async function createBlobFromFile(f: File){
@@ -85,19 +86,31 @@ export async function createDataset(title: string, columns: string[], formData: 
 }
 
 
-export async function getDatasets(): Promise<DatasetProps[]>{
-    const datasets: DatasetProps[] = await db.record.findMany({
+export async function getDatasets(): Promise<FeedContentProps[]>{
+    const did = await getSessionDid()
+
+    let datasets: DatasetProps[] = await db.record.findMany({
         select: {
-            ...recordQuery,
-            dataset: datasetQuery
+            ...enDiscusionQuery,
+            dataset: datasetQuery,
+            visualizationsUsing: {
+                select: {
+                    uri: true
+                }
+            }
         },
         where: {
             collection: "ar.com.cabildoabierto.dataset"
         }
     })
-    return datasets.filter((d) => {
+
+    datasets = datasets.filter((d) => {
         return d.dataset.dataBlocks.length > 0
     })
+
+    const readyForFeed = addCountersToFeed(datasets, did)
+
+    return readyForFeed
 }
 
 
@@ -120,7 +133,12 @@ export async function getDataset(uri: string){
         dataset = await db.record.findUnique({
             select: {
                 ...recordQuery,
-                dataset: datasetQuery
+                dataset: datasetQuery,
+                visualizationsUsing: {
+                    select: {
+                        uri: true
+                    }
+                }
             },
             where: {
                 uri: uri
@@ -239,9 +257,10 @@ export async function saveVisualization(spec: VisualizationSpec, preview: FormDa
 }
 
 export async function getVisualizations(){
-    const v: VisualizationProps[] = await db.record.findMany({
+    const did = await getSessionDid()
+    let v: FeedContentProps[] = await db.record.findMany({
         select: {
-            ...recordQuery,
+            ...enDiscusionQuery,
             visualization: visualizationQuery
         },
         where: {
@@ -254,6 +273,9 @@ export async function getVisualizations(){
             createdAt: "desc"
         }
     })
+
+    v = addCountersToFeed(v, did)
+
     return v
 }
 

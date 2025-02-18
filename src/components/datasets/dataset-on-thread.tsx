@@ -10,7 +10,7 @@ import {ContentOptionsButton} from "../content-options/content-options-button";
 export const DatasetOnThread = ({dataset}: {dataset: DatasetProps}) => {
     const {dataset: datasetWithData, isLoading, error} = useDataset(dataset.uri)
 
-    return <div className={"px-2 mt-4 border-b"}>
+    return <div className={"px-2 mt-4 border-b w-full"}>
         <div className={"flex justify-between w-full"}>
             <div className={"text-[var(--text-light)]"}>
                 Dataset
@@ -24,7 +24,7 @@ export const DatasetOnThread = ({dataset}: {dataset: DatasetProps}) => {
             <ProfilePic user={dataset.author} className={"rounded-full h-4 w-4"}/>
             <ContentTopRowAuthor author={dataset.author}/>
         </div>
-        {isLoading ? <LoadingSpinner/> : datasetWithData && datasetWithData.data ? <DatasetView data={datasetWithData.data}/> : <></>}
+        {isLoading ? <LoadingSpinner/> : datasetWithData && datasetWithData.data ? <DatasetView maxHeight="500px" data={datasetWithData.data}/> : <></>}
         {error && <div className={"py-4 text-center"}>
             {error}
         </div>}

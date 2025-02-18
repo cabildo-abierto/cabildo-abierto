@@ -14,7 +14,7 @@ const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite),
 
 export const Visualization = ({visualization}: {visualization: VisualizationProps}) => {
 
-    return <div className={"px-2 mt-4 space-y-2 pb-2 border-b"}>
+    return <div className={"px-2 mt-4 space-y-2 pb-2 border-b w-full"}>
         <div className={"flex justify-between items-center"}>
             <div className={"font-bold text-xl"}>
                 Visualización
@@ -27,10 +27,10 @@ export const Visualization = ({visualization}: {visualization: VisualizationProp
             <ProfilePic user={visualization.author} className={"w-5 h-5 rounded-full"}/>
             <ContentTopRowAuthor author={visualization.author}/>
         </div>
-        <div className={"flex space-x-1 text-sm"}>
-            <div>Datos:</div>
+        <div className={"flex space-x-1 text-sm items-end"}>
+            <div className={"text-[var(--text-light)]"}>Datos:</div>
             <Link
-                className={"border rounded-lg hover:bg-[var(--background-dark)] px-1"}
+                className={"bg-[var(--background-dark)] rounded-lg hover:bg-[var(--background-dark2)] px-2"}
                 href={datasetViewUrl(visualization.visualization.dataset.uri)}
             >{visualization.visualization.dataset.dataset.title}
             </Link>

@@ -14,7 +14,6 @@ import {VisualizationOnEditor} from "../../components/visualizations/visualizati
 import { getSpecForConfig } from "../../components/visualizations/spec";
 import {View} from "vega";
 import {useRouter} from "next/navigation";
-import {ThreeColumnsLayout} from "../../components/three-columns";
 import {DatasetPreviewSmall} from "../../components/datasets/dataset-preview";
 import {Button, IconButton, TextField} from "@mui/material";
 import {Select} from "../../components/ui-utils/select";
@@ -84,9 +83,9 @@ const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
         setFilteredDatasets(f)
     }, [searchValue, datasets])
 
-    return <div className={"mt-12"}>
+    return <div className={"mt-16"}>
         <ResizableDiv initialWidth={320} minWidth={240} maxWidth={400} side={"right"}>
-            <div className={"border rounded-lg p-2 flex flex-col ml-2 mr-4"}>
+            <div className={"border rounded-lg p-2 flex flex-col"}>
                 <div>
                     <div className={"font-bold text-2xl"}>
                         Datos
@@ -183,81 +182,79 @@ const ConfigPanel = ({config, updateConfig, dataset}: {
     }
 
     return <ResizableDiv initialWidth={400} minWidth={240} maxWidth={500} side={"left"}>
-        <div className={"pr-4 pl-4"}>
-            <div className={"border rounded-lg p-2 mt-12 w-full"}>
-                <div className={"font-bold text-2xl"}>
-                    Configuración
-                </div>
-                <hr className={"my-2"}/>
-                <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2"}>
-                    <Select
-                        options={["Tipo de gráfico", "Histograma", "Gráfico de línea", "Gráfico de barras"]}
-                        value={config.kind}
-                        onChange={(v) => {
-                            updateConfig("kind", v)
-                        }}
-                        label="Tipo de gráfico"
-                        firstDisabled={true}
-                    />
-                    {config.kind != "Tipo de gráfico" && config.dataset != null && <>
-                        {configReq.get(config.kind).map((req, i) => {
-                            if (req.type == "column") {
-                                return <div key={i}>
-                                    <SearchableDropdown
-                                        options={config.dataset.dataset.columns}
-                                        label={req.label}
-                                        size={"small"}
-                                        onSelect={(v: string) => {
-                                            updateConfig(req.label, v)
-                                        }}
-                                    />
-                                </div>
-                            } else if (req.type == "string") {
-                                return <div key={i}>
-                                    <TextField
-                                        label={req.label}
-                                        size={"small"}
-                                        value={config[req.label]}
-                                        InputProps={{autoComplete: "off"}}
-                                        fullWidth={true}
-                                        onChange={(e) => {
-                                            updateConfig(req.label, e.target.value)
-                                        }}
-                                    />
-                                </div>
-                            }
-                            {
-                                throw Error("Not implemented.")
-                            }
-                        })}
-                    </>}
-                    {config.filters && config.filters.map((f, i) => {
-                        return <div key={i}>
-                            <FilterConfig filter={f} config={config} dataset={dataset}
-                                onRemove={() => {
-                                    updateConfig("filters", [...config.filters.slice(0, i), ...config.filters.slice(i + 1)])
-                                }}
-                                updateFilter={(f: FilterProps) => {
-                                    updateFilter(i, f)
-                                }}
-                            />
-                        </div>
-                    })}
-                    <div>
-                        <BasicButton
-                            color={"inherit"}
-                            startIcon={<AddIcon/>}
-                            onClick={() => {
-                                updateConfig("filters", [...config.filters, {}])
-                            }}
-                            size={"small"}
-                            variant={"text"}
-                        >
-                            Filtro
-                        </BasicButton>
-                    </div>
+        <div className={"border rounded-lg p-2 mt-16 w-full"}>
+            <div className={"font-bold text-2xl"}>
+                Configuración
             </div>
-        </div>
+            <hr className={"my-2"}/>
+            <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2"}>
+                <Select
+                    options={["Histograma", "Gráfico de línea", "Gráfico de barras"]}
+                    value={config.kind}
+                    onChange={(v) => {
+                        updateConfig("kind", v)
+                    }}
+                    label="Tipo de gráfico"
+                    firstDisabled={true}
+                />
+                {config.kind != "Tipo de gráfico" && config.dataset != null && <>
+                    {configReq.get(config.kind).map((req, i) => {
+                        if (req.type == "column") {
+                            return <div key={i}>
+                                <SearchableDropdown
+                                    options={config.dataset.dataset.columns}
+                                    label={req.label}
+                                    size={"small"}
+                                    onSelect={(v: string) => {
+                                        updateConfig(req.label, v)
+                                    }}
+                                />
+                            </div>
+                        } else if (req.type == "string") {
+                            return <div key={i}>
+                                <TextField
+                                    label={req.label}
+                                    size={"small"}
+                                    value={config[req.label]}
+                                    InputProps={{autoComplete: "off"}}
+                                    fullWidth={true}
+                                    onChange={(e) => {
+                                        updateConfig(req.label, e.target.value)
+                                    }}
+                                />
+                            </div>
+                        }
+                        {
+                            throw Error("Not implemented.")
+                        }
+                    })}
+                </>}
+                {config.filters && config.filters.map((f, i) => {
+                    return <div key={i}>
+                        <FilterConfig filter={f} config={config} dataset={dataset}
+                            onRemove={() => {
+                                updateConfig("filters", [...config.filters.slice(0, i), ...config.filters.slice(i + 1)])
+                            }}
+                            updateFilter={(f: FilterProps) => {
+                                updateFilter(i, f)
+                            }}
+                        />
+                    </div>
+                })}
+                <div>
+                    <BasicButton
+                        color={"inherit"}
+                        startIcon={<AddIcon/>}
+                        onClick={() => {
+                            updateConfig("filters", [...config.filters, {}])
+                        }}
+                        size={"small"}
+                        variant={"text"}
+                    >
+                        Filtro
+                    </BasicButton>
+                </div>
+            </div>
         </div>
     </ResizableDiv>
 }
@@ -377,7 +374,7 @@ const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}: {
             </div>}
             {selected == "Datos" && <div className={"h-full w-full"}>
                 {dataset && dataset.data ? <div className={"w-full"}>
-                    <div className={"font-bold text-lg mt-4"}>
+                    <div className={"font-bold text-2xl mt-4"}>
                         {dataset.dataset.dataset.title}
                     </div>
                     <div className={"w-full"}>
@@ -514,13 +511,13 @@ const Page = () => {
             config={config}
             selected={selected}
             setSelected={setSelected}
-            maxWidth={centerMaxWidth}
+            maxWidth={centerMaxWidth-8*4-3*4-8*4-4*4}
             dataset={dataset}
         />
     );
 
     const left = (
-        <div ref={leftRef}>
+        <div ref={leftRef} className={"pr-8 pl-3"}>
             <ChooseDatasetPanel
                 datasets={datasets}
                 config={config}
@@ -530,7 +527,7 @@ const Page = () => {
     );
 
     const right = (
-        <div ref={rightRef}>
+        <div ref={rightRef} className={"pl-8 pr-4"}>
             <ConfigPanel
                 config={config}
                 updateConfig={updateConfig}
