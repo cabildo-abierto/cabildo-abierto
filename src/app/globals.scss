@@ -41,6 +41,12 @@ $background: #181b23;
 	-moz-osx-font-smoothing: grayscale;
 }
 
+html {
+	overflow-y: scroll; // scrollbar always on
+	color-scheme: dark;
+}
+
+
 @font-face {
 	font-family: 'Roboto_Flex';
 	src: url('/fonts/roboto_flex/RobotoFlex-VariableFont_GRAD,XOPQ,XTRA,YOPQ,YTAS,YTDE,YTFI,YTLC,YTUC,opsz,slnt,wdth,wght.ttf') format('truetype');

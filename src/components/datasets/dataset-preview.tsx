@@ -12,7 +12,7 @@ import { contentUrl } from "../utils";
 export const DatasetPreviewSmall = ({dataset, selected, onClick}: {dataset: DatasetProps, selected: boolean, onClick: () => void}) => {
     return <div className={"py-1 border rounded px-2 cursor-pointer hover:bg-[var(--background-dark2)] " + (selected ? "bg-[var(--background-dark2)]" : "")} onClick={onClick}>
         <div className={"flex justify-between space-x-1"}>
-            <div className={"font-bold text-lg break-all"}>
+            <div className={"font-semibold text-[16px] break-all"}>
                 {dataset.dataset.title}
             </div>
             <Link href={contentUrl(dataset.uri)} target={"_blank"} className={"text-[var(--text-light)]"} onClick={(e) => {e.stopPropagation()}}>
@@ -21,10 +21,10 @@ export const DatasetPreviewSmall = ({dataset, selected, onClick}: {dataset: Data
                 </IconButton>
             </Link>
         </div>
-        <div>
+        <div className={"text-[var(--text-light)] text-sm"}>
             {dataset.dataset.columns.length} columnas
         </div>
-        <div className={"text-sm"}>
+        <div className={"text-sm truncate text-[var(--text-light)]"}>
             Publicado por <Authorship content={dataset} onlyAuthor={true}/>
         </div>
         <div className={"flex justify-end text-[var(--text-light)] text-sm"}>
