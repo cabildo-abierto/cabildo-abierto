@@ -10,11 +10,10 @@ export const NotFoundPage = () => {
       <Link href="/">
           <Button
               sx={{textTransform: 'none'}}
-            variant={"contained"}
+              variant={"contained"}
           >
               Volver al inicio
           </Button>
-
       </Link>
     </div>
 }

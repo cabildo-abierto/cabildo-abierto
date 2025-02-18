@@ -97,9 +97,6 @@ export type TopicProps = {
 export type SmallTopicProps = {
     id: string
     score?: number[]
-    currentVersion: {
-        uri: string
-    }
     versions: {
         uri: string
         title?: string

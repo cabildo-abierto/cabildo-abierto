@@ -17,9 +17,11 @@ import {usePathname} from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
 import {BasicButton} from "./ui-utils/basic-button";
 import {WritePanel} from "./write-panel";
-import {IconButton} from "@mui/material";
+import {Button, IconButton} from "@mui/material";
 import { useLayoutConfig } from "./layout/layout-config-context";
 import {WriteButtonIcon} from "./icons/write-button-icon";
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 
 
 function unseenSupportMessagesCount(user: UserProps){
@@ -72,7 +74,7 @@ const SidebarUsernameNoUser = () => {
 
 
 const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: () => void}) => {
-    return <div className={"my-2"}>
+    return <div className={"my-2 h-12"}>
         {showText ? <BasicButton
             fullWidth={true}
             startIcon={<WriteButtonIcon/>}
@@ -87,12 +89,14 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
         >
             Escribir
         </BasicButton> :
-            <IconButton
+            <Button
                 color={"primary"}
                 onClick={(e) => {onClick()}}
+                variant={"text"}
+                size={"large"}
             >
                 <WriteButtonIcon/>
-            </IconButton>
+            </Button>
         }
     </div>
 }
@@ -102,70 +106,103 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     const user = useUser()
     const pathname = usePathname()
     const [writePanelOpen, setWritePanelOpen] = useState(false)
-    const {layoutConfig} = useLayoutConfig()
-    const [showText, setShowText] = useState(!layoutConfig.distractionFree)
+    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
     useEffect(() => {
-        if(showText == layoutConfig.distractionFree){
-            setShowText(!layoutConfig.distractionFree)
+        if((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)){
+            setLayoutConfig((prev) => ({
+                ...prev,
+                openSidebar: layoutConfig.spaceForLeftSide
+            }))
         }
-    }, [layoutConfig])
+    }, [layoutConfig.spaceForLeftSide])
 
-    return <div className={"pt-4 px-2 bg-[var(--background)] h-screen " + (showText ? "w-56" : "")}>
-        <div className={"flex flex-col " + (showText ? "" : "items-center")} onMouseEnter={() => {setShowText(true)}} onMouseLeave={() => {if(layoutConfig.distractionFree) setShowText(false)}}>
-        {user.user && <div className={"w-full flex justify-center"}>
-            <SidebarUsername
-            user={user.user}
-        /></div>}
-        {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
-        <SidebarButton
-            showText={showText} setShowText={setShowText}
-            onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio" selected={pathname.startsWith("/inicio")}/>
+    const showText = layoutConfig.openSidebar
+    function setShowText(v: boolean){
+        if(v != layoutConfig.openSidebar){
+            setLayoutConfig((prev) => ({
+                ...prev,
+                openSidebar: v
+            }))
+        }
+    }
 
-        <SidebarButton
-            showText={showText} setShowText={setShowText}
-            icon={<SearchIcon fontSize={"medium"}/>} onClick={onClose} text="Buscar"
-            selected={pathname.startsWith("/buscar")}
-            href="/buscar"
-        />
+    return <div
+        className={"pt-4 px-2 bg-[var(--background)] h-screen " + (showText ? "w-56" : "w-20")}
+    >
+        <div className={"h-full flex flex-col justify-between"}>
+            <div className={"flex flex-col space-y-2 " + (showText ? "" : "items-center")}>
 
-        <SidebarButton
-            showText={showText} setShowText={setShowText}
-            onClick={onClose} icon={<NotificationsIcon count={0}/>}
-            text="Notificaciones" href="/notificaciones" selected={pathname.startsWith("/notificaciones")}
-        />
+            <div className={"mb-4"}>
+                {user.user && <div className={"w-full flex justify-center"}>
+                    <SidebarUsername
+                    user={user.user}
+                /></div>}
 
-        <SidebarButton icon={<TopicsIcon fontSize="medium"/>} onClick={onClose}
-                       text="Temas"
-                       href="/temas"
-                       showText={showText} setShowText={setShowText}
-                       selected={pathname.startsWith("/temas")}
-        />
-        <SidebarButton icon={<VisualizationsIcon fontSize="medium"/>} onClick={onClose}
-                       text="Datos"
-                       href="/datos"
-                       selected={pathname.startsWith("/datos")}
-                       showText={showText} setShowText={setShowText}
-        />
-        {user.user &&
-        <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil"
-                       href={userUrl(user.user.handle)}
-                       selected={pathname == userUrl(user.user.handle)}
-                       showText={showText} setShowText={setShowText}
-        />}
-        <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Remuneración" href="/panel"
-               selected={pathname.startsWith("/panel")}
-                       showText={showText} setShowText={setShowText}
-        />
-        {user.user && user.user.editorStatus == "Administrator" &&
-            <HelpDeskButton showText={showText} setShowText={setShowText} user={user.user} onClose={onClose}/>}
-        <SidebarButton icon={<SettingsIcon/>} onClick={onClose} text="Ajustes" href="/ajustes"
-                       selected={pathname.startsWith("/ajustes")}
-                       showText={showText} setShowText={setShowText}
-        />
-        <SidebarWriteButton showText={showText} onClick={() => {setWritePanelOpen(true)}}/>
-        <WritePanel open={writePanelOpen} onClose={() => {setWritePanelOpen(false)}}/>
+                {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
+            </div>
+
+            <SidebarButton
+                showText={showText} setShowText={setShowText}
+                onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio" selected={pathname.startsWith("/inicio")}
+            />
+
+            <SidebarButton
+                showText={showText} setShowText={setShowText}
+                icon={<SearchIcon fontSize={"medium"}/>} onClick={onClose} text="Buscar"
+                selected={pathname.startsWith("/buscar")}
+                href="/buscar"
+            />
+
+            <SidebarButton
+                showText={showText} setShowText={setShowText}
+                onClick={onClose} icon={<NotificationsIcon count={0}/>}
+                text="Notificaciones" href="/notificaciones" selected={pathname.startsWith("/notificaciones")}
+            />
+
+            <SidebarButton icon={<TopicsIcon fontSize="medium"/>} onClick={onClose}
+                           text="Temas"
+                           href="/temas"
+                           showText={showText} setShowText={setShowText}
+                           selected={pathname.startsWith("/temas")}
+            />
+            <SidebarButton icon={<VisualizationsIcon fontSize="medium"/>} onClick={onClose}
+                           text="Datos"
+                           href="/datos"
+                           selected={pathname.startsWith("/datos")}
+                           showText={showText} setShowText={setShowText}
+            />
+            {user.user &&
+            <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil"
+                           href={userUrl(user.user.handle)}
+                           selected={pathname == userUrl(user.user.handle)}
+                           showText={showText} setShowText={setShowText}
+            />}
+            <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Remuneración" href="/panel"
+                   selected={pathname.startsWith("/panel")}
+                           showText={showText} setShowText={setShowText}
+            />
+            {user.user && user.user.editorStatus == "Administrator" &&
+                <HelpDeskButton showText={showText} setShowText={setShowText} user={user.user} onClose={onClose}/>
+            }
+
+            <SidebarButton icon={<SettingsIcon/>} onClick={onClose} text="Ajustes" href="/ajustes"
+                           selected={pathname.startsWith("/ajustes")}
+                           showText={showText} setShowText={setShowText}
+            />
+            <SidebarWriteButton showText={showText} onClick={() => {setWritePanelOpen(true)}}/>
+        </div>
+        <div className={"text-[var(--text-light)] flex justify-end mb-2"}>
+            <IconButton
+                size={"small"}
+                color={"inherit"}
+                onClick={() => {setShowText(!showText)}}
+            >
+                {showText ? <KeyboardDoubleArrowLeftIcon/> : <KeyboardDoubleArrowRightIcon/>}
+            </IconButton>
+        </div>
     </div>
+        <WritePanel open={writePanelOpen} onClose={() => {setWritePanelOpen(false)}}/>
     </div>
 }
 

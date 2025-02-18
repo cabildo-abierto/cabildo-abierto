@@ -14,13 +14,15 @@ export const DataSearchResults = ({onSearchPage=false}: {onSearchPage?: boolean}
 
     if(onSearchPage && searchState.value.length == 0) {
         return <div className={"mt-8 text-[var(--text-light)] text-center"}>
-            Buscá un dataset o visualización
+            Buscá un conjunto de datos o visualización
         </div>
     }
 
 
     if(datasets.isLoading || !datasets.datasets || visualizations.isLoading || !visualizations.visualizations){
-        return <div className={"mt-8"}><LoadingSpinner/></div>
+        return <div className={"mt-8"}>
+            <LoadingSpinner/>
+        </div>
     }
 
     const searchValue = cleanText(searchState.value)

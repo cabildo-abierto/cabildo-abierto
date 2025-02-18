@@ -69,7 +69,7 @@ export const CreateTopicModal = ({ open, onClose }: { open: boolean, onClose: ()
                 <StateButton
                     handleClick={onSubmit}
                     disabled={!user.user || !validEntityName(topicName)}
-                    textClassName="title px-4"
+                    textClassName="font-semibold px-4"
                     text1="Crear"
                     disableElevation={true}
                 />

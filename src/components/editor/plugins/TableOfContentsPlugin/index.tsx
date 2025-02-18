@@ -14,6 +14,8 @@ import './index.css';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {TableOfContentsPlugin as LexicalTableOfContentsPlugin} from '@lexical/react/LexicalTableOfContentsPlugin';
 import {useEffect, useRef, useState} from 'react';
+import {useLayoutConfig} from "../../../layout/layout-config-context";
+import {pxToNumber} from "../../../utils";
 
 
 const HEADING_WIDTH = 30;
@@ -241,6 +243,11 @@ export default function TableOfContentsPlugin({title, marginAboveEditor}: {
   title?: string
   marginAboveEditor: number
 }) {
+  const {layoutConfig} = useLayoutConfig()
+
+  if(window.innerWidth < pxToNumber(layoutConfig.maxWidthCenter) + pxToNumber(layoutConfig.leftMinWidth) + 275){
+      return <></>
+  }
 
   return <LexicalTableOfContentsPlugin>
       {(tableOfContents) => {

@@ -3,7 +3,7 @@ import AccountChecker from "../../components/account-checker";
 
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  return <MainLayout distractionFree={true} maxWidthCenter={"800px"}>
+  return <MainLayout openRightPanel={false} maxWidthCenter={"800px"} defaultSidebarState={false}>
       <AccountChecker>
       {children}
       </AccountChecker>

@@ -65,30 +65,30 @@ export const QuotedPost = ({maybePost}: {maybePost: {post?: FastPostProps, error
 
     const url = contentUrl(post.uri, post.author.handle)
 
-    return <div onClick={(e) => {e.preventDefault(); e.stopPropagation(); router.push(url)}}>
-        <div className={"rounded-lg border p-3 mt-2"}>
-            <div className={"flex items-center space-x-1 text-[var(--text-light)]"}>
-                <div>
-                    <Image
-                        src={post.author.avatar}
-                        alt={"Foto de perfil de @" + post.author.handle}
-                        width={50}
-                        height={50}
-                        className={"w-4 h-4 rounded-full"}
-                    />
-                </div>
-                <ContentTopRowAuthor author={post.author}/>
-                <span className="">•</span>
-                <div><DateSince date={post.createdAt}/></div>
-            </div>
+    return <div
+        className={"rounded-lg border p-3 mt-2 hover:bg-[var(--background-dark2)]"}
+        onClick={(e) => {e.preventDefault(); e.stopPropagation(); router.push(url)}}>
+        <div className={"flex items-center space-x-1 text-[var(--text-light)]"}>
             <div>
-                <BskyRichTextContent content={post.content}/>
+                <Image
+                    src={post.author.avatar}
+                    alt={"Foto de perfil de @" + post.author.handle}
+                    width={50}
+                    height={50}
+                    className={"w-4 h-4 rounded-full"}
+                />
             </div>
-            <FastPostImage post={post} did={post.author.did}/>
-            <FastPostVideo post={post}/>
-            {post.content.post.embed && <QuotedPostFromEmbed embedStr={post.content.post.embed}/>}
-            <PlotInPost post={post}/>
-            <ExternalEmbedInPost post={post}/>
+            <ContentTopRowAuthor author={post.author}/>
+            <span className="">•</span>
+            <div><DateSince date={post.createdAt}/></div>
         </div>
+        <div>
+            <BskyRichTextContent content={post.content}/>
+        </div>
+        <FastPostImage post={post} did={post.author.did}/>
+        <FastPostVideo post={post}/>
+        {post.content.post.embed && <QuotedPostFromEmbed embedStr={post.content.post.embed}/>}
+        <PlotInPost post={post}/>
+        <ExternalEmbedInPost post={post}/>
     </div>
 }

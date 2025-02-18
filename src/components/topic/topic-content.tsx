@@ -286,7 +286,9 @@ export const TopicContent = ({
         </div>
     </>
 
-    return <div className={"w-full " + (selectedPanel == "editing" ? "" : " border-b") + (viewingContent ? " min-h-[500px]" : " min-h-[100px]")} id="information-start">
+    return <div
+        className={"w-full " + (selectedPanel == "editing" ? "" : " border-b") + (viewingContent ? " min-h-[500px]" : " min-h-[100px]")}
+        id="information-start">
 
         {viewingContent && <div className="flex justify-between items-center border-b">
             <div className="flex flex-wrap w-full items-center">
@@ -347,7 +349,7 @@ export const TopicContent = ({
             {selectedPanel != "editing" && <CloseButton size="small" onClose={() => {
                 setViewingContent(false);
                 setPinnedReplies([])
-                setLayoutConfig({...layoutConfig, distractionFree: false, maxWidthCenter: "600px"})
+                setLayoutConfig({...layoutConfig, openRightPanel: true, maxWidthCenter: "600px"})
                 setSelectedPanel("none")
             }}/>}
         </div>}
@@ -361,18 +363,20 @@ export const TopicContent = ({
         <div
             onClick={() => {
                 setViewingContent(true);
-                setLayoutConfig({...layoutConfig, distractionFree: true});
+                setLayoutConfig((prev) => ({
+                    ...prev, openRightPanel: false, maxWidthCenter: "800px", rightMinWidth: "275px"}));
             }}
-            className={`relative group ${!viewingContent ? "min-h-[100px] max-h-[200px] overflow-y-clip bg-[var(--background)] cursor-pointer hover:bg-gradient-to-b hover:from-[var(--background)] hover:to-[var(--background-dark)]" : ""}`}
+            className={`rounded-t-lg relative group ${!viewingContent ? "min-h-[100px] max-h-[200px] overflow-y-clip bg-[var(--background)] cursor-pointer hover:bg-gradient-to-r hover:from-[var(--background-dark)] hover:via-[var(--background)] hover:to-[var(--background-dark)]" : ""}`}
         >
             {editorComp}
             {!viewingContent && (
                 <span
                     className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-[var(--background-dark)] bg-opacity-80 text-[var(--text)] text-sm px-2 py-1 rounded hidden group-hover:block">
-                    Expandir
-                </span>
+            Expandir
+        </span>
             )}
         </div>
+
 
         <NeedAccountPopup
             text="Necesitás una cuenta para hacer ediciones."

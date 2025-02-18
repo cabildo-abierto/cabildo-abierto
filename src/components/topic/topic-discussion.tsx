@@ -22,22 +22,24 @@ function topicPropsToReplyToContent(topic: TopicProps, version: number): ReplyTo
     }
 }
 
-export const TopicDiscussion = ({topic, version, onClickQuote}: {
-    topic: TopicProps, version: number, onClickQuote: (cid: string) => void}) => {
+export const TopicDiscussion = ({topic, version, onClickQuote, viewingContent}: {
+    topic: TopicProps, version: number, onClickQuote: (cid: string) => void,
+    viewingContent: boolean
+}) => {
     const [writingReply, setWritingReply] = useState(false)
-    const {layoutConfig} = useLayoutConfig()
+
 
     return <div className="w-full flex flex-col items-center">
         <div className={"w-full"}><ReplyButton
             text={"Responder al tema"}
             onClick={() => {setWritingReply(true)}}
         /></div>
-        <div className={"w-full max-w-[600px] " + (layoutConfig.distractionFree ? "border-l border-r" : "")}>
-            <WritePanel open={writingReply} onClose={() => {setWritingReply(false)}} replyTo={topicPropsToReplyToContent(topic, version)}/>
+        <div className={"w-full max-w-[600px] " + (viewingContent ? "border-t mt-20" : "")}>
             <TopicFeed
                 topicId={topic.id}
                 onClickQuote={onClickQuote}
             />
         </div>
+        <WritePanel open={writingReply} onClose={() => {setWritingReply(false)}} replyTo={topicPropsToReplyToContent(topic, version)}/>
     </div>
 }

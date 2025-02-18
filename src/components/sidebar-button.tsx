@@ -16,7 +16,7 @@ type SidebarButtonProps = {
 export const SidebarButton: React.FC<SidebarButtonProps> = ({showText, setShowText, text, onClick, icon, href, disabled=false, selected=false}) => {
 
     return <>
-        <CustomLink href={href} className="mt-1">
+        <CustomLink href={href} className="mt-1 h-10">
             {showText ? <Button
                 variant="text"
                 color="inherit"
@@ -27,15 +27,21 @@ export const SidebarButton: React.FC<SidebarButtonProps> = ({showText, setShowTe
                     paddingLeft: 2,
                 }}
                 onClick={onClick}
-                startIcon={icon}
                 fullWidth
                 disabled={disabled}
             >
-                <span className={selected ? "font-bold" : ""}>{showText ? text : ""}</span>
-            </Button> : <div className={""}><IconButton
+                <div className={"flex items-center space-x-2"}>
+                {icon} <span className={selected ? "font-bold" : ""}>{showText ? text : ""}</span>
+                </div>
+            </Button> :
+            <Button
+                color={"inherit"}
+                variant={"text"}
+                size={"large"}
             >
                 {icon}
-            </IconButton></div>}
+            </Button>
+            }
         </CustomLink>
     </>
 }

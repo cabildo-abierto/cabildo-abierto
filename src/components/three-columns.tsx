@@ -7,6 +7,7 @@ type ColumnsProps = {
     center?: ReactNode;
     right?: ReactNode;
     leftMinWidth?: string;
+    rightMinWidth?: string;
     maxWidthCenter?: string;
     centerMinWidth?: string;
     border?: boolean
@@ -20,6 +21,7 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = ({
     maxWidthCenter = "600px",
     centerMinWidth = "524px",
     border = true,
+    rightMinWidth = "0px"
 }) => {
     const [showSides, setShowSides] = useState(true);
 
@@ -67,7 +69,7 @@ export const ThreeColumnsLayout: React.FC<ColumnsProps> = ({
             </div>
 
             {showSides && (
-                <div className="flex-shrink-0" style={{ minWidth: leftMinWidth }}>
+                <div className="flex-shrink-0" style={{ minWidth: rightMinWidth }}>
                     {right}
                 </div>
             )}
