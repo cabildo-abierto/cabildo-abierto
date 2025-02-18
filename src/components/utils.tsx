@@ -532,9 +532,9 @@ export function topicVersionUrl(topicVersion: TopicVersionOnFeedProps){
 
 export function urlFromRecord(record: {uri: string, collection: string, author: {did: string, handle?: string}}){
     if(record.collection == "ar.com.cabildoabierto.visualization"){
-        return "/c/" + record.author.did + "/" + getRkeyFromUri(record.uri)
+        return "/c/" + record.author.did + "/" + record.collection + "/" + getRkeyFromUri(record.uri)
     } else if(record.collection == "ar.com.cabildoabierto.dataset"){
-        return "/c/" + record.author.did + "/" + getRkeyFromUri(record.uri)
+        return "/c/" + record.author.did + "/" + record.collection + "/" + getRkeyFromUri(record.uri)
     }
     return contentUrl(record.uri, record.author.handle ? record.author.handle : record.author.did)
 }

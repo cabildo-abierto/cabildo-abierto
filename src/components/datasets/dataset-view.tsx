@@ -4,7 +4,6 @@ export const DatasetView = ({data, maxHeight="600px", maxWidth="600px"}: {
     data: any[], maxHeight?: string, maxWidth?: string}) => {
     const rows = data
     return <div className={"w-full"}>
-        {maxWidth}
         {rows != null && <div className={"text-[var(--text-light)] py-2"}>{rows.length} filas.</div>}
         {rows != null && (
             <div className={"border-t mb-4 custom-scrollbar overflow-x-scroll overflow-y-scroll text-sm"}

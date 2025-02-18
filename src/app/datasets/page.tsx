@@ -9,9 +9,6 @@ import {createDataset} from "../../actions/data";
 import StateButton from "../../components/state-button";
 import {BasicButton} from "../../components/ui-utils/basic-button";
 import '../../components/datasets/index.css'
-import {useUser} from "../../hooks/user";
-import {useDatasets} from "../../hooks/contents";
-import {DatasetPreview} from "../../components/datasets/dataset-preview";
 import {DatasetView} from "../../components/datasets/dataset-view";
 import JSZip from "jszip";
 import {BackButton} from "../../components/back-button";
@@ -100,7 +97,7 @@ const Page = () => {
             <BackButton url={"/datos"}/>
             <div className={"flex flex-col items-center space-y-8"}>
             <h2>Nuevo dataset</h2>
-                <div className={"text-[var(--text-light)]"}>Subí un archivo en formato csv</div>
+                <div className={"text-[var(--text-light)]"}>Subí un archivo en formato csv.</div>
             <UploadDatasetButton onSubmit={onSubmit}/>
             </div>
         </div>
@@ -137,7 +134,7 @@ const Page = () => {
     }
 
     const center = <div className={"flex flex-col space-y-4 px-2"}>
-        <div className={"flex justify-end space-x-2 mt-2"}>
+        <div className={"flex justify-end space-x-2 mt-8"}>
             <BasicButton
                 onClick={onCancel}
                 variant={"text"}

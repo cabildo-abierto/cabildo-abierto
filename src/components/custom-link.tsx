@@ -13,11 +13,12 @@ type CustomLinkProps = {
   onMouseLeave?: any
   onClick?: any
   draggable?: boolean
+  style?: any
 };
 
-export function CustomLink({ href, children, className, onClick, target, rel, onMouseEnter, onMouseLeave, draggable }: CustomLinkProps) {
-  const router = useRouter();
-  const { leaveStoppers, setLeaveStoppers } = usePageLeave();
+export function CustomLink({
+         href, children, className, onClick, target, rel, onMouseEnter, onMouseLeave, draggable, style }: CustomLinkProps) {
+  const { leaveStoppers } = usePageLeave()
 
   const handleClick = (e: React.MouseEvent) => {
     if (leaveStoppers.size > 0) {
@@ -30,7 +31,16 @@ export function CustomLink({ href, children, className, onClick, target, rel, on
   };
 
   return (
-    <Link href={href} onClick={handleClick} className={className} target={target} rel={rel} onMouseEnter={onMouseEnter} draggable={draggable} onMouseLeave={onMouseLeave}>
+    <Link href={href}
+          onClick={handleClick}
+          className={className}
+          target={target}
+          rel={rel}
+          onMouseEnter={onMouseEnter}
+          draggable={draggable}
+          onMouseLeave={onMouseLeave}
+          style={style}
+    >
       {children}
     </Link>
   );

@@ -276,6 +276,7 @@ export type EngagementProps = {
     viewer?: {like?: string, repost?: string}
     participantsCount?: number
     uniqueViewsCount?: number
+    visualizationsUsingCount?: number
 }
 
 export type FastPostProps = RecordProps & EngagementProps & {
@@ -355,6 +356,9 @@ export type DatasetProps = RecordProps & {
             }
         }[]
     }
+    visualizationsUsing: {
+        uri: string
+    }[]
 }
 
 

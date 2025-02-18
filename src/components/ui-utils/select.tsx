@@ -15,8 +15,9 @@ export const Select = ({ options, value, onChange, label, firstDisabled=false }:
                 fullWidth
             >
                 {options.map((o, i) => (
-                    <MenuItem key={i} value={o} disabled={firstDisabled && i == 0}>
-                        {firstDisabled && i == 0 ? "" : o}
+                    <MenuItem
+                        key={i} value={o}>
+                        {o}
                     </MenuItem>
                 ))}
             </MUISelect>

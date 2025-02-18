@@ -72,6 +72,8 @@ export function addCounters(did: string, elem: any): any {
         viewers.delete(elem.author.did)
     }
 
+    const visualizationsUsingCount = elem.visualizationsUsing ? elem.visualizationsUsing.length : undefined
+
     return {
         ...elem,
         viewer: {like, repost},
@@ -80,6 +82,7 @@ export function addCounters(did: string, elem: any): any {
         repostCount,
         participantsCount: participants.size,
         uniqueViewsCount: viewers.size,
+        visualizationsUsingCount
     }
 }
 

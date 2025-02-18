@@ -17,7 +17,7 @@ const Cuenta: React.FC = () => {
     const center = (
         <div className="py-8 max-w-lg mx-auto">
             <h3 className="text-2xl font-semibold mb-6 text-center">Cuenta</h3>
-            <div className="bg-[var(--background2)] shadow rounded-lg p-6">
+            <div className="bg-[var(--background-dark)] shadow rounded-lg p-6">
                 <div className="mb-4">
                     <div className="text-[var(--text-light)] font-medium">Nombre de usuario:</div>
                     <div className="text-lg ">@{user.handle}</div>
