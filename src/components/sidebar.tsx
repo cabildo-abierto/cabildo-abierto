@@ -22,6 +22,12 @@ import { useLayoutConfig } from "./layout/layout-config-context";
 import {WriteButtonIcon} from "./icons/write-button-icon";
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
+import CollectionsBookmarkOutlinedIcon from '@mui/icons-material/CollectionsBookmarkOutlined';
+import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
+import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 
 
 function unseenSupportMessagesCount(user: UserProps){
@@ -143,52 +149,90 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
             </div>
 
             <SidebarButton
-                showText={showText} setShowText={setShowText}
-                onClick={onClose} icon={<CabildoIcon/>} text="Inicio" href="/inicio" selected={pathname.startsWith("/inicio")}
+                showText={showText}
+                setShowText={setShowText}
+                onClick={onClose}
+                icon={<CabildoIcon/>}
+                iconInactive={<HomeOutlinedIcon/>}
+                text="Inicio"
+                href="/inicio"
+                selected={pathname.startsWith("/inicio")}
             />
-
             <SidebarButton
-                showText={showText} setShowText={setShowText}
-                icon={<SearchIcon fontSize={"medium"}/>} onClick={onClose} text="Buscar"
+                showText={showText}
+                setShowText={setShowText}
+                icon={<SearchIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
+                iconInactive={<SearchIcon/>}
+                onClick={onClose}
+                text="Buscar"
                 selected={pathname.startsWith("/buscar")}
                 href="/buscar"
             />
-
             <SidebarButton
                 showText={showText} setShowText={setShowText}
-                onClick={onClose} icon={<NotificationsIcon count={0}/>}
+                onClick={onClose}
+                icon={<NotificationsIcon count={0}/>}
+                iconInactive={<NotificationsOutlinedIcon/>}
                 text="Notificaciones" href="/notificaciones" selected={pathname.startsWith("/notificaciones")}
             />
-
-            <SidebarButton icon={<TopicsIcon fontSize="medium"/>} onClick={onClose}
-                           text="Temas"
-                           href="/temas"
-                           showText={showText} setShowText={setShowText}
-                           selected={pathname.startsWith("/temas")}
+            <SidebarButton
+                icon={<TopicsIcon fontSize="medium"/>}
+                iconInactive={<CollectionsBookmarkOutlinedIcon/>}
+                onClick={onClose}
+                text="Temas"
+                href="/temas"
+                showText={showText}
+                setShowText={setShowText}
+                selected={pathname.startsWith("/temas")}
             />
-            <SidebarButton icon={<VisualizationsIcon fontSize="medium"/>} onClick={onClose}
-                           text="Datos"
-                           href="/datos"
-                           selected={pathname.startsWith("/datos")}
-                           showText={showText} setShowText={setShowText}
+            <SidebarButton
+                icon={<VisualizationsIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
+                iconInactive={<VisualizationsIcon/>}
+                onClick={onClose}
+                text="Datos"
+                href="/datos"
+                selected={pathname.startsWith("/datos")}
+                showText={showText}
+                setShowText={setShowText}
             />
             {user.user &&
-            <SidebarButton icon={<PersonIcon/>} onClick={onClose} text="Perfil"
-                           href={userUrl(user.user.handle)}
-                           selected={pathname == userUrl(user.user.handle)}
-                           showText={showText} setShowText={setShowText}
+            <SidebarButton
+                icon={<PersonIcon/>}
+                iconInactive={<PersonOutlinedIcon/>}
+                onClick={onClose}
+                text="Perfil"
+                href={userUrl(user.user.handle)}
+                selected={pathname == userUrl(user.user.handle)}
+                showText={showText}
+                setShowText={setShowText}
             />}
-            <SidebarButton icon={<DashboardIcon/>} onClick={onClose} text="Remuneración" href="/panel"
-                   selected={pathname.startsWith("/panel")}
-                           showText={showText} setShowText={setShowText}
+            <SidebarButton
+                icon={<DashboardIcon/>}
+                iconInactive={<AccountBalanceOutlinedIcon/>}
+                onClick={onClose}
+                text="Panel personal"
+                href="/panel"
+                selected={pathname.startsWith("/panel")}
+                showText={showText}
+                setShowText={setShowText}
             />
             {user.user && user.user.editorStatus == "Administrator" &&
-                <HelpDeskButton showText={showText} setShowText={setShowText} user={user.user} onClose={onClose}/>
+                <HelpDeskButton
+                    showText={showText}
+                    setShowText={setShowText}
+                    user={user.user}
+                    onClose={onClose}
+                />
             }
-
-            <SidebarButton icon={<SettingsIcon/>} onClick={onClose} text="Ajustes" href="/ajustes"
-                           selected={pathname.startsWith("/ajustes")}
-                           showText={showText} setShowText={setShowText}
+            <SidebarButton
+                icon={<SettingsIcon/>}
+                iconInactive={<SettingsOutlinedIcon/>}
+                onClick={onClose}
+                text="Ajustes"
+                href="/ajustes"
+                selected={pathname.startsWith("/ajustes")}
+                showText={showText}
+                setShowText={setShowText}
             />
             <SidebarWriteButton showText={showText} onClick={() => {setWritePanelOpen(true)}}/>
         </div>
