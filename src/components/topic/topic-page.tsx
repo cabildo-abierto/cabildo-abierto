@@ -47,13 +47,6 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     }, [shouldGoTo, viewingContent]);
 
     useEffect(() => {
-        if(viewingContent){
-            setLayoutConfig({...layoutConfig, distractionFree: true, maxWidthCenter: "800px"})
-        }
-    }, [viewingContent])
-
-
-    useEffect(() => {
         setSelectedPanel(changes ? "changes" : (paramsVersion == undefined ? "none" : "history"))
     }, [searchParams])
 
@@ -96,7 +89,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
             smoothScrollTo(elem)
         } else {
             setViewingContent(true)
-            setLayoutConfig({...layoutConfig, distractionFree: true})
+            setLayoutConfig({...layoutConfig, openRightPanel: false, maxWidthCenter: "800px"})
             setShouldGoTo(cid)
         }
     }
@@ -125,6 +118,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
 
         {selectedPanel != "editing" && <div className="w-full" id="discussion-start">
             {<TopicDiscussion
+                viewingContent={viewingContent}
                 topic={topic.topic}
                 version={version}
                 onClickQuote={onClickQuote}

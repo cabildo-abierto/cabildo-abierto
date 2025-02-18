@@ -3,12 +3,13 @@
 import {getSessionAgent} from "./auth";
 import {TopicProps, TopicVersionProps, SmallTopicProps} from "../app/lib/definitions";
 import {db} from "../db";
-import {currentCategories, getRkeyFromUri, listOrderDesc, supportDid} from "../components/utils";
+import {currentCategories, currentVersionContent, getRkeyFromUri, listOrderDesc, supportDid} from "../components/utils";
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import {recordQuery, revalidateEverythingTime} from "./utils";
 import {fetchBlob} from "./data";
 import {unstable_cache} from "next/cache";
+import {getCurrentContentVersion} from "../components/topic/utils";
 
 
 export async function createTopic(id: string){
@@ -112,14 +113,6 @@ const topicVersionReactionsQuery = {
 
 type TopicUserInteractionsProps = {
     id: string
-    currentVersion?: {
-        content: {
-            numWords?: number
-            record: {
-                createdAt: Date
-            }
-        }
-    }
     referencedBy: {
         referencingContent: {
             record: {
@@ -152,6 +145,7 @@ type TopicUserInteractionsProps = {
         title?: string
         categories?: string
         content: {
+            numWords?: number
             record: {
                 authorId: string
                 createdAt: Date
@@ -222,16 +216,21 @@ function countUserInteractions(entity: TopicUserInteractionsProps, since?: Date)
 
     s.delete(supportDid)
 
+    const currentContentVersion = getCurrentContentVersion(entity)
+
+    const currentContent = entity.versions[currentContentVersion]
+    const lastVersion = entity.versions[entity.versions.length - 1]
+
     return [
         s.size,
-        entity.currentVersion && entity.currentVersion.content.numWords > 0 ? 1 : 0,
-        entity.currentVersion ? new Date(entity.currentVersion.content.record.createdAt).getTime() : 0
+        currentContent.content.numWords > 0 ? 1 : 0,
+        currentContent ? new Date(lastVersion.content.record.createdAt).getTime() : 0
     ]
 
 }
 
 
-export async function getTrendingTopics(sinceKind: string = "alltime", categories: string[], limit: number = 10, sortedby: string = "Populares"): Promise<{error?: string, topics?: SmallTopicProps[]}> {
+export async function getTrendingTopics(sinceKind: string = "alltime", categories: string[], limit: number = 10, sortedby: string = "popular"): Promise<{error?: string, topics?: SmallTopicProps[]}> {
     return await unstable_cache(async () => {
         return await getTrendingTopicsNoCache(sinceKind, categories, sortedby, limit)
     },
@@ -248,28 +247,15 @@ export async function getTrendingTopics(sinceKind: string = "alltime", categorie
 export async function getTrendingTopicsNoCache(sincekind: string, categories: string[], sortedby: string, limit: number): Promise<{error?: string, topics?: SmallTopicProps[]}> {
     // sinceKind is always alltime
     const since = undefined
-    console.log("getting trending topics no cache", sincekind, categories, sortedby, limit)
 
     try {
 
+        //const t1 = new Date().getTime()
+
+        // TO DO: Optimize
         const topics = await db.topic.findMany({
             select: {
                 id: true,
-                currentVersion: {
-                    select: {
-                        uri: true,
-                        content: {
-                            select: {
-                                numWords: true,
-                                record: {
-                                    select: {
-                                        createdAt: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
                 referencedBy: {
                     select: {
                         referencingContent: {
@@ -370,12 +356,17 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
             }
         })
 
+        //const t2 = new Date().getTime()
+
+        //console.log("TT query time", t2-t1)
+
         let topicsWithScore: SmallTopicProps[] = topics.map((topic) => {
             return {
                 ...topic,
                 score: countUserInteractions(topic, since)
             }
         })
+
         if(sortedby == "popular") {
             topicsWithScore.sort(listOrderDesc)
         }
@@ -388,6 +379,10 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
         })
 
         filteredTopics = limit ? filteredTopics.slice(0, limit) : filteredTopics
+
+        //const t3 = new Date().getTime()
+
+        //console.log("TT total time", t3-t1)
         return {topics: filteredTopics}
 
     } catch (err) {

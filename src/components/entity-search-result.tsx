@@ -14,7 +14,7 @@ import {TopicCategories} from "./entity-categories-small";
 const DateLastEdit = ({topic}: {topic: {versions: {content: {record: {createdAt: Date}}}[]}}) => {
   const lastVersion = topic.versions[topic.versions.length-1]
 
-  const className = "text-[var(--text-light)] text-xs px-1"
+  const className = "text-[var(--text-light)] px-1"
 
   if(topic.versions.length == 1){
     return <div className={className}>
@@ -53,16 +53,18 @@ export const EntitySearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic }
                 <div className="flex w-full items-center">
                     <div className="w-full">
                         <div className="w-full mt-1 mb-2 px-1">
-                            <span className="text-[15px]" style={{fontStretch: "normal"}}>{getTopicTitle(topic)}</span>
+                            <span className="text-[15px] font-semibold" style={{fontStretch: "normal"}}>
+                                {getTopicTitle(topic)}
+                            </span>
                         </div>
 
                         <TopicCategories topic={topic}/>
 
-                        <div className={"flex justify-between items-center"}>
+                        <div className={"flex justify-between items-center text-sm"}>
                             <div className="mt-1 mb-2">
                                 <DateLastEdit topic={topic}/>
                             </div>
-                            <div className={"text-[var(--text-light)] text-sm"}>
+                            <div className={"text-[var(--text-light)]"}>
                                 <PersonIcon fontSize={"inherit"}/> {topic.score[0]}
                             </div>
                         </div>

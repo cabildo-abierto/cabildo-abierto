@@ -83,7 +83,7 @@ const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
         setFilteredDatasets(f)
     }, [searchValue, datasets])
 
-    return <div className={"w-80 h-screen fixed left-[64px]"}>
+    return <div className={"w-80 h-screen"}>
         <div className={"border rounded-lg p-2 flex flex-col mt-12 ml-2"}>
             <div>
                 <div className={"font-bold text-2xl"}>
@@ -176,7 +176,7 @@ const ConfigPanel = ({config, updateConfig, dataset}: {
         updateConfig("filters", [...config.filters.slice(0, i), value, ...config.filters.slice(i + 1)])
     }
 
-    return <div className={"fixed right-0 w-96 ml-2 mr-4"}>
+    return <div className={"w-96 ml-2 mr-4"}>
         <div className={"border rounded-lg p-2 mt-12"}>
         <div className={"font-bold text-2xl"}>
             Configuración
@@ -413,7 +413,17 @@ const Page = () => {
 
     const right = <ConfigPanel config={config} updateConfig={updateConfig} dataset={dataset}/>
 
-    return <ThreeColumnsLayout left={left} center={center} right={right} border={false} maxWidthCenter={"600px"}/>
+    return <div className={"flex justify-between max-h-screen overflow-y-clip"}>
+        <div>
+            {left}
+        </div>
+        <div className={"flex-shrink"}>
+            {center}
+        </div>
+        <div>
+            {right}
+        </div>
+    </div>
 }
 
 export default Page

@@ -14,29 +14,6 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
         <div
             className="flex flex-col overflow-y-scroll max-h-[350px] no-scrollbar space-y-3"
         >
-            {/*<div>
-                <div className={"font-[400]"}>
-                    prueba
-                </div>
-                <div className={"font-[400]"} style={{fontStretch: "expanded"}}>
-                    prueba
-                </div>
-                <div className={"font-[400]"} style={{fontStretch: "condensed"}}>
-                    prueba
-                </div>
-                <div className={"font-[600]"}>
-                    prueba
-                </div>
-                <div className={"font-[700]"} style={{fontStretch: "condensed"}}>
-                    prueba
-                </div>
-                <div className={"font-[700]"} style={{fontStretch: "expanded"}}>
-                    prueba
-                </div>
-                <div className={"font-[700]"}>
-                    prueba
-                </div>
-            </div>*/}
             {trendingArticles.map((topic, index) => {
 
                 const title = getTopicTitle(topic)

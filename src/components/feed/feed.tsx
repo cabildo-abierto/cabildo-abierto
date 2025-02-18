@@ -21,7 +21,7 @@ export type FeedProps = {
 
 const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación.", showReplies=false, onClickQuote}) => {
     if(feed.isLoading){
-        return <div className={"mt-8"}><LoadingSpinner/></div>
+        return <div className={"pt-8"}><LoadingSpinner/></div>
     }
     if(!feed.feed){
         return <ErrorPage>{feed.error}</ErrorPage>

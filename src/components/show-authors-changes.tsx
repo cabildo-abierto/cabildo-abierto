@@ -3,8 +3,6 @@ import { decompress } from "./compression"
 import { getAllText } from "./diff"
 import { SerializedAuthorNode } from "./editor/nodes/AuthorNode"
 import { editorStateFromJSON } from "./utils"
-import { wikiEditorSettings } from "./editor/wiki-editor"
-import { ShowContributors } from "./show-contributors"
 import {TopicProps} from "../app/lib/definitions";
 
 const MyLexicalEditor = dynamic( () => import( './editor/lexical-editor' ), { ssr: false } );

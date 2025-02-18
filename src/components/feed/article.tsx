@@ -9,7 +9,6 @@ import {EngagementIcons} from "./engagement-icons";
 import {ProfilePic} from "./profile-pic";
 import {useEffect} from "react";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
-import {useHash} from "../ui-utils/use-url-anchor";
 
 type ArticleCompProps = {
     content: ArticleProps,
@@ -36,8 +35,6 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
             scrollToElement();
         }
     }, []);
-
-    console.log("text", content.content.text)
 
     return <div className="w-full">
         <div className={"p-3 border-b"}>

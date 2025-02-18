@@ -3,9 +3,14 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 export type LayoutConfigProps = {
-    distractionFree: boolean
-    maxWidthCenter: string
-    leftMinWidth: string
+    maxWidthCenter?: string
+    leftMinWidth?: string
+    rightMinWidth?: string
+    openSidebar?: boolean
+    openRightPanel?: boolean
+    spaceForRightSide?: boolean
+    spaceForLeftSide?: boolean
+    defaultSidebarState?: boolean
 }
 
 
@@ -23,8 +28,8 @@ export const useLayoutConfig = () => {
 };
 
 
-export const LayoutConfigProvider: React.FC<{ children: ReactNode, distractionFree: boolean, maxWidthCenter: string, leftMinWidth }> = ({ children, distractionFree, maxWidthCenter, leftMinWidth }) => {
-    const [layoutConfig, setLayoutConfig] = useState({distractionFree, maxWidthCenter, leftMinWidth});
+export const LayoutConfigProvider: React.FC<{ children: ReactNode, config: LayoutConfigProps }> = ({ children, config }) => {
+    const [layoutConfig, setLayoutConfig] = useState(config);
 
     return (
         <LayoutConfigContext.Provider value={{ layoutConfig, setLayoutConfig }}>

@@ -23,7 +23,13 @@ export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: 
 
 
 export function useSearchableContents(): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/searchable-contents', fetcher)
+    const { data, error, isLoading } = useSWR('/api/searchable-contents', fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
   
     return {
         feed: data,
@@ -141,7 +147,13 @@ export function useDatasets(): {datasets: DatasetProps[], isLoading: boolean, is
 
 
 export function useVisualizations(): {visualizations: VisualizationProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/visualizations', fetcher)
+    const { data, error, isLoading } = useSWR('/api/visualizations', fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
 
     return {
         visualizations: data,
@@ -152,7 +164,13 @@ export function useVisualizations(): {visualizations: VisualizationProps[], isLo
 
 
 export function useThread({did, viewerDid, rkey}: {did: string, viewerDid: string, rkey: string}): {thread: ThreadProps, isLoading: boolean, error?: string}{
-    const { data, error, isLoading } = useSWR('/api/thread/'+did+"/"+rkey+"/"+viewerDid, fetcher)
+    const { data, error, isLoading } = useSWR('/api/thread/'+did+"/"+rkey+"/"+viewerDid, fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
 
     return {
         thread: data && data.thread ? data.thread : undefined,
@@ -163,7 +181,13 @@ export function useThread({did, viewerDid, rkey}: {did: string, viewerDid: strin
 
 
 export function useDataset(uri: string): {dataset: {dataset: DatasetProps, data: any[]}, isLoading: boolean, error?: string}{
-    const { data, error, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher)
+    const { data, error, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
 
     if(data && data.error){
         return {error: data.error, isLoading: false, dataset: undefined}
@@ -176,7 +200,13 @@ export function useDataset(uri: string): {dataset: {dataset: DatasetProps, data:
 
 
 export function useVisualization(uri: string): {visualization: VisualizationProps, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/visualization/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher)
+    const { data, error, isLoading } = useSWR('/api/visualization/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
 
     return {
         visualization: data,

@@ -36,7 +36,7 @@ const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsPro
         shouldPreserveNewLinesInMarkdown: true,
         shouldUseLexicalContextMenu: false,
         showNestedEditorTreeView: false,
-        showTableOfContents: false,
+        showTableOfContents: true,
         showTreeView: false,
         tableCellBackgroundColor: false,
         tableCellMerge: false,
@@ -141,14 +141,8 @@ const PostEditor = ({
 }: PostEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
-    const router = useRouter()
-    const path = usePathname()
-    const {user} = useUser()
-    const {mutate} = useSWRConfig()
-    const [errorOnSubmit, setErrorOnSubmit] = useState(false)
     const [saveStatus, setSaveStatus] = useState<"saved" | "error" | "no changes" | "not saved">("no changes")
     const [title, setTitle] = useState(initialTitle)
-    const [contentCreationState, setContentCreationState] = useState(contentId ? "created" : "no content")
     const [modal, showModal] = useModal()
     const [images, setImages] = useState([])
 
@@ -260,9 +254,9 @@ const PostEditor = ({
         }
 	}
 
-    return <div className="p-1 rounded">
+    return <div className="px-3">
         <div className="flex justify-between mt-3 items-center w-full">
-            <div className="hidden sm:block w-64">
+            <div className="hidden w-64">
                 {isPublished ? <div></div> : <DraftsButton/>}
             </div>
             <div className="w-full flex sm:justify-center">
@@ -280,7 +274,6 @@ const PostEditor = ({
                 />
 			</div>
 		</div>
-        {errorOnSubmit && <div className="text-red-600 sm:text-sm text-xs mt-1 flex justify-end px-1">Ocurrió un error. Intentá de nuevo.</div>}
         {!isFast && <div className="mt-6">
             <TitleInput onChange={setTitle} title={title}/>
         </div>}

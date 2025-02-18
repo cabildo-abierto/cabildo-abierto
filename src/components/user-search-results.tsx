@@ -13,8 +13,7 @@ import {searchATProtoUsers} from "../actions/users";
 
 export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCount?: number; showSearchButton?: boolean }) => {
     const users = useUsers();
-    const { searchState, setSearchState } = useSearch();
-    const router = useRouter();
+    const { searchState } = useSearch();
     const [results, setResults] = useState<SmallUserProps[] | null | string>(null);
 
     useEffect(() => {
@@ -60,7 +59,7 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
     }
 
     if(results == null){
-        return <div className={showSearchButton ? "border-b flex items-center h-full" : "mt-8"}>
+        return <div className={showSearchButton ? "border-b flex items-center h-full w-full" : "mt-8"}>
             <LoadingSpinner/>
         </div>
     }
@@ -81,24 +80,6 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
 
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center w-full">
-            {showSearchButton && <div className={"border-b"}><Button
-                variant={"text"}
-                color={"inherit"}
-                onClick={() => {router.push("/buscar?q="+encodeURIComponent(searchState.value))}}
-                sx={{
-                    textTransform: "none",
-                    backgroundColor: "var(--background-dark)",
-                    ":hover": {
-                        backgroundColor: "var(--background-dark2)"
-                    },
-                    width: "100%"
-                }}
-            >
-                <div className={"space-x-1 w-full"}>
-                    <span>Buscar</span>
-                    <span className={"text-[var(--text-light)]"}>{searchState.value}</span>
-                </div>
-            </Button></div>}
             {results.slice(0, rightIndex).map((user, index) => (
                 <div key={index} className="">
                     {showSearchButton ? <SmallUserSearchResult result={user}/> : <UserSearchResult result={user}/>}
