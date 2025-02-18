@@ -8,9 +8,10 @@ interface SearchableDropdownProps {
   onSelect: (value: string) => void
   label: string
   size: "small" | "medium"
+  fontSize?: string
 }
 
-const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ options, optionViews, label, onSelect, size }) => {
+const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ fontSize, options, optionViews, label, onSelect, size }) => {
   const [searchText, setSearchText] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -50,7 +51,13 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ options, option
             onFocus={() => setShowDropdown(filteredOptions.length > 0)}
             onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
             label={label}
-            InputProps={{autoComplete: "off"}}
+            InputProps={{
+              autoComplete: "off",
+              sx: { fontSize: '0.875rem' }
+            }}
+            InputLabelProps={{
+              sx: { fontSize: '0.875rem' }, // Optional: font size for the label
+            }}
         />
         {showDropdown && (
             <Paper className="absolute z-10 mt-1 min-w-full max-w-max">

@@ -12,6 +12,7 @@ export const Select = ({ options, value, onChange, label, firstDisabled=false }:
                 label={label}
                 size={"small"}
                 labelId={selectId}
+                fullWidth
             >
                 {options.map((o, i) => (
                     <MenuItem key={i} value={o} disabled={firstDisabled && i == 0}>
