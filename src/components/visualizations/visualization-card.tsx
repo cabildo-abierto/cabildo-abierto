@@ -30,7 +30,7 @@ export const VisualizationCard = ({visualization, width}: {visualization: Visual
         href={url}
     >
         <Image
-            src={"/visual/" + visualization.author.did + "/preview/" + previewCid}
+            src={"https://cdn.bsky.app/img/feed_thumbnail/plain/"+visualization.author.did+"/"+previewCid+"@jpeg"}
             alt={""}
             width={400}
             height={300}
