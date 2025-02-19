@@ -21,6 +21,7 @@ import {cleanText, emptyChar} from "../../components/utils";
 import SelectionComponent from "../../components/search-selection-component";
 import {DatasetView} from "../../components/datasets/dataset-view";
 import ResizableDiv from "../../components/ui-utils/resizable-div";
+import {NewDatasetPanel} from "../../components/datasets/new-dataset-panel";
 
 
 
@@ -71,6 +72,7 @@ const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
 }) => {
     const [searchValue, setSearchValue] = useState<string>("")
     const [filteredDatasets, setFilteredDatasets] = useState<DatasetProps[]>(datasets)
+    const [newDatasetPanelOpen, setNewDatasetPanelOpen] = useState(false)
 
     useEffect(() => {
 
@@ -87,8 +89,21 @@ const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
         <ResizableDiv initialWidth={320} minWidth={240} maxWidth={400} side={"right"}>
             <div className={"border rounded-lg p-2 flex flex-col"}>
                 <div>
-                    <div className={"font-bold text-2xl"}>
-                        Datos
+                    <div className={"flex justify-between"}>
+                        <div className={"font-bold text-2xl"}>
+                            Datos
+                        </div>
+                        <div>
+                            <BasicButton
+                                startIcon={<AddIcon/>}
+                                variant={"text"}
+                                size={"small"}
+                                sx={{height: "32px"}}
+                                onClick={() => {setNewDatasetPanelOpen(true)}}
+                            >
+                                Dataset
+                            </BasicButton>
+                        </div>
                     </div>
                     <hr className={"my-2"}/>
                     <TextField
@@ -113,6 +128,7 @@ const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
                 </div>
             </div>
         </ResizableDiv>
+        <NewDatasetPanel open={newDatasetPanelOpen} onClose={() => {setNewDatasetPanelOpen(false)}}/>
     </div>
 }
 
