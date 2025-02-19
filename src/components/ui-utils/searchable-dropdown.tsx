@@ -3,29 +3,28 @@ import React, {ReactNode, useEffect, useState} from 'react';
 import {TextField, Paper, List, ListItem, ListItemText, MenuItem} from '@mui/material';
 
 interface SearchableDropdownProps {
-  options: string[]
-  optionViews?: ReactNode[]
-  onSelect: (value: string) => void
-  label: string
-  size: "small" | "medium"
-  fontSize?: string
+    options: string[]
+    optionViews?: ReactNode[]
+    onSelect: (value: string) => void
+    label: string
+    size: "small" | "medium"
+    selected?: string
+    fontSize?: string
 }
 
-const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ fontSize, options, optionViews, label, onSelect, size }) => {
-  const [searchText, setSearchText] = useState('');
+const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ fontSize="0.875rem", selected="", options, optionViews, label, onSelect, size }) => {
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const filtered = options.filter((option) =>
-        option.toLowerCase().includes(searchText.toLowerCase())
+        option.toLowerCase().includes(selected.toLowerCase())
     );
     setFilteredOptions(filtered)
   }, [options])
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    setSearchText(value);
 
     const filtered = options.filter((option) =>
         option.toLowerCase().includes(value.toLowerCase())
@@ -35,7 +34,6 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ fontSize, optio
   };
 
   const handleOptionSelect = (option: string) => {
-    setSearchText(option);
     setShowDropdown(false);
     onSelect(option);
   };
@@ -46,17 +44,17 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ fontSize, optio
             size={size}
             variant="outlined"
             fullWidth
-            value={searchText}
+            value={selected}
             onChange={handleInputChange}
             onFocus={() => setShowDropdown(filteredOptions.length > 0)}
             onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
             label={label}
             InputProps={{
               autoComplete: "off",
-              sx: { fontSize: '0.875rem' }
+              sx: { fontSize }
             }}
             InputLabelProps={{
-              sx: { fontSize: '0.875rem' }, // Optional: font size for the label
+              sx: { fontSize }
             }}
         />
         {showDropdown && (

@@ -29,6 +29,7 @@ import Link from "next/link";
 import {BasicButton} from "./ui-utils/basic-button";
 import {ReplyToContent} from "./editor/plugins/CommentPlugin";
 import {ContentQuote} from "./feed/content-quote";
+import {VisualizationNodeComp} from "./editor/nodes/visualization-node-comp";
 
 const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
     ssr: false,
@@ -195,6 +196,10 @@ const WriteFastPost = ({replyTo, onClose, quote}: {
         placeholder = "Respondé al artículo"
     } else if(replyTo.collection == "ar.com.cabildoabierto.topic"){
         placeholder = "Respondé al tema"
+    } else if(replyTo.collection == "ar.com.cabildoabierto.visualization"){
+        placeholder = "Respondé a la visualización"
+    } else if(replyTo.collection == "ar.com.cabildoabierto.dataset"){
+        placeholder = "Respondé al conjunto de datos"
     }
 
     const sendButton = <StateButton
@@ -208,7 +213,7 @@ const WriteFastPost = ({replyTo, onClose, quote}: {
 
     const editorComp = <>
         <TextareaAutosize
-            minRows={5}
+            minRows={2}
             value={text}
             onChange={(e) => {setText(e.target.value)}}
             placeholder={placeholder}
@@ -239,16 +244,14 @@ const WriteFastPost = ({replyTo, onClose, quote}: {
     }
 
     return <div className={"min-h-64 flex flex-col justify-between"}>
-        <div className="px-2 w-full">
+        <div className="px-2 w-full mb-2">
             <div className="flex space-x-2 w-full mt-2">
                 <ProfilePic user={user} className={"w-8 h-8 rounded-full"}/>
                 <div className="sm:text-lg w-full" key={editorKey}>
                     {editorComp}
                 </div>
             </div>
-            {visualization && <div className={"flex justify-center z-[20000]"}>
-                <VegaLite spec={JSON.parse(visualization.visualization.spec)} actions={false}/>
-            </div>}
+            {visualization && <VisualizationNodeComp visualization={visualization} showEngagement={false} />}
             <FastPostImagesEditor images={images} setImages={setImages}/>
         </div>
         <div>

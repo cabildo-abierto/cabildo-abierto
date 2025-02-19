@@ -27,12 +27,9 @@ export const ContentsSearchResults = () => {
         return <ErrorPage>Ocurrió un error al buscar los resultados.</ErrorPage>
     }
 
-    console.log("feed", feed)
-
     let filteredContents = feed.filter((c: FeedContentProps) => {
         if(c.collection == "app.bsky.feed.post"){
             if(!(c as FastPostProps).content){
-                console.log("c", c)
                 return false
             }
             const text = cleanText((c as FastPostProps).content.text)

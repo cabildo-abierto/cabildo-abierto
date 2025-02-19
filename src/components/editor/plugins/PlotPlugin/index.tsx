@@ -62,8 +62,7 @@ export function InsertVisualizationDialog({
 
     useEffect(() => {
         if(visualization){
-            console.log("dispatching visualization", visualization)
-            activeEditor.dispatchCommand(INSERT_PLOT_COMMAND, {spec: visualization.visualization.spec});
+            activeEditor.dispatchCommand(INSERT_PLOT_COMMAND, {spec: visualization.visualization.spec, uri: visualization.uri});
             onClose();
         }
     }, [visualization])

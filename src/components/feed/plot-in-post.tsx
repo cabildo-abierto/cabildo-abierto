@@ -1,6 +1,6 @@
 "use client"
 import {FastPostProps} from "../../app/lib/definitions";
-import {getUri} from "../utils";
+import {getUri, shortCollectionToCollection} from "../utils";
 import {PlotFromUri} from "./plot-from-uri";
 
 
@@ -12,15 +12,23 @@ export const PlotInPost = ({post}: {post: FastPostProps}) => {
     if (embed.$type != "app.bsky.embed.external" || !embed.external.uri) {
         return null
     }
-
     const url = embed.external.uri
-    if (!url.startsWith("https://www.cabildoabierto.com.ar/visual/")) {
+
+    let did, rkey: string
+
+    if (url.startsWith("https://www.cabildoabierto.com.ar/visual/")) {
+        [did, rkey] = url.replace("https://www.cabildoabierto.com.ar/visual/", "").split("/");
+    } else if(url.startsWith("https://www.cabildoabierto.com.ar/c")){
+        let collection: string
+        [did, collection, rkey] = url.replace("https://www.cabildoabierto.com.ar/c/", "").split("/")
+        if(shortCollectionToCollection(collection) != "ar.com.cabildoabierto.visualization"){
+            return null
+        }
+    } else {
         return null
     }
 
-    const [did, rkey] = url.replace("https://www.cabildoabierto.com.ar/visual/", "").split("/");
-
-    return <div className={"mt-2"}>
+    return <div className={"mt-2 border rounded-lg p-2 hover:bg-[var(--background-dark2)]"}>
         <PlotFromUri uri={getUri(did, "ar.com.cabildoabierto.visualization", rkey)}/>
     </div>
 }

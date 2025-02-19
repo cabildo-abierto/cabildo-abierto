@@ -6,9 +6,10 @@ import {
 } from '@lexical/markdown';
 import ReadOnlyEditor from '../editor/read-only-editor';
 import { LexicalEditor } from 'lexical';
+import {PLAYGROUND_TRANSFORMERS} from "../editor/plugins/MarkdownTransformers";
 
 
-export const BskyRichTextContent = ({content, className=""}: {className?: string, content: {text: string, post?: {facets?: string}}}) => {
+export const BskyRichTextContent = ({content, className="content no-margin-first"}: {className?: string, content: {text: string, post?: {facets?: string}}}) => {
     const text = content.text
 
     if(!content.text || content.text.length == 0){
@@ -33,7 +34,7 @@ export const BskyRichTextContent = ({content, className=""}: {className?: string
       }
     })
 
-    const initialData = (editor: LexicalEditor) => {$convertFromMarkdownString(markdown, TRANSFORMERS)}
+    const initialData = (editor: LexicalEditor) => {$convertFromMarkdownString(markdown, PLAYGROUND_TRANSFORMERS)}
 
     return <ReadOnlyEditor initialData={initialData} editorClassName={className}/>
 }

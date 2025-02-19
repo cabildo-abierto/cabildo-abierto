@@ -9,8 +9,6 @@ import { useRouter } from 'next/navigation'
 import { ContentTopRowAuthor } from '../content-top-row-author'
 import { ReactNode } from 'react'
 import { EngagementIcons } from './engagement-icons'
-import {ContentOptions} from "../content-options/content-options";
-import {useUser} from "../../hooks/user";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 
 
@@ -27,10 +25,7 @@ type ATProtoPostFrameProps = {
 }
 
 export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, showingParent=false, showingChildren=false}: ATProtoPostFrameProps) => {
-    const router = useRouter()
-
     const record = post
-    const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
 
     return <div
         className={"w-64 rounded border bg-[var(--background)] flex flex-col hover:bg-[var(--background-dark)] transition duration-300 ease-in-out cursor-pointer" + (borderBelow ? " border-b" : "")}

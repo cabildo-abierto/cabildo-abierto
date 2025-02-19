@@ -53,7 +53,6 @@ export const FastPostPreview = ({
         </div>
     }
 
-
     const replyTo = post.content.post.replyTo
     const replyToAvailable = replyTo && (replyTo as FeedContentPropsMaybe).createdAt != undefined
 

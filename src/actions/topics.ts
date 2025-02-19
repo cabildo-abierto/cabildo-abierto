@@ -523,7 +523,6 @@ export async function getTextFromBlob(blob: {cid: string, authorId: string}){
 
 export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
     try {
-        console.log("getting topic", id)
         const topic: TopicProps = await db.topic.findUnique({
             select: topicQuery(true, true),
             where: {
