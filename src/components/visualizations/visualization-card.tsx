@@ -29,32 +29,32 @@ export const VisualizationCard = ({visualization, width}: {visualization: Visual
         style={{width}}
         href={url}
     >
-        <div className={""}>
-            <Image
-                src={"/visual/" + visualization.author.did + "/preview/" + previewCid}
-                alt={""}
-                width={400}
-                height={300}
-                className={"w-full h-auto"}
-            />
-        </div>
+        <Image
+            src={"/visual/" + visualization.author.did + "/preview/" + previewCid}
+            alt={""}
+            width={400}
+            height={300}
+            className={"w-full h-auto"}
+        />
 
         {title && <div className={"font-semibold"}>
             {title}
         </div>}
 
-
         <div className={"flex space-x-1 text-sm items-end py-1"}>
-            <div className={"text-[var(--text-light)]"}>Datos:</div>
+            <div className={"text-[var(--text-light)]"}>
+                Datos:
+            </div>
             <Link
                 className={"bg-[var(--background-dark)] truncate rounded-lg hover:bg-[var(--background-dark2)] px-2"}
                 href={datasetViewUrl(visualization.visualization.dataset.uri)}
-            >{visualization.visualization.dataset.dataset.title}
+            >
+                {visualization.visualization.dataset.dataset.title}
             </Link>
         </div>
 
         <div className={"text-sm space-x-1 truncate flex items-center text-[var(--text-light)]"}>
-            <Authorship content={visualization} onlyAuthor={true} className={""}/>
+            <Authorship content={visualization} onlyAuthor={true}/>
             <span className="text-[var(--text-light)]">•</span>
             <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(visualization.createdAt)}>
                 <DateSince date={visualization.createdAt}/>

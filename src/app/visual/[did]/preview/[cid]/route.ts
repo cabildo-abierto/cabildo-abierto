@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {getUri} from "../../../../../components/utils";
-import {fetchBlob} from "../../../../../actions/data";
+import { fetchBlob } from "../../../../../actions/data";
 
-export async function GET(req: NextRequest,
-                          { params }: { params: { did: string, cid: string } }
-) {
+export async function GET(req: NextRequest, { params }: { params: { did: string, cid: string } }) {
+    const response = await fetchBlob({ authorId: params.did, cid: params.cid });
 
-    // TO DO: No debería traer un blob cualquiera esto, solo debería funcionar para previews
-    let data = await fetchBlob({authorId: params.did, cid: params.cid})
+    if (!response || !response.ok) {
+        return new NextResponse("Not found", { status: 404 });
+    }
 
-    return data
-    return NextResponse.json(data);
+    const contentType = response.headers.get("Content-Type") || "image/jpeg";
+    const imageBuffer = await response.arrayBuffer();
+
+    return new NextResponse(new Uint8Array(imageBuffer), {
+        status: 200,
+        headers: {
+            "Content-Type": contentType,
+            "Cache-Control": "public, max-age=31536000, immutable",
+        },
+    });
 }

@@ -10,12 +10,14 @@ import {useDatasets, useVisualizations} from "../../hooks/contents";
 import LoadingSpinner from "../../components/loading-spinner";
 import {VisualizationsFeed} from "../../components/visualizations/visualizations-feed";
 import {DatasetsFeed} from "../../components/datasets/datasets-feed";
+import {NewDatasetPanel} from "../../components/datasets/new-dataset-panel";
 
 
 const Page = () => {
     const {visualizations} = useVisualizations()
     const {datasets} = useDatasets()
     const [selected, onSelection] = useState("Visualizaciones")
+    const [openNewDatasetPanel, setOpenNewDatasetPanel] = useState(false)
 
     function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)] w-40">
@@ -61,16 +63,15 @@ const Page = () => {
                     Nueva visualización
                 </BasicButton>
             </Link>}
-            {selected == "Datos" && <Link href={"/datasets"}>
-                <BasicButton
-                    startIcon={<AddIcon/>}
-                    variant={"text"}
-                    size={"small"}
-                    sx={{height: "32px", width: "168px"}}
-                >
-                    Nuevo dataset
-                </BasicButton>
-            </Link>}
+            {selected == "Datos" && <BasicButton
+                startIcon={<AddIcon/>}
+                variant={"text"}
+                size={"small"}
+                sx={{height: "32px", width: "168px"}}
+                onClick={() => {setOpenNewDatasetPanel(true)}}
+            >
+                Nuevo dataset
+            </BasicButton>}
         </div>
 
         <div className={"flex flex-col"}>
@@ -80,6 +81,7 @@ const Page = () => {
             )}
             {selected == "Datos" && (datasets ? <DatasetsFeed datasets={datasets}/> : loading)}
         </div>
+        <NewDatasetPanel open={openNewDatasetPanel} onClose={() => {setOpenNewDatasetPanel(false)}}/>
     </div>
 }
 
