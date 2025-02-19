@@ -26,7 +26,6 @@ export const VisualizationOnEditor = ({config, setCurrentView, dataset}: {
         };
 
         if(dataset && dataset.data){
-            console.log("rendering chart")
             renderChart()
         }
     },[config, dataset])

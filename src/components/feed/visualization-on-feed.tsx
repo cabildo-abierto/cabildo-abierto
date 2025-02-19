@@ -20,7 +20,7 @@ export const VisualizationOnFeed = ({visualization}: {visualization: Visualizati
             </div> :
             <div className={"flex justify-center my-2"}>
                 <Image
-                    src={"/visual/" + visualization.author.did + "/preview/" + previewCid}
+                    src={"https://cdn.bsky.app/img/feed_thumbnail/plain/"+visualization.author.did+"/"+previewCid+"@jpeg"}
                     alt={""}
                     width={400}
                     height={300}
