@@ -461,6 +461,13 @@ export function countInArray<T>(a: T[], f: (v: T) => boolean): number{
 }
 
 
+export function editVisualizationUrl(uri: string) {
+    const {did, rkey, collection} = splitUri(uri)
+    const collectionParam = collection != "ar.com.cabildoabierto.visualization" ? "&c=" + collection : ""
+    return "/nueva-visualizacion?did="+did+"&rkey="+rkey+collectionParam
+}
+
+
 export function articleUrl(title: string, index?: number, changes: boolean = false){
     return "/tema?i=" + encodeURIComponent(title) + (index != undefined ? "&v=" + index : "") + (changes ? "&c=true" : "")
 }
@@ -480,17 +487,15 @@ export function splitUri(uri: string){
 }
 
 
-export function datasetViewUrl(uri: string){
-    return "/c/" + getDidFromUri(uri) + "/" + getRkeyFromUri(uri)
-}
-
-
 export function shortCollectionToCollection(collection: string){
     if(collection == "article"){
         return "ar.com.cabildoabierto.article"
     }
     if(collection == "post"){
         return "app.bsky.feed.post"
+    }
+    if(collection == "visualization"){
+        return "ar.com.cabildoabierto.visualization"
     }
     return collection
 }
@@ -502,6 +507,9 @@ export function collectionToShortCollection(collection: string){
     }
     if(collection == "app.bsky.feed.post"){
         return "post"
+    }
+    if(collection == "ar.com.cabildoabierto.visualization"){
+        return "visualization"
     }
     return collection
 }
@@ -905,3 +913,12 @@ export const ErrorMsg = ({text}: {text: string}) => {
 export function pxToNumber(x: string): number {
     return parseInt(x, 10);
 }
+
+
+export const PrettyJSON = ({ data }: { data: any }) => {
+    return (
+        <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+      {JSON.stringify(data, null, 2)}
+    </pre>
+    );
+};

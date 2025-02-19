@@ -2,18 +2,10 @@
 
 import type {
     LexicalEditor,
-    RangeSelection,
   } from 'lexical';
   
-  import './index.css';
+import './index.css';
 
-  import {createDOMRange, createRectsFromDOMRange} from '@lexical/selection';
-  import {
-    $getSelection,
-    $isRangeSelection,
-  } from 'lexical';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import useLayoutEffect from '../../shared/useLayoutEffect';
 import { commentEditorSettings } from '../../comment-editor';
 import { useUser } from '../../../../hooks/user';
 import {getStandardSelection} from "./standard-selection";

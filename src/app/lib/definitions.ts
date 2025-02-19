@@ -363,7 +363,7 @@ export type DatasetProps = RecordProps & {
 
 
 export type PlotConfigProps = {
-    dataset?: DatasetProps
+    datasetUri?: string
     filters?: FilterProps[]
     kind?: string
     [key: string]: any

@@ -1,6 +1,7 @@
 "use client"
-import {FilterProps, PlotConfigProps} from "../../app/lib/definitions";
+import {DatasetProps, FilterProps, PlotConfigProps} from "../../../app/lib/definitions";
 import {VisualizationSpec} from "react-vega";
+import {getDidFromUri, getRkeyFromUri} from "../../utils";
 
 function getMark(config: PlotConfigProps): any {
     if(config.kind == "Gráfico de barras") {
@@ -122,9 +123,16 @@ function getStrokeWidth(config: PlotConfigProps): any {
 }
 
 
-export function getSpecForConfig(config: PlotConfigProps, data?: any): any {
+export type PlotSpecMetadata = {
+    editorConfig: PlotConfigProps,
+    editor: string,
+    editorVersion: string
+}
+
+
+export function getSpecForConfig(config: PlotConfigProps, dataset: {dataset?: DatasetProps, data?: any}, dataInSpec: boolean = false): any {
     function isValid(f: FilterProps){
-        return f.value != undefined && ["igual a", "distinto de"].includes(f.op) && config.dataset.dataset.columns.includes(f.column)
+        return f.value != undefined && ["igual a", "distinto de"].includes(f.op) && dataset.dataset.dataset.columns.includes(f.column)
     }
 
     const validFilters = config.filters ? config.filters.filter((f) => (isValid(f))) : []
@@ -142,18 +150,24 @@ export function getSpecForConfig(config: PlotConfigProps, data?: any): any {
     let dataSpec: {
         values: string
     } | {url: string, type: string}
-    if(data != null){
+    if(dataset.data != null && dataInSpec){
         dataSpec = {
-            values: data
+            values: dataset.data
         }
     } else {
         dataSpec = {
-            url: "/dataset/" + config.dataset.author.did + "/" + config.dataset.rkey,
+            url: "https://www.cabildoabierto.com.ar/dataset/" + getDidFromUri(config.datasetUri) + "/" + getRkeyFromUri(config.datasetUri),
             type: "json"
         }
     }
 
-    const spec: VisualizationSpec = {
+    const metadata: PlotSpecMetadata = {
+        editorConfig: config,
+        editorVersion: "0.1",
+        editor: "https://www.cabildoabierto.com.ar/nueva-visualizacion"
+    }
+
+    const spec: VisualizationSpec & {metadata: PlotSpecMetadata} = {
         $schema: "https://vega.github.io/schema/vega-lite/v5.json",
         width: 450,
         title: {
@@ -176,8 +190,9 @@ export function getSpecForConfig(config: PlotConfigProps, data?: any): any {
                 bind: "scales"
             }
         ],
+        background: null,
         config: {
-            background: "#181b23",
+            background: null,
             axis: {
                 labelFont: "Arial",
                 labelFontSize: 12,
@@ -190,6 +205,7 @@ export function getSpecForConfig(config: PlotConfigProps, data?: any): any {
                 strokeWidth: getStrokeWidth(config)
             },
         },
+        metadata
     }
 
     return spec

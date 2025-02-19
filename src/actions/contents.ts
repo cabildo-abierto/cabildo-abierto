@@ -129,16 +129,14 @@ export async function createFastPost(
             embed: {
                 $type: "app.bsky.embed.external",
                 external: {
-                    uri: "https://www.cabildoabierto.com.ar/visual/"+visualization.author.did+"/"+visualization.rkey,
+                    uri: "https://www.cabildoabierto.com.ar/c/"+visualization.author.did+"/visualization/"+visualization.rkey,
                     title: getVisualizationTitle(visualization),
                     description: "Mirá la visualización interactiva en Cabildo Abierto."
                 }
             }
         }
-        console.log("posting record", record)
 
         const res = await agent.post(record)
-        console.log("created record", res.uri, res.cid)
     } else if(!quote){
         const record = {
             "$type": "app.bsky.feed.post",

@@ -10,7 +10,7 @@ import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {decompress} from "../compression";
 import {QuoteDirProps} from "../editor/plugins/CommentPlugin/show-quote-reply";
 import {useLayoutConfig} from "../layout/layout-config-context";
-import {Visualization} from "../visualizations/visualization";
+import {VisualizationOnThread} from "../visualizations/visualization-on-thread";
 import {DatasetOnThread} from "../datasets/dataset-on-thread";
 
 
@@ -73,7 +73,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
             pinnedReplies={pinnedReplies}
             setPinnedReplies={setPinnedReplies}
         />}
-        {thread.post.collection == "ar.com.cabildoabierto.visualization" && <Visualization
+        {thread.post.collection == "ar.com.cabildoabierto.visualization" && <VisualizationOnThread
             visualization={thread.post as VisualizationProps}
         />}
         {thread.post.collection == "ar.com.cabildoabierto.dataset" && <DatasetOnThread

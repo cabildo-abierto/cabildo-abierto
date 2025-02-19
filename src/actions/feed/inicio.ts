@@ -25,7 +25,7 @@ export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[
         },
     }
 
-    const t1 = new Date().getTime()
+    //const t1 = new Date().getTime()
     let postsQuery = getFeedCA(following)
     let repostsQuery = db.record.findMany({
         select: queryPostsFollowingFeedCA,
@@ -44,8 +44,8 @@ export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[
         },
     })
     const [posts, reposts] = await Promise.all([postsQuery, repostsQuery])
-    const t2 = new Date().getTime()
-    console.log("following feed query time", t2-t1)
+    //const t2 = new Date().getTime()
+    //console.log("following feed query time", t2-t1)
 
     let feed = [
         ...addCountersToFeed(posts, did),

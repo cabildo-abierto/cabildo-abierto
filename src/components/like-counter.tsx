@@ -76,11 +76,11 @@ export const FixedCounter = ({count, icon, title}: {count: number, icon: ReactNo
     
     return <div className={"text-[var(--text-light)]"}>
         <button
-            className={"rounded-lg hover:bg-[var(--background-dark2)] py-1 px-1 flex items-center space-x-1"}
+            className={"rounded-lg hover:bg-[var(--background-dark2)] py-1 px-1 flex items-end space-x-1"}
             title={title}
         >
             <div>{icon}</div>
-            <div className="text-sm mt-1">{count}</div>
+            <div className="text-sm">{count}</div>
         </button>
     </div>
 }

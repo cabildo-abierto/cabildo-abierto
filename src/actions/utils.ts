@@ -282,9 +282,11 @@ export const enDiscusionQuery = {
                         }
                     }
                 }
-            }
+            },
         }
     },
+    visualization: visualizationQuery,
+    dataset: datasetQuery,
     reactions: reactionsQuery,
     views: {
         select: {

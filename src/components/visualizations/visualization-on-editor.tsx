@@ -1,8 +1,7 @@
 "use client"
 import {DatasetProps, PlotConfigProps} from "../../app/lib/definitions";
 import LoadingSpinner from "../loading-spinner";
-import {getSpecForConfig} from "./spec";
-import {useDataset} from "../../hooks/contents";
+import {getSpecForConfig} from "./editor/spec";
 import embed from "vega-embed";
 import {useEffect, useRef} from "react";
 import {View} from "vega";
@@ -18,9 +17,9 @@ export const VisualizationOnEditor = ({config, setCurrentView, dataset}: {
     useEffect(() => {
 
         const renderChart = async () => {
-            const spec = getSpecForConfig(config, dataset.data)
+            const spec = getSpecForConfig(config, dataset, true)
 
-            const result = await embed(chartRef.current, spec, {actions: false});
+            const result = await embed(chartRef.current, spec, {actions: false, config: {background: null}});
             const { view } = result; // Access Vega view object
             setCurrentView(view)
         };

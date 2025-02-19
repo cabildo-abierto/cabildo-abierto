@@ -2,9 +2,11 @@ import {getUsername, userUrl} from "./utils"
 import Link from "next/link"
 
 
-export const Authorship = ({content, className="hover:underline font-medium", onlyAuthor=false}: {className?: string, content: {author: {displayName?: string, handle: string}}, onlyAuthor?: boolean}) => {
-    return <span className="">
-        {onlyAuthor ? "" : "Por "}
+export const Authorship = ({content, className="hover:underline font-medium", onlyAuthor=false, text="Por"}: {className?: string, text?: string, content: {author: {displayName?: string, handle: string}}, onlyAuthor?: boolean}) => {
+    return <span className="space-x-1">
+        <span>
+            {onlyAuthor ? "" : text}
+        </span>
         <Link href={userUrl(content.author?.handle)} className={className}>
             {getUsername(content.author)}
         </Link>

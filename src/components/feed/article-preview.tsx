@@ -3,7 +3,6 @@ import {ArticleProps, ReasonProps} from '../../app/lib/definitions'
 import { FastPostPreviewFrame } from './fast-post-preview-frame'
 import {decompress} from "../compression";
 import {getAllText} from "../diff";
-import {RepostedBy} from "./reposted-by";
 
 
 export type ArticlePreviewProps = {

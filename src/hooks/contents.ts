@@ -4,7 +4,7 @@ import {
     FeedContentProps, ThreadProps, TopicProps, TopicVersionProps,
     SmallTopicProps,
     UserStats,
-    VisualizationProps
+    VisualizationProps, EngagementProps
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import {getDidFromUri, getRkeyFromUri} from "../components/utils";
@@ -136,7 +136,13 @@ export function useTopicFeed(id: string): {feed: FeedContentProps[], error: stri
 
 
 export function useDatasets(): {datasets: DatasetProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/datasets', fetcher)
+    const { data, error, isLoading } = useSWR('/api/datasets', fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
 
     return {
         datasets: data,
@@ -199,7 +205,7 @@ export function useDataset(uri: string): {dataset: {dataset: DatasetProps, data:
 }
 
 
-export function useVisualization(uri: string): {visualization: VisualizationProps, isLoading: boolean, isError: boolean}{
+export function useVisualization(uri: string): {visualization: VisualizationProps & EngagementProps, isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/visualization/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
         {
             revalidateIfStale: false,

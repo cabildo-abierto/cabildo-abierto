@@ -8,8 +8,18 @@ import SortOrder = Prisma.SortOrder;
 import JSZip from "jszip";
 import {DidResolver} from "@atproto/identity";
 import {VisualizationSpec} from "react-vega";
-import {datasetQuery, enDiscusionQuery, recordQuery, visualizationQuery} from "./utils";
+import {
+    addCounters,
+    datasetQuery,
+    enDiscusionQuery,
+    recordQuery,
+    revalidateEverythingTime,
+    visualizationQuery
+} from "./utils";
 import {addCountersToFeed} from "./feed/utils";
+import {revalidateTag, unstable_cache} from "next/cache";
+import {getDidFromUri, getRkeyFromUri} from "../components/utils";
+import {BlobRef} from "@atproto/lexicon";
 
 
 export async function createBlobFromFile(f: File){
@@ -126,7 +136,22 @@ export async function fetchBlob(blob: {cid: string, authorId: string}) {
     return null
 }
 
-export async function getDataset(uri: string){
+
+export async function getDataset(uri: string) {
+    const did = getDidFromUri(uri)
+    const rkey = getRkeyFromUri(uri)
+    return await unstable_cache(async () => {
+        return await getDatasetNoCache(uri)
+    },
+        ["dataset:"+did+":"+rkey],
+        {
+            tags: ["dataset:"+did+":"+rkey]
+        }
+    )()
+}
+
+
+export async function getDatasetNoCache(uri: string){
 
     let dataset: DatasetProps
     try {
@@ -229,8 +254,14 @@ export async function saveVisualization(spec: VisualizationSpec, preview: FormDa
             "Content-Length": f.size.toString()
         }
 
-        const res = await agent.uploadBlob(f, {headers})
-        const blob = res.data.blob
+        let blob: BlobRef
+        try {
+            const res = await agent.uploadBlob(f, {headers})
+            blob = res.data.blob
+        } catch {
+            console.log("Error uploading preview")
+            return {error: "Ocurrió un error al guardar la visualización."}
+        }
 
         const record = {
             spec: JSON.stringify(spec),
@@ -250,7 +281,7 @@ export async function saveVisualization(spec: VisualizationSpec, preview: FormDa
         })
     } catch (err) {
         console.log("error", err)
-        return {error: "Ocurrió un error al guardar la visualización"}
+        return {error: "Ocurrió un error al guardar la visualización."}
     }
 
     return {}
@@ -280,19 +311,26 @@ export async function getVisualizations(){
 }
 
 
-
-
-
 export async function getVisualization(uri: string) {
+    return await unstable_cache(async () => {
+        return await getVisualizationNoCache(uri)
+    }, [uri], {
+        tags: [uri],
+        revalidate: revalidateEverythingTime
+    })()
+}
+
+
+export async function getVisualizationNoCache(uri: string) {
     const v: VisualizationProps = await db.record.findUnique({
         select: {
-            ...recordQuery,
-            visualization: visualizationQuery
+            ...enDiscusionQuery,
+            visualization: visualizationQuery,
         },
         where: {
             uri: uri
         }
     })
 
-    return v
+    return addCounters(getDidFromUri(uri), v)
 }

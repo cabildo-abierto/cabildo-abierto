@@ -1,9 +1,41 @@
 "use client"
 import SearchableDropdown from "../ui-utils/searchable-dropdown";
 import {BaseFullscreenPopup} from "../ui-utils/base-fullscreen-popup";
-import {getVisualizationTitle} from "../utils";
+import {cleanText, contentUrl, getVisualizationTitle} from "../utils";
 import {VisualizationProps} from "../../app/lib/definitions";
 import {useVisualizations} from "../../hooks/contents";
+import LoadingSpinner from "../loading-spinner";
+import {IconButton, TextField} from "@mui/material";
+import {useEffect, useState} from "react";
+import Link from "next/link";
+import {FaExternalLinkAlt} from "react-icons/fa";
+import {Authorship} from "../content-top-row-author";
+import {DateSince} from "../date";
+
+
+const VisualizationPreviewOnSelector = ({visualization, onClick}: {
+    visualization: VisualizationProps, onClick: () => void}) => {
+    const title = getVisualizationTitle(visualization)
+
+    return <div className={"py-1 border rounded px-2 cursor-pointer hover:bg-[var(--background-dark2)]"} onClick={onClick}>
+        <div className={"flex justify-between space-x-1"}>
+            <div className={"font-semibold text-[16px] break-all"}>
+                {title}
+            </div>
+            <Link href={contentUrl(visualization.uri)} target={"_blank"} className={"text-[var(--text-light)]"} onClick={(e) => {e.stopPropagation()}}>
+                <IconButton color={"inherit"}>
+                    <FaExternalLinkAlt fontSize={12} color={"inherit"}/>
+                </IconButton>
+            </Link>
+        </div>
+        <div className={"text-sm truncate text-[var(--text-light)]"}>
+            Publicada por <Authorship content={visualization} onlyAuthor={true}/>
+        </div>
+        <div className={"flex justify-end text-[var(--text-light)] text-sm"}>
+            <DateSince date={visualization.createdAt}/>
+        </div>
+    </div>
+}
 
 
 export const InsertVisualizationModal = ({open, onClose, setVisualization}: {
@@ -12,6 +44,17 @@ export const InsertVisualizationModal = ({open, onClose, setVisualization}: {
     setVisualization: (v: VisualizationProps) => void
 }) => {
     const {visualizations} = useVisualizations()
+    const [searchValue, setSearchValue] = useState<string>("");
+    const [filteredVisualizations, setFilteredVisualizations] = useState<VisualizationProps[]>([])
+
+    useEffect(() => {
+        if(visualizations){
+            const filtered = visualizations.filter((v) => {
+                return cleanText(getVisualizationTitle(v)).includes(cleanText(searchValue))
+            })
+            setFilteredVisualizations(filtered)
+        }
+    }, [visualizations, searchValue])
 
     return <BaseFullscreenPopup
         open={open}
@@ -19,24 +62,26 @@ export const InsertVisualizationModal = ({open, onClose, setVisualization}: {
         onClose={onClose} closeButton={true}
     >
         <div className={"flex flex-col items-center mb-16 px-6"}>
-            <h2 className={"text-center mb-12"}>
+            <h2 className={"text-center mb-6"}>
                 Insertar una visualización
             </h2>
-            <SearchableDropdown
-                options={visualizations ? visualizations.map(({cid}) => (cid)) : []}
-                optionViews={visualizations ? visualizations.map((v) => (getVisualizationTitle(v))) : []}
-                onSelect={(v: string) => {
-                    for(let i = 0; i < visualizations.length; i++) {
-                        if(visualizations[i].cid == v) {
-                            setVisualization(visualizations[i])
-                            break
-                        }
-                    }
-                    onClose()
-                }}
-                label={"Visualización"}
+            <TextField
+                value={searchValue}
                 size={"small"}
+                fullWidth={true}
+                placeholder={"buscar"}
+                onChange={(e) => {setSearchValue(e.target.value)}}
             />
+            {visualizations ? <div className={"mt-4 space-y-1 h-[300px] overflow-y-scroll w-full"}>
+                {filteredVisualizations.map((v, i) => {
+                    return <div key={i}>
+                        <VisualizationPreviewOnSelector visualization={v} onClick={() => {
+                            setVisualization(v)
+                            onClose()
+                        }}/>
+                    </div>
+                })}
+            </div> : <div className={"mt-8"}><LoadingSpinner/></div>}
         </div>
     </BaseFullscreenPopup>
 }

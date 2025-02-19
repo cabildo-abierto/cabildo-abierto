@@ -28,7 +28,7 @@ export const ReactionButton = ({
             disabled={disabled}
             title={title}
         >
-            <div className={"flex items-center"}>
+            <div className={"flex items-end"}>
                 {active ? <div>{icon1}</div> : <div>{icon2}</div>}
                 <div className="text-sm">{count}</div>
             </div>

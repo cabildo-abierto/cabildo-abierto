@@ -34,11 +34,12 @@ export const FastPostPreviewFrame = ({
     return <div
         id={post.uri}
         className={"w-full flex flex-col hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
-        onClick={() => {router.push(url)}}>
+        onClick={() => {router.push(url)}}
+    >
         {post.reason && post.reason.collection == "app.bsky.feed.repost" && <RepostedBy user={post.reason.by}/>}
         <div className={"flex h-full items-stretch"}>
             <div className="w-[79px] flex flex-col items-center pl-2 ">
-                {showingParent ? <ReplyVerticalLine className="h-3"/> : <div className="h-3">{emptyChar}</div>}
+                {showingParent ? <ReplyVerticalLine className="h-2"/> : <div className="h-2">{emptyChar}</div>}
                 <Link
                     href={userUrl(record.author.handle)}
                     onClick={(e) => {e.stopPropagation()}}
@@ -54,7 +55,7 @@ export const FastPostPreviewFrame = ({
                 {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}
             </div>
 
-            <div className="flex w-[519px] flex-col py-3 pr-2">
+            <div className="py-2 flex w-[519px] flex-col pr-2">
                 <div className="flex items-center gap-x-1">
                     <span className="truncate">
                         <ContentTopRowAuthor author={record.author} />

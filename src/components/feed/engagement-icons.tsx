@@ -8,6 +8,9 @@ import {addLike, removeLike, removeRepost, repost} from "../../actions/contents"
 import {EngagementProps, RecordProps} from "../../app/lib/definitions";
 import {ViewsIcon} from "../icons/views-icon";
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import Link from "next/link";
+import CreateIcon from "@mui/icons-material/Create";
+import {editVisualizationUrl} from "../utils";
 
 type EngagementIconsProps = {
     counters: EngagementProps

@@ -42,22 +42,19 @@ export const CardFeed = ({elements, generator}: {elements: any[], generator: (x:
 
     const elementWidth = (availableWidth - minMargin - minGapX * (elementsPerRow-1))/elementsPerRow
 
-    return (
-        <>
-            {Array.from({ length: Math.ceil(elements.length / elementsPerRow) }, (_, rowIndex) => (
-                <div
-                    key={rowIndex}
-                    className={
-                        "mt-14 flex w-full px-4 " +
-                        (elementsPerRow === 3 ? "justify-between" : elementsPerRow === 2 ? "space-x-10" : "justify-center")
-                    }
-                >
-                    {elements.slice(rowIndex * elementsPerRow, (rowIndex + 1) * elementsPerRow).map((e, index) => (
-                        <div key={index}>{generator(e, elementWidth)}</div>
-                    ))}
-                </div>
-            ))}
-        </>
-    );
-
+    return <div className={"mb-32"}>
+        {Array.from({ length: Math.ceil(elements.length / elementsPerRow) }, (_, rowIndex) => (
+            <div
+                key={rowIndex}
+                className={
+                    "mt-14 flex w-full px-4 " +
+                    (elementsPerRow === 3 ? "justify-between" : elementsPerRow === 2 ? "space-x-10" : "justify-center")
+                }
+            >
+                {elements.slice(rowIndex * elementsPerRow, (rowIndex + 1) * elementsPerRow).map((e, index) => (
+                    <div key={index}>{generator(e, elementWidth)}</div>
+                ))}
+            </div>
+        ))}
+    </div>
 }

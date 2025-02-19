@@ -84,7 +84,9 @@ const StateButton: React.FC<StateButtonProps> = ({
         open={Boolean(error)}
         onClose={() => {setError(undefined)}}
       >
-        {error}  
+          <div className={"text-[var(--text-light)]"}>
+              {error}
+          </div>
       </AcceptButtonPanel>
     </>
 };
