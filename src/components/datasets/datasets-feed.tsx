@@ -51,7 +51,7 @@ export const SmallDatasetPreview = ({ dataset, width, height }: {
 
 
 
-const DatasetOnFeed = ({dataset, width}: {
+const DatasetCard = ({dataset, width}: {
     dataset: DatasetProps & EngagementProps
     width: number
 }) => {
@@ -59,7 +59,7 @@ const DatasetOnFeed = ({dataset, width}: {
 
 
     return <CustomLink href={url}
-        style={{width: width}}
+        style={{width}}
     >
         <div className={""}>
             <SmallDatasetPreview
@@ -69,7 +69,7 @@ const DatasetOnFeed = ({dataset, width}: {
             />
         </div>
 
-        <div className={"font-semibold break-all"}>
+        <div className={"font-semibold"} style={{width}}>
             {dataset.dataset.title}
         </div>
 
@@ -88,7 +88,7 @@ const DatasetOnFeed = ({dataset, width}: {
 
 export const DatasetsFeed = ({ datasets }: { datasets: (DatasetProps & EngagementProps)[] }) => {
     function generator(e: any, width: number) {
-        return <DatasetOnFeed dataset={e} width={width}/>
+        return <DatasetCard dataset={e} width={width}/>
     }
 
     return <CardFeed

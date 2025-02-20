@@ -526,7 +526,7 @@ export async function getTextFromBlob(blob: {cid: string, authorId: string}){
         const responseBlob = await response.blob()
         return await responseBlob.text()
     }, ["blob:"+blob.authorId+":"+blob.cid], {
-        tags: ["blob:"+blob.authorId+":"+blob.cid],
+        tags: ["blob:"+blob.authorId+":"+blob.cid, "blobs"],
         revalidate: revalidateEverythingTime
     })()
 }

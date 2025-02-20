@@ -336,8 +336,8 @@
 }
 .PlaygroundEditorTheme__mark {
   background: var(--primary-xlight);
-  border-bottom: 2px solid var(--primary);
-  padding-bottom: 2px;
+  border-bottom: 3px solid var(--primary-2xlight);
+  padding-bottom: 3px;
   color: var(--text);
 }
 .PlaygroundEditorTheme__markOverlap {

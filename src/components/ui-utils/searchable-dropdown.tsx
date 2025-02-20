@@ -12,7 +12,9 @@ interface SearchableDropdownProps {
     fontSize?: string
 }
 
-const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ fontSize="0.875rem", selected="", options, optionViews, label, onSelect, size }) => {
+const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
+   fontSize="0.875rem", selected="", options, optionViews, label, onSelect, size
+}) => {
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -31,6 +33,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({ fontSize="0.875
     );
     setFilteredOptions(filtered);
     setShowDropdown(filtered.length > 0);
+    onSelect(value)
   };
 
   const handleOptionSelect = (option: string) => {

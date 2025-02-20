@@ -107,7 +107,12 @@ export async function getThreadNoCache({did, rkey, viewerDid, agent}: {did: stri
                 }
             }
         })
+
         const [mainPost, replies] = await Promise.all([mainPostQ, repliesQ])
+
+        if(!mainPost){
+            return {error: "El contenido no existe."}
+        }
 
         const threadForFeed: ThreadProps = {
             post: addCounters(viewerDid, mainPost),
@@ -115,7 +120,6 @@ export async function getThreadNoCache({did, rkey, viewerDid, agent}: {did: stri
                 return addCounters(viewerDid, r)
             })
         }
-
         return {thread: threadForFeed}
     } catch(err) {
         console.log(err)

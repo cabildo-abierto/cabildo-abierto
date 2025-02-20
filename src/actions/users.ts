@@ -9,7 +9,6 @@ import { getSubscriptionPrice } from "./payments";
 import {getSessionAgent, getSessionDid} from "./auth";
 import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import { Prisma } from "@prisma/client";
-import {NextResponse} from "next/server";
 
 
 export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
@@ -105,7 +104,10 @@ export const getConversations = (userId: string) => {
         ["conversations", userId],
         {
             revalidate: revalidateEverythingTime,
-            tags: ["conversations:"+userId]
+            tags: [
+                "conversations",
+                "conversations:"+userId
+            ]
         }
     )()
 }
@@ -415,6 +417,7 @@ export const getChatBetween = (userId: string, anotherUserId: string) => {
     }, ["chat", userId, anotherUserId], {
         revalidate: revalidateEverythingTime,
         tags: [
+            "chats",
             "chat:"+userId+":"+anotherUserId
         ]})()    
 }

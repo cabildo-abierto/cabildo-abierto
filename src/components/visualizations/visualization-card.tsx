@@ -24,13 +24,13 @@ export const VisualizationCard = ({visualization, width}: {visualization: Visual
     const title = getTitleFromSpec(visualization.visualization.spec)
 
     return <CustomLink
-        className={"cursor-pointer h-56 "}
+        className={"cursor-pointer"}
         style={{width}}
         href={url}
     >
-        <VegaPlotPreview visualization={visualization}/>
+        <VegaPlotPreview visualization={visualization} width={width}/>
 
-        <div className={"px-2"}>
+        <div className={"px-2"} style={{width}}>
             {title && <div className={"font-semibold"}>
                 {title}
             </div>}

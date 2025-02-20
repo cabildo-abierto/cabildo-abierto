@@ -5,6 +5,8 @@ import LoadingSpinner from "../../loading-spinner";
 import {EngagementProps, VisualizationProps} from "../../../app/lib/definitions";
 import {EngagementIcons} from "../../feed/engagement-icons";
 import {VegaPlot} from "../../visualizations/vega-plot";
+import {useLayoutConfig} from "../../layout/layout-config-context";
+import {pxToNumber} from "../../utils";
 
 
 
@@ -38,6 +40,7 @@ export const VisualizationNodeCompFromSpec = ({spec, uri}: {spec: string, uri: s
 export const VisualizationNodeComp = ({visualization, showEngagement=true}: {
     visualization: VisualizationProps & EngagementProps, showEngagement?: boolean}) => {
     const {dataset} = useDataset(visualization.visualization.dataset.uri)
+    const {layoutConfig} = useLayoutConfig()
 
     return (
         <div className={"flex flex-col items-center w-full"} onClick={(e) => {e.stopPropagation()}}>

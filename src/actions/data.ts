@@ -145,7 +145,7 @@ export async function getDataset(uri: string) {
     },
         ["dataset:"+did+":"+rkey],
         {
-            tags: ["dataset:"+did+":"+rkey],
+            tags: ["dataset:"+did+":"+rkey, "dataset"],
             revalidate: revalidateEverythingTime
         }
     )()
@@ -316,7 +316,7 @@ export async function getVisualization(uri: string) {
     return await unstable_cache(async () => {
         return await getVisualizationNoCache(uri)
     }, [uri], {
-        tags: [uri],
+        tags: [uri, "visualization"],
         revalidate: revalidateEverythingTime
     })()
 }

@@ -8,9 +8,9 @@ import {addLike, removeLike, removeRepost, repost} from "../../actions/contents"
 import {EngagementProps, RecordProps} from "../../app/lib/definitions";
 import {ViewsIcon} from "../icons/views-icon";
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import Link from "next/link";
-import CreateIcon from "@mui/icons-material/Create";
-import {editVisualizationUrl} from "../utils";
+import {CustomLink} from "../custom-link";
+import {contentUrl} from "../utils";
+
 
 type EngagementIconsProps = {
     counters: EngagementProps
@@ -20,13 +20,14 @@ type EngagementIconsProps = {
 }
 
 export const EngagementIcons = ({counters, record, className="space-x-16"}: EngagementIconsProps) => {
-    return <div className={"flex items-center " + className}>
+    return <div className={"flex items-center exclude-links " + className}>
         {record.collection != "ar.com.cabildoabierto.topic" && <>
-        {counters.replyCount != undefined && <FixedCounter
+        {counters.replyCount != undefined && <CustomLink href={contentUrl(record.uri)}>
+            <FixedCounter
             count={counters.replyCount}
             icon={<InactiveCommentIcon/>}
             title="Cantidad de respuestas."
-        />}
+        /></CustomLink>}
         {counters.repostCount != undefined && <LikeCounter
             icon1={<span className={"text-green-400"}><RepostIcon fontSize={"small"}/></span>}
             icon2={<RepostIcon fontSize={"small"}/>}
