@@ -186,7 +186,7 @@ export function useThread({did, viewerDid, rkey}: {did: string, viewerDid: strin
 }
 
 
-export function useDataset(uri: string): {dataset: {dataset: DatasetProps, data: any[]}, isLoading: boolean, error?: string}{
+export function useDataset(uri: string): {dataset: {dataset: DatasetProps & EngagementProps, data: any[]}, isLoading: boolean, error?: string}{
     const { data, error, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
         {
             revalidateIfStale: false,
@@ -205,7 +205,7 @@ export function useDataset(uri: string): {dataset: {dataset: DatasetProps, data:
 }
 
 
-export function useVisualization(uri: string): {visualization: VisualizationProps & EngagementProps, isLoading: boolean, isError: boolean}{
+export function useVisualization(uri: string): {visualization: VisualizationProps & EngagementProps, isLoading: boolean, error: string}{
     const { data, error, isLoading } = useSWR('/api/visualization/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
         {
             revalidateIfStale: false,
@@ -215,9 +215,9 @@ export function useVisualization(uri: string): {visualization: VisualizationProp
     )
 
     return {
-        visualization: data,
+        visualization: data && data.visualization ? data.visualization : undefined,
         isLoading,
-        isError: error
+        error: data && data.error ? data.error : undefined
     }
 }
 

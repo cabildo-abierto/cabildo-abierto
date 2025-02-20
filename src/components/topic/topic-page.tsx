@@ -31,6 +31,16 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     const [shouldGoTo, setShouldGoTo] = useState(null)
 
     useEffect(() => {
+        if(viewingContent && layoutConfig.openRightPanel){
+            setLayoutConfig({
+                ...layoutConfig,
+                openRightPanel: false,
+                maxWidthCenter: "800px"
+            })
+        }
+    }, [layoutConfig, viewingContent])
+
+    useEffect(() => {
         if (shouldGoTo && viewingContent) {
             const observer = new MutationObserver(() => {
                 const elem = document.getElementById(shouldGoTo);

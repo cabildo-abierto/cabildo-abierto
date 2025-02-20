@@ -8,6 +8,7 @@ import {useLayoutConfig} from "../layout/layout-config-context";
 import {useEffect, useState} from "react";
 import {CustomLink} from "../custom-link";
 import {CardFeed} from "../ui-utils/card-feed";
+import {DateSince} from "../date";
 
 
 export const SmallDatasetPreview = ({ dataset, width, height }: {
@@ -73,7 +74,9 @@ const DatasetOnFeed = ({dataset, width}: {
         </div>
 
         <div className={"text-sm space-x-1 flex items-center text-[var(--text-light)] break-all"}>
-            <Authorship content={dataset} onlyAuthor={true}/>
+            <div><Authorship content={dataset} onlyAuthor={true}/></div>
+            <div className="text-[var(--text-light)]">• </div>
+            <div><DateSince date={dataset.createdAt}/></div>
         </div>
 
         <div className={"mt-1 flex justify-center"}>

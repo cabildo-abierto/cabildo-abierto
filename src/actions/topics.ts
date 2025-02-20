@@ -243,6 +243,10 @@ export async function getTrendingTopics(sinceKind: string = "alltime", categorie
 }
 
 
+function newestVersion(a: SmallTopicProps, b: SmallTopicProps){
+    return b.versions[b.versions.length-1].content.record.createdAt.getTime() - a.versions[a.versions.length-1].content.record.createdAt.getTime()
+}
+
 
 export async function getTrendingTopicsNoCache(sincekind: string, categories: string[], sortedby: string, limit: number): Promise<{error?: string, topics?: SmallTopicProps[]}> {
     // sinceKind is always alltime
@@ -369,6 +373,8 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
 
         if(sortedby == "popular") {
             topicsWithScore.sort(listOrderDesc)
+        } else {
+            topicsWithScore.sort(newestVersion)
         }
 
         let filteredTopics = topicsWithScore.filter((t) => {
@@ -515,9 +521,14 @@ export async function getCategoriesNoCache() {
 
 
 export async function getTextFromBlob(blob: {cid: string, authorId: string}){
-    const response = await fetchBlob(blob)
-    const responseBlob = await response.blob()
-    return await responseBlob.text()
+    return await unstable_cache(async () => {
+        const response = await fetchBlob(blob)
+        const responseBlob = await response.blob()
+        return await responseBlob.text()
+    }, ["blob:"+blob.authorId+":"+blob.cid], {
+        tags: ["blob:"+blob.authorId+":"+blob.cid],
+        revalidate: revalidateEverythingTime
+    })()
 }
 
 

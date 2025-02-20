@@ -1,10 +1,9 @@
-import {ContentOptionsButton} from "../content-options/content-options-button";
 import {ProfilePic} from "../feed/profile-pic";
 import {ContentTopRowAuthor} from "../content-top-row-author";
 import {EngagementProps, VisualizationProps} from "../../app/lib/definitions";
 import {DatasetTitle} from "../datasets/dataset-title";
 import {EngagementIcons} from "../feed/engagement-icons";
-import {VegaPlot} from "../editor/nodes/visualization-node-comp";
+import {VegaPlot} from "./vega-plot";
 
 
 export const VisualizationOnThread = ({visualization}: {visualization: VisualizationProps & EngagementProps}) => {
@@ -13,9 +12,6 @@ export const VisualizationOnThread = ({visualization}: {visualization: Visualiza
         <div className={"flex justify-between items-center"}>
             <div className={"font-bold text-xl"}>
                 Visualización
-            </div>
-            <div>
-                <ContentOptionsButton record={visualization}/>
             </div>
         </div>
         <div className={"flex items-center space-x-2 text-sm"}>

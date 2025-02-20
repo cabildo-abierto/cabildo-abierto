@@ -1,10 +1,8 @@
 "use server"
 import {getSessionAgent, getSessionDid} from "./auth";
 import {db} from "../db";
-import {DatasetProps, FeedContentProps, VisualizationProps} from "../app/lib/definitions";
+import {DatasetProps, EngagementProps, FeedContentProps, VisualizationProps} from "../app/lib/definitions";
 import Papa from 'papaparse';
-import {Prisma} from ".prisma/client";
-import SortOrder = Prisma.SortOrder;
 import JSZip from "jszip";
 import {DidResolver} from "@atproto/identity";
 import {VisualizationSpec} from "react-vega";
@@ -31,7 +29,7 @@ export async function createBlobFromFile(f: File){
 }
 
 
-export async function createDataset(title: string, columns: string[], formData: FormData, format: string): Promise<{error?: string}>{
+export async function createDataset(title: string, columns: string[], description: string, formData: FormData, format: string): Promise<{error?: string}>{
     const data = Object.fromEntries(formData);
 
     let f = data.data as File
@@ -51,6 +49,7 @@ export async function createDataset(title: string, columns: string[], formData: 
             title: title,
             createdAt: curDate,
             columns: columns.map((c) => ({name: c})),
+            description,
             "$type": "ar.com.cabildoabierto.dataset"
         }
 
@@ -124,15 +123,16 @@ export async function getDatasets(): Promise<FeedContentProps[]>{
 }
 
 
-export async function fetchBlob(blob: {cid: string, authorId: string}) {
-
+export async function fetchBlob(blob: {cid: string, authorId: string}, cache: boolean = true) {
+    const t1 = new Date().getTime()
     const didres: DidResolver = new DidResolver({})
     const doc = await didres.resolve(blob.authorId)
     if (doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint) {
         const url = doc.service[0].serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
-        return await fetch(url, {cache: "no-store"})
+        //console.log("Fetching blob", blob.cid, blob.authorId, "took", new Date().getTime()-t1)
+        return await fetch(url, cache ? undefined : {cache: "no-store"})
     }
-
+    //console.log("couldn't resolve did doc", blob.authorId)
     return null
 }
 
@@ -145,7 +145,8 @@ export async function getDataset(uri: string) {
     },
         ["dataset:"+did+":"+rkey],
         {
-            tags: ["dataset:"+did+":"+rkey]
+            tags: ["dataset:"+did+":"+rkey],
+            revalidate: revalidateEverythingTime
         }
     )()
 }
@@ -321,16 +322,20 @@ export async function getVisualization(uri: string) {
 }
 
 
-export async function getVisualizationNoCache(uri: string) {
-    const v: VisualizationProps = await db.record.findUnique({
-        select: {
-            ...enDiscusionQuery,
-            visualization: visualizationQuery,
-        },
-        where: {
-            uri: uri
-        }
-    })
+export async function getVisualizationNoCache(uri: string): Promise<{visualization?: VisualizationProps & EngagementProps, error?: string}> {
+    try {
+        const v: VisualizationProps = await db.record.findUnique({
+            select: {
+                ...enDiscusionQuery,
+                visualization: visualizationQuery,
+            },
+            where: {
+                uri: uri
+            }
+        })
+        return {visualization: addCounters(getDidFromUri(uri), v)}
+    } catch (e) {
+        return {error: "Error al obtener la visualización"}
+    }
 
-    return addCounters(getDidFromUri(uri), v)
 }
