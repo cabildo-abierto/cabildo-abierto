@@ -910,8 +910,11 @@ export const ErrorMsg = ({text}: {text: string}) => {
     </div>
 }
 
-export function pxToNumber(x: string): number {
-    return parseInt(x, 10);
+export function pxToNumber(x: string | number): number {
+    if(typeof x == "string"){
+        return parseInt(x, 10)
+    }
+    return x
 }
 
 

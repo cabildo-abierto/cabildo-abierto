@@ -68,6 +68,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                                     size={"small"}
                                     selected={config[req.label]}
                                     onSelect={(v: string) => {
+                                        console.log("updating", req.label, "with value", v)
                                         updateConfig(req.label, v)
                                     }}
                                 />

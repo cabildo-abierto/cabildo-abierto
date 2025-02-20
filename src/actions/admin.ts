@@ -6,83 +6,27 @@ import {getRkeyFromUri, launchDate, supportDid, validSubscription} from "../comp
 import { getSessionAgent } from "./auth";
 import {deleteRecords} from "./atproto-update";
 
-export async function revalidateEntities(){
-    revalidateTag("entity")
-    revalidateTag("entities")
-}
-
-export async function revalidateContents(){
-    revalidateTag("content")
-}
-
-export async function revalidateNotifications(){
-    revalidateTag("notifications")
-}
-
-export async function revalidateUsers(){
-    revalidateTag("user")
-    revalidateTag("users")
-    revalidateTag("userStats")
-    revalidateTag("usersWithStats")
-}
-
-export async function revalidateFeed(){
-    revalidateTag("feed")
-    revalidateTag("routeFollowingFeed")
-    revalidateTag("repliesFeed")
-    revalidateTag("editsFeed")
-    revalidateTag("profileFeed")
-}
-
-
-export async function revalidateDrafts(){
-    revalidateTag("drafts")
-}
-
-
-export async function revalidateSearchkeys(){
-    revalidateTag("searchkeys")
-}
-
-
-export async function revalidateSuggestions(){
-    revalidateTag("followSuggestions")
-}
-
-
-export async function updateProfilesFromAT(){
-    const users = await db.user.findMany({
-        select: {
-            did: true,
-            handle: true
-        }
-    })
-
-    const {agent} = await getSessionAgent()
-
-    for(let i = 0; i < users.length; i++){
-        const u = users[i]
-        const {data: p} = await agent.getProfile({"actor": u.did})
-
-        if(p.handle != u.handle) {
-            console.log("Updating user", u.handle)
-            console.log("Prev:")
-            console.log(u.handle)
-            console.log("New:")
-            console.log(p.handler)
-
-            await db.user.update({
-                data: {
-                    handle: p.handle
-                },
-                where: {
-                    did: u.did
-                }
-            })
-        }
+export async function revalidateTags(tags: string[]){
+    for(let i = 0; i < tags.length; i++){
+        revalidateTag(tags[i])
     }
 }
 
+export async function revalidateEverything(){
+    await revalidateTags([
+        "feedCA",
+        "thread",
+        "user",
+        "dataset",
+        "visualization",
+        "tt",
+        "fundingPercentage",
+        "categories",
+        "blobs",
+        "conversations",
+        "chats"
+    ])
+}
 
 /*export async function getPaymentsStats(){
     const accounts = await db.user.findMany({

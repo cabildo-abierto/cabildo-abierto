@@ -7,14 +7,6 @@ import { useUser } from "../../hooks/user"
 import React from 'react';
 import { supportDid, tomasDid } from "../../components/utils"
 import {
-    revalidateEntities,
-    revalidateContents,
-    revalidateNotifications,
-    revalidateUsers,
-    revalidateFeed,
-    revalidateDrafts,
-    revalidateSearchkeys,
-    revalidateSuggestions,
     deleteUser
 } from "../../actions/admin"
 
@@ -66,49 +58,6 @@ export default function Page() {
                 removeSubscriptions()
             }}>
                 Eliminar suscripciones
-            </button>
-
-            <h2>Revalidar</h2>
-
-            <button className="gray-btn" onClick={async () => {
-                await revalidateEntities()
-            }}>
-                Revalidar temas
-            </button>
-            <button className="gray-btn" onClick={async () => {
-                await revalidateContents()
-            }}>
-                Revalidar contenidos
-            </button>
-            <button className="gray-btn" onClick={async () => {
-                await revalidateNotifications()
-            }}>
-                Revalidar notificaciones
-            </button>
-            <button className="gray-btn" onClick={async () => {
-                await revalidateUsers()
-            }}>
-                Revalidar usuarios
-            </button>
-            <button className="gray-btn" onClick={async () => {
-                await revalidateFeed()
-            }}>
-                Revalidar feed
-            </button>
-            <button className="gray-btn" onClick={async () => {
-                await revalidateDrafts()
-            }}>
-                Revalidar drafts
-            </button>
-            <button className="gray-btn" onClick={async () => {
-                await revalidateSearchkeys()
-            }}>
-                Revalidar search keys
-            </button>
-            <button className="gray-btn" onClick={async () => {
-                await revalidateSuggestions()
-            }}>
-                Revalidar sugerencias
             </button>
 
         </div>

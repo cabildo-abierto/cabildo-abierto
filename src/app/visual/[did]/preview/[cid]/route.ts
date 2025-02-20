@@ -5,14 +5,11 @@ export async function GET(req: NextRequest, { params }: { params: { did: string,
     const response = await fetchBlob({ authorId: params.did, cid: params.cid });
 
     if (!response || !response.ok) {
-        console.log("blob", params, "not found")
         return new NextResponse("Not found", { status: 404 });
     }
 
     const contentType = response.headers.get("Content-Type") || "image/png";
     const imageBuffer = await response.arrayBuffer();
-
-    console.log("blob found with contentType", contentType, params)
 
     return new NextResponse(new Uint8Array(imageBuffer), {
         status: 200,
