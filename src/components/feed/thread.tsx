@@ -3,7 +3,7 @@ import { FastPost } from "./fast-post"
 import {ArticleProps, DatasetProps, FastPostProps, ThreadProps, VisualizationProps} from "../../app/lib/definitions"
 import { ReplyButton } from "./reply-button"
 import { FastPostPreview } from "./fast-post-preview"
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {WritePanel} from "../write-panel";
 import {Article} from "./article";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";

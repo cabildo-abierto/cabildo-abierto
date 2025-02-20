@@ -108,12 +108,13 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
     }
 
     async function onSave() {
-        const spec = getSpecForConfig(config, dataset)
+        let spec = getSpecForConfig(config, dataset)
 
-        const canvas = await currentView.toCanvas(10);
-        const dataURL = canvas.toDataURL("image/png")
+        const canvas = await currentView.toCanvas(10)
+        const dataURL = canvas.toDataURL("image/png");
 
-        const file = dataURLToFile(dataURL)
+        const file = new Blob([dataURL], { type: "image/png" });
+
         const formData = new FormData()
         formData.set("data", file)
         const {error} = await saveVisualization(spec, formData)

@@ -2,7 +2,7 @@ import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 
 
-export const revalidateEverythingTime = 6*3600
+export const revalidateEverythingTime = 5//6*3600
 
 
 export const recordQuery = {
@@ -109,6 +109,7 @@ export const datasetQuery = {
     select: {
         title: true,
         columns: true,
+        description: true,
         dataBlocks: {
             select: {
                 record: {
@@ -285,8 +286,6 @@ export const enDiscusionQuery = {
             },
         }
     },
-    visualization: visualizationQuery,
-    dataset: datasetQuery,
     reactions: reactionsQuery,
     views: {
         select: {
@@ -321,43 +320,6 @@ export const queryPostsFollowingFeedCA = {
             article: {
                 select: {
                     title: true
-                }
-            }
-        }
-    },
-    reactions: reactionsQuery,
-    views: {
-        select: {
-            userById: true
-        }
-    },
-    _count: {
-        select: {
-            replies: true
-        }
-    }
-}
-
-
-export const queryPostsRepliesFeedCA = {
-    ...recordQuery,
-    content: {
-        select: {
-            text: true,
-            numWords: true,
-            textBlob: true,
-            article: {
-                select: {
-                    title: true
-                }
-            },
-            post: {
-                select: {
-                    embed: true,
-                    quote: true,
-                    facets: true,
-                    replyTo: replyToQuery,
-                    root: replyToQuery
                 }
             }
         }

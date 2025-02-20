@@ -19,8 +19,8 @@ export const VisualizationOnEditor = ({config, setCurrentView, dataset}: {
         const renderChart = async () => {
             const spec = getSpecForConfig(config, dataset, true)
 
-            const result = await embed(chartRef.current, spec, {actions: false, config: {background: null}});
-            const { view } = result; // Access Vega view object
+            const result = await embed(chartRef.current, spec, {actions: false})
+            const { view } = result;
             setCurrentView(view)
         };
 

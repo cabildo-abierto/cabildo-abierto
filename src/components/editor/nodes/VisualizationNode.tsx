@@ -18,7 +18,7 @@ import type {
 
 
 import {$applyNodeReplacement, DecoratorNode} from 'lexical';
-import {VisualizationNodeComp, VisualizationNodeCompFromSpec} from "./visualization-node-comp";
+import {VisualizationNodeCompFromSpec} from "./visualization-node-comp";
 
 
 export interface VisualizationPayload {

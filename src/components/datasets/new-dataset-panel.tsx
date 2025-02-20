@@ -109,11 +109,13 @@ export const NewDatasetPanel = ({open, onClose}: {
 
         const formData = new FormData()
         formData.set("data", zipData)
-        const {error} = await createDataset(title, columns, formData, "zip")
+        const {error} = await createDataset(title, columns, description, formData, "zip")
 
         if(!error){
             router.push("/datos")
+            onClose()
         }
+
 
         return {error}
     }
@@ -159,7 +161,7 @@ export const NewDatasetPanel = ({open, onClose}: {
                         onChange={(e) => setTitle(e.target.value)}
                     />
                 </div>
-                <div className={"w-80"}>
+                <div className="max-w-128 w-full">
                     <TextField
                         size={"small"}
                         variant="outlined"

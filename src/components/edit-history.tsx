@@ -115,6 +115,7 @@ const AssignAuthorshipButtons = ({topic, version}: {topic: TopicProps, version: 
 
 
 const EditMessage = ({msg, editType}: { msg?: string, editType: string }) => {
+    console.log("edit msg is", msg)
     return <span className="text-sm">
         {(msg != null && msg.length > 0) ? msg : (editType == "Contenido" ? "sin descripción" : "")}
     </span>

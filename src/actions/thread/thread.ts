@@ -119,6 +119,6 @@ export async function getThreadNoCache({did, rkey, viewerDid, agent}: {did: stri
         return {thread: threadForFeed}
     } catch(err) {
         console.log(err)
-        return {error: "No se pudo obtener el thread."}
+        return {error: "No se pudo obtener el contenido."}
     }
 }

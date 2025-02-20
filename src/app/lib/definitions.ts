@@ -347,6 +347,7 @@ export type DatasetProps = RecordProps & {
         title: string
         columns: string[]
         columnValues?: Map<string, any[]>
+        description?: string
         dataBlocks: {
             record: RecordProps,
             format: string,

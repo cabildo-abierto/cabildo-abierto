@@ -1,11 +1,11 @@
 import {EngagementProps, VisualizationProps} from "../../app/lib/definitions";
-import Image from "next/image";
 import {contentUrl, formatIsoDate, urlFromRecord} from "../utils";
-import {Authorship, ContentTopRowAuthor} from "../content-top-row-author";
+import {Authorship} from "../content-top-row-author";
 import {CustomLink} from "../custom-link";
 import {EngagementIcons} from "../feed/engagement-icons";
 import Link from "next/link";
 import {DateSince} from "../date";
+import {VegaPlot, VegaPlotPreview} from "./vega-plot";
 
 
 function getTitleFromSpec(spec: string){
@@ -19,23 +19,16 @@ function getTitleFromSpec(spec: string){
 
 
 export const VisualizationCard = ({visualization, width}: {visualization: VisualizationProps & EngagementProps, width: number}) => {
-    const previewCid = visualization.visualization.previewBlobCid
     const url = urlFromRecord(visualization as {uri: string, collection: string, author: {did: string, handle: string}})
 
     const title = getTitleFromSpec(visualization.visualization.spec)
 
     return <CustomLink
-        className={"cursor-pointer rounded h-56"}
+        className={"cursor-pointer h-56 "}
         style={{width}}
         href={url}
     >
-        <Image
-            src={"https://cdn.bsky.app/img/feed_thumbnail/plain/"+visualization.author.did+"/"+previewCid+"@jpeg"}
-            alt={""}
-            width={400}
-            height={300}
-            className={"w-full h-auto"}
-        />
+        <VegaPlotPreview visualization={visualization}/>
 
         <div className={"px-2"}>
             {title && <div className={"font-semibold"}>

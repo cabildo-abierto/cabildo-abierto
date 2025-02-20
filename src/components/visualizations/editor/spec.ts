@@ -190,9 +190,8 @@ export function getSpecForConfig(config: PlotConfigProps, dataset: {dataset?: Da
                 bind: "scales"
             }
         ],
-        background: null,
         config: {
-            background: null,
+            background: "#181b23",
             axis: {
                 labelFont: "Arial",
                 labelFontSize: 12,

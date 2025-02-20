@@ -217,11 +217,12 @@ model Article {
 }
 
 model Dataset {
-  uri        String      @id
-  record     Record      @relation(fields: [uri], references: [uri])
-  columns    String[]
-  title      String
-  dataBlocks DataBlock[]
+  uri         String      @id
+  record      Record      @relation(fields: [uri], references: [uri])
+  columns     String[]
+  title       String
+  dataBlocks  DataBlock[]
+  description String?
 }
 
 model Blob {
