@@ -24,7 +24,9 @@ export async function revalidateEverything(){
         "categories",
         "blobs",
         "conversations",
-        "chats"
+        "chats",
+        "interactions",
+        "topics"
     ])
 }
 

@@ -6,8 +6,6 @@ import { useUsers } from "../hooks/user"
 import LoadingSpinner from "./loading-spinner"
 import React, {useEffect, useState} from "react"
 import { cleanText } from "./utils"
-import {Button} from "@mui/material";
-import {useRouter} from "next/navigation";
 import {searchATProtoUsers} from "../actions/users";
 
 

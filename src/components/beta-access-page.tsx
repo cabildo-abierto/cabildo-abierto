@@ -19,14 +19,13 @@ function getUsernameBskyUser(user: ProfileViewDetailed){
 }
 
 
-export const BetaAccessPage = ({children}: {children: ReactNode}) => {
+export const BetaAccessPageNotCAUserAccess = () => {
     const {bskyUser, isLoading: loadingBskyUser} = useBskyUser()
-    const {user, isLoading} = useUser()
     const [email, setEmail] = useState<string>("")
+    const {user, isLoading} = useUser()
     const [status, setStatus] = useState(user && user.email ? "email set" : "no email")
     const {mutate} = useSWRConfig()
 
-    if(user && user.hasAccess) return <>{children}</>
     if(isLoading || loadingBskyUser) return <LoadingScreen />
 
     async function handleSave(){
@@ -51,8 +50,8 @@ export const BetaAccessPage = ({children}: {children: ReactNode}) => {
 
         <div className={"bg-[var(--background-dark)] p-4 rounded-lg mt-8"}>
             {(!user || !user.email || status == "changing email") ? <><p className={"text-[var(--text-light)]"}>
-                    Dejanos tu mail así te avisamos cuando puedas acceder
-                </p>
+                Dejanos tu mail así te avisamos cuando puedas acceder
+            </p>
                 <div className={"py-4 space-x-2 flex items-center justify-center"}>
                     <TextField
                         label="Email"
@@ -71,24 +70,24 @@ export const BetaAccessPage = ({children}: {children: ReactNode}) => {
                         text1={"Guardar"}
                     />
                 </div></> : <div className={"space-x-1 mt-4 flex flex-col items-center"}>
-            <div className={""}>
-                <div>Te vamos a escribir a <span
-                    className={"text-[var(--text-light)]"}>{email ? email : user.email}</span> para avisarte cuando
-                    puedas acceder.
-                </div>
-                <div className={"flex justify-center"}>
-                    <button onClick={() => {
-                        setStatus("changing email")
-                    }} className={"link2 text-[var(--text-light)] text-sm"}>
-                        Cambiar mail
-                    </button>
+                <div className={""}>
+                    <div>Te vamos a escribir a <span
+                        className={"text-[var(--text-light)]"}>{email ? email : user.email}</span> para avisarte cuando
+                        puedas acceder.
+                    </div>
+                    <div className={"flex justify-center"}>
+                        <button onClick={() => {
+                            setStatus("changing email")
+                        }} className={"link2 text-[var(--text-light)] text-sm"}>
+                            Cambiar mail
+                        </button>
+                    </div>
                 </div>
             </div>
+            }
         </div>
-        }
-    </div>
 
-    <div className={"text-[var(--text-light)] mt-16 text-center"}>
+        <div className={"text-[var(--text-light)] mt-16 text-center"}>
             Si ya tenías una cuenta de la primera versión, <Link className="link2" href={"/v1"}>hacé click acá</Link>.
         </div>
 
@@ -96,4 +95,13 @@ export const BetaAccessPage = ({children}: {children: ReactNode}) => {
             <Footer showCA={false}/>
         </div>
     </div>
+}
+
+
+export const BetaAccessPage = ({children}: {children: ReactNode}) => {
+    const {user, isLoading} = useUser()
+    if(user && user.hasAccess) return <>{children}</>
+    if(isLoading) return <LoadingScreen />
+
+    return <BetaAccessPageNotCAUserAccess/>
 }
