@@ -575,17 +575,17 @@ export function isKeyInText(key: string, text: string){
 }
 
 
-export function someKeyInText(keys: string[], text: string){
+/*export function someKeyInText(keys: string[], text: string){
     return keys.some((k) => (isKeyInText(k, text)), keys)
 }
 
 
 export function getKeysFromEntity(entity: {currentVersion: {synonyms: string[]}, id: string}){
     return [...entity.currentVersion.synonyms, entity.id].map(cleanText)
-}
+}*/
 
 
-export function findWeakEntityReferences(text: string, searchkeys: {id: string, keys: string[]}[]): {id: string}[]{
+/*export function findWeakEntityReferences(text: string, searchkeys: {id: string, keys: string[]}[]): {id: string}[]{
     let ids = []
     const cleaned = cleanText(text)
 
@@ -601,7 +601,7 @@ export function findWeakEntityReferences(text: string, searchkeys: {id: string, 
     }
 
     return ids
-}
+}*/
 
 
 export function getSearchkeysFromEntities(entities: {}[]){
@@ -652,10 +652,9 @@ export function findMentionsFromUsers(text: string, users: SmallUserProps[]){
     return references
 }
 
-
-export function findEntityReferencesFromEntities(text: string, entities: {}[]){
-    return []
-    /*function findReferencesInNode(node: any): {id: string}[] {
+/*
+export function findEntityReferencesFromEntities(text: string, entities: SmallEntityProps[]){
+    function findReferencesInNode(node: any): {id: string}[] {
         let references: {id: string}[] = []
         if(node.type === "link"){
             if(node.url.startsWith("/articulo?i=")){
@@ -693,8 +692,8 @@ export function findEntityReferencesFromEntities(text: string, entities: {}[]){
 
     references = references.filter(({id}) => (entities.some((e) => (e.id == id))))
 
-    return references*/
-}
+    return references
+}*/
 
 
 export function entityExists(name: string, entities: {}[]){
@@ -833,7 +832,7 @@ type EntitySearchKeysProps = {
     currentVersion: {synonyms: string[]}
 }
 
-function findMentionNode(node: any, entity: EntitySearchKeysProps){
+/*function findMentionNode(node: any, entity: EntitySearchKeysProps){
     if(node.type == "link" || node.type == "autolink"){
         const url: string = node.url
         if(url.includes("/articulo/") && url.split("/articulo/")[1] == entity.id)
@@ -852,10 +851,10 @@ function findMentionNode(node: any, entity: EntitySearchKeysProps){
         const found = findMentionNode(node.children[i], entity)
         if(found) return found
     }
-}
+}*/
 
 
-function findMentionAncestors(node: any, entity: EntitySearchKeysProps){
+/*function findMentionAncestors(node: any, entity: EntitySearchKeysProps){
     if(!node.children){
         return [node]
     }
@@ -866,10 +865,10 @@ function findMentionAncestors(node: any, entity: EntitySearchKeysProps){
         }
     }
     return [node]
-}
+}*/
 
 
-function findFragment(text: string, entity: EntitySearchKeysProps){
+/*function findFragment(text: string, entity: EntitySearchKeysProps){
     const parsed = JSON.parse(text)
     const mentionNode = findMentionNode(parsed.root, entity)
     if(!mentionNode){
@@ -886,7 +885,7 @@ function findFragment(text: string, entity: EntitySearchKeysProps){
         }
     }
     return getAllText(best)
-}
+}*/
 
 
 export function getVisualizationTitle(v: {visualization: {spec: string}}){

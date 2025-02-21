@@ -122,15 +122,40 @@ export async function getDatasets(): Promise<FeedContentProps[]>{
     return readyForFeed
 }
 
+export async function getServiceEndpointForDidNoCache(did: string){
+    const didres: DidResolver = new DidResolver({})
+    const doc = await didres.resolve(did)
+    if(doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint){
+        return doc.service[0].serviceEndpoint
+    }
+    return null
+}
+
+
+export async function getServiceEndpointForDid(did: string){
+    return await unstable_cache(async () => {
+        return await getServiceEndpointForDidNoCache(did)
+    }, ["serviceendpoint:"+did],
+        {
+            tags: ["serviceendpoint:"+did],
+            revalidate: revalidateEverythingTime
+    })()
+}
+
 
 export async function fetchBlob(blob: {cid: string, authorId: string}, cache: boolean = true) {
     const t1 = new Date().getTime()
-    const didres: DidResolver = new DidResolver({})
-    const doc = await didres.resolve(blob.authorId)
-    if (doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint) {
-        const url = doc.service[0].serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
-        //console.log("Fetching blob", blob.cid, blob.authorId, "took", new Date().getTime()-t1)
-        return await fetch(url, cache ? undefined : {cache: "no-store"})
+    let serviceEndpoint = await getServiceEndpointForDid(blob.authorId)
+    const t2 = new Date().getTime()
+
+    if (serviceEndpoint) {
+        const url = serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
+        const res = await fetch(url, cache ? undefined : {cache: "no-store"})
+        const t3 = new Date().getTime()
+        console.log("get blob total time", t3-t1)
+        console.log("get blob resolve did", t2-t1)
+        console.log("get blob get blob", t3-t2)
+        return res
     }
     //console.log("couldn't resolve did doc", blob.authorId)
     return null

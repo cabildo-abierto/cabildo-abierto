@@ -38,13 +38,6 @@ export const EntitySearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic }
   
     return (
         <div className="relative flex flex-col w-full">
-            {/*numWords == 0 && (
-                <div className="absolute top-[-9px] right-2 z-10">
-                    <span className="text-xs border px-1 text-[var(--text-light)] bg-[var(--background-dark)]">
-                        ¡Tema sin información! Completalo
-                    </span>
-                </div>
-            )*/}
             <Link
                 href={articleUrl(topic.id)}
                 className={"px-2 border-b hover:bg-[var(--background-dark)] bg-[var(--background)] " + (numWords == 0 ? "mt-1" : "")}
@@ -64,9 +57,9 @@ export const EntitySearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic }
                             <div className="mt-1 mb-2">
                                 <DateLastEdit topic={topic}/>
                             </div>
-                            <div className={"text-[var(--text-light)]"}>
+                            {topic.score && <div className={"text-[var(--text-light)]"}>
                                 <PersonIcon fontSize={"inherit"}/> {topic.score[0]}
-                            </div>
+                            </div>}
                         </div>
                     </div>
                 </div>

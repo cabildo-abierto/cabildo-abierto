@@ -6,6 +6,7 @@ import SelectionComponent from "./search-selection-component";
 import {Button} from "@mui/material";
 import {ContentsSearchResults} from "./search/contents-search-results";
 import { DataSearchResults } from "./search/data-search-results";
+import {SearchTopics} from "./search-topics";
 
 
 type RouteContentProps = {
@@ -49,7 +50,7 @@ export const SearchContent = ({paramsSelected}: RouteContentProps) => {
         </div>
 
         {selected == "Temas" &&
-            <CategoryArticles sortedBy={"Populares"} categories={[]} onSearchPage={true}/>
+            <SearchTopics/>
         }
 
         {selected == "Publicaciones" &&

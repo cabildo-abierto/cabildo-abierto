@@ -9,7 +9,7 @@ import LoadingSpinner from "../loading-spinner";
 
 export const TrendingTopicsPanel = ({selected}: {selected: string}) => {
 
-    const topics = useTrendingTopics([], selected)
+    const {topics, isLoading} = useTrendingTopics([], selected)
 
     return <div className="border rounded pt-3 pb-4 space-y-4 w-[300px]">
         <div className="flex justify-between space-x-4 px-4 items-center w-full">
@@ -18,11 +18,14 @@ export const TrendingTopicsPanel = ({selected}: {selected: string}) => {
             </Link>
             <ContentOptionsButton record={null}/>
         </div>
-        {topics.topics ?
-            <TrendingArticlesSlider trendingArticles={topics.topics}/> :
-            <div className={"mt-8 w-full max-w-[300px]"}>
+        {topics ?
+            <TrendingArticlesSlider trendingArticles={topics}/>
+            :
+            (isLoading ? <div className={"mt-8 w-full max-w-[300px]"}>
                 <LoadingSpinner/>
-            </div>
+            </div> : <div className={"text-center text-[var(--text-light)] text-sm"} >
+                Error al cargar los temas populares
+            </div>)
         }
     </div>
 }

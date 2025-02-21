@@ -277,6 +277,8 @@ model Reference {
 
   referencingContentId String
   referencingContent   Content @relation(fields: [referencingContentId], references: [uri])
+
+  @@unique([referencingContentId, referencedTopicId])
 }
 
 enum ReferenceType {

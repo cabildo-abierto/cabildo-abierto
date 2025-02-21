@@ -86,11 +86,15 @@ export type TopicVersionProps = {
 
 export type TopicProps = {
     id: string
+    referencedBy: {
+        referencingContent: {
+            topicVersion: {
+                topicId: string
+            }
+        }
+    }[]
     versions: TopicVersionProps[]
     protection: EditorStatus
-    currentVersion: {
-        uri: string
-    }
 }
 
 

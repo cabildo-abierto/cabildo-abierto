@@ -3,7 +3,15 @@
 import {getSessionAgent} from "./auth";
 import {TopicProps, TopicVersionProps, SmallTopicProps} from "../app/lib/definitions";
 import {db} from "../db";
-import {currentCategories, currentVersionContent, getRkeyFromUri, listOrderDesc, supportDid} from "../components/utils";
+import {
+    cleanText,
+    currentCategories,
+    currentVersionContent,
+    getDidFromUri,
+    getRkeyFromUri,
+    listOrderDesc,
+    supportDid
+} from "../components/utils";
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import {recordQuery, revalidateEverythingTime} from "./utils";
@@ -231,13 +239,14 @@ function countUserInteractions(entity: TopicUserInteractionsProps, since?: Date)
 
 
 export async function getTrendingTopics(sinceKind: string = "alltime", categories: string[], limit: number = 10, sortedby: string = "popular"): Promise<{error?: string, topics?: SmallTopicProps[]}> {
+
     return await unstable_cache(async () => {
         return await getTrendingTopicsNoCache(sinceKind, categories, sortedby, limit)
     },
         ["tt:"+sinceKind+":"+categories.join(":")+":"+limit+":"+sortedby],
         {
             tags: ["tt", "tt:"+sinceKind],
-            revalidate: revalidateEverythingTime
+            revalidate: 5//revalidateEverythingTime
         }
     )()
 }
@@ -248,126 +257,235 @@ function newestVersion(a: SmallTopicProps, b: SmallTopicProps){
 }
 
 
+type ContentInteractions = {
+    uri: string
+    replies: {
+        uri: string
+    }[]
+    reactions: {
+        uri: string
+    }[]
+}
+
+
+function getAllContentInteractions(uri: string,
+                                   m: Map<string, ContentInteractions>,
+                                   immediateInteractions: Map<string, Set<string>>
+){
+    const c = m.get(uri)
+    const s = immediateInteractions.get(uri)
+
+    c.replies.forEach((r) => {
+        const rInteractions = getAllContentInteractions(r.uri, m, immediateInteractions)
+        rInteractions.forEach((i) => {s.add(i)})
+    })
+
+    return s
+}
+
+
+export async function getContentInteractions(): Promise<{uri: string, interactions: string[]}[]> {
+    return await unstable_cache(async () => {
+        return await getContentInteractionsNoCache()
+    }, ["interactions"],
+        {
+            tags: ["interactions"],
+            revalidate: revalidateEverythingTime
+        }
+    )()
+}
+
+
+export async function getContentInteractionsNoCache() : Promise<{uri: string, interactions: string[]}[]> {
+    const contents: ContentInteractions[] = await db.record.findMany({
+        select: {
+            uri: true,
+            replies: {
+                select: {
+                    uri: true
+                }
+            },
+            reactions: {
+                select: {
+                    uri: true
+                }
+            }
+        },
+        where: {
+            collection: {
+                in: [
+                    "ar.com.cabildoabierto.quotePost",
+                    "ar.com.cabildoabierto.article",
+                    "ar.com.cabildoabierto.post",
+                    "app.bsky.feed.post",
+                    "ar.com.cabildoabierto.topic"
+                ]
+            }
+        }
+    })
+    const m = new Map<string, ContentInteractions>()
+
+    const immediateInteractions = new Map<string, Set<string>>()
+    for(let i = 0; i < contents.length; i++) {
+
+        const s = new Set<string>()
+        const c = contents[i]
+        const author = getDidFromUri(c.uri)
+        s.add(author)
+
+        c.reactions.forEach(({uri}) => {
+            const did = getDidFromUri(uri)
+            s.add(did)
+        })
+
+        c.replies.forEach(({uri}) => {
+            const did = getDidFromUri(uri)
+            s.add(did)
+        })
+
+        immediateInteractions.set(c.uri, s)
+        m.set(c.uri, contents[i])
+    }
+
+    const totalInteractions = new Map<string, Set<string>>()
+    for(let i = 0; i < contents.length; i++) {
+        const c = contents[i]
+        const s = getAllContentInteractions(c.uri, m, immediateInteractions)
+        totalInteractions.set(c.uri, s)
+    }
+
+    let r: {uri: string, interactions: string[]}[] = []
+    totalInteractions.forEach((v, k) => {
+        r.push({uri: k, interactions: Array.from(v)})
+    })
+    return r
+}
+
+
+type SmallTopicPropsWithReferences = SmallTopicProps & {referencedBy: {referencingContentId: string}[]}
+
+
+export async function getTopics() {
+    return await unstable_cache(async () => {
+        return await getTopicsNoCache()
+    },
+        ["topics"],
+        {
+            tags: ["topics"],
+            revalidate: revalidateEverythingTime
+        }
+    )()
+}
+
+
+export async function getTopicsNoCache(): Promise<SmallTopicPropsWithReferences[]> {
+    let r = await db.topic.findMany({
+        select: {
+            id: true,
+            referencedBy: {
+                select: {
+                    referencingContentId: true
+                }
+            },
+            versions: {
+                select: {
+                    uri: true,
+                    title: true,
+                    categories: true,
+                    content: {
+                        select: {
+                            record: {
+                                select: {
+                                    createdAt: true,
+                                    author: {
+                                        select: {
+                                            handle: true
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+    r = r.filter((t) => (t.versions.length > 0))
+    return r
+}
+
+
+function countTopicInteractions(topic: SmallTopicPropsWithReferences, contentInteractions: Map<string, Set<string>>){
+    const s = new Set<string>()
+
+    topic.referencedBy.forEach(({referencingContentId}) => {
+        const cInteractions = contentInteractions.get(referencingContentId)
+        cInteractions.forEach((uri) => {
+            const did = getDidFromUri(uri)
+            s.add(did)
+        })
+    })
+
+    topic.versions.forEach((v) => {
+        const cInteractions = contentInteractions.get(v.uri)
+        cInteractions.forEach((uri) => {
+            const did = getDidFromUri(uri)
+            s.add(did)
+        })
+    })
+
+    return s.size
+}
+
+
+function getTopicPopularityScore(
+    topic: SmallTopicPropsWithReferences,
+    contentInteractions: Map<string, Set<string>>
+) {
+    const interactions = countTopicInteractions(topic, contentInteractions)
+    const currentContentVersion = getCurrentContentVersion(topic)
+    const currentContent = topic.versions[currentContentVersion]
+    const lastVersion = topic.versions[topic.versions.length-1]
+    return [
+        interactions,
+        currentContent.content.numWords > 0 ? 1 : 0,
+        currentContent ? new Date(lastVersion.content.record.createdAt).getTime() : 0
+    ]
+}
+
+
+
 export async function getTrendingTopicsNoCache(sincekind: string, categories: string[], sortedby: string, limit: number): Promise<{error?: string, topics?: SmallTopicProps[]}> {
     // sinceKind is always alltime
     const since = undefined
 
     try {
 
-        //const t1 = new Date().getTime()
+        const t1 = new Date().getTime()
 
-        // TO DO: Optimize
-        const topics = await db.topic.findMany({
-            select: {
-                id: true,
-                referencedBy: {
-                    select: {
-                        referencingContent: {
-                            select: {
-                                record: {
-                                    select: {
-                                        ...smallRecordQuery,
-                                        rootOf: {
-                                            select: {
-                                                content: {
-                                                    select: {
-                                                        record: {
-                                                            select: {
-                                                                ...smallRecordQuery,
-                                                                reactions: {
-                                                                    select: {
-                                                                        record: {
-                                                                            select: smallRecordQuery
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        reactions: {
-                                            select: {
-                                                record: {
-                                                    select: smallRecordQuery
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                            }
-                        },
-                    }
-                },
-                versions: {
-                    select: {
-                        uri: true,
-                        title: true,
-                        categories: true,
-                        content: {
-                            select: {
-                                numWords: true,
-                                record: {
-                                    select: {
-                                        ...smallRecordQuery,
-                                        reactions: topicVersionReactionsQuery,
-                                        author: {
-                                            select: {
-                                                handle: true
-                                            }
-                                        },
-                                        createdAt: true,
-                                        rootOf: {
-                                            select: {
-                                                content: {
-                                                    select: {
-                                                        record: {
-                                                            select: {
-                                                                ...smallRecordQuery,
-                                                                reactions: {
-                                                                    select: {
-                                                                        record: {
-                                                                            select: smallRecordQuery
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                    }
-                                },
-                            }
-                        }
-                    },
-                    orderBy: {
-                        content: {
-                            record: {
-                                createdAt: "asc"
-                            }
-                        }
-                    }
-                }
-            },
-            where: {
-                versions: {
-                    some: {
-                    }
-                }
-            }
+        const contentInteractionsPromise = getContentInteractions()
+
+        const topicsPromise = getTopics()
+
+        const [contentInteractions, topics] = await Promise.all([contentInteractionsPromise, topicsPromise])
+
+        const contentInteractionsMap = new Map<string, Set<string>>()
+        contentInteractions.map(({uri, interactions}) => {
+            contentInteractionsMap.set(uri, new Set<string>(interactions))
         })
 
-        //const t2 = new Date().getTime()
+        const t2 = new Date().getTime()
 
-        //console.log("TT query time", t2-t1)
+        const topicScores = new Map<string, number[]>()
+        for(let i = 0; i < topics.length; i++){
+            const score = getTopicPopularityScore(topics[i], contentInteractionsMap)
+            topicScores.set(topics[i].id, score)
+        }
 
         let topicsWithScore: SmallTopicProps[] = topics.map((topic) => {
             return {
                 ...topic,
-                score: countUserInteractions(topic, since)
+                score: topicScores.get(topic.id)
             }
         })
 
@@ -386,9 +504,9 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
 
         filteredTopics = limit ? filteredTopics.slice(0, limit) : filteredTopics
 
-        //const t3 = new Date().getTime()
+        const t3 = new Date().getTime()
 
-        //console.log("TT total time", t3-t1)
+        console.log("TT total time", t3-t1)
         return {topics: filteredTopics}
 
     } catch (err) {
@@ -398,20 +516,28 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
 }
 
 
-const topicQuery = (includeText: boolean, includeReplies: boolean) => ({
+const topicQuery = {
     id: true,
     protection: true,
-    currentVersion: {
+    referencedBy: {
         select: {
-            uri: true
-        },
+            referencingContent: {
+                select: {
+                    topicVersion: {
+                        select: {
+                            topicId: true
+                        }
+                    }
+                }
+            }
+        }
     },
     versions: {
         select: {
             uri: true,
             content: {
                 select: {
-                    text: includeText,
+                    text: true,
                     textBlob: {
                         select: {
                             cid: true,
@@ -449,7 +575,7 @@ const topicQuery = (includeText: boolean, includeReplies: boolean) => ({
                                     }
                                 }
                             },
-                            replies: includeReplies ? {
+                            replies: {
                                 select: {
                                     content: {
                                         select: {
@@ -460,7 +586,7 @@ const topicQuery = (includeText: boolean, includeReplies: boolean) => ({
                                         }
                                     }
                                 }
-                            } : undefined
+                            }
                         }
                     },
                 }
@@ -483,7 +609,7 @@ const topicQuery = (includeText: boolean, includeReplies: boolean) => ({
             }
         }
     }
-})
+}
 
 
 export async function getCategories() {
@@ -535,7 +661,7 @@ export async function getTextFromBlob(blob: {cid: string, authorId: string}){
 export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
     try {
         const topic: TopicProps = await db.topic.findUnique({
-            select: topicQuery(true, true),
+            select: topicQuery,
             where: {
                 id: id
             }
@@ -607,4 +733,50 @@ export async function deleteTopicVersionsForUser(){
         })
         console.log("deleted", data.records[i].uri)
     }
+}
+
+
+export async function getTopicsForSearch(){
+    return await unstable_cache(async () => {
+        const topics: SmallTopicProps[] = await db.topic.findMany({
+            select: {
+                id: true,
+                versions: {
+                    select: {
+                        uri: true,
+                        categories: true,
+                        content: {
+                            select: {
+                                numWords: true,
+                                record: {
+                                    select: {
+                                        createdAt: true,
+                                        author: {
+                                            select: {
+                                                handle: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        return topics.filter((t) => (t.versions.length > 0))
+    }, ["topicsForSearch"], {
+        tags: ["topics"]
+    })()
+}
+
+
+export async function searchTopics(q: string){
+    q = cleanText(q)
+
+    const topics = await getTopicsForSearch()
+
+    return topics.filter((t) => {
+        return cleanText(t.id).includes(q)
+    })
 }

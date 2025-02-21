@@ -60,8 +60,8 @@ export function useFeed(route: string[], feed: string): {feed: FeedContentProps[
     }
 }
 
-export function useTopics(categories: string[], sortedBy: string): {topics: any[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topics/alltime/'+sortedBy+'/'+categories.join("/"), fetcher)
+export function useTopics(categories: string[], sortedBy: string, limit?: number): {topics: any[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/topics/alltime/'+sortedBy+'/'+categories.join("/")+"/"+limit, fetcher)
 
     return {
         topics: data,
