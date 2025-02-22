@@ -22,23 +22,6 @@ export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: 
 }
 
 
-export function useSearchableContents(): {feed: FeedContentProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/searchable-contents', fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-  
-    return {
-        feed: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
 export function useFeed(route: string[], feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
 
     const { data, isLoading } = useSWR('/api/feed/'+[...route, feed].join("/"), fetcher,

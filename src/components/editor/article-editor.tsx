@@ -124,7 +124,7 @@ const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}
     return <StateButton
         handleClick={handleSubmit}
         text1={isPublished ? "Guardar cambios" : "Publicar"}
-        textClassName="whitespace-nowrap px-2"
+        textClassName="whitespace-nowrap px-2 font-semibold"
         disabled={disabled}
         size="medium"
         disableElevation={true}

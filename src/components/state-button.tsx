@@ -72,7 +72,8 @@ const StateButton: React.FC<StateButtonProps> = ({
       disabled={disabled}
       disableElevation={disableElevation}
       sx={{
-          textTransform: 'none'
+          textTransform: 'none',
+          color: "var(--text)"
       , ...sx}}
       fullWidth={fullWidth}
     >

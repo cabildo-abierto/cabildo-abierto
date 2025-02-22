@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {searchTopics} from "../../../../actions/topics";
+import {searchTopics} from "../../../../actions/feed/search";
 
 
 export async function GET(req: NextRequest,

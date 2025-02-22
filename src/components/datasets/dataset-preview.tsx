@@ -40,13 +40,12 @@ export const DatasetPreview = ({dataset}: { dataset: DatasetProps }) => {
         post={dataset}
     >
         <div className={"flex flex-col"}>
-            <PostTitleOnFeed title={dataset.dataset.title}/>
-            <div className={"text-[var(--text-light)] mt-1 flex space-x-2"}>
+            <div className={"font-semibold text-lg"}>
+                {dataset.dataset.title}
+            </div>
+            <div className={"text-[var(--text-light)] flex space-x-2"}>
                 <div>
                     {dataset.dataset.columns.length} columnas
-                </div>
-                <div>
-                    {/*arraySum(dataset.dataset.dataBlocks, (b) => (b.))*/}
                 </div>
             </div>
         </div>

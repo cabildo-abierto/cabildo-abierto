@@ -29,6 +29,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                      }}
                 >
                     <TopicCategories topic={topic} className={"text-xs text-[var(--text-light)]"} maxCount={1}/>
+
                     <div className={"font-semibold w-full " + (hovering == index ? "" : "truncate")}>
                         {title}
                     </div>
@@ -42,6 +43,9 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                     </div>
                 </Link>
             })}
+            <Link href={"/temas"} className={"text-sm text-[var(--text-light)] px-3 py-1"}>
+                Ver más
+            </Link>
         </div>
     );
 }

@@ -28,7 +28,7 @@ const DateLastEdit = ({topic}: {topic: {versions: {content: {record: {createdAt:
 }
 
 
-export const EntitySearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic }) => {
+export const TopicSearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic }) => {
 
     function onMouseEnter(){
         preload("/api/topic/"+topic.id, fetcher)

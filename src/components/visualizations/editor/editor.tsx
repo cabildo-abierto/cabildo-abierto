@@ -1,7 +1,7 @@
 import {useDatasets} from "../../../hooks/contents";
 import {useEffect, useRef, useState} from "react";
 import {DatasetProps, PlotConfigProps} from "../../../app/lib/definitions";
-import {getDataset} from "../../../actions/data";
+import {getDataset, getDatasetNoCache} from "../../../actions/data";
 import {ConfigPanel} from "./config-panel";
 import {ChooseDatasetPanel} from "./choose-dataset";
 import {EditorViewer} from "./editor-viewer";
@@ -104,7 +104,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
                 if(datasets[i].uri == config.datasetUri){
 
                     setDataset({ dataset: datasets[i] });
-                    const d = await getDataset(config.datasetUri);
+                    const d = await getDatasetNoCache(config.datasetUri);
                     setDataset(d)
                 }
             }
@@ -128,7 +128,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
             ...prevState,
             [key]: value,
         }));
-        if (selected != "Visualización" && key != "dataset") {
+        if (selected != "Visualización" && key != "datasetUri") {
             setSelected("Visualización");
         }
     }

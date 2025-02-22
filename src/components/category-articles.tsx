@@ -1,6 +1,5 @@
 "use client"
-import { EntitySearchResult } from "./entity-search-result"
-import { useSearch } from "./search/search-context"
+import { TopicSearchResult } from "./topic-search-result"
 import { useTopics } from "../hooks/contents"
 import LoadingSpinner from "./loading-spinner"
 import { LazyLoadFeed } from "./lazy-load-feed"
@@ -20,7 +19,7 @@ export const CategoryArticles = ({sortedBy, categories, maxCount}: {sortedBy: To
     function generator(index: number){
         const topic = topics[index];
         return {
-            c: topic ? <EntitySearchResult topic={topic} /> : null,
+            c: topic ? <TopicSearchResult topic={topic} /> : null,
             key: topic.id
         }
     }

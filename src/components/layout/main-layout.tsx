@@ -3,17 +3,9 @@ import React, {ReactNode, useEffect} from "react";
 import LoadingPage from "../loading-page";
 import {SearchProvider} from "../search/search-context";
 import {BetaAccessPage} from "../beta-access-page";
-import {ThreeColumnsLayout} from "../three-columns";
-import {SidebarContent, SupportButton} from "../sidebar";
-import { TrendingTopicsPanel } from "../trending-topics/trending-topics";
-import {useUser} from "../../hooks/user";
-import InfoIcon from "@mui/icons-material/Info";
-import {articleUrl, emptyChar, pxToNumber} from "../utils";
-import {BasicButton} from "../ui-utils/basic-button";
-import {CustomLink as Link} from "../custom-link";
+import {SidebarContent} from "../sidebar";
+import {emptyChar, pxToNumber} from "../utils";
 import {LayoutConfigProps, LayoutConfigProvider, useLayoutConfig} from "./layout-config-context";
-import {SearchPanelOnRightColumn} from "./search-panel-on-right-column";
-import {DonateIcon} from "../icons/donate-icon";
 import {PageLeaveProvider} from "../prevent-leave";
 import { ThemeProvider } from '@mui/material';
 import theme from '../theme';
@@ -22,7 +14,6 @@ import {RightPanel} from "./right-panel";
 
 const MainLayoutContent = ({children}: {children: ReactNode}) => {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
-    const {user} = useUser()
 
     useEffect(() => {
         const handleResize = () => {

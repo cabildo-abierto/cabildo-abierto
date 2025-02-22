@@ -14,7 +14,7 @@ import {UpdateCongresoRightPanel} from "../congreso/update-congreso-right-panel"
 export const RightPanel = () => {
     const {user} = useUser()
 
-    return <div className={"fixed top-0 right-0 left-auto h-screen overflow-y-scroll"}>
+    return <div className={"fixed top-0 right-0 left-auto h-screen overflow-y-clip"}>
         <div className={"mr-10"}>
             <SearchPanelOnRightColumn/>
 

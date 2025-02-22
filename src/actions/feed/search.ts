@@ -1,12 +1,16 @@
+"use server"
 import {getSessionDid} from "../auth";
 import {db} from "../../db";
-import {enDiscusionQuery} from "../utils";
-import {FeedContentProps} from "../../app/lib/definitions";
+import {enDiscusionQuery, revalidateEverythingTime} from "../utils";
+import {ArticleProps, FastPostProps, FeedContentProps, SmallTopicProps} from "../../app/lib/definitions";
 import {addCountersToFeed} from "./utils";
+import {cleanText} from "../../components/utils";
+import {unstable_cache} from "next/cache";
 
 
-export async function getSearchableContents(): Promise<{feed?: FeedContentProps[], error?: string}>{
-    const did = await getSessionDid()
+export async function searchContentsNoCache(q: string, did: string): Promise<{feed?: FeedContentProps[], error?: string}>{
+
+    q = cleanText(q)
 
     let feed: FeedContentProps[] = await db.record.findMany({
         select: enDiscusionQuery,
@@ -20,7 +24,90 @@ export async function getSearchableContents(): Promise<{feed?: FeedContentProps[
         }
     })
 
+    feed = feed.filter((c: FeedContentProps) => {
+        if(c.collection == "app.bsky.feed.post"){
+            if(!(c as FastPostProps).content){
+                return false
+            }
+            const text = cleanText((c as FastPostProps).content.text)
+            return text.includes(q)
+        } else if(c.collection == "ar.com.cabildoabierto.article"){
+            const text = cleanText((c as ArticleProps).content.article.title)
+            return text.includes(q)
+        } else {
+            return false
+        }
+    })
+
+    feed = feed.slice(0, 50)
+
     feed = addCountersToFeed(feed, did)
 
     return {feed}
+}
+
+
+export async function getFullTopicList(){
+    const topics: SmallTopicProps[] = await db.topic.findMany({
+        select: {
+            id: true,
+            versions: {
+                select: {
+                    uri: true,
+                    categories: true,
+                    content: {
+                        select: {
+                            numWords: true,
+                            record: {
+                                select: {
+                                    createdAt: true,
+                                    author: {
+                                        select: {
+                                            handle: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+    return topics
+}
+
+
+export async function searchTopicsNoCache(q: string){
+    q = cleanText(q)
+
+    const topics = await getFullTopicList()
+    let filtered = topics.filter((t) => (t.versions.length > 0))
+
+    return filtered.filter((t) => {
+        return cleanText(t.id).includes(q)
+    }).slice(0, 50)
+}
+
+
+export async function searchTopics(q: string){
+    if(q.length == 0) return []
+    return await unstable_cache(async () => {
+        return await searchTopicsNoCache(q)
+    }, ["searchTopics:"+q], {
+        tags: ["searchTopics:"+q],
+        revalidate: revalidateEverythingTime
+    })()
+}
+
+
+export async function searchContents(q: string) : Promise<{feed?: FeedContentProps[], error?: string}> {
+    const did = await getSessionDid()
+    if(q.length == 0) return {feed: []}
+    return await unstable_cache(async () => {
+        return await searchContentsNoCache(q, did)
+    }, ["searchContents:"+q], {
+        tags: ["searchContents:"+q],
+        revalidate: revalidateEverythingTime
+    })()
 }

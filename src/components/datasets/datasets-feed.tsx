@@ -1,11 +1,7 @@
 import {DatasetProps, EngagementProps} from "../../app/lib/definitions";
-import {useRouter} from "next/navigation";
-import {emptyChar, pxToNumber, urlFromRecord} from "../utils";
+import {urlFromRecord} from "../utils";
 import {Authorship} from "../content-top-row-author";
 import {EngagementIcons} from "../feed/engagement-icons";
-import {DatasetPreview} from "./dataset-preview";
-import {useLayoutConfig} from "../layout/layout-config-context";
-import {useEffect, useState} from "react";
 import {CustomLink} from "../custom-link";
 import {CardFeed} from "../ui-utils/card-feed";
 import {DateSince} from "../date";
