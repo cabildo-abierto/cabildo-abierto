@@ -11,12 +11,17 @@ export const TrendingTopicsPanel = ({selected}: {selected: string}) => {
 
     const {topics, isLoading} = useTrendingTopics([], selected)
 
-    return <div className="border rounded pt-3 pb-4 space-y-4 w-[300px]">
-        <div className="flex justify-between space-x-4 px-4 items-center w-full">
-            <Link className={"text-sm text-[var(--text-light)]"} href={"/temas"}>
+    return <div className="border rounded space-y-2 w-[300px]">
+        <div className="flex justify-between px-2 items-center w-full">
+            <Link
+                className={"text-xs text-[var(--text-light)]"}
+                href={"/temas"}
+            >
                 Temas
             </Link>
-            <ContentOptionsButton record={null}/>
+            <div className={"pt-1"}>
+                <ContentOptionsButton record={null}/>
+            </div>
         </div>
         {topics ?
             <TrendingArticlesSlider trendingArticles={topics}/>

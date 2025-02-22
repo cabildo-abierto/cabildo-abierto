@@ -17,6 +17,7 @@ import {DonateIcon} from "../icons/donate-icon";
 import {PageLeaveProvider} from "../prevent-leave";
 import { ThemeProvider } from '@mui/material';
 import theme from '../theme';
+import {RightPanel} from "./right-panel";
 
 
 const MainLayoutContent = ({children}: {children: ReactNode}) => {
@@ -63,38 +64,7 @@ const MainLayoutContent = ({children}: {children: ReactNode}) => {
 
     let right
     if (layoutConfig.openRightPanel) {
-        right = <div className={"fixed top-0 right-0 left-auto h-screen"}>
-            <div className={"mr-10"}>
-                <SearchPanelOnRightColumn/>
-                <div className={"ml-8 mt-8 flex justify-center w-full max-h-[600px] max-w-[300px]"}>
-                    <TrendingTopicsPanel selected={"7days"}/>
-                </div>
-                <div className={"ml-8 mt-4 w-full max-w-[300px] flex flex-col space-y-1"}>
-                    <SupportButton user={user} onClose={() => {
-                    }}/>
-                    <Link href={articleUrl("Cabildo_Abierto")} className={"text-[var(--text-light)]"}>
-                        <BasicButton
-                            variant={"text"}
-                            size={"small"}
-                            color={"inherit"}
-                            startIcon={<InfoIcon/>}
-                        >
-                            Acerca de Cabildo Abierto
-                        </BasicButton>
-                    </Link>
-                    <Link href={"/aportar"} className={"text-[var(--text-light)]"}>
-                        <BasicButton
-                            variant={"text"}
-                            size={"small"}
-                            color={"inherit"}
-                            startIcon={<DonateIcon fontSize={"small"}/>}
-                        >
-                            Aportar
-                        </BasicButton>
-                    </Link>
-                </div>
-            </div>
-        </div>
+        right = <RightPanel/>
     }
 
     return <div className="flex justify-between w-full">

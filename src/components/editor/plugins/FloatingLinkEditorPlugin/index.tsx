@@ -36,12 +36,11 @@ import {createPortal} from 'react-dom';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl} from '../../utils/url';
-import { useTopics } from '../../../../hooks/contents';
-import { TopicProps } from '../../../../app/lib/definitions';
+import {SmallTopicProps, TopicProps} from '../../../../app/lib/definitions';
 import { articleUrl } from '../../../utils';
 import { CustomLink as Link } from '../../../../components/custom-link';
 import {getTopicTitle} from "../../../topic/utils";
-import {BasicButton} from "../../../ui-utils/basic-button";
+import {searchTopics} from "../../../../actions/topics";
 
 function FloatingLinkEditor({
   editor,
@@ -58,24 +57,36 @@ function FloatingLinkEditor({
   isLinkEditMode: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
 }): JSX.Element {
-  const editorRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [linkUrl, setLinkUrl] = useState('');
-  const [editedLinkUrl, setEditedLinkUrl] = useState('');
+  const editorRef = useRef<HTMLDivElement | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
-  const [results, setResults] = useState<any[]>([])
-  const [currentUrl, setCurrentUrl] = useState('');
-  const entities = useTopics([], "recent")
+  const [linkUrl, setLinkUrl] = useState('')
+  const [editedLinkUrl, setEditedLinkUrl] = useState('')
+  const [results, setResults] = useState<SmallTopicProps[]>([])
+  const [debouncedValue, setDebouncedValue] = useState(editedLinkUrl)
 
   useEffect(() => {
-    // Check if the code is running on the client side
-    if (process) {
-      // Access the current page URL using window.location
-      setCurrentUrl(window.location.href);
+    const handler = setTimeout(() => {
+      setDebouncedValue(editedLinkUrl);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [editedLinkUrl]);
+
+  useEffect(() => {
+    async function search() {
+      if (debouncedValue.length === 0) {
+        setResults([]);
+        return;
+      }
+      const topics = await searchTopics(debouncedValue);
+      setResults(topics);
     }
-  }, []);
+
+    search();
+  }, [debouncedValue])
 
   const $updateLinkEditor = useCallback(async () => {
     const selection = $getSelection();
@@ -90,8 +101,7 @@ function FloatingLinkEditor({
         setLinkUrl('');
       }
       if (isLinkEditMode) {
-        setEditedLinkUrl(linkUrl);
-        await searchEntities(linkUrl)
+        setEditedLinkUrl(linkUrl)
       }
     }
     const editorElem = editorRef.current;
@@ -250,24 +260,15 @@ function FloatingLinkEditor({
       setEditedLinkUrl('');
       setIsLinkEditMode(false);
     }
-  };
-
-  async function searchEntities(query: string){
-      if(query && !entities.isLoading){
-        const filtered = entities.topics.filter((entity) => (getTopicTitle(entity).toLowerCase().includes(query.toLowerCase())))
-        setResults(filtered)
-      } else {
-        setResults([])
-      }
   }
 
   const SearchResults = ({results, setValue}: any) => {
     if(results.length == 0) return <></>
-    return <div className="mb-2 px-1 space-y-1">
+    return <div className="mb-1 px-1 space-y-1">
       {results.slice(0, 5).map((topic: TopicProps) => {
           return <button
               key={topic.id}
-              className={"text-left hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
+              className={"text-left text-sm text-[var(--text-light)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
               onClick={() => {setValue(articleUrl(topic.id))}}
             >
               {getTopicTitle(topic)}
@@ -284,8 +285,7 @@ function FloatingLinkEditor({
         placeholder="Ingresá un link o un tema a referenciar"
         value={editedLinkUrl}
         onChange={async (event) => {
-          setEditedLinkUrl(event.target.value);
-          await searchEntities(event.target.value)
+          setEditedLinkUrl(event.target.value)
         }}
         onKeyDown={(event) => {
           monitorInputInteraction(event);

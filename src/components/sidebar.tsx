@@ -26,8 +26,9 @@ import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import CollectionsBookmarkOutlinedIcon from '@mui/icons-material/CollectionsBookmarkOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import { GiCongress } from "react-icons/gi";
+import Image from "next/image";
 
 
 function unseenSupportMessagesCount(user: UserProps){
@@ -195,6 +196,16 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 showText={showText}
                 setShowText={setShowText}
             />
+            <SidebarButton
+                icon={<GiCongress fontSize={"25px"} fontWeight={"bold"}/>}
+                iconInactive={<GiCongress fontSize={"25px"} />}
+                onClick={onClose}
+                text="Congreso"
+                href="/congreso"
+                selected={pathname.startsWith("/congreso")}
+                showText={showText}
+                setShowText={setShowText}
+            />
             {user.user &&
             <SidebarButton
                 icon={<PersonIcon/>}
@@ -206,16 +217,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 showText={showText}
                 setShowText={setShowText}
             />}
-            <SidebarButton
-                icon={<DashboardIcon/>}
-                iconInactive={<AccountBalanceOutlinedIcon/>}
-                onClick={onClose}
-                text="Mis estadísticas"
-                href="/panel"
-                selected={pathname.startsWith("/panel")}
-                showText={showText}
-                setShowText={setShowText}
-            />
             {user.user && user.user.editorStatus == "Administrator" &&
                 <HelpDeskButton
                     showText={showText}
@@ -228,9 +229,9 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 icon={<SettingsIcon/>}
                 iconInactive={<SettingsOutlinedIcon/>}
                 onClick={onClose}
-                text="Ajustes"
-                href="/ajustes"
-                selected={pathname.startsWith("/ajustes")}
+                text="Cuenta"
+                href="/cuenta"
+                selected={pathname.startsWith("/cuenta")}
                 showText={showText}
                 setShowText={setShowText}
             />

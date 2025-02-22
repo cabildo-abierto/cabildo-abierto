@@ -1,6 +1,5 @@
 "use client"
 import React, { useState } from "react"
-import { CategoryArticles } from "./category-articles";
 import {UserSearchResults} from "./user-search-results";
 import SelectionComponent from "./search-selection-component";
 import {Button} from "@mui/material";
