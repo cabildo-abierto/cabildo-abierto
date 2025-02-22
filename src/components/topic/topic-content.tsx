@@ -15,7 +15,7 @@ import {EditorState, LexicalEditor} from "lexical";
 import {useSWRConfig} from "swr";
 import {SaveEditPopup} from "../save-edit-popup";
 import {RoutesEditor} from "../routes-editor";
-import {SearchkeysEditor} from "../searchkeys-editor";
+import {SynonymsEditor} from "../synonyms-editor";
 import {ChangesCounter} from "../changes-counter";
 import dynamic from "next/dynamic";
 import {useLayoutConfig} from "../layout/layout-config-context";
@@ -46,7 +46,7 @@ export const TopicContent = ({
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
-    const [editingSearchkeys, setEditingSearchkeys] = useState(false)
+    const [editingSynonyms, setEditingSynonyms] = useState(false)
     const [showingNeedAccountPopup, setShowingNeedAccountPopup] = useState(false)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const {mutate} = useSWRConfig()
@@ -238,10 +238,11 @@ export const TopicContent = ({
             </div>
         }
 
-        {editingSearchkeys &&
+        {editingSynonyms &&
             <div className="py-4">
-                <SearchkeysEditor entity={topic} setEditing={setEditingSearchkeys}/>
-            </div>}
+                <SynonymsEditor topic={topic} setEditing={setEditingSynonyms}/>
+            </div>
+        }
 
         <div className="text-center">
             {selectedPanel == "changes" && version > 0 && <ChangesCounter
@@ -306,15 +307,15 @@ export const TopicContent = ({
                         toggled={editingRoutes}
                         setToggled={(v) => {
                             setEditingRoutes(v);
-                            if (v) setEditingSearchkeys(false)
+                            if (v) setEditingSynonyms(false)
                         }}
                         text="Editar categorías"
                     />
                     <ToggleButton
                         className={articleButtonClassname}
-                        toggled={editingSearchkeys}
+                        toggled={editingSynonyms}
                         setToggled={(v) => {
-                            setEditingSearchkeys(v);
+                            setEditingSynonyms(v)
                             if (v) setEditingRoutes(false)
                         }}
                         text="Editar sinónimos"

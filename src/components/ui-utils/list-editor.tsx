@@ -1,0 +1,158 @@
+"use client"
+
+import { useState } from "react"
+import { areArraysEqual } from "@mui/base";
+import {IconButton} from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
+import SearchableDropdown from "./searchable-dropdown";
+import { BasicButton } from "./basic-button";
+import StateButton, {StateButtonClickHandler} from "../state-button";
+
+function validItem(e: string){
+    return e.length > 0
+}
+
+function validItems(items: string[]){
+    return items.length > 0 && !items.some((e) => !validItem(e))
+}
+
+
+const NewItem = ({
+     addItem,
+     availableOptions,
+     currentItems,
+     newItemText
+}: {
+    addItem: (c: string) => void
+    availableOptions: string[]
+    currentItems: string[]
+    newItemText: string
+}) => {
+    const [category, setCategory] = useState("")
+    const [writingCategory, setWritingCategory] = useState(false)
+
+    let options: string[] = []
+    if(options){
+        options = options.filter((c) => (!currentItems.includes(c)))
+    }
+
+    if(writingCategory){
+        return <div className={"space-x-2 flex items-center"}>
+            <div className={"flex flex-col items-start"}>
+                <SearchableDropdown
+                    options={options}
+                    size={"small"}
+                    selected={category}
+                    onSelect={setCategory}
+                />
+            </div>
+            <IconButton size={"small"} onClick={() => {
+                addItem(category)
+                setCategory("")
+                setWritingCategory(false)
+            }}>
+                <CheckIcon fontSize="small"/>
+            </IconButton>
+            <IconButton size="small" onClick={() => {
+                setCategory("");
+                setWritingCategory(false)
+            }}>
+                <CloseIcon fontSize="small"/>
+            </IconButton>
+        </div>
+    }
+
+    if(currentItems.length > 0){
+        return <IconButton size="small" onClick={() => {
+            setWritingCategory(true)
+        }}>
+            <AddIcon fontSize={"small"}/>
+        </IconButton>
+    } else {
+        return <BasicButton
+            variant={"text"}
+            startIcon={<AddIcon/>}
+            color={"inherit"}
+            onClick={() => {
+                setWritingCategory(true)
+            }}
+        >
+            {newItemText}
+        </BasicButton>
+    }
+}
+
+
+export const ListEditorItem = ({item, removeItem}: {
+    item: string, removeItem: () => void}) => {
+    const [hovering, setHovering] = useState(false)
+    return <button className={"px-2 py-1 border rounded-lg bg-[var(--accent)] flex space-x-1 items-center"}
+                   onMouseEnter={() => setHovering(true)}
+                   onMouseLeave={() => setHovering(false)}
+                   onClick={removeItem}
+    >
+        <div>
+            {item}
+        </div>
+        {hovering ? <CloseIcon fontSize={"small"}/> : null}
+    </button>
+}
+
+
+export const ListEditor = ({
+    initialValue=[],
+    options,
+    onSave,
+    onClose,
+    newItemText
+}: {
+    initialValue?: string[]
+    options?: string[]
+    onSave: (values: string[]) => Promise<{error?: string}>
+    onClose: () => void
+    newItemText: string
+}) => {
+    const [items, setItems] = useState(initialValue)
+
+    function removeItem(i: number) {
+        return () => {
+            setItems([...items.slice(0, i), ...items.slice(i+1)])
+        }
+    }
+
+    return <div className={"px-2"}>
+        <div className={"flex flex-wrap gap-x-2 items-center"}>
+            {items.map((c, i) => {
+                return <div key={i} className={"h-10"}>
+                    <ListEditorItem
+                        item={c}
+                        removeItem={removeItem(i)}
+                    />
+                </div>
+            })}
+            <div className={"h-10"}>
+                <NewItem
+                    addItem={(c: string) => {setItems([...items, c])}}
+                    availableOptions={options}
+                    currentItems={items}
+                    newItemText={newItemText}
+                />
+            </div>
+        </div>
+        <div className={"flex justify-end mt-2 space-x-2"}>
+            <BasicButton
+                variant={"text"}
+                onClick={() => {setItems(initialValue); onClose()}}
+            >
+                Cancelar
+            </BasicButton>
+            <StateButton
+                handleClick={async () => {return await onSave(items)}}
+                disabled={areArraysEqual(items, initialValue)}
+                text1={"Guardar"}
+            />
+        </div>
+    </div>
+}
