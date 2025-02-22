@@ -33,7 +33,7 @@ export const BancasSenadores = ({project}: {project?: CongressProject}) => {
     const rows = getRows(72, 4)
 
     const radiusStep = (rowIndex: number) => {
-        return 40
+        return 45
     }
     const seatRadius = (rowIndex: number) => {
         return 5 * Math.sqrt(rowIndex + 1);
@@ -64,9 +64,10 @@ export const BancasSenadores = ({project}: {project?: CongressProject}) => {
     }
 
     return <div className={"flex flex-col items-center"}>
-        {project && <div className={"text-xl my-2"}>
+        {project && <div className={"text-xl mt-4"}>
             <CongressResult
-                votes={project.votesSenado}
+                project={project}
+                camara={"Senadores"}
                 className={"px-4 space-x-4 py-1"}
             />
         </div>}
@@ -79,14 +80,15 @@ export const BancasSenadores = ({project}: {project?: CongressProject}) => {
     </div>
 }
 
-export const BancasDiputados = () => {
+export const BancasDiputados = ({project}: {project: CongressProject}) => {
     const rows = getRows(257, 8)
 
     const radiusStep = (rowIndex: number) => {
-        return 20
-    };
+        return 24
+    }
+
     const seatRadius = (rowIndex: number) => {
-        return 2 * Math.pow(rowIndex + 1, 0.3);
+        return 2 * Math.pow(rowIndex + 1, 0.4);
     }
 
     function generator(rowIndex: number, seatIndex: number): Seat {
@@ -95,9 +97,9 @@ export const BancasDiputados = () => {
             const d = diputados[idx]
             return {
                 name: d.Apellido,
-                img: null,
+                img: d.Foto,
                 distrito: d.Distrito,
-                bloque: d.Bloque
+                bloque: d.Bloque,
             }
         } else {
             return {
@@ -109,12 +111,21 @@ export const BancasDiputados = () => {
         }
     }
 
-    return <Bancas
-        rows={rows}
-        radiusStep={radiusStep}
-        seatRadius={seatRadius}
-        generator={generator}
-    />
+    return <div className={"flex flex-col items-center"}>
+        {project && <div className={"text-xl mt-4"}>
+            <CongressResult
+                project={project}
+                camara={"Diputados"}
+                className={"px-4 space-x-4 py-1"}
+            />
+        </div>}
+        <Bancas
+            rows={rows}
+            radiusStep={radiusStep}
+            seatRadius={seatRadius}
+            generator={generator}
+        />
+    </div>
 }
 
 
@@ -192,11 +203,11 @@ const Bancas = ({rows, radiusStep, seatRadius, generator}: {
     const {layoutConfig} = useLayoutConfig()
 
     const canvasWidth = pxToNumber(layoutConfig.maxWidthCenter)
-    const canvasHeight = canvasWidth / 2
+    const canvasHeight = canvasWidth * 0.55
     const svgWidth = 400
-    const svgHeight = 200
+    const svgHeight = svgWidth * 0.55
     const centerX = svgWidth / 2;
-    const centerY = svgHeight * 7 / 8;
+    const centerY = svgHeight * 15 / 16;
 
     const selectedSeat = hoveredCard ? hoveredCard : hoveredSeat
 

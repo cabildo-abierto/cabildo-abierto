@@ -1,5 +1,6 @@
 import React from "react";
 import {DateSince} from "../date";
+import {BasicButton} from "../ui-utils/basic-button";
 
 export type CongressProject = {
     title: string
@@ -16,23 +17,35 @@ export type CongressProject = {
 }
 
 export const CongressResult = ({
-    votes,
+    project,
+    camara,
     className="px-1 space-x-1"
 }: {
-    votes: {id: string, vote: string}[]
+    project: CongressProject
+    camara: string
     className?: string
 }) => {
+
+    console.log(project)
+    console.log(camara)
+    if((camara == "Senadores" && !project.votesSenado) || (camara == "Diputados" && !project.votesDiputados)){
+        return <div className={"flex bg-[var(--background-dark3)] my-1 rounded text-base " + className}>
+            No se votó en {camara}
+        </div>
+    }
 
     let afi = 0
     let neg = 0
     let abs = 0
     let aus = 0
 
-    for(let i = 0; i < votes.length; i++){
-        if(votes[i].vote == "Afirmativo") afi ++
-        else if(votes[i].vote == "Negativo") neg ++
-        else if(votes[i].vote == "Abstención") abs ++
-        else if(votes[i].vote == "Ausente") aus ++
+    const votes = camara == "Senadores" ? project.votesSenado : project.votesDiputados
+
+    for (let i = 0; i < votes.length; i++) {
+        if (votes[i].vote == "Afirmativo") afi++
+        else if (votes[i].vote == "Negativo") neg++
+        else if (votes[i].vote == "Abstención") abs++
+        else if (votes[i].vote == "Ausente") aus ++
     }
 
     return <div className={"flex bg-[var(--background-dark3)] my-1 rounded " + className}>
@@ -47,17 +60,22 @@ export const ProjectCard = ({project, selected, setSelected} : {project: Congres
 
 
     return <div
-        className={"cursor-pointer p-4 rounded border font-semibold w-full"}
+        className={"cursor-pointer p-4 rounded border font-semibold w-full hover:bg-[var(--background-dark)] " + (selected ? "bg-[var(--background-dark2)]" : "")}
+        onClick={() => {setSelected(!selected)}}
     >
         <div>
             {project.title}
         </div>
         <div className={"font-normal mt-2"}>
-            {project.stateSenado && <button className="hover:bg-[var(--background-dark2)] px-2 rounded bg-[var(--background-dark)]" onClick={() => {setSelected(true)}}>
-                {project.stateSenado.type == "rechazado" && <div className={"text-red-400 flex space-x-2 items-center"}>
-                    <div>Rechazado en el Senado {<DateSince date={new Date(project.stateSenado.date)}/>}</div> {<CongressResult votes={project.votesSenado}/>}
-                </div>}
-            </button>}
+            {project.stateSenado && <div>
+                {project.stateSenado.type == "rechazado" &&
+                    <div className={"text-red-400 flex space-x-2 items-center"}>
+                        <div>
+                            Rechazado en el Senado {<DateSince date={new Date(project.stateSenado.date)}/>}
+                        </div>
+                    </div>
+                }
+            </div>}
         </div>
     </div>
 }
@@ -71,7 +89,7 @@ export const Proyectos = ({
     setSelectedProject: (i: number) => void
     projects: CongressProject[]
 }) => {
-    return <div className={"flex flex-col items-center space-y-8 mb-64 w-[600px]"}>
+    return <div className={"flex flex-col items-center space-y-8 mb-64 w-[600px] mt-16"}>
         <h3>
             Proyectos
         </h3>
