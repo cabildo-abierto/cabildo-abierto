@@ -6,7 +6,7 @@ interface SearchableDropdownProps {
     options: string[]
     optionViews?: ReactNode[]
     onSelect: (value: string) => void
-    label: string
+    label?: string
     size: "small" | "medium"
     selected?: string
     fontSize?: string

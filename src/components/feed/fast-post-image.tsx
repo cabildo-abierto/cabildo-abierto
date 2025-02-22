@@ -130,13 +130,14 @@ export const FastPostImage = ({ post, did }: { post: FastPostProps; did?: string
             imagesInPost = (
                 <div className="rounded-lg mt-2 flex space-x-2 h-[268px]">
                     {images.map((img, index) => (
-                        <ATProtoImage
-                            key={index}
-                            img={img}
-                            did={did}
-                            className={`${imageClass} w-1/2`}
-                            onClick={() => {setViewing(index)}}
-                        />
+                        <div className={"w-1/2 h-full"} key={"index"}>
+                            <ATProtoImage
+                                img={img}
+                                did={did}
+                                className={`${imageClass}`}
+                                onClick={() => {setViewing(index)}}
+                            />
+                        </div>
                     ))}
                 </div>
             );
