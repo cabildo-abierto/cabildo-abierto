@@ -26,7 +26,7 @@ export async function createTopic(id: string){
 
 
 export async function createTopicVersion({
-    id, text, format="markdown", title, claimsAuthorship, message, createOnATProto=true, categories}: {
+    id, text, format="markdown", title, claimsAuthorship, message, createOnATProto=true, categories, synonyms}: {
     id: string,
     text?: FormData,
     format?: string,
@@ -35,6 +35,7 @@ export async function createTopicVersion({
     message?: string
     createOnATProto?: boolean
     categories?: string[]
+    synonyms?: string[]
 }){
 
     const {agent, did} = await getSessionAgent()
@@ -62,7 +63,8 @@ export async function createTopicVersion({
         title,
         format,
         message,
-        categories: JSON.stringify(categories),
+        categories: categories ? JSON.stringify(categories) : undefined,
+        synonyms: synonyms ? JSON.stringify(synonyms) : undefined,
         id,
         createdAt: new Date().toISOString()
     }
@@ -83,12 +85,23 @@ export async function createTopicVersion({
 
 export async function updateCategoriesInTopic({topicId, categories}: {topicId: string, categories: string[]}) {
 
-    await createTopicVersion({
+    return await createTopicVersion({
         id: topicId,
         categories,
         claimsAuthorship: false,
     })
 }
+
+
+export async function updateSynonymsInTopic({topicId, synonyms}: {topicId: string, synonyms: string[]}) {
+
+    return await createTopicVersion({
+        id: topicId,
+        synonyms,
+        claimsAuthorship: false,
+    })
+}
+
 
 
 
@@ -533,6 +546,16 @@ const topicQuery = {
     versions: {
         select: {
             uri: true,
+            categories: true,
+            synonyms: true,
+            topicId: true,
+            title: true,
+            message: true,
+            diff: true,
+            charsAdded: true,
+            accCharsAdded: true,
+            contribution: true,
+            authorship: true,
             content: {
                 select: {
                     text: true,
@@ -589,15 +612,6 @@ const topicQuery = {
                     },
                 }
             },
-            topicId: true,
-            title: true,
-            message: true,
-            diff: true,
-            charsAdded: true,
-            accCharsAdded: true,
-            contribution: true,
-            authorship: true,
-            categories: true
         },
         orderBy: {
             content: {
@@ -670,7 +684,7 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
                 topic.versions[i].content.text = await getTextFromBlob(topic.versions[i].content.textBlob)
             }
         }
-
+        console.log("topic", topic)
         return {topic: topic}
     } catch (e) {
         console.log("Error on getTopicById with id", id)

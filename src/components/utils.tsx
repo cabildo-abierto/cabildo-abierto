@@ -190,7 +190,7 @@ export function currentVersion(entity: {versions: {}[]}){
 
 
 export function currentCategories(topic: {versions: {categories?: string}[]}) {
-    for(let i = topic.versions.length-1; i > 0; i--){
+    for(let i = topic.versions.length-1; i >= 0; i--){
         if(topic.versions[i].categories != null){
             return JSON.parse(topic.versions[i].categories) as string[]
         }
@@ -604,17 +604,16 @@ export function getKeysFromEntity(entity: {currentVersion: {synonyms: string[]},
 }*/
 
 
-export function getSearchkeysFromEntities(entities: {}[]){
+/*export function getSearchkeysFromEntities(entities: {}[]){
     return []
-    /*
     let searchkeys: {id: string, keys: string[]}[] = []
 
     for(let i = 0; i < entities.length; i++){
         let keys = getKeysFromEntity(entities[i]).map(cleanText)
         searchkeys.push({id: entities[i].id, keys: keys})
     }
-    return searchkeys*/
-}
+    return searchkeys
+}*/
 
 
 function findMentionsInNode(node: any): {id: string}[] {
@@ -825,11 +824,6 @@ export function getDidFromUri (uri: string) {
 export function getRkeyFromUri(uri: string){
     const s = uri.split("/")
     return s[s.length-1]
-}
-
-type EntitySearchKeysProps = {
-    id: string
-    currentVersion: {synonyms: string[]}
 }
 
 /*function findMentionNode(node: any, entity: EntitySearchKeysProps){
