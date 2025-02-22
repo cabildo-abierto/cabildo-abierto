@@ -5,6 +5,7 @@ import {CustomLink as Link} from "../custom-link";
 import {articleUrl} from "../utils";
 import Button from "@mui/material/Button";
 import PersonIcon from "@mui/icons-material/Person";
+import {TopicCategories} from "../entity-categories-small";
 
 export const TrendingArticlesSlider = ({trendingArticles}: {
     trendingArticles: SmallTopicProps[]}) => {
@@ -27,6 +28,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                          setHovering(index)
                      }}
                 >
+                    <TopicCategories topic={topic} className={"text-xs text-[var(--text-light)]"} maxCount={1}/>
                     <div className={"font-semibold w-full " + (hovering == index ? "" : "truncate")}>
                         {title}
                     </div>

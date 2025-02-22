@@ -11,6 +11,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import {updateCategoriesInTopic} from "../actions/topics";
+import {useCategories} from "../hooks/contents";
+import SearchableDropdown from "./ui-utils/searchable-dropdown";
 
 function validCategoryElement(e: string){
     return e.length > 0
@@ -59,30 +61,68 @@ const CategoryInput = ({
 };
 
 
-const NewCategory = ({addCategory}: {addCategory: (c: string) => void}) => {
+const NewCategory = ({
+    addCategory,
+    availableCategories,
+    currentCategories
+}: {
+    addCategory: (c: string) => void
+    availableCategories: string[]
+    currentCategories: string[]
+}
+) => {
     const [category, setCategory] = useState("")
     const [writingCategory, setWritingCategory] = useState(false)
 
+    let options: string[] = []
+    if(availableCategories){
+        options = availableCategories.filter((c) => (!currentCategories.includes(c)))
+    }
+
     if(writingCategory){
         return <div className={"space-x-2 flex items-center"}>
-            <input
-                value={category}
-                className={"rounded-lg bg-[var(--accent)] py-1 px-2 outline-none"}
-                autoFocus={true}
-                onChange={(e) => {setCategory(e.target.value)}}
-            />
-            <IconButton onClick={() => {addCategory(category); setCategory(""); setWritingCategory(false)}}>
+            <div className={"flex flex-col items-start"}>
+                <SearchableDropdown
+                    options={options}
+                    size={"small"}
+                    selected={category}
+                    onSelect={setCategory}
+                />
+            </div>
+            <IconButton onClick={() => {
+                addCategory(category);
+                setCategory("");
+                setWritingCategory(false)
+            }}>
                 <CheckIcon fontSize="small"/>
             </IconButton>
-            <IconButton onClick={() => {setCategory(""); setWritingCategory(false)}}>
+            <IconButton onClick={() => {
+                setCategory("");
+                setWritingCategory(false)
+            }}>
                 <CloseIcon fontSize="small"/>
             </IconButton>
         </div>
     }
 
-    return <IconButton size="small" onClick={() => {setWritingCategory(true)}}>
-        <AddIcon fontSize={"small"}/>
-    </IconButton>
+    if(currentCategories.length > 0){
+        return <IconButton size="small" onClick={() => {
+            setWritingCategory(true)
+        }}>
+            <AddIcon fontSize={"small"}/>
+        </IconButton>
+    } else {
+        return <BasicButton
+            variant={"text"}
+            startIcon={<AddIcon/>}
+            color={"inherit"}
+            onClick={() => {
+                setWritingCategory(true)
+            }}
+        >
+            Nueva categoría
+        </BasicButton>
+    }
 }
 
 
@@ -104,6 +144,7 @@ export const Category = ({category, removeCategory}: {category: string, removeCa
 export const RoutesEditor = ({topic, setEditing}: {topic: TopicProps, setEditing: (v: boolean) => void}) => {
     const current = currentCategories(topic)
     const [categories, setCategories] = useState(current)
+    const {categories: availableCategories} = useCategories()
 
 
     function removeCategory(i: number) {
@@ -121,14 +162,19 @@ export const RoutesEditor = ({topic, setEditing}: {topic: TopicProps, setEditing
 
 
     return <div className={"px-2"}>
-        {categories.length == 0 && <div className={"mb-2 text-[var(--text-light)]"}>Tocá el + para agregar una categoría.</div>}
         <div className={"flex flex-wrap gap-x-2 items-center"}>
             {categories.map((c, i) => {
-                return <div key={i}>
+                return <div key={i} className={"h-10"}>
                     <Category category={c} removeCategory={removeCategory(i)}/>
                 </div>
             })}
-            <NewCategory addCategory={(c: string) => {setCategories([...categories, c])}}/>
+            <div className={"h-10"}>
+            <NewCategory
+                addCategory={(c: string) => {setCategories([...categories, c])}}
+                availableCategories={availableCategories}
+                currentCategories={categories}
+            />
+            </div>
         </div>
         <div className={"flex justify-end mt-2 space-x-2"}>
             <BasicButton
