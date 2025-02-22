@@ -62,23 +62,12 @@ export default function Page({searchParams}: {searchParams: {p: string}}) {
                 optionsNodes={optionsNodes}
                 className="flex justify-between"
             />
-            <div className={"mt-4"}>
-
+            <div className={""}>
                 {selected == "Senadores" ?
                     <BancasSenadores project={selectedProject != null ? projects[selectedProject] : undefined}/> :
-                    <BancasDiputados/>}
+                    <BancasDiputados project={projects[selectedProject]}/>}
             </div>
         </div>
-
-        {selectedProject != null && <div className={"w-full flex justify-end"}>
-            <BasicButton
-                variant={"text"}
-                size={"small"}
-                onClick={() => {setSelectedProject(null)}}
-            >
-                Limpiar selección
-            </BasicButton>
-        </div>}
 
         <Proyectos
             projects={projects}

@@ -1,11 +1,9 @@
 import investigadora from "../../../public/congreso/investigadora.json";
-import {CongressProject, CongressResult} from "./proyectos";
+import {CongressProject} from "./proyectos";
 import {DateSince} from "../date";
 import React from "react";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
-import {IconButton} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 
 export const projects = [
     investigadora
