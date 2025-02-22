@@ -40,7 +40,7 @@ import {SmallTopicProps, TopicProps} from '../../../../app/lib/definitions';
 import { articleUrl } from '../../../utils';
 import { CustomLink as Link } from '../../../../components/custom-link';
 import {getTopicTitle} from "../../../topic/utils";
-import {searchTopics} from "../../../../actions/topics";
+import {searchTopics} from "../../../../actions/feed/search";
 
 function FloatingLinkEditor({
   editor,

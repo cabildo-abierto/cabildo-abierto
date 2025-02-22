@@ -17,7 +17,6 @@ import {
 } from "../app/lib/definitions";
 import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./writing/insert-visualization-modal";
-import dynamic from "next/dynamic";
 import SelectionComponent from "./search-selection-component";
 import {Button, TextField} from "@mui/material";
 import {useRouter} from "next/navigation";
@@ -31,9 +30,6 @@ import {ReplyToContent} from "./editor/plugins/CommentPlugin";
 import {ContentQuote} from "./feed/content-quote";
 import {VisualizationNodeComp} from "./editor/nodes/visualization-node-comp";
 
-const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
-    ssr: false,
-});
 
 function replyFromParentElement(replyTo: FeedContentProps): FastPostReplyProps {
 
@@ -363,7 +359,7 @@ export const WritePanel = ({
 
     return <>
         <BaseFullscreenPopup open={open} className="w-128">
-            <div className="w-full rounded pb-2 pt-1 border max-h-[80vh] overflow-y-scroll">
+            <div className="w-full rounded pb-2 pt-1 border max-h-[80vh] overflow-y-auto">
                 {center}
             </div>
         </BaseFullscreenPopup>

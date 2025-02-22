@@ -4,7 +4,7 @@ import {useDataset} from "../../hooks/contents";
 import Image from "next/image";
 import {localizeDataset} from "../editor/nodes/visualization-node-comp";
 import dynamic from "next/dynamic";
-import {PrettyJSON, pxToNumber} from "../utils";
+import {pxToNumber} from "../utils";
 const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
     ssr: false,
 });
@@ -12,7 +12,7 @@ const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite),
 
 export const VegaPlotPreview = ({visualization, width} : {
     visualization: VisualizationProps
-    width: number | string
+    width?: number | string
 }) => {
     const previewCid = visualization.visualization.previewBlobCid;
     const cdnUrl = "https://cdn.bsky.app/img/feed_thumbnail/plain/"+visualization.author.did+"/"+previewCid+"@jpeg"

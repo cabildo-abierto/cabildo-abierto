@@ -70,7 +70,7 @@ export const FastPostPreviewFrame = ({
                 </div>
 
                 <div className={"mt-1 text-sm"}>
-                    <EngagementIcons counters={post} record={post}/>
+                    <EngagementIcons counters={post} record={post} className={"flex justify-between"}/>
                 </div>
             </div>
         </div>

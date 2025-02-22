@@ -1,7 +1,7 @@
 .link-editor {
   display: flex;
   position: absolute;
-  top: 0;
+  top: -30px;
   left: 0;
   z-index: 100001;
 }

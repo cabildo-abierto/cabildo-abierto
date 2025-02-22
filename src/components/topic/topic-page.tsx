@@ -104,7 +104,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
         }
     }
 
-    return <div className="flex flex-col items-center w-full">
+    return <div className="flex flex-col items-center w-full pt-4">
         <div className="flex flex-col px-2 py-1 mb-2 w-full">
             <div className="text-[var(--text-light)] text-sm">
                 Tema

@@ -14,7 +14,7 @@ import {
 } from "../components/utils";
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
-import {recordQuery, revalidateEverythingTime} from "./utils";
+import {getObjectSizeInBytes, recordQuery, revalidateEverythingTime} from "./utils";
 import {fetchBlob} from "./data";
 import {unstable_cache} from "next/cache";
 import {getCurrentContentVersion} from "../components/topic/utils";
@@ -251,7 +251,12 @@ function countUserInteractions(entity: TopicUserInteractionsProps, since?: Date)
 }
 
 
-export async function getTrendingTopics(sinceKind: string = "alltime", categories: string[], limit: number = 10, sortedby: string = "popular"): Promise<{error?: string, topics?: SmallTopicProps[]}> {
+export async function getTrendingTopics(
+    sinceKind: string = "alltime",
+    categories: string[],
+    limit: number = 10,
+    sortedby: string = "popular"
+): Promise<{error?: string, topics?: SmallTopicProps[]}> {
 
     return await unstable_cache(async () => {
         return await getTrendingTopicsNoCache(sinceKind, categories, sortedby, limit)
@@ -297,19 +302,7 @@ function getAllContentInteractions(uri: string,
 }
 
 
-export async function getContentInteractions(): Promise<{uri: string, interactions: string[]}[]> {
-    return await unstable_cache(async () => {
-        return await getContentInteractionsNoCache()
-    }, ["interactions"],
-        {
-            tags: ["interactions"],
-            revalidate: revalidateEverythingTime
-        }
-    )()
-}
-
-
-export async function getContentInteractionsNoCache() : Promise<{uri: string, interactions: string[]}[]> {
+export async function getContentInteractions() : Promise<{uri: string, interactions: string[]}[]> {
     const contents: ContentInteractions[] = await db.record.findMany({
         select: {
             uri: true,
@@ -478,7 +471,7 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
 
         const contentInteractionsPromise = getContentInteractions()
 
-        const topicsPromise = getTopics()
+        const topicsPromise = getTopicsNoCache()
 
         const [contentInteractions, topics] = await Promise.all([contentInteractionsPromise, topicsPromise])
 
@@ -518,6 +511,7 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
         filteredTopics = limit ? filteredTopics.slice(0, limit) : filteredTopics
 
         const t3 = new Date().getTime()
+
         return {topics: filteredTopics}
 
     } catch (err) {
@@ -684,7 +678,6 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
                 topic.versions[i].content.text = await getTextFromBlob(topic.versions[i].content.textBlob)
             }
         }
-        console.log("topic", topic)
         return {topic: topic}
     } catch (e) {
         console.log("Error on getTopicById with id", id)
@@ -747,48 +740,3 @@ export async function deleteTopicVersionsForUser(){
     }
 }
 
-
-export async function getTopicsForSearch(){
-    return await unstable_cache(async () => {
-        const topics: SmallTopicProps[] = await db.topic.findMany({
-            select: {
-                id: true,
-                versions: {
-                    select: {
-                        uri: true,
-                        categories: true,
-                        content: {
-                            select: {
-                                numWords: true,
-                                record: {
-                                    select: {
-                                        createdAt: true,
-                                        author: {
-                                            select: {
-                                                handle: true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        })
-        return topics.filter((t) => (t.versions.length > 0))
-    }, ["topicsForSearch"], {
-        tags: ["topics"]
-    })()
-}
-
-
-export async function searchTopics(q: string){
-    q = cleanText(q)
-
-    const topics = await getTopicsForSearch()
-
-    return topics.filter((t) => {
-        return cleanText(t.id).includes(q)
-    })
-}

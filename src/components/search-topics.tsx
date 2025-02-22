@@ -1,16 +1,17 @@
 "use client"
-import { EntitySearchResult } from "./entity-search-result"
+import { TopicSearchResult } from "./topic-search-result"
 import { useSearch } from "./search/search-context"
 import { LazyLoadFeed } from "./lazy-load-feed"
 import React, {ReactNode, useEffect, useState} from "react"
 import {NoResults} from "./no-results";
-import {searchTopics} from "../actions/topics";
 import {SmallTopicProps} from "../app/lib/definitions";
+import {searchTopics} from "../actions/feed/search";
+import LoadingSpinner from "./loading-spinner";
 
 
 export const SearchTopics = ({ maxCount = 50 }: { maxCount?: number }) => {
     const { searchState } = useSearch();
-    const [results, setResults] = useState<SmallTopicProps[]>([]);
+    const [results, setResults] = useState<SmallTopicProps[] | "loading">([]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
 
     useEffect(() => {
@@ -27,6 +28,7 @@ export const SearchTopics = ({ maxCount = 50 }: { maxCount?: number }) => {
                 setResults([]);
                 return;
             }
+            setResults("loading")
             const topics = await searchTopics(debouncedValue);
             setResults(topics);
         }
@@ -42,10 +44,14 @@ export const SearchTopics = ({ maxCount = 50 }: { maxCount?: number }) => {
         );
     }
 
+    if(results == "loading"){
+        return <div className={"pt-8"}><LoadingSpinner/></div>
+    }
+
     function generator(index: number): {c: ReactNode, key: string} {
-        const topic = results[index];
+        const topic = (results as SmallTopicProps[])[index];
         return {
-            c: topic ? <EntitySearchResult topic={topic} /> : null,
+            c: topic ? <TopicSearchResult topic={topic} /> : null,
             key: topic?.id || index.toString(),
         }
     }

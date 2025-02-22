@@ -1,46 +1,47 @@
-import {useSearchableContents} from "../../hooks/contents";
 import {useSearch} from "./search-context";
-import LoadingSpinner from "../loading-spinner";
-import {ArticleProps, FastPostProps, FeedContentProps} from "../../app/lib/definitions";
-import {cleanText} from "../utils";
+import {FeedContentProps} from "../../app/lib/definitions";
 import Feed from "../feed/feed";
-import {ErrorPage} from "../error-page";
+import {useEffect, useState} from "react";
+import {searchContents, searchTopics} from "../../actions/feed/search";
+import LoadingSpinner from "../loading-spinner";
 
 
 export const ContentsSearchResults = () => {
-    const {searchState} = useSearch()
-    const {feed, isLoading} = useSearchableContents()
+    const { searchState } = useSearch();
+    const [results, setResults] = useState<FeedContentProps[] | "loading">([]);
+    const [debouncedValue, setDebouncedValue] = useState(searchState.value);
 
-    const searchValue = cleanText(searchState.value)
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(searchState.value);
+        }, 300); // Adjust delay as needed (e.g., 300ms)
 
-    if(searchValue.length == 0){
+        return () => clearTimeout(handler);
+    }, [searchState.value]);
+
+    useEffect(() => {
+        async function search() {
+            if (debouncedValue.length === 0) {
+                setResults([]);
+                return;
+            }
+            setResults("loading")
+            const contents = await searchContents(debouncedValue);
+            setResults(contents.feed);
+        }
+
+        search();
+    }, [debouncedValue]);
+
+    if(searchState.value.length == 0){
         return <div className={"mt-8 text-[var(--text-light)] text-center"}>
             Buscá un post, respuesta o artículo
         </div>
     }
 
-    if(isLoading){
-        return <div className={"mt-8"}><LoadingSpinner/></div>
+    if(results == "loading"){
+        return <div className={"pt-8"}><LoadingSpinner/></div>
     }
 
-    if(!feed){
-        return <ErrorPage>Ocurrió un error al buscar los resultados.</ErrorPage>
-    }
-
-    let filteredContents = feed.filter((c: FeedContentProps) => {
-        if(c.collection == "app.bsky.feed.post"){
-            if(!(c as FastPostProps).content){
-                return false
-            }
-            const text = cleanText((c as FastPostProps).content.text)
-            return text.includes(searchValue)
-        } else if(c.collection == "ar.com.cabildoabierto.article"){
-            const text = cleanText((c as ArticleProps).content.article.title)
-            return text.includes(searchValue)
-        } else {
-            return false
-        }
-    })
-
-    return <Feed feed={{feed: filteredContents, isLoading: false, error: undefined}}/>
+    return <Feed feed={{feed: results, isLoading: false, error: undefined}}/>
 }

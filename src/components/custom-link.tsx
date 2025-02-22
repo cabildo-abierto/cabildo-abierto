@@ -30,6 +30,14 @@ export function CustomLink({
     onClick && onClick(e)
   };
 
+  if(!href && !onClick){
+      return <div
+        className={className}
+      >
+          {children}
+      </div>
+  }
+
   return (
     <Link href={href}
           onClick={handleClick}

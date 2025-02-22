@@ -6,6 +6,8 @@ import {useLayoutConfig} from "../layout/layout-config-context";
 import {pxToNumber} from "../utils";
 import {CongressProject, CongressResult} from "./proyectos";
 import {getId, getVote} from "./utils";
+import Link from "next/link";
+import {CustomLink} from "../custom-link";
 
 
 type SelectedSenator = {
@@ -28,6 +30,11 @@ function seatToIndex(s: {rowIndex: number, seatIndex: number}) {
     return s.rowIndex*18 + s.seatIndex
 }
 
+function toTitleCase(str) {
+    return str.toLowerCase().split(" ").map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(" ");
+}
 
 export const BancasSenadores = ({project}: {project?: CongressProject}) => {
     const rows = getRows(72, 4)
@@ -44,13 +51,15 @@ export const BancasSenadores = ({project}: {project?: CongressProject}) => {
 
         if(idx < senadores.table.rows.length){
             const s = senadores.table.rows[idx]
+            const name = toTitleCase(s.NOMBRE + " " + s.APELLIDO)
             return {
-                name: s.APELLIDO,
+                name: name,
                 img: s.FOTO,
                 distrito: s.PROVINCIA,
                 bloque: s.BLOQUE,
                 partido: s["PARTIDO O ALIANZA"],
-                vote: project ? getVote(getId(s), project.votesSenado) : undefined
+                vote: project ? getVote(getId(s), project.votesSenado) : undefined,
+                profileUrl: "/tema?i=" + name
             }
         } else {
             return {
@@ -58,7 +67,8 @@ export const BancasSenadores = ({project}: {project?: CongressProject}) => {
                 img: defaultImg,
                 distrito: null,
                 bloque: null,
-                partido: null
+                partido: null,
+                profileUrl: null
             }
         }
     }
@@ -95,18 +105,21 @@ export const BancasDiputados = ({project}: {project: CongressProject}) => {
         const idx = seatToIndex({rowIndex, seatIndex})
         if(idx < diputados.length){
             const d = diputados[idx]
+            const name = toTitleCase(d.Nombre + " " + d.Apellido)
             return {
-                name: d.Apellido,
+                name: name,
                 img: d.Foto,
                 distrito: d.Distrito,
                 bloque: d.Bloque,
+                profileUrl: "/tema?i=" + name
             }
         } else {
             return {
-                name: "SILLA VACÍA",
+                name: "Silla vacía",
                 img: null,
                 distrito: null,
-                bloque: null
+                bloque: null,
+                profileUrl: null
             }
         }
     }
@@ -136,6 +149,7 @@ type Seat = {
     bloque: string
     vote?: string
     partido?: string
+    profileUrl?: string
 }
 
 
@@ -157,24 +171,26 @@ const SeatCard = ({
     const s = generator(hoveredSeat.rowIndex, hoveredSeat.seatIndex)
 
     return <div
-        className="absolute w-64 z-[1001]"
+        className="absolute w-[300px] z-[1001]"
         style={{
             top: hoveredSeat.y * canvasHeight / svgHeight + 5,
             left: hoveredSeat.x * canvasWidth / svgWidth + 5,
         }}
     >
-        <div className={"w-64 p-2 flex space-x-2 border rounded-lg bg-[var(--background-dark)]"}>
-            {generator(hoveredSeat.rowIndex, hoveredSeat.seatIndex).img && <Image
-                src={s.img}
-                alt={"Foto de " + s.name}
-                width={300}
-                height={300}
-                className={"rounded-full w-12 h-12"}
-            />}
+        <div className={"w-[300px] p-2 flex space-x-2 border rounded-lg bg-[var(--background-dark)]"}>
+            {generator(hoveredSeat.rowIndex, hoveredSeat.seatIndex).img && <CustomLink href={s.profileUrl}>
+                <Image
+                    src={s.img}
+                    alt={"Foto de " + s.name}
+                    width={300}
+                    height={300}
+                    className={"rounded-full w-20 h-20"}
+                />
+            </CustomLink>}
             <div className={"text-transform: capitalize max-w-full"}>
-                <div className="font-semibold">
+                <Link href={s.profileUrl} className="font-semibold">
                     {s.name.toLowerCase()}
-                </div>
+                </Link>
                 <div className={"mt-1 text-sm"}>
                     {s.distrito.toLowerCase()}
                 </div>

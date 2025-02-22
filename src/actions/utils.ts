@@ -571,3 +571,8 @@ export const threadQuery = {
         }
     }
 }
+
+
+export function getObjectSizeInBytes(obj) {
+    return new TextEncoder().encode(JSON.stringify(obj)).length;
+}

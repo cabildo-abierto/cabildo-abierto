@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {getTopicsForSearch} from "../../../actions/topics";
+import {getFullTopicList} from "../../../actions/feed/search";
 
 
 export async function GET(req: NextRequest) {
 
-    let topics = await getTopicsForSearch()
+    let topics = await getFullTopicList()
 
     return NextResponse.json(topics)
 }

@@ -95,9 +95,9 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
                 color="inherit"
                 fullWidth={true}
                 disableElevation={true}
-                sx={{textTransform: "none",
+                sx={{
+                    textTransform: "none",
                     paddingY: 0
-
                 }}
             >
                 <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
@@ -137,13 +137,17 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
                     />
                 </div>
             </div>
-            {selected == "Visualización" && <div style={{maxWidth: maxWidth}} className={"overflow-x-scroll overflow-y-clip"}>
+            {selected == "Visualización" && <div>
                 {
                     readyToPlot(config) ?
-                        <VisualizationOnEditor dataset={dataset} config={config} setCurrentView={setCurrentView}/> :
-                        <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
-                            {nextStep(config)}
-                        </div>
+                    <div style={{maxWidth: maxWidth}} className={"overflow-x-auto overflow-y-auto"}>
+                        <VisualizationOnEditor
+                            dataset={dataset} config={config} setCurrentView={setCurrentView}
+                        />
+                    </div> :
+                    <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>
+                        {nextStep(config)}
+                    </div>
                 }
             </div>}
             {selected == "Datos" && <div className={"h-full w-full"}>
