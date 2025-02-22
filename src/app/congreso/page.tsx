@@ -1,0 +1,89 @@
+"use client"
+import React, {useState} from "react";
+import SelectionComponent from "../../components/search-selection-component";
+import {Button} from "@mui/material";
+import {BancasDiputados, BancasSenadores} from "../../components/congreso/bancas";
+import {CongressResult, Proyectos} from "../../components/congreso/proyectos";
+import {BasicButton} from "../../components/ui-utils/basic-button";
+import {projects} from "../../components/congreso/update-congreso-right-panel";
+
+
+function getProjectByName(title: string){
+    for(let i = 0; i<projects.length; i++){
+        if(projects[i].title == title){
+            return i
+        }
+    }
+    return null
+}
+
+
+export default function Page({searchParams}: {searchParams: {p: string}}) {
+    const [selected, setSelected] = useState("Senadores")
+    const [selectedProject, setSelectedProject] = useState<number>(getProjectByName(searchParams.p))
+
+    function optionsNodes(o: string, isSelected: boolean){
+        return <div className="text-[var(--text)] w-32 h-10">
+            <Button
+                onClick={() => {}}
+                variant="text"
+                color="inherit"
+                fullWidth={true}
+                disableElevation={true}
+                sx={{
+                    textTransform: "none",
+                    paddingY: 0,
+                    borderRadius: 0
+                }}
+            >
+                <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                    {o}
+                </div>
+            </Button>
+        </div>
+    }
+
+    return <div className={"flex flex-col items-center"}>
+        <h2 className={"mt-12"}>
+            Congreso
+        </h2>
+
+        {selectedProject != null && <div className={"mt-8 flex flex-col items-center"}>
+            <div className={"text-[var(--text-light)]"}>
+                Resultados de <span className={"font-semibold"}>{projects[selectedProject].title}</span>
+            </div>
+        </div>}
+
+        <div className={"mt-6 flex flex-col items-center"}>
+            <SelectionComponent
+                onSelection={(v) => {setSelected(v)}}
+                options={["Senadores", "Diputados"]}
+                selected={selected}
+                optionsNodes={optionsNodes}
+                className="flex justify-between"
+            />
+            <div className={"mt-4"}>
+
+                {selected == "Senadores" ?
+                    <BancasSenadores project={selectedProject != null ? projects[selectedProject] : undefined}/> :
+                    <BancasDiputados/>}
+            </div>
+        </div>
+
+        {selectedProject != null && <div className={"w-full flex justify-end"}>
+            <BasicButton
+                variant={"text"}
+                size={"small"}
+                onClick={() => {setSelectedProject(null)}}
+            >
+                Limpiar selección
+            </BasicButton>
+        </div>}
+
+        <Proyectos
+            projects={projects}
+            selectedProject={selectedProject}
+            setSelectedProject={setSelectedProject}
+        />
+    </div>
+}

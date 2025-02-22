@@ -505,8 +505,6 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
         filteredTopics = limit ? filteredTopics.slice(0, limit) : filteredTopics
 
         const t3 = new Date().getTime()
-
-        console.log("TT total time", t3-t1)
         return {topics: filteredTopics}
 
     } catch (err) {

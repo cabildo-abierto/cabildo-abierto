@@ -924,3 +924,6 @@ export const PrettyJSON = ({ data }: { data: any }) => {
     </pre>
     );
 };
+
+
+export const range = (n) => Array.from({ length: n }, (_, i) => i);

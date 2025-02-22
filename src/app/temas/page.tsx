@@ -17,7 +17,7 @@ const Temas = () => {
         <div className={"px-2 py-3"}>
             <CategorySelector categories={categories} setCategories={setCategories}/>
         </div>
-        <CategoryArticles sortedBy={sortedBy} categories={categories} onSearchPage={false}/>
+        <CategoryArticles sortedBy={sortedBy} categories={categories}/>
     </div>
 }
 
