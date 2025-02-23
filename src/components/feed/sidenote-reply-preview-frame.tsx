@@ -3,9 +3,8 @@
 import Image from 'next/image'
 import { DateSince } from '../date'
 import {EngagementProps, RecordProps} from '../../app/lib/definitions'
-import {emptyChar, formatIsoDate, urlFromRecord, userUrl} from '../utils'
+import {emptyChar, formatIsoDate, userUrl} from '../utils'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { ContentTopRowAuthor } from '../content-top-row-author'
 import { ReactNode } from 'react'
 import { EngagementIcons } from './engagement-icons'
@@ -38,8 +37,6 @@ export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, sho
             }, 1000);
         }}>
 
-        {/*content.collection == "app.bsky.feed.repost" && <RepostedBy reason={content.reason}/>*/}
-
         <div className={"flex"}>
             <div className="w-10 flex flex-col items-center h-full ml-2">
                 {showingParent ? <ReplyVerticalLine className="h-3"/> : <div className="h-3">{emptyChar}</div>}
@@ -70,7 +67,7 @@ export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, sho
                 </div>
 
                 <div className={"mt-1"}>
-                    <EngagementIcons counters={post} record={post} className={"space-x-2"}/>
+                    <EngagementIcons counters={post} record={post} className={"flex justify-between w-full px-1"}/>
                 </div>
             </div>
         </div>

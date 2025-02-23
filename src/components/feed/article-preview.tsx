@@ -28,7 +28,7 @@ export const ArticlePreview = (
                 {elem.content.article.title}
             </div>
 
-            <div className={"border-t pt-1 text-[14px] text-[var(--text-light)] article-content"}>
+            <div className={"border-t pt-1 text-xs text-[var(--text-light)] article-content"}>
                 {summary}...
             </div>
         </div>
