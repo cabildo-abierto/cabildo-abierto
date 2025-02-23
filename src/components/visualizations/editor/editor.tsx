@@ -1,7 +1,7 @@
 import {useDatasets} from "../../../hooks/contents";
 import {useEffect, useRef, useState} from "react";
 import {DatasetProps, PlotConfigProps} from "../../../app/lib/definitions";
-import {getDataset, getDatasetNoCache} from "../../../actions/data";
+import {getDatasetNoCache} from "../../../actions/data";
 import {ConfigPanel} from "./config-panel";
 import {ChooseDatasetPanel} from "./choose-dataset";
 import {EditorViewer} from "./editor-viewer";
@@ -159,7 +159,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         <ConfigPanel
             config={config}
             updateConfig={updateConfig}
-            dataset={dataset}
+            dataset={dataset ? dataset.dataset : undefined}
         />
     </div>
 

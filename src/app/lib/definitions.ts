@@ -331,14 +331,6 @@ export type ThreadProps = {
     replies: FastPostProps[]
 }
 
-
-export type FeedContentReasonProps = {
-    $type: string
-    by: any
-    indexedAt: string
-}
-
-
 export type MatchesType = {
     matches: {x: number, y: number}[]
     common: {x: number, y: number}[]
@@ -374,10 +366,11 @@ export type PlotConfigProps = {
     [key: string]: any
 }
 
+export type FilterOption = "igual a" | "distinto de" | "uno de"
 
 export type FilterProps = {
     value: any
-    op: "igual a" | "distinto de"
+    op: string
     column: string
 }
 

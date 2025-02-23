@@ -41,7 +41,7 @@ export default function Page() {
                                 width: !isMobile ? "300px" : "170px",
                             }}
                         >
-                            <div className="title">Crear cuenta o iniciar sesión</div>
+                            <div className="">Crear cuenta o iniciar sesión</div>
                         </Button>
                     </Link>
                 </div>

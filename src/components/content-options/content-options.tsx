@@ -16,7 +16,7 @@ const collection2displayText = {
     "ar.com.cabildoabierto.dataset": "conjunto de datos"
 }
 
-const openJsonInNewTab = (json: any) => {
+export const openJsonInNewTab = (json: any) => {
     const blob = new Blob([JSON.stringify(json)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     window.open(url, "_blank");

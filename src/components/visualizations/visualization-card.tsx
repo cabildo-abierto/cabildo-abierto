@@ -6,7 +6,7 @@ import {EngagementIcons} from "../feed/engagement-icons";
 import Link from "next/link";
 import {DateSince} from "../date";
 import {VegaPlot, VegaPlotPreview} from "./vega-plot";
-
+import TableChartIcon from '@mui/icons-material/TableChart';
 
 function getTitleFromSpec(spec: string){
     try {
@@ -24,39 +24,47 @@ export const VisualizationCard = ({visualization, width}: {visualization: Visual
     const title = getTitleFromSpec(visualization.visualization.spec)
 
     return <CustomLink
-        className={"cursor-pointer"}
+        className={"cursor-pointer flex flex-col rounded"}
         style={{width}}
         href={url}
     >
-        <VegaPlotPreview visualization={visualization} width={width}/>
+        <div className={"h-full flex items-center p-2"} style={{height: width*0.6}}>
+            <VegaPlotPreview visualization={visualization} width={width-10}/>
+        </div>
 
-        <div className={"px-2"} style={{width}}>
+        <div className={"px-2 pb-1 flex items-center text-center flex-col"} style={{width}}>
             {title && <div className={"font-semibold"}>
                 {title}
             </div>}
 
             <div className={"flex space-x-1 text-sm items-end py-1"}>
-                <div className={"text-[var(--text-light)]"}>
-                    Datos:
-                </div>
                 <Link
-                    className={"bg-[var(--background-dark)] truncate rounded-lg hover:bg-[var(--background-dark2)] px-2"}
+                    style={{maxWidth: width}}
+                    className={"bg-[var(--background-dark)] flex rounded-lg space-x-2 hover:bg-[var(--background-dark2)] px-2"}
                     href={contentUrl(visualization.visualization.dataset.uri)}
                 >
-                    {visualization.visualization.dataset.dataset.title}
+                    <div className={"text-[var(--text-light)]"}>
+                        <TableChartIcon fontSize={"inherit"} color={"inherit"}/>
+                    </div>
+                    <div className={"truncate"}>
+                        {visualization.visualization.dataset.dataset.title}
+                    </div>
                 </Link>
             </div>
 
             <div className={"text-sm space-x-1 truncate flex items-center text-[var(--text-light)]"}>
                 <Authorship content={visualization} onlyAuthor={true}/>
                 <span className="text-[var(--text-light)]">•</span>
-                <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(visualization.createdAt)}>
+                <span className="text-[var(--text-light)] flex-shrink-0"
+                      title={formatIsoDate(visualization.createdAt)}
+                >
                     <DateSince date={visualization.createdAt}/>
                 </span>
             </div>
 
-            <div className={"mt-1 flex justify-center"}>
-                <EngagementIcons record={visualization} counters={visualization} className={"space-x-2"}/>
+            <div className={"mt-1 flex justify-center px-2"}>
+                <EngagementIcons record={visualization} counters={visualization}
+                                 className={"flex justify-between w-full px-4"}/>
             </div>
         </div>
     </CustomLink>

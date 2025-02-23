@@ -1,7 +1,8 @@
 import React from 'react';
 import { Select as MUISelect, MenuItem, FormControl, InputLabel } from '@mui/material';
 
-export const Select = ({ options, value, onChange, label, firstDisabled=false }: { firstDisabled?: boolean, options: string[], onChange: (v: string) => void, value: string, label?: string }) => {
+export const Select = ({ options, value, onChange, label, fontSize }: {
+    firstDisabled?: boolean, options: string[], onChange: (v: string) => void, value: string, label?: string, fontSize?: string }) => {
     const selectId = label ? `select-${label}` : 'select';
     return (
         <FormControl fullWidth variant="outlined">
@@ -13,6 +14,7 @@ export const Select = ({ options, value, onChange, label, firstDisabled=false }:
                 size={"small"}
                 labelId={selectId}
                 fullWidth
+                sx={{fontSize: fontSize}}
             >
                 {options.map((o, i) => (
                     <MenuItem
