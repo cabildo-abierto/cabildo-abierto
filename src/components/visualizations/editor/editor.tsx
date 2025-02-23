@@ -1,3 +1,4 @@
+"use client"
 import {useDatasets} from "../../../hooks/contents";
 import {useEffect, useRef, useState} from "react";
 import {DatasetProps, PlotConfigProps} from "../../../app/lib/definitions";
