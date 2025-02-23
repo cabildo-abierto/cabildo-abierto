@@ -177,17 +177,19 @@ const SeatCard = ({
             left: hoveredSeat.x * canvasWidth / svgWidth + 5,
         }}
     >
-        <div className={"w-[300px] p-2 flex space-x-2 border rounded-lg bg-[var(--background-dark)]"}>
-            {generator(hoveredSeat.rowIndex, hoveredSeat.seatIndex).img && <CustomLink href={s.profileUrl}>
-                <Image
-                    src={s.img}
-                    alt={"Foto de " + s.name}
-                    width={300}
-                    height={300}
-                    className={"rounded-full w-20 h-20"}
-                />
-            </CustomLink>}
-            <div className={"text-transform: capitalize max-w-full"}>
+        <div className={"p-2 w-[300px] flex space-x-2 border rounded-lg bg-[var(--background-dark)]"}>
+            {generator(hoveredSeat.rowIndex, hoveredSeat.seatIndex).img &&
+                <CustomLink href={s.profileUrl} className={"w-20"}>
+                    <Image
+                        src={s.img}
+                        alt={"Foto de " + s.name}
+                        width={300}
+                        height={300}
+                        className={"rounded-full w-20 h-20"}
+                    />
+                </CustomLink>
+            }
+            <div className={"text-transform: capitalize w-[180px]"}>
                 <Link href={s.profileUrl} className="font-semibold">
                     {s.name.toLowerCase()}
                 </Link>

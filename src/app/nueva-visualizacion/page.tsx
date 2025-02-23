@@ -8,14 +8,16 @@ import {PlotConfigProps} from "../lib/definitions";
 
 const Page = ({searchParams}: {
     searchParams?: {rkey: string, c: string, did: string}}) => {
-
+    console.log("searchParams", searchParams)
     if(searchParams.rkey && searchParams.did && (!searchParams.c || searchParams.c == "ar.com.cabildoabierto.visualization")) {
         const uri = getUri(searchParams.did, "ar.com.cabildoabierto.visualization", searchParams.rkey)
+        console.log("returning visualization editor for visualization with uri", uri)
         return <VisualizationEditorForVisualization
             uri={uri}
         />
     } else if(searchParams.rkey && searchParams.did && searchParams.c == "ar.com.cabildoabierto.dataset"){
         const uri = getUri(searchParams.did, searchParams.c, searchParams.rkey)
+        console.log("returning visualization editor for dataset with uri", uri)
 
         const config: PlotConfigProps = {
             datasetUri: uri,
@@ -27,6 +29,7 @@ const Page = ({searchParams}: {
         />
     }
 
+    console.log("returning visualization editor")
     return <VisualizationEditor/>
 };
 
