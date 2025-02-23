@@ -5,7 +5,7 @@ import {CustomLink} from "../custom-link";
 import {EngagementIcons} from "../feed/engagement-icons";
 import Link from "next/link";
 import {DateSince} from "../date";
-import {VegaPlot, VegaPlotPreview} from "./vega-plot";
+import {VegaPlotPreview} from "./vega-plot";
 import TableChartIcon from '@mui/icons-material/TableChart';
 
 function getTitleFromSpec(spec: string){

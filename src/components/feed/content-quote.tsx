@@ -1,12 +1,11 @@
 import {decompress} from "../compression";
 import ReadOnlyEditor from "../editor/read-only-editor";
 import {contentUrl, getCollectionFromUri} from "../utils";
-import {useTopicVersion} from "../../hooks/contents";
-import LoadingSpinner from "../loading-spinner";
 import {Authorship} from "../content-top-row-author";
 import {getTopicTitle} from "../topic/utils";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
+import "../editor/article-content.css"
 
 
 function filterOutsideSelection(node: any, start: number[] | undefined, startOffset: number | undefined, end: number[] | undefined, endOffset: number | undefined){
@@ -153,7 +152,7 @@ export const ContentQuote = ({
 
     const clickable = onClick != undefined || (post && post.cid)
 
-    return <div className={"content no-margin-first"}>
+    return <div className={"article-content no-margin-first"}>
         <blockquote
             className={"my-1 " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
             onClick={handleClick}

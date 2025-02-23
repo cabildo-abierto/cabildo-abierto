@@ -109,7 +109,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
             <div className="text-[var(--text-light)] text-sm">
                 Tema
             </div>
-            <h1 className={"mb-2 " + titleFontSize}>
+            <h1 className={"mb-2"}>
                 {getTopicTitle(topic.topic)}
             </h1>
             <TopicCategories topic={topic.topic}/>

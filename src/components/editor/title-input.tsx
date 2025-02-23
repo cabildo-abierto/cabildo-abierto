@@ -29,7 +29,7 @@ export const TitleInput = ({ onChange, title }: any) => {
             ref={textareaRef}
             onChange={handleChange}
             placeholder="Título"
-            className="content title"
+            className=""
             value={title}
             onInput={(e) => {
                 if (textareaRef.current) {

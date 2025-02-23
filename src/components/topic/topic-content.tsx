@@ -350,7 +350,7 @@ export const TopicContent = ({
             {selectedPanel != "editing" && <CloseButton size="small" onClose={() => {
                 setViewingContent(false);
                 setPinnedReplies([])
-                setLayoutConfig({...layoutConfig, openRightPanel: true, maxWidthCenter: "600px"})
+                setLayoutConfig({...layoutConfig, openRightPanel: true, maxWidthCenter: "600px", defaultSidebarState: true, openSidebar: true})
                 setSelectedPanel("none")
             }}/>}
         </div>}
@@ -365,7 +365,7 @@ export const TopicContent = ({
             onClick={() => {
                 setViewingContent(true);
                 setLayoutConfig((prev) => ({
-                    ...prev, openRightPanel: false, maxWidthCenter: "800px", rightMinWidth: "275px"}));
+                    ...prev, openSidebar: false, openRightPanel: false, maxWidthCenter: "800px", rightMinWidth: "275px"}));
             }}
             className={`rounded-t-lg relative group ${!viewingContent ? "min-h-[100px] max-h-[200px] overflow-y-clip bg-[var(--background)] cursor-pointer hover:bg-gradient-to-r hover:from-[var(--background-dark)] hover:via-[var(--background)] hover:to-[var(--background-dark)]" : ""}`}
         >

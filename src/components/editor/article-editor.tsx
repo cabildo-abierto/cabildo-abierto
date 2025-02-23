@@ -50,7 +50,7 @@ const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsPro
         useCodeblock: false,
         placeholder: "Escribí tu publicación acá...",
         initialData: initialData ? initialData : initializeEmpty(""),
-        editorClassName: "content sm:ml-0 " + (isFast ? "ml-1" : "ml-3"),
+        editorClassName: "article-content sm:ml-0 " + (isFast ? "ml-1" : "ml-3"),
         isReadOnly: false,
         isAutofocus: true,
         placeholderClassName: "ContentEditable__placeholder sm:ml-0 " + (isFast ? "ml-1" : "ml-3"),
@@ -262,7 +262,7 @@ const PostEditor = ({
             <div className="w-full flex sm:justify-center">
                 {!isPublished && <SaveDraftDialog/>}
             </div>
-			<div className="sm:w-64 w-auto flex space-x-2">
+			<div className="flex">
                 {isFast && <AddImageButton images={images} setImages={setImages} disabled={false}/>}
                 <PublishButton
                     editor={editor}

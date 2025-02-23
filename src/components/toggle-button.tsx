@@ -12,24 +12,10 @@ export const ToggleButton = ({
     text,
     toggled,
     setToggled,
-    className="gray-btn",
+    className="",
     toggledText,
     disabled=false,
     title}: ToggleButtonProps) => {
-
-    /*return <ToggleButtonGroup
-      value={toggled ? "toggled" : null}
-      exclusive
-      onChange={(e, newValue) => {console.log(newValue); setToggled(!toggled)}}
-    >
-      <MuiToggleButton
-        value="toggled"
-        size="small"
-        sx={{textTransform: "none"}}
-        >
-        {(toggled && toggledText !== undefined) ? toggledText : text}
-      </MuiToggleButton>
-    </ToggleButtonGroup>*/
 
     return <button className={className + (toggled ? " toggled" : "")}
         onClick={() => {setToggled(!toggled)}}

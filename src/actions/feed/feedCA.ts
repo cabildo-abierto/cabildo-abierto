@@ -107,7 +107,8 @@ export async function getFeedCA(authors?: string[], includeAllReplies: boolean =
 
     let roots = new Map<string, FeedContentProps>()
     for(let i = 0; i < feed.length; i++) {
-        const root = (feed[i] as FastPostProps).content.post.root ? (feed[i] as FastPostProps).content.post.root.uri : feed[i].uri
+        const post = feed[i] as FastPostProps
+        const root = post.content && post.content.post && post.content.post.root ? post.content.post.root.uri : feed[i].uri
         if(!roots.has(root)){
             roots.set(root, feed[i])
         } else {

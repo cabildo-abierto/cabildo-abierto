@@ -102,7 +102,7 @@ export const wikiEditorSettings = (
         useCodeblock: false,
         placeholder: "Agregá información sobre el tema...",
         initialData: initialData,
-        editorClassName: "content",
+        editorClassName: "article-content not-article-content",
         isReadOnly: readOnly,
         content: {...content},
         isAutofocus: false,

@@ -5,11 +5,23 @@ import {shortCollectionToCollection} from "../../../../../components/utils";
 
 
 export default function RootLayout({children, params}: Readonly<{ children: React.ReactNode; params: {did: string, collection: string, rkey: string} }>) {
-    const isDistractionFree = ["ar.com.cabildoabierto.article", "ar.com.cabildoabierto.dataset"].includes(shortCollectionToCollection(params.collection))
+    const c = shortCollectionToCollection(params.collection)
+    const isArticle = c == "ar.com.cabildoabierto.article"
+    const isDataset = c == "ar.com.cabildoabierto.dataset"
+    const isDistractionFree = isArticle || isDataset
+
+    let maxWidthCenter = "600px"
+
+    if(isArticle){
+        maxWidthCenter = "682px"
+    } else if(isDataset){
+        maxWidthCenter = "800px"
+    }
 
     return <MainLayout
-        maxWidthCenter={isDistractionFree ? "800px" : "600px"}
+        maxWidthCenter={maxWidthCenter}
         openRightPanel={!isDistractionFree}
+        defaultSidebarState={!isArticle}
         rightMinWidth={isDistractionFree ? "275px" : undefined}
     >
         <AccountChecker requireAccount={true}>

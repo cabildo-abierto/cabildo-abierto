@@ -60,6 +60,7 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
                 <ReadOnlyEditor
                     initialData={decompress(content.content.text)}
                     allowTextComments={true}
+                    editorClassName={"article-content"}
                     content={content}
                     quoteReplies={quoteReplies}
                     pinnedReplies={pinnedReplies}
@@ -67,9 +68,9 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
                 />
             </div>
         </div>
-        <div className={"py-2 px-3 border-b"}>
-            <EngagementIcons counters={content} record={content}/>
-        </div>
+            <div className={"py-2 px-3 border-b"}>
+                <EngagementIcons counters={content} record={content} className={"flex justify-between px-4 w-full"}/>
+            </div>
         <div>
         </div>
     </div>
