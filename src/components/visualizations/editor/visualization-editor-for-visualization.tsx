@@ -1,3 +1,4 @@
+"use client"
 import {useVisualization} from "../../../hooks/contents";
 import {LoadingScreen} from "../../loading-screen";
 import {VisualizationEditor} from "./editor";
