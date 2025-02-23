@@ -27,8 +27,9 @@ import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined
 import CollectionsBookmarkOutlinedIcon from '@mui/icons-material/CollectionsBookmarkOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import { GiCongress } from "react-icons/gi";
-import Image from "next/image";
+import SenadoIcon from '../../public/senado-icono.svg';
+import SenadoIconActive from '../../public/senado-icono-active.svg';
+import Image from 'next/image'
 
 
 function unseenSupportMessagesCount(user: UserProps){
@@ -197,8 +198,8 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 setShowText={setShowText}
             />
             <SidebarButton
-                icon={<GiCongress fontSize={"25px"} fontWeight={"bold"}/>}
-                iconInactive={<GiCongress fontSize={"25px"} />}
+                icon={<Image src={SenadoIconActive} alt="Icon" width={24} height={24} />}
+                iconInactive={<Image src={SenadoIcon} alt="Icon" width={24} height={24} />}
                 onClick={onClose}
                 text="Congreso"
                 href="/congreso"

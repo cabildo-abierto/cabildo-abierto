@@ -2,32 +2,70 @@ import {DatasetProps, FilterProps, PlotConfigProps} from "../../../app/lib/defin
 import ResizableDiv from "../../ui-utils/resizable-div";
 import {Select} from "../../ui-utils/select";
 import SearchableDropdown from "../../ui-utils/searchable-dropdown";
-import {TextField} from "@mui/material";
+import {IconButton, TextField} from "@mui/material";
 import {BasicButton} from "../../ui-utils/basic-button";
 import AddIcon from "@mui/icons-material/Add";
 import {FilterConfig} from "./filter-config";
 import {PrettyJSON} from "../../utils";
+import CodeIcon from '@mui/icons-material/Code';
+import {openJsonInNewTab} from "../../content-options/content-options";
+import {getSpecForConfig} from "./spec";
 
 
 const twoAxis: PropReq[] = [
     {label: "Eje x", type: "column"},
-    {label: "Eje y", type: "column"}
+    {label: "Eje y", type: "column"},
+]
+
+const twoAxisLabels: PropReq[] = [
+    {label: "Etiqueta eje x", type: "string"},
+    {label: "Etiqueta eje y", type: "string"}
 ]
 
 const title: PropReq = {label: "Título", type: "string"}
 
+const orientation: PropReq = {
+    label: "Orientación",
+    options: ["Horizontal", "Vertical"],
+    type: "select",
+    defaultValue: "Vertical"
+}
+
+const orderBars: PropReq = {
+    label: "Ordenar barras",
+    options: ["Sí", "No"],
+    type: "select",
+    defaultValue: "No"
+}
+
 type PropReq = {
     label: string
-    type: "column" | "string"
+    options?: string[]
+    type: "column" | "string" | "select" | "maybe-column"
+    defaultValue?: string
+}
+
+const oneAxisLabel: PropReq = {
+    label: "Etiqueta columna",
+    type: "string"
+}
+
+const color: PropReq = {
+    label: "Color",
+    type: "maybe-column",
 }
 
 const configReq = new Map<String, PropReq[]>([
-    ["Gráfico de barras", [...twoAxis, title]],
-    ["Gráfico de línea", [...twoAxis, title]],
-    ["Histograma", [{
-        label: "Columna",
-        type: "column"
-    }, title]]
+    ["Gráfico de barras", [...twoAxis, orientation, orderBars, title, ...twoAxisLabels]],
+    ["Gráfico de línea", [...twoAxis, color, title, ...twoAxisLabels]],
+    ["Histograma", [
+        {
+            label: "Columna",
+            type: "column",
+        },
+        title,
+        oneAxisLabel
+    ]]
 ])
 
 
@@ -35,10 +73,14 @@ const configReq = new Map<String, PropReq[]>([
 export const ConfigPanel = ({config, updateConfig, dataset}: {
     config: PlotConfigProps
     updateConfig: (k: string, v: any) => void
-    dataset?: { dataset?: DatasetProps }
+    dataset?: DatasetProps
 }) => {
 
     function updateFilter(i: number, value: FilterProps) {
+        console.log("setting filter", i, value)
+        if(!config.filters){
+            updateConfig("filters", [value])
+        }
         updateConfig("filters", [...config.filters.slice(0, i), value, ...config.filters.slice(i + 1)])
     }
 
@@ -48,7 +90,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                 Configuración
             </div>
             <hr className={"my-2"}/>
-            <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2"}>
+            <div className={"flex flex-col mt-8 space-y-4 px-2 mb-2 pt-2 overflow-y-auto max-h-[calc(100vh-200px)]"}>
                 <Select
                     options={["Histograma", "Gráfico de línea", "Gráfico de barras"]}
                     value={config.kind}
@@ -63,7 +105,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                         if (req.type == "column") {
                             return <div key={i}>
                                 <SearchableDropdown
-                                    options={dataset.dataset.dataset.columns}
+                                    options={dataset.dataset.columns}
                                     label={req.label}
                                     size={"small"}
                                     selected={config[req.label]}
@@ -85,8 +127,30 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                                     }}
                                 />
                             </div>
-                        }
-                        {
+                        } else if (req.type == "select") {
+                            return <div key={i}>
+                                <Select
+                                    label={req.label}
+                                    value={config[req.label] ? config[req.label] : req.defaultValue}
+                                    options={req.options}
+                                    onChange={(v) => {
+                                        updateConfig(req.label, v)
+                                    }}
+                                />
+                            </div>
+                        } else if (req.type == "maybe-column") {
+                            return <div key={i}>
+                                <SearchableDropdown
+                                    options={["Fijo", ...dataset.dataset.columns]}
+                                    label={req.label}
+                                    size={"small"}
+                                    selected={config[req.label]}
+                                    onSelect={(v: string) => {
+                                        updateConfig(req.label, v)
+                                    }}
+                                />
+                            </div>
+                        } else {
                             throw Error("Not implemented.")
                         }
                     })}
@@ -111,7 +175,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                         color={"inherit"}
                         startIcon={<AddIcon/>}
                         onClick={() => {
-                            updateConfig("filters", [...config.filters, {}])
+                            updateConfig("filters", [...(config.filters ? config.filters : []), {}])
                         }}
                         size={"small"}
                         variant={"text"}
@@ -119,8 +183,14 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                         Filtro
                     </BasicButton>
                 </div>
+                <div className={"flex justify-end"}>
+                <IconButton size={"small"}
+                    onClick={() => {openJsonInNewTab(getSpecForConfig(config, {dataset}))}}
+                >
+                    <CodeIcon fontSize={"small"}/>
+                </IconButton>
+                </div>
             </div>
-
         </div>
     </ResizableDiv>
 }

@@ -58,7 +58,7 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
                         onChange={(e) => {setSearchValue(e.target.value)}}
                     />
                 </div>
-                <div className={"space-y-1 mt-2 overflow-y-auto max-h-[calc(100vh-140px)]"}>
+                <div className={"space-y-1 mt-2 overflow-y-auto max-h-[calc(100vh-200px)]"}>
                     {filteredDatasets ? filteredDatasets.map((d, i) => {
                         return <div key={i} className={""}>
                             <DatasetPreviewSmall

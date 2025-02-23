@@ -22,7 +22,7 @@ export const VisualizationOnEditor = ({config, setCurrentView, dataset}: {
             const result = await embed(chartRef.current, spec, {actions: false})
             const { view } = result;
             setCurrentView(view)
-        };
+        }
 
         if(dataset && dataset.data){
             renderChart()

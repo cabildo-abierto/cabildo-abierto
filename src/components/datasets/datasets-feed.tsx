@@ -54,8 +54,10 @@ const DatasetCard = ({dataset, width}: {
     const url = urlFromRecord(dataset as {uri: string, collection: string, author: {did: string, handle: string}})
 
 
-    return <CustomLink href={url}
+    return <CustomLink
+        href={url}
         style={{width}}
+        className={"flex flex-col items-center text-center"}
     >
         <div className={""}>
             <SmallDatasetPreview

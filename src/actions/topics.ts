@@ -625,18 +625,20 @@ export async function getCategories() {
         ["categories"],
         {
             tags: ["categories"],
-            revalidate: revalidateEverythingTime
+            revalidate: 5
         }
     )()
 }
 
+const cabildoDid = "did:plc:rup47j6oesjlf44wx4fizu4m"
 
 export async function getCategoriesNoCache() {
     const topics = await db.topic.findMany({
         select: {
             versions: {
                 select: {
-                    categories: true
+                    categories: true,
+                    uri: true
                 }
             }
         }
@@ -648,7 +650,31 @@ export async function getCategoriesNoCache() {
             categories.add(current[j])
         }
     }
-    return Array.from(categories)
+
+    function countManualEdits(t: {versions: {uri: string}[]}){
+        let c = 0
+        t.versions.forEach((v) => {
+            if(getDidFromUri(v.uri) != cabildoDid){
+                c ++
+            }
+        })
+        return c
+    }
+
+    let score = new Map<string, number>(Array.from(categories).map((c) => [c, 0]))
+    for(let i = 0; i < topics.length; i++){
+        const count = countManualEdits(topics[i])
+        const current = currentCategories(topics[i])
+        for(let j = 0; j < current.length; j++){
+            score.set(current[j], score.get(current[j])+count)
+        }
+    }
+
+    function cmp(a: string, b: string){
+        return score.get(b) - score.get(a)
+    }
+
+    return Array.from(categories).sort(cmp)
 }
 
 

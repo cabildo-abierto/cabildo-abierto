@@ -15,31 +15,20 @@ interface SearchableDropdownProps {
 const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
    fontSize="0.875rem", selected="", options, optionViews, label, onSelect, size
 }) => {
-  const [filteredOptions, setFilteredOptions] = useState(options);
-  const [showDropdown, setShowDropdown] = useState(false);
+    const [filteredOptions, setFilteredOptions] = useState(options);
+    const [showDropdown, setShowDropdown] = useState(false);
 
-  useEffect(() => {
-    const filtered = options.filter((option) =>
-        option.toLowerCase().includes(selected.toLowerCase())
-    );
-    setFilteredOptions(filtered)
-  }, [options])
+    useEffect(() => {
+        const filtered = options.filter((option) =>
+            option.toLowerCase().includes(selected.toLowerCase())
+        );
+        setFilteredOptions(filtered)
+    }, [options, selected])
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-
-    const filtered = options.filter((option) =>
-        option.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredOptions(filtered);
-    setShowDropdown(filtered.length > 0);
-    onSelect(value)
-  };
-
-  const handleOptionSelect = (option: string) => {
-    setShowDropdown(false);
-    onSelect(option);
-  };
+    const handleOptionSelect = (option: string) => {
+        onSelect(option)
+        setShowDropdown(false)
+    };
 
   return (
       <div className="relative w-full max-w-md mx-auto">
@@ -48,7 +37,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
             variant="outlined"
             fullWidth
             value={selected}
-            onChange={handleInputChange}
+            onChange={(e) => {onSelect(e.target.value)}}
             onFocus={() => setShowDropdown(filteredOptions.length > 0)}
             onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
             label={label}
@@ -66,7 +55,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                 {filteredOptions.map((option, index) => (
                     <MenuItem
                         key={index}
-                        onClick={() => handleOptionSelect(option)}
+                        onClick={() => {handleOptionSelect(option)}}
                         className="cursor-pointer hover:bg-[var(--background-dark)]"
                         component="div"
                     >
