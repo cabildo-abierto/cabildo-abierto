@@ -5,6 +5,8 @@ import Image from "next/image";
 import {localizeDataset} from "../editor/nodes/visualization-node-comp";
 import dynamic from "next/dynamic";
 import {pxToNumber} from "../utils";
+import '../editor/article-content.css'
+
 const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
     ssr: false,
 });

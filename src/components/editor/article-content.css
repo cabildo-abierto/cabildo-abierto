@@ -1,0 +1,92 @@
+
+
+
+.article-content {
+    font-family: 'Roboto_Serif', serif;
+    line-height: 1.8;
+    font-weight: 450
+}
+
+.not-article-content {
+    font-family: 'Roboto_Flex', sans-serif;
+    line-height: 1.5;
+    font-weight: 400
+}
+
+
+.article-content a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.article-content .exclude-links a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.article-content .exclude-links a:hover {
+    text-decoration: none;
+}
+
+.article-content a:hover {
+    text-decoration: underline;
+}
+
+.article-content h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    font-family: 'Roboto_Flex', sans-serif;
+    color: var(--text)
+}
+
+.article-content h1 {
+    margin-top: 20px
+}
+
+.article-content h2 {
+    margin-top: 16px
+}
+
+.article-content h3 {
+    margin-top: 14px
+}
+
+.article-content h4 {
+    margin-top: 10px
+}
+
+.article-content h5 {
+    margin-top: 10px
+}
+
+.article-content p,
+.article-content ul,
+.article-content li {
+    margin-top: 10px;
+}
+
+.article-content.no-margin-top p, ul, li {
+    margin-top: 0px;
+}
+
+.article-content.comment p, ul, li {
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
+
+.article-content li {
+    margin-left: 32px;
+}
+
+.article-content blockquote {
+    margin-left: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-left: 16px;
+    border-left-width: 4px;
+    border-left-style: solid;
+    border-color: var(--text-light);
+    background-color: var(--background-dark2);
+    border-radius: 2px;
+}

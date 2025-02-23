@@ -331,7 +331,7 @@ export const WritePanel = ({
     }
 
     const center = <>
-        <div className="flex justify-between items-start space-x-2 px-1">
+        <div className="flex justify-between items-start space-x-2 pl-1 pr-2">
             {isReply ?
                 (replyTo.collection == "ar.com.cabildoabierto.topic" || replyTo.collection == "ar.com.cabildoabierto.article" ?
                     <div>

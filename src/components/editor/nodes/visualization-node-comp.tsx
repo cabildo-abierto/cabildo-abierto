@@ -40,10 +40,9 @@ export const VisualizationNodeCompFromSpec = ({spec, uri}: {spec: string, uri: s
 export const VisualizationNodeComp = ({visualization, showEngagement=true}: {
     visualization: VisualizationProps & EngagementProps, showEngagement?: boolean}) => {
     const {dataset} = useDataset(visualization.visualization.dataset.uri)
-    const {layoutConfig} = useLayoutConfig()
 
     return (
-        <div className={"flex flex-col items-center w-full"} onClick={(e) => {e.stopPropagation()}}>
+        <div className={"flex flex-col items-center w-full not-article-content"} onClick={(e) => {e.stopPropagation()}}>
 
             <VegaPlot visualization={visualization}/>
 

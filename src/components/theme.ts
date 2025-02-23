@@ -9,9 +9,9 @@ const theme = createTheme({
       //main: '#8181ff',
       //dark: '#6565ff',
       //light: '#acacff'
-      main: '#70a9ff',
-      dark: '#5783c4',
-      light: '#91bcff'
+      main: '#3080ff',
+      dark: '#1d5dc3',
+      light: '#4f93ff'
     },
     text: {
       primary: '#fbfbfc', // Default text color

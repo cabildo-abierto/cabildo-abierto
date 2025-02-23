@@ -198,8 +198,8 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 setShowText={setShowText}
             />
             <SidebarButton
-                icon={<Image src={SenadoIconActive} alt="Icon" width={24} height={24} />}
-                iconInactive={<Image src={SenadoIcon} alt="Icon" width={24} height={24} />}
+                icon={<div className={"w-6 h-6 flex items-center jutify-center py-2"}><Image className="" src={SenadoIconActive} alt="Icon" width={24} height={24} /></div>}
+                iconInactive={<div className={"w-6 h-6 flex items-center jutify-center py-2"}><Image className="" src={SenadoIcon} alt="Icon" width={24} height={24} /></div>}
                 onClick={onClose}
                 text="Congreso"
                 href="/congreso"
