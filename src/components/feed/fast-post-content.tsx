@@ -14,13 +14,16 @@ export const FastPostContent = ({post, isMainPost=false, hideQuote=false, showQu
     post: FastPostProps, isMainPost?: boolean, hideQuote?: boolean, showQuoteContext?: boolean, onClickQuote?: (cid: string) => void}) => {
 
     return <div className={"flex flex-col"}>
-        {!hideQuote && post.content.post.replyTo && <ContentQuote
-            post={post}
-            quotedContent={post.content.post.replyTo as QuotedContent}
-            quote={post.content.post.quote}
-            onClick={onClickQuote ? () => {onClickQuote(post.cid)} : undefined}
-            showContext={showQuoteContext}
-        />}
+        {!hideQuote && post.content.post.replyTo && <div className={"pb-2 text-[14px]"}>
+                <ContentQuote
+                    post={post}
+                    quotedContent={post.content.post.replyTo as QuotedContent}
+                    quote={post.content.post.quote}
+                    onClick={onClickQuote ? () => {onClickQuote(post.cid)} : undefined}
+                    showContext={showQuoteContext}
+                />
+            </div>
+        }
         <div className={isMainPost ? "text-lg" : undefined}>
             <BskyRichTextContent content={post.content}/>
         </div>

@@ -434,10 +434,17 @@ function countTopicInteractions(topic: SmallTopicPropsWithReferences, contentInt
 
     topic.versions.forEach((v) => {
         const cInteractions = contentInteractions.get(v.uri)
-        cInteractions.forEach((uri) => {
-            const did = getDidFromUri(uri)
+        cInteractions.forEach((did) => {
             s.add(did)
         })
+    })
+
+    const nonHumanUsers = [
+        "did:plc:rup47j6oesjlf44wx4fizu4m"
+    ]
+
+    nonHumanUsers.forEach((nh) => {
+        s.delete(nh)
     })
 
     return s.size
@@ -480,7 +487,7 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
             contentInteractionsMap.set(uri, new Set<string>(interactions))
         })
 
-        const t2 = new Date().getTime()
+        //const t2 = new Date().getTime()
 
         const topicScores = new Map<string, number[]>()
         for(let i = 0; i < topics.length; i++){
