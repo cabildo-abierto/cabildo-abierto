@@ -5,7 +5,6 @@ import PersonIcon from '@mui/icons-material/Person';
 import { useUser } from "../hooks/user";
 import { UserProps } from "../app/lib/definitions";
 import { userUrl } from "./utils";
-import { DashboardIcon } from "./icons/dashboard-icon";
 import { CabildoIcon } from "./icons/home-icon";
 import { SupportIcon } from "./icons/support-icon";
 import VisualizationsIcon from "@mui/icons-material/AutoGraph";
@@ -188,22 +187,22 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 selected={pathname.startsWith("/temas")}
             />
             <SidebarButton
-                icon={<VisualizationsIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
-                iconInactive={<VisualizationsIcon/>}
-                onClick={onClose}
-                text="Explorar datos"
-                href="/datos"
-                selected={pathname.startsWith("/datos")}
-                showText={showText}
-                setShowText={setShowText}
-            />
-            <SidebarButton
                 icon={<div className={"w-6 h-6 flex items-center jutify-center py-2"}><Image className="" src={SenadoIconActive} alt="Icon" width={24} height={24} /></div>}
                 iconInactive={<div className={"w-6 h-6 flex items-center jutify-center py-2"}><Image className="" src={SenadoIcon} alt="Icon" width={24} height={24} /></div>}
                 onClick={onClose}
                 text="Congreso"
                 href="/congreso"
                 selected={pathname.startsWith("/congreso")}
+                showText={showText}
+                setShowText={setShowText}
+            />
+            <SidebarButton
+                icon={<VisualizationsIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
+                iconInactive={<VisualizationsIcon/>}
+                onClick={onClose}
+                text="Explorar datos"
+                href="/datos"
+                selected={pathname.startsWith("/datos")}
                 showText={showText}
                 setShowText={setShowText}
             />
@@ -230,9 +229,9 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 icon={<SettingsIcon/>}
                 iconInactive={<SettingsOutlinedIcon/>}
                 onClick={onClose}
-                text="Cuenta"
-                href="/cuenta"
-                selected={pathname.startsWith("/cuenta")}
+                text="Ajustes"
+                href="/ajustes"
+                selected={pathname.startsWith("/ajustes")}
                 showText={showText}
                 setShowText={setShowText}
             />

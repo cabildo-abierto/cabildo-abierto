@@ -21,11 +21,14 @@ export const ArticlePreview = (
 
     return <FastPostPreviewFrame post={elem} borderBelow={!showingChildren} showingChildren={showingChildren}>
         <div className={"border rounded-lg p-2 my-2 hover:bg-[var(--background-dark2)]"}>
-            <div className={"font-bold text-lg"}>
+            <div className={"text-sm text-[var(--text-light)]"}>
+                Artículo
+            </div>
+            <div className={"font-bold text-lg pb-1"}>
                 {elem.content.article.title}
             </div>
 
-            <div className={"border-t pt-1"}>
+            <div className={"border-t pt-1 text-[14px] text-[var(--text-light)] article-content"}>
                 {summary}...
             </div>
         </div>
