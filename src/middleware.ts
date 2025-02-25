@@ -18,27 +18,34 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
 
     if(url.pathname.startsWith("/wiki/")){
-      const id = url.pathname.split("/wiki/")[1]
+        const id = url.searchParams.get("i")
       
-      const articleUrl = new URL('/articulo', request.url)
+        const articleUrl = new URL('/tema', request.url)
 
-      articleUrl.searchParams.set('i', id)
-      return NextResponse.redirect(articleUrl)
+        articleUrl.searchParams.set('i', id)
+        return NextResponse.redirect(articleUrl)
+    }
+
+    if(url.pathname.startsWith("/articulo")){
+        const id = url.searchParams.get("i")
+        const articleUrl = new URL('/tema', request.url)
+        articleUrl.searchParams.set('i', decodeURIComponent(id))
+        return NextResponse.redirect(articleUrl)
     }
 
     if(url.pathname.startsWith("/articulo/")){
-      const id = url.pathname.split("/articulo/")[1]
-      const articleUrl = new URL('/articulo', request.url)
-      articleUrl.searchParams.set('i', decodeURIComponent(id))
-      return NextResponse.redirect(articleUrl)
+        const id = url.searchParams.get("i")
+        const articleUrl = new URL('/tema', request.url)
+        articleUrl.searchParams.set('i', decodeURIComponent(id))
+        return NextResponse.redirect(articleUrl)
     }
 
     if(url.pathname.startsWith("/contenido/")){
-      const id = url.pathname.split("/contenido/")[1]
-      const articleUrl = new URL('/contenido', request.url)
+        const id = url.searchParams.get("i")
+        const articleUrl = new URL('/tema', request.url)
 
-      articleUrl.searchParams.set('i', id)
-      return NextResponse.redirect(articleUrl)
+        articleUrl.searchParams.set('i', id)
+        return NextResponse.redirect(articleUrl)
     }
 
     const session = await getIronSession<Session>(cookies(), myCookieOptions)

@@ -16,7 +16,7 @@ import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import {getObjectSizeInBytes, recordQuery, revalidateEverythingTime} from "./utils";
 import {fetchBlob} from "./data";
-import {unstable_cache} from "next/cache";
+import {revalidateTag, unstable_cache} from "next/cache";
 import {getCurrentContentVersion} from "../components/topic/utils";
 
 
@@ -74,6 +74,8 @@ export async function createTopicVersion({
             collection: 'ar.com.cabildoabierto.topic',
             record: record,
         })
+        revalidateTag("topic:"+id)
+        revalidateTag("topics")
     } catch (e) {
         console.log("error", e)
         return {error: "Ocurrió un error al publicar en ATProto."}
@@ -84,12 +86,13 @@ export async function createTopicVersion({
 
 
 export async function updateCategoriesInTopic({topicId, categories}: {topicId: string, categories: string[]}) {
-
-    return await createTopicVersion({
+    const res = await createTopicVersion({
         id: topicId,
         categories,
         claimsAuthorship: false,
     })
+    revalidateTag("categories")
+    return res
 }
 
 
@@ -517,6 +520,10 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
 
         filteredTopics = limit ? filteredTopics.slice(0, limit) : filteredTopics
 
+        if(sortedby == "popular"){
+            filteredTopics = filteredTopics.filter(({score}) => (score[0] > 0))
+        }
+
         const t3 = new Date().getTime()
 
         return {topics: filteredTopics}
@@ -697,7 +704,7 @@ export async function getTextFromBlob(blob: {cid: string, authorId: string}){
 }
 
 
-export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
+export async function getTopicByIdNoCache(id: string): Promise<{topic?: TopicProps, error?: string}>{
     try {
         const topic: TopicProps = await db.topic.findUnique({
             select: topicQuery,
@@ -717,6 +724,16 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
         console.log(e)
         return {error: "No se encontró el tema."}
     }
+}
+
+
+export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
+    return await unstable_cache(async () => {
+        return await getTopicByIdNoCache(id)
+    }, ["topic:"+id], {
+        tags: ["topic:"+id],
+        revalidate: revalidateEverythingTime
+    })()
 }
 
 

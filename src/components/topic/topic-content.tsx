@@ -23,6 +23,7 @@ import {CloseButton} from "../ui-utils/close-button";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {ReplyToContent} from "../editor/plugins/CommentPlugin";
 import {getCurrentContentVersion} from "./utils";
+import FullscreenIcon from "@mui/icons-material/Fullscreen";
 const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
 
 export const articleButtonClassname = "article-btn sm:min-w-24 sm:text-[15px] text-sm px-1 lg:px-2 py-1"
@@ -246,11 +247,13 @@ export const TopicContent = ({
 
         <div className="text-center">
             {selectedPanel == "changes" && version > 0 && <ChangesCounter
-                charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}/>}
+                    charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}
+                />
+            }
         </div>
         <div id="editor" className={"pb-2"}>
             {(((selectedPanel != "changes" || version == 0) && selectedPanel != "authors")) &&
-                <div className="px-2" key={content.content.record.cid+selectedPanel+viewingContent}>
+                <div className={"px-2 " + (selectedPanel == "editing" ? "mb-32": "mb-8")} key={content.content.record.cid+selectedPanel+viewingContent}>
                     <MyLexicalEditor
                         settings={wikiEditorSettings(
                             selectedPanel != "editing",
@@ -367,14 +370,17 @@ export const TopicContent = ({
                 setLayoutConfig((prev) => ({
                     ...prev, openSidebar: false, openRightPanel: false, maxWidthCenter: "800px", rightMinWidth: "275px"}));
             }}
-            className={`rounded-t-lg relative group ${!viewingContent ? "min-h-[100px] max-h-[200px] overflow-y-clip bg-[var(--background)] cursor-pointer hover:bg-gradient-to-r hover:from-[var(--background-dark)] hover:via-[var(--background)] hover:to-[var(--background-dark)]" : ""}`}
+            className={`relative group ${!viewingContent ? "min-h-[100px] max-h-[200px] overflow-y-clip bg-[var(--background)] hover:bg-[var(--background-dark)] cursor-pointer" : ""}`}
         >
             {editorComp}
             {!viewingContent && (
-                <span
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-[var(--background-dark)] bg-opacity-80 text-[var(--text)] text-sm px-2 py-1 rounded hidden group-hover:block">
-            Expandir
-        </span>
+                <div
+                    className="absolute space-x-1 group-hover:flex bottom-0 right-0 bg-opacity-80 text-[var(--text)] text-sm px-2 py-1 rounded"
+                >
+                    <div className={"flex items-center w-full justify-end space-x-2 text-sm text-[var(--text-light)]"}>
+                        <div>expandir</div> <FullscreenIcon fontSize={"small"}/>
+                    </div>
+                </div>
             )}
         </div>
 
