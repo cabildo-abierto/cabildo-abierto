@@ -30,34 +30,34 @@ const NewItem = ({
     currentItems: string[]
     newItemText: string
 }) => {
-    const [category, setCategory] = useState("")
-    const [writingCategory, setWritingCategory] = useState(false)
+    const [value, setValue] = useState("")
+    const [writingItem, setWritingItem] = useState(false)
 
     let options: string[] = []
     if(options){
-        options = options.filter((c) => (!currentItems.includes(c)))
+        options = availableOptions.filter((c) => (!currentItems.includes(c)))
     }
 
-    if(writingCategory){
+    if(writingItem){
         return <div className={"space-x-2 flex items-center"}>
             <div className={"flex flex-col items-start"}>
                 <SearchableDropdown
                     options={options}
                     size={"small"}
-                    selected={category}
-                    onSelect={setCategory}
+                    selected={value}
+                    onSelect={setValue}
                 />
             </div>
             <IconButton size={"small"} onClick={() => {
-                addItem(category)
-                setCategory("")
-                setWritingCategory(false)
+                addItem(value)
+                setValue("")
+                setWritingItem(false)
             }}>
                 <CheckIcon fontSize="small"/>
             </IconButton>
             <IconButton size="small" onClick={() => {
-                setCategory("");
-                setWritingCategory(false)
+                setValue("");
+                setWritingItem(false)
             }}>
                 <CloseIcon fontSize="small"/>
             </IconButton>
@@ -66,7 +66,7 @@ const NewItem = ({
 
     if(currentItems.length > 0){
         return <IconButton size="small" onClick={() => {
-            setWritingCategory(true)
+            setWritingItem(true)
         }}>
             <AddIcon fontSize={"small"}/>
         </IconButton>
@@ -76,7 +76,7 @@ const NewItem = ({
             startIcon={<AddIcon/>}
             color={"inherit"}
             onClick={() => {
-                setWritingCategory(true)
+                setWritingItem(true)
             }}
         >
             {newItemText}
@@ -152,6 +152,7 @@ export const ListEditor = ({
                 handleClick={async () => {return await onSave(items)}}
                 disabled={areArraysEqual(items, initialValue)}
                 text1={"Guardar"}
+                disableElevation={true}
             />
         </div>
     </div>

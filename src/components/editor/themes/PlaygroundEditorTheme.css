@@ -16,12 +16,6 @@
 .PlaygroundEditorTheme__indent {
   --lexical-indent-base-value: 40px;
 }
-.PlaygroundEditorTheme__textBold {
-  font-weight: bold;
-}
-.PlaygroundEditorTheme__textItalic {
-  font-style: italic;
-}
 .PlaygroundEditorTheme__textUnderline {
   text-decoration: underline;
 }

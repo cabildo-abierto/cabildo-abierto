@@ -49,7 +49,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
               sx: { fontSize }
             }}
         />
-        {showDropdown && (
+        {showDropdown && filteredOptions.length > 0 && (
             <Paper className="absolute z-10 mt-1 min-w-full max-w-max">
               <List>
                 {filteredOptions.map((option, index) => (

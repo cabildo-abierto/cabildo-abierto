@@ -80,7 +80,13 @@ export const SearchInput = ({autoFocus, className = "" }: {
 }
 
 
-const SearchBar: React.FC<{onClose: any, wideScreen: boolean, className?: string, autoFocus?: boolean}> = ({onClose, wideScreen, className="", autoFocus=false}) => {
+const SearchBar = ({
+   onClose=() => {}, wideScreen, className="", autoFocus=false}: {
+    onClose?: () => void
+    wideScreen: boolean
+    className?: string
+    autoFocus?: boolean
+}) => {
     const {searchState, setSearchState} = useSearch()
 
     return wideScreen ?

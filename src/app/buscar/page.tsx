@@ -1,27 +1,16 @@
-"use client"
 import SearchBar from "../../components/searchbar";
-import {useEffect} from "react";
-import {useSearch} from "../../components/search/search-context";
 import {SearchContent} from "../../components/search-content";
 
 
-const Page = ({searchParams}: {searchParams: {q: string}}) => {
-    const {searchState, setSearchState} = useSearch()
+const Page = async ({searchParams}: {searchParams: {q: string}}) => {
 
-    useEffect(() => {
-        if(searchParams.q && searchParams.q.length > 0){
-            setSearchState({searching: true, value: searchParams.q})
-        } else {
-            setSearchState({searching: false, value: ""})
-        }
-    }, [searchParams])
 
-    return <div className={""}>
+    return <div>
         <div className={"p-3"}>
-            <SearchBar onClose={() => {}} wideScreen={false} className={"h-10"} autoFocus={true}/>
+            <SearchBar wideScreen={false} className={"h-10"} autoFocus={true}/>
         </div>
         <div>
-            <SearchContent/>
+            <SearchContent query={searchParams.q}/>
         </div>
     </div>
 }
