@@ -2,7 +2,7 @@ import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 
 
-export const revalidateEverythingTime = 6*3600
+export const revalidateEverythingTime = 5//6*3600
 
 
 export const recordQuery = {

@@ -1,11 +1,11 @@
 "use client"
 import {TopicsPageHeader} from "../../components/topics/topics-page-header";
 import {TopicsListView} from "../../components/topics/topics-list-view";
-import {TopicsListsView} from "../../components/topics/topics-lists-view";
 import {TopicsMapView} from "../../components/topics/topics-map-view";
 import {useSearchParams} from "next/navigation";
 import {useSearch} from "../../components/search/search-context";
 import {SearchTopics} from "../../components/search-topics";
+import {TopicsListsView} from "../../components/topics/topics-lists-view";
 
 
 const Temas = () => {

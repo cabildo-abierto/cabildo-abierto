@@ -56,7 +56,6 @@ export default function Graph({ edgesList, nodeIds, onClickNode, nodeLabels }: {
             physics: {
                 enabled: true,
                 solver: "repulsion",
-                randomSeed: 12345,
             },
             layout: {
                 randomSeed: 12345
