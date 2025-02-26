@@ -6,7 +6,7 @@ import { useUser } from "../../hooks/user"
 import React from 'react';
 import { tomasDid } from "../../components/utils"
 import StateButton from "../../components/state-button";
-import {updateReferences} from "../../actions/references";
+import {updateReferences, updateTopicsSynonyms} from "../../actions/references";
 
 
 
@@ -29,6 +29,14 @@ export default function Page() {
                     return {}
                 }}
                 text1={"Actualizar todas las referencias"}
+            />
+
+            <StateButton
+                handleClick={async () => {
+                    await updateTopicsSynonyms()
+                    return {}
+                }}
+                text1={"Actualizar sinónimos"}
             />
 
         </div>

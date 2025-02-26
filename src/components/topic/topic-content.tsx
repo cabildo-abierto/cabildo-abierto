@@ -14,7 +14,7 @@ import {compress} from "../compression";
 import {EditorState, LexicalEditor} from "lexical";
 import {useSWRConfig} from "swr";
 import {SaveEditPopup} from "../save-edit-popup";
-import {RoutesEditor} from "../routes-editor";
+import {CategoriesEditor} from "./categories-editor";
 import {SynonymsEditor} from "../synonyms-editor";
 import {ChangesCounter} from "../changes-counter";
 import dynamic from "next/dynamic";
@@ -235,7 +235,10 @@ export const TopicContent = ({
 
         {editingRoutes &&
             <div className="py-4">
-                <RoutesEditor topic={topic} setEditing={(v: boolean) => {setEditingRoutes(v)}}/>
+                <CategoriesEditor
+                    topic={topic}
+                    setEditing={(v: boolean) => {setEditingRoutes(v)}}
+                />
             </div>
         }
 

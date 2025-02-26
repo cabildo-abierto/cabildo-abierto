@@ -9,12 +9,13 @@ import {getTopicTitle} from "./topic/utils";
 import {SmallTopicProps} from "../app/lib/definitions";
 import PersonIcon from "@mui/icons-material/Person";
 import {TopicCategories} from "./entity-categories-small";
+import {useRouter} from "next/navigation";
 
 
 const DateLastEdit = ({topic}: {topic: {versions: {content: {record: {createdAt: Date}}}[]}}) => {
   const lastVersion = topic.versions[topic.versions.length-1]
 
-  const className = "text-[var(--text-light)] px-1"
+  const className = "text-[var(--text-light)]"
 
   if(topic.versions.length == 1){
     return <div className={className}>
@@ -29,6 +30,7 @@ const DateLastEdit = ({topic}: {topic: {versions: {content: {record: {createdAt:
 
 
 export const TopicSearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic }) => {
+    const router = useRouter()
 
     function onMouseEnter(){
         preload("/api/topic/"+topic.id, fetcher)
@@ -38,32 +40,25 @@ export const TopicSearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic })
   
     return (
         <div className="relative flex flex-col w-full">
-            <Link
-                href={articleUrl(topic.id)}
-                className={"px-2 border-b hover:bg-[var(--background-dark)] bg-[var(--background)] " + (numWords == 0 ? "mt-1" : "")}
+            <div
+                onClick={() => {router.push(articleUrl(topic.id))}}
+                className={"p-2 w-full hover:bg-[var(--background-dark)] bg-[var(--background)]"}
                 onMouseEnter={onMouseEnter}
+
             >
-                <div className="flex w-full items-center">
-                    <div className="w-full">
-                        <div className="w-full mt-1 mb-2 px-1">
-                            <span className="text-[15px] font-semibold" style={{fontStretch: "normal"}}>
-                                {getTopicTitle(topic)}
-                            </span>
-                        </div>
-
-                        <TopicCategories topic={topic}/>
-
-                        <div className={"flex justify-between items-center text-sm"}>
-                            <div className="mt-1 mb-2">
-                                <DateLastEdit topic={topic}/>
-                            </div>
-                            {topic.score && <div className={"text-[var(--text-light)]"}>
-                                <PersonIcon fontSize={"inherit"}/> {topic.score[0]}
-                            </div>}
-                        </div>
-                    </div>
+                <div className="w-full text-[15px] font-semibold">
+                    {getTopicTitle(topic)}
                 </div>
-            </Link>
+
+                <TopicCategories topic={topic}/>
+
+                <div className={"flex space-x-2 items-center text-sm"}>
+                    <DateLastEdit topic={topic}/>
+                    {topic.score && <div className={"text-[var(--text-light)] flex items-center"}>
+                        <PersonIcon fontSize={"inherit"}/> {topic.score[0]}
+                    </div>}
+                </div>
+            </div>
         </div>
     );
 }

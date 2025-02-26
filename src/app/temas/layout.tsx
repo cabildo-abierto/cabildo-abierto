@@ -10,7 +10,7 @@ export async function generateMetadata(){
 
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  return <MainLayout>
+  return <MainLayout maxWidthCenter={"800px"}>
       <AccountChecker requireAccount={false}>
       {children}
       </AccountChecker>

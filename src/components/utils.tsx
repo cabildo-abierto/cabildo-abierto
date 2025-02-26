@@ -10,6 +10,16 @@ import {SessionOptions} from "iron-session";
 import React from "react";
 
 
+export function shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array]; // Create a copy to avoid mutating the original array
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+
 export function isFastPost(e: {collection: string}){
     return e.collection == "app.bsky.feed.post" || isQuotePost(e)
 }
@@ -109,7 +119,7 @@ export function arraySum(a: any[]) {
 }
 
 
-function areArraysEqual(a: any[], b: any[]){
+export function areArraysEqual(a: any[], b: any[]){
     if(a.length != b.length) return false
     for(let i = 0; i < a.length; i++){
         if(a[i] != b[i]) return false
@@ -710,16 +720,6 @@ export function entityExists(name: string, entities: {}[]){
 }
 
 
-export const shuffleArray = (array) => {
-    const newArray = [...array]; // Create a copy of the array
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1)); // Pick a random index
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]]; // Swap elements
-    }
-    return newArray;
-}
-
-
 export function formatDate(date: Date) {
     const day = String(date.getDate()).padStart(2, '0');         // Add leading zero if needed
     const month = String(date.getMonth() + 1).padStart(2, '0');  // Month is 0-indexed, add 1 and pad
@@ -810,12 +810,11 @@ export const formatIsoDate = (isoDate) => {
 
 export const emptyChar = <>&nbsp;</>
 
-export const contentContextClassName = "bg-[var(--secondary-light)] px-2 text-sm mx-1 mt-1 link text-[var(--text-light)] rounded "
-
 export function getUsername(user: {displayName?: string, handle: string}){
     return user.displayName ? user.displayName : "@"+user.handle
 }
 
+export const cabildoDid = "did:plc:rup47j6oesjlf44wx4fizu4m"
 
 export function getDidFromUri (uri: string) {
     return uri.split("/")[2]
@@ -921,3 +920,13 @@ export const PrettyJSON = ({ data }: { data: any }) => {
 
 
 export const range = (n) => Array.from({ length: n }, (_, i) => i);
+
+
+export function topicUrl(id: string){
+    return "/tema?i=" + id
+}
+
+
+export function categoryUrl(cat: string, view: string){
+    return "/temas?c=" + cat + "&view=" + view
+}

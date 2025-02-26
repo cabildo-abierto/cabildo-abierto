@@ -81,35 +81,24 @@ export const SearchInput = ({autoFocus, className = "" }: {
 
 
 const SearchBar = ({
-   onClose=() => {}, wideScreen, className="", autoFocus=false}: {
+   onClose=() => {}, className="", autoFocus=false}: {
     onClose?: () => void
-    wideScreen: boolean
     className?: string
     autoFocus?: boolean
 }) => {
     const {searchState, setSearchState} = useSearch()
 
-    return wideScreen ?
-        <div className="flex border rounded pl-3 pr-1">
-            <div className="flex w-full">
-                <SearchInput autoFocus={autoFocus} className={className}/>
-            </div>
-            <div className="text-[var(--accent)]">
-                {!searchState.searching ? <SearchButton disabled={true}/> :
-                <div className="py-1"><CloseButton onClose={() => {setSearchState({value: "", searching: false})}} size="small"/></div>}
-            </div>
-        </div> :
-        <div className="flex border rounded pl-1 pr-1 w-full justify-between items-center">
-            <div className={"text-[var(--accent)]"}>
-                <SearchButton disabled={true}/>
-            </div>
-            <div className="flex w-full items-center">
-                <SearchInput autoFocus={autoFocus} className={className}/>
-                <div className={"py-1 " + (searchState.value.length == 0 ? "text-transparent" : "")}>
-                    <CloseButton onClose={() => {onClose(); setSearchState({value: "", searching: false})}} size="small"/>
-                </div>
+    return <div className="flex border rounded pl-1 pr-1 w-full justify-between items-center">
+        <div className={"text-[var(--accent)]"}>
+            <SearchButton disabled={true}/>
+        </div>
+        <div className="flex w-full items-center">
+            <SearchInput autoFocus={autoFocus} className={className}/>
+            <div className={"py-1 " + (searchState.value.length == 0 ? "text-transparent" : "")}>
+                <CloseButton onClose={() => {onClose(); setSearchState({value: "", searching: false})}} size="small"/>
             </div>
         </div>
+    </div>
 }
 
 export default SearchBar;

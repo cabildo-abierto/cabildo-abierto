@@ -117,6 +117,22 @@ export type SmallTopicProps = {
     }[]
 }
 
+export type MapTopicProps = {
+    id: string
+    versions: {
+        categories: string
+    }[]
+    referencedBy: {
+        referencingContent: {
+            topicVersion: {
+                topicId: string
+            }
+        }
+    }[]
+    score?: number[]
+    lastEdit?: Date
+}
+
 type ReactionProps = {
     reactions?: {
         record: {

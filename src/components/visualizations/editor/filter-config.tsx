@@ -21,7 +21,7 @@ export const FilterConfig = ({filter, updateFilter, config, dataset, onRemove}: 
             size={"small"}
             fontSize={"14px"}
             selected={filter.column}
-            onSelect={(c: string) => {
+            onChange={(c: string) => {
                 updateFilter({column: c, op: filter.op, value: filter.value})
             }}
         />
@@ -43,7 +43,7 @@ export const FilterConfig = ({filter, updateFilter, config, dataset, onRemove}: 
             size={"small"}
             fontSize={"14px"}
             selected={filter.value}
-            onSelect={(c) => {
+            onChange={(c) => {
                 updateFilter({
                     value: c,
                     column: filter.column,

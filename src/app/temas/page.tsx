@@ -1,23 +1,24 @@
 "use client"
-import { useState } from "react"
-import { CategoryArticles } from "../../components/category-articles"
-import {CategorySelector} from "../../components/categories/category-selector";
-import {TopicsPageHeader, TopicsSortOrder} from "../../components/topics-page-header";
+import {TopicsPageHeader} from "../../components/topics/topics-page-header";
+import {TopicsListView} from "../../components/topics/topics-list-view";
+import {TopicsListsView} from "../../components/topics/topics-lists-view";
+import {TopicsMapView} from "../../components/topics/topics-map-view";
+import {useSearchParams} from "next/navigation";
+import {useSearch} from "../../components/search/search-context";
+import {SearchTopics} from "../../components/search-topics";
 
 
 const Temas = () => {
-    const [categories, setCategories] = useState([])
-    const [sortedBy, setSortedBy] = useState<TopicsSortOrder>("Populares")
+    const searchParams = useSearchParams()
+    const {searchState} = useSearch()
 
+    const view = searchParams.get("view")
     return <div>
-        <TopicsPageHeader
-            sortedBy={sortedBy}
-            setSortedBy={setSortedBy}
-        />
-        <div className={"px-2 py-3"}>
-            <CategorySelector categories={categories} setCategories={setCategories}/>
-        </div>
-        <CategoryArticles sortedBy={sortedBy} categories={categories}/>
+        <TopicsPageHeader/>
+        {(searchState.value.length == 0 && view == "lista") && <TopicsListView />}
+        {(searchState.value.length == 0 && (!view || view == "mapa")) && <TopicsMapView />}
+        {(searchState.value.length == 0 && view == "listas") && <TopicsListsView />}
+        {searchState.searching && <SearchTopics/>}
     </div>
 }
 

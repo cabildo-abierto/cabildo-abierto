@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { areArraysEqual } from "@mui/base";
 import {IconButton} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -9,6 +8,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchableDropdown from "./searchable-dropdown";
 import { BasicButton } from "./basic-button";
 import StateButton, {StateButtonClickHandler} from "../state-button";
+import {areArraysEqual} from "../utils";
 
 function validItem(e: string){
     return e.length > 0
@@ -26,15 +26,15 @@ const NewItem = ({
      newItemText
 }: {
     addItem: (c: string) => void
-    availableOptions: string[]
+    availableOptions?: string[]
     currentItems: string[]
     newItemText: string
 }) => {
     const [value, setValue] = useState("")
     const [writingItem, setWritingItem] = useState(false)
 
-    let options: string[] = []
-    if(options){
+    let options: string[] = undefined
+    if(availableOptions){
         options = availableOptions.filter((c) => (!currentItems.includes(c)))
     }
 
@@ -45,7 +45,8 @@ const NewItem = ({
                     options={options}
                     size={"small"}
                     selected={value}
-                    onSelect={setValue}
+                    onChange={setValue}
+                    onSelect={(v: string) => {addItem(v); setValue(""); setWritingItem(false)}}
                 />
             </div>
             <IconButton size={"small"} onClick={() => {
@@ -141,10 +142,11 @@ export const ListEditor = ({
                 />
             </div>
         </div>
-        <div className={"flex justify-end mt-2 space-x-2"}>
+        <div className={"flex justify-end mt-2 space-x-2 text-[var(--text-light)]"}>
             <BasicButton
                 variant={"text"}
                 onClick={() => {setItems(initialValue); onClose()}}
+                color={"inherit"}
             >
                 Cancelar
             </BasicButton>

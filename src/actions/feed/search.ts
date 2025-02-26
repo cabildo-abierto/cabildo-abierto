@@ -82,12 +82,32 @@ export async function searchTopicsNoCache(q: string){
     q = cleanText(q)
 
     const topics = await getFullTopicList()
-    let filtered = topics.filter((t) => (t.versions.length > 0))
+    let filtered = topics.filter((t) => t.versions.length > 0)
 
-    return filtered.filter((t) => {
-        return cleanText(t.id).includes(q)
-    }).slice(0, 50)
+    const getMatchScore = (topicId: string, query: string) => {
+        const cleanedId = cleanText(topicId);
+        const index = cleanedId.indexOf(query);
+
+        if (index === -1) {
+            return 0; // No match
+        }
+
+        const matchLength = query.length;
+        const matchPosition = index;
+
+        return 1 / (matchPosition + 1) + matchLength;
+    }
+
+    const scoredTopics = filtered.map((t) => ({
+        topic: t,
+        score: getMatchScore(t.id, q)
+    }))
+        .filter((scored) => scored.score > 0)
+        .sort((a, b) => b.score - a.score)
+
+    return scoredTopics.slice(0, 50).map(scored => scored.topic)
 }
+
 
 
 export async function searchTopics(q: string){

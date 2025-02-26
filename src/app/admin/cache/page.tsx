@@ -1,7 +1,7 @@
 "use client"
 
 import {
-    revalidateEverything,
+    revalidateEverything, revalidateTags,
 } from "../../../actions/admin"
 import {tomasDid} from "../../../components/utils";
 import {useUser} from "../../../hooks/user";
@@ -32,6 +32,14 @@ export default function Page() {
                     return {}
                 }}
                 text1={"Revalidar todo"}
+            />
+
+            <StateButton
+                handleClick={async () => {
+                    await revalidateTags(["topics"])
+                    return {}
+                }}
+                text1={"Revalidar temas"}
             />
 
         </div>

@@ -109,7 +109,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                                     label={req.label}
                                     size={"small"}
                                     selected={config[req.label]}
-                                    onSelect={(v: string) => {
+                                    onChange={(v: string) => {
                                         updateConfig(req.label, v)
                                     }}
                                 />
@@ -145,7 +145,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                                     label={req.label}
                                     size={"small"}
                                     selected={config[req.label]}
-                                    onSelect={(v: string) => {
+                                    onChange={(v: string) => {
                                         updateConfig(req.label, v)
                                     }}
                                 />
