@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {getTopicsForVisualization} from "../../../actions/topics";
+import {getCategoriesGraph} from "../../../actions/topics";
 
 
 export async function GET(req: NextRequest) {
 
-    let topics = await getTopicsForVisualization()
+    let topics = await getCategoriesGraph()
 
     return NextResponse.json(topics)
 }

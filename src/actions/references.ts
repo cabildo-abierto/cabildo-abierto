@@ -23,7 +23,10 @@ function getCurrentSynonyms(topic: {id: string, versions: {synonyms?: string, co
 }
 
 
-export async function updateTopicsSynonyms(){
+
+
+
+export async function getPendingSynonymsUpdates(){
     const topics: {
         id: string
         synonyms?: string[]
@@ -64,6 +67,8 @@ export async function updateTopicsSynonyms(){
         }
         if(!areArraysEqual(curSynonyms, topics[i].synonyms)){
             console.log("Updating synonyms for", topics[i].id, curSynonyms)
+            console.log("Prev", topics[i].synonyms)
+            console.log("Cur", curSynonyms)
             updates.push(db.topic.update({
                 data: {
                     synonyms: curSynonyms,
@@ -75,10 +80,26 @@ export async function updateTopicsSynonyms(){
             }))
         }
     }
+
+    return updates
+}
+
+
+export async function getPendingSynonymsUpdatesCount(){
+    return (await getPendingSynonymsUpdates()).length
+}
+
+
+
+export async function updateTopicsSynonyms(){
+    const updates = await getPendingSynonymsUpdates()
     const batch_size = 100
     for(let i = 0; i < updates.length; i += batch_size){
         console.log("Applying updates", i, "of", updates.length)
+        const t1 = new Date().getTime()
         await db.$transaction(updates.slice(i, i+batch_size))
+        const t2 = new Date().getTime()
+        console.log("Done after", (t2-t1) / 1000, 1000 * updates.length / (t2-t1), "updates per second")
     }
     console.log("done")
 }
@@ -148,7 +169,7 @@ function isSynonymInText(key: string, text: string){
 
 async function updateReferencesForContent(
     content: ContentTextOrBlob,
-    synonymsToTopicsMap: Map<string, Set<{id: string, lastSynonymsChange?: Date}>>) : Promise<PrismaPromise<any>[]>{
+    synonymsToTopicsMap: Map<string, Set<{id: string, lastSynonymsChange?: Date}>>){
     let text: string
     if(content.text){
         text = content.text
@@ -173,40 +194,17 @@ async function updateReferencesForContent(
         }
     })
 
-    let updates = []
-    referencedTopics.forEach((t) => {
-        const record = {
-            type: ReferenceType.Weak,
-            referencedTopicId: t.id,
-            referencingContentId: content.uri
+    const referenceRecords = []
+    for (const t of referencedTopics) {
+        if (t.lastSynonymsChange && content.lastReferencesUpdate && t.lastSynonymsChange < content.lastReferencesUpdate) {
+            console.log("skipping content", t.lastSynonymsChange, content.lastReferencesUpdate)
+            continue;
         }
+        //console.log("Pushing record", content.uri, t.id)
+        referenceRecords.push({uri: content.uri, topicId: t.id, type: "Weak"});
+    }
 
-        // si la última actualización de sinónimos del topic es previa a la última actualización de referencias del content, no actualizo
-        if(t.lastSynonymsChange && t.lastSynonymsChange < content.lastReferencesUpdate){
-            return
-        }
-
-        updates.push(db.reference.upsert({
-            create: record,
-            update: record,
-            where: {
-                referencingContentId_referencedTopicId: {
-                    referencingContentId: content.uri,
-                    referencedTopicId: t.id,
-                },
-            }
-        }))
-        updates.push(db.content.update({
-            data: {
-                lastReferencesUpdate: new Date()
-            },
-            where: {
-                uri: content.uri
-            }
-        }))
-    })
-
-    return updates
+    return referenceRecords
 }
 
 
@@ -235,15 +233,13 @@ function getLastSynonymsUpdate(topics: {versions: {synonyms?: string, content: {
     return last
 }
 
-
 export async function updateReferences(){
     console.log("Updating references")
+    const updateTime = new Date()
 
     const topics = await getTopicsWithSynonyms()
 
     const lastTopicUpdate = getLastSynonymsUpdate(topics)
-
-    console.log("got topics", topics.length)
 
     const synonymsToTopicsMap = new Map<string, Set<{id: string, lastSynonymsChange?: Date}>>()
 
@@ -261,7 +257,118 @@ export async function updateReferences(){
         })
     })
 
-    console.log("Getting contents")
+    let contents: ContentTextOrBlob[] = await db.content.findMany({
+        select: {
+            uri: true,
+            text: true,
+            textBlob: true,
+            format: true,
+            lastReferencesUpdate: true
+        }
+    })
+
+    contents = contents.filter((c) => (!c.lastReferencesUpdate || c.lastReferencesUpdate <= lastTopicUpdate))
+
+    let allReferenceRecords: {uri: string, topicId: string, type: string}[] = []
+    let t1 = new Date().getTime()
+    for (let i = 0; i < contents.length; i++) {
+        const content = contents[i]
+        const records = await updateReferencesForContent(content, synonymsToTopicsMap);
+        if (records.length > 0) {
+            allReferenceRecords = [...allReferenceRecords, ...records]
+        }
+
+        if (allReferenceRecords.length >= 200) {
+            const t2 = new Date().getTime()
+            console.log("Last content is", i, "of", contents.length)
+            console.log("Got 200 after", (t2 - t1)/1000, "upd/s", 1000 * allReferenceRecords.length / (t2-t1))
+            t1 = t2
+            await applyBulkReferencesUpdate(allReferenceRecords, updateTime);
+            allReferenceRecords = [];
+        }
+    }
+
+    // Process remaining updates
+    if (allReferenceRecords.length > 0) {
+        await applyBulkReferencesUpdate(allReferenceRecords, updateTime);
+    }
+
+}
+
+
+async function applyBulkReferencesUpdate(referenceRecords: { uri: string, topicId: string, type: string }[], updateTime: Date) {
+    if (referenceRecords.length === 0) return;
+
+    const t1 = new Date().getTime()
+    console.log(`Inserting ${referenceRecords.length} references...`);
+
+    const referenceUpdates = referenceRecords.map((r) => {
+        return `('uuid()', '${r.uri}', '${r.topicId}', 'Weak')`
+    })
+
+    try {
+        await db.$executeRawUnsafe(`
+            INSERT INTO "Reference" (id, "referencingContentId", "referencedTopicId", type)
+            VALUES ${referenceUpdates.join(", ")}
+            ON CONFLICT DO NOTHING
+        `);
+    } catch (e) {
+        console.log("Error running query")
+        console.log(`
+            INSERT INTO "Reference" (id, "referencingContentId", "referencedTopicId", type)
+            VALUES ${referenceUpdates.join(", ")}
+            ON CONFLICT DO NOTHING
+        `)
+        console.log(e)
+    }
+
+    const t2 = new Date().getTime()
+    console.log(`Updating content records...`);
+
+    try {
+        await db.$executeRawUnsafe(`
+            UPDATE "Content"
+            SET "lastReferencesUpdate" = $1::TIMESTAMP
+            WHERE uri IN (${referenceRecords.map((_, i) => `$${i + 2}`).join(", ")});
+        `, updateTime.toISOString(), ...referenceRecords.map((r) => r.uri));
+    } catch (e) {
+        console.log("Error running query")
+        console.log(`
+            UPDATE "Content"
+            SET "lastReferencesUpdate" = $1::TIMESTAMP
+            WHERE uri IN (${referenceRecords.map((_, i) => `$${i + 2}`).join(", ")});
+        `)
+        console.log(e)
+    }
+
+
+    const t3 = new Date().getTime()
+    console.log("Bulk updates applied after", (t2-t1)/1000, "+", (t3-t2)/1000, "=", (t3-t1)/1000, "upd/s", referenceRecords.length / ((t3-t1)/1000));
+}
+
+
+
+export async function getPendingReferenceUpdatesCount(){
+    const topics = await getTopicsWithSynonyms()
+
+    const lastTopicUpdate = getLastSynonymsUpdate(topics)
+    console.log("last topic update", lastTopicUpdate)
+
+    const synonymsToTopicsMap = new Map<string, Set<{id: string, lastSynonymsChange?: Date}>>()
+
+    topics.forEach((t) => {
+        const synonyms = getCurrentSynonyms(t).map((s) => cleanText(s))
+
+        synonyms.forEach((s) => {
+            if(synonymsToTopicsMap.has(s)){
+                const cur = synonymsToTopicsMap.get(s)
+                cur.add({id: t.id, lastSynonymsChange: t.lastSynonymsChange})
+                synonymsToTopicsMap.set(s, cur)
+            } else {
+                synonymsToTopicsMap.set(s, new Set([{id: t.id, lastSynonymsChange: t.lastSynonymsChange}]))
+            }
+        })
+    })
 
     let contents: ContentTextOrBlob[] = await db.content.findMany({
         select: {
@@ -273,21 +380,7 @@ export async function updateReferences(){
         }
     })
 
-    contents = contents.filter((c) => (c.lastReferencesUpdate <= lastTopicUpdate))
-    // contents = contents.filter((c) => (getDidFromUri(c.uri) != cabildoDid))
+    contents = contents.filter((c) => (!c.lastReferencesUpdate || new Date(c.lastReferencesUpdate).getTime() <= new Date(lastTopicUpdate).getTime()))
 
-    console.log("Updating", contents.length, "contents")
-    let updates: PrismaPromise<any>[] = []
-    for(let i = 0; i < contents.length; i++){
-        updates = [...updates, ...(await updateReferencesForContent(contents[i], synonymsToTopicsMap))]
-        if(updates.length > 100){
-            console.log("Applying", updates.length, "updates for contents up to", i)
-            await db.$transaction(updates)
-            revalidateTag("topics")
-            updates = []
-        }
-    }
-    console.log("Applying", updates.length, "updates for last contents")
-    await db.$transaction(updates)
-    console.log("done")
+    return contents.length
 }

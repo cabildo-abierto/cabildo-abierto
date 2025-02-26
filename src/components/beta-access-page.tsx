@@ -9,10 +9,9 @@ import {updateEmail} from "../actions/users";
 import Link from "next/link";
 import Footer from "./footer";
 import {useSWRConfig} from "swr";
-import LoadingSpinner from "./loading-spinner";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
-import LoadingPage from "./loading-page";
 import {LoadingScreen} from "./loading-screen";
+
 
 function getUsernameBskyUser(user: ProfileViewDetailed){
     return user.displayName ? user.displayName : user.handle ? user.handle : user.did

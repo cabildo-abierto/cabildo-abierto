@@ -3,8 +3,6 @@ import {useState} from "react";
 import {getTopicTitle} from "../topic/utils";
 import {CustomLink as Link} from "../custom-link";
 import {articleUrl} from "../utils";
-import Button from "@mui/material/Button";
-import PersonIcon from "@mui/icons-material/Person";
 import {TopicCategories} from "../entity-categories-small";
 
 export const TrendingArticlesSlider = ({trendingArticles}: {

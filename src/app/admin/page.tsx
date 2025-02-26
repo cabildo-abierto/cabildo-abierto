@@ -3,15 +3,22 @@
 import { NotFoundPage } from "../../components/not-found-page"
 import { useUser } from "../../hooks/user"
 
-import React from 'react';
+import React, {useState} from 'react';
 import { tomasDid } from "../../components/utils"
 import StateButton from "../../components/state-button";
-import {updateReferences, updateTopicsSynonyms} from "../../actions/references";
+import {
+    getPendingReferenceUpdatesCount,
+    getPendingSynonymsUpdatesCount,
+    updateReferences,
+    updateTopicsSynonyms
+} from "../../actions/references";
 
 
 
 export default function Page() {
     const {user} = useUser()
+    const [pendingSynonymsUpdates, setPendingSynonymsUpdates] = useState(null)
+    const [pendingContentReferenceUpdates, setPendingContentReferenceUpdates] = useState(null)
 
     if(!user || (user.editorStatus != "Administrator" && user.did != tomasDid)){
         return <NotFoundPage/>
@@ -33,11 +40,37 @@ export default function Page() {
 
             <StateButton
                 handleClick={async () => {
+                    const p = await getPendingReferenceUpdatesCount()
+                    setPendingContentReferenceUpdates(p)
+                    return {}
+                }}
+                text1={"Referencias pendientes?"}
+            />
+
+            <div>
+                Referencias pendientes {pendingContentReferenceUpdates}
+            </div>
+
+            <StateButton
+                handleClick={async () => {
                     await updateTopicsSynonyms()
                     return {}
                 }}
                 text1={"Actualizar sinónimos"}
             />
+
+            <StateButton
+                handleClick={async () => {
+                    const p = await getPendingSynonymsUpdatesCount()
+                    setPendingSynonymsUpdates(p)
+                    return {}
+                }}
+                text1={"Sinónimos pendientes?"}
+            />
+
+            <div>
+                Sinónimos pendientes {pendingSynonymsUpdates}
+            </div>
 
         </div>
     </div>

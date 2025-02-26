@@ -98,6 +98,13 @@ export type TopicProps = {
 }
 
 
+export type TrendingTopicProps = {
+    id: string
+    score: number[]
+    categories: string[]
+}
+
+
 export type SmallTopicProps = {
     id: string
     score?: number[]
@@ -132,6 +139,14 @@ export type MapTopicProps = {
     score?: number[]
     lastEdit?: Date
 }
+
+
+export type TopicsGraph = {
+    nodeIds: string[]
+    edges: {x: string, y: string}[]
+    nodeLabels?: {id: string, label: string}[]
+}
+
 
 type ReactionProps = {
     reactions?: {

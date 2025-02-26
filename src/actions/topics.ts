@@ -1,7 +1,7 @@
 "use server"
 
 import {getSessionAgent} from "./auth";
-import {TopicProps, TopicVersionProps, SmallTopicProps, MapTopicProps} from "../app/lib/definitions";
+import {TopicProps, TopicVersionProps, SmallTopicProps, MapTopicProps, TopicsGraph} from "../app/lib/definitions";
 import {db} from "../db";
 import {
     cleanText,
@@ -257,27 +257,18 @@ function countUserInteractions(entity: TopicUserInteractionsProps, since?: Date)
 export async function getTrendingTopics(
     sinceKind: string = "alltime",
     categories: string[],
-    limit: number = 10,
-    sortedby: string = "popular"
+    sortedBy: string,
+    limit: number = 10
 ): Promise<{error?: string, topics?: SmallTopicProps[]}> {
-    if(limit == -1){
-        return await getTrendingTopicsNoCache(sinceKind, categories, sortedby, limit)
-    }
-
     return await unstable_cache(async () => {
-        return await getTrendingTopicsNoCache(sinceKind, categories, sortedby, limit)
+        return await getTrendingTopicsNoCache(sinceKind, categories, sortedBy, limit)
     },
-        ["tt:"+sinceKind+":"+categories.join(":")+":"+limit+":"+sortedby],
+        ["tt:"+sinceKind+":"+categories.join(":")+":"+limit+":"+sortedBy],
         {
-            tags: ["tt", "tt:"+sinceKind],
+            tags: ["tt", "tt:"+sinceKind, "topics"],
             revalidate: revalidateEverythingTime
         }
     )()
-}
-
-
-function newestVersion(a: SmallTopicProps, b: SmallTopicProps){
-    return b.versions[b.versions.length-1].content.record.createdAt.getTime() - a.versions[a.versions.length-1].content.record.createdAt.getTime()
 }
 
 
@@ -377,19 +368,6 @@ export async function getContentInteractions() : Promise<{uri: string, interacti
 type SmallTopicPropsWithReferences = SmallTopicProps & {referencedBy: {referencingContentId: string}[]}
 
 
-export async function getTopics() {
-    return await unstable_cache(async () => {
-        return await getTopicsNoCache()
-    },
-        ["topics"],
-        {
-            tags: ["topics"],
-            revalidate: revalidateEverythingTime
-        }
-    )()
-}
-
-
 export async function getTopicsNoCache(): Promise<SmallTopicPropsWithReferences[]> {
     let r = await db.topic.findMany({
         select: {
@@ -464,69 +442,94 @@ function getTopicPopularityScore(
     const interactions = countTopicInteractions(topic, contentInteractions)
     const currentContentVersion = getCurrentContentVersion(topic)
     const currentContent = topic.versions[currentContentVersion]
-    const lastVersion = topic.versions[topic.versions.length-1]
+    const lastVersion = getTopicLastEdit(topic)
     return [
         interactions,
         currentContent.content.numWords > 0 ? 1 : 0,
-        currentContent ? new Date(lastVersion.content.record.createdAt).getTime() : 0
+        lastVersion ? lastVersion.getTime() : 0
     ]
 }
 
+function getTopicLastEdit(t: {versions: {content: {record: {createdAt: Date}}}[]}): Date{
+    let last = undefined
+    t.versions.forEach(v => {
+        if(!last || last < v.content.record.createdAt) last = v.content.record.createdAt
+    })
+    return last
+}
 
 
-export async function getTrendingTopicsNoCache(sincekind: string, categories: string[], sortedby: string, limit: number): Promise<{error?: string, topics?: SmallTopicProps[]}> {
-    // sinceKind is always alltime
-    const since = undefined
+export async function getTrendingTopicsNoCache(
+    sincekind: string, categories: string[], sortedBy: string, limit: number): Promise<{
+    error?: string
+    topics?: SmallTopicProps[]
+}> {
+    const t1 = Date.now()
 
+    //console.log("getting TT", sortedBy, limit, categories)
     try {
 
-        const t1 = new Date().getTime()
+        const scoreMap = await getTopicsPopularityScore()
+        let scoreList = Array.from(scoreMap)
+        const t2 = Date.now()
+        //console.log("Getting popularity score", t2-t1)
 
-        const contentInteractionsPromise = getContentInteractions()
-
-        const topicsPromise = getTopicsNoCache()
-
-        const [contentInteractions, topics] = await Promise.all([contentInteractionsPromise, topicsPromise])
-
-        const contentInteractionsMap = new Map<string, Set<string>>()
-        contentInteractions.map(({uri, interactions}) => {
-            contentInteractionsMap.set(uri, new Set<string>(interactions))
+        scoreList = scoreList.filter((t) => {
+            if(categories.length == 0) return true
+            return !categories.some((c) => {
+                return !t[1].categories.includes(c)
+            });
         })
 
-        //const t2 = new Date().getTime()
-
-        const topicScores = new Map<string, number[]>()
-        for(let i = 0; i < topics.length; i++){
-            const score = getTopicPopularityScore(topics[i], contentInteractionsMap)
-            topicScores.set(topics[i].id, score)
+        function cmpRecent(a: [string, {score: number[]}], b: [string, {score: number[]}]){
+            return listOrderDesc({score: [a[1].score[3]]}, {score: [b[1].score[3]]})
         }
 
-        let topicsWithScore: SmallTopicProps[] = topics.map((topic) => {
-            return {
-                ...topic,
-                score: topicScores.get(topic.id)
+        let firstK: string[]
+        if(sortedBy == "popular"){
+            firstK = sortTopicsByPopularity(scoreList).slice(0, limit).map(([id, score]) => (id))
+        } else {
+            firstK = sortTopicsByLastEdit(scoreList).sort(cmpRecent).slice(0, limit).map(([id, score]) => (id))
+        }
+
+        const topics = await db.topic.findMany({
+            select: {
+                id: true,
+                versions: {
+                    select: {
+                        uri: true,
+                        title: true,
+                        categories: true,
+                        content: {
+                            select: {
+                                numWords: true,
+                                record: {
+                                    select: {
+                                        createdAt: true,
+                                        author: {
+                                            select: {
+                                                handle: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            where: {
+                id: {
+                    in: firstK
+                }
             }
         })
+        const t3 = Date.now()
+        //console.log("Topics query time", t3-t2)
 
-        if(sortedby == "popular") {
-            topicsWithScore.sort(listOrderDesc)
-        } else {
-            topicsWithScore.sort(newestVersion)
-        }
-
-        let filteredTopics = topicsWithScore.filter((t) => {
-            if(categories.length == 0) return true
-            const current = currentCategories(t)
-
-            return !categories.some((c) => (!current.includes(c)))
-        })
-
-        filteredTopics = limit != -1 ? filteredTopics.slice(0, limit) : filteredTopics
-
-        const t3 = new Date().getTime()
-
-        return {topics: filteredTopics}
-
+        //console.log("TT Time", t3 - t1)
+        const res = {topics: topics.map((t) => ({...t, score: scoreMap.get(t.id).score}))}
+        return res
     } catch (err) {
         console.log("Error", err)
         return {error: "Error al buscar los temas."}
@@ -638,7 +641,7 @@ export async function getCategories() {
         ["categories"],
         {
             tags: ["categories"],
-            revalidate: 5
+            revalidate: revalidateEverythingTime
         }
     )()
 }
@@ -694,6 +697,7 @@ export async function getCategoriesNoCache() {
 export async function getTextFromBlob(blob: {cid: string, authorId: string}){
     return await unstable_cache(async () => {
         const response = await fetchBlob(blob)
+        if(!response) return null
         const responseBlob = await response.blob()
         return await responseBlob.text()
     }, ["blob:"+blob.authorId+":"+blob.cid], {
@@ -790,7 +794,7 @@ export async function deleteTopicVersionsForUser(){
 }
 
 
-export async function getTopicsForVisualizationNoCache(): Promise<MapTopicProps[]> {
+export async function getCategoriesGraphNoCache(): Promise<TopicsGraph> {
     let topics: MapTopicProps[] = await db.topic.findMany({
         select: {
             id: true,
@@ -814,43 +818,266 @@ export async function getTopicsForVisualizationNoCache(): Promise<MapTopicProps[
             }
         }
     })
-    const trendingTopics = await getTrendingTopics("alltime", [], -1, "popular")
 
-    function getTopicLastEdit(t: SmallTopicProps){
-        let last = undefined
-        t.versions.forEach(v => {
-            if(!last || last < v.content.record.createdAt) last = v.content.record.createdAt
+    const topicToCategoriesMap = new Map<string, string[]>()
+
+    const categories = new Map<string, number>()
+    for(let i = 0; i < topics.length; i++) {
+        const cats = currentCategories(topics[i])
+        topicToCategoriesMap.set(topics[i].id, cats)
+        cats.forEach((c) => {
+            if(!categories.has(c)) categories.set(c, 1)
+            else categories.set(c, categories.get(c)+1)
         })
-        return last
     }
 
-    topics = topics.filter((v) => (v.versions.length > 0))
+    const edges: {x: string, y: string}[] = []
+    for(let i = 0; i < topics.length; i++) {
+        const yId = topics[i].id
+        const catsY = topicToCategoriesMap.get(yId)
 
-    const scoreMap = new Map<string, {score: number[], lastEdit: Date}>()
-    trendingTopics.topics.forEach((t) => {
-        scoreMap.set(t.id, {score: t.score, lastEdit: getTopicLastEdit(t)})
+        for(let j = 0; j < topics[i].referencedBy.length; j++){
+            if(topics[i].referencedBy[j].referencingContent.topicVersion){
+                const xId = topics[i].referencedBy[j].referencingContent.topicVersion.topicId
+                const catsX = topicToCategoriesMap.get(xId)
+
+                catsX.forEach((catX) => {
+                    catsY.forEach((catY) => {
+                        if(catX != catY && !edges.some(({x, y}) => (x == catX && y == catY))){
+                            edges.push({x: catX, y: catY})
+                        }
+                    })
+                })
+            }
+        }
+    }
+
+    const nodeLabels = new Map<string, string>()
+    Array.from(categories.entries()).forEach(([cat, k]) => {
+        nodeLabels.set(cat, cat + " (" + k + ")")
     })
 
-    topics.forEach((t) => {
-        const score = scoreMap.get(t.id)
-        t.score = score.score
-        t.lastEdit = score.lastEdit
-    })
-
-    return topics
+    return {
+        edges: edges,
+        nodeIds: Array.from(categories.keys()),
+        nodeLabels: Array.from(nodeLabels.entries()).map(([a, b]) => ({
+            id: a, label: b
+        }))
+    }
 }
 
 
 
-export async function getTopicsForVisualization(): Promise<MapTopicProps[]> {
-    return await getTopicsForVisualizationNoCache()
+export async function getCategoriesGraph(): Promise<TopicsGraph> {
     return await unstable_cache(async () => {
-        return await getTopicsForVisualizationNoCache()
+        return await getCategoriesGraphNoCache()
     },
-    ["topicsmap"],
+        ["categoriesgraph"],
     {
         tags: ["topics"],
-        revalidate: 5
+        revalidate: revalidateEverythingTime
     })()
 }
 
+
+export async function getCategoryGraphNoCache(cat: string): Promise<TopicsGraph> {
+
+    let topics: MapTopicProps[] = await db.topic.findMany({
+        select: {
+            id: true,
+            versions: {
+                select: {
+                    categories: true
+                }
+            },
+            referencedBy: {
+                select: {
+                    referencingContent: {
+                        select: {
+                            topicVersion: {
+                                select: {
+                                    topicId: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    const topicToCategoriesMap = new Map<string, string[]>()
+
+    const topicsInCategory = new Set<string>()
+    for(let i = 0; i < topics.length; i++) {
+        const c = currentCategories(topics[i])
+        topicToCategoriesMap.set(topics[i].id, c)
+        if(c.includes(cat)){
+            topicsInCategory.add(topics[i].id)
+        }
+    }
+
+    const edges = []
+    for(let i = 0; i < topics.length; i++) {
+        const yId = topics[i].id
+        const catY = topicToCategoriesMap.get(yId)
+        if(!catY.includes(cat)) continue
+
+        for(let j = 0; j < topics[i].referencedBy.length; j++){
+            if(topics[i].referencedBy[j].referencingContent.topicVersion){
+                const xId = topics[i].referencedBy[j].referencingContent.topicVersion.topicId
+                const catX = topicToCategoriesMap.get(xId)
+                if(!catX.includes(cat)) continue
+
+                edges.push({
+                    x: xId,
+                    y: yId,
+                })
+            }
+        }
+    }
+    return {
+        nodeIds: Array.from(topicsInCategory).slice(0, 500),
+        edges: edges.slice(0, 100)
+    }
+}
+
+
+export async function getCategoryGraph(c: string): Promise<TopicsGraph> {
+    return await unstable_cache(async () => {
+            return await getCategoryGraphNoCache(c)
+        },
+        ["categorygraph:"+c],
+        {
+            tags: ["topics"],
+            revalidate: revalidateEverythingTime
+    })()
+}
+
+
+function sortTopicsByPopularity(topics: [string, {score: number[], categories: string[]}][]){
+    function cmp(a: [string, {score: number[]}], b: [string, {score: number[]}]){
+        return listOrderDesc({score: a[1].score}, {score: b[1].score})
+    }
+
+    return topics.sort(cmp)
+}
+
+
+function sortTopicsByLastEdit(topics: [string, {score: number[], categories: string[]}][]){
+    function cmp(a: [string, {score: number[]}], b: [string, {score: number[]}]){
+        return listOrderDesc({score: [a[1].score[3]]}, {score: [b[1].score[3]]})
+    }
+
+    return topics.sort(cmp)
+}
+
+
+export async function getTopicsByCategoriesNoCache(sortedBy: string): Promise<{c: string, topics: string[], size: number}[]>{
+    const scoreMap = await getTopicsPopularityScore()
+    let scoreList = Array.from(scoreMap)
+
+    if(sortedBy == "popular"){
+        scoreList = sortTopicsByPopularity(scoreList)
+    } else {
+        scoreList = sortTopicsByLastEdit(scoreList)
+    }
+
+    const categories = new Map<string, string[]>()
+    categories.set("Sin categoría", [])
+    for(let i = 0; i < scoreList.length; i++){
+        const topicCategories = scoreList[i][1].categories
+        topicCategories.forEach((c) => {
+            if(categories.has(c)){
+                categories.get(c).push(scoreList[i][0])
+            } else {
+                categories.set(c, [scoreList[i][0]])
+            }
+        })
+        if(topicCategories.length == 0){
+            categories.get("Sin categoría").push(scoreList[i][0])
+        }
+    }
+
+    function cmpCat(a: [string, string[]], b: [string, string[]]){
+        let sa = 0
+        let sb = 0
+        a[1].forEach((v) => {
+            sa += scoreMap.get(v)[0]-1
+        })
+        b[1].forEach((v) => {
+            sb += scoreMap.get(v)[0]-1
+        })
+        return sa - sb
+    }
+
+    const cats = Array.from(categories).sort(cmpCat)
+
+    const res: {c: string, topics: string[], size: number}[] = []
+    for(let i = 0; i < cats.length; i++) {
+        res.push({
+            c: cats[i][0],
+            topics: cats[i][1].slice(0, 5),
+            size: cats[i][1].length
+        })
+    }
+    return res
+}
+
+
+export async function getTopicsByCategories(sortedBy: string){
+    return await unstable_cache(async () => {
+            return await getTopicsByCategoriesNoCache(sortedBy)
+        },
+        ["topicsbycategories:"+sortedBy],
+        {
+            tags: ["topics"],
+            revalidate: revalidateEverythingTime
+        }
+    )()
+}
+
+
+export async function getTopicsPopularityScoreNoCache(): Promise<{id: string, score: number[], categories: string[]}[]>{
+
+    try {
+        const contentInteractionsPromise = getContentInteractions()
+        const topicsPromise = getTopicsNoCache()
+
+        const [contentInteractions, topics] = await Promise.all([contentInteractionsPromise, topicsPromise])
+
+        const contentInteractionsMap = new Map<string, Set<string>>()
+        contentInteractions.map(({uri, interactions}) => {
+            contentInteractionsMap.set(uri, new Set<string>(interactions))
+        })
+
+        const topicScores = new Map<string, {score: number[], categories: string[]}>()
+        for(let i = 0; i < topics.length; i++){
+            const score = getTopicPopularityScore(topics[i], contentInteractionsMap)
+            topicScores.set(topics[i].id, {score, categories: currentCategories(topics[i])})
+        }
+
+        return Array.from(topicScores.entries()).map((t) => {
+            return {id: t[0], score: t[1].score, categories: t[1].categories}
+        })
+    } catch (err) {
+        console.log("Error", err)
+        return null
+    }
+}
+
+
+export async function getTopicsPopularityScore(): Promise<Map<string, {score: number[], categories: string[]}>>{
+    const scores = await unstable_cache(async () => {
+            return await getTopicsPopularityScoreNoCache()
+        },
+        ["popularityscores"],
+        {
+            tags: ["topics", "popularityscores"],
+            revalidate: revalidateEverythingTime
+        }
+    )()
+    return new Map<string, {score: number[], categories: string[]}>(scores.map(({id, score, categories}) => ([
+        id, {score, categories}
+    ])))
+}

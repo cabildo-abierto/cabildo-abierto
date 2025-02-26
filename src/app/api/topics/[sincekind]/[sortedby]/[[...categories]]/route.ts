@@ -7,7 +7,7 @@ export async function GET(req: NextRequest,
     { params }: { params: { sincekind: string, sortedby: string, route: string[] } }
 ) {
 
-    let {topics} = await getTrendingTopics(params.sincekind, params.route ? params.route : [], 50, params.sortedby)
+    let {topics} = await getTrendingTopics(params.sincekind, params.route ? params.route : [], params.sortedby, 50)
 
     return NextResponse.json(topics)
 }

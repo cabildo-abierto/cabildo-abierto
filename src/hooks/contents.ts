@@ -4,7 +4,7 @@ import {
     FeedContentProps, ThreadProps, TopicProps, TopicVersionProps,
     SmallTopicProps,
     UserStats,
-    VisualizationProps, EngagementProps, MapTopicProps
+    VisualizationProps, EngagementProps, MapTopicProps, TopicsGraph, TrendingTopicProps
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import {getDidFromUri, getRkeyFromUri} from "../components/utils";
@@ -43,7 +43,7 @@ export function useFeed(route: string[], feed: string): {feed: FeedContentProps[
     }
 }
 
-export function useTopics(categories: string[], sortedBy: string): {topics: any[], isLoading: boolean, isError: boolean}{
+export function useTopics(categories: string[], sortedBy: string): {topics: SmallTopicProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/topics/alltime/'+sortedBy+"/"+categories.join("/"), fetcher)
 
     return {
@@ -224,6 +224,25 @@ export function useTrendingTopics(route: string[], kind: string): {topics: Small
 }
 
 
+export function useTopicsByCategories(sortedBy: string): {byCategories: {c: string, topics: string[], size: number}[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR(
+        '/api/topics-by-categories/'+sortedBy,
+        fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        byCategories: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
 export function useMapTopics(): {topics: MapTopicProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR(
         '/api/map-topics',
@@ -237,6 +256,44 @@ export function useMapTopics(): {topics: MapTopicProps[], isLoading: boolean, is
 
     return {
         topics: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useCategoriesGraph(): {graph: TopicsGraph, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR(
+        '/api/categories-graph',
+        fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        graph: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useCategoryGraph(c: string): {graph: TopicsGraph, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR(
+        '/api/category-graph/'+c,
+        fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        graph: data,
         isLoading,
         isError: error
     }

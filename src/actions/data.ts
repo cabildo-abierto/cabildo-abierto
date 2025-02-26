@@ -150,9 +150,12 @@ export async function fetchBlob(blob: {cid: string, authorId: string}, cache: bo
 
     if (serviceEndpoint) {
         const url = serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
-        const res = await fetch(url, cache ? undefined : {cache: "no-store"})
-        const t3 = new Date().getTime()
-        return res
+        try {
+            return await fetch(url, cache ? undefined : {cache: "no-store"})
+        } catch (e) {
+            console.error("Couldn't fetch blob", blob.cid, blob.authorId)
+            return null
+        }
     }
     //console.log("couldn't resolve did doc", blob.authorId)
     return null
