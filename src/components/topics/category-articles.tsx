@@ -1,11 +1,11 @@
 "use client"
-import { TopicSearchResult } from "./topic-search-result"
-import { useTopics } from "../hooks/contents"
-import LoadingSpinner from "./loading-spinner"
-import { LazyLoadFeed } from "./lazy-load-feed"
+import { TopicSearchResult } from "../topic-search-result"
+import { useTopics } from "../../hooks/contents"
+import LoadingSpinner from "../loading-spinner"
+import { LazyLoadFeed } from "../lazy-load-feed"
 import React from "react"
-import {NoResults} from "./no-results";
-import {TopicsSortOrder} from "./topics-page-header";
+import {NoResults} from "../no-results";
+import {TopicsSortOrder} from "./topics-list-view";
 
 
 export const CategoryArticles = ({sortedBy, categories, maxCount}: {sortedBy: TopicsSortOrder, categories: string[], onSearchPage?: boolean, maxCount?: number}) => {

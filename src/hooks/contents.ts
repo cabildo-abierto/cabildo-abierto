@@ -4,7 +4,7 @@ import {
     FeedContentProps, ThreadProps, TopicProps, TopicVersionProps,
     SmallTopicProps,
     UserStats,
-    VisualizationProps, EngagementProps
+    VisualizationProps, EngagementProps, MapTopicProps
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import {getDidFromUri, getRkeyFromUri} from "../components/utils";
@@ -208,6 +208,25 @@ export function useVisualization(uri: string): {visualization: VisualizationProp
 export function useTrendingTopics(route: string[], kind: string): {topics: SmallTopicProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR(
         '/api/trending-topics/'+route.join("/")+"?since="+kind,
+        fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        topics: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useMapTopics(): {topics: MapTopicProps[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR(
+        '/api/map-topics',
         fetcher,
         {
             revalidateIfStale: false,

@@ -1,7 +1,7 @@
 "use server"
 
 import {getSessionAgent} from "./auth";
-import {TopicProps, TopicVersionProps, SmallTopicProps} from "../app/lib/definitions";
+import {TopicProps, TopicVersionProps, SmallTopicProps, MapTopicProps} from "../app/lib/definitions";
 import {db} from "../db";
 import {
     cleanText,
@@ -260,6 +260,9 @@ export async function getTrendingTopics(
     limit: number = 10,
     sortedby: string = "popular"
 ): Promise<{error?: string, topics?: SmallTopicProps[]}> {
+    if(limit == -1){
+        return await getTrendingTopicsNoCache(sinceKind, categories, sortedby, limit)
+    }
 
     return await unstable_cache(async () => {
         return await getTrendingTopicsNoCache(sinceKind, categories, sortedby, limit)
@@ -267,7 +270,7 @@ export async function getTrendingTopics(
         ["tt:"+sinceKind+":"+categories.join(":")+":"+limit+":"+sortedby],
         {
             tags: ["tt", "tt:"+sinceKind],
-            revalidate: 5//revalidateEverythingTime
+            revalidate: revalidateEverythingTime
         }
     )()
 }
@@ -518,11 +521,7 @@ export async function getTrendingTopicsNoCache(sincekind: string, categories: st
             return !categories.some((c) => (!current.includes(c)))
         })
 
-        filteredTopics = limit ? filteredTopics.slice(0, limit) : filteredTopics
-
-        if(sortedby == "popular"){
-            filteredTopics = filteredTopics.filter(({score}) => (score[0] > 0))
-        }
+        filteredTopics = limit != -1 ? filteredTopics.slice(0, limit) : filteredTopics
 
         const t3 = new Date().getTime()
 
@@ -788,5 +787,70 @@ export async function deleteTopicVersionsForUser(){
         })
         console.log("deleted", data.records[i].uri)
     }
+}
+
+
+export async function getTopicsForVisualizationNoCache(): Promise<MapTopicProps[]> {
+    let topics: MapTopicProps[] = await db.topic.findMany({
+        select: {
+            id: true,
+            versions: {
+                select: {
+                    categories: true
+                }
+            },
+            referencedBy: {
+                select: {
+                    referencingContent: {
+                        select: {
+                            topicVersion: {
+                                select: {
+                                    topicId: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+    const trendingTopics = await getTrendingTopics("alltime", [], -1, "popular")
+
+    function getTopicLastEdit(t: SmallTopicProps){
+        let last = undefined
+        t.versions.forEach(v => {
+            if(!last || last < v.content.record.createdAt) last = v.content.record.createdAt
+        })
+        return last
+    }
+
+    topics = topics.filter((v) => (v.versions.length > 0))
+
+    const scoreMap = new Map<string, {score: number[], lastEdit: Date}>()
+    trendingTopics.topics.forEach((t) => {
+        scoreMap.set(t.id, {score: t.score, lastEdit: getTopicLastEdit(t)})
+    })
+
+    topics.forEach((t) => {
+        const score = scoreMap.get(t.id)
+        t.score = score.score
+        t.lastEdit = score.lastEdit
+    })
+
+    return topics
+}
+
+
+
+export async function getTopicsForVisualization(): Promise<MapTopicProps[]> {
+    return await getTopicsForVisualizationNoCache()
+    return await unstable_cache(async () => {
+        return await getTopicsForVisualizationNoCache()
+    },
+    ["topicsmap"],
+    {
+        tags: ["topics"],
+        revalidate: 5
+    })()
 }
 

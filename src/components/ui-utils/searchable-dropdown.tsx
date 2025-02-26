@@ -1,11 +1,13 @@
 "use client"
 import React, {ReactNode, useEffect, useState} from 'react';
-import {TextField, Paper, List, ListItem, ListItemText, MenuItem} from '@mui/material';
+import {TextField, Paper, List, MenuItem} from '@mui/material';
+import LoadingSpinner from "../loading-spinner";
 
 interface SearchableDropdownProps {
     options: string[]
     optionViews?: ReactNode[]
-    onSelect: (value: string) => void
+    onSelect?: (value: string) => void
+    onChange: (value: string) => void
     label?: string
     size: "small" | "medium"
     selected?: string
@@ -13,16 +15,18 @@ interface SearchableDropdownProps {
 }
 
 const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
-   fontSize="0.875rem", selected="", options, optionViews, label, onSelect, size
+   fontSize="0.875rem", selected="", onSelect=() => {}, options, optionViews, label, size, onChange,
 }) => {
-    const [filteredOptions, setFilteredOptions] = useState(options);
+    const [filteredOptions, setFilteredOptions] = useState(options ? options : []);
     const [showDropdown, setShowDropdown] = useState(false);
 
     useEffect(() => {
-        const filtered = options.filter((option) =>
-            option.toLowerCase().includes(selected.toLowerCase())
-        );
-        setFilteredOptions(filtered)
+        if(options){
+            const filtered = options.filter((option) =>
+                option.toLowerCase().includes(selected.toLowerCase())
+            );
+            setFilteredOptions(filtered)
+        }
     }, [options, selected])
 
     const handleOptionSelect = (option: string) => {
@@ -37,8 +41,8 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
             variant="outlined"
             fullWidth
             value={selected}
-            onChange={(e) => {onSelect(e.target.value)}}
-            onFocus={() => setShowDropdown(filteredOptions.length > 0)}
+            onChange={(e) => {onChange(e.target.value)}}
+            onFocus={() => setShowDropdown(!options || filteredOptions.length > 0)}
             onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
             label={label}
             InputProps={{
@@ -49,10 +53,10 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
               sx: { fontSize }
             }}
         />
-        {showDropdown && filteredOptions.length > 0 && (
+        {showDropdown && (!options || (options && filteredOptions.length > 0)) && (
             <Paper className="absolute z-10 mt-1 min-w-full max-w-max">
               <List>
-                {filteredOptions.map((option, index) => (
+                {options && filteredOptions.map((option, index) => (
                     <MenuItem
                         key={index}
                         onClick={() => {handleOptionSelect(option)}}
@@ -62,6 +66,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                       {optionViews == null ? <span className={"text-sm"}>{option}</span> : optionViews[index]}
                     </MenuItem>
                 ))}
+                  {!options && <div className={"py-4"}><LoadingSpinner/></div>}
               </List>
             </Paper>
         )}

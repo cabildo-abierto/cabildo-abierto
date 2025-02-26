@@ -1,4 +1,5 @@
 import { assignment } from "./min-cost-flow"
+import {areArraysEqual} from "./utils";
 
 
 export function getAllText(node: any){
@@ -141,18 +142,6 @@ export function minMatch(nodes1, nodes2, common: {x: number, y: number}[]){
     resDicts = resDicts.map(({x, y}) => ({x: uncommonNodes1[x].index, y: uncommonNodes2[y].index}))
 
     return [...common, ...resDicts]
-}
-
-
-function areArraysEqual(s1: any[], s2: any[]){
-    if(s1.length != s2.length) return false
-
-    for(let i = 0; i < s1.length; i++){
-        if(s1[i] !== s2[i]){
-            return false
-        }
-    }
-    return true
 }
 
 

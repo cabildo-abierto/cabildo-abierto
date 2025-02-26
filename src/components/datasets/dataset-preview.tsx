@@ -1,7 +1,6 @@
 "use client"
 import {DatasetProps} from "../../app/lib/definitions";
 import {FastPostPreviewFrame} from "../feed/fast-post-preview-frame";
-import {PostTitleOnFeed} from "../feed/post-title-on-feed";
 import {Authorship} from "../content-top-row-author";
 import {DateSince} from "../date";
 import { FaExternalLinkAlt } from "react-icons/fa";
