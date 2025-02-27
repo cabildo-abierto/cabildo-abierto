@@ -199,13 +199,19 @@ export function currentVersion(entity: {versions: {}[]}){
 }
 
 
-export function currentCategories(topic: {versions: {categories?: string}[]}) {
-    for(let i = topic.versions.length-1; i >= 0; i--){
+export function currentCategories(topic: {versions: {categories?: string, content: {record: {createdAt: Date}}}[]}) {
+    let last = null
+    for(let i = 0; i < topic.versions.length; i++){
         if(topic.versions[i].categories != null){
-            return JSON.parse(topic.versions[i].categories) as string[]
+            const date = new Date(topic.versions[i].content.record.createdAt).getTime()
+            if(last == null || new Date(topic.versions[last].content.record.createdAt).getTime() < date){
+                last = i
+            }
         }
     }
-    return []
+    if(last == null) return []
+
+    return JSON.parse(topic.versions[last].categories) as string[]
 }
 
 

@@ -11,7 +11,7 @@ export const TopicCategories = ({
     maxCount,
     className="px-2 bg-[var(--background-dark2)] text-[var(--text-light)] rounded-lg hover:bg-[var(--background-dark3)]"
 }: {
-  topic: {versions: {categories?: string}[]}
+  topic: {versions: {categories?: string, content: {record: {createdAt: Date}}}[]}
   className?: string
   maxCount?: number
 }) => {

@@ -4,10 +4,10 @@ import {getTrendingTopics} from "../../../../../../actions/topics";
 
 
 export async function GET(req: NextRequest,
-    { params }: { params: { sincekind: string, sortedby: string, route: string[] } }
+    { params }: { params: { sincekind: string, sortedby: string, categories: string[] } }
 ) {
 
-    let {topics} = await getTrendingTopics(params.sincekind, params.route ? params.route : [], params.sortedby, 50)
+    let {topics} = await getTrendingTopics(params.sincekind, params.categories ? params.categories : [], params.sortedby, 50)
 
     return NextResponse.json(topics)
 }
