@@ -27,8 +27,8 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
     const content = {
         text: record.text,
         post: {
-            replyTo,
-            root,
+            replyTo: {...replyTo, uri: replyTo.uri},
+            root: {...root, uri: root.uri},
             grandparentAuthor,
             facets: record.facets ? JSON.stringify(record.facets) : undefined,
             embed: record.embed ? JSON.stringify(record.embed) : undefined
@@ -44,7 +44,7 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
 
     const post: FastPostProps = {
         ...recordProps,
-        content,
+        content: content,
         ...engagementProps
     }
 

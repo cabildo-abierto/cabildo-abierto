@@ -4,8 +4,9 @@ import { getSessionAgent } from "./auth";
 import {RichText} from '@atproto/api'
 import {db} from "../db";
 import {FastPostProps, FastPostReplyProps, VisualizationProps} from "../app/lib/definitions";
-import {getDidFromUri, getRkeyFromUri, getVisualizationTitle, splitUri} from "../components/utils";
-import {revalidateTag} from "next/cache";
+import {getDidFromUri, getRkeyFromUri, getUri, getVisualizationTitle, splitUri} from "../components/utils";
+import {revalidateTag, unstable_cache} from "next/cache";
+import { QuotedContent } from "../components/feed/content-quote";
 
 
 export const addLike = async (uri: string, cid: string) => {
@@ -226,4 +227,68 @@ export async function getBskyFastPost(uri: string): Promise<{post?: FastPostProp
     } catch (e) {
         return {error: "Post not found"}
     }
+}
+
+
+export async function getQuotedContentNoCache({did, rkey}: {did: string, rkey: string}): Promise<QuotedContent> {
+    try {
+        const q = await db.record.findMany({
+            select: {
+                uri: true,
+                author: {
+                    select: {
+                        handle: true,
+                        displayName: true
+                    }
+                },
+                content: {
+                    select: {
+                        text: true,
+                        format: true,
+                        article: {
+                            select: {
+                                title: true
+                            }
+                        },
+                        topicVersion: {
+                            select: {
+                                topic: {
+                                    select: {
+                                        id: true,
+                                        versions: {
+                                            select: {
+                                                title: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            where: {
+                uri: {
+                    in: [getUri(did, "ar.com.cabildoabierto.article", rkey), getUri(did, "ar.com.cabildoabierto.topic",  rkey)]
+                }
+            }
+        })
+        return q[0]
+    } catch (e) {
+        console.log("Error getting quoted content", did, rkey)
+        console.log(e)
+        return null
+    }
+}
+
+
+export async function getQuotedContent({did, rkey}: {did: string, rkey: string}): Promise<QuotedContent> {
+    console.log("getting quoted content", did, rkey)
+    return await unstable_cache(async () => {
+        return await getQuotedContentNoCache({did, rkey})
+    }, ["quotedContent:"+did+":"+rkey],
+    {
+        tags: ["record:"+did+":"+rkey],
+        revalidate: 5
+    })()
 }

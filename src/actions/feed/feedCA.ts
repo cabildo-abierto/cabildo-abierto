@@ -97,10 +97,10 @@ export async function getFeedCA(authors?: string[], includeAllReplies: boolean =
         if(isPost(feed[i].collection)){
             const post = feed[i] as FastPostProps
             if(post.content.post.replyTo){
-                (feed[i] as FastPostProps).content.post.replyTo = recordsByUri.get(post.content.post.replyTo.uri)
+                (feed[i] as FastPostProps).content.post.replyTo = {...recordsByUri.get(post.content.post.replyTo.uri), ...(feed[i] as FastPostProps).content.post.replyTo}
             }
             if(post.content.post.root){
-                (feed[i] as FastPostProps).content.post.root = recordsByUri.get(post.content.post.root.uri)
+                (feed[i] as FastPostProps).content.post.root = {...recordsByUri.get(post.content.post.root.uri), ...(feed[i] as FastPostProps).content.post.replyTo}
             }
         }
     }

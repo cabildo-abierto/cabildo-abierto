@@ -1,9 +1,6 @@
 import ReplyIcon from "../icons/reply-icon";
-import { contentUrl, getUsername } from "../utils";
-import {Username} from "./username";
-import Link from "next/link";
+import { getUsername } from "../utils";
 import {ReactNode} from "react";
-import {Authorship} from "../content-top-row-author";
 
 
 export const IsReplyMessage = ({collection, did, author}: {did: string, collection: string, author: {did: string, displayName?: string, handle: string}}) => {

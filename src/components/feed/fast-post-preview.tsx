@@ -4,7 +4,7 @@ import {FastPostProps, FeedContentPropsMaybe, ReasonProps, RecordProps, SmallUse
 import {FastPostPreviewFrame, ReplyVerticalLine} from './fast-post-preview-frame'
 import {FastPostContent} from "./fast-post-content";
 import {FeedElement} from "./feed-element";
-import {contentUrl, emptyChar, isPost} from "../utils";
+import {contentUrl, emptyChar, isPost, PrettyJSON} from "../utils";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {useUser} from "../../hooks/user";
@@ -47,17 +47,18 @@ export const FastPostPreview = ({
                                            onClickQuote}: FastPostPreviewProps) => {
     const {user} = useUser()
 
-    if(!post.content){
+    if(!post.content || !post.content.post){
         return <div className={"py-4"}>
-            Un post sin contenido
+            Ocurrió un error al mostrar el contenido
         </div>
     }
 
+    const isRepost = post.reason != undefined
     const replyTo = post.content.post.replyTo
-    const replyToAvailable = replyTo && (replyTo as FeedContentPropsMaybe).createdAt != undefined
+    const replyToAvailable = replyTo && (replyTo as FeedContentPropsMaybe).createdAt != undefined && !isRepost
 
     const root = post.content.post.root
-    const rootAvailable = root && (root as FeedContentPropsMaybe).createdAt != undefined && root.uri != replyTo.uri
+    const rootAvailable = root && (root as FeedContentPropsMaybe).createdAt != undefined && root.uri != replyTo.uri && !isRepost
 
     const parentReplyTo = replyToAvailable && isPost(replyTo.collection) ? (replyTo as FastPostProps).content.post.replyTo : undefined
 
@@ -80,7 +81,7 @@ export const FastPostPreview = ({
             showingParent={replyToAvailable || showingParent}
             borderBelow={!showingChildren}
         >
-            {replyTo && !replyToAvailable && showReplyMessage && <IsReplyMessage
+            {replyTo && !replyToAvailable && showReplyMessage && (replyTo as FeedContentPropsMaybe).author && <IsReplyMessage
                 author={(replyTo as FeedContentPropsMaybe).author}
                 did={user.did}
                 collection={(replyTo as FeedContentPropsMaybe).collection}
