@@ -20,7 +20,11 @@ const config= {
         '90': '22.5rem',
         '256': '64rem',
         '192': '48rem'
-      }
+      },
+      fontFamily: {
+        flex: ['var(--font-roboto-flex)'],
+        serif: ['var(--font-roboto-serif)'],
+      },
     },
   },
   plugins: [],

@@ -36,7 +36,7 @@ $background: #181b23;
   --text-light: #{darken($text, 20%)};
   --text-lighter: #{darken($text, 40%)};
 
-  font-family: 'Roboto_Flex', sans-serif;
+  font-family: var(--font-roboto-flex), sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
 	-webkit-font-smoothing: antialiased;
@@ -47,24 +47,6 @@ $background: #181b23;
 
 .scroll-always-on {
 	overflow-y: scroll;
-}
-
-
-@font-face {
-	font-family: 'Roboto_Flex';
-	src: url('/fonts/roboto_flex/RobotoFlex-VariableFont_GRAD,XOPQ,XTRA,YOPQ,YTAS,YTDE,YTFI,YTLC,YTUC,opsz,slnt,wdth,wght.ttf') format('truetype');
-	font-weight: 100 900;
-	font-stretch: 75% 100%;
-	font-display: swap;
-}
-
-
-@font-face {
-	font-family: 'Roboto_Serif';
-	src: url('/fonts/Roboto_Serif/RobotoSerif-VariableFont_GRAD,opsz,wdth,wght.ttf') format('truetype');
-	font-weight: 100 900;
-	font-stretch: 75% 100%;
-	font-display: swap;
 }
 
 
@@ -98,6 +80,20 @@ h1, h2, h3, h4, h5, h6 {
 .logo {
 	line-height: 1;
 	font-weight: 500;
+}
+
+.article-content {
+	/*font-family: 'Roboto_Serif', serif;*/
+	font-family: var(--font-roboto-serif), serif;
+	line-height: 1.8;
+	font-weight: 450
+}
+
+.not-article-content {
+	/*font-family: 'Roboto_Flex', sans-serif;*/
+	font-family: var(--font-roboto-flex), sans-serif;
+	line-height: 1.5;
+	font-weight: 400
 }
 
 .text-link {

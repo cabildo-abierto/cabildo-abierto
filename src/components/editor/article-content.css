@@ -1,19 +1,6 @@
 
 
 
-.article-content {
-    font-family: 'Roboto_Serif', serif;
-    line-height: 1.8;
-    font-weight: 450
-}
-
-.not-article-content {
-    font-family: 'Roboto_Flex', sans-serif;
-    line-height: 1.5;
-    font-weight: 400
-}
-
-
 .article-content a {
     color: var(--primary);
     text-decoration: none;
