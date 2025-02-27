@@ -13,6 +13,17 @@ export const Authorship = ({content, className="hover:underline font-medium", on
     </span>
 }
 
+
+export const UserHandle = ({
+       content,
+       className="hover:underline font-medium"
+}: {className?: string, text?: string, content: {author: {displayName?: string, handle: string}}}) => {
+    return <Link href={userUrl(content.author?.handle)} className={className}>
+        {getUsername({handle: content.author.handle})}
+    </Link>
+}
+
+
 export const ContentTopRowAuthor = ({author} : {author: {handle: string, displayName?: string}}) => {
     const url = author ? userUrl(author.handle) : ""
 

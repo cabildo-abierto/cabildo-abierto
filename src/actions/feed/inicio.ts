@@ -9,7 +9,7 @@ import {
     queryPostsFollowingFeedCA
 } from "../utils";
 import {popularityScore} from "../../components/popularity-score";
-import {listOrder} from "../../components/utils";
+import {listOrder, listOrderDesc} from "../../components/utils";
 
 import {getFollowing} from "../users";
 import {addCountersToFeed, addReasonToRepost, joinCAandATFeeds} from "./utils";
@@ -85,25 +85,15 @@ export async function getFollowingFeed(){
 
 
 export async function getEnDiscusion(): Promise<{feed?: FeedContentProps[], error?: string}> {
-    //const t1 = new Date().getTime()
     const did = await getSessionDid()
-    //const t2 = new Date().getTime()
-    //console.log("En discusion: getSessionDid time", t2-t1)
-
-
-    //const t3 = new Date().getTime()
     let feed = await getFeedCACached()
-    //const t4 = new Date().getTime()
-    //console.log("En discusion query time", t4-t3)
 
     const readyForFeed = addCountersToFeed(feed, did)
 
     const sortedFeed = readyForFeed.map((e) => ({
         element: e as FeedContentProps,
         score: popularityScore(e as FeedContentProps)
-    })).sort(listOrder).map(({element}) => (element))
+    })).sort(listOrderDesc)
 
-    //const t5 = new Date().getTime()
-    //console.log("Get en discusion time", t5-t1)
-    return {feed: sortedFeed}
+    return {feed: sortedFeed.map(({element}) => (element))}
 }

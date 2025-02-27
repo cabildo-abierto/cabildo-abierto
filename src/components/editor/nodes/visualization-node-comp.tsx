@@ -1,6 +1,6 @@
 import {useDataset, useVisualization} from "../../../hooks/contents";
 import {DatasetTitle} from "../../datasets/dataset-title";
-import {Authorship} from "../../content-top-row-author";
+import {UserHandle} from "../../content-top-row-author";
 import LoadingSpinner from "../../loading-spinner";
 import {EngagementProps, VisualizationProps} from "../../../app/lib/definitions";
 import {EngagementIcons} from "../../feed/engagement-icons";
@@ -55,7 +55,7 @@ export const VisualizationNodeComp = ({visualization, showEngagement=true}: {
                                 dataset={dataset.dataset}/>
                             </div>
                         )}
-                        <Authorship content={visualization} text={"Por"}/>
+                        <UserHandle content={visualization}/>
                     </div>
                     {showEngagement && (
                         <div>

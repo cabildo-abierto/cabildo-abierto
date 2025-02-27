@@ -7,8 +7,9 @@ import React, {useState} from 'react';
 import { tomasDid } from "../../components/utils"
 import StateButton from "../../components/state-button";
 import {
+    applyReferencesUpdateToContent,
     getPendingReferenceUpdatesCount,
-    getPendingSynonymsUpdatesCount,
+    getPendingSynonymsUpdatesCount, resetUpdateReferenceTimestamps,
     updateReferences,
     updateTopicsSynonyms
 } from "../../actions/references";
@@ -23,6 +24,8 @@ export default function Page() {
     if(!user || (user.editorStatus != "Administrator" && user.did != tomasDid)){
         return <NotFoundPage/>
     }
+
+    const uri = "at://did:plc:jcnfx7zrmnbzzljbzl4docmm/app.bsky.feed.post/3lckyxs4q2226"
 
     let center = <div className="flex flex-col items-center mt-8">
         <h1>Panel de administrador</h1>
@@ -71,6 +74,23 @@ export default function Page() {
             <div>
                 Sinónimos pendientes {pendingSynonymsUpdates}
             </div>
+
+
+            <StateButton
+                handleClick={async () => {
+                    await resetUpdateReferenceTimestamps()
+                    return {}
+                }}
+                text1={"Resetear timestamps referencias y sinónimos"}
+            />
+
+            <StateButton
+                handleClick={async () => {
+                    await applyReferencesUpdateToContent(uri)
+                    return {}
+                }}
+                text1={"Actualizar referencias de " + uri}
+            />
 
         </div>
     </div>

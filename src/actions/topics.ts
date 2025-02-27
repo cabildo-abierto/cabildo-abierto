@@ -696,10 +696,17 @@ export async function getCategoriesNoCache() {
 
 export async function getTextFromBlob(blob: {cid: string, authorId: string}){
     return await unstable_cache(async () => {
-        const response = await fetchBlob(blob)
-        if(!response) return null
-        const responseBlob = await response.blob()
-        return await responseBlob.text()
+        try {
+            const response = await fetchBlob(blob)
+            if(!response.ok) return null
+            const responseBlob = await response.blob()
+            if(!responseBlob) return null
+            return await responseBlob.text()
+        } catch (e) {
+            console.log("Error getting text from blob", blob)
+            console.log(e)
+            return null
+        }
     }, ["blob:"+blob.authorId+":"+blob.cid], {
         tags: ["blob:"+blob.authorId+":"+blob.cid, "blobs"],
         revalidate: revalidateEverythingTime
