@@ -8,6 +8,7 @@ import {
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import {getDidFromUri, getRkeyFromUri} from "../components/utils";
+import {QuotedContent} from "../components/feed/content-quote";
 
 
 export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: boolean}{
@@ -82,6 +83,23 @@ export function useTopic(id: string): {topic: TopicProps, error?: string, isLoad
 
     return {
         topic: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useQuotedContent(uri: string): {quotedContent: QuotedContent, error?: string, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/quoted-content/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        quotedContent: data,
         isLoading,
         isError: error
     }

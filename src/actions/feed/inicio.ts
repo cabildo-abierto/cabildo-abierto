@@ -6,6 +6,7 @@ import {
 } from "../../app/lib/definitions";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {
+    enDiscusionQuery,
     queryPostsFollowingFeedCA
 } from "../utils";
 import {popularityScore} from "../../components/popularity-score";
@@ -14,10 +15,13 @@ import {listOrder, listOrderDesc} from "../../components/utils";
 import {getFollowing} from "../users";
 import {addCountersToFeed, addReasonToRepost, joinCAandATFeeds} from "./utils";
 import {getFeedCA, getFeedCACached} from "./feedCA";
+import {FeedViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 
 
 export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[], error?: string}> {
     const following = [did, ...(await getFollowing(did))]
+
+    console.log("getting following feed CA")
 
     const authorCond = {
         authorId: {
@@ -28,7 +32,7 @@ export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[
     //const t1 = new Date().getTime()
     let postsQuery = getFeedCA(following)
     let repostsQuery = db.record.findMany({
-        select: queryPostsFollowingFeedCA,
+        select: enDiscusionQuery,
         where: {
             reactions: {
                 some: {
@@ -39,11 +43,15 @@ export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[
                 }
             },
             collection: {
-                in: ["ar.com.cabildoabierto.article"]
+                in: ["ar.com.cabildoabierto.article", "ar.com.cabildoabierto.quotePost"]
             }
         },
     })
+
     const [posts, reposts] = await Promise.all([postsQuery, repostsQuery])
+
+    console.log("reposts", reposts)
+
     //const t2 = new Date().getTime()
     //console.log("following feed query time", t2-t1)
 
@@ -71,8 +79,12 @@ export async function getFollowingFeed(){
     const [feedCA, {data}] = await Promise.all([feedCAPromise, timelinePromise])
     //const t3 = new Date().getTime()
 
+    function isRepost(r: FeedViewPost){
+        return r.reason && (r.reason.$type == "app.bsky.feed.repost" || r.reason.$type == "app.bsky.feed.defs#reasonRepost")
+    }
+
     const feedBsky = data.feed.filter((r) => {
-        return (r.post.record as {reply?: any}).reply == undefined
+        return isRepost(r) || (r.post.record as {reply?: any}).reply == undefined
     })
 
     let feed = joinCAandATFeeds(feedCA.feed, feedBsky)

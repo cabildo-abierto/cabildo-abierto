@@ -134,9 +134,11 @@ export function isPrefix(p: any[], q: any[]){
 }
 
 
-export function newestFirst(a: {createdAt?: Date}, b: {createdAt?: Date}){
+export function newestFirst(a: {createdAt?: Date, reason?: {createdAt: Date}}, b: {createdAt?: Date, reason?: {createdAt: Date}}){
     if(!a.createdAt || !b.createdAt) return 0
-    return b.createdAt.getTime() - a.createdAt.getTime()
+    const dateA = a.reason ? a.reason.createdAt : a.createdAt
+    const dateB = b.reason ? b.reason.createdAt : b.createdAt
+    return new Date(dateB).getTime() - new Date(dateA).getTime()
 }
 
 

@@ -6,6 +6,8 @@ import {getTopicTitle} from "../topic/utils";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import "../editor/article-content.css"
+import { useQuotedContent } from "../../hooks/contents";
+import LoadingSpinner from "../loading-spinner";
 
 
 function filterOutsideSelection(node: any, start: number[] | undefined, startOffset: number | undefined, end: number[] | undefined, endOffset: number | undefined){
@@ -106,18 +108,52 @@ export type QuotedContent = {
 }
 
 
+const ContentQuoteWithNoContent = ({
+   post, quote, onClick, showContext=false
+}: {
+    quote?: string
+    post?: {cid?: string, content: {post: {replyTo?: {uri: string}}}}
+    onClick?: () => void
+    showContext?: boolean
+}) => {
+    const {quotedContent} = useQuotedContent(post.content.post.replyTo.uri)
+
+    if(!quotedContent){
+        return <div className={"py-4"}>
+            <LoadingSpinner/>
+        </div>
+    }
+    return <ContentQuote
+        post={post}
+        quote={quote}
+        onClick={onClick}
+        showContext={showContext}
+        quotedContent={quotedContent}
+    />
+}
+
+
 export const ContentQuote = ({
     post, quote, onClick, quotedContent, showContext=false}: {
     quotedContent: QuotedContent
     quote?: string
-    post?: {cid?: string}
+    post?: {cid?: string, content: {post: {replyTo?: {uri: string}}}}
     onClick?: () => void
     showContext?: boolean
 }) => {
     const router = useRouter()
 
-    if(!quote || !quotedContent.content){
+    if(!quote){
         return null
+    }
+
+    if(!quotedContent.content && post.content.post.replyTo){
+        return <ContentQuoteWithNoContent
+            post={post}
+            quote={quote}
+            onClick={onClick}
+            showContext={showContext}
+        />
     }
 
     const collection = getCollectionFromUri(quotedContent.uri)
