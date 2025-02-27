@@ -7,6 +7,7 @@ import {FastPostProps, FastPostReplyProps, VisualizationProps} from "../app/lib/
 import {getDidFromUri, getRkeyFromUri, getUri, getVisualizationTitle, splitUri} from "../components/utils";
 import {revalidateTag, unstable_cache} from "next/cache";
 import { QuotedContent } from "../components/feed/content-quote";
+import {revalidateEverythingTime} from "./utils";
 
 
 export const addLike = async (uri: string, cid: string) => {
@@ -289,6 +290,6 @@ export async function getQuotedContent({did, rkey}: {did: string, rkey: string})
     }, ["quotedContent:"+did+":"+rkey],
     {
         tags: ["record:"+did+":"+rkey],
-        revalidate: 5
+        revalidate: revalidateEverythingTime
     })()
 }
