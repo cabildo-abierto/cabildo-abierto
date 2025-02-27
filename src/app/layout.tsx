@@ -1,10 +1,27 @@
 import './globals.scss'
 
-import { Merriweather, Roboto, Roboto_Flex, Roboto_Serif, Roboto_Slab, Roboto_Condensed } from 'next/font/google'
+import { Merriweather } from 'next/font/google'
 import { pathLogo } from '../components/logo'
 import {Metadata} from "next";
 import {mainDescription} from "../components/utils/metadata";
 
+import localFont from 'next/font/local'
+
+
+const Roboto_Serif = localFont({
+    src: '../../public/fonts/Roboto_Serif/RobotoSerif-VariableFont_GRAD,opsz,wdth,wght.ttf',
+
+    display: 'swap',
+    weight: "100 900",
+    variable: '--font-roboto-serif',
+})
+
+const Roboto_Flex = localFont({
+    src: '../../public/fonts/roboto_flex/RobotoFlex-VariableFont_GRAD,XOPQ,XTRA,YOPQ,YTAS,YTDE,YTFI,YTLC,YTUC,opsz,slnt,wdth,wght.ttf',
+    display: 'swap',
+    weight: "100 900",
+    variable: '--font-roboto-flex',
+})
 
 const merriweather = Merriweather({
   subsets: ['latin'],
@@ -15,7 +32,9 @@ const merriweather = Merriweather({
 
 
 const fonts = [
-    merriweather.variable
+    merriweather.variable,
+    Roboto_Serif.variable,
+    Roboto_Flex.variable
 ]
 
 
@@ -42,8 +61,8 @@ export default function RootLayout({
             content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
         </meta>
     </head>
-    <body>
-    {children}
+    <body className={"font-flex"}>
+        {children}
     </body>
     </html>
 }

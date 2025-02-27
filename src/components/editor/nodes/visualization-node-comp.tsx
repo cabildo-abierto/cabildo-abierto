@@ -51,8 +51,9 @@ export const VisualizationNodeComp = ({visualization, showEngagement=true}: {
                     <div className={"exclude-links text-sm text-[var(--text-light)] flex flex-col items-center"}>
                         {dataset && (
                             <div className={""}>
-                                <span className={"text-sm text-[var(--text-light)]"}>Datos:</span> <DatasetTitle
-                                dataset={dataset.dataset}/>
+                                <DatasetTitle
+                                    dataset={dataset.dataset}
+                                />
                             </div>
                         )}
                         <UserHandle content={visualization}/>
