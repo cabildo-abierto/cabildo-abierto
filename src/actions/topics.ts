@@ -654,7 +654,16 @@ export async function getCategoriesNoCache() {
             versions: {
                 select: {
                     categories: true,
-                    uri: true
+                    uri: true,
+                    content: {
+                        select: {
+                            record: {
+                                select: {
+                                    createdAt: true
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -802,12 +811,21 @@ export async function deleteTopicVersionsForUser(){
 
 
 export async function getCategoriesGraphNoCache(): Promise<TopicsGraph> {
-    let topics: MapTopicProps[] = await db.topic.findMany({
+    let topics = await db.topic.findMany({
         select: {
             id: true,
             versions: {
                 select: {
-                    categories: true
+                    categories: true,
+                    content: {
+                        select: {
+                            record: {
+                                select: {
+                                    createdAt: true
+                                }
+                            }
+                        }
+                    }
                 }
             },
             referencedBy: {
@@ -889,12 +907,21 @@ export async function getCategoriesGraph(): Promise<TopicsGraph> {
 
 export async function getCategoryGraphNoCache(cat: string): Promise<TopicsGraph> {
 
-    let topics: MapTopicProps[] = await db.topic.findMany({
+    let topics = await db.topic.findMany({
         select: {
             id: true,
             versions: {
                 select: {
-                    categories: true
+                    categories: true,
+                    content: {
+                        select: {
+                            record: {
+                                select: {
+                                    createdAt: true
+                                }
+                            }
+                        }
+                    }
                 }
             },
             referencedBy: {
@@ -1007,6 +1034,8 @@ export async function getTopicsByCategoriesNoCache(sortedBy: string): Promise<{c
     }
 
     function cmpCat(a: [string, string[]], b: [string, string[]]){
+        if(a[0] == "Sin categoría") return 1
+        if(b[0] == "Sin categoría") return -1
         let sa = 0
         let sb = 0
         a[1].forEach((v) => {

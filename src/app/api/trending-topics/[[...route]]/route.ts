@@ -10,7 +10,7 @@ export async function GET(req: NextRequest,
     const url = new URL(req.url);
     const searchParams = url.searchParams;
 
-    let {topics} = await getTrendingTopics(searchParams.get("since"), [], "popular", 10)
+    let {topics} = await getTrendingTopics(searchParams.get("since"), params.categories ? params.categories : [], "popular", 10)
 
     return NextResponse.json(topics)
 }
