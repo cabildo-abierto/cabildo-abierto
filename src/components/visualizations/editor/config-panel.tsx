@@ -98,7 +98,6 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                         updateConfig("kind", v)
                     }}
                     label="Tipo de gráfico"
-                    firstDisabled={true}
                 />
                 {config.kind != "Tipo de gráfico" && config.datasetUri != null && dataset != null && <>
                     {configReq.get(config.kind).map((req, i) => {

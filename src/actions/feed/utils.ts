@@ -27,8 +27,8 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
     const content = {
         text: record.text,
         post: {
-            replyTo: {...replyTo, uri: replyTo.uri},
-            root: {...root, uri: root.uri},
+            replyTo: replyTo ? {...replyTo, uri: replyTo.uri} : undefined,
+            root: root ? {...root, uri: root.uri} : undefined,
             grandparentAuthor,
             facets: record.facets ? JSON.stringify(record.facets) : undefined,
             embed: record.embed ? JSON.stringify(record.embed) : undefined

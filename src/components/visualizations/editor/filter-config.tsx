@@ -29,6 +29,7 @@ export const FilterConfig = ({filter, updateFilter, config, dataset, onRemove}: 
             options={filterOptions}
             label={"Operador"}
             value={filter.op}
+            fontSize={"14px"}
             onChange={(c: string) => {
                 updateFilter({
                     op: c,
