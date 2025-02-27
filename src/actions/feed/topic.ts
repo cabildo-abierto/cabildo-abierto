@@ -18,18 +18,30 @@ export async function getTopicFeed(id: string): Promise<{feed?: FeedContentProps
                 collection: {
                     in: ["app.bsky.feed.post", "ar.com.cabildoabierto.quotePost"]
                 },
-                content: {
-                    post: {
-                        replyTo: {
-                            collection: "ar.com.cabildoabierto.topic",
-                            content: {
-                                topicVersion: {
-                                    topicId: id
+                OR: [{
+                        content: {
+                            post: {
+                                replyTo: {
+                                    collection: "ar.com.cabildoabierto.topic",
+                                    content: {
+                                        topicVersion: {
+                                            topicId: id
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        content: {
+                            references: {
+                                some: {
+                                    referencedTopicId: id
                                 }
                             }
                         }
                     }
-                }
+                ]
             },
             orderBy: {
                 createdAt: "desc"
@@ -37,6 +49,8 @@ export async function getTopicFeed(id: string): Promise<{feed?: FeedContentProps
         })
 
         const readyForFeed = addCountersToFeed(feed, did)
+
+        console.log("Topic feed", readyForFeed)
 
         return {feed: readyForFeed}
     } catch (e) {

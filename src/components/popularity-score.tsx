@@ -1,6 +1,9 @@
 import {FeedContentProps} from "../app/lib/definitions";
 
+
+
 export function popularityScore(content: FeedContentProps){
+
     if(content.participantsCount == undefined || content.uniqueViewsCount == undefined){
         return [0]
     }

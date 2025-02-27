@@ -2,6 +2,7 @@
 import { db } from "../db";
 import { getSessionAgent } from "./auth";
 import {getCollectionFromUri, getRkeyFromUri} from "../components/utils";
+import {revalidateTags} from "./admin";
 
 
 
@@ -111,6 +112,21 @@ export async function deleteRecords({uris, author, atproto}: {uris?: string[], a
         }
     })
     await db.$transaction([d1, d2, d3, d5, d6, d7, d8, d9, d4, d10])
+
+    const tags = new Set<string>()
+    for(let i = 0; i < uris.length; i++){
+        const c = getCollectionFromUri(uris[i])
+        if(c == "ar.com.cabildoabierto.topic"){
+            tags.add("topics")
+        }
+        if(c == "app.bsky.feed.post"){
+            tags.add("feedCA")
+        }
+        if(c == "ar.com.cabildoabierto.article"){
+            tags.add("feedCA")
+        }
+    }
+    await revalidateTags(Array.from(tags))
 }
 
 
