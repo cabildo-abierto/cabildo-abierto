@@ -31,6 +31,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
 
     const handleOptionSelect = (option: string) => {
         onSelect(option)
+        onChange(option)
         setShowDropdown(false)
     };
 
