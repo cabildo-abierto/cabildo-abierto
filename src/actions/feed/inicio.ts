@@ -10,7 +10,7 @@ import {
     queryPostsFollowingFeedCA
 } from "../utils";
 import {popularityScore} from "../../components/popularity-score";
-import {listOrder, listOrderDesc} from "../../components/utils";
+import {listOrder, listOrderDesc, newestFirst} from "../../components/utils";
 
 import {getFollowing} from "../users";
 import {addCountersToFeed, addReasonToRepost, joinCAandATFeeds} from "./utils";
@@ -20,8 +20,6 @@ import {FeedViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 
 export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[], error?: string}> {
     const following = [did, ...(await getFollowing(did))]
-
-    console.log("getting following feed CA")
 
     const authorCond = {
         authorId: {
@@ -50,8 +48,6 @@ export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[
 
     const [posts, reposts] = await Promise.all([postsQuery, repostsQuery])
 
-    console.log("reposts", reposts)
-
     //const t2 = new Date().getTime()
     //console.log("following feed query time", t2-t1)
 
@@ -60,7 +56,7 @@ export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[
         ...addCountersToFeed(reposts, did).map((r) => (addReasonToRepost(r, following)))
     ]
 
-    return {feed}
+    return {feed: feed.sort(newestFirst).slice(0, 50)}
 }
 
 

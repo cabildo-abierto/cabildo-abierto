@@ -63,9 +63,7 @@ export async function repliesFeedCAQuery(authors?: string[]){
 
 
 export async function getFeedCA(authors?: string[], includeAllReplies: boolean = false): Promise<FeedContentProps[]> {
-    //const t1 = new Date().getTime()
     let result = includeAllReplies ? await repliesFeedCAQuery(authors) : await feedCAQuery(authors)
-    //const t2 = new Date().getTime()
 
     const feedUris = result.map(({uri}) => uri).filter((x) => (x != null))
     const feedUrisSet = new Set(feedUris)
@@ -89,18 +87,22 @@ export async function getFeedCA(authors?: string[], includeAllReplies: boolean =
         recordsByUri.set(records[i].uri, records[i])
     }
 
-    //const t3 = new Date().getTime()
-
     let feed = records.filter(({uri}) => feedUrisSet.has(uri))
 
     for(let i = 0; i < feed.length; i++){
         if(isPost(feed[i].collection)){
             const post = feed[i] as FastPostProps
             if(post.content.post.replyTo){
-                (feed[i] as FastPostProps).content.post.replyTo = {...recordsByUri.get(post.content.post.replyTo.uri), ...(feed[i] as FastPostProps).content.post.replyTo}
+                (feed[i] as FastPostProps).content.post.replyTo = {
+                    ...recordsByUri.get(post.content.post.replyTo.uri),
+                    uri: (feed[i] as FastPostProps).content.post.replyTo.uri
+                }
             }
             if(post.content.post.root){
-                (feed[i] as FastPostProps).content.post.root = {...recordsByUri.get(post.content.post.root.uri), ...(feed[i] as FastPostProps).content.post.replyTo}
+                (feed[i] as FastPostProps).content.post.root = {
+                    ...recordsByUri.get(post.content.post.root.uri),
+                    uri: (feed[i] as FastPostProps).content.post.root.uri
+                }
             }
         }
     }
