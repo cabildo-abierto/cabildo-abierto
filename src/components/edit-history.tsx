@@ -20,6 +20,7 @@ import { NeedAccountPopup } from "./need-account-popup";
 import {ProfilePic} from "./feed/profile-pic";
 import {LikeCounter} from "./like-counter";
 import {ContentOptionsButton} from "./content-options/content-options-button";
+import {revalidateTags} from "../actions/admin";
 
 
 const EditDetails = ({editType}: {editType: string}) => {
@@ -115,7 +116,6 @@ const AssignAuthorshipButtons = ({topic, version}: {topic: TopicProps, version: 
 
 
 const EditMessage = ({msg, editType}: { msg?: string, editType: string }) => {
-    console.log("edit msg is", msg)
     return <span className="text-sm">
         {(msg != null && msg.length > 0) ? msg : (editType == "Contenido" ? "sin descripción" : "")}
     </span>
@@ -137,6 +137,8 @@ const MonetizationPortion = ({entity, index}: { entity: TopicProps, index: numbe
 const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
     const [showingRemoveAuthorshipPanel, setShowingRemoveAuthorshipPanel] = useState(false)
     const router = useRouter()
+    const {mutate} = useSWRConfig()
+
 
     async function onRemoveAuthorship(){
         //return await removeEntityAuthorship(entity.versions[index].id, entity.id)
@@ -192,7 +194,13 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                         <div>
                             <DateSince date={entityVersion.content.record.createdAt}/>
                         </div>
-                        <ContentOptionsButton record={{collection: "ar.com.cabildoabierto.topic", ...entityVersion.content.record}}/>
+                        <ContentOptionsButton
+                            record={{collection: "ar.com.cabildoabierto.topic", ...entityVersion.content.record}}
+                            onDelete={async () => {
+                                await revalidateTags(["topic:"+entity.id])
+                                mutate("/api/topic/"+entity.id)
+                            }}
+                        />
                     </div>
                 </div>
                 <div className={"flex justify-between w-full"}>
@@ -222,7 +230,8 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                                     router.push(articleUrl(entity.id, index, true))
                                 }}>
                                     Ver cambios
-                                </div>}
+                                </div>
+                            }
                         </div>}
                     </div>
 

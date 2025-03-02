@@ -1,14 +1,23 @@
-import {getSessionAgent} from "../auth";
-import {addCountersToFeed, joinCAandATFeeds} from "./utils";
+import {addCountersToFeed} from "./utils";
 import {db} from "../../db";
-import {FastPostProps, FeedContentProps} from "../../app/lib/definitions";
-import {getDidFromUri, isPost} from "../../components/utils";
-import {enDiscusionQuery, revalidateEverythingTime} from "../utils";
+import {ArticleProps, FastPostProps, FeedContentProps, TopicVersionProps} from "../../app/lib/definitions";
+import {isPost, validQuotePost} from "../../components/utils";
+import {enDiscusionQuery} from "../utils";
 import {unstable_cache} from "next/cache";
 import { Prisma } from "@prisma/client";
 
 export async function getFeedCAForViewer(did: string, following?: string[], includeAllReplies: boolean = false){
-    const feed = await getFeedCA(following, includeAllReplies)
+    let feed = await getFeedCA(following, includeAllReplies)
+
+    feed = feed.filter((r) => {
+        if(r.collection == "ar.com.cabildoabierto.quotePost"){
+            const post = r as FastPostProps
+            return validQuotePost(((post.content.post.replyTo) as ArticleProps | TopicVersionProps).content, post)
+        } else {
+            return true
+        }
+    })
+
     const readyForFeed = addCountersToFeed(feed, did)
     return {feed: readyForFeed}
 }
@@ -58,6 +67,7 @@ export async function repliesFeedCAQuery(authors?: string[]){
               AND r_reply."authorId" = r."authorId"
         );
     `;
+    console.log(result)
     return result
 }
 
@@ -133,7 +143,7 @@ export const getFeedCACached = async () => {
         ["feedCA"],
         {
             tags: ["feedCA"],
-            revalidate: revalidateEverythingTime
+            revalidate: 60
         }
     )()
 }

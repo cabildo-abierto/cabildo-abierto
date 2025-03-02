@@ -42,7 +42,7 @@ export function processReactions(did: string, reactions: {record: {author: {did:
 }
 
 
-export function addCounters(did: string, elem: any): any {
+export function addCounters(did: string, elem: any, replies?: any[]): any {
     if(elem.content && elem.content.post){
         if(elem.content.post.replyTo && elem.content.post.replyTo.reactions != undefined){
             elem.content.post.replyTo = addCounters(did, elem.content.post.replyTo)
@@ -78,7 +78,7 @@ export function addCounters(did: string, elem: any): any {
         ...elem,
         viewer: {like, repost},
         likeCount,
-        replyCount: elem.replies ? elem.replies.length : (elem._count ? elem._count.replies : undefined),
+        replyCount: replies ? replies.length : elem.replies ? elem.replies.length : (elem._count ? elem._count.replies : undefined),
         repostCount,
         participantsCount: participants.size,
         uniqueViewsCount: viewers.size,
@@ -464,6 +464,12 @@ export const threadQuery = {
     content: {
         select: {
             text: true,
+            textBlob: {
+                select: {
+                    authorId: true,
+                    cid: true
+                }
+            },
             article: {
                 select: {
                     title: true

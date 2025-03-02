@@ -2,7 +2,7 @@
 
 import {currentCategories} from "../utils";
 import { TopicProps } from "../../app/lib/definitions";
-import {updateCategoriesInTopic} from "../../actions/topics";
+import {updateCategoriesInTopic} from "../../actions/write/topic";
 import {useCategories} from "../../hooks/contents";
 import {ListEditor} from "../ui-utils/list-editor";
 import {useSWRConfig} from "swr";

@@ -23,9 +23,9 @@ export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: 
 }
 
 
-export function useFeed(route: string[], feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
+export function useFeed(feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
 
-    const { data, isLoading } = useSWR('/api/feed/'+[...route, feed].join("/"), fetcher,
+    const { data, isLoading } = useSWR('/api/feed/'+feed, fetcher,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
@@ -170,8 +170,8 @@ export function useVisualizations(): {visualizations: VisualizationProps[], isLo
 }
 
 
-export function useThread({did, viewerDid, rkey}: {did: string, viewerDid: string, rkey: string}): {thread: ThreadProps, isLoading: boolean, error?: string}{
-    const { data, error, isLoading } = useSWR('/api/thread/'+did+"/"+rkey+"/"+viewerDid, fetcher,
+export function useThread({did, rkey}: {did: string, rkey: string}): {thread: ThreadProps, isLoading: boolean, error?: string}{
+    const { data, error, isLoading } = useSWR('/api/thread/'+did+"/"+rkey, fetcher,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
@@ -319,7 +319,13 @@ export function useCategoryGraph(c: string): {graph: TopicsGraph, isLoading: boo
 
 
 export function useProfileFeed(id: string, kind: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
-    const { data, error, isLoading } = useSWR('/api/profile-feed/'+id+"/"+kind, fetcher)
+    const { data, error, isLoading } = useSWR('/api/profile-feed/'+id+"/"+kind, fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
 
     if(data && data.error){
         return {feed: undefined, isLoading: false, error: data.error}

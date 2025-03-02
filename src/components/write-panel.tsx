@@ -1,7 +1,6 @@
 import React, { useState } from "react"
 import StateButton from "./state-button"
 import { useUser } from "../hooks/user"
-import { createFastPost } from "../actions/contents"
 import { ExtraChars } from "./extra-chars"
 import { FastPostImagesEditor } from "./fast-post-images-editor"
 import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup"
@@ -22,13 +21,23 @@ import {Button, TextField} from "@mui/material";
 import {useRouter} from "next/navigation";
 import TickButton from "./tick-button";
 import {useSWRConfig} from "swr";
-import {createTopic} from "../actions/topics";
-import {articleUrl, emptyChar, ErrorMsg, getDidFromUri, getRkeyFromUri, validEntityName} from "./utils";
+import {createTopic} from "../actions/write/topic";
+import {
+    articleUrl,
+    emptyChar,
+    ErrorMsg,
+    getCollectionFromUri,
+    getDidFromUri,
+    getRkeyFromUri,
+    validEntityName
+} from "./utils";
 import Link from "next/link";
 import {BasicButton} from "./ui-utils/basic-button";
 import {ReplyToContent} from "./editor/plugins/CommentPlugin";
 import {ContentQuote} from "./feed/content-quote";
 import {VisualizationNodeComp} from "./editor/nodes/visualization-node-comp";
+import { createFastPost } from "../actions/write/post"
+import {smoothScrollTo} from "./editor/plugins/TableOfContentsPlugin";
 
 
 function replyFromParentElement(replyTo: FeedContentProps): FastPostReplyProps {
@@ -162,10 +171,12 @@ const CreateTopic = ({onClose}: {onClose: () => void}) => {
 }
 
 
-const WriteFastPost = ({replyTo, onClose, quote}: {
+const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
     replyTo: ReplyToContent,
     quote?: string
-    onClose: () => void}) => {
+    onClose: () => void
+    onSubmit?: () => Promise<void>
+}) => {
     const {user} = useUser()
     const [editorKey, setEditorKey] = useState(0)
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
@@ -222,10 +233,11 @@ const WriteFastPost = ({replyTo, onClose, quote}: {
         setErrorOnCreatePost(false)
         if (user) {
             const reply = replyTo ? replyFromParentElement(replyTo) : undefined
-            const {error} = await createFastPost({text, reply, visualization, quote})
+            const {error, ref} = await createFastPost({text, reply, visualization, quote})
             if(reply){
-                mutate("/api/thread/"+getDidFromUri(reply.parent.uri)+"/"+getRkeyFromUri(reply.parent.uri))
-                mutate("/api/thread/"+getDidFromUri(reply.root.uri)+"/"+getRkeyFromUri(reply.root.uri))
+                await onSubmit()
+                await mutate("/api/thread/"+getDidFromUri(reply.parent.uri)+"/"+getRkeyFromUri(reply.parent.uri))
+                await mutate("/api/thread/"+getDidFromUri(reply.root.uri)+"/"+getRkeyFromUri(reply.root.uri))
             }
 
             if (!error) {
@@ -249,6 +261,9 @@ const WriteFastPost = ({replyTo, onClose, quote}: {
             </div>
             {visualization && <VisualizationNodeComp visualization={visualization} showEngagement={false} />}
             <FastPostImagesEditor images={images} setImages={setImages}/>
+            {errorOnCreatePost && <div className={"px-2 text-sm text-[var(--text-light)]"}>
+                Ocurrió un error al intentar crear el post.
+            </div>}
         </div>
         <div>
             <hr className=""/>
@@ -283,11 +298,13 @@ type WritePanelProps = {
     open: boolean
     onClose: () => void
     quote?: string
+    onSubmit?: () => Promise<void>
 }
 
 
 export const WritePanel = ({
-       replyTo, open, onClose, quote}: WritePanelProps) => {
+       replyTo, open, onClose, quote, onSubmit
+}: WritePanelProps) => {
     const {user} = useUser();
     const [selected, setSelected] = useState("Post")
     const router = useRouter()
@@ -334,7 +351,7 @@ export const WritePanel = ({
         <div className="flex justify-between items-start space-x-2 pl-1 pr-2">
             {isReply ?
                 (replyTo.collection == "ar.com.cabildoabierto.topic" || replyTo.collection == "ar.com.cabildoabierto.article" ?
-                    <div>
+                    <div className={"w-full mr-4"}>
                         <ContentQuote
                             quotedContent={replyTo}
                             quote={quote}
@@ -353,7 +370,12 @@ export const WritePanel = ({
             }
             <CloseButton size="small" onClose={onClose}/>
         </div>
-        {selected == "Post" && <WriteFastPost onClose={onClose} replyTo={replyTo} quote={quote}/>}
+        {selected == "Post" && <WriteFastPost
+            onClose={onClose}
+            replyTo={replyTo}
+            quote={quote}
+            onSubmit={onSubmit}
+        />}
         {selected == "Tema" && <CreateTopic onClose={onClose}/>}
     </>
 

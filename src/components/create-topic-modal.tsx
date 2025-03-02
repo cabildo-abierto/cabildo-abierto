@@ -8,7 +8,7 @@ import TickButton from "./tick-button";
 import {articleUrl, ErrorMsg, validEntityName} from "./utils";
 import { BaseFullscreenPopup } from "./ui-utils/base-fullscreen-popup";
 import {TextField} from "@mui/material";
-import {createTopic} from "../actions/topics";
+import {createTopic} from "../actions/write/topic";
 
 
 

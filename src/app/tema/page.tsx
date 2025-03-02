@@ -12,7 +12,7 @@ export async function generateMetadata({searchParams}: {searchParams: {i: string
 const Page = async ({searchParams}: {searchParams: {i: string, v?: number, c?: string}}) => {
 
     return <TopicPage
-        topicId={encodeURIComponent(searchParams.i)}
+        topicId={searchParams.i}
         paramsVersion={searchParams.v}
         changes={searchParams.c == "true"}
     />

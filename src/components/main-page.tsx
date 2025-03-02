@@ -13,8 +13,8 @@ type MainPageProps = {
 
 
 export const MainPage = ({paramsSelected, showRoute=true}: MainPageProps) => {
-    const feed = useFeed([], "InDiscussion")
-    const followingFeed = useFeed([], "Following")
+    const feed = useFeed("InDiscussion")
+    const followingFeed = useFeed("Following")
     const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "En discusión")
 
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")

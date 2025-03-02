@@ -77,7 +77,6 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
 }) => {
 
     function updateFilter(i: number, value: FilterProps) {
-        console.log("setting filter", i, value)
         if(!config.filters){
             updateConfig("filters", [value])
         }

@@ -12,9 +12,8 @@ const VoteSelector = ({ options, value, onChange }: {
     onChange: (v: string) => void
 }) => {
     const colors = ["bg-green-400", "bg-red-400", "bg-blue-400", "bg-yellow-400"]
-    if(value){
-        console.log("selected option", value, options)
-    }
+
+
     return (
         <div className="flex space-x-3">
             {options.map((option, index) => (

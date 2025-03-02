@@ -8,6 +8,7 @@ import {revalidateTags} from "./admin";
 
 export async function deleteRecords({uris, author, atproto}: {uris?: string[], author?: string, atproto: boolean}){
     const {agent, did} = await getSessionAgent()
+    if(!agent) return
 
     if(atproto){
         for(let i = 0; i < uris.length; i++){
@@ -117,13 +118,13 @@ export async function deleteRecords({uris, author, atproto}: {uris?: string[], a
     for(let i = 0; i < uris.length; i++){
         const c = getCollectionFromUri(uris[i])
         if(c == "ar.com.cabildoabierto.topic"){
-            tags.add("topics")
+        }
+        if(c == "app.bsky.feed.post" || c == "ar.com.cabildoabierto.quotePost"){
+
         }
         if(c == "app.bsky.feed.post"){
-            tags.add("feedCA")
         }
         if(c == "ar.com.cabildoabierto.article"){
-            tags.add("feedCA")
         }
     }
     await revalidateTags(Array.from(tags))

@@ -4,10 +4,12 @@ import {getTopicTitle} from "../topic/utils";
 import {CustomLink as Link} from "../custom-link";
 import {articleUrl} from "../utils";
 import {TopicCategories} from "../entity-categories-small";
+import {useRouter} from "next/navigation";
 
 export const TrendingArticlesSlider = ({trendingArticles}: {
     trendingArticles: SmallTopicProps[]}) => {
     const [hovering, setHovering] = useState<number>(undefined)
+    const router = useRouter()
 
     return (
         <div
@@ -16,7 +18,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
             {trendingArticles.map((topic, index) => {
 
                 const title = getTopicTitle(topic)
-                return <Link href={articleUrl(topic.id)} draggable={false}
+                return <div onClick={() => {router.push(articleUrl(topic.id))}} draggable={false}
                      className="flex flex-col py-4 w-full px-3 sm:text-sm text-xs text-[0.72rem] hover:bg-[var(--background-dark)]"
                      key={topic.id}
                      onMouseLeave={() => {
@@ -26,7 +28,11 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                          setHovering(index)
                      }}
                 >
-                    <TopicCategories topic={topic} className={"text-xs text-[var(--text-light)]"} maxCount={1}/>
+                    <TopicCategories
+                        topic={topic}
+                        className={"text-xs text-[var(--text-light)]"}
+                        maxCount={1}
+                    />
 
                     <div className={"font-semibold w-full " + (hovering == index ? "" : "truncate")}>
                         {title}
@@ -39,7 +45,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                             {topic.score[0]} {topic.score[0] == 1 ? "persona" : "personas."}
                         </div>
                     </div>
-                </Link>
+                </div>
             })}
             <Link href={"/temas"} className={"text-sm text-[var(--text-light)] px-3 py-1"}>
                 Ver más

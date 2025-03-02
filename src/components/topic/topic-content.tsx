@@ -1,4 +1,4 @@
-import {currentVersion, hasChanged, hasEditPermission} from "../utils";
+import {currentVersion, hasChanged, hasEditPermission, PrettyJSON} from "../utils";
 import {ArticleOtherOptions} from "./article-other-options";
 import {SetProtectionButton} from "../protection-button";
 import {EditHistory} from "../edit-history";
@@ -8,8 +8,7 @@ import {ToggleButton} from "../toggle-button";
 import {wikiEditorSettings} from "../editor/wiki-editor";
 import {NeedAccountPopup} from "../need-account-popup";
 import {useEffect, useState} from "react";
-import StateButton from "../state-button";
-import {createTopicVersion} from "../../actions/topics";
+import {createTopicVersion} from "../../actions/write/topic";
 import {compress} from "../compression";
 import {EditorState, LexicalEditor} from "lexical";
 import {useSWRConfig} from "swr";
@@ -29,20 +28,38 @@ const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { s
 export const articleButtonClassname = "article-btn sm:min-w-24 sm:text-[15px] text-sm px-1 lg:px-2 py-1"
 
 
-function topicVersionPropsToReplyToContent(topicVersion: TopicVersionProps): ReplyToContent {
+function topicVersionPropsToReplyToContent(topicVersion: TopicVersionProps, topicId: string): ReplyToContent {
     return {
         uri: topicVersion.uri,
         cid: topicVersion.content.record.cid,
         collection: "ar.com.cabildoabierto.topic",
         author: topicVersion.content.record.author,
-        content: topicVersion.content
+        content: {
+            ...topicVersion.content,
+            topicVersion: {
+                topic: {
+                    id: topicId
+                }
+            }
+        }
     }
 }
 
 
 export const TopicContent = ({
-                                 topic, version, viewingContent, setViewingContent, selectedPanel, setSelectedPanel, quoteReplies, pinnedReplies, setPinnedReplies}: {
-    topic: TopicProps, version: number, viewingContent: boolean, setViewingContent: (v: boolean) => void, selectedPanel: string, setSelectedPanel: (v: string) => void, quoteReplies: FastPostProps[], pinnedReplies: string[], setPinnedReplies: (v: string[]) => void}) => {
+     topic, version, viewingContent, setViewingContent, selectedPanel,
+     setSelectedPanel, quoteReplies, pinnedReplies, setPinnedReplies
+}: {
+    topic: TopicProps
+    version: number
+    viewingContent: boolean
+    setViewingContent: (v: boolean) => void
+    selectedPanel: string
+    setSelectedPanel: (v: string) => void
+    quoteReplies: FastPostProps[]
+    pinnedReplies: string[]
+    setPinnedReplies: (v: string[]) => void
+}) => {
     const user = useUser()
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editingRoutes, setEditingRoutes] = useState(false)
@@ -53,23 +70,22 @@ export const TopicContent = ({
     const {mutate} = useSWRConfig()
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
-
     useEffect(() => {
         const hash = window.location.hash
         if (hash) {
             const id = hash.split("#")[1]
             const scrollToElement = () => {
-                const element = document.getElementById(id);
+                const element = document.getElementById(id)
                 if (element) {
                     smoothScrollTo(element)
                     setPinnedReplies([...pinnedReplies, id])
                 } else {
-                    setTimeout(scrollToElement, 100);
+                    setTimeout(scrollToElement, 100)
                 }
-            };
-            scrollToElement();
+            }
+            scrollToElement()
         }
-    }, []);
+    }, [])
 
     const currentIndex = currentVersion(topic)
     const isCurrent = version == currentIndex
@@ -101,8 +117,8 @@ export const TopicContent = ({
             if(!result) return {error: "Ocurrió un error al guardar los cambios. e02."}
             if(result.error) return {error: result.error}
 
+            mutate("/api/topic/"+encodeURIComponent(topic.id))
             mutate("/api/topic/"+topic.id)
-            mutate("/api/topics")
             setShowingSaveEditPopup(false)
             setSelectedPanel("none")
             return {}
@@ -168,61 +184,10 @@ export const TopicContent = ({
         />
     }
 
-    const RecomputeContributionsButton = () => {
-        return <StateButton
-            variant="text"
-            text1="Recalcular contribuciones"
-            text2="Recalculando..."
-            handleClick={async () => {
-                //return await recomputeEntityContributions(entityId)
-                return {}
-            }}
-        />
-    }
-
-    const RemoveHistoryButton = () => {
-        return <StateButton
-            variant="text"
-            text1="Eliminar historial"
-            text2="Eliminando..."
-            handleClick={async () => {
-                /*const {error} = await deleteEntityHistory(entityId, false);
-                mutate("/api/entity/"+entityId)
-                return {error}*/
-                return {}
-            }}
-        />
-    }
-
-
-    const RebootArticleButton = () => {
-        return <StateButton
-            variant="text"
-            text1="Reiniciar"
-            text2="Reiniciando..."
-            handleClick={async () => {
-                /*const {error} = await deleteEntityHistory(entityId, true);
-                mutate("/api/entity/"+entityId)
-                return {error}*/
-                return {}
-            }}
-        />
-    }
-
-    const UpdateWeakReferencesButton = () => {
-        return <StateButton
-            variant="text"
-            text1="Actualizar weak references"
-            text2="Actualizando..."
-            handleClick={async () => {
-                //return await updateAllWeakReferences()
-                return {}
-            }}
-        />
-    }
-
     const currentContentVersion = getCurrentContentVersion(topic, version)
     const content = topic.versions[currentContentVersion]
+
+    const editorId = content.uri+"-"+quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-")
 
     const editorComp = <>
         {showingSaveEditPopup && <SaveEditPopup
@@ -254,13 +219,14 @@ export const TopicContent = ({
                 />
             }
         </div>
+
         <div id="editor" className={"pb-2"}>
             {(((selectedPanel != "changes" || version == 0) && selectedPanel != "authors")) &&
-                <div className={"px-2 " + (selectedPanel == "editing" ? "mb-32": "mb-8")} key={content.content.record.cid+selectedPanel+viewingContent}>
+                <div id={editorId} className={"px-2 " + (selectedPanel == "editing" ? "mb-32": "mb-8")} key={content.content.record.cid+selectedPanel+viewingContent+editorId}>
                     <MyLexicalEditor
                         settings={wikiEditorSettings(
                             selectedPanel != "editing",
-                            topicVersionPropsToReplyToContent(content),
+                            topicVersionPropsToReplyToContent(content, topic.id),
                             content.content.text,
                             content.content.format,
                             viewingContent,
@@ -332,24 +298,9 @@ export const TopicContent = ({
                     />
                 </>}
 
-                {(user.user && (user.user.editorStatus == "Administrator")) &&
-                    <div className="flex justify-center">
-                        <RecomputeContributionsButton/>
-                    </div>
-                }
-
                 {(user.user && user.user.editorStatus == "Administrator") && <>
                     <div className="flex justify-center py-2">
                         <SetProtectionButton entity={topic}/>
-                    </div>
-                    <div className="flex justify-center py-2">
-                        <UpdateWeakReferencesButton/>
-                    </div>
-                    <div className="flex justify-center py-2">
-                        <RemoveHistoryButton/>
-                    </div>
-                    <div className="flex justify-center py-2">
-                        <RebootArticleButton/>
                     </div>
                 </>}
             </div>

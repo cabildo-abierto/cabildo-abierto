@@ -12,9 +12,7 @@ import {myCookieOptions} from "../components/utils";
 
 export async function login(handle: string){
 
-    console.log("creating client")
     const oauthClient = await createClient()
-    console.log("done")
 
     if (typeof handle !== 'string' || !isValidHandle(handle)) {
         return {error: "Nombre de usuario inválido." + (handle.includes("@") ? " Escribilo sin @." : "")}
@@ -38,7 +36,7 @@ export async function login(handle: string){
                     scope: 'atproto transition:generic'
                 })
             } catch(err) {
-                console.log("error on did authorize", err)
+                console.error("error on did authorize", err)
                 return {error: "Falló la conexión."}
             }
         } else {
@@ -63,17 +61,29 @@ export async function getSessionAgent(){
         return {agent: new Agent("https://bsky.social/xrpc"), did: undefined}
     }
 
+    const t1 = Date.now()
     const oauthClient = await createClient()
+    const t2 = Date.now()
 
     try {
         const oauthSession = await oauthClient.restore(session.did)
+        const t3 = Date.now()
         if(oauthSession){
-            return {agent: new Agent(oauthSession), did: session.did}
+            const res = {
+                agent: new Agent(oauthSession),
+                did: session.did
+            }
+            const t4 = Date.now()
+            // console.log("create client time", t2-t1)
+            // console.log("session restore time", t3-t2)
+            // console.log("agent form oauth session time", t4-t3)
+            // console.log("get session agent time", t4-t1)
+            return res
         } else {
             return {agent: new Agent("https://bsky.social/xrpc"), did: undefined}
         }
     } catch (err) {
-        console.log("error", err)
+        console.error("error", err)
         session.destroy()
         return {agent: undefined, did: undefined}
     }

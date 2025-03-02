@@ -4,9 +4,9 @@ import {getEnDiscusion, getFollowingFeed} from "../../../../actions/feed/inicio"
 
 
 export async function GET(req: NextRequest,
-    { params }: { params: { route: string[] } }
+    { params }: { params: { kind: string } }
 ) {
-    const kind = params.route[params.route.length-1]
+    const kind = params.kind
 
     let feed
     if(kind == "InDiscussion"){

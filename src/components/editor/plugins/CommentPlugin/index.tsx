@@ -25,7 +25,7 @@ import {
   createCommand,
 } from 'lexical';
 
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 
 import { AddCommentButton } from './add-comment-button';
@@ -35,6 +35,7 @@ import {FastPostProps, FeedContentProps, SmallUserProps} from "../../../../app/l
 import {QuoteDirProps} from "./show-quote-reply";
 import {$createSidenoteNode, SidenoteNode} from "../../nodes/SidenoteNode";
 import {NodeQuoteReplies} from "./node-quote-replies";
+import {useLayoutConfig} from "../../../layout/layout-config-context";
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -55,7 +56,7 @@ export type ReplyToContent = {
         topicVersion?: {
             topic: {
                 id: string
-                versions: {
+                versions?: {
                     title?: string
                 }[]
             }
@@ -72,142 +73,168 @@ export default function CommentPlugin({
   pinnedReplies: string[]
   setPinnedReplies: (v: string[]) => void
 }): JSX.Element {
-  const [editor] = useLexicalComposerContext();
-  const [activeAnchorKey, setActiveAnchorKey] = useState<NodeKey | null>();
-  const [showCommentInput, setShowCommentInput] = useState(false)
+    const [editor] = useLexicalComposerContext()
+    const [activeAnchorKey, setActiveAnchorKey] = useState<NodeKey | null>()
+    const [showCommentInput, setShowCommentInput] = useState(false)
+    const [nodeIds, setNodeIds] = useState(null)
+    const editorElement = useRef(null)
+    const [rightCoordinates, setRightCoordinates] = useState(null)
+    const {layoutConfig} = useLayoutConfig()
 
-  // a map from nodeIds to lists of cids, nodes only include children of the root
-  const nodeIds = new Map<number, string[]>
-  if(quoteReplies){
-    for(let i = 0; i < quoteReplies.length; i++){
-      const quote: QuoteDirProps = JSON.parse(quoteReplies[i].content.post.quote)
+    useEffect(() => {
+        if(!quoteReplies) {
+            setNodeIds(new Map<number, string[]>())
+            return
+        }
 
-      const id = quoteReplies[i].cid
-      const node = quote.start.node[0]
+        const quoteRepliesMap = new Map<string, FastPostProps>()
 
-      const cur = nodeIds.get(node)
-      if(cur) nodeIds.set(node, [...cur, id])
-      else nodeIds.set(node, [id])
-    }
-  }
-
-  useEffect(() => {
-    editor.update(() => {
-      const root = $getRoot()
-      const children = root.getChildren()
-      const sidenotes = $nodesOfType(SidenoteNode)
-      if(sidenotes.length > 0) return
-
-      if(quoteReplies){
-        nodeIds.forEach((ids, node) => {
-          $wrapNodeInElement(children[node], () => {return $createSidenoteNode(ids)})
+        const versionReplies = quoteReplies.filter((r) => {
+            console.log("reply", r.content.post.replyTo.uri, "parent", parentContent.uri)
+            return r.content.post.replyTo.uri == parentContent.uri
         })
-      }
-    })
-  }, [])
+        versionReplies.forEach((r) => {
+            quoteRepliesMap.set(r.cid, r)
+        })
 
-  useEffect(() => {
-    return mergeRegister(
-        editor.registerUpdateListener(({editorState, tags}) => {
-          editorState.read(() => {
-            const selection = $getSelection();
-            let hasAnchorKey = false;
+        // a map from nodeIds to lists of cids, nodes only include children of the root
+        const nodeIds = new Map<number, string[]>
+        for(let i = 0; i < versionReplies.length; i++){
+            const quote: QuoteDirProps = JSON.parse(versionReplies[i].content.post.quote)
 
-            if ($isRangeSelection(selection)) {
-              const anchorNode = selection.anchor.getNode();
+            const id = versionReplies[i].cid
+            const node = quote.start.node[0]
 
-              if ($isTextNode(anchorNode)) {
-                if (!selection.isCollapsed()) {
-                  setActiveAnchorKey(anchorNode.getKey());
-                  hasAnchorKey = true;
-                }
-              }
+            const cur = nodeIds.get(node)
+            if(cur) nodeIds.set(node, [...cur, id])
+            else nodeIds.set(node, [id])
+        }
+
+        editor.update(() => {
+            const root = $getRoot()
+            const children = root.getChildren()
+            const sidenotes = $nodesOfType(SidenoteNode)
+            if(sidenotes.length > 0) return
+
+            nodeIds.forEach((ids, node) => {
+                $wrapNodeInElement(children[node], () => {return $createSidenoteNode(ids)})
+            })
+        })
+
+        setNodeIds(nodeIds)
+    }, [quoteReplies])
+
+    useEffect(() => {
+        return mergeRegister(
+            editor.registerUpdateListener(({editorState, tags}) => {
+                editorState.read(() => {
+                    const selection = $getSelection()
+                    let hasAnchorKey = false
+
+                    if ($isRangeSelection(selection)) {
+                        const anchorNode = selection.anchor.getNode()
+
+                        if ($isTextNode(anchorNode)) {
+                            if (!selection.isCollapsed()) {
+                                setActiveAnchorKey(anchorNode.getKey());
+                                hasAnchorKey = true;
+                            }
+                        }
+                    }
+                    if (!hasAnchorKey) {
+                        setActiveAnchorKey(null);
+                    }
+                    if (!tags.has('collaboration') && $isRangeSelection(selection)) {
+                        setShowCommentInput(false);
+                    }
+                })
+            }),
+            editor.registerCommand(
+                INSERT_INLINE_COMMAND,
+                () => {
+                  const domSelection = window.getSelection();
+                  if (domSelection !== null) {
+                    domSelection.removeAllRanges();
+                  }
+                  setShowCommentInput(true);
+                  return true;
+                },
+                COMMAND_PRIORITY_EDITOR,
+            ),
+        )
+    }, [editor])
+
+    const updateCoordinates = () => {
+        if (editorElement.current) {
+            const rect = editorElement.current.getBoundingClientRect();
+            setRightCoordinates(rect.right);
+        }
+    };
+
+    useEffect(() => {
+        updateCoordinates();
+
+        window.addEventListener("resize", updateCoordinates);
+        return () => window.removeEventListener("resize", updateCoordinates);
+    }, [layoutConfig]);
+
+    const cancelAddComment = useCallback(() => {
+        editor.update(() => {
+            const selection = $getSelection()
+            // Restore selection
+            if (selection !== null) {
+                selection.dirty = true
             }
-            if (!hasAnchorKey) {
-              setActiveAnchorKey(null);
-            }
-            if (!tags.has('collaboration') && $isRangeSelection(selection)) {
-              setShowCommentInput(false);
-            }
-          });
-        }),
-        editor.registerCommand(
-            INSERT_INLINE_COMMAND,
-            () => {
-              const domSelection = window.getSelection();
-              if (domSelection !== null) {
-                domSelection.removeAllRanges();
-              }
-              setShowCommentInput(true);
-              return true;
-            },
-            COMMAND_PRIORITY_EDITOR,
-        ),
-    );
-  }, [editor]);
+            $setSelection(null)
+        })
+        setActiveAnchorKey(null)
+        window.getSelection().removeAllRanges()
+        setShowCommentInput(false)
+    }, [editor])
 
-  const cancelAddComment = useCallback(() => {
-    editor.update(() => {
-      const selection = $getSelection();
-      // Restore selection
-      if (selection !== null) {
-        selection.dirty = true
-      }
-      $setSelection(null)
-    });
-    setActiveAnchorKey(null)
-    window.getSelection().removeAllRanges()
-    setShowCommentInput(false)
-  }, [editor])
+    const onAddComment = () => {
+        editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
+    }
 
-  const onAddComment = () => {
-    editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
-  };
+    const submitAddComment = () => {
+        setShowCommentInput(false)
+    }
 
-  const submitAddComment = () => {
-      setShowCommentInput(false)
-  }
+    if(!window || window.innerWidth < 800){
+        return <></>
+    }
 
-  if(!window || window.innerWidth < 800){
-    return <></>
-  }
-
-  const quoteRepliesMap = new Map<string, FastPostProps>()
-  if(quoteReplies) {
-    quoteReplies.forEach((r) => {
-      quoteRepliesMap.set(r.cid, r)
-    })
-  }
-
-  return (
-    <>
-      {nodeIds && Array.from(nodeIds).map(([nodeIndex, repliesCIDs], index) => {
-        return <div key={index}>{
-          createPortal(<NodeQuoteReplies
-          replies={quoteReplies.filter((q) => (repliesCIDs.includes(q.cid)))}
-          pinnedReplies={pinnedReplies}
-          setPinnedReplies={setPinnedReplies}
-          editor={editor}
-        />, document.body)}</div>
-      })}
-      <CommentInputBox
-        editor={editor}
-        cancelAddComment={cancelAddComment}
-        submitAddComment={submitAddComment}
-        parentContent={parentContent}
-        open={showCommentInput}
-      />
-      {activeAnchorKey !== null &&
+    return <div ref={editorElement}>
+        {nodeIds && Array.from(nodeIds).map(([nodeIndex, repliesCIDs], index) => {
+            return <div key={index}>{
+                createPortal(<NodeQuoteReplies
+                    replies={quoteReplies.filter((q) => (repliesCIDs.includes(q.cid)))}
+                    pinnedReplies={pinnedReplies}
+                    setPinnedReplies={setPinnedReplies}
+                    editor={editor}
+                    leftCoordinates={rightCoordinates}
+                    parentContent={parentContent}
+                />, document.body)}
+            </div>
+        })}
+        <CommentInputBox
+            editor={editor}
+            cancelAddComment={cancelAddComment}
+            submitAddComment={submitAddComment}
+            parentContent={parentContent}
+            open={showCommentInput}
+        />
+        {activeAnchorKey !== null &&
         activeAnchorKey !== undefined &&
         !showCommentInput &&
-        createPortal(
-          <AddCommentButton
-            anchorKey={activeAnchorKey}
-            editor={editor}
-            onAddComment={onAddComment}
-          />,
-          document.body,
-      )}
-    </>
-  );
+            createPortal(
+              <AddCommentButton
+                anchorKey={activeAnchorKey}
+                editor={editor}
+                onAddComment={onAddComment}
+              />,
+              document.body,
+            )
+        }
+    </div>
 }

@@ -13,7 +13,7 @@ const Domain = ({url}: {url: string}) => {
         </div>
     } catch (error) {
         console.error("Invalid URL:", error);
-        console.log("url", url);
+        console.error("url", url);
         return null;
     }
 }
