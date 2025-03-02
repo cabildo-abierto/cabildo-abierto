@@ -1,7 +1,7 @@
 "use client"
 
 import {TopicProps, TopicVersionProps} from "../app/lib/definitions";
-import {updateSynonymsInTopic} from "../actions/topics";
+import {updateSynonymsInTopic} from "../actions/write/topic";
 import { ListEditor } from "./ui-utils/list-editor";
 
 

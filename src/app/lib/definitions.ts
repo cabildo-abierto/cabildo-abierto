@@ -320,8 +320,8 @@ export type FastPostProps = RecordProps & EngagementProps & {
         post: {
             facets?: string
             embed?: string
-            replyTo?: (FeedContentPropsMaybe | ATProtoStrongRef) & {collection?: string, uri: string}
-            root?: (FeedContentPropsMaybe | ATProtoStrongRef) & {collection?: string, uri: string}
+            replyTo?: (FeedContentPropsMaybe | ATProtoStrongRef) & {collection?: string, uri: string, notFound?: boolean}
+            root?: (FeedContentPropsMaybe | ATProtoStrongRef) & {collection?: string, uri: string, notFound?: boolean}
             grandparentAuthor?: SmallUserProps
             quote?: string
             visualization?: VisualizationProps

@@ -2,74 +2,76 @@ import {ShowQuoteReplyButton} from "./show-quote-reply";
 import {FastPostProps} from "../../../../app/lib/definitions";
 import {useEffect, useState} from "react";
 import {LexicalEditor} from "lexical";
+import {ReplyToContent} from "./index";
 
-type NodeQuoteRepliesProps = {
+
+
+export const NodeQuoteReplies = ({
+     editor, replies, pinnedReplies, setPinnedReplies, leftCoordinates, parentContent
+}: {
     replies: FastPostProps[]
     pinnedReplies: string[]
     setPinnedReplies: (v: string[]) => void
     editor: LexicalEditor
-}
-
-
-export const NodeQuoteReplies = ({editor, replies, pinnedReplies, setPinnedReplies}: NodeQuoteRepliesProps) => {
+    leftCoordinates: number
+    parentContent: ReplyToContent
+}) => {
     const [style, setStyle] = useState({})
     const [foundReply, setFoundReply] = useState(false)
 
-    useEffect(() => {
-        const updatePosition = () => {
-            const element = document.getElementById(replies[0].cid);
-            if (element) {
-                const rect = element.getBoundingClientRect();
 
+    useEffect(() => {
+        if(replies.length == 0) return
+
+        const updatePosition = () => {
+            const element = document.getElementById(replies[0].cid)
+            if (element) {
+                const rect = element.getBoundingClientRect()
                 setStyle({
                     position: "absolute",
                     top: window.scrollY + rect.top,
-                    left: rect.right + 30,
-                });
+                    left: leftCoordinates + 30,
+                })
             }
-        };
-
-        let observer;
-
-        const targetElement = document.getElementById(replies[0].cid);
-        if (targetElement) {
-            setFoundReply(true);
-            updatePosition();
-
-            // Observe layout shifts for the entire document
-            observer = new ResizeObserver(updatePosition);
-            observer.observe(document.body); // Observe the body for changes
-        } else {
-            // Observe for DOM changes if target not found
-            const mutationObserver = new MutationObserver(() => {
-                const newTarget = document.getElementById(replies[0].cid);
-                if (newTarget) {
-                    setFoundReply(true);
-                    updatePosition();
-
-                    // Start observing layout changes once the target is found
-                    observer = new ResizeObserver(updatePosition);
-                    observer.observe(document.body);
-
-                    mutationObserver.disconnect(); // Stop observing DOM changes
-                }
-            });
-
-            mutationObserver.observe(document.body, { childList: true, subtree: true });
         }
 
-        // Recalculate on window resize or scroll
-        const handleResizeOrScroll = () => {
-            updatePosition();
-        };
+        let observer
 
-        window.addEventListener("resize", handleResizeOrScroll);
+        const targetElement = document.getElementById(replies[0].cid)
+        if (targetElement) {
+            setFoundReply(true)
+            updatePosition()
+
+            observer = new ResizeObserver(updatePosition)
+            observer.observe(document.body)
+        } else {
+            const mutationObserver = new MutationObserver(() => {
+                const newTarget = document.getElementById(replies[0].cid)
+                if (newTarget) {
+                    setFoundReply(true)
+                    updatePosition()
+
+                    observer = new ResizeObserver(updatePosition)
+                    observer.observe(document.body)
+
+                    mutationObserver.disconnect()
+                }
+            })
+
+            mutationObserver.observe(document.body, { childList: true, subtree: true })
+        }
+
+        const handleResizeOrScroll = () => {
+            updatePosition()
+        }
+
+        window.addEventListener("resize", handleResizeOrScroll)
 
         return () => {
-            if (observer) observer.disconnect();
-            window.removeEventListener("resize", handleResizeOrScroll);
+            if (observer) observer.disconnect()
+            window.removeEventListener("resize", handleResizeOrScroll)
         };
-    }, [replies]);
+    }, [replies])
 
     if(!foundReply) return null
     return <div style={style} className={"flex gap-x-1"}>
@@ -87,31 +89,10 @@ export const NodeQuoteReplies = ({editor, replies, pinnedReplies, setPinnedRepli
                         editor={editor}
                         pinnedReplies={pinnedReplies}
                         setPinned={setPinned}
+                        parentContent={parentContent}
                     />
                 </div>
             })
         }
     </div>
-
-
-    /*return <div key={index} className={"flex gap-x-1"}>{repliesCIDs.map((cid, index2) => {
-
-        function setPinned(v: boolean) {
-            if (v) setPinnedReplies([...pinnedReplies, cid])
-            else setPinnedReplies(pinnedReplies.filter((x) => (x != cid)))
-        }
-
-        return createPortal(
-            <div key={index2}>
-                <ShowQuoteReplyButton
-                    reply={quoteRepliesMap.get(cid)}
-                    editor={editor}
-                    pinned={pinnedReplies.includes(cid)}
-                    setPinned={setPinned}
-                />
-            </div>
-            , document.body)
-
-    })
-    }</div>*/
 }

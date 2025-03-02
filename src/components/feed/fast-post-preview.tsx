@@ -4,10 +4,11 @@ import {FastPostProps, FeedContentPropsMaybe, ReasonProps, RecordProps, SmallUse
 import {FastPostPreviewFrame, ReplyVerticalLine} from './fast-post-preview-frame'
 import {FastPostContent} from "./fast-post-content";
 import {FeedElement} from "./feed-element";
-import {contentUrl, emptyChar, isPost, PrettyJSON} from "../utils";
+import {contentUrl, getDidFromUri, getRkeyFromUri, isPost} from "../utils";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {useUser} from "../../hooks/user";
+import { useSWRConfig } from 'swr';
 
 const ShowThreadButton = ({root}: {root: RecordProps}) => {
     const url = contentUrl(root.uri, root.author.handle)
@@ -40,12 +41,29 @@ export type FastPostPreviewProps = {
 }
 
 export const FastPostPreview = ({
-                                           post,
-                                           showingChildren=false,
-                                           showingParent=false,
-                                           showReplyMessage=false,
-                                           onClickQuote}: FastPostPreviewProps) => {
+       post,
+       showingChildren=false,
+       showingParent=false,
+       showReplyMessage=false,
+       onClickQuote
+}: FastPostPreviewProps) => {
     const {user} = useUser()
+    const {mutate} = useSWRConfig()
+
+    const onDelete = () => {
+        const replyTo = post.content.post.replyTo
+        const root = post.content.post.root
+        if(replyTo && replyTo.uri){
+            mutate("/api/thread/"+getDidFromUri(replyTo.uri)+"/"+getRkeyFromUri(replyTo.uri))
+        }
+        if(root && root.uri){
+            mutate("/api/thread/"+getDidFromUri(root.uri)+"/"+getRkeyFromUri(root.uri))
+        }
+        mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/main")
+        mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/replies")
+        mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/main")
+        mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/replies")
+    }
 
     if(!post.content || !post.content.post){
         return <div className={"py-4"}>
@@ -55,17 +73,20 @@ export const FastPostPreview = ({
 
     const isRepost = post.reason != undefined
     const replyTo = post.content.post.replyTo
-    const replyToAvailable = replyTo && (replyTo as FeedContentPropsMaybe).createdAt != undefined && !isRepost
+    const replyToAvailable = replyTo && ((replyTo as FeedContentPropsMaybe).createdAt != undefined || replyTo.notFound) && !isRepost
 
     const root = post.content.post.root
-    const rootAvailable = root && (root as FeedContentPropsMaybe).createdAt != undefined && root.uri != replyTo.uri && !isRepost
+    const rootAvailable = root && ((root as FeedContentPropsMaybe).createdAt != undefined || root.notFound) && root.uri != replyTo.uri && !isRepost
 
     const parentReplyTo = replyToAvailable && isPost(replyTo.collection) ? (replyTo as FastPostProps).content.post.replyTo : undefined
 
     const showThreadButton = replyToAvailable && rootAvailable && parentReplyTo && parentReplyTo.uri != root.uri
 
     return <div className={"flex flex-col w-full text-[15px]"}>
-        {rootAvailable && <FeedElement elem={root as FeedContentPropsMaybe} showingChildren={true}/>}
+        {rootAvailable && <FeedElement
+            elem={root as FeedContentPropsMaybe}
+            showingChildren={true}
+        />}
         {showThreadButton && <ShowThreadButton root={root as FeedContentPropsMaybe}/>}
         {replyToAvailable &&
             <FeedElement
@@ -80,6 +101,7 @@ export const FastPostPreview = ({
             showingChildren={showingChildren}
             showingParent={replyToAvailable || showingParent}
             borderBelow={!showingChildren}
+            onDelete={onDelete}
         >
             {replyTo && !replyToAvailable && showReplyMessage && (replyTo as FeedContentPropsMaybe).author && <IsReplyMessage
                 author={(replyTo as FeedContentPropsMaybe).author}

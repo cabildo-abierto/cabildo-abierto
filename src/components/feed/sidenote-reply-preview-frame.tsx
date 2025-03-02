@@ -21,9 +21,14 @@ type ATProtoPostFrameProps = {
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
+    onDelete?: () => void
 }
 
-export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, showingParent=false, showingChildren=false}: ATProtoPostFrameProps) => {
+export const SidenoteReplyPreviewFrame = ({
+      children, post, borderBelow=true, showingParent=false,
+      showingChildren=false,
+      onDelete
+}: ATProtoPostFrameProps) => {
     const record = post
 
     return <div
@@ -67,7 +72,12 @@ export const SidenoteReplyPreviewFrame = ({children, post, borderBelow=true, sho
                 </div>
 
                 <div className={"mt-1"}>
-                    <EngagementIcons counters={post} record={post} className={"flex justify-between w-full px-1"}/>
+                    <EngagementIcons
+                        counters={post}
+                        record={post}
+                        className={"flex justify-between w-full px-1"}
+                        onDelete={onDelete}
+                    />
                 </div>
             </div>
         </div>

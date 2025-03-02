@@ -21,6 +21,25 @@ export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
     return users
 }
 
+
+export async function isCAUser(did: string){
+    return unstable_cache(async () => {
+        const res = await db.user.findFirst({
+            select: {did: true},
+            where: {
+                did
+            }
+        })
+        return res != null
+    },
+        ["isCAUser:"+did],
+        {
+            tags: ["isCAUser", "isCAUser:"+did],
+            revalidate: revalidateEverythingTime
+        }
+    )
+}
+
 export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: string}> => {
     try {
         const users = await db.user.findMany({
@@ -613,7 +632,7 @@ export async function setATProtoProfile(did: string){
 
         return {}
     } catch (err) {
-        console.log("Error", err)
+        console.error("Error", err)
         return {error: "Error al conectar con ATProto."}
     }
 }
@@ -643,7 +662,7 @@ export async function updateEmail(email: string){
             where: {did: bskyUser.did}
         })
     } catch (error) {
-        console.log(error)
+        console.error(error)
         return {error: "Ups... Ocurrió un error al guardar el mail. Volvé a intentarlo."}
     }
     return {}
@@ -697,9 +716,6 @@ export const getFundingPercentage = unstable_cache(async () => {
             }
         })
 
-        console.log("active users", activeUsers)
-        console.log("active no subs", activeNoSubscription)
-
         return (1 - (activeNoSubscription / activeUsers))*100
 
     },
@@ -740,8 +756,6 @@ export const getDonationsDistribution = unstable_cache(async () => {
             return {value, p: index / data.length}
         })
 
-        //console.log("percentiles", percentiles)
-
         const inverse = []
         let j = 0
         for(let i = 0; i < 100; i++){
@@ -749,7 +763,6 @@ export const getDonationsDistribution = unstable_cache(async () => {
             inverse.push(percentiles[j].value)
         }
 
-        //console.log("inverse", inverse)
         return inverse
     },
     ["donationsDistribution"],
@@ -769,7 +782,7 @@ export async function searchATProtoUsers(q: string): Promise<{users?: ProfileVie
         })
         return {users: data.actors}
     } catch (error) {
-        console.log(error)
+        console.error(error)
         return {error: "Ocurrió un error en la búsqueda de usuarios de Bluesky."}
     }
 }

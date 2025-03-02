@@ -1,11 +1,11 @@
-import {RecordProps, UserProps, VisualizationProps} from "../../app/lib/definitions";
+import {RecordProps, VisualizationProps} from "../../app/lib/definitions";
 import {BasicButton} from "../ui-utils/basic-button";
 import {deleteRecords} from "../../actions/atproto-update";
 import StateButton from "../state-button";
-import {contentUrl, editVisualizationUrl, getBlueskyUrl} from "../utils";
+import {editVisualizationUrl, getBlueskyUrl} from "../utils";
 import Link from "next/link";
 import {useUser} from "../../hooks/user";
-import CreateIcon from "@mui/icons-material/Create";
+
 
 const collection2displayText = {
     "ar.com.cabildoabierto.visualization": "visualización",
@@ -22,19 +22,23 @@ export const openJsonInNewTab = (json: any) => {
     window.open(url, "_blank");
 };
 
-export const ContentOptions = ({onClose, record}: {onClose: () => void, record: RecordProps}) => {
+export const ContentOptions = ({onClose, record, onDelete}: {
+    onClose: () => void
+    record: RecordProps
+    onDelete?: () => void
+}) => {
     const {user} = useUser()
 
-    async function onDelete() {
+    async function onClickDelete() {
         await deleteRecords({uris: [record.uri], atproto: true})
+        onDelete()
     }
 
     const inBluesky = record.collection == "app.bsky.feed.post"
-    const url = contentUrl(record.uri)
 
     return <div className={"flex flex-col space-y-1"}>
         {user.did == record.author.did && <StateButton
-            handleClick={async () => {await onDelete(); onClose(); return {}}}
+            handleClick={async () => {await onClickDelete(); onClose(); return {}}}
             color={"inherit"}
             text1={"Borrar " + collection2displayText[record.collection]}
             disableElevation={true}

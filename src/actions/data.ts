@@ -15,7 +15,7 @@ import {
     visualizationQuery
 } from "./utils";
 import {addCountersToFeed} from "./feed/utils";
-import {revalidateTag, unstable_cache} from "next/cache";
+import {unstable_cache} from "next/cache";
 import {getDidFromUri, getRkeyFromUri} from "../components/utils";
 import {BlobRef} from "@atproto/lexicon";
 
@@ -285,7 +285,7 @@ export async function saveVisualization(spec: VisualizationSpec, preview: FormDa
             const res = await agent.uploadBlob(f, {headers})
             blob = res.data.blob
         } catch {
-            console.log("Error uploading preview")
+            console.error("Error uploading preview")
             return {error: "Ocurrió un error al guardar la visualización."}
         }
 
@@ -306,7 +306,7 @@ export async function saveVisualization(spec: VisualizationSpec, preview: FormDa
             record: record,
         })
     } catch (err) {
-        console.log("error", err)
+        console.error("error", err)
         return {error: "Ocurrió un error al guardar la visualización."}
     }
 

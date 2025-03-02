@@ -1,12 +1,13 @@
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 import {FastPostProps, ThreadProps} from "../../app/lib/definitions";
 import {Agent} from "@atproto/api";
-import {getUri} from "../../components/utils";
-import {getSessionAgent} from "../auth";
+import {getUri, validQuotePost} from "../../components/utils";
+import {getSessionAgent, getSessionDid} from "../auth";
 import {unstable_cache} from "next/cache";
 import {addCounters, feedQuery, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";
-import {getUsers} from "../users";
+import {getUsers, isCAUser} from "../users";
 import {db} from "../../db";
+import {getTextFromBlob} from "../topics";
 
 
 function threadViewPostToThread(thread: ThreadViewPost) {
@@ -44,7 +45,8 @@ function threadViewPostToThread(thread: ThreadViewPost) {
 }
 
 
-export async function getThreadFromATProto({agent, did, rkey}: {agent: Agent, did: string, rkey: string}) {
+export async function getThreadFromATProto({did, rkey}: {did: string, rkey: string}) {
+    const {agent} = await getSessionAgent()
 
     const {data} = await agent.getPostThread({
         uri: getUri(did, "app.bsky.feed.post", rkey)
@@ -61,33 +63,14 @@ export async function getThreadFromATProto({agent, did, rkey}: {agent: Agent, di
 
 
 export async function getThread({did, rkey}: {did: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
-
-    const {agent, did: viewerDid} = await getSessionAgent()
-
-    return await unstable_cache(
-        async () => {
-            const r = await getThreadNoCache({did, viewerDid, rkey, agent})
-            return r
-        },
-        ["thread:"+did+":"+rkey+":"+viewerDid],
-        {
-            tags: [
-                "thread",
-                "thread:"+did+":"+rkey,
-                "thread:"+did+":"+rkey+":"+viewerDid
-            ],
-            revalidate: revalidateEverythingTime
-        }
-    )()
+    const viewerDid = await getSessionDid()
+    return await getThreadNoCache({did, rkey, viewerDid})
 }
 
 
-export async function getThreadNoCache({did, rkey, viewerDid, agent}: {did: string, rkey: string, viewerDid: string, agent: Agent}): Promise<{thread?: ThreadProps, error?: string}> {
-
-    const {users, error} = await getUsers()
-    if(error) return {error}
-    if(!users.some((u) => (u.did == did))){
-        return await getThreadFromATProto({agent, did, rkey})
+export async function getThreadNoCache({did, rkey, viewerDid}: {did: string, rkey: string, viewerDid: string}): Promise<{thread?: ThreadProps, error?: string}> {
+    if(!isCAUser(did)){
+        return await getThreadFromATProto({did, rkey})
     }
 
     const threadId = {rkey, authorId: did}
@@ -108,21 +91,35 @@ export async function getThreadNoCache({did, rkey, viewerDid, agent}: {did: stri
             }
         })
 
-        const [mainPost, replies] = await Promise.all([mainPostQ, repliesQ])
+        let [mainPost, replies] = await Promise.all([mainPostQ, repliesQ])
+
+        if(mainPost.content && !mainPost.content.text){
+            mainPost.content.text = await getTextFromBlob(mainPost.content.textBlob)
+        }
+
+        for(let i = 0; i < replies.length; i++){
+            if(replies[i].collection == "ar.com.cabildoabierto.quotePost"){
+                replies[i].content.post.replyTo.content.text = mainPost.content.text
+            }
+        }
+
+        replies = replies.filter((r) => {
+            return !r.content.post.quote || validQuotePost(mainPost.content, r)
+        })
 
         if(!mainPost){
             return {error: "El contenido no existe."}
         }
 
         const threadForFeed: ThreadProps = {
-            post: addCounters(viewerDid, mainPost),
+            post: addCounters(viewerDid, mainPost, replies),
             replies: replies.map((r) => {
                 return addCounters(viewerDid, r)
             })
         }
         return {thread: threadForFeed}
     } catch(err) {
-        console.log(err)
+        console.error(err)
         return {error: "No se pudo obtener el contenido."}
     }
 }

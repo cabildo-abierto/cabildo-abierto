@@ -10,7 +10,6 @@ import {getTopicTitle} from "./utils";
 import {TopicContent} from "./topic-content";
 import LoadingSpinner from "../loading-spinner";
 import {FastPostProps} from "../../app/lib/definitions";
-import {validQuotePost} from "../feed/thread";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useLayoutConfig} from "../layout/layout-config-context";
 
@@ -20,6 +19,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     paramsVersion?: number,
     changes?: boolean
 }) => {
+    console.log("using topic", topicId)
     const topic = useTopic(topicId)
     const feed = useTopicFeed(topicId)
     const initialSelection = changes ? "changes" : (paramsVersion == undefined ? "none" : "history")
@@ -60,15 +60,6 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
         setSelectedPanel(changes ? "changes" : (paramsVersion == undefined ? "none" : "history"))
     }, [searchParams])
 
-    /*useEffect(() => {
-        if(topic.topic){
-            const references = topic.topic.versions[currentVersion(topic.topic)].references
-            for(let i = 0; i < references.length; i++){
-                preload("/api/entity/"+references[i].entityReferenced.id, fetcher)
-            }
-        }
-    }, [entity])*/
-
     if(topic.isLoading || feed.isLoading){
         return <LoadingSpinner/>
     }
@@ -77,7 +68,6 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
         return <NoEntityPage id={topicId}/>
     }
 
-
     const versions = topic.topic.versions
     const currentIndex = currentVersion(topic.topic)
     let version = paramsVersion
@@ -85,12 +75,9 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
         version = currentIndex
     }
 
-    const replies = feed.feed.filter((r) => {return isQuotePost(r) && validQuotePost(topic.topic.versions[version].content, r as FastPostProps)})
-
-    let quoteReplies = undefined
-    quoteReplies = replies.filter((r) => ((r as FastPostProps).content.post.quote != undefined))
-
-    const titleFontSize = getTopicTitle(topic.topic).length > 60 ? "text-lg sm:text-2xl" : "text-xl sm:text-3xl"
+    const quoteReplies = feed.feed.filter((r) => {
+        return isQuotePost(r) && (r as FastPostProps).content.post.quote != undefined
+    }) as FastPostProps[]
 
     const onClickQuote = (cid: string) => {
         setPinnedReplies([...pinnedReplies, cid])

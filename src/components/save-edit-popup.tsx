@@ -5,7 +5,7 @@ import { CustomLink as Link } from './custom-link';
 import React, { useEffect, useState } from "react";
 import { useUser } from "../hooks/user";
 import {TopicProps, TopicVersionProps} from "../app/lib/definitions";
-import { charDiffFromJSONString, getAllText } from "./diff";
+import { getAllText } from "./diff";
 import InfoPanel from "./info-panel";
 import { NotEnoughPermissionsWarning } from "./permissions-warning";
 import StateButton from "./state-button";
@@ -20,15 +20,19 @@ import {TextField} from "@mui/material";
 const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: string) => void}) => {
     return <TextField
         value={value}
-        size={"small"}
-        fullWidth={true}
-        onChange={(e) => {setValue(e.target.value)}}
+        size="small"
+        fullWidth
+        onChange={(e) => setValue(e.target.value)}
         placeholder="Una descripción de lo que cambiaste (opcional)"
         inputProps={{
             autoComplete: 'off',
+            style: { fontSize: '14px' } // Set text size
+        }}
+        sx={{
+            '& .MuiInputBase-input::placeholder': { fontSize: '14px' } // Set placeholder size
         }}
     />
-    // TO DO: Max length 120
+
 }
 
 
@@ -38,12 +42,13 @@ function charsDiffFromStateAndCurrentVersion(editorState: EditorState, currentVe
 
 
 export const SaveEditPopup = ({ 
-    editorState, currentVersion, onClose, onSave, entity }: {
-        editorState: EditorState,
-        currentVersion: TopicVersionProps
-        onClose: () => void
-        onSave: (v: boolean, editMsg: string) => Promise<{error?: string}>,
-        entity: TopicProps
+    editorState, currentVersion, onClose, onSave, entity
+}: {
+    editorState: EditorState,
+    currentVersion: TopicVersionProps
+    onClose: () => void
+    onSave: (v: boolean, editMsg: string) => Promise<{error?: string}>,
+    entity: TopicProps
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useUser()
@@ -116,7 +121,7 @@ export const SaveEditPopup = ({
                             sx={{textTransform: "none"}}
                             onClick={async () => {onClose()}}
                         >
-                            Volver
+                            Cancelar
                         </Button>
                         <StateButton
                             handleClick={async () => {

@@ -6,7 +6,6 @@ import {formatIsoDate, getUsername, userUrl} from '../utils'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 import { EngagementIcons } from './engagement-icons'
-import {ContentOptions} from "../content-options/content-options";
 import {useUser} from "../../hooks/user";
 
 

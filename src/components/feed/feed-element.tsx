@@ -16,24 +16,24 @@ import {TopicVersionOnFeed} from "../topic/topic-version-on-feed";
 export const FeedElement = ({
     elem,
     onClickQuote,
-    repostedBy,
     showingChildren=false,
     showingParent=false,
     showReplyMessage=false
 }: {
     elem: FeedContentProps & {blocked?: boolean, notFound?: boolean}
     onClickQuote?: (cid: string) => void
-    repostedBy?: {displayName?: string, handle: string}
     showingChildren?: boolean
     showingParent?: boolean
     showReplyMessage?: boolean
 }) => {
     if (elem.blocked) {
-        return <div className={"py-4 px-2 w-full"}>
+        return <div className={"p-2 m-2 border rounded-lg text-[var(--text-light)]"}>
             Contenido bloqueado
         </div>
     } else if (elem.notFound) {
-        return <div className={"py-4 px-2 w-full"}>Contenido no encontrado</div>
+        return <div className={"p-2 m-2 border rounded-lg text-[var(--text-light)]"}>
+            Contenido no encontrado
+        </div>
     }
     if (elem.collection == "ar.com.cabildoabierto.article") {
         return <ArticlePreview

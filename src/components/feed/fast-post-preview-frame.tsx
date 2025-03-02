@@ -10,6 +10,7 @@ import { ContentTopRowAuthor } from '../content-top-row-author'
 import { ReactNode } from 'react'
 import { EngagementIcons } from './engagement-icons'
 import {RepostedBy} from "./reposted-by";
+import { useSWRConfig } from 'swr'
 
 
 export const ReplyVerticalLine = ({className=""}: {className?: string}) => {
@@ -22,12 +23,12 @@ type FastPostPreviewFrameProps = {
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
+    onDelete?: () => void
 }
 
 export const FastPostPreviewFrame = ({
-     children, post, borderBelow=true, showingParent=false, showingChildren=false}: FastPostPreviewFrameProps) => {
+     children, post, borderBelow=true, showingParent=false, showingChildren=false, onDelete}: FastPostPreviewFrameProps) => {
     const router = useRouter()
-
     const record = post
     const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
 
@@ -70,7 +71,12 @@ export const FastPostPreviewFrame = ({
                 </div>
 
                 <div className={"mt-1 text-sm"}>
-                    <EngagementIcons counters={post} record={post} className={"flex justify-between"}/>
+                    <EngagementIcons
+                        counters={post}
+                        record={post}
+                        className={"flex justify-between"}
+                        onDelete={onDelete}
+                    />
                 </div>
             </div>
         </div>

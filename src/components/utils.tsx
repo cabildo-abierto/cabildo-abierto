@@ -2,12 +2,14 @@ import {
     UserProps,
     SmallUserProps,
     BothContributionsProps,
-    TopicVersionProps, TopicProps, TopicVersionOnFeedProps
+    TopicVersionProps, TopicProps, TopicVersionOnFeedProps, FastPostProps
 } from "../app/lib/definitions"
 import { getAllText } from "./diff"
 import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
 import {SessionOptions} from "iron-session";
 import React from "react";
+import {QuoteDirProps} from "./editor/plugins/CommentPlugin/show-quote-reply";
+import {decompress} from "./compression";
 
 
 export function shuffleArray<T>(array: T[]): T[] {
@@ -658,7 +660,7 @@ export function findMentionsFromUsers(text: string, users: SmallUserProps[]){
     try {
         json = JSON.parse(text)
     } catch {
-        console.log("failed parsing", text)
+        console.error("failed parsing", text)
     }
     if(!json) return null
 
@@ -937,4 +939,42 @@ export function topicUrl(id: string){
 
 export function categoryUrl(cat: string, view: string){
     return "/temas?c=" + cat + "&view=" + view
+}
+
+
+function validQuotePointer(indexes: number[], node: any){
+    if(indexes.length == 0){
+        return true
+    }
+
+    if(!node.children) return false
+    if(indexes[0] > node.children.length) return false
+    return validQuotePointer(indexes.slice(1), node.children[indexes[0]])
+}
+
+
+export function validQuotePost(content: {text?: string, format?: string}, r: {content: {post: {quote?: string}}}){
+    if(!content.text || !r.content.post.quote) {
+        return false
+    }
+
+    try {
+
+        const quote: QuoteDirProps = JSON.parse(r.content.post.quote)
+
+        const jsonContent = JSON.parse(decompress(content.text))
+
+        if(!validQuotePointer(quote.start.node, jsonContent.root)) {
+            return false
+        }
+        if(!validQuotePointer(quote.end.node, jsonContent.root)) {
+            return false
+        }
+        return true
+    } catch (e) {
+        console.error("error validating quote")
+        console.error(r.content.post.quote)
+        console.error(e)
+        return false
+    }
 }

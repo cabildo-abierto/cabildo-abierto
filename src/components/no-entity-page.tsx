@@ -5,7 +5,7 @@ import { useSWRConfig } from "swr"
 import { useUser } from "../hooks/user"
 import {articleUrl, validEntityName} from "./utils"
 import {Button} from "@mui/material";
-import {createTopic} from "../actions/topics";
+import {createTopic} from "../actions/write/topic";
 
 const CreateEntityButton: React.FC<any> = ({onClick}) => {
     return <Button
@@ -28,7 +28,6 @@ export default function NoEntityPage({id}: {id: string}){
         if(user) {
             await createTopic(name)
             mutate("/api/topics")
-            mutate("/api/topic/"+id)
             router.push(url)
         }
     }

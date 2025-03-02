@@ -17,7 +17,6 @@ export const CardFeed = ({elements, generator}: {elements: any[], generator: (x:
             const screenWidth = window.innerWidth
             const rightSide = layoutConfig.openRightPanel && layoutConfig.spaceForRightSide ? pxToNumber(layoutConfig.rightMinWidth) : 0
             const leftSide = layoutConfig.spaceForLeftSide ? 224 : 80
-            console.log(screenWidth, rightSide, leftSide, screenWidth - rightSide - leftSide)
             setAvailableWidth(Math.min(screenWidth - rightSide - leftSide, pxToNumber(layoutConfig.maxWidthCenter)))
         };
 

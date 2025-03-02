@@ -9,6 +9,8 @@ import {EngagementIcons} from "./engagement-icons";
 import {ProfilePic} from "./profile-pic";
 import {useEffect} from "react";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
+import {useSWRConfig} from "swr";
+import {getDidFromUri, getRkeyFromUri} from "../utils";
 
 type ArticleCompProps = {
     content: ArticleProps,
@@ -18,6 +20,8 @@ type ArticleCompProps = {
 }
 
 export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}: ArticleCompProps) => {
+
+    const {mutate} = useSWRConfig()
 
     useEffect(() => {
         const hash = window.location.hash
@@ -29,12 +33,14 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
                     smoothScrollTo(element)
                     setPinnedReplies([...pinnedReplies, id])
                 } else {
-                    setTimeout(scrollToElement, 100);
+                    setTimeout(scrollToElement, 100)
                 }
             };
-            scrollToElement();
+            scrollToElement()
         }
-    }, []);
+    }, [])
+
+    const editorId = content.uri+"-"+quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-")
 
     return <div className="w-full">
         <div className={"p-3 border-b"}>
@@ -49,14 +55,15 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
                     <ProfilePic user={content.author} className={"w-5 h-5 rounded-full"}/>
                 </div>
                 <div>
-                <span><Authorship content={content} onlyAuthor={true}/>, <DateSince date={content.createdAt}/>.</span>
+                    <span>
+                        <Authorship content={content} onlyAuthor={true}/>, <DateSince date={content.createdAt}/>.
+                    </span>
                 </div>
-                {/*<span className="first-letter:capitalize"><TextViewsCounter content={content}/>.</span>*/}
                 <div>
                     <ReadingTime numWords={content.content.numWords}/>
                 </div>
             </div>
-            <div className={"mt-4"}>
+            <div className={"mt-4"} id={editorId}>
                 <ReadOnlyEditor
                     initialData={decompress(content.content.text)}
                     allowTextComments={true}
@@ -68,10 +75,15 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
                 />
             </div>
         </div>
-            <div className={"py-2 px-3 border-b"}>
-                <EngagementIcons counters={content} record={content} className={"flex justify-between px-4 w-full"}/>
-            </div>
-        <div>
+        <div className={"py-2 px-3 border-b"}>
+            <EngagementIcons
+                counters={content}
+                record={content}
+                className={"flex justify-between px-4 w-full"}
+                onDelete={() => {
+                    mutate("/api/thread/"+getDidFromUri(content.uri)+"/"+getRkeyFromUri(content.uri))
+                }}
+            />
         </div>
     </div>
 }

@@ -18,7 +18,7 @@ export const InfoPanel = ({text, className, iconClassName="text-gray-600", icon=
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
           marginTop="5px"
-          onClose={() => {setAnchorEl(null); console.log("closing")}}
+          onClose={() => {setAnchorEl(null);}}
       >
           <div
               className={"text-justify text-sm bg-[var(--background)] rounded  border content-container " + (className ? className : "w-72")}

@@ -8,6 +8,7 @@ import {getDidFromUri, getRkeyFromUri, getUri, getVisualizationTitle, splitUri} 
 import {revalidateTag, unstable_cache} from "next/cache";
 import { QuotedContent } from "../components/feed/content-quote";
 import {revalidateEverythingTime} from "./utils";
+import {getTextFromBlob} from "./topics";
 
 
 export const addLike = async (uri: string, cid: string) => {
@@ -17,7 +18,7 @@ export const addLike = async (uri: string, cid: string) => {
         const res = await agent.like(uri, cid)
         return {uri: res.uri}
     } catch(err) {
-        console.log("Error giving like", err)
+        console.error("Error giving like", err)
         return {error: "No se pudo agregar el like."}
     }
 }
@@ -28,7 +29,7 @@ export const removeLike = async (uri: string) => {
     try {
         await agent.deleteLike(uri)
     } catch(err) {
-        console.log("Error removing like", err)
+        console.error("Error removing like", err)
         return {error: "No se pudo eliminar el like."}
     }
 }
@@ -41,8 +42,8 @@ export const repost = async (uri: string, cid: string) => {
         const res = await agent.repost(uri, cid)
         return {uri: res.uri}
     } catch(err) {
-        console.log("Error reposting", err)
-        console.log("uri", uri)
+        console.error("Error reposting", err)
+        console.error("uri", uri)
         return {error: "No se pudo agregar el like."}
     }
 }
@@ -55,7 +56,7 @@ export const removeRepost = async (uri: string) => {
         await agent.deleteRepost(uri)
         return {}
     } catch(err) {
-        console.log("Error eliminando el repost", err)
+        console.error("Error eliminando el repost", err)
         return {error: "No se pudo eliminar la republicación."}
     }
 }
@@ -108,73 +109,6 @@ export const addView = async (uri: string, did: string) => {
 }
 
 
-export async function createFastPost(
-    {text, reply, quote, visualization}: {
-        text: string, reply?: FastPostReplyProps, quote?: string, visualization?: VisualizationProps
-    }
-): Promise<{error?: string}> {
-
-    const {agent} = await getSessionAgent()
-
-    const rt = new RichText({
-      text: text
-    })
-    await rt.detectFacets(agent)
-
-    if(visualization){
-        const record = {
-            "$type": "app.bsky.feed.post",
-            text: rt.text,
-            facets: rt.facets,
-            createdAt: new Date().toISOString(),
-            reply,
-            embed: {
-                $type: "app.bsky.embed.external",
-                external: {
-                    uri: "https://www.cabildoabierto.com.ar/c/"+visualization.author.did+"/visualization/"+visualization.rkey,
-                    title: getVisualizationTitle(visualization),
-                    description: "Mirá la visualización interactiva en Cabildo Abierto."
-                }
-            }
-        }
-
-        const res = await agent.post(record)
-    } else if(!quote){
-        const record = {
-            "$type": "app.bsky.feed.post",
-            text: rt.text,
-            facets: rt.facets,
-            createdAt: new Date().toISOString(),
-            reply
-        }
-
-        await agent.post(record)
-    } else {
-        const record = {
-            "$type": "ar.com.cabildoabierto.quotePost",
-            text: rt.text,
-            facets: rt.facets,
-            createdAt: new Date().toISOString(),
-            reply,
-            quote
-        }
-
-        await agent.com.atproto.repo.createRecord({
-            repo: agent.did,
-            collection: record.$type,
-            record
-        })
-    }
-
-    if(reply){
-        revalidateTag("thread:"+getDidFromUri(reply.parent.uri)+":"+getRkeyFromUri(reply.parent.uri))
-        revalidateTag("thread:"+getDidFromUri(reply.root.uri)+":"+getRkeyFromUri(reply.root.uri))
-    }
-
-    return {}
-}
-
-
 export async function createArticle(compressedText: string, userId: string, title: string){
 
     const {agent, did} = await getSessionAgent()
@@ -195,7 +129,7 @@ export async function createArticle(compressedText: string, userId: string, titl
             record: record,
         })
     } catch (err){
-        console.log("Error", err)
+        console.error("Error", err)
         return {error: "Ocurrió un error al publicar el artículo."}
     }
 
@@ -245,6 +179,12 @@ export async function getQuotedContentNoCache({did, rkey}: {did: string, rkey: s
                 content: {
                     select: {
                         text: true,
+                        textBlob: {
+                            select: {
+                                cid: true,
+                                authorId: true
+                            }
+                        },
                         format: true,
                         article: {
                             select: {
@@ -274,17 +214,21 @@ export async function getQuotedContentNoCache({did, rkey}: {did: string, rkey: s
                 }
             }
         })
+
+        if(q[0].content.textBlob != undefined){
+            q[0].content.text = await getTextFromBlob(q[0].content.textBlob)
+        }
+
         return q[0]
     } catch (e) {
-        console.log("Error getting quoted content", did, rkey)
-        console.log(e)
+        console.error("Error getting quoted content", did, rkey)
+        console.error(e)
         return null
     }
 }
 
 
 export async function getQuotedContent({did, rkey}: {did: string, rkey: string}): Promise<QuotedContent> {
-    console.log("getting quoted content", did, rkey)
     return await unstable_cache(async () => {
         return await getQuotedContentNoCache({did, rkey})
     }, ["quotedContent:"+did+":"+rkey],

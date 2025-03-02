@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getThread} from "../../../../../../actions/thread/thread";
+import {getThread} from "../../../../../actions/thread/thread";
 
 
 export async function GET(req: NextRequest, { params }: { params: { did: string, rkey: string } }) {

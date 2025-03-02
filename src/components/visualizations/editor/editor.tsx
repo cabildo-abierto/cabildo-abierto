@@ -28,7 +28,6 @@ const ErrorPanel = ({msg}: {msg?: string}) => {
 
 export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initialConfig?: PlotConfigProps}) => {
     const { datasets } = useDatasets()
-    console.log("initialConfig", initialConfig)
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : { filters: [], kind: "Tipo de gráfico" })
     const [dataset, setDataset] = useState<{ dataset?: DatasetProps, data?: any[] } | null>(null)
     const [selected, setSelected] = useState(initialConfig ? "Visualización" : "Datos")

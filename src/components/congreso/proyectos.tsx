@@ -26,8 +26,6 @@ export const CongressResult = ({
     className?: string
 }) => {
 
-    console.log(project)
-    console.log(camara)
     if((camara == "Senadores" && !project.votesSenado) || (camara == "Diputados" && !project.votesDiputados)){
         return <div className={"flex bg-[var(--background-dark3)] my-1 rounded text-base " + className}>
             No se votó en {camara}

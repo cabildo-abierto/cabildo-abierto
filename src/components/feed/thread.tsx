@@ -7,44 +7,9 @@ import {useState} from "react";
 import {WritePanel} from "../write-panel";
 import {Article} from "./article";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
-import {decompress} from "../compression";
-import {QuoteDirProps} from "../editor/plugins/CommentPlugin/show-quote-reply";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {VisualizationOnThread} from "../visualizations/visualization-on-thread";
 import {DatasetOnThread} from "../datasets/dataset-on-thread";
-
-
-function validQuotePointer(indexes: number[], node: any){
-    if(indexes.length == 0){
-        return true
-    }
-
-    if(!node.children) return false
-    if(indexes[0] > node.children.length) return false
-    return validQuotePointer(indexes.slice(1), node.children[indexes[0]])
-}
-
-
-export function validQuotePost(content: {text?: string, format?: string}, r: FastPostProps){
-    if(!content.text) return false
-    if(content.format == "markdown") return false // TO DO
-
-    try {
-
-        const quote: QuoteDirProps = JSON.parse(r.content.post.quote)
-
-        const jsonContent = JSON.parse(decompress(content.text))
-
-        if(!validQuotePointer(quote.start.node, jsonContent.root)) return false
-        if(!validQuotePointer(quote.end.node, jsonContent.root)) return false
-        return true
-    } catch (e) {
-        console.log("error validating quote")
-        console.log(r.content.post.quote)
-        console.log(e)
-        return false
-    }
-}
 
 
 export const Thread = ({thread}: {thread: ThreadProps}) => {
@@ -52,9 +17,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
     const [pinnedReplies, setPinnedReplies] = useState([])
     const {layoutConfig} = useLayoutConfig()
 
-    const text = thread.post.collection == "ar.com.cabildoabierto.article" ? (thread.post as ArticleProps).content : undefined
-
-    const replies = thread.replies.filter((r) => {return !r.content.post.quote || validQuotePost(text, r)})
+    const replies = thread.replies
 
     let quoteReplies = []
     if(thread.post.collection == "ar.com.cabildoabierto.article"){
@@ -82,7 +45,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
         <div className={"w-full"}>
             <ReplyButton onClick={() => {setOpenReplyPanel(true)}}/>
         </div>
-        <div className={"w-[600px] " + (layoutConfig.maxWidthCenter != "600px" ? "mt-20 border-t" : "")}>
+        <div className={"w-[600px] mb-32 " + (layoutConfig.maxWidthCenter != "600px" ? "mt-20 border-t" : "")}>
             {replies.map((r, index) => {
 
                 function onClickQuote(){
@@ -99,7 +62,9 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
                     />
                 </div>
             })}
-            {replies.length == 0 && <div className={"text-center text-[var(--text-light)] pt-4 pb-8"}>Todavía no hubo ninguna respuesta.</div>}
+            {replies.length == 0 && <div className={"text-center text-[var(--text-light)] pt-4 pb-8"}>
+                Todavía no hubo ninguna respuesta.
+            </div>}
         </div>
 
         <WritePanel

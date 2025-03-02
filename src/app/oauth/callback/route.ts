@@ -5,9 +5,10 @@ import { getIronSession } from 'iron-session'
 import { cookies } from "next/headers";
 import {setATProtoProfile} from "../../../actions/users";
 import {myCookieOptions} from "../../../components/utils";
+import {Agent} from "@atproto/api";
 
 
-export type Session = {did: string}
+export type Session = {did: string, agent: Agent}
 
 export async function GET(req: NextRequest){
     const params = new URLSearchParams(req.url.split('?')[1])
@@ -32,7 +33,7 @@ export async function GET(req: NextRequest){
         }
         return NextResponse.redirect(baseUrl + '/')
     } catch (err) {
-        console.log("error", err)
+        console.error("error", err)
         return NextResponse.redirect(baseUrl + '/login')
     }
 }

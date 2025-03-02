@@ -99,7 +99,7 @@ export const ContentOptionsDropdown = ({
         {optionsList.includes("change-name") && <div>
             <ContentOptionsChoiceButton
                 icon={<WriteButtonIcon/>}
-                onClick={async () => {setIsNewNameModalOpen(true); console.log("change name was clicked"); return {}}}
+                onClick={async () => {setIsNewNameModalOpen(true); return {}}}
             >
                 <div className="whitespace-nowrap">Cambiar nombre</div>
             </ContentOptionsChoiceButton>    

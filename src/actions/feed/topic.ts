@@ -1,7 +1,7 @@
 import {FeedContentProps} from "../../app/lib/definitions";
 import {getSessionDid} from "../auth";
 import {db} from "../../db";
-import {feedQuery, threadRepliesQuery} from "../utils";
+import {threadRepliesQuery} from "../utils";
 import {addCountersToFeed} from "./utils";
 
 
@@ -48,14 +48,13 @@ export async function getTopicFeed(id: string): Promise<{feed?: FeedContentProps
             }
         })
 
-        const readyForFeed = addCountersToFeed(feed, did)
 
-        console.log("Topic feed", readyForFeed)
+        const readyForFeed = addCountersToFeed(feed, did)
 
         return {feed: readyForFeed}
     } catch (e) {
-        console.log("Error getting topic feed for", id)
-        console.log(e)
+        console.error("Error getting topic feed for", id)
+        console.error(e)
         return {error: "Ocurrió un error al obtener el feed del tema " + id}
     }
 }

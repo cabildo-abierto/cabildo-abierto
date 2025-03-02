@@ -66,16 +66,27 @@ const ArticleQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedConten
 
 
 const TopicQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedContent: QuotedContent}) => {
-    const quote = JSON.parse(quoteStr)
 
     let initialData
-    if(!quotedContent.content.format || quotedContent.content.format == "lexical-compressed"){
-        const parentContent = JSON.parse(decompress(quotedContent.content.text))
-        initialData = getSelectionFromJSONState(parentContent, quote)
-    } else if(quotedContent.content.format == "markdown"){
-        throw Error("Markdown comments not implemented.")
-    } else {
-        throw Error(quotedContent.content.format + " comments not implemented.")
+    try {
+        const quote = JSON.parse(quoteStr)
+
+        if(!quotedContent.content.format || quotedContent.content.format == "lexical-compressed"){
+            const parentContent = JSON.parse(decompress(quotedContent.content.text))
+            initialData = getSelectionFromJSONState(parentContent, quote)
+        } else if(quotedContent.content.format == "markdown"){
+            throw Error("Markdown comments not implemented.")
+        } else {
+            throw Error(quotedContent.content.format + " comments not implemented.")
+        }
+    } catch (e){
+        console.error("Failed to parse quote")
+        console.error(e)
+        console.error("Quoted content text is", quotedContent.content.text)
+        console.error("Quoted content is", quotedContent)
+        return <div className={"py-2"}>
+            Error al buscar la cita.
+        </div>
     }
 
     return <ReadOnlyEditor
@@ -99,7 +110,7 @@ export type QuotedContent = {
         topicVersion?: {
             topic: {
                 id: string
-                versions: {
+                versions?: {
                     title?: string
                 }[]
             }
@@ -121,6 +132,12 @@ const ContentQuoteWithNoContent = ({
     if(!quotedContent){
         return <div className={"py-4"}>
             <LoadingSpinner/>
+        </div>
+    }
+    if(!quotedContent.content.text){
+        console.error("quotedContent", quotedContent)
+        return <div>
+            Error
         </div>
     }
     return <ContentQuote
@@ -147,7 +164,7 @@ export const ContentQuote = ({
         return null
     }
 
-    if(!quotedContent.content && post.content.post.replyTo){
+    if((!quotedContent.content || !quotedContent.content.text) && post.content.post.replyTo){
         return <ContentQuoteWithNoContent
             post={post}
             quote={quote}
@@ -158,7 +175,9 @@ export const ContentQuote = ({
 
     const collection = getCollectionFromUri(quotedContent.uri)
     const center = collection == "ar.com.cabildoabierto.article" ?
-        <ArticleQuote quoteStr={quote} quotedContent={quotedContent}/> : <TopicQuote quoteStr={quote} quotedContent={quotedContent}/>
+        <ArticleQuote quoteStr={quote} quotedContent={quotedContent}/> :
+        <TopicQuote quoteStr={quote} quotedContent={quotedContent}/>
+
 
     function handleClick(e) {
         e.stopPropagation()
@@ -172,12 +191,13 @@ export const ContentQuote = ({
         }
     }
 
+
     let context = null
     if(showContext){
         const kind = collection == "ar.com.cabildoabierto.article" ? "artículo" : "tema"
 
         const title = kind == "artículo" ?
-            quotedContent.content.article.title : getTopicTitle(quotedContent.content.topicVersion.topic)
+            quotedContent.content.article.title : getTopicTitle(quotedContent.content.topicVersion.topic as any)
 
         const href = contentUrl(quotedContent.uri, quotedContent.author.handle)
 
@@ -190,7 +210,7 @@ export const ContentQuote = ({
 
     return <div className={"article-content no-margin-first"}>
         <blockquote
-            className={"my-1 " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
+            className={"my-1 w-full " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
             onClick={handleClick}
         >
             {context}

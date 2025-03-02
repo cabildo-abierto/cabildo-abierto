@@ -19,6 +19,8 @@ export function getNodeFromIndex(node: LexicalNode, index: number[]){
 export function getPointTypeFromIndex(node: LexicalNode, index: number[], offset: number){
 
     const pointedNode = getNodeFromIndex(node, index)
+    if(!pointedNode) return null
+
     const type = pointedNode.getType()
 
     if(type == "text" || type == "element"){
@@ -59,6 +61,7 @@ function getEditorPointer(pointer: PointType) {
 export function getStandardSelection(state: EditorState){
     return state.read(() => {
         const selection = $getSelection()
+        if(!selection) return
         const [start, end] = selection.getStartEndPoints()
 
         if(selection.isBackward()){

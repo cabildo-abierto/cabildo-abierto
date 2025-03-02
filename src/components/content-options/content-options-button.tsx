@@ -26,7 +26,13 @@ export const ContentOptionsChoiceButton = ({children, onClick, icon}: {children:
 }
 
 
-export const ContentOptionsButton = ({record}: { record?: RecordProps }) => {
+export const ContentOptionsButton = ({
+    record,
+    onDelete=() => {}
+}: {
+    record?: RecordProps
+    onDelete?: () => void
+}) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null)
 
@@ -49,6 +55,7 @@ export const ContentOptionsButton = ({record}: { record?: RecordProps }) => {
             <ContentOptionsDropdown
                 record={record}
                 onClose={() => {setIsDropdownOpen(false)}}
+                onDelete={onDelete}
             />
         </ModalBelow>
     </div>

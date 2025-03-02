@@ -11,6 +11,8 @@ import { useUser } from '../../../../hooks/user';
 import {getStandardSelection} from "./standard-selection";
 import {WritePanel} from "../../../write-panel";
 import {ReplyToContent} from "./index";
+import {useSWRConfig} from "swr";
+import {revalidateTags} from "../../../../actions/admin";
 
 
 export function CommentInputBox({
@@ -27,6 +29,7 @@ export function CommentInputBox({
     open: boolean
 }) {
     const user = useUser()
+    const {mutate} = useSWRConfig()
 
     const settings = {...commentEditorSettings}
     settings.editorClassName = "min-h-[150px] sm:text-base text-sm"
@@ -35,11 +38,21 @@ export function CommentInputBox({
 
     const quote = open ? JSON.stringify(getStandardSelection(editor.getEditorState())) : undefined
 
+    async function onSubmit(){
+        if(parentContent.content.topicVersion && parentContent.content.topicVersion.topic){
+            const topicId = parentContent.content.topicVersion.topic.id
+
+            await mutate("/api/topic/"+encodeURIComponent(topicId))
+            await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
+        }
+    }
+
     return <WritePanel
         open={open}
         onClose={cancelAddComment}
         replyTo={parentContent}
         quote={quote}
+        onSubmit={onSubmit}
     />
 }
 

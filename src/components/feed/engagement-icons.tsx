@@ -17,9 +17,15 @@ type EngagementIconsProps = {
     record: RecordProps
     className?: string
     small?: boolean
+    onDelete?: () => void
 }
 
-export const EngagementIcons = ({counters, record, className="space-x-16"}: EngagementIconsProps) => {
+export const EngagementIcons = ({
+    counters,
+    record,
+    className="space-x-16",
+    onDelete=() => {}
+}: EngagementIconsProps) => {
     return <div className={"flex items-center exclude-links " + className}>
         {record.collection != "ar.com.cabildoabierto.topic" && <>
         {counters.replyCount != undefined && <CustomLink href={contentUrl(record.uri)}>
@@ -62,6 +68,7 @@ export const EngagementIcons = ({counters, record, className="space-x-16"}: Enga
 
         <ContentOptionsButton
             record={record}
+            onDelete={onDelete}
         />
     </div>
 }
