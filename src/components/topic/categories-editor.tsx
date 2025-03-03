@@ -1,15 +1,18 @@
 "use client"
 
-import {currentCategories} from "../utils";
 import { TopicProps } from "../../app/lib/definitions";
 import {updateCategoriesInTopic} from "../../actions/write/topic";
 import {useCategories} from "../../hooks/contents";
 import {ListEditor} from "../ui-utils/list-editor";
 import {useSWRConfig} from "swr";
+import {getFullTopicCategories} from "./utils";
 
 
-export const CategoriesEditor = ({topic, setEditing}: {topic: TopicProps, setEditing: (v: boolean) => void}) => {
-    const current = currentCategories(topic)
+export const CategoriesEditor = ({topic, setEditing}: {
+    topic: TopicProps
+    setEditing: (v: boolean) => void
+}) => {
+    const current = getFullTopicCategories(topic)
     const {categories: availableCategories} = useCategories()
     const {mutate} = useSWRConfig()
 

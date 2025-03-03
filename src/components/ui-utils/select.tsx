@@ -1,8 +1,15 @@
 import React from 'react';
 import { Select as MUISelect, MenuItem, FormControl, InputLabel } from '@mui/material';
 
-export const Select = ({ options, value, onChange, label, fontSize }: {
-    options: string[], onChange: (v: string) => void, value: string, label?: string, fontSize?: string }) => {
+export const Select = ({
+       options, value, onChange, label, fontSize, labelShrinkFontSize }: {
+    options: string[]
+    onChange: (v: string) => void
+    value: string
+    label?: string
+    fontSize?: string
+    labelShrinkFontSize?: string
+}) => {
     const selectId = label ? `select-${label}` : 'select';
 
     return (
@@ -10,8 +17,8 @@ export const Select = ({ options, value, onChange, label, fontSize }: {
             {label && <InputLabel
                 id={selectId}
                 sx={{
-                    fontSize: "14px",
-                    "&.MuiInputLabel-shrink": { fontSize: "12px" }
+                    fontSize: fontSize,
+                    "&.MuiInputLabel-shrink": { fontSize: labelShrinkFontSize }
                 }}
             >{label}
             </InputLabel>}
@@ -21,8 +28,7 @@ export const Select = ({ options, value, onChange, label, fontSize }: {
                 label={label}
                 labelId={selectId}
                 fullWidth
-                sx={{ fontSize: fontSize,
-                }}
+                sx={{ fontSize: fontSize }}
             >
                 {options.map((o, i) => (
                     <MenuItem key={i} value={o}>

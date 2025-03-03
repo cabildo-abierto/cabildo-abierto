@@ -1,12 +1,12 @@
 "use client"
 import {DatasetProps} from "../../app/lib/definitions";
 import {FastPostPreviewFrame} from "../feed/fast-post-preview-frame";
-import {Authorship} from "../content-top-row-author";
-import {DateSince} from "../date";
+import {Authorship} from "../feed/content-top-row-author";
+import {DateSince} from "../ui-utils/date";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import Link from "next/link";
 import {IconButton} from "@mui/material";
-import { contentUrl } from "../utils";
+import { contentUrl } from "../utils/utils";
 
 export const DatasetPreviewSmall = ({dataset, selected, onClick}: {dataset: DatasetProps, selected: boolean, onClick: () => void}) => {
     return <div className={"py-1 border rounded px-2 cursor-pointer hover:bg-[var(--background-dark2)] " + (selected ? "bg-[var(--background-dark2)]" : "")} onClick={onClick}>

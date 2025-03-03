@@ -1,7 +1,7 @@
 import {addCountersToFeed} from "./utils";
 import {db} from "../../db";
 import {ArticleProps, FastPostProps, FeedContentProps, TopicVersionProps} from "../../app/lib/definitions";
-import {isPost, validQuotePost} from "../../components/utils";
+import {isPost, validQuotePost} from "../../components/utils/utils";
 import {enDiscusionQuery} from "../utils";
 import {unstable_cache} from "next/cache";
 import { Prisma } from "@prisma/client";
@@ -67,7 +67,6 @@ export async function repliesFeedCAQuery(authors?: string[]){
               AND r_reply."authorId" = r."authorId"
         );
     `;
-    console.log(result)
     return result
 }
 

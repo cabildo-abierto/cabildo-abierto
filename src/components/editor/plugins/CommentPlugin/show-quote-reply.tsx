@@ -11,7 +11,7 @@ import {
     $wrapSelectionInMarkNode,
 } from '@lexical/mark';
 import {$createMarkNode, CustomMarkNode} from "../../nodes/CustomMarkNode";
-import {getDidFromUri, getRkeyFromUri} from "../../../utils";
+import {getDidFromUri, getRkeyFromUri} from "../../../utils/utils";
 import {useSWRConfig} from "swr";
 import {ReplyToContent} from "./index";
 import {revalidateTags} from "../../../../actions/admin";

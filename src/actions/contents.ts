@@ -4,7 +4,7 @@ import { getSessionAgent } from "./auth";
 import {RichText} from '@atproto/api'
 import {db} from "../db";
 import {FastPostProps, FastPostReplyProps, VisualizationProps} from "../app/lib/definitions";
-import {getDidFromUri, getRkeyFromUri, getUri, getVisualizationTitle, splitUri} from "../components/utils";
+import {getDidFromUri, getRkeyFromUri, getUri, getVisualizationTitle, splitUri} from "../components/utils/utils";
 import {revalidateTag, unstable_cache} from "next/cache";
 import { QuotedContent } from "../components/feed/content-quote";
 import {revalidateEverythingTime} from "./utils";

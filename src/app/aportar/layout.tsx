@@ -1,5 +1,5 @@
 import MainLayout from "../../components/layout/main-layout";
-import AccountChecker from "../../components/account-checker";
+import AccountChecker from "../../components/auth/account-checker";
 import { Metadata } from "next"
 
 

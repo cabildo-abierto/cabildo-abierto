@@ -1,7 +1,7 @@
 'use server'
 import { db } from "../db";
 import { getSessionAgent } from "./auth";
-import {getCollectionFromUri, getRkeyFromUri} from "../components/utils";
+import {getCollectionFromUri, getRkeyFromUri} from "../components/utils/utils";
 import {revalidateTags} from "./admin";
 
 

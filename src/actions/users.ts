@@ -4,7 +4,7 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../db";
 import { revalidateEverythingTime } from "./utils";
 import {SmallUserProps, UserProps, UserStats} from "../app/lib/definitions";
-import {getRkeyFromUri, supportDid, validSubscription} from "../components/utils";
+import {getRkeyFromUri, supportDid, validSubscription} from "../components/utils/utils";
 import { getSubscriptionPrice } from "./payments";
 import {getSessionAgent, getSessionDid} from "./auth";
 import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
@@ -532,24 +532,6 @@ export async function addDonatedSubscriptionsManually(boughtByUserId: string, am
         data: data
     })
     
-}
-
-
-// to do: cachear
-export async function getUsersByLocation(){
-    return {usersByLocation: [], error: undefined}
-    /*try {
-        const users = await db.users.groupBy({
-            by: ['provincia'],
-            _count: {
-            provincia: true,
-            },
-        })
-        
-        return {usersByLocation} // usersByLocation should by {nombre: string, count: number}
-    } catch {
-        return {error: "error al obtener los usuarios"}
-    }*/
 }
 
 

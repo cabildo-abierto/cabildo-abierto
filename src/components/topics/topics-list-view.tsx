@@ -2,11 +2,12 @@
 import {CategorySelector} from "./category-selector";
 import {CategoryArticles} from "./category-articles";
 import {useState} from "react";
-import {useSearchParams} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import {IconButton} from "@mui/material";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
-import {ModalBelow} from "../modal-below";
+import {ModalBelow} from "../ui-utils/modal-below";
 import { BasicButton } from "../ui-utils/basic-button";
+import {PrettyJSON} from "../utils/utils";
 
 export type TopicsSortOrder = "Populares" | "Ediciones recientes"
 
@@ -54,9 +55,13 @@ export const TopicsSortSelector = ({sortedBy, setSortedBy}: {
 
 export const TopicsListView = () => {
     const searchParams = useSearchParams()
-    const c = searchParams.get("c")
-    const [categories, setCategories] = useState(c ? [c] : [])
+    const categories = searchParams.getAll("c")
     const [sortedBy, setSortedBy] = useState<TopicsSortOrder>("Populares")
+    const router = useRouter()
+
+    function setCategories(newCats: string[]){
+        router.push("/temas?view=lista&c=" + newCats.join("&c="))
+    }
 
     return <div>
         <div className={"w-full flex justify-between py-3 px-2"}>

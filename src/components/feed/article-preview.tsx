@@ -1,8 +1,8 @@
 "use client"
 import {ArticleProps, ReasonProps} from '../../app/lib/definitions'
 import { FastPostPreviewFrame } from './fast-post-preview-frame'
-import {decompress} from "../compression";
-import {getAllText} from "../diff";
+import {decompress} from "../utils/compression";
+import {getAllText} from "../topic/diff";
 
 
 export type ArticlePreviewProps = {

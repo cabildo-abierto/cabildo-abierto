@@ -1,10 +1,16 @@
 "use client"
 import {FastPostProps} from "../../app/lib/definitions";
-import {getUri, shortCollectionToCollection} from "../utils";
+import {getUri, shortCollectionToCollection} from "../utils/utils";
 import {PlotFromUri} from "./plot-from-uri";
 
 
-export const PlotInPost = ({post}: {post: FastPostProps}) => {
+export const PlotInPost = ({
+    post,
+    interactive=true
+}: {
+    post: FastPostProps
+    interactive?: boolean
+}) => {
     if (!post.content.post.embed) {
         return null
     }
@@ -29,6 +35,6 @@ export const PlotInPost = ({post}: {post: FastPostProps}) => {
     }
 
     return <div className={"mt-2 border rounded-lg p-2 hover:bg-[var(--background-dark2)]"}>
-        <PlotFromUri uri={getUri(did, "ar.com.cabildoabierto.visualization", rkey)}/>
+        <PlotFromUri uri={getUri(did, "ar.com.cabildoabierto.visualization", rkey)} interactive={interactive}/>
     </div>
 }

@@ -3,7 +3,7 @@ import {FeedContentProps} from "../../app/lib/definitions";
 import Feed from "../feed/feed";
 import {useEffect, useState} from "react";
 import {searchContents, searchTopics} from "../../actions/feed/search";
-import LoadingSpinner from "../loading-spinner";
+import LoadingSpinner from "../ui-utils/loading-spinner";
 
 
 export const ContentsSearchResults = () => {

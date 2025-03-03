@@ -1,5 +1,5 @@
 import ReplyIcon from "../icons/reply-icon";
-import { getUsername } from "../utils";
+import { getUsername } from "../utils/utils";
 import {ReactNode} from "react";
 
 

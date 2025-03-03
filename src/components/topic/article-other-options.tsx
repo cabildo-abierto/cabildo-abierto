@@ -2,22 +2,27 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useState } from 'react';
 
-import { ModalBelow } from '../modal-below';
-import {hasEditPermission, validEntityName} from '../utils';
+import { ModalBelow } from '../ui-utils/modal-below';
+import {hasEditPermission, validEntityName} from '../utils/utils';
 import { useUser } from '../../hooks/user';
 import {IconButton, TextField} from '@mui/material';
-import StateButton from '../state-button';
+import StateButton from '../ui-utils/state-button';
 import { useSWRConfig } from 'swr';
 import { ContentOptionsChoiceButton } from '../content-options/content-options-button';
 import { BaseFullscreenPopup } from '../ui-utils/base-fullscreen-popup';
 import { AcceptButtonPanel } from '../ui-utils/accept-button-panel';
 import { WriteButtonIcon } from '../icons/write-button-icon';
-import { NeedAccountPopup } from '../need-account-popup';
-import {getTopicTitle} from "./utils";
+import { NeedAccountPopup } from '../auth/need-account-popup';
+import {getFullTopicTitle} from "./utils";
+import {TopicProps} from "../../app/lib/definitions";
 
 
-const NewNameModal = ({topic, open, onClose}: {topic: {id: string, versions: {title?: string}[], protection: string}, onClose: () => void, open: boolean}) => {
-    const [name, setName] = useState(getTopicTitle(topic))
+const NewNameModal = ({topic, open, onClose}: {
+    topic: TopicProps
+    onClose: () => void
+    open: boolean
+}) => {
+    const [name, setName] = useState(getFullTopicTitle(topic))
     const {user} = useUser()
     const {mutate} = useSWRConfig()
 
@@ -87,11 +92,7 @@ export const ContentOptionsDropdown = ({
 }: {
     onClose: () => void,
     optionsList: string[],
-    topic: {
-        protection: string
-        id: string
-        versions: {title?: string}[]
-    }
+    topic: TopicProps
 }) => {
     const [isNewNameModalopen, setIsNewNameModalOpen] = useState(false)
 
@@ -114,11 +115,7 @@ export const ContentOptionsDropdown = ({
 
 
 type ContentOptionsButtonProps = {
-    topic: {
-        id: string
-        protection: string
-        versions: {title?: string}[]
-    }
+    topic: TopicProps
     optionList: string[]
 }
 

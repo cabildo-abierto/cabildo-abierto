@@ -1,5 +1,5 @@
 import React from "react";
-import {DateSince} from "../date";
+import {DateSince} from "../ui-utils/date";
 import {BasicButton} from "../ui-utils/basic-button";
 
 export type CongressProject = {

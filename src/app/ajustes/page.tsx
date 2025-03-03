@@ -2,10 +2,10 @@
 
 import React, {useState} from "react";
 import { useUser } from "../../hooks/user";
-import { CustomLink as Link } from '../../components/custom-link';
-import { PermissionLevel } from "../../components/permission-level";
-import {CloseSessionButton} from "../../components/close-session-button";
-import SelectionComponent from "../../components/search-selection-component";
+import { CustomLink as Link } from '../../components/ui-utils/custom-link';
+import { PermissionLevel } from "../../components/topic/permission-level";
+import {CloseSessionButton} from "../../components/auth/close-session-button";
+import SelectionComponent from "../../components/search/search-selection-component";
 import {Button} from "@mui/material";
 
 

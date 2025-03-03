@@ -4,7 +4,7 @@ import {FastPostProps, FeedContentPropsMaybe, ReasonProps, RecordProps, SmallUse
 import {FastPostPreviewFrame, ReplyVerticalLine} from './fast-post-preview-frame'
 import {FastPostContent} from "./fast-post-content";
 import {FeedElement} from "./feed-element";
-import {contentUrl, getDidFromUri, getRkeyFromUri, isPost} from "../utils";
+import {contentUrl, getDidFromUri, getRkeyFromUri, isPost} from "../utils/utils";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {useUser} from "../../hooks/user";

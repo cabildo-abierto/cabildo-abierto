@@ -2,10 +2,10 @@
 
 import Image from 'next/image'
 import {FastPostProps} from '../../app/lib/definitions'
-import {formatIsoDate, getUsername, userUrl} from '../utils'
+import {formatIsoDate, getUsername, userUrl} from '../utils/utils'
 import Link from 'next/link'
 import { ReactNode } from 'react'
-import { EngagementIcons } from './engagement-icons'
+import { EngagementIcons } from '../reactions/engagement-icons'
 import {useUser} from "../../hooks/user";
 
 

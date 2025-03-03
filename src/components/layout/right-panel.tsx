@@ -1,7 +1,7 @@
 import {SearchPanelOnRightColumn} from "./search-panel-on-right-column";
-import {SupportButton} from "../sidebar";
-import {CustomLink as Link} from "../custom-link";
-import {articleUrl} from "../utils";
+import {SupportButton} from "./sidebar";
+import {CustomLink as Link} from "../ui-utils/custom-link";
+import {articleUrl} from "../utils/utils";
 import {BasicButton} from "../ui-utils/basic-button";
 import InfoIcon from "@mui/icons-material/Info";
 import {DonateIcon} from "../icons/donate-icon";

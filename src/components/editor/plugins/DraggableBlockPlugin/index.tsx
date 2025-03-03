@@ -10,7 +10,7 @@ import './index.css';
 import {DraggableBlockPlugin_EXPERIMENTAL} from '@lexical/react/LexicalDraggableBlockPlugin';
 import {useRef} from 'react';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import {emptyChar} from "../../../utils";
+import {emptyChar} from "../../../utils/utils";
 
 const DRAGGABLE_BLOCK_MENU_CLASSNAME = 'draggable-block-menu';
 

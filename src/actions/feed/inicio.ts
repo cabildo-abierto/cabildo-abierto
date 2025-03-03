@@ -9,8 +9,8 @@ import {
     enDiscusionQuery,
     queryPostsFollowingFeedCA
 } from "../utils";
-import {popularityScore} from "../../components/popularity-score";
-import {listOrder, listOrderDesc, newestFirst} from "../../components/utils";
+import {popularityScore} from "../../components/feed/popularity-score";
+import {listOrder, listOrderDesc, newestFirst} from "../../components/utils/utils";
 
 import {getFollowing} from "../users";
 import {addCountersToFeed, addReasonToRepost, joinCAandATFeeds} from "./utils";

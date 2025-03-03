@@ -1,9 +1,9 @@
 import { ReactNode } from "react"
 import { getAdminStats } from "../../actions/admin"
 import { getUser } from "../../actions/users"
-import { NotFoundPage } from "../../components/not-found-page"
-import { SubscriptorsByDate } from "../../components/subscriptors-by-week"
-import { ViewsByDaySinceSignup } from "../../components/views-since-signup"
+import { NotFoundPage } from "../../components/ui-utils/not-found-page"
+import { SubscriptorsByDate } from "../../components/admin/subscriptors-by-week"
+import { ViewsByDaySinceSignup } from "../../components/admin/views-since-signup"
 
 
 function getMedianViewsByDay(viewsByDay: number[]){

@@ -1,16 +1,16 @@
 "use client"
 import SearchableDropdown from "../ui-utils/searchable-dropdown";
 import {BaseFullscreenPopup} from "../ui-utils/base-fullscreen-popup";
-import {cleanText, contentUrl, getVisualizationTitle} from "../utils";
+import {cleanText, contentUrl, getVisualizationTitle} from "../utils/utils";
 import {VisualizationProps} from "../../app/lib/definitions";
 import {useVisualizations} from "../../hooks/contents";
-import LoadingSpinner from "../loading-spinner";
+import LoadingSpinner from "../ui-utils/loading-spinner";
 import {IconButton, TextField} from "@mui/material";
 import {useEffect, useState} from "react";
 import Link from "next/link";
 import {FaExternalLinkAlt} from "react-icons/fa";
-import {Authorship} from "../content-top-row-author";
-import {DateSince} from "../date";
+import {Authorship} from "../feed/content-top-row-author";
+import {DateSince} from "../ui-utils/date";
 
 
 const VisualizationPreviewOnSelector = ({visualization, onClick}: {
@@ -62,9 +62,9 @@ export const InsertVisualizationModal = ({open, onClose, setVisualization}: {
         onClose={onClose} closeButton={true}
     >
         <div className={"flex flex-col items-center mb-16 px-6"}>
-            <h2 className={"text-center mb-6"}>
-                Insertar una visualización
-            </h2>
+            <h3 className={"text-center mb-6"}>
+                Elegí una visualización
+            </h3>
             <TextField
                 value={searchValue}
                 size={"small"}

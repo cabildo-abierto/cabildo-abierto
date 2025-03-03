@@ -144,7 +144,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         config={config}
         selected={selected}
         setSelected={setSelected}
-        maxWidth={centerMaxWidth-8*4-3*4-8*4-4*4}
+        maxWidth={centerMaxWidth-8*4-3*4-8*4-4*4-20}
         dataset={dataset}
     />
 
@@ -164,12 +164,19 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         />
     </div>
 
-    return <div className={"flex justify-between w-[calc(100vw-80px)]"}>
-        <div>{left}</div>
+    return <div className={"flex justify-between w-[calc(100vw-100px)]"}>
+
+        <div>
+            {left}
+        </div>
+
         <div className={"flex-grow"}>
             {center}
         </div>
-        <div>{right}</div>
+
+        <div>
+            {right}
+        </div>
 
         <ErrorPanel msg={msg}/>
     </div>

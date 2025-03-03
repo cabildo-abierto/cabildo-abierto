@@ -1,6 +1,6 @@
 //import { getPaymentsStats } from "../../actions/admin"
 import { getUser } from "../../actions/users"
-import { NotFoundPage } from "../../components/not-found-page"
+import { NotFoundPage } from "../../components/ui-utils/not-found-page"
 
 
 export default async function Page() {

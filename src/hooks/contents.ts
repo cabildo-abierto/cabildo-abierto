@@ -7,7 +7,7 @@ import {
     VisualizationProps, EngagementProps, MapTopicProps, TopicsGraph, TrendingTopicProps
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
-import {getDidFromUri, getRkeyFromUri} from "../components/utils";
+import {getDidFromUri, getRkeyFromUri} from "../components/utils/utils";
 import {QuotedContent} from "../components/feed/content-quote";
 
 
@@ -45,7 +45,13 @@ export function useFeed(feed: string): {feed: FeedContentProps[], isLoading: boo
 }
 
 export function useTopics(categories: string[], sortedBy: string): {topics: SmallTopicProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topics/alltime/'+sortedBy+"/"+categories.join("/"), fetcher)
+    const { data, error, isLoading } = useSWR('/api/topics/alltime/'+sortedBy+"/"+categories.join("/"), fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
 
     return {
         topics: data,
@@ -100,17 +106,6 @@ export function useQuotedContent(uri: string): {quotedContent: QuotedContent, er
 
     return {
         quotedContent: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useTopicVersion(id: string): {topic: TopicVersionProps, error?: string, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topic-version/'+getDidFromUri(id)+"/"+getRkeyFromUri(id), fetcher)
-
-    return {
-        topic: data,
         isLoading,
         isError: error
     }

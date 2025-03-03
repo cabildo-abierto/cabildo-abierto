@@ -16,7 +16,7 @@ import {
 } from "./utils";
 import {addCountersToFeed} from "./feed/utils";
 import {unstable_cache} from "next/cache";
-import {getDidFromUri, getRkeyFromUri} from "../components/utils";
+import {getDidFromUri, getRkeyFromUri} from "../components/utils/utils";
 import {BlobRef} from "@atproto/lexicon";
 
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { buySubscriptions } from '../../../actions/users';
-import { accessToken } from '../../../components/utils';
+
+const accessToken = process.env.MP_ACCESS_TOKEN
 
 
 const getPaymentDetails = async (paymentId) => {

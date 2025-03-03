@@ -1,7 +1,7 @@
 "use client"
 import React, {ReactNode, useEffect, useState} from 'react';
 import {TextField, Paper, List, MenuItem} from '@mui/material';
-import LoadingSpinner from "../loading-spinner";
+import LoadingSpinner from "./loading-spinner";
 
 interface SearchableDropdownProps {
     options: string[]

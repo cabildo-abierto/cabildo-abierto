@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import {NotFoundPage} from "../../../components/not-found-page";
+import {NotFoundPage} from "../../../components/ui-utils/not-found-page";
 
 
 export const metadata: Metadata = {

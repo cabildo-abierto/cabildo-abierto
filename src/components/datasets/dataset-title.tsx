@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {contentUrl} from "../utils";
+import {contentUrl} from "../utils/utils";
 import TableChartIcon from "@mui/icons-material/TableChart";
 
 
@@ -12,7 +12,7 @@ export const DatasetTitle = ({dataset}: {dataset: {uri?: string, dataset: {title
             <div className={"text-[var(--text-light)]"}>
                 <TableChartIcon fontSize={"inherit"} color={"inherit"}/>
             </div>
-            <div>
+            <div className={"truncate"}>
                 {dataset.dataset.title}
             </div>
         </Link>

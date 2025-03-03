@@ -1,17 +1,17 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation";
-import {currentVersion, inRange, isQuotePost} from "../utils";
-import NoEntityPage from "../no-entity-page";
+import {getCurrentVersion, inRange, isQuotePost} from "../utils/utils";
+import NoEntityPage from "./no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
-import {TopicCategories} from "../entity-categories-small";
 import {useTopic, useTopicFeed} from "../../hooks/contents";
-import {getTopicTitle} from "./utils";
+import {getFullTopicCategories, getFullTopicTitle} from "./utils";
 import {TopicContent} from "./topic-content";
-import LoadingSpinner from "../loading-spinner";
+import LoadingSpinner from "../ui-utils/loading-spinner";
 import {FastPostProps} from "../../app/lib/definitions";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useLayoutConfig} from "../layout/layout-config-context";
+import {TopicCategories} from "./topic-categories";
 
 
 export const TopicPage = ({topicId, paramsVersion, changes}: {
@@ -19,7 +19,6 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     paramsVersion?: number,
     changes?: boolean
 }) => {
-    console.log("using topic", topicId)
     const topic = useTopic(topicId)
     const feed = useTopicFeed(topicId)
     const initialSelection = changes ? "changes" : (paramsVersion == undefined ? "none" : "history")
@@ -69,7 +68,7 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
     }
 
     const versions = topic.topic.versions
-    const currentIndex = currentVersion(topic.topic)
+    const currentIndex = getCurrentVersion(topic.topic)
     let version = paramsVersion
     if(paramsVersion == undefined || !inRange(paramsVersion, versions.length)){
         version = currentIndex
@@ -97,9 +96,11 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
                 Tema
             </div>
             <h1 className={"mb-2"}>
-                {getTopicTitle(topic.topic)}
+                {getFullTopicTitle(topic.topic)}
             </h1>
-            <TopicCategories topic={topic.topic}/>
+            <TopicCategories
+                categories={getFullTopicCategories(topic.topic)}
+            />
         </div>
         <TopicContent
             topic={topic.topic}

@@ -1,10 +1,11 @@
 import {SmallTopicProps} from "../../app/lib/definitions";
 import {useState} from "react";
-import {getTopicTitle} from "../topic/utils";
-import {CustomLink as Link} from "../custom-link";
-import {articleUrl} from "../utils";
-import {TopicCategories} from "../entity-categories-small";
+import {getTopicCategories, getTopicTitle} from "../topic/utils";
+import {CustomLink as Link} from "../ui-utils/custom-link";
+import {articleUrl} from "../utils/utils"
 import {useRouter} from "next/navigation";
+import {TopicCategories} from "../topic/topic-categories";
+
 
 export const TrendingArticlesSlider = ({trendingArticles}: {
     trendingArticles: SmallTopicProps[]}) => {
@@ -18,23 +19,25 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
             {trendingArticles.map((topic, index) => {
 
                 const title = getTopicTitle(topic)
-                return <div onClick={() => {router.push(articleUrl(topic.id))}} draggable={false}
-                     className="flex flex-col py-4 w-full px-3 sm:text-sm text-xs text-[0.72rem] hover:bg-[var(--background-dark)]"
-                     key={topic.id}
-                     onMouseLeave={() => {
-                         setHovering(undefined)
-                     }}
-                     onMouseEnter={() => {/*preload("/api/entity/"+entity.id, fetcher);*/
-                         setHovering(index)
-                     }}
+                return <div
+                    onClick={() => {router.push(articleUrl(topic.id))}} draggable={false}
+                    className="cursor-pointer flex flex-col py-4 w-full px-3 sm:text-sm text-xs text-[0.72rem] hover:bg-[var(--background-dark)]"
+                    key={topic.id}
+                    onMouseLeave={() => {
+                        setHovering(undefined)
+                    }}
+                    onMouseEnter={() => {
+                        /*preload("/api/entity/"+entity.id, fetcher);*/
+                        setHovering(index)
+                    }}
                 >
                     <TopicCategories
-                        topic={topic}
+                        categories={getTopicCategories(topic)}
                         className={"text-xs text-[var(--text-light)]"}
                         maxCount={1}
                     />
 
-                    <div className={"font-semibold w-full " + (hovering == index ? "" : "truncate")}>
+                    <div className={"font-semibold w-full text-[15px] " + (hovering == index ? "" : "truncate")}>
                         {title}
                     </div>
 
@@ -47,7 +50,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                     </div>
                 </div>
             })}
-            <Link href={"/temas"} className={"text-sm text-[var(--text-light)] px-3 py-1"}>
+            <Link href={"/temas"} className={"hover:bg-[var(--background-dark)] text-sm text-[var(--text-light)] px-3 py-1"}>
                 Ver más
             </Link>
         </div>

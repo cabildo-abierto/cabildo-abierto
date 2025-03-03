@@ -63,38 +63,44 @@ export type TopicVersionContentProps = {
 }
 
 
-export type TopicVersionProps = {
-    uri: string
-    content: TopicVersionContentProps
+export type TopicVersionProps = RecordProps & {
+    content: {
+        text: string
+        format?: string
+        textBlob: {
+            cid: string,
+            authorId: string
+        },
+        topicVersion: {
+            topicId: string
+            message: string
+            title?: string
 
-    topicId: string
-    message: string
-    title?: string
+            diff?: string
+            charsAdded?: number
+            charsDeleted?: number
+            accCharsAdded?: number
+            contribution?: string
 
-    diff?: string
-    charsAdded?: number
-    charsDeleted?: number
-    accCharsAdded?: number
-    contribution?: string
+            authorship: boolean
 
-    authorship: boolean
-
-    categories?: string
-    synonyms?: string
+            categories?: string
+            synonyms?: string
+        }
+    }
+    reactions: {
+        record: {
+            authorId: string
+            collection: string
+        }
+    }[]
 }
 
 
 export type TopicProps = {
     id: string
-    referencedBy: {
-        referencingContent: {
-            topicVersion: {
-                topicId: string
-            }
-        }
-    }[]
-    versions: TopicVersionProps[]
     protection: EditorStatus
+    versions: TopicVersionProps[]
 }
 
 

@@ -1,6 +1,6 @@
 import { StatsIcon } from "../../components/icons/stats-icon"
 import {getUserStats} from "../../actions/users";
-import { StatsPanel } from "../../components/stats-panel";
+import { StatsPanel } from "../../components/ajustes/stats-panel";
 
 
 const Page = async () => {

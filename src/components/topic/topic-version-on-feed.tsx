@@ -1,8 +1,8 @@
 import {TopicVersionOnFeedProps} from "../../app/lib/definitions";
-import {ContentTopRowAuthor} from "../content-top-row-author";
+import {ContentTopRowAuthor} from "../feed/content-top-row-author";
 import {ProfilePic} from "../feed/profile-pic";
-import {contentUrl, formatIsoDate, topicVersionUrl} from "../utils";
-import {DateSince} from "../date";
+import {contentUrl, formatIsoDate, topicVersionUrl} from "../utils/utils";
+import {DateSince} from "../ui-utils/date";
 import {useRouter} from "next/navigation";
 
 

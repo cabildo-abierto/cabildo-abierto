@@ -1,7 +1,7 @@
-import { getAllText } from "../../components/diff"
-import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils"
+import { getAllText } from "../../components/topic/diff"
+import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils/utils"
 import { db } from "../../db"
-import {decompress} from "../../components/compression";
+import {decompress} from "../../components/utils/compression";
 
 
 

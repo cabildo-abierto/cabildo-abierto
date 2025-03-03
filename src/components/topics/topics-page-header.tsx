@@ -1,16 +1,16 @@
 "use client"
-import SelectionComponent from "../search-selection-component";
+import SelectionComponent from "../search/search-selection-component";
 import {Button} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import React, {ReactNode, useState} from "react";
-import {CreateTopicModal} from "../create-topic-modal";
+import {CreateTopicModal} from "../topic/create-topic-modal";
 import { PiGraph } from "react-icons/pi";
 import { PiGraphBold } from "react-icons/pi";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { HiSquares2X2 } from "react-icons/hi2";
 import { PiListBullets } from "react-icons/pi";
 import { PiListBulletsBold } from "react-icons/pi";
-import SearchBar from "../searchbar";
+import SearchBar from "../search/searchbar";
 import {useRouter, useSearchParams} from "next/navigation";
 
 

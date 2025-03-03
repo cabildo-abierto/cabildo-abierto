@@ -3,11 +3,11 @@ import {useState} from "react";
 import {BasicButton} from "../../components/ui-utils/basic-button";
 import '../../components/datasets/index.css'
 import Link from "next/link";
-import SelectionComponent from "../../components/search-selection-component";
+import SelectionComponent from "../../components/search/search-selection-component";
 import AddIcon from "@mui/icons-material/Add";
 import {Button} from "@mui/material";
 import {useDatasets, useVisualizations} from "../../hooks/contents";
-import LoadingSpinner from "../../components/loading-spinner";
+import LoadingSpinner from "../../components/ui-utils/loading-spinner";
 import {VisualizationsFeed} from "../../components/visualizations/visualizations-feed";
 import {DatasetsFeed} from "../../components/datasets/datasets-feed";
 import {NewDatasetPanel} from "../../components/datasets/new-dataset-panel";

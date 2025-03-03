@@ -1,12 +1,12 @@
 "use client"
 import React, {ReactNode, useEffect} from "react";
-import LoadingPage from "../loading-page";
+import LoadingPage from "../auth/loading-page";
 import {SearchProvider} from "../search/search-context";
-import {BetaAccessPage} from "../beta-access-page";
-import {SidebarContent} from "../sidebar";
-import {emptyChar, pxToNumber} from "../utils";
+import {BetaAccessPage} from "../auth/beta-access-page";
+import {SidebarContent} from "./sidebar";
+import {emptyChar, pxToNumber} from "../utils/utils";
 import {LayoutConfigProps, LayoutConfigProvider, useLayoutConfig} from "./layout-config-context";
-import {PageLeaveProvider} from "../prevent-leave";
+import {PageLeaveProvider} from "../ui-utils/prevent-leave";
 import { ThemeProvider } from '@mui/material';
 import theme from '../theme';
 import {RightPanel} from "./right-panel";

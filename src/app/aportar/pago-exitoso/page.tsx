@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { CustomLink as Link } from '../../../components/custom-link';
+import { CustomLink as Link } from '../../../components/ui-utils/custom-link';
 import {BasicButton} from "../../../components/ui-utils/basic-button";
 
 export const metadata: Metadata = {

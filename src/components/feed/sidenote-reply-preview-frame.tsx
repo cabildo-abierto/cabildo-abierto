@@ -1,13 +1,13 @@
 "use client"
 
 import Image from 'next/image'
-import { DateSince } from '../date'
+import { DateSince } from '../ui-utils/date'
 import {EngagementProps, RecordProps} from '../../app/lib/definitions'
-import {emptyChar, formatIsoDate, userUrl} from '../utils'
+import {emptyChar, formatIsoDate, userUrl} from '../utils/utils'
 import Link from 'next/link'
-import { ContentTopRowAuthor } from '../content-top-row-author'
+import { ContentTopRowAuthor } from './content-top-row-author'
 import { ReactNode } from 'react'
-import { EngagementIcons } from './engagement-icons'
+import { EngagementIcons } from '../reactions/engagement-icons'
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 
 

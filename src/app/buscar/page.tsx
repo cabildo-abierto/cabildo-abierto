@@ -1,5 +1,5 @@
-import SearchBar from "../../components/searchbar";
-import {SearchContent} from "../../components/search-content";
+import SearchBar from "../../components/search/searchbar";
+import {SearchContent} from "../../components/search/search-content";
 
 
 const Page = async ({searchParams}: {searchParams: {q: string}}) => {

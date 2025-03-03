@@ -1,14 +1,14 @@
 "use client"
 
 import Image from 'next/image'
-import { DateSince } from '../date'
+import { DateSince } from '../ui-utils/date'
 import {EngagementProps, ReasonProps, RecordProps} from '../../app/lib/definitions'
-import {emptyChar, formatIsoDate, urlFromRecord, userUrl} from '../utils'
+import {emptyChar, formatIsoDate, urlFromRecord, userUrl} from '../utils/utils'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ContentTopRowAuthor } from '../content-top-row-author'
+import { ContentTopRowAuthor } from './content-top-row-author'
 import { ReactNode } from 'react'
-import { EngagementIcons } from './engagement-icons'
+import { EngagementIcons } from '../reactions/engagement-icons'
 import {RepostedBy} from "./reposted-by";
 import { useSWRConfig } from 'swr'
 

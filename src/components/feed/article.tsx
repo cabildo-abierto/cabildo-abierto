@@ -1,16 +1,16 @@
 "use client"
 import {ArticleProps, FastPostProps} from '../../app/lib/definitions'
 import ReadOnlyEditor from '../editor/read-only-editor'
-import {Authorship} from "../content-top-row-author";
-import {ReadingTime} from "../reading-time";
-import {DateSince} from "../date";
-import {decompress} from "../compression";
-import {EngagementIcons} from "./engagement-icons";
+import {Authorship} from "./content-top-row-author";
+import {ReadingTime} from "../article/reading-time";
+import {DateSince} from "../ui-utils/date";
+import {decompress} from "../utils/compression";
+import {EngagementIcons} from "../reactions/engagement-icons";
 import {ProfilePic} from "./profile-pic";
 import {useEffect} from "react";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useSWRConfig} from "swr";
-import {getDidFromUri, getRkeyFromUri} from "../utils";
+import {getDidFromUri, getRkeyFromUri} from "../utils/utils";
 
 type ArticleCompProps = {
     content: ArticleProps,

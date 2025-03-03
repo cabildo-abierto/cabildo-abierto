@@ -1,10 +1,10 @@
 "use client"
-import { TopicSearchResult } from "../topic-search-result"
+import { TopicSearchResult } from "../topic/topic-search-result"
 import { useTopics } from "../../hooks/contents"
-import LoadingSpinner from "../loading-spinner"
-import { LazyLoadFeed } from "../lazy-load-feed"
+import LoadingSpinner from "../ui-utils/loading-spinner"
+import { LazyLoadFeed } from "../feed/lazy-load-feed"
 import React from "react"
-import {NoResults} from "../no-results";
+import {NoResults} from "../search/no-results";
 import {TopicsSortOrder} from "./topics-list-view";
 
 
@@ -24,10 +24,11 @@ export const CategoryArticles = ({sortedBy, categories, maxCount}: {sortedBy: To
         }
     }
 
-    return <div className="flex flex-col items-center w-full">
+    return <div className="flex flex-col items-center w-full" key={sortedBy+categories.join("-")}>
         {topics.length > 0 ? (
             <LazyLoadFeed
-                maxSize={Math.min(topics.length, maxCount != undefined ? maxCount : topics.length)}
+                maxSize={topics.length}
+                initialCount={50}
                 generator={generator}
             />
         ) : (

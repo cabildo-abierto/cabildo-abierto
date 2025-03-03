@@ -1,16 +1,16 @@
 "use client"
-import LoadingSpinner from '../../components/loading-spinner';
+import LoadingSpinner from '../../components/ui-utils/loading-spinner';
 import { useDonationsDistribution, useFundingPercentage, useSubscriptionPrice } from '../../hooks/subscriptions';
-import { CustomLink as Link } from '../../components/custom-link';
+import { CustomLink as Link } from '../../components/ui-utils/custom-link';
 import { useUser } from '../../hooks/user';
 import { UserProps } from '../lib/definitions';
-import FundingProgress from '../../components/funding-progress';
-import StateButton from '../../components/state-button';
-import { Desplegable } from '../../components/desplegable';
+import FundingProgress from '../../components/donations/funding-progress';
+import StateButton from '../../components/ui-utils/state-button';
+import { Desplegable } from '../../components/ui-utils/desplegable';
 import { useState } from 'react';
 import { createPreference } from '../../actions/payments';
-import { IntegerInputPlusMinus } from '../../components/integer-input-plus-minus';
-import { UniqueDonationCheckout } from '../../components/unique-donation-checkout';
+import { IntegerInputPlusMinus } from '../../components/donations/integer-input-plus-minus';
+import { UniqueDonationCheckout } from '../../components/donations/unique-donation-checkout';
 import { Button } from '@mui/material';
 import { ArrowRightIcon } from '../../components/icons/arrow-right-icon';
 import { DonateIcon } from '../../components/icons/donate-icon';

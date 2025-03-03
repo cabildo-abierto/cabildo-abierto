@@ -1,4 +1,4 @@
-import { AdminOnlyPage } from "../../../components/admin-only-page";
+import { AdminOnlyPage } from "../../../components/auth/admin-only-page";
 import { Metadata } from "next"
 
 

@@ -1,21 +1,21 @@
-import {currentVersion, hasChanged, hasEditPermission, PrettyJSON} from "../utils";
+import {getCurrentVersion, hasChanged, hasEditPermission, PrettyJSON} from "../utils/utils";
 import {ArticleOtherOptions} from "./article-other-options";
-import {SetProtectionButton} from "../protection-button";
-import {EditHistory} from "../edit-history";
+import {SetProtectionButton} from "./protection-button";
+import {EditHistory} from "./edit-history";
 import {FastPostProps, TopicProps, TopicVersionProps} from "../../app/lib/definitions";
 import { useUser } from "../../hooks/user";
-import {ToggleButton} from "../toggle-button";
+import {ToggleButton} from "../ui-utils/toggle-button";
 import {wikiEditorSettings} from "../editor/wiki-editor";
-import {NeedAccountPopup} from "../need-account-popup";
+import {NeedAccountPopup} from "../auth/need-account-popup";
 import {useEffect, useState} from "react";
 import {createTopicVersion} from "../../actions/write/topic";
-import {compress} from "../compression";
+import {compress} from "../utils/compression";
 import {EditorState, LexicalEditor} from "lexical";
 import {useSWRConfig} from "swr";
-import {SaveEditPopup} from "../save-edit-popup";
+import {SaveEditPopup} from "./save-edit-popup";
 import {CategoriesEditor} from "./categories-editor";
-import {SynonymsEditor} from "../synonyms-editor";
-import {ChangesCounter} from "../changes-counter";
+import {SynonymsEditor} from "./synonyms-editor";
+import {ChangesCounter} from "./changes-counter";
 import dynamic from "next/dynamic";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {CloseButton} from "../ui-utils/close-button";
@@ -31,9 +31,9 @@ export const articleButtonClassname = "article-btn sm:min-w-24 sm:text-[15px] te
 function topicVersionPropsToReplyToContent(topicVersion: TopicVersionProps, topicId: string): ReplyToContent {
     return {
         uri: topicVersion.uri,
-        cid: topicVersion.content.record.cid,
+        cid: topicVersion.cid,
         collection: "ar.com.cabildoabierto.topic",
-        author: topicVersion.content.record.author,
+        author: topicVersion.author,
         content: {
             ...topicVersion.content,
             topicVersion: {
@@ -87,7 +87,7 @@ export const TopicContent = ({
         }
     }, [])
 
-    const currentIndex = currentVersion(topic)
+    const currentIndex = getCurrentVersion(topic)
     const isCurrent = version == currentIndex
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{error?: string}>{
@@ -185,14 +185,16 @@ export const TopicContent = ({
     }
 
     const currentContentVersion = getCurrentContentVersion(topic, version)
-    const content = topic.versions[currentContentVersion]
+    const contentVersion = topic.versions[currentContentVersion]
 
-    const editorId = content.uri+"-"+quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-")
+    const currentVersion = topic.versions[version]
+
+    const editorId = contentVersion.uri+"-"+quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-")
 
     const editorComp = <>
         {showingSaveEditPopup && <SaveEditPopup
             editorState={editorState}
-            currentVersion={content}
+            currentVersion={contentVersion}
             onSave={saveEdit}
             onClose={() => {setShowingSaveEditPopup(false)}}
             entity={topic}
@@ -215,20 +217,25 @@ export const TopicContent = ({
 
         <div className="text-center">
             {selectedPanel == "changes" && version > 0 && <ChangesCounter
-                    charsAdded={content.charsAdded} charsDeleted={content.charsDeleted}
+                    charsAdded={currentVersion.content.topicVersion.charsAdded}
+                    charsDeleted={contentVersion.content.topicVersion.charsDeleted}
                 />
             }
         </div>
 
         <div id="editor" className={"pb-2"}>
             {(((selectedPanel != "changes" || version == 0) && selectedPanel != "authors")) &&
-                <div id={editorId} className={"px-2 " + (selectedPanel == "editing" ? "mb-32": "mb-8")} key={content.content.record.cid+selectedPanel+viewingContent+editorId}>
+                <div
+                    id={editorId}
+                    className={"px-2 " + (selectedPanel == "editing" ? "mb-32": "mb-8")}
+                    key={contentVersion.cid+selectedPanel+viewingContent+editorId}
+                >
                     <MyLexicalEditor
                         settings={wikiEditorSettings(
                             selectedPanel != "editing",
-                            topicVersionPropsToReplyToContent(content, topic.id),
-                            content.content.text,
-                            content.content.format,
+                            topicVersionPropsToReplyToContent(contentVersion, topic.id),
+                            contentVersion.content.text,
+                            contentVersion.content.format,
                             viewingContent,
                             viewingContent,
                             quoteReplies,

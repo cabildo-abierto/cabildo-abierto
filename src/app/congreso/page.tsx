@@ -1,6 +1,6 @@
 "use client"
 import React, {useState} from "react";
-import SelectionComponent from "../../components/search-selection-component";
+import SelectionComponent from "../../components/search/search-selection-component";
 import {Button} from "@mui/material";
 import {BancasDiputados, BancasSenadores} from "../../components/congreso/bancas";
 import {CongressResult, Proyectos} from "../../components/congreso/proyectos";

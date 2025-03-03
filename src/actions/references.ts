@@ -1,7 +1,7 @@
 "use server"
 
 import {db} from "../db";
-import {areArraysEqual, cabildoDid, cleanText, getDidFromUri, tomasDid} from "../components/utils";
+import {areArraysEqual, cabildoDid, cleanText, getDidFromUri, tomasDid} from "../components/utils/utils";
 import {getTextFromBlob} from "./topics";
 
 

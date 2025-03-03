@@ -2,7 +2,7 @@
 
 import { revalidateTag } from "next/cache";
 import { db } from "../db";
-import {getRkeyFromUri, launchDate, supportDid, validSubscription} from "../components/utils";
+import {getRkeyFromUri, launchDate, supportDid, validSubscription} from "../components/utils/utils";
 import { getSessionAgent } from "./auth";
 import {deleteRecords} from "./atproto-update";
 

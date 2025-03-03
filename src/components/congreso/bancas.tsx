@@ -3,11 +3,11 @@ import diputados from "../../../public/congreso/diputados.json";
 import Image from "next/image";
 import React, {useState} from "react";
 import {useLayoutConfig} from "../layout/layout-config-context";
-import {pxToNumber} from "../utils";
+import {pxToNumber} from "../utils/utils";
 import {CongressProject, CongressResult} from "./proyectos";
 import {getId, getVote} from "./utils";
 import Link from "next/link";
-import {CustomLink} from "../custom-link";
+import {CustomLink} from "../ui-utils/custom-link";
 
 
 type SelectedSenator = {

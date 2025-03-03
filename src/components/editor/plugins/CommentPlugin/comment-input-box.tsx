@@ -9,7 +9,7 @@ import './index.css';
 import { commentEditorSettings } from '../../comment-editor';
 import { useUser } from '../../../../hooks/user';
 import {getStandardSelection} from "./standard-selection";
-import {WritePanel} from "../../../write-panel";
+import {WritePanel} from "../../../writing/write-panel";
 import {ReplyToContent} from "./index";
 import {useSWRConfig} from "swr";
 import {revalidateTags} from "../../../../actions/admin";

@@ -1,7 +1,7 @@
 "use client"
 import {DatasetProps, FilterProps, PlotConfigProps} from "../../../app/lib/definitions";
 import {VisualizationSpec} from "react-vega";
-import {getDidFromUri, getRkeyFromUri} from "../../utils";
+import {getDidFromUri, getRkeyFromUri} from "../../utils/utils";
 import {TopLevelParameter} from "vega-lite/src/spec/toplevel";
 import {AnyMark} from "vega-lite/src/mark";
 import { FacetedCompositeEncoding } from "vega-lite/src/compositemark";
@@ -182,7 +182,7 @@ function getEncoding(config: PlotConfigProps): FacetedCompositeEncoding<any> {
                 field: column,
                 type: "quantitative",
                 bin: { maxbins: 20 },
-                axis: { title: column, labelAngle: 0, grid: false },
+                axis: { title: config["Etiqueta columna"], labelAngle: 0, grid: false },
             },
             y: {
                 aggregate: "count",
@@ -191,7 +191,7 @@ function getEncoding(config: PlotConfigProps): FacetedCompositeEncoding<any> {
             },
             color: { value: primaryColor },
             tooltip: [
-                { field: column, type: "quantitative", title: column },
+                { field: column, type: "quantitative", title: config["Etiqueta columna"] },
                 {
                     aggregate: "count", // Explicitly compute count
                     type: "quantitative",

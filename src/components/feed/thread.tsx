@@ -4,7 +4,7 @@ import {ArticleProps, DatasetProps, FastPostProps, ThreadProps, VisualizationPro
 import { ReplyButton } from "./reply-button"
 import { FastPostPreview } from "./fast-post-preview"
 import {useState} from "react";
-import {WritePanel} from "../write-panel";
+import {WritePanel} from "../writing/write-panel";
 import {Article} from "./article";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useLayoutConfig} from "../layout/layout-config-context";

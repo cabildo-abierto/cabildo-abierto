@@ -4,7 +4,7 @@ import {useDataset} from "../../hooks/contents";
 import Image from "next/image";
 import {localizeDataset} from "../editor/nodes/visualization-node-comp";
 import dynamic from "next/dynamic";
-import {pxToNumber} from "../utils";
+import {pxToNumber} from "../utils/utils";
 import '../editor/article-content.css'
 
 const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
@@ -49,17 +49,6 @@ export const VegaPlot = ({
 
         if (dataset) {
 
-            if(width){
-                const parsedWidth = pxToNumber(width) * 0.85
-
-                const originalWidth = json.width || 400;
-                const originalHeight = json.height || 300;
-                const aspectRatio = originalHeight / originalWidth;
-
-                json.width = parsedWidth;
-                json.height = parsedWidth * aspectRatio;
-            }
-
             json.data = { values: dataset.data };
 
             setJsonSpec(json);
@@ -72,7 +61,10 @@ export const VegaPlot = ({
     return <>
         {isVegaLoading && <VegaPlotPreview visualization={visualization} width={width}/>}
         <div
-            style={{ display: isVegaLoading ? 'none' : 'block' }}
+            style={{ display: isVegaLoading ? 'none' : 'block',
+                width: width,
+                height: "auto"
+            }}
             onClick={(e) => {e.stopPropagation()}}
         >
             <VegaLite

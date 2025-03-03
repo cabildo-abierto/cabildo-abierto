@@ -3,10 +3,10 @@
 import {
     revalidateEverything, revalidateTags,
 } from "../../../actions/admin"
-import {tomasDid} from "../../../components/utils";
+import {tomasDid} from "../../../components/utils/utils";
 import {useUser} from "../../../hooks/user";
-import {NotFoundPage} from "../../../components/not-found-page";
-import StateButton from "../../../components/state-button";
+import {NotFoundPage} from "../../../components/ui-utils/not-found-page";
+import StateButton from "../../../components/ui-utils/state-button";
 
 
 

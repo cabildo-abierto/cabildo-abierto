@@ -1,11 +1,11 @@
 "use client"
 import {useDataset} from "../../../../hooks/contents";
-import {ErrorPage} from "../../../../components/error-page";
-import LoadingSpinner from "../../../../components/loading-spinner";
-import {ContentTopRowAuthor} from "../../../../components/content-top-row-author";
+import {ErrorPage} from "../../../../components/ui-utils/error-page";
+import LoadingSpinner from "../../../../components/ui-utils/loading-spinner";
+import {ContentTopRowAuthor} from "../../../../components/feed/content-top-row-author";
 import {ProfilePic} from "../../../../components/feed/profile-pic";
 import {DatasetView} from "../../../../components/datasets/dataset-view";
-import {getUri} from "../../../../components/utils";
+import {getUri} from "../../../../components/utils/utils";
 
 
 const Page = ({params}: {params: {did: string, rkey: string}}) => {

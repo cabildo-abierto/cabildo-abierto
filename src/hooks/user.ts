@@ -3,7 +3,7 @@ import {ArticleProps, SmallUserProps, UserProps} from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import { ChatMessage } from "@prisma/client"
 import useSWR from "swr"
-import {getDidFromUri, getRkeyFromUri} from "../components/utils";
+import {getDidFromUri, getRkeyFromUri} from "../components/utils/utils";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 
