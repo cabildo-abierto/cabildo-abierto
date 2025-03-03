@@ -1,9 +1,12 @@
 "use client"
 import {useVisualization} from "../../hooks/contents";
 import {VisualizationNodeComp} from "../editor/nodes/visualization-node-comp";
-import LoadingSpinner from "../loading-spinner";
+import LoadingSpinner from "../ui-utils/loading-spinner";
 
-export const PlotFromUri = ({uri}: {uri: string}) => {
+export const PlotFromUri = ({uri, interactive=true}: {
+    uri: string
+    interactive?: boolean
+}) => {
     const {visualization, isLoading, error} = useVisualization(uri)
 
     if(isLoading){
@@ -14,5 +17,5 @@ export const PlotFromUri = ({uri}: {uri: string}) => {
         No se encontró la visualización
     </div>
 
-    return <VisualizationNodeComp visualization={visualization}/>
+    return <VisualizationNodeComp visualization={visualization} interactive={interactive}/>
 }

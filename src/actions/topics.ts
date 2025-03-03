@@ -1,17 +1,24 @@
 "use server"
 
 import {getSessionAgent} from "./auth";
-import {TopicProps, TopicVersionProps, SmallTopicProps, MapTopicProps, TopicsGraph} from "../app/lib/definitions";
+import {
+    TopicProps,
+    TopicVersionProps,
+    SmallTopicProps,
+    MapTopicProps,
+    TopicsGraph,
+    TopicVersionOnFeedProps
+} from "../app/lib/definitions";
 import {db} from "../db";
 import {
     cleanText,
-    currentCategories,
+    currentCategories, getCurrentVersion,
     currentVersionContent,
     getDidFromUri,
     getRkeyFromUri,
-    listOrderDesc,
+    listOrderDesc, newestFirst,
     supportDid
-} from "../components/utils";
+} from "../components/utils/utils";
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import {getObjectSizeInBytes, recordQuery, revalidateEverythingTime} from "./utils";
@@ -103,85 +110,6 @@ type TopicUserInteractionsProps = {
             }
         }
     }[]
-}
-
-
-function countUserInteractions(entity: TopicUserInteractionsProps, since?: Date){
-    function recentEnough(date: Date){
-        return !since || date > since
-    }
-
-    function addMany(g: {authorId: string, createdAt: Date}[]){
-        for(let i = 0; i < g.length; i++) {
-            if(recentEnough(g[i].createdAt)){
-                s.add(g[i].authorId)
-            }
-        }
-    }
-
-    let s = new Set()
-
-    entity.referencedBy.forEach(({referencingContent}) => {
-        if(recentEnough(referencingContent.record.createdAt)){
-            s.add(referencingContent.record.authorId)
-        }
-    })
-
-    for(let i = 0; i < entity.referencedBy.length; i++){
-        const referencingContent = entity.referencedBy[i].referencingContent
-        addMany(referencingContent.record.rootOf.map((post) => (post.content.record)))
-        for(let j = 0; j < referencingContent.record.rootOf.length; j++){
-            addMany(referencingContent.record.rootOf[j].content.record.reactions.map(({record}) => (record)))
-        }
-        addMany(referencingContent.record.reactions.map(({record}) => (record)))
-    }
-
-    //if(entity.name == entityId) console.log("Referencias", s)
-    //if(entity.name == entityId) console.log("Reacciones", s)
-    for(let i = 0; i < entity.versions.length; i++){
-        // autores de las versiones
-        if(recentEnough(entity.versions[i].content.record.createdAt)){
-            s.add(entity.versions[i].content.record.authorId)
-        }
-
-        // comentarios y subcomentarios de las versiones
-        addMany(entity.versions[i].content.record.rootOf.map((post) => (post.content.record)))
-    }
-
-    //if(entity.name == entityId) console.log("weak refs", s)
-    //if(entity.name == entityId) console.log("Total", entity.name, s.size, s)
-
-    s.delete(supportDid)
-
-    const currentContentVersion = getCurrentContentVersion(entity)
-
-    const currentContent = entity.versions[currentContentVersion]
-    const lastVersion = entity.versions[entity.versions.length - 1]
-
-    return [
-        s.size,
-        currentContent.content.numWords > 0 ? 1 : 0,
-        currentContent ? new Date(lastVersion.content.record.createdAt).getTime() : 0
-    ]
-
-}
-
-
-export async function getTrendingTopics(
-    sinceKind: string = "alltime",
-    categories: string[],
-    sortedBy: string,
-    limit: number = 10
-): Promise<{error?: string, topics?: SmallTopicProps[]}> {
-    return await unstable_cache(async () => {
-        return await getTrendingTopicsNoCache(sinceKind, categories, sortedBy, limit)
-    },
-        ["tt:"+sinceKind+":"+categories.join(":")+":"+limit+":"+sortedBy],
-        {
-            tags: ["tt", "tt:"+sinceKind, "topics"],
-            revalidate: revalidateEverythingTime
-        }
-    )()
 }
 
 
@@ -372,9 +300,15 @@ function getTopicLastEdit(t: {versions: {content: {record: {createdAt: Date}}}[]
     return last
 }
 
+export async function getTrendingTopics(categories: string[],
+                                        sortedBy: string,
+                                        limit: number){
+    // no se puede cachear porque (no sé por qué) no se puede anidar unstable_cache
+    return await getTrendingTopicsNoCache(categories, sortedBy, limit)
+}
+
 
 export async function getTrendingTopicsNoCache(
-    sincekind: string,
     categories: string[],
     sortedBy: string,
     limit: number): Promise<{
@@ -382,8 +316,9 @@ export async function getTrendingTopicsNoCache(
     topics?: SmallTopicProps[]
 }> {
     try {
-
+        const t1 = Date.now()
         const scoreMap = await getTopicsPopularityScoreMap()
+        const t2 = Date.now()
         let scoreList = Array.from(scoreMap)
 
         scoreList = scoreList.filter((t) => {
@@ -432,6 +367,7 @@ export async function getTrendingTopicsNoCache(
                 }
             }
         })
+        const t3 = Date.now()
 
         const topicsMap = new Map<string, SmallTopicProps>()
         for(let topic of topics) {
@@ -455,19 +391,71 @@ export async function getTrendingTopicsNoCache(
 const topicQuery = {
     id: true,
     protection: true,
-    referencedBy: {
+    versions: {
         select: {
-            referencingContent: {
+            uri: true
+        }
+    }
+}
+
+
+const topicVersionQuery = {
+    ...recordQuery,
+    content: {
+        select: {
+            text: true,
+            textBlob: {
                 select: {
-                    topicVersion: {
+                    authorId: true,
+                    cid: true
+                }
+            },
+            topicVersion: {
+                select: {
+                    topicId: true,
+                    message: true,
+                    title: true,
+                    diff: true,
+                    charsAdded: true,
+                    accCharsAdded: true,
+                    contribution: true,
+                    authorship: true,
+                    content: {
                         select: {
-                            topicId: true
-                        }
+                            text: true,
+                            format: true,
+                            record: {
+                                select: recordQuery,
+                            },
+                        },
                     }
                 }
             }
         }
     },
+    reactions: {
+        select: {
+            record: {
+                select: {
+                    authorId: true,
+                    collection: true
+                }
+            }
+        },
+        where: {
+            reactsTo: {
+                collection: {
+                    in: ["ar.com.cabildoabierto.topic.accept", "ar.com.cabildoabierto.topic.reject"]
+                }
+            }
+        }
+    }
+}
+
+
+const topicQueryOld = {
+    id: true,
+    protection: true,
     versions: {
         select: {
             uri: true,
@@ -517,18 +505,6 @@ const topicQuery = {
                                     reactsTo: {
                                         collection: {
                                             in: ["ar.com.cabildoabierto.topic.accept", "ar.com.cabildoabierto.topic.reject"]
-                                        }
-                                    }
-                                }
-                            },
-                            replies: {
-                                select: {
-                                    content: {
-                                        select: {
-                                            text: true,
-                                            record: {
-                                                select: recordQuery,
-                                            }
                                         }
                                     }
                                 }
@@ -619,90 +595,79 @@ export async function getCategoriesNoCache() {
 
 
 export async function getTextFromBlob(blob: {cid: string, authorId: string}){
-    return await unstable_cache(async () => {
-        try {
-            const response = await fetchBlob(blob)
-            if(!response.ok) return null
-            const responseBlob = await response.blob()
-            if(!responseBlob) return null
-            return await responseBlob.text()
-        } catch (e) {
-            console.error("Error getting text from blob", blob)
-            console.error(e)
-            return null
-        }
-    }, ["blob:"+blob.authorId+":"+blob.cid], {
-        tags: ["blob:"+blob.authorId+":"+blob.cid, "blobs"],
-        revalidate: revalidateEverythingTime
-    })()
-}
-
-
-export async function getTopicByIdNoCache(id: string): Promise<{topic?: TopicProps, error?: string}>{
     try {
-        const topic: TopicProps = await db.topic.findUnique({
-            select: topicQuery,
-            where: {
-                id: id
-            }
-        })
-
-        for(let i = 0; i < topic.versions.length; i++){
-            if(topic.versions[i].content.textBlob != undefined){
-                topic.versions[i].content.text = await getTextFromBlob(topic.versions[i].content.textBlob)
-            }
-        }
-
-        console.log(id, "versions", topic.versions.length)
-
-        return {topic: topic}
+        const response = await fetchBlob(blob)
+        if(!response.ok) return null
+        const responseBlob = await response.blob()
+        if(!responseBlob) return null
+        return await responseBlob.text()
     } catch (e) {
-        console.error("Error on getTopicById with id", id)
+        console.error("Error getting text from blob", blob)
         console.error(e)
-        return {error: "No se encontró el tema."}
+        return null
     }
 }
 
 
 export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
-    return await unstable_cache(async () => {
-        return await getTopicByIdNoCache(id)
+
+    const t1 = Date.now()
+    const {topic, error} = await unstable_cache(async () => {
+        const topic = await db.topic.findUnique({
+            select: topicQuery,
+            where: {
+                id: id
+            }
+        })
+        if(!topic) return {error: "No se encontró el tema " + id + "."}
+
+        return {topic}
     }, ["topic:"+id], {
         tags: ["topic:"+id],
         revalidate: revalidateEverythingTime
     })()
+    const t2 = Date.now()
+
+    if(error){
+        return {error}
+    }
+
+    const topicWithVersions: TopicProps = {
+        ...topic,
+        versions: []
+    }
+
+    for(let i = 0; i < topic.versions.length; i++){
+        const {topicVersion, error} = await getTopicVersion(topic.versions[i].uri)
+        if(error) return {error}
+        topicWithVersions.versions.push(topicVersion)
+    }
+    const t3 = Date.now()
+
+    topicWithVersions.versions = topicWithVersions.versions.sort(newestFirst)
+
+    const version = getCurrentVersion(topicWithVersions)
+    if(topicWithVersions.versions[version].content.textBlob != undefined){
+        topicWithVersions.versions[version].content.text = await getTextFromBlob(topicWithVersions.versions[version].content.textBlob)
+    }
+    const t4 = Date.now()
+
+    //console.log("Getting topic", id, "time:", t4-t1, "=", t2-t1, "+", t3-t2, "+", t4-t3)
+
+    return {topic: topicWithVersions}
 }
 
 
 export async function getTopicVersion(uri: string){
     try {
-        const topic: TopicVersionProps = await db.topicVersion.findUnique({
-            select: {
-                uri: true,
-                topicId: true,
-                message: true,
-                title: true,
-                diff: true,
-                charsAdded: true,
-                accCharsAdded: true,
-                contribution: true,
-                authorship: true,
-                content: {
-                    select: {
-                        text: true,
-                        format: true,
-                        record: {
-                            select: recordQuery,
-                        },
-                    },
-                }
-            },
+        const topicVersion: TopicVersionProps = await db.record.findUnique({
+            select: topicVersionQuery,
             where: {
                 uri: uri
             }
         })
 
-        return {topic: topic}
+        return {topicVersion}
     } catch {
         return {error: "No se encontró el tema."}
     }
@@ -824,6 +789,7 @@ export async function getCategoriesGraph(): Promise<TopicsGraph> {
 
 
 export async function getTopicsInCategoryNoCache(cat: string): Promise<string[]> {
+    const t1 = Date.now()
     let topics = await db.topic.findMany({
         select: {
             id: true,
@@ -850,6 +816,7 @@ export async function getTopicsInCategoryNoCache(cat: string): Promise<string[]>
             categoryTopics.push(topics[i].id)
         }
     }
+    const t2 = Date.now()
     return categoryTopics
 }
 
@@ -947,16 +914,16 @@ export async function getCategoryGraphNoCache(cat: string): Promise<TopicsGraph>
 }
 
 
-export async function getCategoryGraph(c: string): Promise<TopicsGraph> {
-    return await unstable_cache(async () => {
-            return await getCategoryGraphNoCache(c)
-        },
-        ["categorygraph:"+c],
-        {
-            tags: ["topics"],
-            revalidate: revalidateEverythingTime
-    })()
-}
+export const getCategoryGraph = unstable_cache(
+    async (c: string) => {
+        return await getCategoryGraphNoCache(c)
+    },
+    [],
+    {
+        tags: ["topics"],
+        revalidate: revalidateEverythingTime
+    }
+)
 
 
 function sortTopicsByPopularity(topics: [string, {score: number[], categories: string[]}][]){
@@ -1032,7 +999,9 @@ export async function getTopicsByCategories(sortedBy: string){
 }
 
 
-export async function getTopicsPopularityScoreNoCache(): Promise<{id: string, score: number[], categories: string[]}[]>{
+export async function getTopicsPopularityScoreNoCache(): Promise<{
+    id: string, score: number[], categories: string[]}[]>{
+    const t1 = Date.now()
     try {
         const contentInteractionsPromise = getContentInteractions()
         const topicsPromise = getTopicsNoCache()
@@ -1050,9 +1019,12 @@ export async function getTopicsPopularityScoreNoCache(): Promise<{id: string, sc
             topicScores.set(topics[i].id, {score, categories: currentCategories(topics[i])})
         }
 
-        return Array.from(topicScores.entries()).map((t) => {
+        const t2 = Date.now()
+
+        const res = Array.from(topicScores.entries()).map((t) => {
             return {id: t[0], score: t[1].score, categories: t[1].categories}
         })
+        return res
     } catch (err) {
         console.error("Error", err)
         return null
@@ -1068,14 +1040,11 @@ export async function getTopicsPopularityScoreMap(){
 }
 
 
-export async function getTopicsPopularityScore(): Promise<{id: string, score: number[], categories: string[]}[]> {
-    return await unstable_cache(async () => {
-            return await getTopicsPopularityScoreNoCache()
-        },
-        ["popularityscores"],
-        {
-            tags: ["topics", "popularityscores"],
-            revalidate: revalidateEverythingTime
-        }
-    )()
-}
+export const getTopicsPopularityScore = unstable_cache(
+    getTopicsPopularityScoreNoCache,
+    undefined,
+    {
+        tags: ["asd"],
+        revalidate: revalidateEverythingTime
+    }
+)

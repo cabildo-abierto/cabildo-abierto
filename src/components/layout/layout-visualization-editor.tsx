@@ -1,12 +1,12 @@
 "use client"
 import React, {ReactNode} from "react";
 import {LayoutConfigProps, LayoutConfigProvider, useLayoutConfig} from "./layout-config-context";
-import {SidebarContent} from "../sidebar";
+import {SidebarContent} from "./sidebar";
 import {ThemeProvider} from "@mui/material";
 import theme from "../theme";
-import {PageLeaveProvider} from "../prevent-leave";
-import LoadingPage from "../loading-page";
-import {BetaAccessPage} from "../beta-access-page";
+import {PageLeaveProvider} from "../ui-utils/prevent-leave";
+import LoadingPage from "../auth/loading-page";
+import {BetaAccessPage} from "../auth/beta-access-page";
 import {SearchProvider} from "../search/search-context";
 
 
@@ -24,7 +24,7 @@ export const LayoutVisualizationEditor: React.FC<{ children: ReactNode } & Layou
         <SidebarContent onClose={() => {}}/>
     </div>
 
-    const center = <div className={"flex h-screen w-screen"}>
+    const center = <div className={"flex"}>
         {left}
         <div className={"ml-20 w-full h-full"}>
             {children}

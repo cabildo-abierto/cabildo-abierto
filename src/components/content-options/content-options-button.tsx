@@ -2,9 +2,9 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { ReactNode, useState } from 'react';
 
-import { ModalBelow } from '../modal-below';
+import { ModalBelow } from '../ui-utils/modal-below';
 import { IconButton } from '@mui/material';
-import StateButton, { StateButtonClickHandler } from '../state-button';
+import StateButton, { StateButtonClickHandler } from '../ui-utils/state-button';
 import {FeedContentProps, RecordProps} from '../../app/lib/definitions';
 import { ContentOptionsDropdown } from './content-options-dropdown';
 

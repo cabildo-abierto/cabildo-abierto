@@ -1,7 +1,7 @@
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 import {FastPostProps, ThreadProps} from "../../app/lib/definitions";
 import {Agent} from "@atproto/api";
-import {getUri, validQuotePost} from "../../components/utils";
+import {getUri, validQuotePost} from "../../components/utils/utils";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {unstable_cache} from "next/cache";
 import {addCounters, feedQuery, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";

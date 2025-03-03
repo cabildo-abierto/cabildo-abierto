@@ -1,7 +1,7 @@
 import './globals.scss'
 
 import { Merriweather } from 'next/font/google'
-import { pathLogo } from '../components/logo'
+import { pathLogo } from '../components/ui-utils/logo'
 import {Metadata} from "next";
 import {mainDescription} from "../components/utils/metadata";
 
@@ -61,7 +61,7 @@ export default function RootLayout({
             content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
         </meta>
     </head>
-    <body className={"font-flex"}>
+    <body className={"font-flex scroll-always-on"}>
         {children}
     </body>
     </html>

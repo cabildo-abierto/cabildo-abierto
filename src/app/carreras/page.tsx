@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { TopbarLogo } from "../../components/logo";
+import { TopbarLogo } from "../../components/ui-utils/logo";
 
 
 

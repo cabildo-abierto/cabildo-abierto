@@ -1,6 +1,6 @@
 import {ATProtoStrongRef, EngagementProps, FastPostProps, FeedContentProps} from "../../app/lib/definitions";
 import {BlockedPost, FeedViewPost, NotFoundPost, PostView} from "@atproto/api/src/client/types/app/bsky/feed/defs";
-import {getRkeyFromUri, newestFirst} from "../../components/utils";
+import {getRkeyFromUri, newestFirst} from "../../components/utils/utils";
 import {addCounters} from "../utils";
 
 

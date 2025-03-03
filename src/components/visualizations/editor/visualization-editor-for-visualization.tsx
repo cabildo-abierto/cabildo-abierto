@@ -1,6 +1,6 @@
 "use client"
 import {useVisualization} from "../../../hooks/contents";
-import {LoadingScreen} from "../../loading-screen";
+import {LoadingScreen} from "../../ui-utils/loading-screen";
 import {VisualizationEditor} from "./editor";
 import {PlotConfigProps} from "../../../app/lib/definitions";
 

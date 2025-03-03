@@ -1,8 +1,8 @@
 import {RecordProps, VisualizationProps} from "../../app/lib/definitions";
 import {BasicButton} from "../ui-utils/basic-button";
 import {deleteRecords} from "../../actions/atproto-update";
-import StateButton from "../state-button";
-import {editVisualizationUrl, getBlueskyUrl} from "../utils";
+import StateButton from "../ui-utils/state-button";
+import {editVisualizationUrl, getBlueskyUrl} from "../utils/utils";
 import Link from "next/link";
 import {useUser} from "../../hooks/user";
 

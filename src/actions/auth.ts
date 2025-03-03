@@ -7,7 +7,7 @@ import { Agent } from "@atproto/api"
 import { getIronSession } from "iron-session"
 import { cookies } from "next/headers"
 import {AppViewHandleResolver} from "@atproto/oauth-client-node";
-import {myCookieOptions} from "../components/utils";
+import {myCookieOptions} from "../components/utils/utils";
 
 
 export async function login(handle: string){

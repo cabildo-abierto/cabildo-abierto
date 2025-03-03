@@ -30,7 +30,7 @@ export const FastPostContent = ({post, isMainPost=false, hideQuote=false, showQu
         <FastPostImage post={post} did={post.author.did}/>
         <FastPostVideo post={post}/>
         {post.content.post.embed && <QuotedPostFromEmbed embedStr={post.content.post.embed}/>}
-        <PlotInPost post={post}/>
+        <PlotInPost post={post} interactive={isMainPost}/>
         <ExternalEmbedInPost post={post}/>
     </div>
 }

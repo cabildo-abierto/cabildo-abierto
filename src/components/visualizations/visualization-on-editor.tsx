@@ -1,6 +1,6 @@
 "use client"
 import {DatasetProps, PlotConfigProps} from "../../app/lib/definitions";
-import LoadingSpinner from "../loading-spinner";
+import LoadingSpinner from "../ui-utils/loading-spinner";
 import {getSpecForConfig} from "./editor/spec";
 import embed from "vega-embed";
 import {useEffect, useRef} from "react";

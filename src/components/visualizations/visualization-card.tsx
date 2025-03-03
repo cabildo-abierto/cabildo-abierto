@@ -1,10 +1,10 @@
 import {EngagementProps, VisualizationProps} from "../../app/lib/definitions";
-import {contentUrl, formatIsoDate, urlFromRecord} from "../utils";
-import {Authorship} from "../content-top-row-author";
-import {CustomLink} from "../custom-link";
-import {EngagementIcons} from "../feed/engagement-icons";
+import {contentUrl, formatIsoDate, urlFromRecord} from "../utils/utils";
+import {Authorship} from "../feed/content-top-row-author";
+import {CustomLink} from "../ui-utils/custom-link";
+import {EngagementIcons} from "../reactions/engagement-icons";
 import Link from "next/link";
-import {DateSince} from "../date";
+import {DateSince} from "../ui-utils/date";
 import {VegaPlotPreview} from "./vega-plot";
 import TableChartIcon from '@mui/icons-material/TableChart';
 

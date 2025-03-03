@@ -3,7 +3,7 @@ import { getIronSession } from 'iron-session'
 
 import { Session } from './app/oauth/callback/route'
 import { cookies } from 'next/headers'
-import {myCookieOptions} from "./components/utils";
+import {myCookieOptions} from "./components/utils/utils";
 
 
 function isNewUserRoute(request: NextRequest){

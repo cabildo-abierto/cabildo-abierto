@@ -1,7 +1,7 @@
 import Graph from "./graph";
 import {useRouter} from "next/navigation";
 import {useCategoriesGraph} from "../../hooks/contents";
-import LoadingSpinner from "../loading-spinner";
+import LoadingSpinner from "../ui-utils/loading-spinner";
 
 
 export const CategoriesMap = () => {
@@ -18,8 +18,8 @@ export const CategoriesMap = () => {
         router.push("/temas?c="+nodeId+"&view=mapa")
     }
 
-    return <div className={"mt-6 ml-6"}>
-        <h2>
+    return <div className={""}>
+        <h2 className={"mt-6 ml-6"}>
             Categorías
         </h2>
         <Graph

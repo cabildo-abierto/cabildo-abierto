@@ -2,7 +2,7 @@
 
 import {initializeEmpty, SettingsProps} from "./lexical-editor"
 import {FastPostProps, FeedContentProps} from "../../app/lib/definitions";
-import {decompress} from "../compression";
+import {decompress} from "../utils/compression";
 import {InitialEditorStateType} from "@lexical/react/LexicalComposer";
 import {$insertNodes, LexicalEditor} from "lexical";
 import {

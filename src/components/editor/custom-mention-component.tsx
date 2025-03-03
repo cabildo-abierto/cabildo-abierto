@@ -3,7 +3,7 @@ import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, Beautif
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
 import { getUsers } from "../../actions/users";
-import { cleanText } from "../utils";
+import { cleanText } from "../utils/utils";
 
 export const EmptyMentionResults = () => (
   <div className="top-[2px] m-0 min-w-[10rem] overflow-hidden ...">

@@ -1,12 +1,12 @@
 import {useDataset, useVisualization} from "../../../hooks/contents";
 import {DatasetTitle} from "../../datasets/dataset-title";
-import {UserHandle} from "../../content-top-row-author";
-import LoadingSpinner from "../../loading-spinner";
+import {UserHandle} from "../../feed/content-top-row-author";
+import LoadingSpinner from "../../ui-utils/loading-spinner";
 import {EngagementProps, VisualizationProps} from "../../../app/lib/definitions";
-import {EngagementIcons} from "../../feed/engagement-icons";
-import {VegaPlot} from "../../visualizations/vega-plot";
+import {EngagementIcons} from "../../reactions/engagement-icons";
+import {VegaPlot, VegaPlotPreview} from "../../visualizations/vega-plot";
 import {useLayoutConfig} from "../../layout/layout-config-context";
-import {pxToNumber} from "../../utils";
+import {pxToNumber} from "../../utils/utils";
 
 
 
@@ -37,25 +37,35 @@ export const VisualizationNodeCompFromSpec = ({spec, uri}: {spec: string, uri: s
 }
 
 
-export const VisualizationNodeComp = ({visualization, showEngagement=true}: {
-    visualization: VisualizationProps & EngagementProps, showEngagement?: boolean}) => {
-    const {dataset} = useDataset(visualization.visualization.dataset.uri)
+export const VisualizationNodeComp = ({
+    visualization,
+    showEngagement=true,
+    interactive=true,
+    width
+}: {
+    visualization: VisualizationProps & EngagementProps
+    showEngagement?: boolean
+    interactive?: boolean
+    width?: number | string
+}) => {
 
     return (
         <div className={"flex flex-col items-center w-full not-article-content"} onClick={(e) => {e.stopPropagation()}}>
 
-            <VegaPlot visualization={visualization}/>
+            {interactive ? <VegaPlot visualization={visualization} width={width}/> :
+                <div className={"mb-1"}>
+                    <VegaPlotPreview
+                        visualization={visualization}
+                    />
+                </div>
+            }
 
             {visualization && (
                 <div className={"flex items-center justify-between w-full px-4"}>
                     <div className={"exclude-links text-sm text-[var(--text-light)] flex flex-col items-center"}>
-                        {dataset && (
-                            <div className={""}>
-                                <DatasetTitle
-                                    dataset={dataset.dataset}
-                                />
-                            </div>
-                        )}
+                        <DatasetTitle
+                            dataset={visualization.visualization.dataset}
+                        />
                         <UserHandle content={visualization}/>
                     </div>
                     {showEngagement && (

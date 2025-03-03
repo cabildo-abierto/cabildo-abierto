@@ -1,5 +1,5 @@
-import SearchBar from "../searchbar";
-import {UserSearchResults} from "../user-search-results";
+import SearchBar from "../search/searchbar";
+import {UserSearchResults} from "../search/user-search-results";
 import React from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {useSearch} from "../search/search-context";

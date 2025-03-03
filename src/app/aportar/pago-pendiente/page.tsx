@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { CustomLink as Link } from './../../../components/custom-link'
+import { CustomLink as Link } from '../../../components/ui-utils/custom-link'
 
 export const metadata: Metadata = {
     title: 'Error en el pago'

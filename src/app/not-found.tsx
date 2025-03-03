@@ -1,5 +1,5 @@
 "use client"
-import { NotFoundPage } from '../components/not-found-page'
+import { NotFoundPage } from '../components/ui-utils/not-found-page'
 import {ThemeProvider} from "@mui/material";
 import theme from "../components/theme";
 

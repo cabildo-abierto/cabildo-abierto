@@ -2,22 +2,20 @@ import {TopicProps} from "../../app/lib/definitions";
 import {ReplyButton} from "../feed/reply-button";
 import {useState} from "react";
 import {TopicFeed} from "./topic-feed";
-import {WritePanel} from "../write-panel";
+import {WritePanel} from "../writing/write-panel";
 import {ReplyToContent} from "../editor/plugins/CommentPlugin";
-import {useLayoutConfig} from "../layout/layout-config-context";
-import {getCollectionFromUri} from "../utils";
 import {useSWRConfig} from "swr";
 
 function topicPropsToReplyToContent(topic: TopicProps, version: number): ReplyToContent {
     return {
-        ...topic.versions[version].content.record,
+        ...topic.versions[version],
         collection: "ar.com.cabildoabierto.topic",
         content: {
             ...topic.versions[version].content,
             topicVersion: {
                 topic: {
                     id: topic.id,
-                    versions: topic.versions
+                    versions: topic.versions.map((v) => ({title: v.content.topicVersion.title}))
                 }
             }
         }

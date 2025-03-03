@@ -1,11 +1,11 @@
 import { Metadata } from "next";
-import Footer from "../../components/footer"
-import { LogoAndSlogan } from "../../components/presentation"
+import Footer from "../../components/ui-utils/footer"
+import { LogoAndSlogan } from "../../components/presentation/presentation"
 import Link from "next/link";
 import Button from "@mui/material/Button";
 import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
-import { articleUrl } from "../../components/utils";
+import { articleUrl } from "../../components/utils/utils";
 import { BlueskyLogo } from "../../components/icons/bluesky-logo";
 import {mainDescription} from "../../components/utils/metadata";
 

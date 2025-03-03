@@ -90,7 +90,6 @@ export default function CommentPlugin({
         const quoteRepliesMap = new Map<string, FastPostProps>()
 
         const versionReplies = quoteReplies.filter((r) => {
-            console.log("reply", r.content.post.replyTo.uri, "parent", parentContent.uri)
             return r.content.post.replyTo.uri == parentContent.uri
         })
         versionReplies.forEach((r) => {
@@ -169,14 +168,15 @@ export default function CommentPlugin({
             const rect = editorElement.current.getBoundingClientRect();
             setRightCoordinates(rect.right);
         }
-    };
+    }
 
     useEffect(() => {
-        updateCoordinates();
+        updateCoordinates()
 
-        window.addEventListener("resize", updateCoordinates);
-        return () => window.removeEventListener("resize", updateCoordinates);
-    }, [layoutConfig]);
+        window.addEventListener("resize", updateCoordinates)
+        return () => window.removeEventListener("resize", updateCoordinates)
+    }, [layoutConfig])
+
 
     const cancelAddComment = useCallback(() => {
         editor.update(() => {
@@ -192,13 +192,16 @@ export default function CommentPlugin({
         setShowCommentInput(false)
     }, [editor])
 
+
     const onAddComment = () => {
         editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
     }
 
+
     const submitAddComment = () => {
         setShowCommentInput(false)
     }
+
 
     if(!window || window.innerWidth < 800){
         return <></>

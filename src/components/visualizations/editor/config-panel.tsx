@@ -6,7 +6,7 @@ import {IconButton, TextField} from "@mui/material";
 import {BasicButton} from "../../ui-utils/basic-button";
 import AddIcon from "@mui/icons-material/Add";
 import {FilterConfig} from "./filter-config";
-import {PrettyJSON} from "../../utils";
+import {PrettyJSON} from "../../utils/utils";
 import CodeIcon from '@mui/icons-material/Code';
 import {openJsonInNewTab} from "../../content-options/content-options";
 import {getSpecForConfig} from "./spec";
@@ -97,6 +97,8 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                         updateConfig("kind", v)
                     }}
                     label="Tipo de gráfico"
+                    fontSize={"14px"}
+                    labelShrinkFontSize={"14px"}
                 />
                 {config.kind != "Tipo de gráfico" && config.datasetUri != null && dataset != null && <>
                     {configReq.get(config.kind).map((req, i) => {
@@ -116,13 +118,17 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                             return <div key={i}>
                                 <TextField
                                     label={req.label}
-                                    size={"small"}
+                                    size="small"
                                     value={config[req.label]}
-                                    InputProps={{autoComplete: "off"}}
-                                    fullWidth={true}
-                                    onChange={(e) => {
-                                        updateConfig(req.label, e.target.value)
+                                    InputProps={{
+                                        autoComplete: "off",
+                                        sx: { fontSize: "14px" }, // Adjust text input font size
                                     }}
+                                    InputLabelProps={{
+                                        sx: { fontSize: "14px" }, // Adjust label font size
+                                    }}
+                                    fullWidth
+                                    onChange={(e) => updateConfig(req.label, e.target.value)}
                                 />
                             </div>
                         } else if (req.type == "select") {

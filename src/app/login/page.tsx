@@ -1,5 +1,5 @@
-import { Login } from '../../components/login';
-import Footer from "../../components/footer";
+import { Login } from '../../components/auth/login';
+import Footer from "../../components/ui-utils/footer";
 
 
 export default function Page() {

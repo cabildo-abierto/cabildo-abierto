@@ -1,10 +1,9 @@
 'use server'
 
-
-import { accessToken } from "../components/utils";
-import { pathLogo } from "../components/logo";
+import { pathLogo } from "../components/ui-utils/logo";
 import MercadoPagoConfig, { Preference } from "mercadopago";
 
+const accessToken = process.env.MP_ACCESS_TOKEN
 
 const baseUrl = "https://www.cabildoabierto.com.ar"
 //const baseUrl = "localhost:3000"

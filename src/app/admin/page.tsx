@@ -1,11 +1,11 @@
 "use client"
 
-import { NotFoundPage } from "../../components/not-found-page"
+import { NotFoundPage } from "../../components/ui-utils/not-found-page"
 import { useUser } from "../../hooks/user"
 
 import React, {useState} from 'react';
-import { tomasDid } from "../../components/utils"
-import StateButton from "../../components/state-button";
+import { tomasDid } from "../../components/utils/utils"
+import StateButton from "../../components/ui-utils/state-button";
 import {
     applyReferencesUpdateToContent,
     getPendingReferenceUpdatesCount,

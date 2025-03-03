@@ -1,5 +1,5 @@
-import { Chatbox } from "../../components/chatbox";
-import { supportDid } from "../../components/utils";
+import { Chatbox } from "../../components/chat/chatbox";
+import { supportDid } from "../../components/utils/utils";
 
 
 

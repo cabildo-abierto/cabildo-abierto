@@ -1,6 +1,6 @@
 import investigadora from "../../../public/congreso/investigadora.json";
 import {CongressProject} from "./proyectos";
-import {DateSince} from "../date";
+import {DateSince} from "../ui-utils/date";
 import React from "react";
 import {useRouter} from "next/navigation";
 import Link from "next/link";

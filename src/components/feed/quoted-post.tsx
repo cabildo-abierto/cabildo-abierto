@@ -1,14 +1,14 @@
 "use client"
 import {EmbedProps, FastPostProps} from "../../app/lib/definitions";
 import {BskyRichTextContent} from "./bsky-rich-text-content";
-import {ContentTopRowAuthor} from "../content-top-row-author";
+import {ContentTopRowAuthor} from "./content-top-row-author";
 import Image from 'next/image'
-import {DateSince} from "../date";
-import {contentUrl} from "../utils";
+import {DateSince} from "../ui-utils/date";
+import {contentUrl} from "../utils/utils";
 import {FastPostImage} from "./fast-post-image";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
-import LoadingSpinner from "../loading-spinner";
+import LoadingSpinner from "../ui-utils/loading-spinner";
 import {getBskyFastPost} from "../../actions/contents";
 import {FastPostVideo} from "./fast-post-video";
 import {PlotInPost} from "./plot-in-post";

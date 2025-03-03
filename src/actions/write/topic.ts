@@ -3,7 +3,7 @@ import {getSessionAgent} from "../auth";
 import {revalidateTag} from "next/cache";
 import {createContent, createRecord, newDirtyRecord, SyncRecordProps} from "./utils";
 import {ATProtoStrongRef} from "../../app/lib/definitions";
-import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils";
+import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils/utils";
 import {db} from "../../db";
 
 export async function createTopic(id: string){

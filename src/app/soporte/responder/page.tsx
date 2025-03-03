@@ -1,6 +1,6 @@
 import { getConversations } from "../../../actions/users"
-import { ChatPage, NoConversationsChatPage } from "../../../components/chat-page"
-import { supportDid } from "../../../components/utils"
+import { ChatPage, NoConversationsChatPage } from "../../../components/chat/chat-page"
+import { supportDid } from "../../../components/utils/utils"
 
 
 export default async function Page({searchParams}: {searchParams: {i?: string}}) {

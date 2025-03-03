@@ -5,12 +5,12 @@ import {View} from "vega";
 import {Button} from "@mui/material";
 import {getSpecForConfig} from "./spec";
 import {saveVisualization} from "../../../actions/data";
-import SelectionComponent from "../../search-selection-component";
+import SelectionComponent from "../../search/search-selection-component";
 import {VisualizationOnEditor} from "../visualization-on-editor";
 import {DatasetView} from "../../datasets/dataset-view";
-import LoadingSpinner from "../../loading-spinner";
-import StateButton from "../../state-button";
-import {emptyChar} from "../../utils";
+import LoadingSpinner from "../../ui-utils/loading-spinner";
+import StateButton from "../../ui-utils/state-button";
+import {emptyChar} from "../../utils/utils";
 
 
 function readyToPlot(config: PlotConfigProps){

@@ -69,7 +69,7 @@ import { CustomTableNode } from './nodes/CustomTableNode';
 
 import ImagesPlugin from './plugins/ImagesPlugin';
 import InlineImagePlugin from './plugins/InlineImagePlugin';
-import { usePageLeave } from '../prevent-leave';
+import { usePageLeave } from '../ui-utils/prevent-leave';
 import { v4 as uuidv4 } from 'uuid';
 import {ImageNode} from './nodes/ImageNode'
 import {InlineImageNode} from './nodes/InlineImageNode/InlineImageNode';
@@ -83,7 +83,7 @@ import {FastPostProps, FeedContentProps} from "../../app/lib/definitions";
 import {SidenoteNode} from "./nodes/SidenoteNode";
 import PlotPlugin from "./plugins/PlotPlugin";
 import {VisualizationNode} from "./nodes/VisualizationNode";
-import {isValidJSON} from "../utils";
+import {isValidJSON} from "../utils/utils";
 
 export type SettingsProps = {
   disableBeforeInput: boolean,

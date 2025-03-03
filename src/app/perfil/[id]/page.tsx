@@ -1,7 +1,7 @@
 "use client"
-import { ProfilePage } from "../../../components/profile-page";
-import { ErrorPage } from "../../../components/error-page";
-import LoadingSpinner from "../../../components/loading-spinner";
+import { ProfilePage } from "../../../components/profile/profile-page";
+import { ErrorPage } from "../../../components/ui-utils/error-page";
+import LoadingSpinner from "../../../components/ui-utils/loading-spinner";
 import {useFullProfile} from "../../../hooks/user";
 
 
