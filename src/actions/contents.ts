@@ -229,7 +229,7 @@ export async function getQuotedContentNoCache({did, rkey}: {did: string, rkey: s
 
 
 export async function getQuotedContent({did, rkey}: {did: string, rkey: string}): Promise<QuotedContent> {
-    return await unstable_cache(async () => {
+    return unstable_cache(async () => {
         return await getQuotedContentNoCache({did, rkey})
     }, ["quotedContent:"+did+":"+rkey],
     {

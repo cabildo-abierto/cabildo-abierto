@@ -2,7 +2,7 @@ import {SmallTopicProps} from "../../app/lib/definitions";
 import {useState} from "react";
 import {getTopicCategories, getTopicTitle} from "../topic/utils";
 import {CustomLink as Link} from "../ui-utils/custom-link";
-import {articleUrl} from "../utils/utils"
+import {topicUrl} from "../utils/utils"
 import {useRouter} from "next/navigation";
 import {TopicCategories} from "../topic/topic-categories";
 
@@ -20,7 +20,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
 
                 const title = getTopicTitle(topic)
                 return <div
-                    onClick={() => {router.push(articleUrl(topic.id))}} draggable={false}
+                    onClick={() => {router.push(topicUrl(topic.id))}} draggable={false}
                     className="cursor-pointer flex flex-col py-4 w-full px-3 sm:text-sm text-xs text-[0.72rem] hover:bg-[var(--background-dark)]"
                     key={topic.id}
                     onMouseLeave={() => {

@@ -1,7 +1,7 @@
 import {TopicVersionOnFeedProps} from "../../app/lib/definitions";
 import {ContentTopRowAuthor} from "../feed/content-top-row-author";
 import {ProfilePic} from "../feed/profile-pic";
-import {contentUrl, formatIsoDate, topicVersionUrl} from "../utils/utils";
+import {formatIsoDate, topicUrl} from "../utils/utils";
 import {DateSince} from "../ui-utils/date";
 import {useRouter} from "next/navigation";
 
@@ -19,7 +19,7 @@ export const TopicVersionOnFeed = ({topicVersion}: {topicVersion: TopicVersionOn
     const router = useRouter()
 
     return <div className={"flex flex-col w-full p-2 border-b hover:bg-[var(--background-dark)] cursor-pointer"}
-        onClick={() => {router.push(topicVersionUrl(topicVersion))}}
+        onClick={() => {router.push(topicUrl(topicVersion.content.topicVersion.topic.id))}}
     >
         <div className={"text-sm flex space-x-1"}>
             <ProfilePic user={topicVersion.author} className={"w-5 h-5 rounded-full mr-1"}/>

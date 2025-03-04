@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import StateButton from "../ui-utils/state-button"
 import { useUser } from "../../hooks/user"
-import {articleUrl, countReactions, getCurrentVersion, getTopicMonetizedChars} from "../utils/utils"
+import {topicUrl, countReactions, getCurrentVersion, getTopicMonetizedChars} from "../utils/utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "../ui-utils/accept-button-panel"
 import { toPercentage } from "./show-contributors"
@@ -182,7 +182,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
         />}
         <div 
             className={className}
-            onClick={() => {router.push(articleUrl(entity.id, index))}}
+            onClick={() => {router.push(topicUrl(entity.id, index, "normal"))}}
         >
             <div className={"flex flex-col w-full"}>
                 <div className={"flex justify-between items-center w-full"}>
@@ -233,7 +233,7 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                                 <div className="text-[var(--text-light)] text-xs hover:underline" onClick={(e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    router.push(articleUrl(entity.id, index, true))
+                                    router.push(topicUrl(entity.id, index, "changes"))
                                 }}>
                                     Ver cambios
                                 </div>
@@ -322,17 +322,17 @@ export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
 };
 
 
-export const EditHistory = ({entity, viewing}: { entity: TopicProps, viewing?: number }) => {
-    const currentIndex = getCurrentVersion(entity)
+export const EditHistory = ({topic, viewing}: { topic: TopicProps, viewing?: number }) => {
+    const currentIndex = getCurrentVersion(topic)
 
     // const lastDiff = JSON.parse(entity.versions[entity.versions.length-1].diff)
     
     const history = <div className="mt-1 hidden lg:block">
-        {entity.versions.map((version, index) => {
-        const versionIndex = entity.versions.length-1-index
+        {topic.versions.map((version, index) => {
+        const versionIndex = topic.versions.length-1-index
         return <div key={index} className="w-full">
             <EditElement
-                entity={entity}
+                entity={topic}
                 index={versionIndex}
                 viewing={viewing}
                 isCurrent={versionIndex == currentIndex}

@@ -97,14 +97,26 @@ export function joinCAandATFeeds(feedCA: FeedContentProps[], feedAT: FeedViewPos
 
     const feedATProcessed = feedAT.map((e) => (formatBskyFeedElement(e)))
 
-    const feed = [...feedATProcessed]
+    const feed = [...feedATProcessed, ...feedCA].sort(newestFirst)
 
-    for(let i = 0; i < feedCA.length; i++){
-        if(!feed.some((e) => (e.uri == feedCA[i].uri))){
-            feed.push(feedCA[i])
+    const uniqueFeed: FeedContentProps[] = []
+
+    let urisAT = new Set<string>()
+    for(let i = 0; i < feed.length; i++){
+        const post = feed[i]
+        if(!urisAT.has(post.uri)){
+            uniqueFeed.push(post)
+            urisAT.add(post.uri)
+            if(post.collection == "app.bsky.feed.post" && (post as FastPostProps).content.post.replyTo){
+                urisAT.add((post as FastPostProps).content.post.replyTo.uri)
+            }
+            if(post.collection == "app.bsky.feed.post" && (post as FastPostProps).content.post.root){
+                urisAT.add((post as FastPostProps).content.post.root.uri)
+            }
         }
     }
-    return feed.sort(newestFirst)
+
+    return uniqueFeed.sort(newestFirst)
 }
 
 

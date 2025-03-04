@@ -1,26 +1,13 @@
 import useSWR from "swr"
 import {
     DatasetProps,
-    FeedContentProps, ThreadProps, TopicProps, TopicVersionProps,
+    FeedContentProps, ThreadProps, TopicProps,
     SmallTopicProps,
-    UserStats,
-    VisualizationProps, EngagementProps, MapTopicProps, TopicsGraph, TrendingTopicProps
+    VisualizationProps, EngagementProps, TopicsGraph
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import {getDidFromUri, getRkeyFromUri} from "../components/utils/utils";
 import {QuotedContent} from "../components/feed/content-quote";
-
-
-export function useUserStats(): {stats: UserStats, isLoading: boolean, isError: boolean}{
-    return {stats: {} as UserStats, isLoading: false, isError: true}
-    /*const { data, error, isLoading } = useSWR('/api/user-stats', fetcher)
-  
-    return {
-        stats: data,
-        isLoading,
-        isError: error
-    }*/
-}
 
 
 export function useFeed(feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
@@ -250,25 +237,6 @@ export function useTopicsByCategories(sortedBy: string): {byCategories: {c: stri
 
     return {
         byCategories: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useMapTopics(): {topics: MapTopicProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR(
-        '/api/map-topics',
-        fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        topics: data,
         isLoading,
         isError: error
     }

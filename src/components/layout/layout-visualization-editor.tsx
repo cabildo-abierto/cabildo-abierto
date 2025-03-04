@@ -1,6 +1,6 @@
 "use client"
 import React, {ReactNode} from "react";
-import {LayoutConfigProps, LayoutConfigProvider, useLayoutConfig} from "./layout-config-context";
+import {LayoutConfigProps, LayoutConfigProvider} from "./layout-config-context";
 import {SidebarContent} from "./sidebar";
 import {ThemeProvider} from "@mui/material";
 import theme from "../theme";

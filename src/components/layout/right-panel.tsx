@@ -1,7 +1,7 @@
 import {SearchPanelOnRightColumn} from "./search-panel-on-right-column";
 import {SupportButton} from "./sidebar";
 import {CustomLink as Link} from "../ui-utils/custom-link";
-import {articleUrl} from "../utils/utils";
+import {topicUrl} from "../utils/utils";
 import {BasicButton} from "../ui-utils/basic-button";
 import InfoIcon from "@mui/icons-material/Info";
 import {DonateIcon} from "../icons/donate-icon";
@@ -28,7 +28,7 @@ export const RightPanel = () => {
 
             <div className={"ml-8 mt-4 w-full max-w-[300px] flex flex-col space-y-1"}>
                 <SupportButton user={user} onClose={() => {}}/>
-                <Link href={articleUrl("Cabildo_Abierto")} className={"text-[var(--text-light)]"}>
+                <Link href={topicUrl("Cabildo_Abierto")} className={"text-[var(--text-light)]"}>
                     <BasicButton
                         variant={"text"}
                         size={"small"}

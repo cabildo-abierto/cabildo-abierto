@@ -3,10 +3,16 @@ import { useProfileFeed } from "../../hooks/contents"
 import Feed from "../feed/feed"
 
 
-export const ProfileFeed = ({profileUser, showingFakeNews}: {profileUser: {did: string, handle: string, displayName?: string}, showingFakeNews: boolean}) => {
-    let feed = useProfileFeed(profileUser.did, "main")
+export const ProfileFeed = ({did, profileUser}: {
+    profileUser: {did: string, handle: string, displayName?: string}
+    did: string
+}) => {
+    let feed = useProfileFeed(did, "main")
 
-    const name = profileUser.displayName ? profileUser.displayName : profileUser.handle
+    const name = profileUser ? (profileUser.displayName ? profileUser.displayName : profileUser.handle) : did
 
-    return <Feed feed={feed} noResultsText={name + " todavía no publicó nada."}/>
+    return <Feed
+        feed={feed}
+        noResultsText={name + " todavía no publicó nada."}
+    />
 }

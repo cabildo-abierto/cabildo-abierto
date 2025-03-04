@@ -5,6 +5,7 @@ import {TopicFeed} from "./topic-feed";
 import {WritePanel} from "../writing/write-panel";
 import {ReplyToContent} from "../editor/plugins/CommentPlugin";
 import {useSWRConfig} from "swr";
+import {WikiEditorState} from "./topic-content-expanded-view-header";
 
 function topicPropsToReplyToContent(topic: TopicProps, version: number): ReplyToContent {
     return {
@@ -22,9 +23,13 @@ function topicPropsToReplyToContent(topic: TopicProps, version: number): ReplyTo
     }
 }
 
-export const TopicDiscussion = ({topic, version, onClickQuote, viewingContent}: {
-    topic: TopicProps, version: number, onClickQuote: (cid: string) => void,
-    viewingContent: boolean
+export const TopicDiscussion = ({
+    topic, version, onClickQuote, wikiEditorState
+}: {
+    topic: TopicProps
+    version: number
+    onClickQuote: (cid: string) => void
+    wikiEditorState: WikiEditorState
 }) => {
     const [writingReply, setWritingReply] = useState(false)
     const {mutate} = useSWRConfig()
@@ -37,7 +42,7 @@ export const TopicDiscussion = ({topic, version, onClickQuote, viewingContent}: 
                 onClick={() => {setWritingReply(true)}}
             />
         </div>
-        <div className={"w-full max-w-[600px] " + (viewingContent ? "border-t mt-20" : "")}>
+        <div className={"w-full max-w-[600px] " + (wikiEditorState == "normal" ? "border-t mt-20" : "")}>
             <TopicFeed
                 topicId={topic.id}
                 onClickQuote={onClickQuote}

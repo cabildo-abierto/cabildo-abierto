@@ -1,6 +1,6 @@
 import React from 'react';
 import InfoPanel from '../ui-utils/info-panel';
-import { articleUrl } from '../utils/utils';
+import { topicUrl } from '../utils/utils';
 import { CustomLink as Link } from '../ui-utils/custom-link';
 import { useSubscriptionPrice } from '../../hooks/subscriptions';
 
@@ -26,7 +26,7 @@ const FundingProgress = ({ p }: { p: number }) => {
           text={
             <div className="link">
               <span>Si todos los usuarios aportaran ${price.price} por mes estaríamos 100% financiados. </span>
-              <Link href={articleUrl("Cabildo_Abierto:_Financiamiento")}>Leer más</Link>
+              <Link href={topicUrl("Cabildo_Abierto:_Financiamiento")}>Leer más</Link>
             </div>
           }
         />

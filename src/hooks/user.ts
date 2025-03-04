@@ -1,25 +1,16 @@
-
-import {ArticleProps, SmallUserProps, UserProps} from "../app/lib/definitions"
+import {SmallUserProps, UserProps} from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import { ChatMessage } from "@prisma/client"
 import useSWR from "swr"
-import {getDidFromUri, getRkeyFromUri} from "../components/utils/utils";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 
-export function useArticle(uri: string): {article: ArticleProps, isLoading?: boolean, error?: string} {
-    const { data, error, isLoading } = useSWR('/api/article/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher)
-
-    return {
-        article: data,
-        isLoading,
-        error
-    }
-}
-
-
 export function useFullProfile(did: string): {user: UserProps, atprotoProfile: ProfileViewDetailed, isLoading?: boolean, error?: string} {
-    const { data, error, isLoading } = useSWR('/api/user/'+did, fetcher)
+    const { data, error, isLoading } = useSWR('/api/user/'+did, fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false
+    })
 
     return {
         user: data && data.user ? data.user : undefined,
@@ -57,18 +48,6 @@ export function useBskyUser(): {bskyUser: ProfileViewDetailed, isLoading?: boole
         isLoading,
         error
     }
-}
-
-
-export function useUserContents(userId: string): {userContents: {id: string, type: string, parentEntityId: string}[], isLoading: boolean, isError: boolean}{
-    return {userContents: [], isError: true, isLoading: false}
-    /*const { data, error, isLoading } = useSWR('/api/user-contents/'+userId, fetcher)
-  
-    return {
-        userContents: data ? data : undefined,
-        isLoading: isLoading,
-        isError: error
-    }*/
 }
 
 

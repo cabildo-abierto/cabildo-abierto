@@ -5,7 +5,7 @@ import Link from "next/link";
 import Button from "@mui/material/Button";
 import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
-import { articleUrl } from "../../components/utils/utils";
+import { topicUrl } from "../../components/utils/utils";
 import { BlueskyLogo } from "../../components/icons/bluesky-logo";
 import {mainDescription} from "../../components/utils/metadata";
 
@@ -218,7 +218,7 @@ export default function Page() {
                             Gracias a eso, te podés mover libremente entre plataformas sin perder nada: las cuentas y contenidos se comparten.
                         </p>
                         {false && <p className="link mt-4 text-right">
-                            <Link href={articleUrl("ATProtocol")}>Leer más.</Link>
+                            <Link href={topicUrl("ATProtocol")}>Leer más.</Link>
                         </p>}
                     </div>
                 </div>

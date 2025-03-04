@@ -112,7 +112,7 @@ export async function searchTopicsNoCache(q: string){
 
 export async function searchTopics(q: string){
     if(q.length == 0) return []
-    return await unstable_cache(async () => {
+    return unstable_cache(async () => {
         return await searchTopicsNoCache(q)
     }, ["searchTopics:"+q], {
         tags: ["searchTopics:"+q],
@@ -124,7 +124,7 @@ export async function searchTopics(q: string){
 export async function searchContents(q: string) : Promise<{feed?: FeedContentProps[], error?: string}> {
     const did = await getSessionDid()
     if(q.length == 0) return {feed: []}
-    return await unstable_cache(async () => {
+    return unstable_cache(async () => {
         return await searchContentsNoCache(q, did)
     }, ["searchContents:"+q], {
         tags: ["searchContents:"+q],

@@ -22,9 +22,9 @@ function getInitialData(text: string | undefined, textFormat: string, readOnly: 
     if(!text){
         return ""
     }
-    if(textFormat == "lexical-compressed"){
+    if(!textFormat || textFormat == "lexical-compressed"){
         const contentText = decompress(text)
-        let initialData = null
+        let initialData
         let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
         if(readOnly && emptyContent){
             initialData = initialValue

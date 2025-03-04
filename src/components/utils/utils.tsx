@@ -10,6 +10,7 @@ import {SessionOptions} from "iron-session";
 import React from "react";
 import {QuoteDirProps} from "../editor/plugins/CommentPlugin/show-quote-reply";
 import {decompress} from "./compression";
+import {WikiEditorState} from "../topic/topic-content-expanded-view-header";
 
 
 export function shuffleArray<T>(array: T[]): T[] {
@@ -484,11 +485,6 @@ export function editVisualizationUrl(uri: string) {
     return "/nueva-visualizacion?did="+did+"&rkey="+rkey+collectionParam
 }
 
-
-export function articleUrl(title: string, index?: number, changes: boolean = false){
-    return "/tema?i=" + encodeURIComponent(title) + (index != undefined ? "&v=" + index : "") + (changes ? "&c=true" : "")
-}
-
 export function userUrl(id: string){
     return "/perfil/" + id
 }
@@ -549,9 +545,8 @@ function getTopicVersionIndex(topicVersion: TopicVersionOnFeedProps){
 }
 
 
-export function topicVersionUrl(topicVersion: TopicVersionOnFeedProps){
-    const index = getTopicVersionIndex(topicVersion)
-    return "/tema?i=" + topicVersion.content.topicVersion.topic.id + "&v=" + index
+export function topicUrl(title: string, index?: number, s?: WikiEditorState){
+    return "/tema?i=" + encodeURIComponent(title) + (index != undefined ? "&v=" + index : "") + (s ? "&s=" + s : "")
 }
 
 
@@ -928,11 +923,6 @@ export const PrettyJSON = ({ data }: { data: any }) => {
 
 
 export const range = (n) => Array.from({ length: n }, (_, i) => i);
-
-
-export function topicUrl(id: string){
-    return "/tema?i=" + id
-}
 
 
 export function categoryUrl(cat: string, view: string){

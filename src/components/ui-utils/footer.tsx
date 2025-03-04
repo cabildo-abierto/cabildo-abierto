@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { articleUrl } from "../utils/utils";
+import { topicUrl } from "../utils/utils";
 import { Logo } from './logo';
 import { FaXTwitter } from "react-icons/fa6";
 import { SiBluesky } from "react-icons/si";
@@ -25,17 +25,17 @@ export default function Footer({showCA=true}: {showCA?: boolean}) {
             <div className="flex flex-wrap gap-x-12 gap-y-4">
                 {showCA && <div className="flex flex-col space-y-1">
                     <h4>Cabildo Abierto</h4>
-                    <Link href={articleUrl("Cabildo_Abierto")} className="link3">FAQ</Link>
+                    <Link href={topicUrl("Cabildo_Abierto")} className="link3">FAQ</Link>
                     <Link
                     
-                        href={articleUrl("Cabildo_Abierto%3A_Términos_y_condiciones")}
+                        href={topicUrl("Cabildo_Abierto%3A_Términos_y_condiciones")}
                         className="link3"
                     
                     >
                         Términos y condiciones
                     </Link>
                     <Link
-                        href={articleUrl("Cabildo_Abierto%3A_Política_de_privacidad")}
+                        href={topicUrl("Cabildo_Abierto%3A_Política_de_privacidad")}
                         className="link3"
                     >Política de privacidad</Link>
                 </div>}

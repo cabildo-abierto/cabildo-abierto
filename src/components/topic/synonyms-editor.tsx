@@ -3,6 +3,7 @@
 import {TopicProps, TopicVersionProps} from "../../app/lib/definitions";
 import {updateSynonymsInTopic} from "../../actions/write/topic";
 import { ListEditor } from "../ui-utils/list-editor";
+import {WikiEditorState} from "./topic-content-expanded-view-header";
 
 
 export function isAccepted(version: TopicVersionProps){
@@ -28,22 +29,30 @@ export function getTopicSynonyms(topics: TopicProps){
 
 
 
-export const SynonymsEditor = ({topic, setEditing}: {topic: TopicProps, setEditing: (v: boolean) => void}) => {
+export const SynonymsEditor = ({topic, onClose}: {
+    topic: TopicProps
+    onClose: () => void
+}) => {
     const currentSynonyms = getTopicSynonyms(topic)
 
 
     const onSave = async (synonyms: string[]) => {
         const {error} = await updateSynonymsInTopic({topicId: topic.id, synonyms})
         if(!error){
-            setEditing(false)
+            onClose()
         }
         return {error}
     }
 
-    return <ListEditor
-        initialValue={currentSynonyms}
-        onSave={onSave}
-        onClose={() => {setEditing(false)}}
-        newItemText={"Nuevo sinónimo"}
-    />
+    return <div className={"mt-8"}>
+        <h3 className={"mb-6"}>
+            Editar sinónimos
+        </h3>
+        <ListEditor
+            initialValue={currentSynonyms}
+            onSave={onSave}
+            onClose={onClose}
+            newItemText={"Nuevo sinónimo"}
+        />
+    </div>
 }

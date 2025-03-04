@@ -1,7 +1,7 @@
 "use client"
 
 import { CustomLink as Link } from '../ui-utils/custom-link';
-import { articleUrl, getCurrentVersion } from "../utils/utils"
+import { topicUrl, getCurrentVersion } from "../utils/utils"
 import { fetcher } from "../../hooks/utils"
 import { preload } from "swr"
 import { DateSince } from "../ui-utils/date"
@@ -41,7 +41,7 @@ export const TopicSearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic })
     return (
         <div className="relative flex flex-col w-full">
             <div
-                onClick={() => {router.push(articleUrl(topic.id))}}
+                onClick={() => {router.push(topicUrl(topic.id))}}
                 className={"p-2 w-full hover:bg-[var(--background-dark)] bg-[var(--background)] cursor-pointer"}
                 onMouseEnter={onMouseEnter}
             >

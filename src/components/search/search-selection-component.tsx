@@ -8,6 +8,7 @@ type SelectionComponentProps = {
     options: string[]
     optionsNodes: (o: string, isSelected: boolean) => ReactNode
     className?: string
+    unselectedOption?: string
 }
 
 const SelectionComponent: React.FC<SelectionComponentProps> = ({

@@ -62,17 +62,8 @@ export async function getThreadFromATProto({did, rkey}: {did: string, rkey: stri
 }
 
 
-export async function getThread({did, rkey}: {did: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
+export async function getThreadFromCANoCache({did, rkey}: {did: string, rkey}) {
     const viewerDid = await getSessionDid()
-    return await getThreadNoCache({did, rkey, viewerDid})
-}
-
-
-export async function getThreadNoCache({did, rkey, viewerDid}: {did: string, rkey: string, viewerDid: string}): Promise<{thread?: ThreadProps, error?: string}> {
-    if(!isCAUser(did)){
-        return await getThreadFromATProto({did, rkey})
-    }
-
     const threadId = {rkey, authorId: did}
 
     try {
@@ -123,3 +114,28 @@ export async function getThreadNoCache({did, rkey, viewerDid}: {did: string, rke
         return {error: "No se pudo obtener el contenido."}
     }
 }
+
+
+export async function getThreadFromCA({did, rkey}: {did: string, rkey}) {
+    return unstable_cache(
+        async () => {
+            return await getThreadFromCANoCache({did, rkey})
+        },
+        ["thread:"+did+":"+rkey],
+        {
+            tags: ["thread:"+did+":"+rkey],
+            revalidate: revalidateEverythingTime
+        }
+    )()
+}
+
+
+export async function getThread({did, rkey}: {did: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
+    const isCA = await isCAUser(did)
+    if(!isCA){
+        return await getThreadFromATProto({did, rkey})
+    }
+
+    return await getThreadFromCA({did, rkey})
+}
+

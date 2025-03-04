@@ -6,7 +6,7 @@ import {EngagementProps, VisualizationProps} from "../../../app/lib/definitions"
 import {EngagementIcons} from "../../reactions/engagement-icons";
 import {VegaPlot, VegaPlotPreview} from "../../visualizations/vega-plot";
 import {useLayoutConfig} from "../../layout/layout-config-context";
-import {pxToNumber} from "../../utils/utils";
+import {PrettyJSON, pxToNumber} from "../../utils/utils";
 
 
 
@@ -50,7 +50,10 @@ export const VisualizationNodeComp = ({
 }) => {
 
     return (
-        <div className={"flex flex-col items-center w-full not-article-content"} onClick={(e) => {e.stopPropagation()}}>
+        <div
+            className={"flex flex-col items-center w-full not-article-content"}
+            onClick={(e) => {e.stopPropagation()}}
+        >
 
             {interactive ? <VegaPlot visualization={visualization} width={width}/> :
                 <div className={"mb-1"}>

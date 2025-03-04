@@ -6,11 +6,10 @@ import {
 } from "../../app/lib/definitions";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {
-    enDiscusionQuery,
-    queryPostsFollowingFeedCA
+    enDiscusionQuery
 } from "../utils";
 import {popularityScore} from "../../components/feed/popularity-score";
-import {listOrder, listOrderDesc, newestFirst} from "../../components/utils/utils";
+import {listOrderDesc, newestFirst} from "../../components/utils/utils";
 
 import {getFollowing} from "../users";
 import {addCountersToFeed, addReasonToRepost, joinCAandATFeeds} from "./utils";
@@ -19,7 +18,9 @@ import {FeedViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 
 
 export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[], error?: string}> {
+    const t1 = Date.now()
     const following = [did, ...(await getFollowing(did))]
+    const t2 = Date.now()
 
     const authorCond = {
         authorId: {
@@ -27,7 +28,6 @@ export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[
         },
     }
 
-    //const t1 = new Date().getTime()
     let postsQuery = getFeedCA(following)
     let repostsQuery = db.record.findMany({
         select: enDiscusionQuery,
@@ -45,25 +45,29 @@ export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[
             }
         },
     })
+    const t3 = Date.now()
 
     const [posts, reposts] = await Promise.all([postsQuery, repostsQuery])
 
-    //const t2 = new Date().getTime()
-    //console.log("following feed query time", t2-t1)
 
     let feed = [
         ...addCountersToFeed(posts, did),
         ...addCountersToFeed(reposts, did).map((r) => (addReasonToRepost(r, following)))
     ]
 
-    return {feed: feed.sort(newestFirst).slice(0, 50)}
+    feed = feed.sort(newestFirst).slice(0, 50)
+
+    const t4 = Date.now()
+
+    // console.log("following feed CA time", t4-t1, "=", t2-t1, "+", t3-t2, "+", t4-t3)
+    return {feed: feed}
 }
 
 
 export async function getFollowingFeed(){
-    //const t1 = new Date().getTime()
+    const t1 = Date.now()
     const {agent, did} = await getSessionAgent()
-    //const t2 = new Date().getTime()
+    const t2 = Date.now()
 
     if(!did){
         return {error: "No nos pudimos conectar con Bluesky."}
@@ -73,7 +77,7 @@ export async function getFollowingFeed(){
     const timelinePromise = agent.getTimeline()
 
     const [feedCA, {data}] = await Promise.all([feedCAPromise, timelinePromise])
-    //const t3 = new Date().getTime()
+    const t3 = Date.now()
 
     function isRepost(r: FeedViewPost){
         return r.reason && (r.reason.$type == "app.bsky.feed.repost" || r.reason.$type == "app.bsky.feed.defs#reasonRepost")
@@ -85,9 +89,8 @@ export async function getFollowingFeed(){
 
     let feed = joinCAandATFeeds(feedCA.feed, feedBsky)
 
-    //console.log("session agent time", t2-t1)
-    //console.log("timelines time", t3-t2)
-    //console.log("following feed time", new Date().getTime() - t1)
+    const t4 = Date.now()
+    //console.log("Following feed time", t4-t1, "=", t2-t1, "+", t3-t2, "+", t4-t3)
     return {feed}
 }
 

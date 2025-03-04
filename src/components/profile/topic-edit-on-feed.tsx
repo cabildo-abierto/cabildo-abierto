@@ -1,7 +1,7 @@
 "use client"
 import {TopicProps} from "../../app/lib/definitions";
 import {CustomLink as Link} from "../ui-utils/custom-link";
-import {articleUrl} from "../utils/utils";
+import {topicUrl} from "../utils/utils";
 import {getFullTopicTitle, getTopicTitle} from "../topic/utils";
 import {ChangesCounter} from "../topic/changes-counter";
 
@@ -19,7 +19,7 @@ const TopicEditOnFeed = ({entity, content, version}: {
     },
     entity: TopicProps,
     version: number}) => {
-    const name = <Link href={articleUrl(entity.id, version)} className="content">{getFullTopicTitle(entity)}</Link>
+    const name = <Link href={topicUrl(entity.id, version)} className="content">{getFullTopicTitle(entity)}</Link>
 
     let text = null
     if(version == 0){

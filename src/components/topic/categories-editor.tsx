@@ -8,30 +8,34 @@ import {useSWRConfig} from "swr";
 import {getFullTopicCategories} from "./utils";
 
 
-export const CategoriesEditor = ({topic, setEditing}: {
+export const CategoriesEditor = ({topic, onClose}: {
     topic: TopicProps
-    setEditing: (v: boolean) => void
+    onClose: () => void
 }) => {
     const current = getFullTopicCategories(topic)
     const {categories: availableCategories} = useCategories()
     const {mutate} = useSWRConfig()
 
 
-    async function saveCategories(categories: string[]){
+    async function saveCategories(categories: string[]) {
         await updateCategoriesInTopic({topicId: topic.id, categories})
-        setEditing(false)
-        mutate("/api/map-topics")
+        onClose()
         mutate("/api/topics")
         mutate("/api/topic-feed")
-        mutate("/topic/"+topic.id)
+        mutate("/topic/" + topic.id)
         return {}
     }
 
-    return <ListEditor
-        initialValue={current}
-        options={availableCategories}
-        onSave={saveCategories}
-        onClose={() => {setEditing(false)}}
-        newItemText={"Nueva categoría"}
-    />
+    return <div className={"mt-8"}>
+        <h3 className={"mb-6"}>
+            Editar categorías
+        </h3>
+        <ListEditor
+            initialValue={current}
+            options={availableCategories}
+            onSave={saveCategories}
+            onClose={onClose}
+            newItemText={"Nueva categoría"}
+        />
+    </div>
 }

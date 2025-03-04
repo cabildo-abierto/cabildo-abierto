@@ -19,59 +19,60 @@ export const NodeQuoteReplies = ({
     const [style, setStyle] = useState({})
     const [foundReply, setFoundReply] = useState(false)
 
-
     useEffect(() => {
-        if(replies.length == 0) return
-
         const updatePosition = () => {
-            const element = document.getElementById(replies[0].cid)
+            if (replies.length === 0) return;
+            const element = document.getElementById(replies[0].cid);
             if (element) {
-                const rect = element.getBoundingClientRect()
+                const rect = element.getBoundingClientRect();
                 setStyle({
                     position: "absolute",
                     top: window.scrollY + rect.top,
                     left: leftCoordinates + 30,
-                })
+                });
             }
-        }
+        };
 
-        let observer
+        let observer: ResizeObserver | undefined;
+        const targetElement = document.getElementById(replies[0].cid);
 
-        const targetElement = document.getElementById(replies[0].cid)
         if (targetElement) {
-            setFoundReply(true)
-            updatePosition()
+            setFoundReply(true);
+            updatePosition();
 
-            observer = new ResizeObserver(updatePosition)
-            observer.observe(document.body)
+            observer = new ResizeObserver(updatePosition);
+            observer.observe(document.body);
         } else {
             const mutationObserver = new MutationObserver(() => {
-                const newTarget = document.getElementById(replies[0].cid)
+                const newTarget = document.getElementById(replies[0].cid);
                 if (newTarget) {
-                    setFoundReply(true)
-                    updatePosition()
+                    setFoundReply(true);
+                    updatePosition();
 
-                    observer = new ResizeObserver(updatePosition)
-                    observer.observe(document.body)
+                    observer = new ResizeObserver(updatePosition);
+                    observer.observe(document.body);
 
-                    mutationObserver.disconnect()
+                    mutationObserver.disconnect();
                 }
-            })
+            });
 
-            mutationObserver.observe(document.body, { childList: true, subtree: true })
+            mutationObserver.observe(document.body, { childList: true, subtree: true });
         }
 
         const handleResizeOrScroll = () => {
-            updatePosition()
-        }
+            updatePosition();
+        };
 
-        window.addEventListener("resize", handleResizeOrScroll)
+        window.addEventListener("resize", handleResizeOrScroll);
+        window.addEventListener("scroll", handleResizeOrScroll, { passive: true });
 
         return () => {
-            if (observer) observer.disconnect()
-            window.removeEventListener("resize", handleResizeOrScroll)
+            observer?.disconnect();
+            window.removeEventListener("resize", handleResizeOrScroll);
+            window.removeEventListener("scroll", handleResizeOrScroll);
         };
-    }, [replies])
+    }, [replies, leftCoordinates]);
+
 
     if(!foundReply) return null
     return <div style={style} className={"flex gap-x-1"}>
