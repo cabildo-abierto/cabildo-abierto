@@ -23,11 +23,12 @@ export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
 
 
 export async function isCAUser(did: string){
-    return unstable_cache(async () => {
+    return await unstable_cache(async () => {
         const res = await db.user.findFirst({
             select: {did: true},
             where: {
-                did
+                did,
+                inCA: true
             }
         })
         return res != null
@@ -35,9 +36,9 @@ export async function isCAUser(did: string){
         ["isCAUser:"+did],
         {
             tags: ["isCAUser", "isCAUser:"+did],
-            revalidate: revalidateEverythingTime
+            revalidate: revalidateEverythingTime,
         }
-    )
+    )()
 }
 
 export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: string}> => {
@@ -227,39 +228,25 @@ const fullUserQuery = {
 export const getFullProfileById = async (userId: string): Promise<{user?: UserProps, atprotoProfile?: ProfileViewDetailed, error?: string}> => {
     const promiseATProtoProfile = getATProtoUserById(userId)
 
-    const promiseCAUser = db.user.findFirst(
-        {
-            select: fullUserQuery,
-            where: {
-                OR: [
-                    {
-                        did: userId
-                    },
-                    {
-                        handle: userId
-                    }
-                ]
-            }
-        }
-    )
+    const promiseCAUser = getUserById(userId)
 
     const [CAUser, ATProtoProfile] = await Promise.all([promiseCAUser, promiseATProtoProfile])
 
-    if(!CAUser){
+    if(!CAUser.user){
         return {atprotoProfile: ATProtoProfile.profile ? ATProtoProfile.profile : null}
     }
 
     let following = undefined
-    for(let i = 0; i < CAUser.followers.length; i++) {
-        const f = CAUser.followers[i]
+    for(let i = 0; i < CAUser.user.followers.length; i++) {
+        const f = CAUser.user.followers[i]
         if(f.record.authorId == userId){
             following = f.uri
         }
     }
 
     let followed = undefined
-    for(let i = 0; i < CAUser.records.length; i++){
-        const r = CAUser.records[i]
+    for(let i = 0; i < CAUser.user.records.length; i++){
+        const r = CAUser.user.records[i]
         if(r.follow.userFollowedId == userId){
             followed = r.cid
         }
@@ -267,9 +254,9 @@ export const getFullProfileById = async (userId: string): Promise<{user?: UserPr
 
     return {
         user: {
-            ...CAUser,
-            followersCount: CAUser.followers.length,
-            followsCount: CAUser.records.length,
+            ...CAUser.user,
+            followersCount: CAUser.user.followers.length,
+            followsCount: CAUser.user.records.length,
             viewer: {
                 following,
                 followed
@@ -317,7 +304,7 @@ export async function getUser(){
 
 
 export async function getUserById(userId: string){
-    return await unstable_cache(async () => {
+    return unstable_cache(async () => {
         return await getUserByIdNoCache(userId)
     },
         ["user:"+userId],
@@ -788,7 +775,7 @@ export async function getUserStats(): Promise<{stats?: UserStats, error?: string
 }
 
 
-export async function getFollowing(did: string) : Promise<string[]> {
+export async function getFollowingNoCache(did: string) : Promise<string[]> {
     const follows = await db.record.findMany({
         select: {
             follow: {
@@ -803,4 +790,16 @@ export async function getFollowing(did: string) : Promise<string[]> {
         }
     })
     return follows.map((f) => (f.follow.userFollowedId))
+}
+
+
+export async function getFollowing(did: string) {
+    return unstable_cache(async () => {
+        return await getFollowingNoCache(did)
+    }, ["following:"+did],
+        {
+            tags: ["following", "following:"+did],
+            revalidate: revalidateEverythingTime
+        }
+    )()
 }

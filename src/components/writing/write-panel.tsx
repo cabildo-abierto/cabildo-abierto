@@ -23,7 +23,7 @@ import TickButton from "../ui-utils/tick-button";
 import {useSWRConfig} from "swr";
 import {createTopic} from "../../actions/write/topic";
 import {
-    articleUrl,
+    topicUrl,
     emptyChar,
     ErrorMsg,
     getCollectionFromUri,
@@ -100,7 +100,7 @@ const CreateTopic = ({onClose}: {onClose: () => void}) => {
         }
         //mutate("/api/entities")
         //mutate("/api/entity/"+topicName)
-        if (goToArticle) router.push(articleUrl(topicName))
+        if (goToArticle) router.push(topicUrl(topicName))
         onClose()
         return {}
     }

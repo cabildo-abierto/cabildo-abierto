@@ -133,12 +133,13 @@ export async function getServiceEndpointForDidNoCache(did: string){
 
 
 export async function getServiceEndpointForDid(did: string){
-    return await unstable_cache(async () => {
+    return unstable_cache(async () => {
         return await getServiceEndpointForDidNoCache(did)
-    }, ["serviceendpoint:"+did],
-        {
-            tags: ["serviceendpoint:"+did],
-            revalidate: revalidateEverythingTime
+    },
+    ["serviceendpoint:"+did],
+    {
+        tags: ["serviceendpoint:"+did],
+        revalidate: revalidateEverythingTime
     })()
 }
 

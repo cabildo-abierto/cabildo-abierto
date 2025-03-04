@@ -10,6 +10,7 @@ import {PageLeaveProvider} from "../ui-utils/prevent-leave";
 import { ThemeProvider } from '@mui/material';
 import theme from '../theme';
 import {RightPanel} from "./right-panel";
+import {LoadEditor} from "../ui-utils/load-editor";
 
 
 const MainLayoutContent = ({children}: {children: ReactNode}) => {
@@ -86,32 +87,34 @@ const MainLayoutContent = ({children}: {children: ReactNode}) => {
 }
 
 const MainLayout: React.FC<{ children: ReactNode } & LayoutConfigProps> = ({
-                                                                                             children,
-                                                                                             openRightPanel=true,
-                                                                                             maxWidthCenter="600px",
-                                                                                             leftMinWidth="80px",
-                                                                                             rightMinWidth="360px",
-                                                                                             openSidebar=true,
-                                                                                             defaultSidebarState=true,
-                                                                                         }) => {
+     children,
+     openRightPanel=true,
+     maxWidthCenter="600px",
+     leftMinWidth="80px",
+     rightMinWidth="360px",
+     openSidebar=true,
+     defaultSidebarState=true,
+}) => {
 
 
     return <>
-        <ThemeProvider theme={theme}>
-            <PageLeaveProvider>
-                <LoadingPage>
-                    <BetaAccessPage>
-                        <SearchProvider>
-                            <LayoutConfigProvider config={{openRightPanel, maxWidthCenter, leftMinWidth, rightMinWidth, openSidebar, defaultSidebarState}}>
-                                <MainLayoutContent>
-                                    {children}
-                                </MainLayoutContent>
-                            </LayoutConfigProvider>
-                        </SearchProvider>
-                    </BetaAccessPage>
-                </LoadingPage>
-            </PageLeaveProvider>
-        </ThemeProvider>
+        <LoadingPage>
+            <ThemeProvider theme={theme}>
+                <PageLeaveProvider>
+                    <LoadEditor>
+                        <BetaAccessPage>
+                            <SearchProvider>
+                                <LayoutConfigProvider config={{openRightPanel, maxWidthCenter, leftMinWidth, rightMinWidth, openSidebar, defaultSidebarState}}>
+                                    <MainLayoutContent>
+                                        {children}
+                                    </MainLayoutContent>
+                                </LayoutConfigProvider>
+                            </SearchProvider>
+                        </BetaAccessPage>
+                    </LoadEditor>
+                </PageLeaveProvider>
+            </ThemeProvider>
+        </LoadingPage>
     </>
 };
 

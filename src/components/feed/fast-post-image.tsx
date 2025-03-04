@@ -152,17 +152,17 @@ export const FastPostImage = ({ post, did }: { post: FastPostProps; did?: string
                             onClick={() => {setViewing(0)}}
                         />
                     </div>
-                    <div className="w-1/2 space-y-1 flex flex-col h-full">
+                    <div className="w-1/2 space-y-1 flex flex-col h-[268px]">
                         <ATProtoImage
                             img={images[1]}
                             did={did}
-                            className={imageClass}
+                            className={imageClass + " h-[132px]"}
                             onClick={() => {setViewing(1)}}
                         />
                         <ATProtoImage
                             img={images[2]}
                             did={did}
-                            className={imageClass}
+                            className={imageClass + " h-[132px]"}
                             onClick={() => {setViewing(2)}}
                         />
                     </div>

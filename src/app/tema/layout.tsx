@@ -6,7 +6,7 @@ const RootLayout = ({children} :{
 
   return <MainLayout>
       {children}
-    </MainLayout>
+  </MainLayout>
 }
 
 export default RootLayout

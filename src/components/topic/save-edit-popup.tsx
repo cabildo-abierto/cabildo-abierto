@@ -10,7 +10,7 @@ import InfoPanel from "../ui-utils/info-panel";
 import { NotEnoughPermissionsWarning } from "./permissions-warning";
 import StateButton from "../ui-utils/state-button";
 import TickButton from "../ui-utils/tick-button";
-import { articleUrl, hasEditPermission } from "../utils/utils";
+import { topicUrl, hasEditPermission } from "../utils/utils";
 import { ChangesCounterWithText } from "./changes-counter";
 import Button from "@mui/material/Button";
 import { AcceptButtonPanel } from "../ui-utils/accept-button-panel";
@@ -72,7 +72,7 @@ export const SaveEditPopup = ({
 
     const validMsg = !editMsg.startsWith("nuevo nombre:")
     
-    const infoAuthorship = <span className="link">Desactivá este tick si no sos autor/a de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una ley, o algo escrito por otra persona. Si no estás seguro/a no te preocupes, se puede cambiar después. <Link href={articleUrl("Cabildo_Abierto:_Temas")}>Más información</Link>
+    const infoAuthorship = <span className="link">Desactivá este tick si no sos autor/a de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una ley, o algo escrito por otra persona. Si no estás seguro/a no te preocupes, se puede cambiar después. <Link href={topicUrl("Cabildo_Abierto:_Temas")}>Más información</Link>
     </span>
 
     if(!newVersionSize){

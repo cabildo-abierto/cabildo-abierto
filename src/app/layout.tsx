@@ -61,7 +61,7 @@ export default function RootLayout({
             content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
         </meta>
     </head>
-    <body className={"font-flex scroll-always-on"}>
+    <body className={"font-flex overflow-y-scroll"}>
         {children}
     </body>
     </html>

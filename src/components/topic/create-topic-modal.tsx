@@ -5,7 +5,7 @@ import { useUser } from "../../hooks/user";
 import { CreateAccountLink } from "../auth/create-account-link";
 import StateButton from "../ui-utils/state-button";
 import TickButton from "../ui-utils/tick-button";
-import {articleUrl, ErrorMsg, validEntityName} from "../utils/utils";
+import {topicUrl, ErrorMsg, validEntityName} from "../utils/utils";
 import { BaseFullscreenPopup } from "../ui-utils/base-fullscreen-popup";
 import {TextField} from "@mui/material";
 import {createTopic} from "../../actions/write/topic";
@@ -34,7 +34,7 @@ export const CreateTopicModal = ({ open, onClose }: { open: boolean, onClose: ()
         }
         //mutate("/api/entities")
         //mutate("/api/entity/"+topicName)
-        if (goToArticle) router.push(articleUrl(topicName))
+        if (goToArticle) router.push(topicUrl(topicName))
         onClose()
         return {}
     }

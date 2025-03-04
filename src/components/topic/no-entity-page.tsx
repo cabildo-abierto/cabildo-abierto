@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useSWRConfig } from "swr"
 import { useUser } from "../../hooks/user"
-import {articleUrl, validEntityName} from "../utils/utils"
+import {topicUrl, validEntityName} from "../utils/utils"
 import {Button} from "@mui/material";
 import {createTopic} from "../../actions/write/topic";
 
@@ -19,7 +19,7 @@ const CreateEntityButton: React.FC<any> = ({onClick}) => {
 
 export default function NoEntityPage({id}: {id: string}){
     const name = decodeURIComponent(id).replaceAll("_", " ")
-    const url = articleUrl(id)
+    const url = topicUrl(id)
     const router = useRouter()
     const {user} = useUser()
     const {mutate} = useSWRConfig()

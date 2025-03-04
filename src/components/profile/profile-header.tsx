@@ -24,7 +24,6 @@ type ProfileHeaderProps = {
     user?: {id: string, following: {id: string}[]}
     selected: string
     setSelected: any
-    setShowingFakeNews: any
 }
 
 
@@ -45,13 +44,14 @@ const FollowCounters = ({user, atprotoProfile}: {user?: UserProps, atprotoProfil
             <span className="font-bold">{followingCountCA}</span> siguiendo
         </div></>
     } else {
-        content = <><div className="">
-            <span className="font-bold">{followersCountAT}</span> {followersCountAT == 1 ? "seguidor" : "seguidores"}
-        </div>
-        <div className="sm:text-base text-sm">
-            <span className="font-bold">{followingCountAT}</span> siguiendo
-        </div>
-        <BlueskyLogo fontSize={"16"}/>
+        content = <>
+            <div>
+                <span className="font-bold">{followersCountAT}</span> {followersCountAT == 1 ? "seguidor" : "seguidores"}
+            </div>
+            <div className="sm:text-base text-sm">
+                <span className="font-bold">{followingCountAT}</span> siguiendo
+            </div>
+            <BlueskyLogo fontSize={"16"}/>
         </>
     }
 
@@ -74,8 +74,7 @@ export function ProfileHeader({
                                   profileUser,
                                   atprotoProfile,
                                   selected,
-                                  setSelected,
-                                  setShowingFakeNews
+                                  setSelected
                               }: ProfileHeaderProps) {
     const {user} = useUser()
     const [following, setFollowing] = useState(atprotoProfile.viewer && atprotoProfile.viewer.following != undefined)
@@ -192,9 +191,6 @@ export function ProfileHeader({
                         text1="Seguir"
                     />)
                 }
-                {/* TO DO: Implement  isOwner && false && 
-                    <EditProfileButton/>
-                */}
             </div>}
         </div>
         <div className="ml-2 mb-2">
@@ -226,15 +222,12 @@ export function ProfileHeader({
             <SelectionComponent
                 selected={selected}
                 onSelection={(v) => {
-                    setSelected(v);
-                    setShowingFakeNews(false)
+                    setSelected(v)
                 }}
                 options={["Publicaciones", "Respuestas", ...(inCA ? ["Ediciones"] : [])]}
                 optionsNodes={optionsNodes}
                 className="flex"
             />
         </div>
-
-        {/*TO DO editProfileOpen && <EditProfileModal onClose={() => {setEditProfileOpen(false)}}/>*/}
     </div>
 }

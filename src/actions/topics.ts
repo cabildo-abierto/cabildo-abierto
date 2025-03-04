@@ -5,25 +5,21 @@ import {
     TopicProps,
     TopicVersionProps,
     SmallTopicProps,
-    MapTopicProps,
     TopicsGraph,
-    TopicVersionOnFeedProps
 } from "../app/lib/definitions";
 import {db} from "../db";
 import {
-    cleanText,
-    currentCategories, getCurrentVersion,
-    currentVersionContent,
+    currentCategories,
     getDidFromUri,
     getRkeyFromUri,
-    listOrderDesc, newestFirst,
-    supportDid
+    listOrderDesc,
+    newestFirst,
 } from "../components/utils/utils";
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
-import {getObjectSizeInBytes, recordQuery, revalidateEverythingTime} from "./utils";
+import {recordQuery, revalidateEverythingTime} from "./utils";
 import {fetchBlob} from "./data";
-import {revalidateTag, unstable_cache} from "next/cache";
+import {unstable_cache} from "next/cache";
 import {getCurrentContentVersion} from "../components/topic/utils";
 
 
@@ -420,15 +416,6 @@ const topicVersionQuery = {
                     accCharsAdded: true,
                     contribution: true,
                     authorship: true,
-                    content: {
-                        select: {
-                            text: true,
-                            format: true,
-                            record: {
-                                select: recordQuery,
-                            },
-                        },
-                    }
                 }
             }
         }
@@ -526,7 +513,7 @@ const topicQueryOld = {
 
 
 export async function getCategories() {
-    return unstable_cache(async () => {
+    return await unstable_cache(async () => {
         return await getCategoriesNoCache()
     },
         ["categories"],
@@ -626,8 +613,8 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
         tags: ["topic:"+id],
         revalidate: revalidateEverythingTime
     })()
-    const t2 = Date.now()
 
+    const t2 = Date.now()
     if(error){
         return {error}
     }
@@ -646,19 +633,20 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
 
     topicWithVersions.versions = topicWithVersions.versions.sort(newestFirst)
 
-    const version = getCurrentVersion(topicWithVersions)
+
+    const version = getCurrentContentVersion(topicWithVersions)
     if(topicWithVersions.versions[version].content.textBlob != undefined){
         topicWithVersions.versions[version].content.text = await getTextFromBlob(topicWithVersions.versions[version].content.textBlob)
     }
     const t4 = Date.now()
 
-    //console.log("Getting topic", id, "time:", t4-t1, "=", t2-t1, "+", t3-t2, "+", t4-t3)
+    // console.log("Getting topic", id, "time:", t4-t1, "=", t2-t1, "+", t3-t2, "+", t4-t3)
 
     return {topic: topicWithVersions}
 }
 
 
-export async function getTopicVersion(uri: string){
+export async function getTopicVersionNoCache(uri: string){
     try {
         const topicVersion: TopicVersionProps = await db.record.findUnique({
             select: topicVersionQuery,
@@ -672,6 +660,16 @@ export async function getTopicVersion(uri: string){
         return {error: "No se encontró el tema."}
     }
 }
+
+
+export const getTopicVersion = unstable_cache(
+    getTopicVersionNoCache,
+    undefined,
+    {
+        tags: ["topics"],
+        revalidate: revalidateEverythingTime
+    }
+)
 
 
 export async function deleteTopicVersionsForUser(){

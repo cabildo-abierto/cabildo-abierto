@@ -37,7 +37,7 @@ import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl} from '../../utils/url';
 import {SmallTopicProps, TopicProps} from '../../../../app/lib/definitions';
-import { articleUrl } from '../../../utils/utils';
+import { topicUrl } from '../../../utils/utils';
 import { CustomLink as Link } from '../../../ui-utils/custom-link';
 import {getFullTopicTitle, getTopicTitle} from "../../../topic/utils";
 import {searchTopics} from "../../../../actions/feed/search";
@@ -269,7 +269,7 @@ function FloatingLinkEditor({
           return <button
               key={topic.id}
               className={"text-left text-sm text-[var(--text-light)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
-              onClick={() => {setValue(articleUrl(topic.id))}}
+              onClick={() => {setValue(topicUrl(topic.id))}}
             >
               {getFullTopicTitle(topic)}
         </button>

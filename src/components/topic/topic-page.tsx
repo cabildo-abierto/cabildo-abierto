@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
-import { useSearchParams } from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import {getCurrentVersion, inRange, isQuotePost} from "../utils/utils";
 import NoEntityPage from "./no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
@@ -12,6 +12,7 @@ import {FastPostProps} from "../../app/lib/definitions";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {TopicCategories} from "./topic-categories";
+import {WikiEditorState} from "./topic-content-expanded-view-header";
 
 
 export const TopicPage = ({topicId, paramsVersion, changes}: {
@@ -21,26 +22,26 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
 }) => {
     const topic = useTopic(topicId)
     const feed = useTopicFeed(topicId)
-    const initialSelection = changes ? "changes" : (paramsVersion == undefined ? "none" : "history")
-    const [selectedPanel, setSelectedPanel] = useState(initialSelection)
     const searchParams = useSearchParams()
     const [pinnedReplies, setPinnedReplies] = useState([])
-    const [viewingContent, setViewingContent] = useState(paramsVersion != undefined)
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
     const [shouldGoTo, setShouldGoTo] = useState(null)
+    const router = useRouter()
+
+    const wikiEditorState = (searchParams.get("s") ? searchParams.get("s") : "minimized") as WikiEditorState
 
     useEffect(() => {
-        if(viewingContent && layoutConfig.openRightPanel){
+        if(wikiEditorState != "minimized" && layoutConfig.openRightPanel){
             setLayoutConfig({
                 ...layoutConfig,
                 openRightPanel: false,
                 maxWidthCenter: "800px"
             })
         }
-    }, [layoutConfig, viewingContent])
+    }, [layoutConfig, wikiEditorState])
 
     useEffect(() => {
-        if (shouldGoTo && viewingContent) {
+        if (shouldGoTo && wikiEditorState != "minimized") {
             const observer = new MutationObserver(() => {
                 const elem = document.getElementById(shouldGoTo);
                 if (elem) {
@@ -53,11 +54,27 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
             observer.observe(document.body, { childList: true, subtree: true });
             return () => observer.disconnect();
         }
-    }, [shouldGoTo, viewingContent]);
+    }, [shouldGoTo, wikiEditorState])
 
     useEffect(() => {
-        setSelectedPanel(changes ? "changes" : (paramsVersion == undefined ? "none" : "history"))
-    }, [searchParams])
+        if(wikiEditorState == "minimized"){
+            setLayoutConfig((prev) => ({
+                ...prev,
+                openSidebar: true,
+                openRightPanel: true,
+                maxWidthCenter: "600px",
+                rightMinWidth: "275px"
+            }))
+        } else {
+            setLayoutConfig((prev) => ({
+                ...prev,
+                openSidebar: false,
+                openRightPanel: false,
+                maxWidthCenter: "800px",
+                rightMinWidth: "360px"
+            }))
+        }
+    }, [wikiEditorState])
 
     if(topic.isLoading || feed.isLoading){
         return <LoadingSpinner/>
@@ -65,6 +82,17 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
 
     if(!topic.topic || topic.isError || topic.error || !feed.feed || topic.topic.versions.length == 0){
         return <NoEntityPage id={topicId}/>
+    }
+
+    function setWikiEditorState(s: WikiEditorState) {
+        const vParam = searchParams.get("v")
+        const vParamStr = vParam ? ("&v=" + vParam) : ""
+        console.log("setting wiki editor state", s)
+        if(s == "minimized"){
+            router.push("/tema?i="+topic.topic.id+vParamStr)
+        } else {
+            router.push("/tema?i="+topic.topic.id+"&s="+s+vParamStr)
+        }
     }
 
     const versions = topic.topic.versions
@@ -80,18 +108,18 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
 
     const onClickQuote = (cid: string) => {
         setPinnedReplies([...pinnedReplies, cid])
-        if(viewingContent){
+        if(wikiEditorState != "minimized"){
             const elem = document.getElementById(cid)
             smoothScrollTo(elem)
         } else {
-            setViewingContent(true)
+            setWikiEditorState("normal")
             setLayoutConfig({...layoutConfig, openRightPanel: false, maxWidthCenter: "800px"})
             setShouldGoTo(cid)
         }
     }
 
     return <div className="flex flex-col items-center w-full pt-4">
-        <div className="flex flex-col px-2 py-1 mb-2 w-full">
+        <div className="flex flex-col mx-2 py-1 mb-2 w-full">
             <div className="text-[var(--text-light)] text-sm">
                 Tema
             </div>
@@ -102,25 +130,26 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
                 categories={getFullTopicCategories(topic.topic)}
             />
         </div>
+
         <TopicContent
             topic={topic.topic}
             version={version}
-            selectedPanel={selectedPanel}
-            setSelectedPanel={setSelectedPanel}
+            wikiEditorState={wikiEditorState}
+            setWikiEditorState={setWikiEditorState}
             quoteReplies={quoteReplies}
             pinnedReplies={pinnedReplies}
             setPinnedReplies={setPinnedReplies}
-            viewingContent={viewingContent}
-            setViewingContent={setViewingContent}
         />
 
-        {selectedPanel != "editing" && <div className="w-full" id="discussion-start">
-            {<TopicDiscussion
-                viewingContent={viewingContent}
-                topic={topic.topic}
-                version={version}
-                onClickQuote={onClickQuote}
-            />}
-        </div>}
+        {(wikiEditorState == "minimized" || wikiEditorState == "normal") &&
+            <div className="w-full" id="discussion-start">
+                <TopicDiscussion
+                    topic={topic.topic}
+                    version={version}
+                    onClickQuote={onClickQuote}
+                    wikiEditorState={wikiEditorState}
+                />
+            </div>
+        }
     </div>
 }

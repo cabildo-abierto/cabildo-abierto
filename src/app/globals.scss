@@ -50,6 +50,11 @@ $background: #181b23;
 }
 
 
+.scroll-not-always-on {
+	overflow-y: auto;
+}
+
+
 body {
 	background-color: var(--background);
 	color: var(--text);
@@ -661,13 +666,11 @@ th {
 	color: $primary; /* Equivalent to Tailwind's blue-500 */
 }
 
-
-
 .article-btn {
 	padding-top: 0.25rem;
 	padding-bottom: 0.25rem;
 	cursor: pointer;
-	border-bottom-width: 2px;
+	border-bottom-width: 3px;
 	border-color: transparent;
 }
   
