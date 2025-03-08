@@ -59,7 +59,7 @@ function TextFormatFloatingToolbar({
   isUnderline: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
   settings: any
-}): JSX.Element {
+}) {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
 
   const {isComment, useSuperscript, useSubscript, useStrikethrough, useCodeblock} = settings
@@ -285,7 +285,7 @@ function useFloatingTextFormatToolbar(
   anchorElem: HTMLElement,
   setIsLinkEditMode: Dispatch<boolean>,
   settings: any
-): JSX.Element | null {
+) {
   const [isText, setIsText] = useState(false);
   const [isLink, setIsLink] = useState(false);
   const [isBold, setIsBold] = useState(false);
@@ -407,7 +407,7 @@ export default function FloatingTextFormatToolbarPlugin({
   anchorElem?: HTMLElement;
   setIsLinkEditMode: Dispatch<boolean>;
   settings: any
-}): JSX.Element | null {
+}) {
   const [editor] = useLexicalComposerContext();
   return useFloatingTextFormatToolbar(editor, anchorElem, setIsLinkEditMode, settings);
 }

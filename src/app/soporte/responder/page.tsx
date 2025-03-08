@@ -3,7 +3,8 @@ import { ChatPage, NoConversationsChatPage } from "../../../components/chat/chat
 import { supportDid } from "../../../components/utils/utils"
 
 
-export default async function Page({searchParams}: {searchParams: {i?: string}}) {
+export default async function Page({searchParams}: {searchParams: Promise<{i?: string}>}) {
+    const {i} = await searchParams
     let conversations = await getConversations(supportDid)
 
     if(conversations.length == 0){
@@ -12,6 +13,6 @@ export default async function Page({searchParams}: {searchParams: {i?: string}})
     return <ChatPage
         fromUser={supportDid}
         conversations={conversations}
-        initialSelection={searchParams.i}
+        initialSelection={i}
     />
 }

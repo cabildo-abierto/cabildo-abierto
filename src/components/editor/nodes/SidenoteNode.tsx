@@ -112,32 +112,32 @@ export class SidenoteNode extends MarkNode {
   
     getIDs(): Array<string> {
       const self = this.getLatest();
-      return $isSidenoteNode(self) ? self.__ids : [];
+      return $isSidenoteNode(self) ? [...self.__ids] : [];
     }
 
-    addID(id: string): void {
-      const self = this.getWritable();
-      if ($isSidenoteNode(self)) {
-        const ids = self.__ids;
-        self.__ids = ids;
-        for (let i = 0; i < ids.length; i++) {
-          // If we already have it, don't add again
-          if (id === ids[i]) {
-            return;
-          }
+    addID(id: string): this {
+        const self = this.getWritable();
+        if ($isSidenoteNode(self)) {
+            const ids = [...self.__ids]
+            for (let i = 0; i < ids.length; i++) {
+                // If we already have it, don't add again
+                if (id === ids[i]) {
+                    return
+                }
+            }
+            ids.push(id)
+            self.__ids = ids
         }
-        ids.push(id);
-      }
     }
 
-    deleteID(id: string): void {
+    deleteID(id: string): this {
       const self = this.getWritable();
       if ($isSidenoteNode(self)) {
-        const ids = self.__ids;
-        self.__ids = ids;
+        const ids = [...self.__ids]
         for (let i = 0; i < ids.length; i++) {
           if (id === ids[i]) {
-            ids.splice(i, 1);
+            ids.splice(i, 1)
+            self.__ids = ids
             return;
           }
         }
@@ -148,7 +148,7 @@ export class SidenoteNode extends MarkNode {
       selection: RangeSelection,
       restoreSelection = true,
     ): null | ElementNode {
-      const markNode = $createSidenoteNode(this.__ids);
+      const markNode = $createSidenoteNode([...this.__ids]);
       this.insertAfter(markNode, restoreSelection);
       return markNode;
     }

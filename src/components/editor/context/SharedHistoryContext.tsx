@@ -22,7 +22,7 @@ export const SharedHistoryContext = ({
   children,
 }: {
   children: ReactNode;
-}): JSX.Element => {
+}) => {
   const historyContext = useMemo(
     () => ({historyState: createEmptyHistoryState()}),
     [],

@@ -31,7 +31,7 @@ function TableHoverActionsContainer({
   anchorElem,
 }: {
   anchorElem: HTMLElement;
-}): JSX.Element {
+}) {
   const [editor] = useLexicalComposerContext();
   const [isShownRow, setShownRow] = useState<boolean>(false);
   const [isShownColumn, setShownColumn] = useState<boolean>(false);

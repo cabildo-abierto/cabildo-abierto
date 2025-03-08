@@ -20,7 +20,7 @@ export async function GET(req: NextRequest){
         assert(process.env.COOKIE_SECRET)
         const { session } = await oauthClient.callback(params)
 
-        const clientSession = await getIronSession<Session>(cookies(), myCookieOptions)
+        const clientSession = await getIronSession<Session>(await cookies(), myCookieOptions)
 
         clientSession.did = session.did
 

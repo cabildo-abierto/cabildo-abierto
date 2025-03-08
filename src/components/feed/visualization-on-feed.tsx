@@ -1,6 +1,6 @@
 import {VisualizationProps} from "../../app/lib/definitions";
 import {FastPostPreviewFrame} from "./fast-post-preview-frame";
-import {VegaPlotPreview} from "../visualizations/vega-plot";
+import {VegaPlotPreview} from "../visualizations/vega-plot-preview";
 
 
 export const VisualizationOnFeed = ({visualization}: {visualization: VisualizationProps}) => {

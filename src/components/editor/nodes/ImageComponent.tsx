@@ -99,7 +99,7 @@ function LazyImage({
   src: string;
   width: 'inherit' | number;
   onError: () => void;
-}): JSX.Element {
+}) {
   useSuspenseImage(src);
 
   return (
@@ -117,7 +117,7 @@ function LazyImage({
 }
 
 
-function BrokenImage(): JSX.Element {
+function BrokenImage() {
   return (
     <img
       src={brokenImage}
@@ -153,7 +153,7 @@ export default function ImageComponent({
   src: string;
   width: 'inherit' | number;
   captionsEnabled: boolean;
-}): JSX.Element {
+}) {
   const imageRef = useRef<null | HTMLImageElement>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [isSelected, setSelected, clearSelection] =

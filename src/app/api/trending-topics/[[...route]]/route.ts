@@ -1,16 +1,13 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import {getTrendingTopics} from "../../../../actions/topic/topics";
 
 
 export async function GET(req: NextRequest,
-    { params }: { params: { categories: string[] } }
+    { params }: { params: Promise<{ categories: string[] }> }
 ) {
+    const {categories} = await params
 
-    const url = new URL(req.url);
-    const searchParams = url.searchParams;
-
-    let {topics} = await getTrendingTopics(params.categories ? params.categories : [], "popular", 10)
+    let {topics} = await getTrendingTopics(categories ? categories : [], "popular", 10)
 
     return NextResponse.json(topics)
 }

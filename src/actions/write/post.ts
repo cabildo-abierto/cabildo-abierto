@@ -45,7 +45,10 @@ export async function createFastPostATProto(
             }
         }
 
-        ref = await agent.post(record)
+        ref = await agent.post({
+            ...record,
+            "$type": "app.bsky.feed.post"
+        })
     } else if(!quote){
         record = {
             "$type": "app.bsky.feed.post",
@@ -55,7 +58,10 @@ export async function createFastPostATProto(
             reply
         }
 
-        ref = await agent.post(record)
+        ref = await agent.post({
+            ...record,
+            "$type": "app.bsky.feed.post"
+        })
     } else {
         record = {
             "$type": "ar.com.cabildoabierto.quotePost",

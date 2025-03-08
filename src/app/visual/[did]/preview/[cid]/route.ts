@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchBlob } from "../../../../../actions/data";
 
-export async function GET(req: NextRequest, { params }: { params: { did: string, cid: string } }) {
-    const response = await fetchBlob({ authorId: params.did, cid: params.cid });
+export async function GET(req: NextRequest, { params }: { params: Promise<{ did: string, cid: string }> }) {
+    const {did, cid} = await params
+    const response = await fetchBlob({ authorId: did, cid });
 
     if (!response || !response.ok) {
         return new NextResponse("Not found", { status: 404 });

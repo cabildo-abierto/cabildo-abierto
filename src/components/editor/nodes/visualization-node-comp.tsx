@@ -1,12 +1,11 @@
-import {useDataset, useVisualization} from "../../../hooks/contents";
+import {useVisualization} from "../../../hooks/contents";
 import {DatasetTitle} from "../../datasets/dataset-title";
 import {UserHandle} from "../../feed/content-top-row-author";
 import LoadingSpinner from "../../ui-utils/loading-spinner";
 import {EngagementProps, VisualizationProps} from "../../../app/lib/definitions";
 import {EngagementIcons} from "../../reactions/engagement-icons";
-import {VegaPlot, VegaPlotPreview} from "../../visualizations/vega-plot";
-import {useLayoutConfig} from "../../layout/layout-config-context";
-import {PrettyJSON, pxToNumber} from "../../utils/utils";
+import {VegaPlot} from "../../visualizations/vega-plot";
+import {VegaPlotPreview} from "../../visualizations/vega-plot-preview";
 
 
 

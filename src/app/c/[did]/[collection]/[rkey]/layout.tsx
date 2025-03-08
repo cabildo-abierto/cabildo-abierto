@@ -4,8 +4,9 @@ import {shortCollectionToCollection} from "../../../../../components/utils/utils
 
 
 
-export default function RootLayout({children, params}: Readonly<{ children: React.ReactNode; params: {did: string, collection: string, rkey: string} }>) {
-    const c = shortCollectionToCollection(params.collection)
+export default async function RootLayout({children, params}: Readonly<{ children: React.ReactNode; params: Promise<{did: string, collection: string, rkey: string}> }>) {
+    const {collection} = await params
+    const c = shortCollectionToCollection(collection)
     const isArticle = c == "ar.com.cabildoabierto.article"
     const isDataset = c == "ar.com.cabildoabierto.dataset"
     const isDistractionFree = isArticle || isDataset

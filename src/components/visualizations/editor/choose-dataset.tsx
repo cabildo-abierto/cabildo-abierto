@@ -66,7 +66,8 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
                                 selected={config.datasetUri == d.uri}
                                 onClick={() => {
                                     updateConfig("datasetUri", d.uri)
-                                }}/>
+                                }}
+                            />
                         </div>
                     }) : <div className={"mt-8"}><LoadingSpinner/></div>}
                 </div>

@@ -74,7 +74,7 @@ function LazyImage({
   src: string;
   width: 'inherit' | number;
   position: Position;
-}): JSX.Element {
+}) {
   useSuspenseImage(src);
   return (
     <img
@@ -101,7 +101,7 @@ export function UpdateInlineImageDialog({
   activeEditor: LexicalEditor;
   nodeKey: NodeKey;
   onClose: () => void;
-}): JSX.Element {
+}) {
   const editorState = activeEditor.getEditorState();
   const node = editorState.read(
     () => $getNodeByKey(nodeKey) as InlineImageNode,
@@ -191,7 +191,7 @@ export default function InlineImageComponent({
   src: string;
   width: 'inherit' | number;
   position: Position;
-}): JSX.Element {
+}) {
   const [modal, showModal] = useModal();
   const imageRef = useRef<null | HTMLImageElement>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);

@@ -49,13 +49,13 @@ export async function login(handle: string){
 
 
 export async function getSessionDid() {
-    const session = await getIronSession<Session>(cookies(), myCookieOptions);
+    const session = await getIronSession<Session>(await cookies(), myCookieOptions);
     return session.did
 }
 
 
 export async function getSessionAgent(){
-    const session = await getIronSession<Session>(cookies(), myCookieOptions)
+    const session = await getIronSession<Session>(await cookies(), myCookieOptions)
 
     if (!session.did) {
         return {agent: new Agent("https://bsky.social/xrpc"), did: undefined}
@@ -93,7 +93,7 @@ export async function getSessionAgent(){
 export async function logout(){
     const client = await createClient()
 
-    const session = await getIronSession<Session>(cookies(), myCookieOptions)
+    const session = await getIronSession<Session>(await cookies(), myCookieOptions)
 
     await client.revoke(session.did)
     session.destroy()

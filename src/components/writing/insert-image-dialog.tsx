@@ -8,7 +8,7 @@ export function InsertImageDialog({
     onSubmit,
   }: {
     onSubmit: (payload: InsertImagePayload) => void;
-  }): JSX.Element {
+  }) {
     const [mode, setMode] = useState<null | 'url' | 'file'>(null);
 
     return (

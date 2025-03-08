@@ -5,7 +5,7 @@ import {CustomLink} from "../ui-utils/custom-link";
 import {EngagementIcons} from "../reactions/engagement-icons";
 import Link from "next/link";
 import {DateSince} from "../ui-utils/date";
-import {VegaPlotPreview} from "./vega-plot";
+import {VegaPlotPreview} from "./vega-plot-preview";
 import TableChartIcon from '@mui/icons-material/TableChart';
 
 function getTitleFromSpec(spec: string){
@@ -23,19 +23,18 @@ export const VisualizationCard = ({visualization, width}: {visualization: Visual
 
     const title = getTitleFromSpec(visualization.visualization.spec)
 
-    return <CustomLink
+    return <div
         className={"cursor-pointer flex flex-col rounded"}
         style={{width}}
-        href={url}
     >
-        <div className={"h-full flex items-center p-2"} style={{height: width*0.6}}>
+        <CustomLink href={url} className={"h-full flex items-center p-2"} style={{height: width*0.6}}>
             <VegaPlotPreview visualization={visualization} width={width-10}/>
-        </div>
+        </CustomLink>
 
         <div className={"px-2 pb-1 flex items-center text-center flex-col"} style={{width}}>
-            {title && <div className={"font-semibold"}>
+            {title && <CustomLink href={url} className={"font-semibold"}>
                 {title}
-            </div>}
+            </CustomLink>}
 
             <div className={"flex space-x-1 text-sm items-end py-1"}>
                 <Link
@@ -67,5 +66,5 @@ export const VisualizationCard = ({visualization, width}: {visualization: Visual
                                  className={"flex justify-between w-full px-4"}/>
             </div>
         </div>
-    </CustomLink>
+    </div>
 }

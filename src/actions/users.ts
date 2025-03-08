@@ -11,17 +11,6 @@ import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/
 import { Prisma } from "@prisma/client";
 
 
-export const getUsersListNoCache = async (): Promise<{did: string}[]> => {
-    const users = await db.user.findMany({
-        select: {
-            did: true,
-            handle: true
-        }
-    })
-    return users
-}
-
-
 export async function isCAUser(did: string){
     return await unstable_cache(async () => {
         const res = await db.user.findFirst({
@@ -63,7 +52,7 @@ export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: str
 }
     
 
-export const getConversations = (userId: string) => {
+export const getConversations = async (userId: string) => {
     return unstable_cache(async () => {
         const user = await db.user.findUnique(
             {
@@ -117,9 +106,7 @@ export const getConversations = (userId: string) => {
             addMessage(m.toUserId, m.createdAt, m.seen)
         })
 
-        const usersArray = Array.from(users).map(([u, d]) => ({id: u, date: d.date, seen: d.seen}))
-
-        return usersArray
+        return Array.from(users).map(([u, d]) => ({id: u, date: d.date, seen: d.seen}))
     },
         ["conversations", userId],
         {
@@ -385,17 +372,9 @@ export async function buySubscriptions(userId: string, donatedAmount: number, pa
     return {}
 }
 
-
-const min_time_between_visits = 60*60*1000 // una hora
-
-
-function olderThan(date: Date, ms: number){
-    return new Date().getTime() - date.getTime() <= ms
-}
-
-export const getChatBetween = (userId: string, anotherUserId: string) => {
+export const getChatBetween = async (userId: string, anotherUserId: string) => {
     return unstable_cache(async () => {
-        const messages = await db.chatMessage.findMany({
+        return db.chatMessage.findMany({
             select: {
                 createdAt: true,
                 id: true,
@@ -409,17 +388,16 @@ export const getChatBetween = (userId: string, anotherUserId: string) => {
                     fromUserId: userId,
                     toUserId: anotherUserId
                 },
-                {
-                    fromUserId: anotherUserId,
-                    toUserId: userId
-                }
+                    {
+                        fromUserId: anotherUserId,
+                        toUserId: userId
+                    }
                 ]
             },
             orderBy: {
                 createdAt: "asc"
             }
-        })
-        return messages
+        });
     }, ["chat", userId, anotherUserId], {
         revalidate: revalidateEverythingTime,
         tags: [
@@ -503,7 +481,7 @@ export const getSupportNotRespondedCount = async () => {
 }
 
 
-export async function addDonatedSubscriptionsManually(boughtByUserId: string, amount: number, price: number, paymentId?: string){
+/*export async function addDonatedSubscriptionsManually(boughtByUserId: string, amount: number, price: number, paymentId?: string){
 
     const data = []
     for(let i = 0; i < amount; i++){
@@ -541,7 +519,7 @@ export async function removeSubscriptions(){
             }
         }
     })
-}
+}*/
 
 
 /*export async function createNewCAUserForBskyAccount(did: string, agent: Agent){
@@ -607,7 +585,7 @@ export async function setATProtoProfile(did: string){
 }
 
 
-export async function unsafeCreateUserFromDid(did: string){
+/*export async function unsafeCreateUserFromDid(did: string){
     const {agent} = await getSessionAgent()
     
     const {data}: {data: ProfileViewDetailed} = await agent.getProfile({actor: did})
@@ -618,8 +596,7 @@ export async function unsafeCreateUserFromDid(did: string){
             handle: data.handle
         }
     })
-
-}
+}*/
 
 
 export async function updateEmail(email: string){

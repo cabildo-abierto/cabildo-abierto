@@ -229,7 +229,7 @@ export function InsertImageDialog({
 }: {
   activeEditor: LexicalEditor;
   onClose: () => void;
-}): JSX.Element {
+}) {
   const [mode, setMode] = useState<null | 'url' | 'file'>(null);
   const hasModifier = useRef(false);
 
@@ -277,7 +277,7 @@ export default function ImagesPlugin({
   captionsEnabled,
 }: {
   captionsEnabled?: boolean;
-}): JSX.Element | null {
+}) {
   const [editor] = useLexicalComposerContext();
 
   const TRANSPARENT_IMAGE =

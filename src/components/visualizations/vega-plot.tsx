@@ -1,79 +1,60 @@
-import {VisualizationProps} from "../../app/lib/definitions";
-import {useEffect, useState} from "react";
-import {useDataset} from "../../hooks/contents";
-import Image from "next/image";
-import {localizeDataset} from "../editor/nodes/visualization-node-comp";
-import dynamic from "next/dynamic";
-import {pxToNumber} from "../utils/utils";
-import '../editor/article-content.css'
-
-const VegaLite = dynamic(() => import("react-vega").then((mod) => mod.VegaLite), {
-    ssr: false,
-});
-
-
-export const VegaPlotPreview = ({visualization, width} : {
-    visualization: VisualizationProps
-    width?: number | string
-}) => {
-    const previewCid = visualization.visualization.previewBlobCid;
-    const cdnUrl = "https://cdn.bsky.app/img/feed_thumbnail/plain/"+visualization.author.did+"/"+previewCid+"@jpeg"
-
-    return <div style={{width}}>
-        <Image
-            src={cdnUrl}
-            alt={""}
-            width={400}
-            height={300}
-            className={"w-full h-auto"}
-        />
-    </div>
-}
-
+import { VisualizationProps } from "../../app/lib/definitions";
+import { useEffect, useRef, useState } from "react";
+import { useDataset } from "../../hooks/contents";
+import { localizeDataset } from "../editor/nodes/visualization-node-comp";
+import "../editor/article-content.css";
+import { VegaPlotPreview } from "./vega-plot-preview";
+import embed from "vega-embed";
+import { pxToNumber } from "../utils/utils";
 
 export const VegaPlot = ({
-     visualization,
-     width
-}: {
-    visualization: VisualizationProps
-    width?: number | string
-    previewOnly?: boolean
+                             visualization,
+                             width
+                         }: {
+    visualization: VisualizationProps;
+    width?: number | string;
+    previewOnly?: boolean;
 }) => {
     const [isVegaLoading, setIsVegaLoading] = useState(true);
-    const {dataset} = useDataset(visualization.visualization.dataset.uri)
+    const { dataset } = useDataset(visualization.visualization.dataset.uri);
+    const containerRef = useRef<HTMLDivElement | null>(null);
 
-    const [jsonSpec, setJsonSpec] = useState(null);
     useEffect(() => {
+        if (!dataset || !containerRef.current) return;
+
         let json = JSON.parse(visualization.visualization.spec);
         json = localizeDataset(json);
-
-        if (dataset) {
-
-            json.data = { values: dataset.data };
-
-            setJsonSpec(json);
+        json.data = { values: dataset.data };
+        if(width){
+            json.width = "container"
+            json.height = "container"
         }
+
+        embed(
+            containerRef.current,
+            json,
+            {
+                actions: false,
+            }
+        )
+            .then(() => setIsVegaLoading(false))
+            .catch((err) => console.error("Vega Embed Error:", err));
     }, [visualization, dataset, width]);
 
-
-    if(!jsonSpec) return null;
-
-    return <>
-        {isVegaLoading && <VegaPlotPreview visualization={visualization} width={width}/>}
-        <div
-            style={{ display: isVegaLoading ? 'none' : 'block',
-                width: width,
-                height: "auto"
-            }}
-            onClick={(e) => {e.stopPropagation()}}
-        >
-            <VegaLite
-                spec={jsonSpec}
-                actions={false}
-                onNewView={() => {
-                    setIsVegaLoading(false);
-                }}
+    return (
+        <>
+            {isVegaLoading &&
+                <VegaPlotPreview
+                    visualization={visualization}
+                    width={width}
+                    height={width ? pxToNumber(width)*0.55 : undefined}
+                />
+            }
+            <div
+                ref={containerRef}
+                style={{ width, height: width ? pxToNumber(width)*0.55 : "auto"}}
+                onClick={(e) => e.stopPropagation()}
             />
-        </div>
-    </>
-}
+        </>
+    );
+};

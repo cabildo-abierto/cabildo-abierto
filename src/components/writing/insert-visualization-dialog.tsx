@@ -8,7 +8,7 @@ export function InsertVisualizationDialog({
                                       onSubmit,
                                   }: {
     onSubmit: (payload: any) => void;
-}): JSX.Element {
+}) {
     const [mode, setMode] = useState<null | 'url' | 'file'>(null);
 
     return (

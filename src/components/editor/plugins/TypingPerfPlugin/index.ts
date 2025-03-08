@@ -29,7 +29,7 @@ const validInputTypes = new Set([
   'deleteSoftLineForward',
 ]);
 
-export default function TypingPerfPlugin(): JSX.Element | null {
+export default function TypingPerfPlugin() {
   const report = useReport();
   useEffect(() => {
     let start = 0;

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
 import { buySubscriptions } from '../../../actions/users';
 
 const accessToken = process.env.MP_ACCESS_TOKEN
@@ -19,7 +19,7 @@ const getPaymentDetails = async (paymentId) => {
 };
 
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
     // https://www.mercadopago.com.ar/developers/es/docs/checkout-pro/additional-content/your-integrations/notifications/webhooks
     // TO DO: Verificar la x-signature
     const json = await req.json()

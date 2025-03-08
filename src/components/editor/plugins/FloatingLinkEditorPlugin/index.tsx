@@ -56,7 +56,7 @@ function FloatingLinkEditor({
   anchorElem: HTMLElement;
   isLinkEditMode: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
-}): JSX.Element {
+}) {
   const editorRef = useRef<HTMLDivElement | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
@@ -364,7 +364,7 @@ function useFloatingLinkEditorToolbar(
   anchorElem: HTMLElement,
   isLinkEditMode: boolean,
   setIsLinkEditMode: Dispatch<boolean>,
-): JSX.Element | null {
+) {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLink, setIsLink] = useState(false);
 
@@ -460,7 +460,7 @@ export default function FloatingLinkEditorPlugin({
   anchorElem?: HTMLElement;
   isLinkEditMode: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
-}): JSX.Element | null {
+}) {
   const [editor] = useLexicalComposerContext();
   return useFloatingLinkEditorToolbar(
     editor,

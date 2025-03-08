@@ -4,10 +4,11 @@ import {searchTopics} from "../../../../actions/feed/search";
 
 
 export async function GET(req: NextRequest,
-                          { params }: { params: { q: string } }
+                          { params }: { params: Promise<{ q: string }> }
 ) {
+    const {q} = await params
 
-    let topics = await searchTopics(params.q)
+    let topics = await searchTopics(q)
 
     return NextResponse.json(topics)
 }

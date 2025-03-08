@@ -5,14 +5,15 @@ import {TopicSortOrder} from "../../../../../lib/definitions";
 
 
 export async function GET(req: NextRequest,
-    { params }: { params: { sincekind: string, sortedby: string, categories: string[] } }
+    { params }: { params: Promise<{ sincekind: string, sortedby: string, categories: string[] }> }
 ) {
+    const {sincekind, sortedby, categories} = await params
 
-    if(!["recent", "popular"].includes(params.sortedby)){
+    if(!["recent", "popular"].includes(sortedby)){
         return NextResponse.json(null)
     }
 
-    let {topics} = await getTrendingTopics(params.categories ? params.categories : [], params.sortedby as TopicSortOrder, 50)
+    let {topics} = await getTrendingTopics(categories ? categories : [], sortedby as TopicSortOrder, 50)
 
     return NextResponse.json(topics)
 }

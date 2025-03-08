@@ -1,6 +1,8 @@
+@use "sass:color";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 $text: #fbfbfc;
 $primary: #3080ff;
@@ -9,39 +11,42 @@ $accent: #2e364c;
 $background: #181b23;
 
 :root {
-  --text: #{$text};
-  --primary: #{$primary};
-  --accent: #{$accent};
-  --background: #{$background};
 
-  --background-light: #{darken($background, 20%)};
-  --background-dark: #{lighten($background, 5%)};
-  --background-dark2: #{lighten($background, 10%)};
-  --background-dark3: #{lighten($background, 15%)};
-  --background-dark4: #{lighten($background, 20%)};
+	// Assign computed values to CSS variables
+	--text: #{$text};
+	--primary: #{$primary};
+	--accent: #{$accent};
+	--background: #{$background};
 
-  --primary-light: #{darken($primary, 20%)};
-  --primary-lighter: #{darken($primary, 30%)};
-  --primary-dark: #{lighten($primary, 5%)};
-  --primary-dark2: #{lighten($primary, 10%)};
-  --primary-dark3: #{lighten($primary, 15%)};
-  --primary-dark4: #{lighten($primary, 20%)};
-  --primary-xlight: #76abff;
-  --primary-2xlight: #a5c7ff;
+	// Use modern Sass color functions
+	--background-light: #{color.scale($background, $lightness: -20%)};
+	--background-dark: #{color.scale($background, $lightness: 5%)};
+	--background-dark2: #{color.scale($background, $lightness: 20%)};
+	--background-dark3: #{color.scale($background, $lightness: 15%)};
+	--background-dark4: #{color.scale($background, $lightness: 20%)};
 
-  --accent-dark: #{lighten($accent, 20%)};
-  --accent-dark2: #{lighten($accent, 25%)};
-  --accent-light: #{darken($accent, 20%)};
+	--primary-light: #{color.scale($primary, $lightness: -20%)};
+	--primary-lighter: #{color.scale($primary, $lightness: -30%)};
+	--primary-dark: #{color.scale($primary, $lightness: 5%)};
+	--primary-dark2: #{color.scale($primary, $lightness: 10%)};
+	--primary-dark3: #{color.scale($primary, $lightness: 15%)};
+	--primary-dark4: #{color.scale($primary, $lightness: 20%)};
+	--primary-xlight: #76abff;
+	--primary-2xlight: #a5c7ff;
 
-  --text-light: #{darken($text, 20%)};
-  --text-lighter: #{darken($text, 40%)};
+	--accent-dark: #{color.scale($accent, $lightness: 20%)};
+	--accent-dark2: #{color.scale($accent, $lightness: 25%)};
+	--accent-light: #{color.scale($accent, $lightness: -20%)};
 
-  font-family: var(--font-roboto-flex), sans-serif;
-  font-optical-sizing: auto;
-  font-style: normal;
+	--text-light: #{color.scale($text, $lightness: -20%)};
+	--text-lighter: #{color.scale($text, $lightness: -40%)};
+
+	font-family: var(--font-roboto-flex), sans-serif;
+	font-optical-sizing: auto;
+	font-style: normal;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-  color-scheme: dark;
+	color-scheme: dark;
 }
 
 
@@ -68,17 +73,7 @@ body {
     padding-bottom: env(safe-area-inset-bottom);
 }
 
-.title-font {
-	font-family: var(--font-merriweather);
-}
-
-.title {
-	font-family: var(--font-merriweather);
-	font-weight: 700;
-}
-
 h1, h2, h3, h4, h5, h6 {
-	//font-family: var(--font-merriweather);
 	font-weight: 700;
 }
 
