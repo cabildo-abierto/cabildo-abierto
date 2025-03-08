@@ -23,7 +23,12 @@ function getInitialData(text: string | undefined, textFormat: string, readOnly: 
         return ""
     }
     if(!textFormat || textFormat == "lexical-compressed"){
-        const contentText = decompress(text)
+        let contentText: string
+        try {
+            contentText = decompress(text)
+        } catch {
+            return "Ocurrió un error al leer el contenido del tema"
+        }
         let initialData
         let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
         if(readOnly && emptyContent){

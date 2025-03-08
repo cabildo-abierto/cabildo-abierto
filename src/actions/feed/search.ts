@@ -51,26 +51,16 @@ export async function getFullTopicList(){
     const topics: SmallTopicProps[] = await db.topic.findMany({
         select: {
             id: true,
-            versions: {
+            popularityScore: true,
+            categories: {
                 select: {
-                    uri: true,
-                    categories: true,
-                    content: {
-                        select: {
-                            numWords: true,
-                            record: {
-                                select: {
-                                    createdAt: true,
-                                    author: {
-                                        select: {
-                                            handle: true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    categoryId: true
                 }
+            },
+        },
+        where: {
+            versions: {
+                some: {}
             }
         }
     })
@@ -80,9 +70,6 @@ export async function getFullTopicList(){
 
 export async function searchTopicsNoCache(q: string){
     q = cleanText(q)
-
-    const topics = await getFullTopicList()
-    let filtered = topics.filter((t) => t.versions.length > 0)
 
     const getMatchScore = (topicId: string, query: string) => {
         const cleanedId = cleanText(topicId);
@@ -98,7 +85,9 @@ export async function searchTopicsNoCache(q: string){
         return 1 / (matchPosition + 1) + matchLength;
     }
 
-    const scoredTopics = filtered.map((t) => ({
+    const topics = await getFullTopicList()
+
+    const scoredTopics = topics.map((t) => ({
         topic: t,
         score: getMatchScore(t.id, q)
     }))

@@ -7,7 +7,7 @@ import {unstable_cache} from "next/cache";
 import {addCounters, feedQuery, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";
 import {getUsers, isCAUser} from "../users";
 import {db} from "../../db";
-import {getTextFromBlob} from "../topics";
+import {getTextFromBlob} from "../topic/topics";
 
 
 function threadViewPostToThread(thread: ThreadViewPost) {

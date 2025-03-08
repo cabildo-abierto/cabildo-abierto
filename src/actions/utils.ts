@@ -582,3 +582,19 @@ export const threadQuery = {
 export function getObjectSizeInBytes(obj) {
     return new TextEncoder().encode(JSON.stringify(obj)).length;
 }
+
+
+export function logTimes(s: string, times: number[]){
+    return
+    const diffs: number[] = []
+    for(let i = 1; i < times.length; i++){
+        diffs.push(times[i]-times[i-1])
+    }
+    const sum = diffs.join(" + ")
+    console.log(s, times[times.length-1]-times[0], "=", sum)
+}
+
+
+export function sanitizedId(id: string): string {
+    return id.replace(/\\/g, '\\\\').replace(/'/g, "''"); // Escape instead of removing
+}

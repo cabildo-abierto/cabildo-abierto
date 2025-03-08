@@ -1,10 +1,11 @@
 "use server"
 import {getSessionAgent} from "../auth";
 import {revalidateTag} from "next/cache";
-import {createContent, createRecord, newDirtyRecord, SyncRecordProps} from "./utils";
-import {ATProtoStrongRef} from "../../app/lib/definitions";
+import {createContent, createRecord} from "./utils";
 import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils/utils";
 import {db} from "../../db";
+import {logTimes} from "../utils";
+import {getTopicById} from "../topic/topics";
 
 export async function createTopic(id: string){
     return await createTopicVersion({id, claimsAuthorship: true})
@@ -53,9 +54,23 @@ export async function createTopicVersionDB({
         id: record.id
     }
 
+    const current = await getTopicById(record.id)
+    const isNewCurrentVersion = true
+
     updates.push(db.topic.upsert({
-        create: topic,
-        update: topic,
+        create: {
+            ...topic,
+            synonyms: record.synonyms ? JSON.parse(record.synonyms) : undefined,
+            categories: record.categories ? JSON.parse(record.categories) : undefined,
+        },
+        update: {
+            ...topic,
+            synonyms: isNewCurrentVersion && record.synonyms ? JSON.parse(record.synonyms) : undefined,
+            categories: isNewCurrentVersion && record.synonyms ? {
+                // connect with categories coming from JSON.parse(record.categories) (string[])
+
+            } : undefined
+        },
         where: topic
     }))
 
@@ -126,6 +141,7 @@ export async function createTopicVersionATProto({
         id,
         createdAt: new Date().toISOString()
     }
+
     try {
         const {data} = await agent.com.atproto.repo.createRecord({
             repo: did,
@@ -153,14 +169,18 @@ export async function createTopicVersion({
     categories?: string[]
     synonyms?: string[]
 }): Promise<{error?: string}>{
+    const t1 = Date.now()
     const {ref, record} = await createTopicVersionATProto({
         id, text, format, title, claimsAuthorship, message, categories, synonyms
     })
+    const t2 = Date.now()
     if(ref){
-        return await createTopicVersionDB({
+        await createTopicVersionDB({
             ref, record
         })
     }
+    const t3 = Date.now()
+    logTimes("create topic version " + id, [t1, t2, t3])
     return {}
 }
 

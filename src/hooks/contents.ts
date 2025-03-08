@@ -48,7 +48,7 @@ export function useTopics(categories: string[], sortedBy: string): {topics: Smal
 }
 
 
-export function useCategories(): {categories: string[], isLoading: boolean, isError: boolean}{
+export function useCategories(): {categories: {category: string, size: number}[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/categories', fetcher,
         {
             revalidateIfStale: false,
@@ -66,6 +66,7 @@ export function useCategories(): {categories: string[], isLoading: boolean, isEr
 
 
 export function useTopic(id: string): {topic: TopicProps, error?: string, isLoading: boolean, isError: boolean}{
+    console.log("using topic", id)
     const { data, error, isLoading } = useSWR('/api/topic/'+id, fetcher,
         {
             revalidateIfStale: false,
@@ -298,16 +299,5 @@ export function useProfileFeed(id: string, kind: string): {feed: FeedContentProp
         feed: data && data.feed ? data.feed : undefined,
         isLoading,
         error: data && data.error ? data.error : undefined
-    }
-}
-
-
-export function useDrafts(): {drafts: {id: string}[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/drafts', fetcher)
-  
-    return {
-        drafts: data,
-        isLoading,
-        isError: error
     }
 }

@@ -7,18 +7,23 @@ import {BackButton} from "../ui-utils/back-button";
 import {TopicsSortOrder, TopicsSortSelector} from "./topics-list-view";
 import {useState} from "react";
 import LoadingSpinner from "../ui-utils/loading-spinner";
+import {ErrorPage} from "../ui-utils/error-page";
 
 
 export const AllCategoriesLists = ({sortedBy, setSortedBy}: {
     sortedBy: TopicsSortOrder,
     setSortedBy: (s: TopicsSortOrder) => void
 }) => {
-    const {byCategories} = useTopicsByCategories(sortedBy == "Populares" ? "popular" : "recent")
+    const {byCategories, isLoading} = useTopicsByCategories(sortedBy == "Populares" ? "popular" : "recent")
 
-    if(!byCategories){
+    if(isLoading){
         return <div className={"mt-16"}>
             <LoadingSpinner/>
         </div>
+    } else if(!byCategories){
+        return <ErrorPage>
+            Ocurrió un error al cargar los temas.
+        </ErrorPage>
     }
 
     return <div>

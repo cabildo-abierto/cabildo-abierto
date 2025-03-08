@@ -2,7 +2,7 @@
 
 
 import {deleteAllRecords} from "../../../actions/atproto-update";
-import {deleteTopicVersionsForUser} from "../../../actions/topics";
+import {deleteTopicVersionsForUser} from "../../../actions/topic/topics";
 import React from "react";
 import {BasicButton} from "../../../components/ui-utils/basic-button";
 import {setRkeys} from "../../../actions/admin";

@@ -63,7 +63,6 @@ export const TopicContent = ({
 
     if(wikiEditorState == "minimized") {
         const currentContentVersion = getCurrentContentVersion(topic)
-
         return <TopicContentPreview
             topicId={topic.id}
             topicVersion={topic.versions[currentContentVersion]}
