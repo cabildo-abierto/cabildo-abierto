@@ -5,7 +5,6 @@ import {DatasetProps, EngagementProps, FeedContentProps, VisualizationProps} fro
 import Papa from 'papaparse';
 import JSZip from "jszip";
 import {DidResolver} from "@atproto/identity";
-import {VisualizationSpec} from "react-vega";
 import {
     addCounters,
     datasetQuery,
@@ -18,6 +17,7 @@ import {addCountersToFeed} from "./feed/utils";
 import {unstable_cache} from "next/cache";
 import {getDidFromUri, getRkeyFromUri} from "../components/utils/utils";
 import {BlobRef} from "@atproto/lexicon";
+import {VisualizationSpec} from "vega-embed";
 
 
 export async function createBlobFromFile(f: File){

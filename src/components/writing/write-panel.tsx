@@ -26,7 +26,6 @@ import {
     topicUrl,
     emptyChar,
     ErrorMsg,
-    getCollectionFromUri,
     getDidFromUri,
     getRkeyFromUri,
     validEntityName

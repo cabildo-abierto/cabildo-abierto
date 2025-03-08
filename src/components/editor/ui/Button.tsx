@@ -29,7 +29,7 @@ export default function Button({
   onClick: () => void;
   small?: boolean;
   title?: string;
-}): JSX.Element {
+}) {
   return (
     <button
       disabled={disabled}

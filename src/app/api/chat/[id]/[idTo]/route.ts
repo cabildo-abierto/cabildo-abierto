@@ -13,15 +13,16 @@ function hasAccess(loggedInUser: string, userId: string){
 
 
 export async function GET(req: NextRequest,
-  { params }: { params: { id: string, idTo: string } }
+  { params }: { params: Promise<{ id: string, idTo: string }> }
 ) {
 
+    const {id, idTo} = await params
     const userId = await getSessionDid()
 
-    if(!hasAccess(userId, params.id)){
+    if(!hasAccess(userId, id)){
       return NextResponse.json(null)
     }
 
-    let chat = await getChatBetween(params.id, params.idTo)
+    let chat = await getChatBetween(id, idTo)
     return NextResponse.json(chat);
 }

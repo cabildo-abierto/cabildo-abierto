@@ -1,5 +1,11 @@
 import {ATProtoStrongRef, EngagementProps, FastPostProps, FeedContentProps} from "../../app/lib/definitions";
-import {BlockedPost, FeedViewPost, NotFoundPost, PostView} from "@atproto/api/src/client/types/app/bsky/feed/defs";
+import {
+    BlockedPost,
+    FeedViewPost,
+    NotFoundPost,
+    PostView,
+    ReasonRepost
+} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 import {getRkeyFromUri, newestFirst} from "../../components/utils/utils";
 import {addCounters} from "../utils";
 
@@ -49,12 +55,13 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
     }
 
     if(e.reason && e.reason.$type == "app.bsky.feed.defs#reasonRepost"){
+        const r = e.reason as ReasonRepost
         return {
             ...post,
             reason: {
-                createdAt: new Date(e.reason.indexedAt as string),
+                createdAt: new Date(r.indexedAt as string),
                 collection: "app.bsky.feed.repost",
-                by: e.reason.by as {did: string, handle: string, displayName?: string}
+                by: r.by as {did: string, handle: string, displayName?: string}
             }
         }
     } else {
@@ -65,8 +72,8 @@ function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
 
 
 function formatBskyPostViewAsFeedElement(e: PostView | NotFoundPost | BlockedPost | {[p: string]: unknown, $type: string}): {blocked?: boolean, notFound?: boolean} & FeedContentProps {
-    if(e.notFound) return {notFound: true, collection: "", author: {did: "", handle: ""}}
-    if(e.blocked) return {blocked: true, collection: "", author: {did: "", handle: ""}}
+    if("notFound" in e && e.notFound) return {notFound: true, collection: "", author: {did: "", handle: ""}}
+    if("blocked" in e && e.blocked) return {blocked: true, collection: "", author: {did: "", handle: ""}}
 
     let post = e as PostView
     const record = post.record as {text: string, createdAt: string, facets: any, embed: any, $type: string, reply?: {parent: ATProtoStrongRef, root?: ATProtoStrongRef}}

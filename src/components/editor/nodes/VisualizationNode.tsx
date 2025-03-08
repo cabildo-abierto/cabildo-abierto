@@ -19,6 +19,7 @@ import type {
 
 import {$applyNodeReplacement, DecoratorNode} from 'lexical';
 import {VisualizationNodeCompFromSpec} from "./visualization-node-comp";
+import {ReactNode} from "react";
 
 
 export interface VisualizationPayload {
@@ -34,7 +35,7 @@ export type SerializedVisualizationNode = Spread<
   SerializedLexicalNode
 >;
 
-export class VisualizationNode extends DecoratorNode<JSX.Element> {
+export class VisualizationNode extends DecoratorNode<ReactNode> {
     __spec: string
     __uri: string
 
@@ -101,7 +102,7 @@ export class VisualizationNode extends DecoratorNode<JSX.Element> {
         return false;
     }
 
-    decorate(): JSX.Element {
+    decorate() {
         if(this.__uri){
             return <VisualizationNodeCompFromSpec spec={this.__spec} uri={this.__uri}/>
         } else {

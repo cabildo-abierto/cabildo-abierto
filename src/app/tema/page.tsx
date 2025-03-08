@@ -1,21 +1,23 @@
 import { TopicPage } from "../../components/topic/topic-page"
 
+type Params = Promise<{i: string, v?: number, c?: string}>
 
-export async function generateMetadata({searchParams}: {searchParams: {i: string, version: string}}){
-    const name = searchParams.i
+export async function generateMetadata({searchParams}: {searchParams: Params}){
+    const {i} = await searchParams
     return {
-        title: name,
-        description: "Artículo sobre " + name + " en Cabildo Abierto."
+        title: i,
+        description: "Artículo sobre " + i + " en Cabildo Abierto."
     }
 }
 
 const Page = async ({searchParams}: {
-    searchParams: {i: string, v?: number, c?: string}}) => {
+    searchParams: Params}) => {
+    const {i, v, c} = await searchParams
 
     return <TopicPage
-        topicId={searchParams.i}
-        paramsVersion={searchParams.v}
-        changes={searchParams.c == "true"}
+        topicId={i}
+        paramsVersion={v}
+        changes={c == "true"}
     />
 }
 

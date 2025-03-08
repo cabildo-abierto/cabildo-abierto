@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
 
     if(url.pathname.startsWith("/wiki/")){
         const id = url.searchParams.get("i")
-      
+
         const articleUrl = new URL('/tema', request.url)
 
         articleUrl.searchParams.set('i', id)
@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(articleUrl)
     }
 
-    const session = await getIronSession<Session>(cookies(), myCookieOptions)
+    const session = await getIronSession<Session>(await cookies(), myCookieOptions)
 
     const loggedIn = session.did != undefined
 
@@ -68,6 +68,7 @@ export async function middleware(request: NextRequest) {
         }
         return NextResponse.redirect(url)
     }
+    return NextResponse.next()
 }
 
 export const config = {

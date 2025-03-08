@@ -4,10 +4,12 @@ import {getUri} from "../../../../components/utils/utils";
 
 
 export async function GET(req: NextRequest,
-                          { params }: { params: { did: string, rkey: string } }
+                          { params }: { params: Promise<{ did: string, rkey: string }> }
 ) {
+    const {did, rkey} = await params
 
-    let data = await getDatasetNoCache(getUri(params.did, "ar.com.cabildoabierto.dataset", params.rkey))
+    const uri = getUri(did, "ar.com.cabildoabierto.dataset", rkey)
+    let data = await getDatasetNoCache(uri)
 
     return NextResponse.json(data.data);
 }

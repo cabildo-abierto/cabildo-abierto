@@ -57,7 +57,7 @@ export function InsertVisualizationDialog({
   activeEditor: LexicalEditor;
   open: boolean;
   onClose: () => void;
-}): JSX.Element {
+}) {
     const [visualization, setVisualization] = useState<VisualizationProps | null>(null)
 
     useEffect(() => {
@@ -90,7 +90,7 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 
-export default function PlotPlugin(): JSX.Element | null {
+export default function PlotPlugin() {
   const [editor] = useLexicalComposerContext();
 
   const TRANSPARENT_IMAGE =

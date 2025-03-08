@@ -22,7 +22,7 @@ export default function FileInput({
   label,
   onChange,
   'data-test-id': dataTestId,
-}: Props): JSX.Element {
+}: Props) {
   return (
     <div className="flex flex-col max-w-52">
       <label className="Input__label">{label}</label>

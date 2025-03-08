@@ -71,7 +71,7 @@ function TableOfContentsList({
   tableOfContents: Array<TableOfContentsEntry>
   title?: string
   marginAboveEditor: number
-}): JSX.Element {
+}) {
   const [selectedKey, setSelectedKey] = useState('');
   const selectedIndex = useRef(0);
   const [lastClickedIndex, setLastClickedIndex] = useState(undefined)

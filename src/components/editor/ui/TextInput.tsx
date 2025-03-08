@@ -27,7 +27,7 @@ export default function TextInput({
   placeholder = '',
   'data-test-id': dataTestId,
   type = 'text',
-}: Props): JSX.Element {
+}: Props) {
   return (
     <div className="flex flex-col max-w-52">
       <label className="Input__label">{label}</label>

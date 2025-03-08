@@ -137,7 +137,7 @@ type LexicalEditorProps = {
 }
 
 
-function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps): JSX.Element {
+function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
   const { historyState } = useSharedHistoryContext();
   const [editor] = useLexicalComposerContext();
   const {leaveStoppers, setLeaveStoppers} = usePageLeave()

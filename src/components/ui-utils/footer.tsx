@@ -7,7 +7,7 @@ import {ScrollToButton} from "./scroll-to-button";
 
 
 export default function Footer({showCA=true}: {showCA?: boolean}) {
-    return <footer className="w-screen sm:px-16">
+    return <footer className="w-full sm:px-16">
         <div className="relative">
         <hr className="border-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent" />
         </div>

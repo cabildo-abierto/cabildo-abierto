@@ -1,12 +1,9 @@
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import {getCategories} from "../../../actions/topic/topics";
 
 
-export async function GET(req: NextRequest,
-    { params }: { params: { route: string[] } }
-) {
-    //const route = params.route ? params.route.map(decodeURIComponent) : []
+export async function GET() {
 
     let categories = await getCategories()
 

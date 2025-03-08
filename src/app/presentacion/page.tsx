@@ -21,7 +21,7 @@ export default function Page() {
         preload("/api/entity/Cabildo_Abierto%3A_Política_de_privacidad", fetcher)
         preload("/api/user", fetcher)
     }, [])*/
-    return <div className="flex flex-col justify-between">
+    return <div className="flex px-1 flex-col justify-between">
         <div className="flex flex-col items-center px-1 h-full mt-24">
 
             <div className="flex flex-col justify-center items-center">
@@ -41,34 +41,34 @@ export default function Page() {
                                 width: !isMobile ? "300px" : "170px",
                             }}
                         >
-                            <div className="">Crear cuenta o iniciar sesión</div>
+                            Crear cuenta o iniciar sesión
                         </Button>
                     </Link>
                 </div>
             </div>
             
-            <div className="max-w-[800px] w-full flex flex-col md:flex-row items-center justify-center md:space-x-32 mt-64 md:mt-32">
-                <div className="">
-                <div className="relative w-[400px]">
-                    <div className="absolute left-0 top-[-140px]">
-                        <Image
-                            src="/ley-bases.png"
-                            width={400}
-                            height={300}
-                            alt="Ley bases"
-                            className="rounded-lg shadow-lg w-[350px]"
-                        />
+            <div className="max-w-[800px] flex flex-col md:flex-row items-center justify-center md:space-x-32 mt-64 md:mt-32">
+                <div>
+                    <div className="relative w-[400px]">
+                        <div className="absolute left-0 top-[-140px]">
+                            <Image
+                                src="/ley-bases.png"
+                                width={400}
+                                height={300}
+                                alt="Ley bases"
+                                className="rounded-lg shadow-lg w-[350px]"
+                            />
+                        </div>
+                        <div className="absolute z-2 left-[150px] top-[-40px]">
+                            <Image
+                                src="/inflacion.png"
+                                width={400}
+                                height={300}
+                                alt="Inflación"
+                                className="rounded-lg shadow-lg w-64 h-auto"
+                            />
+                        </div>
                     </div>
-                    <div className="absolute z-2 left-[150px] top-[-40px]">
-                        <Image
-                            src="/inflacion.png"
-                            width={400}
-                            height={300}
-                            alt="Inflación"
-                            className="rounded-lg shadow-lg w-64 h-auto"
-                        />
-                    </div>
-                </div>
                 </div>
                 <div className="md:max-w-[300px] h-full text-center md:px-0 px-4 mt-64 md:mt-0">
                     <h2 className="">Toda la información en un solo lugar</h2>
@@ -80,7 +80,7 @@ export default function Page() {
                 </div>
             </div>
 
-            <div className="flex flex-col items-center space-x-6 md:mt-64 mt-32 w-full">
+            <div className="flex flex-col items-center space-x-6 md:mt-64 mt-32">
                 <h2 className="text-center">Todo abierto a discusión</h2>
                 <div className="mt-16 flex flex-col md:flex-row justify-center">
                     <div className="flex flex-col items-center text-center flex-1 md:px-4">
@@ -175,39 +175,39 @@ export default function Page() {
 
             <div className="mt-12 mb-32 flex max-w-[800px] w-full justify-center">
                 <div className="">
-                <div className="relative w-[400px]">
-                    <div className="absolute left-0 top-[-30px]">
-                        <Image
-                            src="/connected.png"
-                            width={400}
-                            height={300}
-                            alt="Red"
-                            className="w-[350px]"
-                        />
+                    <div className="relative w-[400px]">
+                        <div className="absolute left-0 top-[-30px]">
+                            <Image
+                                src="/connected.png"
+                                width={400}
+                                height={300}
+                                alt="Red"
+                                className="w-[350px]"
+                            />
+                        </div>
+                        <div className="absolute z-2 left-[200px] top-[50px]">
+                            <Image
+                                src="/logo.svg"
+                                width={400}
+                                height={400}
+                                alt="Logo de Cabildo Abierto"
+                                className="rounded-lg shadow-lg w-32 h-auto"
+                            />
+                        </div>
+                        <div className="absolute z-2 left-[0px] top-[40px]">
+                            <Link href="https://bsky.social">
+                                <BlueskyLogo fontSize="135"/>
+                            </Link>
+                        </div>
+                        <div className="absolute z-2 left-[100px] top-[220px] text-2xl">
+                            <Link href="https://atproto.com">
+                            <span className="text-[#0481f7]">@AT</span><span>Protocol</span>
+                            </Link>
+                        </div>
                     </div>
-                    <div className="absolute z-2 left-[200px] top-[50px]">
-                        <Image
-                            src="/logo.svg"
-                            width={400}
-                            height={400}
-                            alt="Logo de Cabildo Abierto"
-                            className="rounded-lg shadow-lg w-32 h-auto"
-                        />
-                    </div>
-                    <div className="absolute z-2 left-[0px] top-[40px]">
-                        <Link href="https://bsky.social">
-                            <BlueskyLogo fontSize="135"/>
-                        </Link>
-                    </div>
-                    <div className="absolute z-2 left-[100px] top-[220px] text-2xl">
-                        <Link href="https://atproto.com">
-                        <span className="text-[#0481f7]">@AT</span><span>Protocol</span>
-                        </Link>
-                    </div>
-                </div>
                 </div>
                 <div>
-                    <h2 className="">
+                    <h2>
                         Abiertos en serio
                     </h2>
                     <div className="text-lg mt-4">
@@ -217,9 +217,6 @@ export default function Page() {
                         <p className="mt-4">
                             Gracias a eso, te podés mover libremente entre plataformas sin perder nada: las cuentas y contenidos se comparten.
                         </p>
-                        {false && <p className="link mt-4 text-right">
-                            <Link href={topicUrl("ATProtocol")}>Leer más.</Link>
-                        </p>}
                     </div>
                 </div>
             </div>

@@ -1,11 +1,10 @@
 import './globals.scss'
 
-import { Merriweather } from 'next/font/google'
-import { pathLogo } from '../components/ui-utils/logo'
 import {Metadata} from "next";
 import {mainDescription} from "../components/utils/metadata";
 
 import localFont from 'next/font/local'
+import {ReactNode} from "react";
 
 
 const Roboto_Serif = localFont({
@@ -23,16 +22,8 @@ const Roboto_Flex = localFont({
     variable: '--font-roboto-flex',
 })
 
-const merriweather = Merriweather({
-  subsets: ['latin'],
-  variable: '--font-merriweather',
-  display: 'swap',
-  weight: ["400", "700"]
-})
-
 
 const fonts = [
-    merriweather.variable,
     Roboto_Serif.variable,
     Roboto_Flex.variable
 ]
@@ -47,22 +38,25 @@ export const metadata: Metadata = {
 export default function RootLayout({
     children
 }: Readonly<{
-    children: React.ReactNode;
+    children: ReactNode;
 }>) {
     return <html lang="es" spellCheck="false" className={fonts.join(" ")}>
-    <head>
+        <head>
 
-        <script defer src="https://cloud.umami.is/script.js" data-website-id="49c00411-610e-4f0c-ae51-3fe9e37aded3">
-        </script>
+            <script
+                defer
+                src="https://cloud.umami.is/script.js"
+                data-website-id="49c00411-610e-4f0c-ae51-3fe9e37aded3"
+            >
+            </script>
 
-        <link rel="icon" href={pathLogo}/>
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-        </meta>
-    </head>
-    <body className={"font-flex overflow-y-scroll"}>
-        {children}
-    </body>
+            <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+            </meta>
+        </head>
+        <body className={"font-flex overflow-y-scroll"}>
+            {children}
+        </body>
     </html>
 }

@@ -3,6 +3,11 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 })
 
 nextConfig = {
+    experimental: {
+        turbo: {
+            // ...
+        },
+    },
     logging: {
         fetches: {
             fullUrl: true

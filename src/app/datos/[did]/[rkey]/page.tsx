@@ -6,10 +6,12 @@ import {ContentTopRowAuthor} from "../../../../components/feed/content-top-row-a
 import {ProfilePic} from "../../../../components/feed/profile-pic";
 import {DatasetView} from "../../../../components/datasets/dataset-view";
 import {getUri} from "../../../../components/utils/utils";
+import {use} from "react";
 
 
-const Page = ({params}: {params: {did: string, rkey: string}}) => {
-    const {dataset, isLoading} = useDataset(getUri(params.did, "ar.com.cabildoabierto.dataset", params.rkey))
+const Page = ({params}: {params: Promise<{did: string, rkey: string}>}) => {
+    const {did, rkey} = use(params)
+    const {dataset, isLoading} = useDataset(getUri(did, "ar.com.cabildoabierto.dataset", rkey))
 
     if(isLoading) return <LoadingSpinner/>
     if(!dataset) return <ErrorPage>Error</ErrorPage>

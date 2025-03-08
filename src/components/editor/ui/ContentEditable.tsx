@@ -23,7 +23,7 @@ export default function LexicalContentEditable({
   placeholder,
   placeholderClassName,
   settings
-}: Props): JSX.Element {
+}: Props) {
   return (
     <ContentEditable
       spellCheck={false}

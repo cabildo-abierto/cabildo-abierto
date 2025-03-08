@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import {getFullTopicList} from "../../../actions/feed/search";
 
 
-export async function GET(req: NextRequest) {
+export async function GET() {
 
     let topics = await getFullTopicList()
 

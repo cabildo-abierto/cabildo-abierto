@@ -22,7 +22,7 @@ import {
   LexicalEditor,
   LexicalNode,
 } from 'lexical';
-import {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import {createContext, ReactNode, useContext, useEffect, useMemo, useState} from 'react';
 import * as React from 'react';
 import invariant from '../shared/invariant';
 
@@ -37,10 +37,10 @@ export type InsertTableCommandPayload = Readonly<{
 
 export type CellContextShape = {
   cellEditorConfig: null | CellEditorConfig;
-  cellEditorPlugins: null | JSX.Element | Array<JSX.Element>;
+  cellEditorPlugins: null | Element | Array<Element>;
   set: (
     cellEditorConfig: null | CellEditorConfig,
-    cellEditorPlugins: null | JSX.Element | Array<JSX.Element>,
+    cellEditorPlugins: null | Element | Array<Element>,
   ) => void;
 };
 
@@ -63,10 +63,10 @@ export const CellContext = createContext<CellContextShape>({
   },
 });
 
-export function TableContext({children}: {children: JSX.Element}) {
+export function TableContext({children}: {children: ReactNode}) {
   const [contextValue, setContextValue] = useState<{
     cellEditorConfig: null | CellEditorConfig;
-    cellEditorPlugins: null | JSX.Element | Array<JSX.Element>;
+    cellEditorPlugins: null | Element | Array<Element>;
   }>({
     cellEditorConfig: null,
     cellEditorPlugins: null,
@@ -94,7 +94,7 @@ export function InsertTableDialog({
 }: {
   activeEditor: LexicalEditor;
   onClose: () => void;
-}): JSX.Element {
+}) {
   const [rows, setRows] = useState('5');
   const [columns, setColumns] = useState('5');
   const [isDisabled, setIsDisabled] = useState(true);
@@ -150,8 +150,8 @@ export function TablePlugin({
   children,
 }: {
   cellEditorConfig: CellEditorConfig;
-  children: JSX.Element | Array<JSX.Element>;
-}): JSX.Element | null {
+  children: Element | Array<Element>;
+}) {
   const [editor] = useLexicalComposerContext();
   const cellContext = useContext(CellContext);
 

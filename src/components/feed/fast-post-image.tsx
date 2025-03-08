@@ -130,7 +130,7 @@ export const FastPostImage = ({ post, did }: { post: FastPostProps; did?: string
             imagesInPost = (
                 <div className="rounded-lg mt-2 flex space-x-2 h-[268px]">
                     {images.map((img, index) => (
-                        <div className={"w-1/2 h-full"} key={"index"}>
+                        <div className={"w-1/2 h-full"} key={index}>
                             <ATProtoImage
                                 img={img}
                                 did={did}

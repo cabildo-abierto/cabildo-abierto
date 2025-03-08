@@ -35,34 +35,6 @@ export type BasicUserProps = {
 }
 
 
-export type TopicVersionContentProps = {
-    text?: string
-    textBlob?: {
-        cid: string,
-        authorId: string
-    }
-    format: string
-    record: {
-        uri: string
-        cid: string
-        author: BasicUserProps
-        createdAt: Date
-        reactions?: {
-            record: {
-                authorId: string
-                collection: string
-            }
-        }[]
-        replies?: {
-            content: {
-                text: string
-                record: RecordProps
-            }
-        }[]
-    }
-}
-
-
 export type TopicVersionProps = RecordProps & {
     content: {
         text: string

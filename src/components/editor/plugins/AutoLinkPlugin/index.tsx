@@ -38,6 +38,6 @@ const MATCHERS = [
   }),
 ];
 
-export default function LexicalAutoLinkPlugin(): JSX.Element {
+export default function LexicalAutoLinkPlugin() {
   return <AutoLinkPlugin matchers={MATCHERS} />;
 }

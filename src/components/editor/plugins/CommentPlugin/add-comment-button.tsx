@@ -13,7 +13,7 @@ export function AddCommentButton({
   anchorKey: NodeKey;
   editor: LexicalEditor;
   onAddComment: () => void;
-}): JSX.Element {
+}) {
   const boxRef = useRef<HTMLDivElement>(null);
 
   const updatePosition = useCallback(() => {

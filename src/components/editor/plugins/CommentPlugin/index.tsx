@@ -72,7 +72,7 @@ export default function CommentPlugin({
   quoteReplies?: FastPostProps[]
   pinnedReplies: string[]
   setPinnedReplies: (v: string[]) => void
-}): JSX.Element {
+}) {
     const [editor] = useLexicalComposerContext()
     const [activeAnchorKey, setActiveAnchorKey] = useState<NodeKey | null>()
     const [showCommentInput, setShowCommentInput] = useState(false)

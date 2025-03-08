@@ -12,7 +12,7 @@ export const VisualizationOnEditor = ({config, setCurrentView, dataset}: {
     setCurrentView: (v: View) => void
     dataset: { data?: any[], dataset?: DatasetProps }
 }) => {
-    const chartRef = useRef()
+    const chartRef = useRef(null)
 
     useEffect(() => {
 

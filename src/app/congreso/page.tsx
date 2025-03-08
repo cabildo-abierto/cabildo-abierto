@@ -1,10 +1,9 @@
 "use client"
-import React, {useState} from "react";
+import React, {use, useState} from "react";
 import SelectionComponent from "../../components/search/search-selection-component";
 import {Button} from "@mui/material";
 import {BancasDiputados, BancasSenadores} from "../../components/congreso/bancas";
-import {CongressResult, Proyectos} from "../../components/congreso/proyectos";
-import {BasicButton} from "../../components/ui-utils/basic-button";
+import {Proyectos} from "../../components/congreso/proyectos";
 import {projects} from "../../components/congreso/update-congreso-right-panel";
 
 
@@ -18,9 +17,10 @@ function getProjectByName(title: string){
 }
 
 
-export default function Page({searchParams}: {searchParams: {p: string}}) {
+export default function Page({searchParams}: {searchParams: Promise<{p: string}>}) {
+    const {p} = use(searchParams)
     const [selected, setSelected] = useState("Senadores")
-    const [selectedProject, setSelectedProject] = useState<number>(getProjectByName(searchParams.p))
+    const [selectedProject, setSelectedProject] = useState<number>(getProjectByName(p))
 
     function optionsNodes(o: string, isSelected: boolean){
         return <div className="text-[var(--text)] w-32 h-10">

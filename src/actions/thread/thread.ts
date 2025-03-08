@@ -32,7 +32,7 @@ function threadViewPostToThread(thread: ThreadViewPost) {
     }
 
     const replies: FastPostProps[] = thread.replies ? thread.replies.map((r) => {
-        if(r.notFound || r.blocked) return null
+        if("notFound" in r && r.notFound || "blocked" in r && r.blocked) return null
         const replyThread = r as ThreadViewPost
         if(replyThread.$type == "app.bsky.feed.defs#threadViewPost"){
             return threadViewPostToThread(replyThread).thread.post
@@ -48,11 +48,13 @@ function threadViewPostToThread(thread: ThreadViewPost) {
 export async function getThreadFromATProto({did, rkey}: {did: string, rkey: string}) {
     const {agent} = await getSessionAgent()
 
+    const uri = getUri(did, "app.bsky.feed.post", rkey)
+    console.log("getting post thread", uri)
     const {data} = await agent.getPostThread({
-        uri: getUri(did, "app.bsky.feed.post", rkey)
+        uri
     })
 
-    if(!data.notFound && !data.blocked){
+    if(!("notFound" in data && data.notFound) && !("blocked" in data && data.blocked)){
         const thread = data.thread as ThreadViewPost
 
         return threadViewPostToThread(thread)
@@ -63,7 +65,6 @@ export async function getThreadFromATProto({did, rkey}: {did: string, rkey: stri
 
 
 export async function getThreadFromCANoCache({did, rkey}: {did: string, rkey}) {
-    const viewerDid = await getSessionDid()
     const threadId = {rkey, authorId: did}
 
     try {
@@ -94,21 +95,20 @@ export async function getThreadFromCANoCache({did, rkey}: {did: string, rkey}) {
             }
         }
 
-        replies = replies.filter((r) => {
-            return !r.content.post.quote || validQuotePost(mainPost.content, r)
-        })
-
         if(!mainPost){
             return {error: "El contenido no existe."}
         }
 
-        const threadForFeed: ThreadProps = {
-            post: addCounters(viewerDid, mainPost, replies),
-            replies: replies.map((r) => {
-                return addCounters(viewerDid, r)
-            })
+        replies = replies.filter((r) => {
+            return !r.content.post.quote || validQuotePost(mainPost.content, r)
+        })
+
+        return {
+            thread: {
+                post: mainPost,
+                replies: replies
+            }
         }
-        return {thread: threadForFeed}
     } catch(err) {
         console.error(err)
         return {error: "No se pudo obtener el contenido."}
@@ -117,7 +117,9 @@ export async function getThreadFromCANoCache({did, rkey}: {did: string, rkey}) {
 
 
 export async function getThreadFromCA({did, rkey}: {did: string, rkey}) {
-    return unstable_cache(
+    const viewerDid = await getSessionDid()
+
+    const thread = await unstable_cache(
         async () => {
             return await getThreadFromCANoCache({did, rkey})
         },
@@ -127,6 +129,19 @@ export async function getThreadFromCA({did, rkey}: {did: string, rkey}) {
             revalidate: revalidateEverythingTime
         }
     )()
+
+    if(thread.thread){
+        return {
+            thread: {
+                post: addCounters(viewerDid, thread.thread.post, thread.thread.replies),
+                replies: thread.thread.replies.map((r) => {
+                    return addCounters(viewerDid, r)
+                })
+            },
+        }
+    } else {
+        return {error: thread.error}
+    }
 }
 
 

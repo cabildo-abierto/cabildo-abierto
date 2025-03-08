@@ -59,7 +59,7 @@ export function InsertInlineImageDialog({
 }: {
   activeEditor: LexicalEditor;
   onClose: () => void;
-}): JSX.Element {
+}) {
   const hasModifier = useRef(false);
 
   const [src, setSrc] = useState('');
@@ -161,7 +161,7 @@ export function InsertInlineImageDialog({
   );
 }
 
-export default function InlineImagePlugin(): JSX.Element | null {
+export default function InlineImagePlugin() {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {

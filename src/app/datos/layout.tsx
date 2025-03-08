@@ -1,17 +1,12 @@
 import MainLayout from "../../components/layout/main-layout";
 import AccountChecker from "../../components/auth/account-checker";
+import {ReactNode} from "react";
 
-export async function generateMetadata({params}: {params: {id: string}}){
 
-    return {
-        title: "Cabildo Abierto"
-    }
-}
-
-export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
+export default function RootLayout({children}: {children: ReactNode}) {
   return <MainLayout maxWidthCenter={"800px"}>
       <AccountChecker>
-      {children}
+        {children}
       </AccountChecker>
     </MainLayout>
 }

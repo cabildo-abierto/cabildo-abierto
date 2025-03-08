@@ -41,7 +41,7 @@ import {
   $isTextNode,
 } from 'lexical';
 import * as React from 'react';
-import {ReactPortal, useCallback, useEffect, useRef, useState} from 'react';
+import {ReactNode, ReactPortal, useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import invariant from '../../shared/invariant';
 
@@ -135,26 +135,13 @@ function $selectLastDescendant(node: ElementNode): void {
   }
 }
 
-function currentCellBackgroundColor(editor: LexicalEditor): null | string {
-  return editor.getEditorState().read(() => {
-    const selection = $getSelection();
-    if ($isRangeSelection(selection) || $isTableSelection(selection)) {
-      const [cell] = $getNodeTriplet(selection.anchor);
-      if ($isTableCellNode(cell)) {
-        return cell.getBackgroundColor();
-      }
-    }
-    return null;
-  });
-}
-
 type TableCellActionMenuProps = Readonly<{
   contextRef: {current: null | HTMLElement};
   onClose: () => void;
   setIsMenuOpen: (isOpen: boolean) => void;
   showColorPickerModal: (
     title: string,
-    showModal: (onClose: () => void) => JSX.Element,
+    showModal: (onClose: () => void) => ReactNode,
   ) => void;
   tableCellNode: TableCellNode;
   cellMerge: boolean;
@@ -227,7 +214,7 @@ function TableActionMenu({
 
         const tableSelection = getTableObserverFromTableElement(tableElement);
         if (tableSelection !== null) {
-          tableSelection.clearHighlight();
+          tableSelection.$clearHighlight();
         }
 
         tableNode.markDirty();
@@ -406,7 +393,7 @@ function TableActionMenu({
     });
   }, [editor, tableCellNode, clearTableSelection, onClose]);
 
-  let mergeCellButton: null | JSX.Element = null;
+  let mergeCellButton: null | ReactNode = null;
   if (cellMerge) {
     if (canMergeCells) {
       mergeCellButton = (
@@ -559,7 +546,7 @@ function TableCellActionMenuContainer({
 }: {
   anchorElem: HTMLElement;
   cellMerge: boolean;
-}): JSX.Element {
+}) {
   const [editor] = useLexicalComposerContext();
 
   const menuButtonRef = useRef(null);

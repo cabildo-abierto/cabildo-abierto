@@ -93,7 +93,7 @@ export default function Modal({
   closeOnClickOutside?: boolean;
   onClose: () => void;
   title: string;
-}): JSX.Element {
+}) {
   return createPortal(
     <PortalImpl
       onClose={onClose}

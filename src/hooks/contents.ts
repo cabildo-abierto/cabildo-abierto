@@ -11,7 +11,6 @@ import {QuotedContent} from "../components/feed/content-quote";
 
 
 export function useFeed(feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
-
     const { data, isLoading } = useSWR('/api/feed/'+feed, fetcher,
         {
             revalidateIfStale: false,
