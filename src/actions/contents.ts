@@ -8,7 +8,7 @@ import {getDidFromUri, getRkeyFromUri, getUri, getVisualizationTitle, splitUri} 
 import {revalidateTag, unstable_cache} from "next/cache";
 import { QuotedContent } from "../components/feed/content-quote";
 import {revalidateEverythingTime} from "./utils";
-import {getTextFromBlob} from "./topics";
+import {getTextFromBlob} from "./topic/topics";
 
 
 export const addLike = async (uri: string, cid: string) => {

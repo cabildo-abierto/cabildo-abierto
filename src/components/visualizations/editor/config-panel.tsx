@@ -6,7 +6,6 @@ import {IconButton, TextField} from "@mui/material";
 import {BasicButton} from "../../ui-utils/basic-button";
 import AddIcon from "@mui/icons-material/Add";
 import {FilterConfig} from "./filter-config";
-import {PrettyJSON} from "../../utils/utils";
 import CodeIcon from '@mui/icons-material/Code';
 import {openJsonInNewTab} from "../../content-options/content-options";
 import {getSpecForConfig} from "./spec";

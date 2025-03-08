@@ -45,7 +45,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                         className="text-[var(--text-light)] text-xs sm:text-sm"
                     >
                         <div title="La cantidad de usuarios que participaron en la discusión.">
-                            {topic.score[0]} {topic.score[0] == 1 ? "persona" : "personas."}
+                            {topic.popularityScore} {topic.popularityScore == 1 ? "persona" : "personas."}
                         </div>
                     </div>
                 </div>

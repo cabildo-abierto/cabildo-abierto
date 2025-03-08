@@ -99,14 +99,31 @@ model PaymentPromise {
 }
 
 model Topic {
-  id                 String         @id
-  protection         EditorStatus   @default(Beginner)
+  id                 String            @id
+  protection         EditorStatus      @default(Beginner)
   versions           TopicVersion[]
-  currentVersion     TopicVersion?  @relation("currentVersion", fields: [currentVersionId], references: [uri])
-  currentVersionId   String?        @unique
+  currentVersion     TopicVersion?     @relation("currentVersion", fields: [currentVersionId], references: [uri])
+  currentVersionId   String?           @unique
   referencedBy       Reference[]
   synonyms           String[]
+  categories         TopicToCategory[]
   lastSynonymsChange DateTime?
+  popularityScore    Int?
+}
+
+model TopicCategory {
+  id     String            @id
+  topics TopicToCategory[]
+}
+
+model TopicToCategory {
+  topicId    String
+  categoryId String
+
+  topic    Topic         @relation(fields: [topicId], references: [id])
+  category TopicCategory @relation(fields: [categoryId], references: [id])
+
+  @@id([topicId, categoryId])
 }
 
 model Record {

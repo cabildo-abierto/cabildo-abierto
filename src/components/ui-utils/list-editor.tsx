@@ -42,7 +42,7 @@ const NewItem = ({
         return <div className={"space-x-2 flex items-center"}>
             <div className={"flex flex-col items-start"}>
                 <SearchableDropdown
-                    options={options}
+                    options={availableOptions !== null ? options : null}
                     size={"small"}
                     selected={value}
                     onChange={setValue}

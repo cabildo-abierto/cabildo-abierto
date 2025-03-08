@@ -12,7 +12,9 @@ import {
     getPendingSynonymsUpdatesCount, resetUpdateReferenceTimestamps,
     updateReferences,
     updateTopicsSynonyms
-} from "../../actions/references";
+} from "../../actions/topic/references";
+import {updateTopicsCategories} from "../../actions/topic/categories";
+import {updateTopicPopularityScores} from "../../actions/topic/popularity";
 
 
 
@@ -90,6 +92,26 @@ export default function Page() {
                     return {}
                 }}
                 text1={"Actualizar referencias de " + uri}
+            />
+
+            <h2>Popularidad</h2>
+
+            <StateButton
+                handleClick={async () => {
+                    await updateTopicPopularityScores()
+                    return {}
+                }}
+                text1={"Actualizar popularidad de temas"}
+            />
+
+            <h2>Categorías</h2>
+
+            <StateButton
+                handleClick={async () => {
+                    await updateTopicsCategories()
+                    return {}
+                }}
+                text1={"Actualizar categorías de temas"}
             />
 
         </div>

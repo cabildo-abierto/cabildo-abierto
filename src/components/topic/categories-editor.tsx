@@ -32,7 +32,7 @@ export const CategoriesEditor = ({topic, onClose}: {
         </h3>
         <ListEditor
             initialValue={current}
-            options={availableCategories}
+            options={availableCategories ? availableCategories.map(({category}) => (category)) : undefined}
             onSave={saveCategories}
             onClose={onClose}
             newItemText={"Nueva categoría"}

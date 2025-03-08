@@ -1,5 +1,4 @@
 import {TopicVersionProps} from "../../app/lib/definitions";
-import {useLayoutConfig} from "../layout/layout-config-context";
 import {wikiEditorSettings} from "../editor/wiki-editor";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import dynamic from "next/dynamic";

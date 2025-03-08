@@ -104,47 +104,16 @@ export type TopicProps = {
 }
 
 
-export type TrendingTopicProps = {
-    id: string
-    score: number[]
-    categories: string[]
-}
-
-
 export type SmallTopicProps = {
     id: string
-    score?: number[]
-    versions: {
-        uri: string
-        title?: string
-        categories?: string
-        content: {
-            numWords?: number
-            record: {
-                createdAt: Date,
-                author: {
-                    handle?: string
-                }
-            }
-        }
+    popularityScore?: number
+    categories: {
+        categoryId: string
     }[]
 }
 
-export type MapTopicProps = {
-    id: string
-    versions: {
-        categories: string
-    }[]
-    referencedBy: {
-        referencingContent: {
-            topicVersion: {
-                topicId: string
-            }
-        }
-    }[]
-    score?: number[]
-    lastEdit?: Date
-}
+
+export type TopicSortOrder = "popular" | "recent"
 
 
 export type TopicsGraph = {

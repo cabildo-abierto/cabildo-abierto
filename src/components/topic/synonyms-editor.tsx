@@ -53,6 +53,7 @@ export const SynonymsEditor = ({topic, onClose}: {
             onSave={onSave}
             onClose={onClose}
             newItemText={"Nuevo sinónimo"}
+            options={null}
         />
     </div>
 }

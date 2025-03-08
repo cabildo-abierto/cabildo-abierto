@@ -35,8 +35,6 @@ export const TopicSearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic })
     function onMouseEnter(){
         preload("/api/topic/"+topic.id, fetcher)
     }
-
-    const numWords = topic.versions[getCurrentVersion(topic)].content.numWords
   
     return (
         <div className="relative flex flex-col w-full">
@@ -54,9 +52,9 @@ export const TopicSearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic })
                 />
 
                 <div className={"flex space-x-2 items-center text-sm mt-1"}>
-                    <DateLastEdit topic={topic}/>
-                    {topic.score && <div className={"text-[var(--text-light)] flex items-center"}>
-                        <PersonIcon fontSize={"inherit"}/> {topic.score[0]}
+                    {/*TO DO <DateLastEdit topic={topic}/>*/}
+                    {topic.popularityScore != null && <div className={"text-[var(--text-light)] flex items-center"}>
+                        <PersonIcon fontSize={"inherit"}/> {topic.popularityScore}
                     </div>}
                 </div>
             </div>

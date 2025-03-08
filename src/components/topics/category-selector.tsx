@@ -2,7 +2,9 @@
 import {useCategories} from "../../hooks/contents";
 
 
-export const CategorySelector = ({categories, setCategories}: {categories: string[], setCategories: (c: string[]) => void}) => {
+export const CategorySelector = ({categories, setCategories}: {
+    categories: string[], setCategories: (c: string[]) => void
+}) => {
     const {categories: allCategories, isLoading} = useCategories()
 
     if(isLoading) {
@@ -18,7 +20,7 @@ export const CategorySelector = ({categories, setCategories}: {categories: strin
     }
 
     return <div className={"flex flex-wrap items-center gap-x-2 gap-y-1"}>
-        {allCategories.map((c, index) => {
+        {allCategories.map(({category: c}, index) => {
             return <button
                 key={index}
                 className={"rounded-lg text-sm px-2 " + (categories.includes(c) ? "bg-[var(--primary)] hover:bg-[var(--primary-dark)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark4)] bg-[var(--background-dark2)]")}
