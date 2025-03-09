@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import {useRouter, useSearchParams} from "next/navigation";
-import {getCurrentVersion, inRange, isQuotePost} from "../utils/utils";
+import {getCurrentVersion, inRange, isQuotePost, topicUrl} from "../utils/utils";
 import NoEntityPage from "./no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
 import {useTopic, useTopicFeed} from "../../hooks/contents";
@@ -13,12 +13,13 @@ import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {TopicCategories} from "./topic-categories";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
+import {ErrorPage} from "../ui-utils/error-page";
+import Link from "next/link";
 
 
-export const TopicPage = ({topicId, paramsVersion, changes}: {
+export const TopicPage = ({topicId, paramsVersion}: {
     topicId: string,
-    paramsVersion?: number,
-    changes?: boolean
+    paramsVersion?: number
 }) => {
     const topic = useTopic(topicId)
     const feed = useTopicFeed(topicId)
@@ -82,6 +83,19 @@ export const TopicPage = ({topicId, paramsVersion, changes}: {
 
     if(!topic.topic || topic.isError || topic.error || !feed.feed || topic.topic.versions.length == 0){
         return <NoEntityPage id={topicId}/>
+    }
+
+    if(paramsVersion >= topic.topic.versions.length){
+        return <ErrorPage>
+            <div className={"link flex flex-col items-center"}>
+                <div>
+                    No existe esta versión del tema.
+                </div>
+                <div>
+                    <Link href={topicUrl(topic.topic.id, undefined, wikiEditorState)}>Ir a la versión actual.</Link>
+                </div>
+            </div>
+        </ErrorPage>
     }
 
     function setWikiEditorState(s: WikiEditorState) {

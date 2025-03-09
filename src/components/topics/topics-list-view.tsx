@@ -7,7 +7,6 @@ import {IconButton} from "@mui/material";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import {ModalBelow} from "../ui-utils/modal-below";
 import { BasicButton } from "../ui-utils/basic-button";
-import {PrettyJSON} from "../utils/utils";
 
 export type TopicsSortOrder = "Populares" | "Ediciones recientes"
 
@@ -34,7 +33,7 @@ export const TopicsSortSelector = ({sortedBy, setSortedBy}: {
             open={isDropdownOpen}
             onClose={() => {setIsDropdownOpen(false)}}
         >
-            <div className={"p-1 space-y-1 "}>
+            <div className={"p-1 space-y-1"}>
                 {["Populares", "Ediciones recientes"].map((s: TopicsSortOrder, index) => {
                     return <div key={index}>
                         <BasicButton
@@ -65,9 +64,7 @@ export const TopicsListView = () => {
 
     return <div>
         <div className={"w-full flex justify-between py-3 px-2"}>
-            <div>
-                <CategorySelector categories={categories} setCategories={setCategories}/>
-            </div>
+            <CategorySelector categories={categories} setCategories={setCategories}/>
             <TopicsSortSelector sortedBy={sortedBy} setSortedBy={setSortedBy}/>
         </div>
         <CategoryArticles sortedBy={sortedBy} categories={categories}/>

@@ -17,14 +17,7 @@ export function getFullTopicTitle(topic: TopicProps){
 
 
 export function getFullTopicCategories(topic: TopicProps){
-    let categories = []
-    topic.versions.forEach((t) => {
-        const newCategories = t.content.topicVersion.categories
-        if(newCategories){
-            categories = JSON.parse(newCategories)
-        }
-    })
-    return categories
+    return topic.categories.map(({categoryId}) => categoryId)
 }
 
 

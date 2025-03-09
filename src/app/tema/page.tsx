@@ -1,6 +1,6 @@
 import { TopicPage } from "../../components/topic/topic-page"
 
-type Params = Promise<{i: string, v?: number, c?: string}>
+type Params = Promise<{i: string, v?: number}>
 
 export async function generateMetadata({searchParams}: {searchParams: Params}){
     const {i} = await searchParams
@@ -12,12 +12,11 @@ export async function generateMetadata({searchParams}: {searchParams: Params}){
 
 const Page = async ({searchParams}: {
     searchParams: Params}) => {
-    const {i, v, c} = await searchParams
+    const {i, v} = await searchParams
 
     return <TopicPage
         topicId={i}
         paramsVersion={v}
-        changes={c == "true"}
     />
 }
 

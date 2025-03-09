@@ -72,6 +72,10 @@ export type TopicVersionProps = RecordProps & {
 export type TopicProps = {
     id: string
     protection: EditorStatus
+    synonyms: string[]
+    categories: {
+        categoryId: string
+    }[]
     versions: TopicVersionProps[]
 }
 

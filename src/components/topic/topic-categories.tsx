@@ -2,7 +2,7 @@ import Link from "next/link";
 
 
 function categoryUrl(c: string){
-  return "/inicio/" + c
+  return "/temas?view=lista&c="+c
 }
 
 export const TopicCategories = ({

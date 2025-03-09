@@ -4,6 +4,7 @@ import {TopicProps, TopicVersionProps} from "../../app/lib/definitions";
 import {updateSynonymsInTopic} from "../../actions/write/topic";
 import { ListEditor } from "../ui-utils/list-editor";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
+import {useSWRConfig} from "swr";
 
 
 export function isAccepted(version: TopicVersionProps){
@@ -34,10 +35,14 @@ export const SynonymsEditor = ({topic, onClose}: {
     onClose: () => void
 }) => {
     const currentSynonyms = getTopicSynonyms(topic)
+    const {mutate} = useSWRConfig()
 
 
     const onSave = async (synonyms: string[]) => {
         const {error} = await updateSynonymsInTopic({topicId: topic.id, synonyms})
+        mutate("/api/topics")
+        mutate("/api/topic-feed")
+        await mutate("/api/topic/" + topic.id)
         if(!error){
             onClose()
         }

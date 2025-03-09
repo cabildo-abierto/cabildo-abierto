@@ -1,11 +1,11 @@
 import { DateSince } from "../ui-utils/date"
 import { CustomLink as Link } from '../ui-utils/custom-link';
-import {TopicProps} from "../../app/lib/definitions"
+import {TopicProps, TopicVersionProps} from "../../app/lib/definitions"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import {ReactNode, useState} from "react"
 import StateButton from "../ui-utils/state-button"
 import { useUser } from "../../hooks/user"
-import {topicUrl, countReactions, getCurrentVersion, getTopicMonetizedChars} from "../utils/utils"
+import {topicUrl, countReactions, getCurrentVersion, getTopicMonetizedChars, PrettyJSON} from "../utils/utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "../ui-utils/accept-button-panel"
 import { toPercentage } from "./show-contributors"
@@ -21,14 +21,46 @@ import {ProfilePic} from "../feed/profile-pic";
 import {LikeCounter} from "../reactions/like-counter";
 import {ContentOptionsButton} from "../content-options/content-options-button";
 import {revalidateTags} from "../../actions/admin";
+import {TopicCategories} from "./topic-categories";
+import {onDeleteTopicVersion} from "../../actions/topic/current-version";
 
 
-const EditDetails = ({editType}: {editType: string}) => {
-    return <span>{editType}</span>
+const EditDetails = ({topic, index}: {topic: TopicProps, index: number}) => {
+
+    const topicVersion = topic.versions[index]
+
+    const v = topicVersion.content.topicVersion
+
+    let editType: ReactNode
+    if(index == 0){
+        editType = "Creación del tema"
+    } else if(topicVersion.content.text == null){
+        if(v.title){
+            editType = "Nuevo nombre:" + v.title
+
+        } else if(v.categories){
+            editType = <div className={"flex space-x-1"}>
+                <div>Categorías: </div>
+                <TopicCategories categories={JSON.parse(v.categories)}/>
+            </div>
+
+        } else if(v.synonyms){
+            editType = <div className={"flex space-x-1"}>
+                <div>Sinónimos: </div>
+                <TopicCategories categories={JSON.parse(v.synonyms)}/>
+            </div>
+        } else {
+            editType = "Sin cambios"
+        }
+    } else {
+        editType = <ChangesCounter charsAdded={v.charsAdded} charsDeleted={v.charsDeleted}/>
+    }
+
+    return <div className={"text-[var(--text-light)]"}>{editType}</div>
 }
 
 type EditElementProps = {
-    entity: TopicProps,
+    topic: TopicProps,
     index: number,
     viewing?: number,
     isCurrent: boolean
@@ -115,9 +147,9 @@ const AssignAuthorshipButtons = ({topic, version}: {topic: TopicProps, version: 
 }
 
 
-const EditMessage = ({msg, editType}: { msg?: string, editType: string }) => {
+const EditMessage = ({msg}: { msg?: string }) => {
     return <span className="text-sm">
-        {(msg != null && msg.length > 0) ? msg : (editType == "Contenido" ? "sin descripción" : "")}
+        {(msg != null && msg.length > 0) ? msg : ""}
     </span>
 }
 
@@ -134,40 +166,16 @@ const MonetizationPortion = ({entity, index}: { entity: TopicProps, index: numbe
 }
 
 
-const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
+const EditElement = ({topic, index, viewing, isCurrent}: EditElementProps) => {
     const [showingRemoveAuthorshipPanel, setShowingRemoveAuthorshipPanel] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
-
-
-    async function onRemoveAuthorship(){
-        //return await removeEntityAuthorship(entity.versions[index].id, entity.id)
-        return {}
-    }
 
     const selected = viewing == index
 
     const isRejected = false
 
-    const entityVersion = entity.versions[index]
-    const entityVersionVersion = entity.versions[index].content.topicVersion
-
-
-    let editType
-    if(index == 0){
-        editType = "Creación"
-    } else if(entityVersion.content.text == entity.versions[index-1].content.text){
-        if(entityVersionVersion.message.startsWith("nuevo nombre:")){
-            editType = "Cambio de nombre"
-        } else if(entityVersionVersion.categories == entity.versions[index-1].content.topicVersion.categories){
-            editType = "Sinónimos"
-        } else {
-            editType = "Categorías"
-        }
-    } else {
-        editType = "Contenido"
-    }
-
+    const topicVersion = topic.versions[index]
 
     let className = "w-full px-2 py-2 cursor-pointer flex items-center rounded " + (selected ? "border-2 border-[var(--accent-dark)]" : "border")
 
@@ -175,36 +183,37 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
 
     return <div className="flex items-center w-full pb-1">
         {showingRemoveAuthorshipPanel && <RemoveAuthorshipPanel
-            entity={entity}
+            entity={topic}
             version={index}
-            onRemove={onRemoveAuthorship}
+            onRemove={async () => {return {}}}
             onClose={() => {setShowingRemoveAuthorshipPanel(false)}}
         />}
         <div 
             className={className}
-            onClick={() => {router.push(topicUrl(entity.id, index, "normal"))}}
+            onClick={() => {router.push(topicUrl(topic.id, index, "normal"))}}
         >
             <div className={"flex flex-col w-full"}>
                 <div className={"flex justify-between items-center w-full"}>
                     <div className="text-sm flex space-x-1">
                         <ProfilePic
                             className={"w-5 h-5 rounded-full"}
-                            user={entityVersion.author}
+                            user={topicVersion.author}
                         />
                         <Authorship
-                            content={entityVersion}
+                            content={topicVersion}
                             onlyAuthor={true}
                         />
                     </div>
                     <div className="text-xs space-x-2 flex items-center">
                         <div>
-                            <DateSince date={entityVersion.createdAt}/>
+                            <DateSince date={topicVersion.createdAt}/>
                         </div>
                         <ContentOptionsButton
-                            record={{...entityVersion}}
+                            record={{...topicVersion}}
                             onDelete={async () => {
-                                await revalidateTags(["topic:"+entity.id])
-                                mutate("/api/topic/"+entity.id)
+                                await onDeleteTopicVersion(topic, index)
+                                mutate("/api/topic/"+topic.id)
+                                mutate("/api/topics-by-categories/popular")
                             }}
                         />
                     </div>
@@ -212,28 +221,27 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                 <div className={"flex justify-between w-full"}>
                     <div className="flex flex-col w-full mt-2">
                         <div className="text-sm">
-                            <EditDetails editType={editType}/>
+                            <EditDetails topic={topic} index={index}/>
                         </div>
                         <div className="text-[var(--text-light)]">
-                            {entity.versions[index].content.topicVersion.message &&
+                            {topic.versions[index].content.topicVersion.message &&
                                 <EditMessage
-                                    msg={entity.versions[index].content.topicVersion.message}
-                                    editType={editType}
+                                    msg={topic.versions[index].content.topicVersion.message}
                                 />
                             }
                         </div>
-                        {entity.versions[index].content.topicVersion.diff != undefined && <div className={"flex items-center space-x-1"}>
+                        {topic.versions[index].content.topicVersion.diff != undefined && <div className={"flex items-center space-x-1"}>
                             <div>
                                 <ChangesCounter
-                                    charsAdded={entity.versions[index].content.topicVersion.charsAdded}
-                                    charsDeleted={entity.versions[index].content.topicVersion.charsDeleted}
+                                    charsAdded={topic.versions[index].content.topicVersion.charsAdded}
+                                    charsDeleted={topic.versions[index].content.topicVersion.charsDeleted}
                                 />
                             </div>
                             {index > 0 &&
                                 <div className="text-[var(--text-light)] text-xs hover:underline" onClick={(e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    router.push(topicUrl(entity.id, index, "changes"))
+                                    router.push(topicUrl(topic.id, index, "changes"))
                                 }}>
                                     Ver cambios
                                 </div>
@@ -242,8 +250,8 @@ const EditElement = ({entity, index, viewing, isCurrent}: EditElementProps) => {
                     </div>
 
                     <div className="flex flex-col items-center space-y-2">
-                        <ConfirmEditButtons topic={entity} version={index}/>
-                        <AssignAuthorshipButtons topic={entity} version={index}/>
+                        <ConfirmEditButtons topic={topic} version={index}/>
+                        <AssignAuthorshipButtons topic={topic} version={index}/>
                     </div>
                 </div>
             </div>
@@ -324,15 +332,13 @@ export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
 
 export const EditHistory = ({topic, viewing}: { topic: TopicProps, viewing?: number }) => {
     const currentIndex = getCurrentVersion(topic)
-
-    // const lastDiff = JSON.parse(entity.versions[entity.versions.length-1].diff)
     
     const history = <div className="mt-1 hidden lg:block">
         {topic.versions.map((version, index) => {
         const versionIndex = topic.versions.length-1-index
         return <div key={index} className="w-full">
             <EditElement
-                entity={topic}
+                topic={topic}
                 index={versionIndex}
                 viewing={viewing}
                 isCurrent={versionIndex == currentIndex}
