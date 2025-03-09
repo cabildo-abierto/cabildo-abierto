@@ -84,6 +84,7 @@ export async function getTrendingTopicsNoCache(
 const topicQuery = {
     id: true,
     protection: true,
+    synonyms: true,
     categories: {
         select: {
             categoryId: true,
@@ -113,6 +114,8 @@ const topicVersionQuery = {
                 select: {
                     topicId: true,
                     message: true,
+                    categories: true,
+                    synonyms: true,
                     title: true,
                     diff: true,
                     charsAdded: true,
@@ -175,7 +178,9 @@ export async function getCategoriesNoCache() {
         }
     })
 
-    const [categories, noCategoryCount] = await Promise.all([categoriesP, noCategoryCountP])
+    let [categories, noCategoryCount] = await Promise.all([categoriesP, noCategoryCountP])
+
+    categories = categories.filter(c => (c._count.topics > 0))
 
     const res = categories.map(({id, _count}) => ({category: id, size: _count.topics}))
     res.push({category: "Sin categoría", size: noCategoryCount})
@@ -484,11 +489,14 @@ export async function getTopicsByCategoriesNoCache(sortedBy: TopicSortOrder){
 
 
 export async function getTopicsByCategories(sortedBy: TopicSortOrder){
-    return await unstable_cache(async () => {
-        return await getTopicsByCategoriesNoCache(sortedBy)
-    }, ["bycategories:"+sortedBy],
+    return await unstable_cache(
+        async () => {
+            return await getTopicsByCategoriesNoCache(sortedBy)
+        },
+        ["bycategories:"+sortedBy],
         {
             tags: ["topics"],
             revalidate: revalidateEverythingTime
-    })()
+        }
+    )()
 }

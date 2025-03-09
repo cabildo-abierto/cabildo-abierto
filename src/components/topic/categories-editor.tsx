@@ -19,10 +19,9 @@ export const CategoriesEditor = ({topic, onClose}: {
 
     async function saveCategories(categories: string[]) {
         await updateCategoriesInTopic({topicId: topic.id, categories})
+        await mutate("/api/topics-by-categories/popular")
+        await mutate("/api/topic/" + topic.id)
         onClose()
-        mutate("/api/topics")
-        mutate("/api/topic-feed")
-        mutate("/topic/" + topic.id)
         return {}
     }
 
@@ -32,7 +31,7 @@ export const CategoriesEditor = ({topic, onClose}: {
         </h3>
         <ListEditor
             initialValue={current}
-            options={availableCategories ? availableCategories.map(({category}) => (category)) : undefined}
+            options={availableCategories ? availableCategories.map(({category}) => (category)).filter(c => c != "Sin categoría") : undefined}
             onSave={saveCategories}
             onClose={onClose}
             newItemText={"Nueva categoría"}

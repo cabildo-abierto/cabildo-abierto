@@ -14,6 +14,7 @@ export const ModalBelow = ({children, open, onClose, anchorEl, marginTop="10px",
     }) => {
 
     return <Popover
+        disableScrollLock={true}
         id={open ? "popover" : undefined}
         open={open}
         anchorEl={anchorEl}
@@ -34,15 +35,15 @@ export const ModalBelow = ({children, open, onClose, anchorEl, marginTop="10px",
             horizontal: 'left',
         }}
         PaperProps={noShadow ? {
-          sx: {
-            boxShadow: "none",
-          },
+            sx: {
+                boxShadow: "none",
+            },
         } : undefined}
         sx={{
             marginTop: marginTop,
             pointerEvents: hoverOnly ? "none" : "auto"
         }}
     >
-      {children}
+        {children}
     </Popover>
 }

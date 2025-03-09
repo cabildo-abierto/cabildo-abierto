@@ -6,6 +6,8 @@ import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../compone
 import {db} from "../../db";
 import {logTimes} from "../utils";
 import {getTopicById} from "../topic/topics";
+import {onDeleteTopicVersion} from "../topic/current-version";
+import {setTopicCategories} from "../topic/utils";
 
 export async function createTopic(id: string){
     return await createTopicVersion({id, claimsAuthorship: true})
@@ -50,29 +52,37 @@ export async function createTopicVersionDB({
 
     updates = [...updates, ...createContent(baseRecord)]
 
-    const topic = {
-        id: record.id
-    }
-
-    const current = await getTopicById(record.id)
+    // const current = await getTopicById(record.id)
     const isNewCurrentVersion = true
+
+    const topic = {
+        id: record.id,
+        synonyms: isNewCurrentVersion && record.synonyms ? JSON.parse(record.synonyms) : undefined,
+        categories: isNewCurrentVersion && record.categories ? {
+            set: (JSON.parse(record.categories) as string[]).map(c => ({
+                topicId_categoryId: { topicId: record.id, categoryId: c }
+            }))
+        } : undefined
+    };
 
     updates.push(db.topic.upsert({
         create: {
-            ...topic,
-            synonyms: record.synonyms ? JSON.parse(record.synonyms) : undefined,
-            categories: record.categories ? JSON.parse(record.categories) : undefined,
+            id: record.id,
+            synonyms: isNewCurrentVersion && record.synonyms ? JSON.parse(record.synonyms) : undefined
         },
         update: {
-            ...topic,
-            synonyms: isNewCurrentVersion && record.synonyms ? JSON.parse(record.synonyms) : undefined,
-            categories: isNewCurrentVersion && record.synonyms ? {
-                // connect with categories coming from JSON.parse(record.categories) (string[])
-
-            } : undefined
+            id: record.id,
+            synonyms: isNewCurrentVersion && record.synonyms ? JSON.parse(record.synonyms) : undefined
         },
-        where: topic
+        where: {id: topic.id}
     }))
+
+    if(isNewCurrentVersion && record.categories){
+        updates = [
+            ...updates,
+            ...setTopicCategories(record.id, JSON.parse(record.categories))
+        ]
+    }
 
     const topicVersion = {
         uri: ref.uri,
@@ -192,6 +202,7 @@ export async function updateCategoriesInTopic({topicId, categories}: {topicId: s
         claimsAuthorship: false,
     })
     revalidateTag("categories")
+    revalidateTag("topics")
     return res
 }
 

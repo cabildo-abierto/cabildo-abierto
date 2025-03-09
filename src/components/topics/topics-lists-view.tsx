@@ -28,7 +28,10 @@ export const AllCategoriesLists = ({sortedBy, setSortedBy}: {
 
     return <div>
         <div className={"py-1 flex justify-end w-full"}>
-            <TopicsSortSelector sortedBy={sortedBy} setSortedBy={setSortedBy}/>
+            <TopicsSortSelector
+                sortedBy={sortedBy}
+                setSortedBy={setSortedBy}
+            />
         </div>
         <div className={"mt-12 mb-32 w-full lg:px-12 px-6"}>
             <div className={"flex flex-wrap gap-x-10 gap-y-20"}>
