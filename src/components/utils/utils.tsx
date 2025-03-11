@@ -966,3 +966,9 @@ export function validQuotePost(content: {text?: string, format?: string}, r: {co
         return false
     }
 }
+
+
+export function max<T>(arr: T[]): T | undefined {
+    if (arr.length === 0) return undefined;
+    return arr.reduce((max, current) => (current > max ? current : max));
+}

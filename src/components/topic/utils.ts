@@ -1,4 +1,5 @@
 import {TopicProps} from "../../app/lib/definitions";
+import {max} from "../utils/utils";
 
 
 export function getTopicCategories(topic: {id: string, categories: {categoryId: string}[]}){
@@ -32,4 +33,10 @@ export function getCurrentContentVersion(topic: {
         }
     }
     return lastContent
+}
+
+
+export function getTopicLastEditFromVersions(topic: {versions: {content: {record: {createdAt: Date}}}[]}){
+    const dates = topic.versions.map(v => v.content.record.createdAt)
+    return max(dates)
 }

@@ -1,5 +1,6 @@
 "use client"
 import {useCategories} from "../../hooks/contents";
+import {emptyChar} from "../utils/utils";
 
 
 export const CategorySelector = ({categories, setCategories}: {
@@ -8,7 +9,7 @@ export const CategorySelector = ({categories, setCategories}: {
     const {categories: allCategories, isLoading} = useCategories()
 
     if(isLoading) {
-        return <></>
+        return <div>{emptyChar}</div>
     }
 
     function onClick(c: string){
@@ -24,7 +25,8 @@ export const CategorySelector = ({categories, setCategories}: {
             return <button
                 key={index}
                 className={"rounded-lg text-sm px-2 " + (categories.includes(c) ? "bg-[var(--primary)] hover:bg-[var(--primary-dark)]" : "text-[var(--text-light)] hover:text-[var(--text)] hover:bg-[var(--background-dark4)] bg-[var(--background-dark2)]")}
-                onClick={() => {onClick(c)}}>
+                onClick={() => {onClick(c)}}
+            >
                 {c}
             </button>
         })}

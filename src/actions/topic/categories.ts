@@ -1,7 +1,7 @@
 "use server"
 import {db} from "../../db";
-import {sanitizedId} from "../utils";
 import {currentCategories} from "../../components/utils/utils";
+import { Prisma } from "@prisma/client";
 
 
 export async function updateTopicsCategories() {
@@ -28,13 +28,12 @@ export async function updateTopicsCategories() {
     const topicCategories: { topicId: string; categoryIds: string[] }[] = topics.map(
         (t) => ({
             topicId: t.id,
-            categoryIds: currentCategories(t) // Should return an array of category IDs
+            categoryIds: currentCategories(t)
         })
     );
 
     const t1 = Date.now();
 
-    // Collect all unique category IDs
     const allCategoryIds = [
         ...new Set(topicCategories.flatMap(({ categoryIds }) => categoryIds))
     ];
@@ -45,30 +44,27 @@ export async function updateTopicsCategories() {
     }
 
     // Step 1: Ensure all categories exist in TopicCategory
-    const categoryValues = allCategoryIds.map(id => `('${id}')`).join(",\n");
-
-    const insertCategoriesQuery = `
+    await db.$executeRaw`
         INSERT INTO "TopicCategory" ("id")
-        VALUES ${categoryValues}
+        VALUES ${Prisma.join(allCategoryIds.map(id => Prisma.sql`(${id})`))}
         ON CONFLICT DO NOTHING;
     `;
 
-    await db.$executeRawUnsafe(insertCategoriesQuery);
     console.log("Ensured all categories exist.");
 
-    // Step 2: Update TopicToCategory relationships
-    const values = topicCategories.flatMap(({ topicId, categoryIds }) =>
-        categoryIds.map(categoryId => `('${topicId}', '${categoryId}')`)
-    ).join(",\n");
+    // Step 2: Prepare topic-category relationships
+    const topicCategoryValues = topicCategories.flatMap(({ topicId, categoryIds }) =>
+        categoryIds.map(categoryId => Prisma.sql`(${topicId}, ${categoryId})`)
+    );
 
-    if (values.length === 0) {
+    if (topicCategoryValues.length === 0) {
         console.log("No topic-category relationships to update.");
         return;
     }
 
-    const updateRelationsQuery = `
-        WITH new_data AS (
-            VALUES ${values}
+    await db.$executeRaw`
+        WITH new_data ("topicId", "categoryId") AS (
+            VALUES ${Prisma.join(topicCategoryValues)}
         ),
         inserted AS (
             INSERT INTO "TopicToCategory" ("topicId", "categoryId")
@@ -79,8 +75,7 @@ export async function updateTopicsCategories() {
         WHERE ("topicId", "categoryId") NOT IN (SELECT * FROM new_data);
     `;
 
-    await db.$executeRawUnsafe(updateRelationsQuery);
-
     console.log("Done after", Date.now() - t1);
 }
+
 

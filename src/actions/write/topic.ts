@@ -5,8 +5,6 @@ import {createContent, createRecord} from "./utils";
 import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils/utils";
 import {db} from "../../db";
 import {logTimes} from "../utils";
-import {getTopicById} from "../topic/topics";
-import {onDeleteTopicVersion} from "../topic/current-version";
 import {setTopicCategories} from "../topic/utils";
 
 export async function createTopic(id: string){

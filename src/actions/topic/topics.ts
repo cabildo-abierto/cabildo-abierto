@@ -42,7 +42,45 @@ export async function getTrendingTopicsNoCache(
     error?: string
     topics?: SmallTopicProps[]
 }> {
+    const where = {
+        AND: categories.map((c) => {
+            if(c == "Sin categoría"){
+                return {categories: {none: {}}}
+            } else {
+                return {categories: {some: {categoryId: c}}}
+            }
+        }),
+        versions: {
+            some: {}
+        }
+    }
+
+    const select = {
+        id: true,
+        popularityScore: true,
+        categories: {
+            select: {
+                categoryId: true,
+            }
+        }
+    }
+
     if(sortedBy == "popular"){
+        const topics = await db.topic.findMany({
+            select,
+            where: {
+                ...where,
+                popularityScore: {
+                    not: null
+                }
+            },
+            orderBy: {
+                popularityScore: "desc"
+            },
+            take: limit
+        })
+        return {topics}
+    } else {
         const where = {
             AND: categories.map((c) => {
                 if(c == "Sin categoría"){
@@ -55,28 +93,20 @@ export async function getTrendingTopicsNoCache(
                 some: {}
             }
         }
-        //const t1 = Date.now()
         const topics = await db.topic.findMany({
-            select: {
-                id: true,
-                popularityScore: true,
-                categories: {
-                    select: {
-                        categoryId: true,
-                    }
+            select,
+            where: {
+                ...where,
+                lastEdit: {
+                    not: null
                 }
             },
-            where: where,
             orderBy: {
-                popularityScore: "desc"
+                lastEdit: "desc"
             },
             take: limit
         })
-        //const t2 = Date.now()
-        //logTimes("TT " + categories, [t1, t2])
         return {topics}
-    } else {
-        throw Error("Not implemented")
     }
 }
 
@@ -104,6 +134,7 @@ const topicVersionQuery = {
     content: {
         select: {
             text: true,
+            format: true,
             textBlob: {
                 select: {
                     authorId: true,
