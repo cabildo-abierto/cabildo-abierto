@@ -2,8 +2,6 @@
 import React, {ReactNode} from "react";
 import {LayoutConfigProps, LayoutConfigProvider} from "./layout-config-context";
 import {SidebarContent} from "./sidebar";
-import {ThemeProvider} from "@mui/material";
-import theme from "../theme";
 import {PageLeaveProvider} from "../ui-utils/prevent-leave";
 import LoadingPage from "../auth/loading-page";
 import {BetaAccessPage} from "../auth/beta-access-page";
@@ -32,18 +30,16 @@ export const LayoutVisualizationEditor: React.FC<{ children: ReactNode } & Layou
     </div>
 
     return <>
-        <ThemeProvider theme={theme}>
-            <PageLeaveProvider>
-                <LoadingPage>
-                    <BetaAccessPage>
-                        <SearchProvider>
-                            <LayoutConfigProvider config={{openRightPanel, maxWidthCenter, leftMinWidth, rightMinWidth, openSidebar, defaultSidebarState}}>
-                                {center}
-                            </LayoutConfigProvider>
-                        </SearchProvider>
-                    </BetaAccessPage>
-                </LoadingPage>
-            </PageLeaveProvider>
-        </ThemeProvider>
+        <PageLeaveProvider>
+            <LoadingPage>
+                <BetaAccessPage>
+                    <SearchProvider>
+                        <LayoutConfigProvider config={{openRightPanel, maxWidthCenter, leftMinWidth, rightMinWidth, openSidebar, defaultSidebarState}}>
+                            {center}
+                        </LayoutConfigProvider>
+                    </SearchProvider>
+                </BetaAccessPage>
+            </LoadingPage>
+        </PageLeaveProvider>
     </>
 };

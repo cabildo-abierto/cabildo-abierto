@@ -2,6 +2,7 @@
 
 import {useEffect, useRef} from "react";
 import {Network, Node as NetworkNode} from "vis-network";
+import { useTheme } from "../theme/theme-context";
 
 
 export default function Graph({ edgesList, nodeIds, onClickNode, nodeLabels }: {
@@ -11,6 +12,7 @@ export default function Graph({ edgesList, nodeIds, onClickNode, nodeLabels }: {
     nodeLabels?: Map<string, string>
 }) {
     const networkRef = useRef<HTMLDivElement>(null)
+    const {currentTheme} = useTheme()
 
     useEffect(() => {
         if (!networkRef.current) return;
@@ -21,7 +23,7 @@ export default function Graph({ edgesList, nodeIds, onClickNode, nodeLabels }: {
             label: nodeLabels ? nodeLabels.get(id) : id,
             shape: "box",
             font: {
-                color: "#fbfbfc",
+                color: currentTheme == "dark" ? "#fbfbfc" : "#1a1a1a",
                 size: 16,
                 vadjust: 0,
             },
@@ -37,15 +39,15 @@ export default function Graph({ edgesList, nodeIds, onClickNode, nodeLabels }: {
             borderWidth: 1,
             borderWidthSelected: 1,
             color: {
-                background: "#181b23",
-                border: "#fbfbfc",
+                background: currentTheme == "dark" ? "#181b23" : "#ffffff",
+                border: currentTheme == "dark" ? "#fbfbfc" : "#1a1a1a",
                 highlight: {
-                    background: "#181b23",
-                    border: "#fbfbfc",
+                    background: currentTheme == "dark" ? "#181b23" : "#ffffff",
+                    border: currentTheme == "dark" ? "#fbfbfc" : "#1a1a1a",
                 },
                 hover: {
-                    background: "#181b23",
-                    border: "#fbfbfc",
+                    background: currentTheme == "dark" ? "#181b23" : "#ffffff",
+                    border: currentTheme == "dark" ? "#fbfbfc" : "#1a1a1a",
                 },
             },
         }));
@@ -75,5 +77,8 @@ export default function Graph({ edgesList, nodeIds, onClickNode, nodeLabels }: {
         return () => network.destroy();
     }, [edgesList]);
 
-    return <div ref={networkRef} style={{ height: "600px", width: "100%" }} />;
+    return <div
+        ref={networkRef}
+        style={{ height: "600px", width: "100%" }}
+    />
 }

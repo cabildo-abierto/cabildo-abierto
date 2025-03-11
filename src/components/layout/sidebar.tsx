@@ -29,6 +29,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import SenadoIcon from '../../../public/senado-icono.svg';
 import SenadoIconActive from '../../../public/senado-icono-active.svg';
 import Image from 'next/image'
+import { useTheme } from "../theme/theme-context";
 
 
 function unseenSupportMessagesCount(user: UserProps){
@@ -114,6 +115,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     const pathname = usePathname()
     const [writePanelOpen, setWritePanelOpen] = useState(false)
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
+    const {currentTheme} = useTheme()
 
     useEffect(() => {
         if((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)){
@@ -187,8 +189,24 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 selected={pathname.startsWith("/temas")}
             />
             <SidebarButton
-                icon={<div className={"w-6 h-6 flex items-center jutify-center py-2"}><Image className="" src={SenadoIconActive} alt="Icon" width={24} height={24} /></div>}
-                iconInactive={<div className={"w-6 h-6 flex items-center jutify-center py-2"}><Image className="" src={SenadoIcon} alt="Icon" width={24} height={24} /></div>}
+                icon={<div className={"w-6 h-6 flex items-center jutify-center py-2"}>
+                    <Image
+                    className={currentTheme == "light" ? "brightness-0" : ""}
+                    src={SenadoIconActive}
+                    alt="Icon"
+                    width={24}
+                    height={24}
+                    />
+                </div>}
+                iconInactive={<div className={"w-6 h-6 flex items-center jutify-center py-2"}>
+                    <Image
+                    className={currentTheme == "light" ? "brightness-0" : ""}
+                    src={SenadoIcon}
+                    alt="Icon"
+                    width={24}
+                    height={24}
+                    />
+                </div>}
                 onClick={onClose}
                 text="Congreso"
                 href="/congreso"

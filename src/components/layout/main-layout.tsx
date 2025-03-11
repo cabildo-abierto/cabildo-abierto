@@ -1,92 +1,15 @@
-"use client"
-import React, {ReactNode, useEffect} from "react";
+import {ReactNode} from "react";
 import LoadingPage from "../auth/loading-page";
 import {SearchProvider} from "../search/search-context";
 import {BetaAccessPage} from "../auth/beta-access-page";
-import {SidebarContent} from "./sidebar";
-import {emptyChar, pxToNumber} from "../utils/utils";
-import {LayoutConfigProps, LayoutConfigProvider, useLayoutConfig} from "./layout-config-context";
+import {LayoutConfigProps, LayoutConfigProvider} from "./layout-config-context";
 import {PageLeaveProvider} from "../ui-utils/prevent-leave";
-import { ThemeProvider } from '@mui/material';
-import theme from '../theme';
-import {RightPanel} from "./right-panel";
 import {LoadEditor} from "../ui-utils/load-editor";
+import { MainLayoutContent } from "./main-layout-content";
 
 
-const MainLayoutContent = ({children}: {children: ReactNode}) => {
-    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
-    useEffect(() => {
-        const handleResize = () => {
-            const reqWidth = 224 +
-                pxToNumber(layoutConfig.rightMinWidth) +
-                pxToNumber(layoutConfig.maxWidthCenter);
-
-            const reqWidthRightSide = 80 + pxToNumber(layoutConfig.rightMinWidth) +
-                pxToNumber(layoutConfig.maxWidthCenter);
-
-            if ((window.innerWidth >= reqWidth) != layoutConfig.spaceForLeftSide) {
-                setLayoutConfig((prev) => ({
-                    ...prev,
-                    spaceForLeftSide: window.innerWidth >= reqWidth,
-                }))
-            }
-
-            if((window.innerWidth >= reqWidthRightSide) != layoutConfig.spaceForRightSide){
-                setLayoutConfig((prev) => ({
-                    ...prev,
-                    spaceForRightSide: window.innerWidth >= reqWidthRightSide,
-                }))
-            }
-        };
-
-        window.addEventListener("resize", handleResize);
-
-        handleResize();
-
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, [layoutConfig]);
-
-
-    const left = <div className={"fixed top-0 z-[1000] left-0 right-auto border-r"}>
-        <SidebarContent onClose={() => {}}/>
-    </div>
-
-    let right
-    if (layoutConfig.openRightPanel) {
-        right = <RightPanel/>
-    }
-
-    return <div className="flex justify-between w-full">
-        <div className={"flex-shrink-0 " + (layoutConfig.spaceForLeftSide ? "w-56" : "w-20")}>
-            {left}
-        </div>
-
-        <div
-            className={"flex-grow min-h-screen"}
-            style={{
-                minWidth: "0",
-                maxWidth: layoutConfig.maxWidthCenter,
-            }}
-        >
-            {children}
-        </div>
-
-        {layoutConfig.spaceForRightSide ?
-            <div className={"flex justify-end"}>
-                <div className="flex-shrink-0" style={{width: layoutConfig.rightMinWidth}}>
-                    {right}
-                </div>
-            </div>
-            :
-            <div>{emptyChar}</div>
-        }
-    </div>
-}
-
-const MainLayout: React.FC<{ children: ReactNode } & LayoutConfigProps> = ({
+const MainLayout = ({
      children,
      openRightPanel=true,
      maxWidthCenter="600px",
@@ -94,28 +17,22 @@ const MainLayout: React.FC<{ children: ReactNode } & LayoutConfigProps> = ({
      rightMinWidth="360px",
      openSidebar=true,
      defaultSidebarState=true,
-}) => {
-
-
-    return <>
-        <LoadingPage>
-            <ThemeProvider theme={theme}>
-                <PageLeaveProvider>
-                    <LoadEditor>
-                        <BetaAccessPage>
-                            <SearchProvider>
-                                <LayoutConfigProvider config={{openRightPanel, maxWidthCenter, leftMinWidth, rightMinWidth, openSidebar, defaultSidebarState}}>
-                                    <MainLayoutContent>
-                                        {children}
-                                    </MainLayoutContent>
-                                </LayoutConfigProvider>
-                            </SearchProvider>
-                        </BetaAccessPage>
-                    </LoadEditor>
-                </PageLeaveProvider>
-            </ThemeProvider>
-        </LoadingPage>
-    </>
+}: { children: ReactNode } & LayoutConfigProps) => {
+    return <LoadingPage>
+        <PageLeaveProvider>
+            <LoadEditor>
+                <BetaAccessPage>
+                    <SearchProvider>
+                        <LayoutConfigProvider config={{openRightPanel, maxWidthCenter, leftMinWidth, rightMinWidth, openSidebar, defaultSidebarState}}>
+                            <MainLayoutContent>
+                                {children}
+                            </MainLayoutContent>
+                        </LayoutConfigProvider>
+                    </SearchProvider>
+                </BetaAccessPage>
+            </LoadEditor>
+        </PageLeaveProvider>
+    </LoadingPage>
 };
 
 export default MainLayout;

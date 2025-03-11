@@ -155,12 +155,11 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
 
   useEffect(() => {
     return () => {
-      if(!isReadOnly && preventLeave && uniqueId){
-        leaveStoppers.delete(uniqueId)
-        setLeaveStoppers(leaveStoppers);
+      if (uniqueId) {
+        setLeaveStoppers(leaveStoppers.filter(id => id !== uniqueId));
       }
-    };
-  }, [setLeaveStoppers, uniqueId]);
+    }
+  }, [uniqueId])
 
   const {
     isMaxLength,
@@ -264,8 +263,7 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
             if (!isReadOnly && preventLeave && !uniqueId) {
               const newUniqueId = uuidv4()
               setUniqueId(newUniqueId)
-              const newStoppers = leaveStoppers.add(newUniqueId)
-              setLeaveStoppers(newStoppers);
+              setLeaveStoppers([...leaveStoppers, newUniqueId]);
             }
           }}
         />

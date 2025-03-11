@@ -7,6 +7,7 @@ import { PermissionLevel } from "../../components/topic/permission-level";
 import {CloseSessionButton} from "../../components/auth/close-session-button";
 import SelectionComponent from "../../components/search/search-selection-component";
 import {Button} from "@mui/material";
+import { useTheme } from "../../components/theme/theme-context";
 
 
 
@@ -51,9 +52,55 @@ const AccountSettings = () => {
 
 
 const AppearanceSettings = () => {
+    const { mode, setMode } = useTheme();
+
     return <>
-        <div className={"text-sm text-[var(--text-light)] mt-8"}>
-            En construcción.
+        <div className="mb-4">
+            <div className="text-[var(--text-light)] font-medium text-sm mb-2">Tema</div>
+            <div className="space-y-2">
+                <div className="flex items-center">
+                    <input
+                        type="radio"
+                        id="system"
+                        name="theme"
+                        value="system"
+                        checked={mode === 'system'}
+                        onChange={(e) => setMode('system')}
+                        className="mr-2"
+                    />
+                    <label htmlFor="system" className="text-[var(--text)] cursor-pointer ">
+                        Usar tema del sistema
+                    </label>
+                </div>
+                <div className="flex items-center">
+                    <input
+                        type="radio"
+                        id="light"
+                        name="theme"
+                        value="light"
+                        checked={mode === 'light'}
+                        onChange={(e) => setMode('light')}
+                        className="mr-2"
+                    />
+                    <label htmlFor="light" className="text-[var(--text)] cursor-pointer">
+                        Modo claro
+                    </label>
+                </div>
+                <div className="flex items-center">
+                    <input
+                        type="radio"
+                        id="dark"
+                        name="theme"
+                        value="dark"
+                        checked={mode === 'dark'}
+                        onChange={(e) => setMode('dark')}
+                        className="mr-2"
+                    />
+                    <label htmlFor="dark" className="text-[var(--text)] cursor-pointer">
+                        Modo oscuro
+                    </label>
+                </div>
+            </div>
         </div>
     </>
 }
