@@ -41,8 +41,10 @@ export async function onDeleteTopicVersion(topic: TopicProps, index: number){
     const newCategories = getTopicCategoriesFromVersions(topic)
     const newSynonyms = getTopicSynonymsFromVersions(topic)
 
+    const changedCategories = !arraysEqual(prevCategories, newCategories)
+
     let updates = []
-    if(!arraysEqual(prevCategories, newCategories)){
+    if(changedCategories){
         updates = setTopicCategories(topic.id, newCategories)
     }
 
@@ -50,9 +52,18 @@ export async function onDeleteTopicVersion(topic: TopicProps, index: number){
         updates = [...updates, ...setTopicSynonyms(topic.id, newSynonyms)]
     }
 
+    updates = [...updates, db.topic.update({
+        where: {
+            id: topic.id,
+        },
+        data: {
+            lastEdit: new Date()
+        }
+    })]
+
     await db.$transaction(updates)
 
-    await revalidateTags(["topic:"+topic.id, "topics"])
+    await revalidateTags(["topic:"+topic.id, "topics", ...(changedCategories ? ["categories"] : [])])
 }
 
 

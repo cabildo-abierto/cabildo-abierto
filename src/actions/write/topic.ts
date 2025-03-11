@@ -60,7 +60,8 @@ export async function createTopicVersionDB({
             set: (JSON.parse(record.categories) as string[]).map(c => ({
                 topicId_categoryId: { topicId: record.id, categoryId: c }
             }))
-        } : undefined
+        } : undefined,
+        lastEdit: new Date()
     };
 
     updates.push(db.topic.upsert({
