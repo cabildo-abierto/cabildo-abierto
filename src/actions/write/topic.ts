@@ -50,19 +50,7 @@ export async function createTopicVersionDB({
 
     updates = [...updates, ...createContent(baseRecord)]
 
-    // const current = await getTopicById(record.id)
     const isNewCurrentVersion = true
-
-    const topic = {
-        id: record.id,
-        synonyms: isNewCurrentVersion && record.synonyms ? JSON.parse(record.synonyms) : undefined,
-        categories: isNewCurrentVersion && record.categories ? {
-            set: (JSON.parse(record.categories) as string[]).map(c => ({
-                topicId_categoryId: { topicId: record.id, categoryId: c }
-            }))
-        } : undefined,
-        lastEdit: new Date()
-    };
 
     updates.push(db.topic.upsert({
         create: {
@@ -73,7 +61,7 @@ export async function createTopicVersionDB({
             id: record.id,
             synonyms: isNewCurrentVersion && record.synonyms ? JSON.parse(record.synonyms) : undefined
         },
-        where: {id: topic.id}
+        where: {id: record.id}
     }))
 
     if(isNewCurrentVersion && record.categories){

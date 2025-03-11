@@ -1,18 +1,10 @@
-import { Metadata } from "next";
-import Footer from "../../components/ui-utils/footer"
 import { LogoAndSlogan } from "../../components/presentation/presentation"
 import Link from "next/link";
 import Button from "@mui/material/Button";
 import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
-import { topicUrl } from "../../components/utils/utils";
 import { BlueskyLogo } from "../../components/icons/bluesky-logo";
-import {mainDescription} from "../../components/utils/metadata";
 
-export const metadata: Metadata = {
-    title: 'Cabildo Abierto',
-    description: mainDescription,
-}
 
 export default function Page() {
     /*TO DO: Recuperar esto useEffect(() => {
@@ -220,8 +212,6 @@ export default function Page() {
                     </div>
                 </div>
             </div>
-
-            <Footer showCA={false} />
         </div>
     </div>
 }

@@ -19,16 +19,17 @@ type CustomLinkProps = {
 export function CustomLink({
          href, children, className, onClick, target, rel, onMouseEnter, onMouseLeave, draggable, style }: CustomLinkProps) {
   const { leaveStoppers } = usePageLeave()
+  const router = useRouter()
 
-  const handleClick = (e: React.MouseEvent) => {
-    if (leaveStoppers.size > 0) {
-        const confirmLeave = window.confirm("Tenés cambios sin guardar. ¿Querés salir igualmente?");
-        if (!confirmLeave) {
-            e.preventDefault();
-        }
+  function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (leaveStoppers.length > 0) {
+      e.preventDefault()
+      if (window.confirm("Hay cambios sin guardar. ¿Deseas salir de todas formas?")) {
+        router.push(href)
+      }
     }
-    onClick && onClick(e)
-  };
+    onClick?.(e)
+  }
 
   if(!href && !onClick){
       return <div
@@ -45,8 +46,8 @@ export function CustomLink({
           target={target}
           rel={rel}
           onMouseEnter={onMouseEnter}
-          draggable={draggable}
           onMouseLeave={onMouseLeave}
+          draggable={draggable}
           style={style}
     >
       {children}
