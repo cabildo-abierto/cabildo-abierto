@@ -6,7 +6,6 @@ import { FastPostImagesEditor } from "./fast-post-images-editor"
 import { BaseFullscreenPopup } from "../ui-utils/base-fullscreen-popup"
 import { CloseButton } from "../ui-utils/close-button"
 import { AddImageButton } from "./add-image-button"
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { NeedAccountPopup } from "../auth/need-account-popup"
 import {ProfilePic} from "../feed/profile-pic";
 import {
@@ -17,7 +16,7 @@ import {
 import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./insert-visualization-modal";
 import SelectionComponent from "../search/search-selection-component";
-import {Button, TextField} from "@mui/material";
+import {Button, TextareaAutosize, TextField} from "@mui/material";
 import {useRouter} from "next/navigation";
 import TickButton from "../ui-utils/tick-button";
 import {useSWRConfig} from "swr";

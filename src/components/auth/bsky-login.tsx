@@ -1,10 +1,9 @@
 "use client"
-import { Box, Container, FormHelperText, TextField } from "@mui/material"
+import {Box, Button, Container, FormHelperText, TextField} from "@mui/material"
 import { useState } from "react"
 import { login } from "../../actions/auth"
 import { useRouter } from "next/navigation"
 import { FormControl } from '@mui/material';
-import { LoadingButton } from "@mui/lab"
 import { isValidHandle } from "@atproto/syntax"
 
 
@@ -78,7 +77,7 @@ export const BlueskyLogin = ({newTab=false}: {newTab?: boolean}) => {
                 <FormHelperText id="my-helper-text" sx={{color: "var(--text-light)"}}>
                     Tu nombre de usuario de Bluesky, Cabildo Abierto y cualquier otra plataforma que use ATProto.
                 </FormHelperText>
-                <LoadingButton
+                <Button
                     type="submit"
                     loading={isLoading}
                     fullWidth
@@ -93,7 +92,7 @@ export const BlueskyLogin = ({newTab=false}: {newTab?: boolean}) => {
                     disableElevation
                 >
                     Iniciar sesión
-                </LoadingButton>
+                </Button>
             </Box>
         </Box>
     </Container>

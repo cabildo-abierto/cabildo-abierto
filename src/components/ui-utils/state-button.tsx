@@ -1,8 +1,8 @@
 "use client";
 
-import { LoadingButton } from '@mui/lab';
 import { ReactNode, useEffect, useState } from 'react';
 import { AcceptButtonPanel } from './accept-button-panel';
+import {Button} from "@mui/material";
 
 type StateButtonProps = {
   handleClick: StateButtonClickHandler;
@@ -61,34 +61,35 @@ const StateButton: React.FC<StateButtonProps> = ({
         }
     }, [loading])
 
-    return <><LoadingButton
-      loading={loading}
-      startIcon={startIcon}
-      loadingIndicator={text2}
-      variant={variant}
-      color={color}
-      size={size}
-      onClick={onClick}
-      disabled={disabled}
-      disableElevation={disableElevation}
-      sx={{
-          textTransform: 'none',
-          color: "var(--text)"
-      , ...sx}}
-      fullWidth={fullWidth}
-    >
-      <div className={textClassName}>
-        {text1}
-      </div>
-    </LoadingButton>
-      <AcceptButtonPanel
-        open={Boolean(error)}
-        onClose={() => {setError(undefined)}}
-      >
-          <div className={"text-[var(--text-light)]"}>
-              {error}
+    return <>
+        <Button
+            loading={loading}
+            startIcon={startIcon}
+            loadingIndicator={text2}
+            variant={variant}
+            color={color}
+            size={size}
+            onClick={onClick}
+            disabled={disabled}
+            disableElevation={disableElevation}
+            sx={{
+                textTransform: 'none',
+                color: "var(--text)"
+            , ...sx}}
+            fullWidth={fullWidth}
+        >
+          <div className={textClassName}>
+            {text1}
           </div>
-      </AcceptButtonPanel>
+        </Button>
+        <AcceptButtonPanel
+            open={Boolean(error)}
+            onClose={() => {setError(undefined)}}
+        >
+            <div className={"text-[var(--text-light)]"}>
+                {error}
+            </div>
+        </AcceptButtonPanel>
     </>
 };
 
