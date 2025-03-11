@@ -15,6 +15,7 @@ import {
 } from "../../actions/topic/references";
 import {updateTopicsCategories} from "../../actions/topic/categories";
 import {updateTopicPopularityScores} from "../../actions/topic/popularity";
+import {updateTopicsLastEdit} from "../../actions/topic/current-version";
 
 
 
@@ -113,6 +114,17 @@ export default function Page() {
                 }}
                 text1={"Actualizar categorías de temas"}
             />
+
+            <h2>Last edit</h2>
+
+            <StateButton
+                handleClick={async () => {
+                    await updateTopicsLastEdit()
+                    return {}
+                }}
+                text1={"Actualizar fecha última edición"}
+            />
+
 
         </div>
     </div>

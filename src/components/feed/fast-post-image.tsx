@@ -114,7 +114,7 @@ export const FastPostImage = ({ post, did }: { post: FastPostProps; did?: string
     }
 
     let imagesInPost
-    const imageClass = "w-full h-full object-cover object-top rounded-lg border";
+    const imageClass = "w-full object-cover object-top rounded-lg border";
     if (images) {
         if (images.length === 1) {
             const img = images[0];
@@ -122,7 +122,7 @@ export const FastPostImage = ({ post, did }: { post: FastPostProps; did?: string
                 <ATProtoImage
                     img={img}
                     did={did}
-                    className={`${imageClass} mt-2`}
+                    className={`${imageClass} mt-2 h-full`}
                     onClick={() => {setViewing(0)}}
                 />
             );
@@ -134,7 +134,7 @@ export const FastPostImage = ({ post, did }: { post: FastPostProps; did?: string
                             <ATProtoImage
                                 img={img}
                                 did={did}
-                                className={`${imageClass}`}
+                                className={`${imageClass} h-full`}
                                 onClick={() => {setViewing(index)}}
                             />
                         </div>
@@ -148,7 +148,7 @@ export const FastPostImage = ({ post, did }: { post: FastPostProps; did?: string
                         <ATProtoImage
                             img={images[0]}
                             did={did}
-                            className={imageClass}
+                            className={imageClass + " h-full"}
                             onClick={() => {setViewing(0)}}
                         />
                     </div>
@@ -176,7 +176,7 @@ export const FastPostImage = ({ post, did }: { post: FastPostProps; did?: string
                             key={index}
                             img={img}
                             did={did}
-                            className={imageClass}
+                            className={imageClass + " h-full"}
                             onClick={() => {setViewing(index)}}
                         />
                     ))}

@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import {useRouter, useSearchParams} from "next/navigation";
-import {getCurrentVersion, inRange, isQuotePost, topicUrl} from "../utils/utils";
+import {getCurrentVersion, inRange, isQuotePost, PrettyJSON, topicUrl} from "../utils/utils";
 import NoEntityPage from "./no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
 import {useTopic, useTopicFeed} from "../../hooks/contents";

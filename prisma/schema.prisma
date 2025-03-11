@@ -109,6 +109,7 @@ model Topic {
   categories         TopicToCategory[]
   lastSynonymsChange DateTime?
   popularityScore    Int?
+  lastEdit           DateTime?
 }
 
 model TopicCategory {

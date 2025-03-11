@@ -4,6 +4,7 @@ import { useState } from "react"
 import { MainFeedHeader } from "./main-feed-header"
 import Feed from "../feed/feed"
 import {useFeed} from "../../hooks/contents";
+import {useRouter, useSearchParams} from "next/navigation";
 
 
 type MainPageProps = {
@@ -15,13 +16,16 @@ type MainPageProps = {
 export const MainPage = ({paramsSelected, showRoute=true}: MainPageProps) => {
     const feed = useFeed("InDiscussion")
     const followingFeed = useFeed("Following")
-    const [selected, setSelected] = useState(paramsSelected ? paramsSelected : "En discusión")
+    const params = useSearchParams()
+    const paramsFeed = params.get("f")
+    const selected = !paramsFeed || paramsFeed != "siguiendo" ? "En discusión" : "Siguiendo"
+    const router = useRouter()
 
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
     const [filter, setFilter] = useState("Todas")
 
     function onSelection(v: string){
-        setSelected(v)
+        router.push("/inicio" + (v == "Siguiendo" ? "?f=siguiendo" : "?f=discusion"))
         if(v == "Siguiendo" && order != "Recientes") setOrder("Recientes")
         if(v == "En discusión" && order != "Populares") setOrder("Populares")
     }

@@ -83,6 +83,7 @@ export type TopicProps = {
 export type SmallTopicProps = {
     id: string
     popularityScore?: number
+    synonyms?: string[]
     categories: {
         categoryId: string
     }[]

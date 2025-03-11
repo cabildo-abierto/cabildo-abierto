@@ -57,6 +57,7 @@ export async function getFullTopicList(){
                     categoryId: true
                 }
             },
+            synonyms: true
         },
         where: {
             versions: {
