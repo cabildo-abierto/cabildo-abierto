@@ -2,7 +2,7 @@
 import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, BeautifulMentionsMenuProps } from "lexical-beautiful-mentions";
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
-import { getUsers } from "../../actions/users";
+import { getUsers } from "../../actions/user/users";
 import { cleanText } from "../utils/utils";
 
 export const EmptyMentionResults = () => (

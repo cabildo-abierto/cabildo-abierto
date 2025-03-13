@@ -1,5 +1,5 @@
 //import { getPaymentsStats } from "../../actions/admin"
-import { getUser } from "../../actions/users"
+import { getUser } from "../../actions/user/users"
 import { NotFoundPage } from "../../components/ui-utils/not-found-page"
 
 

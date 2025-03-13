@@ -3,7 +3,7 @@ import assert from "assert";
 import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from 'iron-session'
 import { cookies } from "next/headers";
-import {setATProtoProfile} from "../../../actions/users";
+import {setATProtoProfile} from "../../../actions/user/users";
 import {myCookieOptions} from "../../../components/utils/utils";
 import {Agent} from "@atproto/api";
 
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest){
         if(setATProtoError){
             return NextResponse.redirect(baseUrl + '/login')
         }
-        return NextResponse.redirect(baseUrl + '/')
+        return NextResponse.redirect(baseUrl + '/login/ok')
     } catch (err) {
         console.error("error", err)
         return NextResponse.redirect(baseUrl + '/login')

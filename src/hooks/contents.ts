@@ -65,7 +65,6 @@ export function useCategories(): {categories: {category: string, size: number}[]
 
 
 export function useTopic(id: string): {topic: TopicProps, error?: string, isLoading: boolean, isError: boolean}{
-    console.log("using topic", id)
     const { data, error, isLoading } = useSWR('/api/topic/'+id, fetcher,
         {
             revalidateIfStale: false,

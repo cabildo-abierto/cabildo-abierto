@@ -168,6 +168,7 @@ export type UserProps = {
     inCA: boolean
     createdAt: Date
     editorStatus: EditorStatus
+    platformAdmin: boolean
     subscriptionsUsed: SubscriptionProps[]
     subscriptionsBought: {id: string, price: number}[]
     viewer?: {following?: string, followed?: string}
@@ -175,6 +176,9 @@ export type UserProps = {
     followsCount: number
     messagesSent: MessageProps[]
     messagesReceived: MessageProps[]
+    usedInviteCode?: {
+        code: string
+    }
 };
 
 

@@ -593,8 +593,3 @@ export function logTimes(s: string, times: number[]){
     const sum = diffs.join(" + ")
     console.log(s, times[times.length-1]-times[0], "=", sum)
 }
-
-
-export function sanitizedId(id: string): string {
-    return id.replace(/\\/g, '\\\\').replace(/'/g, "''"); // Escape instead of removing
-}

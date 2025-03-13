@@ -2,7 +2,7 @@ import { NodeOAuthClient } from '@atproto/oauth-client-node'
 import { SessionStore, StateStore } from './storage'
 
 
-export const createClient = async () => {
+export const createClient = async (inviteCode?: string) => {
   const publicUrl = process.env.PUBLIC_URL ? process.env.PUBLIC_URL : undefined
   const url = publicUrl || `http://127.0.0.1:3000`
 

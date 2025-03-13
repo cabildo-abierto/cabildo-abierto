@@ -1,12 +1,12 @@
 'use server'
 
 import { revalidateTag, unstable_cache } from "next/cache";
-import { db } from "../db";
-import { revalidateEverythingTime } from "./utils";
-import {SmallUserProps, UserProps, UserStats} from "../app/lib/definitions";
-import {getRkeyFromUri, supportDid, validSubscription} from "../components/utils/utils";
-import { getSubscriptionPrice } from "./payments";
-import {getSessionAgent, getSessionDid} from "./auth";
+import { db } from "../../db";
+import { revalidateEverythingTime } from "../utils";
+import {SmallUserProps, UserProps, UserStats} from "../../app/lib/definitions";
+import {getRkeyFromUri, supportDid, validSubscription} from "../../components/utils/utils";
+import { getSubscriptionPrice } from "../payments";
+import {getSessionAgent, getSessionDid} from "../auth";
 import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import { Prisma } from "@prisma/client";
 
@@ -144,7 +144,13 @@ const fullUserQuery = {
     createdAt: true,
     hasAccess: true,
     inCA: true,
+    platformAdmin: true,
     editorStatus: true,
+    usedInviteCode: {
+        select: {
+            code: true
+        }
+    },
     subscriptionsUsed: {
         orderBy: {
             createdAt: "asc" as Prisma.SortOrder

@@ -5,7 +5,7 @@ import {getUri, validQuotePost} from "../../components/utils/utils";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {unstable_cache} from "next/cache";
 import {addCounters, feedQuery, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";
-import {getUsers, isCAUser} from "../users";
+import {getUsers, isCAUser} from "../user/users";
 import {db} from "../../db";
 import {getTextFromBlob} from "../topic/topics";
 
@@ -49,7 +49,6 @@ export async function getThreadFromATProto({did, rkey}: {did: string, rkey: stri
     const {agent} = await getSessionAgent()
 
     const uri = getUri(did, "app.bsky.feed.post", rkey)
-    console.log("getting post thread", uri)
     const {data} = await agent.getPostThread({
         uri
     })

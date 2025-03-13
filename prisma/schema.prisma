@@ -41,7 +41,8 @@ model User {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  editorStatus EditorStatus @default(Beginner)
+  editorStatus  EditorStatus @default(Beginner)
+  platformAdmin Boolean      @default(false)
 
   subscriptionsBought Subscription[] @relation("bought")
   subscriptionsUsed   Subscription[]
@@ -56,6 +57,19 @@ model User {
   blobs   Blob[]
 
   followers Follow[]
+
+  usedInviteCode InviteCode?  @relation("invite-code-used")
+  recommendCodes InviteCode[] @relation("invite-codes-available")
+}
+
+model InviteCode {
+  code      String    @id @default(cuid())
+  usedBy    User?     @relation("invite-code-used", fields: [usedByDid], references: [did])
+  usedByDid String?   @unique
+  usedAt    DateTime?
+
+  recommender   User?   @relation("invite-codes-available", fields: [recommenderId], references: [did])
+  recommenderId String? @unique
 }
 
 model Subscription {

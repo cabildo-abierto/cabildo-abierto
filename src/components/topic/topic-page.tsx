@@ -101,7 +101,7 @@ export const TopicPage = ({topicId, paramsVersion}: {
     function setWikiEditorState(s: WikiEditorState) {
         const vParam = searchParams.get("v")
         const vParamStr = vParam ? ("&v=" + vParam) : ""
-        console.log("setting wiki editor state", s)
+
         if(s == "minimized"){
             router.push("/tema?i="+topic.topic.id+vParamStr)
         } else {

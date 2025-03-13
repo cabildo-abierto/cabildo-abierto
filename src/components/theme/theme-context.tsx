@@ -21,7 +21,7 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [mode, setMode] = useState<ThemeMode>('dark');
+    const [mode, setMode] = useState<ThemeMode>('system');
     const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('dark');
 
     useEffect(() => {

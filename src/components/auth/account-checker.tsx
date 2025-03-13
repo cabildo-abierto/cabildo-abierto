@@ -13,7 +13,7 @@ export const NeedAccountPaywall: React.FC<any> = ({ children }) => {
             {children}
             <BaseFullscreenPopup open={true} onClose={() => {}}>
                 <div className="">
-                    <Login newTab={true}/>
+                    <Login/>
                 </div>
             </BaseFullscreenPopup>
         </>

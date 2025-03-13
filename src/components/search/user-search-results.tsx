@@ -6,7 +6,7 @@ import { useUsers } from "../../hooks/user"
 import LoadingSpinner from "../ui-utils/loading-spinner"
 import React, {useEffect, useState} from "react"
 import { cleanText } from "../utils/utils"
-import {searchATProtoUsers} from "../../actions/users";
+import {searchATProtoUsers} from "../../actions/user/users";
 
 
 export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCount?: number; showSearchButton?: boolean }) => {

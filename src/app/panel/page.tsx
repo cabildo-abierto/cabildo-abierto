@@ -1,5 +1,5 @@
 import { StatsIcon } from "../../components/icons/stats-icon"
-import {getUserStats} from "../../actions/users";
+import {getUserStats} from "../../actions/user/users";
 import { StatsPanel } from "../../components/ajustes/stats-panel";
 
 

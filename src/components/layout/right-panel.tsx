@@ -9,6 +9,7 @@ import React from "react";
 import {useUser} from "../../hooks/user";
 import {UpdateCongresoRightPanel} from "../congreso/update-congreso-right-panel";
 import {TrendingTopicsPanel} from "../trending-topics/trending-topics";
+import SettingsIcon from "../icons/settings-icon";
 
 
 export const RightPanel = () => {
@@ -48,6 +49,16 @@ export const RightPanel = () => {
                         Aportar
                     </BasicButton>
                 </Link>
+                {(user.platformAdmin) && <Link href={"/admin"} className={"text-[var(--text-light)]"}>
+                    <BasicButton
+                        variant={"text"}
+                        size={"small"}
+                        color={"inherit"}
+                        startIcon={<SettingsIcon fontSize={"small"}/>}
+                    >
+                        Admin
+                    </BasicButton>
+                </Link>}
             </div>
         </div>
     </div>

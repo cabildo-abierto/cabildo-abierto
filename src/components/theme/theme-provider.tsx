@@ -11,6 +11,8 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         const root = document.documentElement;
         root.style.setProperty('--primary', '#3080ff')
+        root.style.setProperty('--primary-light', '#4b8ef9')
+        root.style.setProperty('--primary-dark', '#2460bf')
         if (currentTheme === 'dark') {
             root.style.setProperty('--text', '#fbfbfc');
             root.style.setProperty('--text-light', '#b0b0b0');

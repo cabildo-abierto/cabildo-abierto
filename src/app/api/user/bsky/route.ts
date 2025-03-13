@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getBskyUser } from '../../../../actions/users';
+import { getBskyUser } from '../../../../actions/user/users';
 
 export async function GET(req: NextRequest) {
 

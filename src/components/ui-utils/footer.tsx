@@ -11,7 +11,7 @@ export default function Footer({showCA=true}: {showCA?: boolean}) {
         <div className="relative">
         <hr className="border-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent" />
         </div>
-        <div className="my-16 flex justify-between sm:px-12 px-4 space-x-4">
+        <div className="my-8 flex justify-between sm:px-12 px-4 space-x-4 w-full">
             <div className="flex flex-col justify-between">
                 <ScrollToButton>
                     <Logo className="w-10 h-10 hover:brightness-90 transition duration-200"/>

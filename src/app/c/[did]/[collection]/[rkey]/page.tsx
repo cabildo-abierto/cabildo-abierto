@@ -10,8 +10,6 @@ const ContentPage = ({params}: {params: Promise<{did: string, rkey: string}>}) =
     const {did, rkey} = React.use(params)
     const thread = useThread({did: did, rkey: rkey})
 
-    console.log(thread)
-
     if(thread.error) return <ErrorPage>{thread.error}</ErrorPage>
 
     if(!thread.thread) return <div className={"mt-8"}><LoadingSpinner/></div>

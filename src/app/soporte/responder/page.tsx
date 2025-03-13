@@ -1,4 +1,4 @@
-import { getConversations } from "../../../actions/users"
+import { getConversations } from "../../../actions/user/users"
 import { ChatPage, NoConversationsChatPage } from "../../../components/chat/chat-page"
 import { supportDid } from "../../../components/utils/utils"
 

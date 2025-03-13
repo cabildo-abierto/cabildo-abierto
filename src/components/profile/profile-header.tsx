@@ -1,5 +1,5 @@
 import SelectionComponent from "../search/search-selection-component";
-import { unfollow, follow } from "../../actions/users"
+import { unfollow, follow } from "../../actions/user/users"
 import { PermissionLevel } from "../topic/permission-level"
 import { Button } from "@mui/material"
 import StateButton from "../ui-utils/state-button"
