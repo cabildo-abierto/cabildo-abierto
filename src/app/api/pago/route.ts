@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server';
-import { buySubscriptions } from '../../../actions/users';
+import { buySubscriptions } from '../../../actions/user/users';
 
 const accessToken = process.env.MP_ACCESS_TOKEN
 

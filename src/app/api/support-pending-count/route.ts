@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSupportNotRespondedCount } from '../../../actions/users';
+import { getSupportNotRespondedCount } from '../../../actions/user/users';
 
 export async function GET() {
 

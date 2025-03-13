@@ -10,15 +10,15 @@ import {AppViewHandleResolver} from "@atproto/oauth-client-node";
 import {myCookieOptions} from "../components/utils/utils";
 
 
-export async function login(handle: string){
+export async function login(handle: string, inviteCode?: string){
 
-    const oauthClient = await createClient()
+    console.log("Logging in with invite code", inviteCode)
+    const oauthClient = await createClient(inviteCode)
 
     if (typeof handle !== 'string' || !isValidHandle(handle)) {
         return {error: "Nombre de usuario inválido." + (handle.includes("@") ? " Escribilo sin @." : "")}
     }
 
-    // Initiate the OAuth flow
     let url
     try {
         url = await oauthClient.authorize(handle, {
@@ -43,7 +43,7 @@ export async function login(handle: string){
             return {error: "Falló la conexión."}
         }
     }
-    
+
     return {url: url.toString()}
 }
 

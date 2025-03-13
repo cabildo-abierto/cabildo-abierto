@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useChat, useUser } from "../../hooks/user"
-import { sendMessage, setMessageSeen } from "../../actions/users"
+import { sendMessage, setMessageSeen } from "../../actions/user/users"
 import { DateSince } from "../ui-utils/date"
 import StateButton from "../ui-utils/state-button"
 import LoadingSpinner from "../ui-utils/loading-spinner"

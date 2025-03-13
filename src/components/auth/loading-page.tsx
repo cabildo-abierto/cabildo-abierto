@@ -9,7 +9,7 @@ const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
     const user = useUser()
 
 
-    if(!user.isLoading) {
+    if(!user.isLoading && (!user.user || user.user.did)) {
         return <div className={""}>
             {children}
         </div>

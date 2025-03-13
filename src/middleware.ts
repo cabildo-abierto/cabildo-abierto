@@ -11,7 +11,7 @@ function isNewUserRoute(request: NextRequest){
 }
 
 function isPublicRoute(request: NextRequest){
-    return ["/v1", "/.well-known/atproto-did", "/client-metadata.json", "/presentacion", "/oauth/callback"].includes(request.nextUrl.pathname) || request.nextUrl.pathname.startsWith("/api/")
+    return ["/v1", "/.well-known/atproto-did", "/client-metadata.json", "/presentacion", "/oauth/callback", "/login/ok"].includes(request.nextUrl.pathname) || request.nextUrl.pathname.startsWith("/api/")
 }
 
 export async function middleware(request: NextRequest) {

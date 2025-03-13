@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getUsers } from '../../../actions/users';
+import { getUsers } from '../../../actions/user/users';
 
 export async function GET(req: NextRequest) {
     const {users, error} = await getUsers()

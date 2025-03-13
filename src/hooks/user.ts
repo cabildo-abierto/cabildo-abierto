@@ -21,11 +21,11 @@ export function useFullProfile(did: string): {user: UserProps, atprotoProfile: P
 }
 
 
-export function useUser(): {user: UserProps, isLoading?: boolean, error?: string} {
+export function useUser(revalidate: boolean = false): {user: UserProps, isLoading?: boolean, error?: string} {
     const { data, error, isLoading } = useSWR('/api/user', fetcher, {
-        revalidateIfStale: false,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false
+        revalidateIfStale: revalidate,
+        revalidateOnFocus: revalidate,
+        revalidateOnReconnect: revalidate
     })
 
     return {
@@ -52,10 +52,29 @@ export function useBskyUser(): {bskyUser: ProfileViewDetailed, isLoading?: boole
 
 
 export function useUsers(): {users: SmallUserProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/users', fetcher)
+    const { data, error, isLoading } = useSWR('/api/users', fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false
+    })
   
     return {
         users: data,
+        isLoading: isLoading,
+        isError: error
+    }
+}
+
+
+export function useCodes(): {codes: string[], isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/codes', fetcher, {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+    })
+
+    return {
+        codes: data,
         isLoading: isLoading,
         isError: error
     }

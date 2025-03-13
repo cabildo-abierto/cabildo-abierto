@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getFundingPercentage } from '../../../actions/users';
+import { getFundingPercentage } from '../../../actions/user/users';
 
 export async function GET() {
 

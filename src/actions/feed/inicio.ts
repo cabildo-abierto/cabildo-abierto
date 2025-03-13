@@ -11,7 +11,7 @@ import {
 import {popularityScore} from "../../components/feed/popularity-score";
 import {listOrderDesc, newestFirst} from "../../components/utils/utils";
 
-import {getFollowing} from "../users";
+import {getFollowing} from "../user/users";
 import {addCountersToFeed, addReasonToRepost, joinCAandATFeeds} from "./utils";
 import {getFeedCA, getFeedCACached} from "./feedCA";
 import {FeedViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";

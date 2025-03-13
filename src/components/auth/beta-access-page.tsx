@@ -5,7 +5,7 @@ import {getUsername} from "../utils/utils";
 import {TextField} from "@mui/material";
 import {CloseSessionButton} from "./close-session-button";
 import StateButton from "../ui-utils/state-button";
-import {updateEmail} from "../../actions/users";
+import {updateEmail} from "../../actions/user/users";
 import Link from "next/link";
 import Footer from "../ui-utils/footer";
 import {useSWRConfig} from "swr";
@@ -21,7 +21,7 @@ function getUsernameBskyUser(user: ProfileViewDetailed){
 export const BetaAccessPageNotCAUserAccess = () => {
     const {bskyUser, isLoading: loadingBskyUser} = useBskyUser()
     const [email, setEmail] = useState<string>("")
-    const {user, isLoading} = useUser()
+    const {user, isLoading} = useUser(true)
     const [status, setStatus] = useState(user && user.email ? "email set" : "no email")
     const {mutate} = useSWRConfig()
 
@@ -86,11 +86,7 @@ export const BetaAccessPageNotCAUserAccess = () => {
             }
         </div>
 
-        <div className={"text-[var(--text-light)] mt-16 text-center"}>
-            Si ya tenías una cuenta de la primera versión, <Link className="link2" href={"/v1"}>hacé click acá</Link>.
-        </div>
-
-        <div className={"mt-24 text-[var(--text-light)]"}>
+        <div className={"mt-24 text-[var(--text-light)] w-full"}>
             <Footer showCA={false}/>
         </div>
     </div>
@@ -98,9 +94,10 @@ export const BetaAccessPageNotCAUserAccess = () => {
 
 
 export const BetaAccessPage = ({children}: {children: ReactNode}) => {
-    const {user, isLoading} = useUser()
+    const {user, isLoading} = useUser(true)
     if(user && user.hasAccess) return <>{children}</>
     if(isLoading) return <LoadingScreen />
+    if(!user) return null
 
     return <BetaAccessPageNotCAUserAccess/>
 }
