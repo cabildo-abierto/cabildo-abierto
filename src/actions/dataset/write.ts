@@ -1,8 +1,10 @@
 "use server"
 import {getSessionAgent} from "../auth";
+import {ATProtoStrongRef} from "../../app/lib/definitions";
+import {db} from "../../db";
 
 
-export async function createDataset(title: string, columns: string[], description: string, formData: FormData, format: string): Promise<{error?: string}>{
+export async function createDatasetATProto(title: string, columns: string[], description: string, formData: FormData, format: string){
     const data = Object.fromEntries(formData);
 
     let f = data.data as File
@@ -18,7 +20,7 @@ export async function createDataset(title: string, columns: string[], descriptio
         const blob = res.data.blob
         const curDate = new Date().toISOString()
 
-        const record = {
+        const datasetRecord = {
             title: title,
             createdAt: curDate,
             columns: columns.map((c) => ({name: c})),
@@ -28,41 +30,65 @@ export async function createDataset(title: string, columns: string[], descriptio
 
         let datasetLink = null
         try {
-            const {data} = await agent.com.atproto.repo.createRecord({
+            const {data: datasetData} = await agent.com.atproto.repo.createRecord({
                 repo: did,
                 collection: "ar.com.cabildoabierto.dataset",
-                record
+                record: datasetRecord
             })
             datasetLink = {uri: data.uri, cid: data.cid}
-        } catch (e) {
-            console.error(e)
-            return {error: "No se pudo publicar el dataset."}
-        }
 
-        const blockRecord = {
-            createdAt: curDate,
-            dataset: datasetLink,
-            format: format,
-            data: {
-                ref: blob.ref,
-                mimeType: blob.mimeType,
-                size: blob.size,
-                $type: "blob"
-            },
-            "$type": "ar.com.cabildoabierto.dataBlock"
-        }
+            const blockRecord = {
+                createdAt: curDate,
+                dataset: datasetLink,
+                format: format,
+                data: {
+                    ref: blob.ref,
+                    mimeType: blob.mimeType,
+                    size: blob.size,
+                    $type: "blob"
+                },
+                "$type": "ar.com.cabildoabierto.dataBlock"
+            }
 
-        try {
-            await agent.com.atproto.repo.createRecord({
+            const {data: blockData} = await agent.com.atproto.repo.createRecord({
                 repo: did,
                 collection: "ar.com.cabildoabierto.dataBlock",
                 record: blockRecord
             })
+            return {
+                blockRef: {cid: blockData.cid, uri: blockData.uri},
+                blockRecord,
+                datasetRecord,
+                datasetRef: {cid: datasetData.cid, uri: datasetData.uri}
+            }
         } catch (e) {
             console.error(e)
+            return {error: "No se pudo publicar el dataset."}
         }
     } else {
         return {error: "No se pudo publicar el dataset."}
     }
+}
+
+
+function createDatasetDB(record: any, ref: ATProtoStrongRef) {
+    return []
+}
+
+function createDataBlockDB(record: any, ref: ATProtoStrongRef) {
+    return []
+}
+
+
+export async function createDataset(title: string, columns: string[], description: string, formData: FormData, format: string): Promise<{error?: string}>{
+    const {error, datasetRecord, datasetRef, blockRecord, blockRef} = await createDatasetATProto(title, columns, description, formData, format)
+    if(error) return {error}
+
+    let updates = createDatasetDB(datasetRecord, datasetRef)
+
+    updates = [...updates, ...createDataBlockDB(blockRecord, blockRef)]
+
+    await db.$transaction(updates)
+
     return {}
 }

@@ -27,8 +27,11 @@ export const VisualizationNodeCompFromSpec = ({spec, uri}: {spec: string, uri: s
             <LoadingSpinner/>
         </div>
     } else if(error){
-        return <div className={"p-4 border rounded-lg text-[var(--text-light)] text-center"}>
+        return <div className={"p-4 border rounded-lg text-center"}>
             Ocurrió un error al obtener la visualización. Quizás haya sido borrada.
+            <div className={"text-xs text-center text-[var(--text-light)] break-all"}>
+            Id: {uri}
+            </div>
         </div>
     }
 
@@ -54,7 +57,8 @@ export const VisualizationNodeComp = ({
             onClick={(e) => {e.stopPropagation()}}
         >
 
-            {interactive ? <VegaPlot visualization={visualization} width={width}/> :
+            {interactive ?
+                <VegaPlot visualization={visualization} width={width}/> :
                 <div className={"mb-1"}>
                     <VegaPlotPreview
                         visualization={visualization}

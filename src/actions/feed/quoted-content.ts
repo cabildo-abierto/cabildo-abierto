@@ -75,7 +75,7 @@ export async function getQuotedContent({did, rkey}: {did: string, rkey: string})
             return await getQuotedContentNoCache({did, rkey})
         }, ["quotedContent:"+did+":"+rkey],
         {
-            tags: ["record:"+did+":"+rkey],
+            tags: ["record:"+did+":"+rkey, "quotedContent"],
             revalidate: revalidateEverythingTime
         })()
 }

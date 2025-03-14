@@ -48,7 +48,6 @@ export async function deleteLikeDB(uri: string, likedUri: string){
 export const addLike = async (uri: string, cid: string) => {
     const {agent} = await getSessionAgent()
 
-    console.log("adding like")
     try {
         const res = await agent.like(uri, cid)
 

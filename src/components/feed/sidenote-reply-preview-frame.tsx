@@ -40,8 +40,8 @@ export const SidenoteReplyPreviewFrame = ({
             setTimeout(() => {
                 element.classList.remove('hover-effect'); // Remove after 1 second
             }, 1000);
-        }}>
-
+        }}
+    >
         <div className={"flex"}>
             <div className="w-10 flex flex-col items-center h-full ml-2">
                 {showingParent ? <ReplyVerticalLine className="h-3"/> : <div className="h-3">{emptyChar}</div>}

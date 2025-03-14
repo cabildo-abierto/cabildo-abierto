@@ -28,7 +28,7 @@ export const NodeQuoteReplies = ({
                 setStyle({
                     position: "absolute",
                     top: window.scrollY + rect.top,
-                    left: leftCoordinates + 30,
+                    left: leftCoordinates + 60,
                 });
             }
         };

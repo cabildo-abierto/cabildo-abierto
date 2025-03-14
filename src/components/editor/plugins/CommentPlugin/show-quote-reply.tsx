@@ -11,7 +11,7 @@ import {
     $wrapSelectionInMarkNode,
 } from '@lexical/mark';
 import {$createMarkNode, CustomMarkNode} from "../../nodes/CustomMarkNode";
-import {getDidFromUri, getRkeyFromUri, threadApiUrl} from "../../../utils/utils";
+import {threadApiUrl} from "../../../utils/utils";
 import {useSWRConfig} from "swr";
 import {ReplyToContent} from "./index";
 import {revalidateTags} from "../../../../actions/admin";
@@ -149,7 +149,13 @@ export const ShowQuoteReplyButton = ({
     if(!editor) return null
     return <div className={"space-y-1"} ref={containerRef} id={reply.cid}>
         <div className={"z-10 " + (open ? "text-[var(--text-light)]" : "")}>
-            <IconButton color={"inherit"} size={"small"} onClick={onClick} onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter}>
+            <IconButton
+                color={"inherit"}
+                size={"small"}
+                onClick={onClick}
+                onMouseLeave={onMouseLeave}
+                onMouseEnter={onMouseEnter}
+            >
                 <ActiveCommentIcon fontSize={"inherit"}/>
             </IconButton>
         </div>

@@ -107,7 +107,7 @@ export async function searchTopics(q: string){
     return unstable_cache(async () => {
         return await searchTopicsNoCache(q)
     }, ["searchTopics:"+q], {
-        tags: ["searchTopics:"+q],
+        tags: ["searchTopics:"+q, "searchTopics"],
         revalidate: revalidateEverythingTime
     })()
 }

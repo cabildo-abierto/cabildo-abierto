@@ -183,7 +183,7 @@ export const getCategoryGraph = async (c: string) => {
         },
         ["categorygraph:"+c],
         {
-            tags: ["categorygraph:"+c],
+            tags: ["categorygraph:"+c, "categorygraph"],
             revalidate: revalidateEverythingTime
         }
     )()

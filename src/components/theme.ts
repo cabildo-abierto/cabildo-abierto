@@ -33,6 +33,11 @@ const darkTheme = createTheme({
     background: {
       default: '#181b23',
       paper: '#1e2230',
+    },
+    secondary: {
+      main: '#2e364c',
+      dark: '#2e364c',
+      light: '#2e364c'
     }
   },
   typography: {

@@ -2,7 +2,14 @@
 import {EngagementProps, FeedContentProps, VisualizationProps} from "../../app/lib/definitions";
 import {unstable_cache} from "next/cache";
 import {db} from "../../db";
-import {addCounters, enDiscusionQuery, revalidateEverythingTime, visualizationQuery} from "../utils";
+import {
+    addCounters,
+    enDiscusionQuery,
+    reactionsQuery,
+    recordQuery,
+    revalidateEverythingTime,
+    visualizationQuery
+} from "../utils";
 import {getSessionDid} from "../auth";
 import {getUserEngagementInFeed} from "../feed/inicio";
 import {addCountersToFeed} from "../feed/utils";
@@ -43,18 +50,31 @@ export async function getVisualizations(){
 }
 
 
-export async function getVisualization(uri: string) {
-    const getVisualization = unstable_cache(async () => {
-        return await getVisualizationNoCache(uri)
-    }, [uri], {
-        tags: [uri, "visualization"],
-        revalidate: revalidateEverythingTime
-    })()
+export async function getVisualization(uri: string): Promise<{visualization?: VisualizationProps, error?: string}> {
 
-    const did = await getSessionDid()
-    const [v, engagement] = await Promise.all([getVisualization, getUserEngagementInFeed([{uri}], did)])
+    try {
+        const getVisualization = unstable_cache(
+            async () => {
+                return await getVisualizationNoCache(uri)
+            },
+            [uri],
+            {
+                tags: [uri, "visualization"],
+                revalidate: revalidateEverythingTime
+            }
+        )()
 
-    return addCounters(v, engagement)
+        const did = await getSessionDid()
+        const [{visualization, error}, engagement] = await Promise.all([getVisualization, getUserEngagementInFeed([{uri}], did)])
+
+        if(error) return {error}
+
+        return {visualization: addCounters(visualization, engagement)}
+    } catch (error) {
+        console.error("Error getting visualization", uri)
+        console.error(error)
+        return {error}
+    }
 }
 
 
@@ -62,7 +82,8 @@ export async function getVisualizationNoCache(uri: string): Promise<{visualizati
     try {
         const v: VisualizationProps = await db.record.findUnique({
             select: {
-                ...enDiscusionQuery,
+                ...recordQuery,
+                ...reactionsQuery,
                 visualization: visualizationQuery,
             },
             where: {

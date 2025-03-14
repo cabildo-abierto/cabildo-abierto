@@ -87,7 +87,5 @@ export async function assignInviteCode(inviteCode: string) {
 
     revalidateTag("user:"+did)
 
-    console.log("added invite code ok")
-
     return {}
 }

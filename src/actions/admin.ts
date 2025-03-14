@@ -21,12 +21,19 @@ export async function revalidateEverything(){
         "visualization",
         "tt",
         "fundingPercentage",
+        "donationsDistribution",
         "categories",
         "blobs",
         "conversations",
         "chats",
         "interactions",
-        "topics"
+        "topics",
+        "isCAUser",
+        "serviceendpoint",
+        "quotedContent",
+        "searchTopics",
+        "categoriesgraph",
+        "categorygraph"
     ])
 }
 
