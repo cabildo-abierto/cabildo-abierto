@@ -126,14 +126,16 @@ export const TopicContentExpandedViewHeader = ({
     } else if(isCurrent && wikiEditorState == "editing") {
         buttons = <div>
             {wikiEditorState == "editing" &&
-                <button
-                    className={articleButtonClassname}
-                    onClick={() => {
-                        setWikiEditorState("normal")
-                    }}
-                >
-                    <span className={"px-2"}>Cancelar edición</span>
-                </button>
+                <>
+                    <button
+                        className={articleButtonClassname}
+                        onClick={() => {
+                            setWikiEditorState("normal")
+                        }}
+                    >
+                        <div className={"px-2 pt-1"}>Cancelar edición</div>
+                    </button>
+                </>
             }
             {wikiEditorState == "editing" &&
                 <button
@@ -143,7 +145,7 @@ export const TopicContentExpandedViewHeader = ({
                     }}
                     disabled={!saveEnabled}
                 >
-                    <span className={"px-2"}>Guardar cambios</span>
+                    <div className={"px-2 pt-1"}>Guardar cambios</div>
                 </button>
             }
         </div>

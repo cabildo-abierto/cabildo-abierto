@@ -6,15 +6,17 @@ import {PlotConfigProps} from "../lib/definitions";
 
 
 const Page = async ({searchParams}: {
-    searchParams?: {rkey: string, c: string, did: string}}) => {
+    searchParams: Promise<{rkey: string, c: string, did: string}>}) => {
 
-    if(searchParams.rkey && searchParams.did && (!searchParams.c || searchParams.c == "ar.com.cabildoabierto.visualization")) {
-        const uri = getUri(searchParams.did, "ar.com.cabildoabierto.visualization", searchParams.rkey)
+    const {rkey, did, c} = await searchParams
+
+    if(rkey && did && (!c || c == "ar.com.cabildoabierto.visualization")) {
+        const uri = getUri(did, "ar.com.cabildoabierto.visualization", rkey)
         return <VisualizationEditorForVisualization
             uri={uri}
         />
-    } else if(searchParams.rkey && searchParams.did && searchParams.c == "ar.com.cabildoabierto.dataset"){
-        const uri = getUri(searchParams.did, searchParams.c, searchParams.rkey)
+    } else if(rkey && did && c == "ar.com.cabildoabierto.dataset"){
+        const uri = getUri(did, c, rkey)
 
         const config: PlotConfigProps = {
             datasetUri: uri,

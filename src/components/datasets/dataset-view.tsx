@@ -1,4 +1,4 @@
-import './index.css'
+
 
 export const DatasetView = ({data, maxHeight="600px", maxWidth="600px"}: {
     data: any[], maxHeight?: string, maxWidth?: string}) => {

@@ -632,3 +632,34 @@ th {
 #vg-tooltip-element {
 	z-index: 20000;
 }
+
+.custom-scrollbar {
+	/* Firefox */
+	scrollbar-width: thin;
+	scrollbar-color: var(--accent) var(--background);
+}
+
+/* Chrome, Edge, Safari */
+.custom-scrollbar::-webkit-scrollbar {
+	width: 8px;
+	border-radius: 10px; /* Ensures the scrollbar has rounded edges */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+	background: var(--background);
+	border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+	background: var(--accent);
+	border-radius: 10px; /* Makes the thumb fully rounded */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: var(--accent-dark);
+}
+
+/* Hide scrollbar arrows (buttons) in Chrome, Edge, and Safari */
+.custom-scrollbar::-webkit-scrollbar-button {
+	display: none;
+}
