@@ -11,7 +11,7 @@ import {
     $wrapSelectionInMarkNode,
 } from '@lexical/mark';
 import {$createMarkNode, CustomMarkNode} from "../../nodes/CustomMarkNode";
-import {getDidFromUri, getRkeyFromUri} from "../../../utils/utils";
+import {getDidFromUri, getRkeyFromUri, threadApiUrl} from "../../../utils/utils";
 import {useSWRConfig} from "swr";
 import {ReplyToContent} from "./index";
 import {revalidateTags} from "../../../../actions/admin";
@@ -133,10 +133,10 @@ export const ShowQuoteReplyButton = ({
         setPinned(false)
         setOpen(false)
         if(replyTo && replyTo.uri){
-            mutate("/api/thread/"+getDidFromUri(replyTo.uri)+"/"+getRkeyFromUri(replyTo.uri))
+            mutate(threadApiUrl(replyTo.uri))
         }
         if(root && root.uri){
-            mutate("/api/thread/"+getDidFromUri(root.uri)+"/"+getRkeyFromUri(root.uri))
+            mutate(threadApiUrl(root.uri))
         }
         if(replyTo.collection == "ar.com.cabildoabierto.topic"){
             const topicId = parentContent.content.topicVersion.topic.id

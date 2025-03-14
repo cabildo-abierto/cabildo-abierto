@@ -104,6 +104,7 @@ export async function getBskyFastPost(uri: string): Promise<{post?: FastPostProp
         }
         return {post: formattedPost}
     } catch (e) {
+        console.error("Error getting post", e)
         return {error: "Post not found"}
     }
 }

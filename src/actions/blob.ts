@@ -1,7 +1,8 @@
+"use server"
 import {getSessionAgent} from "./auth";
 import {DidResolver} from "@atproto/identity";
-import {unstable_cache} from "next/cache";
-import {revalidateEverythingTime} from "./utils";
+import {revalidateTag, unstable_cache} from "next/cache";
+import {getObjectSizeInBytes, revalidateEverythingTime} from "./utils";
 
 
 export async function createBlobFromFile(f: File){
@@ -14,42 +15,62 @@ export async function createBlobFromFile(f: File){
 
 
 export async function getServiceEndpointForDidNoCache(did: string){
-    const didres: DidResolver = new DidResolver({})
-    const doc = await didres.resolve(did)
-    if(doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint){
-        return doc.service[0].serviceEndpoint
+    try {
+        const didres: DidResolver = new DidResolver({})
+        const doc = await didres.resolve(did)
+        if(doc && doc.service && doc.service.length > 0 && doc.service[0].serviceEndpoint){
+            return doc.service[0].serviceEndpoint
+        }
+    } catch (e) {
+        console.error("Error getting service endpoint", e)
+        return null
     }
     return null
 }
 
 
 export async function getServiceEndpointForDid(did: string){
-    return unstable_cache(async () => {
+    const endpoint = await unstable_cache(async () => {
             return await getServiceEndpointForDidNoCache(did)
         },
         ["serviceendpoint:"+did],
         {
             tags: ["serviceendpoint:"+did],
             revalidate: revalidateEverythingTime
-        })()
+    })()
+    if(!endpoint){
+        revalidateTag("serviceendpoint:"+did)
+        return await getServiceEndpointForDidNoCache(did)
+    }
+    return endpoint
+}
+
+
+export async function getBlobUrl(blob: {cid: string, authorId: string}){
+    let serviceEndpoint = await getServiceEndpointForDid(blob.authorId)
+
+    if(serviceEndpoint && serviceEndpoint.toString() != "undefined"){
+        return serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
+    }
+    return null
 }
 
 
 export async function fetchBlob(blob: {cid: string, authorId: string}, cache: boolean = true) {
-    const t1 = new Date().getTime()
     let serviceEndpoint = await getServiceEndpointForDid(blob.authorId)
-    const t2 = new Date().getTime()
 
     if (serviceEndpoint) {
         const url = serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
         try {
-            return await fetch(url, cache ? undefined : {cache: "no-store"})
+            const res = await fetch(url, cache ? undefined : {cache: "no-store"})
+            console.log("returning", res)
+            return res
         } catch (e) {
             console.error("Couldn't fetch blob", blob.cid, blob.authorId)
             return null
         }
     }
-    //console.log("couldn't resolve did doc", blob.authorId)
+    console.log("couldn't resolve did doc", blob.authorId)
     return null
 }
 

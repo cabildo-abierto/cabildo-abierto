@@ -46,7 +46,7 @@ export const FastPostPreviewFrame = ({
                     onClick={(e) => {e.stopPropagation()}}
                     className="w-11 h-11 flex items-center justify-center">
                     <Image
-                        src={record.author.avatar}
+                        src={record.author.avatar ? record.author.avatar : "https://www.gravatar.com/avatar/?d=mp"}
                         alt={"Perfil de "+record.author.handle}
                         width={300}
                         height={300}

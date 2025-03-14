@@ -8,7 +8,7 @@ const Page = () => {
             <div className={"text-3xl"}>
                 <NotificationsIconMui fontSize={"inherit"}/></div>
             <div className={"text-2xl"}>Notificaciones
-        </div>
+            </div>
         </div>
         <div className={"text-center mt-8 text-[var(--text-light)]"}>
             Ninguna notificación por ahora.

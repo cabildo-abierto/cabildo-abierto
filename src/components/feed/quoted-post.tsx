@@ -1,5 +1,5 @@
 "use client"
-import {EmbedProps, FastPostProps} from "../../app/lib/definitions";
+import {FastPostProps} from "../../app/lib/definitions";
 import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {ContentTopRowAuthor} from "./content-top-row-author";
 import Image from 'next/image'
@@ -17,7 +17,7 @@ import {usePost} from "../../hooks/contents";
 const QuotedPostFromUri = ({uri}: {uri: string}) => {
     const post = usePost(uri)
 
-    if(!post.isLoading){
+    if(post.isLoading){
         return <div className={"h-full py-4"}>
             <LoadingSpinner/>
         </div>
@@ -44,7 +44,7 @@ export const QuotedPostFromEmbed = ({embedStr}: {embedStr: string}) => {
 export const QuotedPost = ({maybePost}: {maybePost: {post?: FastPostProps, error?: string}}) => {
     const router = useRouter()
 
-    if(maybePost.error) {
+    if(!maybePost.post || maybePost.error) {
         return <div className={"rounded-lg border p-3 mt-2"}>
             No se encontró el post.
         </div>

@@ -1,6 +1,8 @@
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import {FeedEngagementProps} from "../app/lib/definitions";
+import {getDidFromUri} from "../components/utils/utils";
+import {feedCAQuery} from "./feed/feedCA";
 
 
 export const revalidateEverythingTime = 5 // 6*3600
@@ -22,7 +24,6 @@ export const recordQuery = {
         }
     }
 }
-
 
 export function addCounters(elem: any, engagement: FeedEngagementProps): any {
     if(elem.content && elem.content.post){
@@ -54,9 +55,9 @@ export function addCounters(elem: any, engagement: FeedEngagementProps): any {
 
     return {
         ...elem,
-        likeCount: elem._count.likes,
-        replyCount: elem._count.replies,
-        repostCount: elem._count.reposts,
+        likeCount: elem._count ? elem._count.likes : undefined,
+        replyCount: elem._count ? elem._count.replies : undefined,
+        repostCount: elem._count ? elem._count.reposts : undefined,
         visualizationsUsingCount,
         viewer
     }
@@ -121,20 +122,12 @@ export const basicUserQuery = {
 
 
 export const reactionsQuery = {
-    select: {
-        record: {
-            select: {
-                uri: true,
-                collection: true,
-                author: {
-                    select: {
-                        did: true,
-                        handle: true,
-                        displayName: true
-                    },
-                },
-                createdAt: true,
-            }
+    uniqueViewsCount: true,
+    _count: {
+        select: {
+            reposts: true,
+            likes: true,
+            replies: true
         }
     }
 }
@@ -197,6 +190,7 @@ export const enDiscusionQuery = {
 
 export const threadRepliesQuery = {
     ...recordQuery,
+    ...reactionsQuery,
     content: {
         select: {
             text: true,
@@ -220,118 +214,92 @@ export const threadRepliesQuery = {
             },
         },
     },
-    _count: {
-        select: {
-            replies: true,
-            likes: true,
-            reposts: true
-        }
-    },
-    uniqueViewsCount: true
 }
 
 
-export const threadQuery = {
-    cid: true,
-    uri: true,
-    collection: true,
-    createdAt: true,
-    author: basicUserQuery,
-    content: {
-        select: {
-            text: true,
-            textBlob: {
+export const threadQuery = (c: string) => {
+
+    if(c == "app.bsky.feed.post" || c == "ar.com.cabildoabierto.quotePost"){
+        return {
+            ...recordQuery,
+            ...reactionsQuery,
+            content: {
                 select: {
-                    authorId: true,
-                    cid: true
-                }
-            },
-            article: {
-                select: {
-                    title: true
-                }
-            },
-            post: {
-                select: {
-                    facets: true,
-                    embed: true,
-                    replyTo: {
+                    text: true,
+                    post: {
                         select: {
-                            uri: true,
-                            cid: true,
-                            author: basicUserQuery,
-                            content: {
+                            facets: true,
+                            embed: true,
+                            quote: true,
+                            replyTo: {
                                 select: {
-                                    text: true,
-                                    article: {
+                                    uri: true,
+                                    author: {
                                         select: {
-                                            title: true
+                                            did: true,
+                                            handle: true,
+                                            displayName: true
                                         }
-                                    },
-                                    topicVersion: {
+                                    }
+                                }
+                            },
+                            root: {
+                                select: {
+                                    uri: true,
+                                    author: {
                                         select: {
-                                            topic: {
-                                                select: {
-                                                    id: true,
-                                                    versions: {
-                                                        select: {
-                                                            title: true
-                                                        },
-                                                        orderBy: {
-                                                            content: {
-                                                                record: {
-                                                                    createdAt: "asc" as SortOrder
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            },
+                                            did: true,
+                                            handle: true,
+                                            displayName: true
                                         }
                                     }
                                 }
                             }
                         }
-                    },
-                    root: {
+                    }
+                }
+            },
+        }
+    } else if(c == "ar.com.cabildoabierto.article"){
+        return {
+            ...recordQuery,
+            ...reactionsQuery,
+            content: {
+                select: {
+                    text: true,
+                    textBlob: {
                         select: {
-                            uri: true,
+                            authorId: true,
                             cid: true
                         }
                     },
-                    quote: true
-                }
-            },
-            topicVersion: {
-                select: {
-                    topic: {
+                    article: {
                         select: {
-                            id: true,
-                            versions: {
-                                select: {
-                                    uri: true
-                                },
-                                orderBy: {
-                                    content: {
-                                        record: {
-                                            createdAt: "asc" as SortOrder
-                                        }
-                                    }
-                                }
-                            }
+                            title: true
                         }
                     },
-                    categories: true,
-                    synonyms: true,
-                    charsAdded: true,
-                    charsDeleted: true
-                }
+                },
             }
-        },
-    },
-    visualization: visualizationQuery,
-    dataset: datasetQuery
+        }
+    } else if(c == "ar.com.cabildoabierto.visualization"){
+        return {
+            ...recordQuery,
+            ...reactionsQuery,
+            visualization: visualizationQuery,
+        }
+    } else if(c == "ar.com.cabildoabierto.dataset"){
+        return {
+            ...recordQuery,
+            ...reactionsQuery,
+            dataset: datasetQuery,
+        }
+
+    } else {
+        throw Error("Not implemented")
+    }
 }
+
+
 
 
 export function getObjectSizeInBytes(obj) {

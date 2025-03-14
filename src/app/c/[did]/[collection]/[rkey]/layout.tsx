@@ -4,7 +4,8 @@ import {shortCollectionToCollection} from "../../../../../components/utils/utils
 
 
 
-export default async function RootLayout({children, params}: Readonly<{ children: React.ReactNode; params: Promise<{did: string, collection: string, rkey: string}> }>) {
+export default async function RootLayout({children, params}: Readonly<{
+    children: React.ReactNode; params: Promise<{did: string, collection: string, rkey: string}> }>) {
     const {collection} = await params
     const c = shortCollectionToCollection(collection)
     const isArticle = c == "ar.com.cabildoabierto.article"
