@@ -63,7 +63,6 @@ export async function fetchBlob(blob: {cid: string, authorId: string}, cache: bo
         const url = serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
         try {
             const res = await fetch(url, cache ? undefined : {cache: "no-store"})
-            console.log("returning", res)
             return res
         } catch (e) {
             console.error("Couldn't fetch blob", blob.cid, blob.authorId)

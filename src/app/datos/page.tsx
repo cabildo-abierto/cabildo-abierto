@@ -1,7 +1,6 @@
 "use client"
 import {useState} from "react";
 import {BasicButton} from "../../components/ui-utils/basic-button";
-import '../../components/datasets/index.css'
 import Link from "next/link";
 import SelectionComponent from "../../components/search/search-selection-component";
 import AddIcon from "@mui/icons-material/Add";

@@ -64,13 +64,6 @@ export async function deleteRecords({uris, author, atproto}: {uris?: string[], a
                 }
             }
         }),
-        db.content.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
         db.like.deleteMany({
             where: {
                 uri: {
@@ -107,6 +100,13 @@ export async function deleteRecords({uris, author, atproto}: {uris?: string[], a
             }
         }),
         db.dataset.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.content.deleteMany({
             where: {
                 uri: {
                     in: uris

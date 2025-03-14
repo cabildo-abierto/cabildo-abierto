@@ -1,7 +1,7 @@
 "use server"
 import {getDidFromUri, getRkeyFromUri} from "../../components/utils/utils";
 import {unstable_cache} from "next/cache";
-import {datasetQuery, enDiscusionQuery, recordQuery, revalidateEverythingTime} from "../utils";
+import {datasetQuery, enDiscusionQuery, logTimes, recordQuery, revalidateEverythingTime} from "../utils";
 import {DatasetProps, FeedContentProps} from "../../app/lib/definitions";
 import {db} from "../../db";
 import JSZip from "jszip";
@@ -10,13 +10,39 @@ import {getSessionDid} from "../auth";
 import {getUserEngagementInFeed} from "../feed/inicio";
 import {addCountersToFeed} from "../feed/utils";
 import {fetchBlob} from "../blob";
+import {compress, decompress} from "../../components/utils/compression";
+
+
+function compressData(data: any[]){
+    const t1 = Date.now()
+    const s = JSON.stringify(data)
+    const t2 = Date.now()
+    const res = compress(s)
+    const t3 = Date.now()
+    logTimes("compress dataset", [t1, t2, t3])
+
+    return res
+
+}
+
+
+function decompressDataset(dataset: {dataset?: DatasetProps, data?: string}){
+    const t1 = Date.now()
+    const decompressedData = decompress(dataset.data)
+    const t2 = Date.now()
+    const res = JSON.parse(decompressedData)
+    const t3 = Date.now()
+    logTimes("decompress dataset", [t1, t2, t3])
+
+    return {dataset: dataset.dataset, data: res}
+}
 
 
 export async function getDataset(uri: string) {
     const did = getDidFromUri(uri)
     const rkey = getRkeyFromUri(uri)
-    return await unstable_cache(async () => {
-            return await getDatasetNoCache(uri)
+    const compressedDataset = await unstable_cache(async () => {
+            return await getCompressedDataset(uri)
         },
         ["dataset:"+did+":"+rkey],
         {
@@ -24,10 +50,12 @@ export async function getDataset(uri: string) {
             revalidate: revalidateEverythingTime
         }
     )()
+
+    return decompressDataset(compressedDataset)
 }
 
 
-export async function getDatasetNoCache(uri: string){
+export async function getCompressedDataset(uri: string): Promise<{dataset?: DatasetProps, data?: string, error?: string}> {
 
     let dataset: DatasetProps
     try {
@@ -113,28 +141,37 @@ export async function getDatasetNoCache(uri: string){
 
     const datasetWithColumnValues: DatasetProps = {...dataset, dataset: {...dataset.dataset, columnValues: setValuesToListValues(columnValues)}}
 
-    return {dataset: datasetWithColumnValues, data: data}
+    return {dataset: datasetWithColumnValues, data: compressData(data)}
 }
-
 
 
 export async function getDatasets(): Promise<FeedContentProps[]>{
     const did = await getSessionDid()
 
-    let datasets: DatasetProps[] = await db.record.findMany({
-        select: {
-            ...enDiscusionQuery,
-            dataset: datasetQuery,
-            visualizationsUsing: {
+    let datasets: DatasetProps[] = await unstable_cache(
+        async () => {
+            return await db.record.findMany({
                 select: {
-                    uri: true
+                    ...enDiscusionQuery,
+                    dataset: datasetQuery,
+                    visualizationsUsing: {
+                        select: {
+                            uri: true
+                        }
+                    }
+                },
+                where: {
+                    collection: "ar.com.cabildoabierto.dataset"
                 }
-            }
+            })
         },
-        where: {
-            collection: "ar.com.cabildoabierto.dataset"
+        undefined,
+        {
+            tags: ["datasets"],
+            revalidate: revalidateEverythingTime
         }
-    })
+    )()
+
     const engagement = await getUserEngagementInFeed(datasets, did)
 
     datasets = datasets.filter((d) => {

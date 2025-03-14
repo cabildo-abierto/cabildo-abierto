@@ -14,6 +14,7 @@ export async function login(handle: string, inviteCode?: string){
 
     console.log("Logging in with invite code", inviteCode)
     const oauthClient = await createClient(inviteCode)
+    console.log("Client created")
 
     if (typeof handle !== 'string' || !isValidHandle(handle)) {
         return {error: "Nombre de usuario inválido." + (handle.includes("@") ? " Escribilo sin @." : "")}
@@ -24,17 +25,21 @@ export async function login(handle: string, inviteCode?: string){
         url = await oauthClient.authorize(handle, {
             scope: 'atproto transition:generic'
         })
+        console.log("authorized url", url)
     } catch (err) {
         // TO DO: Esto no debería hacer falta...
 
+        console.log("resolving handle")
         const resolver = new AppViewHandleResolver('https://api.bsky.app/')
         const did = await resolver.resolve(handle)
 
         if(did){
             try {
+                console.log("authorizing url")
                 url = await oauthClient.authorize(did, {
                     scope: 'atproto transition:generic'
                 })
+                console.log("authorized url", url)
             } catch(err) {
                 console.error("error on did authorize", err)
                 return {error: "Falló la conexión."}
@@ -43,7 +48,7 @@ export async function login(handle: string, inviteCode?: string){
             return {error: "Falló la conexión."}
         }
     }
-
+    console.log("returning url", url.toString())
     return {url: url.toString()}
 }
 
