@@ -118,7 +118,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                                 <TextField
                                     label={req.label}
                                     size="small"
-                                    value={config[req.label]}
+                                    value={config[req.label] ? config[req.label] : ""}
                                     InputProps={{
                                         autoComplete: "off",
                                         sx: { fontSize: "14px" }, // Adjust text input font size

@@ -22,7 +22,7 @@ export function newUser(did: string, inCA: boolean){
 
 
 
-export function newDirtyRecord({cid, uri} : {cid: string, uri: string}){
+export function newDirtyRecord({cid, uri} : {cid?: string, uri: string}){
     const did = getDidFromUri(uri)
     const updates: any[] = newUser(did, false)
     const data = {
@@ -58,6 +58,7 @@ export function createRecord({uri, cid, createdAt, collection}: {
         authorId: getDidFromUri(uri),
         collection: collection
     }
+    console.log("creating record", data)
     let updates: any[] = [db.record.upsert({
         create: data,
         update: data,

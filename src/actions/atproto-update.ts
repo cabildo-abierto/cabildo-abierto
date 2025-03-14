@@ -134,6 +134,12 @@ export async function deleteRecords({uris, author, atproto}: {uris?: string[], a
         }
         if(c == "ar.com.cabildoabierto.article"){
         }
+        if(c == "ar.com.cabildoabierto.visualization"){
+            tags.add("visualizations")
+        }
+        if(c == "ar.com.cabildoabierto.dataset"){
+            tags.add("datasets")
+        }
     }
     await revalidateTags(Array.from(tags))
 }

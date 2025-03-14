@@ -7,6 +7,7 @@ import Link from "next/link";
 import {DateSince} from "../ui-utils/date";
 import {VegaPlotPreview} from "./vega-plot-preview";
 import TableChartIcon from '@mui/icons-material/TableChart';
+import {useSWRConfig} from "swr";
 
 function getTitleFromSpec(spec: string){
     try {
@@ -19,9 +20,14 @@ function getTitleFromSpec(spec: string){
 
 
 export const VisualizationCard = ({visualization, width}: {visualization: VisualizationProps & EngagementProps, width: number}) => {
+    const {mutate} = useSWRConfig()
     const url = urlFromRecord(visualization as {uri: string, collection: string, author: {did: string, handle: string}})
 
     const title = getTitleFromSpec(visualization.visualization.spec)
+
+    async function onDelete(){
+        mutate("/api/visualizations")
+    }
 
     return <div
         className={"flex flex-col rounded"}
@@ -62,8 +68,12 @@ export const VisualizationCard = ({visualization, width}: {visualization: Visual
             </div>
 
             <div className={"mt-1 flex justify-center px-2"}>
-                <EngagementIcons record={visualization} counters={visualization}
-                                 className={"flex justify-between w-full px-4"}/>
+                <EngagementIcons
+                    record={visualization}
+                    counters={visualization}
+                    className={"flex justify-between w-full px-4"}
+                    onDelete={onDelete}
+                />
             </div>
         </div>
     </div>
