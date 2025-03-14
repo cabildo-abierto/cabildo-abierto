@@ -2,14 +2,13 @@
 
 import { db } from "../../db";
 import {
-    FeedContentProps,
+    FeedContentProps, FeedEngagementProps,
 } from "../../app/lib/definitions";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {
-    enDiscusionQuery
+    enDiscusionQuery, logTimes
 } from "../utils";
-import {popularityScore} from "../../components/feed/popularity-score";
-import {listOrderDesc, newestFirst} from "../../components/utils/utils";
+import {newestFirst} from "../../components/utils/utils";
 
 import {getFollowing} from "../user/users";
 import {addCountersToFeed, addReasonToRepost, joinCAandATFeeds} from "./utils";
@@ -30,12 +29,30 @@ export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[
 
     let postsQuery = getFeedCA(following)
     let repostsQuery = db.record.findMany({
-        select: enDiscusionQuery,
+        select: {
+            ...enDiscusionQuery,
+            reposts: {
+                select: {
+                    record: {
+                        select: {
+                            author: {
+                                select: {
+                                    did: true,
+                                    displayName: true,
+                                    handle: true,
+                                    avatar: true
+                                }
+                            },
+                            createdAt: true
+                        }
+                    }
+                }
+            }
+        },
         where: {
-            reactions: {
+            reposts: {
                 some: {
                     record: {
-                        collection: "app.bsky.feed.repost",
                         ...authorCond
                     }
                 }
@@ -49,17 +66,18 @@ export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[
 
     const [posts, reposts] = await Promise.all([postsQuery, repostsQuery])
 
+    const [postsEngagement, repostsEngagement] = await Promise.all([getUserEngagementInFeed(posts, did), getUserEngagementInFeed(reposts, did)])
 
     let feed = [
-        ...addCountersToFeed(posts, did),
-        ...addCountersToFeed(reposts, did).map((r) => (addReasonToRepost(r, following)))
+        ...addCountersToFeed(posts, postsEngagement),
+        ...addCountersToFeed(reposts.map(r => addReasonToRepost(r, following)), repostsEngagement)
     ]
 
     feed = feed.sort(newestFirst).slice(0, 50)
 
     const t4 = Date.now()
 
-    // console.log("following feed CA time", t4-t1, "=", t2-t1, "+", t3-t2, "+", t4-t3)
+    logTimes("following feed CA time", [t1, t2, t3, t4])
     return {feed: feed}
 }
 
@@ -95,16 +113,59 @@ export async function getFollowingFeed(){
 }
 
 
+
+
+export async function getUserEngagementInFeed(feed: {uri?: string}[], did: string): Promise<FeedEngagementProps> {
+    const uris = feed.filter(({uri}) => uri).map(e => e.uri)
+
+    const getLikes = db.like.findMany({
+        select: {
+            likedRecordId: true,
+            uri: true
+        },
+        where: {
+            record: {
+                authorId: did
+            },
+            likedRecordId: {
+                in: uris
+            }
+        }
+    })
+
+    const getReposts = db.repost.findMany({
+        select: {
+            repostedRecordId: true,
+            uri: true
+        },
+        where: {
+            record: {
+                authorId: did
+            },
+            repostedRecordId: {
+                in: uris
+            }
+        }
+    })
+
+    const [likes, reposts] = await Promise.all([getLikes, getReposts])
+
+    return {likes, reposts}
+}
+
+
 export async function getEnDiscusion(): Promise<{feed?: FeedContentProps[], error?: string}> {
     const did = await getSessionDid()
+
+    const t1 = Date.now()
     let feed = await getFeedCACached()
+    const t2 = Date.now()
+    const engagement = await getUserEngagementInFeed(feed, did)
+    const t3 = Date.now()
 
-    const readyForFeed = addCountersToFeed(feed, did)
+    logTimes("En discusion", [t1, t2, t3])
 
-    const sortedFeed = readyForFeed.map((e) => ({
-        element: e as FeedContentProps,
-        score: popularityScore(e as FeedContentProps)
-    })).sort(listOrderDesc)
+    const readyForFeed = addCountersToFeed(feed, engagement)
 
-    return {feed: sortedFeed.map(({element}) => (element))}
+    return {feed: readyForFeed}
 }

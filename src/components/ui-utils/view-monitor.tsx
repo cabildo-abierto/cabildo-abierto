@@ -1,7 +1,7 @@
 "use client"
 import React, {ReactNode, useEffect, useRef, useState} from "react";
 import {useUser} from "../../hooks/user";
-import {addView} from "../../actions/contents";
+import {addView} from "../../actions/reactions";
 
 
 export const ViewMonitor = ({children, uri}: {children: ReactNode, uri: string}) => {

@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getDatasets} from "../../../actions/data";
+import {getDatasets} from "../../../actions/dataset/read";
 
 
 export async function GET() {

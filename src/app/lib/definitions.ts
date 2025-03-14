@@ -27,14 +27,6 @@ export type FastPostReplyProps = {
 }
 
 
-export type BasicUserProps = {
-    did: string
-    handle: string
-    avatar?: string
-    displayName?: string
-}
-
-
 export type TopicVersionProps = RecordProps & {
     content: {
         text: string
@@ -60,12 +52,6 @@ export type TopicVersionProps = RecordProps & {
             synonyms?: string
         }
     }
-    reactions: {
-        record: {
-            authorId: string
-            collection: string
-        }
-    }[]
 }
 
 
@@ -100,16 +86,6 @@ export type TopicsGraph = {
 }
 
 
-type ReactionProps = {
-    reactions?: {
-        record: {
-            uri: string,
-            collection: string
-            author: {did: string, handle: string, displayName?: string}
-            createdAt: Date
-        }
-    }[]
-}
 export type ReasonProps = {
     reason?: {
         createdAt: Date
@@ -117,7 +93,7 @@ export type ReasonProps = {
         by: SmallUserProps
     }
 }
-export type FeedContentProps = ((FastPostProps | ArticleProps | DatasetProps | VisualizationProps | TopicVersionOnFeedProps | {}) & RecordProps & EngagementProps & ReactionProps & ReasonProps)
+export type FeedContentProps = ((FastPostProps | ArticleProps | DatasetProps | VisualizationProps | TopicVersionOnFeedProps | {}) & RecordProps & EngagementProps & ReasonProps)
 export type FeedContentPropsMaybe = FeedContentProps & {blocked?: boolean, notFound?: boolean}
 
 export type SmallUserProps = {
@@ -143,6 +119,13 @@ export type BothContributionsProps = {
 }
 
 export type ContributionsProps = [string, number][]
+
+
+export type FeedEngagementProps = {
+    likes: {likedRecordId: string; uri: string}[]
+    reposts: {repostedRecordId: string; uri: string}[]
+}
+
 
 
 export type SubscriptionProps = {
@@ -302,13 +285,6 @@ export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
             charsAdded?: number
             charsDeleted?: number
         }
-    }
-}
-
-
-export type RepostProps = RecordProps & {
-    reaction: {
-        reactsTo: FeedContentProps
     }
 }
 

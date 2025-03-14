@@ -1,13 +1,13 @@
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 import {FastPostProps, ThreadProps} from "../../app/lib/definitions";
-import {Agent} from "@atproto/api";
 import {getUri, validQuotePost} from "../../components/utils/utils";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {unstable_cache} from "next/cache";
-import {addCounters, feedQuery, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";
-import {getUsers, isCAUser} from "../user/users";
+import {addCounters, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";
+import {isCAUser} from "../user/users";
 import {db} from "../../db";
 import {getTextFromBlob} from "../topic/topics";
+import {getUserEngagementInFeed} from "../feed/inicio";
 
 
 function threadViewPostToThread(thread: ThreadViewPost) {
@@ -129,12 +129,14 @@ export async function getThreadFromCA({did, rkey}: {did: string, rkey}) {
         }
     )()
 
+
     if(thread.thread){
+        const engagement = await getUserEngagementInFeed([thread.thread.post, ...thread.thread.replies], viewerDid)
         return {
             thread: {
-                post: addCounters(viewerDid, thread.thread.post, thread.thread.replies),
+                post: addCounters(thread.thread.post, engagement),
                 replies: thread.thread.replies.map((r) => {
-                    return addCounters(viewerDid, r)
+                    return addCounters(r, engagement)
                 })
             },
         }

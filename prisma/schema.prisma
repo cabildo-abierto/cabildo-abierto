@@ -129,6 +129,17 @@ model Topic {
 model TopicCategory {
   id     String            @id
   topics TopicToCategory[]
+  linksA CategoryLink[]    @relation("linksA")
+  linksB CategoryLink[]    @relation("linksB")
+}
+
+model CategoryLink {
+  idCategoryA String
+  categoryA   TopicCategory @relation("linksA", fields: [idCategoryA], references: id)
+  idCategoryB String
+  categoryB   TopicCategory @relation("linksB", fields: [idCategoryB], references: id)
+
+  @@id([idCategoryA, idCategoryB])
 }
 
 model TopicToCategory {
@@ -153,7 +164,8 @@ model Record {
   createdAt DateTime @default(now()) @map("created_at")
 
   content             Content?
-  reaction            Reaction?
+  like                Like?
+  repost              Repost?
   follow              Follow?
   dataset             Dataset?
   dataBlock           DataBlock?
@@ -165,11 +177,13 @@ model Record {
 
   record String?
 
-  reactions Reaction[] @relation("reactsTo")
-  replies   Post[]     @relation("reply")
-  rootOf    Post[]     @relation("root")
+  likes   Like[]   @relation("likes")
+  reposts Repost[] @relation("reposts")
+  replies Post[]   @relation("reply")
+  rootOf  Post[]   @relation("root")
 
-  views View[]
+  views            View[]
+  uniqueViewsCount Int?   @default(0)
 }
 
 model Content {
@@ -215,11 +229,18 @@ model Follow {
   userFollowed   User?   @relation(fields: [userFollowedId], references: [did])
 }
 
-model Reaction {
-  uri        String  @id
-  record     Record  @relation(fields: [uri], references: [uri])
-  reactsToId String?
-  reactsTo   Record? @relation("reactsTo", fields: [reactsToId], references: [uri])
+model Like {
+  uri           String  @id
+  record        Record  @relation(fields: [uri], references: [uri])
+  likedRecordId String?
+  likedRecord   Record? @relation("likes", fields: [likedRecordId], references: [uri])
+}
+
+model Repost {
+  uri              String  @id
+  record           Record  @relation(fields: [uri], references: [uri])
+  repostedRecordId String?
+  repostedRecord   Record? @relation("reposts", fields: [repostedRecordId], references: [uri])
 }
 
 model TopicVersion {

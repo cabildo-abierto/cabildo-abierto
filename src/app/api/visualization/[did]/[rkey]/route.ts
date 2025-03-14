@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getVisualization} from "../../../../../actions/data";
+import {getVisualization} from "../../../../../actions/visualization/read";
 
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ did: string, rkey: string }> }) {

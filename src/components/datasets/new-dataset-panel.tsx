@@ -2,19 +2,14 @@ import {Button, styled, TextField} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {useEffect, useState} from "react";
 import {BaseFullscreenPopup} from "../ui-utils/base-fullscreen-popup";
-import CheckIcon from "@mui/icons-material/Check";
 import {useRouter} from "next/navigation";
-import {BackButton} from "../ui-utils/back-button";
 import JSZip from "jszip";
-import {createDataset} from "../../actions/data";
-import {BasicButton} from "../ui-utils/basic-button";
+import {createDataset} from "../../actions/dataset/write";
 import StateButton from "../ui-utils/state-button";
 import {UploadFile} from "@mui/icons-material";
 import {DatasetView} from "./dataset-view";
 import Papa from 'papaparse';
-import CloseIcon from "@mui/icons-material/Close";
 import {CloseButton} from "../ui-utils/close-button";
-import {emptyChar} from "../utils/utils";
 
 
 const VisuallyHiddenInput = styled('input')({

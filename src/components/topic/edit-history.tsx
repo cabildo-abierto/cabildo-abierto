@@ -106,20 +106,22 @@ const ConfirmEditButtons = ({topic, version}: {topic: TopicProps, version: numbe
             icon2={<ConfirmEditIcon/>}
             onLike={async () => {return {error: "Sin implementar"}}}
             onDislike={async () => {return {error: "Sin implementar"}}}
-            initialCount={countReactions(topic.versions[version].reactions, "ar.com.cabildoabierto.wiki.accept")}
+            initialCount={0}
         />
         <LikeCounter
             icon1={<RejectEditIcon/>}
             icon2={<RejectEditIcon/>}
             onLike={async () => {return {error: "Sin implementar"}}}
             onDislike={async () => {return {error: "Sin implementar"}}}
-            initialCount={countReactions(topic.versions[version].reactions, "ar.com.cabildoabierto.wiki.reject")}
+            initialCount={0}
         />
     </div>
 }
 
 
-const AssignAuthorshipButtons = ({topic, version}: {topic: TopicProps, version: number}) => {
+const AssignAuthorshipButtons = ({topic, version}: {
+    topic: TopicProps, version: number
+}) => {
     return <div className="flex space-x-2">
         <LikeCounter
             icon1={<AuthorshipClaimIcon/>}
@@ -130,7 +132,7 @@ const AssignAuthorshipButtons = ({topic, version}: {topic: TopicProps, version: 
             onDislike={async () => {
                 return {error: "Sin implementar"}
             }}
-            initialCount={countReactions(topic.versions[version].reactions, "ar.com.cabildoabierto.wiki.accept")}
+            initialCount={0}
         />
         <LikeCounter
             icon1={<NoAuthorshipClaimIcon/>}
@@ -141,7 +143,7 @@ const AssignAuthorshipButtons = ({topic, version}: {topic: TopicProps, version: 
             onDislike={async () => {
                 return {error: "Sin implementar"}
             }}
-            initialCount={countReactions(topic.versions[version].reactions, "ar.com.cabildoabierto.wiki.reject")}
+            initialCount={0}
         />
     </div>
 }

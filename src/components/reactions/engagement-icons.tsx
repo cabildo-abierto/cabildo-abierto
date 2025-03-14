@@ -4,7 +4,7 @@ import { InactiveCommentIcon } from "../icons/inactive-comment-icon"
 import { InactiveLikeIcon } from "../icons/inactive-like-icon"
 import { RepostIcon } from "../icons/reposts-icon"
 import { FixedCounter, LikeCounter } from "./like-counter"
-import {addLike, removeLike, removeRepost, repost} from "../../actions/contents";
+import {addLike, removeLike, removeRepost, repost} from "../../actions/reactions";
 import {EngagementProps, RecordProps} from "../../app/lib/definitions";
 import {ViewsIcon} from "../icons/views-icon";
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
@@ -26,6 +26,15 @@ export const EngagementIcons = ({
     className="space-x-16",
     onDelete=() => {}
 }: EngagementIconsProps) => {
+
+    const onDislike = async () => {
+        return await removeLike(counters.viewer.like, record.uri)
+    }
+
+    const onRemoveRepost = async () => {
+        return await removeRepost(counters.viewer.repost, record.uri)
+    }
+
     return <div className={"flex items-center exclude-links " + className}>
         {record.collection != "ar.com.cabildoabierto.topic" && <>
         {counters.replyCount != undefined && <CustomLink href={contentUrl(record.uri)}>
@@ -38,7 +47,7 @@ export const EngagementIcons = ({
             icon1={<span className={"text-green-400"}><RepostIcon fontSize={"small"}/></span>}
             icon2={<RepostIcon fontSize={"small"}/>}
             onLike={async () => {return await repost(record.uri, record.cid)}}
-            onDislike={removeRepost}
+            onDislike={onRemoveRepost}
             title="Cantidad de republicaciones."
             likeUri={counters.viewer ? counters.viewer.repost : undefined}
             initialCount={counters.repostCount}
@@ -47,7 +56,7 @@ export const EngagementIcons = ({
             icon1={<span className={"text-red-400"}><ActiveLikeIcon fontSize={"small"}/></span>}
             icon2={<InactiveLikeIcon fontSize={"small"}/>}
             onLike={async () => {return await addLike(record.uri, record.cid)}}
-            onDislike={removeLike}
+            onDislike={onDislike}
             title="Cantidad de me gustas."
             likeUri={counters.viewer ? counters.viewer.like : undefined}
             initialCount={counters.likeCount}

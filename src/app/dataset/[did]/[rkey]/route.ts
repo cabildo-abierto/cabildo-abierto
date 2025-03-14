@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {getDatasetNoCache} from "../../../../actions/data";
 import {getUri} from "../../../../components/utils/utils";
+import {getDataset} from "../../../../actions/dataset/read";
 
 
 export async function GET(req: NextRequest,
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest,
     const {did, rkey} = await params
 
     const uri = getUri(did, "ar.com.cabildoabierto.dataset", rkey)
-    let data = await getDatasetNoCache(uri)
+    let data = await getDataset(uri)
 
     return NextResponse.json(data.data);
 }

@@ -54,22 +54,21 @@ const DatasetCard = ({dataset, width}: {
     const url = urlFromRecord(dataset as {uri: string, collection: string, author: {did: string, handle: string}})
 
 
-    return <CustomLink
-        href={url}
+    return <div
         style={{width}}
         className={"flex flex-col items-center text-center"}
     >
-        <div className={""}>
+        <CustomLink href={url}>
             <SmallDatasetPreview
                 dataset={dataset}
                 width={width}
                 height={Math.min(width*0.8, 180)}
             />
-        </div>
+        </CustomLink>
 
-        <div className={"font-semibold"} style={{width}}>
+        <CustomLink href={url} className={"font-semibold"} style={{width}}>
             {dataset.dataset.title}
-        </div>
+        </CustomLink>
 
         <div className={"text-sm space-x-1 flex items-center text-[var(--text-light)] break-all"}>
             <div><Authorship content={dataset} onlyAuthor={true}/></div>
@@ -80,7 +79,7 @@ const DatasetCard = ({dataset, width}: {
         <div className={"mt-1 flex justify-center"}>
             <EngagementIcons record={dataset} counters={dataset} className={"space-x-2"}/>
         </div>
-    </CustomLink>
+    </div>
 }
 
 

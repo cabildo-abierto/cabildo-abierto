@@ -3,7 +3,7 @@ import {
     DatasetProps,
     FeedContentProps, ThreadProps, TopicProps,
     SmallTopicProps,
-    VisualizationProps, EngagementProps, TopicsGraph
+    VisualizationProps, EngagementProps, TopicsGraph, FastPostProps
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import {getDidFromUri, getRkeyFromUri} from "../components/utils/utils";
@@ -92,6 +92,23 @@ export function useQuotedContent(uri: string): {quotedContent: QuotedContent, er
 
     return {
         quotedContent: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function usePost(uri: string): {post: FastPostProps, error?: string, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/post/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        post: data,
         isLoading,
         isError: error
     }

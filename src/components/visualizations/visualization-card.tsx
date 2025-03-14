@@ -24,7 +24,7 @@ export const VisualizationCard = ({visualization, width}: {visualization: Visual
     const title = getTitleFromSpec(visualization.visualization.spec)
 
     return <div
-        className={"cursor-pointer flex flex-col rounded"}
+        className={"flex flex-col rounded"}
         style={{width}}
     >
         <CustomLink href={url} className={"h-full flex items-center p-2"} style={{height: width*0.6}}>

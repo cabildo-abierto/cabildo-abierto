@@ -1,8 +1,9 @@
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
+import {FeedEngagementProps} from "../app/lib/definitions";
 
 
-export const revalidateEverythingTime = 6*3600
+export const revalidateEverythingTime = 5 // 6*3600
 
 
 export const recordQuery = {
@@ -22,67 +23,42 @@ export const recordQuery = {
     }
 }
 
-export function processReactions(did: string, reactions: {record: {author: {did: string}, collection: string, uri: string}}[]){
-    let likeCount = 0
-    let repostCount = 0
-    let like = undefined
-    let repost = undefined
-    let participants = new Set<string>()
-    if(reactions){
-        reactions.forEach((r) => {
-            likeCount += r.record.collection == "app.bsky.feed.like" ? 1 : 0
-            repostCount += r.record.collection == "app.bsky.feed.repost" ? 1 : 0
-            if(r.record.author.did == did){
-                if(r.record.collection == "app.bsky.feed.like") like = r.record.uri
-                else if(r.record.collection == "app.bsky.feed.repost") repost = r.record.uri
-            }
-        })
-    }
-    return {like, repost, likeCount, repostCount, participants}
-}
 
-
-export function addCounters(did: string, elem: any, replies?: any[]): any {
+export function addCounters(elem: any, engagement: FeedEngagementProps): any {
     if(elem.content && elem.content.post){
-        if(elem.content.post.replyTo && elem.content.post.replyTo.reactions != undefined){
-            elem.content.post.replyTo = addCounters(did, elem.content.post.replyTo)
+        if(elem.content.post.replyTo && elem.content.post.replyTo._count != undefined){
+            elem.content.post.replyTo = addCounters(elem.content.post.replyTo, engagement)
         }
-        if(elem.content.post.root && elem.content.post.root.reactions != undefined){
-            elem.content.post.root = addCounters(did, elem.content.post.root)
+        if(elem.content.post.root && elem.content.post.root._count != undefined){
+            elem.content.post.root = addCounters(elem.content.post.root, engagement)
         }
-    }
-
-    const reactions = elem.reactions
-    const {like, repost, likeCount, repostCount, participants} = processReactions(did, reactions)
-
-    if(elem.replies){
-        for(let i = 0; i < elem.replies.length; i++){
-            const r = elem.replies[i]
-            participants.add(r.content.record.userById)
-        }
-        participants.delete(elem.author.did)
-    }
-
-    let viewers = new Set<string>()
-    if(elem.views){
-        for(let i = 0; i < elem.views.length; i++){
-            const v = elem.views[i]
-            viewers.add(v.userById)
-        }
-        viewers.delete(elem.author.did)
     }
 
     const visualizationsUsingCount = elem.visualizationsUsing ? elem.visualizationsUsing.length : undefined
 
+    let like: string = undefined
+    let repost: string = undefined
+
+    engagement.likes.forEach(l => {
+        if(l.likedRecordId == elem.uri){
+            like = l.uri
+        }
+    })
+    engagement.reposts.forEach(l => {
+        if(l.repostedRecordId == elem.uri){
+            repost = l.uri
+        }
+    })
+
+    const viewer = {repost, like}
+
     return {
         ...elem,
-        viewer: {like, repost},
-        likeCount,
-        replyCount: replies ? replies.length : elem.replies ? elem.replies.length : (elem._count ? elem._count.replies : undefined),
-        repostCount,
-        participantsCount: participants.size,
-        uniqueViewsCount: viewers.size,
-        visualizationsUsingCount
+        likeCount: elem._count.likes,
+        replyCount: elem._count.replies,
+        repostCount: elem._count.reposts,
+        visualizationsUsingCount,
+        viewer
     }
 }
 
@@ -164,84 +140,6 @@ export const reactionsQuery = {
 }
 
 
-const replyToQuery = {
-    select: {
-        ...recordQuery,
-        content: {
-            select: {
-                text: true,
-                post: {
-                    select: {
-                        replyTo: {
-                            select: {
-                                uri: true,
-                                collection: true,
-                                author: {
-                                    select: {
-                                        did: true,
-                                        handle: true,
-                                        displayName: true
-                                    }
-                                },
-                                content: {
-                                    select: {
-                                        article: {
-                                            select: {
-                                                title: true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                article: {
-                    select: {
-                        title: true
-                    }
-                },
-                topicVersion: {
-                    select: {
-                        topic: {
-                            select: {
-                                id: true,
-                                versions: {
-                                    select: {
-                                        title: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        reactions: reactionsQuery,
-        views: {
-            select: {
-                createdAt: true,
-                userById: true
-            }
-        },
-        replies: {
-            select: {
-                content: {
-                    select: {
-                        record: {
-                            select: {
-                                createdAt: true,
-                                authorId: true
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-}
-
-
 export const enDiscusionQuery = {
     ...recordQuery,
     content: {
@@ -283,133 +181,15 @@ export const enDiscusionQuery = {
                         }
                     }
                 }
-            },
-        }
-    },
-    reactions: reactionsQuery,
-    views: {
-        select: {
-            createdAt: true,
-            userById: true
-        }
-    },
-    replies: {
-        select: {
-            content: {
-                select: {
-                    record: {
-                        select: {
-                            createdAt: true,
-                            authorId: true
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-export const queryPostsFollowingFeedCA = {
-    ...recordQuery,
-    content: {
-        select: {
-            text: true,
-            numWords: true,
-            textBlob: true,
-            article: {
-                select: {
-                    title: true
-                }
             }
         }
     },
-    reactions: reactionsQuery,
-    views: {
-        select: {
-            userById: true
-        }
-    },
+    uniqueViewsCount: true,
     _count: {
         select: {
+            reposts: true,
+            likes: true,
             replies: true
-        }
-    }
-}
-
-
-export const feedQuery = {
-    ...recordQuery,
-    content: {
-        select: {
-            text: true,
-            article: {
-                select: {
-                    title: true
-                }
-            },
-            post: {
-                select: {
-                    facets: true,
-                    embed: true,
-                    replyTo: replyToQuery,
-                    root: replyToQuery,
-                    quote: true
-                }
-            },
-            topicVersion: {
-                select: {
-                    topic: {
-                        select: {
-                            id: true,
-                            versions: {
-                                select: {
-                                    uri: true
-                                },
-                                orderBy: {
-                                    content: {
-                                        record: {
-                                            createdAt: "asc" as SortOrder
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    categories: true,
-                    synonyms: true,
-                    charsAdded: true,
-                    charsDeleted: true
-                }
-            }
-        },
-    },
-    visualization: visualizationQuery,
-    dataset: datasetQuery,
-    reactions: reactionsQuery,
-    _count: {
-        select: {
-            replies: true,
-        }
-    },
-    views: {
-        select: {
-            createdAt: true,
-            userById: true
-        }
-    },
-    replies: {
-        select: {
-            content: {
-                select: {
-                    record: {
-                        select: {
-                            createdAt: true,
-                            authorId: true
-                        }
-                    }
-                }
-            }
         }
     }
 }
@@ -440,18 +220,14 @@ export const threadRepliesQuery = {
             },
         },
     },
-    reactions: reactionsQuery,
     _count: {
         select: {
             replies: true,
+            likes: true,
+            reposts: true
         }
     },
-    views: {
-        select: {
-            createdAt: true,
-            userById: true
-        }
-    },
+    uniqueViewsCount: true
 }
 
 
@@ -554,28 +330,7 @@ export const threadQuery = {
         },
     },
     visualization: visualizationQuery,
-    dataset: datasetQuery,
-    reactions: reactionsQuery,
-    views: {
-        select: {
-            createdAt: true,
-            userById: true
-        }
-    },
-    replies: {
-        select: {
-            content: {
-                select: {
-                    record: {
-                        select: {
-                            createdAt: true,
-                            authorId: true
-                        }
-                    }
-                }
-            }
-        }
-    }
+    dataset: datasetQuery
 }
 
 
@@ -585,7 +340,6 @@ export function getObjectSizeInBytes(obj) {
 
 
 export function logTimes(s: string, times: number[]){
-    return
     const diffs: number[] = []
     for(let i = 1; i < times.length; i++){
         diffs.push(times[i]-times[i-1])

@@ -1,5 +1,4 @@
 "use server"
-import {SmallTopicProps} from "../../app/lib/definitions";
 import {getDidFromUri} from "../../components/utils/utils";
 import {db} from "../../db";
 
@@ -9,7 +8,10 @@ type ContentInteractions = {
     replies: {
         uri: string
     }[]
-    reactions: {
+    likes: {
+        uri: string
+    }[]
+    reposts: {
         uri: string
     }[]
 }
@@ -122,7 +124,12 @@ export async function getContentInteractions() : Promise<{uri: string, interacti
                     uri: true
                 }
             },
-            reactions: {
+            likes: {
+                select: {
+                    uri: true
+                }
+            },
+            reposts: {
                 select: {
                     uri: true
                 }
@@ -150,7 +157,12 @@ export async function getContentInteractions() : Promise<{uri: string, interacti
         const author = getDidFromUri(c.uri)
         s.add(author)
 
-        c.reactions.forEach(({uri}) => {
+        c.likes.forEach(({uri}) => {
+            const did = getDidFromUri(uri)
+            s.add(did)
+        })
+
+        c.reposts.forEach(({uri}) => {
             const did = getDidFromUri(uri)
             s.add(did)
         })

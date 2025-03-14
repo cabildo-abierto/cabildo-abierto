@@ -26,7 +26,7 @@ export const CategoriesMap = () => {
             nodeIds={graph.nodeIds}
             edgesList={graph.edges}
             onClickNode={onClickNode}
-            nodeLabels={new Map(graph.nodeLabels.map(({id, label}) => ([id, label])))}
+            nodeLabels={graph.nodeLabels ? new Map(graph.nodeLabels.map(({id, label}) => ([id, label]))) : undefined}
         />
     </div>
 }

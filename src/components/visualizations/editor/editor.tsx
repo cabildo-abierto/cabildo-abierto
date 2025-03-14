@@ -2,11 +2,11 @@
 import {useDatasets} from "../../../hooks/contents";
 import {useEffect, useRef, useState} from "react";
 import {DatasetProps, PlotConfigProps} from "../../../app/lib/definitions";
-import {getDatasetNoCache} from "../../../actions/data";
 import {ConfigPanel} from "./config-panel";
 import {ChooseDatasetPanel} from "./choose-dataset";
 import {EditorViewer} from "./editor-viewer";
 import {AcceptButtonPanel} from "../../ui-utils/accept-button-panel";
+import {getDataset} from "../../../actions/dataset/read";
 
 
 const ErrorPanel = ({msg}: {msg?: string}) => {
@@ -105,7 +105,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
                 if(datasets[i].uri == config.datasetUri){
 
                     setDataset({ dataset: datasets[i] });
-                    const d = await getDatasetNoCache(config.datasetUri);
+                    const d = await getDataset(config.datasetUri);
                     setDataset(d)
                 }
             }

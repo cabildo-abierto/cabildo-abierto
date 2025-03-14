@@ -2,12 +2,14 @@ import {addCountersToFeed} from "./utils";
 import {db} from "../../db";
 import {ArticleProps, FastPostProps, FeedContentProps, TopicVersionProps} from "../../app/lib/definitions";
 import {isPost, validQuotePost} from "../../components/utils/utils";
-import {enDiscusionQuery} from "../utils";
+import {enDiscusionQuery, logTimes} from "../utils";
 import {unstable_cache} from "next/cache";
 import { Prisma } from "@prisma/client";
+import {getUserEngagementInFeed} from "./inicio";
 
 export async function getFeedCAForViewer(did: string, following?: string[], includeAllReplies: boolean = false){
     let feed = await getFeedCA(following, includeAllReplies)
+    const engagement = await getUserEngagementInFeed(feed, did)
 
     feed = feed.filter((r) => {
         if(r.collection == "ar.com.cabildoabierto.quotePost"){
@@ -18,7 +20,7 @@ export async function getFeedCAForViewer(did: string, following?: string[], incl
         }
     })
 
-    const readyForFeed = addCountersToFeed(feed, did)
+    const readyForFeed = addCountersToFeed(feed, engagement)
     return {feed: readyForFeed}
 }
 
@@ -43,7 +45,7 @@ export async function feedCAQuery(authors?: string[]) {
               AND r_reply."authorId" = r."authorId"
         )
     `;
-    return result;
+    return result
 }
 
 
@@ -72,7 +74,9 @@ export async function repliesFeedCAQuery(authors?: string[]){
 
 
 export async function getFeedCA(authors?: string[], includeAllReplies: boolean = false): Promise<FeedContentProps[]> {
+    const t1 = Date.now()
     let result = includeAllReplies ? await repliesFeedCAQuery(authors) : await feedCAQuery(authors)
+    const t2 = Date.now()
 
     const feedUris = result.map(({uri}) => uri).filter((x) => (x != null))
     const feedUrisSet = new Set(feedUris)
@@ -88,8 +92,13 @@ export async function getFeedCA(authors?: string[], includeAllReplies: boolean =
             uri: {
                 in: uris
             }
-        }
+        },
+        orderBy: {
+            createdAt: "desc"
+        },
+        take: 100
     })
+    const t3 = Date.now()
 
     let recordsByUri = new Map<string, FeedContentProps>()
     for(let i = 0; i < records.length; i++) {
@@ -129,6 +138,8 @@ export async function getFeedCA(authors?: string[], includeAllReplies: boolean =
             }
         }
     }
+
+    logTimes("feed CA", [t1, t2, t3])
 
     return Array.from(roots.values())
 }

@@ -1,4 +1,10 @@
-import {ATProtoStrongRef, EngagementProps, FastPostProps, FeedContentProps} from "../../app/lib/definitions";
+import {
+    ATProtoStrongRef,
+    EngagementProps,
+    FastPostProps,
+    FeedContentProps,
+    FeedEngagementProps, SmallUserProps
+} from "../../app/lib/definitions";
 import {
     BlockedPost,
     FeedViewPost,
@@ -127,15 +133,16 @@ export function joinCAandATFeeds(feedCA: FeedContentProps[], feedAT: FeedViewPos
 }
 
 
-export function addReasonToRepost(r: FeedContentProps, following: string[]): FeedContentProps {
-    for(let i = 0; i < r.reactions.length; i++){
-        if(following.includes(r.reactions[i].record.author.did)){
+export function addReasonToRepost(r: FeedContentProps & {reposts: {record: {createdAt: Date, author: SmallUserProps}}[]}, following: string[]): FeedContentProps {
+
+    for(let i = 0; i < r.reposts.length; i++){
+        if(following.includes(r.reposts[i].record.author.did)){
             return {
                 ...r,
                 reason: {
                     collection: "app.bsky.feed.repost",
-                    by: r.reactions[i].record.author,
-                    createdAt: r.reactions[i].record.createdAt
+                    by: r.reposts[i].record.author,
+                    createdAt: r.reposts[i].record.createdAt
                 }
             }
         }
@@ -144,8 +151,8 @@ export function addReasonToRepost(r: FeedContentProps, following: string[]): Fee
 }
 
 
-export function addCountersToFeed(feed: any[], did: string): FeedContentProps[]{
+export function addCountersToFeed(feed: any[], engagement: FeedEngagementProps): FeedContentProps[]{
     return feed.map((elem) => {
-        return addCounters(did, elem)
+        return addCounters(elem, engagement)
     })
 }
