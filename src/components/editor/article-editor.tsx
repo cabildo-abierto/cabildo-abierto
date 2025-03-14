@@ -16,7 +16,7 @@ import { CustomLink } from "../ui-utils/custom-link"
 import useModal from "./hooks/useModal"
 import { FastPostImagesEditor } from "../writing/fast-post-images-editor"
 import { AddImageButton } from "../writing/add-image-button"
-import { createArticle } from "../../actions/contents"
+import { createArticle } from "../../actions/write/article"
 import dynamic from "next/dynamic"
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 

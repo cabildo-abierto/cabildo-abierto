@@ -3,6 +3,7 @@ import {getSessionDid} from "../auth";
 import {db} from "../../db";
 import {threadRepliesQuery} from "../utils";
 import {addCountersToFeed} from "./utils";
+import {getUserEngagementInFeed} from "./inicio";
 
 
 export async function getTopicFeed(id: string): Promise<{feed?: FeedContentProps[], error?: string}> {
@@ -48,8 +49,8 @@ export async function getTopicFeed(id: string): Promise<{feed?: FeedContentProps
             }
         })
 
-
-        const readyForFeed = addCountersToFeed(feed, did)
+        const engagement = await getUserEngagementInFeed(feed, did)
+        const readyForFeed = addCountersToFeed(feed, engagement)
 
         return {feed: readyForFeed}
     } catch (e) {

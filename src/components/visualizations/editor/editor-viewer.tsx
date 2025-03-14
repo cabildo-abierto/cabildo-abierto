@@ -4,7 +4,7 @@ import {useState} from "react";
 import {View} from "vega";
 import {Button} from "@mui/material";
 import {getSpecForConfig} from "./spec";
-import {saveVisualization} from "../../../actions/data";
+import {createVisualization} from "../../../actions/visualization/write";
 import SelectionComponent from "../../search/search-selection-component";
 import {VisualizationOnEditor} from "../visualization-on-editor";
 import {DatasetView} from "../../datasets/dataset-view";
@@ -116,7 +116,7 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
         const file = dataURLToFile(dataURL)
         const formData = new FormData()
         formData.set("data", file)
-        const {error} = await saveVisualization(spec, formData)
+        const {error} = await createVisualization(spec, formData)
 
         if (!error) router.push("/datos")
         return {error}

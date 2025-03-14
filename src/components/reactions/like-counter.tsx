@@ -12,7 +12,7 @@ type LikeCounterProps = {
     icon2?: ReactNode
     title?: string
     onLike: () => Promise<{error?: string, uri?: string}>
-    onDislike: (likeUri: string) => Promise<{error?: string}>
+    onDislike: () => Promise<{error?: string}>
     likeUri?: string
     initialCount: number
 }
@@ -42,7 +42,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
 
         if(newLikeUri != undefined){
             if(newLikeUri != "temporary"){
-                onDislike(newLikeUri) // TO DO: Qué pasa si saca el like antes de que termine de agregarse el like?
+                onDislike() // TO DO: Qué pasa si saca el like antes de que termine de agregarse el like?
             }
             setNewLikeUri(undefined)
         } else {

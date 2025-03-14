@@ -42,77 +42,85 @@ export async function deleteRecords({uris, author, atproto}: {uris?: string[], a
         })).map((r) => (r.uri))
     }
 
-    const d1 = db.follow.deleteMany({
-        where: {
-            uri: {
-                in: uris
+    await db.$transaction([
+        db.follow.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
-        }
-    })
-    const d2 = db.post.deleteMany({
-        where: {
-            uri: {
-                in: uris
+        }),
+        db.post.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
-        }
-    })
-    const d3 = db.article.deleteMany({
-        where: {
-            uri: {
-                in: uris
+        }),
+        db.article.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
-        }
-    })
-    const d4 = db.content.deleteMany({
-        where: {
-            uri: {
-                in: uris
+        }),
+        db.content.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
-        }
-    })
-    const d5 = db.reaction.deleteMany({
-        where: {
-            uri: {
-                in: uris
+        }),
+        db.like.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
-        }
-    })
-    const d6 = db.topicVersion.deleteMany({
-        where: {
-            uri: {
-                in: uris
+        }),
+        db.repost.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
-        }
-    })
-    const d7 = db.visualization.deleteMany({
-        where: {
-            uri: {
-                in: uris
+        }),
+        db.topicVersion.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
-        }
-    })
-    const d8 = db.dataBlock.deleteMany({
-        where: {
-            uri: {
-                in: uris
+        }),
+        db.visualization.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
-        }
-    })
-    const d9 = db.dataset.deleteMany({
-        where: {
-            uri: {
-                in: uris
+        }),
+        db.dataBlock.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
-        }
-    })
-    const d10 = db.record.deleteMany({
-        where: {
-            uri: {
-                in: uris
+        }),
+        db.dataset.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
-        }
-    })
-    await db.$transaction([d1, d2, d3, d5, d6, d7, d8, d9, d4, d10])
+        }),
+        db.record.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        })
+    ])
 
     const tags = new Set<string>()
     for(let i = 0; i < uris.length; i++){

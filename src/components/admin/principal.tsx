@@ -13,6 +13,7 @@ import {updateTopicPopularityScores} from "../../actions/topic/popularity";
 import {updateTopicsCategories} from "../../actions/topic/categories";
 import {updateTopicsLastEdit} from "../../actions/topic/current-version";
 import {AdminSection} from "./admin-section";
+import {updateCategoriesGraph} from "../../actions/topic/graph";
 
 
 export const AdminPrincipal = () => {
@@ -89,6 +90,7 @@ export const AdminPrincipal = () => {
                     }}
                     text1={"Actualizar categorías de temas"}
                 />
+
                 <StateButton
                     handleClick={async () => {
                         await updateTopicsLastEdit()
@@ -97,6 +99,13 @@ export const AdminPrincipal = () => {
                     text1={"Actualizar fecha última edición"}
                 />
 
+                <StateButton
+                    handleClick={async () => {
+                        await updateCategoriesGraph()
+                        return {}
+                    }}
+                    text1={"Actualizar grafo de categorías"}
+                />
             </AdminSection>
 
         </div>

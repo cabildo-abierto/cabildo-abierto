@@ -7,36 +7,25 @@ import {DateSince} from "../ui-utils/date";
 import {contentUrl} from "../utils/utils";
 import {FastPostImage} from "./fast-post-image";
 import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
 import LoadingSpinner from "../ui-utils/loading-spinner";
-import {getBskyFastPost} from "../../actions/contents";
 import {FastPostVideo} from "./fast-post-video";
 import {PlotInPost} from "./plot-in-post";
 import {ExternalEmbedInPost} from "./external-embed-in-post";
+import {usePost} from "../../hooks/contents";
 
 
 const QuotedPostFromUri = ({uri}: {uri: string}) => {
-    const [post, setPost] = useState<{post?: FastPostProps, error?: string} | null>(null)
+    const post = usePost(uri)
 
-    useEffect(() => {
-        async function getPost(){
-            const formattedPost = await getBskyFastPost(uri)
-
-            setPost(formattedPost)
-        }
-
-        if(!post){
-            getPost()
-        }
-    }, [])
-
-    if(!post){
+    if(!post.isLoading){
         return <div className={"h-full py-4"}>
             <LoadingSpinner/>
         </div>
     }
 
-    return <QuotedPost maybePost={post}/>
+    return <QuotedPost
+        maybePost={post}
+    />
 }
 
 

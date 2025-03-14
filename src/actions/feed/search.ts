@@ -6,6 +6,7 @@ import {ArticleProps, FastPostProps, FeedContentProps, SmallTopicProps} from "..
 import {addCountersToFeed} from "./utils";
 import {cleanText} from "../../components/utils/utils";
 import {unstable_cache} from "next/cache";
+import {getUserEngagementInFeed} from "./inicio";
 
 
 export async function searchContentsNoCache(q: string, did: string): Promise<{feed?: FeedContentProps[], error?: string}>{
@@ -41,7 +42,8 @@ export async function searchContentsNoCache(q: string, did: string): Promise<{fe
 
     feed = feed.slice(0, 50)
 
-    feed = addCountersToFeed(feed, did)
+    const engagement = await getUserEngagementInFeed(feed, did)
+    feed = addCountersToFeed(feed, engagement)
 
     return {feed}
 }
