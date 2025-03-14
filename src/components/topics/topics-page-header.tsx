@@ -47,7 +47,6 @@ export const TopicsPageHeader = () => {
 
         <div className={"flex w-64 h-8"}>
             <SearchBar
-                className={""}
                 autoFocus={false}
             />
         </div>

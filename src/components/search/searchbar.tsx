@@ -8,6 +8,8 @@ import Image from 'next/image'
 import {emptyChar, userUrl} from "../utils/utils";
 import {SearchButton} from "../ui-utils/search-button";
 import ReadOnlyEditor from "../editor/read-only-editor";
+import {TextField} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 
 export const UserSearchResult: React.FC<{result: {displayName?: string, handle: string, avatar?: string, description?: string}}> = ({ result }) => {
@@ -81,23 +83,41 @@ export const SearchInput = ({autoFocus, className = "" }: {
 
 
 const SearchBar = ({
-   onClose=() => {}, className="", autoFocus=false}: {
-    onClose?: () => void
-    className?: string
+    autoFocus=false
+}: {
     autoFocus?: boolean
 }) => {
     const {searchState, setSearchState} = useSearch()
 
-    return <div className="flex border rounded pl-1 pr-1 w-full justify-between items-center">
-        <div className={"text-[var(--accent)]"}>
-            <SearchButton disabled={true}/>
-        </div>
-        <div className="flex w-full items-center">
-            <SearchInput autoFocus={autoFocus} className={className}/>
-            <div className={"py-1 " + (searchState.value.length == 0 ? "text-transparent" : "")}>
-                <CloseButton onClose={() => {onClose(); setSearchState({value: "", searching: false})}} size="small"/>
-            </div>
-        </div>
+    return <div>
+        <TextField
+            size={"small"}
+            autoFocus={autoFocus}
+            fullWidth={true}
+            value={searchState.value}
+            placeholder={"buscar"}
+            onChange={(e) => {setSearchState({value: e.target.value, searching: true});}}
+            slotProps={{
+                input: {
+                    startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon color={"inherit"}/></span>,
+                    endAdornment: searchState.value.length > 0 ? <CloseButton size="small" onClose={() => {setSearchState({value: "", searching: false})}}/> : undefined
+                },
+            }}
+            sx={{
+                "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                        borderColor: "var(--accent)"
+                    },
+                    "&:hover fieldset": {
+                        borderColor: "var(--accent)"
+                    },
+                    "&.Mui-focused fieldset": {
+                        borderWidth: "2px",
+                        borderColor: "var(--accent)"
+                    }
+                }
+            }}
+        />
     </div>
 }
 

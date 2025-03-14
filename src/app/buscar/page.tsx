@@ -7,7 +7,7 @@ const Page = async ({searchParams}: {searchParams: Promise<{q: string}>}) => {
 
     return <div>
         <div className={"p-3"}>
-            <SearchBar className={"h-10"} autoFocus={true}/>
+            <SearchBar autoFocus={true}/>
         </div>
         <div>
             <SearchContent query={q}/>

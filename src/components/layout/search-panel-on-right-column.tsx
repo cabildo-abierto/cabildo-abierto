@@ -16,7 +16,7 @@ export const SearchPanelOnRightColumn = () => {
 
     return <div className={inSearchPage ? "mt-16" : ""}>
         {!inSearchPage && <div className={"ml-8 mt-8 max-w-[300px] w-full"}>
-            <SearchBar onClose={() => {}}/>
+            <SearchBar/>
         </div>}
         {!inSearchPage && searchState.searching && searchState.value.length > 0 &&
         <div className={"rounded border-l border-r border-t ml-8 w-full max-w-[300px] mt-2"}>

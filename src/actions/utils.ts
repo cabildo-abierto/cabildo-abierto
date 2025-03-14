@@ -55,9 +55,9 @@ export function addCounters(elem: any, engagement: FeedEngagementProps): any {
 
     return {
         ...elem,
-        likeCount: elem._count ? elem._count.likes : undefined,
-        replyCount: elem._count ? elem._count.replies : undefined,
-        repostCount: elem._count ? elem._count.reposts : undefined,
+        likeCount: elem._count.likes,
+        replyCount: elem._count.replies,
+        repostCount: elem._count.reposts,
         visualizationsUsingCount,
         viewer
     }
@@ -135,6 +135,7 @@ export const reactionsQuery = {
 
 export const enDiscusionQuery = {
     ...recordQuery,
+    ...reactionsQuery,
     content: {
         select: {
             text: true,
@@ -177,14 +178,6 @@ export const enDiscusionQuery = {
             }
         }
     },
-    uniqueViewsCount: true,
-    _count: {
-        select: {
-            reposts: true,
-            likes: true,
-            replies: true
-        }
-    }
 }
 
 

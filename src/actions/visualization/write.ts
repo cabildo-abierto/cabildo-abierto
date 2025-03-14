@@ -74,7 +74,6 @@ export async function createVisualizationDB(
         collection: getCollectionFromUri(ref.uri),
         record
     }
-    console.log("base record", baseRecord)
 
     let updates: any[] = createRecord(baseRecord)
 
@@ -97,9 +96,6 @@ export async function createVisualizationDB(
         datasetId: datasetUri,
         previewBlobCid: blobCid
     }
-
-    console.log("blob", blob)
-    console.log("visualization", visualization)
 
     updates = [
         ...updates,

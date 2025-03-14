@@ -35,7 +35,7 @@ export async function getServiceEndpointForDid(did: string){
         },
         ["serviceendpoint:"+did],
         {
-            tags: ["serviceendpoint:"+did],
+            tags: ["serviceendpoint:"+did, "serviceendpoint"],
             revalidate: revalidateEverythingTime
     })()
     if(!endpoint){

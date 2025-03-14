@@ -134,7 +134,7 @@ export async function getThreadFromCA({did, c, rkey}: {did: string, c: string, r
         },
         ["thread:"+did+":"+rkey],
         {
-            tags: ["thread:"+did+":"+rkey],
+            tags: ["thread:"+did+":"+rkey, "thread"],
             revalidate: revalidateEverythingTime
         }
     )()
