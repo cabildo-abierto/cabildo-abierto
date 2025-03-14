@@ -253,6 +253,7 @@ export type PlotSpecMetadata = {
     editorVersion: string
 }
 
+export type VisualizationSpecWithMetadata = VisualizationSpec & {metadata: PlotSpecMetadata}
 
 export function getSpecForConfig(config: PlotConfigProps, dataset: {dataset?: DatasetProps, data?: any}, dataInSpec: boolean = false) {
     function isValid(f: FilterProps){

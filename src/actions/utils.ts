@@ -5,7 +5,7 @@ import {getDidFromUri} from "../components/utils/utils";
 import {feedCAQuery} from "./feed/feedCA";
 
 
-export const revalidateEverythingTime = 5
+export const revalidateEverythingTime = undefined
 
 
 export const recordQuery = {
