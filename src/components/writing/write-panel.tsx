@@ -27,7 +27,7 @@ import {
     ErrorMsg,
     getDidFromUri,
     getRkeyFromUri,
-    validEntityName
+    validEntityName, threadApiUrl
 } from "../utils/utils";
 import Link from "next/link";
 import {BasicButton} from "../ui-utils/basic-button";
@@ -235,8 +235,8 @@ const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
             const {error, ref} = await createFastPost({text, reply, visualization, quote})
             if(reply){
                 await onSubmit()
-                await mutate("/api/thread/"+getDidFromUri(reply.parent.uri)+"/"+getRkeyFromUri(reply.parent.uri))
-                await mutate("/api/thread/"+getDidFromUri(reply.root.uri)+"/"+getRkeyFromUri(reply.root.uri))
+                await mutate(threadApiUrl(reply.parent.uri))
+                await mutate(threadApiUrl(reply.root.uri))
             }
 
             if (!error) {

@@ -13,6 +13,10 @@ import {decompress} from "./compression";
 import {WikiEditorState} from "../topic/topic-content-expanded-view-header";
 
 
+export function threadApiUrl(uri: string){
+    return "/api/thread/"+getDidFromUri(uri)+"/"+getCollectionFromUri(uri)+"/"+getRkeyFromUri(uri)
+}
+
 export function shuffleArray<T>(array: T[]): T[] {
     const shuffled = [...array]; // Create a copy to avoid mutating the original array
     for (let i = shuffled.length - 1; i > 0; i--) {

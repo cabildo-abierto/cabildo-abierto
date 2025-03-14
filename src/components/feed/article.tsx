@@ -10,7 +10,7 @@ import {ProfilePic} from "./profile-pic";
 import {useEffect} from "react";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useSWRConfig} from "swr";
-import {getDidFromUri, getRkeyFromUri} from "../utils/utils";
+import {getDidFromUri, getRkeyFromUri, threadApiUrl} from "../utils/utils";
 
 type ArticleCompProps = {
     content: ArticleProps,
@@ -81,7 +81,7 @@ export const Article = ({content, quoteReplies, pinnedReplies, setPinnedReplies}
                 record={content}
                 className={"flex justify-between px-4 w-full"}
                 onDelete={() => {
-                    mutate("/api/thread/"+getDidFromUri(content.uri)+"/"+getRkeyFromUri(content.uri))
+                    mutate(threadApiUrl(content.uri))
                 }}
             />
         </div>

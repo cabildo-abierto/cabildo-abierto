@@ -1,9 +1,15 @@
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
-import {FastPostProps, ThreadProps} from "../../app/lib/definitions";
+import {
+    ArticleProps, DatasetProps,
+    FastPostProps,
+    FeedContentProps,
+    ThreadProps,
+    VisualizationProps
+} from "../../app/lib/definitions";
 import {getUri, validQuotePost} from "../../components/utils/utils";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {unstable_cache} from "next/cache";
-import {addCounters, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";
+import {addCounters, logTimes, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";
 import {isCAUser} from "../user/users";
 import {db} from "../../db";
 import {getTextFromBlob} from "../topic/topics";
@@ -63,12 +69,13 @@ export async function getThreadFromATProto({did, rkey}: {did: string, rkey: stri
 }
 
 
-export async function getThreadFromCANoCache({did, rkey}: {did: string, rkey}) {
+export async function getThreadFromCANoCache({did, c, rkey}: {did: string, c: string, rkey: string}) {
+    const t1 = Date.now()
     const threadId = {rkey, authorId: did}
 
     try {
         const mainPostQ = db.record.findFirst({
-            select: threadQuery,
+            select: threadQuery(c),
             where: threadId
         })
         const repliesQ = db.record.findMany({
@@ -82,15 +89,16 @@ export async function getThreadFromCANoCache({did, rkey}: {did: string, rkey}) {
             }
         })
 
-        let [mainPost, replies] = await Promise.all([mainPostQ, repliesQ])
+        let [mainPost, replies] = await Promise.all([mainPostQ, repliesQ]) as unknown as [FeedContentProps & {content?: {text?: string, textBlob?: {cid: string, authorId: string}}}, FeedContentProps[]]
+        const t2 = Date.now()
 
-        if(mainPost.content && !mainPost.content.text){
+        if(mainPost.content && mainPost.content.textBlob){
             mainPost.content.text = await getTextFromBlob(mainPost.content.textBlob)
         }
 
         for(let i = 0; i < replies.length; i++){
             if(replies[i].collection == "ar.com.cabildoabierto.quotePost"){
-                replies[i].content.post.replyTo.content.text = mainPost.content.text
+                (replies[i] as any).content.post.replyTo.content.text = mainPost.content.text
             }
         }
 
@@ -99,8 +107,10 @@ export async function getThreadFromCANoCache({did, rkey}: {did: string, rkey}) {
         }
 
         replies = replies.filter((r) => {
-            return !r.content.post.quote || validQuotePost(mainPost.content, r)
+            return !(r as any).content.post.quote || validQuotePost(mainPost.content, r as any)
         })
+        const t3 = Date.now()
+        logTimes("getting thread CA", [t1, t2, t3])
 
         return {
             thread: {
@@ -115,12 +125,12 @@ export async function getThreadFromCANoCache({did, rkey}: {did: string, rkey}) {
 }
 
 
-export async function getThreadFromCA({did, rkey}: {did: string, rkey}) {
+export async function getThreadFromCA({did, c, rkey}: {did: string, c: string, rkey: string}) {
     const viewerDid = await getSessionDid()
 
     const thread = await unstable_cache(
         async () => {
-            return await getThreadFromCANoCache({did, rkey})
+            return await getThreadFromCANoCache({did, c, rkey})
         },
         ["thread:"+did+":"+rkey],
         {
@@ -146,12 +156,12 @@ export async function getThreadFromCA({did, rkey}: {did: string, rkey}) {
 }
 
 
-export async function getThread({did, rkey}: {did: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
+export async function getThread({did, c, rkey}: {did: string, c: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
     const isCA = await isCAUser(did)
     if(!isCA){
         return await getThreadFromATProto({did, rkey})
     }
 
-    return await getThreadFromCA({did, rkey})
+    return await getThreadFromCA({did, c, rkey})
 }
 

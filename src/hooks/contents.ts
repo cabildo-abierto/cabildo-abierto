@@ -6,7 +6,7 @@ import {
     VisualizationProps, EngagementProps, TopicsGraph, FastPostProps
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
-import {getDidFromUri, getRkeyFromUri} from "../components/utils/utils";
+import {getDidFromUri, getRkeyFromUri, threadApiUrl} from "../components/utils/utils";
 import {QuotedContent} from "../components/feed/content-quote";
 
 
@@ -98,7 +98,7 @@ export function useQuotedContent(uri: string): {quotedContent: QuotedContent, er
 }
 
 
-export function usePost(uri: string): {post: FastPostProps, error?: string, isLoading: boolean, isError: boolean}{
+export function usePost(uri: string): {post: FastPostProps, error?: string, isLoading: boolean}{
     const { data, error, isLoading } = useSWR('/api/post/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
         {
             revalidateIfStale: false,
@@ -108,9 +108,9 @@ export function usePost(uri: string): {post: FastPostProps, error?: string, isLo
     )
 
     return {
-        post: data,
+        post: data && data.post ? data.post : undefined,
         isLoading,
-        isError: error
+        error: data && data.error ? data.error : undefined
     }
 }
 
@@ -168,8 +168,8 @@ export function useVisualizations(): {visualizations: VisualizationProps[], isLo
 }
 
 
-export function useThread({did, rkey}: {did: string, rkey: string}): {thread: ThreadProps, isLoading: boolean, error?: string}{
-    const { data, error, isLoading } = useSWR('/api/thread/'+did+"/"+rkey, fetcher,
+export function useThread(uri: string): {thread: ThreadProps, isLoading: boolean, error?: string}{
+    const { data, error, isLoading } = useSWR(threadApiUrl(uri), fetcher,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
