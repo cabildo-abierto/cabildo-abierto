@@ -4,11 +4,12 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../../db";
 import { revalidateEverythingTime } from "../utils";
 import {SmallUserProps, UserProps, UserStats} from "../../app/lib/definitions";
-import {getRkeyFromUri, supportDid, validSubscription} from "../../components/utils/utils";
+import {supportDid, validSubscription} from "../../components/utils/utils";
 import { getSubscriptionPrice } from "../payments";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import { Prisma } from "@prisma/client";
+import {getRkeyFromUri} from "../../components/utils/uri";
 
 
 export async function isCAUser(did: string){
@@ -557,52 +558,38 @@ export async function setATProtoProfile(did: string){
     try {
         const {agent} = await getSessionAgent()
 
-        const {data} = await agent.com.atproto.repo.listRecords({
-            repo: did,
-            collection: "ar.com.cabildoabierto.profile"
-        })
-        if(data.records.some((r) => (getRkeyFromUri(r.uri) == "self"))){
-            const rec = {
-                repo: did,
-                collection: 'ar.com.cabildoabierto.profile',
-                rkey: getRkeyFromUri(data.records[0].uri),
-                record: {
-                    createdAt: new Date().toISOString(),
-                },
-            }
-            await agent.com.atproto.repo.putRecord(rec)
-            return {}
-        }
-
-        await agent.com.atproto.repo.createRecord({
+        const rec = {
             repo: did,
             collection: 'ar.com.cabildoabierto.profile',
             rkey: "self",
             record: {
                 createdAt: new Date().toISOString(),
             },
-        })
+        }
 
+        await Promise.all([
+            agent.com.atproto.repo.putRecord(rec),
+            db.user.upsert({
+                create: {
+                    did: did,
+                    inCA: true
+                },
+                update: {
+                    inCA: true
+                },
+                where: {
+                    did: did
+                }
+            })
+        ])
+
+        revalidateTag("user:"+did)
         return {}
     } catch (err) {
         console.error("Error", err)
         return {error: "Error al conectar con ATProto."}
     }
 }
-
-
-/*export async function unsafeCreateUserFromDid(did: string){
-    const {agent} = await getSessionAgent()
-    
-    const {data}: {data: ProfileViewDetailed} = await agent.getProfile({actor: did})
-
-    await db.user.create({
-        data: {
-            did: did,
-            handle: data.handle
-        }
-    })
-}*/
 
 
 export async function updateEmail(email: string){

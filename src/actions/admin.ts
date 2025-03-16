@@ -2,9 +2,10 @@
 
 import { revalidateTag } from "next/cache";
 import { db } from "../db";
-import {getRkeyFromUri, launchDate, supportDid, validSubscription} from "../components/utils/utils";
+import {launchDate, supportDid, validSubscription} from "../components/utils/utils";
 import { getSessionAgent } from "./auth";
 import {deleteRecords} from "./atproto-update";
+import {getRkeyFromUri} from "../components/utils/uri";
 
 export async function revalidateTags(tags: string[]){
     for(let i = 0; i < tags.length; i++){
@@ -316,16 +317,28 @@ export async function updateRecord(){
 
 export async function deleteUser(userId: string) {
     await deleteRecords({author: userId, atproto: false})
-    await db.user.deleteMany({
-        where: {
-            OR: [
-                {
-                    did: userId
-                },
-                {
-                    handle: userId
-                }
-            ]
-        }
-    })
+    const {agent} = await getSessionAgent()
+    const {data} = await agent.resolveHandle({handle: userId})
+    const did = data.did
+
+    console.log("deleting did", did)
+
+    await db.$transaction([
+        db.blob.deleteMany({
+            where: {
+                authorId: did
+            }
+        }),
+        db.view.deleteMany({
+            where: {
+                userById: did
+            }
+        }),
+        db.user.deleteMany({
+            where: {
+                did: did
+            }
+        })
+    ])
+    revalidateTag("user:"+did)
 }

@@ -11,7 +11,11 @@ const CreateEntityButton: React.FC<any> = ({onClick}) => {
     return <Button
             variant={"contained"}
             onClick={onClick}
-            sx={{textTransform: "none"}}
+            sx={{
+                textTransform: "none",
+                color: "var(--text)"
+            }}
+
         >
             Crear tema
     </Button>

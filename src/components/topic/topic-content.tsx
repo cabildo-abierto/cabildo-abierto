@@ -1,9 +1,9 @@
-import {FastPostProps, TopicProps, TopicVersionProps} from "../../app/lib/definitions";
-import {useEffect} from "react";
-import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
-import {ReplyToContent} from "../editor/plugins/CommentPlugin";
-import {getCurrentContentVersion} from "./utils";
-import {TopicContentPreview} from "./topic-content-preview";
+import { FastPostProps, TopicProps, TopicVersionProps } from "../../app/lib/definitions";
+import { useEffect } from "react";
+import { smoothScrollTo } from "../editor/plugins/TableOfContentsPlugin";
+import { ReplyToContent } from "../editor/plugins/CommentPlugin";
+import { getCurrentContentVersion } from "./utils";
+import { TopicContentPreview } from "./topic-content-preview";
 import { TopicContentExpandedView } from "./topic-content-expanded-view";
 import { WikiEditorState } from "./topic-content-expanded-view-header";
 

@@ -10,13 +10,13 @@ import {
 import {db} from "../../db";
 import {
     currentCategories,
-    getRkeyFromUri,
     oldestFirst,
 } from "../../components/utils/utils";
 import {logTimes, recordQuery, revalidateEverythingTime} from "../utils";
 import {fetchBlob} from "../blob";
 import {unstable_cache} from "next/cache";
 import {getCurrentContentVersion} from "../../components/topic/utils";
+import {getRkeyFromUri} from "../../components/utils/uri";
 
 
 export async function getTrendingTopics(categories: string[],
@@ -58,6 +58,7 @@ export async function getTrendingTopicsNoCache(
     const select = {
         id: true,
         popularityScore: true,
+        lastEdit: true,
         categories: {
             select: {
                 categoryId: true,
@@ -205,7 +206,7 @@ export async function getCategoriesNoCache() {
 export async function getTextFromBlob(blob: {cid: string, authorId: string}){
     try {
         const response = await fetchBlob(blob)
-        if(!response.ok) return null
+        if(!response || !response.ok) return null
         const responseBlob = await response.blob()
         if(!responseBlob) return null
         return await responseBlob.text()

@@ -6,6 +6,8 @@ import {EngagementProps, VisualizationProps} from "../../../app/lib/definitions"
 import {EngagementIcons} from "../../reactions/engagement-icons";
 import {VegaPlot} from "../../visualizations/vega-plot";
 import {VegaPlotPreview} from "../../visualizations/vega-plot-preview";
+import {useLayoutConfig} from "../../layout/layout-config-context";
+import {pxToNumber} from "../../utils/utils";
 
 
 
@@ -21,6 +23,7 @@ export function localizeDataset(spec: any){
 
 export const VisualizationNodeCompFromSpec = ({spec, uri}: {spec: string, uri: string}) => {
     const {visualization, isLoading, error} = useVisualization(uri)
+    const {layoutConfig} = useLayoutConfig()
 
     if(isLoading){
         return <div className={"mt-8"}>
@@ -30,12 +33,15 @@ export const VisualizationNodeCompFromSpec = ({spec, uri}: {spec: string, uri: s
         return <div className={"p-4 border rounded-lg text-center"}>
             Ocurrió un error al obtener la visualización. Quizás haya sido borrada.
             <div className={"text-xs text-center text-[var(--text-light)] break-all"}>
-            Id: {uri}
+                Id: {uri}
             </div>
         </div>
     }
 
-    return <VisualizationNodeComp visualization={visualization}/>
+    return <VisualizationNodeComp
+        visualization={visualization}
+        interactive={pxToNumber(layoutConfig.maxWidthCenter) > 600}
+    />
 }
 
 
@@ -50,37 +56,34 @@ export const VisualizationNodeComp = ({
     interactive?: boolean
     width?: number | string
 }) => {
+    const {layoutConfig} = useLayoutConfig()
 
-    return (
+    return <div>
         <div
-            className={"flex flex-col items-center w-full not-article-content"}
+            className={"flex flex-col items-center not-article-content w-full"}
             onClick={(e) => {e.stopPropagation()}}
         >
+            {interactive ? <VegaPlot
+                visualization={visualization}
+                width={width}
+            /> : <VegaPlotPreview
+                visualization={visualization}
+                width={width}
+            />}
+        </div>
 
-            {interactive ?
-                <VegaPlot visualization={visualization} width={width}/> :
-                <div className={"mb-1"}>
-                    <VegaPlotPreview
-                        visualization={visualization}
-                    />
-                </div>
-            }
-
-            {visualization && (
-                <div className={"flex items-center justify-between w-full px-4"}>
-                    <div className={"exclude-links text-sm text-[var(--text-light)] flex flex-col items-center"}>
-                        <DatasetTitle
-                            dataset={visualization.visualization.dataset}
-                        />
-                        <UserHandle content={visualization}/>
-                    </div>
-                    {showEngagement && (
-                        <div>
-                            <EngagementIcons record={visualization} counters={visualization} className={"space-x-2"}/>
-                        </div>
-                    )}
-                </div>
+        <div
+            className={"flex mt-2 " + (pxToNumber(layoutConfig.maxWidthCenter) <= 600 ? "flex-col items-center" : "justify-between w-full")}
+        >
+            <div className={"exclude-links text-sm text-[var(--text-light)] flex flex-col items-center"}>
+                <DatasetTitle
+                    dataset={visualization.visualization.dataset}
+                />
+                <UserHandle content={visualization}/>
+            </div>
+            {showEngagement && (
+                <EngagementIcons record={visualization} counters={visualization} className={"space-x-2"}/>
             )}
         </div>
-    );
+    </div>
 }

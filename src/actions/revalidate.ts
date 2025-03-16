@@ -1,7 +1,7 @@
 "use server"
 
-import {splitUri} from "../components/utils/utils";
 import {revalidateTag} from "next/cache";
+import {splitUri} from "../components/utils/uri";
 
 export async function revalidateUri(uri: string){
     const {did, collection: c, rkey} = splitUri(uri)

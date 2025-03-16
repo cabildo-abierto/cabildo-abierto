@@ -5,8 +5,8 @@ import LoadingSpinner from "../../../../components/ui-utils/loading-spinner";
 import {ContentTopRowAuthor} from "../../../../components/feed/content-top-row-author";
 import {ProfilePic} from "../../../../components/feed/profile-pic";
 import {DatasetView} from "../../../../components/datasets/dataset-view";
-import {getUri} from "../../../../components/utils/utils";
 import {use} from "react";
+import {getUri} from "../../../../components/utils/uri";
 
 
 const Page = ({params}: {params: Promise<{did: string, rkey: string}>}) => {

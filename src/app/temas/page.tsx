@@ -15,9 +15,9 @@ const Temas = () => {
     const view = searchParams.get("view")
     return <div>
         <TopicsPageHeader/>
-        {(searchState.value.length == 0 && view == "lista") && <TopicsListView />}
         {(searchState.value.length == 0 && (!view || view == "mapa")) && <TopicsMapView />}
         {(searchState.value.length == 0 && view == "listas") && <TopicsListsView />}
+        {(searchState.value.length == 0 && view == "lista") && <TopicsListView />}
         {searchState.searching && <SearchTopics/>}
     </div>
 }

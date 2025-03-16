@@ -59,6 +59,7 @@ export async function getFullTopicList(){
                     categoryId: true
                 }
             },
+            lastEdit: true,
             synonyms: true
         },
         where: {
@@ -88,7 +89,24 @@ export async function searchTopicsNoCache(q: string){
         return 1 / (matchPosition + 1) + matchLength;
     }
 
-    const topics = await getFullTopicList()
+    const topics: SmallTopicProps[] = await db.topic.findMany({
+        select: {
+            id: true,
+            popularityScore: true,
+            categories: {
+                select: {
+                    categoryId: true
+                }
+            },
+            lastEdit: true,
+            synonyms: true
+        },
+        where: {
+            versions: {
+                some: {}
+            }
+        }
+    })
 
     const scoredTopics = topics.map((t) => ({
         topic: t,

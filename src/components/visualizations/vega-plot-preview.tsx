@@ -9,7 +9,7 @@ export const VegaPlotPreview = ({visualization, width, height} : {
     const previewCid = visualization.visualization.previewBlobCid;
     const cdnUrl = "https://cdn.bsky.app/img/feed_thumbnail/plain/"+visualization.author.did+"/"+previewCid+"@jpeg"
 
-    return <div style={{width, height}}>
+    return <div style={{width, height}} className={width ? "" : "w-full"}>
         <Image
             src={cdnUrl}
             alt={""}

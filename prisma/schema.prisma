@@ -325,8 +325,9 @@ model Visualization {
 }
 
 model Reference {
-  id   String        @id @default(uuid())
-  type ReferenceType
+  id    String        @id @default(uuid())
+  type  ReferenceType
+  count Int           @default(1)
 
   referencedTopicId String
   referencedTopic   Topic  @relation(fields: [referencedTopicId], references: [id])

@@ -3,7 +3,7 @@ import {max} from "../utils/utils";
 
 
 export function getTopicCategories(topic: {id: string, categories: {categoryId: string}[]}){
-    return topic.categories.map(({categoryId}) => categoryId)
+    return topic.categories ? topic.categories.map(({categoryId}) => categoryId) : []
 }
 
 

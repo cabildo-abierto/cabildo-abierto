@@ -8,7 +8,7 @@ export const ReplyButton = ({onClick, text="Responder"}: {onClick: () => void, t
     return <div className="border-b px-4 py-1">
         <button
             onClick={onClick}
-            className="rounded-full bg-[var(--background-dark)] w-full hover:bg-[var(--accent)] transition duration-200 flex items-center px-4 py-1 space-x-2"
+            className="rounded-full bg-[var(--background-dark3)] w-full hover:bg-[var(--accent)] transition duration-200 flex items-center px-4 py-1 space-x-2"
     >
             {user && <>
                 <ProfilePic user={user} className={"w-8 h-auto rounded-full"}/>

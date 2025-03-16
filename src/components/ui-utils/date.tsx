@@ -18,11 +18,11 @@ export function DateComponent({ date }: { date: Date }) {
     return <>{localeDate}</>;
 }
 
-function localeDate(date: Date){
-    if(date.getFullYear() != 2024)
-        return format(date, "dd 'de' MMMM", { locale: es })
-    else
+export function localeDate(date: Date, includeCurrentYear?: boolean){
+    if(date.getFullYear() != 2025 || includeCurrentYear)
         return format(date, "dd 'de' MMMM 'de' yyyy", { locale: es })
+    else
+        return format(date, "dd 'de' MMMM", { locale: es })
 }
 
 export function DateSince({ date }: { date: string | Date}) {

@@ -5,7 +5,7 @@ import { ReplyButton } from "./reply-button"
 import { FastPostPreview } from "./fast-post-preview"
 import {useState} from "react";
 import {WritePanel} from "../writing/write-panel";
-import {Article} from "./article";
+import {Article} from "../article/article";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {VisualizationOnThread} from "../visualizations/visualization-on-thread";
@@ -31,7 +31,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
             post={thread.post as FastPostProps}
         />}
         {thread.post.collection == "ar.com.cabildoabierto.article" && <Article
-            content={thread.post as ArticleProps}
+            article={thread.post as ArticleProps}
             quoteReplies={quoteReplies}
             pinnedReplies={pinnedReplies}
             setPinnedReplies={setPinnedReplies}
@@ -45,7 +45,8 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
         <div className={"w-full"}>
             <ReplyButton onClick={() => {setOpenReplyPanel(true)}}/>
         </div>
-        <div className={"w-[600px] mb-32 " + (layoutConfig.maxWidthCenter != "600px" ? "mt-20 border-t" : "")}>
+        <div className={"w-full mb-32"}>
+
             {replies.map((r, index) => {
 
                 function onClickQuote(){
@@ -54,7 +55,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
                     smoothScrollTo(elem)
                 }
 
-                return <div key={index}>
+                return <div key={index} className={"w-full"}>
                     <FastPostPreview
                         post={r}
                         parentIsMainPost={true}

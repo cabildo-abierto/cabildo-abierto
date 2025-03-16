@@ -6,7 +6,7 @@ import {
     ThreadProps,
     VisualizationProps
 } from "../../app/lib/definitions";
-import {getUri, validQuotePost} from "../../components/utils/utils";
+import {validQuotePost} from "../../components/utils/utils";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {unstable_cache} from "next/cache";
 import {addCounters, logTimes, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";
@@ -14,6 +14,7 @@ import {isCAUser} from "../user/users";
 import {db} from "../../db";
 import {getTextFromBlob} from "../topic/topics";
 import {getUserEngagementInFeed} from "../feed/inicio";
+import {getUri} from "../../components/utils/uri";
 
 
 function threadViewPostToThread(thread: ThreadViewPost) {

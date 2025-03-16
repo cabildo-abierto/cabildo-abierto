@@ -59,33 +59,12 @@ export const SmallUserSearchResult: React.FC<{result: {displayName?: string, han
 }
 
 
-export const SearchInput = ({autoFocus, className = "" }: {
-  autoFocus: boolean,
-    className?: string
-}) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const {searchState, setSearchState} = useSearch()
-
-  useEffect(() => {
-    if (inputRef.current && autoFocus) {
-      inputRef.current.focus();
-    }
-  }, []);
-
-  return <input
-    ref={inputRef}
-    className={"bg-transparent w-full focus:outline-none " + className}
-    placeholder="buscar"
-    value={searchState.value}
-    onChange={(e) => {setSearchState({value: e.target.value, searching: true});}}
-  />
-}
-
-
 const SearchBar = ({
-    autoFocus=false
+    autoFocus=false,
+    paddingY
 }: {
     autoFocus?: boolean
+    paddingY?: string
 }) => {
     const {searchState, setSearchState} = useSearch()
 
@@ -96,6 +75,7 @@ const SearchBar = ({
             fullWidth={true}
             value={searchState.value}
             placeholder={"buscar"}
+            onFocus={() => setSearchState({value: searchState.value, searching: true})}
             onChange={(e) => {setSearchState({value: e.target.value, searching: true});}}
             slotProps={{
                 input: {
@@ -105,17 +85,20 @@ const SearchBar = ({
             }}
             sx={{
                 "& .MuiOutlinedInput-root": {
+                    "& input": {
+                        paddingY: paddingY
+                    },
                     "& fieldset": {
-                        borderColor: "var(--accent)"
+                        borderColor: "var(--accent)",
                     },
                     "&:hover fieldset": {
-                        borderColor: "var(--accent)"
+                        borderColor: "var(--accent)",
                     },
                     "&.Mui-focused fieldset": {
                         borderWidth: "2px",
-                        borderColor: "var(--accent)"
-                    }
-                }
+                        borderColor: "var(--accent)",
+                    },
+                },
             }}
         />
     </div>

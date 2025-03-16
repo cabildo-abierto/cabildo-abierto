@@ -1,8 +1,8 @@
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import {FeedEngagementProps} from "../app/lib/definitions";
-import {getDidFromUri} from "../components/utils/utils";
 import {feedCAQuery} from "./feed/feedCA";
+import {getDidFromUri} from "../components/utils/uri";
 
 
 export const revalidateEverythingTime = undefined
@@ -212,6 +212,7 @@ export const threadRepliesQuery = {
 
 export const threadQuery = (c: string) => {
 
+    console.log("getting thread")
     if(c == "app.bsky.feed.post" || c == "ar.com.cabildoabierto.quotePost"){
         return {
             ...recordQuery,
@@ -271,6 +272,12 @@ export const threadQuery = (c: string) => {
                             title: true
                         }
                     },
+                    references: {
+                        select: {
+                            referencedTopicId: true,
+                            count: true
+                        }
+                    }
                 },
             }
         }

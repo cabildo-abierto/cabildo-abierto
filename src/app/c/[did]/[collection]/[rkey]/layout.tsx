@@ -1,6 +1,7 @@
 import MainLayout from "../../../../../components/layout/main-layout";
 import AccountChecker from "../../../../../components/auth/account-checker";
-import {shortCollectionToCollection} from "../../../../../components/utils/utils";
+
+import {shortCollectionToCollection} from "../../../../../components/utils/uri";
 
 
 

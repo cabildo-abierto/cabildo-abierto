@@ -5,7 +5,7 @@ import {getCurrentVersion, inRange, isQuotePost, PrettyJSON, topicUrl} from "../
 import NoEntityPage from "./no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
 import {useTopic, useTopicFeed} from "../../hooks/contents";
-import {getFullTopicCategories, getFullTopicTitle} from "./utils";
+import {getCurrentContentVersion, getFullTopicCategories, getFullTopicTitle} from "./utils";
 import {TopicContent} from "./topic-content";
 import LoadingSpinner from "../ui-utils/loading-spinner";
 import {FastPostProps} from "../../app/lib/definitions";
@@ -116,7 +116,7 @@ export const TopicPage = ({topicId, paramsVersion}: {
         version = currentIndex
     }
 
-    const quoteReplies = feed.feed.filter((r) => {
+    const quoteReplies = feed.feed.replies.filter((r) => {
         return isQuotePost(r) && (r as FastPostProps).content.post.quote != undefined
     }) as FastPostProps[]
 

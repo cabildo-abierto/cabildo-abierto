@@ -3,6 +3,12 @@ import {wikiEditorSettings} from "../editor/wiki-editor";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import dynamic from "next/dynamic";
 import {topicVersionPropsToReplyToContent} from "./topic-content";
+import {IconButton} from "@mui/material";
+import Link from "next/link";
+import {topicUrl} from "../utils/utils";
+import {CustomLink} from "../ui-utils/custom-link";
+import {BasicButton} from "../ui-utils/basic-button";
+import {useRouter} from "next/navigation";
 const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
 
 
@@ -15,30 +21,44 @@ export const TopicContentPreview = ({
     topicId: string
     topicVersion: TopicVersionProps
 }) => {
+    const router = useRouter()
 
-    return <div
-        onClick={onMaximize}
-        className={"relative w-full px-2 group min-h-[100px] max-h-[200px] overflow-y-clip bg-[var(--background)] hover:bg-[var(--background-dark)] cursor-pointer"}
-    >
-        <MyLexicalEditor
-            settings={wikiEditorSettings(
-                true,
-                topicVersionPropsToReplyToContent(topicVersion, topicId),
-                topicVersion.content.text,
-                topicVersion.content.format,
-                false,
-                false
-            )}
-            setEditor={() => {}}
-            setEditorState={() => {}}
-        />
-        <div
-            className="w-full absolute space-x-1 group-hover:flex bottom-0 right-0 bg-opacity-80 text-[var(--text)] text-sm px-2 py-1 rounded"
+    if(!topicVersion.content.text){
+        return <div className={"my-4"}>
+            <BasicButton
+            size={"large"}
+            onClick={() => {router.push(topicUrl(topicId, undefined, "editing"))}}
+            fullWidth={true}
         >
-            <div className={"flex items-center w-full justify-end space-x-2 text-sm text-[var(--text-light)]"}>
-                <div>expandir</div>
+            No hay nada escrito sobre este tema. Escribí una primera versión.
+            </BasicButton>
+        </div>
+    }
+
+    return <div className={"rounded-lg border mb-2 px-2 pt-1 pb-4 w-full h-full"}>
+        <div className={"flex justify-end items-center pb-1"}>
+            <IconButton
+                onClick={onMaximize}
+                size={"small"}
+            >
                 <FullscreenIcon fontSize={"small"}/>
-            </div>
+            </IconButton>
+        </div>
+        <div
+            className={"w-full px-2 group max-h-[400px] overflow-y-scroll custom-scrollbar bg-[var(--background)]"}
+        >
+            <MyLexicalEditor
+                settings={wikiEditorSettings(
+                    true,
+                    topicVersionPropsToReplyToContent(topicVersion, topicId),
+                    topicVersion.content.text,
+                    topicVersion.content.format,
+                    false,
+                    false
+                )}
+                setEditor={() => {}}
+                setEditorState={() => {}}
+            />
         </div>
     </div>
 }

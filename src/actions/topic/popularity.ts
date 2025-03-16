@@ -1,6 +1,6 @@
 "use server"
-import {getDidFromUri} from "../../components/utils/utils";
 import {db} from "../../db";
+import {getDidFromUri} from "../../components/utils/uri";
 
 
 type ContentInteractions = {

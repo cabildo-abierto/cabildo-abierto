@@ -4,11 +4,12 @@ import {FastPostProps, FeedContentPropsMaybe, ReasonProps, RecordProps, SmallUse
 import {FastPostPreviewFrame, ReplyVerticalLine} from './fast-post-preview-frame'
 import {FastPostContent} from "./fast-post-content";
 import {FeedElement} from "./feed-element";
-import {contentUrl, getDidFromUri, getRkeyFromUri, isPost, threadApiUrl} from "../utils/utils";
+import {contentUrl, isPost, threadApiUrl} from "../utils/utils";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {useUser} from "../../hooks/user";
 import { useSWRConfig } from 'swr';
+import {getDidFromUri, getRkeyFromUri} from "../utils/uri";
 
 const ShowThreadButton = ({root}: {root: RecordProps}) => {
     const url = contentUrl(root.uri, root.author.handle)

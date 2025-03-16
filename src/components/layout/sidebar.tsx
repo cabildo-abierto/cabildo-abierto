@@ -90,7 +90,8 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
             sx={{
                 borderRadius: "20px",
                 width: "160px",
-                marginLeft: "10px"
+                marginLeft: "10px",
+                color: "var(--text)"
             }}
             color={"primary"}
             onClick={(e) => {onClick()}}
@@ -265,7 +266,10 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
             </IconButton>
         </div>
     </div>
-        <WritePanel open={writePanelOpen} onClose={() => {setWritePanelOpen(false)}}/>
+        <WritePanel
+            open={writePanelOpen}
+            onClose={() => {setWritePanelOpen(false)}}
+        />
     </div>
 }
 

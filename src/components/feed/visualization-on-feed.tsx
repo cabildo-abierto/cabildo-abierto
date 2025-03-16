@@ -9,7 +9,7 @@ export const VisualizationOnFeed = ({visualization}: {visualization: Visualizati
         post={visualization}
     >
         <div className={"mt-1"}>
-        <VegaPlotPreview visualization={visualization}/>
+            <VegaPlotPreview visualization={visualization}/>
         </div>
     </FastPostPreviewFrame>
 }

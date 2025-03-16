@@ -29,7 +29,9 @@ export const VisualizationOnEditor = ({config, setCurrentView, dataset}: {
         }
     },[config, dataset])
 
-    if(!dataset || !dataset.data) return <LoadingSpinner/>
+    if(!dataset || !dataset.data) return <div className={"p-4"}>
+        <LoadingSpinner/>
+    </div>
 
 
     return <div className="h-full flex items-center justify-center" ref={chartRef}/>

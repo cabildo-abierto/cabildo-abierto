@@ -73,6 +73,7 @@ export type SmallTopicProps = {
     categories: {
         categoryId: string
     }[]
+    lastEdit?: Date
 }
 
 
@@ -240,6 +241,10 @@ export type ArticleProps = RecordProps & EngagementProps & {
         article: {
             title: string
         }
+        references: {
+            referencedTopicId: string
+            count: number
+        }[]
     }
 }
 
@@ -276,10 +281,6 @@ export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
             title?: string
             topic: {
                 id: string
-                versions: {
-                    uri: string
-                    title: string
-                }[]
             }
             message?: string
             charsAdded?: number
@@ -305,7 +306,7 @@ export type DatasetProps = RecordProps & {
     dataset: {
         title: string
         columns: string[]
-        columnValues?: Map<string, any[]>
+        columnValues?: {column: string, values: any[]}[] | Map<string, any[]>
         description?: string
         dataBlocks: {
             record: RecordProps,

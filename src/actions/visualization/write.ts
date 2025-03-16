@@ -2,13 +2,14 @@
 import {VisualizationSpec} from "vega-embed";
 import {getSessionAgent} from "../auth";
 import {BlobRef} from "@atproto/lexicon";
-import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils/utils";
+import {getCollectionFromUri} from "../../components/utils/utils";
 import {createRecord, newDirtyRecord} from "../write/utils";
 import {db} from "../../db";
 import {ATProtoStrongRef} from "../../app/lib/definitions";
 import {VisualizationSpecWithMetadata} from "../../components/visualizations/editor/spec";
 import {revalidateTag} from "next/cache";
 import {revalidateUri} from "../revalidate";
+import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
 
 
 export async function createVisualizationATProto(spec: VisualizationSpec, preview: FormData): Promise<{error?: string, ref?: ATProtoStrongRef, record?: any}> {

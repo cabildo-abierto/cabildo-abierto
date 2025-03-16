@@ -11,6 +11,7 @@ import { ReactNode } from 'react'
 import { EngagementIcons } from '../reactions/engagement-icons'
 import {RepostedBy} from "./reposted-by";
 import { useSWRConfig } from 'swr'
+import {ProfilePic} from "./profile-pic";
 
 
 export const ReplyVerticalLine = ({className=""}: {className?: string}) => {
@@ -45,12 +46,9 @@ export const FastPostPreviewFrame = ({
                     href={userUrl(record.author.handle)}
                     onClick={(e) => {e.stopPropagation()}}
                     className="w-11 h-11 flex items-center justify-center">
-                    <Image
-                        src={record.author.avatar ? record.author.avatar : "https://www.gravatar.com/avatar/?d=mp"}
-                        alt={"Perfil de "+record.author.handle}
-                        width={300}
-                        height={300}
-                        className="rounded-full w-11 h-11"
+                    <ProfilePic
+                        user={record.author}
+                        className={"rounded-full w-11 h-11"}
                     />
                 </Link>
                 {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}

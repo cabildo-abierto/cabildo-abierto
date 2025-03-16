@@ -40,7 +40,7 @@ export async function getAvailableInviteCodes() {
             code: true
         },
         where: {
-            usedAt: null
+            usedByDid: null
         }
     })).map(({code}) => code)
 }
@@ -59,9 +59,11 @@ export async function assignInviteCode(inviteCode: string) {
         return {}
     }
 
-    if(code.usedAt){
+    if(code.usedByDid != null){
         return {error: "El código ya fue usado."}
     }
+
+    console.log("assigning invite code", inviteCode, "to did", did)
 
     const updates = [
         db.inviteCode.update({
@@ -75,7 +77,8 @@ export async function assignInviteCode(inviteCode: string) {
         }),
         db.user.update({
             data: {
-                hasAccess: true
+                hasAccess: true,
+                inCA: true
             },
             where: {
                 did
