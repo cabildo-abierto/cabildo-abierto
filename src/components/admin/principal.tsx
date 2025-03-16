@@ -1,9 +1,8 @@
 "use client"
-import {useUser} from "../../hooks/user";
 import React, {useState} from "react";
-import {NotFoundPage} from "../ui-utils/not-found-page";
 import StateButton from "../ui-utils/state-button";
 import {
+    applyReferencesUpdateToContent,
     getPendingReferenceUpdatesCount,
     getPendingSynonymsUpdatesCount, resetUpdateReferenceTimestamps,
     updateReferences,
@@ -14,18 +13,29 @@ import {updateTopicsCategories} from "../../actions/topic/categories";
 import {updateTopicsLastEdit} from "../../actions/topic/current-version";
 import {AdminSection} from "./admin-section";
 import {updateCategoriesGraph} from "../../actions/topic/graph";
+import {expandURI} from "../utils/uri";
 
 
 export const AdminPrincipal = () => {
     const [pendingSynonymsUpdates, setPendingSynonymsUpdates] = useState(null)
     const [pendingContentReferenceUpdates, setPendingContentReferenceUpdates] = useState(null)
+    const [uri, setUri] = useState("")
 
 
     let center = <div className="flex flex-col items-center mt-8">
 
         <div className="py-8 flex flex-col items-center space-y-2 w-64 text-center">
 
-            <AdminSection title={"Contenidos"}>
+            <AdminSection title={"URI"}>
+                <input
+                    value={uri}
+                    onChange={(e) => {setUri(e.target.value)}}
+                    placeholder={"uri"}
+                    className={"p-2 w-128 outline-none"}
+                />
+            </AdminSection>
+
+            <AdminSection title={"Referencias"}>
 
                 <StateButton
                     handleClick={async () => {
@@ -46,6 +56,14 @@ export const AdminPrincipal = () => {
                 {pendingContentReferenceUpdates && <div>
                     Referencias pendientes {pendingContentReferenceUpdates}
                 </div>}
+
+                <StateButton
+                    handleClick={async () => {
+                        await applyReferencesUpdateToContent(expandURI(uri))
+                        return {}
+                    }}
+                    text1={"Actualizar referencias URI"}
+                />
 
                 <StateButton
                     handleClick={async () => {
@@ -75,6 +93,9 @@ export const AdminPrincipal = () => {
                     text1={"Resetear timestamps referencias y sinónimos"}
                 />
 
+            </AdminSection>
+
+            <AdminSection title={"Popularidad"}>
                 <StateButton
                     handleClick={async () => {
                         await updateTopicPopularityScores()
@@ -85,18 +106,21 @@ export const AdminPrincipal = () => {
 
                 <StateButton
                     handleClick={async () => {
-                        await updateTopicsCategories()
-                        return {}
-                    }}
-                    text1={"Actualizar categorías de temas"}
-                />
-
-                <StateButton
-                    handleClick={async () => {
                         await updateTopicsLastEdit()
                         return {}
                     }}
                     text1={"Actualizar fecha última edición"}
+                />
+            </AdminSection>
+
+            <AdminSection title={"Categorías"}>
+
+                <StateButton
+                    handleClick={async () => {
+                        await updateTopicsCategories()
+                        return {}
+                    }}
+                    text1={"Actualizar categorías de temas"}
                 />
 
                 <StateButton

@@ -25,8 +25,6 @@ import {
     topicUrl,
     emptyChar,
     ErrorMsg,
-    getDidFromUri,
-    getRkeyFromUri,
     validEntityName, threadApiUrl
 } from "../utils/utils";
 import Link from "next/link";
@@ -36,6 +34,7 @@ import {ContentQuote} from "../feed/content-quote";
 import {VisualizationNodeComp} from "../editor/nodes/visualization-node-comp";
 import { createFastPost } from "../../actions/write/post"
 import {RectTracker} from "../ui-utils/rect-tracker";
+import {getDidFromUri, getRkeyFromUri} from "../utils/uri";
 
 
 function replyFromParentElement(replyTo: FeedContentProps): FastPostReplyProps {

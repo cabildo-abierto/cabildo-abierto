@@ -26,9 +26,9 @@ const darkTheme = createTheme({
       light: '#4f93ff'
     },
     text: {
-      primary: '#fbfbfc', // Default text color
-      secondary: '#b0b0b0', // Secondary text color
-      disabled: '#888888', // Disabled text color
+      primary: '#fbfbfc',
+      secondary: '#b0b0b0',
+      disabled: '#888888',
     },
     background: {
       default: '#181b23',

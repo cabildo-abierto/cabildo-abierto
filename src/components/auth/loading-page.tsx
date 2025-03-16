@@ -8,15 +8,12 @@ import { LoadingScreen } from '../ui-utils/loading-screen';
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
     const user = useUser()
 
-
     if(!user.isLoading && (!user.user || user.user.did)) {
-        return <div className={""}>
-            {children}
-        </div>
-    } else {
         return <>
-            <LoadingScreen />
+            {children}
         </>
+    } else {
+        return <LoadingScreen/>
     }
 }
 

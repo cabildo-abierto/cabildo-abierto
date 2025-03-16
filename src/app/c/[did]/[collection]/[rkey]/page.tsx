@@ -4,7 +4,7 @@ import LoadingSpinner from "../../../../../components/ui-utils/loading-spinner";
 import {useThread} from "../../../../../hooks/contents";
 import {ErrorPage} from "../../../../../components/ui-utils/error-page";
 import React from "react";
-import {getUri, shortCollectionToCollection} from "../../../../../components/utils/utils";
+import {getUri, shortCollectionToCollection} from "../../../../../components/utils/uri";
 
 
 const ContentPage = ({params}: {

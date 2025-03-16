@@ -6,6 +6,7 @@ import {WritePanel} from "../writing/write-panel";
 import {ReplyToContent} from "../editor/plugins/CommentPlugin";
 import {useSWRConfig} from "swr";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
+import {getCurrentContentVersion} from "./utils";
 
 function topicPropsToReplyToContent(topic: TopicProps, version: number): ReplyToContent {
     return {
@@ -34,15 +35,17 @@ export const TopicDiscussion = ({
     const [writingReply, setWritingReply] = useState(false)
     const {mutate} = useSWRConfig()
 
+    const contentVersion = topic.versions[getCurrentContentVersion(topic)]
+    const hasText = contentVersion.content.text != undefined && contentVersion.content.text.length > 0
 
     return <div className="w-full flex flex-col items-center">
-        <div className={"w-full"}>
+        {hasText && <div className={"w-full"}>
             <ReplyButton
-                text={"Responder al tema"}
+                text={"Responder al contenido del tema"}
                 onClick={() => {setWritingReply(true)}}
             />
-        </div>
-        <div className={"w-full max-w-[600px] " + (wikiEditorState == "normal" ? "border-t mt-20" : "")}>
+        </div>}
+        <div className={"w-full " + (wikiEditorState == "normal" ? "border-t mt-20" : "")}>
             <TopicFeed
                 topicId={topic.id}
                 onClickQuote={onClickQuote}

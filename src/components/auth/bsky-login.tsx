@@ -29,7 +29,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         }
 
         setIsLoading(true)
-        const res = await login(handle.toLowerCase(), inviteCode)
+        const res = await login(handle.toLowerCase())
 
         if(res && res.error){
             setError(res.error)
@@ -69,7 +69,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
     if(usingInviteCode){
         return <div className={"flex flex-col items-center space-y-2"}>
             <div>
-            Cargando código de invitación.
+                Cargando código de invitación.
             </div>
             <LoadingSpinner/>
         </div>

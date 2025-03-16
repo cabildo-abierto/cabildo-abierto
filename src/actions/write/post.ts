@@ -2,10 +2,11 @@
 import {ATProtoStrongRef, FastPostReplyProps, VisualizationProps} from "../../app/lib/definitions";
 import {getSessionAgent} from "../auth";
 import {RichText} from "@atproto/api";
-import {getCollectionFromUri, getDidFromUri, getRkeyFromUri, getVisualizationTitle} from "../../components/utils/utils";
+import {getCollectionFromUri, getVisualizationTitle} from "../../components/utils/utils";
 import {revalidateTag} from "next/cache";
 import {createContent, createRecord, newDirtyRecord, SyncRecordProps} from "./utils";
 import {db} from "../../db";
+import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
 
 
 export async function createFastPostATProto(

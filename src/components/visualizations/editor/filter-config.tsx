@@ -1,8 +1,9 @@
-import {DatasetProps, FilterOption, FilterProps, PlotConfigProps} from "../../../app/lib/definitions";
+import {DatasetProps, FilterProps, PlotConfigProps} from "../../../app/lib/definitions";
 import SearchableDropdown from "../../ui-utils/searchable-dropdown";
 import {IconButton} from "@mui/material";
 import RemoveIcon from "@mui/icons-material/Remove";
 import {Select} from "../../ui-utils/select";
+
 
 export const filterOptions = ["igual a", "distinto de", "uno de"]
 
@@ -13,7 +14,6 @@ export const FilterConfig = ({filter, updateFilter, config, dataset, onRemove}: 
     updateFilter: (f: FilterProps) => void,
     onRemove: () => void
 }) => {
-
     return <div className={"flex items-center space-x-2"}>
         <SearchableDropdown
             options={dataset ? dataset.dataset.columns : []}
@@ -38,8 +38,8 @@ export const FilterConfig = ({filter, updateFilter, config, dataset, onRemove}: 
                 })
             }}
         />
-        <SearchableDropdown
-            options={dataset && dataset.dataset.columnValues && filter.column && dataset.dataset.columns.includes(filter.column) && dataset.dataset.columnValues.get(filter.column).length <= 8 ? dataset.dataset.columnValues.get(filter.column) : []}
+        {<SearchableDropdown
+            options={dataset && dataset.dataset && dataset.dataset.columnValues && filter.column && dataset.dataset.columns.includes(filter.column) && "get" in dataset.dataset.columnValues && dataset.dataset.columnValues.get(filter.column).length <= 8 ? dataset.dataset.columnValues.get(filter.column) : []}
             label={"Valor"}
             size={"small"}
             fontSize={"14px"}
@@ -51,7 +51,7 @@ export const FilterConfig = ({filter, updateFilter, config, dataset, onRemove}: 
                     op: filter.op
                 })
             }}
-        />
+        />}
         <IconButton
             size={"small"}
             onClick={onRemove}

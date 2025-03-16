@@ -36,7 +36,7 @@ export const TopicsPageHeader = () => {
         </button>
     }
 
-    return <div className="flex justify-between border-b pr-2 items-center">
+    return <div className="flex justify-between pr-2 items-center">
         <SelectionComponent
             onSelection={(s: string) => {router.push("/temas?view="+s+(c ? "&c="+c : ""))}}
             options={["mapa", "listas", "lista"]}
@@ -45,9 +45,10 @@ export const TopicsPageHeader = () => {
             className="flex space-x-2"
         />
 
-        <div className={"flex w-64 h-8"}>
+        <div className={"flex w-64 py-1"}>
             <SearchBar
                 autoFocus={false}
+                paddingY={"5px"}
             />
         </div>
 

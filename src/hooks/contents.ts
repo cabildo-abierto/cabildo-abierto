@@ -6,8 +6,9 @@ import {
     VisualizationProps, EngagementProps, TopicsGraph, FastPostProps
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
-import {getDidFromUri, getRkeyFromUri, threadApiUrl} from "../components/utils/utils";
+import {threadApiUrl} from "../components/utils/utils";
 import {QuotedContent} from "../components/feed/content-quote";
+import {getDidFromUri, getRkeyFromUri} from "../components/utils/uri";
 
 
 export function useFeed(feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
@@ -115,7 +116,7 @@ export function usePost(uri: string): {post: FastPostProps, error?: string, isLo
 }
 
 
-export function useTopicFeed(id: string): {feed: FeedContentProps[], error: string, isLoading: boolean}{
+export function useTopicFeed(id: string): {feed: {mentions: FeedContentProps[], replies: FeedContentProps[], topics: string[]}, error: string, isLoading: boolean}{
     const { data, error, isLoading } = useSWR('/api/topic-feed/'+encodeURIComponent(id), fetcher, {
         revalidateIfStale: false,
         revalidateOnFocus: false,

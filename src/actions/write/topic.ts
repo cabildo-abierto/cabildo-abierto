@@ -2,10 +2,11 @@
 import {getSessionAgent} from "../auth";
 import {revalidateTag} from "next/cache";
 import {createContent, createRecord} from "./utils";
-import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils/utils";
+import {getCollectionFromUri} from "../../components/utils/utils";
 import {db} from "../../db";
 import {logTimes} from "../utils";
 import {setTopicCategories} from "../topic/utils";
+import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
 
 export async function createTopic(id: string){
     return await createTopicVersion({id, claimsAuthorship: true})

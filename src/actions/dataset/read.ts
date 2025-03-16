@@ -1,5 +1,4 @@
 "use server"
-import {getDidFromUri, getRkeyFromUri} from "../../components/utils/utils";
 import {unstable_cache} from "next/cache";
 import {datasetQuery, enDiscusionQuery, logTimes, recordQuery, revalidateEverythingTime} from "../utils";
 import {DatasetProps, FeedContentProps} from "../../app/lib/definitions";
@@ -11,6 +10,7 @@ import {getUserEngagementInFeed} from "../feed/inicio";
 import {addCountersToFeed} from "../feed/utils";
 import {fetchBlob} from "../blob";
 import {compress, decompress} from "../../components/utils/compression";
+import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
 
 
 function compressData(data: any[]){
@@ -38,7 +38,7 @@ function decompressDataset(dataset: {dataset?: DatasetProps, data?: string}){
 }
 
 
-export async function getDataset(uri: string) {
+export async function getDataset(uri: string): Promise<{dataset: DatasetProps, data: any[]}> {
     const did = getDidFromUri(uri)
     const rkey = getRkeyFromUri(uri)
     const compressedDataset = await unstable_cache(async () => {
@@ -51,7 +51,27 @@ export async function getDataset(uri: string) {
         }
     )()
 
-    return decompressDataset(compressedDataset)
+    const dataset = decompressDataset(compressedDataset)
+
+    if(dataset.dataset.dataset.columnValues && "length" in dataset.dataset.dataset.columnValues){
+        const m = new Map<string, any[]>()
+        dataset.dataset.dataset.columnValues.forEach(({column, values}) => {
+            m.set(column, values)
+        })
+
+        return {
+            ...dataset,
+            dataset: {
+                ...dataset.dataset,
+                dataset: {
+                    ...dataset.dataset.dataset,
+                    columnValues: m
+                }
+            }
+        }
+    } else {
+        return dataset
+    }
 }
 
 
@@ -84,7 +104,7 @@ export async function getCompressedDataset(uri: string): Promise<{dataset?: Data
         const blob = blocks[i].blob
 
         const uint8Array = await fetchBlob(blob)
-        if(!uint8Array){
+        if(!uint8Array || !uint8Array.ok){
             return {error: "Ocurrió un error al obtener los datos del dataset."}
         }
 
@@ -132,14 +152,20 @@ export async function getCompressedDataset(uri: string): Promise<{dataset?: Data
     }
 
     function setValuesToListValues(s: Map<string, Set<any>>){
-        const r = new Map<string, any[]>()
+        const r: {column: string, values: any[]}[] = []
         s.forEach((v, k) => {
-            r.set(k, Array.from(v).sort())
+            r.push({column: k, values: Array.from(v).sort()})
         })
         return r
     }
 
-    const datasetWithColumnValues: DatasetProps = {...dataset, dataset: {...dataset.dataset, columnValues: setValuesToListValues(columnValues)}}
+    const datasetWithColumnValues: DatasetProps = {
+        ...dataset,
+        dataset: {
+            ...dataset.dataset,
+            columnValues: setValuesToListValues(columnValues)
+        }
+    }
 
     return {dataset: datasetWithColumnValues, data: compressData(data)}
 }

@@ -22,6 +22,7 @@ const ReadOnlyEditor = ({
     quoteReplies,
     pinnedReplies,
     setPinnedReplies,
+    showTableOfContents = false
 }: {
     initialData: InitialEditorStateType
     allowTextComments?: boolean
@@ -30,6 +31,7 @@ const ReadOnlyEditor = ({
     quoteReplies?: FastPostProps[]
     pinnedReplies?: string[]
     setPinnedReplies?: (v: string[]) => void
+    showTableOfContents?: boolean
 }) => {
     const settings: SettingsProps = {
         disableBeforeInput: false,
@@ -45,7 +47,7 @@ const ReadOnlyEditor = ({
         shouldPreserveNewLinesInMarkdown: true,
         shouldUseLexicalContextMenu: false,
         showNestedEditorTreeView: false,
-        showTableOfContents: false,
+        showTableOfContents: showTableOfContents,
         showTreeView: false,
         tableCellBackgroundColor: false,
         tableCellMerge: false,

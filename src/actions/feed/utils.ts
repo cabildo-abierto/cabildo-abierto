@@ -12,8 +12,9 @@ import {
     PostView,
     ReasonRepost
 } from "@atproto/api/src/client/types/app/bsky/feed/defs";
-import {getRkeyFromUri, newestFirst} from "../../components/utils/utils";
+import {newestFirst} from "../../components/utils/utils";
 import {addCounters} from "../utils";
+import {getRkeyFromUri} from "../../components/utils/uri";
 
 
 function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {

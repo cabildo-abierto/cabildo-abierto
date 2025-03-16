@@ -1,6 +1,6 @@
 "use client"
-import {ReactNode, useState} from "react";
-import {useBskyUser, useUser} from "../../hooks/user";
+import {ReactNode, useEffect, useState} from "react";
+import {useBskyUser, useCodes, useUser} from "../../hooks/user";
 import {getUsername} from "../utils/utils";
 import {TextField} from "@mui/material";
 import {CloseSessionButton} from "./close-session-button";
@@ -8,9 +8,11 @@ import StateButton from "../ui-utils/state-button";
 import {updateEmail} from "../../actions/user/users";
 import Link from "next/link";
 import Footer from "../ui-utils/footer";
-import {useSWRConfig} from "swr";
+import {mutate, useSWRConfig} from "swr";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import {LoadingScreen} from "../ui-utils/loading-screen";
+import {useSearchParams} from "next/navigation";
+import {assignInviteCode} from "../../actions/user/access";
 
 
 function getUsernameBskyUser(user: ProfileViewDetailed){
@@ -95,9 +97,40 @@ export const BetaAccessPageNotCAUserAccess = () => {
 
 export const BetaAccessPage = ({children}: {children: ReactNode}) => {
     const {user, isLoading} = useUser(true)
+    const searchParams = useSearchParams()
+    const {codes, isLoading: codesLoading} = useCodes()
+    const [usingInviteCode, setUsingInviteCode] = useState(false)
+
+    const inviteCode = searchParams.get("c")
+
+    useEffect(() => {
+        async function activateInviteCode(){
+            setUsingInviteCode(true)
+            console.log("assigning invite code", inviteCode)
+            const {error} = await assignInviteCode(inviteCode)
+            console.log("error", error)
+            if(!error){
+                mutate("/api/user", {})
+            }
+            setUsingInviteCode(false)
+        }
+
+        if(inviteCode && user && !user.hasAccess && codes){
+            if(codes.includes(inviteCode)){
+                activateInviteCode()
+            }
+        }
+    }, [searchParams, codes, user])
+
     if(user && user.hasAccess) return <>{children}</>
-    if(isLoading) return <LoadingScreen />
-    if(!user) return null
+
+    if(isLoading || inviteCode && codesLoading || usingInviteCode){
+        console.log("user loading", isLoading)
+        console.log("codes loadign", codesLoading)
+        console.log("using invite code", usingInviteCode)
+        console.log("has access", user.hasAccess)
+        return <LoadingScreen/>
+    }
 
     return <BetaAccessPageNotCAUserAccess/>
 }

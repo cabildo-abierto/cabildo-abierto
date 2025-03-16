@@ -1,16 +1,19 @@
 import {
-    UserProps,
-    SmallUserProps,
     BothContributionsProps,
-    TopicVersionProps, TopicProps, TopicVersionOnFeedProps, FastPostProps
+    SmallUserProps,
+    TopicProps,
+    TopicVersionOnFeedProps,
+    TopicVersionProps,
+    UserProps
 } from "../../app/lib/definitions"
-import { getAllText } from "../topic/diff"
-import { $getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode } from "lexical"
+import {getAllText} from "../topic/diff"
+import {$getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode} from "lexical"
 import {SessionOptions} from "iron-session";
 import React from "react";
 import {QuoteDirProps} from "../editor/plugins/CommentPlugin/show-quote-reply";
 import {decompress} from "./compression";
 import {WikiEditorState} from "../topic/topic-content-expanded-view-header";
+import {collectionToShortCollection, getDidFromUri, getRkeyFromUri, splitUri} from "./uri";
 
 
 export function threadApiUrl(uri: string){
@@ -39,11 +42,6 @@ export function isQuotePost(e: {collection: string}){
 
 export function getCollectionFromUri(uri: string){
     return uri.split("/")[3]
-}
-
-
-export function getUri(did: string, collection: string, rkey: string){
-    return "at://" + did + "/" + collection + "/" + rkey
 }
 
 
@@ -494,58 +492,10 @@ export function userUrl(id: string){
 }
 
 
-export function splitUri(uri: string){
-    const split = uri.split('/')
-    return {
-        did: split[2],
-        collection: split[3],
-        rkey: split[4]
-    }
-}
-
-
-export function shortCollectionToCollection(collection: string){
-    if(collection == "article"){
-        return "ar.com.cabildoabierto.article"
-    }
-    if(collection == "post"){
-        return "app.bsky.feed.post"
-    }
-    if(collection == "visualization"){
-        return "ar.com.cabildoabierto.visualization"
-    }
-    return collection
-}
-
-
-export function collectionToShortCollection(collection: string){
-    if(collection == "ar.com.cabildoabierto.article"){
-        return "article"
-    }
-    if(collection == "app.bsky.feed.post"){
-        return "post"
-    }
-    if(collection == "ar.com.cabildoabierto.visualization"){
-        return "visualization"
-    }
-    return collection
-}
-
-
 export function contentUrl(uri: string, handle?: string){
     const {did, collection, rkey} = splitUri(uri)
 
     return "/c/" + did + "/" + collectionToShortCollection(collection) + "/" + rkey
-}
-
-
-function getTopicVersionIndex(topicVersion: TopicVersionOnFeedProps){
-    const versions = topicVersion.content.topicVersion.topic.versions
-    for(let i = 0; i < versions.length; i++){
-        if(versions[i].uri == topicVersion.uri){
-            return i
-        }
-    }
 }
 
 
@@ -822,15 +772,6 @@ export function getUsername(user: {displayName?: string, handle: string}){
     return user.displayName ? user.displayName : "@"+user.handle
 }
 
-
-export function getDidFromUri (uri: string) {
-    return uri.split("/")[2]
-}
-
-export function getRkeyFromUri(uri: string){
-    const s = uri.split("/")
-    return s[s.length-1]
-}
 
 /*function findMentionNode(node: any, entity: EntitySearchKeysProps){
     if(node.type == "link" || node.type == "autolink"){
