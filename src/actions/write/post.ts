@@ -2,12 +2,13 @@
 import {ATProtoStrongRef, FastPostReplyProps, VisualizationProps} from "../../app/lib/definitions";
 import {getSessionAgent} from "../auth";
 import {RichText} from "@atproto/api";
-import {getVisualizationTitle} from "../../components/utils/utils";
 import {revalidateTag} from "next/cache";
 import {db} from "../../db";
 import {getDidFromUri, getRkeyFromUri, splitUri} from "../../components/utils/uri";
 import {processCreateRecord, processCreateRecordFromRefAndRecord} from "../sync/process-event";
 import {revalidateUri} from "../revalidate";
+import {getVisualizationTitle} from "../../components/visualizations/editor/spec";
+import {logTimes} from "../utils";
 
 
 export async function createFastPostATProto(
@@ -18,10 +19,9 @@ export async function createFastPostATProto(
         visualization?: VisualizationProps
     }
 ){
-    //const t1 = Date.now()
+    const t1 = Date.now()
     const {agent} = await getSessionAgent()
-    //const t2 = Date.now()
-    //console.log("get session agent time", t2-t1)
+    const t2 = Date.now()
 
     const rt = new RichText({
         text: text
@@ -83,7 +83,7 @@ export async function createFastPostATProto(
     }
     const t3 = Date.now()
 
-    //console.log("Posting to atproto", t3-t2)
+    logTimes("Posting to atproto", [t1, t2, t3])
 
     return {ref, record}
 }

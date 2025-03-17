@@ -4,12 +4,12 @@ import StateButton from '../ui-utils/state-button';
 import { useUser } from '../../hooks/user';
 import { TopicProps } from '../../app/lib/definitions';
 import InfoPanel from '../ui-utils/info-panel';
-import { hasEditPermission } from '../utils/utils';
 import { NoEditPermissionsMsg } from './no-edit-permissions-msg';
 import { AcceptButtonPanel } from '../ui-utils/accept-button-panel';
 import { BaseFullscreenPopup } from '../ui-utils/base-fullscreen-popup';
 import { NeedAccountPopup } from "../auth/need-account-popup";
-import {getFullTopicTitle, getTopicTitle} from "./utils";
+import {getFullTopicTitle, hasEditPermission} from "./utils";
+import {TextField} from "@mui/material";
 
 
 
@@ -17,8 +17,11 @@ export function validExplanation(text: string) {
     return text.length > 0
 }
 
-export const UndoChangesModal = ({ onClose, entity, version }: {
-    onClose: () => void, entity: TopicProps, version: number
+export const RejectVersionModal = ({ open, onClose, topic, version }: {
+    open: boolean
+    onClose: () => void
+    topic: TopicProps
+    version: number
 }) => {
     const user = useUser()
     const [explanation, setExplanation] = useState("")
@@ -33,31 +36,39 @@ export const UndoChangesModal = ({ onClose, entity, version }: {
 
     const oportunismInfo = <span className="text-sm">Marcar como oportunismo <InfoPanel text={infoPanelOportunism} className="w-72"/></span>
 
-    let modalContent = null
-
-    if(!user.user){
-        return <NeedAccountPopup
-            open={true}
-            text="Necesitás una cuenta para deshacer cambios."
-            onClose={onClose}
-        />
-    }
-    if(hasEditPermission(user.user, entity.protection)){
-        return <BaseFullscreenPopup open={true} closeButton={true} onClose={onClose}>
-            <div className="space-y-6 px-6 mb-4 flex flex-col items-center">
-                <h3>Deshacer el último cambio en {getFullTopicTitle(entity)}</h3>
+    if(hasEditPermission(user.user, topic.protection)){
+        return <BaseFullscreenPopup open={open} closeButton={true} onClose={onClose}>
+            <div className="space-y-6 px-6 pt-2 mb-4 flex flex-col items-center">
+                <h3>
+                    Deshacer el último cambio en {getFullTopicTitle(topic)}
+                </h3>
                 <div className="w-full">
-                    <textarea
-                        rows={4}
-                        className="resize-none w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-none placeholder-gray-500"
+                    <TextField
+                        size={"small"}
+                        label={"Motivo"}
+                        minRows={4}
+                        multiline={true}
+                        fullWidth={true}
                         value={explanation}
                         onChange={(e) => {setExplanation(e.target.value)}}
-                        placeholder="Explicá el motivo por el que te parece necesario deshacer este cambio."
+                        placeholder="Explicá por qué te parece necesario deshacer este cambio."
                     />
                 </div>
                 <div className="w-full flex flex-col space-y-2">
-                {<TickButton text={vandalismInfo} setTicked={setVandalism} ticked={vandalism} size={20} color="#455dc0" />}
-                {<TickButton text={oportunismInfo} setTicked={setOportunism} ticked={oportunism} size={20} color="#455dc0" />}
+                <TickButton
+                    text={vandalismInfo}
+                    setTicked={setVandalism}
+                    ticked={vandalism}
+                    size={20}
+                    color="#455dc0"
+                />
+                <TickButton
+                    text={oportunismInfo}
+                    setTicked={setOportunism}
+                    ticked={oportunism}
+                    size={20}
+                    color="#455dc0"
+                />
                 </div>
                 <div className="">
                     <StateButton
@@ -87,7 +98,7 @@ export const UndoChangesModal = ({ onClose, entity, version }: {
         >
             <div>
                 <p>Necesitás permisos de edición para deshacer cambios.</p>
-                <NoEditPermissionsMsg user={user.user} level={entity.protection}/>
+                <NoEditPermissionsMsg user={user.user} level={topic.protection}/>
             </div>
         </AcceptButtonPanel>
     }

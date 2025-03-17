@@ -2,22 +2,19 @@
 
 import { initializeEmpty, SettingsProps } from "./lexical-editor"
 import { useEffect, useRef, useState } from "react"
-import StateButton, { StateButtonClickHandler } from "../ui-utils/state-button"
+import StateButton from "../ui-utils/state-button"
 import { EditorState, LexicalEditor } from "lexical"
-import {charCount, validPost} from "../utils/utils"
-import {usePathname, useRouter} from "next/navigation"
+import {useRouter} from "next/navigation"
 import { TitleInput } from "./title-input"
-import { useSWRConfig } from "swr"
 import { useUser } from "../../hooks/user"
 import { compress } from "../utils/compression"
 import { ExtraChars } from "../writing/extra-chars"
-import { Button } from "@mui/material"
-import { CustomLink } from "../ui-utils/custom-link"
 import useModal from "./hooks/useModal"
 import { FastPostImagesEditor } from "../writing/fast-post-images-editor"
-import { AddImageButton } from "../writing/add-image-button"
 import { createArticle } from "../../actions/write/article"
 import dynamic from "next/dynamic"
+import {validPost} from "../writing/utils";
+import {charCount} from "../utils/lexical";
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsProps = (isFast, initialData) => {
@@ -69,26 +66,8 @@ type PostEditorProps = {
 }
 
 
-function useDebouncedEffect(effect: () => void, deps: any[], delay: number) {
-    const handler = useRef<NodeJS.Timeout | null>(null);
-
-    useEffect(() => {
-        if (handler.current) clearTimeout(handler.current);
-
-        handler.current = setTimeout(() => {
-            effect();
-        }, delay);
-
-        return () => {
-            if (handler.current) clearTimeout(handler.current);
-        };
-    }, [...deps, delay]);
-}
-
-
 const PublishButton = ({editor, isPublished, title, disabled}: {
     editor: LexicalEditor
-    lastSaved: {contentId?: string}
     disabled: boolean
     isPublished: boolean
     isFast: boolean
@@ -128,16 +107,9 @@ const PostEditor = ({
 }: PostEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
-    const [saveStatus, setSaveStatus] = useState<"saved" | "error" | "no changes" | "not saved">("no changes")
     const [title, setTitle] = useState(initialTitle)
-    const [modal, showModal] = useModal()
+    const [modal] = useModal()
     const [images, setImages] = useState([])
-
-    const [lastSaved, setLastSaved] = useState({
-        text: initialData,
-        title: initialTitle,
-        contentId: contentId
-    })
 
     const settings = postEditorSettings(isFast, initialData)
 
@@ -152,10 +124,8 @@ const PostEditor = ({
     return <div className="px-3">
         <div className="flex justify-between mt-3 items-center w-full">
 			<div className="flex">
-                {isFast && <AddImageButton images={images} setImages={setImages} disabled={false}/>}
                 <PublishButton
                     editor={editor}
-                    lastSaved={lastSaved}
                     title={title}
                     isFast={isFast}
                     isPublished={isPublished}

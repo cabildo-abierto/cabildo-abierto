@@ -1,11 +1,10 @@
 import { DateSince } from "../ui-utils/date"
 import { CustomLink as Link } from '../ui-utils/custom-link';
-import {TopicProps, TopicVersionProps} from "../../app/lib/definitions"
+import {TopicProps} from "../../app/lib/definitions"
 import { useRouter } from "next/navigation"
 import {ReactNode, useState} from "react"
 import StateButton from "../ui-utils/state-button"
 import { useUser } from "../../hooks/user"
-import {topicUrl, countReactions, getCurrentVersion, getTopicMonetizedChars, PrettyJSON} from "../utils/utils"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "../ui-utils/accept-button-panel"
 import { toPercentage } from "./show-contributors"
@@ -20,9 +19,11 @@ import { NeedAccountPopup } from "../auth/need-account-popup";
 import {ProfilePic} from "../feed/profile-pic";
 import {LikeCounter} from "../reactions/like-counter";
 import {ContentOptionsButton} from "../content-options/content-options-button";
-import {revalidateTags} from "../../actions/admin";
 import {TopicCategories} from "./topic-categories";
 import {onDeleteTopicVersion} from "../../actions/topic/current-version";
+import {RejectVersionModal} from "./reject-version-modal";
+import {getCurrentVersion, getTopicMonetizedChars} from "./utils";
+import {topicUrl} from "../utils/uri";
 
 
 const EditDetails = ({topic, index}: {topic: TopicProps, index: number}) => {
@@ -59,17 +60,12 @@ const EditDetails = ({topic, index}: {topic: TopicProps, index: number}) => {
     return <div className={"text-[var(--text-light)]"}>{editType}</div>
 }
 
-type EditElementProps = {
-    topic: TopicProps,
-    index: number,
-    viewing?: number,
-    isCurrent: boolean
-}
-
 
 const ConfirmEditButtons = ({topic, version}: {topic: TopicProps, version: number}) => {
-    async function confirm(e){
-        /*setPending(true)
+    const [openRejectModal, setOpenRejectModal] = useState<boolean>(false)
+
+    /*async function confirm(){
+        setPending(true)
         if(editPermission){
             const {error} = await confirmChanges(entity.id, contentId, user.id)
             if(error) return {error}
@@ -81,11 +77,11 @@ const ConfirmEditButtons = ({topic, version}: {topic: TopicProps, version: numbe
             setShowingNoPermissions(true)
             setPending(false)
             return {}
-        }*/
+        }
     }
 
     async function reject(){
-        /*setPending(true)
+        setPending(true)
         if(editPermission){
             const {error} = await rejectChanges(entity.id, contentId, user.id)
             if(error) return {error}
@@ -97,10 +93,10 @@ const ConfirmEditButtons = ({topic, version}: {topic: TopicProps, version: numbe
             setShowingNoPermissions(true)
             setPending(false)
             return {}
-        }*/
-    }
+        }
+    }*/
 
-    return <div className="flex space-x-2">
+    return <div className="flex space-x-2" onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
         <LikeCounter
             icon1={<ConfirmEditIcon/>}
             icon2={<ConfirmEditIcon/>}
@@ -111,9 +107,15 @@ const ConfirmEditButtons = ({topic, version}: {topic: TopicProps, version: numbe
         <LikeCounter
             icon1={<RejectEditIcon/>}
             icon2={<RejectEditIcon/>}
-            onLike={async () => {return {error: "Sin implementar"}}}
+            onLike={async () => {setOpenRejectModal(true); return {}}}
             onDislike={async () => {return {error: "Sin implementar"}}}
             initialCount={0}
+        />
+        <RejectVersionModal
+            onClose={() => {setOpenRejectModal(false)}}
+            open={openRejectModal}
+            topic={topic}
+            version={version}
         />
     </div>
 }
@@ -168,7 +170,11 @@ const MonetizationPortion = ({entity, index}: { entity: TopicProps, index: numbe
 }
 
 
-const EditElement = ({topic, index, viewing, isCurrent}: EditElementProps) => {
+const EditElement = ({topic, index, viewing}: {
+    topic: TopicProps,
+    index: number,
+    viewing?: number
+}) => {
     const [showingRemoveAuthorshipPanel, setShowingRemoveAuthorshipPanel] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
@@ -257,7 +263,6 @@ const EditElement = ({topic, index, viewing, isCurrent}: EditElementProps) => {
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 }
@@ -270,7 +275,6 @@ export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
     onRemove: () => Promise<{ error?: string }>
 }) => {
     const {user} = useUser()
-    const {mutate} = useSWRConfig()
 
     if (!user) {
         return <NeedAccountPopup open={true} onClose={onClose}
@@ -280,7 +284,6 @@ export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
     async function handleClick() {
         const {error} = await onRemove()
         if (error) return {error}
-        //mutate("/api/entity/" + entity.id)
         onClose()
         return {}
     }
@@ -336,14 +339,13 @@ export const EditHistory = ({topic, viewing}: { topic: TopicProps, viewing?: num
     const currentIndex = getCurrentVersion(topic)
     
     const history = <div className="mt-1 hidden lg:block">
-        {topic.versions.map((version, index) => {
+        {topic.versions.map((_, index) => {
         const versionIndex = topic.versions.length-1-index
         return <div key={index} className="w-full">
             <EditElement
                 topic={topic}
                 index={versionIndex}
                 viewing={viewing}
-                isCurrent={versionIndex == currentIndex}
             />
         </div>
     })}</div>

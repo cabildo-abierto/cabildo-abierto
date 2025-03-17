@@ -8,7 +8,11 @@ import {NoResults} from "../search/no-results";
 import {TopicsSortOrder} from "./topics-list-view";
 
 
-export const CategoryArticles = ({sortedBy, categories, maxCount}: {sortedBy: TopicsSortOrder, categories: string[], onSearchPage?: boolean, maxCount?: number}) => {
+export const CategoryArticles = ({sortedBy, categories}: {
+    sortedBy: TopicsSortOrder
+    categories: string[]
+    onSearchPage?: boolean
+}) => {
     const {topics, isLoading, isError} = useTopics(categories, sortedBy == "Populares" ? "popular" : "recent")
 
     if (isLoading) return <LoadingSpinner/>

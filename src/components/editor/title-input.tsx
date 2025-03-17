@@ -31,7 +31,7 @@ export const TitleInput = ({ onChange, title }: any) => {
             placeholder="Título"
             className=""
             value={title}
-            onInput={(e) => {
+            onInput={() => {
                 if (textareaRef.current) {
                     // Remove new lines and truncate to maximum length
                     const value = textareaRef.current.value.replace(/\n/g, '');

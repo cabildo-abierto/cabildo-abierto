@@ -4,23 +4,24 @@ import { SerializedDiffNode } from '../editor/nodes/DiffNode';
 import { TopicProps, MatchesType } from '../../app/lib/definitions';
 import { wikiEditorSettings } from '../editor/wiki-editor';
 import { decompress } from '../utils/compression';
+import {getCurrentContentVersion} from "./utils";
 
 const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
 
 
-function showChanges(initialData: string, withRespectToContent: string, diff: MatchesType){
+function showChanges(newText: string, prevText: string, diff: MatchesType){
     const {common} = diff
-    const nodes1 = nodesFromJSONStr(withRespectToContent)
+    const nodes1 = nodesFromJSONStr(prevText)
     let parsed2 = null
     try {
-        parsed2 = JSON.parse(initialData)
+        parsed2 = JSON.parse(newText)
     } catch {
-        return initialData // first version where content is ""
+        return newText // first version where content is ""
     }
     
     const nodes2 = parsed2.root.children
 
-    function newDiffNode(kind: string, childNode){
+    function newDiffNode(kind: string, childNode: any){
         const diffNode: SerializedDiffNode = {
             children: [childNode],
             type: "diff",
@@ -60,53 +61,49 @@ function showChanges(initialData: string, withRespectToContent: string, diff: Ma
     }
 
     parsed2.root.children = newChildren
-    const r = JSON.stringify(parsed2)
-
-    return r
+    return JSON.stringify(parsed2)
 }
 
 
-type ShowArticleChangesProps = {
-    originalContent: {
-        cid: string
-        uri: string
-        diff?: string
-        content: {text: string}
-    },
-    originalContentText: string,
-    entity: TopicProps,
-    version: number
-}
+export const ShowTopicChanges = ({
+    topic, version
+}: {topic: TopicProps, version: number}) => {
+    const newTextVersion = getCurrentContentVersion(topic, version)
+    if(newTextVersion == 0){
+        return <div className={"text-[var(--text-light)] text-sm mt-16"}>
+            Sin cambios para mostrar.
+        </div>
+    }
 
+    const prevTextVersion = getCurrentContentVersion(topic, newTextVersion-1)
 
-export const ShowArticleChanges = ({
-    originalContent, originalContentText, entity, version
-}: ShowArticleChangesProps) => {
-    return <></>
-    /*const changesContent = entity.versions[version-1]
+    const newContent = topic.versions[newTextVersion].content
+    const prevContent = topic.versions[prevTextVersion].content
 
-    if(!originalContent.diff){
-        return <div className={"text-[var(--text-light)] text-center"}>Todavía no se calcularon los cambios.</div>
+    if(!newContent.topicVersion.diff){
+        return <div className={"text-[var(--text-light)] text-center mt-16"}>
+            Todavía no se calcularon los cambios.
+        </div>
     }
 
     const contentText = showChanges(
-        originalContentText,
-        decompress(changesContent.content.text),
-        JSON.parse(originalContent.diff)
+        decompress(newContent.text),
+        decompress(prevContent.text),
+        JSON.parse(newContent.topicVersion.diff)
     )
 
-    let settings = wikiEditorSettings(true, originalContent, contentText, "lexical", true, false)
+    let settings = wikiEditorSettings(true, null, contentText, "lexical", true, false)
 
     return <>
         <div className="text-sm text-center block lg:hidden content-container p-1 w-full">
             <p>Para ver qué cambió en esta versión del tema entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
         </div>
         <div className="lg:block hidden">
-        <MyLexicalEditor
-            settings={settings}
-            setEditor={(e) => {}}
-            setEditorState={() => {}}
-        />
+            <MyLexicalEditor
+                settings={settings}
+                setEditor={() => {}}
+                setEditorState={() => {}}
+            />
         </div>
-    </>*/
+    </>
 }

@@ -68,7 +68,7 @@ import type {
       this.__kind = kind || "";
     }
   
-    createDOM(config: EditorConfig): HTMLElement {
+    createDOM(_: EditorConfig): HTMLElement {
       const element = document.createElement('div');
       if(this.__kind == "new"){
         addClassNamesToElement(element, "diffNew")
@@ -78,17 +78,6 @@ import type {
         addClassNamesToElement(element, "diffModified")
       }
       return element;
-    }
-  
-    updateDOM(
-      prevNode: DiffNode,
-      element: HTMLElement,
-      config: EditorConfig,
-    ): boolean {
-      const prevKind = prevNode.__kind;
-      const nextKind = this.__kind;
-        
-      return false;
     }
 
     getKind(): string {

@@ -2,11 +2,13 @@
 
 import Image from 'next/image'
 import {FastPostProps} from '../../app/lib/definitions'
-import {formatIsoDate, getUsername, userUrl} from '../utils/utils'
+import {getUsername} from '../utils/utils'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 import { EngagementIcons } from '../reactions/engagement-icons'
 import {useUser} from "../../hooks/user";
+import {userUrl} from "../utils/uri";
+import {formatIsoDate} from "../utils/dates";
 
 
 type MainPostFrameProps = {children: ReactNode, post: FastPostProps}
@@ -15,7 +17,6 @@ type MainPostFrameProps = {children: ReactNode, post: FastPostProps}
 export const MainPostFrame = ({
                                          children, post
 }: MainPostFrameProps) => {
-    const {user} = useUser()
 
     const author = post.author
     const authorUrl = userUrl(author.handle)

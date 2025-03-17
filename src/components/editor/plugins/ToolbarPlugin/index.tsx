@@ -143,7 +143,6 @@ function dropDownActiveClass(active: boolean) {
 function BlockFormatDropDown({
   editor,
   blockType,
-  rootType,
   disabled = false,
 }: {
   blockType: keyof typeof blockTypeToBlockName;
@@ -331,9 +330,6 @@ export default function ToolbarPlugin({
     useState<keyof typeof blockTypeToBlockName>('paragraph');
   const [rootType, setRootType] =
     useState<keyof typeof rootTypeToRootName>('root');
-  const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(
-    null,
-  );
   const [elementFormat, setElementFormat] = useState<ElementFormatType>('left');
   const [isLink, setIsLink] = useState(false);
   const [isBold, setIsBold] = useState(false);
@@ -343,7 +339,6 @@ export default function ToolbarPlugin({
   const [canRedo, setCanRedo] = useState(false);
   const [modal, showModal] = useModal();
   const [isRTL, setIsRTL] = useState(false);
-  const [codeLanguage, setCodeLanguage] = useState<string>('');
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
 
@@ -389,7 +384,6 @@ export default function ToolbarPlugin({
       }
 
       if (elementDOM !== null) {
-        setSelectedElementKey(elementKey);
         if ($isListNode(element)) {
           const parentList = $getNearestNodeOfType<ListNode>(
             anchorNode,
@@ -580,55 +574,6 @@ export default function ToolbarPlugin({
                   type="button">
                 <InsertLink fontSize={"small"} color={"inherit"}/>
               </button>
-              {(canViewerSeeInsertDropdown) && (
-                  <>
-                    <Divider/>
-                    <DropDown
-                        disabled={!isEditable}
-                        buttonClassName="toolbar-item spaced"
-                        buttonLabel="Insertar"
-                        buttonAriaLabel="Insert specialized editor node"
-                        buttonIconClassName="icon plus">
-                      <DropDownItem
-                          onClick={() => {
-                            activeEditor.dispatchCommand(
-                                INSERT_HORIZONTAL_RULE_COMMAND,
-                                undefined,
-                            );
-                          }}
-                          className="item">
-                        <i className="icon horizontal-rule"/>
-                        <span className="text">Línea horizontal</span>
-                      </DropDownItem>
-                      <DropDownItem
-                          onClick={() => {
-                            showModal('Insert Image', (onClose: any) => (
-                                <InsertImageDialog
-                                    activeEditor={activeEditor}
-                                    onClose={onClose}
-                                />
-                            ));
-                          }}
-                          className="item">
-                        <i className="icon image"/>
-                        <span className="text">Imagen</span>
-                      </DropDownItem>
-                      <DropDownItem
-                          onClick={() => {
-                            showModal('Insert Table', (onClose: any) => (
-                                <InsertTableDialog
-                                    activeEditor={activeEditor}
-                                    onClose={onClose}
-                                />
-                            ));
-                          }}
-                          className="item">
-                        <i className="icon table"/>
-                        <span className="text">Tabla</span>
-                      </DropDownItem>
-                    </DropDown>
-                  </>
-              )}
             </>
         )}
 

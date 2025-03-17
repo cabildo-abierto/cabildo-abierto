@@ -1,4 +1,5 @@
-import { makeMatrix } from "./diff";
+import {makeMatrix} from "../utils/arrays";
+
 
 const INF = 1e9
 export function assignment(a: Array<Array<number>>): Array<number> {

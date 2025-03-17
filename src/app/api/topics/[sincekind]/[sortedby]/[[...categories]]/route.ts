@@ -4,10 +4,10 @@ import {getTrendingTopics} from "../../../../../../actions/topic/topics";
 import {TopicSortOrder} from "../../../../../lib/definitions";
 
 
-export async function GET(req: NextRequest,
+export async function GET(_: NextRequest,
     { params }: { params: Promise<{ sincekind: string, sortedby: string, categories: string[] }> }
 ) {
-    const {sincekind, sortedby, categories} = await params
+    const {sortedby, categories} = await params
 
     if(!["recent", "popular"].includes(sortedby)){
         return NextResponse.json(null)

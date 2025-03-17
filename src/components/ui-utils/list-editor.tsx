@@ -7,17 +7,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import SearchableDropdown from "./searchable-dropdown";
 import { BasicButton } from "./basic-button";
-import StateButton, {StateButtonClickHandler} from "./state-button";
-import {areArraysEqual} from "../utils/utils";
+import StateButton from "./state-button";
 
-function validItem(e: string){
-    return e.length > 0
-}
-
-function validItems(items: string[]){
-    return items.length > 0 && !items.some((e) => !validItem(e))
-}
-
+import {areArraysEqual} from "../utils/arrays";
 
 const NewItem = ({
      addItem,

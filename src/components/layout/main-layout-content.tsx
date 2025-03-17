@@ -1,9 +1,10 @@
 "use client"
 import {ReactNode, useEffect} from "react";
 import {SidebarContent} from "./sidebar";
-import {emptyChar, pxToNumber} from "../utils/utils";
 import {useLayoutConfig} from "./layout-config-context";
 import {RightPanel} from "./right-panel";
+import {pxToNumber} from "../utils/strings";
+import {emptyChar} from "../utils/utils";
 
 export const MainLayoutContent = ({children}: {children: ReactNode}) => {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()

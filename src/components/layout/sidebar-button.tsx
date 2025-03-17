@@ -14,7 +14,9 @@ type SidebarButtonProps = {
     setShowText: (showText: boolean) => void
 }
 
-export const SidebarButton: React.FC<SidebarButtonProps> = ({showText, setShowText, text, onClick, icon, iconInactive, href, disabled=false, selected=false}) => {
+export const SidebarButton = ({
+  showText, text, onClick, icon, iconInactive, href, disabled=false, selected=false
+}: SidebarButtonProps) => {
 
     return <>
         <CustomLink href={href} className="mt-1 h-10">

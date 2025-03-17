@@ -19,6 +19,5 @@ export const RepliesFeed = ({
     return <Feed
         feed={feed}
         noResultsText={name + " todavía no escribió ninguna respuesta."}
-        showReplies={true}
     />
 }

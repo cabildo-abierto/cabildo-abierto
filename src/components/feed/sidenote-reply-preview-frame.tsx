@@ -3,12 +3,15 @@
 import Image from 'next/image'
 import { DateSince } from '../ui-utils/date'
 import {EngagementProps, RecordProps} from '../../app/lib/definitions'
-import {emptyChar, formatIsoDate, userUrl} from '../utils/utils'
 import Link from 'next/link'
 import { ContentTopRowAuthor } from './content-top-row-author'
 import { ReactNode } from 'react'
 import { EngagementIcons } from '../reactions/engagement-icons'
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
+import {userUrl} from "../utils/uri";
+import {formatIsoDate} from "../utils/dates";
+
+import {emptyChar} from "../utils/utils";
 
 
 const ReplyVerticalLine = ({className=""}: {className?: string}) => {

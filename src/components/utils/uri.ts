@@ -1,3 +1,5 @@
+import {WikiEditorState} from "../topic/topic-content-expanded-view-header";
+
 export function getUri(did: string, collection: string, rkey: string) {
     return "at://" + did + "/" + collection + "/" + rkey
 }
@@ -53,4 +55,58 @@ export function expandURI(uri: string){
     const {did, collection, rkey} = splitUri(uri)
 
     return getUri(did, shortCollectionToCollection(collection), rkey)
+}
+
+export function editVisualizationUrl(uri: string) {
+    const {did, rkey, collection} = splitUri(uri)
+    const collectionParam = collection != "ar.com.cabildoabierto.visualization" ? "&c=" + collection : ""
+    return "/nueva-visualizacion?did=" + did + "&rkey=" + rkey + collectionParam
+}
+
+export function userUrl(id: string) {
+    return "/perfil/" + id
+}
+
+export function contentUrl(uri: string, handle?: string) {
+    const {did, collection, rkey} = splitUri(uri)
+
+    return "/c/" + did + "/" + collectionToShortCollection(collection) + "/" + rkey
+}
+
+export function topicUrl(title: string, index?: number, s?: WikiEditorState) {
+    return "/tema?i=" + encodeURIComponent(title) + (index != undefined ? "&v=" + index : "") + (s ? "&s=" + s : "")
+}
+
+export function urlFromRecord(record: { uri: string, collection: string, author: { did: string, handle?: string } }) {
+    if (record.collection == "ar.com.cabildoabierto.visualization") {
+        return "/c/" + record.author.did + "/" + record.collection + "/" + getRkeyFromUri(record.uri)
+    } else if (record.collection == "ar.com.cabildoabierto.dataset") {
+        return "/c/" + record.author.did + "/" + record.collection + "/" + getRkeyFromUri(record.uri)
+    }
+    return contentUrl(record.uri, record.author.handle ? record.author.handle : record.author.did)
+}
+
+export function getBlueskyUrl(uri: string) {
+    const {did, rkey} = splitUri(uri)
+    return "https://bsky.app/profile/" + did + "/post/" + rkey
+}
+
+export function categoryUrl(cat: string, view: string) {
+    return "/temas?c=" + cat + "&view=" + view
+}
+
+export function threadApiUrl(uri: string) {
+    return "/api/thread/" + getDidFromUri(uri) + "/" + getCollectionFromUri(uri) + "/" + getRkeyFromUri(uri)
+}
+
+export function getCollectionFromUri(uri: string) {
+    return uri.split("/")[3]
+}
+
+export function isPost(collection: string) {
+    return collection == "ar.com.cabildoabierto.quotePost" || collection == "app.bsky.feed.post"
+}
+
+export function isQuotePost(e: { collection: string }) {
+    return e.collection == "ar.com.cabildoabierto.quotePost"
 }

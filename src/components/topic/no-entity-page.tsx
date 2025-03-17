@@ -3,9 +3,10 @@
 import { useRouter } from "next/navigation"
 import { useSWRConfig } from "swr"
 import { useUser } from "../../hooks/user"
-import {topicUrl, validEntityName} from "../utils/utils"
 import {Button} from "@mui/material";
 import {createTopic} from "../../actions/write/topic";
+import {validEntityName} from "./utils";
+import {topicUrl} from "../utils/uri";
 
 const CreateEntityButton: React.FC<any> = ({onClick}) => {
     return <Button

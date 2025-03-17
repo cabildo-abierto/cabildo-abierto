@@ -31,10 +31,9 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {$isImageNode, ImageNode, $createImageNode, ImagePayload} from '../../nodes/ImageNode';
 
 import Button from '@mui/material/Button'
-import {styled} from '@mui/material'
+import {styled, TextField} from '@mui/material'
 import {DialogActions, DialogButtonsList} from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
-import TextInput from '../../ui/TextInput';
 import { CAN_USE_DOM } from '../../shared/canUseDOM';
 import { createClient } from '../../../../utils/supabase/client';
 
@@ -54,40 +53,29 @@ export function InsertImageUriDialogBody({
   onClick: (payload: InsertImagePayload) => void;
 }) {
   const [src, setSrc] = useState('');
-  const [altText, setAltText] = useState('');
 
   const isDisabled = src === '';
 
-  /*
-      <TextInput
-        label="Texto alternativo"
-        placeholder="Cataratas del Iguazú"
-        onChange={setAltText}
-        value={altText}
-        data-test-id="image-modal-alt-text-input"
-      />*/
-
-  return (
-    <>
-      <TextInput
+  return <>
+      <TextField
         label="URL"
-        placeholder="ej. https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Foz_de_Igua%C3%A7u_27_Panorama_Nov_2005.jpg/480px-Foz_de_Igua%C3%A7u_27_Panorama_Nov_2005.jpg"
-        onChange={setSrc}
+        size={"small"}
+        fullWidth={true}
+        autoComplete="off"
+        placeholder="ej. https://dominio.com/imagen.jpg"
+        onChange={(e) => {setSrc(e.target.value)}}
         value={src}
         data-test-id="image-modal-url-input"
       />
-      <DialogActions>
-        <Button
+      <Button
           sx={{textTransform: "none"}}
           variant="contained"
           disableElevation={true}
           disabled={isDisabled}
-          onClick={() => onClick({altText, src})}>
+          onClick={() => onClick({altText: "", src})}>
           Aceptar
-        </Button>
-      </DialogActions>
-    </>
-  );
+      </Button>
+  </>
 }
 
 
@@ -116,7 +104,7 @@ export const UploadImageButton = ({onSubmit}: {onSubmit: (i: InsertImagePayload)
         
             const supabase = createClient();
             
-            const { data, error } = await supabase.storage
+            const { error } = await supabase.storage
               .from('pictures')
               .upload('public/' + filename, file);
         
@@ -133,7 +121,8 @@ export const UploadImageButton = ({onSubmit}: {onSubmit: (i: InsertImagePayload)
               onSubmit({src: "/media/"+filename, altText: ""});
             }
         }
-    };
+    }
+
     return <Button
       component="label"
       role={undefined}
@@ -142,6 +131,7 @@ export const UploadImageButton = ({onSubmit}: {onSubmit: (i: InsertImagePayload)
       sx={{textTransform: "none"}}
       disableElevation={true}
       startIcon={<CloudUploadIcon />}
+      fullWidth={true}
     >
       Subir archivo
       <VisuallyHiddenInput
@@ -159,7 +149,6 @@ export function InsertImageUploadedDialogBody({
   onClick: (payload: InsertImagePayload) => void;
 }) {
   const [src, setSrc] = useState('');
-  const [altText, setAltText] = useState('');
 
   const isDisabled = src === '';
 
@@ -173,7 +162,7 @@ export function InsertImageUploadedDialogBody({
   
       const supabase = createClient();
       
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('pictures')
         .upload('public/' + filename, file);
   
@@ -192,15 +181,6 @@ export function InsertImageUploadedDialogBody({
     }
   };
 
-  /*
-      <TextInput
-        label="Texto alternativo"
-        placeholder="Cataratas del Iguazú"
-        onChange={setAltText}
-        value={altText}
-        data-test-id="image-modal-alt-text-input"
-  />*/
-
   return (
     <>
       <FileInput
@@ -215,7 +195,7 @@ export function InsertImageUploadedDialogBody({
           disableElevation={true}
           disabled={isDisabled}
           sx={{textTransform: "none"}}
-          onClick={() => onClick({altText, src})}>
+          onClick={() => onClick({altText: "", src})}>
           Aceptar
         </Button>
       </DialogActions>

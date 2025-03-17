@@ -1,8 +1,8 @@
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getUsers } from '../../../actions/user/users';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     const {users, error} = await getUsers()
     
     if (error) {

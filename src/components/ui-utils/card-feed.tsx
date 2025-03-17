@@ -1,6 +1,6 @@
 import {useLayoutConfig} from "../layout/layout-config-context";
-import {pxToNumber} from "../utils/utils";
 import {ReactNode, useEffect, useState} from "react";
+import {pxToNumber} from "../utils/strings";
 
 
 export const CardFeed = ({elements, generator}: {elements: any[], generator: (x: any, width: number) => ReactNode}) => {

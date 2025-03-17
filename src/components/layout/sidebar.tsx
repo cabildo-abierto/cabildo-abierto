@@ -4,7 +4,6 @@ import { CustomLink as Link } from '../ui-utils/custom-link';
 import PersonIcon from '@mui/icons-material/Person';
 import { useUser } from "../../hooks/user";
 import { UserProps } from "../../app/lib/definitions";
-import { userUrl } from "../utils/utils";
 import { CabildoIcon } from "../icons/home-icon";
 import { SupportIcon } from "../icons/support-icon";
 import VisualizationsIcon from "@mui/icons-material/AutoGraph";
@@ -30,6 +29,7 @@ import SenadoIcon from '../../../public/senado-icono.svg';
 import SenadoIconActive from '../../../public/senado-icono-active.svg';
 import Image from 'next/image'
 import { useTheme } from "../theme/theme-context";
+import {userUrl} from "../utils/uri";
 
 
 function unseenSupportMessagesCount(user: UserProps){
@@ -94,13 +94,13 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
                 color: "var(--text)"
             }}
             color={"primary"}
-            onClick={(e) => {onClick()}}
+            onClick={() => {onClick()}}
         >
             Escribir
         </BasicButton> :
             <Button
                 color={"primary"}
-                onClick={(e) => {onClick()}}
+                onClick={() => {onClick()}}
                 variant={"text"}
                 size={"large"}
             >

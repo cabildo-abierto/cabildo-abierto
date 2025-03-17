@@ -39,13 +39,13 @@ function getInitialData(text: string | undefined, textFormat: string, readOnly: 
 
         return initialData
     } else if(textFormat == "markdown"){
-        const initialData = (editor: LexicalEditor) => {
+        const initialData = (_: LexicalEditor) => {
             $convertFromMarkdownString(text, TRANSFORMERS)
         }
         return initialData
     } else if(textFormat == "markdown-compressed"){
         const contentText = decompress(text)
-        const initialData = (editor: LexicalEditor) => {
+        const initialData = (_: LexicalEditor) => {
             $convertFromMarkdownString(contentText, TRANSFORMERS)
         }
         return initialData
@@ -68,7 +68,7 @@ function getInitialData(text: string | undefined, textFormat: string, readOnly: 
 
 export const wikiEditorSettings = (
     readOnly: boolean,
-    content: ReplyToContent,
+    content: ReplyToContent | null,
     text: string,
     textFormat: string,
     enableTableOfContents: boolean = true,
@@ -109,7 +109,7 @@ export const wikiEditorSettings = (
         initialData: initialData,
         editorClassName: "article-content not-article-content",
         isReadOnly: readOnly,
-        content: {...content},
+        content: content,
         isAutofocus: false,
         placeholderClassName: "ContentEditable__placeholder",
         imageClassName: "",

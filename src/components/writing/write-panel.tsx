@@ -22,10 +22,8 @@ import TickButton from "../ui-utils/tick-button";
 import {useSWRConfig} from "swr";
 import {createTopic} from "../../actions/write/topic";
 import {
-    topicUrl,
     emptyChar,
-    ErrorMsg,
-    validEntityName, threadApiUrl
+    ErrorMsg
 } from "../utils/utils";
 import Link from "next/link";
 import {BasicButton} from "../ui-utils/basic-button";
@@ -34,7 +32,10 @@ import {ContentQuote} from "../feed/content-quote";
 import {VisualizationNodeComp} from "../editor/nodes/visualization-node-comp";
 import { createFastPost } from "../../actions/write/post"
 import {RectTracker} from "../ui-utils/rect-tracker";
-import {getDidFromUri, getRkeyFromUri} from "../utils/uri";
+import {getDidFromUri, getRkeyFromUri, threadApiUrl, topicUrl} from "../utils/uri";
+import {validEntityName} from "../topic/utils";
+import {InsertImageModal} from "./insert-image-modal";
+import {InsertImagePayload} from "../editor/plugins/ImagesPlugin";
 
 
 function replyFromParentElement(replyTo: FeedContentProps): FastPostReplyProps {
@@ -78,7 +79,6 @@ const CreateTopic = ({onClose}: {onClose: () => void}) => {
     const user = useUser();
     const [topicName, setTopicName] = useState("");
     const [errorOnCreate, setErrorOnCreate] = useState(null)
-    const { mutate } = useSWRConfig();
     const router = useRouter();
     const [goToArticle, setGoToArticle] = useState(true);
     const [selected, setSelected] = useState("none")
@@ -95,8 +95,6 @@ const CreateTopic = ({onClose}: {onClose: () => void}) => {
                 return {error}
             }
         }
-        //mutate("/api/entities")
-        //mutate("/api/entity/"+topicName)
         if (goToArticle) router.push(topicUrl(topicName))
         onClose()
         return {}
@@ -181,6 +179,7 @@ const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
     const [text, setText] = useState("")
     const [visualization, setVisualization] = useState(null)
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
+    const [imageModalOpen, setImageModalOpen] = useState(false)
     const [rect, setRect] = useState<DOMRect>()
     const {mutate} = useSWRConfig()
 
@@ -231,7 +230,7 @@ const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
         setErrorOnCreatePost(false)
         if (user) {
             const reply = replyTo ? replyFromParentElement(replyTo) : undefined
-            const {error, ref} = await createFastPost({text, reply, visualization, quote})
+            const {error} = await createFastPost({text, reply, visualization, quote})
             if(reply){
                 await onSubmit()
                 await mutate(threadApiUrl(reply.parent.uri))
@@ -273,14 +272,11 @@ const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
             <div className="flex justify-between mt-2 px-2">
                 <div className={"flex space-x-2"}>
                     <AddImageButton
-                        images={images}
                         disabled={images.length == 4 || visualization != null}
-                        setImages={setImages}
+                        setModalOpen={setImageModalOpen}
                     />
                     <AddVisualizationButton
-                        setVisualization={setVisualization}
                         disabled={images.length > 0}
-                        modalOpen={visualizationModalOpen}
                         setModalOpen={setVisualizationModalOpen}
                     />
                 </div>
@@ -291,6 +287,11 @@ const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
             open={visualizationModalOpen}
             onClose={() => {setVisualizationModalOpen(false)}}
             setVisualization={setVisualization}
+        />
+        <InsertImageModal
+            open={imageModalOpen}
+            onClose={() => {setImageModalOpen(false)}}
+            onSubmit={(i: InsertImagePayload) => {setImages([...images, i]); setImageModalOpen(false)}}
         />
     </div>
     </RectTracker>

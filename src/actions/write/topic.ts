@@ -1,52 +1,22 @@
 "use server"
 import {getSessionAgent} from "../auth";
 import {revalidateTag} from "next/cache";
-import {createContent, createRecord} from "./utils";
-import {getCollectionFromUri} from "../../components/utils/utils";
 import {db} from "../../db";
 import {logTimes} from "../utils";
-import {setTopicCategories} from "../topic/utils";
-import {getDidFromUri, getRkeyFromUri, splitUri} from "../../components/utils/uri";
-import {processCreateRecord, processCreateRecordFromRefAndRecord} from "../sync/process-event";
+import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
 
 export async function createTopic(id: string){
+    // TO DO: Chequear que no exista el tema.
     return await createTopicVersion({id, claimsAuthorship: true})
 }
 
 
-type CreateTopicVersionRecord = {
-    id: string
-    title?: string
-    message?: string
-    synonyms?: string
-    categories?: string
-    $type: string
-    text: {ref: {
-        $link: string
-    }}
-    createdAt: string
-}
-
-
-export async function createTopicVersionDB({
-    ref,
-    record
-}: {
-    ref: {uri: string, cid: string}
-    record: CreateTopicVersionRecord
-}){
-
-    return {}
-}
-
-
 export async function createTopicVersionATProto({
-                                                    id, text, format="markdown", title, claimsAuthorship, message, categories, synonyms}: {
+    id, text, format="markdown", title, message, categories, synonyms}: {
     id: string,
     text?: FormData,
     format?: string,
     title?: string
-    claimsAuthorship: boolean
     message?: string
     categories?: string[]
     synonyms?: string[]
@@ -94,13 +64,11 @@ export async function createTopicVersionATProto({
         console.error("error", e)
         return {error: "Ocurrió un error al publicar en ATProto."}
     }
-
-    return {}
 }
 
 
 export async function createTopicVersion({
-                                             id, text, format="markdown", title, claimsAuthorship, message, categories, synonyms}: {
+                                             id, text, format="markdown", title, message, categories, synonyms}: {
     id: string,
     text?: FormData,
     format?: string,
@@ -112,7 +80,7 @@ export async function createTopicVersion({
 }): Promise<{error?: string}>{
     const t1 = Date.now()
     const {ref, record} = await createTopicVersionATProto({
-        id, text, format, title, claimsAuthorship, message, categories, synonyms
+        id, text, format, title, message, categories, synonyms
     })
     const t2 = Date.now()
     if(ref){

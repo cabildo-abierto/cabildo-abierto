@@ -2,9 +2,11 @@
 
 import {revalidateTag} from "next/cache";
 import {db} from "../db";
-import {getCollectionFromUri, launchDate, supportDid, validSubscription} from "../components/utils/utils";
+import {validSubscription} from "../components/utils/utils";
 import {getSessionAgent} from "./auth";
-import {getRkeyFromUri} from "../components/utils/uri";
+import {getCollectionFromUri, getRkeyFromUri} from "../components/utils/uri";
+import {launchDate} from "../components/utils/dates";
+import {supportDid} from "../components/utils/auth";
 
 export async function revalidateTags(tags: string[]){
     for(let i = 0; i < tags.length; i++){
@@ -249,8 +251,6 @@ export async function getAdminStats(){
             if(s.createdAt <= date)
                 users.add(s.did)
         })
-
-        const weekEnd = new Date(date.getTime() + weekDuration)
 
         eventsByWeek.push({ date, accounts: users.size });
     }

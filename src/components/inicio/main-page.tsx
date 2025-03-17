@@ -5,26 +5,18 @@ import { MainFeedHeader } from "./main-feed-header"
 import Feed from "../feed/feed"
 import {useFeed} from "../../hooks/contents";
 import {useRouter, useSearchParams} from "next/navigation";
-import {PrettyJSON} from "../utils/utils";
-import {useUser} from "../../hooks/user";
 
 
-type MainPageProps = {
-    showRoute?: boolean
-}
 
-
-export const MainPage = ({showRoute=true}: MainPageProps) => {
+export const MainPage = () => {
     const feed = useFeed("InDiscussion")
     const followingFeed = useFeed("Following")
     const params = useSearchParams()
     const paramsFeed = params.get("f")
     const selected = !paramsFeed || paramsFeed != "siguiendo" ? "En discusión" : "Siguiendo"
     const router = useRouter()
-    const {user} = useUser()
 
     const [order, setOrder] = useState(selected == "En discusión" ? "Populares" : "Recientes")
-    const [filter, setFilter] = useState("Todas")
 
     function onSelection(v: string){
         router.push("/inicio" + (v == "Siguiendo" ? "?f=siguiendo" : "?f=discusion"))
@@ -37,11 +29,6 @@ export const MainPage = ({showRoute=true}: MainPageProps) => {
             <MainFeedHeader
                 selected={selected}
                 onSelection={onSelection}
-                showRoute={showRoute}
-                order={order}
-                setOrder={setOrder}
-                filter={filter}
-                setFilter={setFilter}
             />
         </div>
 

@@ -7,7 +7,8 @@ import { Agent } from "@atproto/api"
 import { getIronSession } from "iron-session"
 import { cookies } from "next/headers"
 import {AppViewHandleResolver} from "@atproto/oauth-client-node";
-import {myCookieOptions} from "../components/utils/utils";
+
+import {myCookieOptions} from "../components/utils/auth";
 
 
 export async function login(handle: string){
@@ -60,23 +61,15 @@ export async function getSessionAgent(){
         return {agent: new Agent("https://bsky.social/xrpc"), did: undefined}
     }
 
-    const t1 = Date.now()
     const oauthClient = await createClient()
-    const t2 = Date.now()
 
     try {
         const oauthSession = await oauthClient.restore(session.did)
-        const t3 = Date.now()
         if(oauthSession){
             const res = {
                 agent: new Agent(oauthSession),
                 did: session.did
             }
-            const t4 = Date.now()
-            // console.log("create client time", t2-t1)
-            // console.log("session restore time", t3-t2)
-            // console.log("agent form oauth session time", t4-t3)
-            // console.log("get session agent time", t4-t1)
             return res
         } else {
             return {agent: new Agent("https://bsky.social/xrpc"), did: undefined}

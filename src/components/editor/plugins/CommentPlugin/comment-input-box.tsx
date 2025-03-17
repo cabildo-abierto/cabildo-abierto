@@ -18,13 +18,11 @@ export function CommentInputBox({
     editor,
     parentContent,
     cancelAddComment,
-    submitAddComment,
     open
 }: {
     cancelAddComment: () => void
     editor: LexicalEditor
     parentContent: ReplyToContent
-    submitAddComment: () => void,
     open: boolean
 }) {
     const user = useUser()

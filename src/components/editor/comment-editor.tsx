@@ -1,6 +1,5 @@
 "use client"
 
-import { charCount, validPost } from "../utils/utils"
 import { useState } from "react"
 import StateButton from "../ui-utils/state-button"
 import { CLEAR_EDITOR_COMMAND, EditorState, LexicalEditor } from "lexical"
@@ -11,6 +10,8 @@ import LoadingSpinner from "../ui-utils/loading-spinner"
 import { SettingsProps } from "./lexical-editor"
 import { useUser } from "../../hooks/user"
 import { ExtraChars } from "../writing/extra-chars"
+import {validPost} from "../writing/utils";
+import {charCount} from "../utils/lexical";
 const MyLexicalEditor = dynamic( () => import( './lexical-editor' ), { ssr: false } );
 
 

@@ -90,16 +90,11 @@ export async function updateTopicsLastEdit() {
     const updates = topics
         .map(t => ({
             id: t.id,
-            lastEdit: getTopicLastEditFromVersions(t) // Ensure this function returns a valid Date object
+            lastEdit: getTopicLastEditFromVersions(t)
         }))
-        .filter(t => t.lastEdit !== null); // Remove null values
+        .filter(t => t.lastEdit !== null);
 
-    if (updates.length === 0) return; // No updates needed
-
-    // Build a parameterized CASE statement
-    const updateCases = updates
-        .map((_, index) => `"id" = $${index * 2 + 2} THEN $${index * 2 + 1}`)
-        .join(" ");
+    if (updates.length === 0) return;
 
     const ids = updates.map(({ id }) => id);
     const lastEdits = updates.map(({ lastEdit }) => lastEdit);

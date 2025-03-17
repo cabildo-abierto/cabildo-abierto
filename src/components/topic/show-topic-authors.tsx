@@ -2,12 +2,17 @@ import dynamic from "next/dynamic"
 import { decompress } from "../utils/compression"
 import { getAllText } from "./diff"
 import { SerializedAuthorNode } from "../editor/nodes/AuthorNode"
-import { editorStateFromJSON } from "../utils/utils"
 import {TopicProps} from "../../app/lib/definitions";
+import {wikiEditorSettings} from "../editor/wiki-editor";
+import {ShowContributors} from "./show-contributors";
+import {currentContent} from "./utils";
+import {editorStateFromJSON} from "../utils/lexical";
 
 const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
 
-function showAuthors(topic: TopicProps, version: number, versionText: string){
+function showAuthors(topic: TopicProps, version: number){
+    const versionText = currentContent(topic, version).content.text
+
     function newAuthorNode(authors: string[], childNode){
         const authorNode: SerializedAuthorNode = {
             children: [childNode],
@@ -63,33 +68,25 @@ function showAuthors(topic: TopicProps, version: number, versionText: string){
         newChildren.push(newAuthorNode(prevAuthors[i], prevNodes[i]))
     }
     parsed.root.children = newChildren
-    const r = JSON.stringify(parsed)
-    return r
+    return JSON.stringify(parsed)
 }
 
 
-export const ShowArticleAuthors = ({
-                                       originalContent, originalContentText, topic, version
+export const ShowTopicAuthors = ({
+    topic, version
 }: {
-    originalContent: {
-        cid: string
-        uri: string
-        content: {text: string}
-    },
-    originalContentText: string,
     topic: TopicProps,
     version: number
 }) => {
-    return <></>
-    /*if(topic.versions[version].diff == undefined){
-        return <div className={"text-[var(--text-light)] text-center mt-4"}>
+    if(topic.versions[version].content.topicVersion.diff == undefined){
+        return <div className={"text-[var(--text-light)] text-center mt-16"}>
             Todavía no se calcularon las contribuciones.
         </div>
     }
 
-    const contentText = showAuthors(topic, version, originalContentText)
+    const contentText = showAuthors(topic, version)
 
-    let settings = wikiEditorSettings(true, originalContent, contentText, "lexical", true, false)
+    let settings = wikiEditorSettings(true, null, contentText, "lexical", true, false)
 
     return <>
         <div className="text-sm text-center block lg:hidden content-container p-1">
@@ -104,9 +101,9 @@ export const ShowArticleAuthors = ({
         <div className="hidden lg:block">
             <MyLexicalEditor
                 settings={settings}
-                setEditor={(e) => {}}
+                setEditor={() => {}}
                 setEditorState={() => {}}
             />
         </div>
-    </>*/
+    </>
 }

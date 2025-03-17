@@ -11,10 +11,10 @@ import {
     $wrapSelectionInMarkNode,
 } from '@lexical/mark';
 import {$createMarkNode, CustomMarkNode} from "../../nodes/CustomMarkNode";
-import {threadApiUrl} from "../../../utils/utils";
 import {useSWRConfig} from "swr";
 import {ReplyToContent} from "./index";
 import {revalidateTags} from "../../../../actions/admin";
+import {threadApiUrl} from "../../../utils/uri";
 
 
 export type QuoteEdgeProps = {

@@ -2,8 +2,7 @@ import {SyncRecordProps} from "../../app/lib/definitions";
 import {db} from "../../db";
 import {getAllText} from "../../components/topic/diff";
 import {decompress} from "../../components/utils/compression";
-import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
-import {getCollectionFromUri} from "../../components/utils/utils";
+import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
 
 
 export function processRecord(r: SyncRecordProps) {

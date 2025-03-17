@@ -1,11 +1,11 @@
 "use server"
 
 import {db} from "../../db";
-import {areArraysEqual, cabildoDid, cleanText, tomasDid} from "../../components/utils/utils";
 import {getTextFromBlob} from "./topics";
-import {getDidFromUri} from "../../components/utils/uri";
 import {revalidateUri} from "../revalidate";
 import {decompress} from "../../components/utils/compression";
+import {areArraysEqual} from "../../components/utils/arrays";
+import {cleanText} from "../../components/utils/strings";
 
 
 function getCurrentSynonyms(topic: {id: string, versions: {synonyms?: string, content: {record: {createdAt: Date}}}[]}){
@@ -365,7 +365,7 @@ async function applyBulkReferencesUpdate(referenceRecords: { uri: string, topicI
                 }
             }
         })
-        const result = await db.$executeRawUnsafe(`
+        await db.$executeRawUnsafe(`
             INSERT INTO "Reference" (id, "referencingContentId", "referencedTopicId", type, count)
             VALUES ${referenceUpdates.join(", ")}
                 ON CONFLICT DO NOTHING
@@ -481,7 +481,6 @@ function getSynonymsToTopicsMap(topics: {id: string, synonyms: string[], lastSyn
 export async function applyReferencesUpdateToContent(uri: string){
     const updateTime = new Date()
 
-    const t1 = Date.now()
     const content = await db.content.findUnique({
         select: {
             uri: true,
@@ -494,7 +493,6 @@ export async function applyReferencesUpdateToContent(uri: string){
             uri: uri
         }
     })
-    const t2 = Date.now()
 
     const topics = await db.topic.findMany({
         select: {

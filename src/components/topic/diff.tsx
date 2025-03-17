@@ -1,5 +1,6 @@
 import { assignment } from "./min-cost-flow"
-import {areArraysEqual} from "../utils/utils";
+import {areArraysEqual, makeMatrix} from "../utils/arrays";
+import {LexicalJSONNode} from "../../app/lib/definitions";
 
 
 export function getAllText(node: any){
@@ -24,10 +25,8 @@ export function charDiff(str1: string, str2: string){
         //console.log("Product size is", str1.length*str2.length)
         return {total: str1.length + str2.length, insertions: str2.length, deletions: str1.length}
     }
-    
-    const t1 = Date.now()
+
     const common = lcs(Array.from(str1), Array.from(str2))
-    const t2 = Date.now()
 
     const insertions = str2.length - common.length
     const deletions = str1.length - common.length
@@ -36,20 +35,6 @@ export function charDiff(str1: string, str2: string){
         insertions: insertions,
         deletions: deletions
     }
-}
-
-
-export function textNodesFromJSONStr(s: string){
-    const nodes = nodesFromJSONStr(s).map(getAllText)
-    return nodes
-    /*let smallNodes = []
-    for(let i = 0; i < nodes.length; i++){
-        const n = nodes[i]
-        for(let j = 0; j < n.length; j += 1000){
-            smallNodes.push(n.slice(j, j+1000))
-        }
-    }
-    return smallNodes*/
 }
 
 
@@ -63,18 +48,11 @@ export function nodesFromJSONStr(s: string){
 }
 
 
-export function makeMatrix(n, m, v){
-    let M = new Array<Array<number>>(n)
-    for(let i = 0; i < n; i++) M[i] = new Array<number>(m).fill(v)
-    return M
-}
-
-
-export function minMatch(nodes1, nodes2, common: {x: number, y: number}[]){
+export function minMatch(nodes1: LexicalJSONNode[], nodes2: LexicalJSONNode[], common: {x: number, y: number}[]){
     if(nodes1.length == 0 || nodes2.length == 0) return []
     
-    const commonNodes1 = new Set(common.map(({x, y}) => (x)))
-    const commonNodes2 = new Set(common.map(({x, y}) => (y)))
+    const commonNodes1 = new Set(common.map(({x}) => (x)))
+    const commonNodes2 = new Set(common.map(({y}) => (y)))
     
     let uncommonNodes1 = []
     nodes1.forEach((x, index) => {
@@ -174,14 +152,14 @@ export function diff(nodes1: string[], nodes2: string[], safe: boolean = false){
 
     const removedNodes = []
     for(let i = 0; i < nodes1.length; i++){
-        if(!matches.some(({x, y}) => (x == i))){
+        if(!matches.some(({x}) => (x == i))){
             removedNodes.push(i)
         }
     }
 
     const newNodes = []
     for(let i = 0; i < nodes2.length; i++){
-        if(!matches.some(({x, y}) => (y == i))){
+        if(!matches.some(({y}) => (y == i))){
             newNodes.push(i)
         }
     }
@@ -190,7 +168,7 @@ export function diff(nodes1: string[], nodes2: string[], safe: boolean = false){
 }
 
 
-export function nodesCharDiff(nodes1, nodes2, safe: boolean = false) {
+export function nodesCharDiff(nodes1: LexicalJSONNode[], nodes2: LexicalJSONNode[], safe: boolean = false) {
     const d = diff(nodes1, nodes2, safe)
     if(!d) return null
 
@@ -199,13 +177,13 @@ export function nodesCharDiff(nodes1, nodes2, safe: boolean = false) {
     let charsDeleted = 0
     let charsAdded = 0
     for(let i = 0; i < nodes1.length; i++){
-        if(!matches.some(({x, y}) => (i == x))){
+        if(!matches.some(({x}) => (i == x))){
             charsDeleted += nodes1[i].length
         }
     }
 
     for(let i = 0; i < nodes2.length; i++){
-        if(!matches.some(({x, y}) => (i == y))){
+        if(!matches.some(({y}) => (i == y))){
             charsAdded += nodes2[i].length
         }
     }

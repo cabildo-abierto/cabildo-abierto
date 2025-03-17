@@ -19,7 +19,6 @@ export default function Button({
   className,
   onClick,
   disabled,
-  small,
   title,
 }: {
   'data-test-id'?: string;

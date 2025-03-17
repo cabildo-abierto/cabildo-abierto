@@ -11,11 +11,12 @@ import {useLayoutConfig} from "../layout/layout-config-context";
 import {VisualizationOnThread} from "../visualizations/visualization-on-thread";
 import {DatasetOnThread} from "../datasets/dataset-on-thread";
 
+import {isPost} from "../utils/uri";
+
 
 export const Thread = ({thread}: {thread: ThreadProps}) => {
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const [pinnedReplies, setPinnedReplies] = useState([])
-    const {layoutConfig} = useLayoutConfig()
 
     const replies = thread.replies
 
@@ -27,7 +28,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
     }
 
     return <div className={"flex flex-col items-center"}>
-        {(thread.post.collection == "app.bsky.feed.post" || thread.post.collection == "ar.com.cabildoabierto.quotePost") && <FastPost
+        {isPost(thread.post.collection) && <FastPost
             post={thread.post as FastPostProps}
         />}
         {thread.post.collection == "ar.com.cabildoabierto.article" && <Article

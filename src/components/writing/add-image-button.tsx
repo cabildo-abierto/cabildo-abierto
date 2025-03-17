@@ -1,22 +1,20 @@
-import {InsertImagePayload} from "../editor/plugins/ImagesPlugin";
+import {ImageOutlined} from "@mui/icons-material";
 
 export const AddImageButton = ({
-                                   images, disabled, setImages}: {
-    images: InsertImagePayload[], disabled: boolean, setImages: (images: InsertImagePayload[]) => void
+    disabled,
+    setModalOpen
+}: {
+    disabled: boolean
+    setModalOpen: (open: boolean) => void
 }) => {
-    // TO DO: Reimplement
-    function onSubmit(payload: InsertImagePayload) {
-        setImages([...images, payload])
-    }
-
     return <button
-        onClick={() => {
-        }}
+        onClick={() => {setModalOpen(true)}}
         disabled={disabled}
         type="button"
         title="Insertar imágen"
-        className="toolbar-item spaced"
-        aria-label="Insertar imágen">
-        <i className="format image" />
+        className="toolbar-item spaced text-[var(--text-light)]"
+        aria-label="Insertar imágen"
+    >
+        <ImageOutlined fontSize={"small"} color={"inherit"}/>
     </button>
 }

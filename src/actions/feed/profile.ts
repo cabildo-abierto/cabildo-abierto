@@ -35,7 +35,7 @@ export async function getRepliesProfileFeed(did: string): Promise<{feed?: FeedCo
     const promiseFeedAT = agent.getAuthorFeed({actor: did, filter: "posts_no_replies"})
     const [feedCA, feedAT] = await Promise.all([promiseFeedCA, promiseFeedAT])
 
-    const feed = joinCAandATFeeds([], feedAT.data.feed)
+    const feed = joinCAandATFeeds(feedCA.feed, feedAT.data.feed)
     return {feed}
 }
 

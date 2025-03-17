@@ -1,11 +1,12 @@
 import {addCountersToFeed} from "./utils";
 import {db} from "../../db";
 import {ArticleProps, FastPostProps, FeedContentProps, TopicVersionProps} from "../../app/lib/definitions";
-import {isPost, validQuotePost} from "../../components/utils/utils";
 import {enDiscusionQuery, logTimes} from "../utils";
 import {unstable_cache} from "next/cache";
 import { Prisma } from "@prisma/client";
 import {getUserEngagementInFeed} from "./inicio";
+import {validQuotePost} from "../../components/utils/lexical";
+import {isPost} from "../../components/utils/uri";
 
 export async function getFeedCAForViewer(did: string, following?: string[], includeAllReplies: boolean = false){
     let feed = await getFeedCA(following, includeAllReplies)

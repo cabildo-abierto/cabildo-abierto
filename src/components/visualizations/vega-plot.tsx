@@ -5,9 +5,9 @@ import { useDataset } from "../../hooks/contents";
 import { localizeDataset } from "../editor/nodes/visualization-node-comp";
 import "../editor/article-content.css";
 import embed from "vega-embed";
-import { pxToNumber } from "../utils/utils";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import LoadingSpinner from "../ui-utils/loading-spinner";
+import {pxToNumber} from "../utils/strings";
 
 export const VegaPlot = ({
      visualization,

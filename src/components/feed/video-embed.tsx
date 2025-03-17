@@ -20,9 +20,6 @@ export const VideoEmbed = ({post, blob}: {post: FastPostProps, blob: {ref: {$lin
         }
     }, [blob, post])
 
-    console.log(videoUrl)
-
-    const bskyUrl = "https://bsky.app/profile/" + post.author.handle + "/post/" + post.rkey
     const thumbnailSrc = "https://video.bsky.app/watch/" + post.author.did + "/" +  blob.ref.$link + "/thumbnail.jpg"
     return <div
         onClick={(e) => {e.preventDefault(); e.stopPropagation()}}

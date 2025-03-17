@@ -75,18 +75,19 @@ export const NewDatasetPanel = ({open, onClose}: {
         reader.onload = () => {
             const csvData = reader.result as string;
 
-            const result = Papa.parse(csvData, {
-                header: true, // Treat the first row as headers
+            Papa.parse(csvData, {
+                header: true,
                 complete: (result) => {
                     const columns = result.meta.fields
                     setColumns(columns)
+                    setRows(result.data)
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error parsing CSV:', error);
                 },
-            });
-            setRows(result.data)
-        };
+            })
+        }
+
         if(data){
             reader.readAsText(data)
         }
@@ -137,7 +138,7 @@ export const NewDatasetPanel = ({open, onClose}: {
             </div>
         </div>
     } else {
-        center = <div className={"max-h-[90vh] overflow-y-scroll"}>
+        center = <div className={"max-h-[90vh] overflow-y-scroll custom-scrollbar"}>
             <div className={"flex justify-end mt-2 mr-2"}>
                 <CloseButton onClose={onClickClose} size={"small"}/>
             </div>

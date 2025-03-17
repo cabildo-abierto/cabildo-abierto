@@ -65,7 +65,7 @@ const AppearanceSettings = () => {
                         name="theme"
                         value="system"
                         checked={mode === 'system'}
-                        onChange={(e) => setMode('system')}
+                        onChange={() => setMode('system')}
                         className="mr-2"
                     />
                     <label htmlFor="system" className="text-[var(--text)] cursor-pointer ">
@@ -79,7 +79,7 @@ const AppearanceSettings = () => {
                         name="theme"
                         value="light"
                         checked={mode === 'light'}
-                        onChange={(e) => setMode('light')}
+                        onChange={() => setMode('light')}
                         className="mr-2"
                     />
                     <label htmlFor="light" className="text-[var(--text)] cursor-pointer">
@@ -93,7 +93,7 @@ const AppearanceSettings = () => {
                         name="theme"
                         value="dark"
                         checked={mode === 'dark'}
-                        onChange={(e) => setMode('dark')}
+                        onChange={() => setMode('dark')}
                         className="mr-2"
                     />
                     <label htmlFor="dark" className="text-[var(--text)] cursor-pointer">

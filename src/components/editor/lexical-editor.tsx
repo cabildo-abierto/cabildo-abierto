@@ -79,7 +79,7 @@ import {
   $convertToMarkdownString,
 } from '@lexical/markdown';
 import {PLAYGROUND_TRANSFORMERS} from "./plugins/MarkdownTransformers";
-import {FastPostProps, FeedContentProps} from "../../app/lib/definitions";
+import {FastPostProps} from "../../app/lib/definitions";
 import {SidenoteNode} from "./nodes/SidenoteNode";
 import PlotPlugin from "./plugins/PlotPlugin";
 import {VisualizationNode} from "./nodes/VisualizationNode";
@@ -163,8 +163,6 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
 
   const {
     isMaxLength,
-    isCharLimit,
-    isCharLimitUtf8,
     isRichText,
     showTreeView,
     showTableOfContents,
@@ -178,7 +176,6 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
     editorClassName,
     content,
     placeholderClassName,
-    charLimit,
     preventLeave,
     allowImages,
     quoteReplies,
@@ -252,14 +249,6 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
         <OnChangePlugin
           onChange={(editorState) => {
             setEditorState(editorState);
-            editorState.read(() => {
-              const selection = $getSelection()
-              //console.log("selection", selection)
-
-
-              const markdown = $convertToMarkdownString(PLAYGROUND_TRANSFORMERS)
-              // console.log("markdown", markdown)
-            })
             if (!isReadOnly && preventLeave && !uniqueId) {
               const newUniqueId = uuidv4()
               setUniqueId(newUniqueId)
@@ -374,7 +363,7 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
       DiffNode,
       AuthorNode,
       CustomTableNode,
-      { replace: TableNode, with: (node: TableNode) => new CustomTableNode(), withKlass: CustomTableNode }
+      { replace: TableNode, with: (_: TableNode) => new CustomTableNode(), withKlass: CustomTableNode }
     ],
     onError: (error: Error) => {
       throw error;

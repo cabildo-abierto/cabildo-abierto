@@ -18,7 +18,6 @@ import './ImageNode.css';
 import {HashtagNode} from '@lexical/hashtag';
 import {LinkNode} from '@lexical/link';
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
-import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
 import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
@@ -52,12 +51,10 @@ import {Suspense, useCallback, useEffect, useRef, useState} from 'react';
 
 import {useSharedHistoryContext} from '../context/SharedHistoryContext';
 import brokenImage from '../images/image-broken.svg';
-import KeywordsPlugin from '../plugins/KeywordsPlugin';
 import LinkPlugin from '../plugins/LinkPlugin';
 import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import {$isImageNode} from './ImageNode';
-import {KeywordNode} from './KeywordNode';
 
 const imageCache = new Set();
 
@@ -127,6 +124,7 @@ function BrokenImage() {
         width: 200,
       }}
       draggable="false"
+      alt={"broken image"}
     />
   );
 }
@@ -159,17 +157,15 @@ export default function ImageComponent({
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
-  const {isCollabActive} = useCollaborationContext();
   const [editor] = useLexicalComposerContext();
   const [selection, setSelection] = useState<BaseSelection | null>(null);
   const activeEditorRef = useRef<LexicalEditor | null>(null);
   const [isLoadError, setIsLoadError] = useState<boolean>(false);
 
   const $onDelete = useCallback(
-    (payload: KeyboardEvent) => {
+    (e: KeyboardEvent) => {
       if (isSelected && $isNodeSelection($getSelection())) {
-        const event: KeyboardEvent = payload;
-        event.preventDefault();
+        e.preventDefault();
         const node = $getNodeByKey(nodeKey);
         if ($isImageNode(node)) {
           node.remove();
@@ -421,13 +417,11 @@ export default function ImageComponent({
                 LineBreakNode,
                 ParagraphNode,
                 LinkNode,
-                HashtagNode,
-                KeywordNode,
+                HashtagNode
               ]}>
               <AutoFocusPlugin />
               <LinkPlugin />
               <HashtagPlugin />
-              <KeywordsPlugin />
               <HistoryPlugin externalHistoryState={historyState} />
               <RichTextPlugin
                 contentEditable={

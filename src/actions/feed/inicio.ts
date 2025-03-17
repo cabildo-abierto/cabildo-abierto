@@ -8,12 +8,12 @@ import {getSessionAgent, getSessionDid} from "../auth";
 import {
     enDiscusionQuery, logTimes
 } from "../utils";
-import {newestFirst} from "../../components/utils/utils";
 
 import {getFollowing} from "../user/users";
 import {addCountersToFeed, addReasonToRepost, joinCAandATFeeds} from "./utils";
 import {getFeedCA, getFeedCACached} from "./feedCA";
 import {FeedViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
+import {newestFirst} from "../../components/utils/arrays";
 
 
 export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[], error?: string}> {
@@ -108,7 +108,7 @@ export async function getFollowingFeed(){
     let feed = joinCAandATFeeds(feedCA.feed, feedBsky)
 
     const t4 = Date.now()
-    //console.log("Following feed time", t4-t1, "=", t2-t1, "+", t3-t2, "+", t4-t3)
+    logTimes("Following feed time", [t1, t2, t3, t4])
     return {feed}
 }
 

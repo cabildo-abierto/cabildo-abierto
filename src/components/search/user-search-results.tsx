@@ -5,8 +5,8 @@ import { SmallUserProps } from "../../app/lib/definitions"
 import { useUsers } from "../../hooks/user"
 import LoadingSpinner from "../ui-utils/loading-spinner"
 import React, {useEffect, useState} from "react"
-import { cleanText } from "../utils/utils"
 import {searchATProtoUsers} from "../../actions/user/users";
+import {cleanText} from "../utils/strings";
 
 
 export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCount?: number; showSearchButton?: boolean }) => {

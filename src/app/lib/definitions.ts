@@ -342,3 +342,6 @@ export type UserRepo = {
     record: any
     cid: string
 }[]
+
+
+export type LexicalJSONNode = any
