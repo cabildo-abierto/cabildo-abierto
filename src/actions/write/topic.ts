@@ -6,7 +6,8 @@ import {getCollectionFromUri} from "../../components/utils/utils";
 import {db} from "../../db";
 import {logTimes} from "../utils";
 import {setTopicCategories} from "../topic/utils";
-import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
+import {getDidFromUri, getRkeyFromUri, splitUri} from "../../components/utils/uri";
+import {processCreateRecord, processCreateRecordFromRefAndRecord} from "../sync/process-event";
 
 export async function createTopic(id: string){
     return await createTopicVersion({id, claimsAuthorship: true})
@@ -34,64 +35,6 @@ export async function createTopicVersionDB({
     ref: {uri: string, cid: string}
     record: CreateTopicVersionRecord
 }){
-
-    let updates: any[] = []
-
-    const baseRecord = {
-        did: getDidFromUri(ref.uri),
-        uri: ref.uri,
-        cid: ref.cid,
-        rkey: getRkeyFromUri(ref.uri),
-        createdAt: new Date(),
-        collection: getCollectionFromUri(ref.uri),
-        record
-    }
-
-    updates = [...updates, ...createRecord(baseRecord)]
-
-    updates = [...updates, ...createContent(baseRecord)]
-
-    const isNewCurrentVersion = true
-
-    updates.push(db.topic.upsert({
-        create: {
-            id: record.id,
-            synonyms: isNewCurrentVersion && record.synonyms ? JSON.parse(record.synonyms) : undefined
-        },
-        update: {
-            id: record.id,
-            synonyms: isNewCurrentVersion && record.synonyms ? JSON.parse(record.synonyms) : undefined
-        },
-        where: {id: record.id}
-    }))
-
-    if(isNewCurrentVersion && record.categories){
-        updates = [
-            ...updates,
-            ...setTopicCategories(record.id, JSON.parse(record.categories))
-        ]
-    }
-
-    const topicVersion = {
-        uri: ref.uri,
-        topicId: record.id,
-        title: record.title ? record.title : undefined,
-        message: record.message ? record.message : undefined,
-        synonyms: record.synonyms ? record.synonyms : undefined,
-        categories: record.categories ? record.categories : undefined,
-    }
-
-    updates.push(db.topicVersion.upsert({
-        create: topicVersion,
-        update: topicVersion,
-        where: {
-            uri: ref.uri
-        }
-    }))
-
-    await db.$transaction(updates)
-
-    revalidateTag("topic:"+record.id)
 
     return {}
 }
@@ -173,9 +116,9 @@ export async function createTopicVersion({
     })
     const t2 = Date.now()
     if(ref){
-        await createTopicVersionDB({
-            ref, record
-        })
+        const updates = await processCreateRecordFromRefAndRecord(ref, record)
+        await db.$transaction(updates)
+        revalidateTag("topic:"+record.id)
     }
     const t3 = Date.now()
     logTimes("create topic version " + id, [t1, t2, t3])

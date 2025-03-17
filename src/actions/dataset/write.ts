@@ -2,6 +2,8 @@
 import {getSessionAgent} from "../auth";
 import {ATProtoStrongRef} from "../../app/lib/definitions";
 import {db} from "../../db";
+import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
+import {revalidateUri} from "../revalidate";
 
 
 export async function createDatasetATProto(title: string, columns: string[], description: string, formData: FormData, format: string){
@@ -71,24 +73,18 @@ export async function createDatasetATProto(title: string, columns: string[], des
 }
 
 
-function createDatasetDB(record: any, ref: ATProtoStrongRef) {
-    return []
-}
-
-function createDataBlockDB(record: any, ref: ATProtoStrongRef) {
-    return []
-}
-
-
 export async function createDataset(title: string, columns: string[], description: string, formData: FormData, format: string): Promise<{error?: string}>{
     const {error, datasetRecord, datasetRef, blockRecord, blockRef} = await createDatasetATProto(title, columns, description, formData, format)
     if(error) return {error}
 
-    let updates = createDatasetDB(datasetRecord, datasetRef)
 
-    updates = [...updates, ...createDataBlockDB(blockRecord, blockRef)]
+    let updates = await processCreateRecordFromRefAndRecord(datasetRef, datasetRecord)
+
+    updates = [...updates, ...await processCreateRecordFromRefAndRecord(blockRef, blockRecord)]
 
     await db.$transaction(updates)
+
+    await revalidateUri(datasetRef.uri)
 
     return {}
 }

@@ -39,19 +39,6 @@ export function charDiff(str1: string, str2: string){
 }
 
 
-export function wordDiff(str1: string, str2: string){
-    const common = lcs(str1.split(" "), str2.split(" "))
-
-    const insertions = str2.length - common.length
-    const deletions = str1.length - common.length
-    return {
-        total: insertions+deletions,
-        insertions: insertions,
-        deletions: deletions
-    }
-}
-
-
 export function textNodesFromJSONStr(s: string){
     const nodes = nodesFromJSONStr(s).map(getAllText)
     return nodes
@@ -76,33 +63,12 @@ export function nodesFromJSONStr(s: string){
 }
 
 
-export function getNodeList(n: any){
-    let nodes = []
-    n.children.forEach((c) => {
-        if(c.type == "list"){
-            c.children.forEach((cc) => {
-                nodes.push(cc)
-            })
-        } else {
-            nodes.push(c)
-        }
-    })
-    return nodes
-}
-
-
-export function charDiffFromJSONString(str1: string, str2: string, safe: boolean = false){
-    const nodes1 = textNodesFromJSONStr(str1)
-    const nodes2 = textNodesFromJSONStr(str2)
-
-    return nodesCharDiff(nodes1, nodes2, safe)
-}
-
 export function makeMatrix(n, m, v){
     let M = new Array<Array<number>>(n)
     for(let i = 0; i < n; i++) M[i] = new Array<number>(m).fill(v)
     return M
 }
+
 
 export function minMatch(nodes1, nodes2, common: {x: number, y: number}[]){
     if(nodes1.length == 0 || nodes2.length == 0) return []

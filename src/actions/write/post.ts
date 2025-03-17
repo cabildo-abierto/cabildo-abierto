@@ -2,11 +2,12 @@
 import {ATProtoStrongRef, FastPostReplyProps, VisualizationProps} from "../../app/lib/definitions";
 import {getSessionAgent} from "../auth";
 import {RichText} from "@atproto/api";
-import {getCollectionFromUri, getVisualizationTitle} from "../../components/utils/utils";
+import {getVisualizationTitle} from "../../components/utils/utils";
 import {revalidateTag} from "next/cache";
-import {createContent, createRecord, newDirtyRecord, SyncRecordProps} from "./utils";
 import {db} from "../../db";
-import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
+import {getDidFromUri, getRkeyFromUri, splitUri} from "../../components/utils/uri";
+import {processCreateRecord, processCreateRecordFromRefAndRecord} from "../sync/process-event";
+import {revalidateUri} from "../revalidate";
 
 
 export async function createFastPostATProto(
@@ -102,72 +103,19 @@ export type CreateFastPostRecord = {
 }
 
 
-export async function createFastPostDB(
-    {ref, record}: {ref: {uri: string, cid: string}, record: CreateFastPostRecord}
-) {
-
-    let updates: any[] = []
-
-    const baseRecord = {
-        did: getDidFromUri(ref.uri),
-        uri: ref.uri,
-        cid: ref.cid,
-        rkey: getRkeyFromUri(ref.uri),
-        createdAt: new Date(),
-        collection: getCollectionFromUri(ref.uri),
-        record
-    }
-
-    updates = [...updates, ...createRecord(baseRecord)]
-
-    if(record.reply){
-        updates = [...updates, ...newDirtyRecord(record.reply.parent)]
-        if(record.reply.root){
-            updates = [...updates, ...newDirtyRecord(record.reply.root)]
-        }
-    }
-
-    updates = [...updates, ...createContent(baseRecord)]
-
-    const post = {
-        facets: record.facets ? JSON.stringify(record.facets) : null,
-        embed: record.embed ? JSON.stringify(record.embed) : null,
-        uri: ref.uri,
-        replyToId: record.reply ? record.reply.parent.uri as string : null,
-        rootId: record.reply && record.reply.root ? record.reply.root.uri : null,
-        quote: record.quote ? record.quote : null,
-    }
-
-    updates.push(db.post.upsert({
-        create: post,
-        update: post,
-        where: {
-            uri: ref.uri
-        }
-    }))
-
-    await db.$transaction(updates)
-}
-
-
 export async function createFastPost(
     {text, reply, quote, visualization}: {
         text: string, reply?: FastPostReplyProps, quote?: string, visualization?: VisualizationProps
     }
 ): Promise<{error?: string, ref?: {uri: string, cid: string}}> {
 
-    const t1 = Date.now()
     const {ref, record} = await createFastPostATProto({text, reply, quote, visualization})
-    const t2 = Date.now()
 
     if (ref) {
-        await createFastPostDB({ref, record})
+        const updates = await processCreateRecordFromRefAndRecord(ref, record)
+        await db.$transaction(updates)
+        await revalidateUri(ref.uri)
     }
-    const t3 = Date.now()
-
-    //console.log("create post at time", t2-t1)
-    //console.log("create post db time", t3-t2)
-    //console.log("create post time", t3-t1)
 
     if(reply){
         revalidateTag("thread:"+getDidFromUri(reply.parent.uri)+":"+getRkeyFromUri(reply.parent.uri))

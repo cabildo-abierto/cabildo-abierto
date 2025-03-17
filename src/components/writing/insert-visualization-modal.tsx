@@ -1,5 +1,4 @@
 "use client"
-import SearchableDropdown from "../ui-utils/searchable-dropdown";
 import {BaseFullscreenPopup} from "../ui-utils/base-fullscreen-popup";
 import {cleanText, contentUrl, getVisualizationTitle} from "../utils/utils";
 import {VisualizationProps} from "../../app/lib/definitions";

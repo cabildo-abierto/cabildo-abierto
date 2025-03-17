@@ -1,17 +1,7 @@
 "use server"
-import {getSessionAgent} from "./auth";
 import {DidResolver} from "@atproto/identity";
 import {revalidateTag, unstable_cache} from "next/cache";
-import {getObjectSizeInBytes, revalidateEverythingTime} from "./utils";
-
-
-export async function createBlobFromFile(f: File){
-    const {agent, did} = await getSessionAgent()
-    const headers: Record<string, string> = {
-        "Content-Length": f.size.toString()
-    }
-    const res = await agent.uploadBlob(f, {headers})
-}
+import {revalidateEverythingTime} from "./utils";
 
 
 export async function getServiceEndpointForDidNoCache(did: string){
@@ -62,8 +52,7 @@ export async function fetchBlob(blob: {cid: string, authorId: string}, cache: bo
     if (serviceEndpoint) {
         const url = serviceEndpoint + "/xrpc/com.atproto.sync.getBlob?did=" + blob.authorId + "&cid=" + blob.cid
         try {
-            const res = await fetch(url, cache ? undefined : {cache: "no-store"})
-            return res
+            return await fetch(url, cache ? undefined : {cache: "no-store"})
         } catch (e) {
             console.error("Couldn't fetch blob", blob.cid, blob.authorId)
             return null

@@ -1,9 +1,9 @@
-import { getAllText } from "../../components/topic/diff"
+import {getAllText} from "../../components/topic/diff"
 import {getCollectionFromUri} from "../../components/utils/utils"
-import { db } from "../../db"
+import {db} from "../../db"
 import {decompress} from "../../components/utils/compression";
 import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
-
+import {SyncRecordProps} from "../../app/lib/definitions";
 
 
 export function newUser(did: string, inCA: boolean){
@@ -70,12 +70,6 @@ export function createRecord({uri, cid, createdAt, collection}: {
     return updates
 }
 
-export type SyncRecordProps = {
-    did: string, uri: string, collection: string, rkey: string,
-    cid: string,
-    record: any,
-    format?: string
-}
 
 export function createContent(r: SyncRecordProps & {record: {text: {ref: {$link: string}} | string}}){
     function getNumWords(text?: string){

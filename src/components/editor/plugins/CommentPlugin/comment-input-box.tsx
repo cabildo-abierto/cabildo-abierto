@@ -12,7 +12,6 @@ import {getStandardSelection} from "./standard-selection";
 import {WritePanel} from "../../../writing/write-panel";
 import {ReplyToContent} from "./index";
 import {useSWRConfig} from "swr";
-import {revalidateTags} from "../../../../actions/admin";
 
 
 export function CommentInputBox({

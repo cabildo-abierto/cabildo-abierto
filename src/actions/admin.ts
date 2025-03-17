@@ -1,10 +1,9 @@
 'use server'
 
-import { revalidateTag } from "next/cache";
-import { db } from "../db";
-import {launchDate, supportDid, validSubscription} from "../components/utils/utils";
-import { getSessionAgent } from "./auth";
-import {deleteRecords} from "./atproto-update";
+import {revalidateTag} from "next/cache";
+import {db} from "../db";
+import {getCollectionFromUri, launchDate, supportDid, validSubscription} from "../components/utils/utils";
+import {getSessionAgent} from "./auth";
 import {getRkeyFromUri} from "../components/utils/uri";
 
 export async function revalidateTags(tags: string[]){
@@ -283,35 +282,142 @@ export async function getAdminStats(){
 }
 
 
-export async function setRkeys(){
-    const records = await db.record.findMany({
-        select: {
-            cid: true,
-            uri: true,
-            rkey: true
-        },
-        where: {
-            rkey: "no key"
+export async function deleteRecords({uris, author, atproto}: { uris?: string[], author?: string, atproto: boolean }) {
+    const {agent, did} = await getSessionAgent()
+    if (!agent) return
+
+    if (atproto) {
+        for (let i = 0; i < uris.length; i++) {
+            await agent.com.atproto.repo.deleteRecord({
+                repo: did,
+                rkey: getRkeyFromUri(uris[i]),
+                collection: getCollectionFromUri(uris[i])
+            })
         }
-    })
-    for(let i = 0; i < records.length; i++){
-        const r = records[i]
-        await db.record.update({
-            data: {
-                rkey: getRkeyFromUri(r.uri)
+    }
+
+    if (!uris) {
+        uris = (await db.record.findMany({
+            select: {
+                uri: true
             },
             where: {
-                uri: r.uri
+                OR: [
+                    {
+                        author: {
+                            did: author
+                        }
+                    },
+                    {
+                        author: {
+                            handle: author
+                        }
+                    }
+                ]
+            }
+        })).map((r) => (r.uri))
+    }
+
+    await db.$transaction([
+        db.follow.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.post.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.article.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.like.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.repost.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.topicVersion.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.visualization.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.dataBlock.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.dataset.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.content.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
+            }
+        }),
+        db.record.deleteMany({
+            where: {
+                uri: {
+                    in: uris
+                }
             }
         })
+    ])
+
+    const tags = new Set<string>()
+    for (let i = 0; i < uris.length; i++) {
+        const c = getCollectionFromUri(uris[i])
+        if (c == "ar.com.cabildoabierto.topic") {
+        }
+        if (c == "app.bsky.feed.post" || c == "ar.com.cabildoabierto.quotePost") {
+
+        }
+        if (c == "app.bsky.feed.post") {
+        }
+        if (c == "ar.com.cabildoabierto.article") {
+        }
+        if (c == "ar.com.cabildoabierto.visualization") {
+            tags.add("visualizations")
+        }
+        if (c == "ar.com.cabildoabierto.dataset") {
+            tags.add("datasets")
+        }
     }
-}
-
-
-export async function updateRecord(){
-    const {agent} = await getSessionAgent()
-
-    await agent.com.atproto.repo.putRecord()
+    await revalidateTags(Array.from(tags))
 }
 
 
@@ -341,4 +447,5 @@ export async function deleteUser(userId: string) {
         })
     ])
     revalidateTag("user:"+did)
+    revalidateTag("dirtyUsers")
 }

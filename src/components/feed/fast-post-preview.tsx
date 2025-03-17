@@ -56,14 +56,14 @@ export const FastPostPreview = ({
         const root = post.content.post.root
         if(replyTo && replyTo.uri){
             mutate(threadApiUrl(replyTo.uri))
+            mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/main")
+            mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/replies")
         }
         if(root && root.uri){
             mutate(threadApiUrl(root.uri))
+            mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/main")
+            mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/replies")
         }
-        mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/main")
-        mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/replies")
-        mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/main")
-        mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/replies")
     }
 
     if(!post.content || !post.content.post){

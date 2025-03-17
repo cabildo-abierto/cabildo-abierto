@@ -59,13 +59,11 @@ export const SaveEditPopup = ({
     useEffect(() => {
         const d = charsDiffFromStateAndCurrentVersion(editorState, currentVersion)
 
-        const jsonState = JSON.stringify(editorState)
-        //const d = charDiffFromJSONString(currentVersion, jsonState, true)
-
         if(!d){
             setDiff("too big")
         }
-        
+
+        const jsonState = JSON.stringify(editorState)
         setNewVersionSize(getAllText(JSON.parse(jsonState).root).length)
         setDiff(d)
     }, [])
