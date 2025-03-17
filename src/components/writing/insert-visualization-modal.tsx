@@ -1,6 +1,5 @@
 "use client"
 import {BaseFullscreenPopup} from "../ui-utils/base-fullscreen-popup";
-import {cleanText, contentUrl, getVisualizationTitle} from "../utils/utils";
 import {VisualizationProps} from "../../app/lib/definitions";
 import {useVisualizations} from "../../hooks/contents";
 import LoadingSpinner from "../ui-utils/loading-spinner";
@@ -10,6 +9,9 @@ import Link from "next/link";
 import {FaExternalLinkAlt} from "react-icons/fa";
 import {Authorship} from "../feed/content-top-row-author";
 import {DateSince} from "../ui-utils/date";
+import {contentUrl} from "../utils/uri";
+import {cleanText} from "../utils/strings";
+import {getVisualizationTitle} from "../visualizations/editor/spec";
 
 
 const VisualizationPreviewOnSelector = ({visualization, onClick}: {

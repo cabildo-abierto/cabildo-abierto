@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { topicUrl } from "../utils/utils";
 import { Logo } from './logo';
 import { FaXTwitter } from "react-icons/fa6";
 import { SiBluesky } from "react-icons/si";
 import {ScrollToButton} from "./scroll-to-button";
+import {topicUrl} from "../utils/uri";
 
 
 export default function Footer({showCA=true}: {showCA?: boolean}) {

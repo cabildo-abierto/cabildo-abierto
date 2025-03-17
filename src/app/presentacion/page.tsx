@@ -4,6 +4,7 @@ import Button from "@mui/material/Button";
 import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
 import { BlueskyLogo } from "../../components/icons/bluesky-logo";
+import Footer from "../../components/ui-utils/footer";
 
 
 export default function Page() {
@@ -13,7 +14,8 @@ export default function Page() {
         preload("/api/entity/Cabildo_Abierto%3A_Política_de_privacidad", fetcher)
         preload("/api/user", fetcher)
     }, [])*/
-    return <div className="flex px-1 flex-col justify-between">
+    return <div>
+        <div className="flex px-1 flex-col justify-between">
         <div className="flex flex-col items-center px-1 h-full mt-24">
 
             <div className="flex flex-col justify-center items-center">
@@ -213,5 +215,7 @@ export default function Page() {
                 </div>
             </div>
         </div>
+    </div>
+        <Footer showCA={false}/>
     </div>
 }

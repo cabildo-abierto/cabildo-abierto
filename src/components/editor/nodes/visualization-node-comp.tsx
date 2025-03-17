@@ -7,7 +7,8 @@ import {EngagementIcons} from "../../reactions/engagement-icons";
 import {VegaPlot} from "../../visualizations/vega-plot";
 import {VegaPlotPreview} from "../../visualizations/vega-plot-preview";
 import {useLayoutConfig} from "../../layout/layout-config-context";
-import {pxToNumber} from "../../utils/utils";
+
+import {pxToNumber} from "../../utils/strings";
 
 
 
@@ -21,7 +22,7 @@ export function localizeDataset(spec: any){
     return spec
 }
 
-export const VisualizationNodeCompFromSpec = ({spec, uri}: {spec: string, uri: string}) => {
+export const VisualizationNodeCompFromSpec = ({uri}: {uri: string}) => {
     const {visualization, isLoading, error} = useVisualization(uri)
     const {layoutConfig} = useLayoutConfig()
 

@@ -68,7 +68,7 @@ export class SidenoteNode extends MarkNode {
       super(ids, key);
     }
 
-    createDOM(config: EditorConfig): HTMLElement {
+    createDOM(_: EditorConfig): HTMLElement {
         const element = document.createElement('mark');
         addClassNamesToElement(element, "mymark");
         if(this.__ids.length > 0) {

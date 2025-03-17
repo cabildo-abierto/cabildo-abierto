@@ -110,17 +110,6 @@ export const datasetQuery = {
 }
 
 
-export const basicUserQuery = {
-    select: {
-        did: true,
-        handle: true,
-        displayName: true,
-        avatar: true,
-        inCA: true
-    }
-}
-
-
 export const reactionsQuery = {
     uniqueViewsCount: true,
     _count: {
@@ -300,9 +289,7 @@ export const threadQuery = (c: string) => {
 }
 
 
-
-
-export function getObjectSizeInBytes(obj) {
+export function getObjectSizeInBytes(obj: any) {
     return new TextEncoder().encode(JSON.stringify(obj)).length;
 }
 

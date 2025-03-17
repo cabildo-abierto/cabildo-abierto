@@ -67,24 +67,13 @@ import type {
       this.__authors = authors || [];
     }
   
-    createDOM(config: EditorConfig): HTMLElement {
+    createDOM(_: EditorConfig): HTMLElement {
       const element = document.createElement('div');
       addClassNamesToElement(element, "author")
       const authorsStr = this.__authors.map((a) => ("@"+a)).join(" ")
       element.style.setProperty('--author-name', `"${authorsStr}"`);
       element.style.setProperty('--authors-width', `${authorsStr.length}`);
       return element;
-    }
-  
-    updateDOM(
-      prevNode: AuthorNode,
-      element: HTMLElement,
-      config: EditorConfig,
-    ): boolean {
-      const prevauthor = prevNode.__authors;
-      const nextauthor = this.__authors;
-        
-      return false;
     }
 
     getAuthors(): string[] {
@@ -93,7 +82,7 @@ import type {
     }
   
     insertNewAfter(
-      selection: RangeSelection,
+      _: RangeSelection,
       restoreSelection = true,
     ): null | ElementNode {
       const AuthorNode = $createAuthorNode(this.__authors);

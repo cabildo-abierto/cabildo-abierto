@@ -4,12 +4,12 @@ import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "../../db";
 import { revalidateEverythingTime } from "../utils";
 import {SmallUserProps, UserProps, UserStats} from "../../app/lib/definitions";
-import {supportDid, validSubscription} from "../../components/utils/utils";
+import {validSubscription} from "../../components/utils/utils";
 import { getSubscriptionPrice } from "../payments";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import { Prisma } from "@prisma/client";
-import {getRkeyFromUri} from "../../components/utils/uri";
+import {supportDid} from "../../components/utils/auth";
 
 
 export async function isCAUser(did: string){
@@ -759,7 +759,7 @@ export async function getFollowingNoCache(did: string) : Promise<string[]> {
             authorId: did
         }
     })
-    return follows.map((f) => (f.follow.userFollowedId))
+    return follows.map((f) => (f.follow.userFollowedId)).filter(s => s != null)
 }
 
 

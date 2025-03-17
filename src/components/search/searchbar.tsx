@@ -5,11 +5,13 @@ import { CustomLink as Link } from '../ui-utils/custom-link';
 import { useSearch } from "./search-context";
 import { CloseButton } from "../ui-utils/close-button";
 import Image from 'next/image'
-import {emptyChar, userUrl} from "../utils/utils";
 import {SearchButton} from "../ui-utils/search-button";
 import ReadOnlyEditor from "../editor/read-only-editor";
 import {TextField} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import {userUrl} from "../utils/uri";
+
+import {emptyChar} from "../utils/utils";
 
 
 export const UserSearchResult: React.FC<{result: {displayName?: string, handle: string, avatar?: string, description?: string}}> = ({ result }) => {

@@ -106,15 +106,6 @@ export async function computeTopicsPopularityScore(): Promise<{
 }
 
 
-function getTopicLastEdit(t: {versions: {content: {record: {createdAt: Date}}}[]}): Date{
-    let last = undefined
-    t.versions.forEach(v => {
-        if(!last || last < v.content.record.createdAt) last = v.content.record.createdAt
-    })
-    return last
-}
-
-
 export async function getContentInteractions() : Promise<{uri: string, interactions: string[]}[]> {
     const contents: ContentInteractions[] = await db.record.findMany({
         select: {

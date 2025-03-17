@@ -1,8 +1,7 @@
 import {getAllText} from "../../components/topic/diff"
-import {getCollectionFromUri} from "../../components/utils/utils"
 import {db} from "../../db"
 import {decompress} from "../../components/utils/compression";
-import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
+import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
 import {SyncRecordProps} from "../../app/lib/definitions";
 
 
@@ -19,28 +18,6 @@ export function newUser(did: string, inCA: boolean){
             did: did
         }
     })]
-}
-
-
-
-export function newDirtyRecord({cid, uri} : {cid?: string, uri: string}){
-    const did = getDidFromUri(uri)
-    const updates: any[] = newUser(did, false)
-    const data = {
-        uri: uri,
-        cid: cid,
-        authorId: did,
-        rkey: getRkeyFromUri(uri),
-        collection: getCollectionFromUri(uri)
-    }
-    updates.push(db.record.upsert({
-        create: data,
-        update: data,
-        where: {
-            uri: uri
-        }
-    }))
-    return updates
 }
 
 

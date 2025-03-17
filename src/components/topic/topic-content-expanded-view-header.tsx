@@ -4,13 +4,14 @@ import {BasicButton} from "../ui-utils/basic-button";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import {useSearchParams} from "next/navigation";
 import {TopicProps} from "../../app/lib/definitions";
-import {getCurrentVersion, topicUrl} from "../utils/utils";
 import Link from "next/link";
 import { DateSince } from "../ui-utils/date";
 import {articleButtonClassname} from "./topic-content";
 import SelectionComponent from "../search/search-selection-component";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {ModalBelow} from "../ui-utils/modal-below";
+import {topicUrl} from "../utils/uri";
+import {getCurrentVersion} from "./utils";
 
 export type WikiEditorState = "changes" | "authors" | "normal" |
     "editing" | "editing-synonyms" | "editing-categories" | "history" | "minimized"

@@ -1,10 +1,10 @@
 import {DatasetProps, EngagementProps} from "../../app/lib/definitions";
-import {urlFromRecord} from "../utils/utils";
 import {Authorship} from "../feed/content-top-row-author";
 import {EngagementIcons} from "../reactions/engagement-icons";
 import {CustomLink} from "../ui-utils/custom-link";
 import {CardFeed} from "../ui-utils/card-feed";
 import {DateSince} from "../ui-utils/date";
+import {urlFromRecord} from "../utils/uri";
 
 
 export const SmallDatasetPreview = ({ dataset, width, height }: {

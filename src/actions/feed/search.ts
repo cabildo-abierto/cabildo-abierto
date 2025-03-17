@@ -4,9 +4,9 @@ import {db} from "../../db";
 import {enDiscusionQuery, revalidateEverythingTime} from "../utils";
 import {ArticleProps, FastPostProps, FeedContentProps, SmallTopicProps} from "../../app/lib/definitions";
 import {addCountersToFeed} from "./utils";
-import {cleanText} from "../../components/utils/utils";
 import {unstable_cache} from "next/cache";
 import {getUserEngagementInFeed} from "./inicio";
+import {cleanText} from "../../components/utils/strings";
 
 
 export async function searchContentsNoCache(q: string, did: string): Promise<{feed?: FeedContentProps[], error?: string}>{

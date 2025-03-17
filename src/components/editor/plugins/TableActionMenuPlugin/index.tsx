@@ -6,7 +6,7 @@
  *
  */
 
-import type {ElementNode, LexicalEditor} from 'lexical';
+import type {ElementNode} from 'lexical';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
@@ -44,8 +44,6 @@ import * as React from 'react';
 import {ReactNode, ReactPortal, useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import invariant from '../../shared/invariant';
-
-import useModal from '../../hooks/useModal';
 
 function computeSelectionCount(selection: TableSelection): {
   columns: number;
@@ -139,10 +137,6 @@ type TableCellActionMenuProps = Readonly<{
   contextRef: {current: null | HTMLElement};
   onClose: () => void;
   setIsMenuOpen: (isOpen: boolean) => void;
-  showColorPickerModal: (
-    title: string,
-    showModal: (onClose: () => void) => ReactNode,
-  ) => void;
   tableCellNode: TableCellNode;
   cellMerge: boolean;
 }>;
@@ -153,7 +147,6 @@ function TableActionMenu({
   setIsMenuOpen,
   contextRef,
   cellMerge,
-  showColorPickerModal,
 }: TableCellActionMenuProps) {
   const [editor] = useLexicalComposerContext();
   const dropDownRef = useRef<HTMLDivElement | null>(null);
@@ -557,8 +550,6 @@ function TableCellActionMenuContainer({
     null,
   );
 
-  const [colorPickerModal, showColorPickerModal] = useModal();
-
   const $moveMenu = useCallback(() => {
     const menu = menuButtonRef.current;
     const selection = $getSelection();
@@ -658,7 +649,6 @@ function TableCellActionMenuContainer({
             ref={menuRootRef}>
             <i className="chevron-down" />
           </button>
-          {colorPickerModal}
           {isMenuOpen && <div className="relative">
             <TableActionMenu
               contextRef={menuRootRef}
@@ -666,7 +656,6 @@ function TableCellActionMenuContainer({
               onClose={() => setIsMenuOpen(false)}
               tableCellNode={tableCellNode}
               cellMerge={cellMerge}
-              showColorPickerModal={showColorPickerModal}
             />
             </div>
           }

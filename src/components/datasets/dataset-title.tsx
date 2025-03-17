@@ -1,6 +1,6 @@
 import Link from "next/link";
-import {contentUrl} from "../utils/utils";
 import TableChartIcon from "@mui/icons-material/TableChart";
+import {contentUrl} from "../utils/uri";
 
 
 export const DatasetTitle = ({dataset}: {dataset: {uri?: string, dataset: {title: string}}}) => {

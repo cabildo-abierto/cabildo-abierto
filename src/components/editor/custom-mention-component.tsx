@@ -3,7 +3,8 @@ import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, Beautif
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
 import { getUsers } from "../../actions/user/users";
-import { cleanText } from "../utils/utils";
+
+import {cleanText} from "../utils/strings";
 
 export const EmptyMentionResults = () => (
   <div className="top-[2px] m-0 min-w-[10rem] overflow-hidden ...">
@@ -17,28 +18,17 @@ export type MentionProps = {
     value: string
 }
 
-/*export const CustomMentionComponent = forwardRef<
-  HTMLDivElement,
-  BeautifulMentionComponentProps<MentionProps>
->(({ trigger, value, data: myData, children, ...other }, ref) => {
-  return (
-    <div {...other} ref={ref} title={trigger + value}>
-      {value}
-    </div>
-  );
-});*/
-
 
 export const CustomMentionComponent = forwardRef<
   HTMLDivElement,
   BeautifulMentionComponentProps<MentionProps>
->(({ trigger, value, data: myData, children, ...other }, ref) => {
+>(({ data: myData }, ref) => {
   const router = useRouter()
 
   // Tuve que hacer esto porque Link abría en otra ventana por algún motivo
   // Investigar...
 
-  const handleClick = (e: any) => {
+  const handleClick = () => {
     router.push("/perfil/"+encodeURIComponent(myData.id))
   }
 

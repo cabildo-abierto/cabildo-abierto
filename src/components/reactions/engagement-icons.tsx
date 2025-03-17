@@ -9,7 +9,8 @@ import {EngagementProps, RecordProps} from "../../app/lib/definitions";
 import {ViewsIcon} from "../icons/views-icon";
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import {CustomLink} from "../ui-utils/custom-link";
-import {contentUrl} from "../utils/utils";
+
+import {contentUrl} from "../utils/uri";
 
 
 type EngagementIconsProps = {

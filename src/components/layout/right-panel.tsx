@@ -1,7 +1,6 @@
 import {SearchPanelOnRightColumn} from "./search-panel-on-right-column";
 import {SupportButton} from "./sidebar";
 import {CustomLink as Link} from "../ui-utils/custom-link";
-import {topicUrl} from "../utils/utils";
 import {BasicButton} from "../ui-utils/basic-button";
 import InfoIcon from "@mui/icons-material/Info";
 import {DonateIcon} from "../icons/donate-icon";
@@ -10,6 +9,7 @@ import {useUser} from "../../hooks/user";
 import {UpdateCongresoRightPanel} from "../congreso/update-congreso-right-panel";
 import {TrendingTopicsPanel} from "../trending-topics/trending-topics";
 import SettingsIcon from "../icons/settings-icon";
+import {topicUrl} from "../utils/uri";
 
 
 export const RightPanel = () => {

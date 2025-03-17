@@ -5,10 +5,10 @@ import dynamic from "next/dynamic";
 import {topicVersionPropsToReplyToContent} from "./topic-content";
 import {IconButton} from "@mui/material";
 import Link from "next/link";
-import {topicUrl} from "../utils/utils";
 import {CustomLink} from "../ui-utils/custom-link";
 import {BasicButton} from "../ui-utils/basic-button";
 import {useRouter} from "next/navigation";
+import {topicUrl} from "../utils/uri";
 const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
 
 

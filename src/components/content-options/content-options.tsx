@@ -1,10 +1,11 @@
 import {RecordProps, VisualizationProps} from "../../app/lib/definitions";
 import {BasicButton} from "../ui-utils/basic-button";
 import StateButton from "../ui-utils/state-button";
-import {editVisualizationUrl, getBlueskyUrl} from "../utils/utils";
 import Link from "next/link";
 import {useUser} from "../../hooks/user";
 import {deleteRecords} from "../../actions/admin";
+import {ShareContentButton} from "./share-content-button";
+import {editVisualizationUrl, getBlueskyUrl} from "../utils/uri";
 
 
 const collection2displayText = {
@@ -42,10 +43,12 @@ export const ContentOptions = ({onClose, record, onDelete}: {
             color={"inherit"}
             text1={"Borrar " + collection2displayText[record.collection]}
             disableElevation={true}
+            fullWidth={true}
         />}
         {inBluesky && <Link target={"_blank"} href={getBlueskyUrl(record.uri)}>
             <BasicButton
                 color={"inherit"}
+                fullWidth={true}
             >
                 Ver en Bluesky
             </BasicButton>
@@ -80,5 +83,6 @@ export const ContentOptions = ({onClose, record, onDelete}: {
                 </BasicButton>
             </Link>
         }
+        <ShareContentButton content={record}/>
     </div>
 }

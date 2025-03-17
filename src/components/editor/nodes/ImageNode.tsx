@@ -128,7 +128,7 @@ export class ImageNode extends DecoratorNode<ReactNode> {
 
   static importDOM(): DOMConversionMap | null {
     return {
-      img: (node: Node) => ({
+      img: (_: Node) => ({
         conversion: $convertImageElement,
         priority: 0,
       }),
@@ -237,7 +237,6 @@ export function $createImageNode({
   altText,
   height,
   maxWidth = 600,
-  captionsEnabled,
   src,
   width,
   showCaption,

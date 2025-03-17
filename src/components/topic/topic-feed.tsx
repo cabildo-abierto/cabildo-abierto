@@ -5,8 +5,8 @@ import SelectionComponent from "../search/search-selection-component";
 import {useState} from "react";
 import {Button} from "@mui/material";
 import {CustomLink} from "../ui-utils/custom-link";
-import {topicUrl} from "../utils/utils";
 import {useSearchParams} from "next/navigation";
+import {topicUrl} from "../utils/uri";
 
 
 export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuote: (cid: string) => void}) => {

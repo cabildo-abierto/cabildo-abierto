@@ -8,8 +8,10 @@ import {EngagementIcons} from "../reactions/engagement-icons";
 import {useEffect} from "react";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useSWRConfig} from "swr";
-import {threadApiUrl} from "../utils/utils";
 import {TopicsMentioned} from "./topics-mentioned";
+import {ReadingTime} from "./reading-time";
+import {getAllText} from "../topic/diff";
+import {threadApiUrl} from "../utils/uri";
 
 type ArticleCompProps = {
     article: ArticleProps,
@@ -47,12 +49,17 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
             <h1 className="text-4xl mt-16 mb-8">
                 {article.content.article.title}
             </h1>
-            <div className="space-x-4 flex items-baseline">
-                <div className={"text-lg"}>
-                    Artículo de <Authorship content={article} onlyAuthor={true}/>
+            <div className={"flex justify-between"}>
+                <div className="space-x-4 flex items-baseline">
+                    <div className={"text-lg"}>
+                        Artículo de <Authorship content={article} onlyAuthor={true}/>
+                    </div>
+                    <div className={"text-[var(--text-light)]"}>
+                        {localeDate(new Date(article.createdAt), true)}
+                    </div>
                 </div>
                 <div className={"text-[var(--text-light)]"}>
-                    {localeDate(new Date(article.createdAt), true)}
+                    <ReadingTime numWords={getAllText(JSON.parse(decompress(article.content.text)).root).split(" ").length}/>
                 </div>
             </div>
             <div className={"mt-8"} id={editorId}>

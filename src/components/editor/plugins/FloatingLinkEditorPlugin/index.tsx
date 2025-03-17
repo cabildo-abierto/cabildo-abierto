@@ -37,10 +37,10 @@ import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl} from '../../utils/url';
 import {SmallTopicProps, TopicProps} from '../../../../app/lib/definitions';
-import { topicUrl } from '../../../utils/utils';
 import { CustomLink as Link } from '../../../ui-utils/custom-link';
 import {getFullTopicTitle, getTopicTitle} from "../../../topic/utils";
 import {searchTopics} from "../../../../actions/feed/search";
+import {topicUrl} from "../../../utils/uri";
 
 function FloatingLinkEditor({
   editor,

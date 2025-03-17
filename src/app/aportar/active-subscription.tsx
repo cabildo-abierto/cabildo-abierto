@@ -189,7 +189,9 @@ function DonationPage() {
     </div>
 
     const uniqueChosen = <div className="flex flex-col items-center">
-        <UniqueDonationCheckout amount={amount} preferenceId={preferenceId}/>
+        <UniqueDonationCheckout
+            preferenceId={preferenceId}
+        />
         <BackButton
             onClick={() => {setChoice("aportar")}}
         />

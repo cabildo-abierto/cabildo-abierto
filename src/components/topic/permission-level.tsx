@@ -1,4 +1,4 @@
-import { permissionToPrintable } from "../utils/utils"
+import {permissionToPrintable} from "./utils";
 
 
 

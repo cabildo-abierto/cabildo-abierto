@@ -57,11 +57,6 @@ export async function getSubscriptionPrice() {
 }
 
 
-export async function getContentContribution(id: string): Promise<{contribution: string}>{
-    throw Error("Not implemented.")
-}
-
-
 /*export async function createPaymentPromisesForEntityView(view: {content: {id: string, authorId: string, createdAt: Date}}, viewValue: number, subscriptionId: string){
 
     const {contribution} = await getContentContribution(view.content.id)
@@ -266,9 +261,9 @@ export async function getContentContribution(id: string): Promise<{contribution:
 }*/
 
 
-export async function confirmPayments() {
+/*export async function confirmPayments() {
     return
-    /*const promises = await db.paymentPromise.findMany({
+    const promises = await db.paymentPromise.findMany({
         select: {
             id: true,
             amount: true,
@@ -325,13 +320,10 @@ export async function confirmPayments() {
     }
     console.log("Promsesas confirmadas", totalConfirmed)
     console.log("Pagos totales", totalAmount)
-     */
-}
+}*/
 
 
-export async function createPaymentPromises(){
-    return
-    /*
+/*export async function createPaymentPromises(){
     let subscriptions = await db.subscription.findMany({
         select: {
             paymentPromises: {
@@ -395,5 +387,4 @@ export async function createPaymentPromises(){
         await createPromises(userId, subscription.price, nextSubscriptionStart, nextSubscriptionEnd, subscription.id)
         break
     }
-     */
-}
+}*/

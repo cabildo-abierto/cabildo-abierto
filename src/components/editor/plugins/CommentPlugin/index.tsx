@@ -223,7 +223,6 @@ export default function CommentPlugin({
         <CommentInputBox
             editor={editor}
             cancelAddComment={cancelAddComment}
-            submitAddComment={submitAddComment}
             parentContent={parentContent}
             open={showCommentInput}
         />

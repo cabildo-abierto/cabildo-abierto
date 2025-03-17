@@ -1,7 +1,7 @@
 "use server"
 import {db} from "../../db";
-import {currentCategories} from "../../components/utils/utils";
 import { Prisma } from "@prisma/client";
+import {currentCategories} from "../../components/topic/utils";
 
 
 export async function updateTopicsCategories() {

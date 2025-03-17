@@ -10,11 +10,12 @@ import InfoPanel from "../ui-utils/info-panel";
 import { NotEnoughPermissionsWarning } from "./permissions-warning";
 import StateButton from "../ui-utils/state-button";
 import TickButton from "../ui-utils/tick-button";
-import { topicUrl, hasEditPermission } from "../utils/utils";
 import { ChangesCounterWithText } from "./changes-counter";
 import Button from "@mui/material/Button";
 import { AcceptButtonPanel } from "../ui-utils/accept-button-panel";
 import {TextField} from "@mui/material";
+import {topicUrl} from "../utils/uri";
+import {hasEditPermission} from "./utils";
 
 
 const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: string) => void}) => {
@@ -37,6 +38,7 @@ const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: strin
 
 
 function charsDiffFromStateAndCurrentVersion(editorState: EditorState, currentVersion: TopicVersionProps) {
+    // TO DO
     return {charsAdded: 0}
 }
 

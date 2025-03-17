@@ -14,8 +14,6 @@ import {OverflowNode} from '@lexical/overflow';
 import {HorizontalRuleNode} from '@lexical/react/LexicalHorizontalRuleNode';
 import {HeadingNode, QuoteNode} from '@lexical/rich-text';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
-
-import {KeywordNode} from './KeywordNode';
 import {LayoutContainerNode} from './LayoutContainerNode';
 import {LayoutItemNode} from './LayoutItemNode';
 import {LinkNode, AutoLinkNode} from '@lexical/link'
@@ -32,7 +30,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   OverflowNode,
   LinkNode,
   AutoLinkNode,
-  KeywordNode,
   HorizontalRuleNode,
   LayoutContainerNode,
   LayoutItemNode,

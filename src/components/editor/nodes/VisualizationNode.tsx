@@ -104,7 +104,7 @@ export class VisualizationNode extends DecoratorNode<ReactNode> {
 
     decorate() {
         if(this.__uri){
-            return <VisualizationNodeCompFromSpec spec={this.__spec} uri={this.__uri}/>
+            return <VisualizationNodeCompFromSpec uri={this.__uri}/>
         } else {
             return <div className={"p-4 text-center text-[var(--text-light)] border rounded-lg"}>
                 No se encontró la visualización

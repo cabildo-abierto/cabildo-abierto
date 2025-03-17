@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from 'iron-session'
 import { cookies } from "next/headers";
 import {setATProtoProfile} from "../../../actions/user/users";
-import {myCookieOptions} from "../../../components/utils/utils";
 import {Agent} from "@atproto/api";
+import {myCookieOptions} from "../../../components/utils/auth";
 
 
 export type Session = {did: string, agent: Agent}

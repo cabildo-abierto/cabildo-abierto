@@ -3,11 +3,11 @@ import diputados from "../../../public/congreso/diputados.json";
 import Image from "next/image";
 import React, {useState} from "react";
 import {useLayoutConfig} from "../layout/layout-config-context";
-import {pxToNumber} from "../utils/utils";
 import {CongressProject, CongressResult} from "./proyectos";
 import {getId, getVote} from "./utils";
 import Link from "next/link";
 import {CustomLink} from "../ui-utils/custom-link";
+import {pxToNumber} from "../utils/strings";
 
 
 type SelectedSenator = {
@@ -39,7 +39,7 @@ function toTitleCase(str) {
 export const BancasSenadores = ({project}: {project?: CongressProject}) => {
     const rows = getRows(72, 4)
 
-    const radiusStep = (rowIndex: number) => {
+    const radiusStep = (_: number) => {
         return 45
     }
     const seatRadius = (rowIndex: number) => {
@@ -93,7 +93,7 @@ export const BancasSenadores = ({project}: {project?: CongressProject}) => {
 export const BancasDiputados = ({project}: {project: CongressProject}) => {
     const rows = getRows(257, 8)
 
-    const radiusStep = (rowIndex: number) => {
+    const radiusStep = (_: number) => {
         return 24
     }
 

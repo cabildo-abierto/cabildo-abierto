@@ -115,7 +115,7 @@ export class InlineImageNode extends DecoratorNode<ReactNode> {
 
   static importDOM(): DOMConversionMap | null {
     return {
-      img: (node: Node) => ({
+      img: (_: Node) => ({
         conversion: $convertInlineImageElement,
         priority: 0,
       }),

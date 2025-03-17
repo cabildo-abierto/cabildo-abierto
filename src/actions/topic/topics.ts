@@ -8,15 +8,12 @@ import {
     TopicsGraph, TopicSortOrder,
 } from "../../app/lib/definitions";
 import {db} from "../../db";
-import {
-    currentCategories,
-    oldestFirst,
-} from "../../components/utils/utils";
 import {logTimes, recordQuery, revalidateEverythingTime} from "../utils";
 import {fetchBlob} from "../blob";
 import {unstable_cache} from "next/cache";
-import {getCurrentContentVersion} from "../../components/topic/utils";
+import {currentCategories, getCurrentContentVersion} from "../../components/topic/utils";
 import {getRkeyFromUri} from "../../components/utils/uri";
+import {oldestFirst} from "../../components/utils/arrays";
 
 
 export async function getTrendingTopics(categories: string[],
@@ -292,25 +289,6 @@ export const getTopicVersion = unstable_cache(
         revalidate: revalidateEverythingTime
     }
 )
-
-
-export async function deleteTopicVersionsForUser(){
-    const {agent, did} = await getSessionAgent()
-
-    const {data} = await agent.com.atproto.repo.listRecords({
-        repo: did,
-        collection: 'ar.com.cabildoabierto.topic',
-    })
-
-    for(let i = 0; i < data.records.length; i++){
-        await agent.com.atproto.repo.deleteRecord({
-            repo: did,
-            collection: 'ar.com.cabildoabierto.topic',
-            rkey: getRkeyFromUri(data.records[i].uri)
-        })
-        console.error("deleted", data.records[i].uri)
-    }
-}
 
 
 export async function getTopicsByCategoriesNoCache(sortedBy: TopicSortOrder){

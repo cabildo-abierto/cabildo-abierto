@@ -2,9 +2,9 @@ import {SmallTopicProps} from "../../app/lib/definitions";
 import {useState} from "react";
 import {getTopicCategories, getTopicTitle} from "../topic/utils";
 import {CustomLink as Link} from "../ui-utils/custom-link";
-import {topicUrl} from "../utils/utils"
 import {useRouter} from "next/navigation";
 import {TopicCategories} from "../topic/topic-categories";
+import {topicUrl} from "../utils/uri";
 
 
 export const TrendingArticlesSlider = ({trendingArticles}: {

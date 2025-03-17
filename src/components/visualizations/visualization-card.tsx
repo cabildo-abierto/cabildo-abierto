@@ -1,5 +1,4 @@
 import {EngagementProps, VisualizationProps} from "../../app/lib/definitions";
-import {contentUrl, formatIsoDate, urlFromRecord} from "../utils/utils";
 import {Authorship} from "../feed/content-top-row-author";
 import {CustomLink} from "../ui-utils/custom-link";
 import {EngagementIcons} from "../reactions/engagement-icons";
@@ -8,6 +7,8 @@ import {DateSince} from "../ui-utils/date";
 import {VegaPlotPreview} from "./vega-plot-preview";
 import TableChartIcon from '@mui/icons-material/TableChart';
 import {useSWRConfig} from "swr";
+import {contentUrl, urlFromRecord} from "../utils/uri";
+import {formatIsoDate} from "../utils/dates";
 
 function getTitleFromSpec(spec: string){
     try {

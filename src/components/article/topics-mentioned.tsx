@@ -1,6 +1,6 @@
 import {ArticleProps} from "../../app/lib/definitions";
-import {topicUrl} from "../utils/utils";
 import {CustomLink} from "../ui-utils/custom-link";
+import {topicUrl} from "../utils/uri";
 
 
 export const TopicsMentioned = ({article}: {article: ArticleProps}) => {

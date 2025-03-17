@@ -1,9 +1,10 @@
 import {TopicVersionOnFeedProps} from "../../app/lib/definitions";
 import {ContentTopRowAuthor} from "../feed/content-top-row-author";
 import {ProfilePic} from "../feed/profile-pic";
-import {formatIsoDate, topicUrl} from "../utils/utils";
 import {DateSince} from "../ui-utils/date";
 import {useRouter} from "next/navigation";
+import {topicUrl} from "../utils/uri";
+import {formatIsoDate} from "../utils/dates";
 
 
 const CharDiff = ({diff}: {diff: {charsAdded?: number, charsDeleted?: number}}) => {

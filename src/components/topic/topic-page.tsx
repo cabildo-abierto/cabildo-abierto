@@ -1,11 +1,10 @@
 "use client"
 import { useEffect, useState } from "react"
 import {useRouter, useSearchParams} from "next/navigation";
-import {getCurrentVersion, inRange, isQuotePost, PrettyJSON, topicUrl} from "../utils/utils";
 import NoEntityPage from "./no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
 import {useTopic, useTopicFeed} from "../../hooks/contents";
-import {getCurrentContentVersion, getFullTopicCategories, getFullTopicTitle} from "./utils";
+import {getCurrentVersion, getFullTopicCategories, getFullTopicTitle} from "./utils";
 import {TopicContent} from "./topic-content";
 import LoadingSpinner from "../ui-utils/loading-spinner";
 import {FastPostProps} from "../../app/lib/definitions";
@@ -15,6 +14,8 @@ import {TopicCategories} from "./topic-categories";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
 import {ErrorPage} from "../ui-utils/error-page";
 import Link from "next/link";
+import {isQuotePost, topicUrl} from "../utils/uri";
+import {inRange} from "../utils/arrays";
 
 
 export const TopicPage = ({topicId, paramsVersion}: {

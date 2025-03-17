@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { contentUrl } from "../utils/utils";
-import { ContentOptionsChoiceButton } from "./content-options-button";
 import ShareIcon from '@mui/icons-material/Share';
 import {FeedContentProps} from "../../app/lib/definitions";
+import {BasicButton} from "../ui-utils/basic-button";
+import {contentUrl} from "../utils/uri";
 
 export const ShareContentButton = ({ content }: { content: FeedContentProps }) => {
     const [onClipboard, setOnClipboard] = useState(false);
 
     const onShare = async () => {
         try {
-            const url = contentUrl(content.uri, content.author.handle)
+            const url = "https://www.cabildoabierto.com.ar" + contentUrl(content.uri, content.author.handle)
 
             navigator.clipboard.writeText(url).then(
                 () => {
@@ -23,10 +23,11 @@ export const ShareContentButton = ({ content }: { content: FeedContentProps }) =
         }
     };
 
-    return <ContentOptionsChoiceButton
-        onClick={onShare}
-        icon={<ShareIcon/>}
+    return <BasicButton
+        onClick={async (e) => {e.stopPropagation(); e.preventDefault(); await onShare()}}
+        startIcon={<ShareIcon/>}
+        color={"inherit"}
     >
-        <div className="whitespace-nowrap">{!onClipboard ? "Compartir" : "Link copiado"}</div>
-    </ContentOptionsChoiceButton>
+        <div className="whitespace-nowrap w-20">{!onClipboard ? "Compartir" : "Link copiado"}</div>
+    </BasicButton>
 };

@@ -1,4 +1,4 @@
-import {FastPostProps, TopicProps, TopicVersionProps} from "../../app/lib/definitions";
+import {FastPostProps, TopicProps} from "../../app/lib/definitions";
 import {useState} from "react";
 import {useSWRConfig} from "swr";
 import {EditorState, LexicalEditor} from "lexical";
@@ -13,9 +13,9 @@ import {createTopicVersion} from "../../actions/write/topic";
 import {TopicContentHistory} from "./topic-content-history";
 import {SynonymsEditor} from "./synonyms-editor";
 import { CategoriesEditor } from "./categories-editor";
+import {ShowTopicChanges} from "./show-topic-changes";
+import {ShowTopicAuthors} from "./show-topic-authors";
 const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
-
-
 
 
 export const TopicContentExpandedView = ({
@@ -132,13 +132,17 @@ export const TopicContentExpandedView = ({
                         setEditorState={setEditorState}
                     />
                 </div>}
-                {wikiEditorState == "changes" && <div className={"mt-4 text-center"}>
-                    Sin implementar
-                </div>
+                {wikiEditorState == "changes" &&
+                    <ShowTopicChanges
+                        topic={topic}
+                        version={version}
+                    />
                 }
-                {wikiEditorState == "authors" && <div className={"mt-4 text-center"}>
-                    Sin implementar
-                </div>
+                {wikiEditorState == "authors" &&
+                    <ShowTopicAuthors
+                        topic={topic}
+                        version={version}
+                    />
                 }
             </div>
         }

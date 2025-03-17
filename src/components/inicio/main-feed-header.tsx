@@ -3,19 +3,13 @@ import { Button } from "@mui/material"
 import SelectionComponent from "../search/search-selection-component"
 
 
-type MainFeedHeaderProps = {
+
+export const MainFeedHeader = ({
+   selected, onSelection
+}: {
     selected: string
     onSelection: (v: string) => void
-    showRoute: boolean
-    order: string
-    setOrder: (v: string) => void
-    filter: string
-    setFilter: (v: string) => void    
-}
-
-
-export const MainFeedHeader = ({selected, onSelection, showRoute, order, setOrder, filter, setFilter
-}: MainFeedHeaderProps) => {
+}) => {
 
     function optionsNodes(o: string, isSelected: boolean){
         return <div className="text-[var(--text)] w-32 h-10">

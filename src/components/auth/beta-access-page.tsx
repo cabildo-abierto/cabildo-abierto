@@ -37,6 +37,8 @@ export const BetaAccessPageNotCAUserAccess = () => {
         return {}
     }
 
+    if(!bskyUser) return null
+
     return <div className={"flex flex-col items-center px-4"}>
         <div className={"flex justify-end sm:px-14 pt-2 w-screen"}>
             <CloseSessionButton/>

@@ -162,7 +162,6 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                     return <div key={i}>
                         <FilterConfig
                             filter={f}
-                            config={config}
                             dataset={dataset}
                             onRemove={() => {
                                 updateConfig("filters", [...config.filters.slice(0, i), ...config.filters.slice(i + 1)])

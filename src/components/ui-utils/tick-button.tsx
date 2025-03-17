@@ -16,7 +16,7 @@ export const TickButton = ({ text, ticked, setTicked, size = 24, color = '#455dc
       style={{
         width: size,
         height: size,
-        backgroundColor: ticked ? color : '#f8f8f9',
+        backgroundColor: ticked ? color : 'var(--background-dark)',
         border: `2px solid ${color}`,
         borderRadius: '50%',
         display: 'flex',

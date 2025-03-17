@@ -15,11 +15,10 @@ export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, error: 
 export type FeedProps = {
     feed: LoadingFeed,
     noResultsText?: ReactNode
-    showReplies?: boolean
     onClickQuote?: (cid: string) => void
 }
 
-const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación.", showReplies=false, onClickQuote}) => {
+const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación.", onClickQuote}) => {
     if(feed.isLoading){
         return <div className={"pt-8"}><LoadingSpinner/></div>
     }

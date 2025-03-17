@@ -7,8 +7,7 @@ import {Select} from "../../ui-utils/select";
 
 export const filterOptions = ["igual a", "distinto de", "uno de"]
 
-export const FilterConfig = ({filter, updateFilter, config, dataset, onRemove}: {
-    config: PlotConfigProps,
+export const FilterConfig = ({filter, updateFilter, dataset, onRemove}: {
     dataset?: DatasetProps,
     filter: FilterProps,
     updateFilter: (f: FilterProps) => void,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getChatBetween } from '../../../../../actions/user/users';
-import { supportDid, tomasDid } from '../../../../../components/utils/utils';
 import {getSessionDid} from "../../../../../actions/auth";
+import {supportDid, tomasDid} from "../../../../../components/utils/auth";
 
 
 function hasAccess(loggedInUser: string, userId: string){

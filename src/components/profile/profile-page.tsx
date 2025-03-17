@@ -13,7 +13,7 @@ export const ProfilePage = ({
     username: string
 }) => {
     const [selected, setSelected] = useState("Publicaciones")
-    const {user, atprotoProfile, isLoading, error} = useFullProfile(username)
+    const {user, atprotoProfile} = useFullProfile(username)
 
     return <div>
         {atprotoProfile && user && <ProfileHeader

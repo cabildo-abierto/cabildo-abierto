@@ -3,11 +3,11 @@
 import {TopicProps, TopicVersionProps} from "../../app/lib/definitions";
 import {updateSynonymsInTopic} from "../../actions/write/topic";
 import { ListEditor } from "../ui-utils/list-editor";
-import {WikiEditorState} from "./topic-content-expanded-view-header";
 import {useSWRConfig} from "swr";
 
 
-export function isAccepted(version: TopicVersionProps){
+export function isAccepted(_: TopicVersionProps){
+    // TO DO
     return true
 }
 

@@ -3,7 +3,6 @@
 import Image from 'next/image'
 import { DateSince } from '../ui-utils/date'
 import {EngagementProps, ReasonProps, RecordProps} from '../../app/lib/definitions'
-import {emptyChar, formatIsoDate, urlFromRecord, userUrl} from '../utils/utils'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ContentTopRowAuthor } from './content-top-row-author'
@@ -12,6 +11,10 @@ import { EngagementIcons } from '../reactions/engagement-icons'
 import {RepostedBy} from "./reposted-by";
 import { useSWRConfig } from 'swr'
 import {ProfilePic} from "./profile-pic";
+import {urlFromRecord, userUrl} from "../utils/uri";
+import {formatIsoDate} from "../utils/dates";
+
+import {emptyChar} from "../utils/utils";
 
 
 export const ReplyVerticalLine = ({className=""}: {className?: string}) => {

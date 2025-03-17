@@ -34,7 +34,7 @@ export const BskyRichTextContent = ({content, className="article-content not-art
       }
     })
 
-    const initialData = (editor: LexicalEditor) => {$convertFromMarkdownString(markdown, PLAYGROUND_TRANSFORMERS)}
+    const initialData = (_: LexicalEditor) => {$convertFromMarkdownString(markdown, PLAYGROUND_TRANSFORMERS)}
 
     return <ReadOnlyEditor initialData={initialData} editorClassName={className}/>
 }

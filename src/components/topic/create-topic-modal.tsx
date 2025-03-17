@@ -1,14 +1,15 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useSWRConfig } from "swr";
 import { useUser } from "../../hooks/user";
 import { CreateAccountLink } from "../auth/create-account-link";
 import StateButton from "../ui-utils/state-button";
 import TickButton from "../ui-utils/tick-button";
-import {topicUrl, ErrorMsg, validEntityName} from "../utils/utils";
+import {ErrorMsg} from "../utils/utils";
 import { BaseFullscreenPopup } from "../ui-utils/base-fullscreen-popup";
 import {TextField} from "@mui/material";
 import {createTopic} from "../../actions/write/topic";
+import {validEntityName} from "./utils";
+import {topicUrl} from "../utils/uri";
 
 
 
@@ -16,7 +17,6 @@ export const CreateTopicModal = ({ open, onClose }: { open: boolean, onClose: ()
     const user = useUser();
     const [topicName, setTopicName] = useState("");
     const [errorOnCreate, setErrorOnCreate] = useState(null)
-    const { mutate } = useSWRConfig();
     const router = useRouter();
     const [goToArticle, setGoToArticle] = useState(true);
 

@@ -2,9 +2,9 @@ import {useDatasets, useVisualizations} from "../../hooks/contents";
 import {useSearch} from "./search-context";
 import LoadingSpinner from "../ui-utils/loading-spinner";
 import {DatasetProps, VisualizationProps} from "../../app/lib/definitions";
-import {cleanText} from "../utils/utils";
 import Feed from "../feed/feed";
 import React from "react";
+import {cleanText} from "../utils/strings";
 
 
 export const DataSearchResults = ({onSearchPage=false}: {onSearchPage?: boolean}) => {

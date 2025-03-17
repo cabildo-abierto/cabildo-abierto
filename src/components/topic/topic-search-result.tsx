@@ -1,6 +1,5 @@
 "use client"
 
-import { topicUrl } from "../utils/utils"
 import { fetcher } from "../../hooks/utils"
 import { preload } from "swr"
 import { DateSince } from "../ui-utils/date"
@@ -9,6 +8,7 @@ import {SmallTopicProps} from "../../app/lib/definitions";
 import {TopicCategories} from "./topic-categories";
 import {useRouter} from "next/navigation";
 import {People} from "@mui/icons-material";
+import {topicUrl} from "../utils/uri";
 
 
 const DateLastEdit = ({date}: {date: Date}) => {

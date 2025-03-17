@@ -3,8 +3,8 @@ import { CustomLink as Link } from '../ui-utils/custom-link';
 import { Button } from "@mui/material"
 import { useState } from "react"
 import { BothContributionsProps, ContributionsProps } from "../../app/lib/definitions"
-import {getTopicMonetizedChars} from "../utils/utils";
 import {useTopic} from "../../hooks/contents";
+import {getTopicMonetizedChars} from "./utils";
 
 
 

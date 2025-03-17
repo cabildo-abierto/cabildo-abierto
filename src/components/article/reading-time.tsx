@@ -6,13 +6,11 @@ export const ReadingTime = ({numWords}: {numWords?: number}) => {
     try {
         const wordsPerMinute = 200;
         const minutes = Math.ceil(numWords / wordsPerMinute);
-        return <div className="flex items-center space-x-1">
+        return <div className="flex items-start space-x-1">
             <AccessTimeIcon fontSize="inherit"/>
             <span className="text-sm">{minutes}min.</span>
         </div>
     } catch {
         return <></>
     }
-    return <></>
-    
 }

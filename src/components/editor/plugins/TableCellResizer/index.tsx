@@ -122,13 +122,13 @@ function TableCellResizer({editor}: {editor: LexicalEditor}) {
       }, 0);
     };
 
-    const onMouseDown = (event: MouseEvent) => {
+    const onMouseDown = (_: MouseEvent) => {
       setTimeout(() => {
         updateIsMouseDown(true);
       }, 0);
     };
 
-    const onMouseUp = (event: MouseEvent) => {
+    const onMouseUp = (_: MouseEvent) => {
       setTimeout(() => {
         updateIsMouseDown(false);
       }, 0);

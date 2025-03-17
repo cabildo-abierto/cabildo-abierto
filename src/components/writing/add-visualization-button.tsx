@@ -2,10 +2,10 @@ import VisualizationsIcon from "@mui/icons-material/AutoGraph";
 
 
 export const AddVisualizationButton = ({
-                                           setVisualization, disabled, modalOpen, setModalOpen}: {
-    setVisualization: (visualization: any) => void
+    disabled,
+    setModalOpen
+}: {
     disabled: boolean
-    modalOpen: boolean
     setModalOpen: (open: boolean) => void
 }) => {
     return <button

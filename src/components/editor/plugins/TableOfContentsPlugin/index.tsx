@@ -15,7 +15,8 @@ import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {TableOfContentsPlugin as LexicalTableOfContentsPlugin} from '@lexical/react/LexicalTableOfContentsPlugin';
 import {useEffect, useRef, useState} from 'react';
 import {useLayoutConfig} from "../../../layout/layout-config-context";
-import {pxToNumber} from "../../../utils/utils";
+
+import {pxToNumber} from "../../../utils/strings";
 
 
 const HEADING_WIDTH = 30;

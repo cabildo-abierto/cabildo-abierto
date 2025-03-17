@@ -6,9 +6,8 @@ import {
     VisualizationProps, EngagementProps, TopicsGraph, FastPostProps
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
-import {threadApiUrl} from "../components/utils/utils";
 import {QuotedContent} from "../components/feed/content-quote";
-import {getDidFromUri, getRkeyFromUri} from "../components/utils/uri";
+import {getDidFromUri, getRkeyFromUri, threadApiUrl} from "../components/utils/uri";
 
 
 export function useFeed(feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
@@ -100,7 +99,7 @@ export function useQuotedContent(uri: string): {quotedContent: QuotedContent, er
 
 
 export function usePost(uri: string): {post: FastPostProps, error?: string, isLoading: boolean}{
-    const { data, error, isLoading } = useSWR('/api/post/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
+    const { data, isLoading } = useSWR('/api/post/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
@@ -117,7 +116,7 @@ export function usePost(uri: string): {post: FastPostProps, error?: string, isLo
 
 
 export function useTopicFeed(id: string): {feed: {mentions: FeedContentProps[], replies: FeedContentProps[], topics: string[]}, error: string, isLoading: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topic-feed/'+encodeURIComponent(id), fetcher, {
+    const { data, isLoading } = useSWR('/api/topic-feed/'+encodeURIComponent(id), fetcher, {
         revalidateIfStale: false,
         revalidateOnFocus: false,
         revalidateOnReconnect: false
@@ -170,7 +169,7 @@ export function useVisualizations(): {visualizations: VisualizationProps[], isLo
 
 
 export function useThread(uri: string): {thread: ThreadProps, isLoading: boolean, error?: string}{
-    const { data, error, isLoading } = useSWR(threadApiUrl(uri), fetcher,
+    const { data, isLoading } = useSWR(threadApiUrl(uri), fetcher,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
@@ -187,7 +186,7 @@ export function useThread(uri: string): {thread: ThreadProps, isLoading: boolean
 
 
 export function useDataset(uri: string): {dataset: {dataset: DatasetProps & EngagementProps, data: any[]}, isLoading: boolean, error?: string}{
-    const { data, error, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
+    const { data, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
@@ -206,7 +205,7 @@ export function useDataset(uri: string): {dataset: {dataset: DatasetProps & Enga
 
 
 export function useVisualization(uri: string): {visualization: VisualizationProps & EngagementProps, isLoading: boolean, error: string}{
-    const { data, error, isLoading } = useSWR('/api/visualization/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
+    const { data, isLoading } = useSWR('/api/visualization/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
@@ -299,7 +298,7 @@ export function useCategoryGraph(c: string): {graph: TopicsGraph, isLoading: boo
 
 
 export function useProfileFeed(id: string, kind: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
-    const { data, error, isLoading } = useSWR('/api/profile-feed/'+id+"/"+kind, fetcher,
+    const { data, isLoading } = useSWR('/api/profile-feed/'+id+"/"+kind, fetcher,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
