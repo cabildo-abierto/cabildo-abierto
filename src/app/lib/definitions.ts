@@ -105,15 +105,6 @@ export type SmallUserProps = {
 }
 
 
-export type UserMonthDistributionProps = {
-    userId: string
-    reactions: {createdAt: Date, id: string}[],
-    views: {createdAt: Date, id: string}[]
-    start: Date
-    end: Date
-}
-
-
 export type BothContributionsProps = {
     monetized: [string, number][]
     all: [string, number][]
@@ -189,49 +180,6 @@ export type UserStats = {
     viewsInPosts: number
     viewsInEntities: number
 }
-
-
-export type EmbedProps = {
-    $type: string,
-    images?: {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
-    media?: {images?:
-            {thumb: string, fullsize: string, aspectRatio?: {width: number, height: number}, alt: string}[]
-    }
-    record?: {
-        uri: string
-        value?: {
-            createdAt: string;
-            $type: string
-            text: string;
-            facets?: any[]
-            embed?: EmbedProps
-        }
-        $type: string
-        text: string
-        facets?: any[]
-        author: {displayName?: string, handle: string, avatar?: string}
-    }
-}
-
-
-/*export type FastPostProps = {
-    facets?: string
-    embed?: string
-    content: {
-        text: string
-        record: {
-            cid: string
-            uri: string
-            createdAt: Date
-            author: SmallUserProps
-            collection: string
-        }
-    }
-    likeCount: number
-    repostCount: number
-    replyCount: number
-    viewer?: {like?: string, repost?: string}
-}*/
 
 
 export type ArticleProps = RecordProps & EngagementProps & {
@@ -330,7 +278,6 @@ export type PlotConfigProps = {
     [key: string]: any
 }
 
-export type FilterOption = "igual a" | "distinto de" | "uno de"
 
 export type FilterProps = {
     value: any
@@ -351,3 +298,47 @@ export type VisualizationProps = RecordProps & {
         previewBlobCid?: string
     }
 }
+
+
+
+export type JetstreamEvent = {
+    did: string
+    kind: "commit" | "update" | "identity" | "account"
+    time_us: number
+}
+
+
+
+export type CommitEvent = JetstreamEvent & {
+    commit: {
+        collection: string
+        operation: "create" | "delete"
+        rkey: string
+        cid: string
+        uri: string
+        record?: {
+            createdAt?: string
+            reply?: any
+        }
+    }
+}
+
+
+export type SyncRecordProps = {
+    did: string
+    uri: string
+    collection: string
+    rkey: string
+    cid: string
+    record: any
+}
+
+
+export type UserRepo = {
+    did: string
+    uri: string
+    collection: string
+    rkey: string
+    record: any
+    cid: string
+}[]

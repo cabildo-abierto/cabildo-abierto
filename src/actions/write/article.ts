@@ -1,5 +1,8 @@
 "use server"
 import {getSessionAgent} from "../auth";
+import {processCreateRecord} from "../sync/process-event";
+import {splitUri} from "../../components/utils/uri";
+import {revalidateUri} from "../revalidate";
 
 
 export async function createArticle(compressedText: string, userId: string, title: string){
@@ -16,11 +19,20 @@ export async function createArticle(compressedText: string, userId: string, titl
     }
 
     try {
-        await agent.com.atproto.repo.createRecord({
+        const {data} = await agent.com.atproto.repo.createRecord({
             repo: did,
             collection: 'ar.com.cabildoabierto.article',
             record: record,
         })
+
+        const {uri, cid} = data
+        await processCreateRecord({
+            uri,
+            cid,
+            ...splitUri(uri),
+            record
+        })
+        await revalidateUri(uri)
     } catch (err){
         console.error("Error", err)
         return {error: "Ocurrió un error al publicar el artículo."}

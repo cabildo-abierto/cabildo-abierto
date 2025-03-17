@@ -60,20 +60,6 @@ const postEditorSettings: (isFast: boolean, initialData?: string) => SettingsPro
 }
 
 
-const DraftsButton = () => {
-    return <CustomLink href="/borradores">
-        <Button
-            variant="text"
-            color="primary"
-            sx={{textTransform: "none"}}
-            disableElevation={true}
-        >
-            <span className="whitespace-nowrap">Ver borradores</span>
-        </Button>
-    </CustomLink>
-}
-
-
 type PostEditorProps = {
     isFast?: boolean
     initialData?: string
@@ -100,9 +86,15 @@ function useDebouncedEffect(effect: () => void, deps: any[], delay: number) {
 }
 
 
-const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}: {editor: LexicalEditor, lastSaved: {contentId?: string}, disabled: boolean, isPublished: boolean, isFast: boolean, title?: string}) => {
+const PublishButton = ({editor, isPublished, title, disabled}: {
+    editor: LexicalEditor
+    lastSaved: {contentId?: string}
+    disabled: boolean
+    isPublished: boolean
+    isFast: boolean
+    title?: string
+}) => {
     const router = useRouter()
-    const {mutate} = useSWRConfig()
     const {user} = useUser()
 
     async function handleSubmit(){
@@ -112,11 +104,6 @@ const PublishButton = ({editor, lastSaved, isPublished, isFast, title, disabled}
         const {error} = await createArticle(compressedText, user.did, title)
         if(error) return {error}
 
-        /*await mutate("/api/content/"+lastSaved.contentId)
-        await mutate("/api/drafts/"+user.did)
-        await mutate("/api/feed")
-        await mutate("/api/following-feed")
-        await mutate("/api/profile-feed/"+user.did)*/
         router.push("/")
         return {stopResubmit: true}
 	}
@@ -154,114 +141,16 @@ const PostEditor = ({
 
     const settings = postEditorSettings(isFast, initialData)
 
-    useDebouncedEffect(() => {
-        if(!editorState) return
-        if(isPublished) return
-
-        async function onChange(){
-            /*if(contentCreationState == "creating") return
-            if(hasChanged(editorState, lastSaved.text) || title != lastSaved.title){
-                // distinto del last saved
-                setSaveStatus("not saved")
-                if(!lastSaved.contentId){
-                    setContentCreationState("creating")
-                    await handleCreateDraftPost()
-                } else {
-                    await handleSaveDraft()
-                }
-            } else if(hasChanged(editorState, initialData) || title != initialTitle){
-                // igual al last saved y distinto del inicial
-                setSaveStatus("saved")
-            } else {
-                // igual al last saved e igual al inicial
-                setSaveStatus("no changes")
-            }*/
-        }
-
-        onChange()
-    }, [editorState, title, lastSaved], 500)
-
-    async function waitForSaveStatus() {
-        return new Promise((resolve) => {
-            const interval = setInterval(() => {
-                if (saveStatus !== "not saved") {
-                    clearInterval(interval);
-                    resolve(saveStatus);
-                }
-            }, 100);
-        });
-    }
-
-    const handleCreateDraftPost: StateButtonClickHandler = async () => {
-        /*const text = JSON.stringify(editor.getEditorState())
-        const compressedText = compress(text)
-        const type = isFast ? "FastPost" : "Post"
-
-        const {error, result} = await oldCreatePost(compressedText, type, true, user.id, !isFast ? title : undefined)
-        if(error) return {error}
-        setLastSaved({text: text, title: title, contentId: result.id})
-        setContentCreationState("created")
-
-        await mutate("/api/content/" + lastSaved.contentId)
-        await mutate("/api/drafts")
-        return {stopResubmit: true}*/
-        return {}
-    }
-
-    const handleSaveDraft = async () => {
-        /*if(!lastSaved.contentId){
-            return await handleCreateDraftPost()
-        }
-
-        const text = JSON.stringify(editor.getEditorState())
-        const compressedText = compress(text)
-        
-        const {error} = await updateContent(compressedText, lastSaved.contentId, user.id, title)
-        if(error) {
-            setSaveStatus("error")
-            return
-        }
-        setLastSaved({text: text, title: title, contentId: lastSaved.contentId})
-
-        await mutate("/api/content/" + lastSaved.contentId)
-        await mutate("/api/drafts")*/
-        return {}
-    }
-
     const count = editor && editorState ? charCount(editorState) : 0
     
     const postType = isFast ? "FastPost" : "Post"
 
     const valid = validPost(editorState, settings.charLimit, postType, images, title)
 
-    let disabled = valid.problem != undefined// || !lastSaved.contentId
-
-    const SaveDraftDialog = () => {
-        if(saveStatus == "no changes"){
-            return <></>
-        } else if(saveStatus == "not saved"){
-            return <div className="text-gray-400 sm:text-base text-sm">
-                Guardando borrador...
-            </div>
-        } else if(saveStatus == "saved"){
-            return <div className="text-gray-400 sm:text-base text-sm">
-                Cambios guardados
-            </div>
-        } else if(saveStatus == "error"){
-            return <div className="text-gray-400 sm:text-base text-sm">
-                Error al guardar. <button onClick={async () => {setSaveStatus("not saved"); await handleSaveDraft()}} className="link2">Reintentar</button>
-            </div>
-        }
-	}
+    let disabled = valid.problem != undefined
 
     return <div className="px-3">
         <div className="flex justify-between mt-3 items-center w-full">
-            <div className="hidden w-64">
-                {isPublished ? <div></div> : <DraftsButton/>}
-            </div>
-            <div className="w-full flex sm:justify-center">
-                {!isPublished && <SaveDraftDialog/>}
-            </div>
 			<div className="flex">
                 {isFast && <AddImageButton images={images} setImages={setImages} disabled={false}/>}
                 <PublishButton

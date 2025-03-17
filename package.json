@@ -21,6 +21,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@atcute/car": "^2.1.0",
     "@atproto/api": "^0.14.9",
     "@atproto/common": "^0.4.8",
     "@atproto/identity": "^0.4.6",

@@ -2,21 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import {formatDate} from "../utils/utils";
 
-// Componente para mostrar solo la fecha
-export function DateComponent({ date }: { date: Date }) {
-    const [localeDate, setLocaleDate] = useState('');
-
-    useEffect(() => {
-        if(date.getFullYear() != 2024)
-            setLocaleDate(format(date, "dd 'de' MMMM", { locale: es }));
-        else
-            setLocaleDate(format(date, "dd 'de' MMMM 'de' yyyy", { locale: es }));
-    }, [date]);
-
-    return <>{localeDate}</>;
-}
 
 export function localeDate(date: Date, includeCurrentYear?: boolean){
     if(date.getFullYear() != 2025 || includeCurrentYear)
@@ -76,18 +62,4 @@ export function DateSince({ date }: { date: string | Date}) {
     return <span title={localeDate(new Date(date))}>
         {formatTime()}
     </span>;
-}
-
-
-export function DateAndTimeComponent({ date }: { date: Date }) {
-    const [localeDate, setLocaleDate] = useState('');
-    
-    useEffect(() => {
-        if(date.getFullYear() != 2024)
-            setLocaleDate(format(date, "dd 'de' MMMM, HH:mm", { locale: es }));
-        else
-            setLocaleDate(format(date, "dd 'de' MMMM 'de' yyyy, HH:mm", { locale: es }));
-    }, [date]);
-
-    return <>{localeDate}</>;
 }

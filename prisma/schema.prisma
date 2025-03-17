@@ -26,7 +26,7 @@ enum MirrorStatus {
 }
 
 model User {
-  did         String  @id @db.VarChar(255) // did
+  did         String  @id @db.VarChar(255) // https://atproto.com/guides/identity
   handle      String?
   displayName String?
   avatar      String?
@@ -34,15 +34,14 @@ model User {
   email       String?
   description String?
 
-  hasAccess    Boolean      @default(false)
-  inCA         Boolean      @default(false)
-  mirrorStatus MirrorStatus @default(Dirty)
-  rev          String?
+  hasAccess    Boolean      @default(false) // si tiene o no acceso al período de prueba
+  inCA         Boolean      @default(false) // si el usuario está en Cabildo Abierto (si tiene un record ar.com.cabildoabierto.profile)
+  mirrorStatus MirrorStatus @default(Dirty) // estado del mirror, usado en atproto-sync
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  editorStatus  EditorStatus @default(Beginner)
-  platformAdmin Boolean      @default(false)
+  editorStatus  EditorStatus @default(Beginner) // permisos de editor en la wiki
+  platformAdmin Boolean      @default(false) // si tiene acceso o no a /admin
 
   subscriptionsBought Subscription[] @relation("bought")
   subscriptionsUsed   Subscription[]
@@ -59,7 +58,7 @@ model User {
   followers Follow[]
 
   usedInviteCode InviteCode?  @relation("invite-code-used")
-  recommendCodes InviteCode[] @relation("invite-codes-available")
+  recommendCodes InviteCode[] @relation("invite-codes-available") // los códigos de invitación que tiene disponibles para usar
 }
 
 model InviteCode {
