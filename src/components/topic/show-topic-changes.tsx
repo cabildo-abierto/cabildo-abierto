@@ -5,6 +5,11 @@ import { TopicProps, MatchesType } from '../../app/lib/definitions';
 import { wikiEditorSettings } from '../editor/wiki-editor';
 import { decompress } from '../utils/compression';
 import {getCurrentContentVersion} from "./utils";
+import {SmallTopicVersionProps} from "./topic-content-expanded-view";
+import {useTopicVersionAuthors, useTopicVersionChanges} from "../../hooks/contents";
+import {getDidFromUri, getRkeyFromUri} from "../utils/uri";
+import LoadingSpinner from "../ui-utils/loading-spinner";
+import {ErrorPage} from "../ui-utils/error-page";
 
 const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { ssr: false } );
 
@@ -66,33 +71,29 @@ function showChanges(newText: string, prevText: string, diff: MatchesType){
 
 
 export const ShowTopicChanges = ({
-    topic, version
-}: {topic: TopicProps, version: number}) => {
-    const newTextVersion = getCurrentContentVersion(topic, version)
-    if(newTextVersion == 0){
-        return <div className={"text-[var(--text-light)] text-sm mt-16"}>
-            Sin cambios para mostrar.
+                                     topic,
+                                     topicVersion
+                                 }: {
+    topic: TopicProps
+    topicVersion: SmallTopicVersionProps
+}) => {
+    const {topicVersionChanges, isLoading} = useTopicVersionChanges(getDidFromUri(topicVersion.uri), getRkeyFromUri(topicVersion.uri));
+
+    if(isLoading){
+        return <div className={"mt-8"}>
+            <LoadingSpinner/>
         </div>
     }
 
-    const prevTextVersion = getCurrentContentVersion(topic, newTextVersion-1)
-
-    const newContent = topic.versions[newTextVersion].content
-    const prevContent = topic.versions[prevTextVersion].content
-
-    if(!newContent.topicVersion.diff){
-        return <div className={"text-[var(--text-light)] text-center mt-16"}>
-            Todavía no se calcularon los cambios.
+    if(!topicVersionChanges){
+        return <div className={"mt-8"}>
+            <ErrorPage>
+                Ocurrió un error al cargar el contenido.
+            </ErrorPage>
         </div>
     }
 
-    const contentText = showChanges(
-        decompress(newContent.text),
-        decompress(prevContent.text),
-        JSON.parse(newContent.topicVersion.diff)
-    )
-
-    let settings = wikiEditorSettings(true, null, contentText, "lexical", true, false)
+    let settings = wikiEditorSettings(true, null, topicVersionChanges.text, "lexical", true, false)
 
     return <>
         <div className="text-sm text-center block lg:hidden content-container p-1 w-full">

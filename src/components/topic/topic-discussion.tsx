@@ -1,4 +1,3 @@
-import {TopicProps} from "../../app/lib/definitions";
 import {ReplyButton} from "../feed/reply-button";
 import {useState} from "react";
 import {TopicFeed} from "./topic-feed";
@@ -6,9 +5,9 @@ import {WritePanel} from "../writing/write-panel";
 import {ReplyToContent} from "../editor/plugins/CommentPlugin";
 import {useSWRConfig} from "swr";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
-import {getCurrentContentVersion} from "./utils";
 
-function topicPropsToReplyToContent(topic: TopicProps, version: number): ReplyToContent {
+
+/*function topicPropsToReplyToContent(topic: TopicProps, version: number): ReplyToContent {
     return {
         ...topic.versions[version],
         collection: "ar.com.cabildoabierto.topic",
@@ -22,43 +21,40 @@ function topicPropsToReplyToContent(topic: TopicProps, version: number): ReplyTo
             }
         }
     }
-}
+}*/
 
 export const TopicDiscussion = ({
-    topic, version, onClickQuote, wikiEditorState
+    replyToContent, topicId, onClickQuote, wikiEditorState
 }: {
-    topic: TopicProps
-    version: number
+    topicId: string
+    replyToContent?: ReplyToContent
     onClickQuote: (cid: string) => void
     wikiEditorState: WikiEditorState
 }) => {
     const [writingReply, setWritingReply] = useState(false)
     const {mutate} = useSWRConfig()
 
-    const contentVersion = topic.versions[getCurrentContentVersion(topic)]
-    const hasText = contentVersion.content.text != undefined && contentVersion.content.text.length > 0
-
     return <div className="w-full flex flex-col items-center">
-        {hasText && <div className={"w-full"}>
+        {replyToContent != null && <div className={"w-full"}>
             <ReplyButton
                 text={"Responder al contenido del tema"}
                 onClick={() => {setWritingReply(true)}}
             />
         </div>}
-        <div className={"w-full " + (wikiEditorState == "normal" ? "border-t mt-20" : "")}>
+        <div className={"w-full " + (wikiEditorState == "normal" ? "" : "")}>
             <TopicFeed
-                topicId={topic.id}
+                topicId={topicId}
                 onClickQuote={onClickQuote}
             />
         </div>
-        <WritePanel
+        {replyToContent && <WritePanel
             open={writingReply}
             onClose={() => {setWritingReply(false)}}
-            replyTo={topicPropsToReplyToContent(topic, version)}
+            replyTo={replyToContent}
             onSubmit={async () => {
-                await mutate("/api/topic/"+encodeURIComponent(topic.id))
-                await mutate("/api/topic-feed/"+encodeURIComponent(topic.id))
+                await mutate("/api/topic/"+encodeURIComponent(topicId))
+                await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
             }}
-        />
+        />}
     </div>
 }

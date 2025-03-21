@@ -10,7 +10,11 @@ import {
 } from "../../actions/topic/references";
 import {updateTopicPopularityScores} from "../../actions/topic/popularity";
 import {updateTopicsCategories} from "../../actions/topic/categories";
-import {updateTopicsLastEdit} from "../../actions/topic/current-version";
+import {
+    updateTopicCurrentVersion,
+    updateTopicsCurrentVersion,
+    updateTopicsLastEdit
+} from "../../actions/topic/current-version";
 import {AdminSection} from "./admin-section";
 import {updateCategoriesGraph} from "../../actions/topic/graph";
 import {expandURI} from "../utils/uri";
@@ -20,6 +24,7 @@ export const AdminPrincipal = () => {
     const [pendingSynonymsUpdates, setPendingSynonymsUpdates] = useState(null)
     const [pendingContentReferenceUpdates, setPendingContentReferenceUpdates] = useState(null)
     const [uri, setUri] = useState("")
+    const [topicId, setTopicId] = useState("")
 
 
     let center = <div className="flex flex-col items-center mt-8">
@@ -31,6 +36,14 @@ export const AdminPrincipal = () => {
                     value={uri}
                     onChange={(e) => {setUri(e.target.value)}}
                     placeholder={"uri"}
+                    className={"p-2 w-128 outline-none"}
+                />
+            </AdminSection>
+            <AdminSection title={"Topic ID"}>
+                <input
+                    value={topicId}
+                    onChange={(e) => {setTopicId(e.target.value)}}
+                    placeholder={"topic id"}
                     className={"p-2 w-128 outline-none"}
                 />
             </AdminSection>
@@ -132,6 +145,27 @@ export const AdminPrincipal = () => {
                 />
             </AdminSection>
 
+            <AdminSection title={"Versión actual"}>
+
+                <StateButton
+                    handleClick={async () => {
+                        await updateTopicsCurrentVersion()
+                        return {}
+                    }}
+                    text1={"Actualizar versión actual de temas"}
+                />
+            </AdminSection>
+
+            <AdminSection title={"Versión actual"}>
+
+                <StateButton
+                    handleClick={async () => {
+                        await updateTopicCurrentVersion(topicId)
+                        return {}
+                    }}
+                    text1={`Actualizar versión actual de ${topicId}`}
+                />
+            </AdminSection>
         </div>
     </div>
 

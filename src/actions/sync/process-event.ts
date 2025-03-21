@@ -22,10 +22,7 @@ import {splitUri} from "../../components/utils/uri";
 
 
 export async function processEvent(e: JetstreamEvent){
-    console.log("Processing event", e)
     const status = await getUserMirrorStatus(e.did)
-
-    console.log("status", status)
 
     if(e.kind == "commit"){
         const c = e as CommitEvent

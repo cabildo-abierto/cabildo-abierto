@@ -10,8 +10,8 @@ import {articleButtonClassname} from "./topic-content";
 import SelectionComponent from "../search/search-selection-component";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {ModalBelow} from "../ui-utils/modal-below";
-import {topicUrl} from "../utils/uri";
-import {getCurrentVersion} from "./utils";
+import {splitUri, topicUrl} from "../utils/uri";
+import {SmallTopicVersionProps} from "./topic-content-expanded-view";
 
 export type WikiEditorState = "changes" | "authors" | "normal" |
     "editing" | "editing-synonyms" | "editing-categories" | "history" | "minimized"
@@ -61,14 +61,16 @@ const MoreOptionsButton = ({
 
 
 export const TopicContentExpandedViewHeader = ({
-                                                   wikiEditorState,
-                                                   setWikiEditorState,
-                                                   setPinnedReplies,
-                                                   setShowingSaveEditPopup,
+    wikiEditorState,
+    setWikiEditorState,
+    setPinnedReplies,
+    setShowingSaveEditPopup,
     topic,
+    topicVersion,
     saveEnabled
 }: {
     topic: TopicProps
+    topicVersion: SmallTopicVersionProps
     wikiEditorState: WikiEditorState
     setWikiEditorState: (s: WikiEditorState) => void
     setPinnedReplies: (v: string[]) => void
@@ -77,14 +79,11 @@ export const TopicContentExpandedViewHeader = ({
 }) => {
     const searchParams = useSearchParams()
 
-    const paramsVersion = searchParams.get("v")
-    const paramsVersionInt = Number(paramsVersion)
-    const currentVersion = getCurrentVersion(topic)
-    const isCurrent = paramsVersion == null || currentVersion == paramsVersionInt
+    const paramsVersion = searchParams.get("v") ? Number(searchParams.get("v")) : undefined
 
     let buttons: ReactNode
 
-    if(isCurrent && wikiEditorState != "editing") {
+    if(!paramsVersion && wikiEditorState != "editing") {
         function optionsNodes(o: string, isSelected: boolean){
             let name: string
             if(o == "authors") name = "Ver autores"
@@ -124,7 +123,7 @@ export const TopicContentExpandedViewHeader = ({
                 className={"flex"}
             />
         </div>
-    } else if(isCurrent && wikiEditorState == "editing") {
+    } else if(!paramsVersion && wikiEditorState == "editing") {
         buttons = <div>
             {wikiEditorState == "editing" &&
                 <>
@@ -153,11 +152,11 @@ export const TopicContentExpandedViewHeader = ({
     } else {
         buttons = <div className={"flex items-center space-x-2"}>
             <div>
-                Versión {paramsVersion} (publicada <DateSince date={topic.versions[paramsVersion].createdAt}/>).
+                Versión {paramsVersion} (publicada <DateSince date={topicVersion.content.record.createdAt}/>).
             </div>
             <div className={"link"}>
                 <Link
-                    href={topicUrl(topic.id, currentVersion, "normal")}
+                    href={topicUrl(topic.id, splitUri(topicVersion.uri), "normal")}
                     className={""}
                 >
                     Ir a la versión actual

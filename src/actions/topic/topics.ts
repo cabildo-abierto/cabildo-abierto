@@ -5,15 +5,16 @@ import {
     TopicProps,
     TopicVersionProps,
     SmallTopicProps,
-    TopicsGraph, TopicSortOrder,
+    TopicsGraph, TopicSortOrder, TopicHistoryProps,
 } from "../../app/lib/definitions";
 import {db} from "../../db";
 import {logTimes, recordQuery, revalidateEverythingTime} from "../utils";
 import {fetchBlob} from "../blob";
-import {unstable_cache} from "next/cache";
+import {revalidateTag, unstable_cache} from "next/cache";
 import {currentCategories, getCurrentContentVersion} from "../../components/topic/utils";
 import {getRkeyFromUri} from "../../components/utils/uri";
 import {oldestFirst} from "../../components/utils/arrays";
+import {SmallTopicVersionProps} from "../../components/topic/topic-content-expanded-view";
 
 
 export async function getTrendingTopics(categories: string[],
@@ -109,55 +110,6 @@ export async function getTrendingTopicsNoCache(
 }
 
 
-const topicQuery = {
-    id: true,
-    protection: true,
-    synonyms: true,
-    categories: {
-        select: {
-            categoryId: true,
-        }
-    },
-    popularityScore: true,
-    versions: {
-        select: {
-            uri: true
-        }
-    }
-}
-
-
-const topicVersionQuery = {
-    ...recordQuery,
-    content: {
-        select: {
-            text: true,
-            format: true,
-            textBlob: {
-                select: {
-                    authorId: true,
-                    cid: true
-                }
-            },
-            topicVersion: {
-                select: {
-                    topicId: true,
-                    message: true,
-                    categories: true,
-                    synonyms: true,
-                    title: true,
-                    diff: true,
-                    charsAdded: true,
-                    accCharsAdded: true,
-                    contribution: true,
-                    authorship: true,
-                }
-            }
-        }
-    },
-}
-
-
 export async function getCategories() {
     return await unstable_cache(async () => {
         return await getCategoriesNoCache()
@@ -215,66 +167,196 @@ export async function getTextFromBlob(blob: {cid: string, authorId: string}){
 }
 
 
+export async function getTopicHistory(id: string): Promise<{topicHistory?: TopicHistoryProps, error?: string}> {
+    try {
+        const topicHistory = await unstable_cache(
+            async () => {
+                const versions = await db.record.findMany({
+                    select: {
+                        uri: true,
+                        collection: true,
+                        author: {
+                            select: {
+                                did: true,
+                                handle: true,
+                                displayName: true,
+                                avatar: true
+                            }
+                        },
+                        createdAt: true,
+                        content: {
+                            select: {
+                                textBlob: true,
+                                text: true,
+                                topicVersion: {
+                                    select: {
+                                        charsAdded: true,
+                                        charsDeleted: true,
+                                        accCharsAdded: true,
+                                        contribution: true,
+                                        diff: true,
+                                        message: true,
+                                        categories: true,
+                                        synonyms: true,
+                                        title: true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    where: {
+                        content: {
+                            topicVersion: {
+                                topicId: id
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdAt: "asc"
+                    }
+                })
+
+                return {
+                    id,
+                    versions: versions.map(v => ({
+                        ...v,
+                        content: {
+                            ...v.content,
+                            hasText: v.content.textBlob != null || v.content.text != null
+                        }
+                    }))
+                }
+            },
+            ["topicHistory:"+id],
+            {
+                tags: ["topicHistory", "topicHistory:"+id, "topic:"+id],
+                revalidate: revalidateEverythingTime
+            }
+        )()
+        return {topicHistory}
+    } catch (e) {
+        console.error("Error getting topic " + id)
+        console.error(e)
+        return {error: "No se pudo obtener el historial."}
+    }
+}
+
+
 export async function getTopicById(id: string): Promise<{topic?: TopicProps, error?: string}>{
     const t1 = Date.now()
-    const {topic, error} = await unstable_cache(async () => {
+    const r = await unstable_cache(async () => {
         const topic = await db.topic.findUnique({
-            select: topicQuery,
+            select: {
+                id: true,
+                protection: true,
+                synonyms: true,
+                categories: {
+                    select: {
+                        categoryId: true,
+                    }
+                },
+                popularityScore: true,
+                lastEdit: true,
+                currentVersion: {
+                    select: {
+                        uri: true,
+                        content: {
+                            select: {
+                                text: true,
+                                format: true,
+                                textBlob: {
+                                    select: {
+                                        cid: true,
+                                        authorId: true
+                                    }
+                                },
+                                record: {
+                                    select: {
+                                        cid: true,
+                                        author: {
+                                            select: {
+                                                did: true,
+                                                handle: true,
+                                                displayName: true,
+                                                avatar: true
+                                            }
+                                        },
+                                        createdAt: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                currentVersionId: true
+            },
             where: {
                 id: id
             }
         })
-        if(!topic) return {error: "No se encontró el tema " + id + "."}
+        if (!topic) return {error: "No se encontró el tema " + id + "."}
+
+        if(topic.currentVersion && !topic.currentVersion.content.text){
+            if(topic.currentVersion.content.textBlob){
+                topic.currentVersion.content.text = await getTextFromBlob(
+                    topic.currentVersion.content.textBlob
+                )
+            }
+        }
 
         return {topic}
     }, ["topic:"+id], {
         tags: ["topic:"+id],
         revalidate: revalidateEverythingTime
     })()
-
     const t2 = Date.now()
-    if(error){
-        return {error}
-    }
 
-    const topicWithVersions: TopicProps = {
-        ...topic,
-        versions: []
-    }
-
-    for(let i = 0; i < topic.versions.length; i++){
-        const {topicVersion, error} = await getTopicVersion(topic.versions[i].uri)
-        if(error) return {error}
-        topicWithVersions.versions.push(topicVersion)
-    }
-    const t3 = Date.now()
-
-    if(topicWithVersions.versions.length > 0){
-        topicWithVersions.versions = topicWithVersions.versions.sort(oldestFirst)
-
-        const version = getCurrentContentVersion(topicWithVersions)
-        if(topicWithVersions.versions[version].content.textBlob != undefined){
-            topicWithVersions.versions[version].content.text = await getTextFromBlob(topicWithVersions.versions[version].content.textBlob)
-        }
-    }
-    const t4 = Date.now()
-
-    logTimes("getting topic " + id, [t1, t2, t3, t4])
-
-    return {topic: topicWithVersions}
+    logTimes("getTopicById", [t1, t2])
+    return r
 }
 
 
 export async function getTopicVersionNoCache(uri: string){
     try {
-        const topicVersion: TopicVersionProps = await db.record.findUnique({
-            select: topicVersionQuery,
+        const topicVersion = await db.record.findUnique({
+            select: {
+                uri: true,
+                cid: true,
+                createdAt: true,
+                content: {
+                    select: {
+                        text: true,
+                        textBlob: true,
+                        format: true
+                    }
+                }
+            },
             where: {
                 uri: uri
             }
         })
 
-        return {topicVersion}
+        if(!topicVersion.content.text){
+            if(topicVersion.content.textBlob){
+                topicVersion.content.text = await getTextFromBlob(
+                    topicVersion.content.textBlob
+                )
+            }
+        }
+
+        return {
+            topicVersion: {
+                ...topicVersion,
+                content: {
+                    ...topicVersion.content,
+                    record: {
+                        uri: topicVersion.uri,
+                        cid: topicVersion.cid,
+                        createdAt: topicVersion.createdAt
+                    }
+                }
+            }
+        }
     } catch {
         return {error: "No se encontró el tema."}
     }
@@ -289,6 +371,93 @@ export const getTopicVersion = unstable_cache(
         revalidate: revalidateEverythingTime
     }
 )
+
+
+/*
+
+function showAuthors(topic: TopicHistoryProps, topicVersion: TopicVersionProps) {
+    const versionText = topicVersion.content.text
+
+    function newAuthorNode(authors: string[], childNode){
+        const authorNode: SerializedAuthorNode = {
+            children: [childNode],
+            type: "author",
+            authors: authors,
+            direction: 'ltr',
+            version: childNode.version,
+            format: 'left',
+            indent: 0
+        }
+        return authorNode
+    }
+
+    const parsed = editorStateFromJSON(versionText)
+    if(!parsed) {
+        return versionText
+    }
+    let prevNodes = []
+    let prevAuthors = []
+
+    for(let i = 0; i < topic.versions.length; i++){
+        const parsedVersion = editorStateFromJSON(decompress(topic.versions[i].content.text))
+        if(!parsedVersion) continue
+        const nodes = parsedVersion.root.children
+        const {matches} = JSON.parse(topic.versions[i].content.topicVersion.diff)
+        const versionAuthor = topic.versions[i].author.did
+        let nodeAuthors: string[] = []
+        for(let j = 0; j < nodes.length; j++){
+            let authors = null
+            for(let k = 0; k < matches.length; k++){
+                if(matches[k] && matches[k].y == j){
+                    const prevNodeAuthors = prevAuthors[matches[k].x]
+                    if(getAllText(prevNodes[matches[k].x]) == getAllText(nodes[matches[k].y])){
+                        authors = prevNodeAuthors
+                    } else {
+                        if(!prevNodeAuthors.includes(versionAuthor)){
+                            authors = [...prevNodeAuthors, versionAuthor]
+                        } else {
+                            authors = prevNodeAuthors
+                        }
+                    }
+                    break
+                }
+            }
+            if(authors === null) authors = [versionAuthor]
+            nodeAuthors.push(authors)
+        }
+        prevAuthors = [...nodeAuthors]
+        prevNodes = [...nodes]
+        if(topic.versions[i].uri == topicVersion.uri) break
+    }
+    const newChildren = []
+    for(let i = 0; i < prevNodes.length; i++){
+        newChildren.push(newAuthorNode(prevAuthors[i], prevNodes[i]))
+    }
+    parsed.root.children = newChildren
+    return JSON.stringify(parsed)
+}
+ */
+
+
+export async function getTopicVersionAuthors(uri: string): Promise<{topicVersionAuthors?: {text: string}, error?: string}> {
+    return {
+        topicVersionAuthors: {
+            text: "Sin implementar"
+        },
+        error: undefined
+    }
+}
+
+
+export async function getTopicVersionChanges(uri: string): Promise<{topicVersionChanges?: {text: string}, error?: string}> {
+    return {
+        topicVersionChanges: {
+            text: "Sin implementar"
+        },
+        error: undefined
+    }
+}
+
 
 
 export async function getTopicsByCategoriesNoCache(sortedBy: TopicSortOrder){

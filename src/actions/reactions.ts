@@ -21,7 +21,6 @@ export async function createLikeDB({uri, cid, likedUri}: {uri: string, cid: stri
     await db.$transaction(updates)
 
     await revalidateUri(likedUri)
-    console.log("created like db", uri, cid, likedUri)
 }
 
 

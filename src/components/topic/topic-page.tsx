@@ -3,32 +3,25 @@ import { useEffect, useState } from "react"
 import {useRouter, useSearchParams} from "next/navigation";
 import NoEntityPage from "./no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
-import {useTopic, useTopicFeed} from "../../hooks/contents";
-import {getCurrentVersion, getFullTopicCategories, getFullTopicTitle} from "./utils";
-import {TopicContent} from "./topic-content";
+import {useTopic} from "../../hooks/contents";
+import {getFullTopicCategories, getFullTopicTitle} from "./utils";
+import {TopicContent, topicCurrentVersionToReplyToContent} from "./topic-content";
 import LoadingSpinner from "../ui-utils/loading-spinner";
-import {FastPostProps} from "../../app/lib/definitions";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {TopicCategories} from "./topic-categories";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
-import {ErrorPage} from "../ui-utils/error-page";
-import Link from "next/link";
-import {isQuotePost, topicUrl} from "../utils/uri";
-import {inRange} from "../utils/arrays";
 
 
-export const TopicPage = ({topicId, paramsVersion}: {
-    topicId: string,
-    paramsVersion?: number
+export const TopicPage = ({topicId}: {
+    topicId: string
 }) => {
     const topic = useTopic(topicId)
-    const feed = useTopicFeed(topicId)
     const searchParams = useSearchParams()
-    const [pinnedReplies, setPinnedReplies] = useState([])
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
     const [shouldGoTo, setShouldGoTo] = useState(null)
     const router = useRouter()
+    const [pinnedReplies, setPinnedReplies] = useState([])
 
     const wikiEditorState = (searchParams.get("s") ? searchParams.get("s") : "minimized") as WikiEditorState
 
@@ -78,48 +71,27 @@ export const TopicPage = ({topicId, paramsVersion}: {
         }
     }, [wikiEditorState])
 
-    if(topic.isLoading || feed.isLoading){
+    if(topic.isLoading){
         return <LoadingSpinner/>
     }
 
-    if(!topic.topic || topic.isError || topic.error || !feed.feed || topic.topic.versions.length == 0){
+    if(!topic.topic || topic.isError || topic.error){
         return <NoEntityPage id={topicId}/>
     }
 
-    if(paramsVersion >= topic.topic.versions.length){
-        return <ErrorPage>
-            <div className={"link flex flex-col items-center"}>
-                <div>
-                    No existe esta versión del tema.
-                </div>
-                <div>
-                    <Link href={topicUrl(topic.topic.id, undefined, wikiEditorState)}>Ir a la versión actual.</Link>
-                </div>
-            </div>
-        </ErrorPage>
-    }
 
     function setWikiEditorState(s: WikiEditorState) {
-        const vParam = searchParams.get("v")
-        const vParamStr = vParam ? ("&v=" + vParam) : ""
+        const didParam = searchParams.get("did")
+        const didParamStr = didParam ? ("&did=" + didParam) : ""
+        const rkeyParam = searchParams.get("rkey")
+        const rkeyParamStr = rkeyParam ? ("&rkey=" + rkeyParam) : ""
 
         if(s == "minimized"){
-            router.push("/tema?i="+topic.topic.id+vParamStr)
+            router.push("/tema?i="+topic.topic.id)
         } else {
-            router.push("/tema?i="+topic.topic.id+"&s="+s+vParamStr)
+            router.push("/tema?i="+topic.topic.id+"&s="+s+didParamStr+rkeyParamStr)
         }
     }
-
-    const versions = topic.topic.versions
-    const currentIndex = getCurrentVersion(topic.topic)
-    let version = paramsVersion
-    if(paramsVersion == undefined || !inRange(paramsVersion, versions.length)){
-        version = currentIndex
-    }
-
-    const quoteReplies = feed.feed.replies.filter((r) => {
-        return isQuotePost(r) && (r as FastPostProps).content.post.quote != undefined
-    }) as FastPostProps[]
 
     const onClickQuote = (cid: string) => {
         setPinnedReplies([...pinnedReplies, cid])
@@ -134,6 +106,7 @@ export const TopicPage = ({topicId, paramsVersion}: {
     }
 
     return <div className="flex flex-col items-center w-full pt-4">
+
         <div className="flex flex-col mx-2 py-1 mb-2 w-full">
             <div className="text-[var(--text-light)] text-sm">
                 Tema
@@ -148,10 +121,8 @@ export const TopicPage = ({topicId, paramsVersion}: {
 
         <TopicContent
             topic={topic.topic}
-            version={version}
             wikiEditorState={wikiEditorState}
             setWikiEditorState={setWikiEditorState}
-            quoteReplies={quoteReplies}
             pinnedReplies={pinnedReplies}
             setPinnedReplies={setPinnedReplies}
         />
@@ -159,8 +130,8 @@ export const TopicPage = ({topicId, paramsVersion}: {
         {(wikiEditorState == "minimized" || wikiEditorState == "normal") &&
             <div className="w-full" id="discussion-start">
                 <TopicDiscussion
-                    topic={topic.topic}
-                    version={version}
+                    topicId={topic.topic.id}
+                    replyToContent={topicCurrentVersionToReplyToContent(topic.topic)}
                     onClickQuote={onClickQuote}
                     wikiEditorState={wikiEditorState}
                 />

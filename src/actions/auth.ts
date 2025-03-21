@@ -14,7 +14,6 @@ import {myCookieOptions} from "../components/utils/auth";
 export async function login(handle: string){
 
     const oauthClient = await createClient()
-    console.log("Client created")
 
     if (typeof handle !== 'string' || !isValidHandle(handle)) {
         return {error: "Nombre de usuario inválido." + (handle.includes("@") ? " Escribilo sin @." : "")}

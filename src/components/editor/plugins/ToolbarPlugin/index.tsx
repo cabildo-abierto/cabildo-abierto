@@ -486,8 +486,6 @@ export default function ToolbarPlugin({
     }
   }, [activeEditor, isLink, setIsLinkEditMode]);
 
-  const canViewerSeeInsertDropdown = false
-
   return (
       <div className="toolbar bg-[var(--background)]">
         <button

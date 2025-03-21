@@ -84,6 +84,8 @@ export async function createTopicVersion({
     })
     const t2 = Date.now()
     if(ref){
+        console.log("created topic version", ref)
+        console.log("record", record)
         const updates = await processCreateRecordFromRefAndRecord(ref, record)
         await db.$transaction(updates)
         revalidateTag("topic:"+record.id)

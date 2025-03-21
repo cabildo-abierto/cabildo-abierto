@@ -22,7 +22,7 @@ function getInitialData(text: string | undefined, textFormat: string, readOnly: 
     if(!text){
         return ""
     }
-    if(!textFormat || textFormat == "lexical-compressed"){
+    if(!textFormat || textFormat == "lexical-compressed") {
         let contentText: string
         try {
             contentText = decompress(text)
@@ -31,13 +31,15 @@ function getInitialData(text: string | undefined, textFormat: string, readOnly: 
         }
         let initialData
         let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
-        if(readOnly && emptyContent){
+        if (readOnly && emptyContent) {
             initialData = initialValue
         } else {
             initialData = contentText
         }
 
         return initialData
+    } else if (textFormat == "lexical") {
+        return text
     } else if(textFormat == "markdown"){
         const initialData = (_: LexicalEditor) => {
             $convertFromMarkdownString(text, TRANSFORMERS)

@@ -11,7 +11,6 @@ import {ProfilePic} from "../feed/profile-pic";
 import {
     FastPostProps,
     FastPostReplyProps,
-    FeedContentProps,
 } from "../../app/lib/definitions";
 import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./insert-visualization-modal";
@@ -28,17 +27,17 @@ import {
 import Link from "next/link";
 import {BasicButton} from "../ui-utils/basic-button";
 import {ReplyToContent} from "../editor/plugins/CommentPlugin";
-import {ContentQuote} from "../feed/content-quote";
+import {ContentQuote, QuotedContent} from "../feed/content-quote";
 import {VisualizationNodeComp} from "../editor/nodes/visualization-node-comp";
 import { createFastPost } from "../../actions/write/post"
 import {RectTracker} from "../ui-utils/rect-tracker";
-import {getDidFromUri, getRkeyFromUri, threadApiUrl, topicUrl} from "../utils/uri";
+import {threadApiUrl, topicUrl} from "../utils/uri";
 import {validEntityName} from "../topic/utils";
 import {InsertImageModal} from "./insert-image-modal";
 import {InsertImagePayload} from "../editor/plugins/ImagesPlugin";
 
 
-function replyFromParentElement(replyTo: FeedContentProps): FastPostReplyProps {
+function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
 
     if(replyTo.collection == "app.bsky.feed.post"){
         const post = replyTo as FastPostProps
@@ -130,7 +129,7 @@ const CreateTopic = ({onClose}: {onClose: () => void}) => {
                 onChange={(e) => setTopicName(e.target.value)}
                 placeholder="Título"
                 inputProps={{
-                    autoComplete: 'off', // Disables browser autocomplete
+                    autoComplete: 'off'
                 }}
             />
         </div>
@@ -231,10 +230,18 @@ const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
         if (user) {
             const reply = replyTo ? replyFromParentElement(replyTo) : undefined
             const {error} = await createFastPost({text, reply, visualization, quote})
+            console.log("ReplyTo", replyTo)
             if(reply){
                 await onSubmit()
                 await mutate(threadApiUrl(reply.parent.uri))
                 await mutate(threadApiUrl(reply.root.uri))
+                console.log("replyTo", replyTo.uri, replyTo.content.topicVersion)
+                if(replyTo.content.topicVersion){
+                    console.log("mutating topic and topic feed", replyTo.content.topicVersion.topic.id)
+                    const id = replyTo.content.topicVersion.topic.id
+                    await mutate("/api/topic/"+encodeURIComponent(id))
+                    await mutate("/api/topic-feed/"+encodeURIComponent(id))
+                }
             }
 
             if (!error) {
@@ -307,6 +314,13 @@ type WritePanelProps = {
 }
 
 
+function quotedContentFromReplyTo(replyTo: ReplyToContent): QuotedContent {
+    return {
+        ...replyTo,
+        author: replyTo.author
+    };
+}
+
 export const WritePanel = ({
        replyTo, open, onClose, quote, onSubmit
 }: WritePanelProps) => {
@@ -358,7 +372,7 @@ export const WritePanel = ({
                 (replyTo.collection == "ar.com.cabildoabierto.topic" || replyTo.collection == "ar.com.cabildoabierto.article" ?
                     <div className={"w-full mr-4"}>
                         <ContentQuote
-                            quotedContent={replyTo}
+                            quotedContent={quotedContentFromReplyTo(replyTo)}
                             quote={quote}
                         />
                     </div> :

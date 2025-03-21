@@ -68,10 +68,9 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
         </div>}
         <div className={"flex justify-center"}>
             <div className={"max-w-[600px]"}>
-
                 {selected == "Menciones" && mentionsSelected == "Publicaciones" &&
                     <Feed
-                        feed={{feed: feed.feed.mentions, isLoading: false, error: undefined}}
+                        feed={{feed: feed.feed ? feed.feed.mentions : undefined, isLoading: feed.isLoading, error: feed.error}}
                         onClickQuote={onClickQuote}
                         noResultsText={"El tema todavía no fue mencionado."}
                     />
@@ -79,7 +78,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
 
                 {selected == "Respuestas al contenido" &&
                     <Feed
-                        feed={{feed: feed.feed.replies, isLoading: false, error: undefined}}
+                        feed={{feed: feed.feed ? feed.feed.replies : undefined, isLoading: feed.isLoading, error: feed.error}}
                         onClickQuote={onClickQuote}
                         noResultsText={"Este tema todavía no recibió respuestas."}
                     />

@@ -1,13 +1,22 @@
 import useSWR from "swr"
 import {
     DatasetProps,
-    FeedContentProps, ThreadProps, TopicProps,
+    FeedContentProps,
+    ThreadProps,
+    TopicProps,
     SmallTopicProps,
-    VisualizationProps, EngagementProps, TopicsGraph, FastPostProps
+    VisualizationProps,
+    EngagementProps,
+    TopicsGraph,
+    FastPostProps,
+    TopicVersionProps,
+    TopicHistoryProps,
+    TopicVersionAuthorsProps
 } from "../app/lib/definitions"
 import { fetcher } from "./utils"
 import {QuotedContent} from "../components/feed/content-quote";
 import {getDidFromUri, getRkeyFromUri, threadApiUrl} from "../components/utils/uri";
+import {SmallTopicVersionProps} from "../components/topic/topic-content-expanded-view";
 
 
 export function useFeed(feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
@@ -79,6 +88,75 @@ export function useTopic(id: string): {topic: TopicProps, error?: string, isLoad
         isError: error
     }
 }
+
+
+export function useTopicHistory(id: string): {topicHistory: TopicHistoryProps, error?: string, isLoading: boolean}{
+    const { data, isLoading } = useSWR('/api/topic-history/'+id, fetcher,
+        {
+            revalidateIfStale: true,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        topicHistory: data && data.topicHistory ? data.topicHistory : undefined,
+        isLoading,
+        error: data && data.error ? data.error : undefined
+    }
+}
+
+
+export function useTopicVersion(did: string, rkey: string): {topicVersion: SmallTopicVersionProps, error?: string, isLoading: boolean, isError: boolean}{
+    const { data, error, isLoading } = useSWR('/api/topic-version/'+did+"/"+rkey, fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        topicVersion: data,
+        isLoading,
+        isError: error
+    }
+}
+
+
+export function useTopicVersionAuthors(did: string, rkey: string): {topicVersionAuthors: TopicVersionAuthorsProps, error?: string, isLoading: boolean, isError: boolean}{
+    const { data, isLoading } = useSWR('/api/topic-version-authors/'+did+"/"+rkey, fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        topicVersionAuthors: data ? data.topicVersionAuthors : undefined,
+        isLoading,
+        isError: data ? data.error : undefined
+    }
+}
+
+
+export function useTopicVersionChanges(did: string, rkey: string): {topicVersionChanges: TopicVersionAuthorsProps, error?: string, isLoading: boolean, isError: boolean}{
+    const { data, isLoading } = useSWR('/api/topic-version-changes/'+did+"/"+rkey, fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false
+        }
+    )
+
+    return {
+        topicVersionChanges: data ? data.topicVersionChanges : undefined,
+        isLoading,
+        isError: data ? data.error : undefined
+    }
+}
+
 
 
 export function useQuotedContent(uri: string): {quotedContent: QuotedContent, error?: string, isLoading: boolean, isError: boolean}{

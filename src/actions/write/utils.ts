@@ -1,25 +1,5 @@
-import {getAllText} from "../../components/topic/diff"
 import {db} from "../../db"
-import {decompress} from "../../components/utils/compression";
-import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
-import {SyncRecordProps} from "../../app/lib/definitions";
-
-
-export function newUser(did: string, inCA: boolean){
-    return [db.user.upsert({
-        create: {
-            did: did,
-            inCA: inCA
-        },
-        update: {
-            inCA: inCA
-        },
-        where: {
-            did: did
-        }
-    })]
-}
-
+import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
 
 
 export function createRecord({uri, cid, createdAt, collection}: {
@@ -45,62 +25,4 @@ export function createRecord({uri, cid, createdAt, collection}: {
         }
     })]
     return updates
-}
-
-
-export function createContent(r: SyncRecordProps & {record: {text: {ref: {$link: string}} | string}}){
-    function getNumWords(text?: string){
-        if(text == undefined) return undefined
-        if(r.collection != "ar.com.cabildoabierto.topic" && r.collection != "ar.com.cabildoabierto.article"){
-            return text.split(" ").length
-        } else if(r.collection == "ar.com.cabildoabierto.article" || r.record.format == "lexical-compressed"){
-            return getAllText(decompress(text)).split(" ").length
-        } else {
-            return text.split(" ").length
-        }
-    }
-
-    let text = undefined
-    let blob = undefined
-    if(r.record.text){
-        if(r.record.text.ref){
-            const blobCid: string = r.record.text.ref.toString()
-            const blobDid = r.did
-            blob = {
-                cid: blobCid,
-                authorId: blobDid
-            }
-        } else {
-            text = r.record.text
-        }
-    }
-
-    const content = {
-        text: typeof text == "string" ? text : undefined,
-        textBlobId: blob ? blob.cid : undefined,
-        uri: r.uri,
-        numWords: getNumWords(text),
-        format: r.record.format
-    }
-
-    const contentUpd = db.content.upsert({
-        create: content,
-        update: content,
-        where: {
-            uri: r.uri
-        }
-    })
-
-    if(blob){
-        const blobUpd = db.blob.upsert({
-            create: blob,
-            update: blob,
-            where: {
-                cid: blob.cid
-            }
-        })
-        return [blobUpd, contentUpd]
-    } else {
-        return [contentUpd]
-    }
 }

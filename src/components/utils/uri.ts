@@ -73,8 +73,8 @@ export function contentUrl(uri: string, handle?: string) {
     return "/c/" + did + "/" + collectionToShortCollection(collection) + "/" + rkey
 }
 
-export function topicUrl(title: string, index?: number, s?: WikiEditorState) {
-    return "/tema?i=" + encodeURIComponent(title) + (index != undefined ? "&v=" + index : "") + (s ? "&s=" + s : "")
+export function topicUrl(title: string, version?: {did: string, rkey: string}, s?: WikiEditorState) {
+    return "/tema?i=" + encodeURIComponent(title) + (version != undefined ? "&did=" + version.did + "&rkey=" + version.rkey : "") + (s ? "&s=" + s : "")
 }
 
 export function urlFromRecord(record: { uri: string, collection: string, author: { did: string, handle?: string } }) {

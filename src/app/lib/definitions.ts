@@ -62,7 +62,58 @@ export type TopicProps = {
     categories: {
         categoryId: string
     }[]
-    versions: TopicVersionProps[]
+    currentVersion: {
+        uri: string
+        content: {
+            text: string
+            format?: string
+            record: {
+                cid: string
+                author: {
+                    did: string
+                    handle: string
+                    displayName?: string
+                    avatar?: string
+                }
+                createdAt: Date
+            }
+        }
+    }
+}
+
+
+export type TopicHistoryProps = {
+    id: string
+    versions: {
+        uri: string
+        collection: string
+        author: {
+            did: string
+            handle: string
+            displayName: string
+            avatar: string
+        }
+        content: {
+            hasText: boolean
+            topicVersion: {
+                charsAdded: number
+                charsDeleted: number
+                accCharsAdded: number
+                contribution: string
+                message: string
+                diff: string
+                title: string
+                categories: string
+                synonyms: string
+            }
+        }
+        createdAt: Date
+    }[]
+}
+
+
+export type TopicVersionAuthorsProps = {
+    text: string
 }
 
 

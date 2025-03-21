@@ -46,7 +46,7 @@ export type ReplyToContent = {
     uri?: string
     cid?: string
     collection: string
-    author: SmallUserProps
+    author?: SmallUserProps
     content?: {
         text?: string
         format?: string
@@ -195,11 +195,6 @@ export default function CommentPlugin({
 
     const onAddComment = () => {
         editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
-    }
-
-
-    const submitAddComment = () => {
-        setShowCommentInput(false)
     }
 
 

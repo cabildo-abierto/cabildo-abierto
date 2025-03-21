@@ -4,7 +4,7 @@ import { EditorState } from "lexical";
 import { CustomLink as Link } from '../ui-utils/custom-link';
 import React, { useEffect, useState } from "react";
 import { useUser } from "../../hooks/user";
-import {TopicProps, TopicVersionProps} from "../../app/lib/definitions";
+import {TopicProps} from "../../app/lib/definitions";
 import { getAllText } from "./diff";
 import InfoPanel from "../ui-utils/info-panel";
 import { NotEnoughPermissionsWarning } from "./permissions-warning";
@@ -37,7 +37,7 @@ const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: strin
 }
 
 
-function charsDiffFromStateAndCurrentVersion(editorState: EditorState, currentVersion: TopicVersionProps) {
+function charsDiffFromStateAndCurrentVersion(editorState: EditorState, currentVersion: {}) {
     // TO DO
     return {charsAdded: 0}
 }
@@ -47,7 +47,7 @@ export const SaveEditPopup = ({
     editorState, currentVersion, onClose, onSave, entity
 }: {
     editorState: EditorState,
-    currentVersion: TopicVersionProps
+    currentVersion: {}
     onClose: () => void
     onSave: (v: boolean, editMsg: string) => Promise<{error?: string}>,
     entity: TopicProps
@@ -92,7 +92,7 @@ export const SaveEditPopup = ({
         <>
             <div className="fixed inset-0 z-10 flex justify-center items-center px-1">
                 
-                <div className="bg-[var(--background)] rounded border p-4 z-10 text-center max-w-lg w-full">
+                <div className="bg-[var(--background)] rounded border py-4 px-12 z-10 text-center max-w-lg w-full">
                     <h2 className="py-4 text-lg">Confirmar cambios</h2>
                     {diff !== "too big" && diff != undefined && <div className="mb-8">
                         <ChangesCounterWithText charsAdded={diff.charsAdded} charsDeleted={diff.charsDeleted}/>

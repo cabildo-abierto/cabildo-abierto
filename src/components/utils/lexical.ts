@@ -71,16 +71,6 @@ export function emptyOutput(editorState: EditorState | undefined) {
     return isEmpty;
 }
 
-export function isKeyInText(key: string, text: string) {
-    const escapedKey = key.replace(/[.*+?^${}()|[\]\\/[\\]/g, '\\$&');
-
-    const regex = new RegExp(`\\b${escapedKey}\\b`, 'i');
-
-    if (regex.test(text)) {
-        return true
-    }
-}
-
 function findMentionsInNode(node: any): { id: string }[] {
     let references: { id: string }[] = []
     if (node.type === "custom-beautifulMention") {
@@ -97,25 +87,6 @@ function findMentionsInNode(node: any): { id: string }[] {
     return references
 }
 
-export function findMentionsFromUsers(text: string, users: SmallUserProps[]) {
-
-    if (text.length == 0 || text == "Este artículo está vacío!") {
-        return []
-    }
-    let json = null
-    try {
-        json = JSON.parse(text)
-    } catch {
-        console.error("failed parsing", text)
-    }
-    if (!json) return null
-
-    let references: { id: string }[] = findMentionsInNode(json.root)
-
-    references = references.filter(({id}) => (users.some((e) => (e.did == id))))
-
-    return references
-}
 
 function validQuotePointer(indexes: number[], node: any) {
     if (indexes.length == 0) {

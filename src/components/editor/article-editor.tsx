@@ -61,7 +61,6 @@ type PostEditorProps = {
     isFast?: boolean
     initialData?: string
     initialTitle?: string
-    contentId?: string
     isPublished?: boolean
 }
 
@@ -102,7 +101,6 @@ const PostEditor = ({
     isFast=false,
     initialData,
     initialTitle="",
-    contentId,
     isPublished=false
 }: PostEditorProps) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
