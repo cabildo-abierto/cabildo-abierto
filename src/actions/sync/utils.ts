@@ -13,7 +13,8 @@ export function validRecord(r: SyncRecordProps){
         "ar.com.cabildoabierto.quotePost",
         "ar.com.cabildoabierto.dataset",
         "ar.com.cabildoabierto.dataBlock",
-        "ar.com.cabildoabierto.visualization"
+        "ar.com.cabildoabierto.visualization",
+        "ar.com.cabildoabierto.profile"
     ].includes(r.collection)){
         return false
     }
