@@ -21,6 +21,7 @@ export const CategoriesEditor = ({topic, onClose}: {
         await updateCategoriesInTopic({topicId: topic.id, categories})
         await mutate("/api/topics-by-categories/popular")
         await mutate("/api/topic/" + topic.id)
+        await mutate("/api/topic-history/" + topic.id)
         onClose()
         return {}
     }

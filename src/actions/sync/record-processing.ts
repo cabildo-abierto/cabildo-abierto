@@ -3,6 +3,7 @@ import {db} from "../../db";
 import {getAllText} from "../../components/topic/diff";
 import {decompress} from "../../components/utils/compression";
 import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
+import {setTopicCategories} from "../topic/utils";
 
 
 export function processRecord(r: SyncRecordProps) {
@@ -140,7 +141,10 @@ export function processContent(r: SyncRecordProps){
     let blob = undefined
     if(r.record.text){
         if(r.record.text.ref){
-            const blobCid: string = r.record.text.ref.$link
+            let blobCid: string = r.record.text.ref.toString()
+            if(blobCid == "[object Object]"){
+                blobCid = r.record.text.ref.$link
+            }
             const blobDid = r.did
 
             blob = {
@@ -199,8 +203,7 @@ export function processPost(r: SyncRecordProps){
         uri: r.uri,
         replyToId: r.record.reply ? r.record.reply.parent.uri as string : null,
         rootId: r.record.reply && r.record.reply.root ? r.record.reply.root.uri : null,
-        quote: r.record.quote ? r.record.quote : null,
-        //embeddedRecords: embeddedRecords.map
+        quote: r.record.quote ? r.record.quote : null
     }
 
     updates.push(db.post.upsert({
@@ -233,8 +236,8 @@ export function processArticle(r: SyncRecordProps){
     return updates
 }
 
-export function processTopic(r: SyncRecordProps){
-    const updates: any[] = processContent(r)
+export function processTopic(r: SyncRecordProps) {
+    let updates: any[] = processContent(r)
 
     const record = r.record as {
         id: string
@@ -245,15 +248,25 @@ export function processTopic(r: SyncRecordProps){
         format?: string
     }
 
+    const isNewCurrentVersion = r.record.text != null
+
     const topic = {
-        id: record.id
+        id: record.id,
+        synonyms: isNewCurrentVersion && record.synonyms ? JSON.parse(record.synonyms) : undefined
     }
 
     updates.push(db.topic.upsert({
         create: topic,
         update: topic,
-        where: topic
+        where: {id: record.id}
     }))
+
+    if(isNewCurrentVersion && record.categories){
+        updates = [
+            ...updates,
+            ...setTopicCategories(record.id, JSON.parse(record.categories))
+        ]
+    }
 
     const topicVersion = {
         uri: r.uri,
@@ -271,6 +284,19 @@ export function processTopic(r: SyncRecordProps){
             uri: r.uri
         }
     }))
+
+    if(isNewCurrentVersion){
+        updates.push(
+            db.topic.update({
+                data: {
+                    currentVersionId: r.uri
+                },
+                where: {
+                    id: record.id
+                }
+            })
+        )
+    }
 
     return updates
 }

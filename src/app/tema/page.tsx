@@ -12,11 +12,10 @@ export async function generateMetadata({searchParams}: {searchParams: Params}){
 
 const Page = async ({searchParams}: {
     searchParams: Params}) => {
-    const {i, v} = await searchParams
+    const {i} = await searchParams
 
     return <TopicPage
         topicId={i}
-        paramsVersion={v}
     />
 }
 

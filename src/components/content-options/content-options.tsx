@@ -6,6 +6,7 @@ import {useUser} from "../../hooks/user";
 import {deleteRecords} from "../../actions/admin";
 import {ShareContentButton} from "./share-content-button";
 import {editVisualizationUrl, getBlueskyUrl} from "../utils/uri";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 
 const collection2displayText = {
@@ -41,6 +42,7 @@ export const ContentOptions = ({onClose, record, onDelete}: {
         {user.did == record.author.did && <StateButton
             handleClick={async () => {await onClickDelete(); onClose(); return {}}}
             color={"inherit"}
+            startIcon={<DeleteOutlineIcon/>}
             text1={"Borrar " + collection2displayText[record.collection]}
             disableElevation={true}
             fullWidth={true}

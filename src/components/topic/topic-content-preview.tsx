@@ -1,11 +1,9 @@
-import {TopicVersionProps} from "../../app/lib/definitions";
+import {TopicProps} from "../../app/lib/definitions";
 import {wikiEditorSettings} from "../editor/wiki-editor";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import dynamic from "next/dynamic";
-import {topicVersionPropsToReplyToContent} from "./topic-content";
+import {topicCurrentVersionToReplyToContent} from "./topic-content";
 import {IconButton} from "@mui/material";
-import Link from "next/link";
-import {CustomLink} from "../ui-utils/custom-link";
 import {BasicButton} from "../ui-utils/basic-button";
 import {useRouter} from "next/navigation";
 import {topicUrl} from "../utils/uri";
@@ -13,22 +11,21 @@ const MyLexicalEditor = dynamic( () => import( '../editor/lexical-editor' ), { s
 
 
 export const TopicContentPreview = ({
-    topicId,
-    topicVersion,
+    topic,
     onMaximize
 }: {
     onMaximize: () => void
-    topicId: string
-    topicVersion: TopicVersionProps
+    topic: TopicProps
 }) => {
     const router = useRouter()
 
-    if(!topicVersion.content.text){
+    if(!topic.currentVersion.content.text){
         return <div className={"my-4"}>
             <BasicButton
             size={"large"}
-            onClick={() => {router.push(topicUrl(topicId, undefined, "editing"))}}
+            onClick={() => {router.push(topicUrl(topic.id, undefined, "editing"))}}
             fullWidth={true}
+            color={"inherit"}
         >
             No hay nada escrito sobre este tema. Escribí una primera versión.
             </BasicButton>
@@ -50,9 +47,9 @@ export const TopicContentPreview = ({
             <MyLexicalEditor
                 settings={wikiEditorSettings(
                     true,
-                    topicVersionPropsToReplyToContent(topicVersion, topicId),
-                    topicVersion.content.text,
-                    topicVersion.content.format,
+                    topicCurrentVersionToReplyToContent(topic),
+                    topic.currentVersion.content.text,
+                    topic.currentVersion.content.format,
                     false,
                     false
                 )}

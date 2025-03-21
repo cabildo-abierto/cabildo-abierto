@@ -4,18 +4,40 @@ import { smoothScrollTo } from "../editor/plugins/TableOfContentsPlugin";
 import { ReplyToContent } from "../editor/plugins/CommentPlugin";
 import { getCurrentContentVersion } from "./utils";
 import { TopicContentPreview } from "./topic-content-preview";
-import { TopicContentExpandedView } from "./topic-content-expanded-view";
+import {
+    SmallTopicVersionProps,
+    TopicContentExpandedView,
+    TopicContentExpandedViewWithVersion
+} from "./topic-content-expanded-view";
 import { WikiEditorState } from "./topic-content-expanded-view-header";
+import {useSearchParams} from "next/navigation";
 
 export const articleButtonClassname = "article-btn sm:min-w-24 sm:text-[15px] text-sm px-1 lg:px-2 py-1"
 
 
-export function topicVersionPropsToReplyToContent(topicVersion: TopicVersionProps, topicId: string): ReplyToContent {
+export function topicCurrentVersionToReplyToContent(topic: TopicProps): ReplyToContent {
+    return {
+        uri: topic.currentVersion.uri,
+        cid: topic.currentVersion.content.record.cid,
+        collection: "ar.com.cabildoabierto.topic",
+        author: topic.currentVersion.content.record.author,
+        content: {
+            ...topic.currentVersion.content,
+            topicVersion: {
+                topic: {
+                    id: topic.id
+                }
+            }
+        }
+    }
+}
+
+
+export function topicVersionPropsToReplyToContent(topicVersion: SmallTopicVersionProps, topicId: string): ReplyToContent {
     return {
         uri: topicVersion.uri,
-        cid: topicVersion.cid,
+        cid: topicVersion.content.record.cid,
         collection: "ar.com.cabildoabierto.topic",
-        author: topicVersion.author,
         content: {
             ...topicVersion.content,
             topicVersion: {
@@ -30,19 +52,19 @@ export function topicVersionPropsToReplyToContent(topicVersion: TopicVersionProp
 
 export const TopicContent = ({
     topic,
-    version,
-    quoteReplies, pinnedReplies, setPinnedReplies,
+    pinnedReplies,
+    setPinnedReplies,
     wikiEditorState,
     setWikiEditorState,
 }: {
     topic: TopicProps
-    version: number
-    quoteReplies: FastPostProps[]
     pinnedReplies: string[]
     setPinnedReplies: (v: string[]) => void
     wikiEditorState: WikiEditorState
     setWikiEditorState: (v: WikiEditorState) => void
 }) => {
+    const params = useSearchParams()
+
     useEffect(() => {
         const hash = window.location.hash
         if (hash) {
@@ -62,21 +84,35 @@ export const TopicContent = ({
 
 
     if(wikiEditorState == "minimized") {
-        const currentContentVersion = getCurrentContentVersion(topic)
         return <TopicContentPreview
-            topicId={topic.id}
-            topicVersion={topic.versions[currentContentVersion]}
+            topic={topic}
             onMaximize={() => {setWikiEditorState("normal")}}
         />
     } else {
-        return <TopicContentExpandedView
-            topic={topic}
-            version={version}
-            quoteReplies={quoteReplies}
-            pinnedReplies={pinnedReplies}
-            setPinnedReplies={setPinnedReplies}
-            wikiEditorState={wikiEditorState}
-            setWikiEditorState={setWikiEditorState}
-        />
+        if(params.get("did") && params.get("rkey")){
+            return <TopicContentExpandedView
+                topic={topic}
+                pinnedReplies={pinnedReplies}
+                setPinnedReplies={setPinnedReplies}
+                wikiEditorState={wikiEditorState}
+                setWikiEditorState={setWikiEditorState}
+            />
+        } else {
+            return <TopicContentExpandedViewWithVersion
+                topic={topic}
+                pinnedReplies={pinnedReplies}
+                setPinnedReplies={setPinnedReplies}
+                wikiEditorState={wikiEditorState}
+                setWikiEditorState={setWikiEditorState}
+                topicVersion={{
+                    uri: topic.currentVersion.uri,
+                    content: {
+                        text: topic.currentVersion.content.text,
+                        format: topic.currentVersion.content.format,
+                        record: topic.currentVersion.content.record
+                    }
+                }}
+            />
+        }
     }
 }

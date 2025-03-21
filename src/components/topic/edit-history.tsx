@@ -1,7 +1,7 @@
 import { DateSince } from "../ui-utils/date"
 import { CustomLink as Link } from '../ui-utils/custom-link';
-import {TopicProps} from "../../app/lib/definitions"
-import { useRouter } from "next/navigation"
+import {TopicHistoryProps, TopicProps} from "../../app/lib/definitions"
+import {useRouter, useSearchParams} from "next/navigation"
 import {ReactNode, useState} from "react"
 import StateButton from "../ui-utils/state-button"
 import { useUser } from "../../hooks/user"
@@ -10,112 +10,122 @@ import { AcceptButtonPanel } from "../ui-utils/accept-button-panel"
 import { toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
 import { BaseFullscreenPopup } from "../ui-utils/base-fullscreen-popup"
-import { AuthorshipClaimIcon } from "../icons/authorship-claim-icon";
-import { NoAuthorshipClaimIcon } from "../icons/no-authorship-claim-icon";
-import { ConfirmEditIcon } from "../icons/confirm-edit-icon";
-import { RejectEditIcon } from "../icons/reject-edit-icon";
 import { Authorship } from "../feed/content-top-row-author";
 import { NeedAccountPopup } from "../auth/need-account-popup";
 import {ProfilePic} from "../feed/profile-pic";
 import {LikeCounter} from "../reactions/like-counter";
 import {ContentOptionsButton} from "../content-options/content-options-button";
 import {TopicCategories} from "./topic-categories";
-import {onDeleteTopicVersion} from "../../actions/topic/current-version";
+import {deleteTopicVersion} from "../../actions/topic/current-version";
 import {RejectVersionModal} from "./reject-version-modal";
-import {getCurrentVersion, getTopicMonetizedChars} from "./utils";
-import {topicUrl} from "../utils/uri";
+import {getTopicMonetizedChars} from "./utils";
+import {getUri, splitUri, topicUrl} from "../utils/uri";
+import {useTopicHistory} from "../../hooks/contents";
+import LoadingSpinner from "../ui-utils/loading-spinner";
+import {ErrorPage} from "../ui-utils/error-page";
+import {TopicSynonyms} from "./topic-synonyms";
+import StarIcon from '@mui/icons-material/Star';
+import CheckIcon from "@mui/icons-material/Check";
+import ClearIcon from "@mui/icons-material/Clear";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import MoneyOffIcon from "@mui/icons-material/MoneyOff";
+import {acceptEdit, cancelAcceptEdit, cancelRejectEdit} from "../../actions/topic/votes";
 
 
-const EditDetails = ({topic, index}: {topic: TopicProps, index: number}) => {
+const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistoryProps, index: number}) => {
 
-    const topicVersion = topic.versions[index]
+    const topicVersion = topicHistory.versions[index]
 
     const v = topicVersion.content.topicVersion
 
     let editType: ReactNode
     if(index == 0){
         editType = "Creación del tema"
-    } else if(topicVersion.content.text == null){
+    } else if(!topicVersion.content.hasText){
         if(v.title){
             editType = "Nuevo nombre:" + v.title
 
         } else if(v.categories){
-            editType = <div className={"flex space-x-1"}>
-                <div>Categorías: </div>
-                <TopicCategories categories={JSON.parse(v.categories)}/>
+            editType = <div className={"flex space-x-2"}>
+                <div>Categorías </div>
+                <TopicCategories categories={JSON.parse(v.categories)} containerClassName={"text-base"}/>
             </div>
 
         } else if(v.synonyms){
-            editType = <div className={"flex space-x-1"}>
-                <div>Sinónimos: </div>
-                <TopicCategories categories={JSON.parse(v.synonyms)}/>
+            editType = <div className={"flex space-x-2"}>
+                <div>Sinónimos </div>
+                <TopicSynonyms
+                    synonyms={JSON.parse(v.synonyms)}
+                    containerClassName={"text-base"}
+                />
             </div>
         } else {
             editType = "Sin cambios"
         }
     } else {
-        editType = <ChangesCounter charsAdded={v.charsAdded} charsDeleted={v.charsDeleted}/>
+        editType = <div className={"flex space-x-2"}>
+            <div>
+                Edición
+            </div>
+            <ChangesCounter charsAdded={v.charsAdded} charsDeleted={v.charsDeleted}/>
+        </div>
     }
 
-    return <div className={"text-[var(--text-light)]"}>{editType}</div>
+    return <div className={""}>{editType}</div>
 }
 
 
-const ConfirmEditButtons = ({topic, version}: {topic: TopicProps, version: number}) => {
+const ConfirmEditButtons = ({topicId, versionUri}: {
+    topicId: string,
+    versionUri: string
+}) => {
     const [openRejectModal, setOpenRejectModal] = useState<boolean>(false)
+    const {mutate} = useSWRConfig()
 
-    /*async function confirm(){
-        setPending(true)
-        if(editPermission){
-            const {error} = await confirmChanges(entity.id, contentId, user.id)
-            if(error) return {error}
-            mutate("/api/entity/"+entity.id)
-            mutate("/api/content/"+contentId)
-            setPending(false)
-            return {}
-        } else {
-            setShowingNoPermissions(true)
-            setPending(false)
-            return {}
-        }
+    async function onAcceptEdit(){
+        const {error} = await acceptEdit(topicId, versionUri)
+        if(error) return {error}
+        mutate("/api/topic/"+topicId)
+        mutate("/api/topic-history/"+topicId)
+        return {}
     }
 
-    async function reject(){
-        setPending(true)
-        if(editPermission){
-            const {error} = await rejectChanges(entity.id, contentId, user.id)
-            if(error) return {error}
-            mutate("/api/entity/"+entity.id)
-            mutate("/api/content/"+contentId)
-            setPending(false)
-            return {}
-        } else {
-            setShowingNoPermissions(true)
-            setPending(false)
-            return {}
-        }
-    }*/
+    async function onCancelAcceptEdit(){
+        const {error} = await cancelAcceptEdit(topicId, versionUri)
+        if(error) return {error}
+        mutate("/api/topic/"+topicId)
+        mutate("/api/topic-history/"+topicId)
+        return {}
+    }
+
+    async function onCancelRejectEdit(){
+        const {error} = await cancelRejectEdit(topicId, versionUri)
+        if(error) return {error}
+        mutate("/api/topic/"+topicId)
+        mutate("/api/topic-history/"+topicId)
+        return {}
+    }
 
     return <div className="flex space-x-2" onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
         <LikeCounter
-            icon1={<ConfirmEditIcon/>}
-            icon2={<ConfirmEditIcon/>}
-            onLike={async () => {return {error: "Sin implementar"}}}
-            onDislike={async () => {return {error: "Sin implementar"}}}
+            icon1={<CheckIcon fontSize={"inherit"}/>}
+            icon2={<CheckIcon fontSize={"inherit"}/>}
+            onLike={onAcceptEdit}
+            onDislike={onCancelAcceptEdit}
             initialCount={0}
         />
         <LikeCounter
-            icon1={<RejectEditIcon/>}
-            icon2={<RejectEditIcon/>}
+            icon1={<ClearIcon fontSize={"inherit"}/>}
+            icon2={<ClearIcon fontSize={"inherit"}/>}
             onLike={async () => {setOpenRejectModal(true); return {}}}
-            onDislike={async () => {return {error: "Sin implementar"}}}
+            onDislike={onCancelRejectEdit}
             initialCount={0}
         />
         <RejectVersionModal
             onClose={() => {setOpenRejectModal(false)}}
             open={openRejectModal}
-            topic={topic}
-            version={version}
+            topicId={topicId}
+            versionUri={versionUri}
         />
     </div>
 }
@@ -126,8 +136,8 @@ const AssignAuthorshipButtons = ({topic, version}: {
 }) => {
     return <div className="flex space-x-2">
         <LikeCounter
-            icon1={<AuthorshipClaimIcon/>}
-            icon2={<AuthorshipClaimIcon/>}
+            icon1={<AttachMoneyIcon fontSize={"inherit"}/>}
+            icon2={<AttachMoneyIcon fontSize={"inherit"}/>}
             onLike={async () => {
                 return {error: "Sin implementar"}
             }}
@@ -137,8 +147,8 @@ const AssignAuthorshipButtons = ({topic, version}: {
             initialCount={0}
         />
         <LikeCounter
-            icon1={<NoAuthorshipClaimIcon/>}
-            icon2={<NoAuthorshipClaimIcon/>}
+            icon1={<MoneyOffIcon fontSize={"inherit"}/>}
+            icon2={<MoneyOffIcon fontSize={"inherit"}/>}
             onLike={async () => {
                 return {error: "Sin implementar"}
             }}
@@ -158,11 +168,11 @@ const EditMessage = ({msg}: { msg?: string }) => {
 }
 
 
-const MonetizationPortion = ({entity, index}: { entity: TopicProps, index: number }) => {
+const MonetizationPortion = ({topicHistory, index}: { topicHistory: TopicHistoryProps, index: number }) => {
 
-    const charsAdded = entity.versions[index].content.topicVersion.charsAdded
+    const charsAdded = topicHistory.versions[index].content.topicVersion.charsAdded
 
-    let monetizedCharsAdded = getTopicMonetizedChars(entity, entity.versions.length - 1)
+    let monetizedCharsAdded = getTopicMonetizedChars(topicHistory, topicHistory.versions.length - 1)
 
     return <span title="Porcentaje sobre las contribuciones monetizadas">
         {toPercentage(charsAdded, monetizedCharsAdded)}%
@@ -170,96 +180,88 @@ const MonetizationPortion = ({entity, index}: { entity: TopicProps, index: numbe
 }
 
 
-const EditElement = ({topic, index, viewing}: {
+const EditElement = ({topic, topicHistory, index, viewing}: {
     topic: TopicProps,
+    topicHistory: TopicHistoryProps
     index: number,
-    viewing?: number
+    viewing: boolean
 }) => {
     const [showingRemoveAuthorshipPanel, setShowingRemoveAuthorshipPanel] = useState(false)
     const router = useRouter()
     const {mutate} = useSWRConfig()
 
-    const selected = viewing == index
-
     const isRejected = false
 
-    const topicVersion = topic.versions[index]
+    const topicVersion = topicHistory.versions[index]
+    const v = topicVersion.content.topicVersion
+    const isCurrent = topic.currentVersion.uri == topicVersion.uri
 
-    let className = "w-full px-2 py-2 cursor-pointer flex items-center rounded " + (selected ? "border-2 border-[var(--accent-dark)]" : "border")
+    const canHaveAuthorship = !v.synonyms && !v.title && !v.categories && index > 0
 
-    className = className + (isRejected ? " bg-red-200 hover:bg-red-300" : " hover:bg-[var(--background-dark)]")
+    let className = "w-full py-1 px-4 flex items-center border-b " + (viewing ? "bg-[var(--background-dark)]" : "")
 
-    return <div className="flex items-center w-full pb-1">
+    className = className + (isRejected ? " bg-red-200 hover:bg-red-300" : " ")
+
+    className = className + (canHaveAuthorship ? " cursor-pointer hover:bg-[var(--background-dark)]" : "")
+
+    return <div className="flex items-center w-full">
         {showingRemoveAuthorshipPanel && <RemoveAuthorshipPanel
-            entity={topic}
+            topicHistory={topicHistory}
             version={index}
             onRemove={async () => {return {}}}
             onClose={() => {setShowingRemoveAuthorshipPanel(false)}}
         />}
-        <div 
+        <div
             className={className}
-            onClick={() => {router.push(topicUrl(topic.id, index, "normal"))}}
+            onClick={() => {router.push(topicUrl(topic.id, splitUri(topicHistory.versions[index].uri), "normal"))}}
         >
             <div className={"flex flex-col w-full"}>
                 <div className={"flex justify-between items-center w-full"}>
-                    <div className="text-sm flex space-x-1">
-                        <ProfilePic
-                            className={"w-5 h-5 rounded-full"}
-                            user={topicVersion.author}
-                        />
-                        <Authorship
-                            content={topicVersion}
-                            onlyAuthor={true}
-                        />
+                    <div className="flex items-baseline space-x-1">
+                        {isCurrent && <div title="Último contenido aceptado" className={"flex items-baseline"}>
+                            <StarIcon color="primary" fontSize={"inherit"}/>
+                        </div>}
+                        <EditDetails topicHistory={topicHistory} index={index}/>
+                        {topicVersion.content.topicVersion.message &&
+                            <div className={"text-[var(--text-light)] pl-2 flex items-baseline"}>
+                                <EditMessage
+                                    msg={topicVersion.content.topicVersion.message}
+                                />
+                            </div>
+                        }
                     </div>
                     <div className="text-xs space-x-2 flex items-center">
-                        <div>
+                        <div className={"text-[var(--text-light)]"}>
                             <DateSince date={topicVersion.createdAt}/>
                         </div>
                         <ContentOptionsButton
                             record={{...topicVersion}}
                             onDelete={async () => {
-                                await onDeleteTopicVersion(topic, index)
-                                mutate("/api/topic/"+topic.id)
+                                await deleteTopicVersion(topic, topicHistory, index)
+                                mutate("/api/topic/" + topic.id)
+                                mutate("/api/topic-history/" + topic.id)
                                 mutate("/api/topics-by-categories/popular")
                             }}
                         />
                     </div>
                 </div>
-                <div className={"flex justify-between w-full"}>
+                <div className={"flex justify-between w-full space-y-1"}>
                     <div className="flex flex-col w-full mt-2">
-                        <div className="text-sm">
-                            <EditDetails topic={topic} index={index}/>
+                        <div className="text-xs flex space-x-1 text-[var(--text-light)]">
+                            <ProfilePic
+                                className={"w-4 h-4 rounded-full"}
+                                user={topicVersion.author}
+                            />
+                            <Authorship
+                                content={topicVersion}
+                                onlyAuthor={true}
+                            />
                         </div>
-                        <div className="text-[var(--text-light)]">
-                            {topic.versions[index].content.topicVersion.message &&
-                                <EditMessage
-                                    msg={topic.versions[index].content.topicVersion.message}
-                                />
-                            }
-                        </div>
-                        {topic.versions[index].content.topicVersion.diff != undefined && <div className={"flex items-center space-x-1"}>
-                            <div>
-                                <ChangesCounter
-                                    charsAdded={topic.versions[index].content.topicVersion.charsAdded}
-                                    charsDeleted={topic.versions[index].content.topicVersion.charsDeleted}
-                                />
-                            </div>
-                            {index > 0 &&
-                                <div className="text-[var(--text-light)] text-xs hover:underline" onClick={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    router.push(topicUrl(topic.id, index, "changes"))
-                                }}>
-                                    Ver cambios
-                                </div>
-                            }
-                        </div>}
                     </div>
 
-                    <div className="flex flex-col items-center space-y-2">
-                        <ConfirmEditButtons topic={topic} version={index}/>
-                        <AssignAuthorshipButtons topic={topic} version={index}/>
+                    <div className="flex items-center space-x-2">
+                        {canHaveAuthorship && <AssignAuthorshipButtons topic={topic} version={index}/>}
+                        <ConfirmEditButtons topicId={topic.id} versionUri={topicVersion.uri}/>
                     </div>
                 </div>
             </div>
@@ -268,8 +270,8 @@ const EditElement = ({topic, index, viewing}: {
 }
 
 
-export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
-    entity: TopicProps,
+export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}: {
+    topicHistory: TopicHistoryProps,
     onClose: () => void,
     version: number,
     onRemove: () => Promise<{ error?: string }>
@@ -288,7 +290,9 @@ export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
         return {}
     }
 
-    if (user.editorStatus != "Administrator" && user.did != entity.versions[version].author.did) {
+    const topicVersion = topicHistory.versions[version]
+
+    if (user.editorStatus != "Administrator" && user.did != topicVersion.author.did) {
         return <AcceptButtonPanel open={true} onClose={onClose}>
             <div className="">
                 <div>
@@ -308,9 +312,9 @@ export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
                 <div className="px-6 pb-4">
                     <h2 className="py-4 text-lg">Remover autoría de esta versión</h2>
                     <div className="mb-8">
-                        {user.did == entity.versions[version].author.did ? <>Estás por remover la autoría de la
+                        {user.did == topicVersion.author.did ? <>Estás por remover la autoría de la
                             modificación que hiciste.</> : <>Estás por remover la autoría de la modificación de
-                            @{entity.versions[version].author.did}.</>}
+                            @{topicVersion.author.did}.</>}
                     </div>
                     <div className="flex justify-center items-center space-x-4 mt-4">
                         <button
@@ -335,17 +339,33 @@ export const RemoveAuthorshipPanel = ({entity, version, onClose, onRemove}: {
 };
 
 
-export const EditHistory = ({topic, viewing}: { topic: TopicProps, viewing?: number }) => {
-    const currentIndex = getCurrentVersion(topic)
-    
-    const history = <div className="mt-1 hidden lg:block">
-        {topic.versions.map((_, index) => {
-        const versionIndex = topic.versions.length-1-index
+export const EditHistory = ({topic}: { topic: TopicProps }) => {
+    const topicHistory = useTopicHistory(topic.id)
+    const searchParams = useSearchParams()
+
+    if(topicHistory.isLoading){
+        return <div className={"py-4"}>
+            <LoadingSpinner/>
+        </div>
+    }
+
+    if(!topicHistory.topicHistory){
+        return <div className={"py-4"}>
+            <ErrorPage>
+                Ocurrió un error al cargar el historial.
+            </ErrorPage>
+        </div>
+    }
+
+    const history = <div className="hidden lg:block">
+        {topicHistory.topicHistory.versions.map((_, index) => {
+        const versionIndex = topicHistory.topicHistory.versions.length-1-index
         return <div key={index} className="w-full">
             <EditElement
                 topic={topic}
+                topicHistory={topicHistory.topicHistory}
                 index={versionIndex}
-                viewing={viewing}
+                viewing={getUri(searchParams.get("did"), "ar.com.cabildoabierto.topic", searchParams.get("rkey")) == topicHistory.topicHistory.versions[versionIndex].uri}
             />
         </div>
     })}</div>

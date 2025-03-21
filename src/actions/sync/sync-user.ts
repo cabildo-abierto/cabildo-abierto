@@ -115,8 +115,6 @@ export async function syncUser(did: string){
 
 
 export async function processRepo(repo: UserRepo, did: string){
-    console.log("processing repo of", did, "with length", repo.length)
-
     const {reqUpdate, recordsReqUpdate} = await checkUpdateRequired(repo, did)
     if(!reqUpdate){
         console.log("update for", did, "was not required")

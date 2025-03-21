@@ -3,7 +3,7 @@ import { CustomLink as Link } from '../ui-utils/custom-link';
 import { Button } from "@mui/material"
 import { useState } from "react"
 import { BothContributionsProps, ContributionsProps } from "../../app/lib/definitions"
-import {useTopic} from "../../hooks/contents";
+import {useTopic, useTopicHistory} from "../../hooks/contents";
 import {getTopicMonetizedChars} from "./utils";
 
 
@@ -21,7 +21,7 @@ export function toPercentage(chars: number, total: number){
 
 export const ShowContributors = ({topicId}:
     {topicId: string, userId?: string}) => {
-    const {topic, isLoading} = useTopic(topicId)
+    const {topicHistory: topic, isLoading} = useTopicHistory(topicId)
     const [monetized, setMonetized] = useState(false)
 
     if(isLoading) return <></>

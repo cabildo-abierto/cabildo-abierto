@@ -1,32 +1,9 @@
 "use client"
 
-import {TopicProps, TopicVersionProps} from "../../app/lib/definitions";
+import {TopicProps} from "../../app/lib/definitions";
 import {updateSynonymsInTopic} from "../../actions/write/topic";
 import { ListEditor } from "../ui-utils/list-editor";
 import {useSWRConfig} from "swr";
-
-
-export function isAccepted(_: TopicVersionProps){
-    // TO DO
-    return true
-}
-
-
-export function unique<T>(list: T[]): T[]{
-    return Array.from(new Set(list))
-}
-
-
-export function getTopicSynonyms(topics: TopicProps){
-    let synonyms: string[] = []
-    for(let i = 0; i < topics.versions.length; i++){
-        const v = topics.versions[i]
-        if(v.content.topicVersion.synonyms && isAccepted(v)){
-            synonyms = unique(JSON.parse(v.content.topicVersion.synonyms) as string[])
-        }
-    }
-    return synonyms
-}
 
 
 
@@ -34,7 +11,7 @@ export const SynonymsEditor = ({topic, onClose}: {
     topic: TopicProps
     onClose: () => void
 }) => {
-    const currentSynonyms = getTopicSynonyms(topic)
+    const currentSynonyms = topic.synonyms ?? []
     const {mutate} = useSWRConfig()
 
 
@@ -42,6 +19,7 @@ export const SynonymsEditor = ({topic, onClose}: {
         const {error} = await updateSynonymsInTopic({topicId: topic.id, synonyms})
         mutate("/api/topics")
         mutate("/api/topic-feed")
+        mutate("/api/topic-history")
         await mutate("/api/topic/" + topic.id)
         if(!error){
             onClose()

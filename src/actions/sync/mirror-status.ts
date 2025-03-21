@@ -31,7 +31,6 @@ export async function getUserMirrorStatus(did: string){
 export async function getDirtyUsers(){
     return (await unstable_cache(
         async () => {
-            console.log("getting dirty users")
             return await db.user.findMany({
                 select: {
                     did: true

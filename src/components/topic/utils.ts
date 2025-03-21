@@ -1,4 +1,9 @@
-import {BothContributionsProps, TopicProps, TopicVersionProps, UserProps} from "../../app/lib/definitions";
+import {
+    BothContributionsProps,
+    TopicHistoryProps,
+    TopicProps,
+    UserProps
+} from "../../app/lib/definitions";
 
 import {max} from "../utils/arrays";
 
@@ -23,22 +28,15 @@ export function getFullTopicCategories(topic: TopicProps){
 }
 
 
-export function getCurrentContentVersion(topic: {
-    versions: {
-        content?: {text?: string, textBlob?: {cid: string}, numWords?: number}}[]}, version?: number){
+export function getCurrentContentVersion(topic: {versions: {content: {hasText: boolean}}[]}, version?: number){
     if(version == null) version = topic.versions.length-1
     let lastContent = 0
     for(let i = 0; i <= version; i++){
-        if(topic.versions[i].content.text || topic.versions[i].content.textBlob || topic.versions[i].content.numWords != null){
+        if(topic.versions[i].content.hasText){
             lastContent = i
         }
     }
     return lastContent
-}
-
-
-export function currentContent(topic: TopicProps, version: number){
-    return topic.versions[getCurrentContentVersion(topic, version)]
 }
 
 
@@ -47,7 +45,7 @@ export function getTopicLastEditFromVersions(topic: {versions: {content: {record
     return max(dates)
 }
 
-export function isTopicVersionDemonetized(content: TopicVersionProps) {
+export function isTopicVersionDemonetized(topicVersion: {}) {
     return false
 }
 
@@ -81,7 +79,7 @@ export function contributionsToProportionsMap(contributions: BothContributionsPr
     return map
 }
 
-export function getEntityMonetizedContributions(topic: TopicProps, version: number){
+export function getEntityMonetizedContributions(topic: TopicHistoryProps, version: number){
     const authors = new Map()
     for(let i = 0; i <= version; i++){
         if(!isTopicVersionDemonetized(topic.versions[i])){
@@ -97,7 +95,7 @@ export function getEntityMonetizedContributions(topic: TopicProps, version: numb
     return Array.from(authors)
 }
 
-export function getTopicMonetizedChars(topic: TopicProps, version: number) {
+export function getTopicMonetizedChars(topic: TopicHistoryProps, version: number) {
     let monetizedCharsAdded = 0
     for (let i = 0; i <= version; i++) {
         if (!isTopicVersionDemonetized(topic.versions[i])) {
@@ -135,14 +133,10 @@ export const hasEditPermission = (user: UserProps | null, level: string) => {
     return user && permissionToNumber(user.editorStatus) >= permissionToNumber(level)
 }
 
-export function getCurrentVersion(entity: { versions: {}[] }) {
-    /*for(let i = 0; i < entity.versions.length; i++){
-        if(entity.versions[i].cid == entity.currentVersionId){
-            return i
-        }
-    }*/
-    // TO DO: Implementar
-    return entity.versions.length - 1
+export function getCurrentVersion(topic: TopicHistoryProps) {
+    for(let i = topic.versions.length-1; i >= 0; i--){
+        return i
+    }
 }
 
 export function currentCategories(topic: {

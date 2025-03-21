@@ -1,14 +1,5 @@
-
-
-
-export function arraySum(a: any[]) {
-    return a.reduce((acc, curr) => acc + curr, 0)
-}
-
-
-export function isPrefix(p: any[], q: any[]){
-    if(p.length > q.length) return false
-    return areArraysEqual(p, q.slice(0, p.length))
+export function unique<T>(list: T[]): T[]{
+    return Array.from(new Set(list))
 }
 
 export function areArraysEqual(a: any[], b: any[]) {
@@ -19,8 +10,6 @@ export function areArraysEqual(a: any[], b: any[]) {
     return true
 }
 
-export const range = (n) => Array.from({length: n}, (_, i) => i);
-
 export function max<T>(arr: T[]): T | undefined {
     if (arr.length === 0) return undefined;
     return arr.reduce((max, current) => (current > max ? current : max));
@@ -30,18 +19,6 @@ export function makeMatrix(n: number, m: number, v: number){
     let M = new Array<Array<number>>(n)
     for(let i = 0; i < n; i++) M[i] = new Array<number>(m).fill(v)
     return M
-}
-
-export function countInArray<T>(a: T[], f: (v: T) => boolean): number{
-    let c = 0
-    a.forEach((v) => {
-        if(f(v)) c ++
-    })
-    return c
-}
-
-export function inRange(i: number, n: number) {
-    return i >= 0 && i < n
 }
 
 export function newestFirst(a: { createdAt?: Date, reason?: { createdAt: Date } }, b: {
