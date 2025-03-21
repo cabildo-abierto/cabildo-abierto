@@ -1,8 +1,6 @@
 import {Prisma} from ".prisma/client";
 import SortOrder = Prisma.SortOrder;
 import {FeedEngagementProps} from "../app/lib/definitions";
-import {feedCAQuery} from "./feed/feedCA";
-import {getDidFromUri} from "../components/utils/uri";
 
 
 export const revalidateEverythingTime = undefined
