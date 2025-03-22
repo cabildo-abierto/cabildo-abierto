@@ -1,7 +1,7 @@
 import './globals.scss'
 
 import {Metadata} from "next";
-import {mainDescription} from "../components/utils/metadata";
+import {mainDescription, mainMetadata, openGraphMetadata, twitterMetadata} from "../components/utils/metadata";
 
 import localFont from 'next/font/local'
 import {ReactNode} from "react";
@@ -30,13 +30,7 @@ const fonts = [
 ]
 
 
-export const metadata: Metadata = {
-    title: 'Cabildo Abierto',
-    description: mainDescription,
-    icons: {
-        icon: "/logo.svg"
-    },
-}
+export const metadata: Metadata = mainMetadata
 
 
 export default function RootLayout({
