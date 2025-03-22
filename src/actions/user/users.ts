@@ -39,11 +39,12 @@ export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: str
                 handle: true,
                 displayName: true,
                 avatar: true,
-                description: true
+                description: true,
+                inCA: true,
+                CAProfileUri: true
             },
             where: {
-                inCA: true,
-                hasAccess: true
+                inCA: true
             }
         })
         return {users: users}

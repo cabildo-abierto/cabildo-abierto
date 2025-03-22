@@ -8,6 +8,7 @@ import {VisualizationSpecWithMetadata} from "../../components/visualizations/edi
 import {revalidateTag} from "next/cache";
 import {revalidateUri} from "../revalidate";
 import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
+import {revalidateTags} from "../admin";
 
 
 export async function createVisualizationATProto(spec: VisualizationSpec, preview: FormData): Promise<{error?: string, ref?: ATProtoStrongRef, record?: any}> {
@@ -60,10 +61,9 @@ export async function createVisualization(spec: VisualizationSpecWithMetadata, p
     if(error){
         return {error}
     }
-    const updates = await processCreateRecordFromRefAndRecord(ref, record)
+    const {updates, tags} = await processCreateRecordFromRefAndRecord(ref, record)
     await db.$transaction(updates)
+    await revalidateTags(Array.from(tags))
 
-    revalidateTag("visualizations")
-    await revalidateUri(spec.metadata.editorConfig.datasetUri)
     return {}
 }

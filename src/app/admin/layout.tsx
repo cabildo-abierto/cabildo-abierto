@@ -3,7 +3,7 @@ import { AdminLayout } from "../../components/admin/admin-layout";
 
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
-  return <MainLayout>
+  return <MainLayout maxWidthCenter={"800px"}>
       <AdminLayout>
         {children}
       </AdminLayout>

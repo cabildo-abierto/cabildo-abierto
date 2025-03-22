@@ -4,11 +4,12 @@ import {getSessionAgent} from "../auth";
 import {RichText} from "@atproto/api";
 import {revalidateTag} from "next/cache";
 import {db} from "../../db";
-import {getDidFromUri, getRkeyFromUri, splitUri} from "../../components/utils/uri";
-import {processCreateRecord, processCreateRecordFromRefAndRecord} from "../sync/process-event";
+import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
+import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
 import {revalidateUri} from "../revalidate";
 import {getVisualizationTitle} from "../../components/visualizations/editor/spec";
 import {logTimes} from "../utils";
+import {revalidateTags} from "../admin";
 
 
 export async function createFastPostATProto(
@@ -112,9 +113,9 @@ export async function createFastPost(
     const {ref, record} = await createFastPostATProto({text, reply, quote, visualization})
 
     if (ref) {
-        const updates = await processCreateRecordFromRefAndRecord(ref, record)
+        const {updates, tags} = await processCreateRecordFromRefAndRecord(ref, record)
         await db.$transaction(updates)
-        await revalidateUri(ref.uri)
+        await revalidateTags(Array.from(tags))
     }
 
     if(reply){
