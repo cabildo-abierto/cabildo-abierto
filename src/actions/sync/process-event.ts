@@ -18,60 +18,56 @@ import {
     processTopic,
     processVisualization
 } from "./record-processing";
-import {splitUri, threadApiUrl} from "../../components/utils/uri";
-import {revalidateTags} from "../admin";
+import {getUri, splitUri, threadApiUrl} from "../../components/utils/uri";
+import {deleteRecords, revalidateTags} from "../admin";
 
 
 export async function processEvent(e: JetstreamEvent){
-    const status = await getUserMirrorStatus(e.did)
 
     if(e.kind == "commit"){
         const c = e as CommitEvent
 
         if(c.commit.collection == "ar.com.cabildoabierto.profile" && c.commit.rkey == "self"){
             await newUser(e.did, true)
-            await syncUser(e.did)
+            const status = await getUserMirrorStatus(e.did)
+
+            if(status == "Dirty" || status == "Failed"){
+                await syncUser(e.did)
+            }
             return
         }
     }
 
-    if(status == "Dirty") {
-        await syncUser(e.did)
-        await processEvent(e)
-    } else if(status == "Sync"){
-        if(e.kind == "commit"){
-            const c = e as CommitEvent
+    if(e.kind == "commit") {
+        const c = e as CommitEvent
 
-            const uri = c.commit.uri ? c.commit.uri : "at://" + c.did + "/" + c.commit.collection + "/" + c.commit.rkey
-            if(c.commit.operation == "create"){
-                const record = {
-                    did: c.did,
-                    uri: uri,
-                    cid: c.commit.cid,
-                    collection: c.commit.collection,
-                    rkey: c.commit.rkey,
-                    record: c.commit.record
-                }
-
-                if(!validRecord(record)){
-                    console.log("Invalid record")
-                    console.log(record)
-                    return
-                }
-
-                const {updates, tags} = await processCreateRecord(record)
-                await db.$transaction(updates)
-                await revalidateTags(Array.from(tags))
-            } else if(c.commit.operation == "delete"){
-                await processDelete({
-                    did: c.did,
-                    collection: c.commit.collection,
-                    rkey: c.commit.rkey
-                })
+        const uri = c.commit.uri ? c.commit.uri : "at://" + c.did + "/" + c.commit.collection + "/" + c.commit.rkey
+        if (c.commit.operation == "create") {
+            const record = {
+                did: c.did,
+                uri: uri,
+                cid: c.commit.cid,
+                collection: c.commit.collection,
+                rkey: c.commit.rkey,
+                record: c.commit.record
             }
+
+            if (!validRecord(record)) {
+                console.log("Invalid record")
+                console.log(record)
+                return
+            }
+
+            const {updates, tags} = await processCreateRecord(record)
+            await db.$transaction(updates)
+            await revalidateTags(Array.from(tags))
+        } else if (c.commit.operation == "delete") {
+            await processDelete({
+                did: c.did,
+                collection: c.commit.collection,
+                rkey: c.commit.rkey
+            })
         }
-    } else if(status == "InProcess"){
-        console.error(e.did, "got an event while updating")
     }
 }
 
@@ -190,30 +186,5 @@ export async function processATProfile(r: SyncRecordProps){
 
 
 export async function processDelete(r: {did: string, collection: string, rkey: string}){
-    if(r.collection == "app.bsky.feed.like" || r.collection == "app.bsky.feed.repost"){
-        const deleteLikes = db.like.deleteMany({
-            where: {
-                record: {
-                    rkey: r.rkey,
-                    authorId: r.did
-                }
-            }
-        })
-        const deleteReposts = db.repost.deleteMany({
-            where: {
-                record: {
-                    rkey: r.rkey,
-                    authorId: r.did
-                }
-            }
-        })
-        const deleteRecords = db.record.deleteMany({
-            where: {
-                rkey: r.rkey,
-                authorId: r.did
-            }
-        })
-
-        await db.$transaction([deleteLikes, deleteReposts, deleteRecords])
-    }
+    await deleteRecords({uris: [getUri(r.did, r.collection, r.rkey)], atproto: false})
 }

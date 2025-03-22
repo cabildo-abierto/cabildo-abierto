@@ -296,6 +296,8 @@ export async function deleteRecords({uris, author, atproto}: { uris?: string[], 
         }
     }
 
+    console.log("deleting records", uris)
+
     if (!uris) {
         uris = (await db.record.findMany({
             select: {
@@ -418,6 +420,7 @@ export async function deleteRecords({uris, author, atproto}: { uris?: string[], 
             tags.add("datasets")
         }
     }
+
     await revalidateTags(Array.from(tags))
 }
 

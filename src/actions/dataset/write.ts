@@ -5,6 +5,7 @@ import {db} from "../../db";
 import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
 import {revalidateUri} from "../revalidate";
 import {revalidateTags} from "../admin";
+import {union} from "../../components/utils/arrays";
 
 
 export async function createDatasetATProto(title: string, columns: string[], description: string, formData: FormData, format: string){
@@ -88,7 +89,7 @@ export async function createDataset(title: string, columns: string[], descriptio
     ]
 
     await db.$transaction(updates)
-    await revalidateTags(Array.from(r1.tags.union(r2.tags)))
+    await revalidateTags(Array.from(union(r1.tags, r2.tags)))
 
     return {}
 }

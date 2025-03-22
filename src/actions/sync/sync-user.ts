@@ -10,6 +10,7 @@ import {validRecord} from "./utils";
 import {getDirtyUsers, setMirrorStatus} from "./mirror-status";
 import {getCollectionFromUri} from "../../components/utils/uri";
 import {getUsers} from "../user/users";
+import {union} from "../../components/utils/arrays";
 
 
 export async function restartSync(){
@@ -62,6 +63,7 @@ export async function syncUser(did: string, collectionsMustUpdate: string[] = []
         }),
         getServiceEndpointForDid(did)
     ])
+    revalidateTag("mirrorStatus:"+did)
 
     const presentRecords = new Set()
     let foundRepo = false
@@ -118,7 +120,6 @@ export async function syncUser(did: string, collectionsMustUpdate: string[] = []
     await deleteRecords({uris, atproto: false})
 
     await setMirrorStatus(did, "Sync")
-    console.log("Marking", did, "as sync")
 }
 
 
@@ -135,7 +136,8 @@ export async function processRepo(repo: UserRepo, did: string, collectionsMustUp
         if(recordsReqUpdate == null || recordsReqUpdate.has(repo[i].uri)){
             const r = await processCreateRecord(repo[i])
             updates = [...updates, ...r.updates]
-            tags = tags.union(r.tags)
+            console.log(tags, r.tags)
+            union(tags, r.tags)
         }
     }
     const t1 = Date.now()

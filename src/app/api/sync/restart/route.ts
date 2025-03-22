@@ -1,8 +1,9 @@
 import {NextRequest, NextResponse} from "next/server";
 import {restartSync, syncAllUsers} from "../../../../actions/sync/sync-user";
+import {getUsers} from "../../../../actions/user/users";
 
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
 
     const authHeader = req.headers.get("Authentication")
 
@@ -11,7 +12,10 @@ export async function POST(req: NextRequest) {
     }
 
     await restartSync()
+
+    const {users} = await getUsers()
+
     syncAllUsers()
 
-    return NextResponse.json({ status: 200 });
+    return NextResponse.json({ status: 200, users: users.map(u => u.did) });
 }

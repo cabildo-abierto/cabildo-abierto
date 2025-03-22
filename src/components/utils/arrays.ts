@@ -1,3 +1,10 @@
+export function union<T>(s: Set<T>, t: Set<T>): Set<T> {
+    const m = new Set<T>(s)
+    t.forEach(x => {m.add(x)})
+    return m
+}
+
+
 export function unique<T>(list: T[]): T[]{
     return Array.from(new Set(list))
 }
