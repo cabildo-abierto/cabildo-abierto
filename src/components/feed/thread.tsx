@@ -62,6 +62,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
                         post={r}
                         parentIsMainPost={true}
                         onClickQuote={onClickQuote}
+                        onDeleteFeedElem={async () => {}}
                     />
                 </div>
             })}

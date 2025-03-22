@@ -18,14 +18,14 @@ type EngagementIconsProps = {
     record: RecordProps
     className?: string
     small?: boolean
-    onDelete?: () => void
+    onDelete?: () => Promise<void>
 }
 
 export const EngagementIcons = ({
     counters,
     record,
     className="space-x-16",
-    onDelete=() => {}
+    onDelete=async () => {}
 }: EngagementIconsProps) => {
 
     const onDislike = async () => {
