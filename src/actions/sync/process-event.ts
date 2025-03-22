@@ -18,7 +18,8 @@ import {
     processTopic,
     processVisualization
 } from "./record-processing";
-import {splitUri} from "../../components/utils/uri";
+import {splitUri, threadApiUrl} from "../../components/utils/uri";
+import {revalidateTags} from "../admin";
 
 
 export async function processEvent(e: JetstreamEvent){
@@ -58,8 +59,9 @@ export async function processEvent(e: JetstreamEvent){
                     return
                 }
 
-                const updates = await processCreateRecord(record)
+                const {updates, tags} = await processCreateRecord(record)
                 await db.$transaction(updates)
+                await revalidateTags(Array.from(tags))
             } else if(c.commit.operation == "delete"){
                 await processDelete({
                     did: c.did,
@@ -83,40 +85,55 @@ export async function processCreateRecordFromRefAndRecord(ref: ATProtoStrongRef,
 }
 
 
-export async function processCreateRecord(r: SyncRecordProps): Promise<any[]> {
+export async function processCreateRecord(r: SyncRecordProps): Promise<{updates: any[], tags: Set<string>}> {
     console.log("processing create record", r)
     try {
         let updates: any[] = processRecord(r)
+        let tags: Set<string> = new Set()
         if(r.collection == "app.bsky.graph.follow"){
             updates = [...updates, ...processFollow(r)]
+            tags.add("user:"+r.record.subject)
         } else if(r.collection == "app.bsky.feed.like"){
             updates = [...updates, ...processLike(r)]
+            tags.add("feedCA")
+            tags.add(threadApiUrl(r.record.subject.uri))
         } else if(r.collection == "app.bsky.feed.repost"){
             updates = [...updates, ...processRepost(r)]
+            tags.add("feedCA")
+            tags.add(threadApiUrl(r.record.subject.uri))
         } else if(r.collection == "app.bsky.feed.post") {
             updates = [...updates, ...processPost(r)]
+            tags.add("feedCA")
         } else if(r.collection == "ar.com.cabildoabierto.quotePost"){
             updates = [...updates, ...processPost(r)]
+            tags.add("feedCA")
         } else if(r.collection == "ar.com.cabildoabierto.article"){
             updates = [...updates, ...processArticle(r)]
+            tags.add("feedCA")
         } else if(r.collection == "ar.com.cabildoabierto.topic") {
             updates = [...updates, ...processTopic(r)]
+            tags.add("topics") // solo hace falta si es un nuevo tema o cambian las categorías
         } else if(r.collection == "ar.com.cabildoabierto.profile"){
-            updates = [...updates, ...processATProfile(r)]
+            updates = [...updates, ...processCAProfile(r)]
+            tags.add("user:"+r.did)
         } else if(r.collection == "app.bsky.actor.profile"){
-            updates = [...updates, ...await processProfile(r)]
+            updates = [...updates, ...await processATProfile(r)]
+            tags.add("user:"+r.did)
         } else if(r.collection == "ar.com.cabildoabierto.dataset"){
             updates = [...updates, ...processDataset(r)]
+            tags.add("datasets")
         } else if(r.collection == "ar.com.cabildoabierto.dataBlock"){
             updates = [...updates, ...processDataBlock(r)]
+            tags.add("datasets")
         } else if(r.collection == "ar.com.cabildoabierto.visualization"){
             updates = [...updates, ...processVisualization(r)]
+            tags.add("visualization")
         }
-        return updates
+        return {updates, tags}
     } catch (err) {
         console.log("Error processing record", r)
         console.log(err)
-        return []
+        return {updates: [], tags: new Set<string>()}
     }
 }
 
@@ -130,12 +147,12 @@ function bannerUrl(did: string, cid: string) {
 }
 
 
-function processATProfile(r: SyncRecordProps){
-    console.log("Updating ATProfile")
+function processCAProfile(r: SyncRecordProps){
     return [
         db.user.update({
             data: {
-                CAProfileUri: r.uri
+                CAProfileUri: r.uri,
+                inCA: true
             },
             where: {
                 did: r.did
@@ -145,7 +162,7 @@ function processATProfile(r: SyncRecordProps){
 }
 
 
-export async function processProfile(r: SyncRecordProps){
+export async function processATProfile(r: SyncRecordProps){
     const avatarCid = r.record.avatar ? r.record.avatar.ref.$link : undefined
     const avatar = avatarCid ? avatarUrl(r.did, avatarCid) : undefined
     const bannerCid = r.record.banner ? r.record.banner.ref.$link : undefined
@@ -154,19 +171,20 @@ export async function processProfile(r: SyncRecordProps){
     const didres = new DidResolver({})
     const data = await didres.resolveAtprotoData(r.did)
 
-    return [db.user.update({
-        data: {
-            description: r.record.description ? r.record.description : undefined,
-            displayName: r.record.displayName ? r.record.displayName : undefined,
-            avatar,
-            banner,
-            handle: data.handle,
-            inCA: true
-        },
-        where: {
-            did: r.did
-        }
-    })]
+    return [
+        db.user.update({
+            data: {
+                description: r.record.description ? r.record.description : undefined,
+                displayName: r.record.displayName ? r.record.displayName : undefined,
+                avatar,
+                banner,
+                handle: data.handle
+            },
+            where: {
+                did: r.did
+            }
+        })
+    ]
 }
 
 

@@ -21,12 +21,8 @@ export function validRecord(r: SyncRecordProps){
         return false
     }
 
-    if(r.collection == "ar.com.cabildoabierto.profile"){
-        return true
-    }
-
-    if(r.collection == "app.bsky.actor.profile"){
-        return true
+    if(r.collection == "ar.com.cabildoabierto.profile" || r.collection == "app.bsky.actor.profile"){
+        return r.rkey == "self"
     }
 
     if(!r.record.createdAt) {

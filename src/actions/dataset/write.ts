@@ -4,6 +4,7 @@ import {ATProtoStrongRef} from "../../app/lib/definitions";
 import {db} from "../../db";
 import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
 import {revalidateUri} from "../revalidate";
+import {revalidateTags} from "../admin";
 
 
 export async function createDatasetATProto(title: string, columns: string[], description: string, formData: FormData, format: string){
@@ -78,13 +79,16 @@ export async function createDataset(title: string, columns: string[], descriptio
     if(error) return {error}
 
 
-    let updates = await processCreateRecordFromRefAndRecord(datasetRef, datasetRecord)
+    const r1 = await processCreateRecordFromRefAndRecord(datasetRef, datasetRecord)
+    const r2 = await processCreateRecordFromRefAndRecord(blockRef, blockRecord)
 
-    updates = [...updates, ...await processCreateRecordFromRefAndRecord(blockRef, blockRecord)]
+    const updates = [
+        ...r1.updates,
+        ...r2.updates
+    ]
 
     await db.$transaction(updates)
-
-    await revalidateUri(datasetRef.uri)
+    await revalidateTags(Array.from(r1.tags.union(r2.tags)))
 
     return {}
 }

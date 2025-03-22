@@ -1,6 +1,6 @@
 "use server"
 import {db} from "../../db";
-import {UserRepo} from "../../app/lib/definitions";
+import {SmallUserProps, UserRepo} from "../../app/lib/definitions";
 import {processCreateRecord} from "./process-event";
 import {getServiceEndpointForDid} from "../blob";
 import {deleteRecords} from "../admin";
@@ -9,6 +9,7 @@ import {revalidateTag} from "next/cache";
 import {validRecord} from "./utils";
 import {getDirtyUsers, setMirrorStatus} from "./mirror-status";
 import {getCollectionFromUri} from "../../components/utils/uri";
+import {getUsers} from "../user/users";
 
 
 export async function restartSync(){
@@ -21,11 +22,16 @@ export async function restartSync(){
 }
 
 
-export async function syncAllUsers() {
-    const users = await getDirtyUsers()
+export async function syncAllUsers(mustUpdateCollections?: string[], retries: number = 100, ignoreStatus: boolean = false) {
+    let users: string[]
+    if(ignoreStatus){
+        users = (await getUsers()).users.map(u => u.did)
+    } else {
+        users = await getDirtyUsers()
+    }
 
     for(let i = 0; i < users.length; i++) {
-        await syncUser(users[i])
+        await syncUser(users[i], mustUpdateCollections, retries)
     }
 }
 
@@ -124,9 +130,12 @@ export async function processRepo(repo: UserRepo, did: string, collectionsMustUp
     }
 
     let updates: any[] = []
+    let tags = new Set<string>()
     for(let i = 0; i < repo.length; i++){
         if(recordsReqUpdate == null || recordsReqUpdate.has(repo[i].uri)){
-            updates = [...updates, ...await processCreateRecord(repo[i])]
+            const r = await processCreateRecord(repo[i])
+            updates = [...updates, ...r.updates]
+            tags = tags.union(r.tags)
         }
     }
     const t1 = Date.now()

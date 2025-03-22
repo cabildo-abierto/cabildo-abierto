@@ -4,6 +4,7 @@ import {revalidateTag} from "next/cache";
 import {db} from "../../db";
 import {logTimes} from "../utils";
 import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
+import {revalidateTags} from "../admin";
 
 export async function createTopic(id: string){
     // TO DO: Chequear que no exista el tema.
@@ -84,11 +85,9 @@ export async function createTopicVersion({
     })
     const t2 = Date.now()
     if(ref){
-        console.log("created topic version", ref)
-        console.log("record", record)
-        const updates = await processCreateRecordFromRefAndRecord(ref, record)
+        const {updates, tags} = await processCreateRecordFromRefAndRecord(ref, record)
         await db.$transaction(updates)
-        revalidateTag("topic:"+record.id)
+        await revalidateTags(Array.from(tags))
     }
     const t3 = Date.now()
     logTimes("create topic version " + id, [t1, t2, t3])

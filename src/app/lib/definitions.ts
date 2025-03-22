@@ -153,6 +153,8 @@ export type SmallUserProps = {
     handle: string
     displayName?: string
     avatar?: string
+    inCA?: boolean
+    CAProfileUri?: string
 }
 
 
@@ -192,6 +194,7 @@ export type UserProps = {
     hasAccess: boolean
     email?: string
     inCA: boolean
+    CAProfileUri?: string
     createdAt: Date
     editorStatus: EditorStatus
     platformAdmin: boolean
