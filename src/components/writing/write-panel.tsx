@@ -1,317 +1,18 @@
 import React, { useState } from "react"
-import StateButton from "../ui-utils/state-button"
 import { useUser } from "../../hooks/user"
-import { ExtraChars } from "./extra-chars"
-import { FastPostImagesEditor } from "./fast-post-images-editor"
 import { BaseFullscreenPopup } from "../ui-utils/base-fullscreen-popup"
 import { CloseButton } from "../ui-utils/close-button"
-import { AddImageButton } from "./add-image-button"
 import { NeedAccountPopup } from "../auth/need-account-popup"
-import {ProfilePic} from "../feed/profile-pic";
-import {
-    FastPostProps,
-    FastPostReplyProps,
-} from "../../app/lib/definitions";
-import {AddVisualizationButton} from "./add-visualization-button";
-import {InsertVisualizationModal} from "./insert-visualization-modal";
 import SelectionComponent from "../search/search-selection-component";
-import {Button, TextareaAutosize, TextField} from "@mui/material";
+import {Button} from "@mui/material";
 import {useRouter} from "next/navigation";
-import TickButton from "../ui-utils/tick-button";
-import {useSWRConfig} from "swr";
-import {createTopic} from "../../actions/write/topic";
 import {
-    emptyChar,
-    ErrorMsg
+    emptyChar
 } from "../utils/utils";
-import Link from "next/link";
-import {BasicButton} from "../ui-utils/basic-button";
 import {ReplyToContent} from "../editor/plugins/CommentPlugin";
 import {ContentQuote, QuotedContent} from "../feed/content-quote";
-import {VisualizationNodeComp} from "../editor/nodes/visualization-node-comp";
-import { createFastPost } from "../../actions/write/post"
-import {RectTracker} from "../ui-utils/rect-tracker";
-import {threadApiUrl, topicUrl} from "../utils/uri";
-import {validEntityName} from "../topic/utils";
-import {InsertImageModal} from "./insert-image-modal";
-import {InsertImagePayload} from "../editor/plugins/ImagesPlugin";
-
-
-function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
-
-    if(replyTo.collection == "app.bsky.feed.post"){
-        const post = replyTo as FastPostProps
-        const parent = {
-            uri: post.uri,
-            cid: post.cid
-        }
-        if(post.content.post.root){
-            return {
-                parent,
-                root: {
-                    uri: post.content.post.root.uri,
-                    cid: post.content.post.root.cid
-                }
-            }
-        } else {
-            return {
-                parent,
-                root: {...parent}
-            }
-        }
-    } else if(["ar.com.cabildoabierto.article", "ar.com.cabildoabierto.visualization", "ar.com.cabildoabierto.dataset", "ar.com.cabildoabierto.topic"].includes(replyTo.collection)){
-        const parent = {
-            uri: replyTo.uri,
-            cid: replyTo.cid
-        }
-        return {
-            parent,
-            root: parent
-        }
-    } else {
-        throw Error("Not implemented.")
-    }
-}
-
-
-const CreateTopic = ({onClose}: {onClose: () => void}) => {
-    const user = useUser();
-    const [topicName, setTopicName] = useState("");
-    const [errorOnCreate, setErrorOnCreate] = useState(null)
-    const router = useRouter();
-    const [goToArticle, setGoToArticle] = useState(true);
-    const [selected, setSelected] = useState("none")
-
-    async function onSubmit(){
-        setErrorOnCreate(null)
-        const { error } = await createTopic(topicName);
-
-        if(error){
-            if(error == "exists"){
-                setErrorOnCreate("Ya existe ese tema.")
-                return {}
-            } else {
-                return {error}
-            }
-        }
-        if (goToArticle) router.push(topicUrl(topicName))
-        onClose()
-        return {}
-    }
-
-    if(selected == "none"){
-        return <div className={"flex justify-center items-center min-h-64"}>
-            <div className={"flex space-x-2 h-full"}>
-                <Link href={"/temas"}>
-                    <BasicButton
-                        sx={{width: "128px"}}
-                    >
-                        Editar un tema
-                    </BasicButton>
-                </Link>
-                <BasicButton
-                    onClick={() => {setSelected("new")}}
-                    sx={{width: "128px"}}
-                >
-                    Nuevo tema
-                </BasicButton>
-            </div>
-        </div>
-    }
-
-    return <div className="space-y-3 px-6 mb-2 flex flex-col items-center">
-        <h3>Elegí un título para el nuevo tema</h3>
-        <div>
-            <TextField
-                value={topicName}
-                label={"Título"}
-                size={"small"}
-                onChange={(e) => setTopicName(e.target.value)}
-                placeholder="Título"
-                inputProps={{
-                    autoComplete: 'off'
-                }}
-            />
-        </div>
-        {errorOnCreate && <ErrorMsg text={errorOnCreate}/>}
-        {topicName.includes("/") && <ErrorMsg text="El nombre no puede incluír el caracter '/'."/>}
-
-        <div className="flex justify-center">
-            <div className="text-[var(--text-light)] text-xs sm:text-sm text-center max-w-64">
-                Antes de crear un nuevo tema mirá que no exista un tema similar.
-            </div>
-        </div>
-
-        <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0"
-                    text={<span className="text-sm">Ir a la página del tema después de crearlo</span>}/>
-
-        <div className="py-4 space-x-2 text-[var(--text-light)]">
-            <BasicButton
-                onClick={() => {setSelected("none")}}
-                variant={"text"}
-                color={"inherit"}
-            >
-                Volver
-            </BasicButton>
-            <StateButton
-                handleClick={onSubmit}
-                disabled={!user.user || !validEntityName(topicName)}
-                textClassName="font-bold px-4"
-                text1="Crear tema"
-            />
-        </div>
-
-    </div>
-}
-
-
-const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
-    replyTo: ReplyToContent,
-    quote?: string
-    onClose: () => void
-    onSubmit?: () => Promise<void>
-}) => {
-    const {user} = useUser()
-    const [editorKey, setEditorKey] = useState(0)
-    const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
-    const [images, setImages] = useState([])
-    const [text, setText] = useState("")
-    const [visualization, setVisualization] = useState(null)
-    const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
-    const [imageModalOpen, setImageModalOpen] = useState(false)
-    const [rect, setRect] = useState<DOMRect>()
-    const {mutate} = useSWRConfig()
-
-    const charLimit = 300
-
-    const valid = (text.length > 0 && text.length <= 300) || images.length > 0 || visualization != null
-
-    let disabled = !valid
-
-    const isReply = replyTo != undefined
-
-    let placeholder: string
-    if(!isReply){
-        placeholder = "¿Qué está pasando?"
-    } else if(replyTo.collection == "app.bsky.feed.post" || replyTo.collection == "ar.com.cabildoabierto.quotePost"){
-        placeholder = "Escribí una respuesta"
-    } else if(replyTo.collection == "ar.com.cabildoabierto.article"){
-        placeholder = "Respondé al artículo"
-    } else if(replyTo.collection == "ar.com.cabildoabierto.topic"){
-        placeholder = "Respondé al tema"
-    } else if(replyTo.collection == "ar.com.cabildoabierto.visualization"){
-        placeholder = "Respondé a la visualización"
-    } else if(replyTo.collection == "ar.com.cabildoabierto.dataset"){
-        placeholder = "Respondé al conjunto de datos"
-    }
-
-    const sendButton = <StateButton
-        text1={isReply ? "Responder" : "Publicar"}
-        handleClick={handleSubmit}
-        disabled={disabled}
-        textClassName="font-semibold"
-        size="medium"
-        disableElevation={true}
-    />
-
-    const editorComp = <>
-        <TextareaAutosize
-            minRows={2}
-            value={text}
-            onChange={(e) => {setText(e.target.value)}}
-            placeholder={placeholder}
-            className={"outline-none resize-none bg-transparent w-full"}
-        />
-        {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
-    </>
-
-    async function handleSubmit() {
-        setErrorOnCreatePost(false)
-        if (user) {
-            const reply = replyTo ? replyFromParentElement(replyTo) : undefined
-            const {error} = await createFastPost({text, reply, visualization, quote})
-            console.log("ReplyTo", replyTo)
-            if(reply){
-                await onSubmit()
-                await mutate(threadApiUrl(reply.parent.uri))
-                await mutate(threadApiUrl(reply.root.uri))
-                console.log("replyTo", replyTo.uri, replyTo.content.topicVersion)
-                if(replyTo.content.topicVersion){
-                    console.log("mutating topic and topic feed", replyTo.content.topicVersion.topic.id)
-                    const id = replyTo.content.topicVersion.topic.id
-                    await mutate("/api/topic/"+encodeURIComponent(id))
-                    await mutate("/api/topic-feed/"+encodeURIComponent(id))
-                }
-            }
-
-            if (!error) {
-                setEditorKey(editorKey + 1);
-                onClose()
-            } else {
-                setErrorOnCreatePost(true)
-            }
-        }
-        setErrorOnCreatePost(true)
-        return {}
-    }
-
-    return <RectTracker setRect={setRect}>
-        <div className={"min-h-64 flex flex-col justify-between"}>
-        <div className="px-2 w-full mb-2">
-            <div className="flex space-x-2 w-full mt-2">
-                <ProfilePic user={user} className={"w-8 h-8 rounded-full"}/>
-                <div className="sm:text-lg w-full" key={editorKey}>
-                    {editorComp}
-                </div>
-            </div>
-            {visualization && <VisualizationNodeComp
-                visualization={visualization}
-                showEngagement={false}
-                width={rect.width-20}
-            />}
-            <FastPostImagesEditor images={images} setImages={setImages}/>
-            {errorOnCreatePost && <div className={"px-2 text-sm text-[var(--text-light)]"}>
-                Ocurrió un error al intentar crear el post.
-            </div>}
-        </div>
-        <div>
-            <hr className=""/>
-            <div className="flex justify-between mt-2 px-2">
-                <div className={"flex space-x-2"}>
-                    <AddImageButton
-                        disabled={images.length == 4 || visualization != null}
-                        setModalOpen={setImageModalOpen}
-                    />
-                    <AddVisualizationButton
-                        disabled={images.length > 0}
-                        setModalOpen={setVisualizationModalOpen}
-                    />
-                </div>
-                {sendButton}
-            </div>
-        </div>
-        <InsertVisualizationModal
-            open={visualizationModalOpen}
-            onClose={() => {setVisualizationModalOpen(false)}}
-            setVisualization={setVisualization}
-        />
-        <InsertImageModal
-            open={imageModalOpen}
-            onClose={() => {setImageModalOpen(false)}}
-            onSubmit={(i: InsertImagePayload) => {setImages([...images, i]); setImageModalOpen(false)}}
-        />
-    </div>
-    </RectTracker>
-}
-
-
-type WritePanelProps = {
-    replyTo?: ReplyToContent
-    open: boolean
-    onClose: () => void
-    quote?: string
-    onSubmit?: () => Promise<void>
-}
+import {CreateTopic} from "./create-topic";
+import {WriteFastPost} from "./write-fast-post";
 
 
 function quotedContentFromReplyTo(replyTo: ReplyToContent): QuotedContent {
@@ -321,9 +22,24 @@ function quotedContentFromReplyTo(replyTo: ReplyToContent): QuotedContent {
     };
 }
 
+
+
+type Props = {
+    replyTo?: ReplyToContent
+    open: boolean
+    onClose: () => void
+    quote?: string
+    onSubmit?: () => Promise<void>
+}
+
+
 export const WritePanel = ({
-       replyTo, open, onClose, quote, onSubmit
-}: WritePanelProps) => {
+    replyTo,
+    open,
+    onClose,
+    quote,
+    onSubmit=async () => {}
+}: Props) => {
     const {user} = useUser();
     const [selected, setSelected] = useState("Post")
     const router = useRouter()

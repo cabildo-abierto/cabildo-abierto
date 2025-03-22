@@ -7,6 +7,7 @@ import {Button} from "@mui/material";
 import {CustomLink} from "../ui-utils/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "../utils/uri";
+import {useSWRConfig} from "swr";
 
 
 export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuote: (cid: string) => void}) => {
@@ -16,6 +17,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
     const minimized = !s || s == "minimized"
     const [selected, setSelected] = useState<string>(minimized ? "Menciones" : "Respuestas al contenido")
     const [mentionsSelected, setMentionsSelected] = useState<string>("Publicaciones")
+    const {mutate} = useSWRConfig()
 
     function optionsNodes(o: string, isSelected: boolean){
         return <div className="text-[var(--text)] w-48 h-10">
@@ -36,6 +38,9 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
         </div>
     }
 
+    async function onDeleteFeedElem() {
+        mutate("/api/topic-feed/"+encodeURIComponent(topicId))
+    }
 
     function optionsNodesMentions(o: string, isSelected: boolean){
         return <div className="text-[var(--text)]">
@@ -73,6 +78,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                         feed={{feed: feed.feed ? feed.feed.mentions : undefined, isLoading: feed.isLoading, error: feed.error}}
                         onClickQuote={onClickQuote}
                         noResultsText={"El tema todavía no fue mencionado."}
+                        onDeleteFeedElem={onDeleteFeedElem}
                     />
                 }
 
@@ -81,6 +87,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                         feed={{feed: feed.feed ? feed.feed.replies : undefined, isLoading: feed.isLoading, error: feed.error}}
                         onClickQuote={onClickQuote}
                         noResultsText={"Este tema todavía no recibió respuestas."}
+                        onDeleteFeedElem={onDeleteFeedElem}
                     />
                 }
 

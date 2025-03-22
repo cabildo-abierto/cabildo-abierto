@@ -7,16 +7,17 @@ import {useState} from "react";
 import {WritePanel} from "../writing/write-panel";
 import {Article} from "../article/article";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
-import {useLayoutConfig} from "../layout/layout-config-context";
 import {VisualizationOnThread} from "../visualizations/visualization-on-thread";
 import {DatasetOnThread} from "../datasets/dataset-on-thread";
 
-import {isPost} from "../utils/uri";
+import {isPost, threadApiUrl} from "../utils/uri";
+import {useSWRConfig} from "swr";
 
 
 export const Thread = ({thread}: {thread: ThreadProps}) => {
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const [pinnedReplies, setPinnedReplies] = useState([])
+    const {mutate} = useSWRConfig()
 
     const replies = thread.replies
 
@@ -73,6 +74,9 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
             replyTo={thread.post}
             open={openReplyPanel}
             onClose={() => {setOpenReplyPanel(false)}}
+            onSubmit={async () => {
+                mutate(threadApiUrl(thread.post.uri))
+            }}
         />
     </div>
 }

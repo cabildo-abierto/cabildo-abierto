@@ -10,10 +10,10 @@ import { ContentOptionsDropdown } from './content-options-dropdown';
 
 export const ContentOptionsButton = ({
     record,
-    onDelete=() => {}
+    onDelete=async () => {}
 }: {
     record?: RecordProps
-    onDelete?: () => void
+    onDelete?: () => Promise<void>
 }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null)
