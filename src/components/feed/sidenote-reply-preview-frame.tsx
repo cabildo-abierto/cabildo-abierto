@@ -24,7 +24,7 @@ type ATProtoPostFrameProps = {
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
-    onDelete?: () => void
+    onDelete?: () => Promise<void>
 }
 
 export const SidenoteReplyPreviewFrame = ({

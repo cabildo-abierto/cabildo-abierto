@@ -80,7 +80,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                 counters={article}
                 record={article}
                 className={"flex justify-between px-4 w-full"}
-                onDelete={() => {
+                onDelete={async () => {
                     mutate(threadApiUrl(article.uri))
                 }}
             />
