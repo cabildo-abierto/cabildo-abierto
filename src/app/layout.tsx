@@ -32,7 +32,10 @@ const fonts = [
 
 export const metadata: Metadata = {
     title: 'Cabildo Abierto',
-    description: mainDescription
+    description: mainDescription,
+    icons: {
+        icon: "/logo.svg"
+    },
 }
 
 

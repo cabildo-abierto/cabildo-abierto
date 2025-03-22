@@ -1,3 +1,3 @@
 
 
-export const mainDescription = "Una plataforma para la discusión pública."
+export const mainDescription = "Una plataforma para la discusión pública argentina."
