@@ -1,6 +1,5 @@
 "use client"
 
-import Image from 'next/image'
 import { DateSince } from '../ui-utils/date'
 import {EngagementProps, ReasonProps, RecordProps} from '../../app/lib/definitions'
 import Link from 'next/link'
@@ -9,7 +8,6 @@ import { ContentTopRowAuthor } from './content-top-row-author'
 import { ReactNode } from 'react'
 import { EngagementIcons } from '../reactions/engagement-icons'
 import {RepostedBy} from "./reposted-by";
-import { useSWRConfig } from 'swr'
 import {ProfilePic} from "./profile-pic";
 import {urlFromRecord, userUrl} from "../utils/uri";
 import {formatIsoDate} from "../utils/dates";
@@ -31,7 +29,13 @@ type FastPostPreviewFrameProps = {
 }
 
 export const FastPostPreviewFrame = ({
-     children, post, borderBelow=true, showingParent=false, showingChildren=false, onDelete}: FastPostPreviewFrameProps) => {
+    children,
+    post,
+    borderBelow=true,
+    showingParent=false,
+    showingChildren=false,
+    onDelete
+}: FastPostPreviewFrameProps) => {
     const router = useRouter()
     const record = post
     const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
@@ -58,11 +62,11 @@ export const FastPostPreviewFrame = ({
             </div>
 
             <div className="py-2 flex w-[519px] flex-col pr-2">
-                <div className="flex items-center gap-x-1">
+                <div className="flex gap-x-1">
                     <span className="truncate">
                         <ContentTopRowAuthor author={record.author} />
                     </span>
-                    <span className="text-[var(--text-light)]">•</span>
+                    <span className="text-[var(--text-light)]">·</span>
                     <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(record.createdAt)}>
                         <DateSince date={record.createdAt} />
                     </span>

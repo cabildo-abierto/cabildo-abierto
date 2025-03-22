@@ -34,8 +34,11 @@ model User {
   email       String?
   description String?
 
-  hasAccess    Boolean      @default(false) // si tiene o no acceso al período de prueba
-  inCA         Boolean      @default(false) // si el usuario está en Cabildo Abierto (si tiene un record ar.com.cabildoabierto.profile)
+  hasAccess    Boolean @default(false) // si tiene o no acceso al período de prueba
+  inCA         Boolean @default(false)
+  CAProfile    Record? @relation("CAProfile", fields: [CAProfileUri], references: [uri])
+  CAProfileUri String? @unique
+
   mirrorStatus MirrorStatus @default(Dirty) // estado del mirror, usado en atproto-sync
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -183,6 +186,8 @@ model Record {
 
   views            View[]
   uniqueViewsCount Int?   @default(0)
+
+  CAProfileOf User? @relation("CAProfile")
 }
 
 model Content {

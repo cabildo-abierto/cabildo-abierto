@@ -58,9 +58,12 @@ export const FastPostPreview = ({
             mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/main")
             mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/replies")
         }
+        mutate("/api/feed/InDiscussion")
+        mutate("/api/feed/Following")
         if(root && root.uri){
             mutate(threadApiUrl(root.uri))
             mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/main")
+            mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/replies")
             mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/replies")
         }
     }
@@ -78,7 +81,7 @@ export const FastPostPreview = ({
     const root = post.content.post.root
     const rootAvailable = root && ((root as FeedContentPropsMaybe).createdAt != undefined || root.notFound) && root.uri != replyTo.uri && !isRepost
 
-    const parentReplyTo = replyToAvailable && isPost(replyTo.collection) ? (replyTo as FastPostProps).content.post.replyTo : undefined
+    const parentReplyTo = replyToAvailable && isPost(replyTo.collection) && (replyTo as FastPostProps).content ? (replyTo as FastPostProps).content.post.replyTo : undefined
 
     const showThreadButton = replyToAvailable && rootAvailable && parentReplyTo && parentReplyTo.uri != root.uri
 

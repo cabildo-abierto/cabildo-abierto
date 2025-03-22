@@ -84,6 +84,7 @@ export async function processCreateRecordFromRefAndRecord(ref: ATProtoStrongRef,
 
 
 export async function processCreateRecord(r: SyncRecordProps): Promise<any[]> {
+    console.log("processing create record", r)
     try {
         let updates: any[] = processRecord(r)
         if(r.collection == "app.bsky.graph.follow"){
@@ -100,6 +101,8 @@ export async function processCreateRecord(r: SyncRecordProps): Promise<any[]> {
             updates = [...updates, ...processArticle(r)]
         } else if(r.collection == "ar.com.cabildoabierto.topic") {
             updates = [...updates, ...processTopic(r)]
+        } else if(r.collection == "ar.com.cabildoabierto.profile"){
+            updates = [...updates, ...processATProfile(r)]
         } else if(r.collection == "app.bsky.actor.profile"){
             updates = [...updates, ...await processProfile(r)]
         } else if(r.collection == "ar.com.cabildoabierto.dataset"){
@@ -124,6 +127,21 @@ function avatarUrl(did: string, cid: string){
 
 function bannerUrl(did: string, cid: string) {
     return "https://cdn.bsky.app/img/banner/plain/"+did+"/"+cid+"@jpeg"
+}
+
+
+function processATProfile(r: SyncRecordProps){
+    console.log("Updating ATProfile")
+    return [
+        db.user.update({
+            data: {
+                CAProfileUri: r.uri
+            },
+            where: {
+                did: r.did
+            }
+        })
+    ]
 }
 
 

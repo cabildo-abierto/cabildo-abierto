@@ -3,7 +3,7 @@
 import { TopicProps } from "../../app/lib/definitions";
 import {updateCategoriesInTopic} from "../../actions/write/topic";
 import {useCategories} from "../../hooks/contents";
-import {ListEditor} from "../ui-utils/list-editor";
+import {ListEditorWithSave} from "../ui-utils/list-editor";
 import {useSWRConfig} from "swr";
 import {getFullTopicCategories} from "./utils";
 
@@ -30,7 +30,7 @@ export const CategoriesEditor = ({topic, onClose}: {
         <h3 className={"mb-6"}>
             Editar categorías
         </h3>
-        <ListEditor
+        <ListEditorWithSave
             initialValue={current}
             options={availableCategories ? availableCategories.map(({category}) => (category)).filter(c => c != "Sin categoría") : undefined}
             onSave={saveCategories}
