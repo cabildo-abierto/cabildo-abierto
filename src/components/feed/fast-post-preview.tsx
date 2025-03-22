@@ -1,6 +1,13 @@
 "use client"
 
-import {FastPostProps, FeedContentPropsMaybe, ReasonProps, RecordProps, SmallUserProps} from '../../app/lib/definitions'
+import {
+    FastPostProps,
+    FeedContentProps,
+    FeedContentPropsMaybe,
+    ReasonProps,
+    RecordProps,
+    SmallUserProps
+} from '../../app/lib/definitions'
 import {FastPostPreviewFrame, ReplyVerticalLine} from './fast-post-preview-frame'
 import {FastPostContent} from "./fast-post-content";
 import {FeedElement} from "./feed-element";
@@ -8,7 +15,7 @@ import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {useUser} from "../../hooks/user";
 import { useSWRConfig } from 'swr';
-import {contentUrl, getDidFromUri, getRkeyFromUri, isPost, threadApiUrl} from "../utils/uri";
+import {contentUrl, getDidFromUri, getRkeyFromUri, isPost, threadApiUrl, topicUrl} from "../utils/uri";
 
 const ShowThreadButton = ({root}: {root: RecordProps}) => {
     const url = contentUrl(root.uri, root.author.handle)
@@ -38,19 +45,21 @@ export type FastPostPreviewProps = {
     onClickQuote?: (cid: string) => void
     showReplyMessage?: boolean
     repostedBy?: {handle: string, displayName?: string}
+    onDeleteFeedElem: () => Promise<void>
 }
 
 export const FastPostPreview = ({
-       post,
-       showingChildren=false,
-       showingParent=false,
-       showReplyMessage=false,
-       onClickQuote
+    post,
+    showingChildren=false,
+    showingParent=false,
+    showReplyMessage=false,
+    onClickQuote,
+    onDeleteFeedElem
 }: FastPostPreviewProps) => {
     const {user} = useUser()
     const {mutate} = useSWRConfig()
 
-    const onDelete = () => {
+    const onDelete = async () => {
         const replyTo = post.content.post.replyTo
         const root = post.content.post.root
         if(replyTo && replyTo.uri){
@@ -66,6 +75,7 @@ export const FastPostPreview = ({
             mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/replies")
             mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/replies")
         }
+        await onDeleteFeedElem()
     }
 
     if(!post.content || !post.content.post){
@@ -89,6 +99,7 @@ export const FastPostPreview = ({
         {rootAvailable && <FeedElement
             elem={root as FeedContentPropsMaybe}
             showingChildren={true}
+            onDeleteFeedElem={onDeleteFeedElem}
         />}
         {showThreadButton && <ShowThreadButton root={root as FeedContentPropsMaybe}/>}
         {replyToAvailable &&
@@ -96,6 +107,7 @@ export const FastPostPreview = ({
                 elem={replyTo as FeedContentPropsMaybe}
                 showingChildren={true}
                 showingParent={rootAvailable}
+                onDeleteFeedElem={onDeleteFeedElem}
                 showReplyMessage={showThreadButton}
             />
         }

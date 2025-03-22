@@ -27,13 +27,13 @@ export const openJsonInNewTab = (json: any) => {
 export const ContentOptions = ({onClose, record, onDelete}: {
     onClose: () => void
     record: RecordProps
-    onDelete?: () => void
+    onDelete?: () => Promise<void>
 }) => {
     const {user} = useUser()
 
     async function onClickDelete() {
         await deleteRecords({uris: [record.uri], atproto: true})
-        onDelete()
+        await onDelete()
     }
 
     const inBluesky = record.collection == "app.bsky.feed.post"

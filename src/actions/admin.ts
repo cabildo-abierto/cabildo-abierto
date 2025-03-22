@@ -405,6 +405,8 @@ export async function deleteRecords({uris, author, atproto}: { uris?: string[], 
         }
         if (c == "app.bsky.feed.post" || c == "ar.com.cabildoabierto.quotePost") {
             tags.add("feedCA")
+            tags.add("thread") // to do: revalidar los threads específicos
+            tags.add("topics") // to do: revalidar los threads específicos
         }
         if (c == "ar.com.cabildoabierto.article") {
             tags.add("feedCA")

@@ -16,9 +16,15 @@ export type FeedProps = {
     feed: LoadingFeed,
     noResultsText?: ReactNode
     onClickQuote?: (cid: string) => void
+    onDeleteFeedElem?: () => Promise<void>
 }
 
-const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna publicación.", onClickQuote}) => {
+const Feed = ({
+    feed,
+    noResultsText="No se encontró ninguna publicación.",
+    onClickQuote,
+    onDeleteFeedElem=async () => {},
+}: FeedProps) => {
     if(feed.isLoading){
         return <div className={"pt-8"}><LoadingSpinner/></div>
     }
@@ -31,6 +37,7 @@ const Feed: React.FC<FeedProps> = ({feed, noResultsText="No se encontró ninguna
             <FeedElement
                 elem={feed.feed[index]}
                 onClickQuote={onClickQuote}
+                onDeleteFeedElem={onDeleteFeedElem}
             />
         </ViewMonitor>
 

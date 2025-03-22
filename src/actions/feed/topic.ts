@@ -1,13 +1,29 @@
 import {FeedContentProps} from "../../app/lib/definitions";
 import {getSessionDid} from "../auth";
 import {db} from "../../db";
-import {enDiscusionQuery, reactionsQuery, recordQuery, threadRepliesQuery} from "../utils";
+import {enDiscusionQuery, reactionsQuery, recordQuery, revalidateEverythingTime, threadRepliesQuery} from "../utils";
 import {addCountersToFeed} from "./utils";
 import {getUserEngagementInFeed} from "./inicio";
+import {unstable_cache} from "next/cache";
 
 
 export async function getTopicFeed(id: string): Promise<{feed?: {mentions: FeedContentProps[], replies: FeedContentProps[], topics: string[]}, error?: string}> {
     const did = await getSessionDid()
+
+    return await unstable_cache(
+        async () => {
+            return await getTopicFeedNoCache(id, did)
+        },
+        ["topic-feed:"+id],
+        {
+            tags: ["topic:"+id, "topics"],
+            revalidate: revalidateEverythingTime
+        }
+    )()
+}
+
+
+export async function getTopicFeedNoCache(id: string, did: string): Promise<{feed?: {mentions: FeedContentProps[], replies: FeedContentProps[], topics: string[]}, error?: string}> {
 
     id = decodeURIComponent(id)
 

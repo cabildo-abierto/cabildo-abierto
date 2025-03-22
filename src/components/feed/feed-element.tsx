@@ -18,13 +18,15 @@ export const FeedElement = ({
     onClickQuote,
     showingChildren=false,
     showingParent=false,
-    showReplyMessage=false
+    showReplyMessage=false,
+    onDeleteFeedElem
 }: {
     elem: FeedContentProps & {blocked?: boolean, notFound?: boolean}
     onClickQuote?: (cid: string) => void
     showingChildren?: boolean
     showingParent?: boolean
     showReplyMessage?: boolean
+    onDeleteFeedElem: () => Promise<void>
 }) => {
     if (elem.blocked) {
         return <div className={"p-2 m-2 border rounded-lg text-[var(--text-light)]"}>
@@ -47,6 +49,7 @@ export const FeedElement = ({
             showingParent={showingParent}
             showReplyMessage={showReplyMessage}
             showingChildren={showingChildren}
+            onDeleteFeedElem={onDeleteFeedElem}
         />
     } else if (elem.collection == "ar.com.cabildoabierto.dataset") {
         return <DatasetPreview
