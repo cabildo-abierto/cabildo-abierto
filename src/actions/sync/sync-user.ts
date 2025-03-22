@@ -8,6 +8,7 @@ import {iterateAtpRepo} from "@atcute/car"
 import {revalidateTag} from "next/cache";
 import {validRecord} from "./utils";
 import {getDirtyUsers, setMirrorStatus} from "./mirror-status";
+import {getCollectionFromUri} from "../../components/utils/uri";
 
 
 export async function restartSync(){
@@ -40,8 +41,9 @@ function parseCar(did: string, buf: ArrayBuffer): UserRepo {
 }
 
 
-export async function syncUser(did: string){
+export async function syncUser(did: string, collectionsMustUpdate: string[] = [], retries: number = 100){
     console.log("Syncing user:", did)
+    console.log("Must update", collectionsMustUpdate)
 
     const [_, doc] = await Promise.all([
         db.user.update({
@@ -68,7 +70,7 @@ export async function syncUser(did: string){
             repo = repo.filter((r) => (validRecord(r)))
             repo.forEach((r) => {presentRecords.add(r.uri)})
 
-            await processRepo(repo, did)
+            await processRepo(repo, did, collectionsMustUpdate, retries)
         }
     }
 
@@ -114,15 +116,11 @@ export async function syncUser(did: string){
 }
 
 
-export async function processRepo(repo: UserRepo, did: string){
-    const {reqUpdate, recordsReqUpdate} = await checkUpdateRequired(repo, did)
+export async function processRepo(repo: UserRepo, did: string, collectionsMustUpdate: string[] = [], retries: number = 100){
+    const {reqUpdate, recordsReqUpdate} = await checkUpdateRequired(repo, did, collectionsMustUpdate)
     if(!reqUpdate){
         console.log("update for", did, "was not required")
         return
-    }
-
-    if(reqUpdate){
-        console.log("algo raro pasó", did, "requiere update")
     }
 
     let updates: any[] = []
@@ -133,7 +131,6 @@ export async function processRepo(repo: UserRepo, did: string){
     }
     const t1 = Date.now()
     const batchSize = 500
-    const retries = 100
     let updateOk = false
     console.log("Total updates", updates.length)
     for(let i = 0; i < updates.length; i += batchSize){
@@ -158,7 +155,7 @@ export async function processRepo(repo: UserRepo, did: string){
 }
 
 
-export async function checkUpdateRequired(repo: UserRepo, did: string){
+export async function checkUpdateRequired(repo: UserRepo, did: string, collectionsMustUpdate: string[] = []){
     const records = await db.record.findMany({
         select: {
             uri: true,
@@ -169,7 +166,6 @@ export async function checkUpdateRequired(repo: UserRepo, did: string){
         }
     })
 
-    const recordsReqUpdate = new Set<string>()
     let reqUpdate = false
 
     const repoCids: Map<string, string> = new Map()
@@ -185,9 +181,10 @@ export async function checkUpdateRequired(repo: UserRepo, did: string){
         }
     }
 
+    const recordsReqUpdate = new Set<string>()
     for(let i = 0; i < repo.length; i++){
-
-        if(!dbCids.has(repo[i].uri) || dbCids.get(repo[i].uri) != repo[i].cid){
+        const c = getCollectionFromUri(repo[i].uri)
+        if(!dbCids.has(repo[i].uri) || dbCids.get(repo[i].uri) != repo[i].cid || collectionsMustUpdate.includes(c)){
             reqUpdate = true
             recordsReqUpdate.add(repo[i].uri)
         }

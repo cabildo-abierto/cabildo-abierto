@@ -404,11 +404,10 @@ export async function deleteRecords({uris, author, atproto}: { uris?: string[], 
         if (c == "ar.com.cabildoabierto.topic") {
         }
         if (c == "app.bsky.feed.post" || c == "ar.com.cabildoabierto.quotePost") {
-
-        }
-        if (c == "app.bsky.feed.post") {
+            tags.add("feedCA")
         }
         if (c == "ar.com.cabildoabierto.article") {
+            tags.add("feedCA")
         }
         if (c == "ar.com.cabildoabierto.visualization") {
             tags.add("visualizations")

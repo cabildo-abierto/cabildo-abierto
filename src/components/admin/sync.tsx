@@ -18,7 +18,6 @@ export const AdminSync = () => {
                 text1={"Dirty users?"}
                 handleClick={async () => {
                     const users = await getDirtyUsers()
-                    console.log("dirty users", users)
                     setDirtyUsers(users)
                     return {}
                 }}

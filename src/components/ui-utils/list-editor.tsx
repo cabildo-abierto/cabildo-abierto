@@ -95,45 +95,68 @@ export const ListEditorItem = ({item, removeItem}: {
 
 
 export const ListEditor = ({
-    initialValue=[],
-    options,
-    onSave,
-    onClose,
-    newItemText
+    newItemText,
+    options=[],
+    items,
+    setItems
 }: {
-    initialValue?: string[]
-    options?: string[]
-    onSave: (values: string[]) => Promise<{error?: string}>
-    onClose: () => void
     newItemText: string
+    options?: string[]
+    items: string[]
+    setItems: (v: string[]) => void
 }) => {
-    const [items, setItems] = useState(initialValue)
 
     function removeItem(i: number) {
         return () => {
-            setItems([...items.slice(0, i), ...items.slice(i+1)])
+            setItems([...items.slice(0, i), ...items.slice(i + 1)])
         }
     }
 
-    return <div className={"px-2"}>
-        <div className={"flex flex-wrap gap-x-2 items-center"}>
-            {items.map((c, i) => {
-                return <div key={i} className={"h-10"}>
-                    <ListEditorItem
-                        item={c}
-                        removeItem={removeItem(i)}
-                    />
-                </div>
-            })}
-            <div className={"h-10"}>
-                <NewItem
-                    addItem={(c: string) => {setItems([...items, c])}}
-                    availableOptions={options}
-                    currentItems={items}
-                    newItemText={newItemText}
+    return <div className={"flex flex-wrap gap-x-2 items-center"}>
+        {items.map((c, i) => {
+            return <div key={i} className={"h-10"}>
+                <ListEditorItem
+                    item={c}
+                    removeItem={removeItem(i)}
                 />
             </div>
+        })}
+        <div className={"h-10"}>
+            <NewItem
+                addItem={(c: string) => {
+                    setItems([...items, c])
+                }}
+                availableOptions={options}
+                currentItems={items}
+                newItemText={newItemText}
+            />
         </div>
+    </div>
+}
+
+
+export const ListEditorWithSave = ({
+   initialValue = [],
+   options,
+   onSave,
+   onClose,
+   newItemText
+}: {
+    initialValue?: string[]
+    options?: string[]
+    onSave: (values: string[]) => Promise<{ error?: string }>
+    onClose: () => void
+    newItemText: string
+}) => {
+    const [items, setItems] = useState<string[]>(initialValue ? initialValue : [])
+
+    return <div className={"px-2"}>
+        <ListEditor
+            options={options}
+            newItemText={newItemText}
+            items={items}
+            setItems={setItems}
+        />
         <div className={"flex justify-end mt-2 space-x-2 text-[var(--text-light)]"}>
             <BasicButton
                 variant={"text"}

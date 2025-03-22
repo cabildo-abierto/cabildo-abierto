@@ -11,7 +11,7 @@ export function processRecord(r: SyncRecordProps) {
         uri: r.uri,
         cid: r.cid,
         rkey: r.rkey,
-        createdAt: new Date(r.record.createdAt),
+        createdAt: r.record.createdAt ? new Date(r.record.createdAt) : undefined,
         authorId: r.did,
         collection: r.collection
     }

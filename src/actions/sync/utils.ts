@@ -1,25 +1,37 @@
 import {SyncRecordProps} from "../../app/lib/definitions";
 import {decompress} from "../../components/utils/compression";
 
+export const collectionsList = [
+    "app.bsky.feed.post",
+    "app.bsky.feed.like",
+    "app.bsky.feed.repost",
+    "app.bsky.graph.follow",
+    "ar.com.cabildoabierto.article",
+    "ar.com.cabildoabierto.topic",
+    "app.bsky.actor.profile",
+    "ar.com.cabildoabierto.quotePost",
+    "ar.com.cabildoabierto.dataset",
+    "ar.com.cabildoabierto.dataBlock",
+    "ar.com.cabildoabierto.visualization",
+    "ar.com.cabildoabierto.profile"
+]
 
 export function validRecord(r: SyncRecordProps){
-    if(!["app.bsky.feed.post",
-        "app.bsky.feed.like",
-        "app.bsky.feed.repost",
-        "app.bsky.graph.follow",
-        "ar.com.cabildoabierto.article",
-        "ar.com.cabildoabierto.topic",
-        "app.bsky.actor.profile",
-        "ar.com.cabildoabierto.quotePost",
-        "ar.com.cabildoabierto.dataset",
-        "ar.com.cabildoabierto.dataBlock",
-        "ar.com.cabildoabierto.visualization",
-        "ar.com.cabildoabierto.profile"
-    ].includes(r.collection)){
+    if(!collectionsList.includes(r.collection)){
         return false
     }
 
-    if(!r.record.createdAt) return false
+    if(r.collection == "ar.com.cabildoabierto.profile"){
+        return true
+    }
+
+    if(r.collection == "app.bsky.actor.profile"){
+        return true
+    }
+
+    if(!r.record.createdAt) {
+        return false
+    }
     if(r.collection == "ar.com.cabildoabierto.quotePost"){
         if(r.record.quote == undefined || r.record.reply == undefined){
             return false

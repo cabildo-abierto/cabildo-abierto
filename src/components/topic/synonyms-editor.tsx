@@ -2,7 +2,7 @@
 
 import {TopicProps} from "../../app/lib/definitions";
 import {updateSynonymsInTopic} from "../../actions/write/topic";
-import { ListEditor } from "../ui-utils/list-editor";
+import { ListEditorWithSave } from "../ui-utils/list-editor";
 import {useSWRConfig} from "swr";
 
 
@@ -31,7 +31,7 @@ export const SynonymsEditor = ({topic, onClose}: {
         <h3 className={"mb-6"}>
             Editar sinónimos
         </h3>
-        <ListEditor
+        <ListEditorWithSave
             initialValue={currentSynonyms}
             onSave={onSave}
             onClose={onClose}
