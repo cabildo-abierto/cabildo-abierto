@@ -52,7 +52,7 @@ export const QuotedPost = ({maybePost}: {maybePost: {post?: FastPostProps, error
 
     const post = maybePost.post
 
-    const url = contentUrl(post.uri, post.author.handle)
+    const url = contentUrl(post.uri)
 
     return <div
         className={"rounded-lg border p-3 mt-2 hover:bg-[var(--background-dark2)]"}

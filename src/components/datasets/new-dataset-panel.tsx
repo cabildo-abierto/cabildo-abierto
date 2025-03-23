@@ -28,11 +28,7 @@ const VisuallyHiddenInput = styled('input')({
 export const UploadDatasetButton = ({onSubmit}: {onSubmit: (file: any, filename: string) => void}) => {
     const loadImage = async (e) => {
         if (e.target.files !== null) {
-            const file = e.target.files[0];
-
-            //const uniqueId = uuidv4()
-            //const extension = file.type.split('/')[1];
-
+            const file = e.target.files[0]
             onSubmit(new Blob([file], { type: file.type }), file.name)
         }
     }

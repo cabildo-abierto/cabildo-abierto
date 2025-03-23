@@ -199,7 +199,7 @@ export const ContentQuote = ({
         const title = kind == "artículo" ?
             quotedContent.content.article.title : getTopicTitle(quotedContent.content.topicVersion.topic as any)
 
-        const href = contentUrl(quotedContent.uri, quotedContent.author.handle)
+        const href = contentUrl(quotedContent.uri)
 
         context = <div className={"text-sm text-[var(--text-light)]"}>
             <Authorship onlyAuthor={true} content={quotedContent}/> en <Link className="font-bold" onClick={(e) => {e.stopPropagation()}} href={href}>{title}</Link>

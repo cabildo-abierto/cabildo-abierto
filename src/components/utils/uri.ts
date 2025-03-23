@@ -67,7 +67,7 @@ export function userUrl(id: string) {
     return "/perfil/" + id
 }
 
-export function contentUrl(uri: string, handle?: string) {
+export function contentUrl(uri: string) {
     const {did, collection, rkey} = splitUri(uri)
 
     return "/c/" + did + "/" + collectionToShortCollection(collection) + "/" + rkey
@@ -83,7 +83,7 @@ export function urlFromRecord(record: { uri: string, collection: string, author:
     } else if (record.collection == "ar.com.cabildoabierto.dataset") {
         return "/c/" + record.author.did + "/" + record.collection + "/" + getRkeyFromUri(record.uri)
     }
-    return contentUrl(record.uri, record.author.handle ? record.author.handle : record.author.did)
+    return contentUrl(record.uri)
 }
 
 export function getBlueskyUrl(uri: string) {

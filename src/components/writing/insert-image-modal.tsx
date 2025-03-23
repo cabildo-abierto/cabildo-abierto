@@ -1,16 +1,17 @@
 "use client"
 import {BaseFullscreenPopup} from "../ui-utils/base-fullscreen-popup";
 import {useState} from "react";
-import {InsertImagePayload, InsertImageUriDialogBody, UploadImageButton} from "../editor/plugins/ImagesPlugin";
 import Button from "@mui/material/Button";
 import {LinkIcon} from "../icons/link-icon";
+import {UploadImageButton} from "./upload-image-button";
+import {InsertImageUriDialogBody} from "./insert-image-uri-modal";
 
 
 
 export const InsertImageModal = ({open, onClose, onSubmit}: {
     open: boolean
     onClose: () => void;
-    onSubmit: (i: InsertImagePayload) => void;
+    onSubmit: (i: { src?: string, formData?: FormData }) => void;
 }) => {
     const [mode, setMode] = useState<null | 'url' | 'file'>(null);
 
@@ -42,7 +43,9 @@ export const InsertImageModal = ({open, onClose, onSubmit}: {
                     <div className={"text-[var(--text-light)]"}>
                         Pegá el URL de una imágen.
                     </div>
-                    <InsertImageUriDialogBody onClick={(i) => {onSubmit(i); setMode(null)}}/>
+                    <InsertImageUriDialogBody
+                        onClick={(i: {src: string}) => {onSubmit(i); setMode(null)}}
+                    />
                 </div>
             }
         </div>

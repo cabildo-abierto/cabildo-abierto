@@ -107,7 +107,6 @@ const PostEditor = ({
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const [title, setTitle] = useState(initialTitle)
     const [modal] = useModal()
-    const [images, setImages] = useState([])
 
     const settings = postEditorSettings(isFast, initialData)
 
@@ -115,13 +114,13 @@ const PostEditor = ({
     
     const postType = isFast ? "FastPost" : "Post"
 
-    const valid = validPost(editorState, settings.charLimit, postType, images, title)
+    const valid = validPost(editorState, settings.charLimit, postType, undefined, title)
 
     let disabled = valid.problem != undefined
 
     return <div className="px-3">
         <div className="flex justify-between mt-3 items-center w-full">
-			<div className="flex">
+			<div className="flex justify-end w-full">
                 <PublishButton
                     editor={editor}
                     title={title}
@@ -141,14 +140,6 @@ const PostEditor = ({
                 setEditorState={setEditorState}
             />
         </div>
-        {isFast && 
-            <div className="flex justify-end mt-4 w-full">
-                <FastPostImagesEditor
-                    images={images}
-                    setImages={setImages}
-                />
-            </div>
-        }
         {modal}
         {settings.charLimit && <ExtraChars charLimit={settings.charLimit} count={count}/>}
     </div>

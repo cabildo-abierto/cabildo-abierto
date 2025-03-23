@@ -1,7 +1,7 @@
 import {EditorState} from "lexical";
 import {charCount, emptyOutput} from "../utils/lexical";
 
-export function validPost(state: EditorState | undefined, charLimit: number, type: string, images: {
+export function validPost(state: EditorState | undefined, charLimit: number, type: string, images?: {
     src: string
 }[], title?: string) {
     if (type == "Post" && (!title || title.length == 0)) return {problem: "no title"}
@@ -12,7 +12,7 @@ export function validPost(state: EditorState | undefined, charLimit: number, typ
         }
         return {}
     } else {
-        if (images.length > 0) {
+        if (images && images.length > 0) {
             return {}
         } else {
             return {problem: "no state"}
