@@ -137,20 +137,24 @@ const Cuenta: React.FC = () => {
     }
 
     const center = (
-        <div className="py-8 max-w-lg mx-auto">
-            <h3 className="text-2xl font-semibold mb-6 text-center">Ajustes</h3>
-            <div className={"flex border-t border-r border-l rounded-t"}>
-                <SelectionComponent
-                    selected={selected}
-                    onSelection={(v) => {
-                        setSelected(v)
-                    }}
-                    options={["Cuenta", "Apariencia"]}
-                    optionsNodes={optionsNodes}
-                    className="flex"
-                />
+        <div className="max-w-lg mx-auto">
+            <div className={"border-b"}>
+                <h3 className="text-xl font-semibold py-6 text-center">
+                    Ajustes
+                </h3>
+                <div className={"flex"}>
+                    <SelectionComponent
+                        selected={selected}
+                        onSelection={(v) => {
+                            setSelected(v)
+                        }}
+                        options={["Cuenta", "Apariencia"]}
+                        optionsNodes={optionsNodes}
+                        className="flex"
+                    />
+                </div>
             </div>
-            <div className="border pl-6 pr-4 py-6 pb-4 rounded-b">
+            <div className="pl-6 pr-4 py-6 pb-4">
                 {selected == "Cuenta" && <AccountSettings/>}
                 {selected == "Apariencia" && <AppearanceSettings/>}
             </div>

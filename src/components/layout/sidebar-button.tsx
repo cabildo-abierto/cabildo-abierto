@@ -4,22 +4,30 @@ import { CustomLink } from "../ui-utils/custom-link"
 
 type SidebarButtonProps = {
     text: string
-    onClick: () => void
+    onClick?: () => void
     icon: ReactNode
     iconInactive?: ReactNode
     href: string
     disabled?: boolean
     selected?: boolean
-    showText: boolean
-    setShowText: (showText: boolean) => void
+    showText?: boolean
+    className?: string
 }
 
 export const SidebarButton = ({
-  showText, text, onClick, icon, iconInactive, href, disabled=false, selected=false
+    showText=false,
+    text,
+    onClick=() => {},
+    icon,
+    iconInactive,
+    href,
+    disabled=false,
+    selected=false,
+    className="mt-1 h-10"
 }: SidebarButtonProps) => {
 
     return <>
-        <CustomLink href={href} className="mt-1 h-10">
+        <CustomLink href={href} className={className}>
             {showText ? <Button
                 variant="text"
                 color="inherit"

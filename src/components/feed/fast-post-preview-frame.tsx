@@ -61,7 +61,7 @@ export const FastPostPreviewFrame = ({
                 {showingChildren ? <ReplyVerticalLine className="h-full"/> : <></>}
             </div>
 
-            <div className="py-2 flex w-[519px] flex-col pr-2">
+            <div className="py-2 flex max-w-[519px] w-full flex-col pr-2">
                 <div className="flex gap-x-1">
                     <span className="truncate">
                         <ContentTopRowAuthor author={record.author} />

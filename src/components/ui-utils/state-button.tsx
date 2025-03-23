@@ -4,8 +4,8 @@ import { ReactNode, useEffect, useState } from 'react';
 import { AcceptButtonPanel } from './accept-button-panel';
 import {Button} from "@mui/material";
 
-type StateButtonProps = {
-  handleClick: StateButtonClickHandler;
+export type StateButtonProps = {
+  handleClick?: StateButtonClickHandler;
   variant?: "text" | "contained" | "outlined";
   className?: string
   color?: "primary" | "secondary" | "error" | "inherit"
@@ -22,8 +22,8 @@ type StateButtonProps = {
 
 export type StateButtonClickHandler = () => Promise<{ error?: string; stopResubmit?: boolean }>;
 
-const StateButton: React.FC<StateButtonProps> = ({
-  handleClick,
+const StateButton = ({
+  handleClick=async () => {return {}},
   variant = "contained",
   color = "primary",
   textClassName = "",
@@ -32,10 +32,10 @@ const StateButton: React.FC<StateButtonProps> = ({
   text2,
   size,
   disabled = false,
-  disableElevation = false,
+  disableElevation = true,
   fullWidth,
   sx
-}) => {
+}: StateButtonProps) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(undefined)
 

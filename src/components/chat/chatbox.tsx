@@ -99,7 +99,6 @@ export const Chatbox = ({fromUser, toUser}: {fromUser?: string, toUser: string})
                         disabled={message.length === 0}
                         handleClick={onClickSend}
                         text1={<SendIcon/>}
-                        text2={<SendIcon/>}
                         disableElevation={true}
                     />
                 </div>

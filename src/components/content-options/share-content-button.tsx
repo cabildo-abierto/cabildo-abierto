@@ -26,7 +26,9 @@ export const ShareContentButton = ({ content }: { content: FeedContentProps }) =
     return <BasicButton
         onClick={async (e) => {e.stopPropagation(); e.preventDefault(); await onShare()}}
         startIcon={<ShareIcon/>}
-        color={"inherit"}
+        color={"secondary"}
+        variant={"outlined"}
+        sx={{color: "text-[var(--text)]"}}
     >
         <div className="whitespace-nowrap w-20">{!onClipboard ? "Compartir" : "Link copiado"}</div>
     </BasicButton>
