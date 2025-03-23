@@ -10,16 +10,22 @@ import {revalidateUri} from "../revalidate";
 import {getVisualizationTitle} from "../../components/visualizations/editor/spec";
 import {logTimes} from "../utils";
 import {revalidateTags} from "../admin";
+import {BlobRef} from "@atproto/lexicon";
 
 
-export async function createFastPostATProto(
-    {text, reply, quote, visualization}: {
-        text: string
-        reply?: FastPostReplyProps
-        quote?: string
-        visualization?: VisualizationProps
-    }
-){
+export async function createFastPostATProto({
+    text,
+    reply,
+    quote,
+    visualization,
+    images
+}: {
+    text: string
+    reply?: FastPostReplyProps
+    quote?: string
+    visualization?: VisualizationProps
+    images?: { src?: string, formData?: FormData }[]
+}){
     const t1 = Date.now()
     const {agent} = await getSessionAgent()
     const t2 = Date.now()
@@ -52,20 +58,7 @@ export async function createFastPostATProto(
             ...record,
             "$type": "app.bsky.feed.post"
         })
-    } else if(!quote){
-        record = {
-            "$type": "app.bsky.feed.post",
-            text: rt.text,
-            facets: rt.facets,
-            createdAt: new Date().toISOString(),
-            reply
-        }
-
-        ref = await agent.post({
-            ...record,
-            "$type": "app.bsky.feed.post"
-        })
-    } else {
+    } else if(quote){
         record = {
             "$type": "ar.com.cabildoabierto.quotePost",
             text: rt.text,
@@ -81,6 +74,68 @@ export async function createFastPostATProto(
             record
         })
         ref = data
+    } else if (images){
+        const imagesEmbed = []
+        for(let i = 0; i < images.length; i++) {
+            let f: File | Uint8Array
+            let size: number
+            if(images[i].formData){
+                const data = Object.fromEntries(images[i].formData)
+                f = data.image as File
+                size = f.size
+            } else {
+                const response = await fetch(images[i].src)
+                const arrayBuffer = await response.arrayBuffer();
+                f = new Uint8Array(arrayBuffer);
+                size = f.length
+            }
+
+            const headers: Record<string, string> = {
+                "Content-Length": size.toString()
+            }
+
+            try {
+                const res = await agent.uploadBlob(f, {headers})
+                const blob = res.data.blob
+                imagesEmbed.push({
+                    alt: "",
+                    image: blob
+                })
+            } catch {
+                console.error("Error uploading image")
+                return {error: "Ocurrió un error al publicar la imagen."}
+            }
+        }
+
+        record = {
+            "$type": "app.bsky.feed.post",
+            text: rt.text,
+            facets: rt.facets,
+            createdAt: new Date().toISOString(),
+            reply,
+            embed: {
+                "$type": "app.bsky.embed.images",
+                "images": imagesEmbed
+            }
+        }
+
+        ref = await agent.post({
+            ...record,
+            "$type": "app.bsky.feed.post"
+        })
+    } else {
+        record = {
+            "$type": "app.bsky.feed.post",
+            text: rt.text,
+            facets: rt.facets,
+            createdAt: new Date().toISOString(),
+            reply
+        }
+
+        ref = await agent.post({
+            ...record,
+            "$type": "app.bsky.feed.post"
+        })
     }
     const t3 = Date.now()
 
@@ -104,13 +159,21 @@ export type CreateFastPostRecord = {
 }
 
 
-export async function createFastPost(
-    {text, reply, quote, visualization}: {
-        text: string, reply?: FastPostReplyProps, quote?: string, visualization?: VisualizationProps
-    }
-): Promise<{error?: string, ref?: {uri: string, cid: string}}> {
+export async function createFastPost({
+    text,
+    reply,
+    quote,
+    visualization,
+    images
+}: {
+    text: string
+    reply?: FastPostReplyProps
+    quote?: string
+    visualization?: VisualizationProps
+    images?: { src?: string, formData?: FormData }[]
+}): Promise<{error?: string, ref?: {uri: string, cid: string}}> {
 
-    const {ref, record} = await createFastPostATProto({text, reply, quote, visualization})
+    const {ref, record} = await createFastPostATProto({text, reply, quote, visualization, images})
 
     if (ref) {
         const {updates, tags} = await processCreateRecordFromRefAndRecord(ref, record)

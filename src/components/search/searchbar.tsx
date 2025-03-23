@@ -85,6 +85,7 @@ const SearchBar = ({
                     endAdornment: searchState.value.length > 0 ? <CloseButton size="small" onClose={() => {setSearchState({value: "", searching: false})}}/> : undefined
                 },
             }}
+            autoComplete={"off"}
             sx={{
                 "& .MuiOutlinedInput-root": {
                     "& input": {

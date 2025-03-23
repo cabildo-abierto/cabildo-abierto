@@ -23,6 +23,8 @@ export async function generateMetadata(
                 title: "¡Sumate a Cabildo Abierto!"
             }
         }
+    } else {
+        return mainMetadata
     }
 }
 

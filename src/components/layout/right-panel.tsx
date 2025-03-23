@@ -10,14 +10,17 @@ import {UpdateCongresoRightPanel} from "../congreso/update-congreso-right-panel"
 import {TrendingTopicsPanel} from "../trending-topics/trending-topics";
 import SettingsIcon from "../icons/settings-icon";
 import {topicUrl} from "../utils/uri";
+import {usePathname} from "next/navigation";
 
 
 export const RightPanel = () => {
     const {user} = useUser()
+    const pathname = usePathname();
+    const inSearchPage = pathname.startsWith("/buscar") || pathname.startsWith("/temas");
 
     return <div className={"fixed top-0 right-0 left-auto h-screen overflow-y-clip"}>
-        <div className={"mr-10"}>
-            <SearchPanelOnRightColumn/>
+        <div className={"mr-10 " + (inSearchPage ? " mt-16" : "")}>
+            {!inSearchPage && <SearchPanelOnRightColumn/>}
 
             <div className={"max-w-[300px] mt-4 ml-8"}>
                 <UpdateCongresoRightPanel/>

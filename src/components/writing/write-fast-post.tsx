@@ -15,7 +15,6 @@ import {AddImageButton} from "./add-image-button";
 import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./insert-visualization-modal";
 import {InsertImageModal} from "./insert-image-modal";
-import {InsertImagePayload} from "../editor/plugins/ImagesPlugin";
 import {FastPostProps, FastPostReplyProps} from "../../app/lib/definitions";
 
 
@@ -65,7 +64,7 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
     const {user} = useUser()
     const [editorKey, setEditorKey] = useState(0)
     const [errorOnCreatePost, setErrorOnCreatePost] = useState(false)
-    const [images, setImages] = useState([])
+    const [images, setImages] = useState<{src?: string, formData?: FormData}[] | null>(null)
     const [text, setText] = useState("")
     const [visualization, setVisualization] = useState(null)
     const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
@@ -75,7 +74,7 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
 
     const charLimit = 300
 
-    const valid = (text.length > 0 && text.length <= 300) || images.length > 0 || visualization != null
+    const valid = (text.length > 0 && text.length <= 300) || (images && images.length > 0) || visualization != null
 
     let disabled = !valid
 
@@ -120,7 +119,8 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
         setErrorOnCreatePost(false)
         if (user) {
             const reply = replyTo ? replyFromParentElement(replyTo) : undefined
-            const {error} = await createFastPost({text, reply, visualization, quote})
+
+            const {error} = await createFastPost({text, reply, visualization, quote, images})
             if(reply){
                 await onSubmit()
                 await mutate(threadApiUrl(reply.parent.uri))
@@ -157,7 +157,7 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
                     showEngagement={false}
                     width={rect.width-20}
                 />}
-                <FastPostImagesEditor images={images} setImages={setImages}/>
+                {images && <FastPostImagesEditor images={images} setImages={setImages}/>}
                 {errorOnCreatePost && <div className={"px-2 text-sm text-[var(--text-light)]"}>
                     Ocurrió un error al intentar crear el post.
                 </div>}
@@ -167,11 +167,11 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
                 <div className="flex justify-between mt-2 px-2">
                     <div className={"flex space-x-2"}>
                         <AddImageButton
-                            disabled={images.length == 4 || visualization != null}
+                            disabled={images && images.length == 4 || visualization != null}
                             setModalOpen={setImageModalOpen}
                         />
                         <AddVisualizationButton
-                            disabled={images.length > 0}
+                            disabled={images && images.length > 0}
                             setModalOpen={setVisualizationModalOpen}
                         />
                     </div>
@@ -186,7 +186,14 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
             <InsertImageModal
                 open={imageModalOpen}
                 onClose={() => {setImageModalOpen(false)}}
-                onSubmit={(i: InsertImagePayload) => {setImages([...images, i]); setImageModalOpen(false)}}
+                onSubmit={(i: {src: string}) => {
+                    if(images != null) {
+                        setImages([...images, i])
+                    } else {
+                        setImages([i])
+                    }
+                    setImageModalOpen(false)
+                }}
             />
         </div>
     </RectTracker>

@@ -18,7 +18,7 @@ import { useSWRConfig } from 'swr';
 import {contentUrl, getDidFromUri, getRkeyFromUri, isPost, threadApiUrl, topicUrl} from "../utils/uri";
 
 const ShowThreadButton = ({root}: {root: RecordProps}) => {
-    const url = contentUrl(root.uri, root.author.handle)
+    const url = contentUrl(root.uri)
     return (
         <Link href={url} className="hover:bg-[var(--background-dark)] transition duration-200 flex items-center">
             <div className={"w-[79px] pl-2 flex flex-col items-center"}>

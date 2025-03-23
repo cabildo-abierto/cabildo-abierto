@@ -8,13 +8,15 @@ import {ContentQuote, QuotedContent} from "./content-quote";
 import {PlotInPost} from "./plot-in-post";
 import {ExternalEmbedInPost} from "./external-embed-in-post";
 import {FastPostVideo} from "./fast-post-video";
+import {PrettyJSON} from "../ui-utils/pretty-json";
 
 
 export const FastPostContent = ({post, isMainPost=false, hideQuote=false, showQuoteContext=false, onClickQuote}: {
     post: FastPostProps, isMainPost?: boolean, hideQuote?: boolean, showQuoteContext?: boolean, onClickQuote?: (cid: string) => void}) => {
 
     return <div className={"flex flex-col"}>
-        {!hideQuote && post.content.post.replyTo && <div className={"pb-2 text-[14px]"}>
+        {!hideQuote && post.content.post.replyTo &&
+            <div className={"pb-2 text-[14px]"}>
                 <ContentQuote
                     post={post}
                     quotedContent={post.content.post.replyTo as QuotedContent}
@@ -27,10 +29,22 @@ export const FastPostContent = ({post, isMainPost=false, hideQuote=false, showQu
         <div className={isMainPost ? "text-lg" : undefined}>
             <BskyRichTextContent content={post.content}/>
         </div>
-        <FastPostImage post={post} did={post.author.did}/>
-        <FastPostVideo post={post}/>
-        {post.content.post.embed && <QuotedPostFromEmbed embedStr={post.content.post.embed}/>}
-        <PlotInPost post={post} interactive={isMainPost}/>
-        <ExternalEmbedInPost post={post}/>
+        <FastPostImage
+            post={post}
+            did={post.author.did}
+        />
+        <FastPostVideo
+            post={post}
+        />
+        {post.content.post.embed && <QuotedPostFromEmbed
+            embedStr={post.content.post.embed}
+        />}
+        <PlotInPost
+            post={post}
+            interactive={isMainPost}
+        />
+        <ExternalEmbedInPost
+            post={post}
+        />
     </div>
 }

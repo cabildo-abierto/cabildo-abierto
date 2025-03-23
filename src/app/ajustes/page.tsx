@@ -30,19 +30,19 @@ const AccountSettings = () => {
         <div className="mb-4">
             <div className="text-[var(--text-light)] font-medium text-sm">Nivel de permisos de edición</div>
             <div className="text-lg">
-                <PermissionLevel level={user.editorStatus}/>
+                <PermissionLevel level={user.editorStatus} className={""}/>
             </div>
         </div>
-        <div className="mt-6 space-y-4">
-            <Link href="/recuperar/nueva" className="block text-blue-600 hover:underline">
+        <div className="mt-6 space-y-4 link">
+            {/*<Link href="/recuperar/nueva" className="block text-blue-600 hover:underline">
                 Cambiar contraseña
-            </Link>
-            <Link href={`/perfil/${user.did}`} className="block text-blue-600 hover:underline">
+            </Link>*/}
+            <Link href={`/perfil/${user.did}`} className="block hover:underline">
                 Ir a mi perfil
             </Link>
-            <Link href="/panel" className="block text-blue-600 hover:underline">
+            {/*<Link href="/panel" className="block text-blue-600 hover:underline">
                 Ver mis estadísticas
-            </Link>
+            </Link>*/}
         </div>
         <div className={"mt-4 flex justify-end"}>
             <CloseSessionButton/>
@@ -150,7 +150,7 @@ const Cuenta: React.FC = () => {
                     className="flex"
                 />
             </div>
-            <div className="border p-6 rounded-b">
+            <div className="border pl-6 pr-4 py-6 pb-4 rounded-b">
                 {selected == "Cuenta" && <AccountSettings/>}
                 {selected == "Apariencia" && <AppearanceSettings/>}
             </div>

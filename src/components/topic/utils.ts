@@ -52,7 +52,7 @@ export function isTopicVersionDemonetized(topicVersion: {}) {
 export function contributionsToProportionsMap(contributions: BothContributionsProps, author: string) {
     let map = {}
 
-    if (!contributions.all.some(([a, x]) => (a == author))) {
+    if (!contributions.all.some(([a, _]) => (a == author))) {
         contributions.all.push([author, 0])
     }
 

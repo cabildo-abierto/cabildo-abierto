@@ -296,8 +296,6 @@ export async function deleteRecords({uris, author, atproto}: { uris?: string[], 
         }
     }
 
-    console.log("deleting records", uris)
-
     if (!uris) {
         uris = (await db.record.findMany({
             select: {
@@ -426,17 +424,22 @@ export async function deleteRecords({uris, author, atproto}: { uris?: string[], 
 
 
 export async function deleteUser(userId: string) {
-    await deleteRecords({author: userId, atproto: false})
     const {agent} = await getSessionAgent()
     const {data} = await agent.resolveHandle({handle: userId})
     const did = data.did
 
-    console.log("deleting did", did)
+    await deleteRecords({author: did, atproto: false})
+
 
     await db.$transaction([
         db.blob.deleteMany({
             where: {
                 authorId: did
+            }
+        }),
+        db.view.deleteMany({
+            where: {
+                userById: did
             }
         }),
         db.view.deleteMany({

@@ -56,10 +56,6 @@ import {IS_APPLE} from '../../shared/environment';
 import useModal from '../../hooks/useModal';
 import DropDown, {DropDownItem} from '../../ui/DropDown';
 import {getSelectedNode} from '../../utils/getSelectedNode';
-import {
-  InsertImageDialog,
-
-} from '../ImagesPlugin';
 import {InsertTableDialog} from '../TablePlugin';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import VisualizationsIcon from '../../../icons/visualization-icon';
@@ -72,6 +68,8 @@ import {
   InsertLink,
   TableChartOutlined
 } from "@mui/icons-material";
+import {InsertImageModal} from "../../../writing/insert-image-modal";
+import {INSERT_IMAGE_COMMAND, InsertImagePayload} from "../ImagesPlugin";
 
 const blockTypeToBlockName = {
   bullet: 'Lista',
@@ -341,6 +339,11 @@ export default function ToolbarPlugin({
   const [isRTL, setIsRTL] = useState(false);
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
+  const [imageModalOpen, setImageModalOpen] = useState(false)
+
+  const onInsertImage = (payload: InsertImagePayload) => {
+    activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
+  };
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -593,12 +596,7 @@ export default function ToolbarPlugin({
         </button>
         <button
             onClick={() => {
-              showModal('Insertar una imágen', (onClose: any) => (
-                  <InsertImageDialog
-                      activeEditor={activeEditor}
-                      onClose={onClose}
-                  />
-              ));
+                setImageModalOpen(true)
             }}
             type="button"
             title="Insertar imágen"
@@ -606,6 +604,11 @@ export default function ToolbarPlugin({
             aria-label="Insertar imágen">
           <ImageOutlined fontSize={"small"} color={"inherit"}/>
         </button>
+        <InsertImageModal
+            open={imageModalOpen}
+            onClose={() => {setImageModalOpen(false)}}
+            onSubmit={(i: InsertImagePayload) => {onInsertImage(i); setImageModalOpen(false)}}
+        />
         <button
             onClick={() => {
               setVisualizationModalOpen(true)
