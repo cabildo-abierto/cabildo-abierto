@@ -11,7 +11,7 @@ export const ContentOptionsDropdown = ({
     record?: RecordProps
     onDelete: () => Promise<void>
 }) => {
-    return <div className="text-base border rounded bg-[var(--content)] p-2">
+    return <div className="text-base border rounded bg-[var(--background)] p-1">
         {record && <ContentOptions record={record} onClose={onClose} onDelete={onDelete}/>}
     </div>
 }

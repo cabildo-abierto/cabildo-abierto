@@ -63,7 +63,7 @@ export const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () =>
 
 const HelpDeskButton = ({user, onClose, showText, setShowText}: {showText: boolean, setShowText: (v: boolean) => void, user?: UserProps, onClose: () => void}) => {
     const count = 0 // TO DO: Implement
-    return <SidebarButton showText={showText} setShowText={setShowText} icon={<SupportIcon newCount={count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
+    return <SidebarButton showText={showText} icon={<SupportIcon newCount={count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
 }
 
 
@@ -154,7 +154,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
 
             <SidebarButton
                 showText={showText}
-                setShowText={setShowText}
                 onClick={onClose}
                 icon={<CabildoIcon/>}
                 iconInactive={<HomeOutlinedIcon/>}
@@ -164,7 +163,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
             />
             <SidebarButton
                 showText={showText}
-                setShowText={setShowText}
                 icon={<SearchIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
                 iconInactive={<SearchIcon/>}
                 onClick={onClose}
@@ -173,11 +171,13 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 href="/buscar"
             />
             <SidebarButton
-                showText={showText} setShowText={setShowText}
+                showText={showText}
                 onClick={onClose}
                 icon={<NotificationsIcon count={0}/>}
                 iconInactive={<NotificationsOutlinedIcon/>}
-                text="Notificaciones" href="/notificaciones" selected={pathname.startsWith("/notificaciones")}
+                text="Notificaciones"
+                href="/notificaciones"
+                selected={pathname.startsWith("/notificaciones")}
             />
             <SidebarButton
                 icon={<TopicsIcon fontSize="medium"/>}
@@ -186,7 +186,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 text="Temas"
                 href="/temas"
                 showText={showText}
-                setShowText={setShowText}
                 selected={pathname.startsWith("/temas")}
             />
             <SidebarButton
@@ -213,7 +212,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 href="/congreso"
                 selected={pathname.startsWith("/congreso")}
                 showText={showText}
-                setShowText={setShowText}
             />
             <SidebarButton
                 icon={<VisualizationsIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
@@ -223,7 +221,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 href="/datos"
                 selected={pathname.startsWith("/datos")}
                 showText={showText}
-                setShowText={setShowText}
             />
             {user.user &&
             <SidebarButton
@@ -234,7 +231,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 href={userUrl(user.user.handle)}
                 selected={pathname == userUrl(user.user.handle)}
                 showText={showText}
-                setShowText={setShowText}
             />}
             {user.user && user.user.editorStatus == "Administrator" &&
                 <HelpDeskButton
@@ -252,7 +248,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 href="/ajustes"
                 selected={pathname.startsWith("/ajustes")}
                 showText={showText}
-                setShowText={setShowText}
             />
             <SidebarWriteButton showText={showText} onClick={() => {setWritePanelOpen(true)}}/>
         </div>

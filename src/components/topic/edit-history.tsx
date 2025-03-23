@@ -329,7 +329,6 @@ export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}
                             className="gray-btn w-48"
                             handleClick={handleClick}
                             text1="Confirmar"
-                            text2="Removiendo..."
                         />
                     </div>
                 </div>

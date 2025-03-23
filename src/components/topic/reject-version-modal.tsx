@@ -79,7 +79,6 @@ export const RejectVersionModal = ({ open, onClose, topicId, versionUri }: {
                     disabled={!validExplanation(explanation)}
                     disableElevation={true}
                     text1="Confirmar"
-                    text2="Deshaciendo cambios..."
                 />
             </div>
         </div>

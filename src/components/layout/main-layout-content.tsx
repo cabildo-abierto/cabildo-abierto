@@ -5,6 +5,7 @@ import {useLayoutConfig} from "./layout-config-context";
 import {RightPanel} from "./right-panel";
 import {pxToNumber} from "../utils/strings";
 import {emptyChar} from "../utils/utils";
+import {BottomBarMobile} from "./bottom-bar-mobile";
 
 export const MainLayoutContent = ({children}: {children: ReactNode}) => {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
@@ -52,8 +53,8 @@ export const MainLayoutContent = ({children}: {children: ReactNode}) => {
         right = <RightPanel/>
     }
 
-    return <div className="flex justify-between w-full">
-        <div className={"flex-shrink-0 " + (layoutConfig.spaceForLeftSide ? "w-56" : "w-20")}>
+    return <div className="flex justify-between w-full min-h-screen">
+        <div className={"flex-shrink-0 hidden min-[500px]:block " + (layoutConfig.spaceForLeftSide ? "w-56" : "w-20")}>
             {left}
         </div>
 
@@ -67,14 +68,15 @@ export const MainLayoutContent = ({children}: {children: ReactNode}) => {
             {children}
         </div>
 
-        {layoutConfig.spaceForRightSide ?
+        {layoutConfig.spaceForRightSide &&
             <div className={"flex justify-end"}>
                 <div className="flex-shrink-0" style={{width: layoutConfig.rightMinWidth}}>
                     {right}
                 </div>
             </div>
-            :
-            <div>{emptyChar}</div>
         }
+        <div className="fixed bottom-0 left-0 w-full max-[500px]:block hidden">
+            <BottomBarMobile/>
+        </div>
     </div>
 }

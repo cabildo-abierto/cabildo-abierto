@@ -32,7 +32,7 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
     }, [query])
 
     function optionsNodes(o: string, isSelected: boolean){
-        return <div className="text-[var(--text)] w-32">
+        return <div className="text-[var(--text)]">
             <Button
                 onClick={() => {}}
                 variant="text"
@@ -44,7 +44,7 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
 
                 }}
             >
-                <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                <div className={"pb-1 pt-2 border-b-[4px] px-2 " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
                     {o}
                 </div>
             </Button>
@@ -52,14 +52,14 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
     }
 
     return <div className="w-full">
-        <div className="flex border-b px-2">
-            {<SelectionComponent
+        <div className="flex border-b max-w-screen overflow-x-scroll no-scrollbar">
+            <SelectionComponent
                 onSelection={setSelected}
                 options={["Publicaciones", "Usuarios", "Temas", "Datos"]}
                 selected={selected}
                 optionsNodes={optionsNodes}
-                className="flex justify-between"
-            />}
+                className="flex justify-between w-full"
+            />
         </div>
 
         {selected == "Temas" &&

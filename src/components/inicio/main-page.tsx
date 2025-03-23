@@ -25,7 +25,7 @@ export const MainPage = () => {
     }
 
     return <div className="w-full mt-10">
-        <div className={"fixed top-0 bg-[var(--background)] w-[598px] z-[1000]"}>
+        <div className={"fixed top-0 bg-[var(--background)] max-w-[600px] w-full mx-[1px] z-[1000]"}>
             <MainFeedHeader
                 selected={selected}
                 onSelection={onSelection}

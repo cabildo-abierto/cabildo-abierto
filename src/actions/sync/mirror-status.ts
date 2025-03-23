@@ -29,24 +29,15 @@ export async function getUserMirrorStatus(did: string){
 
 
 export async function getDirtyUsers(){
-    return (await unstable_cache(
-        async () => {
-            return await db.user.findMany({
-                select: {
-                    did: true
-                },
-                where: {
-                    mirrorStatus: "Dirty",
-                    inCA: true
-                }
-            })
+    return (await db.user.findMany({
+        select: {
+            did: true
         },
-        undefined,
-        {
-            tags: ["dirtyUsers"],
-            revalidate: revalidateEverythingTime
+        where: {
+            mirrorStatus: "Dirty",
+            inCA: true
         }
-    )()).map(({did}) => did)
+    })).map(({did}) => did)
 }
 
 

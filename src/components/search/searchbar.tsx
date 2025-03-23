@@ -5,7 +5,6 @@ import { CustomLink as Link } from '../ui-utils/custom-link';
 import { useSearch } from "./search-context";
 import { CloseButton } from "../ui-utils/close-button";
 import Image from 'next/image'
-import {SearchButton} from "../ui-utils/search-button";
 import ReadOnlyEditor from "../editor/read-only-editor";
 import {TextField} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -63,48 +62,48 @@ export const SmallUserSearchResult: React.FC<{result: {displayName?: string, han
 
 const SearchBar = ({
     autoFocus=false,
-    paddingY
+    paddingY,
+    fullWidth=false
 }: {
     autoFocus?: boolean
     paddingY?: string
+    fullWidth?: boolean
 }) => {
     const {searchState, setSearchState} = useSearch()
 
-    return <div>
-        <TextField
-            size={"small"}
-            autoFocus={autoFocus}
-            fullWidth={true}
-            value={searchState.value}
-            placeholder={"buscar"}
-            onFocus={() => setSearchState({value: searchState.value, searching: true})}
-            onChange={(e) => {setSearchState({value: e.target.value, searching: true});}}
-            slotProps={{
-                input: {
-                    startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon color={"inherit"}/></span>,
-                    endAdornment: searchState.value.length > 0 ? <CloseButton size="small" onClose={() => {setSearchState({value: "", searching: false})}}/> : undefined
+    return <TextField
+        size={"small"}
+        autoFocus={autoFocus}
+        fullWidth={fullWidth}
+        value={searchState.value}
+        placeholder={"buscar"}
+        onFocus={() => setSearchState({value: searchState.value, searching: true})}
+        onChange={(e) => {setSearchState({value: e.target.value, searching: true});}}
+        slotProps={{
+            input: {
+                startAdornment: <span className={"text-[var(--text-light)] mr-2"}><SearchIcon color={"inherit"}/></span>,
+                endAdornment: searchState.value.length > 0 ? <CloseButton size="small" onClose={() => {setSearchState({value: "", searching: false})}}/> : undefined
+            },
+        }}
+        autoComplete={"off"}
+        sx={{
+            "& .MuiOutlinedInput-root": {
+                "& input": {
+                    paddingY: paddingY
                 },
-            }}
-            autoComplete={"off"}
-            sx={{
-                "& .MuiOutlinedInput-root": {
-                    "& input": {
-                        paddingY: paddingY
-                    },
-                    "& fieldset": {
-                        borderColor: "var(--accent)",
-                    },
-                    "&:hover fieldset": {
-                        borderColor: "var(--accent)",
-                    },
-                    "&.Mui-focused fieldset": {
-                        borderWidth: "2px",
-                        borderColor: "var(--accent)",
-                    },
+                "& fieldset": {
+                    borderColor: "var(--accent)",
                 },
-            }}
-        />
-    </div>
+                "&:hover fieldset": {
+                    borderColor: "var(--accent)",
+                },
+                "&.Mui-focused fieldset": {
+                    borderWidth: "2px",
+                    borderColor: "var(--accent)",
+                },
+            },
+        }}
+    />
 }
 
 export default SearchBar;
