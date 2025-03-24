@@ -15,20 +15,17 @@ const ProjectSmallCard = ({project}: {project: CongressProject}) => {
         className={"p-2 rounded text-center flex flex-col items-center hover:bg-[var(--background-dark)] cursor-pointer"}
         onClick={() => {router.push("/congreso?p="+project.title)}}
     >
-        <div className={"truncate font-semibold text-sm"}>
+        <div className={"truncate font-semibold text-sm max-w-full"}>
             {project.title}
         </div>
-        <div className={"font-normal text-sm "}>
+        <div className={"font-normal text-sm px-2"}>
             {project.stateSenado && project.stateSenado.type == "rechazado" &&
-                <div className={"flex space-x-1 items-center text-[var(--text-light)] text-center"}>
-                    <div className={" flex space-x-1 items-center"}>
-                        <div className={"text-red-400"}>Rechazado</div>
-                        <div>en el Senado</div>
-                    </div>
-                    <div>•</div>
-                    <div>
+                <div className={"space-x-1 text-[var(--text-light)] text-xs text-center whitespace-nowrap"}>
+                    <span className={"text-red-400"}>Rechazado</span>
+                    <span>en el Senado</span>
+                    <span>
                         <DateSince date={new Date(project.stateSenado.date)}/>
-                    </div>
+                    </span>
                 </div>
             }
         </div>
@@ -43,7 +40,7 @@ const ProjectSlider = () => {
 
 
 export const UpdateCongresoRightPanel = () => {
-    return <div className={"border rounded p-2 w-full"}>
+    return <div className={"border rounded p-2"}>
         <div className={"flex justify-between items-center"}>
             <Link href={"/congreso"} className={"text-[var(--text-light)] text-xs"}>
                 En el congreso
@@ -55,6 +52,5 @@ export const UpdateCongresoRightPanel = () => {
         <div className={"mt-1"}>
             <ProjectSlider/>
         </div>
-
     </div>
 }

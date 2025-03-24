@@ -1,6 +1,7 @@
 import React from "react";
 import {DateSince} from "../ui-utils/date";
 import {BasicButton} from "../ui-utils/basic-button";
+import {useLayoutConfig} from "../layout/layout-config-context";
 
 export type CongressProject = {
     title: string
@@ -87,7 +88,9 @@ export const Proyectos = ({
     setSelectedProject: (i: number) => void
     projects: CongressProject[]
 }) => {
-    return <div className={"flex flex-col items-center space-y-8 mb-64 w-[600px] mt-16"}>
+    const {layoutConfig} = useLayoutConfig()
+
+    return <div className={`flex flex-col items-center space-y-8 mb-64 w-full px-4 max-w-[${layoutConfig.maxWidthCenter}] mt-16`}>
         <h3>
             Proyectos
         </h3>

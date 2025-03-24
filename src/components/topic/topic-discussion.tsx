@@ -7,21 +7,6 @@ import {useSWRConfig} from "swr";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
 
 
-/*function topicPropsToReplyToContent(topic: TopicProps, version: number): ReplyToContent {
-    return {
-        ...topic.versions[version],
-        collection: "ar.com.cabildoabierto.topic",
-        content: {
-            ...topic.versions[version].content,
-            topicVersion: {
-                topic: {
-                    id: topic.id,
-                    versions: topic.versions.map((v) => ({title: v.content.topicVersion.title}))
-                }
-            }
-        }
-    }
-}*/
 
 export const TopicDiscussion = ({
     replyToContent, topicId, onClickQuote, wikiEditorState

@@ -28,8 +28,27 @@ export const VegaPlot = ({
         let json = JSON.parse(visualization.visualization.spec);
         json = localizeDataset(json);
         json.data = { values: dataset.data };
-        json.width = "container"
-        json.height = "container"
+        json.width = "container";
+        json.height = "container";
+
+        const widthNum = typeof width === "string" ? pxToNumber(width) : width;
+        const baseFontSize = Math.floor(widthNum * 14 / 600)
+        const smallFontSize = Math.floor(baseFontSize * 0.8)
+        const largeFontSize = Math.floor(baseFontSize * 1.3)
+
+        json = {
+            ...json,
+            title: {
+                ...json.title,
+                fontSize: largeFontSize,
+            },
+            config: {
+                ...json.config,
+                axis: {...json.config.axis, labelFontSize: smallFontSize, titleFontSize: baseFontSize},
+                legend: {...json.config.legend, labelFontSize: smallFontSize, titleFontSize: baseFontSize},
+                text: {...json.config.text, fontSize: smallFontSize}
+            }
+        };
 
         embed(
             containerRef.current,
@@ -38,9 +57,10 @@ export const VegaPlot = ({
                 actions: false,
             }
         )
-        .then(() => setIsVegaLoading(false))
-        .catch((err) => console.error("Vega Embed Error:", err))
+            .then(() => setIsVegaLoading(false))
+            .catch((err) => console.error("Vega Embed Error:", err));
     }, [visualization, dataset, width, layoutConfig]);
+
 
     return (
         <div

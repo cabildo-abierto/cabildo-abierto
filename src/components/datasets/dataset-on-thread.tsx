@@ -13,16 +13,10 @@ export const DatasetOnThread = ({dataset}: {dataset: DatasetProps & EngagementPr
     const {dataset: datasetWithData, isLoading, error} = useDataset(dataset.uri)
     const {layoutConfig} = useLayoutConfig()
 
-    return <div className={"px-2 mt-4 border-b w-full"}>
-        <div className={"flex justify-between w-full"}>
-            <div className={"text-[var(--text-light)]"}>
-                Conjunto de datos
-            </div>
-        </div>
-        <h1>{dataset.dataset.title}</h1>
+    return <div className={"px-2 border-b w-full"}>
+        <h2>{dataset.dataset.title}</h2>
         <div className={"text-sm text-[var(--text-light)] space-x-1 flex items-center"}>
             <div><Authorship content={dataset} text={"Publicado por"}/></div>
-            <div>•</div>
             <div><DateSince date={dataset.createdAt}/></div>
         </div>
         <div className={"mt-4 text-[var(--text-light)]"}>

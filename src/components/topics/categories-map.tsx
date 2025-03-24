@@ -19,7 +19,7 @@ export const CategoriesMap = () => {
     }
 
     return <div className={""}>
-        <h2 className={"mt-6 ml-6"}>
+        <h2 className={"mt-6 ml-6 max-[500px]:text-xl text-2xl"}>
             Categorías
         </h2>
         <Graph

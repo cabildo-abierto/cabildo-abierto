@@ -107,6 +107,36 @@ export function isPost(collection: string) {
     return collection == "ar.com.cabildoabierto.quotePost" || collection == "app.bsky.feed.post"
 }
 
+export function isArticle(c: string){
+    return c == "ar.com.cabildoabierto.article"
+}
+
 export function isQuotePost(e: { collection: string }) {
     return e.collection == "ar.com.cabildoabierto.quotePost"
+}
+
+export function isTopicVersion(c: string){
+    return c == "ar.com.cabildoabierto.topic"
+}
+
+export function isDataset(c: string){
+    return c == "ar.com.cabildoabierto.dataset"
+}
+
+export function isVisualization(c: string){
+    return c == "ar.com.cabildoabierto.visualization"
+}
+
+export function collectionToDisplay(c: string){
+    if(isPost(c)){
+        return "Publicación"
+    } else if (isArticle(c)){
+        return "Artículo"
+    } else if (isTopicVersion(c)){
+        return "Tema"
+    } else if (isDataset(c)){
+        return "Dataset"
+    } else if (isVisualization(c)){
+        return "Visualización"
+    }
 }

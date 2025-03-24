@@ -10,8 +10,23 @@ import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
 import {VisualizationOnThread} from "../visualizations/visualization-on-thread";
 import {DatasetOnThread} from "../datasets/dataset-on-thread";
 
-import {isPost, threadApiUrl} from "../utils/uri";
+import {collectionToDisplay, isPost, threadApiUrl} from "../utils/uri";
 import {useSWRConfig} from "swr";
+import {BackButton} from "../ui-utils/back-button";
+import {useRouter} from "next/navigation";
+
+
+export const ThreadHeader = ({c, title}: {c?: string, title?: string}) => {
+    const router = useRouter()
+    return <div className={"flex space-x-4 items-center w-full px-2 py-2"}>
+        <div className={""}>
+            <BackButton onClick={() => {router.back()}}/>
+        </div>
+        <div className={"font-bold text-lg"}>
+            {c ? collectionToDisplay(c) : title}
+        </div>
+    </div>
+}
 
 
 export const Thread = ({thread}: {thread: ThreadProps}) => {
@@ -29,6 +44,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
     }
 
     return <div className={"flex flex-col items-center"}>
+        <ThreadHeader c={thread.post.collection}/>
         {isPost(thread.post.collection) && <FastPost
             post={thread.post as FastPostProps}
         />}

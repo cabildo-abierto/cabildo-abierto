@@ -1,7 +1,7 @@
 import senadores from "../../../public/congreso/senadores.json";
 import diputados from "../../../public/congreso/diputados.json";
 import Image from "next/image";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {CongressProject, CongressResult} from "./proyectos";
 import {getId, getVote} from "./utils";
@@ -219,8 +219,30 @@ const Bancas = ({rows, radiusStep, seatRadius, generator}: {
     const [hoveredSeat, setHoveredSeat] = useState<SelectedSenator>(null)
     const [hoveredCard, setHoveredCard] = useState<SelectedSenator>(null)
     const {layoutConfig} = useLayoutConfig()
+    const [canvasWidth, setCanvasWidth] = useState(pxToNumber(Math.min(window.innerWidth, pxToNumber(layoutConfig.maxWidthCenter))))
 
-    const canvasWidth = pxToNumber(layoutConfig.maxWidthCenter)
+    useEffect(() => {
+        const handleResize = () => {
+            let newCanvasWidth: number
+            if(window.innerWidth < 500){
+                newCanvasWidth = pxToNumber(Math.min(window.innerWidth, pxToNumber(layoutConfig.maxWidthCenter)))
+            } else {
+                newCanvasWidth = pxToNumber(Math.min(window.innerWidth-80, pxToNumber(layoutConfig.maxWidthCenter)))
+            }
+            if(newCanvasWidth != canvasWidth){
+                setCanvasWidth(newCanvasWidth)
+            }
+        };
+
+        window.addEventListener("resize", handleResize);
+
+        handleResize();
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, [layoutConfig]);
+
     const canvasHeight = canvasWidth * 0.55
     const svgWidth = 400
     const svgHeight = svgWidth * 0.55

@@ -198,8 +198,6 @@ export const threadRepliesQuery = {
 
 
 export const threadQuery = (c: string) => {
-
-    console.log("getting thread")
     if(c == "app.bsky.feed.post" || c == "ar.com.cabildoabierto.quotePost"){
         return {
             ...recordQuery,

@@ -91,9 +91,9 @@ export const TopicContentExpandedViewHeader = ({
             else if(o == "history") name = "Ver historial"
             else if(o == "editing") name = "Editar"
             return <button
-                className={"w-32 " + articleButtonClassname + (isSelected ? " toggled" : "")}
+                className={" " + articleButtonClassname + (isSelected ? " toggled" : "")}
             >
-                <div className={"pt-1"}>
+                <div className={"pt-1 whitespace-nowrap px-2"}>
                     {name}
                 </div>
             </button>
@@ -114,7 +114,7 @@ export const TopicContentExpandedViewHeader = ({
             "changes"
         ]
 
-        buttons = <div className={"flex"}>
+        buttons = <div className={"flex max-w-screen overflow-scroll no-scrollbar"}>
             <SelectionComponent
                 onSelection={onSelection}
                 options={options}

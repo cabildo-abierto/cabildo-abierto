@@ -37,22 +37,24 @@ const FollowCounters = ({user, atprotoProfile}: {user?: UserProps, atprotoProfil
     let content
 
     if(!hovered) {
-        content = <><div className="">
-            <span className="font-bold">{followersCountCA}</span> {followersCountCA == 1 ? "seguidor" : "seguidores"}
-        </div>
-        <div className="sm:text-base text-sm">
-            <span className="font-bold">{followingCountCA}</span> siguiendo
-        </div></>
-    } else {
         content = <>
-            <div>
-                <span className="font-bold">{followersCountAT}</span> {followersCountAT == 1 ? "seguidor" : "seguidores"}
+            <div className="">
+                <span className="font-bold">{followersCountCA}</span> <span className={"text-[var(--text-light)]"}>{followersCountCA == 1 ? "seguidor" : "seguidores"}</span>
             </div>
             <div className="sm:text-base text-sm">
-                <span className="font-bold">{followingCountAT}</span> siguiendo
+                <span className="font-bold">{followingCountCA}</span> <span className={"text-[var(--text-light)]"}>siguiendo</span>
+            </div>
+        </>
+    } else {
+        content = <div className={"flex space-x-1 items-center"}>
+            <div>
+                <span className="font-bold">{followersCountAT}</span> <span className={"text-[var(--text-light)]"}>{followersCountAT == 1 ? "seguidor" : "seguidores"}</span>
+            </div>
+            <div className="sm:text-base text-sm">
+                <span className="font-bold">{followingCountAT}</span> <span className={"text-[var(--text-light)]"}>siguiendo</span>
             </div>
             <BlueskyLogo fontSize={"16"}/>
-        </>
+        </div>
     }
 
     const className = "flex space-x-2 sm:text-base text-sm items-center rounded-lg px-2 py-1 cursor-pointer " + (hovered ? "bg-[var(--background-dark)]" : "")
@@ -101,18 +103,20 @@ export function ProfileHeader({
     }
 
     function optionsNodes(o: string, isSelected: boolean){
-        return <div className="text-[var(--text)] w-36">
+        return <div className="text-[var(--text)]">
             <Button
                 onClick={() => {}}
                 variant="text"
                 color="inherit"
                 fullWidth={true}
                 disableElevation={true}
-                sx={{textTransform: "none",
-                    paddingY: 0
+                sx={{
+                    textTransform: "none",
+                    paddingY: 0,
+                    borderRadius: 0,
                 }}
             >
-                <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                <div className={"pb-1 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
                     {o}
                 </div>
             </Button>
@@ -137,7 +141,7 @@ export function ProfileHeader({
                     onClick={() => {setViewingBanner(0)}}
                 />
             </div> :
-            <div className="w-full h-[150px] bg-[var(--background-dark)]">
+            <div className="w-full h-[130px] bg-[var(--background-dark)]">
                 {emptyChar}
             </div>
             }
@@ -153,7 +157,7 @@ export function ProfileHeader({
                     width={400}
                     height={400}
                     alt={atprotoProfile.handle + " avatar"}
-                    className="w-24 h-24 rounded-full ml-6 mt-[-48px] border cursor-pointer"
+                    className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border cursor-pointer"
                     onClick={() => {setViewingProfilePic(0)}}
                 />
             </div> : <div className={"w-24 h-24 ml-6 mt-[-48px"}>
@@ -162,10 +166,10 @@ export function ProfileHeader({
         </div>
         <div className="flex justify-between">
             <div className="ml-2 py-2">
-                <span className={"text-3xl font-bold"}>
+                <span className={"min-[500px]:text-2xl text-lg font-bold"}>
                     {getUsername(atprotoProfile)}
                 </span>
-                {user.displayName && <div className="text-[var(--text-light)]">
+                {atprotoProfile.displayName && <div className="text-[var(--text-light)]">
                     @{atprotoProfile.handle}
                 </div>}
             </div>
@@ -197,28 +201,28 @@ export function ProfileHeader({
             <ReadOnlyEditor initialData={atprotoProfile.description}/>
         </div>
 
-        <div className="flex sm:flex-row flex-col px-2 space-y-1 sm:space-y-0 sm:space-x-4 mb-1 items-center">
+        <div className="flex flex-col items-start px-2 space-y-2 mb-1">
 
             <FollowCounters user={profileUser} atprotoProfile={atprotoProfile}/>
 
-            <div className="flex text-sm sm:text-base flex-col">
-                {inCA ? <div className="ml-2 text-sm rounded-lg px-2 flex items-center justify-center py-1 bg-[var(--background-dark)] cursor-default space-x-1" title="Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
+            <div className="flex text-sm sm:text-base">
+                {inCA ? <div className="text-sm rounded-lg px-2 flex items-center justify-center py-1 bg-[var(--background-dark)] cursor-default space-x-1" title="Nivel de permisos en la edición de temas. Hacé 10 ediciones para pasar de Editor aprendiz a Editor.">
                     <span className="text-[var(--text-light)]">
                         <ArticleIcon color={"inherit"}/>
                     </span>
                     <PermissionLevel
                         level={profileUser.editorStatus}
-                        className="text-[var(--text-light)]"
+                        className="text-[var(--text-light)] text-xs"
                     />
                 </div> :
-                    <Link target={"_blank"} href={"https://bsky.app/profile/"+atprotoProfile.handle} className="ml-2 text-[var(--text-light)] py-1 rounded-lg bg-[var(--background-dark)] space-x-2 px-2 flex items-center justify-center">
+                    <Link target={"_blank"} href={"https://bsky.app/profile/"+atprotoProfile.handle} className="text-[var(--text-light)] py-1 rounded-lg bg-[var(--background-dark)] space-x-2 px-2 flex items-center justify-center">
                         <span>
                             Usuario de Bluesky
                         </span>
                     </Link>}
             </div>
         </div>
-        <div className="flex mt-4">
+        <div className="flex mt-4 overflow-scroll no-scrollbar">
             <SelectionComponent
                 selected={selected}
                 onSelection={(v) => {

@@ -36,10 +36,12 @@ export const TopicsPageHeader = () => {
         </button>
     }
 
-    return <div className="flex justify-between pr-2 items-center">
+    return <div className="flex justify-between px-2 items-center space-x-1">
         <SelectionComponent
-            onSelection={(s: string) => {router.push("/temas?view="+s+(c ? "&c="+c : ""))}}
-            options={["mapa", "listas", "lista"]}
+            onSelection={(s: string) => {
+                router.push("/temas?view=" + s + (c ? "&c=" + c : ""))
+            }}
+            options={["mapa", "lista"]}
             selected={view ? view : "mapa"}
             optionsNodes={optionsNodes}
             className="flex space-x-2"
@@ -51,6 +53,7 @@ export const TopicsPageHeader = () => {
                 paddingY={"5px"}
             />
         </div>
+
 
         <div className={"py-1"}>
             <Button
@@ -64,9 +67,10 @@ export const TopicsPageHeader = () => {
                     setNewTopicOpen(true)
                 }}
             >
-                Nuevo tema
+                <span className={"hidden min-[600px]:block"}>Tema</span>
+                <span className={"block min-[600px]:hidden"}>Tema</span>
             </Button>
         </div>
-        <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)} />
+        <CreateTopicModal open={newTopicOpen} onClose={() => setNewTopicOpen(false)}/>
     </div>
 }

@@ -115,8 +115,8 @@ export const WritePanel = ({
     </>
 
     return <>
-        <BaseFullscreenPopup open={open} className="w-128">
-            <div className="w-full rounded pb-2 pt-1 border max-h-[80vh] overflow-y-auto">
+        <BaseFullscreenPopup open={open} className="w-full max-w-[512px]">
+            <div className="w-full rounded pt-1 border max-h-[80vh] overflow-y-auto">
                 {center}
             </div>
         </BaseFullscreenPopup>

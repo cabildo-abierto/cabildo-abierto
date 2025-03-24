@@ -135,8 +135,8 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
     }
 
     if(!wideEnough){
-        return <div className={"h-screen w-full flex justify-center items-center text-[var(--text-light)]"}>
-            Abrí el editor en una pantalla más grande.
+        return <div className={"h-screen flex justify-center text-center items-center text-[var(--text-light)]"}>
+            Abrí el editor en una pantalla más grande
         </div>
     }
 

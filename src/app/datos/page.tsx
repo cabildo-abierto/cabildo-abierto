@@ -10,6 +10,7 @@ import LoadingSpinner from "../../components/ui-utils/loading-spinner";
 import {VisualizationsFeed} from "../../components/visualizations/visualizations-feed";
 import {DatasetsFeed} from "../../components/datasets/datasets-feed";
 import {NewDatasetPanel} from "../../components/datasets/new-dataset-panel";
+import {MobileHeader} from "../../components/layout/mobile-header";
 
 
 const Page = () => {
@@ -19,7 +20,7 @@ const Page = () => {
     const [openNewDatasetPanel, setOpenNewDatasetPanel] = useState(false)
 
     function optionsNodes(o: string, isSelected: boolean) {
-        return <div className="text-[var(--text)] w-40">
+        return <div className="text-[var(--text)]">
             <Button
                 onClick={() => {
                 }}
@@ -29,12 +30,12 @@ const Page = () => {
                 disableElevation={true}
                 sx={{
                     textTransform: "none",
-                    paddingY: 0
-
+                    paddingY: 0,
+                    borderRadius: 0
                 }}
             >
                 <div
-                    className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                    className={"pb-1 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
                     {o}
                 </div>
             </Button>
@@ -44,7 +45,8 @@ const Page = () => {
     const loading = <div className={"pt-8"}><LoadingSpinner/></div>
 
     return <div className={"flex flex-col"}>
-        <div className="flex border-b items-center justify-between pr-2">
+        <MobileHeader/>
+        <div className="flex border-b items-center justify-between max-w-screen overflow-scroll no-scrollbar pr-2">
             {<SelectionComponent
                 onSelection={onSelection}
                 options={["Visualizaciones", "Datos"]}
@@ -57,19 +59,19 @@ const Page = () => {
                     startIcon={<AddIcon/>}
                     variant={"text"}
                     size={"small"}
-                    sx={{height: "32px", width: "168px"}}
+                    sx={{height: "32px"}}
                 >
-                    Nueva visualización
+                    Visualización
                 </BasicButton>
             </Link>}
             {selected == "Datos" && <BasicButton
                 startIcon={<AddIcon/>}
                 variant={"text"}
                 size={"small"}
-                sx={{height: "32px", width: "168px"}}
+                sx={{height: "32px"}}
                 onClick={() => {setOpenNewDatasetPanel(true)}}
             >
-                Nuevo dataset
+                Dataset
             </BasicButton>}
         </div>
 

@@ -9,6 +9,7 @@ import {VegaPlotPreview} from "../../visualizations/vega-plot-preview";
 import {useLayoutConfig} from "../../layout/layout-config-context";
 
 import {pxToNumber} from "../../utils/strings";
+import {useEffect, useState} from "react";
 
 
 
@@ -25,6 +26,30 @@ export function localizeDataset(spec: any){
 export const VisualizationNodeCompFromSpec = ({uri}: {uri: string}) => {
     const {visualization, isLoading, error} = useVisualization(uri)
     const {layoutConfig} = useLayoutConfig()
+    const [canvasWidth, setCanvasWidth] = useState(pxToNumber(layoutConfig.maxWidthCenter))
+
+    useEffect(() => {
+        const handleResize = () => {
+            let newCanvasWidth: number
+            if(window.innerWidth < 500){
+                newCanvasWidth = pxToNumber(Math.min(window.innerWidth, pxToNumber(layoutConfig.maxWidthCenter)))
+            } else {
+                newCanvasWidth = pxToNumber(Math.min(window.innerWidth-80, pxToNumber(layoutConfig.maxWidthCenter)))
+            }
+
+            if(newCanvasWidth != canvasWidth){
+                setCanvasWidth(newCanvasWidth)
+            }
+        }
+
+        window.addEventListener("resize", handleResize);
+
+        handleResize();
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, [layoutConfig]);
 
     if(isLoading){
         return <div className={"mt-8"}>
@@ -42,6 +67,7 @@ export const VisualizationNodeCompFromSpec = ({uri}: {uri: string}) => {
     return <VisualizationNodeComp
         visualization={visualization}
         interactive={pxToNumber(layoutConfig.maxWidthCenter) > 600}
+        width={canvasWidth-50}
     />
 }
 
@@ -57,7 +83,6 @@ export const VisualizationNodeComp = ({
     interactive?: boolean
     width?: number | string
 }) => {
-    const {layoutConfig} = useLayoutConfig()
 
     return <div>
         <div
@@ -74,10 +99,11 @@ export const VisualizationNodeComp = ({
         </div>
 
         <div
-            className={"flex mt-2 " + (pxToNumber(layoutConfig.maxWidthCenter) <= 600 ? "flex-col items-center" : "justify-between w-full")}
+            className={"flex mt-2 w-full not-article-content lg:text-sm text-xs lg:flex-row flex-col items-center justify-center"}
         >
-            <div className={"exclude-links text-sm text-[var(--text-light)] flex flex-col items-center"}>
+            <div className={"exclude-links text-[var(--text-light)] flex flex-col items-center"}>
                 <DatasetTitle
+                    className={""}
                     dataset={visualization.visualization.dataset}
                 />
                 <UserHandle content={visualization}/>
