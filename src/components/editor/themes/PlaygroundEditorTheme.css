@@ -328,16 +328,6 @@
 .PlaygroundEditorTheme__nestedListItem:after {
   display: none;
 }
-.PlaygroundEditorTheme__mark {
-  background: var(--primary-xlight);
-  border-bottom: 3px solid var(--primary-2xlight);
-  padding-bottom: 3px;
-  color: var(--text);
-}
-.PlaygroundEditorTheme__markOverlap {
-  background: var(--primary-lighter);
-  border-bottom: 2px solid var(--primary-light);
-}
 .PlaygroundEditorTheme__embedBlock {
   user-select: none;
 }

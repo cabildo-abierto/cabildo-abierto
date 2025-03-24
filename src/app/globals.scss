@@ -47,14 +47,32 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .article-content {
-	/*font-family: 'Roboto_Serif', serif;*/
 	font-family: var(--font-roboto-serif), serif;
 	line-height: 1.8;
-	font-weight: 450
+	font-weight: 450;
+	font-size: 16px;
+}
+
+@media (max-width: 500px) {
+	.article-content {
+		font-size: 15px;
+	}
+}
+
+
+.PlaygroundEditorTheme__mark {
+	background: var(--primary-xdark);
+	border-bottom: 3px solid var(--primary-2xdark);
+	padding-bottom: 3px;
+	color: var(--text);
+}
+
+.PlaygroundEditorTheme__markOverlap {
+	background: var(--primary-xdark);
+	border-bottom: 2px solid var(--primary-dark);
 }
 
 .not-article-content {
-	/*font-family: 'Roboto_Flex', sans-serif;*/
 	font-family: var(--font-roboto-flex), sans-serif;
 	line-height: 1.5;
 	font-weight: 400

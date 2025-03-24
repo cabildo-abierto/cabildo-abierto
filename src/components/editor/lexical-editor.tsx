@@ -74,11 +74,6 @@ import { v4 as uuidv4 } from 'uuid';
 import {ImageNode} from './nodes/ImageNode'
 import {InlineImageNode} from './nodes/InlineImageNode/InlineImageNode';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'
-
-import {
-  $convertToMarkdownString,
-} from '@lexical/markdown';
-import {PLAYGROUND_TRANSFORMERS} from "./plugins/MarkdownTransformers";
 import {FastPostProps} from "../../app/lib/definitions";
 import {SidenoteNode} from "./nodes/SidenoteNode";
 import PlotPlugin from "./plugins/PlotPlugin";
