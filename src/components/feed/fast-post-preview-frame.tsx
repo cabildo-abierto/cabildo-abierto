@@ -1,7 +1,7 @@
 "use client"
 
 import { DateSince } from '../ui-utils/date'
-import {EngagementProps, ReasonProps, RecordProps} from '../../app/lib/definitions'
+import {EngagementProps, ReasonProps, RecordProps, ThreadProps} from '../../app/lib/definitions'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ContentTopRowAuthor } from './content-top-row-author'
@@ -9,10 +9,12 @@ import { ReactNode } from 'react'
 import { EngagementIcons } from '../reactions/engagement-icons'
 import {RepostedBy} from "./reposted-by";
 import {ProfilePic} from "./profile-pic";
-import {urlFromRecord, userUrl} from "../utils/uri";
+import {splitUri, threadApiUrl, urlFromRecord, userUrl} from "../utils/uri";
 import {formatIsoDate} from "../utils/dates";
 
 import {emptyChar} from "../utils/utils";
+import useSWR, {useSWRConfig} from "swr";
+import {getThread} from "../../actions/thread/thread";
 
 
 export const ReplyVerticalLine = ({className=""}: {className?: string}) => {
@@ -39,11 +41,33 @@ export const FastPostPreviewFrame = ({
     const router = useRouter()
     const record = post
     const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
+    const {mutate} = useSWRConfig()
+
+    async function onClick() {
+
+        const threadData: ThreadProps = {
+            post: post,
+            replies: null
+        };
+
+        mutate(
+            threadApiUrl(post.uri),
+            undefined,
+            {
+                optimisticData: (currentData) => {
+                    return currentData ? currentData : {thread: threadData, error: null}
+                },
+                populateCache: false,
+                revalidate: false
+            }
+        )
+        router.push(url);
+    }
 
     return <div
         id={post.uri}
         className={"flex flex-col hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
-        onClick={() => {router.push(url)}}
+        onClick={onClick}
     >
         {post.reason && post.reason.collection == "app.bsky.feed.repost" && <RepostedBy user={post.reason.by}/>}
         <div className={"flex h-full items-stretch"}>

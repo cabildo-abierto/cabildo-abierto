@@ -249,7 +249,7 @@ export function useVisualizations(): {visualizations: VisualizationProps[], isLo
 export function useThread(uri: string): {thread: ThreadProps, isLoading: boolean, error?: string}{
     const { data, isLoading } = useSWR(threadApiUrl(uri), fetcher,
         {
-            revalidateIfStale: false,
+            revalidateIfStale: true,
             revalidateOnFocus: false,
             revalidateOnReconnect: false
         }

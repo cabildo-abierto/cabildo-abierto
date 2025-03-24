@@ -3,7 +3,7 @@ import { FastPost } from "./fast-post"
 import {ArticleProps, DatasetProps, FastPostProps, ThreadProps, VisualizationProps} from "../../app/lib/definitions"
 import { ReplyButton } from "./reply-button"
 import { FastPostPreview } from "./fast-post-preview"
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {WritePanel} from "../writing/write-panel";
 import {Article} from "../article/article";
 import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
@@ -14,6 +14,7 @@ import {collectionToDisplay, isPost, threadApiUrl} from "../utils/uri";
 import {useSWRConfig} from "swr";
 import {BackButton} from "../ui-utils/back-button";
 import {useRouter} from "next/navigation";
+import LoadingSpinner from "../ui-utils/loading-spinner";
 
 
 export const ThreadHeader = ({c, title}: {c?: string, title?: string}) => {
@@ -32,16 +33,18 @@ export const ThreadHeader = ({c, title}: {c?: string, title?: string}) => {
 export const Thread = ({thread}: {thread: ThreadProps}) => {
     const [openReplyPanel, setOpenReplyPanel] = useState<boolean>(false)
     const [pinnedReplies, setPinnedReplies] = useState([])
+    const [quoteReplies, setQuoteReplies] = useState([])
     const {mutate} = useSWRConfig()
 
     const replies = thread.replies
 
-    let quoteReplies = []
-    if(thread.post.collection == "ar.com.cabildoabierto.article"){
+    useEffect(() => {
         if(thread.post.collection == "ar.com.cabildoabierto.article"){
-            quoteReplies = replies.filter((r) => (r.content.post.quote != undefined))
+            if(thread.post.collection == "ar.com.cabildoabierto.article"){
+                setQuoteReplies(thread.replies.filter((r) => (r.content.post.quote != undefined)))
+            }
         }
-    }
+    }, [thread])
 
     return <div className={"flex flex-col items-center"}>
         <ThreadHeader c={thread.post.collection}/>
@@ -64,8 +67,10 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
             <ReplyButton onClick={() => {setOpenReplyPanel(true)}}/>
         </div>
         <div className={"w-full mb-32"}>
-
-            {replies.map((r, index) => {
+            {!replies && <div className={"py-4"}>
+                <LoadingSpinner/>
+            </div>}
+            {replies && replies.map((r, index) => {
 
                 function onClickQuote(){
                     setPinnedReplies([...pinnedReplies, r.cid])
@@ -82,7 +87,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
                     />
                 </div>
             })}
-            {replies.length == 0 && <div className={"text-center text-[var(--text-light)] pt-4 pb-8"}>
+            {replies && replies.length == 0 && <div className={"text-center text-[var(--text-light)] pt-4 pb-8"}>
                 Todavía no hubo ninguna respuesta.
             </div>}
         </div>
