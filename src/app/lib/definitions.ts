@@ -294,7 +294,7 @@ export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
 
 export type ThreadProps = {
     post: FeedContentProps
-    replies: FastPostProps[]
+    replies?: FastPostProps[]
 }
 
 export type MatchesType = {

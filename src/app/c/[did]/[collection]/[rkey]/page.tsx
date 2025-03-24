@@ -19,7 +19,6 @@ const ContentPage = ({params}: {
     if(thread.error) return <ErrorPage>{thread.error}</ErrorPage>
 
     if(!thread.thread) return <div className={"mt-8"}><LoadingSpinner/></div>
-
     return <Thread thread={thread.thread}/>
 }
 
