@@ -46,7 +46,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
     return <div className="w-full">
         <div className={"p-3 border-b"}>
             <TopicsMentioned article={article}/>
-            <h1 className="text-4xl mt-16 mb-8">
+            <h1 className="text-4xl mt-8 mb-8">
                 {article.content.article.title}
             </h1>
             <div className="gap-x-4 flex flex-wrap items-baseline">

@@ -208,7 +208,7 @@ export const ContentQuote = ({
 
     const clickable = onClick != undefined || (post && post.cid)
 
-    return <div className={"article-content no-margin-first"}>
+    return <div className={"article-content no-margin-first pr-2"}>
         <blockquote
             className={"my-1 w-full " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
             onClick={handleClick}

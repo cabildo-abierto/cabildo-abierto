@@ -12,7 +12,11 @@ const ThemeVariables = ({ children }: { children: React.ReactNode }) => {
         const root = document.documentElement;
         root.style.setProperty('--primary', '#3080ff')
         root.style.setProperty('--primary-light', '#4b8ef9')
+        root.style.setProperty('--primary-xlight', '#6da4fe')
+        root.style.setProperty('--primary-2xlight', '#8cb8ff')
         root.style.setProperty('--primary-dark', '#2460bf')
+        root.style.setProperty('--primary-xdark', '#184182')
+        root.style.setProperty('--primary-2xdark', '#112e5a')
         if (currentTheme === 'dark') {
             root.style.setProperty('--text', '#fbfbfc');
             root.style.setProperty('--text-light', '#b0b0b0');

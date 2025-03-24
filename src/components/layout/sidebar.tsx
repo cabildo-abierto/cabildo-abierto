@@ -87,7 +87,7 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
 
     return <>
         <FloatingWriteButton onClick={onClick}/>
-        <div className={"my-2 h-12 max-[500px]:hidden"}>
+        <div className={"my-2 h-12"}>
         {showText ? <BasicButton
             fullWidth={true}
             startIcon={<WriteButtonIcon/>}
