@@ -5,43 +5,47 @@ import { AcceptButtonPanel } from './accept-button-panel';
 import {Button} from "@mui/material";
 
 export type StateButtonProps = {
-  handleClick?: StateButtonClickHandler;
-  variant?: "text" | "contained" | "outlined";
-  className?: string
-  color?: "primary" | "secondary" | "error" | "inherit"
-  size?: "small" | "medium" | "large",
-  text1: ReactNode;
-  text2?: ReactNode;
-  startIcon?: ReactNode;
-  textClassName?: string;
-  disabled?: boolean;
-  disableElevation?: boolean
-  sx?: any
-  fullWidth?: boolean
+    handleClick?: StateButtonClickHandler;
+    variant?: "text" | "contained" | "outlined";
+    className?: string
+    color?: "primary" | "secondary" | "error" | "inherit"
+    size?: "small" | "medium" | "large",
+    text1: ReactNode;
+    text2?: ReactNode;
+    startIcon?: ReactNode;
+    textClassName?: string;
+    disabled?: boolean;
+    disableElevation?: boolean
+    sx?: any
+    fullWidth?: boolean
+    stopPropagation?: boolean
 };
 
 export type StateButtonClickHandler = () => Promise<{ error?: string; stopResubmit?: boolean }>;
 
 const StateButton = ({
-  handleClick=async () => {return {}},
-  variant = "contained",
-  color = "primary",
-  textClassName = "",
-  startIcon,
-  text1,
-  text2,
-  size,
-  disabled = false,
-  disableElevation = true,
-  fullWidth,
-  sx
+    handleClick=async () => {return {}},
+    variant = "contained",
+    color = "primary",
+    textClassName = "",
+    startIcon,
+    text1,
+    text2,
+    size,
+    disabled = false,
+    disableElevation = true,
+    fullWidth,
+    sx,
+    stopPropagation=true
 }: StateButtonProps) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(undefined)
 
     async function onClick(e) {
-        e.stopPropagation()
-        e.preventDefault()
+        if(stopPropagation){
+            e.stopPropagation()
+            e.preventDefault()
+        }
         setLoading(true)
     }
 
@@ -78,9 +82,9 @@ const StateButton = ({
             , ...sx}}
             fullWidth={fullWidth}
         >
-          <div className={textClassName}>
-            {text1}
-          </div>
+            <div className={textClassName}>
+                {text1}
+            </div>
         </Button>
         <AcceptButtonPanel
             open={Boolean(error)}

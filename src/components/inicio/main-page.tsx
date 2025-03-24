@@ -24,7 +24,7 @@ export const MainPage = () => {
         if(v == "En discusión" && order != "Populares") setOrder("Populares")
     }
 
-    return <div className="w-full mt-10">
+    return <div className="w-full min-[500px]:mt-10 mt-20">
         <div className={"fixed top-0 bg-[var(--background)] max-w-[600px] w-full mx-[1px] z-[1000]"}>
             <MainFeedHeader
                 selected={selected}

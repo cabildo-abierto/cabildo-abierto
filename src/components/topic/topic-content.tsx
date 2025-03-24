@@ -2,7 +2,6 @@ import { FastPostProps, TopicProps, TopicVersionProps } from "../../app/lib/defi
 import { useEffect } from "react";
 import { smoothScrollTo } from "../editor/plugins/TableOfContentsPlugin";
 import { ReplyToContent } from "../editor/plugins/CommentPlugin";
-import { getCurrentContentVersion } from "./utils";
 import { TopicContentPreview } from "./topic-content-preview";
 import {
     SmallTopicVersionProps,
@@ -84,10 +83,12 @@ export const TopicContent = ({
 
 
     if(wikiEditorState == "minimized") {
-        return <TopicContentPreview
-            topic={topic}
-            onMaximize={() => {setWikiEditorState("normal")}}
-        />
+        return <div className={"px-2"}>
+            <TopicContentPreview
+                topic={topic}
+                onMaximize={() => {setWikiEditorState("normal")}}
+            />
+        </div>
     } else {
         if(params.get("did") && params.get("rkey")){
             return <TopicContentExpandedView

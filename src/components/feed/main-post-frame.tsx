@@ -21,12 +21,7 @@ export const MainPostFrame = ({
     const author = post.author
     const authorUrl = userUrl(author.handle)
 
-    return <div className="w-full bg-[var(--background)] flex flex-col px-4 pt-4 border-b">
-        <div className="mb-4">
-            <div className="font-bold text-lg">
-                Publicación
-            </div>
-        </div>
+    return <div className="w-full bg-[var(--background)] flex flex-col px-4 border-b">
         <div>
             <div className="flex justify-between items-center">
                 <div className="flex space-x-2">

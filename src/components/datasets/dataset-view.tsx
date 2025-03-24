@@ -7,7 +7,7 @@ export const DatasetView = ({data, maxHeight="600px", maxWidth="600px"}: {
         {rows != null && (
             <div className={"border-t mb-4 custom-scrollbar overflow-x-scroll overflow-y-scroll text-sm"}
                  style={{maxHeight, maxWidth}}>
-                <table className="table-auto w-full border-collapse border">
+                <table className="table-auto w-full border-collapse border max-[1080px]:text-xs">
                     <thead className="bg-[var(--background-dark2)]">
                     <tr>
                         {rows && Object.keys(rows[0]).map((header, colIndex) => (

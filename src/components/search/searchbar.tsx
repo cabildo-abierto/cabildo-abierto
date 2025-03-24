@@ -40,9 +40,11 @@ export const UserSearchResult: React.FC<{result: {displayName?: string, handle: 
 export const SmallUserSearchResult: React.FC<{result: {displayName?: string, handle: string, avatar?: string, description?: string}}> = ({ result }) => {
     const {setSearchState} = useSearch()
 
-    return <Link href={userUrl(result.handle)}
-                 onClick={() => {setSearchState({value: "", searching: false})}}
-                 className="flex flex-col hover:bg-[var(--background-dark)] border-b p-2">
+    return <Link
+        href={userUrl(result.handle)}
+        onClick={() => {setSearchState({value: "", searching: false})}}
+        className="flex flex-col hover:bg-[var(--background-dark)] border-b p-2"
+    >
         <div className={"flex space-x-4 items-center"}>
             {result.avatar ? <Image
                 src={result.avatar}
@@ -51,9 +53,13 @@ export const SmallUserSearchResult: React.FC<{result: {displayName?: string, han
                 height={100}
                 className="rounded-full h-10 w-10"
             /> : <div className={"h-14 w-14"}>{emptyChar}</div>}
-            <div className="flex flex-col">
+            <div className="flex flex-col ">
+                <div className={"truncate whitespace-nowrap text-sm max-w-[200px]"}>
                 {result.displayName ? result.displayName : <>@{result.handle}</>}
+                </div>
+                <div className={"truncate whitespace-nowrap max-w-[200px]"}>
                 {result.displayName && <span className="text-[var(--text-light)] text-sm">@{result.handle}</span>}
+                </div>
             </div>
         </div>
     </Link>
@@ -63,7 +69,7 @@ export const SmallUserSearchResult: React.FC<{result: {displayName?: string, han
 const SearchBar = ({
     autoFocus=false,
     paddingY,
-    fullWidth=false
+    fullWidth=true
 }: {
     autoFocus?: boolean
     paddingY?: string

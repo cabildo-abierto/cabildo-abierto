@@ -108,9 +108,7 @@ export const BetaAccessPage = ({children}: {children: ReactNode}) => {
     useEffect(() => {
         async function activateInviteCode(){
             setUsingInviteCode(true)
-            console.log("assigning invite code", inviteCode)
             const {error} = await assignInviteCode(inviteCode)
-            console.log("error", error)
             if(!error){
                 mutate("/api/user", {})
             }
@@ -127,10 +125,6 @@ export const BetaAccessPage = ({children}: {children: ReactNode}) => {
     if(user && user.hasAccess) return <>{children}</>
 
     if(isLoading || inviteCode && codesLoading || usingInviteCode){
-        console.log("user loading", isLoading)
-        console.log("codes loadign", codesLoading)
-        console.log("using invite code", usingInviteCode)
-        console.log("has access", user.hasAccess)
         return <LoadingScreen/>
     }
 

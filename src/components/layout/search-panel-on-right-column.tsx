@@ -20,14 +20,14 @@ export const SearchPanelOnRightColumn = () => {
     };
 
     return (
-        <div>
-            <div className={"ml-8 mt-8 max-w-[300px] w-full"}>
+        <div className={"w-full"}>
+            <div className={"mt-8 w-full"}>
                 <form onSubmit={handleSubmit}>
                     <SearchBar />
                 </form>
             </div>
             {searchState.searching && searchState.value.length > 0 && (
-                <div className={"rounded border-l border-r border-t ml-8 w-full max-w-[300px] mt-2"}>
+                <div className={"rounded border-l border-r border-t w-full max-w-[300px] mt-2"}>
                     {showSearchButton && (
                         <div className={"border-b"}>
                             <form onSubmit={handleSubmit}>

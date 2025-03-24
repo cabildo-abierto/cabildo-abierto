@@ -9,12 +9,12 @@ export const TopicsMentioned = ({article}: {article: ArticleProps}) => {
         return b.count - a.count
     }
 
-    return <div className={"w-full flex space-x-4"}>
+    return <div className={"w-full flex space-x-4 max-w-screen overflow-scroll no-scrollbar"}>
         {article.content.references.sort(cmp).slice(0, 4).map((r, index) => {
             return <CustomLink
                 href={topicUrl(r.referencedTopicId)}
                 key={index}
-                className={"text-[var(--text-light)] hover:text-[var(--text)] text-sm"}
+                className={"text-[var(--text-light)] hover:text-[var(--text)] text-sm whitespace-nowrap"}
                 title={"Tema mencionado en el artículo."}
             >
                 {r.referencedTopicId}

@@ -20,7 +20,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
     const {mutate} = useSWRConfig()
 
     function optionsNodes(o: string, isSelected: boolean){
-        return <div className="text-[var(--text)] w-48 h-10">
+        return <div className="text-[var(--text)] h-10 ">
             <Button
                 variant="text"
                 color="inherit"
@@ -31,7 +31,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                     borderRadius: 0
                 }}
             >
-                <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                <div className={"whitespace-nowrap font-semibold pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
                     {o}
                 </div>
             </Button>
@@ -53,13 +53,13 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
     }
 
     return <div className={"mb-96"}>
-        <div className={"flex border-b " + (minimized ? "" : "justify-center")}>
+        <div className={"flex border-b w-full max-w-screen overflow-scroll no-scrollbar " + (minimized ? "" : "justify-center")}>
             <SelectionComponent
                 onSelection={setSelected}
                 selected={selected}
                 optionsNodes={optionsNodes}
                 options={["Menciones", "Respuestas al contenido"]}
-                className={"flex"}
+                className={"flex w-full"}
             />
         </div>
         {selected == "Menciones" && <div className={"flex py-2 px-2 justify-center"}>

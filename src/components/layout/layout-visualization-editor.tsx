@@ -13,7 +13,7 @@ export const LayoutVisualizationEditor: React.FC<{ children: ReactNode } & Layou
                                                                                openRightPanel=true,
                                                                                maxWidthCenter="600px",
                                                                                leftMinWidth="80px",
-                                                                               rightMinWidth="360px",
+                                                                               rightMinWidth="300px",
                                                                                openSidebar=true,
                                                                                defaultSidebarState=true,
                                                                            }) => {
@@ -24,7 +24,7 @@ export const LayoutVisualizationEditor: React.FC<{ children: ReactNode } & Layou
 
     const center = <div className={"flex"}>
         {left}
-        <div className={"ml-20 w-full h-full"}>
+        <div className={"min-[1080px]:ml-20 w-full h-full"}>
             {children}
         </div>
     </div>

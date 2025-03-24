@@ -5,7 +5,6 @@ import {TopicsMapView} from "../../components/topics/topics-map-view";
 import {useSearchParams} from "next/navigation";
 import {useSearch} from "../../components/search/search-context";
 import {SearchTopics} from "../../components/search/search-topics";
-import {TopicsListsView} from "../../components/topics/topics-lists-view";
 
 
 const Temas = () => {
@@ -16,7 +15,7 @@ const Temas = () => {
     return <div>
         <TopicsPageHeader/>
         {(searchState.value.length == 0 && (!view || view == "mapa")) && <TopicsMapView />}
-        {(searchState.value.length == 0 && view == "listas") && <TopicsListsView />}
+        {/*(searchState.value.length == 0 && view == "listas") && <TopicsListsView />*/}
         {(searchState.value.length == 0 && view == "lista") && <TopicsListView />}
         {searchState.searching && <SearchTopics/>}
     </div>

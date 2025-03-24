@@ -13,17 +13,17 @@ import StateButton from "../ui-utils/state-button";
 import {validEntityName} from "../topic/utils";
 
 
-export const CreateTopic = ({onClose}: {onClose: () => void}) => {
+export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => void, initialSelected?: string}) => {
     const user = useUser();
     const [topicName, setTopicName] = useState("");
     const [errorOnCreate, setErrorOnCreate] = useState(null)
-    const router = useRouter();
-    const [goToArticle, setGoToArticle] = useState(true);
-    const [selected, setSelected] = useState("none")
+    const router = useRouter()
+    const [goToArticle, setGoToArticle] = useState(true)
+    const [selected, setSelected] = useState(initialSelected)
 
     async function onSubmit(){
         setErrorOnCreate(null)
-        const { error } = await createTopic(topicName);
+        const { error } = await createTopic(topicName)
 
         if(error){
             if(error == "exists"){
@@ -59,8 +59,7 @@ export const CreateTopic = ({onClose}: {onClose: () => void}) => {
     }
 
     return <div className="space-y-3 px-6 mb-2 flex flex-col items-center">
-        <h3>Elegí un título para el nuevo tema</h3>
-        <div>
+        <div className={"mt-6"}>
             <TextField
                 value={topicName}
                 label={"Título"}
@@ -81,8 +80,15 @@ export const CreateTopic = ({onClose}: {onClose: () => void}) => {
             </div>
         </div>
 
-        <TickButton ticked={goToArticle} setTicked={setGoToArticle} size={20} color="#455dc0"
-                    text={<span className="text-sm">Ir a la página del tema después de crearlo</span>}/>
+        <TickButton
+            ticked={goToArticle}
+            setTicked={setGoToArticle}
+            size={20}
+            color="#455dc0"
+            text={<div className="text-sm text-[var(--text-light)]">
+                Ir a la página del tema después de crearlo
+            </div>}
+        />
 
         <div className="py-4 space-x-2 text-[var(--text-light)]">
             <BasicButton

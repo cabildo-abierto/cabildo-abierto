@@ -63,8 +63,6 @@ export async function assignInviteCode(inviteCode: string) {
         return {error: "El código ya fue usado."}
     }
 
-    console.log("assigning invite code", inviteCode, "to did", did)
-
     const updates = [
         db.inviteCode.update({
             data: {

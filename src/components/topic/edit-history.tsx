@@ -356,7 +356,7 @@ export const EditHistory = ({topic}: { topic: TopicProps }) => {
         </div>
     }
 
-    const history = <div className="hidden lg:block">
+    const history = <div className="hidden min-[800px]:block">
         {topicHistory.topicHistory.versions.map((_, index) => {
         const versionIndex = topicHistory.topicHistory.versions.length-1-index
         return <div key={index} className="w-full">
@@ -371,7 +371,7 @@ export const EditHistory = ({topic}: { topic: TopicProps }) => {
 
     return <>
         {history}
-        <div className="text-sm text-center block lg:hidden text-[var(--text-light)]">
+        <div className="text-sm text-center block min-[800px]:hidden text-[var(--text-light)]">
             <p className={"py-2"}>Para ver el historial entrá a la página desde una pantalla más grande (por ejemplo una computadora).</p>
         </div>
     </>

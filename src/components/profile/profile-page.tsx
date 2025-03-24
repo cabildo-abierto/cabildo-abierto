@@ -16,7 +16,7 @@ export const ProfilePage = ({
     const {user, atprotoProfile} = useFullProfile(username)
 
     return <div>
-        {atprotoProfile && user && <ProfileHeader
+        {atprotoProfile && <ProfileHeader
             selected={selected}
             profileUser={user}
             atprotoProfile={atprotoProfile}

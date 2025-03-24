@@ -8,7 +8,7 @@ export const CardFeed = ({elements, generator}: {elements: any[], generator: (x:
 
     const screenWidth = window.innerWidth
     const rightSide = layoutConfig.openRightPanel && layoutConfig.spaceForRightSide ? pxToNumber(layoutConfig.rightMinWidth) : 0
-    const leftSide = layoutConfig.spaceForLeftSide ? 224 : 80
+    const leftSide = layoutConfig.spaceForLeftSide ? 224 : (screenWidth > 500 ? 80 : 0)
 
     const [availableWidth, setAvailableWidth] = useState(Math.min(screenWidth - rightSide - leftSide, pxToNumber(layoutConfig.maxWidthCenter)))
 
@@ -16,7 +16,7 @@ export const CardFeed = ({elements, generator}: {elements: any[], generator: (x:
         const updateLayout = () => {
             const screenWidth = window.innerWidth
             const rightSide = layoutConfig.openRightPanel && layoutConfig.spaceForRightSide ? pxToNumber(layoutConfig.rightMinWidth) : 0
-            const leftSide = layoutConfig.spaceForLeftSide ? 224 : 80
+            const leftSide = layoutConfig.spaceForLeftSide ? 224 : (screenWidth > 500 ? 80 : 0)
             setAvailableWidth(Math.min(screenWidth - rightSide - leftSide, pxToNumber(layoutConfig.maxWidthCenter)))
         };
 

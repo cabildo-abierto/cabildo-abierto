@@ -42,7 +42,7 @@ export const FastPostPreviewFrame = ({
 
     return <div
         id={post.uri}
-        className={"w-full flex flex-col hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
+        className={"flex flex-col hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
         onClick={() => {router.push(url)}}
     >
         {post.reason && post.reason.collection == "app.bsky.feed.repost" && <RepostedBy user={post.reason.by}/>}
@@ -62,7 +62,7 @@ export const FastPostPreviewFrame = ({
             </div>
 
             <div className="py-2 flex max-w-[519px] w-full flex-col pr-2">
-                <div className="flex gap-x-1">
+                <div className="flex gap-x-1 max-w-[calc(100vw-80px)]">
                     <span className="truncate">
                         <ContentTopRowAuthor author={record.author} />
                     </span>
@@ -71,6 +71,7 @@ export const FastPostPreviewFrame = ({
                         <DateSince date={record.createdAt} />
                     </span>
                 </div>
+
                 <div>
                     {children}
                 </div>

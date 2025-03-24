@@ -5,6 +5,7 @@ import {Button} from "@mui/material";
 import {BancasDiputados, BancasSenadores} from "../../components/congreso/bancas";
 import {Proyectos} from "../../components/congreso/proyectos";
 import {projects} from "../../components/congreso/update-congreso-right-panel";
+import {MobileHeader} from "../../components/layout/mobile-header";
 
 
 function getProjectByName(title: string){
@@ -44,6 +45,8 @@ export default function Page({searchParams}: {searchParams: Promise<{p: string}>
     }
 
     return <div className={"flex flex-col items-center"}>
+        <MobileHeader/>
+
         <h2 className={"mt-12"}>
             Congreso
         </h2>

@@ -162,21 +162,18 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
                     Ocurrió un error al intentar crear el post.
                 </div>}
             </div>
-            <div>
-                <hr className=""/>
-                <div className="flex justify-between mt-2 px-2">
-                    <div className={"flex space-x-2"}>
-                        <AddImageButton
-                            disabled={images && images.length == 4 || visualization != null}
-                            setModalOpen={setImageModalOpen}
-                        />
-                        <AddVisualizationButton
-                            disabled={images && images.length > 0}
-                            setModalOpen={setVisualizationModalOpen}
-                        />
-                    </div>
-                    {sendButton}
+            <div className="flex justify-between p-1 border-t items-center">
+                <div className={"flex space-x-2 items-center"}>
+                    <AddImageButton
+                        disabled={images && images.length == 4 || visualization != null}
+                        setModalOpen={setImageModalOpen}
+                    />
+                    <AddVisualizationButton
+                        disabled={images && images.length > 0}
+                        setModalOpen={setVisualizationModalOpen}
+                    />
                 </div>
+                {sendButton}
             </div>
             <InsertVisualizationModal
                 open={visualizationModalOpen}

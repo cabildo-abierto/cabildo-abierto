@@ -63,7 +63,7 @@ export const TopicsListView = () => {
     }
 
     return <div>
-        <div className={"w-full flex justify-between pt-1 pb-2"}>
+        <div className={"w-full flex justify-between pt-1 pb-2 px-2"}>
             <div className={"pt-1"}>
                 <CategorySelector categories={categories} setCategories={setCategories}/>
             </div>

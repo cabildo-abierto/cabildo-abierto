@@ -30,6 +30,7 @@ import SenadoIconActive from '../../../public/senado-icono-active.svg';
 import Image from 'next/image'
 import { useTheme } from "../theme/theme-context";
 import {userUrl} from "../utils/uri";
+import {FloatingWriteButton} from "../writing/floating-write-button";
 
 
 function unseenSupportMessagesCount(user: UserProps){
@@ -82,7 +83,11 @@ const SidebarUsernameNoUser = () => {
 
 
 const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: () => void}) => {
-    return <div className={"my-2 h-12"}>
+
+
+    return <>
+        <FloatingWriteButton onClick={onClick}/>
+        <div className={"my-2 h-12 max-[500px]:hidden"}>
         {showText ? <BasicButton
             fullWidth={true}
             startIcon={<WriteButtonIcon/>}
@@ -108,6 +113,7 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
             </Button>
         }
     </div>
+    </>
 }
 
 
@@ -138,7 +144,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
     }
 
     return <div
-        className={"pt-4 px-2 bg-[var(--background)] h-screen " + (showText ? "w-56" : "w-20")}
+        className={"pt-4 px-2 bg-[var(--background)] overflow-scroll no-scrollbar h-screen " + (showText ? "w-56" : "w-20 hidden min-[500px]:block")}
     >
         <div className={"h-full flex flex-col justify-between"}>
             <div className={"flex flex-col space-y-2 " + (showText ? "" : "items-center")}>
@@ -251,7 +257,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
             />
             <SidebarWriteButton showText={showText} onClick={() => {setWritePanelOpen(true)}}/>
         </div>
-        <div className={"text-[var(--text-light)] flex justify-end mb-2"}>
+        <div className={"text-[var(--text-light)] flex justify-end mb-2 max-[500px]:hidden"}>
             <IconButton
                 size={"small"}
                 color={"inherit"}
@@ -266,29 +272,4 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
             onClose={() => {setWritePanelOpen(false)}}
         />
     </div>
-}
-
-
-export default function Sidebar({onClose}: { onClose: () => void }) {
-    const mobile = false
-
-    if(mobile){
-        return <div className="h-screen w-screen fixed top-0 left-0 z-[51]">
-            <div className="flex">
-                <div
-                    className="h-screen lg:w-72 w-128 flex flex-col justify-between bg-[var(--background)] safe-padding-mobile">
-                    <SidebarContent onClose={onClose}/>
-                </div>
-                <button
-                    className="h-screen w-full"
-                    onClick={onClose}
-                >
-                </button>
-            </div>
-        </div>
-    } else {
-        return <div className="h-screen flex justify-end">
-            <SidebarContent onClose={onClose}/>
-        </div>
-    }
 }

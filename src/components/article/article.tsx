@@ -49,18 +49,18 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
             <h1 className="text-4xl mt-16 mb-8">
                 {article.content.article.title}
             </h1>
-            <div className={"flex justify-between"}>
-                <div className="space-x-4 flex items-baseline">
-                    <div className={"text-lg"}>
-                        Artículo de <Authorship content={article} onlyAuthor={true}/>
-                    </div>
-                    <div className={"text-[var(--text-light)]"}>
-                        {localeDate(new Date(article.createdAt), true)}
-                    </div>
-                </div>
-                <div className={"text-[var(--text-light)]"}>
-                    <ReadingTime numWords={getAllText(JSON.parse(decompress(article.content.text)).root).split(" ").length}/>
-                </div>
+            <div className="gap-x-4 flex flex-wrap items-baseline">
+                <span className={"max-[500px]:text-base text-lg"}>
+                    Artículo de <Authorship content={article} onlyAuthor={true}/>
+                </span>
+                <span className={"max-[500px]:text-sm text-[var(--text-light)]"}>
+                    {localeDate(new Date(article.createdAt), true)}
+                </span>
+                <span className={"text-[var(--text-light)]"}>
+                    <ReadingTime
+                        numWords={getAllText(JSON.parse(decompress(article.content.text)).root).split(" ").length}
+                    />
+                </span>
             </div>
             <div className={"mt-8"} id={editorId}>
                 <ReadOnlyEditor

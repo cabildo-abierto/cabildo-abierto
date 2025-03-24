@@ -58,7 +58,7 @@ export const TopicPage = ({topicId}: {
                 openSidebar: true,
                 openRightPanel: true,
                 maxWidthCenter: "600px",
-                rightMinWidth: "275px"
+                rightMinWidth: "300px"
             }))
         } else {
             setLayoutConfig((prev) => ({
@@ -66,7 +66,7 @@ export const TopicPage = ({topicId}: {
                 openSidebar: false,
                 openRightPanel: false,
                 maxWidthCenter: "800px",
-                rightMinWidth: "360px"
+                rightMinWidth: "300px"
             }))
         }
     }, [wikiEditorState])
@@ -107,11 +107,11 @@ export const TopicPage = ({topicId}: {
 
     return <div className="flex flex-col items-center w-full pt-4">
 
-        <div className="flex flex-col mx-2 py-1 mb-2 w-full">
+        <div className="flex flex-col py-1 mb-2 w-full space-y-2 px-2">
             <div className="text-[var(--text-light)] text-sm">
                 Tema
             </div>
-            <h1 className={"mb-2"}>
+            <h1 className={""}>
                 {getFullTopicTitle(topic.topic)}
             </h1>
             <TopicCategories
@@ -126,6 +126,7 @@ export const TopicPage = ({topicId}: {
             pinnedReplies={pinnedReplies}
             setPinnedReplies={setPinnedReplies}
         />
+
 
         {(wikiEditorState == "minimized" || wikiEditorState == "normal") &&
             <div className="w-full" id="discussion-start">

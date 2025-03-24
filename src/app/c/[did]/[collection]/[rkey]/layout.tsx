@@ -25,7 +25,7 @@ export default async function RootLayout({children, params}: Readonly<{
         maxWidthCenter={maxWidthCenter}
         openRightPanel={!isDistractionFree}
         defaultSidebarState={!isArticle}
-        rightMinWidth={isDistractionFree ? "275px" : undefined}
+        rightMinWidth={isDistractionFree ? "300px" : undefined}
     >
         <AccountChecker requireAccount={true}>
             {children}
