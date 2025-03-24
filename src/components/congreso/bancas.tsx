@@ -8,6 +8,7 @@ import {getId, getVote} from "./utils";
 import Link from "next/link";
 import {CustomLink} from "../ui-utils/custom-link";
 import {pxToNumber} from "../utils/strings";
+import {useRouter} from "next/navigation"
 
 
 type SelectedSenator = {
@@ -220,6 +221,7 @@ const Bancas = ({rows, radiusStep, seatRadius, generator}: {
     const [hoveredCard, setHoveredCard] = useState<SelectedSenator>(null)
     const {layoutConfig} = useLayoutConfig()
     const [canvasWidth, setCanvasWidth] = useState(pxToNumber(Math.min(window.innerWidth, pxToNumber(layoutConfig.maxWidthCenter))))
+    const router = useRouter()
 
     useEffect(() => {
         const handleResize = () => {
@@ -282,6 +284,8 @@ const Bancas = ({rows, radiusStep, seatRadius, generator}: {
                                         else if (vote == "Abstención") color = "stroke-blue-600"
                                     }
 
+                                    const link = generator(rowIndex, seatIndex).profileUrl
+
                                     if (href) {
                                         return <svg
                                             key={`${rowIndex}:${seatIndex}`}
@@ -307,6 +311,7 @@ const Bancas = ({rows, radiusStep, seatRadius, generator}: {
                                                 cx={x}
                                                 cy={y}
                                                 r={r * 1.05}
+                                                onClick={() => {router.push(link)}}
                                                 className={"stroke-1 fill-transparent cursor-pointer " + color}
                                                 onMouseEnter={() => {
                                                     setHoveredSeat({x, y, rowIndex, seatIndex})
