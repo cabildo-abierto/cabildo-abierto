@@ -83,7 +83,7 @@ export const TopicContent = ({
 
 
     if(wikiEditorState == "minimized") {
-        return <div className={"px-2"}>
+        return <div className={"px-2 w-full"}>
             <TopicContentPreview
                 topic={topic}
                 onMaximize={() => {setWikiEditorState("normal")}}
