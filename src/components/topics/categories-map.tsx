@@ -19,9 +19,9 @@ export const CategoriesMap = () => {
     }
 
     return <div className={""}>
-        <h2 className={"mt-6 ml-6 max-[500px]:text-xl text-2xl"}>
+        <div className={"mt-12 w-full flex justify-center ml-6 max-[500px]:text-xl font-bold text-lg text-[var(--text-light)]"}>
             Categorías
-        </h2>
+        </div>
         <Graph
             nodeIds={graph.nodeIds}
             edgesList={graph.edges}

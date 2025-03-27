@@ -1,9 +1,9 @@
 import { CircularProgress } from '@mui/material';
 
 
-const LoadingSpinner = ({size="30px"}: {size?: string}) => {
+const LoadingSpinner = ({size="30px", className="my-2"}: {className?: string, size?: string}) => {
   return <div className="flex items-center justify-center h-full w-full">
-    <div className="my-2">
+    <div className={className}>
       <CircularProgress size={size} color="primary"/>
     </div>
   </div>

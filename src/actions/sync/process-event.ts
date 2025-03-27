@@ -15,7 +15,7 @@ import {
     processLike,
     processPost, processRecord,
     processRepost,
-    processTopic,
+    processTopic, processTopicVote,
     processVisualization
 } from "./record-processing";
 import {getUri, splitUri, threadApiUrl} from "../../components/utils/uri";
@@ -124,6 +124,10 @@ export async function processCreateRecord(r: SyncRecordProps): Promise<{updates:
         } else if(r.collection == "ar.com.cabildoabierto.visualization"){
             updates = [...updates, ...processVisualization(r)]
             tags.add("visualization")
+        } else if(r.collection == "ar.com.cabildoabierto.topic.vote"){
+            const s = processTopicVote(r)
+            updates = [...updates, ...s]
+            tags.add("topics") // no hace falta siempre
         }
         return {updates, tags}
     } catch (err) {

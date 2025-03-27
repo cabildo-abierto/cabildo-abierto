@@ -86,6 +86,7 @@ export type TopicHistoryProps = {
     id: string
     versions: {
         uri: string
+        cid: string
         collection: string
         author: {
             did: string
@@ -108,6 +109,8 @@ export type TopicHistoryProps = {
             }
         }
         createdAt: Date
+        uniqueAccepts: number
+        uniqueRejects: number
     }[]
 }
 

@@ -105,14 +105,14 @@ export const TopicContent = ({
                 setPinnedReplies={setPinnedReplies}
                 wikiEditorState={wikiEditorState}
                 setWikiEditorState={setWikiEditorState}
-                topicVersion={{
+                topicVersion={topic.currentVersion ? {
                     uri: topic.currentVersion.uri,
                     content: {
                         text: topic.currentVersion.content.text,
                         format: topic.currentVersion.content.format,
                         record: topic.currentVersion.content.record
                     }
-                }}
+                } : null}
             />
         }
     }

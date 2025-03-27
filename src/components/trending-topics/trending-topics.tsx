@@ -1,7 +1,6 @@
 "use client"
 
 import {CustomLink as Link} from "../ui-utils/custom-link";
-import {ContentOptionsButton} from "../content-options/content-options-button";
 import {TrendingArticlesSlider} from "./trending-topics-slider";
 import {useTrendingTopics} from "../../hooks/contents";
 import LoadingSpinner from "../ui-utils/loading-spinner";
@@ -19,9 +18,9 @@ export const TrendingTopicsPanel = ({selected}: {selected: string}) => {
             >
                 Temas
             </Link>
-            <div className={"pt-1"}>
+            {/*<div className={"pt-1"}>
                 <ContentOptionsButton record={null}/>
-            </div>
+            </div>*/}
         </div>
         {topics ?
             <TrendingArticlesSlider trendingArticles={topics}/>

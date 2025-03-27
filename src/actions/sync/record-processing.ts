@@ -139,7 +139,7 @@ export function processContent(r: SyncRecordProps){
 
     let text = undefined
     let blob = undefined
-    if(r.record.text){
+    if(r.record.text != null){
         if(r.record.text.ref){
             let blobCid: string = r.record.text.ref.toString()
             if(blobCid == "[object Object]"){
@@ -248,7 +248,7 @@ export function processTopic(r: SyncRecordProps) {
         format?: string
     }
 
-    const isNewCurrentVersion = r.record.text != null
+    const isNewCurrentVersion = r.record.text != null // TO DO: esto debería depender de los permisos del usuario
 
     const topic = {
         id: record.id,
@@ -299,6 +299,35 @@ export function processTopic(r: SyncRecordProps) {
     }
 
     return updates
+}
+
+
+export function processTopicVote(r: SyncRecordProps){
+    if(r.record.value == "accept"){
+        const topicVote = {
+            uri: r.uri,
+            acceptedRecordId: r.record.subject.uri
+        }
+        return [
+            db.topicAccept.upsert({
+                create: topicVote,
+                update: topicVote,
+                where: {uri: r.uri}
+            })
+        ]
+    } else if(r.record.value == "reject"){
+        const topicVote = {
+            uri: r.uri,
+            rejectedRecordId: r.record.subject.uri
+        }
+        return [
+            db.topicReject.upsert({
+                create: topicVote,
+                update: topicVote,
+                where: {uri: r.uri}
+            })
+        ]
+    }
 }
 
 

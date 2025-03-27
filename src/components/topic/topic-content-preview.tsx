@@ -19,13 +19,26 @@ export const TopicContentPreview = ({
 }) => {
     const router = useRouter()
 
-    if(!topic.currentVersion.content.text){
+    if(!topic.currentVersion){
+        return <div className={"my-4"}>
+            <BasicButton
+                size={"large"}
+                onClick={() => {router.push(topicUrl(topic.id, undefined, "history"))}}
+                fullWidth={true}
+                color={"secondary"}
+            >
+                Este tema no tiene una versión aceptada. Ver el historial de ediciones.
+            </BasicButton>
+        </div>
+    }
+
+    if(topic.currentVersion.content.text == null || topic.currentVersion.content.text.length == 0){
         return <div className={"my-4"}>
             <BasicButton
             size={"large"}
             onClick={() => {router.push(topicUrl(topic.id, undefined, "editing"))}}
             fullWidth={true}
-            color={"inherit"}
+            color={"secondary"}
         >
             No hay nada escrito sobre este tema. Escribí una primera versión.
             </BasicButton>

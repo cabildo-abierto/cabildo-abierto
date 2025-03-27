@@ -1,20 +1,16 @@
 "use server"
 
-import {getSessionAgent} from "../auth";
 import {
     TopicProps,
-    TopicVersionProps,
     SmallTopicProps,
-    TopicsGraph, TopicSortOrder, TopicHistoryProps,
+    TopicSortOrder, TopicHistoryProps,
 } from "../../app/lib/definitions";
 import {db} from "../../db";
-import {logTimes, recordQuery, revalidateEverythingTime} from "../utils";
+import {logTimes, revalidateEverythingTime} from "../utils";
 import {fetchBlob} from "../blob";
-import {revalidateTag, unstable_cache} from "next/cache";
-import {currentCategories, getCurrentContentVersion} from "../../components/topic/utils";
-import {getRkeyFromUri} from "../../components/utils/uri";
-import {oldestFirst} from "../../components/utils/arrays";
-import {SmallTopicVersionProps} from "../../components/topic/topic-content-expanded-view";
+import {unstable_cache} from "next/cache";
+import {unique} from "../../components/utils/arrays";
+import {getDidFromUri} from "../../components/utils/uri";
 
 
 export async function getTrendingTopics(categories: string[],
@@ -171,10 +167,13 @@ export async function getTopicHistory(id: string): Promise<{topicHistory?: Topic
     try {
         const topicHistory = await unstable_cache(
             async () => {
+                console.log("getting topic history")
                 const versions = await db.record.findMany({
                     select: {
                         uri: true,
+                        cid: true,
                         collection: true,
+                        createdAt: true,
                         author: {
                             select: {
                                 did: true,
@@ -183,7 +182,6 @@ export async function getTopicHistory(id: string): Promise<{topicHistory?: Topic
                                 avatar: true
                             }
                         },
-                        createdAt: true,
                         content: {
                             select: {
                                 textBlob: true,
@@ -201,6 +199,16 @@ export async function getTopicHistory(id: string): Promise<{topicHistory?: Topic
                                         title: true
                                     }
                                 }
+                            }
+                        },
+                        accepts: {
+                            select: {
+                                uri: true
+                            }
+                        },
+                        rejects: {
+                            select: {
+                                uri: true
                             }
                         }
                     },
@@ -220,6 +228,8 @@ export async function getTopicHistory(id: string): Promise<{topicHistory?: Topic
                     id,
                     versions: versions.map(v => ({
                         ...v,
+                        uniqueAccepts: unique(v.accepts.map(a => getDidFromUri(a.uri))).length,
+                        uniqueRejects: unique(v.rejects.map(a => getDidFromUri(a.uri))).length,
                         content: {
                             ...v.content,
                             hasText: v.content.textBlob != null || v.content.text != null
@@ -229,7 +239,7 @@ export async function getTopicHistory(id: string): Promise<{topicHistory?: Topic
             },
             ["topicHistory:"+id],
             {
-                tags: ["topicHistory", "topicHistory:"+id, "topic:"+id],
+                tags: ["topicHistory", "topicHistory:"+id, "topic:"+id, "topics"],
                 revalidate: revalidateEverythingTime
             }
         )()
@@ -288,13 +298,18 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
                         }
                     }
                 },
-                currentVersionId: true
+                currentVersionId: true,
+                _count: {
+                    select: {
+                        versions: true
+                    }
+                }
             },
             where: {
                 id: id
             }
         })
-        if (!topic) return {error: "No se encontró el tema " + id + "."}
+        if (!topic || topic._count.versions == 0) return {error: "No se encontró el tema " + id + "."}
 
         if(topic.currentVersion && !topic.currentVersion.content.text){
             if(topic.currentVersion.content.textBlob){
@@ -306,8 +321,8 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
 
         return {topic}
     }, ["topic:"+id], {
-        tags: ["topic:"+id],
-        revalidate: revalidateEverythingTime
+        tags: ["topic:"+id, "topics"],
+        revalidate: 5
     })()
     const t2 = Date.now()
 

@@ -20,12 +20,12 @@ export const CategoryMap = ({c}: {c: string}) => {
         </div>
     }
 
-    return <div className={"mt-6 ml-6"}>
-        <div className={"flex space-x-2 items-center py-1"}>
+    return <div className={"mt-12 ml-6"}>
+        <div className={"flex space-x-2 items-center text-[var(--text-light)] justify-center"}>
             <BackButton url={"/temas?view=mapa"}/>
-            <h2>
+            <div className={"text-lg font-bold"}>
                 {c}
-            </h2>
+            </div>
         </div>
         <Graph
             nodeIds={graph.nodeIds}

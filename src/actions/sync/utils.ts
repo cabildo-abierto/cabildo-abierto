@@ -21,6 +21,10 @@ export function validRecord(r: SyncRecordProps){
         return false
     }
 
+    if(r.collection == "ar.com.cabildoabierto.topic.vote"){
+        return ["accept", "reject"].includes(r.record.value)
+    }
+
     if(r.collection == "ar.com.cabildoabierto.profile" || r.collection == "app.bsky.actor.profile"){
         return r.rkey == "self"
     }

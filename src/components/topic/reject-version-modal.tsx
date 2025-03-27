@@ -6,6 +6,7 @@ import { BaseFullscreenPopup } from '../ui-utils/base-fullscreen-popup';
 import {TextField} from "@mui/material";
 import {rejectEdit} from "../../actions/topic/votes";
 import {useSWRConfig} from "swr";
+import {ATProtoStrongRef} from "../../app/lib/definitions";
 
 
 export function validExplanation(text: string) {
@@ -13,10 +14,10 @@ export function validExplanation(text: string) {
 }
 
 
-export const RejectVersionModal = ({ open, onClose, topicId, versionUri }: {
+export const RejectVersionModal = ({ open, onClose, topicId, versionRef }: {
     open: boolean
     onClose: () => void
-    versionUri: string
+    versionRef: ATProtoStrongRef
     topicId: string
 }) => {
     const [explanation, setExplanation] = useState("")
@@ -28,15 +29,16 @@ export const RejectVersionModal = ({ open, onClose, topicId, versionUri }: {
 
     const infoPanelOportunism = <span>Si te parece que intentó obtener un rédito económico desproporcionado con respecto a la mejora que representa en el contenido.</span>
 
-    const vandalismInfo = <span className="text-sm">Marcar como vandalismo <InfoPanel text={infoPanelVandalism} className="w-72"/></span>
+    const vandalismInfo = <span className="text-sm text-[var(--text-light)]">Marcar como vandalismo <InfoPanel text={infoPanelVandalism} className="w-72"/></span>
 
-    const oportunismInfo = <span className="text-sm">Marcar como oportunismo <InfoPanel text={infoPanelOportunism} className="w-72"/></span>
+    const oportunismInfo = <span className="text-sm text-[var(--text-light)]">Marcar como oportunismo <InfoPanel text={infoPanelOportunism} className="w-72"/></span>
 
     const onReject = async () => {
-        const {error} = await rejectEdit(topicId, versionUri)
+        const {error} = await rejectEdit(topicId, versionRef)
         if(error) return {error}
         mutate("/api/topic/"+topicId)
         mutate("/api/topic-history/"+topicId)
+        onClose()
         return {}
     }
 

@@ -1,0 +1,31 @@
+{
+    "lexicon": 1,
+    "id": "ar.com.cabildoabierto.topic.vote",
+    "defs": {
+      "main": {
+        "type": "record",
+        "key": "tid",
+        "record": {
+          "type": "object",
+          "required": ["subject", "createdAt"],
+          "properties": {
+            "subject": {
+              "type": "link"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "value": {
+              "type": "string",
+              "description": "Valid values are 'accept' and 'reject'."
+            },
+            "$type": {
+              "type": "string",
+              "const": "ar.com.cabildoabierto.topic.vote"
+            }
+          }
+        }
+      }
+    }
+  }

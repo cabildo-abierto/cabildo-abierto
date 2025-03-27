@@ -43,7 +43,7 @@ export const TopicContentExpandedViewWithVersion = ({
     wikiEditorState,
     setWikiEditorState,
 }: {
-    topicVersion: SmallTopicVersionProps
+    topicVersion?: SmallTopicVersionProps
     topic: TopicProps
     pinnedReplies: string[]
     setPinnedReplies: (v: string[]) => void
@@ -68,7 +68,7 @@ export const TopicContentExpandedViewWithVersion = ({
         }
     }, [feed, quoteReplies])
 
-    const editorId = topicVersion.uri+"-"+(quoteReplies ? quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-") : "")
+    const editorId = !topicVersion ? "" : topicVersion.uri +"-"+(quoteReplies ? quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-") : "")
 
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{error?: string}>{
         if(!editor) return {error: "Ocurrió un error con el editor."}
@@ -105,7 +105,7 @@ export const TopicContentExpandedViewWithVersion = ({
         })
     }
 
-    const saveEnabled = editorState && JSON.stringify(editorState) != topicVersion.content.text
+    const saveEnabled = editorState && topicVersion && JSON.stringify(editorState) != topicVersion.content.text
 
     return <div className={"w-full"}>
         <TopicContentExpandedViewHeader
@@ -134,9 +134,9 @@ export const TopicContentExpandedViewWithVersion = ({
         }
         {["normal", "authors", "changes", "editing"].includes(wikiEditorState) &&
             <div id="editor" className={"pb-2 min-h-[300px]"}>
-                {["editing", "normal"].includes(wikiEditorState) && <div
+                {["editing", "normal"].includes(wikiEditorState) && (topicVersion ? <div
                     id={editorId}
-                    className={"mx-2 "+(wikiEditorState == "editing" ? "mb-32" : "mb-8")}
+                    className={" "+(wikiEditorState == "editing" ? "mb-32" : "mb-8")}
                     key={topicVersion.uri + wikiEditorState + editorId}
                 >
                     <MyLexicalEditor
@@ -154,18 +154,22 @@ export const TopicContentExpandedViewWithVersion = ({
                         setEditor={setEditor}
                         setEditorState={setEditorState}
                     />
-                </div>}
+                </div> :
+                    <div className={"text-[var(--text-light)] text-center py-8"}>
+                        No hay una versión aceptada de este tema.
+                    </div>)
+                }
                 {wikiEditorState == "changes" &&
-                    <ShowTopicChanges
+                    (topicVersion ? <ShowTopicChanges
                         topic={topic}
                         topicVersion={topicVersion}
-                    />
+                    /> : <div className={"py-8 text-[var(--text-light)] text-center"}>No se pueden mostrar los cambios.</div>)
                 }
                 {wikiEditorState == "authors" &&
-                    <ShowTopicAuthors
+                    (topicVersion ? <ShowTopicAuthors
                         topic={topic}
                         topicVersion={topicVersion}
-                    />
+                    /> : <div className={"py-8 text-[var(--text-light)] text-center"}>No se pueden mostrar los autores.</div>)
                 }
             </div>
         }
@@ -206,7 +210,7 @@ export const TopicContentExpandedView = ({
     }
 
     if(!topicVersion.topicVersion){
-        return <div className={"mt-8"}>
+        return <div className={"py-8"}>
             <ErrorPage>
                 Ocurrió un error al obtener el contenido.
             </ErrorPage>

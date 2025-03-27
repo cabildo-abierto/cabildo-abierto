@@ -6,11 +6,9 @@ import {revalidateTag} from "next/cache";
 import {db} from "../../db";
 import {getDidFromUri, getRkeyFromUri} from "../../components/utils/uri";
 import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
-import {revalidateUri} from "../revalidate";
 import {getVisualizationTitle} from "../../components/visualizations/editor/spec";
 import {logTimes} from "../utils";
 import {revalidateTags} from "../admin";
-import {BlobRef} from "@atproto/lexicon";
 
 
 export async function createFastPostATProto({

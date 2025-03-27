@@ -282,9 +282,37 @@ export async function getAdminStats(){
 }
 
 
-export async function deleteRecords({uris, author, atproto}: { uris?: string[], author?: string, atproto: boolean }) {
+export async function deleteRecordsForAuthor({author, collections, atproto}: {author: string, collections?: string[], atproto: boolean}){
+    const uris = (await db.record.findMany({
+        select: {
+            uri: true
+        },
+        where: {
+            OR: [
+                {
+                    author: {
+                        did: author
+                    }
+                },
+                {
+                    author: {
+                        handle: author
+                    }
+                }
+            ],
+            collection: collections ? {
+                in: collections
+            } : undefined
+        }
+    })).map((r) => (r.uri))
+
+    return await deleteRecords({uris, atproto})
+}
+
+
+export async function deleteRecords({uris, atproto}: { uris?: string[], atproto: boolean }): Promise<{error?: string}> {
     const {agent, did} = await getSessionAgent()
-    if (!agent) return
+    if (!agent) return {}
 
     if (atproto) {
         for (let i = 0; i < uris.length; i++) {
@@ -296,107 +324,105 @@ export async function deleteRecords({uris, author, atproto}: { uris?: string[], 
         }
     }
 
-    if (!uris) {
-        uris = (await db.record.findMany({
-            select: {
-                uri: true
-            },
-            where: {
-                OR: [
-                    {
-                        author: {
-                            did: author
-                        }
-                    },
-                    {
-                        author: {
-                            handle: author
-                        }
+    try {
+        // TO DO: hacer esto por collections
+        await db.$transaction([
+            db.topicAccept.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
                     }
-                ]
-            }
-        })).map((r) => (r.uri))
+                }
+            }),
+            db.topicReject.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.follow.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.post.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.article.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.like.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.repost.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.topicVersion.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.visualization.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.dataBlock.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.dataset.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.content.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            }),
+            db.record.deleteMany({
+                where: {
+                    uri: {
+                        in: uris
+                    }
+                }
+            })
+        ])
+    } catch (err) {
+        console.error(err)
+        return {error: "Error al borrar los registros."}
     }
-
-    await db.$transaction([
-        db.follow.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
-        db.post.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
-        db.article.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
-        db.like.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
-        db.repost.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
-        db.topicVersion.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
-        db.visualization.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
-        db.dataBlock.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
-        db.dataset.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
-        db.content.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        }),
-        db.record.deleteMany({
-            where: {
-                uri: {
-                    in: uris
-                }
-            }
-        })
-    ])
 
     const tags = new Set<string>()
     for (let i = 0; i < uris.length; i++) {
@@ -428,7 +454,7 @@ export async function deleteUser(userId: string) {
     const {data} = await agent.resolveHandle({handle: userId})
     const did = data.did
 
-    await deleteRecords({author: did, atproto: false})
+    await deleteRecordsForAuthor({author: did, atproto: false})
 
 
     await db.$transaction([
