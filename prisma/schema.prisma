@@ -168,6 +168,8 @@ model Record {
   content             Content?
   like                Like?
   repost              Repost?
+  topicAccept         TopicAccept?
+  topicReject         TopicReject?
   follow              Follow?
   dataset             Dataset?
   dataBlock           DataBlock?
@@ -183,6 +185,9 @@ model Record {
   reposts Repost[] @relation("reposts")
   replies Post[]   @relation("reply")
   rootOf  Post[]   @relation("root")
+
+  accepts TopicAccept[] @relation("accepts")
+  rejects TopicReject[] @relation("rejects")
 
   views            View[]
   uniqueViewsCount Int?   @default(0)
@@ -245,6 +250,20 @@ model Repost {
   record           Record  @relation(fields: [uri], references: [uri])
   repostedRecordId String?
   repostedRecord   Record? @relation("reposts", fields: [repostedRecordId], references: [uri])
+}
+
+model TopicAccept {
+  uri              String  @id
+  record           Record  @relation(fields: [uri], references: [uri])
+  acceptedRecordId String?
+  acceptedRecord   Record? @relation("accepts", fields: [acceptedRecordId], references: [uri])
+}
+
+model TopicReject {
+  uri              String  @id
+  record           Record  @relation(fields: [uri], references: [uri])
+  rejectedRecordId String?
+  rejectedRecord   Record? @relation("rejects", fields: [rejectedRecordId], references: [uri])
 }
 
 model TopicVersion {

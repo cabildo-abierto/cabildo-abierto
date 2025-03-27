@@ -93,7 +93,7 @@ export const TopicContentExpandedViewHeader = ({
             return <button
                 className={" " + articleButtonClassname + (isSelected ? " toggled" : "")}
             >
-                <div className={"pt-1 whitespace-nowrap px-2"}>
+                <div className={"pt-1 whitespace-nowrap text-[var(--text-light)] px-2"}>
                     {name}
                 </div>
             </button>

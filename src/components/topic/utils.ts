@@ -28,11 +28,11 @@ export function getFullTopicCategories(topic: TopicProps){
 }
 
 
-export function getCurrentContentVersion(topic: {versions: {content: {hasText: boolean}}[]}, version?: number){
+export function getCurrentContentVersion(topic: {versions: {content: {hasText: boolean}, uniqueRejects: number}[]}, version?: number){
     if(version == null) version = topic.versions.length-1
     let lastContent = 0
     for(let i = 0; i <= version; i++){
-        if(topic.versions[i].content.hasText){
+        if(topic.versions[i].content.hasText && topic.versions[i].uniqueRejects == 0){
             lastContent = i
         }
     }

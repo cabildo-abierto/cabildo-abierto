@@ -1,4 +1,4 @@
-import { Metadata } from "next"
+import {Metadata} from "next"
 import PostEditor from "../../../components/editor/article-editor"
 
 export const metadata: Metadata = {
@@ -9,11 +9,9 @@ export const metadata: Metadata = {
 
 const Publicacion: React.FC = () => {
 
-    const center = <PostEditor
+    return <PostEditor
         isFast={false}
     />
-
-    return center
 }
 
 export default Publicacion

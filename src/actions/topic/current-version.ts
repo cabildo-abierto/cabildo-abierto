@@ -3,8 +3,10 @@ import {db} from "../../db";
 import {TopicHistoryProps, TopicProps} from "../../app/lib/definitions";
 import {revalidateTags} from "../admin";
 import {setTopicCategories, setTopicSynonyms} from "./utils";
-import {getCurrentContentVersion, getCurrentVersion, getTopicLastEditFromVersions} from "../../components/topic/utils";
+import {getCurrentContentVersion, getTopicLastEditFromVersions} from "../../components/topic/utils";
 import {getTopicHistory} from "./topics";
+import {unique} from "../../components/utils/arrays";
+import {getDidFromUri} from "../../components/utils/uri";
 
 
 function getTopicCategoriesFromVersions(topic: TopicHistoryProps){
@@ -45,7 +47,7 @@ export async function deleteTopicVersion(topic: TopicProps, topicHistory: TopicH
     const newCategories = getTopicCategoriesFromVersions(topicHistory)
     const newSynonyms = getTopicSynonymsFromVersions(topicHistory)
     let newCurrentVersionId
-    if(wasCurrentVersion){
+    if(wasCurrentVersion && topicHistory.versions.length > 0){
         newCurrentVersionId = topicHistory.versions[getCurrentContentVersion(topicHistory)].uri
     }
 
@@ -152,9 +154,23 @@ export async function updateTopicsCurrentVersion() {
                         select: {
                             text: true,
                             textBlob: true,
-                            numWords: true
+                            numWords: true,
+                            record: {
+                                select: {
+                                    accepts: {
+                                        select: {
+                                            uri: true
+                                        }
+                                    },
+                                    rejects: {
+                                        select: {
+                                            uri: true
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    }
+                    },
                 },
                 orderBy: {
                     content: {
@@ -171,6 +187,8 @@ export async function updateTopicsCurrentVersion() {
             versions: t.versions.map(v => {
                 return {
                     ...v,
+                    uniqueAccepts: unique(v.content.record.accepts.map(a => getDidFromUri(a.uri))).length,
+                    uniqueRejects: unique(v.content.record.rejects.map(a => getDidFromUri(a.uri))).length,
                     content: {
                         ...v.content,
                         hasText: v.content.text != null || v.content.numWords != null || v.content.textBlob != null

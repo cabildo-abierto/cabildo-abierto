@@ -4,10 +4,13 @@ import {IconButton} from "@mui/material";
 
 export const BackButton = ({url, onClick, size="medium"}: {size?: "small" | "medium" | "large", url?: string, onClick?: () => void}) => {
     if(url != undefined){
-        return <Link href={url}><IconButton><ArrowBackIcon/></IconButton></Link>
+        return <Link href={url}><IconButton size={size} color={"inherit"}>
+            <ArrowBackIcon fontSize={"inherit"} color={"inherit"}/>
+        </IconButton>
+        </Link>
     } else {
         return <IconButton onClick={onClick} size={size} color={"inherit"}>
-            <ArrowBackIcon fontSize={"inherit"}/>
+            <ArrowBackIcon fontSize={"inherit"} color={"inherit"}/>
         </IconButton>
     }
 }

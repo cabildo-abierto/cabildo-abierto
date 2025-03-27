@@ -79,7 +79,6 @@ export const TopicPage = ({topicId}: {
         return <NoEntityPage id={topicId}/>
     }
 
-
     function setWikiEditorState(s: WikiEditorState) {
         const didParam = searchParams.get("did")
         const didParamStr = didParam ? ("&did=" + didParam) : ""
@@ -132,7 +131,7 @@ export const TopicPage = ({topicId}: {
             <div className="w-full" id="discussion-start">
                 <TopicDiscussion
                     topicId={topic.topic.id}
-                    replyToContent={topicCurrentVersionToReplyToContent(topic.topic)}
+                    replyToContent={topic.topic.currentVersion ? topicCurrentVersionToReplyToContent(topic.topic) : null}
                     onClickQuote={onClickQuote}
                     wikiEditorState={wikiEditorState}
                 />

@@ -8,14 +8,18 @@ import {revalidateTags} from "../admin";
 
 export async function createTopic(id: string){
     // TO DO: Chequear que no exista el tema.
-    return await createTopicVersion({id, claimsAuthorship: true})
+    return await createTopicVersion({
+        id,
+        claimsAuthorship: true,
+        text: ""
+    })
 }
 
 
 export async function createTopicVersionATProto({
     id, text, format="markdown", title, message, categories, synonyms}: {
     id: string,
-    text?: FormData,
+    text?: FormData | string,
     format?: string,
     title?: string
     message?: string
@@ -27,7 +31,7 @@ export async function createTopicVersionATProto({
     if(!did) return {error: "Iniciá sesión para crear un tema."}
 
     let blob = null
-    if(text){
+    if(text && typeof text != "string"){
         const data = Object.fromEntries(text);
         let f = data.data as File
         const headers: Record<string, string> = {
@@ -44,7 +48,7 @@ export async function createTopicVersionATProto({
             mimeType: blob.mimeType,
             size: blob.size,
             $type: "blob"
-        } : null,
+        } : text,
         title,
         format,
         message,
@@ -69,9 +73,9 @@ export async function createTopicVersionATProto({
 
 
 export async function createTopicVersion({
-                                             id, text, format="markdown", title, message, categories, synonyms}: {
+     id, text, format="markdown", title, message, categories, synonyms}: {
     id: string,
-    text?: FormData,
+    text?: FormData | string,
     format?: string,
     title?: string
     claimsAuthorship: boolean

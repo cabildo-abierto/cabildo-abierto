@@ -1,8 +1,8 @@
 import { DateSince } from "../ui-utils/date"
 import { CustomLink as Link } from '../ui-utils/custom-link';
-import {TopicHistoryProps, TopicProps} from "../../app/lib/definitions"
+import {ATProtoStrongRef, TopicHistoryProps, TopicProps} from "../../app/lib/definitions"
 import {useRouter, useSearchParams} from "next/navigation"
-import {ReactNode, useState} from "react"
+import React, {ReactNode, useState} from "react"
 import StateButton from "../ui-utils/state-button"
 import { useUser } from "../../hooks/user"
 import { useSWRConfig } from "swr"
@@ -30,6 +30,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
 import {acceptEdit, cancelAcceptEdit, cancelRejectEdit} from "../../actions/topic/votes";
+import {ReactionButton} from "../reactions/reaction-button";
 
 
 const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistoryProps, index: number}) => {
@@ -46,9 +47,9 @@ const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistoryProps, in
             editType = "Nuevo nombre:" + v.title
 
         } else if(v.categories){
-            editType = <div className={"flex space-x-2"}>
+            editType = <div className={"flex space-x-2 items-baseline"}>
                 <div>Categorías </div>
-                <TopicCategories categories={JSON.parse(v.categories)} containerClassName={"text-base"}/>
+                <TopicCategories categories={JSON.parse(v.categories)} containerClassName={"text-sm"}/>
             </div>
 
         } else if(v.synonyms){
@@ -75,57 +76,71 @@ const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistoryProps, in
 }
 
 
-const ConfirmEditButtons = ({topicId, versionUri}: {
-    topicId: string,
-    versionUri: string
+const ConfirmEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acceptCount, rejectCount}: {
+    topicId: string
+    versionRef: ATProtoStrongRef
+    acceptUri?: string
+    rejectUri?: string
+    acceptCount: number
+    rejectCount: number
 }) => {
     const [openRejectModal, setOpenRejectModal] = useState<boolean>(false)
     const {mutate} = useSWRConfig()
+    const [loading, setLoading] = useState(false)
 
     async function onAcceptEdit(){
-        const {error} = await acceptEdit(topicId, versionUri)
+        setLoading(true)
+        const {error} = await acceptEdit(topicId, versionRef)
         if(error) return {error}
         mutate("/api/topic/"+topicId)
         mutate("/api/topic-history/"+topicId)
+        setLoading(false)
         return {}
     }
 
     async function onCancelAcceptEdit(){
-        const {error} = await cancelAcceptEdit(topicId, versionUri)
+        setLoading(true)
+        const {error} = await cancelAcceptEdit(topicId, acceptUri)
         if(error) return {error}
         mutate("/api/topic/"+topicId)
         mutate("/api/topic-history/"+topicId)
+        setLoading(false)
         return {}
     }
 
     async function onCancelRejectEdit(){
-        const {error} = await cancelRejectEdit(topicId, versionUri)
+        setLoading(true)
+        const {error} = await cancelRejectEdit(topicId, rejectUri)
         if(error) return {error}
         mutate("/api/topic/"+topicId)
         mutate("/api/topic-history/"+topicId)
+        setLoading(false)
         return {}
     }
 
     return <div className="flex space-x-2" onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
-        <LikeCounter
-            icon1={<CheckIcon fontSize={"inherit"}/>}
-            icon2={<CheckIcon fontSize={"inherit"}/>}
-            onLike={onAcceptEdit}
-            onDislike={onCancelAcceptEdit}
-            initialCount={0}
-        />
-        <LikeCounter
+        {loading ? <LoadingSpinner size={"14px"} className={""}/> : <><ReactionButton
+                onClick={acceptUri ? onCancelAcceptEdit : onAcceptEdit}
+                active={false}
+                icon1={<CheckIcon fontSize={"inherit"}/>}
+                icon2={<CheckIcon fontSize={"inherit"}/>}
+                count={acceptCount}
+                title={"Aceptar versión."}
+            />
+            <ReactionButton
+            onClick={rejectUri ? onCancelRejectEdit : () => {setOpenRejectModal(true)}}
+            active={false}
             icon1={<ClearIcon fontSize={"inherit"}/>}
             icon2={<ClearIcon fontSize={"inherit"}/>}
-            onLike={async () => {setOpenRejectModal(true); return {}}}
-            onDislike={onCancelRejectEdit}
-            initialCount={0}
-        />
+            count={rejectCount}
+            title={"Aceptar versión."}
+            />
+        </>}
         <RejectVersionModal
             onClose={() => {setOpenRejectModal(false)}}
             open={openRejectModal}
             topicId={topicId}
-            versionUri={versionUri}
+            versionRef={versionRef}
         />
     </div>
 }
@@ -194,7 +209,7 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
 
     const topicVersion = topicHistory.versions[index]
     const v = topicVersion.content.topicVersion
-    const isCurrent = topic.currentVersion.uri == topicVersion.uri
+    const isCurrent = topic.currentVersion && topic.currentVersion.uri == topicVersion.uri
 
     const canHaveAuthorship = !v.synonyms && !v.title && !v.categories && index > 0
 
@@ -261,7 +276,12 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
 
                     <div className="flex items-center space-x-2">
                         {canHaveAuthorship && <AssignAuthorshipButtons topic={topic} version={index}/>}
-                        <ConfirmEditButtons topicId={topic.id} versionUri={topicVersion.uri}/>
+                        <ConfirmEditButtons
+                            topicId={topic.id}
+                            versionRef={{uri: topicVersion.uri, cid: topicVersion.cid}}
+                            acceptCount={topicVersion.uniqueAccepts}
+                            rejectCount={topicVersion.uniqueRejects}
+                        />
                     </div>
                 </div>
             </div>
