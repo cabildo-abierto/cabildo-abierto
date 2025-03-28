@@ -322,7 +322,7 @@ export async function getTopicById(id: string): Promise<{topic?: TopicProps, err
         return {topic}
     }, ["topic:"+id], {
         tags: ["topic:"+id, "topics"],
-        revalidate: 5
+        revalidate: revalidateEverythingTime
     })()
     const t2 = Date.now()
 

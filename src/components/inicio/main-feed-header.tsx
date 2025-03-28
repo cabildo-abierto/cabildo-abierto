@@ -15,10 +15,9 @@ export const MainFeedHeader = ({
     selected: string
     onSelection: (v: string) => void
 }) => {
-    const {layoutConfig, setLayoutConfig} = useLayoutConfig()
 
     function optionsNodes(o: string, isSelected: boolean){
-        return <div className="text-[var(--text)] w-32 h-10">
+        return <div className="text-[var(--text)] h-10">
             <Button
                 onClick={() => {}}
                 variant="text"
@@ -28,10 +27,10 @@ export const MainFeedHeader = ({
                 sx={{
                     textTransform: "none",
                     paddingY: 0,
-                    borderRadius: 0
+                    borderRadius: 0,
                 }}
             >
-                <div className={"pb-1 pt-2 border-b-[4px] " + (isSelected ? "border-[var(--primary)] font-semibold border-b-[4px]" : "border-transparent")}>
+                <div className={"whitespace-nowrap min-[500px]:mx-4 pb-1 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "border-transparent text-[var(--text-light)]")}>
                     {o}
                 </div>
             </Button>
@@ -43,7 +42,7 @@ export const MainFeedHeader = ({
         <div className={"flex"}>
             <SelectionComponent
                 onSelection={onSelection}
-                options={["En discusión", "Siguiendo"]}
+                options={["Siguiendo", "En discusión", "Descubrir"]}
                 selected={selected}
                 optionsNodes={optionsNodes}
                 className="flex"

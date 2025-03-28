@@ -19,13 +19,15 @@ type EngagementIconsProps = {
     className?: string
     small?: boolean
     onDelete?: () => Promise<void>
+    enDiscusion?: string
 }
 
 export const EngagementIcons = ({
     counters,
     record,
     className="space-x-16",
-    onDelete=async () => {}
+    onDelete=async () => {},
+    enDiscusion
 }: EngagementIconsProps) => {
 
     const onDislike = async () => {
@@ -79,6 +81,7 @@ export const EngagementIcons = ({
         <ContentOptionsButton
             record={record}
             onDelete={onDelete}
+            enDiscusion={enDiscusion}
         />
     </div>
 }

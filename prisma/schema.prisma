@@ -193,6 +193,8 @@ model Record {
   uniqueViewsCount Int?   @default(0)
 
   CAProfileOf User? @relation("CAProfile")
+
+  enDiscusion Boolean @default(false)
 }
 
 model Content {

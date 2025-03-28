@@ -9,7 +9,7 @@ import { ReactNode } from 'react'
 import { EngagementIcons } from '../reactions/engagement-icons'
 import {RepostedBy} from "./reposted-by";
 import {ProfilePic} from "./profile-pic";
-import {splitUri, threadApiUrl, urlFromRecord, userUrl} from "../utils/uri";
+import {isPost, splitUri, threadApiUrl, urlFromRecord, userUrl} from "../utils/uri";
 import {formatIsoDate} from "../utils/dates";
 
 import {emptyChar} from "../utils/utils";
@@ -42,6 +42,8 @@ export const FastPostPreviewFrame = ({
     const record = post
     const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
     const {mutate} = useSWRConfig()
+
+    const enDiscusion = post.enDiscusion ? "can remove" : "can add"
 
     async function onClick() {
 
@@ -106,6 +108,7 @@ export const FastPostPreviewFrame = ({
                         record={post}
                         className={"flex justify-between"}
                         onDelete={onDelete}
+                        enDiscusion={enDiscusion}
                     />
                 </div>
             </div>

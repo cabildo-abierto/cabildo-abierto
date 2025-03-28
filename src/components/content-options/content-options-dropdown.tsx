@@ -5,13 +5,15 @@ import {ContentOptions} from "./content-options";
 export const ContentOptionsDropdown = ({
     onClose,
     record,
-    onDelete=async () => {}
+    onDelete=async () => {},
+    enDiscusion
 }: {
     onClose: () => void
     record?: RecordProps
     onDelete: () => Promise<void>
+    enDiscusion?: string
 }) => {
     return <div className="text-base border rounded bg-[var(--background)] p-1">
-        {record && <ContentOptions record={record} onClose={onClose} onDelete={onDelete}/>}
+        {record && <ContentOptions record={record} onClose={onClose} onDelete={onDelete} enDiscusion={enDiscusion}/>}
     </div>
 }

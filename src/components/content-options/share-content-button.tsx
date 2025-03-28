@@ -3,6 +3,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import {FeedContentProps} from "../../app/lib/definitions";
 import {BasicButton} from "../ui-utils/basic-button";
 import {contentUrl} from "../utils/uri";
+import {DropdownButton} from "./dropdown-button";
 
 export const ShareContentButton = ({ content }: { content: FeedContentProps }) => {
     const [onClipboard, setOnClipboard] = useState(false);
@@ -23,13 +24,9 @@ export const ShareContentButton = ({ content }: { content: FeedContentProps }) =
         }
     };
 
-    return <BasicButton
-        onClick={async (e) => {e.stopPropagation(); e.preventDefault(); await onShare()}}
+    return <DropdownButton
+        handleClick={async () => {await onShare(); return {}}}
         startIcon={<ShareIcon/>}
-        color={"secondary"}
-        variant={"outlined"}
-        sx={{color: "text-[var(--text)]"}}
-    >
-        <div className="whitespace-nowrap w-20">{!onClipboard ? "Compartir" : "Link copiado"}</div>
-    </BasicButton>
+        text1={<div className="whitespace-nowrap">{!onClipboard ? "Compartir" : "Link copiado"}</div>}
+    />
 };

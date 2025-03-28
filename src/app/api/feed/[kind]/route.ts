@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server';
-import {getEnDiscusion, getFollowingFeed} from "../../../../actions/feed/inicio";
+import {getDiscoverFeed, getEnDiscusion, getFollowingFeed} from "../../../../actions/feed/inicio";
 import { FeedContentProps } from '../../../lib/definitions';
 
 
@@ -7,10 +7,12 @@ export async function GET(req: NextRequest, {params}: {params: Promise<{kind: st
     const {kind} = await params
 
     let feed: { feed?: FeedContentProps[]; error?: string }
-    if(kind == "InDiscussion"){
+    if(kind == "EnDiscusion"){
         feed = await getEnDiscusion()
-    } else if(kind == "Following"){
+    } else if(kind == "Siguiendo"){
         feed = await getFollowingFeed()
+    } else if(kind == "Descubrir"){
+        feed = await getDiscoverFeed()
     }
 
     return NextResponse.json(feed)

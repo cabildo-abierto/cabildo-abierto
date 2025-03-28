@@ -14,6 +14,7 @@ import {addCountersToFeed, addReasonToRepost, joinCAandATFeeds} from "./utils";
 import {getFeedCA, getFeedCACached} from "./feedCA";
 import {FeedViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 import {newestFirst} from "../../components/utils/arrays";
+import {revalidateTag} from "next/cache";
 
 
 export async function getFollowingFeedCA(did): Promise<{feed?: FeedContentProps[], error?: string}> {
@@ -168,4 +169,39 @@ export async function getEnDiscusion(): Promise<{feed?: FeedContentProps[], erro
     const readyForFeed = addCountersToFeed(feed, engagement)
 
     return {feed: readyForFeed}
+}
+
+
+export async function addToEnDiscusion(uri: string){
+    await db.record.update({
+        data: {
+            enDiscusion: true
+        },
+        where: {
+            uri: uri
+        }
+    })
+    revalidateTag("feedCA")
+    return {}
+}
+
+
+export async function removeFromEnDiscusion(uri: string){
+    await db.record.update({
+        data: {
+            enDiscusion: false
+        },
+        where: {
+            uri: uri
+        }
+    })
+    revalidateTag("feedCA")
+    return {}
+}
+
+
+export async function getDiscoverFeed(): Promise<{feed?: FeedContentProps[], error?: string}> {
+    //
+
+    return {feed: []}
 }

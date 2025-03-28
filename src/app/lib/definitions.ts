@@ -19,6 +19,7 @@ export type RecordProps = {
         avatar?: string
         inCA?: boolean
     }
+    enDiscusion?: boolean
 }
 
 export type FastPostReplyProps = {
