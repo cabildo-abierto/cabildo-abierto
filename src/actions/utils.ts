@@ -123,6 +123,7 @@ export const reactionsQuery = {
 export const enDiscusionQuery = {
     ...recordQuery,
     ...reactionsQuery,
+    enDiscusion: true,
     content: {
         select: {
             text: true,

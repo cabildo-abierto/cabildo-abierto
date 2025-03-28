@@ -34,8 +34,8 @@ export async function feedCAQuery(authors?: string[]) {
                  LEFT JOIN "Post" p ON p."uri" = c."uri"
                  LEFT JOIN "Record" root ON root."uri" = p."rootId"
         WHERE (
-            root."uri" IS NULL AND r."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post')
-                OR (root."authorId" = r."authorId" AND root."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post'))
+            (root."uri" IS NULL AND r."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post') AND r."enDiscusion" = TRUE)
+                OR (root."authorId" = r."authorId" AND root."enDiscusion" = TRUE AND root."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post'))
             )
           AND ((${authors == undefined}) OR r."authorId" IN (${authors ? Prisma.join(authors) : ("")}))
           AND NOT EXISTS (

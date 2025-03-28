@@ -9,6 +9,7 @@ export const DropdownButton = ({...props}: StateButtonProps) => {
         sx={{color: "text-[var(--text)]"}}
         fullWidth={true}
         {...props}
-        stopPropagation={false}
+        stopPropagation={true}
+        textClassName={"whitespace-nowrap w-full px-1"}
     />
 }

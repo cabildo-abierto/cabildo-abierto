@@ -67,8 +67,8 @@ export const FastPostPreview = ({
             mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/main")
             mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/replies")
         }
-        mutate("/api/feed/InDiscussion")
-        mutate("/api/feed/Following")
+        mutate("/api/feed/EnDiscusion")
+        mutate("/api/feed/Siguiendo")
         if(root && root.uri){
             mutate(threadApiUrl(root.uri))
             mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/main")

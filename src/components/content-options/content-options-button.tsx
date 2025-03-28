@@ -10,10 +10,12 @@ import { ContentOptionsDropdown } from './content-options-dropdown';
 
 export const ContentOptionsButton = ({
     record,
-    onDelete=async () => {}
+    onDelete=async () => {},
+    enDiscusion
 }: {
     record?: RecordProps
     onDelete?: () => Promise<void>
+    enDiscusion?: string
 }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null)
@@ -38,6 +40,7 @@ export const ContentOptionsButton = ({
                 record={record}
                 onClose={() => {setIsDropdownOpen(false)}}
                 onDelete={onDelete}
+                enDiscusion={enDiscusion}
             />
         </ModalBelow>
     </div>

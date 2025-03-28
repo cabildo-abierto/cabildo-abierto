@@ -5,9 +5,14 @@ import Link from "next/link";
 import {useUser} from "../../hooks/user";
 import {deleteRecords} from "../../actions/admin";
 import {ShareContentButton} from "./share-content-button";
-import {editVisualizationUrl, getBlueskyUrl} from "../utils/uri";
+import {editVisualizationUrl, getBlueskyUrl, isArticle, isPost} from "../utils/uri";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {DropdownButton} from "./dropdown-button";
+import {BlueskyLogo} from "../icons/bluesky-logo";
+import {Newspaper} from "@mui/icons-material";
+import {addToEnDiscusion, removeFromEnDiscusion} from "../../actions/feed/inicio";
+import {useSWRConfig} from "swr";
+import {useState} from "react";
 
 
 const collection2displayText = {
@@ -26,12 +31,15 @@ export const openJsonInNewTab = (json: any) => {
 }
 
 
-export const ContentOptions = ({onClose, record, onDelete}: {
+export const ContentOptions = ({onClose, record, onDelete, enDiscusion="n/a"}: {
     onClose: () => void
     record: RecordProps
     onDelete?: () => Promise<void>
+    enDiscusion?: string
 }) => {
     const {user} = useUser()
+    const {mutate} = useSWRConfig()
+    const [addedToEnDiscusion, setAddedToEnDiscusion] = useState<boolean>(enDiscusion == "can add")
 
     async function onClickDelete() {
         await deleteRecords({uris: [record.uri], atproto: true})
@@ -46,9 +54,26 @@ export const ContentOptions = ({onClose, record, onDelete}: {
             startIcon={<DeleteOutlineIcon/>}
             text1={"Borrar " + collection2displayText[record.collection]}
         />}
+        {user.did == record.author.did && enDiscusion != "n/a" && <DropdownButton
+            handleClick={async () => {
+                let r
+                if(!addedToEnDiscusion){
+                    r = await addToEnDiscusion(record.uri)
+                    setAddedToEnDiscusion(true)
+                } else {
+                    r = await removeFromEnDiscusion(record.uri)
+                    setAddedToEnDiscusion(false)
+                }
+                mutate("/api/feed/EnDiscusion")
+                return r
+            }}
+            startIcon={<Newspaper/>}
+            text1={!addedToEnDiscusion ? "Agregar a En discusión" : "Retirar de En discusión"}
+        />}
         {inBluesky && <Link target={"_blank"} href={getBlueskyUrl(record.uri)}>
             <DropdownButton
                 text1={"Ver en Bluesky"}
+                startIcon={<BlueskyLogo/>}
             />
         </Link>}
         {record.collection == "ar.com.cabildoabierto.dataset" && <Link

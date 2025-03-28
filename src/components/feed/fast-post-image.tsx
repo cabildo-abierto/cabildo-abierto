@@ -36,7 +36,7 @@ export const FullscreenImageViewer = ({ images, viewing, did, setViewing, classN
     return (
         <div
             onClick={(e) => {e.stopPropagation(); setViewing(null)}}
-            className="bg-black bg-opacity-50 inset-0 h-screen w-screen fixed z-[1001] flex justify-center items-center"
+            className="bg-black bg-opacity-50 inset-0 h-screen w-screen fixed z-[1021] flex justify-center items-center"
         >
             <div className="w-24 px-2">
                 {viewing > 0 ? (

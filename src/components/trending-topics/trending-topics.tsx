@@ -13,7 +13,7 @@ export const TrendingTopicsPanel = ({selected}: {selected: string}) => {
     return <div className="border rounded space-y-2 w-[300px]">
         <div className="flex justify-between px-2 items-center w-full">
             <Link
-                className={"text-xs text-[var(--text-light)]"}
+                className={"text-xs text-[var(--text-light)] mt-1"}
                 href={"/temas"}
             >
                 Temas

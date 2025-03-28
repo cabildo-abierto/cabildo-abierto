@@ -21,6 +21,8 @@ export const MainPostFrame = ({
     const author = post.author
     const authorUrl = userUrl(author.handle)
 
+    const enDiscusion = post.enDiscusion ? "can remove" : "can add"
+
     return <div className="w-full bg-[var(--background)] flex flex-col px-4 border-b">
         <div>
             <div className="flex justify-between items-center">
@@ -58,7 +60,7 @@ export const MainPostFrame = ({
             </div>
 
             <div className="py-2">
-                <EngagementIcons counters={post} record={post}/>
+                <EngagementIcons counters={post} record={post} enDiscusion={enDiscusion}/>
             </div>
         </div>
     </div>   
