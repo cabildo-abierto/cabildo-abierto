@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import { CustomLink as Link } from '../../../components/ui-utils/custom-link';
-import {BasicButton} from "../../../components/ui-utils/basic-button";
+import { CustomLink as Link } from '../../../../modules/ui-utils/src/custom-link';
+import {BasicButton} from "../../../../modules/ui-utils/src/basic-button";
 
 export const metadata: Metadata = {
     title: 'Error en el pago'

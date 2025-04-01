@@ -1,12 +1,12 @@
 "use client"
-import {DatasetProps, FilterProps, PlotConfigProps} from "../../../app/lib/definitions";
+import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/definitions";
 import {TopLevelParameter} from "vega-lite/src/spec/toplevel";
 import {AnyMark} from "vega-lite/src/mark";
 import {FacetedCompositeEncoding} from "vega-lite/src/compositemark";
 import {Sort} from "vega-lite/src/sort";
 import {StringFieldDef, StringFieldDefWithCondition, StringValueDefWithCondition} from "vega-lite/src/channeldef";
 import {VisualizationSpec} from "vega-embed";
-import {getDidFromUri, getRkeyFromUri} from "../../utils/uri";
+import {getDidFromUri, getRkeyFromUri} from "../../../utils/uri";
 
 const textColor = "#fbfbfc"
 const primaryColor = "#6ca0e4"
@@ -306,7 +306,7 @@ export function getSpecForConfig(config: PlotConfigProps, dataset: {dataset?: Da
     const metadata: PlotSpecMetadata = {
         editorConfig: config,
         editorVersion: "0.2",
-        editor: "https://www.cabildoabierto.com.ar/nueva-visualizacion"
+        editor: "https://www.cabildoabierto.com.ar/datos/nueva-visualizacion"
     }
 
     const spec: VisualizationSpec & {metadata: PlotSpecMetadata} = {

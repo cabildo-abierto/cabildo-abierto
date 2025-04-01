@@ -1,8 +1,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getBskyFastPost} from "../../../../../actions/feed/quoted-content";
+import {getBskyFastPost} from "@/server-actions/feed/quoted-content";
 
-import {getUri} from "../../../../../components/utils/uri";
+import {getUri} from "../../../../../utils/uri";
 
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ did: string, rkey: string }> }) {

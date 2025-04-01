@@ -1,6 +1,6 @@
 "use client"
 import Image from 'next/image'
-import {FastPostProps} from "../../app/lib/definitions";
+import {FastPostProps} from "@/lib/definitions";
 import {useEffect, useState} from "react";
 import {IconButton} from "@mui/material";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';

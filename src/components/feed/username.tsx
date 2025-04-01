@@ -1,8 +1,8 @@
 "use client"
 import Link from "next/link"
-import {getUsername} from "../utils/utils"
-import {useUser} from "../../hooks/user";
-import {userUrl} from "../utils/uri";
+import {getUsername} from "../../utils/utils"
+import {userUrl} from "../../utils/uri";
+import {useUser} from "../../hooks/swr";
 
 export const Username = ({user}: {user: {displayName?: string, handle: string}}) => {
     const session = useUser()

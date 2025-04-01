@@ -1,10 +1,25 @@
-import { LogoAndSlogan } from "../../components/presentation/presentation"
 import Link from "next/link";
 import Button from "@mui/material/Button";
 import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
-import { BlueskyLogo } from "../../components/icons/bluesky-logo";
-import Footer from "../../components/ui-utils/footer";
+import { BlueskyLogo } from "@/components/icons/bluesky-logo";
+import Footer from "../../../modules/ui-utils/src/footer";
+import {Logo} from "../../../modules/ui-utils/src/logo";
+
+
+const LogoAndSlogan = () => {
+    return <div className="flex items-center flex-col mb-16">
+        <div className="">
+            <Logo className="lg:w-32 lg:h-32 h-20 w-20"/>
+        </div>
+        <div className="flex justify-center flex-col mt-8">
+            <h1 className="lg:text-5xl text-4xl">Cabildo Abierto</h1>
+            <div className="text-base text-[var(--text-light)] text-center lg:text-[1.29rem] text-[0.958rem] my-0 py-0 mt-2">
+                Discutí lo público
+            </div>
+        </div>
+    </div>
+}
 
 
 export default function Page() {
@@ -46,7 +61,7 @@ export default function Page() {
                     <div className="relative w-[400px]">
                         <div className="absolute left-0 top-[-140px]">
                             <Image
-                                src="/ley-bases.png"
+                                src="/presentacion/ley-bases.png"
                                 width={400}
                                 height={300}
                                 alt="Ley bases"
@@ -55,7 +70,7 @@ export default function Page() {
                         </div>
                         <div className="absolute z-2 left-[150px] top-[-40px]">
                             <Image
-                                src="/inflacion.png"
+                                src="/presentacion/inflacion.png"
                                 width={400}
                                 height={300}
                                 alt="Inflación"
@@ -83,7 +98,7 @@ export default function Page() {
                             <p>Opiná sobre lo que leés</p><p>directamente donde lo leés.</p>
                         </div>
                         <Image
-                            src="/comentarios-texto.png"
+                            src="/presentacion/comentarios-texto.png"
                             width={700}
                             height={300}
                             alt="Comentarios"
@@ -96,7 +111,7 @@ export default function Page() {
                             Sin límite de caracteres.
                         </div>
                         <Image
-                            src="/publicación.png"
+                            src="/presentacion/publicación.png"
                             width={700}
                             height={700}
                             alt="Publicación"
@@ -109,7 +124,7 @@ export default function Page() {
                             Hasta 300 caracteres.
                         </div>
                         <Image
-                            src="/rápida.png"
+                            src="/presentacion/rápida.png"
                             width={700}
                             height={300}
                             alt="Publicación rápida"
@@ -128,7 +143,7 @@ export default function Page() {
                 <div className="flex justify-center md:flex-row flex-col-reverse md:h-[300px] md:space-x-32 space-y-12 md:space-y-0">
                     <div className="flex justify-center items-center flex-col mt-12 md:mt-0">
                         <Image
-                            src="/sad-robot.png"
+                            src="/presentacion/sad-robot.png"
                             width={700}
                             height={700}
                             alt="Robot triste"
@@ -172,7 +187,7 @@ export default function Page() {
                     <div className="relative w-[400px]">
                         <div className="absolute left-0 top-[-30px]">
                             <Image
-                                src="/connected.png"
+                                src="/presentacion/connected.png"
                                 width={400}
                                 height={300}
                                 alt="Red"

@@ -2,10 +2,10 @@
 import React, {ReactNode} from "react";
 import {LayoutConfigProps, LayoutConfigProvider} from "./layout-config-context";
 import {SidebarContent} from "./sidebar";
-import {PageLeaveProvider} from "../ui-utils/prevent-leave";
+import {PageLeaveProvider} from "../../../modules/ui-utils/src/prevent-leave";
 import LoadingPage from "../auth/loading-page";
 import {BetaAccessPage} from "../auth/beta-access-page";
-import {SearchProvider} from "../search/search-context";
+import {SearchProvider} from "@/components/buscar/search-context";
 
 
 export const LayoutVisualizationEditor: React.FC<{ children: ReactNode } & LayoutConfigProps> = ({

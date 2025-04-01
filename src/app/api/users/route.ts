@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getUsers } from '../../../actions/user/users';
+import { getUsers } from '@/server-actions/user/users';
 
 export async function GET() {
     const {users, error} = await getUsers()

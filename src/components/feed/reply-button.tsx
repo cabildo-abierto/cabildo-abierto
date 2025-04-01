@@ -1,5 +1,5 @@
-import { useUser } from "../../hooks/user"
 import {ProfilePic} from "./profile-pic";
+import {useUser} from "../../hooks/swr";
 
 
 

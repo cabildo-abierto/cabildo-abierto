@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {getDataset} from "../../../../actions/dataset/read";
-import {getUri} from "../../../../components/utils/uri";
+import {getDataset} from "@/server-actions/dataset/read";
+import {getUri} from "@/utils/uri";
 
 
 export async function GET(req: NextRequest,

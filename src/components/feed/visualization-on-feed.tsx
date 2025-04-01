@@ -1,4 +1,4 @@
-import {VisualizationProps} from "../../app/lib/definitions";
+import {VisualizationProps} from "@/lib/definitions";
 import {FastPostPreviewFrame} from "./fast-post-preview-frame";
 import {VegaPlotPreview} from "../visualizations/vega-plot-preview";
 

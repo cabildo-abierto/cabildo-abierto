@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getAvailableInviteCodes} from "../../../actions/user/access";
+import {getAvailableInviteCodes} from "@/server-actions/user/access";
 
 
 export async function GET() {

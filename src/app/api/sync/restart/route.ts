@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
-import {restartSync, syncAllUsers} from "../../../../actions/sync/sync-user";
-import {getUsers} from "../../../../actions/user/users";
+import {restartSync, syncAllUsers} from "@/server-actions/sync/sync-user";
+import {getUsers} from "@/server-actions/user/users";
 
 
 export async function GET(req: NextRequest) {

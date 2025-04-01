@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
-import { darkTheme, lightTheme } from '../theme';
+import { darkTheme, lightTheme } from './theme';
 import { ThemeProvider as CustomThemeProvider, useTheme } from './theme-context';
 
 const ThemeVariables = ({ children }: { children: React.ReactNode }) => {

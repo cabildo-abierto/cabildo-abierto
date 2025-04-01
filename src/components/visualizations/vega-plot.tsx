@@ -1,13 +1,13 @@
 "use client"
-import { VisualizationProps } from "../../app/lib/definitions";
+import { VisualizationProps } from "@/lib/definitions";
 import { useEffect, useRef, useState } from "react";
-import { useDataset } from "../../hooks/contents";
-import { localizeDataset } from "../editor/nodes/visualization-node-comp";
+import { useDataset } from "../../hooks/swr";
+import { localizeDataset } from "../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
 import "../editor/article-content.css";
 import embed from "vega-embed";
 import {useLayoutConfig} from "../layout/layout-config-context";
-import LoadingSpinner from "../ui-utils/loading-spinner";
-import {pxToNumber} from "../utils/strings";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {pxToNumber} from "../../utils/strings";
 
 export const VegaPlot = ({
      visualization,

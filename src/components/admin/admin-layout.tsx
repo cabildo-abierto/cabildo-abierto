@@ -2,11 +2,11 @@
 
 
 import {ReactNode} from "react";
-import SelectionComponent from "../search/search-selection-component";
+import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "@mui/material";
 import {useRouter, useSearchParams} from "next/navigation";
-import {useUser} from "../../hooks/user";
-import {NotFoundPage} from "../ui-utils/not-found-page";
+import {NotFoundPage} from "../../../modules/ui-utils/src/not-found-page";
+import {useUser} from "../../hooks/swr";
 
 export const AdminLayout = ({children}: {children: ReactNode}) => {
     const router = useRouter()

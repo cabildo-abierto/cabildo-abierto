@@ -1,23 +1,23 @@
 "use client"
 import React, {useState} from "react";
-import StateButton from "../ui-utils/state-button";
+import StateButton from "../../../modules/ui-utils/src/state-button";
 import {
     applyReferencesUpdateToContent,
     getPendingReferenceUpdatesCount,
     getPendingSynonymsUpdatesCount, resetUpdateReferenceTimestamps,
     updateReferences,
     updateTopicsSynonyms
-} from "../../actions/topic/references";
-import {updateTopicPopularityScores} from "../../actions/topic/popularity";
-import {updateTopicsCategories} from "../../actions/topic/categories";
+} from "@/server-actions/topic/references";
+import {updateTopicPopularityScores} from "@/server-actions/topic/popularity";
+import {updateTopicsCategories} from "@/server-actions/topic/categories";
 import {
     updateTopicCurrentVersion,
     updateTopicsCurrentVersion,
     updateTopicsLastEdit
-} from "../../actions/topic/current-version";
+} from "@/server-actions/topic/current-version";
 import {AdminSection} from "./admin-section";
-import {updateCategoriesGraph} from "../../actions/topic/graph";
-import {expandURI} from "../utils/uri";
+import {updateCategoriesGraph} from "@/server-actions/topic/graph";
+import {expandURI} from "../../utils/uri";
 
 
 export const AdminPrincipal = () => {

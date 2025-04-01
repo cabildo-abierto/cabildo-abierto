@@ -6,7 +6,7 @@ import {
 } from '@lexical/markdown';
 import ReadOnlyEditor from '../editor/read-only-editor';
 import { LexicalEditor } from 'lexical';
-import {PLAYGROUND_TRANSFORMERS} from "../editor/plugins/MarkdownTransformers";
+import {PLAYGROUND_TRANSFORMERS} from "../../../modules/ca-lexical-editor/src/plugins/MarkdownTransformers";
 
 
 export const BskyRichTextContent = ({content, className="article-content not-article-content no-margin-first"}: {className?: string, content: {text: string, post?: {facets?: string}}}) => {

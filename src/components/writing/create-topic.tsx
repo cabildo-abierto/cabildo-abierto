@@ -1,16 +1,16 @@
 "use client"
-import {useUser} from "../../hooks/user";
 import React, {useState} from "react";
 import {useRouter} from "next/navigation";
-import {createTopic} from "../../actions/write/topic";
-import {topicUrl} from "../utils/uri";
+import {createTopic} from "@/server-actions/write/topic";
+import {topicUrl} from "../../utils/uri";
 import Link from "next/link";
-import {BasicButton} from "../ui-utils/basic-button";
+import {BasicButton} from "../../../modules/ui-utils/src/basic-button";
 import {TextField} from "@mui/material";
-import {ErrorMsg} from "../utils/utils";
-import TickButton from "../ui-utils/tick-button";
-import StateButton from "../ui-utils/state-button";
-import {validEntityName} from "../topic/utils";
+import {ErrorMsg} from "../../utils/utils";
+import TickButton from "../../../modules/ui-utils/src/tick-button";
+import StateButton from "../../../modules/ui-utils/src/state-button";
+import {validEntityName} from "@/components/topics/topic/utils";
+import {useUser} from "../../hooks/swr";
 
 
 export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => void, initialSelected?: string}) => {

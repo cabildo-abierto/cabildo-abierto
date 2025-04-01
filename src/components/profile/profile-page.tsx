@@ -4,7 +4,8 @@ import {ProfileFeed} from "./profile-feed";
 import {useState} from "react";
 import {RepliesFeed} from "./replies-feed";
 import {WikiFeed} from "./wiki-feed";
-import { useFullProfile } from "../../hooks/user";
+
+import {useFullProfile} from "../../hooks/swr";
 
 
 export const ProfilePage = ({

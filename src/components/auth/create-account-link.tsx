@@ -1,5 +1,5 @@
 
-import { CustomLink as Link } from '../ui-utils/custom-link';
+import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
 
 
 

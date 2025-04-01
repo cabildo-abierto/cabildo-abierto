@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getBskyUser } from '../../../../actions/user/users';
+import { getBskyUser } from '@/server-actions/user/users';
 
 export async function GET() {
 

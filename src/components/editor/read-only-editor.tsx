@@ -2,14 +2,13 @@
 
 import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
 
-import { SettingsProps } from "./lexical-editor"
+import { SettingsProps } from "../../../modules/ca-lexical-editor/src/lexical-editor"
 
 import dynamic from "next/dynamic";
-import { EditorState, LexicalEditor } from "lexical";
-import {FastPostProps} from "../../app/lib/definitions";
-import {ReplyToContent} from "./plugins/CommentPlugin";
+import {FastPostProps} from "@/lib/definitions";
+import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
 
-const MyLexicalEditor = dynamic(() => import('./lexical-editor'), {
+const MyLexicalEditor = dynamic(() => import('../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
     loading: () => <></>, 
 });

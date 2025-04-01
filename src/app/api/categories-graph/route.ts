@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import {getCategoriesGraph} from "../../../actions/topic/graph";
+import {getCategoriesGraph} from "@/server-actions/topic/graph";
 
 
 export async function GET() {

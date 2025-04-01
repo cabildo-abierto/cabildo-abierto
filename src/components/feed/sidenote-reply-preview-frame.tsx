@@ -1,17 +1,17 @@
 "use client"
 
 import Image from 'next/image'
-import { DateSince } from '../ui-utils/date'
-import {EngagementProps, RecordProps} from '../../app/lib/definitions'
+import { DateSince } from '../../../modules/ui-utils/src/date'
+import {EngagementProps, RecordProps} from '@/lib/definitions'
 import Link from 'next/link'
 import { ContentTopRowAuthor } from './content-top-row-author'
 import { ReactNode } from 'react'
-import { EngagementIcons } from '../reactions/engagement-icons'
-import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
-import {userUrl} from "../utils/uri";
-import {formatIsoDate} from "../utils/dates";
+import { EngagementIcons } from '@/components/feed/reactions/engagement-icons'
+import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
+import {userUrl} from "../../utils/uri";
+import {formatIsoDate} from "../../utils/dates";
 
-import {emptyChar} from "../utils/utils";
+import {emptyChar} from "../../utils/utils";
 
 
 const ReplyVerticalLine = ({className=""}: {className?: string}) => {

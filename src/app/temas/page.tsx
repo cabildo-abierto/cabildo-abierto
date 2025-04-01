@@ -3,8 +3,8 @@ import {TopicsPageHeader} from "../../components/topics/topics-page-header";
 import {TopicsListView} from "../../components/topics/topics-list-view";
 import {TopicsMapView} from "../../components/topics/topics-map-view";
 import {useSearchParams} from "next/navigation";
-import {useSearch} from "../../components/search/search-context";
-import {SearchTopics} from "../../components/search/search-topics";
+import {useSearch} from "@/components/buscar/search-context";
+import {SearchTopics} from "@/components/buscar/search-topics";
 import {MobileHeader} from "../../components/layout/mobile-header";
 
 

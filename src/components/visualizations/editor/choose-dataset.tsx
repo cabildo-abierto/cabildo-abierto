@@ -1,13 +1,13 @@
-import {DatasetProps, PlotConfigProps} from "../../../app/lib/definitions";
+import {DatasetProps, PlotConfigProps} from "@/lib/definitions";
 import {useEffect, useState} from "react";
-import ResizableDiv from "../../ui-utils/resizable-div";
-import {BasicButton} from "../../ui-utils/basic-button";
+import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
+import {BasicButton} from "../../../../modules/ui-utils/src/basic-button";
 import AddIcon from "@mui/icons-material/Add";
 import {TextField} from "@mui/material";
 import {DatasetPreviewSmall} from "../../datasets/dataset-preview";
-import LoadingSpinner from "../../ui-utils/loading-spinner";
+import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {NewDatasetPanel} from "../../datasets/new-dataset-panel";
-import {cleanText} from "../../utils/strings";
+import {cleanText} from "../../../utils/strings";
 
 export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
     datasets?: DatasetProps[],

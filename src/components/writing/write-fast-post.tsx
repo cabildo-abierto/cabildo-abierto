@@ -1,21 +1,21 @@
-import {ReplyToContent} from "../editor/plugins/CommentPlugin";
-import {useUser} from "../../hooks/user";
+import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
 import React, {useState} from "react";
 import {useSWRConfig} from "swr";
-import StateButton from "../ui-utils/state-button";
+import StateButton from "../../../modules/ui-utils/src/state-button";
 import {TextareaAutosize} from "@mui/material";
 import {ExtraChars} from "./extra-chars";
-import {createFastPost} from "../../actions/write/post";
-import {threadApiUrl} from "../utils/uri";
-import {RectTracker} from "../ui-utils/rect-tracker";
+import {createFastPost} from "@/server-actions/write/post";
+import {threadApiUrl} from "../../utils/uri";
+import {RectTracker} from "../../../modules/ui-utils/src/rect-tracker";
 import {ProfilePic} from "../feed/profile-pic";
-import {VisualizationNodeComp} from "../editor/nodes/visualization-node-comp";
+import {VisualizationNodeComp} from "../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
 import {FastPostImagesEditor} from "./fast-post-images-editor";
 import {AddImageButton} from "./add-image-button";
 import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./insert-visualization-modal";
 import {InsertImageModal} from "./insert-image-modal";
-import {FastPostProps, FastPostReplyProps} from "../../app/lib/definitions";
+import {FastPostProps, FastPostReplyProps} from "@/lib/definitions";
+import {useUser} from "../../hooks/swr";
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {

@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import {getCategories} from "../../../actions/topic/topics";
+import {getCategories} from "@/server-actions/topic/topics";
 
 
 export async function GET() {

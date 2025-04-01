@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from "react";
 import { SidebarButton } from "./sidebar-button";
-import { CustomLink as Link } from '../ui-utils/custom-link';
+import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
 import PersonIcon from '@mui/icons-material/Person';
-import { useUser } from "../../hooks/user";
-import { UserProps } from "../../app/lib/definitions";
+import { UserProps } from "@/lib/definitions";
 import { CabildoIcon } from "../icons/home-icon";
 import { SupportIcon } from "../icons/support-icon";
 import VisualizationsIcon from "@mui/icons-material/AutoGraph";
@@ -13,7 +12,7 @@ import TopicsIcon from "@mui/icons-material/CollectionsBookmark";
 import {NotificationsIcon} from "../icons/notifications-icon";
 import {usePathname} from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
-import {BasicButton} from "../ui-utils/basic-button";
+import {BasicButton} from "../../../modules/ui-utils/src/basic-button";
 import {WritePanel} from "../writing/write-panel";
 import {Button, IconButton} from "@mui/material";
 import { useLayoutConfig } from "./layout-config-context";
@@ -29,8 +28,9 @@ import SenadoIcon from '../../../public/senado-icono.svg';
 import SenadoIconActive from '../../../public/senado-icono-active.svg';
 import Image from 'next/image'
 import { useTheme } from "../theme/theme-context";
-import {userUrl} from "../utils/uri";
+import {userUrl} from "../../utils/uri";
 import {FloatingWriteButton} from "../writing/floating-write-button";
+import {useUser} from "../../hooks/swr";
 
 
 function unseenSupportMessagesCount(user: UserProps){
@@ -192,10 +192,10 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 text="Temas"
                 href="/temas"
                 showText={showText}
-                selected={pathname.startsWith("/temas")}
+                selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
             />
             <SidebarButton
-                icon={<div className={"w-6 h-6 flex items-center jutify-center py-2"}>
+                icon={<div className={"w-6 h-6 flex items-center justify-center py-2"}>
                     <Image
                     className={currentTheme == "light" ? "brightness-0" : ""}
                     src={SenadoIconActive}
@@ -204,7 +204,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                     height={24}
                     />
                 </div>}
-                iconInactive={<div className={"w-6 h-6 flex items-center jutify-center py-2"}>
+                iconInactive={<div className={"w-6 h-6 flex items-center justify-center py-2"}>
                     <Image
                     className={currentTheme == "light" ? "brightness-0" : ""}
                     src={SenadoIcon}
@@ -216,7 +216,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 onClick={onClose}
                 text="Congreso"
                 href="/congreso"
-                selected={pathname.startsWith("/congreso")}
+                selected={pathname.startsWith("/temas/congreso")}
                 showText={showText}
             />
             <SidebarButton

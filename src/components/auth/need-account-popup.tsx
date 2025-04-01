@@ -1,7 +1,7 @@
 import { Button } from "@mui/material"
 import Link from "next/link"
 import { ReactNode } from "react"
-import { BaseFullscreenPopup } from "../ui-utils/base-fullscreen-popup"
+import { BaseFullscreenPopup } from "../../../modules/ui-utils/src/base-fullscreen-popup"
 
 
 

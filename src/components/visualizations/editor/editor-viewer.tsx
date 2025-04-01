@@ -1,18 +1,18 @@
-import {DatasetProps, PlotConfigProps} from "../../../app/lib/definitions";
+import {DatasetProps, PlotConfigProps} from "@/lib/definitions";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
 import {View} from "vega";
 import {Button} from "@mui/material";
 import {getSpecForConfig} from "./spec";
-import {createVisualization} from "../../../actions/visualization/write";
-import SelectionComponent from "../../search/search-selection-component";
+import {createVisualization} from "@/server-actions/visualization/write";
+import SelectionComponent from "@/components/buscar/search-selection-component";
 import {VisualizationOnEditor} from "../visualization-on-editor";
 import {DatasetView} from "../../datasets/dataset-view";
-import LoadingSpinner from "../../ui-utils/loading-spinner";
-import StateButton from "../../ui-utils/state-button";
+import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import StateButton from "../../../../modules/ui-utils/src/state-button";
 
 
-import {emptyChar} from "../../utils/utils";
+import {emptyChar} from "../../../utils/utils";
 
 
 function readyToPlot(config: PlotConfigProps){

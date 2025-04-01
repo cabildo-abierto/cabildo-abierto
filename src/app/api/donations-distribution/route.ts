@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDonationsDistribution } from '../../../actions/user/users';
+import { getDonationsDistribution } from '@/server-actions/user/users';
 
 export async function GET() {
 

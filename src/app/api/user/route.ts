@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getUser } from '../../../actions/user/users';
+import { getUser } from '@/server-actions/user/users';
 
 export async function GET() {
 

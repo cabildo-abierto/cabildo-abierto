@@ -1,5 +1,5 @@
 
-import {FastPostProps} from '../../app/lib/definitions'
+import {FastPostProps} from '@/lib/definitions'
 import { MainPostFrame } from './main-post-frame';
 import {FastPostContent} from "./fast-post-content";
 

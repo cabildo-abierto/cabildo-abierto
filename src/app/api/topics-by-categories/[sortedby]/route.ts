@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {getTopicsByCategories} from "../../../../actions/topic/topics";
-import {TopicSortOrder} from "../../../lib/definitions";
+import {getTopicsByCategories} from "@/server-actions/topic/topics";
+import {TopicSortOrder} from "@/lib/definitions";
 
 
 export async function GET(req: NextRequest, {params}: {params: Promise<{sortedby: string}>}) {

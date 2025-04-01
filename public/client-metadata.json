@@ -5,7 +5,7 @@
   "grant_types": ["authorization_code", "refresh_token"],
   "scope": "atproto transition:generic",
   "response_types": ["code"],
-  "redirect_uris": ["https://www.cabildoabierto.com.ar/oauth/callback"],
+  "redirect_uris": ["https://www.cabildoabierto.com.ar/api/oauth/callback"],
   "dpop_bound_access_tokens": true,
   "client_uri": "https://www.cabildoabierto.com.ar",
   "token_endpoint_auth_method": "none",

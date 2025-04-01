@@ -1,7 +1,7 @@
 "use client"
-import {useVisualization} from "../../hooks/contents";
-import {VisualizationNodeComp} from "../editor/nodes/visualization-node-comp";
-import LoadingSpinner from "../ui-utils/loading-spinner";
+import {useVisualization} from "../../hooks/swr";
+import {VisualizationNodeComp} from "../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 export const PlotFromUri = ({uri, interactive=true}: {
     uri: string

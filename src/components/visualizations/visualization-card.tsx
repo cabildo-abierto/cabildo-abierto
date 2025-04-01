@@ -1,14 +1,14 @@
-import {EngagementProps, VisualizationProps} from "../../app/lib/definitions";
+import {EngagementProps, VisualizationProps} from "@/lib/definitions";
 import {Authorship} from "../feed/content-top-row-author";
-import {CustomLink} from "../ui-utils/custom-link";
-import {EngagementIcons} from "../reactions/engagement-icons";
+import {CustomLink} from "../../../modules/ui-utils/src/custom-link";
+import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
 import Link from "next/link";
-import {DateSince} from "../ui-utils/date";
+import {DateSince} from "../../../modules/ui-utils/src/date";
 import {VegaPlotPreview} from "./vega-plot-preview";
 import TableChartIcon from '@mui/icons-material/TableChart';
 import {useSWRConfig} from "swr";
-import {contentUrl, urlFromRecord} from "../utils/uri";
-import {formatIsoDate} from "../utils/dates";
+import {contentUrl, urlFromRecord} from "../../utils/uri";
+import {formatIsoDate} from "../../utils/dates";
 
 function getTitleFromSpec(spec: string){
     try {

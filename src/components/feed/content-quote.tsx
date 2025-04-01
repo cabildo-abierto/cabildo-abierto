@@ -1,13 +1,13 @@
-import {decompress} from "../utils/compression";
+import {decompress} from "../../utils/compression";
 import ReadOnlyEditor from "../editor/read-only-editor";
 import {Authorship} from "./content-top-row-author";
-import {getTopicTitle} from "../topic/utils";
+import {getTopicTitle} from "@/components/topics/topic/utils";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import "../editor/article-content.css"
-import { useQuotedContent } from "../../hooks/contents";
-import LoadingSpinner from "../ui-utils/loading-spinner";
-import {contentUrl, getCollectionFromUri} from "../utils/uri";
+import { useQuotedContent } from "../../hooks/swr";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {contentUrl, getCollectionFromUri} from "../../utils/uri";
 
 
 function filterOutsideSelection(node: any, start: number[] | undefined, startOffset: number | undefined, end: number[] | undefined, endOffset: number | undefined){

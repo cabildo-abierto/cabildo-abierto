@@ -1,20 +1,20 @@
 "use client"
 
-import { DateSince } from '../ui-utils/date'
-import {EngagementProps, ReasonProps, RecordProps, ThreadProps} from '../../app/lib/definitions'
+import { DateSince } from '../../../modules/ui-utils/src/date'
+import {EngagementProps, ReasonProps, RecordProps, ThreadProps} from '@/lib/definitions'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ContentTopRowAuthor } from './content-top-row-author'
 import { ReactNode } from 'react'
-import { EngagementIcons } from '../reactions/engagement-icons'
+import { EngagementIcons } from '@/components/feed/reactions/engagement-icons'
 import {RepostedBy} from "./reposted-by";
 import {ProfilePic} from "./profile-pic";
-import {isPost, splitUri, threadApiUrl, urlFromRecord, userUrl} from "../utils/uri";
-import {formatIsoDate} from "../utils/dates";
+import {isPost, splitUri, threadApiUrl, urlFromRecord, userUrl} from "../../utils/uri";
+import {formatIsoDate} from "../../utils/dates";
 
-import {emptyChar} from "../utils/utils";
+import {emptyChar} from "../../utils/utils";
 import useSWR, {useSWRConfig} from "swr";
-import {getThread} from "../../actions/thread/thread";
+import {getThread} from "@/server-actions/thread/thread";
 
 
 export const ReplyVerticalLine = ({className=""}: {className?: string}) => {

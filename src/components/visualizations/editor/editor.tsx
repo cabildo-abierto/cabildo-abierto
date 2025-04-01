@@ -1,12 +1,12 @@
 "use client"
-import {useDatasets} from "../../../hooks/contents";
+import {useDatasets} from "../../../hooks/swr";
 import {useEffect, useRef, useState} from "react";
-import {DatasetProps, PlotConfigProps} from "../../../app/lib/definitions";
+import {DatasetProps, PlotConfigProps} from "@/lib/definitions";
 import {ConfigPanel} from "./config-panel";
 import {ChooseDatasetPanel} from "./choose-dataset";
 import {EditorViewer} from "./editor-viewer";
-import {AcceptButtonPanel} from "../../ui-utils/accept-button-panel";
-import {getDataset} from "../../../actions/dataset/read";
+import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
+import {getDataset} from "@/server-actions/dataset/read";
 
 
 const ErrorPanel = ({msg}: {msg?: string}) => {

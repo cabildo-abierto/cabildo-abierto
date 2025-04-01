@@ -1,8 +1,8 @@
 "use client"
 
 import React, { ReactNode } from 'react';
-import {useUser} from '../../hooks/user';
-import { LoadingScreen } from '../ui-utils/loading-screen';
+import { LoadingScreen } from '../../../modules/ui-utils/src/loading-screen';
+import {useUser} from "../../hooks/swr";
 
 
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {

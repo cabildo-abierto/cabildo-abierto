@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import {getVisualizations} from "../../../actions/visualization/read";
+import {getVisualizations} from "@/server-actions/visualization/read";
 
 
 export async function GET() {

@@ -7,15 +7,15 @@ import {
     ReasonProps,
     RecordProps,
     SmallUserProps
-} from '../../app/lib/definitions'
+} from '@/lib/definitions'
 import {FastPostPreviewFrame, ReplyVerticalLine} from './fast-post-preview-frame'
 import {FastPostContent} from "./fast-post-content";
 import {FeedElement} from "./feed-element";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
-import {useUser} from "../../hooks/user";
 import { useSWRConfig } from 'swr';
-import {contentUrl, getDidFromUri, getRkeyFromUri, isPost, threadApiUrl, topicUrl} from "../utils/uri";
+import {contentUrl, getDidFromUri, getRkeyFromUri, isPost, threadApiUrl, topicUrl} from "../../utils/uri";
+import {useUser} from "../../hooks/swr";
 
 const ShowThreadButton = ({root}: {root: RecordProps}) => {
     const url = contentUrl(root.uri)

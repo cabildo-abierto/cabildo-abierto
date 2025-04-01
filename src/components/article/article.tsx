@@ -1,17 +1,17 @@
 "use client"
-import {ArticleProps, FastPostProps} from '../../app/lib/definitions'
+import {ArticleProps, FastPostProps} from '@/lib/definitions'
 import ReadOnlyEditor from '../editor/read-only-editor'
 import {Authorship} from "../feed/content-top-row-author";
-import {localeDate} from "../ui-utils/date";
-import {decompress} from "../utils/compression";
-import {EngagementIcons} from "../reactions/engagement-icons";
+import {localeDate} from "../../../modules/ui-utils/src/date";
+import {decompress} from "../../utils/compression";
+import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
 import {useEffect} from "react";
-import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
+import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {useSWRConfig} from "swr";
 import {TopicsMentioned} from "./topics-mentioned";
 import {ReadingTime} from "./reading-time";
-import {getAllText} from "../topic/diff";
-import {threadApiUrl} from "../utils/uri";
+import {getAllText} from "@/components/topics/topic/diff";
+import {threadApiUrl} from "../../utils/uri";
 
 type ArticleCompProps = {
     article: ArticleProps,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {getFullProfileById} from "../../../../actions/user/users";
+import {getFullProfileById} from "@/server-actions/user/users";
 
 export async function GET(req: NextRequest,
     { params }: { params: Promise<{ did: string }> }

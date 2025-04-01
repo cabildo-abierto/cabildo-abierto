@@ -1,6 +1,6 @@
 import investigadora from "../../../public/congreso/investigadora.json";
 import {CongressProject} from "./proyectos";
-import {DateSince} from "../ui-utils/date";
+import {DateSince} from "../../../modules/ui-utils/src/date";
 import React from "react";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
@@ -13,7 +13,7 @@ const ProjectSmallCard = ({project}: {project: CongressProject}) => {
     const router = useRouter()
     return <div
         className={"p-2 rounded text-center flex flex-col items-center hover:bg-[var(--background-dark)] cursor-pointer"}
-        onClick={() => {router.push("/congreso?p="+project.title)}}
+        onClick={() => {router.push("/temas/congreso?p="+project.title)}}
     >
         <div className={"truncate font-semibold text-sm max-w-full"}>
             {project.title}

@@ -1,5 +1,5 @@
-import SearchBar from "../../components/search/searchbar";
-import {SearchContent} from "../../components/search/search-content";
+import SearchBar from "@/components/buscar/searchbar";
+import {SearchContent} from "@/components/buscar/search-content";
 import {SmallBackButtonHeader} from "../../components/layout/small-back-button-header";
 
 

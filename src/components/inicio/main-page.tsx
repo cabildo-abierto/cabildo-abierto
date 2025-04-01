@@ -2,7 +2,7 @@
 
 import { MainFeedHeader } from "./main-feed-header"
 import Feed from "../feed/feed"
-import {useFeed} from "../../hooks/contents";
+import {useFeed} from "../../hooks/swr";
 import {useRouter, useSearchParams} from "next/navigation";
 
 

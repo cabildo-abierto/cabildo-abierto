@@ -1,7 +1,7 @@
 import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {styled} from "@mui/material";
-import {InsertImagePayload} from "../editor/plugins/ImagesPlugin";
+import {InsertImagePayload} from "../../../modules/ca-lexical-editor/src/plugins/ImagesPlugin";
 
 
 

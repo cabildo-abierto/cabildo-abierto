@@ -1,5 +1,5 @@
 "use client"
-import {FastPostProps} from "../../app/lib/definitions";
+import {FastPostProps} from "@/lib/definitions";
 import {VideoEmbed} from "./video-embed";
 
 

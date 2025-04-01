@@ -1,10 +1,10 @@
 "use client"
 import {Button, IconButton} from "@mui/material"
-import SelectionComponent from "../search/search-selection-component"
+import SelectionComponent from "@/components/buscar/search-selection-component"
 import MenuIcon from '@mui/icons-material/Menu';
 import {CabildoIcon} from "../icons/home-icon";
-import {Logo} from "../ui-utils/logo";
-import {emptyChar} from "../utils/utils";
+import {Logo} from "../../../modules/ui-utils/src/logo";
+import {emptyChar} from "../../utils/utils";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {MobileHeader} from "../layout/mobile-header";
 

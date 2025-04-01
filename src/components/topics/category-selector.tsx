@@ -1,8 +1,8 @@
 "use client"
-import {useCategories} from "../../hooks/contents";
+import {useCategories} from "../../hooks/swr";
 
 
-import {emptyChar} from "../utils/utils";
+import {emptyChar} from "../../utils/utils";
 import {IconButton} from "@mui/material";
 import {useState} from "react";
 import AddIcon from "@mui/icons-material/Add";

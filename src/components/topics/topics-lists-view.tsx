@@ -1,13 +1,13 @@
 "use client"
-import {useTopics, useTopicsByCategories} from "../../hooks/contents";
+import {useTopics, useTopicsByCategories} from "../../hooks/swr";
 import Link from "next/link";
 import {useSearchParams} from "next/navigation";
-import {BackButton} from "../ui-utils/back-button";
+import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {TopicsSortOrder, TopicsSortSelector} from "./topics-list-view";
 import {useState} from "react";
-import LoadingSpinner from "../ui-utils/loading-spinner";
-import {ErrorPage} from "../ui-utils/error-page";
-import {categoryUrl, topicUrl} from "../utils/uri";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
+import {categoryUrl, topicUrl} from "../../utils/uri";
 
 
 export const AllCategoriesLists = ({sortedBy, setSortedBy}: {

@@ -2,7 +2,7 @@
 import {IconButton} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import {useLayoutConfig} from "../../components/layout/layout-config-context";
-import {BackButton} from "../../components/ui-utils/back-button";
+import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {useRouter} from "next/navigation";
 import {SmallBackButtonHeader} from "../../components/layout/small-back-button-header";
 

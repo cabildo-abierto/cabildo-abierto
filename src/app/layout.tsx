@@ -1,7 +1,7 @@
 import './globals.scss'
 
 import {Metadata} from "next";
-import {mainDescription, mainMetadata, openGraphMetadata, twitterMetadata} from "../components/utils/metadata";
+import {mainDescription, mainMetadata, openGraphMetadata, twitterMetadata} from "../utils/metadata";
 
 import localFont from 'next/font/local'
 import {ReactNode} from "react";

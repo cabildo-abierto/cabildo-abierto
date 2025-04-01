@@ -1,8 +1,8 @@
-import {DatasetProps, FilterProps, PlotConfigProps} from "../../../app/lib/definitions";
-import SearchableDropdown from "../../ui-utils/searchable-dropdown";
+import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/definitions";
+import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
 import {IconButton} from "@mui/material";
 import RemoveIcon from "@mui/icons-material/Remove";
-import {Select} from "../../ui-utils/select";
+import {Select} from "../../../../modules/ui-utils/src/select";
 
 
 export const filterOptions = ["igual a", "distinto de", "uno de"]
