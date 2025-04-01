@@ -5,8 +5,8 @@ import {useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {IconButton} from "@mui/material";
 import SwapVertIcon from '@mui/icons-material/SwapVert';
-import {ModalBelow} from "../ui-utils/modal-below";
-import { BasicButton } from "../ui-utils/basic-button";
+import {ModalBelow} from "../../../modules/ui-utils/src/modal-below";
+import { BasicButton } from "../../../modules/ui-utils/src/basic-button";
 
 export type TopicsSortOrder = "Populares" | "Ediciones recientes"
 

@@ -1,9 +1,9 @@
-import {BackButton} from "../ui-utils/back-button";
+import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import Graph from "./graph";
 import {useRouter} from "next/navigation";
-import {useCategoryGraph} from "../../hooks/contents";
-import LoadingSpinner from "../ui-utils/loading-spinner";
-import {topicUrl} from "../utils/uri";
+import {useCategoryGraph} from "../../hooks/swr";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {topicUrl} from "../../utils/uri";
 
 
 export const CategoryMap = ({c}: {c: string}) => {

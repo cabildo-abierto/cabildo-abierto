@@ -1,6 +1,6 @@
 import { Chatbox } from "../../components/chat/chatbox";
 
-import {supportDid} from "../../components/utils/auth";
+import {supportDid} from "../../utils/auth";
 
 
 

@@ -2,9 +2,9 @@
 
 import LoadingPage from "./loading-page"
 import { ReactNode } from "react";
-import { useUser } from "../../hooks/user";
-import { BaseFullscreenPopup } from "../ui-utils/base-fullscreen-popup";
+import { BaseFullscreenPopup } from "../../../modules/ui-utils/src/base-fullscreen-popup";
 import { Login } from "./login";
+import {useUser} from "../../hooks/swr";
 
 
 export const NeedAccountPaywall: React.FC<any> = ({ children }) => {

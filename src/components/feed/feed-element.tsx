@@ -7,10 +7,10 @@ import {
     FastPostProps,
     FeedContentProps, TopicVersionOnFeedProps,
     VisualizationProps
-} from "../../app/lib/definitions";
+} from "@/lib/definitions";
 import {DatasetPreview} from "../datasets/dataset-preview";
 import {VisualizationOnFeed} from "./visualization-on-feed";
-import {TopicVersionOnFeed} from "../topic/topic-version-on-feed";
+import {TopicVersionOnFeed} from "@/components/topics/topic/topic-version-on-feed";
 
 
 export const FeedElement = ({

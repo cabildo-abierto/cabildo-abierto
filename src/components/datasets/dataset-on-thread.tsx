@@ -1,12 +1,12 @@
 import {Authorship} from "../feed/content-top-row-author";
 import {DatasetView} from "./dataset-view";
-import {DatasetProps, EngagementProps} from "../../app/lib/definitions";
-import {useDataset} from "../../hooks/contents";
-import LoadingSpinner from "../ui-utils/loading-spinner";
+import {DatasetProps, EngagementProps} from "@/lib/definitions";
+import {useDataset} from "../../hooks/swr";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {DatasetDescription} from "./dataset-description";
-import {EngagementIcons} from "../reactions/engagement-icons";
+import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
 import {useLayoutConfig} from "../layout/layout-config-context";
-import {DateSince} from "../ui-utils/date";
+import {DateSince} from "../../../modules/ui-utils/src/date";
 
 
 export const DatasetOnThread = ({dataset}: {dataset: DatasetProps & EngagementProps}) => {

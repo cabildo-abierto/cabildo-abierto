@@ -1,8 +1,8 @@
 "use client"
-import {FastPostProps} from "../../app/lib/definitions";
+import {FastPostProps} from "@/lib/definitions";
 import Image from "next/image";
 import {useEffect, useState} from "react";
-import {getBlobUrl} from "../../actions/blob";
+import {getBlobUrl} from "@/server-actions/blob";
 import {VideoPlayer} from "./video-player";
 
 

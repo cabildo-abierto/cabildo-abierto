@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSubscriptionPrice } from '../../../actions/payments';
+import { getSubscriptionPrice } from '@/server-actions/payments';
 
 export async function GET() {
 

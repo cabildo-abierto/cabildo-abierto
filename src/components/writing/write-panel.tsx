@@ -1,18 +1,18 @@
 import React, { useState } from "react"
-import { useUser } from "../../hooks/user"
-import { BaseFullscreenPopup } from "../ui-utils/base-fullscreen-popup"
-import { CloseButton } from "../ui-utils/close-button"
+import { BaseFullscreenPopup } from "../../../modules/ui-utils/src/base-fullscreen-popup"
+import { CloseButton } from "../../../modules/ui-utils/src/close-button"
 import { NeedAccountPopup } from "../auth/need-account-popup"
-import SelectionComponent from "../search/search-selection-component";
+import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "@mui/material";
 import {useRouter} from "next/navigation";
 import {
     emptyChar
-} from "../utils/utils";
-import {ReplyToContent} from "../editor/plugins/CommentPlugin";
+} from "../../utils/utils";
+import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
 import {ContentQuote, QuotedContent} from "../feed/content-quote";
 import {CreateTopic} from "./create-topic";
 import {WriteFastPost} from "./write-fast-post";
+import {useUser} from "../../hooks/swr";
 
 
 function quotedContentFromReplyTo(replyTo: ReplyToContent): QuotedContent {

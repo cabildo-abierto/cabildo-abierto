@@ -1,7 +1,7 @@
 "use client"
 
-import StateButton from "../ui-utils/state-button";
-import {revalidateEverything, revalidateTags} from "../../actions/admin";
+import StateButton from "../../../modules/ui-utils/src/state-button";
+import {revalidateEverything, revalidateTags} from "@/server-actions/admin";
 import {TextField} from "@mui/material";
 import {useState} from "react";
 

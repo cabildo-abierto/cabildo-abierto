@@ -1,13 +1,13 @@
 "use client"
-import StateButton from "../ui-utils/state-button";
+import StateButton from "../../../modules/ui-utils/src/state-button";
 import React, {useState} from "react";
-import {getDirtyUsers} from "../../actions/sync/mirror-status";
+import {getDirtyUsers} from "@/server-actions/sync/mirror-status";
 import {AdminSection} from "./admin-section";
-import {getUsers} from "../../actions/user/users";
-import {SmallUserProps} from "../../app/lib/definitions";
-import {ListEditor} from "../ui-utils/list-editor";
-import {collectionsList} from "../../actions/sync/utils";
-import {syncAllUsers, syncUser} from "../../actions/sync/sync-user";
+import {getUsers} from "@/server-actions/user/users";
+import {SmallUserProps} from "@/lib/definitions";
+import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
+import {collectionsList} from "@/server-actions/sync/utils";
+import {syncAllUsers, syncUser} from "@/server-actions/sync/sync-user";
 
 
 export const AdminSync = () => {

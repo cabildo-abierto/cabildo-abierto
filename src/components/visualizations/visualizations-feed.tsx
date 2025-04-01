@@ -1,5 +1,5 @@
-import {EngagementProps, VisualizationProps} from "../../app/lib/definitions";
-import {CardFeed} from "../ui-utils/card-feed";
+import {EngagementProps, VisualizationProps} from "@/lib/definitions";
+import {CardFeed} from "../../../modules/ui-utils/src/card-feed";
 import {VisualizationCard} from "./visualization-card";
 
 

@@ -1,4 +1,4 @@
-import {listOrderDesc} from "../utils/arrays";
+import {listOrderDesc} from "../../utils/arrays";
 
 export type ConversationStateProps = {id: string, date: Date, seen: boolean}
 

@@ -1,7 +1,7 @@
-import { getConversations } from "../../../actions/user/users"
+import { getConversations } from "@/server-actions/user/users"
 import { ChatPage, NoConversationsChatPage } from "../../../components/chat/chat-page"
 
-import {supportDid} from "../../../components/utils/auth";
+import {supportDid} from "../../../utils/auth";
 
 
 export default async function Page({searchParams}: {searchParams: Promise<{i?: string}>}) {

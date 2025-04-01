@@ -1,8 +1,8 @@
-import SearchBar from "../search/searchbar";
-import {UserSearchResults} from "../search/user-search-results";
+import SearchBar from "@/components/buscar/searchbar";
+import {UserSearchResults} from "@/components/buscar/user-search-results";
 import React from "react";
 import {useRouter} from "next/navigation";
-import {useSearch} from "../search/search-context";
+import {useSearch} from "@/components/buscar/search-context";
 import {Button} from "@mui/material";
 
 

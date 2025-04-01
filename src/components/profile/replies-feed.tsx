@@ -1,6 +1,6 @@
 "use client"
 
-import {useProfileFeed} from "../../hooks/contents"
+import {useProfileFeed} from "../../hooks/swr"
 import Feed from "../feed/feed"
 
 

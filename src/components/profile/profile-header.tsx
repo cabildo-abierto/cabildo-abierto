@@ -1,14 +1,13 @@
-import SelectionComponent from "../search/search-selection-component";
-import { unfollow, follow } from "../../actions/user/users"
-import { PermissionLevel } from "../topic/permission-level"
+import SelectionComponent from "@/components/buscar/search-selection-component";
+import { unfollow, follow } from "@/server-actions/user/users"
+import { PermissionLevel } from "@/components/topics/topic/permission-level"
 import { Button } from "@mui/material"
-import StateButton from "../ui-utils/state-button"
+import StateButton from "../../../modules/ui-utils/src/state-button"
 import Image from 'next/image'
 import { ArticleIcon } from "../icons/article-icon"
-import {emptyChar, getUsername} from "../utils/utils";
+import {emptyChar, getUsername} from "../../utils/utils";
 import ReadOnlyEditor from "../editor/read-only-editor";
-import { useUser } from "../../hooks/user";
-import { UserProps } from "../../app/lib/definitions";
+import { UserProps } from "@/lib/definitions";
 import { useState } from "react";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import CheckIcon from "@mui/icons-material/Check";
@@ -16,6 +15,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {BlueskyLogo} from "../icons/bluesky-logo";
 import Link from "next/link";
 import {FullscreenImageViewer} from "../feed/fast-post-image";
+import {useUser} from "../../hooks/swr";
 
 
 type ProfileHeaderProps = {

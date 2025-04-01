@@ -1,4 +1,4 @@
-import { TopicPage } from "../../components/topic/topic-page"
+import { TopicPage } from "@/components/topics/topic/topic-page"
 
 type Params = Promise<{i: string, v?: number}>
 

@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getIronSession } from 'iron-session'
 
-import { Session } from './app/oauth/callback/route'
+import { Session } from '@/app/api/oauth/callback/route'
 import { cookies } from 'next/headers'
 
-import {myCookieOptions} from "./components/utils/auth";
+import {myCookieOptions} from "./utils/auth";
 
 
 function isNewUserRoute(request: NextRequest){
@@ -12,7 +12,7 @@ function isNewUserRoute(request: NextRequest){
 }
 
 function isPublicRoute(request: NextRequest){
-    return ["/v1", "/.well-known/atproto-did", "/client-metadata.json", "/presentacion", "/oauth/callback", "/login/ok"].includes(request.nextUrl.pathname) || request.nextUrl.pathname.startsWith("/api/")
+    return ["/v1", "/.well-known/atproto-did", "/client-metadata.json", "/presentacion", "/api/oauth/callback", "/login/ok"].includes(request.nextUrl.pathname) || request.nextUrl.pathname.startsWith("/api/")
 }
 
 export async function middleware(request: NextRequest) {

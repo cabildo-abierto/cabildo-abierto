@@ -1,14 +1,14 @@
 import {ProfilePic} from "../feed/profile-pic";
 import {ContentTopRowAuthor} from "../feed/content-top-row-author";
-import {EngagementProps, VisualizationProps} from "../../app/lib/definitions";
+import {EngagementProps, VisualizationProps} from "@/lib/definitions";
 import {DatasetTitle} from "../datasets/dataset-title";
-import {EngagementIcons} from "../reactions/engagement-icons";
+import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
 import {VegaPlot} from "./vega-plot";
 import {IconButton} from "@mui/material";
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import {useLayoutConfig} from "../layout/layout-config-context";
-import {pxToNumber} from "../utils/strings";
+import {pxToNumber} from "../../utils/strings";
 import {useEffect, useState} from "react";
 
 

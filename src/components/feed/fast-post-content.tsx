@@ -3,12 +3,11 @@
 import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {FastPostImage} from "./fast-post-image";
 import {QuotedPostFromEmbed} from "./quoted-post";
-import {FastPostProps} from "../../app/lib/definitions";
+import {FastPostProps} from "@/lib/definitions";
 import {ContentQuote, QuotedContent} from "./content-quote";
 import {PlotInPost} from "./plot-in-post";
 import {ExternalEmbedInPost} from "./external-embed-in-post";
 import {FastPostVideo} from "./fast-post-video";
-import {PrettyJSON} from "../ui-utils/pretty-json";
 
 
 export const FastPostContent = ({post, isMainPost=false, hideQuote=false, showQuoteContext=false, onClickQuote}: {

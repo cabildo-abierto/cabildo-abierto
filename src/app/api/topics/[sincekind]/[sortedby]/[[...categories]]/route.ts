@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getTrendingTopics} from "../../../../../../actions/topic/topics";
-import {TopicSortOrder} from "../../../../../lib/definitions";
+import {getTrendingTopics} from "@/server-actions/topic/topics";
+import {TopicSortOrder} from "@/lib/definitions";
 
 
 export async function GET(_: NextRequest,

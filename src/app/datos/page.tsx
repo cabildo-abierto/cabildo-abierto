@@ -1,12 +1,12 @@
 "use client"
 import {useState} from "react";
-import {BasicButton} from "../../components/ui-utils/basic-button";
+import {BasicButton} from "../../../modules/ui-utils/src/basic-button";
 import Link from "next/link";
-import SelectionComponent from "../../components/search/search-selection-component";
+import SelectionComponent from "@/components/buscar/search-selection-component";
 import AddIcon from "@mui/icons-material/Add";
 import {Button} from "@mui/material";
-import {useDatasets, useVisualizations} from "../../hooks/contents";
-import LoadingSpinner from "../../components/ui-utils/loading-spinner";
+import {useDatasets, useVisualizations} from "../../hooks/swr";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {VisualizationsFeed} from "../../components/visualizations/visualizations-feed";
 import {DatasetsFeed} from "../../components/datasets/datasets-feed";
 import {NewDatasetPanel} from "../../components/datasets/new-dataset-panel";
@@ -54,7 +54,7 @@ const Page = () => {
                 optionsNodes={optionsNodes}
                 className="flex justify-between"
             />}
-            {selected == "Visualizaciones" && <Link href={"/nueva-visualizacion"}>
+            {selected == "Visualizaciones" && <Link href={"/datos/nueva-visualizacion"}>
                 <BasicButton
                     startIcon={<AddIcon/>}
                     variant={"text"}

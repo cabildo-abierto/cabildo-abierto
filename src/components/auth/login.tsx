@@ -1,11 +1,11 @@
 "use client"
 import Link from "next/link"
 import { BlueskyLogin } from "./bsky-login"
-import { TopbarLogo } from "../ui-utils/logo"
+import { TopbarLogo } from "../../../modules/ui-utils/src/logo"
 import {useSearchParams} from "next/navigation";
-import {useCodes} from "../../hooks/user";
-import LoadingSpinner from "../ui-utils/loading-spinner";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import { LuPartyPopper } from "react-icons/lu";
+import {useCodes} from "../../hooks/swr";
 
 
 

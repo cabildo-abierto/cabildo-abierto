@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import {processEvent} from "../../../../actions/sync/process-event";
+import {processEvent} from "@/server-actions/sync/process-event";
 
 
 export async function POST(req: NextRequest) {

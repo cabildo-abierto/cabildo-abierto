@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useChat, useUser } from "../../hooks/user"
-import { sendMessage, setMessageSeen } from "../../actions/user/users"
-import { DateSince } from "../ui-utils/date"
-import StateButton from "../ui-utils/state-button"
-import LoadingSpinner from "../ui-utils/loading-spinner"
+import { sendMessage, setMessageSeen } from "@/server-actions/user/users"
+import { DateSince } from "../../../modules/ui-utils/src/date"
+import StateButton from "../../../modules/ui-utils/src/state-button"
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import { ChatMessage } from "@prisma/client"
 import { useSWRConfig } from "swr"
 import { SendIcon } from "../icons/send-icon"
+import {useChat, useUser} from "../../hooks/swr";
 
 
 

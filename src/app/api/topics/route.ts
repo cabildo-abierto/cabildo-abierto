@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import {getFullTopicList} from "../../../actions/feed/search";
+import {getFullTopicList} from "@/server-actions/feed/search";
 
 
 export async function GET() {

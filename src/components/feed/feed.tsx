@@ -1,12 +1,12 @@
 "use client"
 import React, { ReactNode } from "react"
-import { FeedContentProps } from "../../app/lib/definitions";
-import LoadingSpinner from "../ui-utils/loading-spinner";
+import { FeedContentProps } from "@/lib/definitions";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import { LazyLoadFeed } from "./lazy-load-feed";
 import {FeedElement} from "./feed-element";
-import {NoResults} from "../search/no-results";
-import {ViewMonitor} from "../ui-utils/view-monitor";
-import {ErrorPage} from "../ui-utils/error-page";
+import {NoResults} from "@/components/buscar/no-results";
+import {ViewMonitor} from "../../../modules/ui-utils/src/view-monitor";
+import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 
 
 export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, error: string}

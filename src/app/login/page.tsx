@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { Login } from '../../components/auth/login';
 import {Metadata} from "next";
-import {mainMetadata, twitterMetadata} from "../../components/utils/metadata";
+import {mainMetadata, twitterMetadata} from "../../utils/metadata";
 
 
 

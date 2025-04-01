@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import {getQuotedContent} from "../../../../../actions/feed/quoted-content";
+import {getQuotedContent} from "@/server-actions/feed/quoted-content";
 
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ did: string, rkey: string }> }) {

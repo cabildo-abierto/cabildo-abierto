@@ -1,14 +1,14 @@
 "use client"
 
 import Image from 'next/image'
-import {FastPostProps} from '../../app/lib/definitions'
-import {getUsername} from '../utils/utils'
+import {FastPostProps} from '@/lib/definitions'
+import {getUsername} from '../../utils/utils'
 import Link from 'next/link'
 import { ReactNode } from 'react'
-import { EngagementIcons } from '../reactions/engagement-icons'
-import {useUser} from "../../hooks/user";
-import {userUrl} from "../utils/uri";
-import {formatIsoDate} from "../utils/dates";
+import { EngagementIcons } from '@/components/feed/reactions/engagement-icons'
+import {userUrl} from "../../utils/uri";
+import {formatIsoDate} from "../../utils/dates";
+import {useUser} from "../../hooks/swr";
 
 
 type MainPostFrameProps = {children: ReactNode, post: FastPostProps}

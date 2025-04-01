@@ -1,10 +1,10 @@
-import {DatasetProps, EngagementProps} from "../../app/lib/definitions";
+import {DatasetProps, EngagementProps} from "@/lib/definitions";
 import {Authorship} from "../feed/content-top-row-author";
-import {EngagementIcons} from "../reactions/engagement-icons";
-import {CustomLink} from "../ui-utils/custom-link";
-import {CardFeed} from "../ui-utils/card-feed";
-import {DateSince} from "../ui-utils/date";
-import {urlFromRecord} from "../utils/uri";
+import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
+import {CustomLink} from "../../../modules/ui-utils/src/custom-link";
+import {CardFeed} from "../../../modules/ui-utils/src/card-feed";
+import {DateSince} from "../../../modules/ui-utils/src/date";
+import {urlFromRecord} from "../../utils/uri";
 
 
 export const SmallDatasetPreview = ({ dataset, width, height }: {

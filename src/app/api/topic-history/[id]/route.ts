@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {getTopicHistory} from "../../../../actions/topic/topics";
+import {getTopicHistory} from "@/server-actions/topic/topics";
 
 export async function GET(req: NextRequest,
     { params }: { params: Promise<{ id: string }> }

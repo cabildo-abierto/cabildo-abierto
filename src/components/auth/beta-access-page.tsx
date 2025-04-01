@@ -1,18 +1,18 @@
 "use client"
 import {ReactNode, useEffect, useState} from "react";
-import {useBskyUser, useCodes, useUser} from "../../hooks/user";
-import {getUsername} from "../utils/utils";
+import {getUsername} from "../../utils/utils";
 import {TextField} from "@mui/material";
 import {CloseSessionButton} from "./close-session-button";
-import StateButton from "../ui-utils/state-button";
-import {updateEmail} from "../../actions/user/users";
+import StateButton from "../../../modules/ui-utils/src/state-button";
+import {updateEmail} from "@/server-actions/user/users";
 import Link from "next/link";
-import Footer from "../ui-utils/footer";
+import Footer from "../../../modules/ui-utils/src/footer";
 import {mutate, useSWRConfig} from "swr";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
-import {LoadingScreen} from "../ui-utils/loading-screen";
+import {LoadingScreen} from "../../../modules/ui-utils/src/loading-screen";
 import {useSearchParams} from "next/navigation";
-import {assignInviteCode} from "../../actions/user/access";
+import {assignInviteCode} from "@/server-actions/user/access";
+import {useBskyUser, useCodes, useUser} from "../../hooks/swr";
 
 
 function getUsernameBskyUser(user: ProfileViewDetailed){

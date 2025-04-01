@@ -3,9 +3,9 @@ import {ReactNode, useEffect} from "react";
 import {SidebarContent} from "./sidebar";
 import {useLayoutConfig} from "./layout-config-context";
 import {RightPanel} from "./right-panel";
-import {pxToNumber} from "../utils/strings";
+import {pxToNumber} from "../../utils/strings";
 import {BottomBarMobile} from "./bottom-bar-mobile";
-import {emptyChar} from "../utils/utils";
+import {emptyChar} from "../../utils/utils";
 import {createPortal} from "react-dom";
 
 export const MainLayoutContent = ({children}: {children: ReactNode}) => {

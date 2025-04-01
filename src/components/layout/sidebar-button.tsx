@@ -1,6 +1,6 @@
 import {Button, IconButton} from "@mui/material"
 import { ReactNode } from "react"
-import { CustomLink } from "../ui-utils/custom-link"
+import { CustomLink } from "../../../modules/ui-utils/src/custom-link"
 
 type SidebarButtonProps = {
     text: string

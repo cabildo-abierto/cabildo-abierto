@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {getTopicVersionChanges} from "../../../../../actions/topic/topics";
-import {getUri} from "../../../../../components/utils/uri";
+import {getTopicVersionChanges} from "@/server-actions/topic/topics";
+import {getUri} from "../../../../../utils/uri";
 
 export async function GET(req: NextRequest,
     { params }: { params: Promise<{ did: string, rkey: string }> }

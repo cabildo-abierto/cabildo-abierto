@@ -1,10 +1,10 @@
 "use client"
 import {Thread} from "../../../../../components/feed/thread";
-import LoadingSpinner from "../../../../../components/ui-utils/loading-spinner";
-import {useThread} from "../../../../../hooks/contents";
-import {ErrorPage} from "../../../../../components/ui-utils/error-page";
+import LoadingSpinner from "../../../../../../modules/ui-utils/src/loading-spinner";
+import {useThread} from "../../../../../hooks/swr";
+import {ErrorPage} from "../../../../../../modules/ui-utils/src/error-page";
 import React from "react";
-import {getUri, shortCollectionToCollection} from "../../../../../components/utils/uri";
+import {getUri, shortCollectionToCollection} from "../../../../../utils/uri";
 
 
 const ContentPage = ({params}: {

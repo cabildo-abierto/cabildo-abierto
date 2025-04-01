@@ -1,13 +1,13 @@
-import {DatasetProps, FilterProps, PlotConfigProps} from "../../../app/lib/definitions";
-import ResizableDiv from "../../ui-utils/resizable-div";
-import {Select} from "../../ui-utils/select";
-import SearchableDropdown from "../../ui-utils/searchable-dropdown";
+import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/definitions";
+import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
+import {Select} from "../../../../modules/ui-utils/src/select";
+import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
 import {IconButton, TextField} from "@mui/material";
-import {BasicButton} from "../../ui-utils/basic-button";
+import {BasicButton} from "../../../../modules/ui-utils/src/basic-button";
 import AddIcon from "@mui/icons-material/Add";
 import {FilterConfig} from "./filter-config";
 import CodeIcon from '@mui/icons-material/Code';
-import {openJsonInNewTab} from "../../content-options/content-options";
+import {openJsonInNewTab} from "@/components/feed/content-options/content-options";
 import {getSpecForConfig} from "./spec";
 
 

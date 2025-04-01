@@ -1,22 +1,21 @@
 "use client"
-import LoadingSpinner from '../../components/ui-utils/loading-spinner';
-import { useDonationsDistribution, useFundingPercentage, useSubscriptionPrice } from '../../hooks/subscriptions';
-import { CustomLink as Link } from '../../components/ui-utils/custom-link';
-import { useUser } from '../../hooks/user';
-import { UserProps } from '../lib/definitions';
-import FundingProgress from '../../components/donations/funding-progress';
-import StateButton from '../../components/ui-utils/state-button';
-import { Desplegable } from '../../components/ui-utils/desplegable';
+import LoadingSpinner from '../../../modules/ui-utils/src/loading-spinner';
+import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
+import { UserProps } from '@/lib/definitions';
+import FundingProgress from '@/components/aportar/funding-progress';
+import StateButton from '../../../modules/ui-utils/src/state-button';
+import { Desplegable } from '../../../modules/ui-utils/src/desplegable';
 import { useState } from 'react';
-import { createPreference } from '../../actions/payments';
-import { IntegerInputPlusMinus } from '../../components/donations/integer-input-plus-minus';
-import { UniqueDonationCheckout } from '../../components/donations/unique-donation-checkout';
+import { createPreference } from '@/server-actions/payments';
+import { IntegerInputPlusMinus } from '@/components/aportar/integer-input-plus-minus';
+import { UniqueDonationCheckout } from '@/components/aportar/unique-donation-checkout';
 import { Button } from '@mui/material';
 import { ArrowRightIcon } from '../../components/icons/arrow-right-icon';
 import { DonateIcon } from '../../components/icons/donate-icon';
 import { ExpandLessIcon } from '../../components/icons/expand-less-icon';
 import { ExpandMoreIcon } from '../../components/icons/expand-more-icon';
-import { BasicButton } from '../../components/ui-utils/basic-button';
+import { BasicButton } from '../../../modules/ui-utils/src/basic-button';
+import {useDonationsDistribution, useFundingPercentage, useSubscriptionPrice, useUser} from "../../hooks/swr";
 
 
 const HowUsed = () => {

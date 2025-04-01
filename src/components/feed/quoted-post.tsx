@@ -1,17 +1,17 @@
 "use client"
-import {FastPostProps} from "../../app/lib/definitions";
+import {FastPostProps} from "@/lib/definitions";
 import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {ContentTopRowAuthor} from "./content-top-row-author";
 import Image from 'next/image'
-import {DateSince} from "../ui-utils/date";
+import {DateSince} from "../../../modules/ui-utils/src/date";
 import {FastPostImage} from "./fast-post-image";
 import {useRouter} from "next/navigation";
-import LoadingSpinner from "../ui-utils/loading-spinner";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {FastPostVideo} from "./fast-post-video";
 import {PlotInPost} from "./plot-in-post";
 import {ExternalEmbedInPost} from "./external-embed-in-post";
-import {usePost} from "../../hooks/contents";
-import {contentUrl} from "../utils/uri";
+import {usePost} from "../../hooks/swr";
+import {contentUrl} from "../../utils/uri";
 
 
 const QuotedPostFromUri = ({uri}: {uri: string}) => {

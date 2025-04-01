@@ -1,7 +1,7 @@
 import Graph from "./graph";
 import {useRouter} from "next/navigation";
-import {useCategoriesGraph} from "../../hooks/contents";
-import LoadingSpinner from "../ui-utils/loading-spinner";
+import {useCategoriesGraph} from "../../hooks/swr";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 
 export const CategoriesMap = () => {

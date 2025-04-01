@@ -44,7 +44,7 @@ export const BottomBarMobile = () => {
             iconInactive={<CollectionsBookmarkOutlinedIcon/>}
             text="Temas"
             href="/temas"
-            selected={pathname.startsWith("/temas")}
+            selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
             className={buttonClassName}
         />
         <SidebarButton

@@ -1,20 +1,20 @@
 "use client"
 import { FastPost } from "./fast-post"
-import {ArticleProps, DatasetProps, FastPostProps, ThreadProps, VisualizationProps} from "../../app/lib/definitions"
+import {ArticleProps, DatasetProps, FastPostProps, ThreadProps, VisualizationProps} from "@/lib/definitions"
 import { ReplyButton } from "./reply-button"
 import { FastPostPreview } from "./fast-post-preview"
 import {useEffect, useState} from "react";
 import {WritePanel} from "../writing/write-panel";
 import {Article} from "../article/article";
-import {smoothScrollTo} from "../editor/plugins/TableOfContentsPlugin";
+import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {VisualizationOnThread} from "../visualizations/visualization-on-thread";
 import {DatasetOnThread} from "../datasets/dataset-on-thread";
 
-import {collectionToDisplay, isPost, threadApiUrl} from "../utils/uri";
+import {collectionToDisplay, isPost, threadApiUrl} from "../../utils/uri";
 import {useSWRConfig} from "swr";
-import {BackButton} from "../ui-utils/back-button";
+import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {useRouter} from "next/navigation";
-import LoadingSpinner from "../ui-utils/loading-spinner";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 
 export const ThreadHeader = ({c, title}: {c?: string, title?: string}) => {

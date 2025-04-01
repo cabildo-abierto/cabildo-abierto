@@ -1,6 +1,6 @@
 "use client"
-import { logout } from "../../actions/auth"
-import StateButton from "../ui-utils/state-button"
+import { logout } from "@/server-actions/auth"
+import StateButton from "../../../modules/ui-utils/src/state-button"
 import {useSWRConfig} from "swr";
 import {useRouter} from "next/navigation";
 

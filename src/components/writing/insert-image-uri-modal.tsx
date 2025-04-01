@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {TextField} from "@mui/material";
 import Button from "@mui/material/Button";
-import {InsertImagePayload} from "../editor/plugins/ImagesPlugin";
+import {InsertImagePayload} from "../../../modules/ca-lexical-editor/src/plugins/ImagesPlugin";
 
 export function InsertImageUriDialogBody ({
     onClick,

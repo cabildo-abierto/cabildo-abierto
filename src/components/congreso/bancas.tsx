@@ -6,8 +6,8 @@ import {useLayoutConfig} from "../layout/layout-config-context";
 import {CongressProject, CongressResult} from "./proyectos";
 import {getId, getVote} from "./utils";
 import Link from "next/link";
-import {CustomLink} from "../ui-utils/custom-link";
-import {pxToNumber} from "../utils/strings";
+import {CustomLink} from "../../../modules/ui-utils/src/custom-link";
+import {pxToNumber} from "../../utils/strings";
 import {useRouter} from "next/navigation"
 
 

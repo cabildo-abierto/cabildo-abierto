@@ -1,16 +1,16 @@
 "use client"
 import {TextField} from "@mui/material";
-import StateButton from "../ui-utils/state-button";
-import {createCodes, grantAccess} from "../../actions/user/access";
+import StateButton from "../../../modules/ui-utils/src/state-button";
+import {createCodes, grantAccess} from "@/server-actions/user/access";
 import React, {useState} from "react";
-import {useCodes} from "../../hooks/user";
 import {AdminSection} from "./admin-section";
-import {deleteUser} from "../../actions/admin";
-import {getUsers} from "../../actions/user/users";
-import {SmallUserProps} from "../../app/lib/definitions";
-import {syncUser} from "../../actions/sync/sync-user";
-import {ListEditor} from "../ui-utils/list-editor";
-import {collectionsList} from "../../actions/sync/utils";
+import {deleteUser} from "@/server-actions/admin";
+import {getUsers} from "@/server-actions/user/users";
+import {SmallUserProps} from "@/lib/definitions";
+import {syncUser} from "@/server-actions/sync/sync-user";
+import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
+import {collectionsList} from "@/server-actions/sync/utils";
+import {useCodes} from "../../hooks/swr";
 
 
 export const AdminAcceso = () => {

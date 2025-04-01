@@ -1,15 +1,15 @@
 "use client"
 import {Box, Button, Container, FormHelperText, TextField} from "@mui/material"
 import {useEffect, useState} from "react"
-import { login } from "../../actions/auth"
+import { login } from "@/server-actions/auth"
 import {useRouter} from "next/navigation"
 import { FormControl } from '@mui/material';
 import { isValidHandle } from "@atproto/syntax"
-import {useUser} from "../../hooks/user";
-import {assignInviteCode} from "../../actions/user/access";
-import LoadingSpinner from "../ui-utils/loading-spinner";
+import {assignInviteCode} from "@/server-actions/user/access";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {mutate} from "swr";
 import Link from "next/link";
+import {useUser} from "../../hooks/swr";
 
 
 export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {

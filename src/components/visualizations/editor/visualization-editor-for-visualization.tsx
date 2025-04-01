@@ -1,8 +1,8 @@
 "use client"
-import {useVisualization} from "../../../hooks/contents";
-import {LoadingScreen} from "../../ui-utils/loading-screen";
+import {useVisualization} from "../../../hooks/swr";
+import {LoadingScreen} from "../../../../modules/ui-utils/src/loading-screen";
 import {VisualizationEditor} from "./editor";
-import {PlotConfigProps} from "../../../app/lib/definitions";
+import {PlotConfigProps} from "@/lib/definitions";
 
 
 function getConfigFromSpec(spec: string): PlotConfigProps {

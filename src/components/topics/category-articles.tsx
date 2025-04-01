@@ -1,10 +1,10 @@
 "use client"
-import { TopicSearchResult } from "../topic/topic-search-result"
-import { useTopics } from "../../hooks/contents"
-import LoadingSpinner from "../ui-utils/loading-spinner"
+import { TopicSearchResult } from "@/components/topics/topic/topic-search-result"
+import { useTopics } from "../../hooks/swr"
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import { LazyLoadFeed } from "../feed/lazy-load-feed"
 import React from "react"
-import {NoResults} from "../search/no-results";
+import {NoResults} from "@/components/buscar/no-results";
 import {TopicsSortOrder} from "./topics-list-view";
 
 

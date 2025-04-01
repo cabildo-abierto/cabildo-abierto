@@ -1,6 +1,6 @@
 import React from "react";
-import {DateSince} from "../ui-utils/date";
-import {BasicButton} from "../ui-utils/basic-button";
+import {DateSince} from "../../../modules/ui-utils/src/date";
+import {BasicButton} from "../../../modules/ui-utils/src/basic-button";
 import {useLayoutConfig} from "../layout/layout-config-context";
 
 export type CongressProject = {

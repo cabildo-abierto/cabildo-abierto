@@ -1,5 +1,5 @@
 "use client"
-import {BackButton} from "../ui-utils/back-button";
+import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {useRouter} from "next/navigation";
 import {IconButton} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";

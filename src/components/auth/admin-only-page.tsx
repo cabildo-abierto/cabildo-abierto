@@ -1,9 +1,9 @@
 "use client"
 import { ReactNode } from "react"
-import { NotFoundPage } from "../ui-utils/not-found-page"
-import { useUser } from "../../hooks/user"
+import { NotFoundPage } from "../../../modules/ui-utils/src/not-found-page"
 
-import {tomasDid} from "../utils/auth";
+import {tomasDid} from "../../utils/auth";
+import {useUser} from "../../hooks/swr";
 
 
 
