@@ -13,7 +13,6 @@ import {
   ListNode,
 } from '@lexical/list';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/react/LexicalHorizontalRuleNode';
 import {
   $createHeadingNode,
   $createQuoteNode,
@@ -21,7 +20,6 @@ import {
   HeadingTagType,
 } from '@lexical/rich-text';
 import {
-  $isParentElementRTL,
   $setBlocksType,
 } from '@lexical/selection';
 import {$isTableNode} from '@lexical/table';
@@ -32,19 +30,14 @@ import {
 } from '@lexical/utils';
 import {
   $createParagraphNode,
-  $getNodeByKey,
   $getSelection,
-  $isElementNode,
   $isRangeSelection,
   $isRootOrShadowRoot,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
-  ElementFormatType,
-  FORMAT_ELEMENT_COMMAND,
   FORMAT_TEXT_COMMAND,
   LexicalEditor,
-  NodeKey,
   REDO_COMMAND,
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND,
@@ -68,8 +61,9 @@ import {
   InsertLink,
   TableChartOutlined
 } from "@mui/icons-material";
-import {InsertImageModal} from "../../../../../src/components/writing/insert-image-modal";
+import {InsertImageModal} from "@/components/writing/insert-image-modal";
 import {INSERT_IMAGE_COMMAND, InsertImagePayload} from "../ImagesPlugin";
+import {ToolbarButton} from "./toolbar-button";
 
 const blockTypeToBlockName = {
   bullet: 'Lista',
@@ -89,45 +83,6 @@ const blockTypeToBlockName = {
 const rootTypeToRootName = {
   root: 'Root',
   table: 'Table',
-};
-
-const ELEMENT_FORMAT_OPTIONS: {
-  [key in Exclude<ElementFormatType, ''>]: {
-    icon: string;
-    iconRTL: string;
-    name: string;
-  };
-} = {
-  center: {
-    icon: 'center-align',
-    iconRTL: 'center-align',
-    name: 'Centrar',
-  },
-  end: {
-    icon: 'right-align',
-    iconRTL: 'left-align',
-    name: '',
-  },
-  justify: {
-    icon: 'justify-align',
-    iconRTL: 'justify-align',
-    name: 'Justificar',
-  },
-  left: {
-    icon: 'left-align',
-    iconRTL: 'left-align',
-    name: 'Izquierda',
-  },
-  right: {
-    icon: 'right-align',
-    iconRTL: 'right-align',
-    name: 'Derecha',
-  },
-  start: {
-    icon: 'start-align',
-    iconRTL: 'start-align',
-    name: '',
-  }
 };
 
 function dropDownActiveClass(active: boolean) {
@@ -194,7 +149,7 @@ function BlockFormatDropDown({
   return (
     <DropDown
       disabled={disabled}
-      buttonClassName="toolbar-item block-controls"
+      buttonClassName="toolbar-item block-controls text-[var(--text-light)]"
       buttonIconClassName={'icon block-type text-red border-red bg-red ' + blockType}
       buttonLabel={blockTypeToBlockName[blockType]}
       buttonAriaLabel="Formatting options for text style">
@@ -202,116 +157,55 @@ function BlockFormatDropDown({
         className={'item ' + dropDownActiveClass(blockType === 'paragraph')}
         onClick={formatParagraph}>
         <i className="icon paragraph" />
-        <span className="text">Normal</span>
+        <span className="text text-[var(--text-light)] ">Normal</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h1')}
         onClick={() => formatHeading('h1')}>
         <i className="icon h1" />
-        <span className="text">Encabezado 1</span>
+        <span className="text text-[var(--text-light)] ">Encabezado 1</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h2')}
         onClick={() => formatHeading('h2')}>
         <i className="icon h2" />
-        <span className="text">Encabezado 2</span>
+        <span className="text text-[var(--text-light)] ">Encabezado 2</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h3')}
         onClick={() => formatHeading('h3')}>
         <i className="icon h3" />
-        <span className="text">Encabezado 3</span>
+        <span className="text text-[var(--text-light)] ">Encabezado 3</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h4')}
         onClick={() => formatHeading('h4')}>
         <i className="icon h4" />
-        <span className="text">Encabezado 4</span>
+        <span className="text text-[var(--text-light)] ">Encabezado 4</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h5')}
         onClick={() => formatHeading('h5')}>
         <i className="icon h5" />
-        <span className="text">Encabezado 5</span>
+        <span className="text text-[var(--text-light)] ">Encabezado 5</span>
       </DropDownItem>
       <DropDownItem
-        className={'item ' + dropDownActiveClass(blockType === 'bullet')}
+        className={'item  text-[var(--text-light)] ' + dropDownActiveClass(blockType === 'bullet')}
         onClick={formatBulletList}>
         <i className="icon bullet-list" />
         <span className="text">Lista</span>
       </DropDownItem>
       <DropDownItem
-        className={'item ' + dropDownActiveClass(blockType === 'number')}
+        className={'item  text-[var(--text-light)] ' + dropDownActiveClass(blockType === 'number')}
         onClick={formatNumberedList}>
-        <i className="icon numbered-list" />
+        <i className="icon numbered-list text-[var(--text-light)] " />
         <span className="text">Enumerado</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'quote')}
         onClick={formatQuote}>
-        <i className="icon quote" />
-        <span className="text">Cita</span>
-      </DropDownItem>
-    </DropDown>
-  );
-}
-
-function Divider() {
-  return <div className="divider" />;
-}
-
-function ElementFormatDropdown({
-  editor,
-  value,
-  isRTL,
-  disabled = false,
-}: {
-  editor: LexicalEditor;
-  value: ElementFormatType;
-  isRTL: boolean;
-  disabled: boolean;
-}) {
-  const formatOption = ELEMENT_FORMAT_OPTIONS[value || 'left'];
-
-  return (
-    <DropDown
-      disabled={disabled}
-      buttonIconClassName={`icon ${
-        isRTL ? formatOption.iconRTL : formatOption.icon
-      }`}
-      buttonClassName="toolbar-item spaced alignment"
-      buttonAriaLabel="Formatting options for text alignment">
-      <DropDownItem
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
-        }}
-        className="item">
-        <i className="icon left-align" />
-        <span className="text">Izquierda</span>
-      </DropDownItem>
-      <DropDownItem
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
-        }}
-        className="item">
-        <i className="icon center-align" />
-        <span className="text">Centrar</span>
-      </DropDownItem>
-      <DropDownItem
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
-        }}
-        className="item">
-        <i className="icon right-align" />
-        <span className="text">Derecha</span>
-      </DropDownItem>
-      <DropDownItem
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'justify');
-        }}
-        className="item">
-        <i className="icon justify-align" />
-        <span className="text">Justificar</span>
+        <i className="icon quote  " />
+        <span className="text text-[var(--text-light)]">Cita</span>
       </DropDownItem>
     </DropDown>
   );
@@ -328,7 +222,6 @@ export default function ToolbarPlugin({
     useState<keyof typeof blockTypeToBlockName>('paragraph');
   const [rootType, setRootType] =
     useState<keyof typeof rootTypeToRootName>('root');
-  const [elementFormat, setElementFormat] = useState<ElementFormatType>('left');
   const [isLink, setIsLink] = useState(false);
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
@@ -336,7 +229,6 @@ export default function ToolbarPlugin({
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [modal, showModal] = useModal();
-  const [isRTL, setIsRTL] = useState(false);
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [visualizationModalOpen, setVisualizationModalOpen] = useState(false)
   const [imageModalOpen, setImageModalOpen] = useState(false)
@@ -368,7 +260,6 @@ export default function ToolbarPlugin({
       setIsBold(selection.hasFormat('bold'));
       setIsItalic(selection.hasFormat('italic'));
       setIsUnderline(selection.hasFormat('underline'))
-      setIsRTL($isParentElementRTL(selection));
 
       // Update links
       const node = getSelectedNode(selection);
@@ -405,25 +296,8 @@ export default function ToolbarPlugin({
           }
         }
       }
-      let matchingParent;
-      if ($isLinkNode(parent)) {
-        // If node is a link, we need to fetch the parent paragraph node to set format
-        matchingParent = $findMatchingParent(
-          node,
-          (parentNode) => $isElementNode(parentNode) && !parentNode.isInline(),
-        );
-      }
-
-      // If matchingParent is a valid node, pass it's format type
-      setElementFormat(
-        $isElementNode(matchingParent)
-          ? matchingParent.getFormatType()
-          : $isElementNode(node)
-          ? node.getFormatType()
-          : parent?.getFormatType() || 'left',
-      );
     }
-  }, [activeEditor, editor]);
+  }, [activeEditor]);
 
   useEffect(() => {
     return editor.registerCommand(
@@ -490,150 +364,144 @@ export default function ToolbarPlugin({
   }, [activeEditor, isLink, setIsLinkEditMode]);
 
   return (
-      <div className="toolbar bg-[var(--background)]">
-        <button
-            disabled={!canUndo || !isEditable}
-            onClick={() => {
-              activeEditor.dispatchCommand(UNDO_COMMAND, undefined);
-            }}
-            title={IS_APPLE ? 'Deshacer (⌘Z)' : 'Deshacer (Ctrl+Z)'}
-            type="button"
-            className="toolbar-item spaced"
-            aria-label="Undo">
-          <i className="format undo"/>
-        </button>
-        <button
-            disabled={!canRedo || !isEditable}
-            onClick={() => {
-              activeEditor.dispatchCommand(REDO_COMMAND, undefined);
-            }}
-            title={IS_APPLE ? 'Rehacer (⇧⌘Z)' : 'Rehacer (Ctrl+Y)'}
-            type="button"
-            className="toolbar-item"
-            aria-label="Redo">
-          <i className="format redo"/>
-        </button>
-        <Divider/>
-        {blockType in blockTypeToBlockName && activeEditor === editor && (
-            <>
-              <BlockFormatDropDown
-                  disabled={!isEditable}
-                  blockType={blockType}
-                  rootType={rootType}
-                  editor={activeEditor}
-              />
-              <Divider/>
-            </>
-        )}
-        {(
-            <>
-              <button
+      <div className={"toolbar-container"}>
+          <div className={"flex justify-center px-4 w-full"}>
+            <div className="toolbar w-full mx-5 rounded-lg px-2 py-1 border flex bg-[var(--background-dark)] space-x-2">
+              <ToolbarButton
+                  disabled={!canUndo || !isEditable}
+                  onClick={() => {
+                    activeEditor.dispatchCommand(UNDO_COMMAND, undefined);
+                  }}
+                  title={IS_APPLE ? 'Deshacer (⌘Z)' : 'Deshacer (Ctrl+Z)'}
+                  aria-label="Undo"
+                  active={false}
+              >
+                <i className="format undo"/>
+              </ToolbarButton>
+              <ToolbarButton
+                  disabled={!canRedo || !isEditable}
+                  onClick={() => {
+                    activeEditor.dispatchCommand(REDO_COMMAND, undefined);
+                  }}
+                  title={IS_APPLE ? 'Rehacer (⇧⌘Z)' : 'Rehacer (Ctrl+Y)'}
+                  aria-label="Redo"
+                  active={false}
+              >
+                <i className="format redo"/>
+              </ToolbarButton>
+              {blockType in blockTypeToBlockName && activeEditor === editor && (
+                  <>
+                    <BlockFormatDropDown
+                        disabled={!isEditable}
+                        blockType={blockType}
+                        rootType={rootType}
+                        editor={activeEditor}
+                    />
+                  </>
+              )}
+              <ToolbarButton
                   disabled={!isEditable}
                   onClick={() => {
                     activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
                   }}
-                  className={'toolbar-item spaced ' + (isBold ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
                   title={IS_APPLE ? 'Negrita (⌘B)' : 'Negrita (Ctrl+B)'}
-                  type="button"
                   aria-label={`Format text as bold. Shortcut: ${
                       IS_APPLE ? '⌘B' : 'Ctrl+B'
-                  }`}>
+                  }`}
+                  active={isBold}
+              >
                 <FormatBold fontSize={"small"} color={"inherit"}/>
-              </button>
-              <button
+              </ToolbarButton>
+              <ToolbarButton
                   disabled={!isEditable}
                   onClick={() => {
                     activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
                   }}
-                  className={'toolbar-item spaced ' + (isItalic ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
                   title={IS_APPLE ? 'Itálica (⌘I)' : 'Itálica (Ctrl+I)'}
-                  type="button"
                   aria-label={`Format text as italics. Shortcut: ${
                       IS_APPLE ? '⌘I' : 'Ctrl+I'
-                  }`}>
+                  }`}
+                  active={isItalic}
+              >
                 <FormatItalic fontSize={"small"} color={"inherit"}/>
-              </button>
-              <button
+              </ToolbarButton>
+              <ToolbarButton
                   disabled={!isEditable}
                   onClick={() => {
                     activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
                   }}
-                  className={'toolbar-item spaced ' + (isUnderline ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
                   title={IS_APPLE ? 'Subrayado (⌘U)' : 'Subrayado (Ctrl+U)'}
-                  type="button"
                   aria-label={`Format text to underlined. Shortcut: ${
                       IS_APPLE ? '⌘U' : 'Ctrl+U'
-                  }`}>
+                  }`}
+                  active={isUnderline}
+              >
                 <FormatUnderlined fontSize={"small"} color={"inherit"}/>
-              </button>
-              <button
+              </ToolbarButton>
+              <ToolbarButton
                   disabled={!isEditable}
                   onClick={insertLink}
-                  className={'toolbar-item spaced text-[var(--text-light)] ' + (isLink ? 'active' : '')}
                   aria-label="Insertar vínculo"
                   title="Insertar vínculo"
-                  type="button">
+                  active={isLink}
+              >
                 <InsertLink fontSize={"small"} color={"inherit"}/>
-              </button>
-            </>
-        )}
+              </ToolbarButton>
+              <ToolbarButton
+                  onClick={() => {
+                    showModal('Insertar tabla', (onClose: any) => (
+                        <InsertTableDialog
+                            activeEditor={activeEditor}
+                            onClose={onClose}
+                        />
+                    ));
+                  }}
+                  title="Insertar tabla"
+                  active={false}
+                  aria-label="Insertar tabla"
+              >
+                <TableChartOutlined fontSize={"small"} color={"inherit"}/>
+              </ToolbarButton>
+              <ToolbarButton
+                  onClick={() => {
+                    setImageModalOpen(true)
+                  }}
+                  title="Insertar imágen"
+                  aria-label="Insertar imágen"
+              >
+                <ImageOutlined fontSize={"small"} color={"inherit"}/>
+              </ToolbarButton>
+              <InsertImageModal
+                  open={imageModalOpen}
+                  onClose={() => {
+                    setImageModalOpen(false)
+                  }}
+                  onSubmit={(i: InsertImagePayload) => {
+                    onInsertImage(i);
+                    setImageModalOpen(false)
+                  }}
+              />
+              <ToolbarButton
+                  onClick={() => {
+                    setVisualizationModalOpen(true)
+                  }}
+                  title="Insertar visualización"
+                  aria-label="Insertar visualización"
+              >
+                <VisualizationsIcon color={"inherit"}/>
+              </ToolbarButton>
 
-        <Divider/>
-        <button
-            onClick={() => {
-              showModal('Insertar tabla', (onClose: any) => (
-                  <InsertTableDialog
-                      activeEditor={activeEditor}
-                      onClose={onClose}
-                  />
-              ));
-            }}
-            type="button"
-            title="Insertar tabla"
-            className="toolbar-item spaced text-[var(--text-light)]"
-            aria-label="Insertar tabla">
-          <TableChartOutlined fontSize={"small"} color={"inherit"}/>
-        </button>
-        <button
-            onClick={() => {
-                setImageModalOpen(true)
-            }}
-            type="button"
-            title="Insertar imágen"
-            className="toolbar-item spaced text-[var(--text-light)]"
-            aria-label="Insertar imágen">
-          <ImageOutlined fontSize={"small"} color={"inherit"}/>
-        </button>
-        <InsertImageModal
-            open={imageModalOpen}
-            onClose={() => {setImageModalOpen(false)}}
-            onSubmit={(i: InsertImagePayload) => {onInsertImage(i); setImageModalOpen(false)}}
-        />
-        <button
-            onClick={() => {
-              setVisualizationModalOpen(true)
-            }}
-            type="button"
-            title="Insertar visualización"
-            className="toolbar-item spaced text-[var(--text-light)]"
-            aria-label="Insertar visualización">
-          <VisualizationsIcon color={"inherit"}/>
-        </button>
+              {modal}
 
-        <ElementFormatDropdown
-            disabled={!isEditable}
-            value={elementFormat}
-            editor={activeEditor}
-            isRTL={isRTL}
-        />
-
-        {modal}
-
-        <InsertVisualizationDialog
-            activeEditor={activeEditor}
-            open={visualizationModalOpen}
-            onClose={() => {setVisualizationModalOpen(false)}}
-        />
+              <InsertVisualizationDialog
+                  activeEditor={activeEditor}
+                  open={visualizationModalOpen}
+                  onClose={() => {
+                    setVisualizationModalOpen(false)
+                  }}
+              />
+            </div>
+          </div>
       </div>
   );
 }

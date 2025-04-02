@@ -11,6 +11,29 @@
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	color-scheme: dark;
+
+	--primary: '#3080ff';
+
+    --primary-light: '#4b8ef9';
+    --primary-xlight: '#6da4fe';
+    --primary-2xlight: '#8cb8ff';
+    --primary-dark: '#2460bf';
+    --primary-xdark: '#184182';
+    --primary-2xdark: '#112e5a';
+
+	--text: '#fbfbfc';
+	--text-light: '#b0b0b0';
+	--text-lighter: '#888888';
+	--icon-color-filter: 'invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)';
+
+	--background: '#181b23';
+	--background-light: '#1a1e27';
+	--background-dark: '#1e2230';
+	--background-dark2: '#242936';
+	--background-dark3: '#2a303f';
+	--background-dark4: '#303748';
+
+	--accent: '#2e364c';
 }
 
 

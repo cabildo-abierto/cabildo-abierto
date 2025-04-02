@@ -40,15 +40,10 @@ export const WritePanel = ({
     quote,
     onSubmit=async () => {}
 }: Props) => {
-    const {user} = useUser();
     const [selected, setSelected] = useState("Post")
     const router = useRouter()
 
     const isReply = replyTo != undefined
-
-    if (!user) {
-        return <NeedAccountPopup open={open} text="Necesitás una cuenta para escribir" onClose={onClose}/>
-    }
 
     function optionsNodes(o: string, isSelected: boolean){
         return <div className="text-[var(--text)] text-sm">
@@ -82,42 +77,38 @@ export const WritePanel = ({
         }
     }
 
-    const center = <>
-        <div className="flex justify-between items-start space-x-2 pl-1 pr-2">
-            {isReply ?
-                (replyTo.collection == "ar.com.cabildoabierto.topic" || replyTo.collection == "ar.com.cabildoabierto.article" ?
-                    <div className={"w-full mr-4"}>
-                        <ContentQuote
-                            quotedContent={quotedContentFromReplyTo(replyTo)}
-                            quote={quote}
-                        />
-                    </div> :
-                    <div>
-                        {emptyChar}
-                    </div>) :
-                <SelectionComponent
-                    onSelection={onSelection}
-                    selected={selected}
-                    optionsNodes={optionsNodes}
-                    options={["Post", "Artículo", "Tema"]}
-                    className={"flex space-x-2"}
-                />
-            }
-            <CloseButton size="small" onClose={onClose}/>
-        </div>
-        {selected == "Post" && <WriteFastPost
-            onClose={onClose}
-            replyTo={replyTo}
-            quote={quote}
-            onSubmit={onSubmit}
-        />}
-        {selected == "Tema" && <CreateTopic onClose={onClose}/>}
-    </>
-
     return <>
         <BaseFullscreenPopup open={open} className="w-full max-w-[512px]">
             <div className="w-full rounded pt-1 border max-h-[80vh] overflow-y-auto">
-                {center}
+                <div className="flex justify-between items-start space-x-2 pl-1 pr-2">
+                    {isReply ?
+                        (replyTo.collection == "ar.com.cabildoabierto.topic" || replyTo.collection == "ar.com.cabildoabierto.article" ?
+                            <div className={"w-full mr-4"}>
+                                <ContentQuote
+                                    quotedContent={quotedContentFromReplyTo(replyTo)}
+                                    quote={quote}
+                                />
+                            </div> :
+                            <div>
+                                {emptyChar}
+                            </div>) :
+                        <SelectionComponent
+                            onSelection={onSelection}
+                            selected={selected}
+                            optionsNodes={optionsNodes}
+                            options={["Post", "Artículo", "Tema"]}
+                            className={"flex space-x-2"}
+                        />
+                    }
+                    <CloseButton size="small" onClose={onClose}/>
+                </div>
+                {selected == "Post" && <WriteFastPost
+                    onClose={onClose}
+                    replyTo={replyTo}
+                    quote={quote}
+                    onSubmit={onSubmit}
+                />}
+                {selected == "Tema" && <CreateTopic onClose={onClose}/>}
             </div>
         </BaseFullscreenPopup>
     </>
