@@ -38,7 +38,7 @@ const AccountSettings = () => {
                 Cambiar contraseña
             </Link>*/}
             <Link href={`/perfil/${user.did}`} className="block hover:underline">
-                Ir a mi perfil
+                Ver perfil
             </Link>
             {/*<Link href="/panel" className="block text-blue-600 hover:underline">
                 Ver mis estadísticas

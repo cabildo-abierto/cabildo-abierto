@@ -10,7 +10,7 @@ import './Modal.css';
 
 import {ReactNode, useEffect, useRef} from 'react';
 import {createPortal} from 'react-dom';
-import { CloseButtonIcon } from '../../../../src/components/icons/close-button-icon';
+import { CloseButtonIcon } from '@/components/icons/close-button-icon';
 
 function PortalImpl({
   onClose,

@@ -18,21 +18,23 @@ const MainLayout = ({
      openSidebar=true,
      defaultSidebarState=true,
 }: { children: ReactNode } & LayoutConfigProps) => {
-    return <LoadingPage>
-        <PageLeaveProvider>
-            <LoadEditor>
-                <BetaAccessPage>
-                    <SearchProvider>
-                        <LayoutConfigProvider config={{openRightPanel, maxWidthCenter, leftMinWidth, rightMinWidth, openSidebar, defaultSidebarState}}>
-                            <MainLayoutContent>
-                                {children}
-                            </MainLayoutContent>
-                        </LayoutConfigProvider>
-                    </SearchProvider>
-                </BetaAccessPage>
-            </LoadEditor>
-        </PageLeaveProvider>
-    </LoadingPage>
+    return (
+        <LoadingPage>
+            <PageLeaveProvider>
+                <LoadEditor>
+                    <BetaAccessPage>
+                        <SearchProvider>
+                            <LayoutConfigProvider config={{openRightPanel, maxWidthCenter, leftMinWidth, rightMinWidth, openSidebar, defaultSidebarState}}>
+                                <MainLayoutContent>
+                                    {children}
+                                </MainLayoutContent>
+                            </LayoutConfigProvider>
+                        </SearchProvider>
+                    </BetaAccessPage>
+                </LoadEditor>
+            </PageLeaveProvider>
+        </LoadingPage>
+    )
 };
 
 export default MainLayout;

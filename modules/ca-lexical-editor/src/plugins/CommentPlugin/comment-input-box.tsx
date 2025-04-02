@@ -5,13 +5,12 @@ import type {
   } from 'lexical';
   
 import './index.css';
-
 import { commentEditorSettings } from '@/components/editor/comment-editor-settings';
 import {getStandardSelection} from "./standard-selection";
-import {WritePanel} from "../../../../../src/components/writing/write-panel";
+import {WritePanel} from "@/components/writing/write-panel";
 import {ReplyToContent} from "./index";
 import {useSWRConfig} from "swr";
-import {useUser} from "../../../../../src/hooks/swr";
+import {useUser} from "@/hooks/swr";
 
 
 export function CommentInputBox({

@@ -1,10 +1,8 @@
-"use client"
 import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, BeautifulMentionsMenuProps } from "lexical-beautiful-mentions";
-import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
 import { getUsers } from "@/server-actions/user/users";
-
 import {cleanText} from "@/utils/strings";
+import Link from "next/link";
 
 export const EmptyMentionResults = () => (
   <div className="top-[2px] m-0 min-w-[10rem] overflow-hidden ...">
@@ -23,20 +21,25 @@ export const CustomMentionComponent = forwardRef<
   HTMLDivElement,
   BeautifulMentionComponentProps<MentionProps>
 >(({ data: myData }, ref) => {
-  const router = useRouter()
 
-  // Tuve que hacer esto porque Link abría en otra ventana por algún motivo
-  // Investigar...
+    return <Link className={"text-link"} href={"/perfil/"+encodeURIComponent(myData.id)}>
+        @{myData.id}
+    </Link>
 
-  const handleClick = () => {
-    router.push("/perfil/"+encodeURIComponent(myData.id))
-  }
+      /*
 
-  return (
-    <button className="text-link" onClick={handleClick}>
-      @{myData.id}
-    </button>
-  );
+      // Tuve que hacer esto porque Link abría en otra ventana por algún motivo
+      // Investigar...
+
+      const handleClick = () => {
+        router.push("/perfil/"+encodeURIComponent(myData.id))
+      }
+
+      return (
+        <button className="text-link" onClick={handleClick}>
+          @{myData.id}
+        </button>
+      );*/
 });
 
 CustomMentionComponent.displayName = 'CustomMentionComponent';

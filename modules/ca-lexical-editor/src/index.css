@@ -994,7 +994,6 @@ i {
 }
 
 .table-cell-action-button {
-  background-color: none;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1002,7 +1001,7 @@ i {
   position: relative;
   border-radius: 15px;
   color: #222;
-  display: inline-block;
+  /*display: inline-block;*/
   cursor: pointer;
 }
 
@@ -1119,13 +1118,9 @@ button.action-button:disabled {
   text-align: right;
 }
 
-.toolbar {
-  display: flex;
-  margin-bottom: 1px;
-  padding: 4px;
+.toolbar-container {
   vertical-align: middle;
   overflow: auto;
-  height: 36px;
   position: sticky;
   top: 0;
   z-index: 2;
@@ -1136,12 +1131,16 @@ button.toolbar-item {
   display: flex;
   background: none;
   border-radius: 10px;
-  padding: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 6px;
+  padding-bottom: 6px;
   cursor: pointer;
   vertical-align: middle;
   flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
+  color: var(--text-light);
 }
 
 button.toolbar-item:disabled {
@@ -1169,7 +1168,8 @@ button.toolbar-item:disabled .chevron-down {
 }
 
 button.toolbar-item.active {
-  background-color: var(--background-dark2);
+  background-color: var(--background-dark3);
+  color: var(--text);
 }
 
 button.toolbar-item.active i {
@@ -1177,7 +1177,11 @@ button.toolbar-item.active i {
 }
 
 .toolbar-item:hover:not([disabled]) {
-  background-color: var(--background-dark);
+  background-color: var(--background-dark2);
+}
+
+.toolbar-item.active:hover {
+  background-color: var(--background-dark4);
 }
 
 .toolbar-item.font-family .text {
@@ -1227,12 +1231,6 @@ button.toolbar-item.active i {
   margin-top: 11px;
   margin-right: 10px;
   pointer-events: none;
-}
-
-.toolbar .divider {
-  width: 1px;
-  background-color: var(--accent);
-  margin: 0 4px;
 }
 
 .sticky-note-container {

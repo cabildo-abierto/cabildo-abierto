@@ -9,10 +9,19 @@ import dynamic from "next/dynamic"
 import {validArticle} from "./valid-article";
 import {BackButton} from "../../../../modules/ui-utils/src/back-button";
 import {PublishButton} from "@/components/writing/article/publish-button";
+import {Button} from "@/../modules/ui-utils/src/button"
+import {editorStateToMarkdown, markdownToEditorState} from "@/server-actions/editor/markdown-transforms";
+import {ArticleHeader} from "@/components/article/article-header";
+import {TopicsMentioned} from "@/components/article/topics-mentioned";
+import {Authorship} from "@/components/feed/content-top-row-author";
+import {localeDate} from "../../../../modules/ui-utils/src/date";
+import {ReadingTime} from "@/components/article/reading-time";
+import {getAllText} from "@/components/topics/topic/diff";
+import {useUser} from "@/hooks/swr";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
-const postEditorSettings: (initialData?: string) => SettingsProps = (initialData) => {
+const articleEditorSettings: (initialData?: string) => SettingsProps = (initialData) => {
     return {
         disableBeforeInput: false,
         emptyEditor: false,
@@ -40,7 +49,7 @@ const postEditorSettings: (initialData?: string) => SettingsProps = (initialData
         useStrikethrough: false,
         useSubscript: false,
         useCodeblock: false,
-        placeholder: "Escribí tu publicación acá...",
+        placeholder: "Escribí tu artículo...",
         initialData: initialData ? initialData : initializeEmpty(""),
         editorClassName: "article-content",
         isReadOnly: false,
@@ -57,19 +66,35 @@ const ArticleEditor = () => {
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const [title, setTitle] = useState("")
     const router = useRouter()
+    const {user} = useUser()
 
-    const settings = postEditorSettings("")
-    settings.editorClassName += " px-2"
-    settings.placeholderClassName += " px-2"
+    const settings = articleEditorSettings("")
+    settings.editorClassName += " px-2 pt-4"
+    settings.placeholderClassName += " px-2 pt-[32px]"
 
     const valid = validArticle(editorState, settings.charLimit, title)
 
     let disabled = valid.problem != undefined
 
-    return <>
-        <div className="flex justify-between mt-3 items-center w-full px-3">
+    const createdAt = new Date()
+
+    async function onReloadMarkdown(){
+        let jsonState = JSON.stringify(editorState.toJSON())
+        const markdown = editorStateToMarkdown(jsonState)
+        jsonState = markdownToEditorState(markdown)
+        const state = editor.parseEditorState(jsonState)
+        editor.update(() => {
+            editor.setEditorState(state)
+        })
+    }
+
+    return <div className={"mb-32"}>
+        <div className="flex justify-between mt-3 items-center w-full px-3 border-b pb-2">
 			<div className="flex justify-between w-full text-[var(--text-light)]">
                 <BackButton onClick={() => {router.back()}}/>
+                {/*<Button onClick={onReloadMarkdown} size={"small"} variant={"text"}>
+                    Chequear markdown
+                </Button>*/}
                 <PublishButton
                     editor={editor}
                     title={title}
@@ -77,17 +102,30 @@ const ArticleEditor = () => {
                 />
 			</div>
 		</div>
-        <div className="mt-3 px-3">
+        <div className="mt-8 rounded-lg px-5">
             <TitleInput onChange={setTitle} title={title}/>
+            <div className="gap-x-4 flex flex-wrap items-baseline">
+                <span className={"max-[500px]:text-base text-lg text-[var(--text-light)]"}>
+                    Artículo de <Authorship content={{author: user}} onlyAuthor={true}/>
+                </span>
+                <span className={"max-[500px]:text-sm text-[var(--text-light)]"}>
+                    {localeDate(createdAt, true)}
+                </span>
+                <span className={"text-[var(--text-light)]"}>
+                    {editorState && <ReadingTime
+                        numWords={getAllText(editorState.toJSON().root).split(" ").length}
+                    />}
+                </span>
+            </div>
         </div>
-        <div className={"mt-4"}>
+        <div className={"mt-8"}>
             <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}
                 setEditorState={setEditorState}
             />
         </div>
-    </>
+    </div>
 }
 
 

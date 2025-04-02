@@ -12,6 +12,7 @@ import {TopicsMentioned} from "./topics-mentioned";
 import {ReadingTime} from "./reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
 import {threadApiUrl} from "../../utils/uri";
+import {ArticleHeader} from "@/components/article/article-header";
 
 type ArticleCompProps = {
     article: ArticleProps,
@@ -45,23 +46,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
 
     return <div className="w-full">
         <div className={"p-3 border-b"}>
-            <TopicsMentioned article={article}/>
-            <h1 className="text-4xl mt-8 mb-8">
-                {article.content.article.title}
-            </h1>
-            <div className="gap-x-4 flex flex-wrap items-baseline">
-                <span className={"max-[500px]:text-base text-lg"}>
-                    Artículo de <Authorship content={article} onlyAuthor={true}/>
-                </span>
-                <span className={"max-[500px]:text-sm text-[var(--text-light)]"}>
-                    {localeDate(new Date(article.createdAt), true)}
-                </span>
-                <span className={"text-[var(--text-light)]"}>
-                    <ReadingTime
-                        numWords={getAllText(JSON.parse(decompress(article.content.text)).root).split(" ").length}
-                    />
-                </span>
-            </div>
+            <ArticleHeader article={article}/>
             <div className={"mt-8"} id={editorId}>
                 <ReadOnlyEditor
                     initialData={decompress(article.content.text)}

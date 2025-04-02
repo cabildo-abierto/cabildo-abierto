@@ -21,10 +21,8 @@ import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
-import {TableNode} from '@lexical/table';
 import { useEffect, useRef, useState } from 'react';
 import { CAN_USE_DOM } from './shared/canUseDOM';
-
 import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
@@ -44,16 +42,11 @@ import ToolbarPlugin from './plugins/ToolbarPlugin';
 import TreeViewPlugin from './plugins/TreeViewPlugin';
 import ContentEditable from './ui/ContentEditable';
 import { InitialConfigType, InitialEditorStateType, LexicalComposer } from '@lexical/react/LexicalComposer';
-import PlaygroundNodes from './nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
-
-import { BeautifulMentionsPlugin, createBeautifulMentionNode } from 'lexical-beautiful-mentions';
-import { CustomMentionComponent, CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './ui/custom-mention-component';
+import { BeautifulMentionsPlugin } from 'lexical-beautiful-mentions';
+import { CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './ui/custom-mention-component';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-
-import {MarkNode} from '@lexical/mark';
-import { CustomMarkNode } from './nodes/CustomMarkNode';
 import {
   $createParagraphNode,
   $createTextNode,
@@ -61,24 +54,16 @@ import {
   $getSelection,
   LexicalEditor as OriginalLexicalEditor
 } from 'lexical';
-import { DiffNode } from './nodes/DiffNode';
-import { AuthorNode } from './nodes/AuthorNode';
 import TableCellResizer from './plugins/TableCellResizer';
 import { TableContext } from './plugins/TablePlugin';
-import { CustomTableNode } from './nodes/CustomTableNode';
-
 import ImagesPlugin from './plugins/ImagesPlugin';
-import InlineImagePlugin from './plugins/InlineImagePlugin';
 import { usePageLeave } from '../../ui-utils/src/prevent-leave';
 import { v4 as uuidv4 } from 'uuid';
-import {ImageNode} from './nodes/ImageNode'
-import {InlineImageNode} from './nodes/InlineImageNode/InlineImageNode';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'
 import {FastPostProps} from "@/lib/definitions";
-import {SidenoteNode} from "./nodes/SidenoteNode";
 import PlotPlugin from "./plugins/PlotPlugin";
-import {VisualizationNode} from "./nodes/VisualizationNode";
 import {isValidJSON} from "@/utils/utils";
+import {getEditorNodes} from "./nodes/get-editor-nodes";
 
 export type SettingsProps = {
   disableBeforeInput: boolean,
@@ -239,7 +224,6 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
         <TableCellResizer />
         {allowImages && <ImagesPlugin captionsEnabled={false}/>}
         <PlotPlugin/>
-        {allowImages && <InlineImagePlugin/>}
 
         <OnChangePlugin
           onChange={(editorState) => {
@@ -325,14 +309,11 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
     })
 }
 
+
 const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorProps) => {
-  let {isReadOnly, initialData, imageClassName, allowImages} = settings
+  let {isReadOnly, initialData, imageClassName} = settings
 
-  let nodes = [...PlaygroundNodes]
-
-  if(allowImages){
-      nodes = [...PlaygroundNodes, ImageNode, InlineImageNode]
-  }
+  const nodes = getEditorNodes(settings)
 
   if(typeof initialData === 'string' && !isValidJSON(initialData)){
       initialData = initializeEmpty(initialData)
@@ -343,23 +324,7 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
   const initialConfig: InitialConfigType = {
     namespace: 'Playground',
     editorState: initialData,
-    nodes: [
-      ...createBeautifulMentionNode(CustomMentionComponent),
-      ...nodes,
-      VisualizationNode,
-      CustomMarkNode,
-      SidenoteNode,
-      {
-        replace: MarkNode,
-        with: (node: MarkNode) => {
-            return new CustomMarkNode(node.getIDs());
-        }
-      },
-      DiffNode,
-      AuthorNode,
-      CustomTableNode,
-      { replace: TableNode, with: (_: TableNode) => new CustomTableNode(), withKlass: CustomTableNode }
-    ],
+    nodes: nodes,
     onError: (error: Error) => {
       throw error;
     },

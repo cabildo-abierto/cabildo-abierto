@@ -143,133 +143,137 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
         }
     }
 
-    return <div
-        className={"pt-4 px-2 bg-[var(--background)] overflow-scroll no-scrollbar h-screen " + (showText ? "w-56" : "w-20 hidden min-[500px]:block")}
-    >
-        <div className={"h-full flex flex-col justify-between"}>
-            <div className={"flex flex-col space-y-2 " + (showText ? "" : "items-center")}>
+    return (
+    <>
+        <div
+            className={"pt-4 px-2 bg-[var(--background)] overflow-scroll no-scrollbar h-screen " + (showText ? "w-56" : "w-20 hidden min-[500px]:block")}
+        >
+            <div className={"h-full flex flex-col justify-between"}>
+                <div className={"flex flex-col space-y-2 " + (showText ? "" : "items-center")}>
 
-            <div className={"mb-4"}>
-                {user.user && <div className={"w-full flex justify-center"}>
-                    <SidebarUsername
-                    user={user.user}
-                /></div>}
+                    <div className={"mb-4"}>
+                        {user.user && <div className={"w-full flex justify-center"}>
+                            <SidebarUsername
+                            user={user.user}
+                        /></div>}
 
-                {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
+                        {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
+                    </div>
+
+                    <SidebarButton
+                        showText={showText}
+                        onClick={onClose}
+                        icon={<CabildoIcon/>}
+                        iconInactive={<HomeOutlinedIcon/>}
+                        text="Inicio"
+                        href="/inicio"
+                        selected={pathname.startsWith("/inicio")}
+                    />
+                    <SidebarButton
+                        showText={showText}
+                        icon={<SearchIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
+                        iconInactive={<SearchIcon/>}
+                        onClick={onClose}
+                        text="Buscar"
+                        selected={pathname.startsWith("/buscar")}
+                        href="/buscar"
+                    />
+                    <SidebarButton
+                        showText={showText}
+                        onClick={onClose}
+                        icon={<NotificationsIcon count={0}/>}
+                        iconInactive={<NotificationsOutlinedIcon/>}
+                        text="Notificaciones"
+                        href="/notificaciones"
+                        selected={pathname.startsWith("/notificaciones")}
+                    />
+                    <SidebarButton
+                        icon={<TopicsIcon fontSize="medium"/>}
+                        iconInactive={<CollectionsBookmarkOutlinedIcon/>}
+                        onClick={onClose}
+                        text="Temas"
+                        href="/temas"
+                        showText={showText}
+                        selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
+                    />
+                    <SidebarButton
+                        icon={<div className={"w-6 h-6 flex items-center justify-center py-2"}>
+                            <Image
+                            className={currentTheme == "light" ? "brightness-0" : ""}
+                            src={SenadoIconActive}
+                            alt="Icon"
+                            width={24}
+                            height={24}
+                            />
+                        </div>}
+                        iconInactive={<div className={"w-6 h-6 flex items-center justify-center py-2"}>
+                            <Image
+                            className={currentTheme == "light" ? "brightness-0" : ""}
+                            src={SenadoIcon}
+                            alt="Icon"
+                            width={24}
+                            height={24}
+                            />
+                        </div>}
+                        onClick={onClose}
+                        text="Congreso"
+                        href="/congreso"
+                        selected={pathname.startsWith("/temas/congreso")}
+                        showText={showText}
+                    />
+                    <SidebarButton
+                        icon={<VisualizationsIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
+                        iconInactive={<VisualizationsIcon/>}
+                        onClick={onClose}
+                        text="Explorar datos"
+                        href="/datos"
+                        selected={pathname.startsWith("/datos")}
+                        showText={showText}
+                    />
+                    {user.user &&
+                    <SidebarButton
+                        icon={<PersonIcon/>}
+                        iconInactive={<PersonOutlinedIcon/>}
+                        onClick={onClose}
+                        text="Perfil"
+                        href={userUrl(user.user.handle)}
+                        selected={pathname == userUrl(user.user.handle)}
+                        showText={showText}
+                    />}
+                    {user.user && user.user.editorStatus == "Administrator" &&
+                        <HelpDeskButton
+                            showText={showText}
+                            setShowText={setShowText}
+                            user={user.user}
+                            onClose={onClose}
+                        />
+                    }
+                    <SidebarButton
+                        icon={<SettingsIcon/>}
+                        iconInactive={<SettingsOutlinedIcon/>}
+                        onClick={onClose}
+                        text="Ajustes"
+                        href="/ajustes"
+                        selected={pathname.startsWith("/ajustes")}
+                        showText={showText}
+                    />
+                    <SidebarWriteButton showText={showText} onClick={() => {setWritePanelOpen(true)}}/>
+                </div>
+                <div className={"text-[var(--text-light)] flex justify-end mb-2 max-[500px]:hidden"}>
+                    <IconButton
+                        size={"small"}
+                        color={"inherit"}
+                        onClick={() => {setShowText(!showText)}}
+                    >
+                        {showText ? <KeyboardDoubleArrowLeftIcon/> : <KeyboardDoubleArrowRightIcon/>}
+                    </IconButton>
+                </div>
             </div>
-
-            <SidebarButton
-                showText={showText}
-                onClick={onClose}
-                icon={<CabildoIcon/>}
-                iconInactive={<HomeOutlinedIcon/>}
-                text="Inicio"
-                href="/inicio"
-                selected={pathname.startsWith("/inicio")}
-            />
-            <SidebarButton
-                showText={showText}
-                icon={<SearchIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
-                iconInactive={<SearchIcon/>}
-                onClick={onClose}
-                text="Buscar"
-                selected={pathname.startsWith("/buscar")}
-                href="/buscar"
-            />
-            <SidebarButton
-                showText={showText}
-                onClick={onClose}
-                icon={<NotificationsIcon count={0}/>}
-                iconInactive={<NotificationsOutlinedIcon/>}
-                text="Notificaciones"
-                href="/notificaciones"
-                selected={pathname.startsWith("/notificaciones")}
-            />
-            <SidebarButton
-                icon={<TopicsIcon fontSize="medium"/>}
-                iconInactive={<CollectionsBookmarkOutlinedIcon/>}
-                onClick={onClose}
-                text="Temas"
-                href="/temas"
-                showText={showText}
-                selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
-            />
-            <SidebarButton
-                icon={<div className={"w-6 h-6 flex items-center justify-center py-2"}>
-                    <Image
-                    className={currentTheme == "light" ? "brightness-0" : ""}
-                    src={SenadoIconActive}
-                    alt="Icon"
-                    width={24}
-                    height={24}
-                    />
-                </div>}
-                iconInactive={<div className={"w-6 h-6 flex items-center justify-center py-2"}>
-                    <Image
-                    className={currentTheme == "light" ? "brightness-0" : ""}
-                    src={SenadoIcon}
-                    alt="Icon"
-                    width={24}
-                    height={24}
-                    />
-                </div>}
-                onClick={onClose}
-                text="Congreso"
-                href="/congreso"
-                selected={pathname.startsWith("/temas/congreso")}
-                showText={showText}
-            />
-            <SidebarButton
-                icon={<VisualizationsIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
-                iconInactive={<VisualizationsIcon/>}
-                onClick={onClose}
-                text="Explorar datos"
-                href="/datos"
-                selected={pathname.startsWith("/datos")}
-                showText={showText}
-            />
-            {user.user &&
-            <SidebarButton
-                icon={<PersonIcon/>}
-                iconInactive={<PersonOutlinedIcon/>}
-                onClick={onClose}
-                text="Perfil"
-                href={userUrl(user.user.handle)}
-                selected={pathname == userUrl(user.user.handle)}
-                showText={showText}
-            />}
-            {user.user && user.user.editorStatus == "Administrator" &&
-                <HelpDeskButton
-                    showText={showText}
-                    setShowText={setShowText}
-                    user={user.user}
-                    onClose={onClose}
-                />
-            }
-            <SidebarButton
-                icon={<SettingsIcon/>}
-                iconInactive={<SettingsOutlinedIcon/>}
-                onClick={onClose}
-                text="Ajustes"
-                href="/ajustes"
-                selected={pathname.startsWith("/ajustes")}
-                showText={showText}
-            />
-            <SidebarWriteButton showText={showText} onClick={() => {setWritePanelOpen(true)}}/>
         </div>
-        <div className={"text-[var(--text-light)] flex justify-end mb-2 max-[500px]:hidden"}>
-            <IconButton
-                size={"small"}
-                color={"inherit"}
-                onClick={() => {setShowText(!showText)}}
-            >
-                {showText ? <KeyboardDoubleArrowLeftIcon/> : <KeyboardDoubleArrowRightIcon/>}
-            </IconButton>
-        </div>
-    </div>
         <WritePanel
             open={writePanelOpen}
             onClose={() => {setWritePanelOpen(false)}}
         />
-    </div>
+    </>
+    )
 }

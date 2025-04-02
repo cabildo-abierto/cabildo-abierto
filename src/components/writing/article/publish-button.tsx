@@ -30,5 +30,6 @@ export const PublishButton = ({editor, title, disabled}: {
         textClassName="whitespace-nowrap px-2 font-semibold"
         disabled={disabled}
         size="medium"
+        variant={"text"}
     />
 }

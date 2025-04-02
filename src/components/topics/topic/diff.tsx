@@ -1,6 +1,5 @@
 import { assignment } from "./min-cost-flow"
-import {areArraysEqual, makeMatrix} from "../../../utils/arrays";
-import {LexicalJSONNode} from "@/lib/definitions";
+import {areArraysEqual, makeMatrix} from "@/utils/arrays";
 
 
 export function getAllText(node: any){
@@ -48,7 +47,7 @@ export function nodesFromJSONStr(s: string){
 }
 
 
-export function minMatch(nodes1: LexicalJSONNode[], nodes2: LexicalJSONNode[], common: {x: number, y: number}[]){
+export function minMatch(nodes1: string[], nodes2: string[], common: {x: number, y: number}[]){
     if(nodes1.length == 0 || nodes2.length == 0) return []
     
     const commonNodes1 = new Set(common.map(({x}) => (x)))
@@ -168,7 +167,7 @@ export function diff(nodes1: string[], nodes2: string[], safe: boolean = false){
 }
 
 
-export function nodesCharDiff(nodes1: LexicalJSONNode[], nodes2: LexicalJSONNode[], safe: boolean = false) {
+export function nodesCharDiff(nodes1: string[], nodes2: string[], safe: boolean = false) {
     const d = diff(nodes1, nodes2, safe)
     if(!d) return null
 

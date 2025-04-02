@@ -1,4 +1,5 @@
 import {EditorStatus} from '@prisma/client';
+import {SerializedEditorState, SerializedLexicalNode} from "lexical";
 
 
 export type ATProtoStrongRef = {
@@ -402,4 +403,4 @@ export type UserRepo = {
 }[]
 
 
-export type LexicalJSONNode = any
+export type JSONEditorState = SerializedEditorState<SerializedLexicalNode>
