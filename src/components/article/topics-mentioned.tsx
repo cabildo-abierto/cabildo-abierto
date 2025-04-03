@@ -1,12 +1,16 @@
 import {ArticleProps} from "@/lib/definitions";
 import {CustomLink} from "../../../modules/ui-utils/src/custom-link";
-import {topicUrl} from "../../utils/uri";
+import {topicUrl} from "@/utils/uri";
 
 
 export const TopicsMentioned = ({article}: {article: ArticleProps}) => {
 
     function cmp(a: {count: number}, b: {count: number}) {
         return b.count - a.count
+    }
+
+    if(!article.content.references || article.content.references.length == 0) {
+        return null
     }
 
     return <div className={"w-full flex space-x-4 max-w-screen overflow-scroll no-scrollbar"}>

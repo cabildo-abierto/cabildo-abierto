@@ -12,9 +12,7 @@ import TopicsIcon from "@mui/icons-material/CollectionsBookmark";
 import {NotificationsIcon} from "../icons/notifications-icon";
 import {usePathname} from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
-import {BasicButton} from "../../../modules/ui-utils/src/basic-button";
 import {WritePanel} from "../writing/write-panel";
-import {Button, IconButton} from "@mui/material";
 import { useLayoutConfig } from "./layout-config-context";
 import {WriteButtonIcon} from "../icons/write-button-icon";
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
@@ -28,9 +26,12 @@ import SenadoIcon from '../../../public/senado-icono.svg';
 import SenadoIconActive from '../../../public/senado-icono-active.svg';
 import Image from 'next/image'
 import { useTheme } from "../theme/theme-context";
-import {userUrl} from "../../utils/uri";
+import {userUrl} from "@/utils/uri";
 import {FloatingWriteButton} from "../writing/floating-write-button";
-import {useUser} from "../../hooks/swr";
+import {useUser} from "@/hooks/swr";
+import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
+import {Button} from "../../../modules/ui-utils/src/button";
+import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 
 
 function unseenSupportMessagesCount(user: UserProps){
@@ -50,14 +51,14 @@ export const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () =>
 
     const newSupportCount = user ? unseenSupportMessagesCount(user) : 0
     return <Link href={"/soporte"} className={"text-[var(--text-light)]"}>
-        <BasicButton
+        <Button
             variant={"text"}
             size={"small"}
             color={"inherit"}
             startIcon={<SupportIcon newCount={newSupportCount}/>} onClick={onClose}
         >
             Soporte
-        </BasicButton>
+        </Button>
     </Link>
 }
 
@@ -65,13 +66,6 @@ export const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () =>
 const HelpDeskButton = ({user, onClose, showText, setShowText}: {showText: boolean, setShowText: (v: boolean) => void, user?: UserProps, onClose: () => void}) => {
     const count = 0 // TO DO: Implement
     return <SidebarButton showText={showText} icon={<SupportIcon newCount={count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
-}
-
-
-const SidebarUsername = ({user}: {user: {displayName?: string, handle: string, avatar?: string}}) => {
-    return <Link href={userUrl(user.handle)}>
-        <ProfilePic user={user} className={"w-12 h-12 rounded-full border"}/>
-    </Link>
 }
 
 
@@ -88,7 +82,7 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
     return <>
         <FloatingWriteButton onClick={onClick}/>
         <div className={"my-2 h-12"}>
-        {showText ? <BasicButton
+        {showText ? <Button
             fullWidth={true}
             startIcon={<WriteButtonIcon/>}
             size={"large"}
@@ -102,7 +96,7 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
             onClick={() => {onClick()}}
         >
             Escribir
-        </BasicButton> :
+        </Button> :
             <Button
                 color={"primary"}
                 onClick={() => {onClick()}}
@@ -126,12 +120,13 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
 
     useEffect(() => {
         if((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)){
+            console.log("setting open sidebar",layoutConfig.spaceForLeftSide )
             setLayoutConfig((prev) => ({
                 ...prev,
                 openSidebar: layoutConfig.spaceForLeftSide
             }))
         }
-    }, [layoutConfig.spaceForLeftSide])
+    }, [layoutConfig.defaultSidebarState, layoutConfig.spaceForLeftSide])
 
     const showText = layoutConfig.openSidebar
     function setShowText(v: boolean){
@@ -152,11 +147,13 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                 <div className={"flex flex-col space-y-2 " + (showText ? "" : "items-center")}>
 
                     <div className={"mb-4"}>
-                        {user.user && <div className={"w-full flex justify-center"}>
-                            <SidebarUsername
-                            user={user.user}
-                        /></div>}
-
+                        {user.user &&
+                            <div className={"w-full flex justify-center"}>
+                                <Link href={userUrl(user.user.handle)}>
+                                    <ProfilePic user={user.user} className={"w-12 h-12 rounded-full border " + dimOnHoverClassName}/>
+                                </Link>
+                            </div>
+                        }
                         {!user.isLoading && !user.user && <SidebarUsernameNoUser/>}
                     </div>
 

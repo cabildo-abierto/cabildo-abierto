@@ -2,7 +2,7 @@
 import StateButton, { StateButtonProps} from "../../../../modules/ui-utils/src/state-button";
 
 
-export const DropdownButton = ({...props}: StateButtonProps) => {
+export const OptionsDropdownButton = ({...props}: StateButtonProps) => {
     return <StateButton
         color={"secondary"}
         variant={"outlined"}

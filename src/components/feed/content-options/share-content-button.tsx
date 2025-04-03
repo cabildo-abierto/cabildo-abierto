@@ -1,9 +1,9 @@
 import { useState } from "react";
 import ShareIcon from '@mui/icons-material/Share';
 import {FeedContentProps} from "@/lib/definitions";
-import {BasicButton} from "../../../../modules/ui-utils/src/basic-button";
 import {contentUrl} from "../../../utils/uri";
-import {DropdownButton} from "./dropdown-button";
+import {OptionsDropdownButton} from "./options-dropdown-button";
+import {Button} from "../../../../modules/ui-utils/src/button";
 
 export const ShareContentButton = ({ content }: { content: FeedContentProps }) => {
     const [onClipboard, setOnClipboard] = useState(false);
@@ -24,7 +24,7 @@ export const ShareContentButton = ({ content }: { content: FeedContentProps }) =
         }
     };
 
-    return <DropdownButton
+    return <OptionsDropdownButton
         handleClick={async () => {await onShare(); return {}}}
         startIcon={<ShareIcon/>}
         text1={<div className="whitespace-nowrap">{!onClipboard ? "Compartir" : "Link copiado"}</div>}

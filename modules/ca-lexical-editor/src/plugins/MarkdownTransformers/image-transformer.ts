@@ -5,7 +5,6 @@ import {$createImageNode, $isImageNode, ImageNode} from "../../nodes/ImageNode";
 export const IMAGE: TextMatchTransformer = {
     dependencies: [ImageNode],
     export: (node) => {
-        console.log("image?", node, $isImageNode(node))
         if (!$isImageNode(node)) {
             return null;
         }

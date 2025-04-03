@@ -16,7 +16,7 @@ export async function revalidateTags(tags: string[]){
 
 export async function revalidateEverything(){
     await revalidateTags([
-        "feedCA",
+        "",
         "thread",
         "user",
         "dataset",

@@ -1,11 +1,11 @@
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import { unfollow, follow } from "@/server-actions/user/users"
 import { PermissionLevel } from "@/components/topics/topic/permission-level"
-import { Button } from "@mui/material"
+import { Button } from "../../../modules/ui-utils/src/button";
 import StateButton from "../../../modules/ui-utils/src/state-button"
 import Image from 'next/image'
 import { ArticleIcon } from "../icons/article-icon"
-import {emptyChar, getUsername} from "../../utils/utils";
+import {emptyChar, getUsername} from "@/utils/utils";
 import ReadOnlyEditor from "../editor/read-only-editor";
 import { UserProps } from "@/lib/definitions";
 import { useState } from "react";
@@ -116,7 +116,7 @@ export function ProfileHeader({
                     borderRadius: 0,
                 }}
             >
-                <div className={"pb-1 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
+                <div className={"pb-1 mx-2 pt-2 font-semibold border-b-[4px] " + (isSelected ? "border-[var(--primary)] text-[var(--text)] border-b-[4px]" : "text-[var(--text-light)] border-transparent")}>
                     {o}
                 </div>
             </Button>
@@ -197,8 +197,9 @@ export function ProfileHeader({
                 }
             </div>}
         </div>
+
         <div className="ml-2 mb-2">
-            <ReadOnlyEditor initialData={atprotoProfile.description}/>
+            <ReadOnlyEditor text={atprotoProfile.description} format={"plain-text"}/>
         </div>
 
         <div className="flex flex-col items-start px-2 space-y-2 mb-1">

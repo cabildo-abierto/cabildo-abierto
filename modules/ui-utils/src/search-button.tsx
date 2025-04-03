@@ -1,4 +1,4 @@
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import SearchIcon from "@mui/icons-material/Search";
 
 export const SearchButton = ({ onClick, disabled=false }: {onClick?: () => void, disabled?: boolean}) => {

@@ -5,7 +5,7 @@ import {enDiscusionQuery, revalidateEverythingTime} from "../utils";
 import {ArticleProps, FastPostProps, FeedContentProps, SmallTopicProps} from "@/lib/definitions";
 import {addCountersToFeed} from "./utils";
 import {unstable_cache} from "next/cache";
-import {getUserEngagementInFeed} from "./inicio";
+import {getUserEngagement} from "./get-user-engagement";
 import {cleanText} from "../../utils/strings";
 
 
@@ -42,7 +42,7 @@ export async function searchContentsNoCache(q: string, did: string): Promise<{fe
 
     feed = feed.slice(0, 50)
 
-    const engagement = await getUserEngagementInFeed(feed, did)
+    const engagement = await getUserEngagement(feed, did)
     feed = addCountersToFeed(feed, engagement)
 
     return {feed}

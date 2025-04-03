@@ -23,7 +23,7 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { useEffect, useRef, useState } from 'react';
 import { CAN_USE_DOM } from './shared/canUseDOM';
-import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CommentPlugin, {ReplyToContent} from './plugins/CommentPlugin';
@@ -51,7 +51,6 @@ import {
   $createParagraphNode,
   $createTextNode,
   $getRoot,
-  $getSelection,
   LexicalEditor as OriginalLexicalEditor
 } from 'lexical';
 import TableCellResizer from './plugins/TableCellResizer';
@@ -62,50 +61,51 @@ import { v4 as uuidv4 } from 'uuid';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'
 import {FastPostProps} from "@/lib/definitions";
 import PlotPlugin from "./plugins/PlotPlugin";
-import {isValidJSON} from "@/utils/utils";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
+import {getInitialData} from "./get-initial-data";
 
 export type SettingsProps = {
-  disableBeforeInput: boolean,
-  emptyEditor: boolean,
-  isAutocomplete: boolean,
-  isCharLimit: boolean,
-  isCharLimitUtf8: boolean,
-  charLimit?: number,
-  isCollab: boolean,
-  isMaxLength: boolean,
-  isRichText: boolean,
-  measureTypingPerf: boolean,
-  shouldPreserveNewLinesInMarkdown: boolean,
-  shouldUseLexicalContextMenu: boolean,
-  showNestedEditorTreeView: boolean,
-  showTableOfContents: boolean,
-  showTreeView: boolean,
-  tableCellBackgroundColor: boolean,
-  tableCellMerge: boolean,
-  showActions: boolean,
-  showToolbar: boolean,
-  isComments: boolean,
-  isDraggableBlock: boolean,
-  useSuperscript: boolean,
-  useStrikethrough: boolean,
-  useSubscript: boolean,
-  useCodeblock: boolean,
-  placeholder: string,
-  initialData: InitialEditorStateType,
-  isReadOnly: boolean,
-  isAutofocus: boolean,
-  editorClassName: string,
-  content?: ReplyToContent,
+  disableBeforeInput: boolean
+  emptyEditor: boolean
+  isAutocomplete: boolean
+  isCharLimit: boolean
+  isCharLimitUtf8: boolean
+  charLimit?: number
+  isCollab: boolean
+  isMaxLength: boolean
+  isRichText: boolean
+  measureTypingPerf: boolean
+  shouldPreserveNewLinesInMarkdown: boolean
+  shouldUseLexicalContextMenu: boolean
+  showNestedEditorTreeView: boolean
+  showTableOfContents: boolean
+  showTreeView: boolean
+  tableCellBackgroundColor: boolean
+  tableCellMerge: boolean
+  showActions: boolean
+  showToolbar: boolean
+  isComments: boolean
+  isDraggableBlock: boolean
+  useSuperscript: boolean
+  useStrikethrough: boolean
+  useSubscript: boolean
+  useCodeblock: boolean
+  placeholder: string
+  isReadOnly: boolean
+  isAutofocus: boolean
+  editorClassName: string
+  content?: ReplyToContent
   title?: string
-  placeholderClassName: string,
-  showingChanges?: string,
-  imageClassName: string,
-  preventLeave: boolean,
-  allowImages: boolean,
+  placeholderClassName: string
+  showingChanges?: string
+  imageClassName: string
+  preventLeave: boolean
+  allowImages: boolean
   quoteReplies?: FastPostProps[]
   pinnedReplies?: string[]
   setPinnedReplies?: (v: string[]) => void
+  initialText: string
+  initialTextFormat: string
 }
 
 
@@ -139,7 +139,7 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
         setLeaveStoppers(leaveStoppers.filter(id => id !== uniqueId));
       }
     }
-  }, [uniqueId])
+  }, [leaveStoppers, setLeaveStoppers, uniqueId])
 
   const {
     isMaxLength,
@@ -311,15 +311,11 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 
 
 const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorProps) => {
-  let {isReadOnly, initialData, imageClassName} = settings
+  let {isReadOnly, initialText, initialTextFormat, imageClassName} = settings
 
   const nodes = getEditorNodes(settings)
+  const initialData = getInitialData(initialText, initialTextFormat)
 
-  if(typeof initialData === 'string' && !isValidJSON(initialData)){
-      initialData = initializeEmpty(initialData)
-  }
-
-  if(initialData == null) initialData = initializeEmpty("") // para que arranque con un párrafo y el placeholder se vea bien
 
   const initialConfig: InitialConfigType = {
     namespace: 'Playground',
@@ -332,7 +328,8 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
     editable: !isReadOnly,
   };
 
-  return <LexicalComposer initialConfig={initialConfig}>
+  return (
+    <LexicalComposer initialConfig={initialConfig}>
       <SharedHistoryContext>
         <TableContext>
           <div className="editor-shell">
@@ -344,7 +341,8 @@ const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorPro
           </div>
         </TableContext>
       </SharedHistoryContext>
-  </LexicalComposer>
+    </LexicalComposer>
+  )
 }
 
 

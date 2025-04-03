@@ -6,7 +6,7 @@ import {db} from "../../db";
 import JSZip from "jszip";
 import Papa from 'papaparse';
 import {getSessionDid} from "../auth";
-import {getUserEngagementInFeed} from "../feed/inicio";
+import {getUserEngagement} from "../feed/get-user-engagement";
 import {addCountersToFeed} from "../feed/utils";
 import {fetchBlob} from "../blob";
 import {compress, decompress} from "../../utils/compression";
@@ -198,7 +198,7 @@ export async function getDatasets(): Promise<FeedContentProps[]>{
         }
     )()
 
-    const engagement = await getUserEngagementInFeed(datasets, did)
+    const engagement = await getUserEngagement(datasets, did)
 
     datasets = datasets.filter((d) => {
         return d.dataset.dataBlocks.length > 0

@@ -14,7 +14,6 @@ export async function GET(req: NextRequest) {
     await restartSync()
 
     const {users} = await getUsers()
-    console.log("users", users.map(u => [u.did, u.handle, u.inCA]))
 
     syncAllUsers()
 

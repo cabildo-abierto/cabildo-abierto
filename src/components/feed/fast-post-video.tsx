@@ -10,6 +10,7 @@ export const FastPostVideo = ({post}: {post: FastPostProps}) => {
 
     const embed = JSON.parse(post.content.post.embed)
 
+    return null
     if(embed.video){
         return <VideoEmbed post={post} blob={embed.video}/>
     }

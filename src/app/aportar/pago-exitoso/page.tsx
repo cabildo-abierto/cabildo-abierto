@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { CustomLink as Link } from '../../../../modules/ui-utils/src/custom-link';
-import {BasicButton} from "../../../../modules/ui-utils/src/basic-button";
+
+import {Button} from "../../../../modules/ui-utils/src/button";
 
 export const metadata: Metadata = {
     title: 'Pago exitoso'
@@ -14,7 +15,7 @@ export default function Page(){
         </div>
         <div className="text-[var(--text-light)] text-sm py-16">Ante cualquier duda o inconveniente con tu pago podés escribirnos por la <Link href="/soporte" className="link2">pestaña de soporte</Link> o por mail a <Link href="mailto:soporte@cabildoabierto.com.ar" className="link3">soporte@cabildoabierto.com.ar</Link>
         </div>
-        <Link href="/inicio"><BasicButton>Ir al inicio</BasicButton></Link>
+        <Link href="/inicio"><Button>Ir al inicio</Button></Link>
     </div>
 
     return center

@@ -60,7 +60,7 @@ const ArticleQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedConten
     const initialData = getSelectionFromJSONState(parentContent, quote)
 
     return <ReadOnlyEditor
-        initialData={initialData}
+        text={initialData} format={"lexical"}
     />
 }
 
@@ -90,7 +90,7 @@ const TopicQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedContent:
     }
 
     return <ReadOnlyEditor
-        initialData={initialData}
+        text={initialData} format={"lexical"}
     />
 }
 

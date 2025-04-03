@@ -1,10 +1,10 @@
 import Link from "next/link";
-import Button from "@mui/material/Button";
 import Image from 'next/image'
 import { isMobile } from 'react-device-detect'
 import { BlueskyLogo } from "@/components/icons/bluesky-logo";
 import Footer from "../../../modules/ui-utils/src/footer";
 import {Logo} from "../../../modules/ui-utils/src/logo";
+import { Button } from "../../../modules/ui-utils/src/button";
 
 
 const LogoAndSlogan = () => {
@@ -42,11 +42,9 @@ export default function Page() {
                         <Button
                             color="primary"
                             size={!isMobile ? "large" : "medium"}
-                            variant="outlined"
-                            endIcon={<BlueskyLogo/>}
-                            disableElevation={true}
                             sx={{
                                 textTransform: "none",
+                                borderRadius: 20,
                                 width: !isMobile ? "300px" : "170px",
                             }}
                         >
@@ -163,7 +161,7 @@ export default function Page() {
             <div className="flex flex-col-reverse items-center md:flex-row md:space-x-16 mt-48 mb-32">
                 <div className="mt-8 md:mt-0">
                     <Image
-                        src="/remuneraciones.svg"
+                        src="/presentacion/remuneraciones.svg"
                         alt="Remuneraciones a autores"
                         width={700}
                         height={500}
@@ -210,7 +208,7 @@ export default function Page() {
                         </div>
                         <div className="absolute z-2 left-[100px] top-[220px] text-2xl">
                             <Link href="https://atproto.com">
-                            <span className="text-[#0481f7]">@AT</span><span>Protocol</span>
+                                <span className="text-[#0481f7]">@AT</span><span>Protocol</span>
                             </Link>
                         </div>
                     </div>

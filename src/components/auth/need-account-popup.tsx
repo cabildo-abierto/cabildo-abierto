@@ -1,4 +1,4 @@
-import { Button } from "@mui/material"
+import { Button } from "../../../modules/ui-utils/src/button";
 import Link from "next/link"
 import { ReactNode } from "react"
 import { BaseFullscreenPopup } from "../../../modules/ui-utils/src/base-fullscreen-popup"

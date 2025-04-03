@@ -1,6 +1,6 @@
 "use client"
 
-import { initializeEmpty, SettingsProps } from "../../../../modules/ca-lexical-editor/src/lexical-editor"
+import { SettingsProps } from "../../../../modules/ca-lexical-editor/src/lexical-editor"
 import { useState } from "react"
 import { EditorState, LexicalEditor } from "lexical"
 import {useRouter} from "next/navigation"
@@ -8,11 +8,7 @@ import { TitleInput } from "./title-input"
 import dynamic from "next/dynamic"
 import {validArticle} from "./valid-article";
 import {BackButton} from "../../../../modules/ui-utils/src/back-button";
-import {PublishButton} from "@/components/writing/article/publish-button";
-import {Button} from "@/../modules/ui-utils/src/button"
-import {editorStateToMarkdown, markdownToEditorState} from "@/server-actions/editor/markdown-transforms";
-import {ArticleHeader} from "@/components/article/article-header";
-import {TopicsMentioned} from "@/components/article/topics-mentioned";
+import {PublishArticleButton} from "@/components/writing/article/publish-article-button";
 import {Authorship} from "@/components/feed/content-top-row-author";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
@@ -21,7 +17,7 @@ import {useUser} from "@/hooks/swr";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
-const articleEditorSettings: (initialData?: string) => SettingsProps = (initialData) => {
+const articleEditorSettings: () => SettingsProps = () => {
     return {
         disableBeforeInput: false,
         emptyEditor: false,
@@ -50,7 +46,8 @@ const articleEditorSettings: (initialData?: string) => SettingsProps = (initialD
         useSubscript: false,
         useCodeblock: false,
         placeholder: "Escribí tu artículo...",
-        initialData: initialData ? initialData : initializeEmpty(""),
+        initialText: "",
+        initialTextFormat: "plain-text",
         editorClassName: "article-content",
         isReadOnly: false,
         isAutofocus: true,
@@ -68,7 +65,7 @@ const ArticleEditor = () => {
     const router = useRouter()
     const {user} = useUser()
 
-    const settings = articleEditorSettings("")
+    const settings = articleEditorSettings()
     settings.editorClassName += " px-2 pt-4"
     settings.placeholderClassName += " px-2 pt-[32px]"
 
@@ -78,7 +75,7 @@ const ArticleEditor = () => {
 
     const createdAt = new Date()
 
-    async function onReloadMarkdown(){
+    /*async function onReloadMarkdown(){
         let jsonState = JSON.stringify(editorState.toJSON())
         const markdown = editorStateToMarkdown(jsonState)
         jsonState = markdownToEditorState(markdown)
@@ -86,16 +83,16 @@ const ArticleEditor = () => {
         editor.update(() => {
             editor.setEditorState(state)
         })
-    }
+    }*/
 
     return <div className={"mb-32"}>
         <div className="flex justify-between mt-3 items-center w-full px-3 border-b pb-2">
 			<div className="flex justify-between w-full text-[var(--text-light)]">
-                <BackButton onClick={() => {router.back()}}/>
+                <BackButton defaultURL={"/"}/>
                 {/*<Button onClick={onReloadMarkdown} size={"small"} variant={"text"}>
                     Chequear markdown
                 </Button>*/}
-                <PublishButton
+                <PublishArticleButton
                     editor={editor}
                     title={title}
                     disabled={disabled}

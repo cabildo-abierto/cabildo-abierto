@@ -4,13 +4,13 @@ import {useRouter} from "next/navigation";
 import {createTopic} from "@/server-actions/write/topic";
 import {topicUrl} from "../../utils/uri";
 import Link from "next/link";
-import {BasicButton} from "../../../modules/ui-utils/src/basic-button";
 import {TextField} from "@mui/material";
 import {ErrorMsg} from "../../utils/utils";
 import TickButton from "../../../modules/ui-utils/src/tick-button";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {validEntityName} from "@/components/topics/topic/utils";
 import {useUser} from "../../hooks/swr";
+import {Button} from "../../../modules/ui-utils/src/button";
 
 
 export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => void, initialSelected?: string}) => {
@@ -42,18 +42,18 @@ export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => v
         return <div className={"flex justify-center items-center min-h-64"}>
             <div className={"flex space-x-2 h-full"}>
                 <Link href={"/temas"}>
-                    <BasicButton
+                    <Button
                         sx={{width: "128px"}}
                     >
                         Editar un tema
-                    </BasicButton>
+                    </Button>
                 </Link>
-                <BasicButton
+                <Button
                     onClick={() => {setSelected("new")}}
                     sx={{width: "128px"}}
                 >
                     Nuevo tema
-                </BasicButton>
+                </Button>
             </div>
         </div>
     }
@@ -91,13 +91,13 @@ export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => v
         />
 
         <div className="py-4 space-x-2 text-[var(--text-light)]">
-            <BasicButton
+            <Button
                 onClick={() => {setSelected("none")}}
                 variant={"text"}
                 color={"inherit"}
             >
                 Volver
-            </BasicButton>
+            </Button>
             <StateButton
                 handleClick={onSubmit}
                 disabled={!user.user || !validEntityName(topicName)}

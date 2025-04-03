@@ -1,10 +1,10 @@
 import {FastPostProps} from "@/lib/definitions";
 import {$createRangeSelection, $getRoot, $nodesOfType, LexicalEditor} from "lexical";
 import {useCallback, useEffect, useRef, useState} from "react";
-import {IconButton} from "@mui/material";
-import {ActiveCommentIcon} from "../../../../../src/components/icons/active-comment-icon";
-import {FastPostContent} from "../../../../../src/components/feed/fast-post-content";
-import {SidenoteReplyPreviewFrame} from "../../../../../src/components/feed/sidenote-reply-preview-frame";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
+import {ActiveCommentIcon} from "@/components/icons/active-comment-icon";
+import {FastPostContent} from "@/components/feed/fast-post-content";
+import {SidenoteReplyPreviewFrame} from "@/components/feed/sidenote-reply-preview-frame";
 import { getPointTypeFromIndex } from "./standard-selection";
 
 import {

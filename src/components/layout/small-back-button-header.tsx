@@ -1,7 +1,7 @@
 "use client"
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {useRouter} from "next/navigation";
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import MenuIcon from "@mui/icons-material/Menu";
 import { useLayoutConfig } from "./layout-config-context";
 

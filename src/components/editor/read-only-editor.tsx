@@ -1,7 +1,5 @@
 "use client"
 
-import { InitialEditorStateType } from "@lexical/react/LexicalComposer"
-
 import { SettingsProps } from "../../../modules/ca-lexical-editor/src/lexical-editor"
 
 import dynamic from "next/dynamic";
@@ -14,7 +12,8 @@ const MyLexicalEditor = dynamic(() => import('../../../modules/ca-lexical-editor
 });
 
 const ReadOnlyEditor = ({
-    initialData,
+    text,
+    format,
     allowTextComments = false,
     editorClassName="link",
     content,
@@ -23,7 +22,8 @@ const ReadOnlyEditor = ({
     setPinnedReplies,
     showTableOfContents = false
 }: {
-    initialData: InitialEditorStateType
+    text: string
+    format: string
     allowTextComments?: boolean
     editorClassName?: string
     content?: ReplyToContent
@@ -59,7 +59,8 @@ const ReadOnlyEditor = ({
         useSubscript: false,
         useCodeblock: false,
         placeholder: "",
-        initialData: initialData,
+        initialText: text,
+        initialTextFormat: format,
         isAutofocus: true,
         editorClassName: editorClassName,
         isReadOnly: true,

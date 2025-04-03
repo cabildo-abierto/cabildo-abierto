@@ -1,13 +1,13 @@
 import {DatasetProps, PlotConfigProps} from "@/lib/definitions";
 import {useEffect, useState} from "react";
 import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
-import {BasicButton} from "../../../../modules/ui-utils/src/basic-button";
 import AddIcon from "@mui/icons-material/Add";
 import {TextField} from "@mui/material";
 import {DatasetPreviewSmall} from "../../datasets/dataset-preview";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {NewDatasetPanel} from "../../datasets/new-dataset-panel";
 import {cleanText} from "../../../utils/strings";
+import {Button} from "../../../../modules/ui-utils/src/button";
 
 export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
     datasets?: DatasetProps[],
@@ -38,7 +38,7 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
                             Datos
                         </div>
                         <div>
-                            <BasicButton
+                            <Button
                                 startIcon={<AddIcon/>}
                                 variant={"text"}
                                 size={"small"}
@@ -46,7 +46,7 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
                                 onClick={() => {setNewDatasetPanelOpen(true)}}
                             >
                                 Dataset
-                            </BasicButton>
+                            </Button>
                         </div>
                     </div>
                     <hr className={"my-2"}/>

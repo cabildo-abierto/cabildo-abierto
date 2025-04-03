@@ -3,12 +3,12 @@ import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
 import {Select} from "../../../../modules/ui-utils/src/select";
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
 import {IconButton, TextField} from "@mui/material";
-import {BasicButton} from "../../../../modules/ui-utils/src/basic-button";
 import AddIcon from "@mui/icons-material/Add";
 import {FilterConfig} from "./filter-config";
 import CodeIcon from '@mui/icons-material/Code';
 import {openJsonInNewTab} from "@/components/feed/content-options/content-options";
 import {getSpecForConfig} from "./spec";
+import {Button} from "../../../../modules/ui-utils/src/button";
 
 
 const twoAxis: PropReq[] = [
@@ -173,7 +173,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                     </div>
                 })}
                 <div>
-                    <BasicButton
+                    <Button
                         color={"inherit"}
                         startIcon={<AddIcon/>}
                         onClick={() => {
@@ -183,7 +183,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                         variant={"text"}
                     >
                         Filtro
-                    </BasicButton>
+                    </Button>
                 </div>
                 <div className={"flex justify-end"}>
                 <IconButton size={"small"}

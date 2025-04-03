@@ -8,9 +8,9 @@ import Image from 'next/image'
 import ReadOnlyEditor from "../editor/read-only-editor";
 import {TextField} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import {userUrl} from "../../utils/uri";
+import {userUrl} from "@/utils/uri";
 
-import {emptyChar} from "../../utils/utils";
+import {emptyChar} from "@/utils/utils";
 
 
 export const UserSearchResult: React.FC<{result: {displayName?: string, handle: string, avatar?: string, description?: string}}> = ({ result }) => {
@@ -29,7 +29,7 @@ export const UserSearchResult: React.FC<{result: {displayName?: string, handle: 
                 {result.displayName ? result.displayName : <>@{result.handle}</>}
                 {result.displayName && <span className="text-[var(--text-light)]">@{result.handle}</span>}
                 {result.description && result.description.length > 0 && <div className={"text-sm mt-1"}>
-                    <ReadOnlyEditor initialData={result.description}/>
+                    <ReadOnlyEditor text={result.description} format={"markdown"}/>
                 </div>}
             </div>
         </div>

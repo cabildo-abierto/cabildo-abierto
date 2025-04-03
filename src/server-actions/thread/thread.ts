@@ -1,20 +1,18 @@
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 import {
-    ArticleProps, DatasetProps,
     FastPostProps,
     FeedContentProps,
     ThreadProps,
-    VisualizationProps
 } from "@/lib/definitions";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {unstable_cache} from "next/cache";
 import {addCounters, logTimes, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";
 import {isCAUser} from "../user/users";
-import {db} from "../../db";
+import {db} from "@/db";
 import {getTextFromBlob} from "../topic/topics";
-import {getUserEngagementInFeed} from "../feed/inicio";
-import {getUri} from "../../utils/uri";
-import {validQuotePost} from "../../utils/lexical";
+import {getUserEngagement} from "../feed/get-user-engagement";
+import {getUri} from "@/utils/uri";
+import {validQuotePost} from "@/utils/lexical";
 
 
 function threadViewPostToThread(thread: ThreadViewPost) {
@@ -142,7 +140,7 @@ export async function getThreadFromCA({did, c, rkey}: {did: string, c: string, r
 
 
     if(thread.thread){
-        const engagement = await getUserEngagementInFeed([thread.thread.post, ...thread.thread.replies], viewerDid)
+        const engagement = await getUserEngagement([thread.thread.post, ...thread.thread.replies], viewerDid)
         return {
             thread: {
                 post: addCounters(thread.thread.post, engagement),

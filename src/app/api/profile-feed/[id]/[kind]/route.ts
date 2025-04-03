@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {getProfileFeed} from "@/server-actions/feed/profile";
+import {getProfileFeed} from "@/server-actions/feed/profile/profile";
 
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string, kind: string }> }) {

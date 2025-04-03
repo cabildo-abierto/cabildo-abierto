@@ -2,7 +2,7 @@
 import Image from 'next/image'
 import {FastPostProps} from "@/lib/definitions";
 import {useEffect, useState} from "react";
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 

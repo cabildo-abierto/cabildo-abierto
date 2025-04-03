@@ -3,7 +3,7 @@ import {getSessionDid} from "../auth";
 import {db} from "../../db";
 import {enDiscusionQuery, reactionsQuery, recordQuery, revalidateEverythingTime, threadRepliesQuery} from "../utils";
 import {addCountersToFeed} from "./utils";
-import {getUserEngagementInFeed} from "./inicio";
+import {getUserEngagement} from "./get-user-engagement";
 import {unstable_cache} from "next/cache";
 
 
@@ -141,8 +141,8 @@ export async function getTopicFeedNoCache(id: string, did: string): Promise<{fee
 
         const [replies, mentions, topicMentions] = await Promise.all([getReplies, getMentions, getTopicMentions])
 
-        const repliesEngagement = await getUserEngagementInFeed(replies, did)
-        const mentionsEngagement = await getUserEngagementInFeed(mentions, did)
+        const repliesEngagement = await getUserEngagement(replies, did)
+        const mentionsEngagement = await getUserEngagement(mentions, did)
         const readyForFeedMentions = addCountersToFeed(mentions, mentionsEngagement)
         const readyForFeedReplies = addCountersToFeed(replies, repliesEngagement)
 

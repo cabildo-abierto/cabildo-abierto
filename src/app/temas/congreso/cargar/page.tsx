@@ -2,8 +2,8 @@
 import senadores from "../../../../../public/congreso/senadores.json";
 import {useEffect, useState} from "react";
 import {TextField} from "@mui/material";
-import {BasicButton} from "../../../../../modules/ui-utils/src/basic-button";
 import {getId, getVote} from "../../../../components/congreso/utils";
+import {Button} from "../../../../../modules/ui-utils/src/button";
 
 
 const VoteSelector = ({ options, value, onChange }: {
@@ -84,10 +84,10 @@ export default function Page() {
             </div>
         })}
 
-        <BasicButton
+        <Button
             onClick={() => {console.log(getProyect())}}
         >
             Imprimir
-        </BasicButton>
+        </Button>
     </div>
 }
