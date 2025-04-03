@@ -1,42 +1,23 @@
 import Image from 'next/image'
-import { IconButton } from "@mui/material"
-import Link from "next/link";
-
-export const pathLogo = "/logo.svg"
+export const pathLogo = "/logo.png"
 
 
 export const Logo = ({
-    className,
-    imageClassName="",
-    opacity = 1,
+    width=64, height=64, className=""
   }: {
-    className: string
-    imageClassName?: string
-    opacity?: number
+    width?: number
+    height?: number
+    className?: string
   }) => {
     return (
-      <div className={`relative inline-block ${className}`}>
         <Image
           src={pathLogo}
           alt="Loading..."
-          width={397}
-          height={397}
+          width={300}
+          height={300}
           priority={true}
-          className={"object-contain " + imageClassName}
-          style={{ opacity: opacity }}
+          style={{ width, height }}
+          className={className}
         />
-      </div>
     );
-};
-
-
-export function TopbarLogo({className="w-8 h-8"}: {className?: string}) {
-    return <Link href="/public">
-        <IconButton className="relative">
-            <Logo
-                className={className}
-                imageClassName="rounded-sm"
-            />
-        </IconButton>
-    </Link>
 }

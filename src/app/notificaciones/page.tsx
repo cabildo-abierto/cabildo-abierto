@@ -1,10 +1,9 @@
 "use client"
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import MenuIcon from "@mui/icons-material/Menu";
-import {useLayoutConfig} from "../../components/layout/layout-config-context";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {useRouter} from "next/navigation";
-import {SmallBackButtonHeader} from "../../components/layout/small-back-button-header";
 
 
 const Page = () => {
@@ -27,7 +26,7 @@ const Page = () => {
                 </IconButton>
             </div>
             <div className={"max-[500px]:hidden"}>
-                <BackButton onClick={() => {router.back()}}/>
+                <BackButton defaultURL={"/"}/>
             </div>
             <div className={"font-bold text-lg"}>
                 Notificaciones

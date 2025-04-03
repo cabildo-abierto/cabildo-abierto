@@ -23,7 +23,9 @@ export const DatasetOnThread = ({dataset}: {dataset: DatasetProps & EngagementPr
             <div className={"font-semibold text-[var(--text)]"}>
                 Descripción
             </div>
-            <DatasetDescription description={dataset.dataset.description}/>
+            <DatasetDescription
+                description={dataset.dataset.description}
+            />
             <div className={"font-semibold text-[var(--text)] mt-4"}>
                 Tamaño
             </div>

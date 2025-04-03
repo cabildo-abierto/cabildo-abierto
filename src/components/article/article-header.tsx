@@ -5,6 +5,7 @@ import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
 import {decompress} from "@/utils/compression";
 import {ArticleProps} from "@/lib/definitions";
+import {getNumWords} from "../../../modules/ca-lexical-editor/src/get-num-words";
 
 
 export const ArticleHeader = ({article}: {article: ArticleProps}) => {
@@ -22,7 +23,7 @@ export const ArticleHeader = ({article}: {article: ArticleProps}) => {
             </span>
             <span className={"text-[var(--text-light)]"}>
                 <ReadingTime
-                    numWords={getAllText(JSON.parse(decompress(article.content.text)).root).split(" ").length}
+                    numWords={getNumWords(article.content.text, article.content.format)}
                 />
             </span>
         </div>

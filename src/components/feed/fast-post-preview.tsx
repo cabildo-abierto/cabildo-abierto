@@ -95,7 +95,7 @@ export const FastPostPreview = ({
 
     const showThreadButton = replyToAvailable && rootAvailable && parentReplyTo && parentReplyTo.uri != root.uri
 
-    return <div className={"flex flex-col w-full text-[15px]"}>
+    return <div className={"flex flex-col w-full text-[15px] min-w-[600px]"}>
         {rootAvailable && <FeedElement
             elem={root as FeedContentPropsMaybe}
             showingChildren={true}

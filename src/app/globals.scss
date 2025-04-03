@@ -24,8 +24,6 @@
 	--text: '#fbfbfc';
 	--text-light: '#b0b0b0';
 	--text-lighter: '#888888';
-	--icon-color-filter: 'invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%)';
-
 	--background: '#181b23';
 	--background-light: '#1a1e27';
 	--background-dark: '#1e2230';
@@ -67,6 +65,10 @@ h1, h2, h3, h4, h5, h6 {
 .logo {
 	line-height: 1;
 	font-weight: 500;
+}
+
+.article-preview-content {
+	font-family: var(--font-roboto-serif), serif;
 }
 
 .article-content {

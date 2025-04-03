@@ -4,7 +4,7 @@ import {EngagementProps, VisualizationProps} from "@/lib/definitions";
 import {DatasetTitle} from "../datasets/dataset-title";
 import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
 import {VegaPlot} from "./vega-plot";
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import {useLayoutConfig} from "../layout/layout-config-context";

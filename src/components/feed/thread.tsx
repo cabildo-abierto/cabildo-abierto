@@ -18,10 +18,9 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 
 export const ThreadHeader = ({c, title}: {c?: string, title?: string}) => {
-    const router = useRouter()
     return <div className={"flex space-x-4 items-center w-full px-2 py-2"}>
         <div className={""}>
-            <BackButton onClick={() => {router.back()}}/>
+            <BackButton defaultURL={"/"}/>
         </div>
         <div className={"font-bold text-lg"}>
             {c ? collectionToDisplay(c) : title}

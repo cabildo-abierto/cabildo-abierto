@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import SearchableDropdown from "./searchable-dropdown";
-import { BasicButton } from "./basic-button";
 import StateButton from "./state-button";
 
 import {areArraysEqual} from "@/utils/arrays";
+import {Button} from "./button";
 
 const NewItem = ({
      addItem,
@@ -64,7 +64,7 @@ const NewItem = ({
             <AddIcon fontSize={"small"}/>
         </IconButton>
     } else {
-        return <BasicButton
+        return <Button
             variant={"text"}
             startIcon={<AddIcon/>}
             color={"inherit"}
@@ -73,7 +73,7 @@ const NewItem = ({
             }}
         >
             {newItemText}
-        </BasicButton>
+        </Button>
     }
 }
 
@@ -158,13 +158,13 @@ export const ListEditorWithSave = ({
             setItems={setItems}
         />
         <div className={"flex justify-end mt-2 space-x-2 text-[var(--text-light)]"}>
-            <BasicButton
+            <Button
                 variant={"text"}
                 onClick={() => {setItems(initialValue); onClose()}}
                 color={"inherit"}
             >
                 Cancelar
-            </BasicButton>
+            </Button>
             <StateButton
                 handleClick={async () => {return await onSave(items)}}
                 disabled={areArraysEqual(items, initialValue)}

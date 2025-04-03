@@ -1,5 +1,5 @@
 "use client"
-import {Box, Button, Container, FormHelperText, TextField} from "@mui/material"
+import {Box, FormHelperText, TextField} from "@mui/material"
 import {useEffect, useState} from "react"
 import { login } from "@/server-actions/auth"
 import {useRouter} from "next/navigation"
@@ -8,8 +8,8 @@ import { isValidHandle } from "@atproto/syntax"
 import {assignInviteCode} from "@/server-actions/user/access";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {mutate} from "swr";
-import Link from "next/link";
-import {useUser} from "../../hooks/swr";
+import {useUser} from "@/hooks/swr";
+import { Button } from "../../../modules/ui-utils/src/button"
 
 
 export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
@@ -24,7 +24,11 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         e.preventDefault();
 
         if (typeof handle !== 'string' || !isValidHandle(handle)) {
-            setError("Nombre de usuario inválido." + (handle.includes("@") ? " Escribilo sin @." : ""))
+            if(handle.includes("@")){
+                setError("Nombre de usuario inválido. Escribilo sin @.")
+            } else if(!handle.includes(".bsky.social")){
+                setError('Nombre de usuario inválido. Tip: Los usuarios de Bluesky suelen terminar con ".bsky.social".')
+            }
             return
         }
 
@@ -64,7 +68,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
 
             router.push("/inicio")
         }
-    }, [user, inviteCode])
+    }, [user, inviteCode, router])
 
     if(usingInviteCode){
         return <div className={"flex flex-col items-center space-y-2"}>
@@ -75,62 +79,53 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         </div>
     }
 
-    return <Container maxWidth="xs">
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-            }}
-        >
-            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: "100%" }}>
-                <FormControl error={error} sx={{ width: "100%" }}>
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="username"
-                        label="Nombre de usuario de ATProto"
-                        name="username"
-                        placeholder="Ej. usuario.bsky.social"
-                        autoFocus
-                        autoComplete="off"
-                        variant="outlined"
-                        value={handle}
-                        onChange={(e) => {
-                            setHandle(e.target.value);
-                            setError(undefined);
-                        }}
-                    />
-
-                    <FormHelperText
-                        hidden={error == undefined}
-                        id="my-helper-text"
-                    >
-                        {error}
-                    </FormHelperText>
-                </FormControl>
-                <FormHelperText id="my-helper-text" sx={{color: "var(--text-light)"}}>
-                    {/* TO DO: Reemplazar link por un tema de Cabildo Abierto */}
-                    Tu nombre de usuario de Bluesky, Cabildo Abierto y cualquier otra plataforma que use ATProto. <Link target="_blank" className="link2" href={"https://es.wikipedia.org/wiki/Protocolo_AT"}>¿Qué es ATProto?</Link>
-                </FormHelperText>
-                <Button
-                    type="submit"
-                    loading={isLoading}
-                    fullWidth
-                    size="large"
-                    variant="contained"
-                    color={"primary"}
-                    sx={{
-                        mt: 3,
-                        mb: 2,
-                        textTransform: "none",
+    return <div className={"max-w-96 w-full"}>
+        <Box component={"form"} onSubmit={handleSubmit} sx={{width: "100%"}}>
+            <FormControl error={error} sx={{width: "100%"}}>
+                <TextField
+                    margin="normal"
+                    fullWidth={true}
+                    id="username"
+                    label="Nombre de usuario de Bluesky"
+                    name="username"
+                    placeholder="Ej. usuario.bsky.social"
+                    autoFocus
+                    autoComplete="off"
+                    variant="outlined"
+                    value={handle}
+                    onChange={(e) => {
+                        setHandle(e.target.value);
+                        setError(undefined);
                     }}
-                    disableElevation
+                />
+
+                <FormHelperText
+                    hidden={error == undefined}
+                    id="my-helper-text"
                 >
-                    Iniciar sesión
-                </Button>
-            </Box>
+                    {error}
+                </FormHelperText>
+            </FormControl>
+            {/*<FormHelperText id="my-helper-text" sx={{color: "var(--text-light)"}}>
+                Tu nombre de usuario de Bluesky, Cabildo Abierto y cualquier otra plataforma que use ATProto. <Link target="_blank" className="link2" href={"https://es.wikipedia.org/wiki/Protocolo_AT"}>¿Qué es ATProto?</Link>
+            </FormHelperText>*/}
+            {/* TO DO: Reemplazar link por un tema de Cabildo Abierto */}
+            <Button
+                type="submit"
+                loading={isLoading}
+                fullWidth
+                size="large"
+                variant="contained"
+                color={"primary"}
+                sx={{
+                    mt: 3,
+                    mb: 2,
+                    textTransform: "none",
+                    borderRadius: 20
+                }}
+            >
+                Iniciar sesión
+            </Button>
         </Box>
-    </Container>
+    </div>
 }

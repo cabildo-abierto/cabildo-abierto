@@ -133,7 +133,7 @@ export const TopicContentExpandedViewWithVersion = ({
             />
         }
         {["normal", "authors", "changes", "editing"].includes(wikiEditorState) &&
-            <div id="editor" className={"pb-2 min-h-[300px]"}>
+            <div id="editor" className={"pb-2 min-h-[300px] mt-2"}>
                 {["editing", "normal"].includes(wikiEditorState) && (topicVersion ? <div
                     id={editorId}
                     className={" "+(wikiEditorState == "editing" ? "mb-32" : "mb-8")}

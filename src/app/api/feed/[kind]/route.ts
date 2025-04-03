@@ -1,6 +1,8 @@
 import {NextRequest, NextResponse} from 'next/server';
-import {getDiscoverFeed, getEnDiscusion, getFollowingFeed} from "@/server-actions/feed/inicio";
 import { FeedContentProps } from '@/lib/definitions';
+import {getFollowingFeed} from "@/server-actions/feed/inicio/following";
+import {getEnDiscusion} from "@/server-actions/feed/inicio/en-discusion";
+import {getDiscoverFeed} from "@/server-actions/feed/inicio/discover";
 
 
 export async function GET(req: NextRequest, {params}: {params: Promise<{kind: string}>}) {

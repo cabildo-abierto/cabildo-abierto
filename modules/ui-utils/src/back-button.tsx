@@ -1,16 +1,27 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { CustomLink as Link } from './custom-link';
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
+import {useRouter} from "next/navigation";
 
-export const BackButton = ({url, onClick, size="medium"}: {size?: "small" | "medium" | "large", url?: string, onClick?: () => void}) => {
-    if(url != undefined){
-        return <Link href={url}><IconButton size={size} color={"inherit"}>
-            <ArrowBackIcon fontSize={"inherit"} color={"inherit"}/>
-        </IconButton>
-        </Link>
-    } else {
-        return <IconButton onClick={onClick} size={size} color={"inherit"}>
-            <ArrowBackIcon fontSize={"inherit"} color={"inherit"}/>
-        </IconButton>
+export const BackButton = ({onClick, defaultURL, preferReferrer=true, size="medium"}: {
+    preferReferrer?: boolean, size?: "small" | "medium" | "large"
+    defaultURL?: string
+    onClick?: () => void
+}) => {
+    const router = useRouter()
+
+    const handleClick = () => {
+        if(onClick) {
+            onClick()
+        } else if (preferReferrer && document.referrer && new URL(document.referrer).origin === window.location.origin) {
+            router.back()
+        } else {
+            router.push(defaultURL)
+        }
     }
+
+    return (
+        <IconButton size={size} color={"inherit"} onClick={handleClick}>
+            <ArrowBackIcon fontSize={"inherit"} color={"inherit"}/>
+        </IconButton>
+    )
 }

@@ -1,17 +1,19 @@
 "use client"
 import Link from "next/link"
 import { BlueskyLogin } from "./bsky-login"
-import { TopbarLogo } from "../../../modules/ui-utils/src/logo"
-import {useSearchParams} from "next/navigation";
+import {Logo} from "../../../modules/ui-utils/src/logo"
+import {useRouter, useSearchParams} from "next/navigation";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import { LuPartyPopper } from "react-icons/lu";
-import {useCodes} from "../../hooks/swr";
+import {useCodes} from "@/hooks/swr";
+import {BackButton} from "../../../modules/ui-utils/src/back-button";
 
 
 
 export const Login = () => {
     const params = useSearchParams()
     const {codes} = useCodes()
+    const router = useRouter()
 
     const inviteCode = params.get("c")
 
@@ -32,9 +34,13 @@ export const Login = () => {
         }
     }
 
-    return <div className="flex flex-col items-center sm:w-[600px] py-10">
+    return <div className="flex flex-col items-center max-w-96 py-10">
+        <div className={"flex justify-start w-full px-2"}>
+            <BackButton defaultURL={"/presentacion"}/>
+        </div>
+
         <div className="mb-2">
-            <TopbarLogo className="w-20 h-20 m-2"/>
+            <Logo className="m-2" width={80} height={80}/>
         </div>
 
         <div className="flex justify-center">
@@ -55,13 +61,9 @@ export const Login = () => {
 
                 <BlueskyLogin inviteCode={inviteCode}/>
 
-                <div className='text-sm text-center text-[var(--text-light)] mx-2'>
+                <div className='text-center text-[var(--text-light)] mx-2'>
                     ¿No tenés una cuenta? <Link className="link2" target="_blank" href="https://bsky.app">Registrate en
                     Bluesky</Link>.
-                </div>
-
-                <div className={"w-full link flex justify-center text-sm"}>
-                    <Link href={"/public"}>Volver al inicio</Link>
                 </div>
             </div>
         </div>

@@ -5,7 +5,7 @@ import {Authorship} from "../feed/content-top-row-author";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import Link from "next/link";
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 
 import {contentUrl} from "../../utils/uri";
 

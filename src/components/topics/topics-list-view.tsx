@@ -3,10 +3,11 @@ import {CategorySelector} from "./category-selector";
 import {CategoryArticles} from "./category-articles";
 import {useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import {ModalBelow} from "../../../modules/ui-utils/src/modal-below";
-import { BasicButton } from "../../../modules/ui-utils/src/basic-button";
+
+import {Button} from "../../../modules/ui-utils/src/button";
 
 export type TopicsSortOrder = "Populares" | "Ediciones recientes"
 
@@ -36,14 +37,14 @@ export const TopicsSortSelector = ({sortedBy, setSortedBy}: {
             <div className={"p-1 space-y-1"}>
                 {["Populares", "Ediciones recientes"].map((s: TopicsSortOrder, index) => {
                     return <div key={index}>
-                        <BasicButton
+                        <Button
                             onClick={() => {setSortedBy(s); setIsDropdownOpen(false)}}
                             color={"inherit"}
                             fullWidth={true}
                             size={"small"}
                         >
                             <span className={s == sortedBy ? "font-bold" : ""}>{s}</span>
-                        </BasicButton>
+                        </Button>
                     </div>
                 })}
             </div>

@@ -3,10 +3,10 @@ import {wikiEditorSettings} from "../../editor/wiki-editor-settings";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import dynamic from "next/dynamic";
 import {topicCurrentVersionToReplyToContent} from "./topic-content";
-import {IconButton} from "@mui/material";
-import {BasicButton} from "../../../../modules/ui-utils/src/basic-button";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
+import {Button} from "@/../modules/ui-utils/src/button"
 import {useRouter} from "next/navigation";
-import {topicUrl} from "../../../utils/uri";
+import {topicUrl} from "@/utils/uri";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -21,27 +21,27 @@ export const TopicContentPreview = ({
 
     if(!topic.currentVersion){
         return <div className={"my-4"}>
-            <BasicButton
+            <Button
                 size={"large"}
                 onClick={() => {router.push(topicUrl(topic.id, undefined, "history"))}}
                 fullWidth={true}
                 color={"secondary"}
             >
                 Este tema no tiene una versión aceptada. Ver el historial de ediciones.
-            </BasicButton>
+            </Button>
         </div>
     }
 
     if(topic.currentVersion.content.text == null || topic.currentVersion.content.text.length == 0){
         return <div className={"my-4"}>
-            <BasicButton
+            <Button
             size={"large"}
             onClick={() => {router.push(topicUrl(topic.id, undefined, "editing"))}}
             fullWidth={true}
             color={"secondary"}
         >
             No hay nada escrito sobre este tema. Escribí una primera versión.
-            </BasicButton>
+            </Button>
         </div>
     }
 

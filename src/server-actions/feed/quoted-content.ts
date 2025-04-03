@@ -1,11 +1,12 @@
-import {QuotedContent} from "../../components/feed/content-quote";
-import {db} from "../../db";
+import {QuotedContent} from "@/components/feed/content-quote";
+import {db} from "@/db";
 import {getTextFromBlob} from "../topic/topics";
 import {unstable_cache} from "next/cache";
 import {revalidateEverythingTime} from "../utils";
 import {FastPostProps} from "@/lib/definitions";
 import {getSessionAgent} from "../auth";
-import {getDidFromUri, getUri, splitUri} from "../../utils/uri";
+import {getDidFromUri, getUri, splitUri} from "@/utils/uri";
+
 
 export async function getQuotedContentNoCache({did, rkey}: {did: string, rkey: string}): Promise<QuotedContent> {
     try {

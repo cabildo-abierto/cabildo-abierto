@@ -6,7 +6,7 @@ export const LoadEditor = ({children}: {children: ReactNode}) => {
     return <>
         {children}
         <div style={{display: "none"}}>
-            <ReadOnlyEditor initialData={""}/>
+            <ReadOnlyEditor text={""} format={"plain-text"}/>
         </div>
     </>
 }

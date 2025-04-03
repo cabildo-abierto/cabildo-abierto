@@ -2,62 +2,7 @@
 
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor"
 import {FastPostProps} from "@/lib/definitions";
-import {decompress} from "@/utils/compression";
-import {InitialEditorStateType} from "@lexical/react/LexicalComposer";
-import {$insertNodes, LexicalEditor} from "lexical";
-import {$convertFromMarkdownString} from '@lexical/markdown';
-import {$generateNodesFromDOM} from '@lexical/html'
 import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
-import {CA_TRANSFORMERS} from "../../../modules/ca-lexical-editor/src/ca-transformers";
-
-const initialValue = `{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Este tema está vacío. Editalo para agregar una primera versión.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}`
-
-
-function getInitialData(text: string | undefined, textFormat: string, readOnly: boolean): InitialEditorStateType{
-    if(!text){
-        return ""
-    }
-    if(!textFormat || textFormat == "lexical-compressed") {
-        let contentText: string
-        try {
-            contentText = decompress(text)
-        } catch {
-            return "Ocurrió un error al leer el contenido del tema"
-        }
-        let initialData
-        let emptyContent = contentText == "" || contentText == "Este artículo está vacío!"
-        if (readOnly && emptyContent) {
-            initialData = initialValue
-        } else {
-            initialData = contentText
-        }
-
-        return initialData
-    } else if (textFormat == "lexical") {
-        return text
-    } else if(textFormat == "markdown"){
-        return (_: LexicalEditor) => {
-            $convertFromMarkdownString(text, CA_TRANSFORMERS)
-        }
-    } else if(textFormat == "markdown-compressed"){
-        const contentText = decompress(text)
-        return (_: LexicalEditor) => {
-            $convertFromMarkdownString(contentText, CA_TRANSFORMERS)
-        }
-    } else if(textFormat == "html"){
-        return (editor: LexicalEditor) => {
-            const parser = new DOMParser();
-            const dom = parser.parseFromString(text, "text/html");
-            const nodes = $generateNodesFromDOM(editor, dom);
-
-            $insertNodes(nodes);
-        }
-
-    } else {
-        throw Error("Unknown format " + textFormat)
-    }
-
-}
 
 
 export const wikiEditorSettings = (
@@ -70,8 +15,6 @@ export const wikiEditorSettings = (
     quoteReplies?: FastPostProps[],
     pinnedReplies?: string[],
     setPinnedReplies?: (v: string[]) => void): SettingsProps => {
-
-    const initialData = getInitialData(text, textFormat, readOnly)
 
     return {
         disableBeforeInput: false,
@@ -100,7 +43,6 @@ export const wikiEditorSettings = (
         useSubscript: false,
         useCodeblock: false,
         placeholder: "Agregá información sobre el tema...",
-        initialData: initialData,
         editorClassName: "article-content not-article-content px-2",
         isReadOnly: readOnly,
         content: content,
@@ -108,6 +50,8 @@ export const wikiEditorSettings = (
         placeholderClassName: "ContentEditable__placeholder px-2",
         imageClassName: "",
         preventLeave: true,
+        initialText: text,
+        initialTextFormat: textFormat,
         quoteReplies,
         pinnedReplies,
         setPinnedReplies

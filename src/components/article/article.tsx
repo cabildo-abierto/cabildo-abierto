@@ -1,17 +1,11 @@
 "use client"
 import {ArticleProps, FastPostProps} from '@/lib/definitions'
 import ReadOnlyEditor from '../editor/read-only-editor'
-import {Authorship} from "../feed/content-top-row-author";
-import {localeDate} from "../../../modules/ui-utils/src/date";
-import {decompress} from "../../utils/compression";
 import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
 import {useEffect} from "react";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {useSWRConfig} from "swr";
-import {TopicsMentioned} from "./topics-mentioned";
-import {ReadingTime} from "./reading-time";
-import {getAllText} from "@/components/topics/topic/diff";
-import {threadApiUrl} from "../../utils/uri";
+import {threadApiUrl} from "@/utils/uri";
 import {ArticleHeader} from "@/components/article/article-header";
 
 type ArticleCompProps = {
@@ -22,7 +16,6 @@ type ArticleCompProps = {
 }
 
 export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: ArticleCompProps) => {
-
     const {mutate} = useSWRConfig()
 
     useEffect(() => {
@@ -40,7 +33,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
             };
             scrollToElement()
         }
-    }, [])
+    }, [pinnedReplies, setPinnedReplies])
 
     const editorId = article.uri+"-"+quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-")
 
@@ -49,7 +42,8 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
             <ArticleHeader article={article}/>
             <div className={"mt-8"} id={editorId}>
                 <ReadOnlyEditor
-                    initialData={decompress(article.content.text)}
+                    text={article.content.text}
+                    format={article.content.format}
                     allowTextComments={true}
                     editorClassName={"article-content"}
                     content={article}

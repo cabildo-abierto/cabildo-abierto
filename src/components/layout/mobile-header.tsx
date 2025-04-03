@@ -1,8 +1,8 @@
 "use client"
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import MenuIcon from "@mui/icons-material/Menu";
 import {Logo} from "../../../modules/ui-utils/src/logo";
-import {emptyChar} from "../../utils/utils";
+import {emptyChar} from "@/utils/utils";
 import {useLayoutConfig} from "./layout-config-context";
 
 

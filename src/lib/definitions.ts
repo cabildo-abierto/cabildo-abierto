@@ -244,6 +244,7 @@ export type UserStats = {
 export type ArticleProps = RecordProps & EngagementProps & {
     content: {
         text?: string
+        format?: string
         numWords?: number
         article: {
             title: string

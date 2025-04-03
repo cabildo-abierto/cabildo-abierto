@@ -1,8 +1,8 @@
 import {SyncRecordProps} from "@/lib/definitions";
-import {db} from "../../db";
+import {db} from "@/db";
 import {getAllText} from "@/components/topics/topic/diff";
-import {decompress} from "../../utils/compression";
-import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "../../utils/uri";
+import {decompress} from "@/utils/compression";
+import {getCollectionFromUri, getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 import {setTopicCategories} from "../topic/utils";
 
 
@@ -130,8 +130,12 @@ export function processContent(r: SyncRecordProps){
         if(text == undefined) return undefined
         if(r.collection != "ar.com.cabildoabierto.topic" && r.collection != "ar.com.cabildoabierto.article"){
             return text.split(" ").length
-        } else if(r.collection == "ar.com.cabildoabierto.article" || r.record.format == "lexical-compressed"){
+        } else if(r.record.format == "lexical-compressed") {
             return getAllText(decompress(text)).split(" ").length
+        } else if(r.record.format == "markdown") {
+            return text.length
+        } else if(r.record.format == "markdown-compressed"){
+            return decompress(text).length
         } else {
             return text.split(" ").length
         }

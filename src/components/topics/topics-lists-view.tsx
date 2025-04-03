@@ -85,7 +85,7 @@ export const CategoryList = ({c, sortedBy, setSortedBy}: {
 
         <div className={"mt-12 px-12 flex space-x-4"}>
             <div>
-                <BackButton url={"/temas?view=listas"}/>
+                <BackButton defaultURL={"/temas?view=listas"}/>
             </div>
             <div>
                 <h2 className={"font-bold"}>

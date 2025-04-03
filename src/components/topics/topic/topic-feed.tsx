@@ -83,12 +83,14 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                 }
 
                 {selected == "Respuestas al contenido" &&
-                    <Feed
-                        feed={{feed: feed.feed ? feed.feed.replies : undefined, isLoading: feed.isLoading, error: feed.error}}
-                        onClickQuote={onClickQuote}
-                        noResultsText={"Este tema todavía no recibió respuestas."}
-                        onDeleteFeedElem={onDeleteFeedElem}
-                    />
+                    <div className={"pt-10"}>
+                        <Feed
+                            feed={{feed: feed.feed ? feed.feed.replies : undefined, isLoading: feed.isLoading, error: feed.error}}
+                            onClickQuote={onClickQuote}
+                            noResultsText={"Este tema todavía no recibió respuestas."}
+                            onDeleteFeedElem={onDeleteFeedElem}
+                        />
+                    </div>
                 }
 
                 {selected == "Menciones" && mentionsSelected == "Temas" &&

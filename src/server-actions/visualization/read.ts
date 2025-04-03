@@ -11,7 +11,7 @@ import {
     visualizationQuery
 } from "../utils";
 import {getSessionDid} from "../auth";
-import {getUserEngagementInFeed} from "../feed/inicio";
+import {getUserEngagement} from "../feed/get-user-engagement";
 import {addCountersToFeed} from "../feed/utils";
 
 
@@ -42,7 +42,7 @@ export async function getVisualizations(){
     )()
 
     const did = await getSessionDid()
-    const engagement = await getUserEngagementInFeed(v, did)
+    const engagement = await getUserEngagement(v, did)
 
     v = addCountersToFeed(v, engagement)
 
@@ -65,7 +65,7 @@ export async function getVisualization(uri: string): Promise<{visualization?: Vi
         )()
 
         const did = await getSessionDid()
-        const [{visualization, error}, engagement] = await Promise.all([getVisualization, getUserEngagementInFeed([{uri}], did)])
+        const [{visualization, error}, engagement] = await Promise.all([getVisualization, getUserEngagement([{uri}], did)])
 
         if(error) return {error}
 

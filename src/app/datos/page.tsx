@@ -1,16 +1,15 @@
 "use client"
 import {useState} from "react";
-import {BasicButton} from "../../../modules/ui-utils/src/basic-button";
 import Link from "next/link";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import AddIcon from "@mui/icons-material/Add";
-import {Button} from "@mui/material";
-import {useDatasets, useVisualizations} from "../../hooks/swr";
+import {useDatasets, useVisualizations} from "@/hooks/swr";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {VisualizationsFeed} from "../../components/visualizations/visualizations-feed";
-import {DatasetsFeed} from "../../components/datasets/datasets-feed";
-import {NewDatasetPanel} from "../../components/datasets/new-dataset-panel";
-import {MobileHeader} from "../../components/layout/mobile-header";
+import {VisualizationsFeed} from "@/components/visualizations/visualizations-feed";
+import {DatasetsFeed} from "@/components/datasets/datasets-feed";
+import {NewDatasetPanel} from "@/components/datasets/new-dataset-panel";
+import {MobileHeader} from "@/components/layout/mobile-header";
+import {Button} from "../../../modules/ui-utils/src/button";
 
 
 const Page = () => {
@@ -55,16 +54,16 @@ const Page = () => {
                 className="flex justify-between"
             />}
             {selected == "Visualizaciones" && <Link href={"/datos/nueva-visualizacion"}>
-                <BasicButton
+                <Button
                     startIcon={<AddIcon/>}
                     variant={"text"}
                     size={"small"}
                     sx={{height: "32px"}}
                 >
                     Visualización
-                </BasicButton>
+                </Button>
             </Link>}
-            {selected == "Datos" && <BasicButton
+            {selected == "Datos" && <Button
                 startIcon={<AddIcon/>}
                 variant={"text"}
                 size={"small"}
@@ -72,7 +71,7 @@ const Page = () => {
                 onClick={() => {setOpenNewDatasetPanel(true)}}
             >
                 Dataset
-            </BasicButton>}
+            </Button>}
         </div>
 
         <div className={"flex flex-col"}>

@@ -3,7 +3,7 @@ import {useCategories} from "../../hooks/swr";
 
 
 import {emptyChar} from "../../utils/utils";
-import {IconButton} from "@mui/material";
+import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {useState} from "react";
 import AddIcon from "@mui/icons-material/Add";
 

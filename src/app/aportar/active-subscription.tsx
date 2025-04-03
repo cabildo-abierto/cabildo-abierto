@@ -9,13 +9,13 @@ import { useState } from 'react';
 import { createPreference } from '@/server-actions/payments';
 import { IntegerInputPlusMinus } from '@/components/aportar/integer-input-plus-minus';
 import { UniqueDonationCheckout } from '@/components/aportar/unique-donation-checkout';
-import { Button } from '@mui/material';
-import { ArrowRightIcon } from '../../components/icons/arrow-right-icon';
-import { DonateIcon } from '../../components/icons/donate-icon';
-import { ExpandLessIcon } from '../../components/icons/expand-less-icon';
-import { ExpandMoreIcon } from '../../components/icons/expand-more-icon';
-import { BasicButton } from '../../../modules/ui-utils/src/basic-button';
+import { ArrowRightIcon } from '@/components/icons/arrow-right-icon';
+import { DonateIcon } from '@/components/icons/donate-icon';
+import { ExpandLessIcon } from '@/components/icons/expand-less-icon';
+import { ExpandMoreIcon } from '@/components/icons/expand-more-icon';
 import {useDonationsDistribution, useFundingPercentage, useSubscriptionPrice, useUser} from "../../hooks/swr";
+import {BackButton} from "../../../modules/ui-utils/src/back-button";
+import {Button} from "../../../modules/ui-utils/src/button";
 
 
 const HowUsed = () => {
@@ -69,16 +69,6 @@ const DonatedSoFar = ({user, donationsDistribution}: {user: UserProps, donations
         <div>Aportaste hasta ahora ${totalDonations} (${meanDonations} por mes).</div>
         <div>Es más que el <span className="text-[var(--primary)]">{p}%</span> de los usuarios. ¡Gracias!</div>
     </div>
-}
-
-
-export const BackButton = ({onClick}: {onClick: () => void}) => {
-    return <Button
-        sx={{textTransform: "none"}}
-        onClick={onClick}
-    >
-        Volver
-    </Button>
 }
 
 
@@ -163,13 +153,15 @@ function DonationPage() {
                 </div>}
                 
                 <div className="flex justify-center space-x-4 mt-12">
-                    <BasicButton
+                    <Button
                         disabled={!validAmount}
                         onClick={onUniqueChosen}
                     >
                         Continuar
-                    </BasicButton>
-                    <BackButton onClick={() => {setChoice("none")}}/>
+                    </Button>
+                    <BackButton
+                        onClick={() => {setChoice("none")}}
+                    />
                 </div>
             </div>
         </div>}

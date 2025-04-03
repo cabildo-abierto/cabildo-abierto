@@ -1,7 +1,6 @@
 import {SearchPanelOnRightColumn} from "./search-panel-on-right-column";
 import {SupportButton} from "./sidebar";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
-import {BasicButton} from "../../../modules/ui-utils/src/basic-button";
 import InfoIcon from "@mui/icons-material/Info";
 import {DonateIcon} from "../icons/donate-icon";
 import React from "react";
@@ -11,6 +10,7 @@ import SettingsIcon from "../icons/settings-icon";
 import {topicUrl} from "../../utils/uri";
 import {usePathname} from "next/navigation";
 import {useUser} from "../../hooks/swr";
+import {Button} from "../../../modules/ui-utils/src/button";
 
 
 export const RightPanel = () => {
@@ -30,34 +30,34 @@ export const RightPanel = () => {
         <div className={"mt-4 w-full flex flex-col space-y-1"}>
             <SupportButton user={user} onClose={() => {}}/>
             <Link href={topicUrl("Cabildo Abierto")} className={"text-[var(--text-light)]"}>
-                <BasicButton
+                <Button
                     variant={"text"}
                     size={"small"}
                     color={"inherit"}
                     startIcon={<InfoIcon/>}
                 >
                     Acerca de Cabildo Abierto
-                </BasicButton>
+                </Button>
             </Link>
             <Link href={"/aportar"} className={"text-[var(--text-light)]"}>
-                <BasicButton
+                <Button
                     variant={"text"}
                     size={"small"}
                     color={"inherit"}
                     startIcon={<DonateIcon fontSize={"small"}/>}
                 >
                     Aportar
-                </BasicButton>
+                </Button>
             </Link>
             {(user.platformAdmin) && <Link href={"/admin"} className={"text-[var(--text-light)]"}>
-                <BasicButton
+                <Button
                     variant={"text"}
                     size={"small"}
                     color={"inherit"}
                     startIcon={<SettingsIcon fontSize={"small"}/>}
                 >
                     Admin
-                </BasicButton>
+                </Button>
             </Link>}
         </div>
     </div>

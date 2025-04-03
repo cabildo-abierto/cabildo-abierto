@@ -128,6 +128,7 @@ export const enDiscusionQuery = {
         select: {
             text: true,
             textBlob: true,
+            format: true,
             article: {
                 select: {
                     title: true
@@ -247,6 +248,7 @@ export const threadQuery = (c: string) => {
             content: {
                 select: {
                     text: true,
+                    format: true,
                     textBlob: {
                         select: {
                             authorId: true,

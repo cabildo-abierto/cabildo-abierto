@@ -1,11 +1,6 @@
 "use client"
 import { RichText } from '@atproto/api'
-import {
-    $convertFromMarkdownString,
-} from '@lexical/markdown';
 import ReadOnlyEditor from '../editor/read-only-editor';
-import { LexicalEditor } from 'lexical';
-import {CA_TRANSFORMERS} from "../../../modules/ca-lexical-editor/src/ca-transformers";
 
 
 export const BskyRichTextContent = ({content, className="article-content not-article-content no-margin-first"}: {className?: string, content: {text: string, post?: {facets?: string}}}) => {
@@ -33,7 +28,5 @@ export const BskyRichTextContent = ({content, className="article-content not-art
       }
     })
 
-    const initialData = (_: LexicalEditor) => {$convertFromMarkdownString(markdown, CA_TRANSFORMERS)}
-
-    return <ReadOnlyEditor initialData={initialData} editorClassName={className}/>
+    return <ReadOnlyEditor text={markdown} format={"markdown"} editorClassName={className}/>
 }
