@@ -21,9 +21,9 @@ export const ModalBelow = ({children, open, onClose, anchorEl, marginTop="10px",
         onClose={onClose}
         BackdropProps={{
             onClick: (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                onClose();
+                e.stopPropagation()
+                e.preventDefault()
+                onClose()
             },
         }}
         anchorOrigin={{
