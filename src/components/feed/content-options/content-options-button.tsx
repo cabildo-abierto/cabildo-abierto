@@ -17,7 +17,7 @@ export const ContentOptionsButton = ({
     onDelete?: () => Promise<void>
     enDiscusion?: string
 }) => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
 
     return <div style={{ position: 'relative', display: 'inline-block' }}>
