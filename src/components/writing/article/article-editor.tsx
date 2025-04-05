@@ -3,7 +3,6 @@
 import { SettingsProps } from "../../../../modules/ca-lexical-editor/src/lexical-editor"
 import { useState } from "react"
 import { EditorState, LexicalEditor } from "lexical"
-import {useRouter} from "next/navigation"
 import { TitleInput } from "./title-input"
 import dynamic from "next/dynamic"
 import {validArticle} from "./valid-article";
@@ -14,43 +13,43 @@ import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
 import {useUser} from "@/hooks/swr";
+import {queryMentions} from "@/server-actions/user/users";
+import {FooterHorizontalRule} from "../../../../modules/ui-utils/src/footer";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
 const articleEditorSettings: () => SettingsProps = () => {
     return {
-        disableBeforeInput: false,
-        emptyEditor: false,
         isAutocomplete: false,
         isCharLimit: true,
         charLimit: 1200000,
-        isCharLimitUtf8: false,
-        isCollab: false,
-        isMaxLength: false,
         isRichText: true,
         allowImages: true,
+        allowComments: false,
+        allowPlots: true,
+        allowTables: true,
+        markdownShortcuts: true,
+        queryMentions,
+
         measureTypingPerf: false,
-        shouldPreserveNewLinesInMarkdown: true,
-        shouldUseLexicalContextMenu: false,
-        showNestedEditorTreeView: false,
-        showTableOfContents: true,
+        useContextMenu: false,
+        tableOfContents: true,
         showTreeView: false,
-        tableCellBackgroundColor: false,
-        tableCellMerge: false,
-        showActions: false,
         showToolbar: true,
-        isComments: false,
+
         isDraggableBlock: true,
         useSuperscript: false,
         useStrikethrough: false,
         useSubscript: false,
-        useCodeblock: false,
+
         placeholder: "Escribí tu artículo...",
         initialText: "",
         initialTextFormat: "plain-text",
-        editorClassName: "article-content",
         isReadOnly: false,
+
         isAutofocus: true,
+
+        editorClassName: "article-content",
         placeholderClassName: "ContentEditable__placeholder",
         imageClassName: "",
         preventLeave: false
@@ -62,7 +61,6 @@ const ArticleEditor = () => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const [title, setTitle] = useState("")
-    const router = useRouter()
     const {user} = useUser()
 
     const settings = articleEditorSettings()
@@ -86,7 +84,7 @@ const ArticleEditor = () => {
     }*/
 
     return <div className={"mb-32"}>
-        <div className="flex justify-between mt-3 items-center w-full px-3 border-b pb-2">
+        <div className="flex justify-between mt-3 items-center w-full px-3 pb-2">
 			<div className="flex justify-between w-full text-[var(--text-light)]">
                 <BackButton defaultURL={"/"}/>
                 {/*<Button onClick={onReloadMarkdown} size={"small"} variant={"text"}>
@@ -99,6 +97,7 @@ const ArticleEditor = () => {
                 />
 			</div>
 		</div>
+        <FooterHorizontalRule/>
         <div className="mt-8 rounded-lg px-5">
             <TitleInput onChange={setTitle} title={title}/>
             <div className="gap-x-4 flex flex-wrap items-baseline">
@@ -115,7 +114,7 @@ const ArticleEditor = () => {
                 </span>
             </div>
         </div>
-        <div className={"mt-8"}>
+        <div className={"mt-8 px-1"}>
             <MyLexicalEditor
                 settings={settings}
                 setEditor={setEditor}

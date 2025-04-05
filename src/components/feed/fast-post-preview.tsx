@@ -15,7 +15,7 @@ import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import { useSWRConfig } from 'swr';
 import {contentUrl, getDidFromUri, getRkeyFromUri, isPost, threadApiUrl, topicUrl} from "../../utils/uri";
-import {useUser} from "../../hooks/swr";
+import {useUser} from "@/hooks/swr";
 
 const ShowThreadButton = ({root}: {root: RecordProps}) => {
     const url = contentUrl(root.uri)

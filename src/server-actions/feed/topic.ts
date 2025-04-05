@@ -1,7 +1,8 @@
+"use server"
 import {FeedContentProps} from "@/lib/definitions";
 import {getSessionDid} from "../auth";
-import {db} from "../../db";
-import {enDiscusionQuery, reactionsQuery, recordQuery, revalidateEverythingTime, threadRepliesQuery} from "../utils";
+import {db} from "@/db";
+import {reactionsQuery, recordQuery, revalidateEverythingTime, threadRepliesQuery} from "../utils";
 import {addCountersToFeed} from "./utils";
 import {getUserEngagement} from "./get-user-engagement";
 import {unstable_cache} from "next/cache";

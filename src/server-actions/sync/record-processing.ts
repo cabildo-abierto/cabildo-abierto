@@ -59,7 +59,6 @@ export function newDirtyRecord(link: {uri: string, cid?: string}){
         rkey: getRkeyFromUri(uri),
         collection: getCollectionFromUri(uri)
     }
-    if(!uri) console.log("dirty record uri", uri, link)
     updates.push(db.record.upsert({
         create: data,
         update: data,

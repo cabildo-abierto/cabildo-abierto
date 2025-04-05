@@ -12,7 +12,6 @@ import './index.css';
 import '@/components/editor/article-content.css';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
-import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
 import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
@@ -32,19 +31,22 @@ import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
-import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
-import { MaxLengthPlugin } from './plugins/MaxLengthPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableOfContentsPlugin from './plugins/TableOfContentsPlugin';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 import TreeViewPlugin from './plugins/TreeViewPlugin';
 import ContentEditable from './ui/ContentEditable';
-import { InitialConfigType, InitialEditorStateType, LexicalComposer } from '@lexical/react/LexicalComposer';
+import { InitialConfigType, LexicalComposer } from '@lexical/react/LexicalComposer';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
 import { BeautifulMentionsPlugin } from 'lexical-beautiful-mentions';
-import { CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './ui/custom-mention-component';
+import {
+    CustomMenuItemMentions,
+    CustomMenuMentions,
+    EmptyMentionResults,
+    MentionProps
+} from './ui/custom-mention-component';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import {
@@ -59,144 +61,146 @@ import ImagesPlugin from './plugins/ImagesPlugin';
 import { usePageLeave } from '../../ui-utils/src/prevent-leave';
 import { v4 as uuidv4 } from 'uuid';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'
-import {FastPostProps} from "@/lib/definitions";
+import {FastPostProps, SmallUserProps} from "@/lib/definitions";
 import PlotPlugin from "./plugins/PlotPlugin";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
 
 export type SettingsProps = {
-  disableBeforeInput: boolean
-  emptyEditor: boolean
-  isAutocomplete: boolean
-  isCharLimit: boolean
-  isCharLimitUtf8: boolean
-  charLimit?: number
-  isCollab: boolean
-  isMaxLength: boolean
-  isRichText: boolean
-  measureTypingPerf: boolean
-  shouldPreserveNewLinesInMarkdown: boolean
-  shouldUseLexicalContextMenu: boolean
-  showNestedEditorTreeView: boolean
-  showTableOfContents: boolean
-  showTreeView: boolean
-  tableCellBackgroundColor: boolean
-  tableCellMerge: boolean
-  showActions: boolean
-  showToolbar: boolean
-  isComments: boolean
-  isDraggableBlock: boolean
-  useSuperscript: boolean
-  useStrikethrough: boolean
-  useSubscript: boolean
-  useCodeblock: boolean
-  placeholder: string
-  isReadOnly: boolean
-  isAutofocus: boolean
-  editorClassName: string
-  content?: ReplyToContent
-  title?: string
-  placeholderClassName: string
-  showingChanges?: string
-  imageClassName: string
-  preventLeave: boolean
-  allowImages: boolean
-  quoteReplies?: FastPostProps[]
-  pinnedReplies?: string[]
-  setPinnedReplies?: (v: string[]) => void
-  initialText: string
-  initialTextFormat: string
+    charLimit?: number
+    isRichText: boolean
+    useContextMenu: boolean
+    tableOfContents: boolean
+    showToolbar: boolean
+    allowComments: boolean
+    isDraggableBlock: boolean
+    allowImages: boolean
+    allowTables: boolean
+    allowPlots: boolean
+    markdownShortcuts: boolean
+
+    useSuperscript: boolean
+    useStrikethrough: boolean
+    useSubscript: boolean
+
+    isAutofocus: boolean
+
+    preventLeave: boolean
+
+    content?: ReplyToContent
+    quoteReplies?: FastPostProps[]
+    pinnedReplies?: string[]
+    setPinnedReplies?: (v: string[]) => void
+
+    showingChanges?: string
+
+    editorClassName: string
+    placeholderClassName: string
+    imageClassName: string
+
+    isReadOnly: boolean
+
+    title?: string
+    initialText: string
+    initialTextFormat: string
+    placeholder: string
+
+    measureTypingPerf: boolean
+    showTreeView: boolean
+
+    queryMentions: (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
 }
 
 
 type LexicalEditorProps = {
-  settings: SettingsProps,
-  setEditor: any,
-  setEditorState: any,
-  contentId?: string
+    settings: SettingsProps,
+    setEditor: any,
+    setEditorState: any,
+    contentId?: string
 }
 
 
 function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
-  const { historyState } = useSharedHistoryContext();
-  const [editor] = useLexicalComposerContext();
-  const {leaveStoppers, setLeaveStoppers} = usePageLeave()
+    const { historyState } = useSharedHistoryContext();
+    const [editor] = useLexicalComposerContext();
+    const {leaveStoppers, setLeaveStoppers} = usePageLeave()
 
-  const [uniqueId, setUniqueId] = useState(undefined)
-  
-  const editorContainerRef = useRef<HTMLDivElement | null>(null);
-  const [marginAboveEditor, setMarginAboveEditor] = useState<number>(0);
+    const [uniqueId, setUniqueId] = useState(undefined)
 
-  useEffect(() => {
-    if (setEditor) {
-      setEditor(editor);
-    }
-  }, [editor, setEditor]);
+    const editorContainerRef = useRef<HTMLDivElement | null>(null);
+    const [marginAboveEditor, setMarginAboveEditor] = useState<number>(0);
 
-  useEffect(() => {
-    return () => {
-      if (uniqueId) {
-        setLeaveStoppers(leaveStoppers.filter(id => id !== uniqueId));
+    useEffect(() => {
+        if (setEditor) {
+            setEditor(editor);
+        }
+    }, [editor, setEditor]);
+
+    useEffect(() => {
+      return () => {
+        if (uniqueId) {
+          setLeaveStoppers(leaveStoppers.filter(id => id !== uniqueId));
+        }
       }
+    }, [leaveStoppers, setLeaveStoppers, uniqueId])
+
+    const {
+        isRichText,
+        showTreeView,
+        tableOfContents,
+        useContextMenu,
+        showToolbar,
+        allowComments,
+        isDraggableBlock,
+        placeholder,
+        isReadOnly,
+        isAutofocus,
+        editorClassName,
+        content,
+        placeholderClassName,
+        preventLeave,
+        allowImages,
+        allowTables,
+        quoteReplies,
+        pinnedReplies,
+        setPinnedReplies,
+        markdownShortcuts,
+        queryMentions
+    } = settings;
+
+    const isEditable = useLexicalEditable();
+    const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
+    const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false);
+    const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
+
+    const onRef = (_floatingAnchorElem: HTMLDivElement) => {
+        if (_floatingAnchorElem !== null) {
+            setFloatingAnchorElem(_floatingAnchorElem);
+        }
     }
-  }, [leaveStoppers, setLeaveStoppers, uniqueId])
 
-  const {
-    isMaxLength,
-    isRichText,
-    showTreeView,
-    showTableOfContents,
-    shouldUseLexicalContextMenu,
-    showToolbar,
-    isComments,
-    isDraggableBlock,
-    placeholder,
-    isReadOnly,
-    isAutofocus,
-    editorClassName,
-    content,
-    placeholderClassName,
-    preventLeave,
-    allowImages,
-    quoteReplies,
-    pinnedReplies,
-    setPinnedReplies
-  } = settings;
+    useEffect(() => {
+        const updateViewPortWidth = () => {
+            const isNextSmallWidthViewport = CAN_USE_DOM && window.matchMedia('(max-width: 1025px)').matches;
 
-  const isEditable = useLexicalEditable();
-  const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
-  const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false);
-  const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
+            if (isNextSmallWidthViewport !== isSmallWidthViewport) {
+                setIsSmallWidthViewport(isNextSmallWidthViewport);
+            }
+        };
+        updateViewPortWidth();
+        window.addEventListener('resize', updateViewPortWidth);
 
-  const onRef = (_floatingAnchorElem: HTMLDivElement) => {
-    if (_floatingAnchorElem !== null) {
-      setFloatingAnchorElem(_floatingAnchorElem);
-    }
-  };
+        return () => {
+            window.removeEventListener('resize', updateViewPortWidth);
+        };
+    }, [isSmallWidthViewport]);
 
-  useEffect(() => {
-    const updateViewPortWidth = () => {
-      const isNextSmallWidthViewport =
-        CAN_USE_DOM && window.matchMedia('(max-width: 1025px)').matches;
-
-      if (isNextSmallWidthViewport !== isSmallWidthViewport) {
-        setIsSmallWidthViewport(isNextSmallWidthViewport);
-      }
-    };
-    updateViewPortWidth();
-    window.addEventListener('resize', updateViewPortWidth);
-
-    return () => {
-      window.removeEventListener('resize', updateViewPortWidth);
-    };
-  }, [isSmallWidthViewport]);
-
-  useEffect(() => {
-    if (editorContainerRef.current) {
-      const editorTop = editorContainerRef.current.getBoundingClientRect().top;
-      setMarginAboveEditor(editorTop);
-    }
-  }, [editorContainerRef]);
+    useEffect(() => {
+        if (editorContainerRef.current) {
+            const editorTop = editorContainerRef.current.getBoundingClientRect().top;
+            setMarginAboveEditor(editorTop);
+        }
+    }, [editorContainerRef]);
 
   return (
     <>
@@ -205,10 +209,9 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
         ref={editorContainerRef}
         className={`editor-container ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
       >
-        {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <DragDropPaste />
+
         {isAutofocus && <AutoFocusPlugin />}
-        <ClearEditorPlugin />
 
         <BeautifulMentionsPlugin
           triggers={['@']}
@@ -217,12 +220,15 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
           menuComponent={CustomMenuMentions}
           menuItemComponent={CustomMenuItemMentions}
         />
-        <TablePlugin
+
+        {allowTables && <TablePlugin
           hasCellMerge={true}
           hasCellBackgroundColor={false}
-        />
+        />}
         <TableCellResizer />
+
         {allowImages && <ImagesPlugin captionsEnabled={false}/>}
+
         <PlotPlugin/>
 
         <OnChangePlugin
@@ -235,15 +241,20 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
             }
           }}
         />
-        <MarkdownShortcutPlugin/>
+
+        {markdownShortcuts && <MarkdownShortcutPlugin/>}
+
         <HashtagPlugin/>
+
         <AutoLinkPlugin/>
-        {isComments && <CommentPlugin
+
+        {allowComments && <CommentPlugin
             parentContent={content}
             quoteReplies={quoteReplies}
             pinnedReplies={pinnedReplies}
             setPinnedReplies={setPinnedReplies}
         />}
+
         {isRichText ? (
             <>
             <HistoryPlugin externalHistoryState={historyState} />
@@ -251,7 +262,11 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
               contentEditable={
                 <div className={'editor-scroller'}>
                   <div className={"editor " + editorClassName} ref={onRef}>
-                    <ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} settings={settings} />
+                    <ContentEditable
+                        placeholder={placeholder}
+                        placeholderClassName={placeholderClassName}
+                        editorClassName={editorClassName}
+                    />
                   </div>
                 </div>
               }
@@ -262,8 +277,6 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
             <ListMaxIndentLevelPlugin maxDepth={7} />
             <LinkPlugin />
             <ClickableLinkPlugin disabled={isEditable} newTab={false} />
-
-            <LayoutPlugin />
 
             {!isReadOnly && floatingAnchorElem && (
               <>
@@ -282,16 +295,20 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
         ) : (
           <>
             <PlainTextPlugin
-              contentEditable={<ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} />}
+              contentEditable={<ContentEditable
+                  placeholder={placeholder}
+                  placeholderClassName={placeholderClassName}
+                  editorClassName={editorClassName}
+              />}
               ErrorBoundary={LexicalErrorBoundary}
             />
             <HistoryPlugin externalHistoryState={historyState} />
           </>
         )}
         <div className="hidden lg:block">
-          {showTableOfContents && <TableOfContentsPlugin title={settings.title} marginAboveEditor={marginAboveEditor} />}
+          {tableOfContents && <TableOfContentsPlugin title={settings.title} marginAboveEditor={marginAboveEditor} />}
         </div>
-        {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
+        {useContextMenu && <ContextMenuPlugin />}
       </div>
       {showTreeView && <TreeViewPlugin />}
     </>

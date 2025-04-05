@@ -5,12 +5,12 @@ import {
     SmallTopicProps,
     TopicSortOrder, TopicHistoryProps,
 } from "@/lib/definitions";
-import {db} from "../../db";
+import {db} from "@/db";
 import {logTimes, revalidateEverythingTime} from "../utils";
 import {fetchBlob} from "../blob";
 import {unstable_cache} from "next/cache";
-import {unique} from "../../utils/arrays";
-import {getDidFromUri} from "../../utils/uri";
+import {unique} from "@/utils/arrays";
+import {getDidFromUri} from "@/utils/uri";
 
 
 export async function getTrendingTopics(categories: string[],
@@ -167,7 +167,6 @@ export async function getTopicHistory(id: string): Promise<{topicHistory?: Topic
     try {
         const topicHistory = await unstable_cache(
             async () => {
-                console.log("getting topic history")
                 const versions = await db.record.findMany({
                     select: {
                         uri: true,

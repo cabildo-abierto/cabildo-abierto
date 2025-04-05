@@ -50,8 +50,6 @@ export async function getMainProfileFeedCA(did: string, loggedInDid: string){
     let feedCA = await hydrateFeedSkeleton(skeleton)
     feedCA = (await addViewerEngagementToFeed(loggedInDid, feedCA)).feed
 
-    console.log("main profile feed", did, feedCA)
-
     return feedCA
 }
 

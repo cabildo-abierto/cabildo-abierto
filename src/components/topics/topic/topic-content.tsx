@@ -1,4 +1,4 @@
-import { FastPostProps, TopicProps, TopicVersionProps } from "@/lib/definitions";
+import { TopicProps } from "@/lib/definitions";
 import { useEffect } from "react";
 import { smoothScrollTo } from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import { ReplyToContent } from "../../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";

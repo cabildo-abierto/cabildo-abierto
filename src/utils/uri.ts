@@ -140,3 +140,6 @@ export function collectionToDisplay(c: string){
         return "Visualización"
     }
 }
+
+
+export const urlCongreso = "/temas/congreso"

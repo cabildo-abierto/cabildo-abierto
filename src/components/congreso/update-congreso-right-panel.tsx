@@ -4,6 +4,8 @@ import {DateSince} from "../../../modules/ui-utils/src/date";
 import React from "react";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
+import {FooterHorizontalRule} from "../../../modules/ui-utils/src/footer";
+import {urlCongreso} from "@/utils/uri";
 
 export const projects = [
     investigadora
@@ -40,17 +42,19 @@ const ProjectSlider = () => {
 
 
 export const UpdateCongresoRightPanel = () => {
-    return <div className={"border rounded p-2"}>
-        <div className={"flex justify-between items-center"}>
-            <Link href={"/congreso"} className={"text-[var(--text-light)] text-xs"}>
-                En el congreso
-            </Link>
-            <Link href={"/congreso"} className={"text-[var(--text-light)] text-xs"}>
-                Ver más
-            </Link>
+    return (
+        <div className={"px-2 py-3 border rounded"}>
+            <div className={"flex justify-between items-center"}>
+                <span className={"text-[var(--text-light)] text-xs"}>
+                    En el congreso
+                </span>
+                <Link href={urlCongreso} className={"text-[var(--text-light)] text-xs"}>
+                    Ver más
+                </Link>
+            </div>
+            <div className={"mt-1"}>
+                <ProjectSlider/>
+            </div>
         </div>
-        <div className={"mt-1"}>
-            <ProjectSlider/>
-        </div>
-    </div>
+    )
 }

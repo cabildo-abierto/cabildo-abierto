@@ -1,3 +1,4 @@
+"use server"
 import {QuotedContent} from "@/components/feed/content-quote";
 import {db} from "@/db";
 import {getTextFromBlob} from "../topic/topics";

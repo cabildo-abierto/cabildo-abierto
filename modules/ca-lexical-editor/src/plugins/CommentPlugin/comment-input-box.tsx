@@ -5,12 +5,10 @@ import type {
   } from 'lexical';
   
 import './index.css';
-import { commentEditorSettings } from '@/components/editor/comment-editor-settings';
 import {getStandardSelection} from "./standard-selection";
 import {WritePanel} from "@/components/writing/write-panel";
 import {ReplyToContent} from "./index";
 import {useSWRConfig} from "swr";
-import {useUser} from "@/hooks/swr";
 
 
 export function CommentInputBox({
@@ -24,13 +22,7 @@ export function CommentInputBox({
     parentContent: ReplyToContent
     open: boolean
 }) {
-    const user = useUser()
     const {mutate} = useSWRConfig()
-
-    const settings = {...commentEditorSettings}
-    settings.editorClassName = "min-h-[150px] sm:text-base text-sm"
-
-    if(!user.user) settings.placeholder = "Necesitás una cuenta para agregar un comentario."
 
     const quote = open ? JSON.stringify(getStandardSelection(editor.getEditorState())) : undefined
 

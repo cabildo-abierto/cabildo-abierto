@@ -3,22 +3,22 @@ import {useEffect, useState} from "react";
 import {useSWRConfig} from "swr";
 import {EditorState, LexicalEditor} from "lexical";
 import {TopicContentExpandedViewHeader, WikiEditorState} from "./topic-content-expanded-view-header";
-import {wikiEditorSettings} from "../../editor/wiki-editor-settings";
 import dynamic from "next/dynamic";
 import {topicVersionPropsToReplyToContent} from "./topic-content";
 import {SaveEditPopup} from "./save-edit-popup";
-import {compress} from "../../../utils/compression";
+import {compress} from "@/utils/compression";
 import {createTopicVersion} from "@/server-actions/write/topic";
 import {TopicContentHistory} from "./topic-content-history";
 import {SynonymsEditor} from "./synonyms-editor";
 import { CategoriesEditor } from "./categories-editor";
 import {ShowTopicChanges} from "./show-topic-changes";
 import {ShowTopicAuthors} from "./show-topic-authors";
-import {useTopicFeed, useTopicVersion} from "../../../hooks/swr";
+import {useTopicFeed, useTopicVersion} from "@/hooks/swr";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {isQuotePost} from "../../../utils/uri";
+import {isQuotePost} from "@/utils/uri";
 import {useSearchParams} from "next/navigation";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
+import {getEditorSettings} from "@/components/editor/settings";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -140,17 +140,17 @@ export const TopicContentExpandedViewWithVersion = ({
                     key={topicVersion.uri + wikiEditorState + editorId}
                 >
                     <MyLexicalEditor
-                        settings={wikiEditorSettings(
-                            wikiEditorState != "editing",
-                            topicVersionPropsToReplyToContent(topicVersion, topic.id),
-                            topicVersion.content.text,
-                            topicVersion.content.format,
-                            true,
-                            true,
+                        settings={getEditorSettings({
+                            isReadOnly: wikiEditorState != "editing",
+                            content: topicVersionPropsToReplyToContent(topicVersion, topic.id),
+                            initialText: topicVersion.content.text,
+                            initialTextFormat: topicVersion.content.format,
+                            tableOfContents: true,
+                            allowComments: true,
                             quoteReplies,
                             pinnedReplies,
                             setPinnedReplies
-                        )}
+                        })}
                         setEditor={setEditor}
                         setEditorState={setEditorState}
                     />

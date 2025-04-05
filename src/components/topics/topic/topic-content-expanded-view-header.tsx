@@ -142,7 +142,7 @@ export const TopicContentExpandedViewHeader = ({
                     variant={"text"}
                     sx={{borderRadius: 0}}
                 >
-                    <div className={"px-2 pt-1 font-semibold"}>Cancelar edición</div>
+                    <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>Cancelar edición</div>
                 </Button>
             }
             {wikiEditorState == "editing" &&
@@ -154,7 +154,7 @@ export const TopicContentExpandedViewHeader = ({
                     sx={{borderRadius: 0}}
                     disabled={!saveEnabled}
                 >
-                    <div className={"px-2 pt-1 font-semibold"}>Guardar cambios</div>
+                    <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>Guardar cambios</div>
                 </Button>
             }
         </div>

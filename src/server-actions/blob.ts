@@ -58,7 +58,6 @@ export async function fetchBlob(blob: {cid: string, authorId: string}, cache: bo
             return null
         }
     }
-    console.log("couldn't resolve did doc", blob.authorId)
     return null
 }
 

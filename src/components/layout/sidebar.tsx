@@ -26,41 +26,12 @@ import SenadoIcon from '../../../public/senado-icono.svg';
 import SenadoIconActive from '../../../public/senado-icono-active.svg';
 import Image from 'next/image'
 import { useTheme } from "../theme/theme-context";
-import {userUrl} from "@/utils/uri";
+import {urlCongreso, userUrl} from "@/utils/uri";
 import {FloatingWriteButton} from "../writing/floating-write-button";
 import {useUser} from "@/hooks/swr";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
-
-
-function unseenSupportMessagesCount(user: UserProps){
-    let count = 0
-    function cmp(a, b) { return a.createdAt - b.createdAt}
-    const chat = [...user.messagesReceived, ...user.messagesSent].sort(cmp)
-    for(let i = user.messagesReceived.length-1; i >= 0; i--){
-        if(chat[i].fromUserId == user.did) break
-        if(!chat[i].seen) count ++
-        else break
-    }
-    return count
-}
-
-
-export const SupportButton = ({user, onClose}: {user?: UserProps, onClose: () => void}) => {
-
-    const newSupportCount = user ? unseenSupportMessagesCount(user) : 0
-    return <Link href={"/soporte"} className={"text-[var(--text-light)]"}>
-        <Button
-            variant={"text"}
-            size={"small"}
-            color={"inherit"}
-            startIcon={<SupportIcon newCount={newSupportCount}/>} onClick={onClose}
-        >
-            Soporte
-        </Button>
-    </Link>
-}
 
 
 const HelpDeskButton = ({user, onClose, showText, setShowText}: {showText: boolean, setShowText: (v: boolean) => void, user?: UserProps, onClose: () => void}) => {
@@ -120,7 +91,6 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
 
     useEffect(() => {
         if((!layoutConfig.spaceForLeftSide && layoutConfig.openSidebar) || (layoutConfig.spaceForLeftSide && !layoutConfig.openSidebar && layoutConfig.defaultSidebarState)){
-            console.log("setting open sidebar",layoutConfig.spaceForLeftSide )
             setLayoutConfig((prev) => ({
                 ...prev,
                 openSidebar: layoutConfig.spaceForLeftSide
@@ -214,8 +184,8 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         </div>}
                         onClick={onClose}
                         text="Congreso"
-                        href="/congreso"
-                        selected={pathname.startsWith("/temas/congreso")}
+                        href={urlCongreso}
+                        selected={pathname.startsWith(urlCongreso)}
                         showText={showText}
                     />
                     <SidebarButton

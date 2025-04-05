@@ -1,7 +1,7 @@
 "use server"
 import {getSessionAgent} from "../auth";
 import {revalidateTag} from "next/cache";
-import {db} from "../../db";
+import {db} from "@/db";
 import {logTimes} from "../utils";
 import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
 import {revalidateTags} from "../admin";

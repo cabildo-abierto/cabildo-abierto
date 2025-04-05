@@ -2,7 +2,7 @@ import {isValidJSON} from "@/utils/utils";
 import {initializeEmpty} from "./lexical-editor";
 import { InitialEditorStateType } from '@lexical/react/LexicalComposer';
 import {LexicalEditor} from "lexical";
-import {markdownToEditorState} from "@/server-actions/editor/markdown-transforms";
+import {markdownToEditorState} from "@/utils/editor/markdown-transforms";
 import {decompress} from "@/utils/compression";
 
 /*
@@ -60,15 +60,28 @@ function getInitialData(text: string | undefined, textFormat: string, readOnly: 
 export function getInitialData(text: string, format: string): InitialEditorStateType {
 
     if(format == "markdown"){
+
+        if(text.length == 0){
+            return initializeEmpty("")
+        }
+
         return (editor: LexicalEditor) => {
             editor.update(() => {
-                const strState = markdownToEditorState(text)
-                const state = editor.parseEditorState(strState)
-                editor.setEditorState(state)
+                try {
+                    const strState = markdownToEditorState(text)
+                    const state = editor.parseEditorState(strState)
+                    editor.setEditorState(state)
+                } catch (err) {
+                    console.error(err)
+                    console.error("markdown:", text)
+                }
             })
         }
-    } else if(format == "lexical-compressed" || !format){
+
+    } else if(format == "lexical-compressed" || !format) {
         return decompress(text)
+    } else if(format == "markdown-compressed"){
+        return getInitialData(decompress(text), "markdown")
     } else {
         let initialData: InitialEditorStateType = text
         if(typeof initialData === 'string' && !isValidJSON(initialData)){

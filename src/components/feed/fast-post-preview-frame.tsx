@@ -9,12 +9,11 @@ import { ReactNode } from 'react'
 import { EngagementIcons } from '@/components/feed/reactions/engagement-icons'
 import {RepostedBy} from "./reposted-by";
 import {ProfilePic} from "./profile-pic";
-import {isPost, splitUri, threadApiUrl, urlFromRecord, userUrl} from "../../utils/uri";
-import {formatIsoDate} from "../../utils/dates";
+import {threadApiUrl, urlFromRecord, userUrl} from "@/utils/uri";
+import {formatIsoDate} from "@/utils/dates";
 
-import {emptyChar} from "../../utils/utils";
-import useSWR, {useSWRConfig} from "swr";
-import {getThread} from "@/server-actions/thread/thread";
+import {emptyChar} from "@/utils/utils";
+import {useSWRConfig} from "swr";
 
 
 export const ReplyVerticalLine = ({className=""}: {className?: string}) => {

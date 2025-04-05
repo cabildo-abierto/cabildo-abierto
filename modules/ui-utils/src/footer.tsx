@@ -6,7 +6,7 @@ import {topicUrl} from "@/utils/uri";
 import {dimOnHoverClassName, DimOnHoverLink} from "./dim-on-hover-link";
 
 
-const FooterHorizontalRule = () => {
+export const FooterHorizontalRule = () => {
     return <div className="relative">
         <hr className="border-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent"/>
     </div>

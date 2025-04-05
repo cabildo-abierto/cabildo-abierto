@@ -1,5 +1,5 @@
 "use server"
-import {db} from "../../db";
+import {db} from "@/db";
 import {revalidateTag, unstable_cache} from "next/cache";
 import {TopicsGraph} from "@/lib/definitions";
 import {logTimes, revalidateEverythingTime} from "../utils";

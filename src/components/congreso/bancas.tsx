@@ -243,7 +243,7 @@ const Bancas = ({rows, radiusStep, seatRadius, generator}: {
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, [layoutConfig]);
+    }, [canvasWidth, layoutConfig]);
 
     const canvasHeight = canvasWidth * 0.55
     const svgWidth = 400

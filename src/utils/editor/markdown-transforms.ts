@@ -16,7 +16,7 @@ export function editorStateToMarkdown(s: string){
     const parsed = editor.parseEditorState(s)
     editor.update(() => {
         editor.setEditorState(parsed)
-    });
+    })
 
     let markdown: string
     editor.read(() => {
