@@ -62,7 +62,7 @@ function TextFormatFloatingToolbar({
 }) {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
 
-  const {isComment, useSuperscript, useSubscript, useStrikethrough, useCodeblock} = settings
+  const {isComment, useSuperscript, useSubscript, useStrikethrough} = settings
 
   const insertLink = useCallback(() => {
     if (!isLink) {
@@ -250,15 +250,6 @@ function TextFormatFloatingToolbar({
             title="Superscript"
             aria-label="Format Superscript">
             <i className="format superscript" />
-          </button>}
-          {useCodeblock && <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
-            }}
-            className={'popup-item spaced ' + (isCode ? 'active' : '')}
-            aria-label="Insert code block">
-            <i className="format code" />
           </button>}
           <button
             type="button"

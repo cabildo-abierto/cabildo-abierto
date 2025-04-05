@@ -1,5 +1,5 @@
 import {SyncRecordProps} from "@/lib/definitions";
-import {decompress} from "../../utils/compression";
+import {decompress} from "@/utils/compression";
 
 export const collectionsList = [
     "app.bsky.feed.post",

@@ -1,5 +1,5 @@
 "use server"
-import {db} from "../../db";
+import {db} from "@/db";
 import { Prisma } from "@prisma/client";
 import {currentCategories} from "@/components/topics/topic/utils";
 
@@ -39,7 +39,7 @@ export async function updateTopicsCategories() {
     ];
 
     if (allCategoryIds.length === 0) {
-        console.log("No categories to update.");
+        console.log("No categories to update.")
         return;
     }
 
@@ -50,7 +50,7 @@ export async function updateTopicsCategories() {
         ON CONFLICT DO NOTHING;
     `;
 
-    console.log("Ensured all categories exist.");
+    console.log("Ensured all categories exist.")
 
     // Step 2: Prepare topic-category relationships
     const topicCategoryValues = topicCategories.flatMap(({ topicId, categoryIds }) =>

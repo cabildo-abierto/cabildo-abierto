@@ -1,3 +1,4 @@
+"use server"
 import {db} from "@/db";
 import {FastPostProps, FeedContentProps} from "@/lib/definitions";
 import {enDiscusionQuery, logTimes} from "../utils";

@@ -3,10 +3,10 @@ import {ATProtoStrongRef, FastPostReplyProps, VisualizationProps} from "@/lib/de
 import {getSessionAgent} from "../auth";
 import {RichText} from "@atproto/api";
 import {revalidateTag} from "next/cache";
-import {db} from "../../db";
-import {getDidFromUri, getRkeyFromUri} from "../../utils/uri";
+import {db} from "@/db";
+import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
-import {getVisualizationTitle} from "../../components/visualizations/editor/spec";
+import {getVisualizationTitle} from "@/components/visualizations/editor/spec";
 import {logTimes} from "../utils";
 import {revalidateTags} from "../admin";
 

@@ -1,7 +1,7 @@
 "use server"
 import {EngagementProps, FeedContentProps, VisualizationProps} from "@/lib/definitions";
 import {unstable_cache} from "next/cache";
-import {db} from "../../db";
+import {db} from "@/db";
 import {
     addCounters,
     enDiscusionQuery,

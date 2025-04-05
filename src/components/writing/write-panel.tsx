@@ -77,7 +77,7 @@ export const WritePanel = ({
         }
     }
 
-    return <>
+    return (
         <BaseFullscreenPopup open={open} className="w-full max-w-[512px]">
             <div className="w-full rounded pt-1 border max-h-[80vh] overflow-y-auto">
                 <div className="flex justify-between items-start space-x-2 pl-1 pr-2">
@@ -111,6 +111,6 @@ export const WritePanel = ({
                 {selected == "Tema" && <CreateTopic onClose={onClose}/>}
             </div>
         </BaseFullscreenPopup>
-    </>
+    )
 };
 

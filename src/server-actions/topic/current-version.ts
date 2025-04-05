@@ -139,7 +139,6 @@ export async function updateTopicCurrentVersion(id: string){
             id
         }
     })
-    console.log("Updated current version for", id, "with version", currentVersion, uri)
 }
 
 
@@ -198,8 +197,6 @@ export async function updateTopicsCurrentVersion() {
         }
     })
 
-    console.log("Got all topics.");
-
     const updates = topics
         .map(t => ({
             id: t.id,
@@ -219,9 +216,7 @@ export async function updateTopicsCurrentVersion() {
 
     const queryParams = updates.flatMap(({ id, currentVersionId }) => [id, currentVersionId]);
 
-    await db.$executeRawUnsafe(updateQuery, ...queryParams);
-
-    console.log("Done updating current versions.");
+    await db.$executeRawUnsafe(updateQuery, ...queryParams)
 }
 
 

@@ -44,7 +44,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                 <ReadOnlyEditor
                     text={article.content.text}
                     format={article.content.format}
-                    allowTextComments={true}
+                    allowQuoteComments={true}
                     editorClassName={"article-content"}
                     content={article}
                     quoteReplies={quoteReplies}

@@ -1,3 +1,4 @@
+"use server"
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 import {
     FastPostProps,
@@ -134,7 +135,7 @@ export async function getThreadFromCA({did, c, rkey}: {did: string, c: string, r
         ["thread:"+did+":"+rkey],
         {
             tags: ["thread:"+did+":"+rkey, "thread"],
-            revalidate: revalidateEverythingTime
+            revalidate: 5
         }
     )()
 
@@ -157,7 +158,8 @@ export async function getThreadFromCA({did, c, rkey}: {did: string, c: string, r
 
 export async function getThread({did, c, rkey}: {did: string, c: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
     const isCA = await isCAUser(did)
-    if(!isCA){
+    console.log("is CA", did, isCA)
+    if(!isCA || c == "app.bsky.feed.post"){
         return await getThreadFromATProto({did, rkey})
     }
 

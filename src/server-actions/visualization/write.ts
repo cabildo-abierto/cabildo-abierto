@@ -2,11 +2,9 @@
 import {VisualizationSpec} from "vega-embed";
 import {getSessionAgent} from "../auth";
 import {BlobRef} from "@atproto/lexicon";
-import {db} from "../../db";
+import {db} from "@/db";
 import {ATProtoStrongRef} from "@/lib/definitions";
-import {VisualizationSpecWithMetadata} from "../../components/visualizations/editor/spec";
-import {revalidateTag} from "next/cache";
-import {revalidateUri} from "../revalidate";
+import {VisualizationSpecWithMetadata} from "@/components/visualizations/editor/spec";
 import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
 import {revalidateTags} from "../admin";
 

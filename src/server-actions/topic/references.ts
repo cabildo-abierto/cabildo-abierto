@@ -1,11 +1,11 @@
 "use server"
 
-import {db} from "../../db";
+import {db} from "@/db";
 import {getTextFromBlob} from "./topics";
 import {revalidateUri} from "../revalidate";
-import {decompress} from "../../utils/compression";
-import {areArraysEqual} from "../../utils/arrays";
-import {cleanText} from "../../utils/strings";
+import {decompress} from "@/utils/compression";
+import {areArraysEqual} from "@/utils/arrays";
+import {cleanText} from "@/utils/strings";
 
 
 function getCurrentSynonyms(topic: {id: string, versions: {synonyms?: string, content: {record: {createdAt: Date}}}[]}){
