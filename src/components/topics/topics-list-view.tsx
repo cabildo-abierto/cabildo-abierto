@@ -5,9 +5,8 @@ import {useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import SwapVertIcon from '@mui/icons-material/SwapVert';
-import {ModalBelow} from "../../../modules/ui-utils/src/modal-below";
-
-import {Button} from "../../../modules/ui-utils/src/button";
+import {ModalOnClick} from "../../../modules/ui-utils/src/modal-on-click";
+import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
 
 export type TopicsSortOrder = "Populares" | "Ediciones recientes"
 
@@ -16,40 +15,38 @@ export const TopicsSortSelector = ({sortedBy, setSortedBy}: {
     sortedBy: TopicsSortOrder
     setSortedBy: (s: TopicsSortOrder) => void
 }) => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState(null)
+    const [onClose, setOnClose] = useState<() => void>()
 
-    return <div style={{ position: 'relative', display: 'inline-block' }}>
+    const modal = (
+        <div className={"p-1 space-y-1 border rounded"}>
+            {["Populares", "Ediciones recientes"].map((s: TopicsSortOrder, index) => {
+                return <div key={index}>
+                    <OptionsDropdownButton
+                        onClick={() => {
+                            setSortedBy(s)
+                            onClose()
+                        }}
+                        color={"inherit"}
+                        fullWidth={true}
+                        size={"small"}
+                        text1={<span className={s == sortedBy ? "font-bold" : ""}>{s}</span>}
+                    />
+                </div>
+            })}
+        </div>
+    )
+
+    return <ModalOnClick modal={modal} setOnClose={setOnClose}>
         <div className={"text-[var(--text-light)]"}>
             <IconButton
                 size={"small"}
-                onClick={(e) => {e.preventDefault(); e.stopPropagation(); setAnchorEl(e.target); setIsDropdownOpen(prev => !prev)}}
+                color={"inherit"}
             >
                 <SwapVertIcon fontSize={"small"}/>
             </IconButton>
         </div>
+    </ModalOnClick>
 
-        <ModalBelow
-            anchorEl={anchorEl}
-            open={isDropdownOpen}
-            onClose={() => {setIsDropdownOpen(false)}}
-        >
-            <div className={"p-1 space-y-1"}>
-                {["Populares", "Ediciones recientes"].map((s: TopicsSortOrder, index) => {
-                    return <div key={index}>
-                        <Button
-                            onClick={() => {setSortedBy(s); setIsDropdownOpen(false)}}
-                            color={"inherit"}
-                            fullWidth={true}
-                            size={"small"}
-                        >
-                            <span className={s == sortedBy ? "font-bold" : ""}>{s}</span>
-                        </Button>
-                    </div>
-                })}
-            </div>
-        </ModalBelow>
-    </div>
 }
 
 
@@ -59,12 +56,12 @@ export const TopicsListView = () => {
     const [sortedBy, setSortedBy] = useState<TopicsSortOrder>("Populares")
     const router = useRouter()
 
-    function setCategories(newCats: string[]){
+    function setCategories(newCats: string[]) {
         router.push("/temas?view=lista&c=" + newCats.join("&c="))
     }
 
     return <div>
-        <div className={"w-full flex justify-between pt-1 pb-2 px-2"}>
+        <div className={"w-full flex justify-between items-center pt-1 pb-2 px-2"}>
             <div className={"pt-1"}>
                 <CategorySelector categories={categories} setCategories={setCategories}/>
             </div>

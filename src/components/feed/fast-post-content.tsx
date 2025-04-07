@@ -8,7 +8,6 @@ import {ContentQuote, QuotedContent} from "./content-quote";
 import {PlotInPost} from "./plot-in-post";
 import {ExternalEmbedInPost} from "./external-embed-in-post";
 import {FastPostVideo} from "./fast-post-video";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 
 export const FastPostContent = ({post, isMainPost=false, hideQuote=false, showQuoteContext=false, onClickQuote}: {

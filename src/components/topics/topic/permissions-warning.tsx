@@ -2,7 +2,7 @@
 import { TopicProps } from "@/lib/definitions"
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel"
 import { PermissionLevel } from "./permission-level"
-import {useUser} from "../../../hooks/swr";
+import {useUser} from "@/hooks/swr";
 
 
 

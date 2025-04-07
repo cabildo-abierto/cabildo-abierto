@@ -1,34 +1,29 @@
-import { ReactNode, useState } from 'react';
+import {ReactNode} from 'react';
 import InfoIcon from '@mui/icons-material/Info';
-import { ModalBelow } from './modal-below';
+import { ModalOnHover } from './modal-on-hover';
 
-export const InfoPanel = ({text, className, iconClassName="text-gray-600", icon=<InfoIcon fontSize="small"/>}: {text: ReactNode, className?: string, iconClassName?: string, icon?: ReactNode}) => {
-  const [anchorEl, setAnchorEl] = useState(null)
+export const InfoPanel = ({text, className, iconClassName = "text-gray-600", icon = <InfoIcon fontSize="small"/>}: {
+    text: ReactNode,
+    className?: string,
+    iconClassName?: string,
+    icon?: ReactNode
+}) => {
 
-  return <div className="relative inline-block">
-      <div
-          onMouseEnter={(e) => {setAnchorEl(e.target)}}
-          onMouseLeave={() => {setAnchorEl(null)}}
-          className={iconClassName + " cursor-pointer"}
-      >
-        {icon}
-      </div>
-      <ModalBelow
-          hoverOnly={true}
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-          marginTop="5px"
-          onClose={() => {setAnchorEl(null);}}
-      >
-          <div
-              className={"text-justify text-sm bg-[var(--background)] rounded  border content-container " + (className ? className : "w-72")}
-          >
-              <div className="p-2">
-                  {text}
-              </div>
-          </div>
-      </ModalBelow>
-  </div>
+    const modal = (
+        <div
+            className={"text-justify text-sm bg-[var(--background-dark)] rounded  border content-container " + (className ? className : "w-72")}
+        >
+            <div className="p-2">
+                {text}
+            </div>
+        </div>
+    )
+
+    return <ModalOnHover modal={modal}>
+        <div className={"cursor-pointer " + iconClassName}>
+            {icon}
+        </div>
+    </ModalOnHover>
 };
 
 export default InfoPanel

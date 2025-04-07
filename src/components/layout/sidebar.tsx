@@ -224,7 +224,9 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         selected={pathname.startsWith("/ajustes")}
                         showText={showText}
                     />
-                    <SidebarWriteButton showText={showText} onClick={() => {setWritePanelOpen(true)}}/>
+                    <div>
+                        <SidebarWriteButton showText={showText} onClick={() => {setWritePanelOpen(true)}}/>
+                    </div>
                 </div>
                 <div className={"text-[var(--text-light)] flex justify-end mb-2 max-[500px]:hidden"}>
                     <IconButton

@@ -24,13 +24,13 @@ export const StatsPanel = ({stats}: {stats: UserStats}) => {
     </span>
 
     const confirmationPendingDesc = <span>
-    Ingresos pendientes de confirmación ($)
-    <InfoPanel iconClassName="ml-2 text-gray-600" text='Ingresos que te corresponden por contenidos que escribiste recientemente pero que todavía están en período de evaluación. Si cumplen los términos y condiciones los pagos van a pasar a "pendientes de pago".'/>
+        Ingresos pendientes de confirmación ($)
+        <InfoPanel iconClassName="ml-2 text-gray-600" text='Ingresos que te corresponden por contenidos que escribiste recientemente pero que todavía están en período de evaluación. Si cumplen los términos y condiciones los pagos van a pasar a "pendientes de pago".'/>
     </span>
 
     const paymentPendingDesc = <span>
-    Ingresos pendientes de pago ($)
-    <InfoPanel iconClassName="ml-2 text-gray-600" text='Ingresos que te fueron confirmados pero por los que todavía no recibiste una transferencia.'/>
+        Ingresos pendientes de pago ($)
+        <InfoPanel iconClassName="ml-2 text-gray-600" text='Ingresos que te fueron confirmados pero por los que todavía no recibiste una transferencia.'/>
     </span>
 
 

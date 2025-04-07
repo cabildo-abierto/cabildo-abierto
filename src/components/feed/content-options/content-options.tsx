@@ -11,6 +11,7 @@ import {useSWRConfig} from "swr";
 import {useState} from "react";
 import {useUser} from "@/hooks/swr";
 import {addToEnDiscusion, removeFromEnDiscusion} from "@/server-actions/feed/inicio/en-discusion";
+import {useRouter} from "next/navigation";
 
 
 const collection2displayText = {
@@ -68,12 +69,11 @@ export const ContentOptions = ({onClose, record, onDelete, enDiscusion="n/a"}: {
             startIcon={<Newspaper/>}
             text1={!addedToEnDiscusion ? "Agregar a En discusión" : "Retirar de En discusión"}
         />}
-        {inBluesky && <Link target={"_blank"} href={getBlueskyUrl(record.uri)}>
-            <OptionsDropdownButton
-                text1={"Ver en Bluesky"}
-                startIcon={<BlueskyLogo/>}
-            />
-        </Link>}
+        {inBluesky && <OptionsDropdownButton
+            text1={"Ver en Bluesky"}
+            startIcon={<BlueskyLogo/>}
+            onClick={(e) => {e.stopPropagation(); window.open(getBlueskyUrl(record.uri), "_blank")}}
+        />}
         {record.collection == "ar.com.cabildoabierto.dataset" && <Link
             href={editVisualizationUrl(record.uri)}
             onClick={(e) => {e.stopPropagation()}}

@@ -24,15 +24,23 @@ export const TopicVersionOnFeed = ({topicVersion}: {topicVersion: TopicVersionOn
     >
         <div className={"text-sm flex space-x-1"}>
             <ProfilePic user={topicVersion.author} className={"w-5 h-5 rounded-full mr-1"}/>
-            <ContentTopRowAuthor author={topicVersion.author}/>
-            <span className="text-[var(--text-light)]">•</span>
-            <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(topicVersion.createdAt)}>
-                <DateSince date={topicVersion.createdAt}/>
-            </span>
+            <div className="flex gap-x-1 max-w-[calc(100vw-80px)]">
+                <span className="truncate">
+                        <ContentTopRowAuthor author={topicVersion.author}/>
+                </span>
+                <span className="text-[var(--text-light)]">·</span>
+                <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(topicVersion.createdAt)}>
+                        <DateSince date={topicVersion.createdAt}/>
+                </span>
+            </div>
         </div>
-        <div className={"flex px-2 mt-2 space-x-1"}>
-            <span>Nueva versión de</span>
-            <span className={"font-bold"}>{topicVersion.content.topicVersion.topic.id}</span>
+        <div className={"px-2 mt-2 space-x-1"}>
+            <span>
+                Nueva versión de
+            </span>
+            <span className={"font-bold"}>
+                {topicVersion.content.topicVersion.topic.id}
+            </span>
             <CharDiff diff={topicVersion.content.topicVersion}/>.
         </div>
     </div>

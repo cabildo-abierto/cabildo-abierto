@@ -28,6 +28,8 @@ export const FeedElement = ({
     showReplyMessage?: boolean
     onDeleteFeedElem: () => Promise<void>
 }) => {
+
+
     if (elem.blocked) {
         return <div className={"p-2 m-2 border rounded-lg text-[var(--text-light)]"}>
             Contenido bloqueado
@@ -43,6 +45,7 @@ export const FeedElement = ({
             showingChildren={showingChildren}
         />
     } else if (elem.collection == "app.bsky.feed.post" || elem.collection == "ar.com.cabildoabierto.quotePost") {
+
         return <FastPostPreview
             post={elem as FastPostProps}
             onClickQuote={onClickQuote}

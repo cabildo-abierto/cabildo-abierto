@@ -39,7 +39,7 @@ const FundingProgress = ({ p }: { p: number }) => {
         )}
         {(state === "medium" || state === "bad") && (
           <div className="text-xs sm:text-sm text-center text-[var(--text-light)]">
-            ¡Necesitamos tu aporte para llegar a fin de mes!
+            ¡Necesitamos tu aporte!
           </div>
         )}
       </div>
