@@ -65,9 +65,11 @@ export const FastPostPreviewFrame = ({
         router.push(url);
     }
 
+
+
     return <div
         id={post.uri}
-        className={"flex flex-col hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
+        className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
         onClick={onClick}
     >
         {post.reason && post.reason.collection == "app.bsky.feed.repost" && <RepostedBy user={post.reason.by}/>}

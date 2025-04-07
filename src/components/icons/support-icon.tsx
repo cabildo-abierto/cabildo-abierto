@@ -6,7 +6,7 @@ export const SupportIcon = ({newCount, color}: {newCount?: number, color?: "inhe
     translate-x-1/2 -translate-y-1/2 bg-red-500 text-white\
      rounded-full text-xs w-4 h-4 flex items-center justify-center"
     return <div className="relative flex">
-        <SupportAgentIcon color={color}/>
+        <SupportAgentIcon color={color} fontSize={"small"}/>
         {(newCount != undefined && newCount > 0) ?
           <span className={className}>
             {newCount}

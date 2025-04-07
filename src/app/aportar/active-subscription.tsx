@@ -3,7 +3,6 @@ import LoadingSpinner from '../../../modules/ui-utils/src/loading-spinner';
 import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
 import { UserProps } from '@/lib/definitions';
 import FundingProgress from '@/components/aportar/funding-progress';
-import StateButton from '../../../modules/ui-utils/src/state-button';
 import { Desplegable } from '../../../modules/ui-utils/src/desplegable';
 import { useState } from 'react';
 import { createPreference } from '@/server-actions/payments';
@@ -13,7 +12,7 @@ import { ArrowRightIcon } from '@/components/icons/arrow-right-icon';
 import { DonateIcon } from '@/components/icons/donate-icon';
 import { ExpandLessIcon } from '@/components/icons/expand-less-icon';
 import { ExpandMoreIcon } from '@/components/icons/expand-more-icon';
-import {useDonationsDistribution, useFundingPercentage, useSubscriptionPrice, useUser} from "../../hooks/swr";
+import {useDonationsDistribution, useFundingPercentage, useSubscriptionPrice, useUser} from "@/hooks/swr";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {Button} from "../../../modules/ui-utils/src/button";
 
@@ -172,9 +171,12 @@ function DonationPage() {
                 color="primary"
                 size="large"
                 onClick={() => {setChoice("aportar")}}
-                sx={{textTransform: "none"}}
+                sx={{
+                    textTransform: "none",
+                    borderRadius: 20
+                }}
             >
-                <span className="title">Aportar</span>
+                <span className="title px-2">Aportar</span>
             </Button>
         </div>}
     </div>
@@ -188,12 +190,12 @@ function DonationPage() {
         />
     </div>
 
-    const center = <>
-        {choice == "unique" && uniqueChosen}
-        {choice != "unique" && donationInput}
-    </>
-
-    return center
+    return (
+        <>
+            {choice == "unique" && uniqueChosen}
+            {choice != "unique" && donationInput}
+        </>
+    )
 }
 
 export default DonationPage

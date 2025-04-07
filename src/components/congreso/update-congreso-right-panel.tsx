@@ -43,14 +43,11 @@ const ProjectSlider = () => {
 
 export const UpdateCongresoRightPanel = () => {
     return (
-        <div className={"px-2 py-3 border rounded"}>
+        <div className={"p-3 space-y-3 border rounded-lg"}>
             <div className={"flex justify-between items-center"}>
-                <span className={"text-[var(--text-light)] text-xs"}>
+                <span className={"text-xs font-bold"}>
                     En el congreso
                 </span>
-                <Link href={urlCongreso} className={"text-[var(--text-light)] text-xs"}>
-                    Ver más
-                </Link>
             </div>
             <div className={"mt-1"}>
                 <ProjectSlider/>

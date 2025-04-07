@@ -10,13 +10,13 @@ export const TrendingTopicsPanel = ({selected}: {selected: string}) => {
 
     const {topics, isLoading} = useTrendingTopics([], selected)
 
-    return <div className="space-y-2 border rounded w-[300px]">
-        <div className="flex justify-between px-2 items-center w-full">
+    return <div className="space-y-2 border rounded-lg w-[300px]">
+        <div className="flex justify-between p-3 items-center w-full">
             <Link
-                className={"text-xs text-[var(--text-light)] mt-1"}
+                className={"text-xs font-bold"}
                 href={"/temas"}
             >
-                Temas
+                Temas populares
             </Link>
             {/*<div className={"pt-1"}>
                 <ContentOptionsButton record={null}/>

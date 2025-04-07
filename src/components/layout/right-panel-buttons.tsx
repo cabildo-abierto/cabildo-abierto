@@ -54,11 +54,11 @@ export const SupportButton = () => {
 export const RightPanelButtons = () => {
     const {user} = useUser()
 
-    return <div className={"mt-4 px-3 w-full flex flex-col space-y-2"}>
+    return <div className={"mt-4 px-3 w-full flex flex-col space-y-1"}>
         <SupportButton/>
         <RightPanelButton
             href={topicUrl("Cabildo Abierto")}
-            icon={<InfoIcon color={"inherit"}/>}
+            icon={<InfoIcon color={"inherit"} fontSize={"small"}/>}
         >
             Acerca de Cabildo Abierto
         </RightPanelButton>

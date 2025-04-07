@@ -1,4 +1,4 @@
-import SearchBar from "@/components/buscar/searchbar";
+import SearchBar from "@/components/buscar/search-bar";
 import {SearchContent} from "@/components/buscar/search-content";
 import {SmallBackButtonHeader} from "../../components/layout/small-back-button-header";
 
