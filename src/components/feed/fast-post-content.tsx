@@ -19,8 +19,8 @@ export const FastPostContent = ({post, isMainPost=false, hideQuote=false, showQu
                 <ContentQuote
                     post={post}
                     quotedContent={post.content.post.replyTo as QuotedContent}
-                    quote={post.content.post.quote}
-                    onClick={onClickQuote ? () => {onClickQuote(post.cid)} : undefined}
+                    quote={post.content.post.quote ? JSON.parse(post.content.post.quote) : undefined}
+                    onClick={onClickQuote ? () => {onClickQuote(post.uri)} : undefined}
                     showContext={showQuoteContext}
                 />
             </div>

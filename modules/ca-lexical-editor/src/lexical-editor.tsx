@@ -10,294 +10,288 @@
 
 import './index.css';
 import '@/components/editor/article-content.css';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
-import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
-import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
-import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
-import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { ListPlugin } from '@lexical/react/LexicalListPlugin';
-import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
-import { useEffect, useRef, useState } from 'react';
-import { CAN_USE_DOM } from './shared/canUseDOM';
-import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
-import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
+import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
+import {CheckListPlugin} from '@lexical/react/LexicalCheckListPlugin';
+import {ClickableLinkPlugin} from '@lexical/react/LexicalClickableLinkPlugin';
+import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
+import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
+import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
+import {ListPlugin} from '@lexical/react/LexicalListPlugin';
+import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
+import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
+import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
+import {useEffect, useRef, useState} from 'react';
+import {CAN_USE_DOM} from './shared/canUseDOM';
+import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
+import {SharedHistoryContext, useSharedHistoryContext} from './context/SharedHistoryContext';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
-import CommentPlugin, {ReplyToContent} from './plugins/CommentPlugin';
+import CommentPlugin, {OnAddCommentProps} from './plugins/CommentPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
-import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
-import { MaxLengthPlugin } from './plugins/MaxLengthPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableOfContentsPlugin from './plugins/TableOfContentsPlugin';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 import TreeViewPlugin from './plugins/TreeViewPlugin';
 import ContentEditable from './ui/ContentEditable';
-import { InitialConfigType, InitialEditorStateType, LexicalComposer } from '@lexical/react/LexicalComposer';
+import {InitialConfigType, LexicalComposer} from '@lexical/react/LexicalComposer';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
-import { BeautifulMentionsPlugin } from 'lexical-beautiful-mentions';
-import { CustomMenuItemMentions, CustomMenuMentions, EmptyMentionResults, queryMentions } from './ui/custom-mention-component';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import {BeautifulMentionsPlugin} from 'lexical-beautiful-mentions';
 import {
-  $createParagraphNode,
-  $createTextNode,
-  $getRoot,
-  LexicalEditor as OriginalLexicalEditor
+    CustomMenuItemMentions,
+    CustomMenuMentions,
+    EmptyMentionResults,
+    MentionProps
+} from './ui/custom-mention-component';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
+import {
+    $createParagraphNode,
+    $createTextNode,
+    $getRoot,
+    LexicalEditor as OriginalLexicalEditor
 } from 'lexical';
 import TableCellResizer from './plugins/TableCellResizer';
-import { TableContext } from './plugins/TablePlugin';
+import {TableContext} from './plugins/TablePlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
-import { usePageLeave } from '../../ui-utils/src/prevent-leave';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'
-import {FastPostProps} from "@/lib/definitions";
 import PlotPlugin from "./plugins/PlotPlugin";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
+import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
 
 export type SettingsProps = {
-  disableBeforeInput: boolean
-  emptyEditor: boolean
-  isAutocomplete: boolean
-  isCharLimit: boolean
-  isCharLimitUtf8: boolean
-  charLimit?: number
-  isCollab: boolean
-  isMaxLength: boolean
-  isRichText: boolean
-  measureTypingPerf: boolean
-  shouldPreserveNewLinesInMarkdown: boolean
-  shouldUseLexicalContextMenu: boolean
-  showNestedEditorTreeView: boolean
-  showTableOfContents: boolean
-  showTreeView: boolean
-  tableCellBackgroundColor: boolean
-  tableCellMerge: boolean
-  showActions: boolean
-  showToolbar: boolean
-  isComments: boolean
-  isDraggableBlock: boolean
-  useSuperscript: boolean
-  useStrikethrough: boolean
-  useSubscript: boolean
-  useCodeblock: boolean
-  placeholder: string
-  isReadOnly: boolean
-  isAutofocus: boolean
-  editorClassName: string
-  content?: ReplyToContent
-  title?: string
-  placeholderClassName: string
-  showingChanges?: string
-  imageClassName: string
-  preventLeave: boolean
-  allowImages: boolean
-  quoteReplies?: FastPostProps[]
-  pinnedReplies?: string[]
-  setPinnedReplies?: (v: string[]) => void
-  initialText: string
-  initialTextFormat: string
+    charLimit?: number
+    isRichText: boolean
+    useContextMenu: boolean
+    tableOfContents: boolean
+    showToolbar: boolean
+    allowComments: boolean
+    isDraggableBlock: boolean
+    allowImages: boolean
+    allowTables: boolean
+    allowPlots: boolean
+    markdownShortcuts: boolean
+
+    useSuperscript: boolean
+    useStrikethrough: boolean
+    useSubscript: boolean
+
+    isAutofocus: boolean
+
+    preventLeave: boolean
+
+    showingChanges?: string
+
+    editorClassName: string
+    placeholderClassName: string
+    imageClassName: string
+
+    isReadOnly: boolean
+
+    title?: string
+    initialText: string
+    initialTextFormat: string
+    placeholder: string
+
+    measureTypingPerf: boolean
+    showTreeView: boolean
+
+    queryMentions: (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
+    onAddComment?: OnAddCommentProps
 }
 
 
 type LexicalEditorProps = {
-  settings: SettingsProps,
-  setEditor: any,
-  setEditorState: any,
-  contentId?: string
+    settings: SettingsProps,
+    setEditor: any,
+    setEditorState: any,
+    contentId?: string
 }
 
 
-function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
-  const { historyState } = useSharedHistoryContext();
-  const [editor] = useLexicalComposerContext();
-  const {leaveStoppers, setLeaveStoppers} = usePageLeave()
+function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
+    const {historyState} = useSharedHistoryContext();
+    const [editor] = useLexicalComposerContext();
+    const editorContainerRef = useRef<HTMLDivElement | null>(null);
+    const [marginAboveEditor, setMarginAboveEditor] = useState<number>(0);
+    const isEditable = useLexicalEditable();
+    const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
+    const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false);
+    const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
+    const [uniqueId, setUniqueId] = useState(undefined)
 
-  const [uniqueId, setUniqueId] = useState(undefined)
-  
-  const editorContainerRef = useRef<HTMLDivElement | null>(null);
-  const [marginAboveEditor, setMarginAboveEditor] = useState<number>(0);
+    useEffect(() => {
+        if (setEditor) {
+            setEditor(editor);
+        }
+    }, [editor, setEditor]);
 
-  useEffect(() => {
-    if (setEditor) {
-      setEditor(editor);
+    const {
+        isRichText,
+        showTreeView,
+        tableOfContents,
+        useContextMenu,
+        showToolbar,
+        allowComments,
+        isDraggableBlock,
+        placeholder,
+        isReadOnly,
+        isAutofocus,
+        editorClassName,
+        placeholderClassName,
+        preventLeave,
+        allowImages,
+        allowTables,
+        markdownShortcuts,
+        queryMentions,
+        onAddComment
+    } = settings;
+
+    const onRef = (_floatingAnchorElem: HTMLDivElement) => {
+        if (_floatingAnchorElem !== null) {
+            setFloatingAnchorElem(_floatingAnchorElem);
+        }
     }
-  }, [editor, setEditor]);
 
-  useEffect(() => {
-    return () => {
-      if (uniqueId) {
-        setLeaveStoppers(leaveStoppers.filter(id => id !== uniqueId));
-      }
-    }
-  }, [leaveStoppers, setLeaveStoppers, uniqueId])
+    useEffect(() => {
+        const updateViewPortWidth = () => {
+            const isNextSmallWidthViewport = CAN_USE_DOM && window.matchMedia('(max-width: 1025px)').matches;
 
-  const {
-    isMaxLength,
-    isRichText,
-    showTreeView,
-    showTableOfContents,
-    shouldUseLexicalContextMenu,
-    showToolbar,
-    isComments,
-    isDraggableBlock,
-    placeholder,
-    isReadOnly,
-    isAutofocus,
-    editorClassName,
-    content,
-    placeholderClassName,
-    preventLeave,
-    allowImages,
-    quoteReplies,
-    pinnedReplies,
-    setPinnedReplies
-  } = settings;
-
-  const isEditable = useLexicalEditable();
-  const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
-  const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false);
-  const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
-
-  const onRef = (_floatingAnchorElem: HTMLDivElement) => {
-    if (_floatingAnchorElem !== null) {
-      setFloatingAnchorElem(_floatingAnchorElem);
-    }
-  };
-
-  useEffect(() => {
-    const updateViewPortWidth = () => {
-      const isNextSmallWidthViewport =
-        CAN_USE_DOM && window.matchMedia('(max-width: 1025px)').matches;
-
-      if (isNextSmallWidthViewport !== isSmallWidthViewport) {
-        setIsSmallWidthViewport(isNextSmallWidthViewport);
-      }
-    };
-    updateViewPortWidth();
-    window.addEventListener('resize', updateViewPortWidth);
-
-    return () => {
-      window.removeEventListener('resize', updateViewPortWidth);
-    };
-  }, [isSmallWidthViewport]);
-
-  useEffect(() => {
-    if (editorContainerRef.current) {
-      const editorTop = editorContainerRef.current.getBoundingClientRect().top;
-      setMarginAboveEditor(editorTop);
-    }
-  }, [editorContainerRef]);
-
-  return (
-    <>
-      {isRichText && showToolbar && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />}
-      <div
-        ref={editorContainerRef}
-        className={`editor-container ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
-      >
-        {isMaxLength && <MaxLengthPlugin maxLength={30} />}
-        <DragDropPaste />
-        {isAutofocus && <AutoFocusPlugin />}
-        <ClearEditorPlugin />
-
-        <BeautifulMentionsPlugin
-          triggers={['@']}
-          onSearch={queryMentions}
-          emptyComponent={EmptyMentionResults}
-          menuComponent={CustomMenuMentions}
-          menuItemComponent={CustomMenuItemMentions}
-        />
-        <TablePlugin
-          hasCellMerge={true}
-          hasCellBackgroundColor={false}
-        />
-        <TableCellResizer />
-        {allowImages && <ImagesPlugin captionsEnabled={false}/>}
-        <PlotPlugin/>
-
-        <OnChangePlugin
-          onChange={(editorState) => {
-            setEditorState(editorState);
-            if (!isReadOnly && preventLeave && !uniqueId) {
-              const newUniqueId = uuidv4()
-              setUniqueId(newUniqueId)
-              setLeaveStoppers([...leaveStoppers, newUniqueId]);
+            if (isNextSmallWidthViewport !== isSmallWidthViewport) {
+                setIsSmallWidthViewport(isNextSmallWidthViewport);
             }
-          }}
-        />
-        <MarkdownShortcutPlugin/>
-        <HashtagPlugin/>
-        <AutoLinkPlugin/>
-        {isComments && <CommentPlugin
-            parentContent={content}
-            quoteReplies={quoteReplies}
-            pinnedReplies={pinnedReplies}
-            setPinnedReplies={setPinnedReplies}
-        />}
-        {isRichText ? (
-            <>
-            <HistoryPlugin externalHistoryState={historyState} />
-            <RichTextPlugin
-              contentEditable={
-                <div className={'editor-scroller'}>
-                  <div className={"editor " + editorClassName} ref={onRef}>
-                    <ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} settings={settings} />
-                  </div>
-                </div>
-              }
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-            <ListPlugin />
-            <CheckListPlugin />
-            <ListMaxIndentLevelPlugin maxDepth={7} />
-            <LinkPlugin />
-            <ClickableLinkPlugin disabled={isEditable} newTab={false} />
+        };
+        updateViewPortWidth();
+        window.addEventListener('resize', updateViewPortWidth);
 
-            <LayoutPlugin />
+        return () => {
+            window.removeEventListener('resize', updateViewPortWidth);
+        };
+    }, [isSmallWidthViewport]);
 
-            {!isReadOnly && floatingAnchorElem && (
-              <>
-                {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
-                <FloatingLinkEditorPlugin
-                  isLinkEditMode={isLinkEditMode}
-                  setIsLinkEditMode={setIsLinkEditMode}
+    useEffect(() => {
+        if (editorContainerRef.current) {
+            const editorTop = editorContainerRef.current.getBoundingClientRect().top;
+            setMarginAboveEditor(editorTop);
+        }
+    }, [editorContainerRef]);
+
+    return (
+        <>
+            {isRichText && showToolbar && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode}/>}
+            <div
+                ref={editorContainerRef}
+                className={`editor-container ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
+            >
+                <DragDropPaste/>
+
+                {preventLeave && !isReadOnly && <PreventLeavePlugin uniqueId={uniqueId}/>}
+
+                {isAutofocus && <AutoFocusPlugin/>}
+
+                <BeautifulMentionsPlugin
+                    triggers={['@']}
+                    onSearch={queryMentions}
+                    emptyComponent={EmptyMentionResults}
+                    menuComponent={CustomMenuMentions}
+                    menuItemComponent={CustomMenuItemMentions}
                 />
-                <TableCellActionMenuPlugin
-                  anchorElem={floatingAnchorElem}
-                  cellMerge={true} />
-                <FloatingTextFormatToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} settings={settings} />
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            <PlainTextPlugin
-              contentEditable={<ContentEditable placeholder={placeholder} placeholderClassName={placeholderClassName} />}
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-            <HistoryPlugin externalHistoryState={historyState} />
-          </>
-        )}
-        <div className="hidden lg:block">
-          {showTableOfContents && <TableOfContentsPlugin title={settings.title} marginAboveEditor={marginAboveEditor} />}
-        </div>
-        {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
-      </div>
-      {showTreeView && <TreeViewPlugin />}
-    </>
-  );
-}
 
+                {allowTables && <TablePlugin
+                    hasCellMerge={true}
+                    hasCellBackgroundColor={false}
+                />}
+                <TableCellResizer/>
+
+                {allowImages && <ImagesPlugin captionsEnabled={false}/>}
+
+                <PlotPlugin/>
+
+                <OnChangePlugin
+                    onChange={(editorState) => {
+                        setEditorState(editorState);
+                        if (!isReadOnly && preventLeave && !uniqueId) {
+                            const newUniqueId = uuidv4()
+                            setUniqueId(newUniqueId)
+                        }
+                    }}
+                />
+
+                {markdownShortcuts && <MarkdownShortcutPlugin/>}
+
+                <HashtagPlugin/>
+
+                <AutoLinkPlugin/>
+
+                {allowComments && <CommentPlugin onAddComment={onAddComment}/>}
+
+                {isRichText ? (
+                    <>
+                        <HistoryPlugin externalHistoryState={historyState}/>
+                        <RichTextPlugin
+                            contentEditable={
+                                <div className={'editor-scroller'}>
+                                    <div className={"editor " + editorClassName} ref={onRef}>
+                                        <ContentEditable
+                                            placeholder={placeholder}
+                                            placeholderClassName={placeholderClassName}
+                                            editorClassName={editorClassName}
+                                        />
+                                    </div>
+                                </div>
+                            }
+                            ErrorBoundary={LexicalErrorBoundary}
+                        />
+                        <ListPlugin/>
+                        <CheckListPlugin/>
+                        <ListMaxIndentLevelPlugin maxDepth={7}/>
+                        <LinkPlugin/>
+                        <ClickableLinkPlugin disabled={isEditable} newTab={false}/>
+
+                        {!isReadOnly && floatingAnchorElem && (
+                            <>
+                                {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem}/>}
+                                <FloatingLinkEditorPlugin
+                                    isLinkEditMode={isLinkEditMode}
+                                    setIsLinkEditMode={setIsLinkEditMode}
+                                />
+                                <TableCellActionMenuPlugin
+                                    anchorElem={floatingAnchorElem}
+                                    cellMerge={true}/>
+                                <FloatingTextFormatToolbarPlugin setIsLinkEditMode={setIsLinkEditMode}
+                                                                 settings={settings}/>
+                            </>
+                        )}
+                    </>
+                ) : (
+                    <>
+                        <PlainTextPlugin
+                            contentEditable={<ContentEditable
+                                placeholder={placeholder}
+                                placeholderClassName={placeholderClassName}
+                                editorClassName={editorClassName}
+                            />}
+                            ErrorBoundary={LexicalErrorBoundary}
+                        />
+                        <HistoryPlugin externalHistoryState={historyState}/>
+                    </>
+                )}
+                <div className="hidden lg:block">
+                    {tableOfContents &&
+                        <TableOfContentsPlugin title={settings.title} marginAboveEditor={marginAboveEditor}/>}
+                </div>
+                {useContextMenu && <ContextMenuPlugin/>}
+            </div>
+            {showTreeView && <TreeViewPlugin/>}
+        </>
+    );
+}
 
 
 export const initializeEmpty = (initialText: string) => (editor: OriginalLexicalEditor) => {
@@ -310,39 +304,39 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 }
 
 
-const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorProps) => {
-  let {isReadOnly, initialText, initialTextFormat, imageClassName} = settings
+const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps) => {
+    let {isReadOnly, initialText, initialTextFormat, imageClassName} = settings
 
-  const nodes = getEditorNodes(settings)
-  const initialData = getInitialData(initialText, initialTextFormat)
+    const nodes = getEditorNodes(settings)
+    const initialData = getInitialData(initialText, initialTextFormat)
 
 
-  const initialConfig: InitialConfigType = {
-    namespace: 'Playground',
-    editorState: initialData,
-    nodes: nodes,
-    onError: (error: Error) => {
-      throw error;
-    },
-    theme: {...PlaygroundEditorTheme, image: "editor-image " + imageClassName},
-    editable: !isReadOnly,
-  };
+    const initialConfig: InitialConfigType = {
+        namespace: 'Playground',
+        editorState: initialData,
+        nodes: nodes,
+        onError: (error: Error) => {
+            throw error;
+        },
+        theme: {...PlaygroundEditorTheme, image: "editor-image " + imageClassName},
+        editable: !isReadOnly,
+    };
 
-  return (
-    <LexicalComposer initialConfig={initialConfig}>
-      <SharedHistoryContext>
-        <TableContext>
-          <div className="editor-shell">
-            <Editor
-              settings={settings}
-              setEditor={setEditor}
-              setEditorState={setEditorState}
-            />
-          </div>
-        </TableContext>
-      </SharedHistoryContext>
-    </LexicalComposer>
-  )
+    return (
+        <LexicalComposer initialConfig={initialConfig}>
+            <SharedHistoryContext>
+                <TableContext>
+                    <div className="editor-shell">
+                        <Editor
+                            settings={settings}
+                            setEditor={setEditor}
+                            setEditorState={setEditorState}
+                        />
+                    </div>
+                </TableContext>
+            </SharedHistoryContext>
+        </LexicalComposer>
+    )
 }
 
 

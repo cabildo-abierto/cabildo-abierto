@@ -4,15 +4,14 @@ import {useSearchParams} from "next/navigation";
 import {TopicProps} from "@/lib/definitions";
 import Link from "next/link";
 import { DateSince } from "../../../../modules/ui-utils/src/date";
-import {articleButtonClassname} from "./topic-content";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import {ModalBelow} from "../../../../modules/ui-utils/src/modal-below";
 import {splitUri, topicUrl} from "@/utils/uri";
 import {SmallTopicVersionProps} from "./topic-content-expanded-view";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
 import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
+import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
 
 
 export type WikiEditorState = "changes" | "authors" | "normal" |
@@ -24,49 +23,49 @@ const MoreOptionsButton = ({
 }: {
     setWikiEditorState: (state: WikiEditorState) => void
 }) => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState(null)
+    const [onClose, setOnClose] = useState<() => void>()
 
-    return <div style={{ position: 'relative', display: 'inline-block' }}>
+    const modal = (
+        <div className="text-base border bg-[var(--background)] rounded p-1 flex flex-col space-y-1">
+            <OptionsDropdownButton
+                onClick={() => {
+                    setWikiEditorState("editing-synonyms");
+                    onClose()
+                }}
+                text1={"Editar sinónimos"}
+            />
+            <OptionsDropdownButton
+                onClick={() => {
+                    setWikiEditorState("editing-categories");
+                    onClose()
+                }}
+                text1={"Editar categorías"}
+            />
+        </div>
+    )
+
+    return <ModalOnClick modal={modal} setOnClose={setOnClose}>
         <div className={"text-[var(--text-light)]"}>
             <IconButton
                 color="inherit"
                 size={"small"}
-                onClick={(e) => {e.preventDefault(); e.stopPropagation(); setAnchorEl(e.target); setIsDropdownOpen(prev => !prev)}}
             >
-                <MoreHorizIcon fontSize="small" />
+                <MoreHorizIcon fontSize="small"/>
             </IconButton>
         </div>
-
-        <ModalBelow
-            anchorEl={anchorEl}
-            open={isDropdownOpen}
-            onClose={() => {setIsDropdownOpen(false)}}
-        >
-            <div className="text-base border bg-[var(--background)] rounded p-1 flex flex-col space-y-1">
-                <OptionsDropdownButton
-                    onClick={() => {setWikiEditorState("editing-synonyms"); setIsDropdownOpen(false)}}
-                    text1={"Editar sinónimos"}
-                />
-                <OptionsDropdownButton
-                    onClick={() => {setWikiEditorState("editing-categories"); setIsDropdownOpen(false)}}
-                    text1={"Editar categorías"}
-                />
-            </div>
-        </ModalBelow>
-    </div>
+    </ModalOnClick>
 }
 
 
 export const TopicContentExpandedViewHeader = ({
-    wikiEditorState,
-    setWikiEditorState,
-    setPinnedReplies,
-    setShowingSaveEditPopup,
-    topic,
-    topicVersion,
-    saveEnabled
-}: {
+                                                   wikiEditorState,
+                                                   setWikiEditorState,
+                                                   setPinnedReplies,
+                                                   setShowingSaveEditPopup,
+                                                   topic,
+                                                   topicVersion,
+                                                   saveEnabled
+                                               }: {
     topic: TopicProps
     topicVersion: SmallTopicVersionProps
     wikiEditorState: WikiEditorState
@@ -80,6 +79,8 @@ export const TopicContentExpandedViewHeader = ({
     const paramsVersion = searchParams.get("v") ? Number(searchParams.get("v")) : undefined
 
     let buttons: ReactNode
+
+
 
     if(!paramsVersion && wikiEditorState != "editing") {
         function optionsNodes(o: string, isSelected: boolean){
@@ -142,7 +143,7 @@ export const TopicContentExpandedViewHeader = ({
                     variant={"text"}
                     sx={{borderRadius: 0}}
                 >
-                    <div className={"px-2 pt-1 font-semibold"}>Cancelar edición</div>
+                    <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>Cancelar edición</div>
                 </Button>
             }
             {wikiEditorState == "editing" &&
@@ -154,7 +155,9 @@ export const TopicContentExpandedViewHeader = ({
                     sx={{borderRadius: 0}}
                     disabled={!saveEnabled}
                 >
-                    <div className={"px-2 pt-1 font-semibold"}>Guardar cambios</div>
+                    <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>
+                        Guardar cambios
+                    </div>
                 </Button>
             }
         </div>

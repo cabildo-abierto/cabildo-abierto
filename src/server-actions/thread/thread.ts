@@ -1,3 +1,4 @@
+"use server"
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
 import {
     FastPostProps,
@@ -6,13 +7,12 @@ import {
 } from "@/lib/definitions";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {unstable_cache} from "next/cache";
-import {addCounters, logTimes, revalidateEverythingTime, threadQuery, threadRepliesQuery} from "../utils";
+import {addCounters, logTimes, threadQuery, threadRepliesQuery} from "../utils";
 import {isCAUser} from "../user/users";
 import {db} from "@/db";
 import {getTextFromBlob} from "../topic/topics";
 import {getUserEngagement} from "../feed/get-user-engagement";
 import {getUri} from "@/utils/uri";
-import {validQuotePost} from "@/utils/lexical";
 
 
 function threadViewPostToThread(thread: ThreadViewPost) {
@@ -77,6 +77,7 @@ export async function getThreadFromCANoCache({did, c, rkey}: {did: string, c: st
             select: threadQuery(c),
             where: threadId
         })
+        // TO DO: Implementar esto como un feed.
         const repliesQ = db.record.findMany({
             select: threadRepliesQuery,
             where: {
@@ -105,9 +106,6 @@ export async function getThreadFromCANoCache({did, c, rkey}: {did: string, c: st
             return {error: "El contenido no existe."}
         }
 
-        replies = replies.filter((r) => {
-            return !(r as any).content.post.quote || validQuotePost(mainPost.content, r as any)
-        })
         const t3 = Date.now()
         logTimes("getting thread CA", [t1, t2, t3])
 
@@ -134,7 +132,7 @@ export async function getThreadFromCA({did, c, rkey}: {did: string, c: string, r
         ["thread:"+did+":"+rkey],
         {
             tags: ["thread:"+did+":"+rkey, "thread"],
-            revalidate: revalidateEverythingTime
+            revalidate: 5
         }
     )()
 
@@ -157,7 +155,8 @@ export async function getThreadFromCA({did, c, rkey}: {did: string, c: string, r
 
 export async function getThread({did, c, rkey}: {did: string, c: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
     const isCA = await isCAUser(did)
-    if(!isCA){
+
+    if(!isCA || c == "app.bsky.feed.post"){
         return await getThreadFromATProto({did, rkey})
     }
 

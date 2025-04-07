@@ -1,12 +1,12 @@
 "use server"
 import {getSessionDid} from "../auth";
-import {db} from "../../db";
+import {db} from "@/db";
 import {enDiscusionQuery, revalidateEverythingTime} from "../utils";
 import {ArticleProps, FastPostProps, FeedContentProps, SmallTopicProps} from "@/lib/definitions";
 import {addCountersToFeed} from "./utils";
 import {unstable_cache} from "next/cache";
 import {getUserEngagement} from "./get-user-engagement";
-import {cleanText} from "../../utils/strings";
+import {cleanText} from "@/utils/strings";
 
 
 export async function searchContentsNoCache(q: string, did: string): Promise<{feed?: FeedContentProps[], error?: string}>{

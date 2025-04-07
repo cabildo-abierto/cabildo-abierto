@@ -1,5 +1,5 @@
-import {db} from "../../db"
-import {getDidFromUri, getRkeyFromUri} from "../../utils/uri";
+import {db} from "@/db"
+import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 
 
 export function createRecord({uri, cid, createdAt, collection}: {

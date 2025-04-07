@@ -1,21 +1,21 @@
+"use client"
+
 import React, { useState } from "react"
 import { BaseFullscreenPopup } from "../../../modules/ui-utils/src/base-fullscreen-popup"
 import { CloseButton } from "../../../modules/ui-utils/src/close-button"
-import { NeedAccountPopup } from "../auth/need-account-popup"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "@mui/material";
 import {useRouter} from "next/navigation";
 import {
     emptyChar
-} from "../../utils/utils";
+} from "@/utils/utils";
 import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
 import {ContentQuote, QuotedContent} from "../feed/content-quote";
 import {CreateTopic} from "./create-topic";
 import {WriteFastPost} from "./write-fast-post";
-import {useUser} from "../../hooks/swr";
 
 
-function quotedContentFromReplyTo(replyTo: ReplyToContent): QuotedContent {
+export function quotedContentFromReplyTo(replyTo: ReplyToContent): QuotedContent {
     return {
         ...replyTo,
         author: replyTo.author
@@ -28,7 +28,7 @@ type Props = {
     replyTo?: ReplyToContent
     open: boolean
     onClose: () => void
-    quote?: string
+    quote?: [number, number]
     onSubmit?: () => Promise<void>
 }
 
@@ -77,12 +77,12 @@ export const WritePanel = ({
         }
     }
 
-    return <>
+    return (
         <BaseFullscreenPopup open={open} className="w-full max-w-[512px]">
             <div className="w-full rounded pt-1 border max-h-[80vh] overflow-y-auto">
                 <div className="flex justify-between items-start space-x-2 pl-1 pr-2">
                     {isReply ?
-                        (replyTo.collection == "ar.com.cabildoabierto.topic" || replyTo.collection == "ar.com.cabildoabierto.article" ?
+                        ((replyTo.collection == "ar.com.cabildoabierto.topic" || replyTo.collection == "ar.com.cabildoabierto.article") ?
                             <div className={"w-full mr-4"}>
                                 <ContentQuote
                                     quotedContent={quotedContentFromReplyTo(replyTo)}
@@ -111,6 +111,6 @@ export const WritePanel = ({
                 {selected == "Tema" && <CreateTopic onClose={onClose}/>}
             </div>
         </BaseFullscreenPopup>
-    </>
+    )
 };
 

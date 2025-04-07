@@ -1,20 +1,21 @@
 import {FastPostProps} from "@/lib/definitions";
 import {$createRangeSelection, $getRoot, $nodesOfType, LexicalEditor} from "lexical";
 import {useCallback, useEffect, useRef, useState} from "react";
-import {IconButton} from "@/../modules/ui-utils/src/icon-button"
+import {IconButton} from "../../../modules/ui-utils/src/icon-button"
 import {ActiveCommentIcon} from "@/components/icons/active-comment-icon";
 import {FastPostContent} from "@/components/feed/fast-post-content";
 import {SidenoteReplyPreviewFrame} from "@/components/feed/sidenote-reply-preview-frame";
-import { getPointTypeFromIndex } from "./standard-selection";
-
+import { getPointTypeFromIndex } from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin/standard-selection";
 import {
     $wrapSelectionInMarkNode,
 } from '@lexical/mark';
-import {$createMarkNode, CustomMarkNode} from "../../nodes/CustomMarkNode";
+import {$createCustomMarkNode, CustomMarkNode} from "../../../modules/ca-lexical-editor/src/nodes/CustomMarkNode";
 import {useSWRConfig} from "swr";
-import {ReplyToContent} from "./index";
+import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
 import {revalidateTags} from "@/server-actions/admin";
 import {threadApiUrl} from "@/utils/uri";
+import {markdownSelectionToLexicalSelection} from "../../../modules/ca-lexical-editor/src/selection-transforms";
+import {getInitialData} from "../../../modules/ca-lexical-editor/src/get-initial-data";
 
 
 export type QuoteEdgeProps = {
@@ -39,7 +40,7 @@ export const ShowQuoteReplyButton = ({
     const containerRef = useRef<HTMLDivElement | null>(null);
     const {mutate} = useSWRConfig()
 
-    const quote: QuoteDirProps = JSON.parse(reply.content.post.quote)
+    const quote: [number, number] = JSON.parse(reply.content.post.quote)
 
     const pinned = pinnedReplies.includes(reply.cid)
 
@@ -51,7 +52,7 @@ export const ShowQuoteReplyButton = ({
         if(open){
             editor.update(() => {
 
-                const id = "h"+reply.cid
+                const id = "h"+reply.uri
                 const marks = $nodesOfType(CustomMarkNode)
                 for(let i = 0; i < marks.length; i++){
                     const ids = marks[i].getIDs()
@@ -62,8 +63,11 @@ export const ShowQuoteReplyButton = ({
 
                 const root = $getRoot()
 
-                const startNode = getPointTypeFromIndex(root, quote.start.node, quote.start.offset)
-                const endNode = getPointTypeFromIndex(root, quote.end.node, quote.end.offset)
+                const s = JSON.stringify(editor.getEditorState())
+                const lexicalQuote = markdownSelectionToLexicalSelection(s, quote)
+
+                const startNode = getPointTypeFromIndex(root, lexicalQuote.start.node, lexicalQuote.start.offset)
+                const endNode = getPointTypeFromIndex(root, lexicalQuote.end.node, lexicalQuote.end.offset)
                 const rangeSelection = $createRangeSelection()
 
                 if(!startNode || !endNode) {
@@ -73,12 +77,12 @@ export const ShowQuoteReplyButton = ({
                 rangeSelection.anchor = startNode
                 rangeSelection.focus = endNode
 
-                $wrapSelectionInMarkNode(rangeSelection, false, id, $createMarkNode)
+                $wrapSelectionInMarkNode(rangeSelection, false, id, $createCustomMarkNode)
             })
         } else {
             // cuando se cierra borramos los custom mark nodes correspondientes
             editor.update(() => {
-                const id = "h"+reply.cid
+                const id = "h"+reply.uri
                 const marks = $nodesOfType(CustomMarkNode)
                 for(let i = 0; i < marks.length; i++){
                     const ids = marks[i].getIDs()

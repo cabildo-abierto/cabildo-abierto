@@ -1,6 +1,6 @@
 "use server"
-import {db} from "../../db";
-import {SmallUserProps, UserRepo} from "@/lib/definitions";
+import {db} from "@/db";
+import {UserRepo} from "@/lib/definitions";
 import {processCreateRecord} from "./process-event";
 import {getServiceEndpointForDid} from "../blob";
 import {deleteRecords} from "../admin";
@@ -8,9 +8,9 @@ import {iterateAtpRepo} from "@atcute/car"
 import {revalidateTag} from "next/cache";
 import {validRecord} from "./utils";
 import {getDirtyUsers, setMirrorStatus} from "./mirror-status";
-import {getCollectionFromUri} from "../../utils/uri";
+import {getCollectionFromUri} from "@/utils/uri";
 import {getUsers} from "../user/users";
-import {union} from "../../utils/arrays";
+import {union} from "@/utils/arrays";
 
 
 export async function restartSync(){
@@ -136,7 +136,6 @@ export async function processRepo(repo: UserRepo, did: string, collectionsMustUp
         if(recordsReqUpdate == null || recordsReqUpdate.has(repo[i].uri)){
             const r = await processCreateRecord(repo[i])
             updates = [...updates, ...r.updates]
-            console.log(tags, r.tags)
             union(tags, r.tags)
         }
     }

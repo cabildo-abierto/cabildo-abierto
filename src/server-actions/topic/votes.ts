@@ -4,9 +4,9 @@
 import {getSessionAgent, getSessionDid} from "../auth";
 import {deleteRecords, revalidateTags} from "../admin";
 import {processCreateRecord} from "../sync/process-event";
-import {getCollectionFromUri, getRkeyFromUri} from "../../utils/uri";
+import {getCollectionFromUri, getRkeyFromUri} from "@/utils/uri";
 import {ATProtoStrongRef} from "@/lib/definitions";
-import {db} from "../../db";
+import {db} from "@/db";
 import {updateTopicCurrentVersion} from "./current-version";
 
 export async function acceptEdit(topicId: string, versionRef: ATProtoStrongRef): Promise<{error?: string}>{

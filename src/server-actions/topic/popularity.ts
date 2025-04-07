@@ -1,6 +1,6 @@
 "use server"
-import {db} from "../../db";
-import {getDidFromUri} from "../../utils/uri";
+import {db} from "@/db";
+import {getDidFromUri} from "@/utils/uri";
 
 
 type ContentInteractions = {
@@ -189,12 +189,6 @@ export async function updateTopicPopularityScores() {
             score: score
         })
     )
-
-    scores.forEach((sc) => {
-        if(sc.id == "Ley 24.591 (1995): Promoción 'postmortem'"){
-            console.log(sc.id, sc.score)
-        }
-    })
 
     const t1 = Date.now();
     console.log("applying query with", scores.length, "items");

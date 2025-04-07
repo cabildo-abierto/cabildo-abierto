@@ -2,7 +2,7 @@ import {isValidJSON} from "@/utils/utils";
 import {initializeEmpty} from "./lexical-editor";
 import { InitialEditorStateType } from '@lexical/react/LexicalComposer';
 import {LexicalEditor} from "lexical";
-import {markdownToEditorState} from "@/server-actions/editor/markdown-transforms";
+import {markdownToEditorStateStr} from "./markdown-transforms";
 import {decompress} from "@/utils/compression";
 
 /*
@@ -60,23 +60,37 @@ function getInitialData(text: string | undefined, textFormat: string, readOnly: 
 export function getInitialData(text: string, format: string): InitialEditorStateType {
 
     if(format == "markdown"){
+
+        if(text.length == 0){
+            return initializeEmpty("")
+        }
+
         return (editor: LexicalEditor) => {
             editor.update(() => {
-                const strState = markdownToEditorState(text)
-                const state = editor.parseEditorState(strState)
-                editor.setEditorState(state)
+                try {
+                    const strState = markdownToEditorStateStr(text)
+                    const state = editor.parseEditorState(strState)
+                    editor.setEditorState(state)
+                } catch (err) {
+                    console.error(err)
+                    console.error("markdown:", text)
+                }
             })
         }
-    } else if(format == "lexical-compressed" || !format){
-        return decompress(text)
-    } else {
-        let initialData: InitialEditorStateType = text
-        if(typeof initialData === 'string' && !isValidJSON(initialData)){
-            initialData = initializeEmpty(initialData)
+    } else if(format == "lexical-compressed" || !format) {
+        return getInitialData(decompress(text), "lexical")
+    } else if(format == "lexical"){
+        return (editor: LexicalEditor) => {
+            editor.update(() => {
+                const parsed = editor.parseEditorState(text)
+                editor.setEditorState(parsed)
+            })
         }
-
-        if(initialData == null) initialData = initializeEmpty("") // para que arranque con un párrafo y el placeholder se vea bien
-
-        return initialData
+    } else if(format == "markdown-compressed"){
+        return getInitialData(decompress(text), "markdown")
+    } else if(format == "plain-text"){
+        return initializeEmpty(text)
+    } else {
+        throw("Formato de contenido desconocido: "+format)
     }
 }

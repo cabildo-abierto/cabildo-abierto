@@ -12,10 +12,12 @@ import {$isCodeHighlightNode} from '@lexical/code';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
 import {
+  $createRangeSelection,
+  $getRoot,
   $getSelection,
   $isParagraphNode,
   $isRangeSelection,
-  $isTextNode,
+  $isTextNode, $nodesOfType,
   COMMAND_PRIORITY_LOW,
   FORMAT_TEXT_COMMAND,
   LexicalEditor,
@@ -32,30 +34,24 @@ import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import {FormatItalic, FormatUnderlined, InsertLink} from "@mui/icons-material";
+import {ToolbarButton} from "../ToolbarPlugin/toolbar-button";
+import {$createCustomMarkNode, CustomMarkNode} from "../../nodes/CustomMarkNode";
+import {getPointTypeFromIndex, getStandardSelection} from "../CommentPlugin/standard-selection";
+import {$wrapSelectionInMarkNode} from "@lexical/mark";
 
 function TextFormatFloatingToolbar({
   editor,
   anchorElem,
   isLink,
   isBold,
-  isItalic,
-  isUnderline,
-  isCode,
-  isStrikethrough,
-  isSubscript,
-  isSuperscript,
   setIsLinkEditMode,
   settings,
 }: {
   editor: LexicalEditor;
   anchorElem: HTMLElement;
   isBold: boolean;
-  isCode: boolean;
   isItalic: boolean;
   isLink: boolean;
-  isStrikethrough: boolean;
-  isSubscript: boolean;
-  isSuperscript: boolean;
   isUnderline: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
   settings: any
@@ -191,81 +187,65 @@ function TextFormatFloatingToolbar({
     );
   }, [editor, $updateTextFormatFloatingToolbar]);
 
+  function onMark(){
+
+    editor.update(() => {
+      const quote = getStandardSelection(editor.getEditorState())
+
+      const root = $getRoot()
+
+      const startNode = getPointTypeFromIndex(root, quote.start.node, quote.start.offset)
+      const endNode = getPointTypeFromIndex(root, quote.end.node, quote.end.offset)
+      const rangeSelection = $createRangeSelection()
+
+      if(!startNode || !endNode) {
+        return
+      }
+
+      rangeSelection.anchor = startNode
+      rangeSelection.focus = endNode
+
+      $wrapSelectionInMarkNode(rangeSelection, false, "asd", $createCustomMarkNode)
+    })
+  }
+
   return (
-    <div ref={popupCharStylesEditorRef} className="floating-text-format-popup">
+    <div ref={popupCharStylesEditorRef} className="floating-text-format-popup space-x-1 bg-[var(--background-dark)]">
       {editor.isEditable() && (
         <>
-          <button
-            type="button"
+          <ToolbarButton
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
             }}
-            className={'popup-item spaced ' + (isBold ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
-            aria-label="Format text as bold">
+            aria-label="Format text as bold"
+            active={isBold}
+          >
             <FormatBoldIcon fontSize={"small"} color={"inherit"}/>
-          </button>
-          <button
-            type="button"
+          </ToolbarButton>
+          <ToolbarButton
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
             }}
-            className={'popup-item spaced ' + (isItalic ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
             aria-label="Format text as italics">
             <FormatItalic fontSize={"small"} color={"inherit"}/>
-          </button>
-          <button
-            type="button"
+          </ToolbarButton>
+          <ToolbarButton
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
             }}
-            className={'popup-item spaced ' + (isUnderline ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
-            aria-label="Format text to underlined">
+            aria-label="Format text to underlined"
+          >
             <FormatUnderlined fontSize={"small"} color={"inherit"}/>
-          </button>
-          {useStrikethrough && <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
-            }}
-            className={'popup-item spaced ' + (isStrikethrough ? 'active' : '')}
-            aria-label="Format text with a strikethrough">
-            <i className="format strikethrough" />
-          </button>}
-          {useSubscript && <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'subscript');
-            }}
-            className={'popup-item spaced ' + (isSubscript ? 'active' : '')}
-            title="Subscript"
-            aria-label="Format Subscript">
-            <i className="format subscript" />
-          </button>}
-          {useSuperscript && <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'superscript');
-            }}
-            className={'popup-item spaced ' + (isSuperscript ? 'active' : '')}
-            title="Superscript"
-            aria-label="Format Superscript">
-            <i className="format superscript" />
-          </button>}
-          {useCodeblock && <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
-            }}
-            className={'popup-item spaced ' + (isCode ? 'active' : '')}
-            aria-label="Insert code block">
-            <i className="format code" />
-          </button>}
-          <button
-            type="button"
+          </ToolbarButton>
+          <ToolbarButton
             onClick={insertLink}
-            className={'popup-item spaced ' + (isLink ? 'text-[var(--text)]' : 'text-[var(--text-light)]')}
-            aria-label="Insert link">
+            aria-label="Insert link"
+            active={isLink}
+          >
             <InsertLink fontSize={"small"} color={"inherit"}/>
+          </ToolbarButton>
+          <button onClick={onMark}>
+            marcar
           </button>
         </>
       )}
@@ -291,10 +271,6 @@ function useFloatingTextFormatToolbar(
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
-  const [isStrikethrough, setIsStrikethrough] = useState(false);
-  const [isSubscript, setIsSubscript] = useState(false);
-  const [isSuperscript, setIsSuperscript] = useState(false);
-  const [isCode, setIsCode] = useState(false);
 
   const updatePopup = useCallback(() => {
     editor.getEditorState().read(() => {
@@ -326,10 +302,6 @@ function useFloatingTextFormatToolbar(
       setIsBold(selection.hasFormat('bold'));
       setIsItalic(selection.hasFormat('italic'));
       setIsUnderline(selection.hasFormat('underline'));
-      setIsStrikethrough(selection.hasFormat('strikethrough'));
-      setIsSubscript(selection.hasFormat('subscript'));
-      setIsSuperscript(selection.hasFormat('superscript'));
-      setIsCode(selection.hasFormat('code'));
 
       // Update links
       const parent = node.getParent();
@@ -387,11 +359,7 @@ function useFloatingTextFormatToolbar(
       isLink={isLink}
       isBold={isBold}
       isItalic={isItalic}
-      isStrikethrough={isStrikethrough}
-      isSubscript={isSubscript}
-      isSuperscript={isSuperscript}
       isUnderline={isUnderline}
-      isCode={isCode}
       setIsLinkEditMode={setIsLinkEditMode}
       settings={settings}
     />,

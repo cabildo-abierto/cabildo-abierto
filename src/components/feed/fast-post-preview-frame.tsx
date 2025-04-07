@@ -9,12 +9,11 @@ import { ReactNode } from 'react'
 import { EngagementIcons } from '@/components/feed/reactions/engagement-icons'
 import {RepostedBy} from "./reposted-by";
 import {ProfilePic} from "./profile-pic";
-import {isPost, splitUri, threadApiUrl, urlFromRecord, userUrl} from "../../utils/uri";
-import {formatIsoDate} from "../../utils/dates";
+import {threadApiUrl, urlFromRecord, userUrl} from "@/utils/uri";
+import {formatIsoDate} from "@/utils/dates";
 
-import {emptyChar} from "../../utils/utils";
-import useSWR, {useSWRConfig} from "swr";
-import {getThread} from "@/server-actions/thread/thread";
+import {emptyChar} from "@/utils/utils";
+import {useSWRConfig} from "swr";
 
 
 export const ReplyVerticalLine = ({className=""}: {className?: string}) => {
@@ -66,9 +65,11 @@ export const FastPostPreviewFrame = ({
         router.push(url);
     }
 
+
+
     return <div
         id={post.uri}
-        className={"flex flex-col hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
+        className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
         onClick={onClick}
     >
         {post.reason && post.reason.collection == "app.bsky.feed.repost" && <RepostedBy user={post.reason.by}/>}

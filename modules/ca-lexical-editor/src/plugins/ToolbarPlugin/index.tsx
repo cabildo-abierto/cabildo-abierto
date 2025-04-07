@@ -149,7 +149,7 @@ function BlockFormatDropDown({
   return (
     <DropDown
       disabled={disabled}
-      buttonClassName="toolbar-item block-controls text-[var(--text-light)]"
+      buttonClassName="toolbar-item block-controls text-[var(--text-light)] space-x-2"
       buttonIconClassName={'icon block-type text-red border-red bg-red ' + blockType}
       buttonLabel={blockTypeToBlockName[blockType]}
       buttonAriaLabel="Formatting options for text style">

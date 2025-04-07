@@ -1,38 +1,65 @@
 import Image from "next/image";
 import { useState } from "react";
-import {ModalBelow} from "../../../modules/ui-utils/src/modal-below";
+import {ModalOnHover} from "../../../modules/ui-utils/src/modal-on-hover";
+import {useFullProfile} from "@/hooks/swr";
+import {ProfileDescription} from "@/components/profile/profile-description";
+import {FollowCounters} from "../profile/profile-header";
 
-export const UserSummary = ({user, className, setShowSummary}: {className?: string, user: { avatar?: string, handle: string }, setShowSummary: (bool) => void}) => {
+
+type UserSummaryProps = {
+    user: { avatar?: string, handle: string }
+}
+
+
+export const UserSummary = ({user}: UserSummaryProps) => {
+    const fullProfile = useFullProfile(user.handle)
+    const className: string = 'w-12 h-12 rounded-full'
+
+    if(fullProfile.isLoading) return null
 
     return (
-        <div className="bg-[var(--background)] border p-2 text-sm w-48" onMouseLeave={() => setShowSummary(false)}>
-            <p className="font-bold">@{user.handle}</p>
-            <p>Este es un resumen del usuario.</p>
+        <div className="bg-[var(--background)] border p-4 w-90 rounded-xl flex flex-col space-y-2">
+            <ProfilePic user={user} descriptionOnHover={false} className={className}/>
+
+            <div className={"flex flex-col"}>
+                <span className="font-semibold text-base">
+                    {fullProfile.atprotoProfile.displayName}
+                </span>
+                <span className="text-[var(--text-light)]">@{fullProfile.atprotoProfile.handle}
+                </span>
+            </div>
+
+            <FollowCounters user={fullProfile.user} atprotoProfile={fullProfile.atprotoProfile} />
+
+            <ProfileDescription description={fullProfile.atprotoProfile.description} className={"text-sm"}/>
         </div>
-    );
+    )
 };
 
-export const ProfilePic = ({user, className}: {className?: string, user: { avatar?: string, handle: string }}) => {
-    const [anchorEl, setAnchorEl] = useState(null)
+export const ProfilePic = ({user, className, descriptionOnHover=true}: {descriptionOnHover: boolean, className?: string, user: { avatar?: string, handle: string }}) => {
     const [showSummary, setShowSummary] = useState(false)
 
-    return <div style={{ position: 'relative', display: 'inline-block' }}>
+    const pic = (
         <Image
             src={user.avatar ? user.avatar : "https://ui-avatars.com/api/?name=${encodeURIComponent(user.handle)}`"}
             width={100}
             height={100}
             alt={"Foto de perfil de " + user.handle}
             className={className}
-            onMouseEnter={(e) => {setShowSummary(true); setAnchorEl(e.target)}}
-            onMouseLeave={(e) => {setShowSummary(false)}}
         />
-        <ModalBelow
-            anchorEl={anchorEl}
-            open={showSummary}
-            onClose={() => {setShowSummary(false)}}
-            hoverOnly={true}
-        >
-            <UserSummary user={user} className={className} setShowSummary={setShowSummary}/>
-        </ModalBelow>
-    </div>
+    )
+
+    if(!descriptionOnHover){
+        return pic
+    }
+
+    const modal = (
+        <UserSummary user={user}/>
+    )
+
+    return <ModalOnHover
+        modal={modal}
+    >
+        {pic}
+    </ModalOnHover>
 }
