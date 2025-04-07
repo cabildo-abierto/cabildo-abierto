@@ -6,7 +6,7 @@ import {revalidateTag} from "next/cache";
 import {db} from "@/db";
 import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
-import {getVisualizationTitle} from "@/components/visualizations/editor/spec";
+import {getVisualizationTitle} from "@/components/visualizations/editor/get-spec";
 import {logTimes} from "../utils";
 import {revalidateTags} from "../admin";
 
@@ -166,12 +166,13 @@ export async function createFastPost({
 }: {
     text: string
     reply?: FastPostReplyProps
-    quote?: string
+    quote?: [number, number]
     visualization?: VisualizationProps
     images?: { src?: string, formData?: FormData }[]
 }): Promise<{error?: string, ref?: {uri: string, cid: string}}> {
+    console.log("creating fast post", text, quote)
 
-    const {ref, record} = await createFastPostATProto({text, reply, quote, visualization, images})
+    const {ref, record} = await createFastPostATProto({text, reply, quote: JSON.stringify(quote), visualization, images})
 
     if (ref) {
         const {updates, tags} = await processCreateRecordFromRefAndRecord(ref, record)

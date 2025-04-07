@@ -54,7 +54,7 @@ const StateButton = ({
         if(loading){
             submit()
         }
-    }, [handleClick, loading])
+    }, [loading])
 
     return <>
         <Button

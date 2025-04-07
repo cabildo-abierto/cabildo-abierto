@@ -3,6 +3,7 @@ function removeAccents(str: string): string {
 }
 
 export function cleanText(s: string): string {
+    if(!s) return s
     return removeAccents(s.toLowerCase())
 }
 

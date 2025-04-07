@@ -8,7 +8,6 @@
 
 .floating-text-format-popup {
   display: flex;
-  background: var(--background);
   padding: 4px;
   vertical-align: middle;
   position: absolute;

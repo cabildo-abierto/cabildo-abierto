@@ -22,11 +22,6 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
         measureTypingPerf: false,
         showTreeView: false,
 
-        content: undefined,
-        quoteReplies: [],
-        pinnedReplies: [],
-        setPinnedReplies: () => {},
-
         initialText: "",
         initialTextFormat: "plain-text",
         placeholder: "",
@@ -38,6 +33,8 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
         editorClassName: "",
         tableOfContents: false,
         allowComments: false,
+
+        onAddComment: () => {},
 
         ...s
     }

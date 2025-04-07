@@ -11,7 +11,7 @@ import {Authorship} from "../feed/content-top-row-author";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {contentUrl} from "../../utils/uri";
 import {cleanText} from "../../utils/strings";
-import {getVisualizationTitle} from "../visualizations/editor/spec";
+import {getVisualizationTitle} from "../visualizations/editor/get-spec";
 
 
 const VisualizationPreviewOnSelector = ({visualization, onClick}: {

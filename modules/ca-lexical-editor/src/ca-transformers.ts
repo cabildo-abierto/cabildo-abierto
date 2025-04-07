@@ -5,14 +5,13 @@ import {
     ElementTransformer,
     HEADING, INLINE_CODE, ITALIC_STAR, ITALIC_UNDERSCORE,
     ORDERED_LIST,
-    QUOTE, STRIKETHROUGH,
+    QUOTE, STRIKETHROUGH, TextMatchTransformer,
     UNORDERED_LIST
 } from "@lexical/markdown";
 import {$createTextNode, $isParagraphNode, ParagraphNode} from "lexical";
 import {IMAGE} from "./plugins/MarkdownTransformers/image-transformer";
 import {HR} from "./plugins/MarkdownTransformers/hr-transformer";
 import {TABLE} from "./plugins/MarkdownTransformers/table-transformer";
-import {TextMatchTransformer} from "./markdown-transformers";
 import {$createCustomLinkNode, CustomLinkNode} from "./nodes/CustomLinkNode";
 import {$isLinkNode} from "@lexical/link";
 

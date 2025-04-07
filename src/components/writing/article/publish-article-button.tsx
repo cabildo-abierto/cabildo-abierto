@@ -2,7 +2,7 @@ import {LexicalEditor} from "lexical";
 import {useRouter} from "next/navigation";
 import {createArticle} from "@/server-actions/write/article";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
-import {editorStateToMarkdown} from "@/utils/editor/markdown-transforms";
+import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
 
 export const PublishArticleButton = ({editor, title, disabled}: {
     editor: LexicalEditor

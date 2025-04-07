@@ -1,16 +1,40 @@
-import {decompress} from "../../utils/compression";
+"use client"
+import {decompress} from "@/utils/compression";
 import ReadOnlyEditor from "../editor/read-only-editor";
 import {Authorship} from "./content-top-row-author";
 import {getTopicTitle} from "@/components/topics/topic/utils";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import "../editor/article-content.css"
-import { useQuotedContent } from "../../hooks/swr";
+import { useQuotedContent } from "@/hooks/swr";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {contentUrl, getCollectionFromUri} from "../../utils/uri";
+import {contentUrl, getCollectionFromUri} from "@/utils/uri";
+import {markdownSelectionToLexicalSelection} from "../../../modules/ca-lexical-editor/src/selection-transforms";
+import {
+    LexicalStandardSelection
+} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin/standard-selection";
+import {markdownToEditorStateStr} from "../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {getAllText} from "@/components/topics/topic/diff";
+import {logTimes} from "@/server-actions/utils";
+import {Profiler} from "react";
 
 
-function filterOutsideSelection(node: any, start: number[] | undefined, startOffset: number | undefined, end: number[] | undefined, endOffset: number | undefined){
+export function getSelectionSubtree(s: any, selection: LexicalStandardSelection) {
+    const copy = JSON.parse(JSON.stringify(s))
+    try {
+        return {
+            root: filterOutsideSelection(copy.root, selection.start.node, selection.start.offset, selection.end.node, selection.end.offset)
+        }
+    } catch (err) {
+        console.log("Error filtering outside selection:")
+        console.log(selection)
+        console.log(getAllText(copy.root))
+        return s
+    }
+}
+
+
+export function filterOutsideSelection(node: any, start: number[] | undefined, startOffset: number | undefined, end: number[] | undefined, endOffset: number | undefined){
     if(!node.children) {
         if(startOffset != undefined && endOffset != undefined){
             node.text = node.text.slice(startOffset, endOffset)
@@ -47,51 +71,10 @@ function filterOutsideSelection(node: any, start: number[] | undefined, startOff
 }
 
 
-function getSelectionFromJSONState(state: any, selection: {start: {node: number[], offset: number}, end: {node: number[], offset:number}}){
+function getSelectionFromJSONState(state: any, selection: LexicalStandardSelection){
     return JSON.stringify({
         root: filterOutsideSelection(state.root, selection.start.node, selection.start.offset, selection.end.node, selection.end.offset)
     })
-}
-
-const ArticleQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedContent: QuotedContent}) => {
-    const quote = JSON.parse(quoteStr)
-    const parentContent = JSON.parse(decompress(quotedContent.content.text))
-
-    const initialData = getSelectionFromJSONState(parentContent, quote)
-
-    return <ReadOnlyEditor
-        text={initialData} format={"lexical"}
-    />
-}
-
-
-const TopicQuote = ({quoteStr, quotedContent}: {quoteStr: string, quotedContent: QuotedContent}) => {
-
-    let initialData
-    try {
-        const quote = JSON.parse(quoteStr)
-
-        if(!quotedContent.content.format || quotedContent.content.format == "lexical-compressed"){
-            const parentContent = JSON.parse(decompress(quotedContent.content.text))
-            initialData = getSelectionFromJSONState(parentContent, quote)
-        } else if(quotedContent.content.format == "markdown"){
-            throw Error("Markdown comments not implemented.")
-        } else {
-            throw Error(quotedContent.content.format + " comments not implemented.")
-        }
-    } catch (e){
-        console.error("Failed to parse quote")
-        console.error(e)
-        console.error("Quoted content text is", quotedContent.content.text)
-        console.error("Quoted content is", quotedContent)
-        return <div className={"py-2"}>
-            Error al buscar la cita.
-        </div>
-    }
-
-    return <ReadOnlyEditor
-        text={initialData} format={"lexical"}
-    />
 }
 
 
@@ -122,7 +105,7 @@ export type QuotedContent = {
 const ContentQuoteWithNoContent = ({
    post, quote, onClick, showContext=false
 }: {
-    quote?: string
+    quote?: [number, number]
     post?: {cid?: string, content: {post: {replyTo?: {uri: string}}}}
     onClick?: () => void
     showContext?: boolean
@@ -153,7 +136,7 @@ const ContentQuoteWithNoContent = ({
 export const ContentQuote = ({
     post, quote, onClick, quotedContent, showContext=false}: {
     quotedContent: QuotedContent
-    quote?: string
+    quote?: [number, number]
     post?: {cid?: string, content: {post: {replyTo?: {uri: string}}}}
     onClick?: () => void
     showContext?: boolean
@@ -173,11 +156,26 @@ export const ContentQuote = ({
         />
     }
 
-    const collection = getCollectionFromUri(quotedContent.uri)
-    const center = collection == "ar.com.cabildoabierto.article" ?
-        <ArticleQuote quoteStr={quote} quotedContent={quotedContent}/> :
-        <TopicQuote quoteStr={quote} quotedContent={quotedContent}/>
+    if(!quotedContent || !quotedContent.content.text) return null
 
+    let markdown: string
+    if(quotedContent.content.format == "markdown-compressed") {
+        markdown = decompress(quotedContent.content.text)
+    } else if(quotedContent.content.format == "markdown"){
+        markdown = quotedContent.content.text
+    } else {
+        return null
+    }
+
+    const state = markdownToEditorStateStr(markdown)
+    const lexicalQuote = markdownSelectionToLexicalSelection(state, quote)
+    const initialData = getSelectionFromJSONState(JSON.parse(state), lexicalQuote)
+
+    const center = <ReadOnlyEditor
+        text={initialData} format={"lexical"}
+    />
+
+    const collection = getCollectionFromUri(quotedContent.uri)
 
     function handleClick(e) {
         e.stopPropagation()
@@ -190,7 +188,6 @@ export const ContentQuote = ({
             }
         }
     }
-
 
     let context = null
     if(showContext){

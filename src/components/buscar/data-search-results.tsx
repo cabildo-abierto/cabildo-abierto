@@ -4,7 +4,7 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {DatasetProps, VisualizationProps} from "@/lib/definitions";
 import Feed from "../feed/feed";
 import React from "react";
-import {cleanText} from "../../utils/strings";
+import {cleanText} from "@/utils/strings";
 
 
 export const DataSearchResults = ({onSearchPage=false}: {onSearchPage?: boolean}) => {

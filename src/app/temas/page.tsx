@@ -5,7 +5,7 @@ import {TopicsMapView} from "../../components/topics/topics-map-view";
 import {useSearchParams} from "next/navigation";
 import {useSearch} from "@/components/buscar/search-context";
 import {SearchTopics} from "@/components/buscar/search-topics";
-import {MobileHeader} from "../../components/layout/mobile-header";
+import {MobileHeader} from "@/components/layout/mobile-header";
 
 
 const Temas = () => {

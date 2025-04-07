@@ -1,3 +1,5 @@
+"use client"
+
 import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
 import React, {useState} from "react";
 import {useSWRConfig} from "swr";
@@ -57,7 +59,7 @@ function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
 
 export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
     replyTo: ReplyToContent,
-    quote?: string
+    quote?: [number, number]
     onClose: () => void
     onSubmit: () => Promise<void>
 }) => {
@@ -97,29 +99,31 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
 
     async function handleSubmit() {
         setErrorOnCreatePost(false)
-        if (user) {
-            const reply = replyTo ? replyFromParentElement(replyTo) : undefined
+        const reply = replyTo ? replyFromParentElement(replyTo) : undefined
 
-            const {error} = await createFastPost({text, reply, visualization, quote, images})
-            if(reply){
-                await onSubmit()
-                await mutate(threadApiUrl(reply.parent.uri))
-                await mutate(threadApiUrl(reply.root.uri))
-                if(replyTo.content.topicVersion){
-                    const id = replyTo.content.topicVersion.topic.id
-                    await mutate("/api/topic/"+encodeURIComponent(id))
-                    await mutate("/api/topic-feed/"+encodeURIComponent(id))
-                }
-            }
+        console.log("submitting!")
 
-            if (!error) {
-                setEditorKey(editorKey + 1);
-                onClose()
-            } else {
-                setErrorOnCreatePost(true)
+        const {error} = await createFastPost({text, reply, visualization, quote, images})
+
+        console.log("error on submit", error)
+
+        if(reply){
+            await onSubmit()
+            await mutate(threadApiUrl(reply.parent.uri))
+            await mutate(threadApiUrl(reply.root.uri))
+            if(replyTo.content.topicVersion){
+                const id = replyTo.content.topicVersion.topic.id
+                await mutate("/api/topic/"+encodeURIComponent(id))
+                await mutate("/api/topic-feed/"+encodeURIComponent(id))
             }
         }
-        setErrorOnCreatePost(true)
+
+        if (!error) {
+            setEditorKey(editorKey + 1);
+            onClose()
+        } else {
+            setErrorOnCreatePost(true)
+        }
         return {}
     }
 
