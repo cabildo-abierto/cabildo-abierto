@@ -10,12 +10,12 @@ import { NotEnoughPermissionsWarning } from "./permissions-warning";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import TickButton from "../../../../modules/ui-utils/src/tick-button";
 import { ChangesCounterWithText } from "./changes-counter";
-import Button from "@mui/material/Button";
 import { AcceptButtonPanel } from "../../../../modules/ui-utils/src/accept-button-panel";
 import {TextField} from "@mui/material";
-import {topicUrl} from "../../../utils/uri";
+import {topicUrl} from "@/utils/uri";
 import {hasEditPermission} from "./utils";
-import {useUser} from "../../../hooks/swr";
+import {useUser} from "@/hooks/swr";
+import {Button} from "@/../modules/ui-utils/src/button"
 
 
 const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: string) => void}) => {
@@ -24,7 +24,7 @@ const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: strin
         size="small"
         fullWidth
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Una descripción de lo que cambiaste (opcional)"
+        placeholder="Una descripción de lo que cambiaste"
         inputProps={{
             autoComplete: 'off',
             style: { fontSize: '14px' } // Set text size
@@ -72,7 +72,8 @@ export const SaveEditPopup = ({
 
     const validMsg = !editMsg.startsWith("nuevo nombre:")
     
-    const infoAuthorship = <span className="link">Desactivá este tick si no sos autor/a de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una ley, o algo escrito por otra persona. Si no estás seguro/a no te preocupes, se puede cambiar después. <Link href={topicUrl("Cabildo_Abierto:_Temas")}>Más información</Link>
+    const infoAuthorship = <span className="link">
+        Desactivá este tick si no sos autor/a de los cambios que agregaste. Por ejemplo, si estás sumando al tema el texto de una ley, o algo escrito por otra persona. Si no estás seguro/a no te preocupes, se puede cambiar después. <Link href={topicUrl("Cabildo_Abierto:_Temas")}>Más información</Link>
     </span>
 
     if(!newVersionSize){
@@ -91,34 +92,47 @@ export const SaveEditPopup = ({
     return (
         <>
             <div className="fixed inset-0 z-10 flex justify-center items-center px-1">
-                
                 <div className="bg-[var(--background)] rounded border py-4 px-12 z-10 text-center max-w-lg w-full">
-                    <h2 className="py-4 text-lg">Confirmar cambios</h2>
-                    {diff !== "too big" && diff != undefined && <div className="mb-8">
-                        <ChangesCounterWithText charsAdded={diff.charsAdded} charsDeleted={diff.charsDeleted}/>
-                    </div>}
-                    {diff === "too big" && <div className="text-red-600 text-xs mb-8  sm:text-sm">Parece que hay demasiadas diferencias entre las dos versiones. Probá eliminar primero el contenido y después agregar el contenido nuevo.</div>
+
+                    <h2 className="py-4 text-lg">
+                        Confirmar cambios
+                    </h2>
+
+                    {diff !== "too big" && diff != undefined &&
+                        <div className="mb-8">
+                            <ChangesCounterWithText charsAdded={diff.charsAdded} charsDeleted={diff.charsDeleted}/>
+                        </div>
+                    }
+                    {diff === "too big" &&
+                        <div className="text-red-600 text-xs mb-8  sm:text-sm">
+                            Parece que hay demasiadas diferencias entre las dos versiones. Probá eliminar primero el contenido y después agregar el contenido nuevo.
+                        </div>
                     }
 
                     <div className="flex flex-col items-center mb-8">
                         <EditMessageInput value={editMsg} setValue={setEditMsg}/>
                         {!validMsg && <div className="mt-1 text-[var(--text-light)] text-sm">No puede empezar con &quot;nuevo nombre:&quot;</div>}
                     </div>
-                    {!hasEditPermission(user, entity.protection) && <div className="mb-8">
-                    <NotEnoughPermissionsWarning entity={entity}/>
-                    </div>}
-                    {diff !== "too big" && diff != undefined && diff.charsAdded > 0 && <div className="flex justify-center">
-                        <TickButton
-                            ticked={claimsAuthorship}
-                            setTicked={setClaimsAuthorship}
-                            text={<span className="text-sm text-[var(--text-light)]">Soy autor/a de los caracteres agregados. <InfoPanel text={infoAuthorship} className="w-72"/></span>}
-                        />
-                    </div>}
+
+                    {!hasEditPermission(user, entity.protection) &&
+                        <div className="mb-8">
+                            <NotEnoughPermissionsWarning entity={entity}/>
+                        </div>
+                    }
+
+                    {diff !== "too big" && diff != undefined && diff.charsAdded > 0 &&
+                        <div className="flex justify-center">
+                            <TickButton
+                                ticked={claimsAuthorship}
+                                setTicked={setClaimsAuthorship}
+                                text={<span className="text-sm text-[var(--text-light)]">Soy autor/a de los caracteres agregados. <InfoPanel text={infoAuthorship} className="w-72"/></span>}
+                            />
+                        </div>
+                    }
                     <div className="flex justify-center items-center space-x-4 mt-4">
                         <Button
                             color="primary"
                             variant="text"
-                            sx={{textTransform: "none"}}
                             onClick={async () => {onClose()}}
                         >
                             Cancelar

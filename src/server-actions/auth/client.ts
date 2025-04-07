@@ -1,3 +1,4 @@
+"use server"
 import { NodeOAuthClient } from '@atproto/oauth-client-node'
 import { SessionStore, StateStore } from './storage'
 

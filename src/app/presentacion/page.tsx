@@ -10,7 +10,7 @@ import { Button } from "../../../modules/ui-utils/src/button";
 const LogoAndSlogan = () => {
     return <div className="flex items-center flex-col mb-16">
         <div className="">
-            <Logo className="lg:w-32 lg:h-32 h-20 w-20"/>
+            <Logo width={80} height={80}/>
         </div>
         <div className="flex justify-center flex-col mt-8">
             <h1 className="lg:text-5xl text-4xl">Cabildo Abierto</h1>

@@ -58,3 +58,11 @@ export function listOrderDesc(a: { score?: number[] }, b: { score?: number[] }) 
 
     return -listOrder(a, b)
 }
+
+
+export function range(a: number, b?: number){
+    if(b != undefined){
+        return Array.from({ length: b-a }, (_, i) => a+i)
+    }
+    return Array.from({ length: a }, (_, i) => i)
+}

@@ -23,7 +23,7 @@ export const MobileHeader = () => {
                 <MenuIcon/>
             </IconButton>
         </div>
-        <Logo className={"w-6 h-6"}/>
+        <Logo width={24} height={24}/>
         <div className={"w-10"}>{emptyChar}</div>
     </div>
 }

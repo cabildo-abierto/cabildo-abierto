@@ -1,64 +1,27 @@
 import {SearchPanelOnRightColumn} from "./search-panel-on-right-column";
-import {SupportButton} from "./sidebar";
-import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
-import InfoIcon from "@mui/icons-material/Info";
-import {DonateIcon} from "../icons/donate-icon";
 import React from "react";
 import {UpdateCongresoRightPanel} from "../congreso/update-congreso-right-panel";
 import {TrendingTopicsPanel} from "@/components/topics/trending-topics/trending-topics";
-import SettingsIcon from "../icons/settings-icon";
-import {topicUrl} from "../../utils/uri";
 import {usePathname} from "next/navigation";
-import {useUser} from "../../hooks/swr";
-import {Button} from "../../../modules/ui-utils/src/button";
+import {RightPanelButtons} from "@/components/layout/right-panel-buttons";
+import {emptyChar} from "@/utils/utils";
 
 
 export const RightPanel = () => {
-    const {user} = useUser()
     const pathname = usePathname();
     const inSearchPage = pathname.startsWith("/buscar") || pathname.startsWith("/temas");
 
-    return <div className={"flex flex-col pr-6 space-y-6 " + (inSearchPage ? " mt-16" : "")}>
-        {!inSearchPage && <SearchPanelOnRightColumn/>}
+    return <div className={"flex flex-col pr-6 space-y-4 pt-4"}>
+        <div className={"h-10"}>
+            {!inSearchPage ? <SearchPanelOnRightColumn/> : <>{emptyChar}</>}
+        </div>
 
         <UpdateCongresoRightPanel/>
 
-        <div className={"mt-4 flex justify-center w-full"}>
+        <div className={"flex justify-center w-full"}>
             <TrendingTopicsPanel selected={"7days"}/>
         </div>
 
-        <div className={"mt-4 w-full flex flex-col space-y-1"}>
-            <SupportButton user={user} onClose={() => {}}/>
-            <Link href={topicUrl("Cabildo Abierto")} className={"text-[var(--text-light)]"}>
-                <Button
-                    variant={"text"}
-                    size={"small"}
-                    color={"inherit"}
-                    startIcon={<InfoIcon/>}
-                >
-                    Acerca de Cabildo Abierto
-                </Button>
-            </Link>
-            <Link href={"/aportar"} className={"text-[var(--text-light)]"}>
-                <Button
-                    variant={"text"}
-                    size={"small"}
-                    color={"inherit"}
-                    startIcon={<DonateIcon fontSize={"small"}/>}
-                >
-                    Aportar
-                </Button>
-            </Link>
-            {(user.platformAdmin) && <Link href={"/admin"} className={"text-[var(--text-light)]"}>
-                <Button
-                    variant={"text"}
-                    size={"small"}
-                    color={"inherit"}
-                    startIcon={<SettingsIcon fontSize={"small"}/>}
-                >
-                    Admin
-                </Button>
-            </Link>}
-        </div>
+        <RightPanelButtons/>
     </div>
 }

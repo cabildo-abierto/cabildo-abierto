@@ -2,7 +2,7 @@
 import senadores from "../../../../../public/congreso/senadores.json";
 import {useEffect, useState} from "react";
 import {TextField} from "@mui/material";
-import {getId, getVote} from "../../../../components/congreso/utils";
+import {getId, getVote} from "@/components/congreso/utils";
 import {Button} from "../../../../../modules/ui-utils/src/button";
 
 

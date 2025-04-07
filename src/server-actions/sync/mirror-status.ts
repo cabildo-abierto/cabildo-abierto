@@ -2,7 +2,7 @@
 
 
 import {revalidateTag, unstable_cache} from "next/cache";
-import {db} from "../../db";
+import {db} from "@/db";
 import {revalidateEverythingTime} from "../utils";
 import {$Enums} from ".prisma/client";
 import MirrorStatus = $Enums.MirrorStatus;

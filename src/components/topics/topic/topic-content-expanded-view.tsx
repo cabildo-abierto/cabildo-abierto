@@ -3,22 +3,24 @@ import {useEffect, useState} from "react";
 import {useSWRConfig} from "swr";
 import {EditorState, LexicalEditor} from "lexical";
 import {TopicContentExpandedViewHeader, WikiEditorState} from "./topic-content-expanded-view-header";
-import {wikiEditorSettings} from "../../editor/wiki-editor-settings";
-import dynamic from "next/dynamic";
 import {topicVersionPropsToReplyToContent} from "./topic-content";
 import {SaveEditPopup} from "./save-edit-popup";
-import {compress} from "../../../utils/compression";
+import {compress} from "@/utils/compression";
 import {createTopicVersion} from "@/server-actions/write/topic";
 import {TopicContentHistory} from "./topic-content-history";
 import {SynonymsEditor} from "./synonyms-editor";
 import { CategoriesEditor } from "./categories-editor";
 import {ShowTopicChanges} from "./show-topic-changes";
 import {ShowTopicAuthors} from "./show-topic-authors";
-import {useTopicFeed, useTopicVersion} from "../../../hooks/swr";
+import {useTopicFeed, useTopicVersion} from "@/hooks/swr";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {isQuotePost} from "../../../utils/uri";
+import {isQuotePost} from "@/utils/uri";
 import {useSearchParams} from "next/navigation";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
+import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
+import {getEditorSettings} from "@/components/editor/settings";
+import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
+import dynamic from "next/dynamic";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -50,9 +52,9 @@ export const TopicContentExpandedViewWithVersion = ({
     wikiEditorState: WikiEditorState
     setWikiEditorState: (v: WikiEditorState) => void
 }) => {
-    const feed = useTopicFeed(topic.id)
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
+    const feed = useTopicFeed(topic.id)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const {mutate} = useSWRConfig()
     const [quoteReplies, setQuoteReplies] = useState<FastPostProps[] | null>(null)
@@ -73,39 +75,38 @@ export const TopicContentExpandedViewWithVersion = ({
     async function saveEdit(claimsAuthorship: boolean, editMsg: string): Promise<{error?: string}>{
         if(!editor) return {error: "Ocurrió un error con el editor."}
 
-        return await editor.read(async () => {
-            let text
-            try {
-                text = JSON.stringify(editor.getEditorState())
-            } catch {
-                return {error: "Ocurrió un error con el editor."}
+        const s = JSON.stringify(editor.getEditorState())
+        const markdown = editorStateToMarkdown(s)
+
+        const formData = new FormData()
+        formData.set("data", new File([compress(markdown)], ""))
+
+        const result = await createTopicVersion(
+            {
+                id: topic.id,
+                text: formData,
+                format: "markdown-compressed",
+                claimsAuthorship,
+                message: editMsg
             }
+        )
 
-            const formData = new FormData()
-            formData.set("data", new File([compress(text)], ""))
+        if(!result) return {error: "Ocurrió un error al guardar los cambios."}
+        if(result.error) return {error: result.error}
 
-            const result = await createTopicVersion(
-                {
-                    id: topic.id,
-                    text: formData,
-                    format: "lexical-compressed",
-                    claimsAuthorship,
-                    message: editMsg
-                }
-            )
-
-            if(!result) return {error: "Ocurrió un error al guardar los cambios."}
-            if(result.error) return {error: result.error}
-
-            await mutate("/api/topic/"+topic.id)
-            await mutate("/api/topic-history/"+topic.id)
-            setShowingSaveEditPopup(false)
-            setWikiEditorState("normal")
-            return {}
-        })
+        await mutate("/api/topic/"+topic.id)
+        await mutate("/api/topic-history/"+topic.id)
+        setShowingSaveEditPopup(false)
+        setWikiEditorState("normal")
+        return {}
     }
-
     const saveEnabled = editorState && topicVersion && JSON.stringify(editorState) != topicVersion.content.text
+
+    async function onSubmitReply(){
+        const topicId = topic.id
+        await mutate("/api/topic/"+encodeURIComponent(topicId))
+        await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
+    }
 
     return <div className={"w-full"}>
         <TopicContentExpandedViewHeader
@@ -117,6 +118,7 @@ export const TopicContentExpandedViewWithVersion = ({
             setShowingSaveEditPopup={setShowingSaveEditPopup}
             saveEnabled={saveEnabled}
         />
+
         {wikiEditorState == "history" && <TopicContentHistory
             topic={topic}
         />}
@@ -133,27 +135,41 @@ export const TopicContentExpandedViewWithVersion = ({
             />
         }
         {["normal", "authors", "changes", "editing"].includes(wikiEditorState) &&
-            <div id="editor" className={"pb-2 min-h-[300px] mt-2"}>
+            <div id="editor" className={"pb-2 min-h-[300px] mt-2 px-2"}>
                 {["editing", "normal"].includes(wikiEditorState) && (topicVersion ? <div
                     id={editorId}
                     className={" "+(wikiEditorState == "editing" ? "mb-32" : "mb-8")}
                     key={topicVersion.uri + wikiEditorState + editorId}
                 >
-                    <MyLexicalEditor
-                        settings={wikiEditorSettings(
-                            wikiEditorState != "editing",
-                            topicVersionPropsToReplyToContent(topicVersion, topic.id),
-                            topicVersion.content.text,
-                            topicVersion.content.format,
-                            true,
-                            true,
-                            quoteReplies,
-                            pinnedReplies,
-                            setPinnedReplies
-                        )}
+                    {wikiEditorState == "editing" && <MyLexicalEditor
+                        settings={getEditorSettings({
+                            isReadOnly: false,
+                            initialText: topicVersion.content.text,
+                            initialTextFormat: topicVersion.content.format,
+                            allowComments: false,
+                            tableOfContents: true
+                        })}
                         setEditor={setEditor}
                         setEditorState={setEditorState}
-                    />
+                    />}
+                    {wikiEditorState != "editing" && <EditorWithQuoteComments
+                        settings={getEditorSettings({
+                            isReadOnly: true,
+                            initialText: topicVersion.content.text,
+                            initialTextFormat: topicVersion.content.format,
+                            allowComments: true,
+                            tableOfContents: true,
+                            editorClassName: "article-content"
+                        })}
+                        quoteReplies={quoteReplies}
+                        pinnedReplies={pinnedReplies}
+                        setPinnedReplies={setPinnedReplies}
+                        replyTo={topicVersionPropsToReplyToContent(topicVersion, topic.id)}
+                        onSubmitReply={onSubmitReply}
+                        editor={editor}
+                        setEditor={setEditor}
+                        setEditorState={setEditorState}
+                    />}
                 </div> :
                     <div className={"text-[var(--text-light)] text-center py-8"}>
                         No hay una versión aceptada de este tema.

@@ -2,13 +2,9 @@
 
 import {db} from "@/db";
 import {
-    ArticleProps,
-    FastPostProps,
     FeedContentProps,
     FeedEngagementProps,
-    TopicVersionProps,
 } from "@/lib/definitions";
-import {validQuotePost} from "@/utils/lexical";
 import {addCountersToFeed} from "@/server-actions/feed/utils";
 
 
@@ -53,15 +49,6 @@ export async function getUserEngagement(feed: {uri?: string}[], did: string): Pr
 
 export async function addViewerEngagementToFeed(did: string, feed: FeedContentProps[]) {
     const engagement = await getUserEngagement(feed, did)
-
-    feed = feed.filter((r) => {
-        if (r.collection == "ar.com.cabildoabierto.quotePost") {
-            const post = r as FastPostProps
-            return validQuotePost(((post.content.post.replyTo) as ArticleProps | TopicVersionProps).content, post)
-        } else {
-            return true
-        }
-    })
 
     const readyForFeed = addCountersToFeed(feed, engagement)
     return {feed: readyForFeed}

@@ -5,9 +5,6 @@ export function getNodeFromIndex(node: LexicalNode, index: number[]){
     if(index.length == 0) return node
 
     if($isElementNode(node)){
-        if(node.getType() == "sidenote"){
-            return getNodeFromIndex(node.getChildAtIndex(0), index)
-        }
         const child = node.getChildAtIndex(index[0])
         return getNodeFromIndex(child, index.slice(1))
     } else {
@@ -58,7 +55,19 @@ function getEditorPointer(pointer: PointType) {
 }
 
 
-export function getStandardSelection(state: EditorState){
+export type LexicalStandardSelectionPointer = {
+    node: number[]
+    offset: number
+}
+
+
+export type LexicalStandardSelection = {
+    start: LexicalStandardSelectionPointer,
+    end: LexicalStandardSelectionPointer,
+}
+
+
+export function getStandardSelection(state: EditorState): LexicalStandardSelection {
     return state.read(() => {
         const selection = $getSelection()
         if(!selection) return
@@ -75,6 +84,5 @@ export function getStandardSelection(state: EditorState){
                 end: getEditorPointer(end)
             }
         }
-
     })
 }

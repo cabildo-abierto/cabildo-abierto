@@ -1,4 +1,4 @@
-import SearchBar from "@/components/buscar/searchbar";
+import SearchBar from "@/components/buscar/search-bar";
 import {UserSearchResults} from "@/components/buscar/user-search-results";
 import React from "react";
 import {useRouter} from "next/navigation";
@@ -21,7 +21,7 @@ export const SearchPanelOnRightColumn = () => {
 
     return (
         <div className={"w-full"}>
-            <div className={"mt-8 w-full"}>
+            <div className={"w-full"}>
                 <form onSubmit={handleSubmit}>
                     <SearchBar />
                 </form>

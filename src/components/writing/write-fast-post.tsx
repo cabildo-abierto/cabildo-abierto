@@ -1,11 +1,12 @@
+"use client"
+
 import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
 import React, {useState} from "react";
 import {useSWRConfig} from "swr";
 import StateButton from "../../../modules/ui-utils/src/state-button";
-import {TextareaAutosize} from "@mui/material";
 import {ExtraChars} from "./extra-chars";
 import {createFastPost} from "@/server-actions/write/post";
-import {threadApiUrl} from "../../utils/uri";
+import {threadApiUrl} from "@/utils/uri";
 import {RectTracker} from "../../../modules/ui-utils/src/rect-tracker";
 import {ProfilePic} from "../feed/profile-pic";
 import {VisualizationNodeComp} from "../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
@@ -15,7 +16,8 @@ import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./insert-visualization-modal";
 import {InsertImageModal} from "./insert-image-modal";
 import {FastPostProps, FastPostReplyProps} from "@/lib/definitions";
-import {useUser} from "../../hooks/swr";
+import {useUser} from "@/hooks/swr";
+import {FastPostEditor} from "@/components/editor/fast-post-editor";
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
@@ -57,7 +59,7 @@ function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
 
 export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
     replyTo: ReplyToContent,
-    quote?: string
+    quote?: [number, number]
     onClose: () => void
     onSubmit: () => Promise<void>
 }) => {
@@ -95,51 +97,33 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
         placeholder = "Respondé al conjunto de datos"
     }
 
-    const sendButton = <StateButton
-        text1={isReply ? "Responder" : "Publicar"}
-        handleClick={handleSubmit}
-        disabled={disabled}
-        textClassName="font-semibold"
-        size="medium"
-        disableElevation={true}
-    />
-
-    const editorComp = <>
-        <TextareaAutosize
-            minRows={2}
-            value={text}
-            onChange={(e) => {setText(e.target.value)}}
-            placeholder={placeholder}
-            className={"outline-none resize-none bg-transparent w-full"}
-        />
-        {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
-    </>
-
     async function handleSubmit() {
         setErrorOnCreatePost(false)
-        if (user) {
-            const reply = replyTo ? replyFromParentElement(replyTo) : undefined
+        const reply = replyTo ? replyFromParentElement(replyTo) : undefined
 
-            const {error} = await createFastPost({text, reply, visualization, quote, images})
-            if(reply){
-                await onSubmit()
-                await mutate(threadApiUrl(reply.parent.uri))
-                await mutate(threadApiUrl(reply.root.uri))
-                if(replyTo.content.topicVersion){
-                    const id = replyTo.content.topicVersion.topic.id
-                    await mutate("/api/topic/"+encodeURIComponent(id))
-                    await mutate("/api/topic-feed/"+encodeURIComponent(id))
-                }
-            }
+        console.log("submitting!")
 
-            if (!error) {
-                setEditorKey(editorKey + 1);
-                onClose()
-            } else {
-                setErrorOnCreatePost(true)
+        const {error} = await createFastPost({text, reply, visualization, quote, images})
+
+        console.log("error on submit", error)
+
+        if(reply){
+            await onSubmit()
+            await mutate(threadApiUrl(reply.parent.uri))
+            await mutate(threadApiUrl(reply.root.uri))
+            if(replyTo.content.topicVersion){
+                const id = replyTo.content.topicVersion.topic.id
+                await mutate("/api/topic/"+encodeURIComponent(id))
+                await mutate("/api/topic-feed/"+encodeURIComponent(id))
             }
         }
-        setErrorOnCreatePost(true)
+
+        if (!error) {
+            setEditorKey(editorKey + 1);
+            onClose()
+        } else {
+            setErrorOnCreatePost(true)
+        }
         return {}
     }
 
@@ -149,7 +133,11 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
                 <div className="flex space-x-2 w-full mt-2">
                     <ProfilePic user={user} className={"w-8 h-8 rounded-full"}/>
                     <div className="sm:text-lg w-full" key={editorKey}>
-                        {editorComp}
+                        <FastPostEditor
+                            setText={setText}
+                            placeholder={placeholder}
+                        />
+                        {charLimit && <ExtraChars charLimit={charLimit} count={text.length}/>}
                     </div>
                 </div>
                 {visualization && <VisualizationNodeComp
@@ -173,7 +161,14 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
                         setModalOpen={setVisualizationModalOpen}
                     />
                 </div>
-                {sendButton}
+                <StateButton
+                    text1={isReply ? "Responder" : "Publicar"}
+                    handleClick={handleSubmit}
+                    disabled={disabled}
+                    textClassName="font-semibold"
+                    size="medium"
+                    sx={{borderRadius: 20}}
+                />
             </div>
             <InsertVisualizationModal
                 open={visualizationModalOpen}

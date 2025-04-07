@@ -10,7 +10,7 @@ import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { HiSquares2X2 } from "react-icons/hi2";
 import { PiListBullets } from "react-icons/pi";
 import { PiListBulletsBold } from "react-icons/pi";
-import SearchBar from "@/components/buscar/searchbar";
+import SearchBar from "@/components/buscar/search-bar";
 import {useRouter, useSearchParams} from "next/navigation";
 
 

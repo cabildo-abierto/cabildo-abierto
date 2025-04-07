@@ -2,7 +2,8 @@ import type { LexicalEditor, NodeKey } from 'lexical';
 import { useRef, useLayoutEffect, useCallback, useEffect } from 'react';
 import * as React from 'react';
 import './index.css';
-import InsertCommentIcon from '@mui/icons-material/InsertComment';
+import { Button } from "@/../modules/ui-utils/src/button"
+import {WriteButtonIcon} from "@/components/icons/write-button-icon";
 
 
 export function AddCommentButton({
@@ -57,16 +58,15 @@ export function AddCommentButton({
 
 
   return <div ref={boxRef}>
-    <button
-        className="z-[52] flex space-x-2 text-sm py-2 px-4 justify-center items-center cursor-pointer bg-[var(--background)] hover:bg-[var(--background-dark)] border rounded-full"
+    <Button
+        className="z-[52] flex space-x-2 text-sm py-2 px-4 justify-center items-center cursor-pointer border rounded-full"
         onClick={onAddComment}
+        sx={{
+          borderRadius: 20
+        }}
+        startIcon={<WriteButtonIcon/>}
     >
-      <div>
-        <InsertCommentIcon fontSize={"small"}/>
-      </div>
-      <div>
         Responder
-      </div>
-    </button>
+    </Button>
   </div>
 }

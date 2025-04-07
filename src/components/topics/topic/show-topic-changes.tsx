@@ -2,12 +2,12 @@ import dynamic from 'next/dynamic';
 import { nodesFromJSONStr } from './diff';
 import { SerializedDiffNode } from '../../../../modules/ca-lexical-editor/src/nodes/DiffNode';
 import { TopicProps, MatchesType } from '@/lib/definitions';
-import { wikiEditorSettings } from '../../editor/wiki-editor-settings';
 import {SmallTopicVersionProps} from "./topic-content-expanded-view";
-import {useTopicVersionChanges} from "../../../hooks/swr";
-import {getDidFromUri, getRkeyFromUri} from "../../../utils/uri";
+import {useTopicVersionChanges} from "@/hooks/swr";
+import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
+import {getEditorSettings} from "@/components/editor/settings";
 
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
@@ -91,7 +91,11 @@ export const ShowTopicChanges = ({
         </div>
     }
 
-    let settings = wikiEditorSettings(true, null, topicVersionChanges.text, "lexical", true, false)
+    let settings = getEditorSettings({
+        initialText: topicVersionChanges.text,
+        initialTextFormat: "lexical",
+        tableOfContents: true
+    })
 
     return <>
         <div className="text-sm text-center block lg:hidden content-container p-1 w-full">

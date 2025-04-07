@@ -1,12 +1,11 @@
 import {TopicProps} from "@/lib/definitions";
-import {wikiEditorSettings} from "../../editor/wiki-editor-settings";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import dynamic from "next/dynamic";
-import {topicCurrentVersionToReplyToContent} from "./topic-content";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
 import {useRouter} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
+import {getEditorSettings} from "@/components/editor/settings";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -58,14 +57,10 @@ export const TopicContentPreview = ({
             className={"w-full px-2 group max-h-[400px] overflow-y-scroll custom-scrollbar bg-[var(--background)]"}
         >
             <MyLexicalEditor
-                settings={wikiEditorSettings(
-                    true,
-                    topicCurrentVersionToReplyToContent(topic),
-                    topic.currentVersion.content.text,
-                    topic.currentVersion.content.format,
-                    false,
-                    false
-                )}
+                settings={getEditorSettings({
+                    initialText: topic.currentVersion.content.text,
+                    initialTextFormat: topic.currentVersion.content.format
+                })}
                 setEditor={() => {}}
                 setEditorState={() => {}}
             />

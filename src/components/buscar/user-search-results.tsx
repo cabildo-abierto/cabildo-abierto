@@ -1,14 +1,75 @@
 "use client"
-import {SmallUserSearchResult, UserSearchResult } from "./searchbar"
-import { useSearch } from "./search-context"
-import { SmallUserProps } from "@/lib/definitions"
+import {useSearch} from "./search-context"
+import {SmallUserProps} from "@/lib/definitions"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import React, {useEffect, useState} from "react"
 import {searchATProtoUsers} from "@/server-actions/user/users";
-import {cleanText} from "../../utils/strings";
-import {useUsers} from "../../hooks/swr";
+import {cleanText} from "@/utils/strings";
+import {useUsers} from "@/hooks/swr";
+import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
+import {userUrl} from "@/utils/uri";
+import Image from "next/image";
+import {emptyChar} from "@/utils/utils";
+import ReadOnlyEditor from "@/components/editor/read-only-editor";
 
 
+export const UserSearchResult: React.FC<{
+    result: { displayName?: string, handle: string, avatar?: string, description?: string }
+}> = ({result}) => {
+
+    return <Link href={userUrl(result.handle)}
+                 className="flex flex-col hover:bg-[var(--background-dark)] border-b p-3">
+        <div className={"flex space-x-4 ml-4"}>
+            {result.avatar ? <Image
+                src={result.avatar}
+                alt={"Foto de perfil de @" + result.handle}
+                width={100}
+                height={100}
+                className="rounded-full h-14 w-14"
+            /> : <div className={"h-14 w-14"}>{emptyChar}</div>}
+            <div className="flex flex-col">
+                {result.displayName ? result.displayName : <>@{result.handle}</>}
+                {result.displayName && <span className="text-[var(--text-light)]">@{result.handle}</span>}
+                {result.description && result.description.length > 0 && <div className={"text-sm mt-1"}>
+                    <ReadOnlyEditor text={result.description} format={"markdown"}/>
+                </div>}
+            </div>
+        </div>
+    </Link>
+}
+
+
+export const SmallUserSearchResult: React.FC<{
+    result: { displayName?: string, handle: string, avatar?: string, description?: string }
+}> = ({result}) => {
+    const {setSearchState} = useSearch()
+
+    return <Link
+        href={userUrl(result.handle)}
+        onClick={() => {
+            setSearchState({value: "", searching: false})
+        }}
+        className="flex flex-col hover:bg-[var(--background-dark)] border-b p-2"
+    >
+        <div className={"flex space-x-4 items-center"}>
+            {result.avatar ? <Image
+                src={result.avatar}
+                alt={"Foto de perfil de @" + result.handle}
+                width={100}
+                height={100}
+                className="rounded-full h-10 w-10"
+            /> : <div className={"h-14 w-14"}>{emptyChar}</div>}
+            <div className="flex flex-col ">
+                <div className={"truncate whitespace-nowrap text-sm max-w-[200px]"}>
+                    {result.displayName ? result.displayName : <>@{result.handle}</>}
+                </div>
+                <div className={"truncate whitespace-nowrap max-w-[200px]"}>
+                    {result.displayName && <span className="text-[var(--text-light)] text-sm">@{result.handle}</span>}
+                </div>
+            </div>
+        </div>
+    </Link>
+}
 export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCount?: number; showSearchButton?: boolean }) => {
     const users = useUsers();
     const { searchState } = useSearch();

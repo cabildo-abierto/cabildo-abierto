@@ -1,4 +1,4 @@
-import {db} from "../../db";
+import {db} from "@/db"
 
 
 export function setTopicCategories(topicId: string, categories: string[]){

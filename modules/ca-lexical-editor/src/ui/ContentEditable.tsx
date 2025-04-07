@@ -15,19 +15,19 @@ type Props = {
   className?: string;
   placeholderClassName?: string;
   placeholder: string;
-  settings?: any
+  editorClassName?: string
 };
 
 export default function LexicalContentEditable({
   className,
   placeholder,
   placeholderClassName,
-  settings
+  editorClassName=""
 }: Props) {
   return (
     <ContentEditable
       spellCheck={false}
-      className={className ?? ('ContentEditable__root ' + settings.editorClassName)}
+      className={className ?? ('ContentEditable__root ' + editorClassName)}
       aria-placeholder={placeholder}
       placeholder={
         <div className={placeholderClassName}>

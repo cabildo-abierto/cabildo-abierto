@@ -3,9 +3,9 @@ import {ReactNode, useEffect} from "react";
 import {SidebarContent} from "./sidebar";
 import {useLayoutConfig} from "./layout-config-context";
 import {RightPanel} from "./right-panel";
-import {pxToNumber} from "../../utils/strings";
+import {pxToNumber} from "@/utils/strings";
 import {BottomBarMobile} from "./bottom-bar-mobile";
-import {emptyChar} from "../../utils/utils";
+import {emptyChar} from "@/utils/utils";
 import {createPortal} from "react-dom";
 
 export const MainLayoutContent = ({children}: {children: ReactNode}) => {
@@ -84,10 +84,14 @@ export const MainLayoutContent = ({children}: {children: ReactNode}) => {
         </div>
 
         {layoutConfig.spaceForRightSide &&
-            <div className="flex-shrink-0 max-h-screen overflow-y-clip" style={{width: layoutConfig.rightMinWidth}}>
+            <div
+                className="flex-shrink-0 sticky top-0 max-h-screen no-scrollbar overflow-y-auto"
+                style={{ width: layoutConfig.rightMinWidth }}
+            >
                 {right}
             </div>
         }
+
         <div className="fixed bottom-0 left-0 w-full max-[500px]:block hidden">
             <BottomBarMobile/>
         </div>

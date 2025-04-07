@@ -10,6 +10,8 @@ import {getSessionAgent, getSessionDid} from "../auth";
 import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import { Prisma } from "@prisma/client";
 import {supportDid} from "../../utils/auth";
+import {cleanText} from "@/utils/strings";
+import {MentionProps} from "../../../modules/ca-lexical-editor/src/ui/custom-mention-component";
 
 
 export async function isCAUser(did: string){
@@ -773,4 +775,17 @@ export async function getFollowing(did: string) {
             revalidate: revalidateEverythingTime
         }
     )()
+}
+
+
+export const queryMentions = async (trigger: string, query: string | undefined | null): Promise<MentionProps[]> => {
+    if(!query) return []
+    const {users, error} = await getUsers()
+    if(error) return []
+
+    const cleanQuery = cleanText(query)
+
+    return users.filter((user) =>
+        (user.displayName && cleanText(user.displayName).includes(cleanQuery)) || cleanText(user.handle).includes(cleanQuery),
+    ).map(u => ({...u, value: u.did}))
 }

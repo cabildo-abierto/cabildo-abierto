@@ -1,7 +1,7 @@
 'use server'
 
 import { getSessionAgent } from "./auth";
-import {db} from "../db";
+import {db} from "@/db";
 import {createRecord} from "./write/utils";
 import {revalidateUri} from "./revalidate";
 

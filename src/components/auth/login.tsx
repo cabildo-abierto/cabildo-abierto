@@ -35,7 +35,7 @@ export const Login = () => {
     }
 
     return <div className="flex flex-col items-center max-w-96 py-10">
-        <div className={"flex justify-start w-full px-2"}>
+        <div className={"flex justify-start w-full px-2 text-[var(--text-light)]"}>
             <BackButton defaultURL={"/presentacion"}/>
         </div>
 

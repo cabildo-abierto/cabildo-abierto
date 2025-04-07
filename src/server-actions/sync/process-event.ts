@@ -1,7 +1,7 @@
 "use server"
 
 import {ATProtoStrongRef, CommitEvent, JetstreamEvent, SyncRecordProps} from "@/lib/definitions";
-import {db} from "../../db";
+import {db} from "@/db";
 import {DidResolver} from "@atproto/identity";
 import {syncUser} from "./sync-user";
 import {validRecord} from "./utils";
@@ -18,7 +18,7 @@ import {
     processTopic, processTopicVote,
     processVisualization
 } from "./record-processing";
-import {getUri, splitUri, threadApiUrl} from "../../utils/uri";
+import {getUri, splitUri, threadApiUrl} from "@/utils/uri";
 import {deleteRecords, revalidateTags} from "../admin";
 
 

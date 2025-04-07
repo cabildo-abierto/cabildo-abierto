@@ -1,4 +1,3 @@
-"use client"
 import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/definitions";
 import {TopLevelParameter} from "vega-lite/src/spec/toplevel";
 import {AnyMark} from "vega-lite/src/mark";
@@ -6,7 +5,7 @@ import {FacetedCompositeEncoding} from "vega-lite/src/compositemark";
 import {Sort} from "vega-lite/src/sort";
 import {StringFieldDef, StringFieldDefWithCondition, StringValueDefWithCondition} from "vega-lite/src/channeldef";
 import {VisualizationSpec} from "vega-embed";
-import {getDidFromUri, getRkeyFromUri} from "../../../utils/uri";
+import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 
 const textColor = "#fbfbfc"
 const primaryColor = "#6ca0e4"

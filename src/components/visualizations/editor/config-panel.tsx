@@ -7,7 +7,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {FilterConfig} from "./filter-config";
 import CodeIcon from '@mui/icons-material/Code';
 import {openJsonInNewTab} from "@/components/feed/content-options/content-options";
-import {getSpecForConfig} from "./spec";
+import {getSpecForConfig} from "./get-spec";
 import {Button} from "../../../../modules/ui-utils/src/button";
 
 

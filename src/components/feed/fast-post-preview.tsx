@@ -2,11 +2,9 @@
 
 import {
     FastPostProps,
-    FeedContentProps,
     FeedContentPropsMaybe,
     ReasonProps,
-    RecordProps,
-    SmallUserProps
+    RecordProps
 } from '@/lib/definitions'
 import {FastPostPreviewFrame, ReplyVerticalLine} from './fast-post-preview-frame'
 import {FastPostContent} from "./fast-post-content";
@@ -14,8 +12,8 @@ import {FeedElement} from "./feed-element";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import { useSWRConfig } from 'swr';
-import {contentUrl, getDidFromUri, getRkeyFromUri, isPost, threadApiUrl, topicUrl} from "../../utils/uri";
-import {useUser} from "../../hooks/swr";
+import {contentUrl, getDidFromUri, isPost, threadApiUrl} from "@/utils/uri";
+import {useUser} from "@/hooks/swr";
 
 const ShowThreadButton = ({root}: {root: RecordProps}) => {
     const url = contentUrl(root.uri)
@@ -95,7 +93,7 @@ export const FastPostPreview = ({
 
     const showThreadButton = replyToAvailable && rootAvailable && parentReplyTo && parentReplyTo.uri != root.uri
 
-    return <div className={"flex flex-col w-full text-[15px] min-w-[600px]"}>
+    return <div className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px]"}>
         {rootAvailable && <FeedElement
             elem={root as FeedContentPropsMaybe}
             showingChildren={true}

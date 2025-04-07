@@ -1,7 +1,7 @@
 import {createHeadlessEditor} from "@lexical/headless"
 import {$convertFromMarkdownString, $convertToMarkdownString} from "@lexical/markdown"
-import {CA_TRANSFORMERS} from "../../../modules/ca-lexical-editor/src/ca-transformers";
-import {getEditorNodes} from "../../../modules/ca-lexical-editor/src/nodes/get-editor-nodes";
+import {CA_TRANSFORMERS} from "./ca-transformers";
+import {getEditorNodes} from "./nodes/get-editor-nodes";
 
 
 
@@ -14,9 +14,10 @@ export function editorStateToMarkdown(s: string){
     })
 
     const parsed = editor.parseEditorState(s)
+
     editor.update(() => {
         editor.setEditorState(parsed)
-    });
+    })
 
     let markdown: string
     editor.read(() => {
@@ -27,21 +28,25 @@ export function editorStateToMarkdown(s: string){
 }
 
 
-export function markdownToEditorState(markdown: string): string {
+export function markdownToEditorState(markdown: string): any {
+    return JSON.parse(markdownToEditorStateStr(markdown))
+}
+
+
+export function markdownToEditorStateStr(markdown: string): string {
     const nodes = getEditorNodes({allowImages: true})
 
     const editor = createHeadlessEditor({
         nodes,
         onError: () => {},
-    });
+    })
 
     editor.update(() => {
         $convertFromMarkdownString(markdown, CA_TRANSFORMERS, undefined, false, true)
     })
 
-    const s = editor.read(() => {
-        return editor.getEditorState().toJSON()
+    const editorState = editor.read(() => {
+        return editor.getEditorState()
     })
-
-    return JSON.stringify(s)
+    return JSON.stringify(JSON.parse(JSON.stringify(editorState)))
 }
