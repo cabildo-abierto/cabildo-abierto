@@ -39,10 +39,6 @@ const ReadOnlyEditor = ({
         initialTextFormat: format,
         allowComments: allowQuoteComments,
         editorClassName,
-        content,
-        quoteReplies,
-        pinnedReplies,
-        setPinnedReplies,
         tableOfContents: showTableOfContents
     })
     

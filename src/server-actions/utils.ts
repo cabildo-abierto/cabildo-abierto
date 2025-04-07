@@ -3,7 +3,7 @@ import SortOrder = Prisma.SortOrder;
 import {FeedEngagementProps} from "@/lib/definitions";
 
 
-export const revalidateEverythingTime = undefined
+export const revalidateEverythingTime = 5
 
 
 export const recordQuery = {
@@ -127,8 +127,8 @@ export const enDiscusionQuery = {
     content: {
         select: {
             text: true,
-            textBlob: true,
             format: true,
+            textBlob: true,
             article: {
                 select: {
                     title: true
@@ -187,7 +187,8 @@ export const threadRepliesQuery = {
                             collection: true,
                             content: {
                                 select: {
-                                    text: true
+                                    text: true,
+                                    format: true
                                 }
                             }
                         }

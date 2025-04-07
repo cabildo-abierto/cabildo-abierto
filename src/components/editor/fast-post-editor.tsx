@@ -53,7 +53,8 @@ export const FastPostEditor = ({setText, placeholder}: FastPostEditorProps) => {
 
     useEffect(() => {
         if(editorState){
-            const text = getPlainText(editorState.toJSON().root)
+            let text = getPlainText(editorState.toJSON().root)
+            if(text.endsWith("\n")) text = text.slice(0, text.length-1)
             setText(text)
         }
     }, [editorState, setText])

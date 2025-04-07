@@ -37,7 +37,7 @@ export const ContentOptions = ({onClose, record, onDelete, enDiscusion="n/a"}: {
 }) => {
     const {user} = useUser()
     const {mutate} = useSWRConfig()
-    const [addedToEnDiscusion, setAddedToEnDiscusion] = useState<boolean>(enDiscusion == "can add")
+    const [addedToEnDiscusion, setAddedToEnDiscusion] = useState<boolean>(enDiscusion != "can add")
 
     async function onClickDelete() {
         await deleteRecords({uris: [record.uri], atproto: true})

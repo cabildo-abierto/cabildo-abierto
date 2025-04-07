@@ -48,7 +48,7 @@ export class CustomMarkNode extends MarkNode {
     }
   
     static importJSON(serializedNode: SerializedCustomMarkNode): CustomMarkNode {
-      const node = $createMarkNode(serializedNode.ids);
+      const node = $createCustomMarkNode(serializedNode.ids);
       node.setFormat(serializedNode.format);
       node.setIndent(serializedNode.indent);
       node.setDirection(serializedNode.direction);
@@ -64,7 +64,7 @@ export class CustomMarkNode extends MarkNode {
       };
     }
   
-    constructor(ids: Array<string>, key?: NodeKey) {
+    constructor(ids?: Array<string>, key?: NodeKey) {
       super(ids, key);
     }
   
@@ -116,12 +116,12 @@ export class CustomMarkNode extends MarkNode {
   
     getIDs(): string[] {
       const self = this.getLatest();
-      return $isMarkNode(self) ? [...self.__ids] : [];
+      return $isCustomMarkNode(self) ? [...self.__ids] : [];
     }
   
     addID(id: string): this {
       const self = this.getWritable();
-      if ($isMarkNode(self)) {
+      if ($isCustomMarkNode(self)) {
         const ids = [...self.__ids]
         for (let i = 0; i < ids.length; i++) {
           if (id === ids[i]) {
@@ -135,7 +135,7 @@ export class CustomMarkNode extends MarkNode {
   
     deleteID(id: string): this {
         const self = this.getWritable();
-            if ($isMarkNode(self)) {
+            if ($isCustomMarkNode(self)) {
                 const ids = [...self.__ids]
                 for (let i = 0; i < ids.length; i++) {
                     if (id === ids[i]) {
@@ -151,7 +151,7 @@ export class CustomMarkNode extends MarkNode {
       selection: RangeSelection,
       restoreSelection = true,
     ): null | ElementNode {
-      const markNode = $createMarkNode([...this.__ids]);
+      const markNode = $createCustomMarkNode([...this.__ids]);
       this.insertAfter(markNode, restoreSelection);
       return markNode;
     }
@@ -200,11 +200,11 @@ export class CustomMarkNode extends MarkNode {
     }
   }
   
-  export function $createMarkNode(ids: Array<string>): CustomMarkNode {
+  export function $createCustomMarkNode(ids?: Array<string>): CustomMarkNode {
     return $applyNodeReplacement(new CustomMarkNode(ids));
   }
   
-  export function $isMarkNode(node: LexicalNode | null): node is CustomMarkNode {
+  export function $isCustomMarkNode(node: LexicalNode | null): node is CustomMarkNode {
     return node instanceof CustomMarkNode;
   }
   

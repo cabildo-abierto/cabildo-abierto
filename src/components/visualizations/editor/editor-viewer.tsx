@@ -3,7 +3,7 @@ import {useRouter} from "next/navigation";
 import {useState} from "react";
 import {View} from "vega";
 import {Button} from "@mui/material";
-import {getSpecForConfig} from "./spec";
+import {getSpecForConfig} from "./get-spec";
 import {createVisualization} from "@/server-actions/visualization/write";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {VisualizationOnEditor} from "../visualization-on-editor";

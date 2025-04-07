@@ -1,6 +1,6 @@
 "use server"
 import {unstable_cache} from "next/cache";
-import {datasetQuery, enDiscusionQuery, logTimes, recordQuery, revalidateEverythingTime} from "../utils";
+import {datasetQuery, enDiscusionQuery, recordQuery, revalidateEverythingTime} from "../utils";
 import {DatasetProps, FeedContentProps} from "@/lib/definitions";
 import {db} from "@/db";
 import JSZip from "jszip";
@@ -14,25 +14,14 @@ import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 
 
 function compressData(data: any[]){
-    const t1 = Date.now()
     const s = JSON.stringify(data)
-    const t2 = Date.now()
-    const res = compress(s)
-    const t3 = Date.now()
-    logTimes("compress dataset", [t1, t2, t3])
-
-    return res
-
+    return compress(s)
 }
 
 
 function decompressDataset(dataset: {dataset?: DatasetProps, data?: string}){
-    const t1 = Date.now()
     const decompressedData = decompress(dataset.data)
-    const t2 = Date.now()
     const res = JSON.parse(decompressedData)
-    const t3 = Date.now()
-    logTimes("decompress dataset", [t1, t2, t3])
 
     return {dataset: dataset.dataset, data: res}
 }

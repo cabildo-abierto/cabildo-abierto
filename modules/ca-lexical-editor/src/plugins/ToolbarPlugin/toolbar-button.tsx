@@ -3,7 +3,7 @@ import {ReactNode} from "react";
 
 type ToolbarButtonProps = {
     active?: boolean
-    title: string
+    title?: string
     onClick: () => void
     disabled?: boolean
     children: ReactNode

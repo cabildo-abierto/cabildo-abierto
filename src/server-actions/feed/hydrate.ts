@@ -5,7 +5,11 @@ import {enDiscusionQuery, logTimes} from "../utils";
 import {isPost} from "@/utils/uri";
 
 
-export async function hydrateFeedSkeleton(skeleton: {uri: string, replyToId?: string, rootId?: string}[]): Promise<FeedContentProps[]> {
+export async function hydrateFeedSkeleton(skeleton: {
+    uri: string,
+    replyToId?: string,
+    rootId?: string
+}[]): Promise<FeedContentProps[]> {
     const feedUris = skeleton.map(({uri}) => uri).filter((x) => (x != null))
     const feedUrisSet = new Set(feedUris)
     const uris = Array.from(new Set([
@@ -30,22 +34,22 @@ export async function hydrateFeedSkeleton(skeleton: {uri: string, replyToId?: st
     const t2 = Date.now()
 
     let recordsByUri = new Map<string, FeedContentProps>()
-    for(let i = 0; i < records.length; i++) {
+    for (let i = 0; i < records.length; i++) {
         recordsByUri.set(records[i].uri, records[i])
     }
 
     let feed = records.filter(({uri}) => feedUrisSet.has(uri))
 
-    for(let i = 0; i < feed.length; i++){
-        if(isPost(feed[i].collection)){
+    for (let i = 0; i < feed.length; i++) {
+        if (isPost(feed[i].collection)) {
             const post = feed[i] as FastPostProps
-            if(post.content.post.replyTo){
+            if (post.content.post.replyTo) {
                 (feed[i] as FastPostProps).content.post.replyTo = {
                     ...recordsByUri.get(post.content.post.replyTo.uri),
                     uri: (feed[i] as FastPostProps).content.post.replyTo.uri
                 }
             }
-            if(post.content.post.root){
+            if (post.content.post.root) {
                 (feed[i] as FastPostProps).content.post.root = {
                     ...recordsByUri.get(post.content.post.root.uri),
                     uri: (feed[i] as FastPostProps).content.post.root.uri
@@ -55,14 +59,14 @@ export async function hydrateFeedSkeleton(skeleton: {uri: string, replyToId?: st
     }
 
     let roots = new Map<string, FeedContentProps>()
-    for(let i = 0; i < feed.length; i++) {
+    for (let i = 0; i < feed.length; i++) {
         const post = feed[i] as FastPostProps
         const root = post.content && post.content.post && post.content.post.root ? post.content.post.root.uri : feed[i].uri
-        if(!roots.has(root)){
+        if (!roots.has(root)) {
             roots.set(root, feed[i])
         } else {
             const cur = roots.get(root)
-            if(feed[i].createdAt.getTime() > cur.createdAt.getTime()){
+            if (feed[i].createdAt.getTime() > cur.createdAt.getTime()) {
                 roots.set(root, feed[i])
             }
         }

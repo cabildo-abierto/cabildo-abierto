@@ -2,7 +2,7 @@ import {isValidJSON} from "@/utils/utils";
 import {initializeEmpty} from "./lexical-editor";
 import { InitialEditorStateType } from '@lexical/react/LexicalComposer';
 import {LexicalEditor} from "lexical";
-import {markdownToEditorState} from "@/utils/editor/markdown-transforms";
+import {markdownToEditorStateStr} from "./markdown-transforms";
 import {decompress} from "@/utils/compression";
 
 /*
@@ -68,7 +68,7 @@ export function getInitialData(text: string, format: string): InitialEditorState
         return (editor: LexicalEditor) => {
             editor.update(() => {
                 try {
-                    const strState = markdownToEditorState(text)
+                    const strState = markdownToEditorStateStr(text)
                     const state = editor.parseEditorState(strState)
                     editor.setEditorState(state)
                 } catch (err) {
@@ -77,19 +77,20 @@ export function getInitialData(text: string, format: string): InitialEditorState
                 }
             })
         }
-
     } else if(format == "lexical-compressed" || !format) {
-        return decompress(text)
+        return getInitialData(decompress(text), "lexical")
+    } else if(format == "lexical"){
+        return (editor: LexicalEditor) => {
+            editor.update(() => {
+                const parsed = editor.parseEditorState(text)
+                editor.setEditorState(parsed)
+            })
+        }
     } else if(format == "markdown-compressed"){
         return getInitialData(decompress(text), "markdown")
+    } else if(format == "plain-text"){
+        return initializeEmpty(text)
     } else {
-        let initialData: InitialEditorStateType = text
-        if(typeof initialData === 'string' && !isValidJSON(initialData)){
-            initialData = initializeEmpty(initialData)
-        }
-
-        if(initialData == null) initialData = initializeEmpty("") // para que arranque con un párrafo y el placeholder se vea bien
-
-        return initialData
+        throw("Formato de contenido desconocido: "+format)
     }
 }

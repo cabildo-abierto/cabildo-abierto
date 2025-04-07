@@ -22,7 +22,7 @@ const LayoutConfigContext = createContext<{
 export const useLayoutConfig = () => {
     const context = useContext(LayoutConfigContext);
     if (!context) {
-        throw new Error("useSearch must be used within a BarsProvider");
+        throw new Error("useLayout must be used within a LayoutConfigContext");
     }
     return context;
 };

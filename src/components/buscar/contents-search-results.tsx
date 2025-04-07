@@ -2,7 +2,7 @@ import {useSearch} from "./search-context";
 import {FeedContentProps} from "@/lib/definitions";
 import Feed from "../feed/feed";
 import {useEffect, useState} from "react";
-import {searchContents, searchTopics} from "@/server-actions/feed/search";
+import {searchContents} from "@/server-actions/feed/search";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 

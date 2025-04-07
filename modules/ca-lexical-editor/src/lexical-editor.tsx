@@ -10,22 +10,22 @@
 
 import './index.css';
 import '@/components/editor/article-content.css';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
-import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
-import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
-import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { ListPlugin } from '@lexical/react/LexicalListPlugin';
-import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
-import { useEffect, useRef, useState } from 'react';
-import { CAN_USE_DOM } from './shared/canUseDOM';
-import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
-import { SharedHistoryContext, useSharedHistoryContext } from './context/SharedHistoryContext';
+import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
+import {CheckListPlugin} from '@lexical/react/LexicalCheckListPlugin';
+import {ClickableLinkPlugin} from '@lexical/react/LexicalClickableLinkPlugin';
+import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
+import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
+import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
+import {ListPlugin} from '@lexical/react/LexicalListPlugin';
+import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
+import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
+import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
+import {useEffect, useRef, useState} from 'react';
+import {CAN_USE_DOM} from './shared/canUseDOM';
+import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
+import {SharedHistoryContext, useSharedHistoryContext} from './context/SharedHistoryContext';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
-import CommentPlugin, {ReplyToContent} from './plugins/CommentPlugin';
+import CommentPlugin, {OnAddCommentProps} from './plugins/CommentPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
@@ -38,33 +38,32 @@ import TableOfContentsPlugin from './plugins/TableOfContentsPlugin';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 import TreeViewPlugin from './plugins/TreeViewPlugin';
 import ContentEditable from './ui/ContentEditable';
-import { InitialConfigType, LexicalComposer } from '@lexical/react/LexicalComposer';
+import {InitialConfigType, LexicalComposer} from '@lexical/react/LexicalComposer';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
-import { BeautifulMentionsPlugin } from 'lexical-beautiful-mentions';
+import {BeautifulMentionsPlugin} from 'lexical-beautiful-mentions';
 import {
     CustomMenuItemMentions,
     CustomMenuMentions,
     EmptyMentionResults,
     MentionProps
 } from './ui/custom-mention-component';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
 import {
-  $createParagraphNode,
-  $createTextNode,
-  $getRoot,
-  LexicalEditor as OriginalLexicalEditor
+    $createParagraphNode,
+    $createTextNode,
+    $getRoot,
+    LexicalEditor as OriginalLexicalEditor
 } from 'lexical';
 import TableCellResizer from './plugins/TableCellResizer';
-import { TableContext } from './plugins/TablePlugin';
+import {TableContext} from './plugins/TablePlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
-import { usePageLeave } from '../../ui-utils/src/prevent-leave';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin'
-import {FastPostProps, SmallUserProps} from "@/lib/definitions";
 import PlotPlugin from "./plugins/PlotPlugin";
 import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
+import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
 
 export type SettingsProps = {
     charLimit?: number
@@ -87,11 +86,6 @@ export type SettingsProps = {
 
     preventLeave: boolean
 
-    content?: ReplyToContent
-    quoteReplies?: FastPostProps[]
-    pinnedReplies?: string[]
-    setPinnedReplies?: (v: string[]) => void
-
     showingChanges?: string
 
     editorClassName: string
@@ -109,6 +103,7 @@ export type SettingsProps = {
     showTreeView: boolean
 
     queryMentions: (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
+    onAddComment?: OnAddCommentProps
 }
 
 
@@ -120,29 +115,22 @@ type LexicalEditorProps = {
 }
 
 
-function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
-    const { historyState } = useSharedHistoryContext();
+function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
+    const {historyState} = useSharedHistoryContext();
     const [editor] = useLexicalComposerContext();
-    const {leaveStoppers, setLeaveStoppers} = usePageLeave()
-
-    const [uniqueId, setUniqueId] = useState(undefined)
-
     const editorContainerRef = useRef<HTMLDivElement | null>(null);
     const [marginAboveEditor, setMarginAboveEditor] = useState<number>(0);
+    const isEditable = useLexicalEditable();
+    const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
+    const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false);
+    const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
+    const [uniqueId, setUniqueId] = useState(undefined)
 
     useEffect(() => {
         if (setEditor) {
             setEditor(editor);
         }
     }, [editor, setEditor]);
-
-    useEffect(() => {
-      return () => {
-        if (uniqueId) {
-          setLeaveStoppers(leaveStoppers.filter(id => id !== uniqueId));
-        }
-      }
-    }, [leaveStoppers, setLeaveStoppers, uniqueId])
 
     const {
         isRichText,
@@ -156,22 +144,14 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
         isReadOnly,
         isAutofocus,
         editorClassName,
-        content,
         placeholderClassName,
         preventLeave,
         allowImages,
         allowTables,
-        quoteReplies,
-        pinnedReplies,
-        setPinnedReplies,
         markdownShortcuts,
-        queryMentions
+        queryMentions,
+        onAddComment
     } = settings;
-
-    const isEditable = useLexicalEditable();
-    const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
-    const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false);
-    const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
 
     const onRef = (_floatingAnchorElem: HTMLDivElement) => {
         if (_floatingAnchorElem !== null) {
@@ -202,119 +182,116 @@ function Editor({ settings, setEditor, setEditorState }: LexicalEditorProps) {
         }
     }, [editorContainerRef]);
 
-  return (
-    <>
-      {isRichText && showToolbar && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />}
-      <div
-        ref={editorContainerRef}
-        className={`editor-container ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
-      >
-        <DragDropPaste />
+    return (
+        <>
+            {isRichText && showToolbar && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode}/>}
+            <div
+                ref={editorContainerRef}
+                className={`editor-container ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
+            >
+                <DragDropPaste/>
 
-        {isAutofocus && <AutoFocusPlugin />}
+                {preventLeave && !isReadOnly && <PreventLeavePlugin uniqueId={uniqueId}/>}
 
-        <BeautifulMentionsPlugin
-          triggers={['@']}
-          onSearch={queryMentions}
-          emptyComponent={EmptyMentionResults}
-          menuComponent={CustomMenuMentions}
-          menuItemComponent={CustomMenuItemMentions}
-        />
+                {isAutofocus && <AutoFocusPlugin/>}
 
-        {allowTables && <TablePlugin
-          hasCellMerge={true}
-          hasCellBackgroundColor={false}
-        />}
-        <TableCellResizer />
-
-        {allowImages && <ImagesPlugin captionsEnabled={false}/>}
-
-        <PlotPlugin/>
-
-        <OnChangePlugin
-          onChange={(editorState) => {
-            setEditorState(editorState);
-            if (!isReadOnly && preventLeave && !uniqueId) {
-              const newUniqueId = uuidv4()
-              setUniqueId(newUniqueId)
-              setLeaveStoppers([...leaveStoppers, newUniqueId]);
-            }
-          }}
-        />
-
-        {markdownShortcuts && <MarkdownShortcutPlugin/>}
-
-        <HashtagPlugin/>
-
-        <AutoLinkPlugin/>
-
-        {allowComments && <CommentPlugin
-            parentContent={content}
-            quoteReplies={quoteReplies}
-            pinnedReplies={pinnedReplies}
-            setPinnedReplies={setPinnedReplies}
-        />}
-
-        {isRichText ? (
-            <>
-            <HistoryPlugin externalHistoryState={historyState} />
-            <RichTextPlugin
-              contentEditable={
-                <div className={'editor-scroller'}>
-                  <div className={"editor " + editorClassName} ref={onRef}>
-                    <ContentEditable
-                        placeholder={placeholder}
-                        placeholderClassName={placeholderClassName}
-                        editorClassName={editorClassName}
-                    />
-                  </div>
-                </div>
-              }
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-            <ListPlugin />
-            <CheckListPlugin />
-            <ListMaxIndentLevelPlugin maxDepth={7} />
-            <LinkPlugin />
-            <ClickableLinkPlugin disabled={isEditable} newTab={false} />
-
-            {!isReadOnly && floatingAnchorElem && (
-              <>
-                {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
-                <FloatingLinkEditorPlugin
-                  isLinkEditMode={isLinkEditMode}
-                  setIsLinkEditMode={setIsLinkEditMode}
+                <BeautifulMentionsPlugin
+                    triggers={['@']}
+                    onSearch={queryMentions}
+                    emptyComponent={EmptyMentionResults}
+                    menuComponent={CustomMenuMentions}
+                    menuItemComponent={CustomMenuItemMentions}
                 />
-                <TableCellActionMenuPlugin
-                  anchorElem={floatingAnchorElem}
-                  cellMerge={true} />
-                <FloatingTextFormatToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} settings={settings} />
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            <PlainTextPlugin
-              contentEditable={<ContentEditable
-                  placeholder={placeholder}
-                  placeholderClassName={placeholderClassName}
-                  editorClassName={editorClassName}
-              />}
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-            <HistoryPlugin externalHistoryState={historyState} />
-          </>
-        )}
-        <div className="hidden lg:block">
-          {tableOfContents && <TableOfContentsPlugin title={settings.title} marginAboveEditor={marginAboveEditor} />}
-        </div>
-        {useContextMenu && <ContextMenuPlugin />}
-      </div>
-      {showTreeView && <TreeViewPlugin />}
-    </>
-  );
-}
 
+                {allowTables && <TablePlugin
+                    hasCellMerge={true}
+                    hasCellBackgroundColor={false}
+                />}
+                <TableCellResizer/>
+
+                {allowImages && <ImagesPlugin captionsEnabled={false}/>}
+
+                <PlotPlugin/>
+
+                <OnChangePlugin
+                    onChange={(editorState) => {
+                        setEditorState(editorState);
+                        if (!isReadOnly && preventLeave && !uniqueId) {
+                            const newUniqueId = uuidv4()
+                            setUniqueId(newUniqueId)
+                        }
+                    }}
+                />
+
+                {markdownShortcuts && <MarkdownShortcutPlugin/>}
+
+                <HashtagPlugin/>
+
+                <AutoLinkPlugin/>
+
+                {allowComments && <CommentPlugin onAddComment={onAddComment}/>}
+
+                {isRichText ? (
+                    <>
+                        <HistoryPlugin externalHistoryState={historyState}/>
+                        <RichTextPlugin
+                            contentEditable={
+                                <div className={'editor-scroller'}>
+                                    <div className={"editor " + editorClassName} ref={onRef}>
+                                        <ContentEditable
+                                            placeholder={placeholder}
+                                            placeholderClassName={placeholderClassName}
+                                            editorClassName={editorClassName}
+                                        />
+                                    </div>
+                                </div>
+                            }
+                            ErrorBoundary={LexicalErrorBoundary}
+                        />
+                        <ListPlugin/>
+                        <CheckListPlugin/>
+                        <ListMaxIndentLevelPlugin maxDepth={7}/>
+                        <LinkPlugin/>
+                        <ClickableLinkPlugin disabled={isEditable} newTab={false}/>
+
+                        {!isReadOnly && floatingAnchorElem && (
+                            <>
+                                {isDraggableBlock && <DraggableBlockPlugin anchorElem={floatingAnchorElem}/>}
+                                <FloatingLinkEditorPlugin
+                                    isLinkEditMode={isLinkEditMode}
+                                    setIsLinkEditMode={setIsLinkEditMode}
+                                />
+                                <TableCellActionMenuPlugin
+                                    anchorElem={floatingAnchorElem}
+                                    cellMerge={true}/>
+                                <FloatingTextFormatToolbarPlugin setIsLinkEditMode={setIsLinkEditMode}
+                                                                 settings={settings}/>
+                            </>
+                        )}
+                    </>
+                ) : (
+                    <>
+                        <PlainTextPlugin
+                            contentEditable={<ContentEditable
+                                placeholder={placeholder}
+                                placeholderClassName={placeholderClassName}
+                                editorClassName={editorClassName}
+                            />}
+                            ErrorBoundary={LexicalErrorBoundary}
+                        />
+                        <HistoryPlugin externalHistoryState={historyState}/>
+                    </>
+                )}
+                <div className="hidden lg:block">
+                    {tableOfContents &&
+                        <TableOfContentsPlugin title={settings.title} marginAboveEditor={marginAboveEditor}/>}
+                </div>
+                {useContextMenu && <ContextMenuPlugin/>}
+            </div>
+            {showTreeView && <TreeViewPlugin/>}
+        </>
+    );
+}
 
 
 export const initializeEmpty = (initialText: string) => (editor: OriginalLexicalEditor) => {
@@ -327,39 +304,39 @@ export const initializeEmpty = (initialText: string) => (editor: OriginalLexical
 }
 
 
-const LexicalEditor = ({ settings, setEditor, setEditorState }: LexicalEditorProps) => {
-  let {isReadOnly, initialText, initialTextFormat, imageClassName} = settings
+const LexicalEditor = ({settings, setEditor, setEditorState}: LexicalEditorProps) => {
+    let {isReadOnly, initialText, initialTextFormat, imageClassName} = settings
 
-  const nodes = getEditorNodes(settings)
-  const initialData = getInitialData(initialText, initialTextFormat)
+    const nodes = getEditorNodes(settings)
+    const initialData = getInitialData(initialText, initialTextFormat)
 
 
-  const initialConfig: InitialConfigType = {
-    namespace: 'Playground',
-    editorState: initialData,
-    nodes: nodes,
-    onError: (error: Error) => {
-      throw error;
-    },
-    theme: {...PlaygroundEditorTheme, image: "editor-image " + imageClassName},
-    editable: !isReadOnly,
-  };
+    const initialConfig: InitialConfigType = {
+        namespace: 'Playground',
+        editorState: initialData,
+        nodes: nodes,
+        onError: (error: Error) => {
+            throw error;
+        },
+        theme: {...PlaygroundEditorTheme, image: "editor-image " + imageClassName},
+        editable: !isReadOnly,
+    };
 
-  return (
-    <LexicalComposer initialConfig={initialConfig}>
-      <SharedHistoryContext>
-        <TableContext>
-          <div className="editor-shell">
-            <Editor
-              settings={settings}
-              setEditor={setEditor}
-              setEditorState={setEditorState}
-            />
-          </div>
-        </TableContext>
-      </SharedHistoryContext>
-    </LexicalComposer>
-  )
+    return (
+        <LexicalComposer initialConfig={initialConfig}>
+            <SharedHistoryContext>
+                <TableContext>
+                    <div className="editor-shell">
+                        <Editor
+                            settings={settings}
+                            setEditor={setEditor}
+                            setEditorState={setEditorState}
+                        />
+                    </div>
+                </TableContext>
+            </SharedHistoryContext>
+        </LexicalComposer>
+    )
 }
 
 

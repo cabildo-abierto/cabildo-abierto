@@ -18,7 +18,7 @@ export async function getTopicFeed(id: string): Promise<{feed?: {mentions: FeedC
         ["topic-feed:"+id],
         {
             tags: ["topic:"+id, "topics"],
-            revalidate: revalidateEverythingTime
+            revalidate: 5
         }
     )()
 }

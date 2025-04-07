@@ -1,7 +1,4 @@
 import {$getRoot, $isDecoratorNode, $isElementNode, $isTextNode, EditorState, ElementNode} from "lexical";
-import {SmallUserProps} from "@/lib/definitions";
-import {QuoteDirProps} from "../../modules/ca-lexical-editor/src/plugins/CommentPlugin/show-quote-reply";
-import {decompress} from "./compression";
 
 export function nodesEqual(node1: any, node2: any){
     if(node1.type != node2.type){
@@ -55,7 +52,7 @@ export function $isWhitespace(node: ElementNode): boolean {
 export function emptyOutput(editorState: EditorState | undefined) {
     if (!editorState) return true
 
-    const isEmpty = editorState.read(() => {
+    return editorState.read(() => {
         const root = $getRoot();
         const child = root.getFirstChild();
 
@@ -67,8 +64,7 @@ export function emptyOutput(editorState: EditorState | undefined) {
         }
 
         return $isWhitespace(root);
-    });
-    return isEmpty;
+    })
 }
 
 function findMentionsInNode(node: any): { id: string }[] {
@@ -85,45 +81,6 @@ function findMentionsInNode(node: any): { id: string }[] {
         }
     }
     return references
-}
-
-
-function validQuotePointer(indexes: number[], node: any) {
-    if (indexes.length == 0) {
-        return true
-    }
-
-    if (!node.children) return false
-    if (indexes[0] > node.children.length) return false
-    return validQuotePointer(indexes.slice(1), node.children[indexes[0]])
-}
-
-export function validQuotePost(content: { text?: string, format?: string }, r: {
-    content: { post: { quote?: string } }
-}) {
-    if (!content.text || !r.content.post.quote) {
-        return false
-    }
-
-    try {
-
-        const quote: QuoteDirProps = JSON.parse(r.content.post.quote)
-
-        const jsonContent = JSON.parse(decompress(content.text))
-
-        if (!validQuotePointer(quote.start.node, jsonContent.root)) {
-            return false
-        }
-        if (!validQuotePointer(quote.end.node, jsonContent.root)) {
-            return false
-        }
-        return true
-    } catch (e) {
-        console.error("error validating quote")
-        console.error(r.content.post.quote)
-        console.error(e)
-        return false
-    }
 }
 
 export function editorStateFromJSON(text: string) {

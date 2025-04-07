@@ -2,7 +2,7 @@ import {ShowQuoteReplyButton} from "./show-quote-reply";
 import {FastPostProps} from "@/lib/definitions";
 import {useEffect, useState} from "react";
 import {LexicalEditor} from "lexical";
-import {ReplyToContent} from "./index";
+import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
 
 
 
@@ -22,19 +22,19 @@ export const NodeQuoteReplies = ({
     useEffect(() => {
         const updatePosition = () => {
             if (replies.length === 0) return;
-            const element = document.getElementById(replies[0].cid);
+            const element = document.getElementById(replies[0].uri);
             if (element) {
                 const rect = element.getBoundingClientRect();
                 setStyle({
                     position: "absolute",
                     top: window.scrollY + rect.top,
-                    left: leftCoordinates + 60,
+                    left: leftCoordinates + 30,
                 });
             }
         };
 
         let observer: ResizeObserver | undefined;
-        const targetElement = document.getElementById(replies[0].cid);
+        const targetElement = document.getElementById(replies[0].uri);
 
         if (targetElement) {
             setFoundReply(true);
@@ -44,7 +44,7 @@ export const NodeQuoteReplies = ({
             observer.observe(document.body);
         } else {
             const mutationObserver = new MutationObserver(() => {
-                const newTarget = document.getElementById(replies[0].cid);
+                const newTarget = document.getElementById(replies[0].uri);
                 if (newTarget) {
                     setFoundReply(true);
                     updatePosition();
@@ -74,8 +74,10 @@ export const NodeQuoteReplies = ({
     }, [replies, leftCoordinates]);
 
 
-    if(!foundReply) return null
-    return <div style={style} className={"flex gap-x-1"}>
+    if(!foundReply) {
+        return null
+    }
+    return <div style={style} className={"flex gap-x-1 "}>
         {
             replies.map((r, index) => {
 

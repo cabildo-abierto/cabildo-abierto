@@ -4,7 +4,6 @@ import {useSearchParams} from "next/navigation";
 import {TopicProps} from "@/lib/definitions";
 import Link from "next/link";
 import { DateSince } from "../../../../modules/ui-utils/src/date";
-import {articleButtonClassname} from "./topic-content";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {ModalBelow} from "../../../../modules/ui-utils/src/modal-below";
@@ -81,6 +80,8 @@ export const TopicContentExpandedViewHeader = ({
 
     let buttons: ReactNode
 
+
+
     if(!paramsVersion && wikiEditorState != "editing") {
         function optionsNodes(o: string, isSelected: boolean){
             let name: string
@@ -154,7 +155,9 @@ export const TopicContentExpandedViewHeader = ({
                     sx={{borderRadius: 0}}
                     disabled={!saveEnabled}
                 >
-                    <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>Guardar cambios</div>
+                    <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>
+                        Guardar cambios
+                    </div>
                 </Button>
             }
         </div>
