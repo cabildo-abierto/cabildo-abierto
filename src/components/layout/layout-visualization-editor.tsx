@@ -18,16 +18,6 @@ export const LayoutVisualizationEditor: React.FC<{ children: ReactNode } & Layou
                                                                                defaultSidebarState=true,
                                                                            }) => {
 
-    const left = <div className={"fixed top-0 left-0 z-[1000] border-r"}>
-        <SidebarContent onClose={() => {}}/>
-    </div>
-
-    const center = <div className={"flex"}>
-        {left}
-        <div className={"min-[1080px]:ml-20 w-full h-full"}>
-            {children}
-        </div>
-    </div>
 
     return <>
         <PageLeaveProvider>
@@ -35,7 +25,14 @@ export const LayoutVisualizationEditor: React.FC<{ children: ReactNode } & Layou
                 <BetaAccessPage>
                     <SearchProvider>
                         <LayoutConfigProvider config={{openRightPanel, maxWidthCenter, leftMinWidth, rightMinWidth, openSidebar, defaultSidebarState}}>
-                            {center}
+                            <div className={"flex"}>
+                                <div className={"fixed top-0 left-0 z-[1000] border-r"}>
+                                    <SidebarContent onClose={() => {}}/>
+                                </div>
+                                <div className={"min-[1080px]:ml-20 w-full h-full"}>
+                                    {children}
+                                </div>
+                            </div>
                         </LayoutConfigProvider>
                     </SearchProvider>
                 </BetaAccessPage>

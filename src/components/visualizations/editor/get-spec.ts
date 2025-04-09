@@ -305,7 +305,7 @@ export function getSpecForConfig(config: PlotConfigProps, dataset: {dataset?: Da
     const metadata: PlotSpecMetadata = {
         editorConfig: config,
         editorVersion: "0.2",
-        editor: "https://www.cabildoabierto.com.ar/datos/nueva-visualizacion"
+        editor: "https://www.cabildoabierto.com.ar/nueva-visualizacion"
     }
 
     const spec: VisualizationSpec & {metadata: PlotSpecMetadata} = {

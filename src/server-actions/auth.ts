@@ -1,17 +1,19 @@
 'use server'
 
-import { isValidHandle } from "@atproto/syntax"
-import { createClient } from "@/server-actions/auth/client"
-import { Session } from "@/app/api/oauth/callback/route"
-import { Agent } from "@atproto/api"
-import { getIronSession } from "iron-session"
-import { cookies } from "next/headers"
+import {isValidHandle} from "@atproto/syntax"
+import {createClient} from "@/server-actions/auth/client"
+import {Session} from "@/app/api/oauth/callback/route"
+import {Agent} from "@atproto/api"
+import {getIronSession} from "iron-session"
+import {cookies} from "next/headers"
 import {AppViewHandleResolver} from "@atproto/oauth-client-node";
 
 import {myCookieOptions} from "@/utils/auth";
 
 
 export async function login(handle: string){
+    console.log("logging in", handle)
+
 
     const oauthClient = await createClient()
 
@@ -26,7 +28,6 @@ export async function login(handle: string){
         })
     } catch (err) {
         // TO DO: Esto no debería hacer falta...
-
         const resolver = new AppViewHandleResolver('https://api.bsky.app/')
         const did = await resolver.resolve(handle)
 
@@ -65,13 +66,15 @@ export async function getSessionAgent(){
     try {
         const oauthSession = await oauthClient.restore(session.did)
         if(oauthSession){
-            const res = {
+            return {
                 agent: new Agent(oauthSession),
                 did: session.did
             }
-            return res
         } else {
-            return {agent: new Agent("https://bsky.social/xrpc"), did: undefined}
+            return {
+                agent: new Agent("https://bsky.social/xrpc"),
+                did: undefined
+            }
         }
     } catch (err) {
         console.error("error", err)

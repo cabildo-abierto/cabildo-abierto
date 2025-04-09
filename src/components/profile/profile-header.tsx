@@ -14,8 +14,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
 import {BlueskyLogo} from "../icons/bluesky-logo";
 import Link from "next/link";
-import {FullscreenImageViewer} from "../feed/fast-post-image";
 import {useUser} from "../../hooks/swr";
+import {FullscreenImageViewer} from "@/components/images/fullscreen-image-viewer";
 
 
 type ProfileHeaderProps = {
@@ -158,7 +158,7 @@ export function ProfileHeader({
                     images={[atprotoProfile.avatar]}
                     viewing={viewingProfilePic}
                     setViewing={setViewingProfilePic}
-                    className={"rounded-full border"}
+                    className={"rounded-full border max-w-[400px] max-h-[400px] object-contain"}
                 />
                 <Image
                     src={atprotoProfile.avatar}

@@ -60,7 +60,7 @@ export function expandURI(uri: string){
 export function editVisualizationUrl(uri: string) {
     const {did, rkey, collection} = splitUri(uri)
     const collectionParam = collection != "ar.com.cabildoabierto.visualization" ? "&c=" + collection : ""
-    return "/datos/nueva-visualizacion?did=" + did + "&rkey=" + rkey + collectionParam
+    return "/nueva-visualizacion?did=" + did + "&rkey=" + rkey + collectionParam
 }
 
 export function userUrl(id: string) {

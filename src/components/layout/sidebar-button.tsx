@@ -12,6 +12,7 @@ type SidebarButtonProps = {
     selected?: boolean
     showText?: boolean
     className?: string
+    id?: string
 }
 
 export const SidebarButton = ({
@@ -23,11 +24,12 @@ export const SidebarButton = ({
     href,
     disabled=false,
     selected=false,
-    className="mt-1 h-10"
+    className="mt-1 h-10",
+    id
 }: SidebarButtonProps) => {
 
     return <>
-        <CustomLink href={href} className={className}>
+        <CustomLink href={href} className={className} id={id}>
             {showText ? <Button
                 variant="text"
                 color="inherit"
@@ -42,7 +44,7 @@ export const SidebarButton = ({
                 disabled={disabled}
             >
                 <div className={"flex items-center space-x-2"}>
-                {selected || !iconInactive ? icon : iconInactive} <span className={selected ? "font-bold" : ""}>{showText ? text : ""}</span>
+                    {selected || !iconInactive ? icon : iconInactive} <span className={selected ? "font-bold" : ""}>{showText ? text : ""}</span>
                 </div>
             </Button> :
             <Button

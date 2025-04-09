@@ -60,7 +60,6 @@ function getInitialData(text: string | undefined, textFormat: string, readOnly: 
 export function getInitialData(text: string, format: string): InitialEditorStateType {
 
     if(format == "markdown"){
-
         if(text.length == 0){
             return initializeEmpty("")
         }

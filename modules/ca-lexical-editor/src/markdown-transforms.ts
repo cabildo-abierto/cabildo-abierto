@@ -21,7 +21,7 @@ export function editorStateToMarkdown(s: string){
 
     let markdown: string
     editor.read(() => {
-        markdown = $convertToMarkdownString(CA_TRANSFORMERS, undefined, false)
+        markdown = $convertToMarkdownString(CA_TRANSFORMERS, undefined, true)
     })
 
     return markdown
@@ -42,7 +42,7 @@ export function markdownToEditorStateStr(markdown: string): string {
     })
 
     editor.update(() => {
-        $convertFromMarkdownString(markdown, CA_TRANSFORMERS, undefined, false, true)
+        $convertFromMarkdownString(markdown, CA_TRANSFORMERS, undefined, true, true)
     })
 
     const editorState = editor.read(() => {
