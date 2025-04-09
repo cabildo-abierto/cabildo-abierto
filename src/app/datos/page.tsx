@@ -53,7 +53,7 @@ const Page = () => {
                 optionsNodes={optionsNodes}
                 className="flex justify-between"
             />}
-            {selected == "Visualizaciones" && <Link href={"/datos/nueva-visualizacion"}>
+            {selected == "Visualizaciones" && <Link href={"/nueva-visualizacion"}>
                 <Button
                     startIcon={<AddIcon/>}
                     variant={"text"}

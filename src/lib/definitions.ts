@@ -201,6 +201,7 @@ export type UserProps = {
     inCA: boolean
     CAProfileUri?: string
     createdAt: Date
+    seenTutorial: boolean
     editorStatus: EditorStatus
     platformAdmin: boolean
     subscriptionsUsed: SubscriptionProps[]

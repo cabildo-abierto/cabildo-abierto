@@ -45,9 +45,11 @@ export const MainLayoutContent = ({children}: {children: ReactNode}) => {
     }, [layoutConfig]);
 
 
-    const left = <div className={"fixed top-0 z-[1010] left-0 right-auto border-r"}>
-        <SidebarContent onClose={() => {}}/>
-    </div>
+    const left = (
+        <div className={"fixed top-0 z-[1010] left-0 right-auto border-r"}>
+            <SidebarContent onClose={() => {}}/>
+        </div>
+    )
 
     let right: ReactNode
     if (layoutConfig.openRightPanel) {
@@ -58,16 +60,19 @@ export const MainLayoutContent = ({children}: {children: ReactNode}) => {
         <div className={"flex-shrink-0 " + (layoutConfig.spaceForLeftSide ? "w-56" : "min-[500px]:w-20")}>
             {left}
             {layoutConfig.openSidebar && (
-                createPortal(<div
-                    className={
-                        "min-[500px]:hidden w-screen absolute inset-0 h-screen z-[1009] bg-black bg-opacity-50"
-                    }
-                    onClick={() => {
-                        setLayoutConfig((prev) => ({ ...prev, openSidebar: false }));
-                    }}
-                >
-                    {emptyChar}
-                </div>, window.document)
+                createPortal(
+                    <div
+                        className={
+                            "min-[500px]:hidden w-screen absolute inset-0 h-screen z-[1009] bg-black bg-opacity-50"
+                        }
+                        onClick={() => {
+                            setLayoutConfig((prev) => ({ ...prev, openSidebar: false }));
+                        }}
+                    >
+                        {emptyChar}
+                    </div>,
+                    window.document
+                )
             )}
         </div>
 

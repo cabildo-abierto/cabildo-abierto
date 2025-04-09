@@ -27,7 +27,7 @@ export const SearchPanelOnRightColumn = () => {
                 </form>
             </div>
             {searchState.searching && searchState.value.length > 0 && (
-                <div className={"rounded border-l border-r border-t w-full max-w-[300px] mt-2"}>
+                <div className={"rounded bg-[var(--background)] border-l border-r border-t w-full max-w-[300px] mt-2"}>
                     {showSearchButton && (
                         <div className={"border-b"}>
                             <form onSubmit={handleSubmit}>

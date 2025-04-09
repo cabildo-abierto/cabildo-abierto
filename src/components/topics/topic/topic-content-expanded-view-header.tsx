@@ -26,7 +26,7 @@ const MoreOptionsButton = ({
     const [onClose, setOnClose] = useState<() => void>()
 
     const modal = (
-        <div className="text-base border bg-[var(--background)] rounded p-1 flex flex-col space-y-1">
+        <div className="text-base bg-[var(--background-dark)] border rounded p-1 flex flex-col space-y-1">
             <OptionsDropdownButton
                 onClick={() => {
                     setWikiEditorState("editing-synonyms");

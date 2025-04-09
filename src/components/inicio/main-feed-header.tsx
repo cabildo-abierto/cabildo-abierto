@@ -1,12 +1,8 @@
 "use client"
-import {Button, IconButton} from "@mui/material"
+import {Button} from "@mui/material"
 import SelectionComponent from "@/components/buscar/search-selection-component"
-import MenuIcon from '@mui/icons-material/Menu';
-import {CabildoIcon} from "../icons/home-icon";
-import {Logo} from "../../../modules/ui-utils/src/logo";
-import {emptyChar} from "../../utils/utils";
-import {useLayoutConfig} from "../layout/layout-config-context";
 import {MobileHeader} from "../layout/mobile-header";
+import {optionToSearchParam} from "@/components/inicio/main-page";
 
 
 export const MainFeedHeader = ({
@@ -17,7 +13,9 @@ export const MainFeedHeader = ({
 }) => {
 
     function optionsNodes(o: string, isSelected: boolean){
-        return <div className="text-[var(--text)] h-10">
+        const id = optionToSearchParam(o)
+
+        return <div className="text-[var(--text)] h-10" id={id}>
             <Button
                 onClick={() => {}}
                 variant="text"

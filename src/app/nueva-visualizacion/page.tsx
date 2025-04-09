@@ -1,7 +1,7 @@
-import {VisualizationEditor} from "../../../components/visualizations/editor/editor";
-import {VisualizationEditorForVisualization} from "../../../components/visualizations/editor/visualization-editor-for-visualization";
+import {VisualizationEditor} from "../../components/visualizations/editor/editor";
+import {VisualizationEditorForVisualization} from "../../components/visualizations/editor/visualization-editor-for-visualization";
 import {PlotConfigProps} from "@/lib/definitions";
-import {getUri} from "../../../utils/uri";
+import {getUri} from "../../utils/uri";
 
 
 

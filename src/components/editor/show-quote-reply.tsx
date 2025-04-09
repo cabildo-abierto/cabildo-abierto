@@ -15,7 +15,7 @@ import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/Com
 import {revalidateTags} from "@/server-actions/admin";
 import {threadApiUrl} from "@/utils/uri";
 import {markdownSelectionToLexicalSelection} from "../../../modules/ca-lexical-editor/src/selection-transforms";
-import {getInitialData} from "../../../modules/ca-lexical-editor/src/get-initial-data";
+import {ModalOnClick} from "../../../modules/ui-utils/src/modal-on-click";
 
 
 export type QuoteEdgeProps = {
@@ -151,28 +151,32 @@ export const ShowQuoteReplyButton = ({
     }
 
     if(!editor) return null
-    return <div className={"space-y-1"} ref={containerRef} id={reply.cid}>
-        <div className={"z-10 " + (open ? "text-[var(--text-light)]" : "")}>
-            <IconButton
-                color={"inherit"}
-                size={"small"}
-                onClick={onClick}
-                onMouseLeave={onMouseLeave}
-                onMouseEnter={onMouseEnter}
-            >
-                <ActiveCommentIcon fontSize={"inherit"}/>
-            </IconButton>
-        </div>
-        {open && <div className={"z-20 absolute"}>
-            <SidenoteReplyPreviewFrame
-                post={reply}
-                borderBelow={false}
-                showingParent={false}
-                showingChildren={false}
-                onDelete={onDelete}
-            >
-                <FastPostContent post={reply} hideQuote={true}/>
-            </SidenoteReplyPreviewFrame>
-        </div>}
+
+    const modal = (
+        <SidenoteReplyPreviewFrame
+            post={reply}
+            borderBelow={false}
+            showingParent={false}
+            showingChildren={false}
+            onDelete={onDelete}
+        >
+            <FastPostContent post={reply} hideQuote={true}/>
+        </SidenoteReplyPreviewFrame>
+    )
+
+    return <div className={""} ref={containerRef} id={reply.cid}>
+        <ModalOnClick modal={modal}>
+            <div className={"" + (open ? "text-[var(--text-light)]" : "")}>
+                <IconButton
+                    color={"inherit"}
+                    size={"small"}
+                    onClick={onClick}
+                    onMouseLeave={onMouseLeave}
+                    onMouseEnter={onMouseEnter}
+                >
+                    <ActiveCommentIcon fontSize={"inherit"}/>
+                </IconButton>
+            </div>
+        </ModalOnClick>
     </div>
 }

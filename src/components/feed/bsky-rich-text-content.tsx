@@ -3,7 +3,7 @@ import { RichText } from '@atproto/api'
 import ReadOnlyEditor from '../editor/read-only-editor';
 
 
-export const BskyRichTextContent = ({content, className="article-content not-article-content no-margin-first"}: {className?: string, content: {text: string, post?: {facets?: string}}}) => {
+export const BskyRichTextContent = ({content, className="text-[16px] no-margin-top article-content not-article-content"}: {className?: string, content: {text: string, post?: {facets?: string}}}) => {
     const text = content.text
 
     if(!content.text || content.text.length == 0){
@@ -28,5 +28,9 @@ export const BskyRichTextContent = ({content, className="article-content not-art
       }
     })
 
-    return <ReadOnlyEditor text={markdown} format={"markdown"} editorClassName={className}/>
+    return (
+        <>
+            <ReadOnlyEditor text={markdown} format={"markdown"} editorClassName={className}/>
+        </>
+    )
 }
