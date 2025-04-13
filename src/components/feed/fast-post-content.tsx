@@ -1,7 +1,7 @@
 "use client"
 
 import {BskyRichTextContent} from "./bsky-rich-text-content";
-import {FastPostImage} from "./fast-post-image";
+import {FastPostImages} from "./fast-post-images";
 import {QuotedPostFromEmbed} from "./quoted-post";
 import {FastPostProps} from "@/lib/definitions";
 import {ContentQuote, QuotedContent} from "./content-quote";
@@ -28,7 +28,7 @@ export const FastPostContent = ({post, isMainPost=false, hideQuote=false, showQu
         <div className={isMainPost ? "text-lg" : undefined}>
             <BskyRichTextContent content={post.content}/>
         </div>
-        <FastPostImage
+        <FastPostImages
             post={post}
             did={post.author.did}
         />

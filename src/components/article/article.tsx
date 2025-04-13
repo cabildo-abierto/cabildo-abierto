@@ -50,7 +50,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
     return <div className="w-full">
         <div className={"p-3 border-b"}>
             <ArticleHeader article={article}/>
-            <div className={"mt-8"} id={editorId}>
+            <div className={"mt-8 mb-16"} id={editorId}>
                 <EditorWithQuoteComments
                     settings={getEditorSettings({
                         isReadOnly: true,

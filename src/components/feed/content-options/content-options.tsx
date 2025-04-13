@@ -11,7 +11,6 @@ import {useSWRConfig} from "swr";
 import {useState} from "react";
 import {useUser} from "@/hooks/swr";
 import {addToEnDiscusion, removeFromEnDiscusion} from "@/server-actions/feed/inicio/en-discusion";
-import {useRouter} from "next/navigation";
 
 
 const collection2displayText = {
@@ -38,7 +37,7 @@ export const ContentOptions = ({onClose, record, onDelete, enDiscusion="n/a"}: {
 }) => {
     const {user} = useUser()
     const {mutate} = useSWRConfig()
-    const [addedToEnDiscusion, setAddedToEnDiscusion] = useState<boolean>(enDiscusion != "can add")
+    const [addedToEnDiscusion, setAddedToEnDiscusion] = useState<string | null>(enDiscusion)
 
     async function onClickDelete() {
         await deleteRecords({uris: [record.uri], atproto: true})
@@ -57,11 +56,11 @@ export const ContentOptions = ({onClose, record, onDelete, enDiscusion="n/a"}: {
             handleClick={async () => {
                 let r
                 if(!addedToEnDiscusion){
-                    r = await addToEnDiscusion(record.uri)
-                    setAddedToEnDiscusion(true)
+                    const {uri} = await addToEnDiscusion({uri: record.uri, cid: record.cid})
+                    setAddedToEnDiscusion(uri)
                 } else {
-                    r = await removeFromEnDiscusion(record.uri)
-                    setAddedToEnDiscusion(false)
+                    r = await removeFromEnDiscusion(enDiscusion)
+                    setAddedToEnDiscusion(null)
                 }
                 mutate("/api/feed/EnDiscusion")
                 return r

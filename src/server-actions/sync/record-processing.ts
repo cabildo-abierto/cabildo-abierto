@@ -426,3 +426,19 @@ export function processVisualization(r: SyncRecordProps){
         })
     ]
 }
+
+
+export function processEnDiscusion(r: SyncRecordProps){
+    const updates: any[] = newDirtyRecord(r.record.subject)
+
+    updates.push(db.record.update({
+        data: {
+            enDiscusionSubjectId: r.record.subject.uri
+        },
+        where: {
+            uri: r.uri
+        }
+    }))
+
+    return updates
+}

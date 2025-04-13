@@ -179,23 +179,6 @@ export function useQuotedContent(uri: string): {quotedContent: QuotedContent, er
 }
 
 
-export function usePost(uri: string): {post: FastPostProps, error?: string, isLoading: boolean}{
-    const { data, isLoading } = useSWR('/api/post/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        post: data && data.post ? data.post : undefined,
-        isLoading,
-        error: data && data.error ? data.error : undefined
-    }
-}
-
-
 export function useTopicFeed(id: string): {feed: {mentions: FeedContentProps[], replies: FeedContentProps[], topics: string[]}, error: string, isLoading: boolean}{
     const { data, isLoading } = useSWR('/api/topic-feed/'+encodeURIComponent(id), fetcher, {
         revalidateIfStale: false,

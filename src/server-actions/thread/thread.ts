@@ -1,21 +1,19 @@
 "use server"
 import {ThreadViewPost} from "@atproto/api/src/client/types/app/bsky/feed/defs";
-import {
-    FastPostProps,
-    FeedContentProps,
-    ThreadProps,
-} from "@/lib/definitions";
+import {ArticleProps, FastPostProps, FeedContentProps, ThreadProps, ThreadReplyProps,} from "@/lib/definitions";
 import {getSessionAgent, getSessionDid} from "../auth";
-import {unstable_cache} from "next/cache";
-import {addCounters, logTimes, threadQuery, threadRepliesQuery} from "../utils";
+import {reactionsQuery, recordQuery, threadQuery} from "../utils";
 import {isCAUser} from "../user/users";
 import {db} from "@/db";
 import {getTextFromBlob} from "../topic/topics";
-import {getUserEngagement} from "../feed/get-user-engagement";
-import {getUri} from "@/utils/uri";
+import {addViewerEngagementToFeed} from "../feed/get-user-engagement";
+import {getCollectionFromUri, getDidFromUri, getRkeyFromUri, isArticle, isPost, isQuotePost} from "@/utils/uri";
+import {getFeed} from "@/server-actions/feed/feed";
+import {FeedSkeleton} from "@/server-actions/feed/profile/main";
+import {rootCreationDateSortKey} from "@/server-actions/feed/utils";
 
 
-function threadViewPostToThread(thread: ThreadViewPost) {
+function threadViewPostToThread(thread: ThreadViewPost): {thread: ThreadProps} {
     const record = thread.post.record as {createdAt: string, text: string, facets?: any, embed?: any}
 
     const post: FastPostProps = {
@@ -24,6 +22,7 @@ function threadViewPostToThread(thread: ThreadViewPost) {
         author: thread.post.author,
         collection: "app.bsky.feed.post",
         createdAt: new Date(record.createdAt),
+        rkey: getRkeyFromUri(thread.post.uri),
         content: {
             text: record.text,
             post: {
@@ -40,7 +39,7 @@ function threadViewPostToThread(thread: ThreadViewPost) {
         if("notFound" in r && r.notFound || "blocked" in r && r.blocked) return null
         const replyThread = r as ThreadViewPost
         if(replyThread.$type == "app.bsky.feed.defs#threadViewPost"){
-            return threadViewPostToThread(replyThread).thread.post
+            return threadViewPostToThread(replyThread).thread.post as FastPostProps
         } else {
             return null
         }
@@ -50,64 +49,89 @@ function threadViewPostToThread(thread: ThreadViewPost) {
 }
 
 
-export async function getThreadFromATProto({did, rkey}: {did: string, rkey: string}) {
+export async function getThreadFromATProto(uri: string): Promise<{thread?: ThreadProps, error?: string}> {
     const {agent} = await getSessionAgent()
 
-    const uri = getUri(did, "app.bsky.feed.post", rkey)
-    const {data} = await agent.getPostThread({
-        uri
-    })
+    try {
+        const {data} = await agent.getPostThread({
+            uri
+        })
+        if(!("notFound" in data && data.notFound) && !("blocked" in data && data.blocked)){
+            const thread = data.thread as ThreadViewPost
 
-    if(!("notFound" in data && data.notFound) && !("blocked" in data && data.blocked)){
-        const thread = data.thread as ThreadViewPost
-
-        return threadViewPostToThread(thread)
-    } else {
-        return {error: "No se encontró el post."}
+            return threadViewPostToThread(thread)
+        } else {
+            return {error: "No se encontró el post."}
+        }
+    } catch (err) {
+        console.error(err)
+        return {error: "Ocurrió un error al obtener el hilo."}
     }
 }
 
 
-export async function getThreadFromCANoCache({did, c, rkey}: {did: string, c: string, rkey: string}) {
-    const t1 = Date.now()
-    const threadId = {rkey, authorId: did}
-
-    try {
-        const mainPostQ = db.record.findFirst({
-            select: threadQuery(c),
-            where: threadId
-        })
-        // TO DO: Implementar esto como un feed.
-        const repliesQ = db.record.findMany({
-            select: threadRepliesQuery,
-            where: {
-                content: {
-                    post: {
-                        replyTo: threadId
-                    }
+export async function getThreadRepliesSkeleton(uri: string): Promise<FeedSkeleton> {
+    return await db.record.findMany({
+        select: {
+            uri: true
+        },
+        where: {
+            content: {
+                post: {
+                    replyToId: uri
                 }
             }
-        })
-
-        let [mainPost, replies] = await Promise.all([mainPostQ, repliesQ]) as unknown as [FeedContentProps & {content?: {text?: string, textBlob?: {cid: string, authorId: string}}}, FeedContentProps[]]
-        const t2 = Date.now()
-
-        if(mainPost.content && mainPost.content.textBlob){
-            mainPost.content.text = await getTextFromBlob(mainPost.content.textBlob)
         }
+    })
+}
 
-        for(let i = 0; i < replies.length; i++){
-            if(replies[i].collection == "ar.com.cabildoabierto.quotePost"){
-                (replies[i] as any).content.post.replyTo.content.text = mainPost.content.text
+
+export async function getThreadReplies(uri: string): Promise<ThreadReplyProps[]> {
+    const {feed} = await getFeed({
+        getSkeleton: async () => {return await getThreadRepliesSkeleton(uri)},
+        sortKey: rootCreationDateSortKey
+    })
+
+    return feed as ThreadReplyProps[]
+}
+
+export async function getThreadContent(uri: string): Promise<FeedContentProps> {
+    const content = (await getFeed({
+        getSkeleton: async () => {return [{uri}]},
+        sortKey: () => null
+    })).feed[0]
+
+    if(content.collection == "ar.com.cabildoabierto.article" && content.content.textBlob){
+        content.content.text = await getTextFromBlob(content.content.textBlob)
+    }
+
+    return content
+}
+
+
+export async function getThread(uri: string): Promise<{thread?: ThreadProps, error?: string}> {
+    const did = await getSessionDid()
+
+    try {
+        const mainPostQ = getThreadContent(uri)
+
+        const repliesQ = getThreadReplies(uri)
+
+        let [mainPost, replies] = await Promise.all([mainPostQ, repliesQ])
+
+        if(isArticle(mainPost.collection)){
+            for(let i = 0; i < replies.length; i++){
+                if(replies[i].collection == "ar.com.cabildoabierto.quotePost"){
+                    replies[i].content.post.replyTo.text = (mainPost as ArticleProps).content.text
+                }
             }
         }
+
+        mainPost = (await addViewerEngagementToFeed(did, [mainPost]))[0]
 
         if(!mainPost){
             return {error: "El contenido no existe."}
         }
-
-        const t3 = Date.now()
-        logTimes("getting thread CA", [t1, t2, t3])
 
         return {
             thread: {
@@ -119,47 +143,5 @@ export async function getThreadFromCANoCache({did, c, rkey}: {did: string, c: st
         console.error(err)
         return {error: "No se pudo obtener el contenido."}
     }
-}
-
-
-export async function getThreadFromCA({did, c, rkey}: {did: string, c: string, rkey: string}) {
-    const viewerDid = await getSessionDid()
-
-    const thread = await unstable_cache(
-        async () => {
-            return await getThreadFromCANoCache({did, c, rkey})
-        },
-        ["thread:"+did+":"+rkey],
-        {
-            tags: ["thread:"+did+":"+rkey, "thread"],
-            revalidate: 5
-        }
-    )()
-
-
-    if(thread.thread){
-        const engagement = await getUserEngagement([thread.thread.post, ...thread.thread.replies], viewerDid)
-        return {
-            thread: {
-                post: addCounters(thread.thread.post, engagement),
-                replies: thread.thread.replies.map((r) => {
-                    return addCounters(r, engagement)
-                })
-            },
-        }
-    } else {
-        return {error: thread.error}
-    }
-}
-
-
-export async function getThread({did, c, rkey}: {did: string, c: string, rkey: string}): Promise<{thread?: ThreadProps, error?: string}> {
-    const isCA = await isCAUser(did)
-
-    if(!isCA || c == "app.bsky.feed.post"){
-        return await getThreadFromATProto({did, rkey})
-    }
-
-    return await getThreadFromCA({did, c, rkey})
 }
 

@@ -1,13 +1,13 @@
 "use server"
 
 
-import {db} from "../../db";
+import {db} from "@/db";
 import {revalidateTag} from "next/cache";
-import {getSessionAgent, getSessionDid} from "../auth";
+import {getSessionDid} from "../auth";
+import {handleToDid} from "@/server-actions/user/users";
 
 export async function grantAccess(handle: string): Promise<{error?: string}>{
-    const {agent} = await getSessionAgent()
-    const {data} = await agent.resolveHandle({handle})
+    const did = await handleToDid(handle)
 
     try {
         await db.user.update({
@@ -15,10 +15,10 @@ export async function grantAccess(handle: string): Promise<{error?: string}>{
                 hasAccess: true
             },
             where: {
-                did: data.did
+                did
             }
         })
-        revalidateTag("user:"+data.did)
+        revalidateTag("user:"+did)
         return {}
     } catch (error) {
         console.error("Grant access error:", error)

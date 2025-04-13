@@ -22,10 +22,14 @@ export function searchParamToOption(v: string){
 }
 
 
+const SelectedFeed = ({selected}: {selected: string}) => {
+    const feed = useFeed(optionToSearchParam(selected))
+
+    return <Feed feed={feed}/>
+}
+
+
 export const MainPage = () => {
-    const feed = useFeed("EnDiscusion")
-    const followingFeed = useFeed("Siguiendo")
-    const discoverFeed = useFeed("Descubrir")
     const params = useSearchParams()
     const paramsFeed = params.get("f")
     const selected = paramsFeed ? searchParamToOption(paramsFeed) : "Siguiendo"
@@ -43,13 +47,7 @@ export const MainPage = () => {
             />
         </div>
 
-        {selected == "En discusión" && <Feed
-            feed={feed}
-        />}
-
-        {selected == "Siguiendo" && <Feed
-            feed={followingFeed}
-        />}
+        {selected != "Descubrir" && <SelectedFeed selected={selected}/>}
 
         {selected == "Descubrir" && <div className={"py-8 text-center text-[var(--text-light)]"}>
             Próximamente acá vas a poder encontrar contenidos de usuarios que no seguís.

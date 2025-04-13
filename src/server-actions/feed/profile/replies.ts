@@ -1,66 +1,56 @@
 "use server"
 import {FeedContentProps} from "@/lib/definitions";
 import {getSessionAgent} from "@/server-actions/auth";
-import {joinCAandATFeeds} from "@/server-actions/feed/utils";
-import {hydrateFeedSkeleton} from "@/server-actions/feed/hydrate";
+import {
+    filterTimeline,
+    removeRepeatedInSkeleton,
+    rootCreationDateSortKey,
+    skeletonElementFromFeedViewPost
+} from "@/server-actions/feed/utils";
 import {db} from "@/db";
-import {addViewerEngagementToFeed} from "@/server-actions/feed/get-user-engagement";
+import {getFeed} from "@/server-actions/feed/feed";
+import {
+    FeedSkeleton,
+} from "@/server-actions/feed/profile/main";
+import {concat} from "@/utils/arrays";
 
 
-export async function getRepliesFeedCASkeleton(did: string){
-    let result: { uri: string, replyToId?: string, rootId?: string }[] = await db.$queryRaw`
-        SELECT r."uri", p."replyToId", p."rootId"
-        FROM "Record" r
-                 JOIN "Content" c ON c."uri" = r."uri"
-                 LEFT JOIN "Post" p ON p."uri" = c."uri"
-                 LEFT JOIN "Record" root ON root."uri" = p."rootId"
-        WHERE (
-                (
-                    (
-                        root."uri" IS NULL AND
-                        r."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post')
-                    )
-                        OR
-                    (
-                        root."authorId" = r."authorId" AND
-                        root."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post')
-                    )
-                )
-            )
-          AND (r."authorId" = ${did})
-          AND NOT EXISTS ( -- a reply that was not replied to by the same user
-            SELECT 1
-            FROM "Post" p_reply
-                     JOIN "Record" r_reply ON r_reply."uri" = p_reply."uri"
-            WHERE p_reply."replyToId" = r."uri"
-              AND r_reply."authorId" = r."authorId"
-        );
-    `;
-    return result
+export async function getRepliesProfileFeedSkeletonBsky(did: string): Promise<FeedSkeleton> {
+    const {agent} = await getSessionAgent()
+    const feed = await agent.getAuthorFeed({actor: did, filter: "posts_with_replies"})
+
+    return removeRepeatedInSkeleton(feed.data.feed.filter(filterTimeline).map(skeletonElementFromFeedViewPost))
 }
 
 
-export async function getRepliesFeedCA(did: string, loggedInDid: string){
-    const skeleton = await getRepliesFeedCASkeleton(did)
-    let feedCA = await hydrateFeedSkeleton(skeleton)
-    feedCA = (await addViewerEngagementToFeed(loggedInDid, feedCA)).feed
+export async function getRepliesProfileFeedSkeletonCA(did: string): Promise<FeedSkeleton> {
+    return await db.record.findMany({
+        select: {
+            uri: true,
+            lastInThreadId: true,
+            secondToLastInThreadId: true
+        },
+        where: {
+            authorId: did,
+            collection: "ar.com.cabildoabierto.article"
+        }
+    })
 
-    return feedCA
+    // to do: respuestas y quote posts a artículos
+}
+
+
+export async function getRepliesProfileFeedSkeleton(did: string): Promise<FeedSkeleton> {
+    return concat(await Promise.all([
+        getRepliesProfileFeedSkeletonBsky(did),
+        getRepliesProfileFeedSkeletonCA(did)
+    ]))
 }
 
 
 export async function getRepliesProfileFeed(did: string): Promise<{feed?: FeedContentProps[], error?: string}>{
-    const {did: loggedInDid, agent} = await getSessionAgent()
-
-    if(!did.startsWith("did")){
-        did = (await agent.resolveHandle({handle: did})).data.did
-    }
-
-    const promiseFeedCA = getRepliesFeedCA(did, loggedInDid)
-    const promiseFeedAT = agent.getAuthorFeed({actor: did, filter: "posts_no_replies"})
-
-    const [feedCA, feedAT] = await Promise.all([promiseFeedCA, promiseFeedAT])
-
-    const feed = joinCAandATFeeds(feedCA, feedAT.data.feed)
-    return {feed}
+    return await getFeed({
+        getSkeleton: async () => {return await getRepliesProfileFeedSkeleton(did)},
+        sortKey: rootCreationDateSortKey
+    })
 }

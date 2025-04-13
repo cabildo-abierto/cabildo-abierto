@@ -11,7 +11,6 @@ import {RepostedBy} from "./reposted-by";
 import {ProfilePic} from "./profile-pic";
 import {threadApiUrl, urlFromRecord, userUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
-
 import {emptyChar} from "@/utils/utils";
 import {useSWRConfig} from "swr";
 
@@ -22,7 +21,7 @@ export const ReplyVerticalLine = ({className=""}: {className?: string}) => {
 
 type FastPostPreviewFrameProps = {
     children: ReactNode
-    post: RecordProps & EngagementProps & ReasonProps
+    post: RecordProps & EngagementProps & {reason?: ReasonProps}
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
@@ -42,7 +41,7 @@ export const FastPostPreviewFrame = ({
     const url = urlFromRecord(record as {uri: string, collection: string, author: {did: string, handle: string}})
     const {mutate} = useSWRConfig()
 
-    const enDiscusion = post.enDiscusion ? "can remove" : "can add"
+    const enDiscusion = post.enDiscusion ? post.enDiscusion.uri : undefined
 
     async function onClick() {
 
@@ -65,8 +64,6 @@ export const FastPostPreviewFrame = ({
         router.push(url);
     }
 
-
-
     return <div
         id={post.uri}
         className={"flex flex-col max-[500px]:w-screen max-[680px]:w-[calc(100vw-80px)] hover:bg-[var(--background-dark)] cursor-pointer " + (borderBelow ? " border-b" : "")}
@@ -79,7 +76,8 @@ export const FastPostPreviewFrame = ({
                 <Link
                     href={userUrl(record.author.handle)}
                     onClick={(e) => {e.stopPropagation()}}
-                    className="w-11 h-11 flex items-center justify-center">
+                    className="w-11 h-11 flex items-center justify-center"
+                >
                     <ProfilePic
                         user={record.author}
                         className={"rounded-full w-11 h-11"}

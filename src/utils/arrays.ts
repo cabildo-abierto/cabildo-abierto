@@ -42,19 +42,19 @@ export function oldestFirst(a: { createdAt?: Date }, b: { createdAt?: Date }) {
     return -newestFirst(a, b)
 }
 
-export function listOrder(a: { score?: number[] }, b: { score?: number[] }) {
-    if (!a.score || !b.score) return 0
-    for (let i = 0; i < a.score.length; i++) {
-        if (a.score[i] > b.score[i]) {
+export function listOrder(a: number[], b: number[]) {
+    if (!a || !b) return 0
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] > b[i]) {
             return 1
-        } else if (a.score[i] < b.score[i]) {
+        } else if (a[i] < b[i]) {
             return -1
         }
     }
     return 0
 }
 
-export function listOrderDesc(a: { score?: number[] }, b: { score?: number[] }) {
+export function listOrderDesc(a: number[], b: number[]) {
 
     return -listOrder(a, b)
 }
@@ -65,4 +65,18 @@ export function range(a: number, b?: number){
         return Array.from({ length: b-a }, (_, i) => a+i)
     }
     return Array.from({ length: a }, (_, i) => i)
+}
+
+
+export function sortByKey<T, V>(a: T[], keyFn: (x: T) => V, keyCmp: (a: V, b: V) => number){
+    function cmp(a: {x: T, key: V}, b: {x: T, key: V}) {
+        return keyCmp(a.key, b.key)
+    }
+
+    return a.map(x => ({x, key: keyFn(x)})).sort(cmp).map(({x}) => x)
+}
+
+
+export function concat<T>(a: T[][]): T[] {
+    return a.reduce((acc: T[], cur) => ([...acc, ...cur]))
 }

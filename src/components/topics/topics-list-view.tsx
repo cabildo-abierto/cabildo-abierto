@@ -15,9 +15,7 @@ export const TopicsSortSelector = ({sortedBy, setSortedBy}: {
     sortedBy: TopicsSortOrder
     setSortedBy: (s: TopicsSortOrder) => void
 }) => {
-    const [onClose, setOnClose] = useState<() => void>()
-
-    const modal = (
+    const modal = (onClose: () => void) => (
         <div className={"p-1 space-y-1 border rounded"}>
             {["Populares", "Ediciones recientes"].map((s: TopicsSortOrder, index) => {
                 return <div key={index}>
@@ -36,7 +34,7 @@ export const TopicsSortSelector = ({sortedBy, setSortedBy}: {
         </div>
     )
 
-    return <ModalOnClick modal={modal} setOnClose={setOnClose}>
+    return <ModalOnClick modal={modal}>
         <div className={"text-[var(--text-light)]"}>
             <IconButton
                 size={"small"}

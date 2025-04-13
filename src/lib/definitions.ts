@@ -7,21 +7,6 @@ export type ATProtoStrongRef = {
     cid: string
 }
 
-export type RecordProps = {
-    uri?: string
-    cid?: string
-    collection: string
-    createdAt?: Date
-    rkey?: string
-    author: {
-        did: string
-        handle: string
-        displayName?: string
-        avatar?: string
-        inCA?: boolean
-    }
-    enDiscusion?: boolean
-}
 
 export type FastPostReplyProps = {
     parent: ATProtoStrongRef
@@ -29,30 +14,37 @@ export type FastPostReplyProps = {
 }
 
 
-export type TopicVersionProps = RecordProps & {
-    content: {
-        text: string
-        format?: string
-        textBlob: {
-            cid: string,
-            authorId: string
-        },
-        topicVersion: {
-            topicId: string
-            message: string
-            title?: string
+export type Collection =
+    PostCollection |
+    "ar.com.cabildoabierto.article" |
+    "ar.com.cabildoabierto.topic" |
+    "ar.com.cabildoabierto.vote" |
+    "ar.com.cabildoabierto.visualization" |
+    "ar.com.cabildoabierto.dataset" |
+    "ar.com.cabildoabierto.dataBlock" |
+    "app.bsky.feed.repost" |
+    "app.bsky.feed.like"
 
-            diff?: string
-            charsAdded?: number
-            charsDeleted?: number
-            accCharsAdded?: number
-            contribution?: string
+export type PostCollection =
+    "ar.com.cabildoabierto.quotePost" |
+    "app.bsky.feed.post"
 
-            authorship: boolean
 
-            categories?: string
-            synonyms?: string
-        }
+export type RecordProps = {
+    uri: string
+    cid: string
+    collection: Collection
+    createdAt: Date
+    rkey: string
+    author: {
+        did: string
+        handle: string
+        displayName?: string
+        avatar?: string
+        inCA?: boolean
+    }
+    enDiscusion?: {
+        uri: string
     }
 }
 
@@ -89,7 +81,7 @@ export type TopicHistoryProps = {
     versions: {
         uri: string
         cid: string
-        collection: string
+        collection: "ar.com.cabildoabierto.topic"
         author: {
             did: string
             handle: string
@@ -144,14 +136,22 @@ export type TopicsGraph = {
 
 
 export type ReasonProps = {
-    reason?: {
-        createdAt: Date
-        collection: string
-        by: SmallUserProps
-    }
+    createdAt: Date
+    collection: Collection
+    by: SmallUserProps
 }
-export type FeedContentProps = ((FastPostProps | ArticleProps | DatasetProps | VisualizationProps | TopicVersionOnFeedProps | {}) & RecordProps & EngagementProps & ReasonProps)
+
+
+export type FeedContentProps =
+    (FastPostProps | ArticleProps | DatasetProps | VisualizationProps | TopicVersionOnFeedProps) &
+    Omit<RecordProps, "collection"> &
+    EngagementProps &
+    {reason?: ReasonProps}
+
+
+
 export type FeedContentPropsMaybe = FeedContentProps & {blocked?: boolean, notFound?: boolean}
+
 
 export type SmallUserProps = {
     did: string
@@ -168,6 +168,7 @@ export type BothContributionsProps = {
     all: [string, number][]
 }
 
+
 export type ContributionsProps = [string, number][]
 
 
@@ -175,7 +176,6 @@ export type FeedEngagementProps = {
     likes: {likedRecordId: string; uri: string}[]
     reposts: {repostedRecordId: string; uri: string}[]
 }
-
 
 
 export type SubscriptionProps = {
@@ -245,6 +245,7 @@ export type UserStats = {
 export type ArticleProps = RecordProps & EngagementProps & {
     content: {
         text?: string
+        textBlob?: {cid: string, authorId: string}
         format?: string
         numWords?: number
         article: {
@@ -255,7 +256,7 @@ export type ArticleProps = RecordProps & EngagementProps & {
             count: number
         }[]
     }
-}
+} & {collection: "ar.com.cabildoabierto.article"}
 
 export type EngagementProps = {
     likeCount?: number
@@ -265,6 +266,9 @@ export type EngagementProps = {
     participantsCount?: number
     uniqueViewsCount?: number
     visualizationsUsingCount?: number
+    likeCountBsky?: number
+    repostCountBsky?: number
+    quoteCountBsky?: number
 }
 
 export type FastPostProps = RecordProps & EngagementProps & {
@@ -278,6 +282,17 @@ export type FastPostProps = RecordProps & EngagementProps & {
             grandparentAuthor?: SmallUserProps
             quote?: string
             visualization?: VisualizationProps
+        }
+    }
+} & {collection: "ar.com.cabildoabierto.quotePost" | "app.bsky.feed.post"}
+
+
+export type ThreadReplyProps = FastPostProps & {
+    content: {
+        post: {
+            replyTo: {
+                text?: string
+            }
         }
     }
 }
@@ -296,8 +311,7 @@ export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
             charsDeleted?: number
         }
     }
-}
-
+} & {collection: "ar.com.cabildoabierto.topic"}
 
 export type ThreadProps = {
     post: FeedContentProps
@@ -329,7 +343,7 @@ export type DatasetProps = RecordProps & {
     visualizationsUsing: {
         uri: string
     }[]
-}
+} & {collection: "ar.com.cabildoabierto.dataset"}
 
 
 export type PlotConfigProps = {
@@ -358,7 +372,7 @@ export type VisualizationProps = RecordProps & {
         }
         previewBlobCid?: string
     }
-}
+} & {collection: "ar.com.cabildoabierto.visualization"}
 
 
 

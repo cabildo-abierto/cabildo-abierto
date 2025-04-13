@@ -35,7 +35,7 @@ const ShowThreadButton = ({root}: {root: RecordProps}) => {
 
 
 export type FastPostPreviewProps = {
-    post: FastPostProps & ReasonProps
+    post: FastPostProps & { reason?: ReasonProps }
     showingChildren?: boolean
     showingParent?: boolean
     parentIsMainPost?: boolean

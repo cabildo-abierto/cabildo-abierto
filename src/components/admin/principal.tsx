@@ -17,7 +17,8 @@ import {
 } from "@/server-actions/topic/current-version";
 import {AdminSection} from "./admin-section";
 import {updateCategoriesGraph} from "@/server-actions/topic/graph";
-import {expandURI} from "../../utils/uri";
+import {expandURI} from "@/utils/uri";
+import {updateThreadsInFeed} from "@/server-actions/feed/thread-in-feed";
 
 
 export const AdminPrincipal = () => {
@@ -164,6 +165,18 @@ export const AdminPrincipal = () => {
                         return {}
                     }}
                     text1={`Actualizar versión actual de ${topicId}`}
+                />
+            </AdminSection>
+
+
+            <AdminSection title={"Threads"}>
+
+                <StateButton
+                    handleClick={async () => {
+                        await updateThreadsInFeed()
+                        return {}
+                    }}
+                    text1={`Actualizar threads en feed`}
                 />
             </AdminSection>
         </div>

@@ -3,10 +3,11 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 })
 
 nextConfig = {
-    experimental: {
-        turbo: {
-            // ...
+    turbopack: {
+        resolveAlias: {
+            underscore: 'lodash',
         },
+        resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.json'],
     },
     logging: {
         fetches: {

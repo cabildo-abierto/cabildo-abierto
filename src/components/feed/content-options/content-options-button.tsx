@@ -16,9 +16,7 @@ export const ContentOptionsButton = ({
     onDelete?: () => Promise<void>
     enDiscusion?: string
 }) => {
-    const [onClose, setOnClose] = useState<() => void>(() => {})
-
-    const modal = (
+    const modal = (onClose: () => void) => (
         <ContentOptionsDropdown
             record={record}
             onClose={onClose}
@@ -27,7 +25,7 @@ export const ContentOptionsButton = ({
         />
     )
 
-    return <ModalOnClick modal={modal} setOnClose={(f) => {setOnClose(f)}}>
+    return <ModalOnClick modal={modal}>
         <div className={"text-[var(--text-light)] text-xs"}>
             <IconButton
                 color="inherit"

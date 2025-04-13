@@ -1,16 +1,15 @@
 "use client"
 
-import React, {ReactNode, useEffect, useState} from 'react';
+import React, {ReactNode, useState} from 'react';
 import {Popper, Fade} from '@mui/material';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 
 type ModalOnClickProps = {
     children: ReactNode
-    modal: ReactNode
-    setOnClose?: (onClose: () => void) => void
+    modal: (close: () => void) => ReactNode
 }
 
-export const ModalOnClick = ({children, modal, setOnClose}: ModalOnClickProps) => {
+export const ModalOnClick = ({children, modal}: ModalOnClickProps) => {
     const [open, setOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -24,12 +23,6 @@ export const ModalOnClick = ({children, modal, setOnClose}: ModalOnClickProps) =
         setOpen(false);
     };
 
-    useEffect(() => {
-        setOnClose(() => {
-            setOpen(false)
-        })
-    }, [setOnClose]);
-
     return (
         <>
             <div onClick={handleClick}>
@@ -40,7 +33,7 @@ export const ModalOnClick = ({children, modal, setOnClose}: ModalOnClickProps) =
                     <ClickAwayListener onClickAway={handleClickAway}>
                         <Fade {...TransitionProps} timeout={350}>
                             <div className="mt-2 bg-[var(--background-dark)]">
-                                {modal}
+                                {modal(() => {setOpen(false)})}
                             </div>
                         </Fade>
                     </ClickAwayListener>

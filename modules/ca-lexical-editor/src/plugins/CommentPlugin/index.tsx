@@ -7,8 +7,6 @@
  */
 
 import {
-    $nodesOfType,
-    $setSelection,
     LexicalCommand,
     NodeKey
 } from 'lexical';
@@ -16,9 +14,8 @@ import {
 import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$wrapNodeInElement, mergeRegister} from '@lexical/utils';
+import {mergeRegister} from '@lexical/utils';
 import {
-    $getRoot,
     $getSelection,
     $isRangeSelection,
     $isTextNode,
@@ -32,8 +29,7 @@ import {createPortal} from 'react-dom';
 import {AddCommentButton} from './add-comment-button';
 
 import {SmallUserProps} from "@/lib/definitions";
-import {$createSidenoteNode, SidenoteNode} from "../../nodes/SidenoteNode";
-import {lexicalSelectionToMarkdownSelection, markdownSelectionToLexicalSelection} from "../../selection-transforms";
+import {lexicalSelectionToMarkdownSelection} from "../../selection-transforms";
 import {getStandardSelection} from "./standard-selection";
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
@@ -42,8 +38,8 @@ export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
 
 
 export type ReplyToContent = {
-    uri?: string
-    cid?: string
+    uri: string
+    cid: string
     collection: string
     author?: SmallUserProps
     content?: {
@@ -64,7 +60,6 @@ export type ReplyToContent = {
 }
 
 export type OnAddCommentProps = (selection: [number, number]) => void
-export type QuoteReply = { uri: string, selection: [number, number] }
 
 type CommentPluginProps = {
     onAddComment: OnAddCommentProps

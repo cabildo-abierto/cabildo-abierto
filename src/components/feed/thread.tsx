@@ -10,10 +10,9 @@ import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/Tab
 import {VisualizationOnThread} from "../visualizations/visualization-on-thread";
 import {DatasetOnThread} from "../datasets/dataset-on-thread";
 
-import {collectionToDisplay, isPost, threadApiUrl} from "../../utils/uri";
+import {collectionToDisplay, isPost, threadApiUrl} from "@/utils/uri";
 import {useSWRConfig} from "swr";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
-import {useRouter} from "next/navigation";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 
@@ -39,7 +38,7 @@ export const Thread = ({thread}: {thread: ThreadProps}) => {
 
     useEffect(() => {
         if(thread.post.collection == "ar.com.cabildoabierto.article"){
-            if(thread.post.collection == "ar.com.cabildoabierto.article"){
+            if(thread.post.collection == "ar.com.cabildoabierto.article" && thread.replies){
                 setQuoteReplies(thread.replies.filter((r) => (r.content.post.quote != undefined)))
             }
         }

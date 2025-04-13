@@ -8,8 +8,7 @@ import {
 import {addCountersToFeed} from "@/server-actions/feed/utils";
 
 
-export async function getUserEngagement(feed: {uri?: string}[], did: string): Promise<FeedEngagementProps> {
-    const uris = feed.filter(({uri}) => uri).map(e => e.uri)
+export async function getUserEngagement(uris: string[], did: string): Promise<FeedEngagementProps> {
 
     const getLikes = db.like.findMany({
         select: {
@@ -48,8 +47,7 @@ export async function getUserEngagement(feed: {uri?: string}[], did: string): Pr
 
 
 export async function addViewerEngagementToFeed(did: string, feed: FeedContentProps[]) {
-    const engagement = await getUserEngagement(feed, did)
+    const engagement = await getUserEngagement(feed.map(e => e.uri), did)
 
-    const readyForFeed = addCountersToFeed(feed, engagement)
-    return {feed: readyForFeed}
+    return addCountersToFeed(feed, engagement)
 }

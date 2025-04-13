@@ -33,7 +33,7 @@ export const VideoEmbed = ({post, blob}: {post: FastPostProps, blob: {ref: {$lin
                 width={300}
                 height={300}
                 alt="video"
-                className="w-full h-auto rounded-lg border"
+                className="w-full h-auto max-h-[515px] rounded-lg border"
             />
         )}
     </div>

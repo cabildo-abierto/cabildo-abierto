@@ -20,7 +20,7 @@ export const VideoPlayer = ({videoUrl}: {videoUrl: string}) => {
         <video
             ref={videoRef}
             src={videoUrl}
-            className="rounded-lg w-full h-auto"
+            className="rounded-lg w-full h-auto max-h-[500px]"
             controls
             playsInline
             onError={handleError}

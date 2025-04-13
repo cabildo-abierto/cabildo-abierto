@@ -4,53 +4,30 @@ import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {ContentTopRowAuthor} from "./content-top-row-author";
 import Image from 'next/image'
 import {DateSince} from "../../../modules/ui-utils/src/date";
-import {FastPostImage} from "./fast-post-image";
+import {FastPostImages} from "./fast-post-images";
 import {useRouter} from "next/navigation";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {FastPostVideo} from "./fast-post-video";
 import {PlotInPost} from "./plot-in-post";
 import {ExternalEmbedInPost} from "./external-embed-in-post";
-import {usePost} from "../../hooks/swr";
-import {contentUrl} from "../../utils/uri";
-
-
-const QuotedPostFromUri = ({uri}: {uri: string}) => {
-    const post = usePost(uri)
-
-    if(post.isLoading){
-        return <div className={"h-full py-4"}>
-            <LoadingSpinner/>
-        </div>
-    }
-
-    return <QuotedPost
-        maybePost={post}
-    />
-}
+import {contentUrl, userUrl} from "@/utils/uri";
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import {formatIsoDate} from "@/utils/dates";
+import {ProfilePic} from "@/components/feed/profile-pic";
+import Link from "next/link";
 
 
 export const QuotedPostFromEmbed = ({embedStr}: {embedStr: string}) => {
     const embed = JSON.parse(embedStr)
 
-    if(embed.$type == "app.bsky.embed.record") {
-        return <QuotedPostFromUri uri={embed.record.uri}/>
-    } else if(embed.$type == "app.bsky.feed.record#recordView"){
-        return <div>Acá debería haber un quoted post</div>
+    if(embed.collection == "app.bsky.feed.post") {
+        return <QuotedPost post={embed}/>
     }
 }
 
 
 // "post" is the quoted post
-export const QuotedPost = ({maybePost}: {maybePost: {post?: FastPostProps, error?: string}}) => {
+export const QuotedPost = ({post}: {post: FastPostProps}) => {
     const router = useRouter()
-
-    if(!maybePost.post || maybePost.error) {
-        return <div className={"rounded-lg border p-3 mt-2"}>
-            No se encontró el post.
-        </div>
-    }
-
-    const post = maybePost.post
 
     const url = contentUrl(post.uri)
 
@@ -58,23 +35,28 @@ export const QuotedPost = ({maybePost}: {maybePost: {post?: FastPostProps, error
         className={"rounded-lg border p-3 mt-2 hover:bg-[var(--background-dark2)]"}
         onClick={(e) => {e.preventDefault(); e.stopPropagation(); router.push(url)}}>
         <div className={"flex items-center space-x-1 text-[var(--text-light)]"}>
-            <div>
-                <Image
-                    src={post.author.avatar}
-                    alt={"Foto de perfil de @" + post.author.handle}
-                    width={50}
-                    height={50}
-                    className={"w-4 h-4 rounded-full"}
+            <Link
+                href={userUrl(post.author.handle)}
+                onClick={(e) => {e.stopPropagation()}}
+                className="flex items-center justify-center"
+            >
+                <ProfilePic
+                    user={post.author}
+                    className={"rounded-full w-4 h-4"}
                 />
-            </div>
-            <ContentTopRowAuthor author={post.author}/>
-            <span className="">•</span>
-            <div><DateSince date={post.createdAt}/></div>
+            </Link>
+            <span className="truncate">
+                <ContentTopRowAuthor author={post.author} />
+            </span>
+            <span className="text-[var(--text-light)]">·</span>
+            <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(post.createdAt)}>
+                <DateSince date={post.createdAt} />
+            </span>
         </div>
         <div>
             <BskyRichTextContent content={post.content}/>
         </div>
-        <FastPostImage post={post} did={post.author.did}/>
+        <FastPostImages post={post} did={post.author.did}/>
         <FastPostVideo post={post}/>
         {post.content.post.embed && <QuotedPostFromEmbed embedStr={post.content.post.embed}/>}
         <PlotInPost post={post}/>

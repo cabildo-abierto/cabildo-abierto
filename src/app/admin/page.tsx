@@ -1,8 +1,8 @@
-import {AdminPrincipal} from "../../components/admin/principal";
+import {AdminPrincipal} from "@/components/admin/principal";
 import {NotFoundPage} from "../../../modules/ui-utils/src/not-found-page";
-import {AdminAcceso} from "../../components/admin/acceso";
-import {AdminCache} from "../../components/admin/cache";
-import {AdminSync} from "../../components/admin/sync";
+import {AdminAcceso} from "@/components/admin/acceso";
+import {AdminCache} from "@/components/admin/cache";
+import {AdminSync} from "@/components/admin/sync";
 
 
 export default async function Page({searchParams}: {searchParams: Promise<{s: string}>}) {

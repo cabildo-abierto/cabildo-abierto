@@ -29,17 +29,18 @@ export const ContentTopRowAuthor = ({author} : {author: {handle: string, display
     const url = author ? userUrl(author.handle) : ""
 
     const text = <>
-        {author.displayName &&
-            <span className="hover:underline font-bold mr-1">  {author.displayName}
-        </span>}
+        <span className="hover:underline font-bold mr-1">
+            {author.displayName ? author.displayName : author.handle}
+        </span>
         <span className="text-[var(--text-light)]">
-            @{author?.handle}
+            @{author.handle}
         </span>
     </>
 
     return <Link
         onClick={(e) => {e.stopPropagation()}}
         href={url}
+        className={"truncate"}
     >
         {text}
     </Link>

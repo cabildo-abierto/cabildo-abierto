@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
-import { BaseFullscreenPopup } from "../../../modules/ui-utils/src/base-fullscreen-popup"
-import { CloseButton } from "../../../modules/ui-utils/src/close-button"
+import React, {useState} from "react"
+import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen-popup"
+import {CloseButton} from "../../../modules/ui-utils/src/close-button"
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "@mui/material";
 import {useRouter} from "next/navigation";
@@ -23,7 +23,6 @@ export function quotedContentFromReplyTo(replyTo: ReplyToContent): QuotedContent
 }
 
 
-
 type Props = {
     replyTo?: ReplyToContent
     open: boolean
@@ -34,27 +33,30 @@ type Props = {
 
 
 export const WritePanel = ({
-    replyTo,
-    open,
-    onClose,
-    quote,
-    onSubmit=async () => {}
-}: Props) => {
+                               replyTo,
+                               open,
+                               onClose,
+                               quote,
+                               onSubmit = async () => {
+                               }
+                           }: Props) => {
     const [selected, setSelected] = useState("Post")
     const router = useRouter()
 
     const isReply = replyTo != undefined
 
-    function optionsNodes(o: string, isSelected: boolean){
+    function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)] text-sm">
             <Button
-                onClick={() => {}}
+                onClick={() => {
+                }}
                 variant="text"
                 color="inherit"
                 size={"small"}
                 fullWidth={true}
                 disableElevation={true}
-                sx={{textTransform: "none",
+                sx={{
+                    textTransform: "none",
                     paddingY: 0,
                     backgroundColor: isSelected ? "var(--background-dark)" : "transparent",
                     ":hover": {
@@ -69,8 +71,8 @@ export const WritePanel = ({
         </div>
     }
 
-    function onSelection(o: string){
-        if(o == "Artículo"){
+    function onSelection(o: string) {
+        if (o == "Artículo") {
             router.push("/escribir/articulo")
         } else {
             setSelected(o)
@@ -80,7 +82,7 @@ export const WritePanel = ({
     return (
         <BaseFullscreenPopup open={open} className="w-full max-w-[512px]">
             <div className="w-full rounded pt-1 border max-h-[80vh] overflow-y-auto">
-                <div className="flex justify-between items-start space-x-2 pl-1 pr-2">
+                <div className="flex justify-between items-start space-x-2 pl-1 pr-1">
                     {isReply ?
                         ((replyTo.collection == "ar.com.cabildoabierto.topic" || replyTo.collection == "ar.com.cabildoabierto.article") ?
                             <div className={"w-full mr-4"}>
