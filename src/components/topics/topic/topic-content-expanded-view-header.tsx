@@ -23,9 +23,8 @@ const MoreOptionsButton = ({
 }: {
     setWikiEditorState: (state: WikiEditorState) => void
 }) => {
-    const [onClose, setOnClose] = useState<() => void>()
 
-    const modal = (
+    const modal = (onClose: () => void) => (
         <div className="text-base bg-[var(--background-dark)] border rounded p-1 flex flex-col space-y-1">
             <OptionsDropdownButton
                 onClick={() => {
@@ -44,7 +43,7 @@ const MoreOptionsButton = ({
         </div>
     )
 
-    return <ModalOnClick modal={modal} setOnClose={setOnClose}>
+    return <ModalOnClick modal={modal}>
         <div className={"text-[var(--text-light)]"}>
             <IconButton
                 color="inherit"

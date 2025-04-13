@@ -1,14 +1,14 @@
 {
   "lexicon": 1,
-  "id": "ar.com.cabildoabierto.quotePost",
+  "id": "app.bsky.feed.post",
   "defs": {
     "main": {
       "type": "record",
-      "description": "Record containing a post that quotes part of an article or topic version.",
+      "description": "Record containing a Bluesky post.",
       "key": "tid",
       "record": {
         "type": "object",
-        "required": ["text", "createdAt", "quote"],
+        "required": ["text", "createdAt"],
         "properties": {
           "text": {
             "type": "string",
@@ -16,17 +16,10 @@
             "maxGraphemes": 300,
             "description": "The primary post content. May be an empty string, if there are embeds."
           },
-          "quote": {
-            "type": "string",
-            "description": "A reference to the selected segment in the text. Depends on the reply record format."
-          },
-          "quoteContent": {
-            "type": "string",
-            "description": "The content of the selected segment in the text."
-          },
-          "quoteContentFormat": {
-            "type": "string",
-            "description": "The format of the quoteContent."
+          "entities": {
+            "type": "array",
+            "description": "DEPRECATED: replaced by app.bsky.richtext.facet.",
+            "items": { "type": "ref", "ref": "#entity" }
           },
           "facets": {
             "type": "array",
@@ -41,7 +34,8 @@
               "app.bsky.embed.video",
               "app.bsky.embed.external",
               "app.bsky.embed.record",
-              "app.bsky.embed.recordWithMedia"
+              "app.bsky.embed.recordWithMedia",
+              "ar.com.cabildoabierto.embed.quote"
             ]
           },
           "langs": {
@@ -53,7 +47,10 @@
           "labels": {
             "type": "union",
             "description": "Self-label values for this post. Effectively content warnings.",
-            "refs": ["com.atproto.label.defs#selfLabels"]
+            "refs": [
+              "com.atproto.label.defs#selfLabels",
+              "ar.com.cabildoabierto.label.defs#selfLabels"
+            ]
           },
           "tags": {
             "type": "array",
@@ -75,6 +72,28 @@
       "properties": {
         "root": { "type": "ref", "ref": "com.atproto.repo.strongRef" },
         "parent": { "type": "ref", "ref": "com.atproto.repo.strongRef" }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "description": "Deprecated: use facets instead.",
+      "required": ["index", "type", "value"],
+      "properties": {
+        "index": { "type": "ref", "ref": "#textSlice" },
+        "type": {
+          "type": "string",
+          "description": "Expected values are 'mention' and 'link'."
+        },
+        "value": { "type": "string" }
+      }
+    },
+    "textSlice": {
+      "type": "object",
+      "description": "Deprecated. Use app.bsky.richtext instead -- A text segment. Start is inclusive, end is exclusive. Indices are for utf16-encoded strings.",
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "integer", "minimum": 0 },
+        "end": { "type": "integer", "minimum": 0 }
       }
     }
   }

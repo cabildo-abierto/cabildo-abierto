@@ -9,11 +9,11 @@ export async function GET(req: NextRequest, {params}: {params: Promise<{kind: st
     const {kind} = await params
 
     let feed: { feed?: FeedContentProps[]; error?: string }
-    if(kind == "EnDiscusion"){
+    if(kind == "discusion"){
         feed = await getEnDiscusion()
-    } else if(kind == "Siguiendo"){
+    } else if(kind == "siguiendo"){
         feed = await getFollowingFeed()
-    } else if(kind == "Descubrir"){
+    } else if(kind == "descubrir"){
         feed = await getDiscoverFeed()
     }
 

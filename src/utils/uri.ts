@@ -103,16 +103,20 @@ export function getCollectionFromUri(uri: string) {
     return uri.split("/")[3]
 }
 
+export function isBskyPost(collection: string){
+    return collection == "app.bsky.feed.post"
+}
+
 export function isPost(collection: string) {
-    return collection == "ar.com.cabildoabierto.quotePost" || collection == "app.bsky.feed.post"
+    return isQuotePost(collection) || isBskyPost(collection)
 }
 
 export function isArticle(c: string){
     return c == "ar.com.cabildoabierto.article"
 }
 
-export function isQuotePost(e: { collection: string }) {
-    return e.collection == "ar.com.cabildoabierto.quotePost"
+export function isQuotePost(c: string) {
+    return c == "ar.com.cabildoabierto.quotePost"
 }
 
 export function isTopicVersion(c: string){

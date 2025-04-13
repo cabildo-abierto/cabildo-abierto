@@ -4,9 +4,7 @@ import {db} from "@/db";
 import {getTextFromBlob} from "../topic/topics";
 import {unstable_cache} from "next/cache";
 import {revalidateEverythingTime} from "../utils";
-import {FastPostProps} from "@/lib/definitions";
-import {getSessionAgent} from "../auth";
-import {getDidFromUri, getUri, splitUri} from "@/utils/uri";
+import {getUri} from "@/utils/uri";
 
 
 export async function getQuotedContentNoCache({did, rkey}: {did: string, rkey: string}): Promise<QuotedContent> {
@@ -80,33 +78,4 @@ export async function getQuotedContent({did, rkey}: {did: string, rkey: string})
             tags: ["record:"+did+":"+rkey, "quotedContent"],
             revalidate: revalidateEverythingTime
         })()
-}
-
-
-export async function getBskyFastPost(uri: string): Promise<{post?: FastPostProps, error?: string}>{
-    const {agent} = await getSessionAgent()
-    const {did, rkey} = splitUri(uri)
-
-    try {
-        const {value, uri: postUri} = await agent.getPost({repo: did, rkey})
-        const postDid = getDidFromUri(postUri)
-        const {data: authorData} = await agent.app.bsky.actor.getProfile({actor: postDid})
-
-        const formattedPost: FastPostProps = {
-            uri: uri,
-            createdAt: new Date(value.createdAt),
-            collection: value.$type as string,
-            author: authorData,
-            content: {
-                text: value.text,
-                post: {
-                    embed: JSON.stringify(value.embed)
-                }
-            }
-        }
-        return {post: formattedPost}
-    } catch (e) {
-        console.error("Error getting post", e)
-        return {error: "Post not found"}
-    }
 }

@@ -4,8 +4,9 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import {emptyChar} from "@/utils/utils";
-
+import {Image, ViewImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
 import {ATProtoImage} from "@/components/images/atproto-image";
+
 
 export const FullscreenImageViewer = ({
                                           images,
@@ -14,7 +15,7 @@ export const FullscreenImageViewer = ({
                                           setViewing,
                                           className = ""
 }: {
-    images: any[]
+    images: (Image | ViewImage | string)[]
     viewing: number | null
     did?: string
     setViewing: (i: number | null) => void

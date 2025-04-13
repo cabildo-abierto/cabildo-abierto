@@ -10,7 +10,7 @@ import {
     newUser,
     processArticle,
     processDataBlock,
-    processDataset,
+    processDataset, processEnDiscusion,
     processFollow,
     processLike,
     processPost, processRecord,
@@ -128,6 +128,10 @@ export async function processCreateRecord(r: SyncRecordProps): Promise<{updates:
             const s = processTopicVote(r)
             updates = [...updates, ...s]
             tags.add("topics") // no hace falta siempre
+        } else if(r.collection == "ar.com.cabildoabierto.enDiscusion"){
+            const s = processEnDiscusion(r)
+            updates = [...updates, ...s]
+
         }
         return {updates, tags}
     } catch (err) {

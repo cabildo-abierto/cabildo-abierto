@@ -29,5 +29,6 @@ export const PublishArticleButton = ({editor, title, disabled}: {
         disabled={disabled}
         size="medium"
         variant={"text"}
+        sx={{borderRadius: 20}}
     />
 }

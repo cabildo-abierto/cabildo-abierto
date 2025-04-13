@@ -14,6 +14,8 @@ import {
 } from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin/standard-selection";
 import {markdownToEditorStateStr} from "../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {getAllText} from "@/components/topics/topic/diff";
+import {useEffect, useState} from "react";
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 
 export function getSelectionSubtree(s: any, selection: LexicalStandardSelection) {
@@ -130,6 +132,66 @@ const ContentQuoteWithNoContent = ({
 }
 
 
+type ContentQuoteContextProps = {
+    quotedContent: QuotedContent
+}
+
+
+const ContentQuoteContext = ({quotedContent}: ContentQuoteContextProps) => {
+    const c = getCollectionFromUri(quotedContent.uri)
+    const kind = c == "ar.com.cabildoabierto.article" ? "artículo" : "tema"
+
+    const title = kind == "artículo" ?
+        quotedContent.content.article.title : getTopicTitle(quotedContent.content.topicVersion.topic as any)
+
+    const href = contentUrl(quotedContent.uri)
+
+    return (
+        <div className={"text-sm text-[var(--text-light)]"}>
+            <Authorship onlyAuthor={true} content={quotedContent}/> en <Link className="font-bold" onClick={(e) => {e.stopPropagation()}} href={href}>{title}</Link>
+        </div>
+    )
+}
+
+type QuoteTextProps = {
+    quotedContent: QuotedContent
+    quote: [number, number]
+}
+
+export const QuoteText = ({quotedContent, quote}: QuoteTextProps) => {
+    const [initialData, setInitialData] = useState<string>(null)
+
+    useEffect(() => {
+        let markdown: string
+        if(quotedContent.content.format == "markdown-compressed") {
+            markdown = decompress(quotedContent.content.text)
+        } else if(quotedContent.content.format == "markdown"){
+            markdown = quotedContent.content.text
+        } else {
+            return null
+        }
+
+        const state = markdownToEditorStateStr(markdown)
+        const lexicalQuote = markdownSelectionToLexicalSelection(state, quote)
+        const newInitialData = getSelectionFromJSONState(JSON.parse(state), lexicalQuote)
+
+        if(newInitialData != initialData){
+            setInitialData(newInitialData)
+        }
+    }, [quotedContent, quote])
+
+    if(!initialData){
+        return null
+    }
+
+    return (
+        <ReadOnlyEditor
+            text={initialData} format={"lexical"}
+        />
+    )
+}
+
+
 export const ContentQuote = ({
     post, quote, onClick, quotedContent, showContext=false}: {
     quotedContent: QuotedContent
@@ -155,25 +217,6 @@ export const ContentQuote = ({
 
     if(!quotedContent || !quotedContent.content.text) return null
 
-    let markdown: string
-    if(quotedContent.content.format == "markdown-compressed") {
-        markdown = decompress(quotedContent.content.text)
-    } else if(quotedContent.content.format == "markdown"){
-        markdown = quotedContent.content.text
-    } else {
-        return null
-    }
-
-    const state = markdownToEditorStateStr(markdown)
-    const lexicalQuote = markdownSelectionToLexicalSelection(state, quote)
-    const initialData = getSelectionFromJSONState(JSON.parse(state), lexicalQuote)
-
-    const center = <ReadOnlyEditor
-        text={initialData} format={"lexical"}
-    />
-
-    const collection = getCollectionFromUri(quotedContent.uri)
-
     function handleClick(e) {
         e.stopPropagation()
         e.preventDefault()
@@ -186,20 +229,6 @@ export const ContentQuote = ({
         }
     }
 
-    let context = null
-    if(showContext){
-        const kind = collection == "ar.com.cabildoabierto.article" ? "artículo" : "tema"
-
-        const title = kind == "artículo" ?
-            quotedContent.content.article.title : getTopicTitle(quotedContent.content.topicVersion.topic as any)
-
-        const href = contentUrl(quotedContent.uri)
-
-        context = <div className={"text-sm text-[var(--text-light)]"}>
-            <Authorship onlyAuthor={true} content={quotedContent}/> en <Link className="font-bold" onClick={(e) => {e.stopPropagation()}} href={href}>{title}</Link>
-        </div>
-    }
-
     const clickable = onClick != undefined || (post && post.cid)
 
     return <div className={"article-content no-margin-first pr-2"}>
@@ -207,8 +236,8 @@ export const ContentQuote = ({
             className={"my-1 w-full " + (clickable ? "hover:bg-[var(--background-dark3)] cursor-pointer" : "")}
             onClick={handleClick}
         >
-            {context}
-            {center}
+            {showContext && <ContentQuoteContext quotedContent={quotedContent}/>}
+            <QuoteText quotedContent={quotedContent} quote={quote}/>
         </blockquote>
     </div>
 }

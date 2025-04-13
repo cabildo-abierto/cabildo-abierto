@@ -1,17 +1,30 @@
 'use server'
 
 import {revalidateTag, unstable_cache} from "next/cache";
-import {db} from "../../db";
+import {db} from "@/db";
 import {revalidateEverythingTime} from "../utils";
 import {SmallUserProps, UserProps, UserStats} from "@/lib/definitions";
-import {validSubscription} from "../../utils/utils";
+import {validSubscription} from "@/utils/utils";
 import {getSubscriptionPrice} from "../payments";
 import {getSessionAgent, getSessionDid} from "../auth";
 import {ProfileView, ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import {Prisma} from "@prisma/client";
-import {supportDid} from "../../utils/auth";
+import {supportDid} from "@/utils/auth";
 import {cleanText} from "@/utils/strings";
 import {MentionProps} from "../../../modules/ca-lexical-editor/src/ui/custom-mention-component";
+import {createRecord} from "@/server-actions/write/utils";
+import {deleteRecords, revalidateTags} from "@/server-actions/admin";
+
+
+export async function handleToDid(userId: string){
+    if(userId.startsWith("did")) {
+        return userId
+    } else {
+        const {agent} = await getSessionAgent()
+        const {data} = await agent.resolveHandle({handle: userId})
+        return data.did
+    }
+}
 
 
 export async function isCAUser(did: string) {
@@ -269,11 +282,29 @@ export const getFullProfileById = async (userId: string): Promise<{
 }
 
 
+export async function createFollowDB({did, uri, cid, followedDid}: {did: string, uri: string, cid: string, followedDid: string}) {
+    const updates= [
+        ...createRecord({uri, cid, createdAt: new Date(), collection: "app.bsky.graph.follow"}),
+        db.follow.create({
+            data: {
+                uri: uri,
+                userFollowedId: followedDid
+            }
+        })
+    ]
+
+    await db.$transaction(updates)
+
+    await revalidateTags(["user:"+followedDid, "user:"+did])
+}
+
+
 export async function follow(userToFollowId: string) {
-    const {agent} = await getSessionAgent()
+    const {agent, did} = await getSessionAgent()
 
     try {
-        await agent.follow(userToFollowId)
+        const res = await agent.follow(userToFollowId)
+        await createFollowDB({did, ...res, followedDid: userToFollowId})
     } catch {
         return {error: "Error al seguir al usuario."}
     }
@@ -283,15 +314,13 @@ export async function follow(userToFollowId: string) {
 
 
 export async function unfollow(followUri: string) {
-    const {agent} = await getSessionAgent()
-
     try {
-        await agent.deleteFollow(followUri)
-    } catch {
-        return {error: "Error al seguir al usuario."}
+        await deleteRecords({uris: [followUri], atproto: true})
+        return {}
+    } catch (err) {
+        console.error(err)
+        return {error: "Error al dejar de seguir al usuario."}
     }
-
-    return {}
 }
 
 

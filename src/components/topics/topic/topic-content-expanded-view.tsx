@@ -62,7 +62,7 @@ export const TopicContentExpandedViewWithVersion = ({
     useEffect(() => {
         if(feed.feed){
             const q = feed.feed.replies.filter((r) => {
-                return isQuotePost(r) && (r as FastPostProps).content.post.quote != undefined
+                return isQuotePost(r.collection) && (r as FastPostProps).content.post.quote != undefined
             }) as FastPostProps[]
             if(!quoteReplies || q.length != quoteReplies.length){
                 setQuoteReplies(q)

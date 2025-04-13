@@ -3,7 +3,7 @@ import SortOrder = Prisma.SortOrder;
 import {FeedEngagementProps} from "@/lib/definitions";
 
 
-export const revalidateEverythingTime = 5
+export const revalidateEverythingTime = undefined
 
 
 export const recordQuery = {
@@ -33,8 +33,6 @@ export function addCounters(elem: any, engagement: FeedEngagementProps): any {
         }
     }
 
-    const visualizationsUsingCount = elem.visualizationsUsing ? elem.visualizationsUsing.length : undefined
-
     let like: string = undefined
     let repost: string = undefined
 
@@ -53,10 +51,6 @@ export function addCounters(elem: any, engagement: FeedEngagementProps): any {
 
     return {
         ...elem,
-        likeCount: elem._count.likes,
-        replyCount: elem._count.replies,
-        repostCount: elem._count.reposts,
-        visualizationsUsingCount,
         viewer
     }
 }
@@ -123,7 +117,11 @@ export const reactionsQuery = {
 export const enDiscusionQuery = {
     ...recordQuery,
     ...reactionsQuery,
-    enDiscusion: true,
+    enDiscusion: {
+        select: {
+            uri: true
+        }
+    },
     content: {
         select: {
             text: true,
@@ -185,10 +183,21 @@ export const threadRepliesQuery = {
                         select: {
                             uri: true,
                             collection: true,
+                            author: {
+                                select: {
+                                    handle: true,
+                                    displayName: true
+                                }
+                            },
                             content: {
                                 select: {
                                     text: true,
-                                    format: true
+                                    format: true,
+                                    article: {
+                                        select: {
+                                            title: true
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -202,74 +211,9 @@ export const threadRepliesQuery = {
 
 export const threadQuery = (c: string) => {
     if(c == "app.bsky.feed.post" || c == "ar.com.cabildoabierto.quotePost"){
-        return {
-            ...recordQuery,
-            ...reactionsQuery,
-            content: {
-                select: {
-                    text: true,
-                    post: {
-                        select: {
-                            facets: true,
-                            embed: true,
-                            quote: true,
-                            replyTo: {
-                                select: {
-                                    uri: true,
-                                    author: {
-                                        select: {
-                                            did: true,
-                                            handle: true,
-                                            displayName: true
-                                        }
-                                    }
-                                }
-                            },
-                            root: {
-                                select: {
-                                    uri: true,
-                                    author: {
-                                        select: {
-                                            did: true,
-                                            handle: true,
-                                            displayName: true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-        }
+
     } else if(c == "ar.com.cabildoabierto.article"){
-        return {
-            ...recordQuery,
-            ...reactionsQuery,
-            content: {
-                select: {
-                    text: true,
-                    format: true,
-                    textBlob: {
-                        select: {
-                            authorId: true,
-                            cid: true
-                        }
-                    },
-                    article: {
-                        select: {
-                            title: true
-                        }
-                    },
-                    references: {
-                        select: {
-                            referencedTopicId: true,
-                            count: true
-                        }
-                    }
-                },
-            }
-        }
+        return
     } else if(c == "ar.com.cabildoabierto.visualization"){
         return {
             ...recordQuery,

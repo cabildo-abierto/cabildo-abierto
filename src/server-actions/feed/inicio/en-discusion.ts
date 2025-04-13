@@ -1,88 +1,77 @@
 "use server"
-import {FeedContentProps} from "@/lib/definitions";
-import {getSessionDid} from "@/server-actions/auth";
-import {logTimes} from "@/server-actions/utils";
-import {addCountersToFeed} from "@/server-actions/feed/utils";
-import {getUserEngagement} from "@/server-actions/feed/get-user-engagement";
+import {ATProtoStrongRef, FeedContentProps} from "@/lib/definitions";
+import {getSessionAgent} from "@/server-actions/auth";
+import {rootCreationDateSortKey} from "@/server-actions/feed/utils";
 import {db} from "@/db";
-import {revalidateTag} from "next/cache";
-import {hydrateFeedSkeleton} from "@/server-actions/feed/hydrate";
+import {processCreateRecord} from "@/server-actions/sync/process-event";
+import {getCollectionFromUri, getRkeyFromUri} from "@/utils/uri";
+import {deleteRecords, revalidateTags} from "@/server-actions/admin";
+import {getFeed} from "@/server-actions/feed/feed";
+import {FeedSkeleton} from "@/server-actions/feed/profile/main";
 
 
 
-export async function getEnDiscusionSkeleton() {
-    let result: { uri: string, replyToId?: string, rootId?: string }[] = await db.$queryRaw`
-        SELECT r."uri", p."replyToId", p."rootId"
-        FROM "Record" r
-             JOIN "Content" c ON c."uri" = r."uri"
-             LEFT JOIN "Post" p ON p."uri" = c."uri"
-             LEFT JOIN "Record" root ON root."uri" = p."rootId"
-        WHERE (
-                  (
-                      (
-                          root."uri" IS NULL AND r."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post') AND r."enDiscusion" = TRUE
-                      )
-                      OR 
-                      (
-                          root."authorId" = r."authorId" AND root."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post') AND root."enDiscusion" = TRUE
-                      )
-                  )
-            AND (
-                NOT EXISTS (SELECT 1
-                    FROM "Post" p_reply
-                             JOIN "Record" r_reply ON r_reply."uri" = p_reply."uri"
-                    WHERE p_reply."replyToId" = r."uri"
-                    AND r_reply."authorId" = r."authorId")
-            )
-        )
-    `;
-    return result
+export async function getEnDiscusionSkeleton(): Promise<FeedSkeleton> {
+    let result = await db.enDiscusion.findMany({
+        select: {
+
+            enDiscu: {
+                select: {
+                    uri: true
+                }
+            }
+        },
+        where: {
+            collection: {
+                in: ["app.bsky.feed.post", "ar.com.cabildoabierto.article"]
+            }
+        }
+    })
+
+    return result.filter(x => x.enDiscusionFor && x.enDiscusionFor.uri)
 }
 
 
 export async function getEnDiscusion(): Promise<{feed?: FeedContentProps[], error?: string}> {
-    const did = await getSessionDid()
-
-    const t1 = Date.now()
-    const skeleton = await getEnDiscusionSkeleton()
-    let feed = await hydrateFeedSkeleton(skeleton)
-
-    const t2 = Date.now()
-    const engagement = await getUserEngagement(feed, did)
-    const t3 = Date.now()
-
-    logTimes("En discusion", [t1, t2, t3])
-
-    const readyForFeed = addCountersToFeed(feed, engagement)
-
-    return {feed: readyForFeed}
+    return getFeed({
+        getSkeleton: getEnDiscusionSkeleton,
+        sortKey: rootCreationDateSortKey // TO DO: Popularidad
+    })
 }
 
 
 
-export async function addToEnDiscusion(uri: string){
-    await db.record.update({
-        data: {
-            enDiscusion: true
-        },
-        where: {
-            uri: uri
-        }
+export async function addToEnDiscusion(ref: ATProtoStrongRef){
+    const {agent, did} = await getSessionAgent()
+
+    const record = {
+        "$type": "ar.com.cabildoabierto.enDiscusion",
+        createdAt: new Date().toISOString(),
+        subject: ref
+    }
+
+    const {data} = await agent.com.atproto.repo.createRecord({
+        repo: agent.did,
+        collection: record.$type,
+        record
     })
-    revalidateTag("feedCA")
-    return {}
+
+    let {updates, tags} = await processCreateRecord({
+        did,
+        uri: data.uri,
+        cid: data.cid,
+        rkey: getRkeyFromUri(data.uri),
+        collection: getCollectionFromUri(data.uri),
+        record
+    })
+
+    await db.$transaction(updates)
+    await revalidateTags(Array.from(tags))
+    return {uri: ref.uri}
 }
 
 
-export async function removeFromEnDiscusion(uri: string){
-    await db.record.update({
-        data: {
-            enDiscusion: false
-        },
-        where: {
-            uri: uri
-        }
-    })
-    revalidateTag("feedCA")
+export async function removeFromEnDiscusion(labelUri: string){
+    await deleteRecords({uris: [labelUri], atproto: true})
     return {}
 }

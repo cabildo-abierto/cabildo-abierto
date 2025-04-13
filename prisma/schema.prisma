@@ -26,68 +26,55 @@ enum MirrorStatus {
 }
 
 model User {
-  did         String  @id @db.VarChar(255) // https://atproto.com/guides/identity
-  handle      String?
-  displayName String?
-  avatar      String?
-  banner      String?
-  email       String?
-  description String?
-
-  hasAccess    Boolean @default(false) // si tiene o no acceso al período de prueba
-  inCA         Boolean @default(false)
-  CAProfile    Record? @relation("CAProfile", fields: [CAProfileUri], references: [uri])
-  CAProfileUri String? @unique
-
-  mirrorStatus MirrorStatus @default(Dirty) // estado del mirror, usado en atproto-sync
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  editorStatus  EditorStatus @default(Beginner) // permisos de editor en la wiki
-  platformAdmin Boolean      @default(false) // si tiene acceso o no a /admin
-
-  subscriptionsBought Subscription[] @relation("bought")
+  did                 String           @id @db.VarChar(255) // https://atproto.com/guides/identity
+  handle              String?
+  displayName         String?
+  avatar              String?
+  banner              String?
+  email               String?
+  description         String?
+  hasAccess           Boolean          @default(false) // si tiene o no acceso al período de prueba
+  inCA                Boolean          @default(false)
+  CAProfile           Record?          @relation("CAProfile", fields: [CAProfileUri], references: [uri])
+  CAProfileUri        String?          @unique
+  mirrorStatus        MirrorStatus     @default(Dirty) // estado del mirror, usado en atproto-sync
+  createdAt           DateTime         @default(now()) @map("created_at")
+  editorStatus        EditorStatus     @default(Beginner) // permisos de editor en la wiki
+  platformAdmin       Boolean          @default(false) // si tiene acceso o no a /admin
+  subscriptionsBought Subscription[]   @relation("bought")
   subscriptionsUsed   Subscription[]
-
-  messagesSent     ChatMessage[] @relation("messagesSent")
-  messagesReceived ChatMessage[] @relation("messagesReceived")
-
-  paymentPromises PaymentPromise[] @relation("authorPromises")
-
-  views   View[]
-  records Record[]
-  blobs   Blob[]
-
-  followers Follow[]
-
-  usedInviteCode InviteCode?  @relation("invite-code-used")
-  recommendCodes InviteCode[] @relation("invite-codes-available") // los códigos de invitación que tiene disponibles para usar
-
-  seenTutorial Boolean @default(false)
+  messagesSent        ChatMessage[]    @relation("messagesSent")
+  messagesReceived    ChatMessage[]    @relation("messagesReceived")
+  paymentPromises     PaymentPromise[] @relation("authorPromises")
+  views               View[]
+  records             Record[]
+  blobs               Blob[]
+  followers           Follow[]
+  usedInviteCode      InviteCode?      @relation("invite-code-used")
+  recommendCodes      InviteCode[]     @relation("invite-codes-available") // los códigos de invitación que tiene disponibles para usar
+  seenTutorial        Boolean          @default(false)
 }
 
 model InviteCode {
-  code      String    @id @default(cuid())
-  usedBy    User?     @relation("invite-code-used", fields: [usedByDid], references: [did])
-  usedByDid String?   @unique
-  usedAt    DateTime?
-
-  recommender   User?   @relation("invite-codes-available", fields: [recommenderId], references: [did])
-  recommenderId String? @unique
+  code          String    @id @default(cuid())
+  usedBy        User?     @relation("invite-code-used", fields: [usedByDid], references: [did])
+  usedByDid     String?   @unique
+  usedAt        DateTime?
+  recommender   User?     @relation("invite-codes-available", fields: [recommenderId], references: [did])
+  recommenderId String?   @unique
 }
 
 model Subscription {
-  id             String    @id @default(cuid())
-  userId         String?
-  createdAt      DateTime  @default(now()) @map("created_at")
-  boughtByUserId String
-  usedAt         DateTime?
-  boughtBy       User      @relation("bought", fields: [boughtByUserId], references: [did])
-  user           User?     @relation(fields: [userId], references: [did])
-  price          Int
-  paymentId      String?
-  endsAt         DateTime?
-
+  id              String           @id @default(cuid())
+  userId          String?
+  createdAt       DateTime         @default(now()) @map("created_at")
+  boughtByUserId  String
+  usedAt          DateTime?
+  boughtBy        User             @relation("bought", fields: [boughtByUserId], references: [did])
+  user            User?            @relation(fields: [userId], references: [did])
+  price           Int
+  paymentId       String?
+  endsAt          DateTime?
   paymentPromises PaymentPromise[]
   promisesCreated Boolean          @default(false)
 }
@@ -99,21 +86,15 @@ enum PromiseStatus {
 }
 
 model PaymentPromise {
-  id String @id @default(cuid())
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  author   User   @relation("authorPromises", fields: [authorId], references: [did])
-  authorId String
-
-  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  id             String        @id @default(cuid())
+  createdAt      DateTime      @default(now()) @map("created_at")
+  author         User          @relation("authorPromises", fields: [authorId], references: [did])
+  authorId       String
+  subscription   Subscription  @relation(fields: [subscriptionId], references: [id])
   subscriptionId String
-
-  amount Float // errores numéricos?
-
-  contentUri String
-
-  status PromiseStatus @default(Pending) // true cuando el contenido pasó su período de gracia
+  amount         Float
+  contentUri     String
+  status         PromiseStatus @default(Pending) // true cuando el contenido pasó su período de gracia
 }
 
 model Topic {
@@ -149,24 +130,20 @@ model CategoryLink {
 model TopicToCategory {
   topicId    String
   categoryId String
-
-  topic    Topic         @relation(fields: [topicId], references: [id])
-  category TopicCategory @relation(fields: [categoryId], references: [id])
+  topic      Topic         @relation(fields: [topicId], references: [id])
+  category   TopicCategory @relation(fields: [categoryId], references: [id])
 
   @@id([topicId, categoryId])
 }
 
 model Record {
-  uri        String  @id @unique
-  cid        String?
-  collection String
-  rkey       String
-
-  author   User   @relation(fields: [authorId], references: [did])
-  authorId String
-
-  createdAt DateTime @default(now()) @map("created_at")
-
+  uri                 String          @id @unique
+  cid                 String?
+  collection          String
+  rkey                String
+  author              User            @relation(fields: [authorId], references: [did])
+  authorId            String
+  createdAt           DateTime        @default(now()) @map("created_at")
   content             Content?
   like                Like?
   repost              Repost?
@@ -177,62 +154,53 @@ model Record {
   dataBlock           DataBlock?
   visualization       Visualization?
   visualizationsUsing Visualization[] @relation("visualizationUsesDataset")
+  embeddedIn          Record?         @relation("embeddings", fields: [uri], references: [uri])
+  embeddedRecords     Record[]        @relation("embeddings")
+  record              String?
+  likes               Like[]          @relation("likes")
+  reposts             Repost[]        @relation("reposts")
+  replies             Post[]          @relation("reply")
+  rootOf              Post[]          @relation("root")
+  accepts             TopicAccept[]   @relation("accepts")
+  rejects             TopicReject[]   @relation("rejects")
+  views               View[]
+  uniqueViewsCount    Int?            @default(0)
+  CAProfileOf         User?           @relation("CAProfile")
 
-  embeddedIn      Record?  @relation("embeddings", fields: [uri], references: [uri])
-  embeddedRecords Record[] @relation("embeddings")
-
-  record String?
-
-  likes   Like[]   @relation("likes")
-  reposts Repost[] @relation("reposts")
-  replies Post[]   @relation("reply")
-  rootOf  Post[]   @relation("root")
-
-  accepts TopicAccept[] @relation("accepts")
-  rejects TopicReject[] @relation("rejects")
-
-  views            View[]
-  uniqueViewsCount Int?   @default(0)
-
-  CAProfileOf User? @relation("CAProfile")
-
-  enDiscusion Boolean @default(false)
+  lastInThread           Post?   @relation("lastInThread", fields: [lastInThreadId], references: [uri])
+  lastInThreadId         String? @unique
+  secondToLastInThreadId String? @unique
+  secondToLastInThread   Post?   @relation("secondToLastInThread", fields: [secondToLastInThreadId], references: [uri])
 }
 
 model Content {
-  uri    String @id
-  record Record @relation(fields: [uri], references: [uri])
-
-  text       String?
-  textBlobId String?
-  textBlob   Blob?   @relation(fields: [textBlobId], references: [cid])
-
-  format String @default("lexical-compressed")
-
-  numWords Int?
-
-  topicVersion TopicVersion?
-  article      Article?
-  post         Post?
-
+  uri                  String        @id
+  record               Record        @relation(fields: [uri], references: [uri])
+  text                 String?
+  textBlobId           String?
+  textBlob             Blob?         @relation(fields: [textBlobId], references: [cid])
+  format               String        @default("lexical-compressed")
+  numWords             Int?
+  topicVersion         TopicVersion?
+  article              Article?
+  post                 Post?
   references           Reference[]
   lastReferencesUpdate DateTime?
 }
 
 model Post {
-  uri     String  @id
-  content Content @relation(fields: [uri], references: [uri])
-
-  facets String?
-  embed  String?
-
+  uri       String  @id
+  content   Content @relation(fields: [uri], references: [uri])
+  facets    String?
+  embed     String?
   replyToId String?
   replyTo   Record? @relation("reply", fields: [replyToId], references: [uri])
+  quote     String?
+  rootId    String?
+  root      Record? @relation("root", fields: [rootId], references: [uri])
 
-  quote String?
-
-  rootId String?
-  root   Record? @relation("root", fields: [rootId], references: [uri])
+  lastInThread         Record? @relation("lastInThread")
+  secondToLastInThread Record? @relation("secondToLastInThread")
 }
 
 model Follow {
@@ -271,26 +239,21 @@ model TopicReject {
 }
 
 model TopicVersion {
-  uri     String  @id
-  content Content @relation(fields: [uri], references: [uri])
-
-  title   String?
-  topic   Topic   @relation(fields: [topicId], references: [id])
-  topicId String
-  message String  @default("")
-
-  synonyms   String?
-  categories String?
-
-  authorship Boolean @default(true)
-
-  currentVersionOf Topic? @relation("currentVersion")
-
-  charsAdded    Int?
-  charsDeleted  Int?
-  accCharsAdded Int?
-  contribution  String?
-  diff          String?
+  uri              String  @id
+  content          Content @relation(fields: [uri], references: [uri])
+  title            String?
+  topic            Topic   @relation(fields: [topicId], references: [id])
+  topicId          String
+  message          String  @default("")
+  synonyms         String?
+  categories       String?
+  authorship       Boolean @default(true)
+  currentVersionOf Topic?  @relation("currentVersion")
+  charsAdded       Int?
+  charsDeleted     Int?
+  accCharsAdded    Int?
+  contribution     String?
+  diff             String?
 }
 
 model Article {
@@ -339,28 +302,23 @@ model View {
 }
 
 model Visualization {
-  uri    String @id
-  record Record @relation(fields: [uri], references: [uri])
-
-  spec String
-
-  dataset   Record? @relation("visualizationUsesDataset", fields: [datasetId], references: [uri])
-  datasetId String?
-
+  uri            String  @id
+  record         Record  @relation(fields: [uri], references: [uri])
+  spec           String
+  dataset        Record? @relation("visualizationUsesDataset", fields: [datasetId], references: [uri])
+  datasetId      String?
   previewBlobCid String?
   previewBlob    Blob?   @relation(fields: [previewBlobCid], references: [cid])
 }
 
 model Reference {
-  id    String        @id @default(uuid())
-  type  ReferenceType
-  count Int           @default(1)
-
-  referencedTopicId String
-  referencedTopic   Topic  @relation(fields: [referencedTopicId], references: [id])
-
+  id                   String        @id @default(uuid())
+  type                 ReferenceType
+  count                Int           @default(1)
+  referencedTopicId    String
+  referencedTopic      Topic         @relation(fields: [referencedTopicId], references: [id])
   referencingContentId String
-  referencingContent   Content @relation(fields: [referencingContentId], references: [uri])
+  referencingContent   Content       @relation(fields: [referencingContentId], references: [uri])
 
   @@unique([referencingContentId, referencedTopicId])
 }
@@ -375,13 +333,10 @@ model ChatMessage {
   createdAt  DateTime @default(now()) @map("created_at")
   fromUser   User     @relation("messagesSent", fields: [fromUserId], references: [did])
   fromUserId String
-
-  toUser   User   @relation("messagesReceived", fields: [toUserId], references: [did])
-  toUserId String
-
-  text String
-
-  seen Boolean @default(false)
+  toUser     User     @relation("messagesReceived", fields: [toUserId], references: [did])
+  toUserId   String
+  text       String
+  seen       Boolean  @default(false)
 }
 
 enum EditorStatus {

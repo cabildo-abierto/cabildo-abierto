@@ -6,7 +6,7 @@ import {useSWRConfig} from "swr";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {ExtraChars} from "./extra-chars";
 import {createFastPost} from "@/server-actions/write/post";
-import {threadApiUrl} from "@/utils/uri";
+import {isPost, threadApiUrl} from "@/utils/uri";
 import {RectTracker} from "../../../modules/ui-utils/src/rect-tracker";
 import {ProfilePic} from "../feed/profile-pic";
 import {VisualizationNodeComp} from "../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
@@ -18,12 +18,15 @@ import {InsertImageModal} from "./insert-image-modal";
 import {FastPostProps, FastPostReplyProps} from "@/lib/definitions";
 import {useUser} from "@/hooks/swr";
 import {FastPostEditor} from "@/components/editor/fast-post-editor";
+import {Star, StarBorder} from "@mui/icons-material";
+import {ToolbarButton} from "../../../modules/ca-lexical-editor/src/plugins/ToolbarPlugin/toolbar-button";
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
 
-    if(replyTo.collection == "app.bsky.feed.post"){
+    if(isPost(replyTo.collection)){
         const post = replyTo as FastPostProps
+        console.log("post", post)
         const parent = {
             uri: post.uri,
             cid: post.cid
@@ -73,6 +76,7 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
     const [imageModalOpen, setImageModalOpen] = useState(false)
     const [rect, setRect] = useState<DOMRect>()
     const {mutate} = useSWRConfig()
+    const [enDiscusion, setEnDiscusion] = useState(false)
 
     const charLimit = 300
 
@@ -100,12 +104,7 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
     async function handleSubmit() {
         setErrorOnCreatePost(false)
         const reply = replyTo ? replyFromParentElement(replyTo) : undefined
-
-        console.log("submitting!")
-
-        const {error} = await createFastPost({text, reply, visualization, quote, images})
-
-        console.log("error on submit", error)
+        const {error} = await createFastPost({text, reply, visualization, quote, images, enDiscusion})
 
         if(reply){
             await onSubmit()
@@ -161,14 +160,23 @@ export const WriteFastPost = ({replyTo, onClose, quote, onSubmit}: {
                         setModalOpen={setVisualizationModalOpen}
                     />
                 </div>
-                <StateButton
-                    text1={isReply ? "Responder" : "Publicar"}
-                    handleClick={handleSubmit}
-                    disabled={disabled}
-                    textClassName="font-semibold"
-                    size="medium"
-                    sx={{borderRadius: 20}}
-                />
+                <div className={"flex space-x-2 text-[var(--text-light)] items-center px-1"}>
+                    <ToolbarButton
+                        onClick={() => {setEnDiscusion(!enDiscusion)}}
+                        title={"Agregar este post al feed En discusión."}
+                        aria-label={""}
+                    >
+                        {enDiscusion ? <Star fontSize={"small"}/> : <StarBorder fontSize={"small"}/>}
+                    </ToolbarButton>
+                    <StateButton
+                        text1={isReply ? "Responder" : "Publicar"}
+                        handleClick={handleSubmit}
+                        disabled={disabled}
+                        textClassName="font-semibold"
+                        size="small"
+                        sx={{borderRadius: 20}}
+                    />
+                </div>
             </div>
             <InsertVisualizationModal
                 open={visualizationModalOpen}

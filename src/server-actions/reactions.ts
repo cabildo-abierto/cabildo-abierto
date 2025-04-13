@@ -4,11 +4,13 @@ import { getSessionAgent } from "./auth";
 import {db} from "@/db";
 import {createRecord} from "./write/utils";
 import {revalidateUri} from "./revalidate";
+import {newDirtyRecord} from "@/server-actions/sync/record-processing";
 
 
 
 export async function createLikeDB({uri, cid, likedUri}: {uri: string, cid: string, likedUri: string}): Promise<void> {
     const updates= [
+        ...newDirtyRecord({uri: likedUri}),
         ...createRecord({uri, cid, createdAt: new Date(), collection: "app.bsky.feed.like"}),
         db.like.create({
             data: {
@@ -26,12 +28,12 @@ export async function createLikeDB({uri, cid, likedUri}: {uri: string, cid: stri
 
 export async function deleteLikeDB(uri: string, likedUri: string){
     const updates = [
-        db.like.delete({
+        db.like.deleteMany({
             where: {
                 uri: uri
             }
         }),
-        db.record.delete({
+        db.record.deleteMany({
             where: {
                 uri: uri
             }

@@ -3,39 +3,55 @@ import {FastPostProps} from "@/lib/definitions";
 import {useState} from "react";
 import {FullscreenImageViewer} from "@/components/images/fullscreen-image-viewer";
 import {ATProtoImage} from "@/components/images/atproto-image";
+import {AppBskyEmbedImages, AppBskyEmbedRecordWithMedia} from "@atproto/api";
+import {ViewImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
+import {Image} from "@atproto/api/src/client/types/app/bsky/embed/images";
 
 
-export const FastPostImage = ({post, did}: { post: FastPostProps; did?: string }) => {
+export const FastPostImages = ({post, did}: { post: FastPostProps; did?: string }) => {
     const [viewing, setViewing] = useState(null)
 
     if (!post.content.post.embed) {
         return null;
     }
-    const embed = JSON.parse(post.content.post.embed);
+    const embed = JSON.parse(post.content.post.embed)
 
-    let images;
-    if (embed.images && embed.images.length > 0) {
-        images = embed.images;
-    } else if (embed.media && embed.media.images && embed.media.images.length > 0) {
-        images = embed.media.images;
+    let embedImages: AppBskyEmbedImages.Main
+    if(embed.$type == "app.bsky.embed.images"){
+        embedImages = embed as AppBskyEmbedImages.Main
+    } else if(embed.$type == "app.bsky.embed.recordWithMedia") {
+        const embedRecordWithMedia = (embed as AppBskyEmbedRecordWithMedia.Main)
+        if(embedRecordWithMedia.media.$type == "app.bsky.embed.images") {
+            embedImages = embedRecordWithMedia.media as AppBskyEmbedImages.Main
+        } else {
+            return null
+        }
     } else {
         return null
     }
 
+    let images: (Image | ViewImage)[]
+    if (embedImages && embedImages.images && embedImages.images.length > 0) {
+        images = embedImages.images
+    }
+
     let imagesInPost
-    const imageClass = "w-full object-cover object-top rounded-lg border";
+
+    if(images && images.length != 1) return null
+
     if (images) {
         if (images.length === 1) {
             const img = images[0];
             imagesInPost = (
-                <ATProtoImage
-                    img={img}
-                    did={did}
-                    className={`${imageClass} mt-2 h-full`}
-                    onClick={() => {
-                        setViewing(0)
-                    }}
-                />
+                <div className="mt-2">
+                    <ATProtoImage
+                        img={img}
+                        did={did}
+                        onClick={() => {
+                            setViewing(0)
+                        }}
+                    />
+                </div>
             );
         } else if (images.length === 2) {
             imagesInPost = (
@@ -45,7 +61,6 @@ export const FastPostImage = ({post, did}: { post: FastPostProps; did?: string }
                             <ATProtoImage
                                 img={img}
                                 did={did}
-                                className={`${imageClass} h-full`}
                                 onClick={() => {
                                     setViewing(index)
                                 }}
@@ -53,7 +68,7 @@ export const FastPostImage = ({post, did}: { post: FastPostProps; did?: string }
                         </div>
                     ))}
                 </div>
-            );
+            )
         } else if (images.length === 3) {
             imagesInPost = (
                 <div className="rounded-xl mt-2 flex space-x-1 h-[268px]">
@@ -61,7 +76,6 @@ export const FastPostImage = ({post, did}: { post: FastPostProps; did?: string }
                         <ATProtoImage
                             img={images[0]}
                             did={did}
-                            className={imageClass + " h-full"}
                             onClick={() => {
                                 setViewing(0)
                             }}
@@ -71,7 +85,6 @@ export const FastPostImage = ({post, did}: { post: FastPostProps; did?: string }
                         <ATProtoImage
                             img={images[1]}
                             did={did}
-                            className={imageClass + " h-[132px]"}
                             onClick={() => {
                                 setViewing(1)
                             }}
@@ -79,7 +92,6 @@ export const FastPostImage = ({post, did}: { post: FastPostProps; did?: string }
                         <ATProtoImage
                             img={images[2]}
                             did={did}
-                            className={imageClass + " h-[132px]"}
                             onClick={() => {
                                 setViewing(2)
                             }}
@@ -95,7 +107,6 @@ export const FastPostImage = ({post, did}: { post: FastPostProps; did?: string }
                             key={index}
                             img={img}
                             did={did}
-                            className={imageClass + " h-full"}
                             onClick={() => {
                                 setViewing(index)
                             }}

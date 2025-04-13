@@ -12,10 +12,10 @@ export const BackButton = ({onClick, defaultURL, preferReferrer=true, size="medi
     const handleClick = () => {
         if(onClick) {
             onClick()
-        } else if (preferReferrer && document.referrer && new URL(document.referrer).origin === window.location.origin) {
-            router.back()
-        } else {
+        } else if (preferReferrer && document.referrer && new URL(document.referrer).origin != window.location.origin) {
             router.push(defaultURL)
+        } else {
+            router.back()
         }
     }
 

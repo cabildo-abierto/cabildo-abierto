@@ -152,7 +152,7 @@ export const ShowQuoteReplyButton = ({
 
     if(!editor) return null
 
-    const modal = (
+    const modal = () => (
         <SidenoteReplyPreviewFrame
             post={reply}
             borderBelow={false}

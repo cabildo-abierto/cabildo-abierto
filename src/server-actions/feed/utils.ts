@@ -1,159 +1,103 @@
 import {
-    ATProtoStrongRef,
-    EngagementProps,
-    FastPostProps,
     FeedContentProps,
-    FeedEngagementProps, SmallUserProps
+    FeedEngagementProps, ReasonProps
 } from "@/lib/definitions";
 import {
-    BlockedPost,
     FeedViewPost,
-    NotFoundPost,
     PostView,
     ReasonRepost
 } from "@atproto/api/src/client/types/app/bsky/feed/defs";
 import {addCounters} from "../utils";
-import {getRkeyFromUri} from "../../utils/uri";
-import {newestFirst} from "../../utils/arrays";
-
-
-function formatBskyFeedElement(e: FeedViewPost): FeedContentProps {
-    const record = e.post.record as {text: string, createdAt: string, $type: string, embed?: string, facets?: any, reply?: {parent: ATProtoStrongRef, root?: ATProtoStrongRef}}
-    const replyTo = e.reply && e.reply.parent ? formatBskyPostViewAsFeedElement(e.reply.parent) : (record.reply ? record.reply.parent : undefined)
-    const root = e.reply && e.reply.root ? formatBskyPostViewAsFeedElement(e.reply.root) : (record.reply && record.reply.root ? record.reply.root : replyTo)
-    const grandparentAuthor = e.reply ? e.reply.grandparentAuthor : undefined
-
-    const recordProps = {
-        uri: e.post.uri,
-        cid: e.post.cid,
-        collection: record.$type,
-        createdAt: new Date(record.createdAt),
-        rkey: getRkeyFromUri(e.post.uri),
-        author: {
-            did: e.post.author.did,
-            handle: e.post.author.handle,
-            displayName: e.post.author.displayName,
-            avatar: e.post.author.avatar
-        }
-    }
-
-    const content = {
-        text: record.text,
-        post: {
-            replyTo: replyTo ? {...replyTo, uri: replyTo.uri} : undefined,
-            root: root ? {...root, uri: root.uri} : undefined,
-            grandparentAuthor,
-            facets: record.facets ? JSON.stringify(record.facets) : undefined,
-            embed: record.embed ? JSON.stringify(record.embed) : undefined
-        }
-    }
-
-    const engagementProps = {
-        likeCount: e.post.likeCount,
-        repostCount: e.post.repostCount,
-        replyCount: e.post.replyCount,
-        viewer: e.post.viewer
-    }
-
-    const post: FastPostProps = {
-        ...recordProps,
-        content: content,
-        ...engagementProps
-    }
-
-    if(e.reason && e.reason.$type == "app.bsky.feed.defs#reasonRepost"){
-        const r = e.reason as ReasonRepost
-        return {
-            ...post,
-            reason: {
-                createdAt: new Date(r.indexedAt as string),
-                collection: "app.bsky.feed.repost",
-                by: r.by as {did: string, handle: string, displayName?: string}
-            }
-        }
-    } else {
-        return post
-    }
-}
-
-
-
-function formatBskyPostViewAsFeedElement(e: PostView | NotFoundPost | BlockedPost | {[p: string]: unknown, $type: string}): {blocked?: boolean, notFound?: boolean} & FeedContentProps {
-    if("notFound" in e && e.notFound) return {notFound: true, collection: "", author: {did: "", handle: ""}}
-    if("blocked" in e && e.blocked) return {blocked: true, collection: "", author: {did: "", handle: ""}}
-
-    let post = e as PostView
-    const record = post.record as {text: string, createdAt: string, facets: any, embed: any, $type: string, reply?: {parent: ATProtoStrongRef, root?: ATProtoStrongRef}}
-    const caPost: FastPostProps & EngagementProps = {
-        uri: post.uri,
-        cid: post.cid,
-        author: {
-            ...post.author,
-        },
-        collection: record.$type,
-        createdAt: new Date(record.createdAt),
-        content: {
-            text: record.text,
-            post: {
-                facets: JSON.stringify(record.facets),
-                embed: JSON.stringify(record.embed),
-                replyTo: record.reply ? record.reply.parent : undefined,
-                root: record.reply && record.reply.root ? record.reply.root : undefined
-            }
-        },
-        ...post
-    }
-    return caPost
-}
-
-
-export function joinCAandATFeeds(feedCA: FeedContentProps[], feedAT: FeedViewPost[]){
-
-    const feedATProcessed = feedAT.map((e) => (formatBskyFeedElement(e)))
-
-    const feed = [...feedATProcessed, ...feedCA].sort(newestFirst)
-
-    const uniqueFeed: FeedContentProps[] = []
-
-    let urisAT = new Set<string>()
-    for(let i = 0; i < feed.length; i++){
-        const post = feed[i]
-        if(!urisAT.has(post.uri)){
-            uniqueFeed.push(post)
-            urisAT.add(post.uri)
-            if(post.collection == "app.bsky.feed.post" && (post as FastPostProps).content.post.replyTo){
-                urisAT.add((post as FastPostProps).content.post.replyTo.uri)
-            }
-            if(post.collection == "app.bsky.feed.post" && (post as FastPostProps).content.post.root){
-                urisAT.add((post as FastPostProps).content.post.root.uri)
-            }
-        }
-    }
-
-    return uniqueFeed.sort(newestFirst)
-}
-
-
-export function addReasonToRepost(r: FeedContentProps & {reposts: {record: {createdAt: Date, author: SmallUserProps}}[]}, following: string[]): FeedContentProps {
-
-    for(let i = 0; i < r.reposts.length; i++){
-        if(following.includes(r.reposts[i].record.author.did)){
-            return {
-                ...r,
-                reason: {
-                    collection: "app.bsky.feed.repost",
-                    by: r.reposts[i].record.author,
-                    createdAt: r.reposts[i].record.createdAt
-                }
-            }
-        }
-    }
-    return r
-}
+import {FeedSkeleton, FeedSkeletonElement} from "@/server-actions/feed/profile/main";
 
 
 export function addCountersToFeed(feed: any[], engagement: FeedEngagementProps): FeedContentProps[]{
     return feed.map((elem) => {
         return addCounters(elem, engagement)
     })
+}
+
+
+function getRootCreationDate(p: FeedContentProps){
+    if(p.reason){
+        return p.reason.createdAt
+    } else if("content" in p && "post" in p.content && p.content.post != null){
+        if(p.content.post.root && "createdAt" in p.content.post.root){
+            return new Date(p.content.post.root.createdAt)
+        } else if(p.content.post.replyTo && "createdAt" in p.content.post.replyTo){
+            return new Date(p.content.post.replyTo.createdAt)
+        }
+    }
+    return new Date(p.createdAt)
+}
+
+
+export const rootCreationDateSortKey = (a: FeedContentProps) => {
+    return [getRootCreationDate(a).getTime()]
+}
+
+
+export function skeletonElementFromFeedViewPost(p: FeedViewPost): FeedSkeletonElement {
+    let reason: ReasonProps
+    if(p.reason && p.reason.$type == "app.bsky.feed.defs#reasonRepost"){
+        const r = p.reason as ReasonRepost
+        reason = {
+            by: r.by,
+            createdAt: new Date(r.indexedAt),
+            collection: "app.bsky.feed.repost"
+        }
+    }
+
+    if(p.reply && p.reply.root && p.reply.root.$type == "app.bsky.feed.defs#postView"){
+        return {
+            uri: (p.reply.root as PostView).uri,
+            lastInThreadId: (p.post.uri),
+            secondToLastInThreadId: (p.reply.parent as PostView).uri,
+            reason
+        }
+    } else if(p.reply && p.reply.parent && p.reply.parent.$type == "app.bsky.feed.defs#postView"){
+        return {
+            uri: (p.reply.parent as PostView).uri,
+            lastInThreadId: (p.post.uri),
+            reason
+        }
+    } else {
+        return {
+            uri: p.post.uri,
+            reason
+        }
+    }
+}
+
+
+export function removeRepeatedInSkeleton(s: FeedSkeleton): FeedSkeleton {
+    const m = new Map<string, FeedSkeletonElement>()
+    s.forEach(x => {
+        if(!m.has(x.uri)){
+            m.set(x.uri, x)
+        } else {
+            const y = m.get(x.uri)
+            if(x.secondToLastInThreadId && !y.secondToLastInThreadId){
+                m.set(x.uri, x)
+            } else if(x.lastInThreadId && !y.lastInThreadId){
+                m.set(x.uri, x)
+            }
+        }
+    })
+    return Array.from(m.entries()).map(([uri, x]) => x)
+}
+
+
+export function filterTimeline(e: FeedViewPost){
+    if(e.reply && e.reply.parent){
+        if(e.reply.parent.$type == "app.bsky.feed.defs#notFoundPost"){
+            return false
+        }
+    }
+    if(e.reply && e.reply.root){
+        if(e.reply.root.$type == "app.bsky.feed.defs#notFoundPost"){
+            return false
+        }
+    }
+    return true
 }

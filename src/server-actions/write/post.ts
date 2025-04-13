@@ -9,6 +9,7 @@ import {processCreateRecordFromRefAndRecord} from "../sync/process-event";
 import {getVisualizationTitle} from "@/components/visualizations/editor/get-spec";
 import {logTimes} from "../utils";
 import {revalidateTags} from "../admin";
+import {addToEnDiscusion} from "@/server-actions/feed/inicio/en-discusion";
 
 
 export async function createFastPostATProto({
@@ -162,21 +163,31 @@ export async function createFastPost({
     reply,
     quote,
     visualization,
-    images
+    images,
+    enDiscusion
 }: {
     text: string
     reply?: FastPostReplyProps
     quote?: [number, number]
     visualization?: VisualizationProps
     images?: { src?: string, formData?: FormData }[]
+    enDiscusion: boolean
 }): Promise<{error?: string, ref?: {uri: string, cid: string}}> {
-    console.log("creating fast post", text, quote)
+    console.log("reply", reply)
 
-    const {ref, record} = await createFastPostATProto({text, reply, quote: JSON.stringify(quote), visualization, images})
+    const {ref, record} = await createFastPostATProto({
+        text, reply, quote: JSON.stringify(quote), visualization, images
+    })
 
     if (ref) {
         const {updates, tags} = await processCreateRecordFromRefAndRecord(ref, record)
-        await db.$transaction(updates)
+
+        const p: Promise<any>[] = [db.$transaction(updates)]
+        if(enDiscusion){
+            p.push(addToEnDiscusion(ref))
+        }
+
+        await Promise.all(p)
         await revalidateTags(Array.from(tags))
     }
 
