@@ -1,39 +1,39 @@
 'use server'
 
-import { revalidateTag, unstable_cache } from "next/cache";
-import { db } from "../../db";
-import { revalidateEverythingTime } from "../utils";
+import {revalidateTag, unstable_cache} from "next/cache";
+import {db} from "../../db";
+import {revalidateEverythingTime} from "../utils";
 import {SmallUserProps, UserProps, UserStats} from "@/lib/definitions";
 import {validSubscription} from "../../utils/utils";
-import { getSubscriptionPrice } from "../payments";
+import {getSubscriptionPrice} from "../payments";
 import {getSessionAgent, getSessionDid} from "../auth";
-import {ProfileView, ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
-import { Prisma } from "@prisma/client";
+import {ProfileView, ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+import {Prisma} from "@prisma/client";
 import {supportDid} from "../../utils/auth";
 import {cleanText} from "@/utils/strings";
 import {MentionProps} from "../../../modules/ca-lexical-editor/src/ui/custom-mention-component";
 
 
-export async function isCAUser(did: string){
+export async function isCAUser(did: string) {
     return await unstable_cache(async () => {
-        const res = await db.user.findFirst({
-            select: {did: true},
-            where: {
-                did,
-                inCA: true
-            }
-        })
-        return res != null
-    },
-        ["isCAUser:"+did],
+            const res = await db.user.findFirst({
+                select: {did: true},
+                where: {
+                    did,
+                    inCA: true
+                }
+            })
+            return res != null
+        },
+        ["isCAUser:" + did],
         {
-            tags: ["isCAUser", "isCAUser:"+did],
+            tags: ["isCAUser", "isCAUser:" + did],
             revalidate: revalidateEverythingTime,
         }
     )()
 }
 
-export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: string}> => {
+export const getUsers = async (): Promise<{ users?: SmallUserProps[], error?: string }> => {
     try {
         const users = await db.user.findMany({
             select: {
@@ -54,77 +54,77 @@ export const getUsers = async (): Promise<{users?: SmallUserProps[], error?: str
         return {error: "Error al obtener a los usuarios."}
     }
 }
-    
+
 
 export const getConversations = async (userId: string) => {
     return unstable_cache(async () => {
-        const user = await db.user.findUnique(
-            {
-                select: {
-                    did: true,
-                    messagesSent: {
-                        select: {
-                            id: true,
-                            createdAt: true,
-                            fromUserId: true,
-                            toUserId: true,
-                            text: true,
-                            seen: true
+            const user = await db.user.findUnique(
+                {
+                    select: {
+                        did: true,
+                        messagesSent: {
+                            select: {
+                                id: true,
+                                createdAt: true,
+                                fromUserId: true,
+                                toUserId: true,
+                                text: true,
+                                seen: true
+                            },
                         },
-                    },
-                    messagesReceived: {
-                        select: {
-                            id: true,
-                            createdAt: true,
-                            fromUserId: true,
-                            toUserId: true,
-                            text: true,
-                            seen: true
+                        messagesReceived: {
+                            select: {
+                                id: true,
+                                createdAt: true,
+                                fromUserId: true,
+                                toUserId: true,
+                                text: true,
+                                seen: true
+                            }
                         }
+                    },
+                    where: {
+                        did: userId
                     }
-                },
-                where: {
-                    did: userId
                 }
-            }
-        )
-        if(!user) return []
+            )
+            if (!user) return []
 
-        let users = new Map<string, {date: Date, seen: boolean}>()
+            let users = new Map<string, { date: Date, seen: boolean }>()
 
-        function addMessage(from: string, date: Date, seen: boolean){
-            if(users.has(from)){
-                if(users.get(from).date.getTime() < date.getTime()){
+            function addMessage(from: string, date: Date, seen: boolean) {
+                if (users.has(from)) {
+                    if (users.get(from).date.getTime() < date.getTime()) {
+                        users.set(from, {date: date, seen: seen})
+                    }
+                } else {
                     users.set(from, {date: date, seen: seen})
                 }
-            } else {
-                users.set(from, {date: date, seen: seen})
             }
-        }
 
-        user.messagesReceived.forEach((m) => {
-            addMessage(m.fromUserId, m.createdAt, m.seen)
-        })
+            user.messagesReceived.forEach((m) => {
+                addMessage(m.fromUserId, m.createdAt, m.seen)
+            })
 
-        user.messagesSent.forEach((m) => {
-            addMessage(m.toUserId, m.createdAt, m.seen)
-        })
+            user.messagesSent.forEach((m) => {
+                addMessage(m.toUserId, m.createdAt, m.seen)
+            })
 
-        return Array.from(users).map(([u, d]) => ({id: u, date: d.date, seen: d.seen}))
-    },
+            return Array.from(users).map(([u, d]) => ({id: u, date: d.date, seen: d.seen}))
+        },
         ["conversations", userId],
         {
             revalidate: revalidateEverythingTime,
             tags: [
                 "conversations",
-                "conversations:"+userId
+                "conversations:" + userId
             ]
         }
     )()
 }
 
 
-export async function getATProtoUserById(userId: string): Promise<{profile?: ProfileViewDetailed, error?: string}> {
+export async function getATProtoUserById(userId: string): Promise<{ profile?: ProfileViewDetailed, error?: string }> {
     try {
         const {agent} = await getSessionAgent()
         const {data} = await agent.getProfile({
@@ -150,6 +150,7 @@ const fullUserQuery = {
     inCA: true,
     platformAdmin: true,
     editorStatus: true,
+    seenTutorial: true,
     usedInviteCode: {
         select: {
             code: true
@@ -222,29 +223,33 @@ const fullUserQuery = {
 }
 
 
-export const getFullProfileById = async (userId: string): Promise<{user?: UserProps, atprotoProfile?: ProfileViewDetailed, error?: string}> => {
+export const getFullProfileById = async (userId: string): Promise<{
+    user?: UserProps,
+    atprotoProfile?: ProfileViewDetailed,
+    error?: string
+}> => {
     const promiseATProtoProfile = getATProtoUserById(userId)
 
     const promiseCAUser = getUserById(userId)
 
     const [CAUser, ATProtoProfile] = await Promise.all([promiseCAUser, promiseATProtoProfile])
 
-    if(!CAUser.user){
+    if (!CAUser.user) {
         return {atprotoProfile: ATProtoProfile.profile ? ATProtoProfile.profile : null}
     }
 
     let following = undefined
-    for(let i = 0; i < CAUser.user.followers.length; i++) {
+    for (let i = 0; i < CAUser.user.followers.length; i++) {
         const f = CAUser.user.followers[i]
-        if(f.record.authorId == userId){
+        if (f.record.authorId == userId) {
             following = f.uri
         }
     }
 
     let followed = undefined
-    for(let i = 0; i < CAUser.user.records.length; i++){
+    for (let i = 0; i < CAUser.user.records.length; i++) {
         const r = CAUser.user.records[i]
-        if(r.follow.userFollowedId == userId){
+        if (r.follow.userFollowedId == userId) {
             followed = r.cid
         }
     }
@@ -290,9 +295,9 @@ export async function unfollow(followUri: string) {
 }
 
 
-export async function getUser(){
+export async function getUser() {
     const did = await getSessionDid()
-    if(did){
+    if (did) {
         return await getUserById(did)
     } else {
         return {error: "Sin sesión."}
@@ -300,20 +305,20 @@ export async function getUser(){
 }
 
 
-export async function getUserById(userId: string){
+export async function getUserById(userId: string) {
     return unstable_cache(async () => {
-        return await getUserByIdNoCache(userId)
-    },
-        ["user:"+userId],
+            return await getUserByIdNoCache(userId)
+        },
+        ["user:" + userId],
         {
-            tags: ["user:"+userId, "user"],
+            tags: ["user:" + userId, "user"],
             revalidate: revalidateEverythingTime
         }
     )()
 }
 
 
-export async function getUserByIdNoCache(userId: string){
+export async function getUserByIdNoCache(userId: string) {
     try {
         const user = await db.user.findFirst(
             {
@@ -337,7 +342,7 @@ export async function getUserByIdNoCache(userId: string){
 }
 
 
-export async function getBskyUser(): Promise<{bskyUser?: ProfileViewDetailed, error?: string}>{
+export async function getBskyUser(): Promise<{ bskyUser?: ProfileViewDetailed, error?: string }> {
     const {agent, did} = await getSessionAgent()
     try {
         const {data} = await agent.getProfile({actor: did})
@@ -350,13 +355,21 @@ export async function getBskyUser(): Promise<{bskyUser?: ProfileViewDetailed, er
 
 export async function buySubscriptions(userId: string, donatedAmount: number, paymentId: string) {
     const did = await getSessionDid()
-    if(!did || did != userId) return {error: "Error de autenticación"}
+    if (!did || did != userId) return {error: "Error de autenticación"}
 
-    const queries: {boughtByUserId: string, price: number, paymentId: string, isDonation: boolean, userId: string | null, usedAt: Date | null, endsAt: Date | null}[] = []
-    
+    const queries: {
+        boughtByUserId: string,
+        price: number,
+        paymentId: string,
+        isDonation: boolean,
+        userId: string | null,
+        usedAt: Date | null,
+        endsAt: Date | null
+    }[] = []
+
     const price = await getSubscriptionPrice()
 
-    for(let i = 0; i < donatedAmount / price.price; i++){
+    for (let i = 0; i < donatedAmount / price.price; i++) {
         queries.push({
             boughtByUserId: userId,
             price: price.price,
@@ -372,11 +385,11 @@ export async function buySubscriptions(userId: string, donatedAmount: number, pa
         await db.subscription.createMany({
             data: queries
         })
-    } catch(e) {
+    } catch (e) {
         return {error: "error on buy subscriptions"}
     }
 
-    revalidateTag("user:"+userId)
+    revalidateTag("user:" + userId)
     revalidateTag("poolsize")
     revalidateTag("fundingPercentage")
     return {}
@@ -412,12 +425,13 @@ export const getChatBetween = async (userId: string, anotherUserId: string) => {
         revalidate: revalidateEverythingTime,
         tags: [
             "chats",
-            "chat:"+userId+":"+anotherUserId
-        ]})()    
+            "chat:" + userId + ":" + anotherUserId
+        ]
+    })()
 }
 
 
-export async function sendMessage(message: string, userFrom: string, userTo: string){
+export async function sendMessage(message: string, userFrom: string, userTo: string) {
     try {
         await db.chatMessage.create({
             data: {
@@ -429,16 +443,16 @@ export async function sendMessage(message: string, userFrom: string, userTo: str
     } catch {
         return {error: "Ocurrió un error al enviar el mensaje."}
     }
-    revalidateTag("chat:"+userFrom+":"+userTo)
-    revalidateTag("chat:"+userTo+":"+userFrom)
-    revalidateTag("conversations:"+userFrom)
-    revalidateTag("conversations:"+userTo)
+    revalidateTag("chat:" + userFrom + ":" + userTo)
+    revalidateTag("chat:" + userTo + ":" + userFrom)
+    revalidateTag("conversations:" + userFrom)
+    revalidateTag("conversations:" + userTo)
     revalidateTag("not-responded-count")
     return {}
 }
 
 
-export async function setMessageSeen(id: string, userFrom: string, userTo: string){
+export async function setMessageSeen(id: string, userFrom: string, userTo: string) {
     await db.chatMessage.update({
         data: {
             seen: true
@@ -447,17 +461,17 @@ export async function setMessageSeen(id: string, userFrom: string, userTo: strin
             id: id
         }
     })
-    
-    revalidateTag("chat:"+userFrom+":"+userTo)
-    revalidateTag("chat:"+userTo+":"+userFrom)
-    revalidateTag("conversations:"+userFrom)
-    revalidateTag("conversations:"+userTo)
+
+    revalidateTag("chat:" + userFrom + ":" + userTo)
+    revalidateTag("chat:" + userTo + ":" + userFrom)
+    revalidateTag("conversations:" + userFrom)
+    revalidateTag("conversations:" + userTo)
 }
 
 
 export const getSupportNotRespondedCount = async () => {
     const {user} = await getUser()
-    if(!user || user.editorStatus != "Administrator"){
+    if (!user || user.editorStatus != "Administrator") {
         return {error: "Sin permisos suficientes."}
     }
 
@@ -478,9 +492,9 @@ export const getSupportNotRespondedCount = async () => {
     )
     const c = new Set()
 
-    for(let i = 0; i < messages.length; i++){
+    for (let i = 0; i < messages.length; i++) {
         const m = messages[i]
-        if(m.fromUserId == supportDid){
+        if (m.fromUserId == supportDid) {
             c.delete(m.toUserId)
         } else {
             c.add(m.fromUserId)
@@ -556,7 +570,7 @@ export async function removeSubscriptions(){
 }*/
 
 
-export async function setATProtoProfile(did: string){
+export async function setATProtoProfile(did: string) {
 
     try {
         const {agent} = await getSessionAgent()
@@ -586,7 +600,7 @@ export async function setATProtoProfile(did: string){
             })
         ])
 
-        revalidateTag("user:"+did)
+        revalidateTag("user:" + did)
         return {}
     } catch (err) {
         console.error("Error", err)
@@ -595,7 +609,7 @@ export async function setATProtoProfile(did: string){
 }
 
 
-export async function updateEmail(email: string){
+export async function updateEmail(email: string) {
     const {bskyUser} = await getBskyUser()
     try {
         await db.user.upsert({
@@ -621,7 +635,7 @@ export const getFundingPercentage = unstable_cache(async () => {
                 }
             }
         })
-        if(available.length > 0){
+        if (available.length > 0) {
             return 100
         }
 
@@ -650,15 +664,15 @@ export const getFundingPercentage = unstable_cache(async () => {
         let activeUsers = 0
         let activeNoSubscription = 0
         usersWithViews.forEach((u) => {
-            if(u.views.length > 0 && new Date().getTime() - u.views[0].createdAt.getTime() < 1000*3600*24*30){
-                activeUsers ++
-                if(!validSubscription(u)){
-                    activeNoSubscription ++
+            if (u.views.length > 0 && new Date().getTime() - u.views[0].createdAt.getTime() < 1000 * 3600 * 24 * 30) {
+                activeUsers++
+                if (!validSubscription(u)) {
+                    activeNoSubscription++
                 }
             }
         })
 
-        return (1 - (activeNoSubscription / activeUsers))*100
+        return (1 - (activeNoSubscription / activeUsers)) * 100
 
     },
     ["fundingPercentage"],
@@ -688,10 +702,12 @@ export const getDonationsDistribution = unstable_cache(async () => {
             u.subscriptionsBought.forEach(({price}) => {
                 t += price
             })
-            const months = Math.ceil((today.getTime() - u.createdAt.getTime()) / (1000*3600*24*30))
+            const months = Math.ceil((today.getTime() - u.createdAt.getTime()) / (1000 * 3600 * 24 * 30))
             data.push(t / months)
         })
-        data.sort((a, b) => {return Math.sign(a-b)})
+        data.sort((a, b) => {
+            return Math.sign(a - b)
+        })
         //console.log("data", data)
 
         const percentiles = data.map((value, index) => {
@@ -700,8 +716,8 @@ export const getDonationsDistribution = unstable_cache(async () => {
 
         const inverse = []
         let j = 0
-        for(let i = 0; i < 100; i++){
-            while(percentiles[j].p < i / 100 && j < percentiles.length-1) j++
+        for (let i = 0; i < 100; i++) {
+            while (percentiles[j].p < i / 100 && j < percentiles.length - 1) j++
             inverse.push(percentiles[j].value)
         }
 
@@ -715,7 +731,7 @@ export const getDonationsDistribution = unstable_cache(async () => {
 )
 
 
-export async function searchATProtoUsers(q: string): Promise<{users?: ProfileView[], error?: string}> {
+export async function searchATProtoUsers(q: string): Promise<{ users?: ProfileView[], error?: string }> {
     try {
         const {agent} = await getSessionAgent()
 
@@ -730,7 +746,7 @@ export async function searchATProtoUsers(q: string): Promise<{users?: ProfileVie
 }
 
 
-export async function getUserStats(): Promise<{stats?: UserStats, error?: string}>{
+export async function getUserStats(): Promise<{ stats?: UserStats, error?: string }> {
     const stats = {
         posts: 0,
         entityEdits: 0,
@@ -748,7 +764,7 @@ export async function getUserStats(): Promise<{stats?: UserStats, error?: string
 }
 
 
-export async function getFollowingNoCache(did: string) : Promise<string[]> {
+export async function getFollowingNoCache(did: string): Promise<string[]> {
     const follows = await db.record.findMany({
         select: {
             follow: {
@@ -768,10 +784,10 @@ export async function getFollowingNoCache(did: string) : Promise<string[]> {
 
 export async function getFollowing(did: string) {
     return unstable_cache(async () => {
-        return await getFollowingNoCache(did)
-    }, ["following:"+did],
+            return await getFollowingNoCache(did)
+        }, ["following:" + did],
         {
-            tags: ["following", "following:"+did],
+            tags: ["following", "following:" + did],
             revalidate: revalidateEverythingTime
         }
     )()
@@ -779,13 +795,27 @@ export async function getFollowing(did: string) {
 
 
 export const queryMentions = async (trigger: string, query: string | undefined | null): Promise<MentionProps[]> => {
-    if(!query) return []
+    if (!query) return []
     const {users, error} = await getUsers()
-    if(error) return []
+    if (error) return []
 
     const cleanQuery = cleanText(query)
 
     return users.filter((user) =>
         (user.displayName && cleanText(user.displayName).includes(cleanQuery)) || cleanText(user.handle).includes(cleanQuery),
     ).map(u => ({...u, value: u.did}))
+}
+
+
+export async function setSeenTutorial(v: boolean) {
+    const did = await getSessionDid()
+    await db.user.update({
+        data: {
+            seenTutorial: v
+        },
+        where: {
+            did
+        }
+    })
+    revalidateTag("user:" + did)
 }

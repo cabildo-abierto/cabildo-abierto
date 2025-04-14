@@ -14,7 +14,7 @@ import './index.css';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {TableOfContentsPlugin as LexicalTableOfContentsPlugin} from '@lexical/react/LexicalTableOfContentsPlugin';
 import {useEffect, useRef, useState} from 'react';
-import {useLayoutConfig} from "../../../../../src/components/layout/layout-config-context";
+import {useLayoutConfig} from "@/components/layout/layout-config-context";
 
 import {pxToNumber} from "@/utils/strings";
 

@@ -12,7 +12,7 @@ export const RightPanel = () => {
     const inSearchPage = pathname.startsWith("/buscar") || pathname.startsWith("/temas");
 
     return <div className={"flex flex-col pr-6 space-y-4 pt-4"}>
-        <div className={"h-10"}>
+        <div className={"min-h-10"}>
             {!inSearchPage ? <SearchPanelOnRightColumn/> : <>{emptyChar}</>}
         </div>
 

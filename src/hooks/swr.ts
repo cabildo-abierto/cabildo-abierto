@@ -15,8 +15,8 @@ import {
     VisualizationProps
 } from "@/lib/definitions"
 import {fetcher} from "./fetcher"
-import {QuotedContent} from "../components/feed/content-quote";
-import {getDidFromUri, getRkeyFromUri, threadApiUrl} from "../utils/uri";
+import {QuotedContent} from "@/components/feed/content-quote";
+import {getDidFromUri, getRkeyFromUri, threadApiUrl} from "@/utils/uri";
 import {SmallTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import {ChatMessage} from "@prisma/client";

@@ -15,6 +15,7 @@ export const TrendingTopicsPanel = ({selected}: {selected: string}) => {
             <Link
                 className={"text-xs font-bold"}
                 href={"/temas"}
+                id={"temas populares"}
             >
                 Temas populares
             </Link>

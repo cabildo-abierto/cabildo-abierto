@@ -5,7 +5,6 @@ import {Authorship} from "./content-top-row-author";
 import {getTopicTitle} from "@/components/topics/topic/utils";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import "../editor/article-content.css"
 import { useQuotedContent } from "@/hooks/swr";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {contentUrl, getCollectionFromUri} from "@/utils/uri";
@@ -15,8 +14,6 @@ import {
 } from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin/standard-selection";
 import {markdownToEditorStateStr} from "../../../modules/ca-lexical-editor/src/markdown-transforms";
 import {getAllText} from "@/components/topics/topic/diff";
-import {logTimes} from "@/server-actions/utils";
-import {Profiler} from "react";
 
 
 export function getSelectionSubtree(s: any, selection: LexicalStandardSelection) {

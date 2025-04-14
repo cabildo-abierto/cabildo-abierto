@@ -13,7 +13,9 @@ export const ContentOptionsDropdown = ({
     onDelete: () => Promise<void>
     enDiscusion?: string
 }) => {
-    return <div className="text-base border rounded bg-[var(--background-dark)] p-1">
-        {record && <ContentOptions record={record} onClose={onClose} onDelete={onDelete} enDiscusion={enDiscusion}/>}
-    </div>
+    return (
+        <div className="text-base border rounded bg-[var(--background-dark)] p-1">
+            {record && <ContentOptions record={record} onClose={onClose} onDelete={onDelete} enDiscusion={enDiscusion}/>}
+        </div>
+    )
 }

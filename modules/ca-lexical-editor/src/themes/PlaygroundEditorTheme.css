@@ -47,33 +47,6 @@
 }
 .PlaygroundEditorTheme__link:hover {
 }
-.PlaygroundEditorTheme__code {
-  background-color: rgb(240, 242, 245);
-  font-family: Menlo, Consolas, Monaco, monospace;
-  display: block;
-  padding: 8px 8px 8px 52px;
-  line-height: 1.53;
-  font-size: 13px;
-  margin: 0;
-  margin-top: 8px;
-  margin-bottom: 8px;
-  overflow-x: auto;
-  position: relative;
-  tab-size: 2;
-}
-.PlaygroundEditorTheme__code:before {
-  content: attr(data-gutter);
-  position: absolute;
-  background-color: #eee;
-  left: 0;
-  top: 0;
-  border-right: 1px solid #ccc;
-  padding: 8px;
-  color: #777;
-  white-space: pre-wrap;
-  text-align: right;
-  min-width: 25px;
-}
 .PlaygroundEditorTheme__table {
   border-collapse: collapse;
   border-spacing: 0;
@@ -81,7 +54,7 @@
   overflow-x: scroll;
   table-layout: fixed;
   width: max-content;
-  margin: 0px 25px 30px 0px;
+  margin: 0 25px 30px 0;
 }
 .PlaygroundEditorTheme__tableSelection *::selection {
   background-color: transparent;
