@@ -65,6 +65,7 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
             }}
             color={"primary"}
             onClick={() => {onClick()}}
+            id={"write-button"}
         >
             Escribir
         </Button> :
@@ -73,6 +74,7 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
                 onClick={() => {onClick()}}
                 variant={"text"}
                 size={"large"}
+                id={"write-button"}
             >
                 <WriteButtonIcon/>
             </Button>
@@ -135,7 +137,9 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         text="Inicio"
                         href="/inicio"
                         selected={pathname.startsWith("/inicio")}
+                        id={"inicio"}
                     />
+
                     <SidebarButton
                         showText={showText}
                         icon={<SearchIcon sx={{ strokeWidth: 1, stroke: "var(--text)" }}/>}
@@ -160,6 +164,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         onClick={onClose}
                         text="Temas"
                         href="/temas"
+                        id={"temas"}
                         showText={showText}
                         selected={pathname.startsWith("/temas") && !pathname.startsWith("/temas/congreso")}
                     />
@@ -185,6 +190,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         onClick={onClose}
                         text="Congreso"
                         href={urlCongreso}
+                        id={"congreso"}
                         selected={pathname.startsWith(urlCongreso)}
                         showText={showText}
                     />
@@ -194,6 +200,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         onClick={onClose}
                         text="Explorar datos"
                         href="/datos"
+                        id={"datos"}
                         selected={pathname.startsWith("/datos")}
                         showText={showText}
                     />

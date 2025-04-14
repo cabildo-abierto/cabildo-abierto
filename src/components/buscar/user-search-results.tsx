@@ -70,6 +70,8 @@ export const SmallUserSearchResult: React.FC<{
         </div>
     </Link>
 }
+
+
 export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCount?: number; showSearchButton?: boolean }) => {
     const users = useUsers();
     const { searchState } = useSearch();
@@ -93,7 +95,7 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
             function isMatch(user: SmallUserProps) {
                 return (
                     (user.displayName && cleanText(user.displayName).includes(searchValue)) ||
-                    cleanText(user.handle).includes(searchValue)
+                    (user.handle && cleanText(user.handle).includes(searchValue))
                 );
             }
 

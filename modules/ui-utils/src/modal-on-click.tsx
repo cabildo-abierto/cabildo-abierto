@@ -10,7 +10,7 @@ type ModalOnClickProps = {
     setOnClose?: (onClose: () => void) => void
 }
 
-export const ModalOnClick = ({ children, modal, setOnClose }: ModalOnClickProps) => {
+export const ModalOnClick = ({children, modal, setOnClose}: ModalOnClickProps) => {
     const [open, setOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -25,9 +25,9 @@ export const ModalOnClick = ({ children, modal, setOnClose }: ModalOnClickProps)
     };
 
     useEffect(() => {
-        if (setOnClose) {
-            setOnClose(handleClickAway);
-        }
+        setOnClose(() => {
+            setOpen(false)
+        })
     }, [setOnClose]);
 
     return (
@@ -36,7 +36,7 @@ export const ModalOnClick = ({ children, modal, setOnClose }: ModalOnClickProps)
                 {children}
             </div>
             <Popper open={open} anchorEl={anchorEl} placement="bottom-start" transition>
-                {({ TransitionProps }) => (
+                {({TransitionProps}) => (
                     <ClickAwayListener onClickAway={handleClickAway}>
                         <Fade {...TransitionProps} timeout={350}>
                             <div className="mt-2 bg-[var(--background-dark)]">

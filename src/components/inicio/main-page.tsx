@@ -2,11 +2,11 @@
 
 import { MainFeedHeader } from "./main-feed-header"
 import Feed from "../feed/feed"
-import {useFeed} from "../../hooks/swr";
+import {useFeed} from "@/hooks/swr";
 import {useRouter, useSearchParams} from "next/navigation";
 
 
-function optionToSearchParam(v: string){
+export function optionToSearchParam(v: string){
     if (v == "Siguiendo") return "siguiendo"
     if (v == "En discusión") return "discusion"
     if (v == "Descubrir") return "descubrir"
@@ -14,7 +14,7 @@ function optionToSearchParam(v: string){
 }
 
 
-function searchParamToOption(v: string){
+export function searchParamToOption(v: string){
     if (v == "siguiendo") return "Siguiendo"
     if (v == "discusion") return "En discusión"
     if (v == "descubrir") return "Descubrir"

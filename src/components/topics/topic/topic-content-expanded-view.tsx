@@ -159,7 +159,7 @@ export const TopicContentExpandedViewWithVersion = ({
                             initialTextFormat: topicVersion.content.format,
                             allowComments: true,
                             tableOfContents: true,
-                            editorClassName: "article-content"
+                            editorClassName: "article-content not-article-content"
                         })}
                         quoteReplies={quoteReplies}
                         pinnedReplies={pinnedReplies}

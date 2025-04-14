@@ -13,27 +13,33 @@ import { Button } from "../../../modules/ui-utils/src/button"
 
 
 export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
-    const [handle, setHandle] = useState("")
+
     const [error, setError] = useState(undefined)
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
     const {user} = useUser(true)
     const [usingInviteCode, setUsingInviteCode] = useState(false)
+    const [handleStart, setHandleStart] = useState("")
+    const [domain, setDomain] = useState(".bsky.social")
 
     async function handleSubmit(e){
         e.preventDefault();
 
-        if (typeof handle !== 'string' || !isValidHandle(handle)) {
+        setError(null)
+
+        const handle = handleStart + domain
+
+        if (!isValidHandle(handle)) {
             if(handle.includes("@")){
                 setError("Nombre de usuario inválido. Escribilo sin @.")
             } else if(!handle.includes(".bsky.social")){
-                setError('Nombre de usuario inválido. Tip: Los usuarios de Bluesky suelen terminar con ".bsky.social".')
+                setError('Nombre de usuario inválido.')
             }
             return
         }
 
         setIsLoading(true)
-        const res = await login(handle.toLowerCase())
+        const res = await login(handle)
 
         if(res && res.error){
             setError(res.error)
@@ -82,22 +88,44 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
     return <div className={"max-w-96 w-full"}>
         <Box component={"form"} onSubmit={handleSubmit} sx={{width: "100%"}}>
             <FormControl error={error} sx={{width: "100%"}}>
-                <TextField
-                    margin="normal"
-                    fullWidth={true}
-                    id="username"
-                    label="Nombre de usuario de Bluesky"
-                    name="username"
-                    placeholder="Ej. usuario.bsky.social"
-                    autoFocus
-                    autoComplete="off"
-                    variant="outlined"
-                    value={handle}
-                    onChange={(e) => {
-                        setHandle(e.target.value);
-                        setError(undefined);
-                    }}
-                />
+                <div className={"flex space-x-2 items-center"}>
+                    <TextField
+                        margin="normal"
+                        fullWidth={true}
+                        size={"small"}
+                        id="username"
+                        label="Nombre de usuario de Bluesky"
+                        name="username"
+                        autoFocus
+                        autoComplete="off"
+                        variant="outlined"
+                        value={handleStart}
+                        onChange={(e) => {
+                            setHandleStart(e.target.value);
+                            setError(undefined);
+                        }}
+                    />
+                    <TextField
+                        margin="normal"
+                        fullWidth={false}
+                        id="domain"
+                        label="Dominio"
+                        name="username"
+                        placeholder=".bsky.social"
+                        autoFocus={false}
+                        autoComplete="off"
+                        variant="outlined"
+                        size={"small"}
+                        value={domain}
+                        onChange={(e) => {
+                            setDomain(e.target.value);
+                            setError(undefined);
+                        }}
+                        sx={{
+                            width: 160
+                        }}
+                    />
+                </div>
 
                 <FormHelperText
                     hidden={error == undefined}
@@ -106,10 +134,6 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
                     {error}
                 </FormHelperText>
             </FormControl>
-            {/*<FormHelperText id="my-helper-text" sx={{color: "var(--text-light)"}}>
-                Tu nombre de usuario de Bluesky, Cabildo Abierto y cualquier otra plataforma que use ATProto. <Link target="_blank" className="link2" href={"https://es.wikipedia.org/wiki/Protocolo_AT"}>¿Qué es ATProto?</Link>
-            </FormHelperText>*/}
-            {/* TO DO: Reemplazar link por un tema de Cabildo Abierto */}
             <Button
                 type="submit"
                 loading={isLoading}

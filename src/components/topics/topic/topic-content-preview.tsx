@@ -59,7 +59,8 @@ export const TopicContentPreview = ({
             <MyLexicalEditor
                 settings={getEditorSettings({
                     initialText: topic.currentVersion.content.text,
-                    initialTextFormat: topic.currentVersion.content.format
+                    initialTextFormat: topic.currentVersion.content.format,
+                    editorClassName: "article-content not-article-content"
                 })}
                 setEditor={() => {}}
                 setEditorState={() => {}}
