@@ -13,10 +13,11 @@ import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
 import {BlueskyLogo} from "../icons/bluesky-logo";
 import Link from "next/link";
-import {FullscreenImageViewer} from "../feed/fast-post-image";
 import {useUser} from "@/hooks/swr";
 import {ProfileDescription} from "@/components/profile/profile-description";
 import {rounder} from "@/utils/strings";
+import { FullscreenImageViewer } from "../images/fullscreen-image-viewer";
+import {FollowButton} from "@/components/profile/profile-utils";
 
 
 type ProfileHeaderProps = {
@@ -99,29 +100,10 @@ export function ProfileHeader({
                                   selected,
                                   setSelected
                               }: ProfileHeaderProps) {
-    const {user} = useUser()
-    const [following, setFollowing] = useState(atprotoProfile.viewer && atprotoProfile.viewer.following != undefined)
     const [viewingProfilePic, setViewingProfilePic] = useState(null)
     const [viewingBanner, setViewingBanner] = useState(null)
 
     const inCA = profileUser && profileUser.inCA
-    const isLoggedInUser = user && user.did == atprotoProfile.did
-
-    const onUnfollow = async () => {
-        if (!user) return;
-        const {error} = await unfollow(atprotoProfile.viewer.following)
-        if (error) return {error}
-        setFollowing(false)
-        return {}
-    }
-
-    const onFollow = async () => {
-        if (!user) return
-        const {error} = await follow(atprotoProfile.did)
-        if (error) return {error}
-        setFollowing(true)
-        return {}
-    }
 
     function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)]">
@@ -200,29 +182,7 @@ export function ProfileHeader({
                     @{atprotoProfile.handle}
                 </div>}
             </div>
-            {user && <div className="flex items-center mr-2">
-                {!isLoggedInUser &&
-                    (following ? <StateButton
-                            handleClick={onUnfollow}
-                            color="inherit"
-                            size="small"
-                            variant="contained"
-                            startIcon={<CheckIcon fontSize={"small"}/>}
-                            disableElevation={true}
-                            text1="Siguiendo"
-                        />
-                        :
-                        <StateButton
-                            handleClick={onFollow}
-                            color="primary"
-                            size="small"
-                            variant="contained"
-                            startIcon={<AddIcon fontSize={"small"}/>}
-                            disableElevation={true}
-                            text1="Seguir"
-                        />)
-                }
-            </div>}
+            <FollowButton atprotoProfile={atprotoProfile}/>
         </div>
 
         <div className="ml-2 mb-2">

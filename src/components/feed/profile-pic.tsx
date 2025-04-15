@@ -4,6 +4,7 @@ import {ModalOnHover} from "../../../modules/ui-utils/src/modal-on-hover";
 import {useFullProfile} from "@/hooks/swr";
 import {ProfileDescription} from "@/components/profile/profile-description";
 import {FollowCounters} from "../profile/profile-header";
+import {FollowButton} from "@/components/profile/profile-utils";
 
 
 type UserSummaryProps = {
@@ -19,7 +20,10 @@ export const UserSummary = ({user}: UserSummaryProps) => {
 
     return (
         <div className="bg-[var(--background)] border p-4 w-90 rounded-xl flex flex-col space-y-2">
-            <ProfilePic user={user} descriptionOnHover={false} className={className}/>
+            <div className={"flex justify-between items-center"}>
+                <ProfilePic user={user} descriptionOnHover={false} className={className}/>
+                <FollowButton atprotoProfile={fullProfile.atprotoProfile}/>
+            </div>
 
             <div className={"flex flex-col"}>
                 <span className="font-semibold text-base">
@@ -36,7 +40,7 @@ export const UserSummary = ({user}: UserSummaryProps) => {
     )
 };
 
-export const ProfilePic = ({user, className, descriptionOnHover=true}: {descriptionOnHover: boolean, className?: string, user: { avatar?: string, handle: string }}) => {
+export const ProfilePic = ({user, className, descriptionOnHover=true}: {descriptionOnHover?: boolean, className?: string, user: { avatar?: string, handle: string }}) => {
     const [showSummary, setShowSummary] = useState(false)
 
     const pic = (

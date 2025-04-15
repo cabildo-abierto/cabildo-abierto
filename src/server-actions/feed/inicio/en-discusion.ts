@@ -20,11 +20,11 @@ export async function getEnDiscusionSkeleton() {
         WHERE (
                   (
                       (
-                          root."uri" IS NULL AND r."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post') AND r."enDiscusion" = TRUE
+                          root."uri" IS NULL AND r."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post')
                       )
                       OR 
                       (
-                          root."authorId" = r."authorId" AND root."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post') AND root."enDiscusion" = TRUE
+                          root."authorId" = r."authorId" AND root."collection" IN ('ar.com.cabildoabierto.article', 'app.bsky.feed.post')
                       )
                   )
             AND (

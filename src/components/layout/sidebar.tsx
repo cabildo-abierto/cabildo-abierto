@@ -122,7 +122,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         {user.user &&
                             <div className={"w-full flex justify-center"}>
                                 <Link href={userUrl(user.user.handle)}>
-                                    <ProfilePic user={user.user} className={"w-12 h-12 rounded-full border " + dimOnHoverClassName}/>
+                                    <ProfilePic user={user.user} className={"w-12 h-12 rounded-full border " + dimOnHoverClassName} descriptionOnHover={false}/>
                                 </Link>
                             </div>
                         }
