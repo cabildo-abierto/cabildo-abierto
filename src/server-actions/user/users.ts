@@ -12,6 +12,8 @@ import {Prisma} from "@prisma/client";
 import {supportDid} from "../../utils/auth";
 import {cleanText} from "@/utils/strings";
 import {MentionProps} from "../../../modules/ca-lexical-editor/src/ui/custom-mention-component";
+import {deleteRecords, revalidateTags} from "@/server-actions/admin";
+import {createRecord} from "@/server-actions/write/utils";
 
 
 export async function isCAUser(did: string) {
@@ -269,29 +271,47 @@ export const getFullProfileById = async (userId: string): Promise<{
 }
 
 
-export async function follow(userToFollowId: string) {
-    const {agent} = await getSessionAgent()
+export async function createFollowDB({did, uri, cid, followedDid}: {did: string, uri: string, cid: string, followedDid: string}) {
+    const updates= [
+        ...createRecord({uri, cid, createdAt: new Date(), collection: "app.bsky.graph.follow"}),
+        db.follow.create({
+            data: {
+                uri: uri,
+                userFollowedId: followedDid
+            }
+        })
+    ]
 
-    try {
-        await agent.follow(userToFollowId)
-    } catch {
-        return {error: "Error al seguir al usuario."}
-    }
+    await db.$transaction(updates)
 
-    return {}
+    await revalidateTags(["user:"+followedDid, "user:"+did])
 }
 
 
-export async function unfollow(followUri: string) {
-    const {agent} = await getSessionAgent()
+export async function follow(userToFollowId: string, userToFollowHandle: string) {
+    const {agent, did} = await getSessionAgent()
 
     try {
-        await agent.deleteFollow(followUri)
-    } catch {
+        const res = await agent.follow(userToFollowId)
+        await createFollowDB({did, ...res, followedDid: userToFollowId})
+        revalidateTag("user:" + userToFollowHandle)
+        return {followUri: res.uri}
+    } catch(error) {
+        console.log(error)
         return {error: "Error al seguir al usuario."}
     }
+}
 
-    return {}
+
+export async function unfollow(handle: string, followUri: string) {
+    try {
+        await deleteRecords({uris: [followUri], atproto: true})
+        revalidateTag("user:" + handle)
+        return {}
+    } catch (err) {
+        console.error(err)
+        return {error: "Error al dejar de seguir al usuario."}
+    }
 }
 
 
