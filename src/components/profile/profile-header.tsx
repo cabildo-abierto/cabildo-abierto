@@ -1,19 +1,14 @@
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {unfollow, follow} from "@/server-actions/user/users"
 import {PermissionLevel} from "@/components/topics/topic/permission-level"
 import {Button} from "../../../modules/ui-utils/src/button";
-import StateButton from "../../../modules/ui-utils/src/state-button"
 import Image from 'next/image'
 import {ArticleIcon} from "../icons/article-icon"
 import {emptyChar, getUsername} from "@/utils/utils";
 import {UserProps} from "@/lib/definitions";
 import {useState} from "react";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
-import CheckIcon from "@mui/icons-material/Check";
-import AddIcon from "@mui/icons-material/Add";
 import {BlueskyLogo} from "../icons/bluesky-logo";
 import Link from "next/link";
-import {useUser} from "@/hooks/swr";
 import {ProfileDescription} from "@/components/profile/profile-description";
 import {rounder} from "@/utils/strings";
 import { FullscreenImageViewer } from "../images/fullscreen-image-viewer";
@@ -182,7 +177,7 @@ export function ProfileHeader({
                     @{atprotoProfile.handle}
                 </div>}
             </div>
-            <FollowButton atprotoProfile={atprotoProfile}/>
+            <FollowButton handle={atprotoProfile.handle}/>
         </div>
 
         <div className="ml-2 mb-2">

@@ -8,7 +8,7 @@ import {FollowButton} from "@/components/profile/profile-utils";
 
 
 type UserSummaryProps = {
-    user: { avatar?: string, handle: string }
+    user: { avatar?: string, handle: string, did: string }
 }
 
 
@@ -22,14 +22,15 @@ export const UserSummary = ({user}: UserSummaryProps) => {
         <div className="bg-[var(--background)] border p-4 w-90 rounded-xl flex flex-col space-y-2">
             <div className={"flex justify-between items-center"}>
                 <ProfilePic user={user} descriptionOnHover={false} className={className}/>
-                <FollowButton atprotoProfile={fullProfile.atprotoProfile}/>
+                <FollowButton handle={fullProfile.atprotoProfile.handle}/>
             </div>
 
             <div className={"flex flex-col"}>
                 <span className="font-semibold text-base">
                     {fullProfile.atprotoProfile.displayName}
                 </span>
-                <span className="text-[var(--text-light)]">@{fullProfile.atprotoProfile.handle}
+                <span className="text-[var(--text-light)]">
+                    @{fullProfile.atprotoProfile.handle}
                 </span>
             </div>
 
@@ -40,8 +41,14 @@ export const UserSummary = ({user}: UserSummaryProps) => {
     )
 };
 
-export const ProfilePic = ({user, className, descriptionOnHover=true}: {descriptionOnHover?: boolean, className?: string, user: { avatar?: string, handle: string }}) => {
-    const [showSummary, setShowSummary] = useState(false)
+
+type ProfilePicProps = {
+    descriptionOnHover?: boolean
+    className?: string
+    user: { avatar?: string, handle: string, did: string }
+}
+
+export const ProfilePic = ({user, className, descriptionOnHover=true}: ProfilePicProps) => {
 
     const pic = (
         <Image
