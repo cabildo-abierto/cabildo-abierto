@@ -1,9 +1,5 @@
 
 
-
-export const launchDate = new Date(2024, 9, 10) // 10 de octubre de 2024
-
-
 export const formatIsoDate = (isoDate) => {
     const date = new Date(isoDate);
     const argentinaTime = new Intl.DateTimeFormat("es-AR", {

@@ -1,6 +1,5 @@
 "use client"
 import {ArticleProps, FastPostProps} from '@/lib/definitions'
-import ReadOnlyEditor from '../editor/read-only-editor'
 import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
 import {useEffect, useState} from "react";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
@@ -9,7 +8,6 @@ import {threadApiUrl} from "@/utils/uri";
 import {ArticleHeader} from "@/components/article/article-header";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import {getEditorSettings} from "@/components/editor/settings";
-import {topicVersionPropsToReplyToContent} from "@/components/topics/topic/topic-content";
 import {EditorState, LexicalEditor} from "lexical";
 
 type ArticleCompProps = {
@@ -23,6 +21,8 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
     const {mutate} = useSWRConfig()
     const [editor, setEditor] = useState<LexicalEditor>(null)
     const [editorState, setEditorState] = useState<EditorState>(null)
+
+    const enDiscusion = false // TO DO
 
     useEffect(() => {
         const hash = window.location.hash
@@ -79,6 +79,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                 onDelete={async () => {
                     mutate(threadApiUrl(article.uri))
                 }}
+                enDiscusion={enDiscusion}
             />
         </div>
     </div>

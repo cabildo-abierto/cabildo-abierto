@@ -3,7 +3,6 @@ import {useSearch} from "./search-context"
 import {SmallUserProps} from "@/lib/definitions"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import React, {useEffect, useState} from "react"
-import {searchATProtoUsers} from "@/server-actions/user/users";
 import {cleanText} from "@/utils/strings";
 import {useUsers} from "@/hooks/swr";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";

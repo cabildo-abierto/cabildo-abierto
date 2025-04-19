@@ -4,7 +4,6 @@ import StateButton from '../../../../modules/ui-utils/src/state-button';
 import InfoPanel from '../../../../modules/ui-utils/src/info-panel';
 import { BaseFullscreenPopup } from '../../../../modules/ui-utils/src/base-fullscreen-popup';
 import {TextField} from "@mui/material";
-import {rejectEdit} from "@/server-actions/topic/votes";
 import {useSWRConfig} from "swr";
 import {ATProtoStrongRef} from "@/lib/definitions";
 

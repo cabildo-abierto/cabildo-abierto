@@ -1,9 +1,9 @@
 import ReplyIcon from "../icons/reply-icon";
-import { getUsername } from "../../utils/utils";
+import { getUsername } from "@/utils/utils";
 import {ReactNode} from "react";
 
 
-export const IsReplyMessage = ({collection, did, author}: {did: string, collection: string, author: {did: string, displayName?: string, handle: string}}) => {
+export const IsReplyMessage = ({collection=null, did, author}: {did: string, collection?: string, author: {did: string, displayName?: string, handle: string}}) => {
 
     const authorTextWithDe = author.did == did ? "tuyo" : "de " + getUsername(author)
     const authorText = author.did == did ? "vos" : getUsername(author)

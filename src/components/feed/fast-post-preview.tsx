@@ -1,22 +1,19 @@
 "use client"
 
-import {
-    FastPostProps,
-    FeedContentPropsMaybe,
-    ReasonProps,
-    RecordProps
-} from '@/lib/definitions'
 import {FastPostPreviewFrame, ReplyVerticalLine} from './fast-post-preview-frame'
-import {FastPostContent} from "./fast-post-content";
+import {PostContent} from "./post-content";
 import {FeedElement} from "./feed-element";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import { useSWRConfig } from 'swr';
-import {contentUrl, getDidFromUri, isPost, threadApiUrl} from "@/utils/uri";
+import {contentUrl} from "@/utils/uri";
 import {useUser} from "@/hooks/swr";
+import {isReasonRepost} from "@/lex-api/types/app/bsky/feed/defs";
+import {FeedViewContent, PostView} from '@/lex-api/types/ar/cabildoabierto/feed/defs';
+import {isKnownContent, isPostView} from "@/utils/type-utils";
 
-const ShowThreadButton = ({root}: {root: RecordProps}) => {
-    const url = contentUrl(root.uri)
+const ShowThreadButton = ({uri}: {uri: string}) => {
+    const url = contentUrl(uri)
     return (
         <Link href={url} className="hover:bg-[var(--background-dark)] transition duration-200 flex items-center">
             <div className={"w-[79px] pl-2 flex flex-col items-center"}>
@@ -35,7 +32,8 @@ const ShowThreadButton = ({root}: {root: RecordProps}) => {
 
 
 export type FastPostPreviewProps = {
-    post: FastPostProps & { reason?: ReasonProps }
+    postView: PostView
+    feedViewContent?: FeedViewContent
     showingChildren?: boolean
     showingParent?: boolean
     parentIsMainPost?: boolean
@@ -47,7 +45,8 @@ export type FastPostPreviewProps = {
 }
 
 export const FastPostPreview = ({
-    post,
+    postView,
+    feedViewContent,
     showingChildren=false,
     showingParent=false,
     showReplyMessage=false,
@@ -55,73 +54,54 @@ export const FastPostPreview = ({
     onDeleteFeedElem
 }: FastPostPreviewProps) => {
     const {user} = useUser()
-    const {mutate} = useSWRConfig()
 
     const onDelete = async () => {
-        const replyTo = post.content.post.replyTo
-        const root = post.content.post.root
-        if(replyTo && replyTo.uri){
-            mutate(threadApiUrl(replyTo.uri))
-            mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/main")
-            mutate("/api/profile-feed/"+getDidFromUri(replyTo.uri)+"/replies")
-        }
-        mutate("/api/feed/EnDiscusion")
-        mutate("/api/feed/Siguiendo")
-        if(root && root.uri){
-            mutate(threadApiUrl(root.uri))
-            mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/main")
-            mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/replies")
-            mutate("/api/profile-feed/"+getDidFromUri(root.uri)+"/replies")
-        }
         await onDeleteFeedElem()
     }
 
-    if(!post.content || !post.content.post){
-        return <div className={"py-4"}>
-            Ocurrió un error al mostrar el contenido
-        </div>
-    }
+    const parent = feedViewContent.reply && isKnownContent(feedViewContent.reply.parent) ? feedViewContent.reply.parent : null
 
-    const isRepost = post.reason != undefined
-    const replyTo = post.content.post.replyTo
-    const replyToAvailable = replyTo && ((replyTo as FeedContentPropsMaybe).createdAt != undefined || replyTo.notFound) && !isRepost
+    const root = feedViewContent.reply && isKnownContent(feedViewContent.reply.root) && feedViewContent.reply.root.uri != parent.uri ? feedViewContent.reply.root : null
 
-    const root = post.content.post.root
-    const rootAvailable = root && ((root as FeedContentPropsMaybe).createdAt != undefined || root.notFound) && root.uri != replyTo.uri && !isRepost
-
-    const parentReplyTo = replyToAvailable && isPost(replyTo.collection) && (replyTo as FastPostProps).content ? (replyTo as FastPostProps).content.post.replyTo : undefined
-
-    const showThreadButton = replyToAvailable && rootAvailable && parentReplyTo && parentReplyTo.uri != root.uri
+    const grandparentAuthor = feedViewContent.reply ? feedViewContent.reply.grandparentAuthor : null
 
     return <div className={"flex flex-col w-full text-[15px] min-[680px]:min-w-[600px]"}>
-        {rootAvailable && <FeedElement
-            elem={root as FeedContentPropsMaybe}
+
+        {root && <FeedElement
+            elem={{content: feedViewContent.reply.root}}
             showingChildren={true}
             onDeleteFeedElem={onDeleteFeedElem}
         />}
-        {showThreadButton && <ShowThreadButton root={root as FeedContentPropsMaybe}/>}
-        {replyToAvailable &&
+
+        {grandparentAuthor && isKnownContent(feedViewContent.reply.root) && <ShowThreadButton uri={feedViewContent.reply.root.uri}/>}
+
+        {parent &&
             <FeedElement
-                elem={replyTo as FeedContentPropsMaybe}
+                elem={{content: feedViewContent.reply.parent}}
                 showingChildren={true}
-                showingParent={rootAvailable}
+                showingParent={root != null}
                 onDeleteFeedElem={onDeleteFeedElem}
-                showReplyMessage={showThreadButton}
+                showReplyMessage={grandparentAuthor != null}
             />
         }
+
         <FastPostPreviewFrame
-            post={post}
+            reason={feedViewContent && feedViewContent.reason && isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined}
+            postView={postView}
             showingChildren={showingChildren}
-            showingParent={replyToAvailable || showingParent}
+            showingParent={parent != null || showingParent}
             borderBelow={!showingChildren}
             onDelete={onDelete}
         >
-            {replyTo && !replyToAvailable && showReplyMessage && (replyTo as FeedContentPropsMaybe).author && <IsReplyMessage
-                author={(replyTo as FeedContentPropsMaybe).author}
+            {parent && showReplyMessage && grandparentAuthor && <IsReplyMessage
+                author={grandparentAuthor}
                 did={user.did}
-                collection={(replyTo as FeedContentPropsMaybe).collection}
             />}
-            <FastPostContent post={post} onClickQuote={onClickQuote}/>
+            <PostContent
+                postView={postView}
+                feedViewContent={feedViewContent}
+                onClickQuote={onClickQuote}
+            />
         </FastPostPreviewFrame>
     </div>
 }

@@ -4,23 +4,26 @@ import { InactiveCommentIcon } from "../../icons/inactive-comment-icon"
 import { InactiveLikeIcon } from "../../icons/inactive-like-icon"
 import { RepostIcon } from "../../icons/reposts-icon"
 import { FixedCounter, LikeCounter } from "./like-counter"
-import {addLike, removeLike, removeRepost, repost} from "@/server-actions/reactions";
-import {EngagementProps, RecordProps} from "@/lib/definitions";
+import {ATProtoStrongRef, EngagementProps} from "@/lib/definitions";
 import {ViewsIcon} from "../../icons/views-icon";
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 
-import {contentUrl} from "../../../utils/uri";
+import {contentUrl, getCollectionFromUri} from "@/utils/uri";
 
 
 type EngagementIconsProps = {
     counters: EngagementProps
-    record: RecordProps
+    record: ATProtoStrongRef
     className?: string
     small?: boolean
     onDelete?: () => Promise<void>
-    enDiscusion?: string
+    enDiscusion?: boolean
 }
+
+
+
+
 
 export const EngagementIcons = ({
     counters,
@@ -31,15 +34,27 @@ export const EngagementIcons = ({
 }: EngagementIconsProps) => {
 
     const onDislike = async () => {
-        return await removeLike(counters.viewer.like, record.uri)
+        //return await removeLike(counters.viewer.like, record.uri)
+        return {}
     }
 
     const onRemoveRepost = async () => {
-        return await removeRepost(counters.viewer.repost, record.uri)
+        //return await removeRepost(counters.viewer.repost, record.uri)
+        return {}
+    }
+
+    const onAddRepost = async () => {
+        //return await repost(record.uri, record.cid)
+        return {}
+    }
+
+    const onLike = async () => {
+        // return await addLike(record.uri, record.cid)
+        return {}
     }
 
     return <div className={"flex items-center exclude-links " + className}>
-        {record.collection != "ar.com.cabildoabierto.topic" && <>
+        {getCollectionFromUri(record.uri) != "ar.com.cabildoabierto.topic" && <>
         {counters.replyCount != undefined && <CustomLink href={contentUrl(record.uri)}>
             <FixedCounter
             count={counters.replyCount}
@@ -49,7 +64,7 @@ export const EngagementIcons = ({
         {counters.repostCount != undefined && <LikeCounter
             icon1={<span className={"text-green-400"}><RepostIcon fontSize={"small"}/></span>}
             icon2={<RepostIcon fontSize={"small"}/>}
-            onLike={async () => {return await repost(record.uri, record.cid)}}
+            onLike={onAddRepost}
             onDislike={onRemoveRepost}
             title="Cantidad de republicaciones."
             likeUri={counters.viewer ? counters.viewer.repost : undefined}
@@ -58,7 +73,7 @@ export const EngagementIcons = ({
         {counters.likeCount != undefined && <LikeCounter
             icon1={<span className={"text-red-400"}><ActiveLikeIcon fontSize={"small"}/></span>}
             icon2={<InactiveLikeIcon fontSize={"small"}/>}
-            onLike={async () => {return await addLike(record.uri, record.cid)}}
+            onLike={onLike}
             onDislike={onDislike}
             title="Cantidad de me gustas."
             likeUri={counters.viewer ? counters.viewer.like : undefined}

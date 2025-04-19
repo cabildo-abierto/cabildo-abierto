@@ -1,11 +1,15 @@
 "use client"
 
 import { TopicProps } from "@/lib/definitions";
-import {updateCategoriesInTopic} from "@/server-actions/write/topic";
-import {useCategories} from "../../../hooks/swr";
+import {useCategories} from "@/hooks/swr";
 import {ListEditorWithSave} from "../../../../modules/ui-utils/src/list-editor";
 import {useSWRConfig} from "swr";
 import {getFullTopicCategories} from "./utils";
+
+
+const updateCategoriesInTopic = async ({topicId, categories}: {topicId: string, categories: string[]}) => {
+
+}
 
 
 export const CategoriesEditor = ({topic, onClose}: {

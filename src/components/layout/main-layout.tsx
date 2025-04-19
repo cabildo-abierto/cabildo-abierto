@@ -22,24 +22,22 @@ const MainLayout = ({
         <LoadingPage>
             <PageLeaveProvider>
                 <LoadEditor>
-                    <BetaAccessPage>
-                        <SearchProvider>
-                            <LayoutConfigProvider config={{
-                                openRightPanel,
-                                maxWidthCenter,
-                                leftMinWidth,
-                                rightMinWidth,
-                                openSidebar,
-                                defaultSidebarState
-                            }}>
-                                <Tutorial>
-                                    <MainLayoutContent>
-                                        {children}
-                                    </MainLayoutContent>
-                                </Tutorial>
-                            </LayoutConfigProvider>
-                        </SearchProvider>
-                    </BetaAccessPage>
+                    <SearchProvider>
+                        <LayoutConfigProvider config={{
+                            openRightPanel,
+                            maxWidthCenter,
+                            leftMinWidth,
+                            rightMinWidth,
+                            openSidebar,
+                            defaultSidebarState
+                        }}>
+                            <Tutorial>
+                                <MainLayoutContent>
+                                    {children}
+                                </MainLayoutContent>
+                            </Tutorial>
+                        </LayoutConfigProvider>
+                    </SearchProvider>
                 </LoadEditor>
             </PageLeaveProvider>
         </LoadingPage>

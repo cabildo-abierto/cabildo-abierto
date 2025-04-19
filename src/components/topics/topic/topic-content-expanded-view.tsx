@@ -6,7 +6,6 @@ import {TopicContentExpandedViewHeader, WikiEditorState} from "./topic-content-e
 import {topicVersionPropsToReplyToContent} from "./topic-content";
 import {SaveEditPopup} from "./save-edit-popup";
 import {compress} from "@/utils/compression";
-import {createTopicVersion} from "@/server-actions/write/topic";
 import {TopicContentHistory} from "./topic-content-history";
 import {SynonymsEditor} from "./synonyms-editor";
 import { CategoriesEditor } from "./categories-editor";

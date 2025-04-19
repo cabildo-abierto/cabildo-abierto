@@ -3,7 +3,7 @@ import {$createRangeSelection, $getRoot, $nodesOfType, LexicalEditor} from "lexi
 import {useCallback, useEffect, useRef, useState} from "react";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button"
 import {ActiveCommentIcon} from "@/components/icons/active-comment-icon";
-import {FastPostContent} from "@/components/feed/fast-post-content";
+import {PostContent} from "@/components/feed/post-content";
 import {SidenoteReplyPreviewFrame} from "@/components/feed/sidenote-reply-preview-frame";
 import { getPointTypeFromIndex } from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin/standard-selection";
 import {
@@ -12,7 +12,6 @@ import {
 import {$createCustomMarkNode, CustomMarkNode} from "../../../modules/ca-lexical-editor/src/nodes/CustomMarkNode";
 import {useSWRConfig} from "swr";
 import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
-import {revalidateTags} from "@/server-actions/admin";
 import {threadApiUrl} from "@/utils/uri";
 import {markdownSelectionToLexicalSelection} from "../../../modules/ca-lexical-editor/src/selection-transforms";
 import {ModalOnClick} from "../../../modules/ui-utils/src/modal-on-click";
@@ -160,7 +159,7 @@ export const ShowQuoteReplyButton = ({
             showingChildren={false}
             onDelete={onDelete}
         >
-            <FastPostContent post={reply} hideQuote={true}/>
+            <PostContent post={reply} hideQuote={true}/>
         </SidenoteReplyPreviewFrame>
     )
 

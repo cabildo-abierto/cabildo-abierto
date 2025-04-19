@@ -1,7 +1,7 @@
 "use client"
 import {FastPostProps} from "@/lib/definitions";
 import {PlotFromUri} from "./plot-from-uri";
-import {getUri, shortCollectionToCollection} from "../../utils/uri";
+import {getUri, shortCollectionToCollection} from "@/utils/uri";
 
 
 export const PlotInPost = ({

@@ -1,9 +1,13 @@
 "use client"
 
 import {TopicProps} from "@/lib/definitions";
-import {updateSynonymsInTopic} from "@/server-actions/write/topic";
 import { ListEditorWithSave } from "../../../../modules/ui-utils/src/list-editor";
 import {useSWRConfig} from "swr";
+
+
+const updateSynonymsInTopic = async ({topicId, synonyms}: {topicId: string, synonyms: string[]}) => {
+    return {error: "Sin implementar."}
+}
 
 
 

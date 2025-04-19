@@ -2,7 +2,7 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useState } from 'react';
 import { IconButton } from '@mui/material';
-import {RecordProps} from '@/lib/definitions';
+import {ATProtoStrongRef, RecordProps} from '@/lib/definitions';
 import { ContentOptionsDropdown } from './content-options-dropdown';
 import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
 
@@ -10,11 +10,11 @@ import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
 export const ContentOptionsButton = ({
     record,
     onDelete=async () => {},
-    enDiscusion
+    enDiscusion=false
 }: {
-    record?: RecordProps
+    record?: ATProtoStrongRef
     onDelete?: () => Promise<void>
-    enDiscusion?: string
+    enDiscusion?: boolean
 }) => {
     const modal = (onClose: () => void) => (
         <ContentOptionsDropdown

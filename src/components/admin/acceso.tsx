@@ -1,17 +1,48 @@
 "use client"
 import {TextField} from "@mui/material";
 import StateButton from "../../../modules/ui-utils/src/state-button";
-import {createCodes, grantAccess} from "@/server-actions/user/access";
 import React, {useState} from "react";
 import {AdminSection} from "./admin-section";
-import {deleteUser} from "@/server-actions/admin";
-import {getUsers} from "@/server-actions/user/users";
 import {SmallUserProps} from "@/lib/definitions";
-import {syncUser} from "@/server-actions/sync/sync-user";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
-import {collectionsList} from "@/server-actions/sync/utils";
-import {useCodes} from "../../hooks/swr";
+import {useCodes} from "@/hooks/swr";
 
+
+export const collectionsList = [
+    "app.bsky.feed.post",
+    "app.bsky.feed.like",
+    "app.bsky.feed.repost",
+    "app.bsky.graph.follow",
+    "ar.com.cabildoabierto.article",
+    "ar.com.cabildoabierto.topic",
+    "app.bsky.actor.profile",
+    "ar.com.cabildoabierto.quotePost",
+    "ar.com.cabildoabierto.dataset",
+    "ar.com.cabildoabierto.dataBlock",
+    "ar.com.cabildoabierto.visualization",
+    "ar.com.cabildoabierto.profile"
+]
+
+
+const grantAccess = async (handle: string) => {
+    return {error: "Sin implementar."}
+}
+
+const deleteUser = async (handle: string) => {
+    return {error: "Sin implementar."}
+}
+
+const syncUser = async (handle: string, collections: string[], x: number) => {
+    return {error: "Sin implementar."}
+}
+
+const createCodes = async (count: number) => {
+
+}
+
+const getUsers = async () => {
+    return {users: []}
+}
 
 export const AdminAcceso = () => {
     const [handle, setHandle] = useState<string>("")

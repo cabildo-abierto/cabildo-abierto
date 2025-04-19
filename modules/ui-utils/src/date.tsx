@@ -1,14 +1,15 @@
 "use client"
-import { useEffect, useMemo, useState } from "react";
+import {  useMemo } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 
-export function localeDate(date: Date, includeCurrentYear?: boolean){
-    if(date.getFullYear() != 2025 || includeCurrentYear)
-        return format(date, "dd 'de' MMMM 'de' yyyy", { locale: es })
-    else
-        return format(date, "dd 'de' MMMM", { locale: es })
+export function localeDate(date: Date, includeCurrentYear?: boolean) {
+    const baseFormat = date.getFullYear() !== 2025 || includeCurrentYear
+        ? "dd 'de' MMMM 'de' yyyy"
+        : "dd 'de' MMMM"
+
+    return format(date, `${baseFormat}, HH:mm:ss`, { locale: es })
 }
 
 export function DateSince({ date }: { date: string | Date}) {

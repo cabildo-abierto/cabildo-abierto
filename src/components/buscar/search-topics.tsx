@@ -5,7 +5,6 @@ import { LazyLoadFeed } from "../feed/lazy-load-feed"
 import React, {ReactNode, useEffect, useState} from "react"
 import {NoResults} from "./no-results";
 import {SmallTopicProps} from "@/lib/definitions";
-import {searchTopics} from "@/server-actions/feed/search";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 
@@ -29,7 +28,8 @@ export const SearchTopics = ({ maxCount = 50 }: { maxCount?: number }) => {
                 return;
             }
             setResults("loading")
-            const topics = await searchTopics(debouncedValue);
+            // TO DO
+            const topics = [] //await searchTopics(debouncedValue);
             setResults(topics);
         }
 

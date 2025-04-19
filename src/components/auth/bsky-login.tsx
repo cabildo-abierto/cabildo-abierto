@@ -1,19 +1,21 @@
 "use client"
 import {Box, FormHelperText, TextField} from "@mui/material"
 import {useEffect, useState} from "react"
-import { login } from "@/server-actions/auth"
 import {useRouter} from "next/navigation"
 import { FormControl } from '@mui/material';
 import { isValidHandle } from "@atproto/syntax"
-import {assignInviteCode} from "@/server-actions/user/access";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {mutate} from "swr";
 import {useUser} from "@/hooks/swr";
 import { Button } from "../../../modules/ui-utils/src/button"
 
 
-export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
+export const assignInviteCode = async (c: string) => {
+    return {error: "Sin implementar."}
+}
 
+
+export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
     const [error, setError] = useState(undefined)
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
@@ -39,21 +41,31 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         }
 
         setIsLoading(true)
-        const res = await login(handle)
+        const res = await fetch("http://127.0.0.1:8080/login", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ handle }),
+            redirect: "follow", // ensure browser follows the redirect
+        })
 
-        if(res && res.error){
-            setError(res.error)
+        if(!res.ok){
+            console.log("Response:", res)
+            setError("Ocurrió un error al iniciar sesión.")
             setIsLoading(false)
             return
         }
 
-        const url = res.url
+        const url = (await res.json() as {url: string}).url
         
         const width = 600;
         const height = 700;
         const left = (window.screen.width - width) / 2;
         const top = (window.screen.height - height) / 2;
-        window.open(url, 'bluesky-login', `width=${width},height=${height},left=${left},top=${top}`);
+        //window.open(url, 'bluesky-login', `width=${width},height=${height},left=${left},top=${top}`);
+        router.push(url)
     }
 
     useEffect(() => {

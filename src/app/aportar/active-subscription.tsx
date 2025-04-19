@@ -5,7 +5,6 @@ import { UserProps } from '@/lib/definitions';
 import FundingProgress from '@/components/aportar/funding-progress';
 import { Desplegable } from '../../../modules/ui-utils/src/desplegable';
 import { useState } from 'react';
-import { createPreference } from '@/server-actions/payments';
 import { IntegerInputPlusMinus } from '@/components/aportar/integer-input-plus-minus';
 import { UniqueDonationCheckout } from '@/components/aportar/unique-donation-checkout';
 import { ArrowRightIcon } from '@/components/icons/arrow-right-icon';
@@ -15,6 +14,11 @@ import { ExpandMoreIcon } from '@/components/icons/expand-more-icon';
 import {useDonationsDistribution, useFundingPercentage, useSubscriptionPrice, useUser} from "@/hooks/swr";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {Button} from "../../../modules/ui-utils/src/button";
+
+
+const createPreference = async (did: string, amount: number) => {
+    return {id: undefined, error: "Sin implementar."}
+}
 
 
 const HowUsed = () => {

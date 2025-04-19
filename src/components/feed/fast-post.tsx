@@ -1,13 +1,13 @@
 
 import {FastPostProps} from '@/lib/definitions'
 import { MainPostFrame } from './main-post-frame';
-import {FastPostContent} from "./fast-post-content";
+import {PostContent} from "./post-content";
 
 
 export const FastPost = ({post}: { post: FastPostProps }) => {
 
     return <MainPostFrame post={post}>
-        <FastPostContent
+        <PostContent
             post={post}
             isMainPost={true}
             showQuoteContext={true}

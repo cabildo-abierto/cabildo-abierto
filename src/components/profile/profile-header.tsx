@@ -1,5 +1,4 @@
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import {unfollow, follow} from "@/server-actions/user/users"
 import {PermissionLevel} from "@/components/topics/topic/permission-level"
 import {Button} from "../../../modules/ui-utils/src/button";
 import StateButton from "../../../modules/ui-utils/src/state-button"
@@ -73,6 +72,16 @@ const FollowCounters = ({user, atprotoProfile}: { user?: UserProps, atprotoProfi
     >
         {content}
     </div>
+}
+
+
+const follow = async (did: string) => {
+    return {error: "Sin implementar."}
+}
+
+
+const unfollow = async (uri: string) => {
+    return {error: "Sin implementar."}
 }
 
 

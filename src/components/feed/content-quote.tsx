@@ -16,6 +16,10 @@ import {markdownToEditorStateStr} from "../../../modules/ca-lexical-editor/src/m
 import {getAllText} from "@/components/topics/topic/diff";
 import {useEffect, useState} from "react";
 import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {ReplyRef} from "@/lex-api/types/app/bsky/feed/defs";
+import {Main as SelectionQuoteEmbed} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
+import {isKnownContent} from "@/utils/type-utils";
 
 
 export function getSelectionSubtree(s: any, selection: LexicalStandardSelection) {
@@ -101,44 +105,13 @@ export type QuotedContent = {
 }
 
 
-const ContentQuoteWithNoContent = ({
-   post, quote, onClick, showContext=false
-}: {
-    quote?: [number, number]
-    post?: {cid?: string, content: {post: {replyTo?: {uri: string}}}}
-    onClick?: () => void
-    showContext?: boolean
-}) => {
-    const {quotedContent} = useQuotedContent(post.content.post.replyTo.uri)
-
-    if(!quotedContent){
-        return <div className={"py-4"}>
-            <LoadingSpinner/>
-        </div>
-    }
-    if(!quotedContent.content.text){
-        console.error("quotedContent", quotedContent)
-        return <div>
-            Error
-        </div>
-    }
-    return <ContentQuote
-        post={post}
-        quote={quote}
-        onClick={onClick}
-        showContext={showContext}
-        quotedContent={quotedContent}
-    />
-}
-
-
 type ContentQuoteContextProps = {
-    quotedContent: QuotedContent
+    quotedContent: ReplyRef["parent"]
 }
 
 
 const ContentQuoteContext = ({quotedContent}: ContentQuoteContextProps) => {
-    const c = getCollectionFromUri(quotedContent.uri)
+    const c = getCollectionFromUri(quotedContent)
     const kind = c == "ar.com.cabildoabierto.article" ? "artículo" : "tema"
 
     const title = kind == "artículo" ?
@@ -154,8 +127,8 @@ const ContentQuoteContext = ({quotedContent}: ContentQuoteContextProps) => {
 }
 
 type QuoteTextProps = {
-    quotedContent: QuotedContent
-    quote: [number, number]
+    quotedContent: ReplyRef["parent"]
+    quote: SelectionQuoteEmbed
 }
 
 export const QuoteText = ({quotedContent, quote}: QuoteTextProps) => {
@@ -193,29 +166,14 @@ export const QuoteText = ({quotedContent, quote}: QuoteTextProps) => {
 
 
 export const ContentQuote = ({
-    post, quote, onClick, quotedContent, showContext=false}: {
-    quotedContent: QuotedContent
-    quote?: [number, number]
-    post?: {cid?: string, content: {post: {replyTo?: {uri: string}}}}
+    postView, quote, onClick, quotedContent, showContext=false}: {
+    quotedContent: ReplyRef["parent"]
+    quote: SelectionQuoteEmbed
+    postView: PostView
     onClick?: () => void
     showContext?: boolean
 }) => {
     const router = useRouter()
-
-    if(!quote){
-        return null
-    }
-
-    if((!quotedContent.content || !quotedContent.content.text) && post.content.post.replyTo){
-        return <ContentQuoteWithNoContent
-            post={post}
-            quote={quote}
-            onClick={onClick}
-            showContext={showContext}
-        />
-    }
-
-    if(!quotedContent || !quotedContent.content.text) return null
 
     function handleClick(e) {
         e.stopPropagation()
@@ -223,13 +181,13 @@ export const ContentQuote = ({
         if(onClick){
             onClick()
         } else {
-            if(post){
-                router.push(contentUrl(quotedContent.uri)+"#"+post.cid)
+            if(postView && isKnownContent(quotedContent)){
+                router.push(contentUrl(quotedContent.uri)+"#"+postView.cid)
             }
         }
     }
 
-    const clickable = onClick != undefined || (post && post.cid)
+    const clickable = onClick != undefined || postView.cid
 
     return <div className={"article-content no-margin-first pr-2"}>
         <blockquote

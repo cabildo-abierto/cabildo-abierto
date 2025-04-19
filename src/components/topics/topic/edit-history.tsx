@@ -15,11 +15,10 @@ import {ProfilePic} from "../../feed/profile-pic";
 import {LikeCounter} from "@/components/feed/reactions/like-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
 import {TopicCategories} from "./topic-categories";
-import {deleteTopicVersion} from "@/server-actions/topic/current-version";
 import {RejectVersionModal} from "./reject-version-modal";
 import {getTopicMonetizedChars} from "./utils";
-import {getUri, splitUri, topicUrl} from "../../../utils/uri";
-import {useTopicHistory} from "../../../hooks/swr";
+import {getUri, splitUri, topicUrl} from "@/utils/uri";
+import {useTopicHistory} from "@/hooks/swr";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
 import {TopicSynonyms} from "./topic-synonyms";
@@ -28,9 +27,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
-import {acceptEdit, cancelAcceptEdit, cancelRejectEdit} from "@/server-actions/topic/votes";
 import {ReactionButton} from "@/components/feed/reactions/reaction-button";
-import {useUser} from "../../../hooks/swr";
+import {useUser} from "@/hooks/swr";
 
 
 const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistoryProps, index: number}) => {

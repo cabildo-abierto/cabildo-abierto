@@ -1,5 +1,7 @@
 import {WikiEditorState} from "@/components/topics/topic/topic-content-expanded-view-header";
 
+export const backendUrl = "http://127.0.0.1:8080"
+
 export function getUri(did: string, collection: string, rkey: string) {
     return "at://" + did + "/" + collection + "/" + rkey
 }
@@ -77,13 +79,14 @@ export function topicUrl(title: string, version?: {did: string, rkey: string}, s
     return "/tema?i=" + encodeURIComponent(title) + (version != undefined ? "&did=" + version.did + "&rkey=" + version.rkey : "") + (s ? "&s=" + s : "")
 }
 
-export function urlFromRecord(record: { uri: string, collection: string, author: { did: string, handle?: string } }) {
-    if (record.collection == "ar.com.cabildoabierto.visualization") {
-        return "/c/" + record.author.did + "/" + record.collection + "/" + getRkeyFromUri(record.uri)
-    } else if (record.collection == "ar.com.cabildoabierto.dataset") {
-        return "/c/" + record.author.did + "/" + record.collection + "/" + getRkeyFromUri(record.uri)
+export function urlFromRecord(uri: string) {
+    const {did, collection, rkey} = splitUri(uri)
+    if (collection == "ar.com.cabildoabierto.visualization") {
+        return "/c/" + did + "/" + collection + "/" + rkey
+    } else if (collection == "ar.com.cabildoabierto.dataset") {
+        return "/c/" + did + "/" + collection + "/" + rkey
     }
-    return contentUrl(record.uri)
+    return contentUrl(uri)
 }
 
 export function getBlueskyUrl(uri: string) {
@@ -130,6 +133,7 @@ export function isDataset(c: string){
 export function isVisualization(c: string){
     return c == "ar.com.cabildoabierto.visualization"
 }
+
 
 export function collectionToDisplay(c: string){
     if(isPost(c)){

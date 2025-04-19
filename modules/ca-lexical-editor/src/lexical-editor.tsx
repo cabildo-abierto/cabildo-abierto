@@ -64,6 +64,8 @@ import {getEditorNodes} from "./nodes/get-editor-nodes";
 import {getInitialData} from "./get-initial-data";
 import {PreventLeavePlugin} from "./plugins/PreventLeavePlugin";
 
+export type QueryMentionsProps = (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
+
 export type SettingsProps = {
     charLimit?: number
     isRichText: boolean
@@ -101,7 +103,7 @@ export type SettingsProps = {
     measureTypingPerf: boolean
     showTreeView: boolean
 
-    queryMentions: (trigger: string, query: string | undefined | null) => Promise<MentionProps[]>
+    queryMentions: QueryMentionsProps
     onAddComment?: OnAddCommentProps
 }
 

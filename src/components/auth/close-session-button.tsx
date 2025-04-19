@@ -1,8 +1,12 @@
 "use client"
-import { logout } from "@/server-actions/auth"
 import StateButton from "../../../modules/ui-utils/src/state-button"
 import {useSWRConfig} from "swr";
 import {useRouter} from "next/navigation";
+
+
+export const logout = async () => {
+    // TO DO
+}
 
 
 export const CloseSessionButton = () => {

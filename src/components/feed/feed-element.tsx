@@ -5,12 +5,14 @@ import {
     ArticleProps,
     DatasetProps,
     FastPostProps,
-    FeedContentProps, TopicVersionOnFeedProps,
+    TopicVersionOnFeedProps,
     VisualizationProps
 } from "@/lib/definitions";
 import {DatasetPreview} from "../datasets/dataset-preview";
 import {VisualizationOnFeed} from "./visualization-on-feed";
 import {TopicVersionOnFeed} from "@/components/topics/topic/topic-version-on-feed";
+import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {isArticleView, isPostView} from "@/utils/type-utils";
 
 
 export const FeedElement = ({
@@ -21,7 +23,7 @@ export const FeedElement = ({
     showReplyMessage=false,
     onDeleteFeedElem
 }: {
-    elem: FeedContentProps & {blocked?: boolean, notFound?: boolean}
+    elem: FeedViewContent
     onClickQuote?: (cid: string) => void
     showingChildren?: boolean
     showingParent?: boolean
@@ -29,44 +31,25 @@ export const FeedElement = ({
     onDeleteFeedElem: () => Promise<void>
 }) => {
 
-
-    if (elem.blocked) {
-        return <div className={"p-2 m-2 border rounded-lg text-[var(--text-light)]"}>
-            Contenido bloqueado
-        </div>
-    } else if (elem.notFound) {
-        return <div className={"p-2 m-2 border rounded-lg text-[var(--text-light)]"}>
-            Contenido no encontrado
-        </div>
-    }
-    if (elem.collection == "ar.com.cabildoabierto.article") {
+    if (isArticleView(elem.content)) {
         return <ArticlePreview
-            elem={elem as ArticleProps}
+            articleView={elem.content}
+            feedViewContent={elem}
             showingChildren={showingChildren}
         />
-    } else if (elem.collection == "app.bsky.feed.post" || elem.collection == "ar.com.cabildoabierto.quotePost") {
-
+    } else if (isPostView(elem.content)) {
         return <FastPostPreview
-            post={elem as FastPostProps}
+            postView={elem.content}
+            feedViewContent={elem}
             onClickQuote={onClickQuote}
             showingParent={showingParent}
             showReplyMessage={showReplyMessage}
             showingChildren={showingChildren}
             onDeleteFeedElem={onDeleteFeedElem}
         />
-    } else if (elem.collection == "ar.com.cabildoabierto.dataset") {
-        return <DatasetPreview
-            dataset={elem as DatasetProps}
-        />
-    } else if (elem.collection == "ar.com.cabildoabierto.visualization") {
-        return <VisualizationOnFeed
-            visualization={elem as VisualizationProps}
-        />
-    } else if(elem.collection == "ar.com.cabildoabierto.topic"){
-        return <TopicVersionOnFeed topicVersion={elem as TopicVersionOnFeedProps}/>
     } else {
         return <div className={"py-4"}>
-            Error: No pudimos mostrar un elemento de la colección {elem.collection}
+            Error: No pudimos mostrar un elemento de la colección {elem.content.$type}
         </div>
     }
 }

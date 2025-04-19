@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchBlob } from "@/server-actions/blob";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ did: string, cid: string }> }) {
     const {did, cid} = await params
