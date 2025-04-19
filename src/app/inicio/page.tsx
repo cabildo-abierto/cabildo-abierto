@@ -1,5 +1,5 @@
 import React from "react"
-import {MainPage} from "../../components/inicio/main-page";
+import {MainPage} from "@/components/inicio/main-page";
 
 
 const Page = () => {

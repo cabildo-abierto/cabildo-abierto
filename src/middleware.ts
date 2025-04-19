@@ -1,10 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { getIronSession } from 'iron-session'
+//import { getIronSession } from 'iron-session'
+//import { cookies } from 'next/headers'
 
-import { Session } from '@/app/api/oauth/callback/route'
-import { cookies } from 'next/headers'
-
-import {myCookieOptions} from "./utils/auth";
+//import {isLoggedIn, myCookieOptions} from "./utils/auth";
+//import {Session} from "@/lib/definitions";
 
 
 function isNewUserRoute(request: NextRequest){
@@ -49,9 +48,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(articleUrl)
     }
 
-    const session = await getIronSession<Session>(await cookies(), myCookieOptions)
-
-    const loggedIn = session.did != undefined
+    /*const loggedIn = await isLoggedIn()
 
     if(!isPublicRoute(request)){
         if(request.nextUrl.pathname == "/") {
@@ -68,7 +65,7 @@ export async function middleware(request: NextRequest) {
             return
         }
         return NextResponse.redirect(url)
-    }
+    }*/
     return NextResponse.next()
 }
 

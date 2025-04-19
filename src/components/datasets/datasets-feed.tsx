@@ -4,7 +4,7 @@ import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
 import {CustomLink} from "../../../modules/ui-utils/src/custom-link";
 import {CardFeed} from "../../../modules/ui-utils/src/card-feed";
 import {DateSince} from "../../../modules/ui-utils/src/date";
-import {urlFromRecord} from "../../utils/uri";
+import {urlFromRecord} from "@/utils/uri";
 
 
 export const SmallDatasetPreview = ({ dataset, width, height }: {
@@ -51,7 +51,7 @@ const DatasetCard = ({dataset, width}: {
     dataset: DatasetProps & EngagementProps
     width: number
 }) => {
-    const url = urlFromRecord(dataset as {uri: string, collection: string, author: {did: string, handle: string}})
+    const url = urlFromRecord(dataset.uri)
 
 
     return <div

@@ -2,7 +2,6 @@ import useSWR from "swr"
 import {
     DatasetProps,
     EngagementProps,
-    FastPostProps,
     FeedContentProps,
     SmallTopicProps,
     SmallUserProps,
@@ -14,16 +13,17 @@ import {
     UserProps,
     VisualizationProps
 } from "@/lib/definitions"
-import {fetcher} from "./fetcher"
+import {fetcher, fetcherWithCredentials} from "./fetcher"
 import {QuotedContent} from "@/components/feed/content-quote";
-import {getDidFromUri, getRkeyFromUri, threadApiUrl} from "@/utils/uri";
+import {backendUrl, getDidFromUri, getRkeyFromUri, threadApiUrl} from "@/utils/uri";
 import {SmallTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import {ChatMessage} from "@prisma/client";
+import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 
-export function useFeed(feed: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
-    const { data, isLoading } = useSWR('/api/feed/'+feed, fetcher,
+export function useFeed(feed: string): {feed: FeedViewContent[], isLoading: boolean, error: string}{
+    const { data, isLoading } = useSWR(backendUrl + '/feed/'+feed, fetcherWithCredentials,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
@@ -215,8 +215,8 @@ export function useDatasets(): {datasets: DatasetProps[], isLoading: boolean, is
 }
 
 
-export function useVisualizations(): {visualizations: VisualizationProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/visualizations', fetcher,
+export function useVisualizations(): {visualizations: VisualizationProps[], isLoading: boolean, error: string}{
+    const { data, error, isLoading } = useSWR(backendUrl + '/visualizations', fetcherWithCredentials,
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
@@ -225,9 +225,9 @@ export function useVisualizations(): {visualizations: VisualizationProps[], isLo
     )
 
     return {
-        visualizations: data,
+        visualizations: data && data.visualizations ? data.visualizations : undefined,
         isLoading,
-        isError: error
+        error: data && data.error ? data.error : undefined
     }
 }
 
@@ -401,17 +401,22 @@ export function useFullProfile(did: string): {
     }
 }
 
+
 export function useUser(revalidate: boolean = false): { user: UserProps, isLoading?: boolean, error?: string } {
-    const {data, error, isLoading} = useSWR('/api/user', fetcher, {
-        revalidateIfStale: revalidate,
-        revalidateOnFocus: revalidate,
-        revalidateOnReconnect: revalidate
-    })
+    const {data, isLoading} = useSWR(
+        backendUrl + '/user',
+        fetcherWithCredentials,
+        {
+            revalidateIfStale: revalidate,
+            revalidateOnFocus: revalidate,
+            revalidateOnReconnect: revalidate
+        }
+    )
 
     return {
-        user: data ? data?.user : undefined,
+        user: data ? data.user : undefined,
         isLoading,
-        error
+        error: data ? data.error : undefined
     }
 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { SettingsProps } from "../../../../modules/ca-lexical-editor/src/lexical-editor"
+import {QueryMentionsProps, SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor"
 import { useState } from "react"
 import { EditorState, LexicalEditor } from "lexical"
 import { TitleInput } from "./title-input"
@@ -13,8 +13,8 @@ import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
 import {useUser} from "@/hooks/swr";
-import {queryMentions} from "@/server-actions/user/users";
 import {FooterHorizontalRule} from "../../../../modules/ui-utils/src/footer";
+import { queryMentions } from "@/components/editor/query-mentions"
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 

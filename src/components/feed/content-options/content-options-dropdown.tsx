@@ -1,4 +1,4 @@
-import {RecordProps} from "@/lib/definitions";
+import {ATProtoStrongRef} from "@/lib/definitions";
 import {ContentOptions} from "./content-options";
 
 
@@ -9,13 +9,13 @@ export const ContentOptionsDropdown = ({
     enDiscusion
 }: {
     onClose: () => void
-    record?: RecordProps
+    record: ATProtoStrongRef
     onDelete: () => Promise<void>
-    enDiscusion?: string
+    enDiscusion: boolean
 }) => {
     return (
         <div className="text-base border rounded bg-[var(--background-dark)] p-1">
-            {record && <ContentOptions record={record} onClose={onClose} onDelete={onDelete} enDiscusion={enDiscusion}/>}
+            <ContentOptions record={record} onClose={onClose} onDelete={onDelete} enDiscusion={enDiscusion}/>
         </div>
     )
 }

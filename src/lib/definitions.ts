@@ -1,5 +1,12 @@
 import {EditorStatus} from '@prisma/client';
 import {SerializedEditorState, SerializedLexicalNode} from "lexical";
+import {Agent} from "@atproto/api";
+import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
+
+
+export type PostRecord = BskyPostRecord
+
+export type Session = {did: string, agent: Agent}
 
 
 export type ATProtoStrongRef = {

@@ -6,7 +6,6 @@ import {useSearchParams} from "next/navigation";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {AcceptButtonPanel} from "../../../modules/ui-utils/src/accept-button-panel";
 import {useUser} from "@/hooks/swr";
-import {setSeenTutorial} from "@/server-actions/user/users";
 
 
 const WelcomeMessage = ({open, onClose}: {open: boolean, onClose: () => void}) => {

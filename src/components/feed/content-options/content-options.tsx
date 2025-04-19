@@ -1,8 +1,7 @@
-import {RecordProps, VisualizationProps} from "@/lib/definitions";
+import {ATProtoStrongRef, VisualizationProps} from "@/lib/definitions";
 import Link from "next/link";
-import {deleteRecords} from "@/server-actions/admin";
 import {ShareContentButton} from "./share-content-button";
-import {editVisualizationUrl, getBlueskyUrl} from "@/utils/uri";
+import {editVisualizationUrl, getBlueskyUrl, getCollectionFromUri, getDidFromUri, isArticle, isPost} from "@/utils/uri";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {OptionsDropdownButton} from "./options-dropdown-button";
 import {BlueskyLogo} from "../../icons/bluesky-logo";
@@ -10,7 +9,6 @@ import {Newspaper} from "@mui/icons-material";
 import {useSWRConfig} from "swr";
 import {useState} from "react";
 import {useUser} from "@/hooks/swr";
-import {addToEnDiscusion, removeFromEnDiscusion} from "@/server-actions/feed/inicio/en-discusion";
 
 
 const collection2displayText = {
@@ -19,7 +17,8 @@ const collection2displayText = {
     "ar.com.cabildoabierto.article": "artículo",
     "ar.com.cabildoabierto.quotePost": "respuesta",
     "ar.com.cabildoabierto.topic": "versión",
-    "ar.com.cabildoabierto.dataset": "conjunto de datos"
+    "ar.com.cabildoabierto.dataset": "conjunto de datos",
+    "ar.cabildoabierto.feed.article": "artículo"
 }
 
 export const openJsonInNewTab = (json: any) => {
@@ -29,41 +28,62 @@ export const openJsonInNewTab = (json: any) => {
 }
 
 
-export const ContentOptions = ({onClose, record, onDelete, enDiscusion="n/a"}: {
+export function canBeEnDiscusion(c: string){
+    return isPost(c) || isArticle(c)
+}
+
+
+const addToEnDiscusion = async (uri: string) => {
+    return
+}
+
+
+const removeFromEnDiscusion = async (uri: string) => {
+    return
+}
+
+
+const deleteRecords = async ({uris, atproto}: {uris: string[], atproto: boolean}) => {
+
+}
+
+
+export const ContentOptions = ({onClose, record, onDelete, enDiscusion}: {
     onClose: () => void
-    record: RecordProps
+    record: ATProtoStrongRef
     onDelete?: () => Promise<void>
-    enDiscusion?: string
+    enDiscusion: boolean
 }) => {
     const {user} = useUser()
     const {mutate} = useSWRConfig()
-    const [addedToEnDiscusion, setAddedToEnDiscusion] = useState<string | null>(enDiscusion)
+    const [addedToEnDiscusion, setAddedToEnDiscusion] = useState<boolean>(enDiscusion)
 
     async function onClickDelete() {
         await deleteRecords({uris: [record.uri], atproto: true})
         await onDelete()
     }
 
-    const inBluesky = record.collection == "app.bsky.feed.post"
+    const collection = getCollectionFromUri(record.uri)
+    const authorDid = getDidFromUri(record.uri)
+    const inBluesky = collection == "app.bsky.feed.post"
 
     return <div className={"flex flex-col space-y-1"}>
-        {user.did == record.author.did && <OptionsDropdownButton
+        {user.did == authorDid && <OptionsDropdownButton
             handleClick={async () => {await onClickDelete(); onClose(); return {}}}
             startIcon={<DeleteOutlineIcon/>}
-            text1={"Borrar " + collection2displayText[record.collection]}
+            text1={"Borrar " + collection2displayText[collection]}
         />}
-        {user.did == record.author.did && enDiscusion != "n/a" && <OptionsDropdownButton
+        {user.did == authorDid && canBeEnDiscusion(collection) && <OptionsDropdownButton
             handleClick={async () => {
-                let r
                 if(!addedToEnDiscusion){
-                    const {uri} = await addToEnDiscusion({uri: record.uri, cid: record.cid})
-                    setAddedToEnDiscusion(uri)
+                    await addToEnDiscusion(record.uri)
+                    setAddedToEnDiscusion(true)
                 } else {
-                    r = await removeFromEnDiscusion(enDiscusion)
-                    setAddedToEnDiscusion(null)
+                    await removeFromEnDiscusion(record.uri)
+                    setAddedToEnDiscusion(false)
                 }
                 mutate("/api/feed/EnDiscusion")
-                return r
+                return {}
             }}
             startIcon={<Newspaper/>}
             text1={!addedToEnDiscusion ? "Agregar a En discusión" : "Retirar de En discusión"}
@@ -73,7 +93,7 @@ export const ContentOptions = ({onClose, record, onDelete, enDiscusion="n/a"}: {
             startIcon={<BlueskyLogo/>}
             onClick={(e) => {e.stopPropagation(); window.open(getBlueskyUrl(record.uri), "_blank")}}
         />}
-        {record.collection == "ar.com.cabildoabierto.dataset" && <Link
+        {collection == "ar.com.cabildoabierto.dataset" && <Link
             href={editVisualizationUrl(record.uri)}
             onClick={(e) => {e.stopPropagation()}}
         >
@@ -81,19 +101,19 @@ export const ContentOptions = ({onClose, record, onDelete, enDiscusion="n/a"}: {
                 text1={"Usar en visualización"}
             />
         </Link>}
-        {record.collection == "ar.com.cabildoabierto.visualization" &&
+        {collection == "ar.com.cabildoabierto.visualization" &&
             <OptionsDropdownButton
                 handleClick={async () => {openJsonInNewTab(JSON.parse((record as VisualizationProps).visualization.spec)); return {}}}
                 text1={"Ver especificación"}
             />
         }
-        {record.collection == "ar.com.cabildoabierto.visualization" &&
+        {collection == "ar.com.cabildoabierto.visualization" &&
             <Link href={editVisualizationUrl(record.uri)} onClick={(e) => {e.stopPropagation()}}>
                 <OptionsDropdownButton
                     text1={"Editar"}
                 />
             </Link>
         }
-        <ShareContentButton content={record}/>
+        <ShareContentButton uri={record.uri}/>
     </div>
 }

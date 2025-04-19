@@ -5,7 +5,6 @@ import React, {useState} from "react";
 import {useSWRConfig} from "swr";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {ExtraChars} from "./extra-chars";
-import {createFastPost} from "@/server-actions/write/post";
 import {isPost, threadApiUrl} from "@/utils/uri";
 import {RectTracker} from "../../../modules/ui-utils/src/rect-tracker";
 import {ProfilePic} from "../feed/profile-pic";

@@ -2,13 +2,19 @@ import {useSearch} from "./search-context";
 import {FeedContentProps} from "@/lib/definitions";
 import Feed from "../feed/feed";
 import {useEffect, useState} from "react";
-import {searchContents} from "@/server-actions/feed/search";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+
+
+export const searchContents = async (q: string) => {
+    // TO DO
+    return {contents: []}
+}
 
 
 export const ContentsSearchResults = () => {
     const { searchState } = useSearch();
-    const [results, setResults] = useState<FeedContentProps[] | "loading">([]);
+    const [results, setResults] = useState<FeedViewContent[] | "loading">([]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
 
     useEffect(() => {
@@ -27,7 +33,7 @@ export const ContentsSearchResults = () => {
             }
             setResults("loading")
             const contents = await searchContents(debouncedValue);
-            setResults(contents.feed);
+            setResults(contents.contents);
         }
 
         search();

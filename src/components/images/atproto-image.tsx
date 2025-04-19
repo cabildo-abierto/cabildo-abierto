@@ -8,11 +8,13 @@ type EmbedImageProps = {
     className?: string
     did?: string
     onClick?: (e: any) => void
+    maxHeight?: number
+    cover?: boolean
 }
 
 
 export const ATProtoImage = ({
-                               img, className = "rounded-lg border", onClick, did
+                               img, className = "rounded-lg border", onClick, did, maxHeight=500, cover=false
                            }: EmbedImageProps) => {
     let width: number
     let height: number
@@ -29,9 +31,11 @@ export const ATProtoImage = ({
         src = "image" in img ? "https://cdn.bsky.app/img/feed_thumbnail/plain/" + did + "/" + img.image.ref.$link + "@" + img.image.mimeType.split("/")[1] : img.thumb
         alt = img.alt
 
-        if(height > 500){
-            width = width * 500 / height
-            height = 500
+        if(cover){
+
+        } else if(height > maxHeight){
+            width = width * maxHeight / height
+            height = maxHeight
         }
     }
 

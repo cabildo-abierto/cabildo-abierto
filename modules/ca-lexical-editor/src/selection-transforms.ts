@@ -3,7 +3,6 @@ import {editorStateToMarkdown} from "./markdown-transforms";
 import {getSelectionSubtree} from "@/components/feed/content-quote";
 import {areArraysEqual, listOrderDesc, range} from "@/utils/arrays";
 import bsb from "binary-search-bounds"
-import {logTimes} from "@/server-actions/utils";
 
 
 function lexicalPointersEqual(s: LexicalStandardSelectionPointer, t: LexicalStandardSelectionPointer): boolean {

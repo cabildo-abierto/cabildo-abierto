@@ -24,13 +24,15 @@ export const TrendingTopicsPanel = ({selected}: {selected: string}) => {
             </div>*/}
         </div>
         {topics ?
-            <TrendingArticlesSlider trendingArticles={topics}/>
-            :
-            (isLoading ? <div className={"mt-8 w-full max-w-[300px]"}>
-                <LoadingSpinner/>
-            </div> : <div className={"text-center text-[var(--text-light)] text-sm"} >
+            <TrendingArticlesSlider trendingArticles={topics}/> :
+            (isLoading ?
+                <div className={"mt-8 w-full max-w-[300px]"}>
+                    <LoadingSpinner/>
+                </div> :
+                <div className={"text-center text-[var(--text-light)] text-sm pt-2 pb-6"} >
                 Error al cargar los temas populares
-            </div>)
+                </div>
+            )
         }
     </div>
 }

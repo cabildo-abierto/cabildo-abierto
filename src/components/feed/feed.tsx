@@ -7,9 +7,11 @@ import {FeedElement} from "./feed-element";
 import {NoResults} from "@/components/buscar/no-results";
 import {ViewMonitor} from "../../../modules/ui-utils/src/view-monitor";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
+import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {isKnownContent} from "@/utils/type-utils";
 
 
-export type LoadingFeed = {feed: FeedContentProps[], isLoading: boolean, error: string}
+export type LoadingFeed = {feed: FeedViewContent[], isLoading: boolean, error: string}
 
 
 export type FeedProps = {
@@ -18,6 +20,9 @@ export type FeedProps = {
     onClickQuote?: (cid: string) => void
     onDeleteFeedElem?: () => Promise<void>
 }
+
+
+export type FeedGenerator = (index: number) => {c: ReactNode, key: string} | null
 
 const Feed = ({
     feed,
@@ -32,18 +37,24 @@ const Feed = ({
         return <ErrorPage>{feed.error}</ErrorPage>
     }
 
-    function generator(index: number){
-        const node = <ViewMonitor uri={feed.feed[index].uri}>
-            <FeedElement
-                elem={feed.feed[index]}
-                onClickQuote={onClickQuote}
-                onDeleteFeedElem={onDeleteFeedElem}
-            />
-        </ViewMonitor>
+    function generator(index: number): {c: ReactNode, key: string} | null {
+        if(!isKnownContent(feed.feed[index].content)){
+            console.log("Returning null for", feed.feed[index].content)
+            return null
+        }
 
+        const node = (
+            <ViewMonitor uri={feed.feed[index].content.uri}>
+                <FeedElement
+                    elem={feed.feed[index]}
+                    onClickQuote={onClickQuote}
+                    onDeleteFeedElem={onDeleteFeedElem}
+                />
+            </ViewMonitor>
+        )
         return {
             c: node,
-            key: (feed.feed[index].uri + " " + index.toString())
+            key: (feed.feed[index].content.uri + " " + index.toString())
         }
     }
     

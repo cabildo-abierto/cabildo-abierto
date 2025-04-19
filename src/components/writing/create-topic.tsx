@@ -1,16 +1,20 @@
 "use client"
 import React, {useState} from "react";
 import {useRouter} from "next/navigation";
-import {createTopic} from "@/server-actions/write/topic";
-import {topicUrl} from "../../utils/uri";
+import {topicUrl} from "@/utils/uri";
 import Link from "next/link";
 import {TextField} from "@mui/material";
-import {ErrorMsg} from "../../utils/utils";
+import {ErrorMsg} from "@/utils/utils";
 import TickButton from "../../../modules/ui-utils/src/tick-button";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {validEntityName} from "@/components/topics/topic/utils";
-import {useUser} from "../../hooks/swr";
+import {useUser} from "@/hooks/swr";
 import {Button} from "../../../modules/ui-utils/src/button";
+
+
+export const createTopic = async (name: string) => {
+    return {error: "Sin implementar."}
+}
 
 
 export const CreateTopic = ({onClose, initialSelected="none"}: {onClose: () => void, initialSelected?: string}) => {

@@ -4,12 +4,12 @@ import {FeedContentProps} from "@/lib/definitions";
 import {contentUrl} from "@/utils/uri";
 import {OptionsDropdownButton} from "./options-dropdown-button";
 
-export const ShareContentButton = ({ content }: { content: FeedContentProps }) => {
+export const ShareContentButton = ({uri}: {uri: string}) => {
     const [onClipboard, setOnClipboard] = useState(false);
 
     const onShare = async () => {
         try {
-            const url = "https://www.cabildoabierto.com.ar" + contentUrl(content.uri)
+            const url = "https://www.cabildoabierto.com.ar" + contentUrl(uri)
 
             navigator.clipboard.writeText(url).then(
                 () => {

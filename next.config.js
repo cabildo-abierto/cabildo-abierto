@@ -1,19 +1,19 @@
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
+/*const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
-})
+})*/
 
 nextConfig = {
-    turbopack: {
-        resolveAlias: {
-            underscore: 'lodash',
-        },
-        resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.json'],
+    webpack: (config) => {
+        config.resolve.extensionAlias = {
+            ".js": [".ts", ".tsx", ".js"],
+        };
+
+        return config;
     },
     logging: {
         fetches: {
             fullUrl: true
-        },
-        
+        }
     },
     images: {
       remotePatterns: [
@@ -25,4 +25,5 @@ nextConfig = {
     }
 }
 
-module.exports = withBundleAnalyzer(nextConfig)
+//module.exports = withBundleAnalyzer(nextConfig)
+module.exports = nextConfig

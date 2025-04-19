@@ -1,13 +1,9 @@
 "use client"
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import React, {useState} from "react";
-import {getDirtyUsers} from "@/server-actions/sync/mirror-status";
 import {AdminSection} from "./admin-section";
-import {getUsers} from "@/server-actions/user/users";
 import {SmallUserProps} from "@/lib/definitions";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
-import {collectionsList} from "@/server-actions/sync/utils";
-import {syncAllUsers, syncUser} from "@/server-actions/sync/sync-user";
 
 
 export const AdminSync = () => {
@@ -15,8 +11,9 @@ export const AdminSync = () => {
     const [dirtyUsers, setDirtyUsers] = useState<string[] | null>(null)
     const [collections, setCollections] = useState<string[]>([])
 
+    return null
 
-    return <div className={"flex flex-col items-center mt-8 space-y-8 mb-64"}>
+    /*return <div className={"flex flex-col items-center mt-8 space-y-8 mb-64"}>
 
         <AdminSection title={"Dirty users"}>
             <StateButton
@@ -121,5 +118,5 @@ export const AdminSync = () => {
                 </div>
             </>}
         </AdminSection>
-    </div>
+    </div>*/
 }

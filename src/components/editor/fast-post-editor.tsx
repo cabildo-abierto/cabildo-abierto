@@ -5,7 +5,7 @@ import {useEffect, useState} from "react";
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
 import {EditorState} from "lexical";
 import {getPlainText} from "@/components/topics/topic/diff";
-import {queryMentions} from "@/server-actions/user/users";
+import {queryMentions} from "@/components/editor/query-mentions";
 
 const MyLexicalEditor = dynamic(() => import('../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,

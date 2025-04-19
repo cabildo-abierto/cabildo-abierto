@@ -1,14 +1,15 @@
 "use client"
-import { ReactNode, useEffect, useState, useRef, useCallback } from 'react';
+import {useEffect, useState, useRef, useCallback} from 'react';
+import {FeedGenerator} from "@/components/feed/feed";
 
 interface LazyLoadFeedProps {
-    generator: (index: number) => {c: ReactNode, key: string}
+    generator: FeedGenerator
     maxSize: number
     initialCount?: number
     loadMoreCount?: number
 }
 
-export const LazyLoadFeed = ({ generator, maxSize, initialCount = 10, loadMoreCount = 10 }: LazyLoadFeedProps) => {
+export const LazyLoadFeed = ({generator, maxSize, initialCount = 10, loadMoreCount = 10}: LazyLoadFeedProps) => {
     const [visibleCount, setVisibleCount] = useState<number>(initialCount);
     const observerRef = useRef<HTMLDivElement | null>(null);
 
@@ -41,14 +42,18 @@ export const LazyLoadFeed = ({ generator, maxSize, initialCount = 10, loadMoreCo
 
     return (
         <div className="w-full flex flex-col items-center mb-32">
-            {Array.from({ length: Math.min(visibleCount, maxSize) }, (_, index) => {
-                const {c, key} = generator(index)
-                return <div key={key} className="w-full flex justify-center">
-                    {c}
-                </div>
+            {Array.from({length: Math.min(visibleCount, maxSize)}, (_, index) => {
+                const g = generator(index)
+                if(!g) return null
+                const {c, key} = g
+                return (
+                    <div key={key} className="w-full flex justify-center">
+                        {c}
+                    </div>
+                )
             })}
 
-            <div ref={observerRef} className="w-full h-1" />
+            <div ref={observerRef} className="w-full h-1"/>
         </div>
     );
 };

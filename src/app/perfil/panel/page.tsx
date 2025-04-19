@@ -1,5 +1,4 @@
 import { StatsIcon } from "@/components/icons/stats-icon"
-import {getUserStats} from "@/server-actions/user/users";
 import { StatsPanel } from "@/components/ajustes/stats-panel";
 
 

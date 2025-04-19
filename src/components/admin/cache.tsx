@@ -1,7 +1,6 @@
 "use client"
 
 import StateButton from "../../../modules/ui-utils/src/state-button";
-import {revalidateEverything, revalidateTags} from "@/server-actions/admin";
 import {TextField} from "@mui/material";
 import {useState} from "react";
 
@@ -14,7 +13,7 @@ export const AdminCache = () => {
 
             <StateButton
                 handleClick={async () => {
-                    await revalidateEverything()
+                    //await revalidateEverything()
                     return {}
                 }}
                 text1={"Revalidar todo"}
@@ -22,7 +21,7 @@ export const AdminCache = () => {
 
             <StateButton
                 handleClick={async () => {
-                    await revalidateTags(["topics"])
+                    //await revalidateTags(["topics"])
                     return {}
                 }}
                 text1={"Revalidar temas"}
@@ -47,7 +46,7 @@ export const AdminCache = () => {
                         fullWidth={true}
                         text1={"Revalidar"}
                         handleClick={async () => {
-                            await revalidateTags([tag])
+                            //await revalidateTags([tag])
                             return {}
                         }}
                     />

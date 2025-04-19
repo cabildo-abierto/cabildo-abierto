@@ -4,7 +4,6 @@ import {useEffect, useState} from "react";
 import {BaseFullscreenPopup} from "../../../modules/ui-utils/src/base-fullscreen-popup";
 import {useRouter} from "next/navigation";
 import JSZip from "jszip";
-import {createDataset} from "@/server-actions/dataset/write";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {UploadFile} from "@mui/icons-material";
 import {DatasetView} from "./dataset-view";

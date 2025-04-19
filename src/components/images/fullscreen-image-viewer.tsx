@@ -55,7 +55,7 @@ export const FullscreenImageViewer = ({
         >
             <div className={"fixed inset-0 flex items-center justify-center z-[1022]"}>
                 <div className={"flex items-between"}>
-                    <div className="w-24 px-2 flex justify-end">
+                    <div className="w-24 px-2 flex justify-end items-center">
                         {viewing > 0 ? (
                             <IconButton onClick={(e) => {
                                 e.stopPropagation();

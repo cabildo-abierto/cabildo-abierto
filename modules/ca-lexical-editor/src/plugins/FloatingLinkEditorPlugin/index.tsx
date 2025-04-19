@@ -38,8 +38,7 @@ import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemP
 import {sanitizeUrl} from '../../utils/url';
 import {SmallTopicProps, TopicProps} from '@/lib/definitions';
 import { CustomLink as Link } from '../../../../ui-utils/src/custom-link';
-import {getFullTopicTitle, getTopicTitle} from "@/components/topics/topic/utils";
-import {searchTopics} from "@/server-actions/feed/search";
+import {getFullTopicTitle} from "@/components/topics/topic/utils";
 import {topicUrl} from "@/utils/uri";
 
 function FloatingLinkEditor({
@@ -81,7 +80,9 @@ function FloatingLinkEditor({
         setResults([]);
         return;
       }
-      const topics = await searchTopics(debouncedValue);
+      // TO DO
+      //const topics = await searchTopics(debouncedValue);
+      const topics = []
       setResults(topics);
     }
 

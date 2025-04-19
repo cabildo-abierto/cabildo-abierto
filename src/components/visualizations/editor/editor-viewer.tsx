@@ -4,15 +4,12 @@ import {useState} from "react";
 import {View} from "vega";
 import {Button} from "@mui/material";
 import {getSpecForConfig} from "./get-spec";
-import {createVisualization} from "@/server-actions/visualization/write";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {VisualizationOnEditor} from "../visualization-on-editor";
 import {DatasetView} from "../../datasets/dataset-view";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
-
-
-import {emptyChar} from "../../../utils/utils";
+import {emptyChar} from "@/utils/utils";
 
 
 function readyToPlot(config: PlotConfigProps){
@@ -74,6 +71,13 @@ const dataURLToFile = (dataURL: string) => {
 
     // Create and return a File object
     return new File([u8arr], "f", {type: mime});
+}
+
+
+
+const createVisualization = async (spec: any, formData: FormData) => {
+    // TO DO
+    return {error: "Sin implementar."}
 }
 
 
