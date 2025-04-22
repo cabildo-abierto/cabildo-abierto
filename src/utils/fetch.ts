@@ -21,3 +21,26 @@ export const fetchBackend = async ({
         body: body ? JSON.stringify(body) : undefined
     })
 }
+
+type PostProps = {
+    route: string
+    body: any
+}
+
+export const post = async ({
+    route,
+    body
+}: PostProps) => {
+    const res = await fetchBackend({
+        route,
+        method: "POST",
+        credentials: "include",
+        body
+    })
+    if(res.ok){
+        const {error} = await res.json()
+        return {error}
+    } else {
+        return {error: "Error en la conexión."}
+    }
+}

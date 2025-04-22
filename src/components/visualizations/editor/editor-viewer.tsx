@@ -1,9 +1,9 @@
-import {DatasetProps, PlotConfigProps} from "@/lib/definitions";
+import {DatasetProps, PlotConfigProps} from "@/lib/types";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
-import {View} from "vega";
+//import {View} from "vega";
 import {Button} from "@mui/material";
-import {getSpecForConfig} from "./get-spec";
+//import {getSpecForConfig} from "./get-spec";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {VisualizationOnEditor} from "../visualization-on-editor";
 import {DatasetView} from "../../datasets/dataset-view";
@@ -90,7 +90,7 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
     maxWidth: number
 }) => {
     const router = useRouter()
-    const [currentView, setCurrentView] = useState<View | null>(null)
+    const [currentView, setCurrentView] = useState(null)
     const saveDisabled = !readyToSave(config)
 
     function optionsNodes(o: string, isSelected: boolean){
@@ -114,7 +114,7 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
     }
 
     async function onSave() {
-        let spec = getSpecForConfig(config, dataset)
+        //let spec = getSpecForConfig(config, dataset)
 
         const canvas = await currentView.toCanvas(10)
         const dataURL = canvas.toDataURL("image/png");
@@ -122,7 +122,8 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
         const file = dataURLToFile(dataURL)
         const formData = new FormData()
         formData.set("data", file)
-        const {error} = await createVisualization(spec, formData)
+        //const {error} = await createVisualization(spec, formData)
+        const error = "Sin implementar."
 
         if (!error) router.push("/datos")
         return {error}

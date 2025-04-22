@@ -99,27 +99,20 @@ export function categoryUrl(cat: string, view: string) {
 }
 
 export function threadApiUrl(uri: string) {
-    return "/api/thread/" + getDidFromUri(uri) + "/" + getCollectionFromUri(uri) + "/" + getRkeyFromUri(uri)
+    const {did, collection, rkey} = splitUri(uri)
+    return "/thread/" + did + "/" + collection + "/" + rkey
 }
 
 export function getCollectionFromUri(uri: string) {
     return uri.split("/")[3]
 }
 
-export function isBskyPost(collection: string){
-    return collection == "app.bsky.feed.post"
-}
-
-export function isPost(collection: string) {
-    return isQuotePost(collection) || isBskyPost(collection)
+export function isPost(c: string) {
+    return c == "app.bsky.feed.post"
 }
 
 export function isArticle(c: string){
-    return c == "ar.com.cabildoabierto.article"
-}
-
-export function isQuotePost(c: string) {
-    return c == "ar.com.cabildoabierto.quotePost"
+    return c == "ar.cabildoabierto.feed.article"
 }
 
 export function isTopicVersion(c: string){

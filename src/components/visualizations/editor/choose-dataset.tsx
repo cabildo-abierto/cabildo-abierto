@@ -1,4 +1,4 @@
-import {DatasetProps, PlotConfigProps} from "@/lib/definitions";
+import {DatasetProps, PlotConfigProps} from "@/lib/types";
 import {useEffect, useState} from "react";
 import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
 import AddIcon from "@mui/icons-material/Add";

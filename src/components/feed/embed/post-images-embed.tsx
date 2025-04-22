@@ -4,6 +4,7 @@ import {FullscreenImageViewer} from "@/components/images/fullscreen-image-viewer
 import {ATProtoImage} from "@/components/images/atproto-image";
 import {ViewImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
 import {View as EmbedImagesView} from "@/lex-api/types/app/bsky/embed/images"
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
 type PostImageEmbedProps = {
@@ -63,7 +64,7 @@ export const PostImagesEmbed = ({embed, did}: PostImageEmbedProps) => {
                             className={"border rounded-lg object-cover h-full w-full"}
                         />
                     </div>
-                    <div className="w-1/2 space-y-1 flex flex-col h-[268px]">
+                    <div className="w-1/2 space-y-1 flex flex-col justify-between h-[268px]">
                         <ATProtoImage
                             img={images[1]}
                             did={did}
@@ -71,7 +72,7 @@ export const PostImagesEmbed = ({embed, did}: PostImageEmbedProps) => {
                                 setViewing(1)
                             }}
                             cover={true}
-                            className={"border rounded-lg object-cover h-full w-full"}
+                            className={"border rounded-lg object-cover h-[132px] w-full"}
                         />
                         <ATProtoImage
                             img={images[2]}
@@ -80,7 +81,7 @@ export const PostImagesEmbed = ({embed, did}: PostImageEmbedProps) => {
                                 setViewing(2)
                             }}
                             cover={true}
-                            className={"border rounded-lg object-cover h-full w-full"}
+                            className={"border rounded-lg object-cover h-[132px] w-full"}
                         />
                     </div>
                 </div>
@@ -97,7 +98,7 @@ export const PostImagesEmbed = ({embed, did}: PostImageEmbedProps) => {
                                 setViewing(index)
                             }}
                             cover={true}
-                            className={"border rounded-lg object-cover h-full w-full"}
+                            className={"border rounded-lg object-cover h-[160px] w-full"}
                         />
                     ))}
                 </div>

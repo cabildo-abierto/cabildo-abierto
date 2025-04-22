@@ -1,10 +1,10 @@
 import {ProfilePic} from "./profile-pic";
-import {useUser} from "@/hooks/swr";
+import {useSession} from "@/hooks/swr";
 
 
 
 export const ReplyButton = ({onClick, text="Responder"}: {onClick: () => void, text?: string}) => {
-    const {user} = useUser()
+    const {user} = useSession()
     return <div className="border-b px-4 py-1">
         <button
             onClick={onClick}

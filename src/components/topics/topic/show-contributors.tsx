@@ -2,7 +2,7 @@
 import { CustomLink as Link } from '../../../../modules/ui-utils/src/custom-link';
 import { Button } from "../../../../modules/ui-utils/src/button";
 import { useState } from "react"
-import { BothContributionsProps, ContributionsProps } from "@/lib/definitions"
+import { BothContributionsProps, ContributionsProps } from "@/lib/types"
 import {useTopicHistory} from "@/hooks/swr";
 import {getTopicMonetizedChars} from "./utils";
 

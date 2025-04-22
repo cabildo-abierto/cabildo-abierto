@@ -4,7 +4,7 @@ import { InactiveCommentIcon } from "../../icons/inactive-comment-icon"
 import { InactiveLikeIcon } from "../../icons/inactive-like-icon"
 import { RepostIcon } from "../../icons/reposts-icon"
 import { FixedCounter, LikeCounter } from "./like-counter"
-import {ATProtoStrongRef, EngagementProps} from "@/lib/definitions";
+import {ATProtoStrongRef, EngagementProps} from "@/lib/types";
 import {ViewsIcon} from "../../icons/views-icon";
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";

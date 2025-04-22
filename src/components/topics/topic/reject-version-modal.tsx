@@ -5,7 +5,7 @@ import InfoPanel from '../../../../modules/ui-utils/src/info-panel';
 import { BaseFullscreenPopup } from '../../../../modules/ui-utils/src/base-fullscreen-popup';
 import {TextField} from "@mui/material";
 import {useSWRConfig} from "swr";
-import {ATProtoStrongRef} from "@/lib/definitions";
+import {ATProtoStrongRef} from "@/lib/types";
 
 
 export function validExplanation(text: string) {

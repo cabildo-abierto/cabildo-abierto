@@ -4,7 +4,7 @@ import LoadingPage from "./loading-page"
 import { ReactNode } from "react";
 import { BaseFullscreenPopup } from "../../../modules/ui-utils/src/base-fullscreen-popup";
 import { Login } from "./login";
-import {useUser} from "../../hooks/swr";
+import {useSession} from "../../hooks/swr";
 
 
 export const NeedAccountPaywall: React.FC<any> = ({ children }) => {
@@ -22,7 +22,7 @@ export const NeedAccountPaywall: React.FC<any> = ({ children }) => {
 
 
 const AccountChecker: React.FC<{children: ReactNode, requireAccount?: boolean}> = ({children, requireAccount=true}) => {
-    const user = useUser()
+    const user = useSession()
     
     if(user.isLoading){
         return <LoadingPage>

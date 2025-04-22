@@ -1,8 +1,8 @@
 import {LexicalStandardSelection, LexicalStandardSelectionPointer} from "./plugins/CommentPlugin/standard-selection";
 import {editorStateToMarkdown} from "./markdown-transforms";
-import {getSelectionSubtree} from "@/components/feed/content-quote";
 import {areArraysEqual, listOrderDesc, range} from "@/utils/arrays";
 import bsb from "binary-search-bounds"
+import {getSelectionSubtree} from "./editor-state-utils";
 
 
 function lexicalPointersEqual(s: LexicalStandardSelectionPointer, t: LexicalStandardSelectionPointer): boolean {
@@ -11,7 +11,7 @@ function lexicalPointersEqual(s: LexicalStandardSelectionPointer, t: LexicalStan
 
 
 function cmpLexicalPointers(a: LexicalStandardSelectionPointer, b: LexicalStandardSelectionPointer): number {
-    const nodeOrd = listOrderDesc({score: a.node}, {score: b.node})
+    const nodeOrd = listOrderDesc(a.node, b.node)
     if (nodeOrd != 0) return nodeOrd
     return b.offset - a.offset
 }

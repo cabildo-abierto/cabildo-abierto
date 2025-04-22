@@ -2,25 +2,16 @@ import {LexicalEditor} from "lexical";
 import {useRouter} from "next/navigation";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
-import {fetchBackend} from "@/utils/fetch";
+import {post} from "@/utils/fetch";
 
 
 const createArticle = async (text: string, format: string, title: string) => {
-    const res = await fetchBackend({
+    return post({
         route: "/article",
-        method: "POST",
         body: {
-            text,
-            format,
-            title
+            text, format, title
         }
     })
-    if(res.ok){
-        const {error} = await res.json()
-        return {error}
-    } else {
-        return {error: "Ocurrió un error al crear el artículo."}
-    }
 }
 
 

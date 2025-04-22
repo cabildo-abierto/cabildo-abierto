@@ -4,6 +4,8 @@ import { MainFeedHeader } from "./main-feed-header"
 import Feed from "../feed/feed"
 import {useFeed} from "@/hooks/swr";
 import {useRouter, useSearchParams} from "next/navigation";
+import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 
 export function optionToSearchParam(v: string){
@@ -25,7 +27,13 @@ export function searchParamToOption(v: string){
 const SelectedFeed = ({selected}: {selected: string}) => {
     const feed = useFeed(optionToSearchParam(selected))
 
-    return <Feed feed={feed}/>
+    if(feed.isLoading){
+        return <div className={"py-8"}><LoadingSpinner/></div>
+    } else if(feed.error || !feed){
+        return <ErrorPage>{feed.error}</ErrorPage>
+    }
+
+    return <Feed feed={feed.data}/>
 }
 
 
@@ -47,8 +55,8 @@ export const MainPage = () => {
             />
         </div>
 
-        {selected != "Descubrir" && <SelectedFeed selected={selected}/>}
-
+        {selected == "Siguiendo" && <SelectedFeed selected={selected}/>}
+        {selected == "En discusión" && <SelectedFeed selected={selected}/>}
         {selected == "Descubrir" && <div className={"py-8 text-center text-[var(--text-light)]"}>
             Próximamente acá vas a poder encontrar contenidos de usuarios que no seguís.
         </div>}

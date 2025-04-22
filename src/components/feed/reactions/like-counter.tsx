@@ -4,7 +4,7 @@ import React, { ReactNode, useState } from "react"
 import { ReactionButton } from "./reaction-button";
 import { ActiveLikeIcon } from "../../icons/active-like-icon";
 import { InactiveLikeIcon } from "../../icons/inactive-like-icon";
-import {useUser} from "../../../hooks/swr";
+import {useSession} from "../../../hooks/swr";
 
 type LikeCounterProps = {
     disabled?: boolean
@@ -28,7 +28,7 @@ export const LikeCounter: React.FC<LikeCounterProps> = ({
     likeUri,
     initialCount
 }) => {
-    const {user} = useUser()
+    const {user} = useSession()
     const [newLikeUri, setNewLikeUri] = useState(likeUri)
 
     let delta = 0

@@ -3,7 +3,7 @@ import {TextField} from "@mui/material";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import React, {useState} from "react";
 import {AdminSection} from "./admin-section";
-import {SmallUserProps} from "@/lib/definitions";
+import {SmallUserProps} from "@/lib/types";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
 import {useCodes} from "@/hooks/swr";
 

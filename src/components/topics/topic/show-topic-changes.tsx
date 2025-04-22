@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { nodesFromJSONStr } from './diff';
 import { SerializedDiffNode } from '../../../../modules/ca-lexical-editor/src/nodes/DiffNode';
-import { TopicProps, MatchesType } from '@/lib/definitions';
+import { TopicProps, MatchesType } from '@/lib/types';
 import {SmallTopicVersionProps} from "./topic-content-expanded-view";
 import {useTopicVersionChanges} from "@/hooks/swr";
 import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";

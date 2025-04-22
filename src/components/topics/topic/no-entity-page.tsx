@@ -5,8 +5,8 @@ import { useSWRConfig } from "swr"
 import {Button} from "@mui/material";
 import {validEntityName} from "./utils";
 import {topicUrl} from "@/utils/uri";
-import {useUser} from "@/hooks/swr";
-import {createTopic} from "@/components/writing/create-topic";
+import {useSession} from "@/hooks/swr";
+import {createTopic} from "@/components/writing/write-panel/create-topic";
 
 const CreateEntityButton: React.FC<any> = ({onClick}) => {
     return <Button
@@ -26,7 +26,7 @@ export default function NoEntityPage({id}: {id: string}){
     const name = decodeURIComponent(id).replaceAll("_", " ")
     const url = topicUrl(id)
     const router = useRouter()
-    const {user} = useUser()
+    const {user} = useSession()
     const {mutate} = useSWRConfig()
 
     const handleCreateEntity = async () => {

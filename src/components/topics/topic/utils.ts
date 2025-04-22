@@ -3,7 +3,7 @@ import {
     TopicHistoryProps,
     TopicProps,
     UserProps
-} from "@/lib/definitions";
+} from "@/lib/types";
 
 import {max} from "../../../utils/arrays";
 
@@ -25,24 +25,6 @@ export function getFullTopicTitle(topic: TopicProps){
 
 export function getFullTopicCategories(topic: TopicProps){
     return topic.categories.map(({categoryId}) => categoryId)
-}
-
-
-export function getCurrentContentVersion(topic: {versions: {content: {hasText: boolean}, uniqueRejects: number}[]}, version?: number){
-    if(version == null) version = topic.versions.length-1
-    let lastContent = 0
-    for(let i = 0; i <= version; i++){
-        if(topic.versions[i].content.hasText && topic.versions[i].uniqueRejects == 0){
-            lastContent = i
-        }
-    }
-    return lastContent
-}
-
-
-export function getTopicLastEditFromVersions(topic: {versions: {content: {record: {createdAt: Date}}}[]}){
-    const dates = topic.versions.map(v => v.content.record.createdAt)
-    return max(dates)
 }
 
 export function isTopicVersionDemonetized(topicVersion: {}) {
@@ -131,27 +113,4 @@ export const permissionToNumber = (level: string) => {
 
 export const hasEditPermission = (user: UserProps | null, level: string) => {
     return user && permissionToNumber(user.editorStatus) >= permissionToNumber(level)
-}
-
-export function getCurrentVersion(topic: TopicHistoryProps) {
-    for(let i = topic.versions.length-1; i >= 0; i--){
-        return i
-    }
-}
-
-export function currentCategories(topic: {
-    versions: { categories?: string, content: { record: { createdAt: Date } } }[]
-}) {
-    let last = null
-    for (let i = 0; i < topic.versions.length; i++) {
-        if (topic.versions[i].categories != null) {
-            const date = new Date(topic.versions[i].content.record.createdAt).getTime()
-            if (last == null || new Date(topic.versions[last].content.record.createdAt).getTime() < date) {
-                last = i
-            }
-        }
-    }
-    if (last == null) return []
-
-    return JSON.parse(topic.versions[last].categories) as string[]
 }

@@ -1,4 +1,4 @@
-import {FastPostProps, TopicProps} from "@/lib/definitions";
+import {FastPostProps, TopicProps} from "@/lib/types";
 import {useEffect, useState} from "react";
 import {useSWRConfig} from "swr";
 import {EditorState, LexicalEditor} from "lexical";
@@ -13,7 +13,6 @@ import {ShowTopicChanges} from "./show-topic-changes";
 import {ShowTopicAuthors} from "./show-topic-authors";
 import {useTopicFeed, useTopicVersion} from "@/hooks/swr";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {isQuotePost} from "@/utils/uri";
 import {useSearchParams} from "next/navigation";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
 import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/markdown-transforms";
@@ -60,12 +59,13 @@ export const TopicContentExpandedViewWithVersion = ({
 
     useEffect(() => {
         if(feed.feed){
-            const q = feed.feed.replies.filter((r) => {
+            // TO DO
+            /*const q = feed.feed.replies.filter((r) => {
                 return isQuotePost(r.collection) && (r as FastPostProps).content.post.quote != undefined
             }) as FastPostProps[]
             if(!quoteReplies || q.length != quoteReplies.length){
                 setQuoteReplies(q)
-            }
+            }*/
         }
     }, [feed, quoteReplies])
 

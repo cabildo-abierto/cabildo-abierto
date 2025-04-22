@@ -19,7 +19,7 @@ export const RightPanel = () => {
         <UpdateCongresoRightPanel/>
 
         <div className={"flex justify-center w-full"}>
-            <TrendingTopicsPanel selected={"7days"}/>
+            <TrendingTopicsPanel/>
         </div>
 
         <RightPanelButtons/>

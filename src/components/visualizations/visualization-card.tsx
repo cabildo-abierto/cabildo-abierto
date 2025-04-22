@@ -1,4 +1,4 @@
-import {EngagementProps, VisualizationProps} from "@/lib/definitions";
+import {EngagementProps, VisualizationProps} from "@/lib/types";
 import {Authorship} from "../feed/content-top-row-author";
 import {CustomLink} from "../../../modules/ui-utils/src/custom-link";
 import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";

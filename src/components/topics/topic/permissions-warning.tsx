@@ -1,13 +1,13 @@
 "use client"
-import { TopicProps } from "@/lib/definitions"
+import { TopicProps } from "@/lib/types"
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel"
 import { PermissionLevel } from "./permission-level"
-import {useUser} from "@/hooks/swr";
+import {useSession} from "@/hooks/swr";
 
 
 
 export const NotEnoughPermissionsWarning = ({entity}: {entity: TopicProps}) => {
-    const user = useUser()
+    const user = useSession()
 
     const status = user.user.editorStatus
     const info = <div className="">

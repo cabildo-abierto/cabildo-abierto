@@ -1,8 +1,7 @@
 import Image from "next/image";
 import PublicIcon from '@mui/icons-material/Public';
-import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {ViewRecord} from "@/lex-api/types/app/bsky/embed/record";
-import {isView as isExternalEmbed} from "@/lex-api/types/app/bsky/embed/external";
+import {View as ExternalEmbedView} from "@/lex-api/types/app/bsky/embed/external";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 const Domain = ({url}: { url: string }) => {
     try {
@@ -18,18 +17,12 @@ const Domain = ({url}: { url: string }) => {
     }
 }
 
+type PostExternalEmbedProps = {
+    embed: ExternalEmbedView
+}
 
-export const PostExternalEmbed = ({embed}: { embed: PostView["embed"] | ViewRecord["embeds"] }) => {
-    if (!embed) return null
-
-    if ("length" in embed) {
-        // TO DO
-        return <PostExternalEmbed embed={embed[0]}/>
-    }
-
-    if (!isExternalEmbed(embed)) return null
-
-    if (embed.external.uri.includes("cabildoabierto.com.ar")) return null
+export const PostExternalEmbed = ({embed}: PostExternalEmbedProps) => {
+    if (embed.external.uri.includes("cabildoabierto.com.ar")) return null // TO DO: Dudoso, está por las visualizaciones
 
     return <div
         onClick={(e) => {
@@ -38,15 +31,20 @@ export const PostExternalEmbed = ({embed}: { embed: PostView["embed"] | ViewReco
             window.open(embed.external.uri, '_blank')
         }}
         className={"border rounded-lg cursor-pointer mt-1 hover:bg-[var(--background-dark2)]"}>
-        {embed.external.thumb && embed.external.thumb.length > 0 && <div>
-            <Image
-                src={embed.external.thumb}
-                alt={""}
-                className="w-full max-h-[296px] object-cover rounded-t-lg"
-                width={400}
-                height={300}
-            />
-        </div>}
+        {embed.external.thumb && embed.external.thumb.length > 0 ?
+            <div>
+                <Image
+                    src={embed.external.thumb}
+                    alt={""}
+                    className="w-full max-h-[296px] object-cover rounded-t-lg"
+                    width={400}
+                    height={300}
+                />
+            </div> :
+            <div className="font-semibold px-2 text-[15px] pt-2 break-all">
+                {embed.external.uri}
+            </div>
+        }
         <div className={embed.external.thumb ? "border-t p-2" : "p-2"}>
             <div className={"text-[15px] font-semibold mb-1"}>{embed.external.title}</div>
             <div className={"text-[14px]"}>{embed.external.description}</div>

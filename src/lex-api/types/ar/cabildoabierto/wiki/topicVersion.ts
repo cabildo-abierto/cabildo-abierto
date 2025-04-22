@@ -24,7 +24,6 @@ export interface Record {
   title?: string
   format: string
   createdAt: string
-  $type?: 'ar.cabildoabierto.wiki.topicVersion'
   [k: string]: unknown
 }
 

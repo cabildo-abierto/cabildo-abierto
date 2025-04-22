@@ -1,27 +1,27 @@
 "use client"
 
 import Image from 'next/image'
-import {FastPostProps} from '@/lib/definitions'
-import {getUsername} from '../../utils/utils'
+import {getUsername} from '@/utils/utils'
 import Link from 'next/link'
-import { ReactNode } from 'react'
-import { EngagementIcons } from '@/components/feed/reactions/engagement-icons'
-import {userUrl} from "../../utils/uri";
-import {formatIsoDate} from "../../utils/dates";
-import {useUser} from "../../hooks/swr";
+import {ReactNode} from 'react'
+import {EngagementIcons} from '@/components/feed/reactions/engagement-icons'
+import {userUrl} from "@/utils/uri";
+import {formatIsoDate} from "@/utils/dates";
+import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {hasEnDiscusionLabel} from "@/components/feed/post-preview-frame";
 
 
-type MainPostFrameProps = {children: ReactNode, post: FastPostProps}
+type MainPostFrameProps = { children: ReactNode, postView: PostView }
 
 
 export const MainPostFrame = ({
-                                         children, post
-}: MainPostFrameProps) => {
+                                  children, postView
+                              }: MainPostFrameProps) => {
 
-    const author = post.author
+    const author = postView.author
     const authorUrl = userUrl(author.handle)
 
-    const enDiscusion = post.enDiscusion ? "can remove" : "can add"
+    const enDiscusion = hasEnDiscusionLabel(postView)
 
     return <div className="w-full bg-[var(--background)] flex flex-col px-4 border-b">
         <div>
@@ -30,7 +30,7 @@ export const MainPostFrame = ({
                     <Link href={authorUrl}>
                         <Image
                             src={author.avatar}
-                            alt={"Perfil de "+author.handle}
+                            alt={"Perfil de " + author.handle}
                             width={100}
                             height={100}
                             className="rounded-full w-11 h-auto"
@@ -47,7 +47,7 @@ export const MainPostFrame = ({
                 {/* TO DO <FollowButtonInContent/>*/}
             </div>
         </div>
-        
+
         <div className="w-full flex flex-col">
             <div className="py-2">
                 {children}
@@ -55,13 +55,13 @@ export const MainPostFrame = ({
 
             <div className="py-2 border-b">
                 <div className="text-sm text-[var(--text-light)]">
-                    {formatIsoDate(post.createdAt)}
+                    {formatIsoDate(postView.indexedAt)}
                 </div>
             </div>
 
             <div className="py-2">
-                <EngagementIcons counters={post} record={post} enDiscusion={enDiscusion}/>
+                <EngagementIcons counters={postView} record={postView} enDiscusion={enDiscusion}/>
             </div>
         </div>
-    </div>   
+    </div>
 }

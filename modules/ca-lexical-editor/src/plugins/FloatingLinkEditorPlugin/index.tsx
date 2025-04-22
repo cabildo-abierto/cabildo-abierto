@@ -36,7 +36,7 @@ import {createPortal} from 'react-dom';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl} from '../../utils/url';
-import {SmallTopicProps, TopicProps} from '@/lib/definitions';
+import {SmallTopicProps, TopicProps} from '@/lib/types';
 import { CustomLink as Link } from '../../../../ui-utils/src/custom-link';
 import {getFullTopicTitle} from "@/components/topics/topic/utils";
 import {topicUrl} from "@/utils/uri";

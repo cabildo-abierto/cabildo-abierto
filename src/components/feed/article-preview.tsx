@@ -1,5 +1,5 @@
 "use client"
-import {FastPostPreviewFrame} from './fast-post-preview-frame'
+import {PostPreviewFrame} from './post-preview-frame'
 import ReadOnlyEditor from "@/components/editor/read-only-editor";
 import {ArticleView, FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
@@ -21,9 +21,7 @@ export const ArticlePreview = (
     const summary = articleView.summary
     const title = article.title
 
-    console.log("summary", summary)
-
-    return <FastPostPreviewFrame postView={articleView} borderBelow={!showingChildren} showingChildren={showingChildren}>
+    return <PostPreviewFrame postView={articleView} borderBelow={!showingChildren} showingChildren={showingChildren}>
         <div className={"border rounded-lg p-2 my-2 hover:bg-[var(--background-dark2)]"}>
             <div className={"text-sm text-[var(--text-light)]"}>
                 Artículo
@@ -36,5 +34,5 @@ export const ArticlePreview = (
                 <ReadOnlyEditor text={summary} format={"plain-text"}/>
             </div>
         </div>
-    </FastPostPreviewFrame>
+    </PostPreviewFrame>
 }

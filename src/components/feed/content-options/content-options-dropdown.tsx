@@ -1,4 +1,4 @@
-import {ATProtoStrongRef} from "@/lib/definitions";
+import {ATProtoStrongRef} from "@/lib/types";
 import {ContentOptions} from "./content-options";
 
 

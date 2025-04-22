@@ -37,8 +37,8 @@ import {
   VisualizationNode,
   VisualizationPayload
 } from '../../nodes/VisualizationNode';
-import {InsertVisualizationModal} from "../../../../../src/components/writing/insert-visualization-modal";
-import {VisualizationProps} from "@/lib/definitions";
+import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
+import {VisualizationProps} from "@/lib/types";
 
 export type InsertVisualizationPayload = Readonly<VisualizationPayload>;
 

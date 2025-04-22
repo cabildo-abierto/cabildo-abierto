@@ -42,8 +42,8 @@ export const schemaDict = {
           required: ['dataset', 'createdAt', 'data', 'format'],
           properties: {
             dataset: {
-              type: 'ref',
-              ref: 'lex:ar.cabildoabierto.data.dataset',
+              type: 'string',
+              format: 'at-uri',
             },
             data: {
               type: 'blob',
@@ -59,10 +59,6 @@ export const schemaDict = {
               description:
                 'Client-declared timestamp when this post was originally created.',
             },
-            $type: {
-              type: 'string',
-              const: 'ar.cabildoabierto.dataBlock',
-            },
           },
         },
       },
@@ -77,9 +73,9 @@ export const schemaDict = {
         key: 'tid',
         record: {
           type: 'object',
-          required: ['id', 'createdAt', 'columns'],
+          required: ['name', 'createdAt', 'columns'],
           properties: {
-            id: {
+            name: {
               type: 'string',
               minLength: 1,
               maxLength: 120,
@@ -94,13 +90,9 @@ export const schemaDict = {
               type: 'array',
               items: {
                 type: 'ref',
-                ref: 'lex:ar.cabildoabierto.dataset#column',
+                ref: 'lex:ar.cabildoabierto.data.dataset#column',
               },
               minLength: 1,
-            },
-            $type: {
-              type: 'string',
-              const: 'ar.cabildoabierto.data.dataset',
             },
           },
         },
@@ -141,10 +133,6 @@ export const schemaDict = {
               description:
                 'Client-declared timestamp when this post was originally created.',
             },
-            $type: {
-              type: 'string',
-              const: 'ar.cabildoabierto.data.visualization',
-            },
           },
         },
       },
@@ -165,6 +153,41 @@ export const schemaDict = {
           },
           end: {
             type: 'integer',
+          },
+        },
+      },
+      view: {
+        type: 'object',
+        required: [
+          'start',
+          'end',
+          'quotedText',
+          'quotedContent',
+          'quotedContentAuthor',
+        ],
+        properties: {
+          start: {
+            type: 'integer',
+          },
+          end: {
+            type: 'integer',
+          },
+          quotedText: {
+            type: 'string',
+          },
+          quotedTextFormat: {
+            type: 'string',
+          },
+          quotedContent: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          quotedContentAuthor: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
+          },
+          quotedContentTitle: {
+            type: 'string',
           },
         },
       },
@@ -251,8 +274,9 @@ export const schemaDict = {
           content: {
             type: 'union',
             refs: [
-              'lex:app.bsky.feed.defs#postView',
+              'lex:ar.cabildoabierto.feed.defs#postView',
               'lex:ar.cabildoabierto.feed.defs#articleView',
+              'lex:ar.cabildoabierto.feed.defs#fullArticleView',
             ],
           },
           parent: {
@@ -307,7 +331,7 @@ export const schemaDict = {
               'lex:app.bsky.embed.external#view',
               'lex:app.bsky.embed.record#view',
               'lex:app.bsky.embed.recordWithMedia#view',
-              'lex:ar.cabildoabierto.embed.selectionQuote',
+              'lex:ar.cabildoabierto.embed.selectionQuote#view',
             ],
           },
           uniqueViewsCount: {
@@ -375,7 +399,83 @@ export const schemaDict = {
             type: 'string',
             maxLength: 3000,
             maxGraphemes: 300,
-            description: 'A plain text summary of the article.',
+            description: 'A summary of the article to be shown in the feed.',
+          },
+          summaryFormat: {
+            type: 'string',
+            maxLength: 50,
+          },
+          record: {
+            type: 'unknown',
+          },
+          uniqueViewsCount: {
+            type: 'integer',
+          },
+          bskyRepostCount: {
+            type: 'integer',
+          },
+          bskyLikeCount: {
+            type: 'integer',
+          },
+          bskyQuoteCount: {
+            type: 'integer',
+          },
+          replyCount: {
+            type: 'integer',
+          },
+          repostCount: {
+            type: 'integer',
+          },
+          likeCount: {
+            type: 'integer',
+          },
+          quoteCount: {
+            type: 'integer',
+          },
+          indexedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          viewer: {
+            type: 'ref',
+            ref: 'lex:app.bsky.feed.defs#viewerState',
+          },
+          labels: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:com.atproto.label.defs#label',
+            },
+          },
+          threadgate: {
+            type: 'ref',
+            ref: 'lex:app.bsky.feed.defs#threadgateView',
+          },
+        },
+      },
+      fullArticleView: {
+        type: 'object',
+        required: ['uri', 'cid', 'author', 'record', 'indexedAt'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
+          },
+          text: {
+            type: 'string',
+            description: 'The full article text',
+          },
+          textFormat: {
+            type: 'string',
+            maxLength: 50,
           },
           record: {
             type: 'unknown',
@@ -516,10 +616,6 @@ export const schemaDict = {
               type: 'string',
               format: 'datetime',
             },
-            $type: {
-              type: 'string',
-              const: 'ar.cabildoabierto.wiki.topicVersion',
-            },
           },
         },
       },
@@ -548,9 +644,632 @@ export const schemaDict = {
               type: 'string',
               description: "Valid values are 'accept' and 'reject'.",
             },
-            $type: {
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminDefs: {
+    lexicon: 1,
+    id: 'com.atproto.admin.defs',
+    defs: {
+      statusAttr: {
+        type: 'object',
+        required: ['applied'],
+        properties: {
+          applied: {
+            type: 'boolean',
+          },
+          ref: {
+            type: 'string',
+          },
+        },
+      },
+      accountView: {
+        type: 'object',
+        required: ['did', 'handle', 'indexedAt'],
+        properties: {
+          did: {
+            type: 'string',
+            format: 'did',
+          },
+          handle: {
+            type: 'string',
+            format: 'handle',
+          },
+          email: {
+            type: 'string',
+          },
+          relatedRecords: {
+            type: 'array',
+            items: {
+              type: 'unknown',
+            },
+          },
+          indexedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          invitedBy: {
+            type: 'ref',
+            ref: 'lex:com.atproto.server.defs#inviteCode',
+          },
+          invites: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:com.atproto.server.defs#inviteCode',
+            },
+          },
+          invitesDisabled: {
+            type: 'boolean',
+          },
+          emailConfirmedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          inviteNote: {
+            type: 'string',
+          },
+          deactivatedAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          threatSignatures: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:com.atproto.admin.defs#threatSignature',
+            },
+          },
+        },
+      },
+      repoRef: {
+        type: 'object',
+        required: ['did'],
+        properties: {
+          did: {
+            type: 'string',
+            format: 'did',
+          },
+        },
+      },
+      repoBlobRef: {
+        type: 'object',
+        required: ['did', 'cid'],
+        properties: {
+          did: {
+            type: 'string',
+            format: 'did',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          recordUri: {
+            type: 'string',
+            format: 'at-uri',
+          },
+        },
+      },
+      threatSignature: {
+        type: 'object',
+        required: ['property', 'value'],
+        properties: {
+          property: {
+            type: 'string',
+          },
+          value: {
+            type: 'string',
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminDeleteAccount: {
+    lexicon: 1,
+    id: 'com.atproto.admin.deleteAccount',
+    defs: {
+      main: {
+        type: 'procedure',
+        description: 'Delete a user account as an administrator.',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['did'],
+            properties: {
+              did: {
+                type: 'string',
+                format: 'did',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminDisableAccountInvites: {
+    lexicon: 1,
+    id: 'com.atproto.admin.disableAccountInvites',
+    defs: {
+      main: {
+        type: 'procedure',
+        description:
+          'Disable an account from receiving new invite codes, but does not invalidate existing codes.',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['account'],
+            properties: {
+              account: {
+                type: 'string',
+                format: 'did',
+              },
+              note: {
+                type: 'string',
+                description: 'Optional reason for disabled invites.',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminDisableInviteCodes: {
+    lexicon: 1,
+    id: 'com.atproto.admin.disableInviteCodes',
+    defs: {
+      main: {
+        type: 'procedure',
+        description:
+          'Disable some set of codes and/or all codes associated with a set of users.',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            properties: {
+              codes: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+              },
+              accounts: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminEnableAccountInvites: {
+    lexicon: 1,
+    id: 'com.atproto.admin.enableAccountInvites',
+    defs: {
+      main: {
+        type: 'procedure',
+        description: "Re-enable an account's ability to receive invite codes.",
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['account'],
+            properties: {
+              account: {
+                type: 'string',
+                format: 'did',
+              },
+              note: {
+                type: 'string',
+                description: 'Optional reason for enabled invites.',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminGetAccountInfo: {
+    lexicon: 1,
+    id: 'com.atproto.admin.getAccountInfo',
+    defs: {
+      main: {
+        type: 'query',
+        description: 'Get details about an account.',
+        parameters: {
+          type: 'params',
+          required: ['did'],
+          properties: {
+            did: {
               type: 'string',
-              const: 'ar.cabildoabierto.wiki.vote',
+              format: 'did',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'ref',
+            ref: 'lex:com.atproto.admin.defs#accountView',
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminGetAccountInfos: {
+    lexicon: 1,
+    id: 'com.atproto.admin.getAccountInfos',
+    defs: {
+      main: {
+        type: 'query',
+        description: 'Get details about some accounts.',
+        parameters: {
+          type: 'params',
+          required: ['dids'],
+          properties: {
+            dids: {
+              type: 'array',
+              items: {
+                type: 'string',
+                format: 'did',
+              },
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['infos'],
+            properties: {
+              infos: {
+                type: 'array',
+                items: {
+                  type: 'ref',
+                  ref: 'lex:com.atproto.admin.defs#accountView',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminGetInviteCodes: {
+    lexicon: 1,
+    id: 'com.atproto.admin.getInviteCodes',
+    defs: {
+      main: {
+        type: 'query',
+        description: 'Get an admin view of invite codes.',
+        parameters: {
+          type: 'params',
+          properties: {
+            sort: {
+              type: 'string',
+              knownValues: ['recent', 'usage'],
+              default: 'recent',
+            },
+            limit: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 500,
+              default: 100,
+            },
+            cursor: {
+              type: 'string',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['codes'],
+            properties: {
+              cursor: {
+                type: 'string',
+              },
+              codes: {
+                type: 'array',
+                items: {
+                  type: 'ref',
+                  ref: 'lex:com.atproto.server.defs#inviteCode',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminGetSubjectStatus: {
+    lexicon: 1,
+    id: 'com.atproto.admin.getSubjectStatus',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'Get the service-specific admin status of a subject (account, record, or blob).',
+        parameters: {
+          type: 'params',
+          properties: {
+            did: {
+              type: 'string',
+              format: 'did',
+            },
+            uri: {
+              type: 'string',
+              format: 'at-uri',
+            },
+            blob: {
+              type: 'string',
+              format: 'cid',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['subject'],
+            properties: {
+              subject: {
+                type: 'union',
+                refs: [
+                  'lex:com.atproto.admin.defs#repoRef',
+                  'lex:com.atproto.repo.strongRef',
+                  'lex:com.atproto.admin.defs#repoBlobRef',
+                ],
+              },
+              takedown: {
+                type: 'ref',
+                ref: 'lex:com.atproto.admin.defs#statusAttr',
+              },
+              deactivated: {
+                type: 'ref',
+                ref: 'lex:com.atproto.admin.defs#statusAttr',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminSearchAccounts: {
+    lexicon: 1,
+    id: 'com.atproto.admin.searchAccounts',
+    defs: {
+      main: {
+        type: 'query',
+        description: 'Get list of accounts that matches your search query.',
+        parameters: {
+          type: 'params',
+          properties: {
+            email: {
+              type: 'string',
+            },
+            cursor: {
+              type: 'string',
+            },
+            limit: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 100,
+              default: 50,
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['accounts'],
+            properties: {
+              cursor: {
+                type: 'string',
+              },
+              accounts: {
+                type: 'array',
+                items: {
+                  type: 'ref',
+                  ref: 'lex:com.atproto.admin.defs#accountView',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminSendEmail: {
+    lexicon: 1,
+    id: 'com.atproto.admin.sendEmail',
+    defs: {
+      main: {
+        type: 'procedure',
+        description: "Send email to a user's account email address.",
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['recipientDid', 'content', 'senderDid'],
+            properties: {
+              recipientDid: {
+                type: 'string',
+                format: 'did',
+              },
+              content: {
+                type: 'string',
+              },
+              subject: {
+                type: 'string',
+              },
+              senderDid: {
+                type: 'string',
+                format: 'did',
+              },
+              comment: {
+                type: 'string',
+                description:
+                  "Additional comment by the sender that won't be used in the email itself but helpful to provide more context for moderators/reviewers",
+              },
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['sent'],
+            properties: {
+              sent: {
+                type: 'boolean',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminUpdateAccountEmail: {
+    lexicon: 1,
+    id: 'com.atproto.admin.updateAccountEmail',
+    defs: {
+      main: {
+        type: 'procedure',
+        description: "Administrative action to update an account's email.",
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['account', 'email'],
+            properties: {
+              account: {
+                type: 'string',
+                format: 'at-identifier',
+                description: 'The handle or DID of the repo.',
+              },
+              email: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminUpdateAccountHandle: {
+    lexicon: 1,
+    id: 'com.atproto.admin.updateAccountHandle',
+    defs: {
+      main: {
+        type: 'procedure',
+        description: "Administrative action to update an account's handle.",
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['did', 'handle'],
+            properties: {
+              did: {
+                type: 'string',
+                format: 'did',
+              },
+              handle: {
+                type: 'string',
+                format: 'handle',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminUpdateAccountPassword: {
+    lexicon: 1,
+    id: 'com.atproto.admin.updateAccountPassword',
+    defs: {
+      main: {
+        type: 'procedure',
+        description:
+          'Update the password for a user account as an administrator.',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['did', 'password'],
+            properties: {
+              did: {
+                type: 'string',
+                format: 'did',
+              },
+              password: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoAdminUpdateSubjectStatus: {
+    lexicon: 1,
+    id: 'com.atproto.admin.updateSubjectStatus',
+    defs: {
+      main: {
+        type: 'procedure',
+        description:
+          'Update the service-specific admin status of a subject (account, record, or blob).',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['subject'],
+            properties: {
+              subject: {
+                type: 'union',
+                refs: [
+                  'lex:com.atproto.admin.defs#repoRef',
+                  'lex:com.atproto.repo.strongRef',
+                  'lex:com.atproto.admin.defs#repoBlobRef',
+                ],
+              },
+              takedown: {
+                type: 'ref',
+                ref: 'lex:com.atproto.admin.defs#statusAttr',
+              },
+              deactivated: {
+                type: 'ref',
+                ref: 'lex:com.atproto.admin.defs#statusAttr',
+              },
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['subject'],
+            properties: {
+              subject: {
+                type: 'union',
+                refs: [
+                  'lex:com.atproto.admin.defs#repoRef',
+                  'lex:com.atproto.repo.strongRef',
+                  'lex:com.atproto.admin.defs#repoBlobRef',
+                ],
+              },
+              takedown: {
+                type: 'ref',
+                ref: 'lex:com.atproto.admin.defs#statusAttr',
+              },
             },
           },
         },
@@ -3233,6 +3952,1048 @@ export const schemaDict = {
       },
     },
   },
+  ComAtprotoLexiconSchema: {
+    lexicon: 1,
+    id: 'com.atproto.lexicon.schema',
+    defs: {
+      main: {
+        type: 'record',
+        description:
+          "Representation of Lexicon schemas themselves, when published as atproto records. Note that the schema language is not defined in Lexicon; this meta schema currently only includes a single version field ('lexicon'). See the atproto specifications for description of the other expected top-level fields ('id', 'defs', etc).",
+        key: 'nsid',
+        record: {
+          type: 'object',
+          required: ['lexicon'],
+          properties: {
+            lexicon: {
+              type: 'integer',
+              description:
+                "Indicates the 'version' of the Lexicon language. Must be '1' for the current atproto/Lexicon schema system.",
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoSyncGetBlob: {
+    lexicon: 1,
+    id: 'com.atproto.sync.getBlob',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'Get a blob associated with a given account. Returns the full blob as originally uploaded. Does not require auth; implemented by PDS.',
+        parameters: {
+          type: 'params',
+          required: ['did', 'cid'],
+          properties: {
+            did: {
+              type: 'string',
+              format: 'did',
+              description: 'The DID of the account.',
+            },
+            cid: {
+              type: 'string',
+              format: 'cid',
+              description: 'The CID of the blob to fetch',
+            },
+          },
+        },
+        output: {
+          encoding: '*/*',
+        },
+        errors: [
+          {
+            name: 'BlobNotFound',
+          },
+          {
+            name: 'RepoNotFound',
+          },
+          {
+            name: 'RepoTakendown',
+          },
+          {
+            name: 'RepoSuspended',
+          },
+          {
+            name: 'RepoDeactivated',
+          },
+        ],
+      },
+    },
+  },
+  ComAtprotoSyncGetBlocks: {
+    lexicon: 1,
+    id: 'com.atproto.sync.getBlocks',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'Get data blocks from a given repo, by CID. For example, intermediate MST nodes, or records. Does not require auth; implemented by PDS.',
+        parameters: {
+          type: 'params',
+          required: ['did', 'cids'],
+          properties: {
+            did: {
+              type: 'string',
+              format: 'did',
+              description: 'The DID of the repo.',
+            },
+            cids: {
+              type: 'array',
+              items: {
+                type: 'string',
+                format: 'cid',
+              },
+            },
+          },
+        },
+        output: {
+          encoding: 'application/vnd.ipld.car',
+        },
+        errors: [
+          {
+            name: 'BlockNotFound',
+          },
+          {
+            name: 'RepoNotFound',
+          },
+          {
+            name: 'RepoTakendown',
+          },
+          {
+            name: 'RepoSuspended',
+          },
+          {
+            name: 'RepoDeactivated',
+          },
+        ],
+      },
+    },
+  },
+  ComAtprotoSyncGetCheckout: {
+    lexicon: 1,
+    id: 'com.atproto.sync.getCheckout',
+    defs: {
+      main: {
+        type: 'query',
+        description: 'DEPRECATED - please use com.atproto.sync.getRepo instead',
+        parameters: {
+          type: 'params',
+          required: ['did'],
+          properties: {
+            did: {
+              type: 'string',
+              format: 'did',
+              description: 'The DID of the repo.',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/vnd.ipld.car',
+        },
+      },
+    },
+  },
+  ComAtprotoSyncGetHead: {
+    lexicon: 1,
+    id: 'com.atproto.sync.getHead',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'DEPRECATED - please use com.atproto.sync.getLatestCommit instead',
+        parameters: {
+          type: 'params',
+          required: ['did'],
+          properties: {
+            did: {
+              type: 'string',
+              format: 'did',
+              description: 'The DID of the repo.',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['root'],
+            properties: {
+              root: {
+                type: 'string',
+                format: 'cid',
+              },
+            },
+          },
+        },
+        errors: [
+          {
+            name: 'HeadNotFound',
+          },
+        ],
+      },
+    },
+  },
+  ComAtprotoSyncGetLatestCommit: {
+    lexicon: 1,
+    id: 'com.atproto.sync.getLatestCommit',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'Get the current commit CID & revision of the specified repo. Does not require auth.',
+        parameters: {
+          type: 'params',
+          required: ['did'],
+          properties: {
+            did: {
+              type: 'string',
+              format: 'did',
+              description: 'The DID of the repo.',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['cid', 'rev'],
+            properties: {
+              cid: {
+                type: 'string',
+                format: 'cid',
+              },
+              rev: {
+                type: 'string',
+                format: 'tid',
+              },
+            },
+          },
+        },
+        errors: [
+          {
+            name: 'RepoNotFound',
+          },
+          {
+            name: 'RepoTakendown',
+          },
+          {
+            name: 'RepoSuspended',
+          },
+          {
+            name: 'RepoDeactivated',
+          },
+        ],
+      },
+    },
+  },
+  ComAtprotoSyncGetRecord: {
+    lexicon: 1,
+    id: 'com.atproto.sync.getRecord',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'Get data blocks needed to prove the existence or non-existence of record in the current version of repo. Does not require auth.',
+        parameters: {
+          type: 'params',
+          required: ['did', 'collection', 'rkey'],
+          properties: {
+            did: {
+              type: 'string',
+              format: 'did',
+              description: 'The DID of the repo.',
+            },
+            collection: {
+              type: 'string',
+              format: 'nsid',
+            },
+            rkey: {
+              type: 'string',
+              description: 'Record Key',
+              format: 'record-key',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/vnd.ipld.car',
+        },
+        errors: [
+          {
+            name: 'RecordNotFound',
+          },
+          {
+            name: 'RepoNotFound',
+          },
+          {
+            name: 'RepoTakendown',
+          },
+          {
+            name: 'RepoSuspended',
+          },
+          {
+            name: 'RepoDeactivated',
+          },
+        ],
+      },
+    },
+  },
+  ComAtprotoSyncGetRepo: {
+    lexicon: 1,
+    id: 'com.atproto.sync.getRepo',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          "Download a repository export as CAR file. Optionally only a 'diff' since a previous revision. Does not require auth; implemented by PDS.",
+        parameters: {
+          type: 'params',
+          required: ['did'],
+          properties: {
+            did: {
+              type: 'string',
+              format: 'did',
+              description: 'The DID of the repo.',
+            },
+            since: {
+              type: 'string',
+              format: 'tid',
+              description:
+                "The revision ('rev') of the repo to create a diff from.",
+            },
+          },
+        },
+        output: {
+          encoding: 'application/vnd.ipld.car',
+        },
+        errors: [
+          {
+            name: 'RepoNotFound',
+          },
+          {
+            name: 'RepoTakendown',
+          },
+          {
+            name: 'RepoSuspended',
+          },
+          {
+            name: 'RepoDeactivated',
+          },
+        ],
+      },
+    },
+  },
+  ComAtprotoSyncGetRepoStatus: {
+    lexicon: 1,
+    id: 'com.atproto.sync.getRepoStatus',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'Get the hosting status for a repository, on this server. Expected to be implemented by PDS and Relay.',
+        parameters: {
+          type: 'params',
+          required: ['did'],
+          properties: {
+            did: {
+              type: 'string',
+              format: 'did',
+              description: 'The DID of the repo.',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['did', 'active'],
+            properties: {
+              did: {
+                type: 'string',
+                format: 'did',
+              },
+              active: {
+                type: 'boolean',
+              },
+              status: {
+                type: 'string',
+                description:
+                  'If active=false, this optional field indicates a possible reason for why the account is not active. If active=false and no status is supplied, then the host makes no claim for why the repository is no longer being hosted.',
+                knownValues: [
+                  'takendown',
+                  'suspended',
+                  'deleted',
+                  'deactivated',
+                  'desynchronized',
+                  'throttled',
+                ],
+              },
+              rev: {
+                type: 'string',
+                format: 'tid',
+                description:
+                  'Optional field, the current rev of the repo, if active=true',
+              },
+            },
+          },
+        },
+        errors: [
+          {
+            name: 'RepoNotFound',
+          },
+        ],
+      },
+    },
+  },
+  ComAtprotoSyncListBlobs: {
+    lexicon: 1,
+    id: 'com.atproto.sync.listBlobs',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'List blob CIDs for an account, since some repo revision. Does not require auth; implemented by PDS.',
+        parameters: {
+          type: 'params',
+          required: ['did'],
+          properties: {
+            did: {
+              type: 'string',
+              format: 'did',
+              description: 'The DID of the repo.',
+            },
+            since: {
+              type: 'string',
+              format: 'tid',
+              description: 'Optional revision of the repo to list blobs since.',
+            },
+            limit: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 1000,
+              default: 500,
+            },
+            cursor: {
+              type: 'string',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['cids'],
+            properties: {
+              cursor: {
+                type: 'string',
+              },
+              cids: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  format: 'cid',
+                },
+              },
+            },
+          },
+        },
+        errors: [
+          {
+            name: 'RepoNotFound',
+          },
+          {
+            name: 'RepoTakendown',
+          },
+          {
+            name: 'RepoSuspended',
+          },
+          {
+            name: 'RepoDeactivated',
+          },
+        ],
+      },
+    },
+  },
+  ComAtprotoSyncListReposByCollection: {
+    lexicon: 1,
+    id: 'com.atproto.sync.listReposByCollection',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'Enumerates all the DIDs which have records with the given collection NSID.',
+        parameters: {
+          type: 'params',
+          required: ['collection'],
+          properties: {
+            collection: {
+              type: 'string',
+              format: 'nsid',
+            },
+            limit: {
+              type: 'integer',
+              description:
+                'Maximum size of response set. Recommend setting a large maximum (1000+) when enumerating large DID lists.',
+              minimum: 1,
+              maximum: 2000,
+              default: 500,
+            },
+            cursor: {
+              type: 'string',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['repos'],
+            properties: {
+              cursor: {
+                type: 'string',
+              },
+              repos: {
+                type: 'array',
+                items: {
+                  type: 'ref',
+                  ref: 'lex:com.atproto.sync.listReposByCollection#repo',
+                },
+              },
+            },
+          },
+        },
+      },
+      repo: {
+        type: 'object',
+        required: ['did'],
+        properties: {
+          did: {
+            type: 'string',
+            format: 'did',
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoSyncListRepos: {
+    lexicon: 1,
+    id: 'com.atproto.sync.listRepos',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'Enumerates all the DID, rev, and commit CID for all repos hosted by this service. Does not require auth; implemented by PDS and Relay.',
+        parameters: {
+          type: 'params',
+          properties: {
+            limit: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 1000,
+              default: 500,
+            },
+            cursor: {
+              type: 'string',
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['repos'],
+            properties: {
+              cursor: {
+                type: 'string',
+              },
+              repos: {
+                type: 'array',
+                items: {
+                  type: 'ref',
+                  ref: 'lex:com.atproto.sync.listRepos#repo',
+                },
+              },
+            },
+          },
+        },
+      },
+      repo: {
+        type: 'object',
+        required: ['did', 'head', 'rev'],
+        properties: {
+          did: {
+            type: 'string',
+            format: 'did',
+          },
+          head: {
+            type: 'string',
+            format: 'cid',
+            description: 'Current repo commit CID',
+          },
+          rev: {
+            type: 'string',
+            format: 'tid',
+          },
+          active: {
+            type: 'boolean',
+          },
+          status: {
+            type: 'string',
+            description:
+              'If active=false, this optional field indicates a possible reason for why the account is not active. If active=false and no status is supplied, then the host makes no claim for why the repository is no longer being hosted.',
+            knownValues: [
+              'takendown',
+              'suspended',
+              'deleted',
+              'deactivated',
+              'desynchronized',
+              'throttled',
+            ],
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoSyncNotifyOfUpdate: {
+    lexicon: 1,
+    id: 'com.atproto.sync.notifyOfUpdate',
+    defs: {
+      main: {
+        type: 'procedure',
+        description:
+          'Notify a crawling service of a recent update, and that crawling should resume. Intended use is after a gap between repo stream events caused the crawling service to disconnect. Does not require auth; implemented by Relay. DEPRECATED: just use com.atproto.sync.requestCrawl',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['hostname'],
+            properties: {
+              hostname: {
+                type: 'string',
+                description:
+                  'Hostname of the current service (usually a PDS) that is notifying of update.',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoSyncRequestCrawl: {
+    lexicon: 1,
+    id: 'com.atproto.sync.requestCrawl',
+    defs: {
+      main: {
+        type: 'procedure',
+        description:
+          'Request a service to persistently crawl hosted repos. Expected use is new PDS instances declaring their existence to Relays. Does not require auth.',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['hostname'],
+            properties: {
+              hostname: {
+                type: 'string',
+                description:
+                  'Hostname of the current service (eg, PDS) that is requesting to be crawled.',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoSyncSubscribeRepos: {
+    lexicon: 1,
+    id: 'com.atproto.sync.subscribeRepos',
+    defs: {
+      main: {
+        type: 'subscription',
+        description:
+          'Repository event stream, aka Firehose endpoint. Outputs repo commits with diff data, and identity update events, for all repositories on the current server. See the atproto specifications for details around stream sequencing, repo versioning, CAR diff format, and more. Public and does not require auth; implemented by PDS and Relay.',
+        parameters: {
+          type: 'params',
+          properties: {
+            cursor: {
+              type: 'integer',
+              description: 'The last known event seq number to backfill from.',
+            },
+          },
+        },
+        message: {
+          schema: {
+            type: 'union',
+            refs: [
+              'lex:com.atproto.sync.subscribeRepos#commit',
+              'lex:com.atproto.sync.subscribeRepos#sync',
+              'lex:com.atproto.sync.subscribeRepos#identity',
+              'lex:com.atproto.sync.subscribeRepos#account',
+              'lex:com.atproto.sync.subscribeRepos#info',
+            ],
+          },
+        },
+        errors: [
+          {
+            name: 'FutureCursor',
+          },
+          {
+            name: 'ConsumerTooSlow',
+            description:
+              'If the consumer of the stream can not keep up with events, and a backlog gets too large, the server will drop the connection.',
+          },
+        ],
+      },
+      commit: {
+        type: 'object',
+        description:
+          'Represents an update of repository state. Note that empty commits are allowed, which include no repo data changes, but an update to rev and signature.',
+        required: [
+          'seq',
+          'rebase',
+          'tooBig',
+          'repo',
+          'commit',
+          'rev',
+          'since',
+          'blocks',
+          'ops',
+          'blobs',
+          'time',
+        ],
+        nullable: ['since'],
+        properties: {
+          seq: {
+            type: 'integer',
+            description: 'The stream sequence number of this message.',
+          },
+          rebase: {
+            type: 'boolean',
+            description: 'DEPRECATED -- unused',
+          },
+          tooBig: {
+            type: 'boolean',
+            description:
+              'DEPRECATED -- replaced by #sync event and data limits. Indicates that this commit contained too many ops, or data size was too large. Consumers will need to make a separate request to get missing data.',
+          },
+          repo: {
+            type: 'string',
+            format: 'did',
+            description:
+              "The repo this event comes from. Note that all other message types name this field 'did'.",
+          },
+          commit: {
+            type: 'cid-link',
+            description: 'Repo commit object CID.',
+          },
+          rev: {
+            type: 'string',
+            format: 'tid',
+            description:
+              'The rev of the emitted commit. Note that this information is also in the commit object included in blocks, unless this is a tooBig event.',
+          },
+          since: {
+            type: 'string',
+            format: 'tid',
+            description:
+              'The rev of the last emitted commit from this repo (if any).',
+          },
+          blocks: {
+            type: 'bytes',
+            description:
+              "CAR file containing relevant blocks, as a diff since the previous repo state. The commit must be included as a block, and the commit block CID must be the first entry in the CAR header 'roots' list.",
+            maxLength: 2000000,
+          },
+          ops: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:com.atproto.sync.subscribeRepos#repoOp',
+              description:
+                'List of repo mutation operations in this commit (eg, records created, updated, or deleted).',
+            },
+            maxLength: 200,
+          },
+          blobs: {
+            type: 'array',
+            items: {
+              type: 'cid-link',
+              description:
+                'DEPRECATED -- will soon always be empty. List of new blobs (by CID) referenced by records in this commit.',
+            },
+          },
+          prevData: {
+            type: 'cid-link',
+            description:
+              "The root CID of the MST tree for the previous commit from this repo (indicated by the 'since' revision field in this message). Corresponds to the 'data' field in the repo commit object. NOTE: this field is effectively required for the 'inductive' version of firehose.",
+          },
+          time: {
+            type: 'string',
+            format: 'datetime',
+            description:
+              'Timestamp of when this message was originally broadcast.',
+          },
+        },
+      },
+      sync: {
+        type: 'object',
+        description:
+          'Updates the repo to a new state, without necessarily including that state on the firehose. Used to recover from broken commit streams, data loss incidents, or in situations where upstream host does not know recent state of the repository.',
+        required: ['seq', 'did', 'blocks', 'rev', 'time'],
+        properties: {
+          seq: {
+            type: 'integer',
+            description: 'The stream sequence number of this message.',
+          },
+          did: {
+            type: 'string',
+            format: 'did',
+            description:
+              'The account this repo event corresponds to. Must match that in the commit object.',
+          },
+          blocks: {
+            type: 'bytes',
+            description:
+              "CAR file containing the commit, as a block. The CAR header must include the commit block CID as the first 'root'.",
+            maxLength: 10000,
+          },
+          rev: {
+            type: 'string',
+            description:
+              'The rev of the commit. This value must match that in the commit object.',
+          },
+          time: {
+            type: 'string',
+            format: 'datetime',
+            description:
+              'Timestamp of when this message was originally broadcast.',
+          },
+        },
+      },
+      identity: {
+        type: 'object',
+        description:
+          "Represents a change to an account's identity. Could be an updated handle, signing key, or pds hosting endpoint. Serves as a prod to all downstream services to refresh their identity cache.",
+        required: ['seq', 'did', 'time'],
+        properties: {
+          seq: {
+            type: 'integer',
+          },
+          did: {
+            type: 'string',
+            format: 'did',
+          },
+          time: {
+            type: 'string',
+            format: 'datetime',
+          },
+          handle: {
+            type: 'string',
+            format: 'handle',
+            description:
+              "The current handle for the account, or 'handle.invalid' if validation fails. This field is optional, might have been validated or passed-through from an upstream source. Semantics and behaviors for PDS vs Relay may evolve in the future; see atproto specs for more details.",
+          },
+        },
+      },
+      account: {
+        type: 'object',
+        description:
+          "Represents a change to an account's status on a host (eg, PDS or Relay). The semantics of this event are that the status is at the host which emitted the event, not necessarily that at the currently active PDS. Eg, a Relay takedown would emit a takedown with active=false, even if the PDS is still active.",
+        required: ['seq', 'did', 'time', 'active'],
+        properties: {
+          seq: {
+            type: 'integer',
+          },
+          did: {
+            type: 'string',
+            format: 'did',
+          },
+          time: {
+            type: 'string',
+            format: 'datetime',
+          },
+          active: {
+            type: 'boolean',
+            description:
+              'Indicates that the account has a repository which can be fetched from the host that emitted this event.',
+          },
+          status: {
+            type: 'string',
+            description:
+              'If active=false, this optional field indicates a reason for why the account is not active.',
+            knownValues: [
+              'takendown',
+              'suspended',
+              'deleted',
+              'deactivated',
+              'desynchronized',
+              'throttled',
+            ],
+          },
+        },
+      },
+      info: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: {
+            type: 'string',
+            knownValues: ['OutdatedCursor'],
+          },
+          message: {
+            type: 'string',
+          },
+        },
+      },
+      repoOp: {
+        type: 'object',
+        description: 'A repo operation, ie a mutation of a single record.',
+        required: ['action', 'path', 'cid'],
+        nullable: ['cid'],
+        properties: {
+          action: {
+            type: 'string',
+            knownValues: ['create', 'update', 'delete'],
+          },
+          path: {
+            type: 'string',
+          },
+          cid: {
+            type: 'cid-link',
+            description:
+              'For creates and updates, the new record CID. For deletions, null.',
+          },
+          prev: {
+            type: 'cid-link',
+            description:
+              'For updates and deletes, the previous record CID (required for inductive firehose). For creations, field should not be defined.',
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoTempAddReservedHandle: {
+    lexicon: 1,
+    id: 'com.atproto.temp.addReservedHandle',
+    defs: {
+      main: {
+        type: 'procedure',
+        description: 'Add a handle to the set of reserved handles.',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['handle'],
+            properties: {
+              handle: {
+                type: 'string',
+              },
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            properties: {},
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoTempCheckSignupQueue: {
+    lexicon: 1,
+    id: 'com.atproto.temp.checkSignupQueue',
+    defs: {
+      main: {
+        type: 'query',
+        description: 'Check accounts location in signup queue.',
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['activated'],
+            properties: {
+              activated: {
+                type: 'boolean',
+              },
+              placeInQueue: {
+                type: 'integer',
+              },
+              estimatedTimeMs: {
+                type: 'integer',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoTempFetchLabels: {
+    lexicon: 1,
+    id: 'com.atproto.temp.fetchLabels',
+    defs: {
+      main: {
+        type: 'query',
+        description:
+          'DEPRECATED: use queryLabels or subscribeLabels instead -- Fetch all labels from a labeler created after a certain date.',
+        parameters: {
+          type: 'params',
+          properties: {
+            since: {
+              type: 'integer',
+            },
+            limit: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 250,
+              default: 50,
+            },
+          },
+        },
+        output: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['labels'],
+            properties: {
+              labels: {
+                type: 'array',
+                items: {
+                  type: 'ref',
+                  ref: 'lex:com.atproto.label.defs#label',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ComAtprotoTempRequestPhoneVerification: {
+    lexicon: 1,
+    id: 'com.atproto.temp.requestPhoneVerification',
+    defs: {
+      main: {
+        type: 'procedure',
+        description:
+          'Request a verification code to be sent to the supplied phone number',
+        input: {
+          encoding: 'application/json',
+          schema: {
+            type: 'object',
+            required: ['phoneNumber'],
+            properties: {
+              phoneNumber: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
   AppBskyFeedDefs: {
     lexicon: 1,
     id: 'app.bsky.feed.defs',
@@ -4806,7 +6567,7 @@ export const schemaDict = {
                 'lex:app.bsky.embed.external',
                 'lex:app.bsky.embed.record',
                 'lex:app.bsky.embed.recordWithMedia',
-                'lex:ar.cabildoabierto.embed.quote',
+                'lex:ar.cabildoabierto.embed.selectionQuote',
               ],
             },
             langs: {
@@ -9250,6 +11011,23 @@ export const ids = {
   ArCabildoabiertoFeedGetFeed: 'ar.cabildoabierto.feed.getFeed',
   ArCabildoabiertoWikiTopicVersion: 'ar.cabildoabierto.wiki.topicVersion',
   ArCabildoabiertoWikiVote: 'ar.cabildoabierto.wiki.vote',
+  ComAtprotoAdminDefs: 'com.atproto.admin.defs',
+  ComAtprotoAdminDeleteAccount: 'com.atproto.admin.deleteAccount',
+  ComAtprotoAdminDisableAccountInvites:
+    'com.atproto.admin.disableAccountInvites',
+  ComAtprotoAdminDisableInviteCodes: 'com.atproto.admin.disableInviteCodes',
+  ComAtprotoAdminEnableAccountInvites: 'com.atproto.admin.enableAccountInvites',
+  ComAtprotoAdminGetAccountInfo: 'com.atproto.admin.getAccountInfo',
+  ComAtprotoAdminGetAccountInfos: 'com.atproto.admin.getAccountInfos',
+  ComAtprotoAdminGetInviteCodes: 'com.atproto.admin.getInviteCodes',
+  ComAtprotoAdminGetSubjectStatus: 'com.atproto.admin.getSubjectStatus',
+  ComAtprotoAdminSearchAccounts: 'com.atproto.admin.searchAccounts',
+  ComAtprotoAdminSendEmail: 'com.atproto.admin.sendEmail',
+  ComAtprotoAdminUpdateAccountEmail: 'com.atproto.admin.updateAccountEmail',
+  ComAtprotoAdminUpdateAccountHandle: 'com.atproto.admin.updateAccountHandle',
+  ComAtprotoAdminUpdateAccountPassword:
+    'com.atproto.admin.updateAccountPassword',
+  ComAtprotoAdminUpdateSubjectStatus: 'com.atproto.admin.updateSubjectStatus',
   ComAtprotoRepoApplyWrites: 'com.atproto.repo.applyWrites',
   ComAtprotoRepoCreateRecord: 'com.atproto.repo.createRecord',
   ComAtprotoRepoDefs: 'com.atproto.repo.defs',
@@ -9310,6 +11088,26 @@ export const ids = {
   ComAtprotoServerUpdateEmail: 'com.atproto.server.updateEmail',
   ComAtprotoModerationCreateReport: 'com.atproto.moderation.createReport',
   ComAtprotoModerationDefs: 'com.atproto.moderation.defs',
+  ComAtprotoLexiconSchema: 'com.atproto.lexicon.schema',
+  ComAtprotoSyncGetBlob: 'com.atproto.sync.getBlob',
+  ComAtprotoSyncGetBlocks: 'com.atproto.sync.getBlocks',
+  ComAtprotoSyncGetCheckout: 'com.atproto.sync.getCheckout',
+  ComAtprotoSyncGetHead: 'com.atproto.sync.getHead',
+  ComAtprotoSyncGetLatestCommit: 'com.atproto.sync.getLatestCommit',
+  ComAtprotoSyncGetRecord: 'com.atproto.sync.getRecord',
+  ComAtprotoSyncGetRepo: 'com.atproto.sync.getRepo',
+  ComAtprotoSyncGetRepoStatus: 'com.atproto.sync.getRepoStatus',
+  ComAtprotoSyncListBlobs: 'com.atproto.sync.listBlobs',
+  ComAtprotoSyncListReposByCollection: 'com.atproto.sync.listReposByCollection',
+  ComAtprotoSyncListRepos: 'com.atproto.sync.listRepos',
+  ComAtprotoSyncNotifyOfUpdate: 'com.atproto.sync.notifyOfUpdate',
+  ComAtprotoSyncRequestCrawl: 'com.atproto.sync.requestCrawl',
+  ComAtprotoSyncSubscribeRepos: 'com.atproto.sync.subscribeRepos',
+  ComAtprotoTempAddReservedHandle: 'com.atproto.temp.addReservedHandle',
+  ComAtprotoTempCheckSignupQueue: 'com.atproto.temp.checkSignupQueue',
+  ComAtprotoTempFetchLabels: 'com.atproto.temp.fetchLabels',
+  ComAtprotoTempRequestPhoneVerification:
+    'com.atproto.temp.requestPhoneVerification',
   AppBskyFeedDefs: 'app.bsky.feed.defs',
   AppBskyFeedDescribeFeedGenerator: 'app.bsky.feed.describeFeedGenerator',
   AppBskyFeedGenerator: 'app.bsky.feed.generator',

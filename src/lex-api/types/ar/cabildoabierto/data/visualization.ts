@@ -19,7 +19,6 @@ export interface Record {
   spec?: string
   /** Client-declared timestamp when this post was originally created. */
   createdAt: string
-  $type?: 'ar.cabildoabierto.data.visualization'
   [k: string]: unknown
 }
 

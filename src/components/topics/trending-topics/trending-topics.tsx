@@ -4,11 +4,11 @@ import {CustomLink as Link} from "../../../../modules/ui-utils/src/custom-link";
 import {TrendingArticlesSlider} from "./trending-topics-slider";
 import {useTrendingTopics} from "@/hooks/swr";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
-export const TrendingTopicsPanel = ({selected}: {selected: string}) => {
-
-    const {topics, isLoading} = useTrendingTopics([], selected)
+export const TrendingTopicsPanel = () => {
+    const {data: topics, isLoading} = useTrendingTopics()
 
     return <div className="space-y-2 border rounded-lg w-[300px]">
         <div className="flex justify-between p-3 items-center w-full">

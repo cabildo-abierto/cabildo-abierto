@@ -2,7 +2,7 @@
 import {RichText} from '@atproto/api'
 import ReadOnlyEditor from '../editor/read-only-editor';
 import {PostView} from "@/lex-api/types/app/bsky/feed/defs";
-import {PostRecord} from "@/lib/definitions";
+import {PostRecord} from "@/lib/types";
 
 
 type BskyRichTextContentProps = {

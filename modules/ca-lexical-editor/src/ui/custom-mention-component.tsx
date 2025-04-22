@@ -1,7 +1,7 @@
 import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, BeautifulMentionsMenuProps } from "lexical-beautiful-mentions";
 import { forwardRef } from "react";
 import Link from "next/link";
-import {SmallUserProps} from "@/lib/definitions";
+import {SmallUserProps} from "@/lib/types";
 import {ProfilePic} from "@/components/feed/profile-pic";
 
 export const EmptyMentionResults = () => (

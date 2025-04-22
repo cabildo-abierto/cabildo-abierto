@@ -1,16 +1,16 @@
-import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/definitions";
-import {TopLevelParameter} from "vega-lite/src/spec/toplevel";
-import {AnyMark} from "vega-lite/src/mark";
-import {FacetedCompositeEncoding} from "vega-lite/src/compositemark";
-import {Sort} from "vega-lite/src/sort";
-import {StringFieldDef, StringFieldDefWithCondition, StringValueDefWithCondition} from "vega-lite/src/channeldef";
-import {VisualizationSpec} from "vega-embed";
+import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/types";
+//import {TopLevelParameter} from "vega-lite/src/spec/toplevel";
+//import {AnyMark} from "vega-lite/src/mark";
+//import {FacetedCompositeEncoding} from "vega-lite/src/compositemark";
+//import {Sort} from "vega-lite/src/sort";
+//import {StringFieldDef, StringFieldDefWithCondition, StringValueDefWithCondition} from "vega-lite/src/channeldef";
+//import {VisualizationSpec} from "vega-embed";
 import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 
 const textColor = "#fbfbfc"
 const primaryColor = "#6ca0e4"
 
-function getMark(config: PlotConfigProps): AnyMark {
+/*function getMark(config: PlotConfigProps): AnyMark {
     if(config.kind == "Gráfico de barras") {
         return {
             type: "bar",
@@ -342,7 +342,14 @@ export function getSpecForConfig(config: PlotConfigProps, dataset: {dataset?: Da
     return spec
 }
 
+ */
+
+
 export function getVisualizationTitle(v: { visualization: { spec: string } }) {
-    const spec = JSON.parse(v.visualization.spec)
-    return spec.title.text
+    try {
+        const spec = JSON.parse(v.visualization.spec)
+        return spec.title.text
+    } catch (err) {
+        return "No se pudo obtener el título"
+    }
 }

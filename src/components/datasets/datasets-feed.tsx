@@ -1,4 +1,4 @@
-import {DatasetProps, EngagementProps} from "@/lib/definitions";
+import {DatasetProps, EngagementProps} from "@/lib/types";
 import {Authorship} from "../feed/content-top-row-author";
 import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
 import {CustomLink} from "../../../modules/ui-utils/src/custom-link";

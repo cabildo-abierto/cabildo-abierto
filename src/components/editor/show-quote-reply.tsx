@@ -1,4 +1,3 @@
-import {FastPostProps} from "@/lib/definitions";
 import {$createRangeSelection, $getRoot, $nodesOfType, LexicalEditor} from "lexical";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button"
@@ -11,45 +10,40 @@ import {
 } from '@lexical/mark';
 import {$createCustomMarkNode, CustomMarkNode} from "../../../modules/ca-lexical-editor/src/nodes/CustomMarkNode";
 import {useSWRConfig} from "swr";
-import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
-import {threadApiUrl} from "@/utils/uri";
+import {getCollectionFromUri, threadApiUrl} from "@/utils/uri";
 import {markdownSelectionToLexicalSelection} from "../../../modules/ca-lexical-editor/src/selection-transforms";
-import {ModalOnClick} from "../../../modules/ui-utils/src/modal-on-click";
+import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
+import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
+import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
+import {ModalOnClickControlled} from "../../../modules/ui-utils/src/modal-on-click-controlled";
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
-
-export type QuoteEdgeProps = {
-    node: number[],
-    offset: number
-}
-
-export type QuoteDirProps = {
-    start: QuoteEdgeProps
-    end: QuoteEdgeProps
-}
 
 export const ShowQuoteReplyButton = ({
      reply, pinnedReplies, setPinned, editor, parentContent}: {
-    reply: FastPostProps
+    reply: PostView
     pinnedReplies: string[]
     setPinned: (v: boolean) => void
     editor: LexicalEditor
     parentContent: ReplyToContent
 }) => {
+    const [hovered, setHovered] = useState(false)
     const [open, setOpen] = useState(false)
-    const containerRef = useRef<HTMLDivElement | null>(null);
-    const {mutate} = useSWRConfig()
-
-    const quote: [number, number] = JSON.parse(reply.content.post.quote)
-
     const pinned = pinnedReplies.includes(reply.cid)
 
-    useEffect(() => {
-        if(pinned && !open) setOpen(true)
-    }, [pinned])
+    console.log(pinned, pinnedReplies)
+
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const {mutate} = useSWRConfig()
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
     useEffect(() => {
         if(open){
+            const embed = reply.embed
+            if(!isSelectionQuoteView(embed)) return
             editor.update(() => {
+                const quote: [number, number] = [embed.start, embed.end]
 
                 const id = "h"+reply.uri
                 const marks = $nodesOfType(CustomMarkNode)
@@ -100,39 +94,44 @@ export const ShowQuoteReplyButton = ({
         }
     }, [open])
 
-    function onClick() {
-        setPinned(!pinned)
-        setOpen(!pinned)
-    }
-
-    const onMouseEnter = useCallback(() => {
-        if (pinnedReplies.length === 0) {
-            setOpen(true);
+    useEffect(() => {
+        const el = document.getElementById("selection:"+reply.cid)
+        if(el){
+            setAnchorEl(el)
         }
-    }, [pinnedReplies]);
-
-    function onMouseLeave() {
-        if(!pinned) setOpen(false)
-    }
+    }, [])
 
     useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                if(open && !pinned){
-                    setOpen(false)
-                }
-            }
+        if(pinned && !open){
+            setOpen(true)
+        } else if(hovered && !open){
+            setOpen(true)
+        } else if(!hovered && !pinned && open){
+            setOpen(false)
         }
+    }, [pinned, hovered, open, reply.cid, setPinned])
 
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [pinnedReplies]);
+    function onClick() {
+        setPinned(!pinned)
+    }
+
+    function handleClickAway() {
+        if(pinned){
+            setPinned(false)
+        }
+    }
+
+    const onMouseEnter = (e) => {
+        if(!hovered) setHovered(true)
+    }
+
+    function onMouseLeave() {
+        if(hovered) setHovered(false)
+    }
 
     const onDelete = async () => {
-        const replyTo = reply.content.post.replyTo
-        const root = reply.content.post.root
+        const replyTo = (reply.record as PostRecord).reply.parent
+        const root = (reply.record as PostRecord).reply.root
         setPinned(false)
         setOpen(false)
         if(replyTo && replyTo.uri){
@@ -141,11 +140,12 @@ export const ShowQuoteReplyButton = ({
         if(root && root.uri){
             mutate(threadApiUrl(root.uri))
         }
-        if(replyTo.collection == "ar.com.cabildoabierto.topic"){
-            const topicId = parentContent.content.topicVersion.topic.id
-            await revalidateTags(["topic:"+encodeURIComponent(topicId)])
-            await mutate("/api/topic/"+encodeURIComponent(topicId))
-            await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
+        if(getCollectionFromUri(replyTo.uri) == "ar.cabildoabierto.wiki.topic"){
+            // TO DO: Caso reply to es topic
+            //const topicId = parentContent.content.topicVersion.topic.id
+            // await revalidateTags(["topic:"+encodeURIComponent(topicId)])
+            //await mutate("/api/topic/"+encodeURIComponent(topicId))
+            //await mutate("/api/topic-feed/"+encodeURIComponent(topicId))
         }
     }
 
@@ -159,23 +159,33 @@ export const ShowQuoteReplyButton = ({
             showingChildren={false}
             onDelete={onDelete}
         >
-            <PostContent post={reply} hideQuote={true}/>
+            <PostContent
+                postView={reply}
+                hideQuote={true}
+            />
         </SidenoteReplyPreviewFrame>
     )
 
-    return <div className={""} ref={containerRef} id={reply.cid}>
-        <ModalOnClick modal={modal}>
+    return <div ref={containerRef} id={"selection:"+reply.cid}>
+        <ModalOnClickControlled
+            modal={modal}
+            open={open}
+            setOpen={setOpen}
+            anchorEl={anchorEl}
+            handleClick={(e) => {setAnchorEl(e.currentTarget)}}
+            handleClickAway={handleClickAway}
+        >
             <div className={"" + (open ? "text-[var(--text-light)]" : "")}>
                 <IconButton
                     color={"inherit"}
                     size={"small"}
-                    onClick={onClick}
                     onMouseLeave={onMouseLeave}
                     onMouseEnter={onMouseEnter}
+                    onClick={onClick}
                 >
                     <ActiveCommentIcon fontSize={"inherit"}/>
                 </IconButton>
             </div>
-        </ModalOnClick>
+        </ModalOnClickControlled>
     </div>
 }

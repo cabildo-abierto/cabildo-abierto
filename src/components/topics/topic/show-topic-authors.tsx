@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic"
-import {TopicProps} from "@/lib/definitions";
+import {TopicProps} from "@/lib/types";
 import {ShowContributors} from "./show-contributors";
 import {useTopicVersionAuthors} from "@/hooks/swr";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";

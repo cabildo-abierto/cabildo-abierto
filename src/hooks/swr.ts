@@ -2,45 +2,79 @@ import useSWR from "swr"
 import {
     DatasetProps,
     EngagementProps,
-    FeedContentProps,
+    FeedContentProps, Profile, Session,
     SmallTopicProps,
     SmallUserProps,
-    ThreadProps,
     TopicHistoryProps,
     TopicProps,
     TopicsGraph,
     TopicVersionAuthorsProps,
     UserProps,
     VisualizationProps
-} from "@/lib/definitions"
+} from "@/lib/types"
 import {fetcher, fetcherWithCredentials} from "./fetcher"
 import {QuotedContent} from "@/components/feed/content-quote";
 import {backendUrl, getDidFromUri, getRkeyFromUri, threadApiUrl} from "@/utils/uri";
 import {SmallTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import {ChatMessage} from "@prisma/client";
-import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {FeedViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {ProfileFeedOption} from "@/components/profile/profile-page";
 
 
-export function useFeed(feed: string): {feed: FeedViewContent[], isLoading: boolean, error: string}{
-    const { data, isLoading } = useSWR(backendUrl + '/feed/'+feed, fetcherWithCredentials,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
+export type SWRConfigProps = {
+    revalidateIfStale?: boolean
+    revalidateOnFocus?: boolean
+    revalidateOnReconnect?: boolean
+}
 
-    if(data && data.error){
-        return {feed: undefined, isLoading: false, error: data.error}
-    }
+
+export function useAPI<T>(route: string, config: SWRConfigProps = {revalidateIfStale: false, revalidateOnFocus: false, revalidateOnReconnect: false}): {data: T, isLoading: boolean, error?: string} {
+    const { data, isLoading } = useSWR(backendUrl + route, fetcherWithCredentials, config)
 
     return {
-        feed: data && data.feed ? data.feed : undefined,
+        data: data && data.data ? data.data : undefined,
         isLoading,
         error: data && data.error ? data.error : undefined
     }
 }
+
+export const useSession = (revalidate: boolean = false) => {
+    const res = useAPI<Session>("/session", {
+        revalidateOnFocus: revalidate,
+        revalidateOnReconnect: revalidate,
+        revalidateIfStale: revalidate
+    })
+    return {...res, user: res.data}
+}
+
+export const useThread = (uri: string) => {
+    return useAPI<ThreadViewContent>(threadApiUrl(uri), {revalidateIfStale: true})
+}
+
+
+export const useTrendingTopics = () => {
+    return useAPI<SmallTopicProps[]>("/trending-topics")
+}
+
+
+export type FeedKind = "discusion" | "siguiendo" | "descubrir"
+
+
+export const useFeed = (feed: FeedKind) => {
+    return useAPI<FeedViewContent[]>("/feed/" + feed)
+}
+
+
+export function useProfile(handleOrDid: string) {
+    return useAPI<Profile>("/profile/" + handleOrDid)
+}
+
+
+export function useProfileFeed(handleOrDid: string, kind: ProfileFeedOption) {
+    return useAPI<FeedViewContent[]>("/profile-feed/" + handleOrDid + "/" + kind)
+}
+
 
 export function useTopics(categories: string[], sortedBy: string): {topics: SmallTopicProps[], isLoading: boolean, isError: boolean}{
     const { data, error, isLoading } = useSWR('/api/topics/alltime/'+sortedBy+"/"+categories.join("/"), fetcher,
@@ -232,21 +266,7 @@ export function useVisualizations(): {visualizations: VisualizationProps[], isLo
 }
 
 
-export function useThread(uri: string): {thread: ThreadProps, isLoading: boolean, error?: string}{
-    const { data, isLoading } = useSWR(threadApiUrl(uri), fetcher,
-        {
-            revalidateIfStale: true,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
 
-    return {
-        thread: data && data.thread ? data.thread : undefined,
-        isLoading,
-        error: data && data.error ? data.error : undefined
-    }
-}
 
 
 export function useDataset(uri: string): {dataset: {dataset: DatasetProps & EngagementProps, data: any[]}, isLoading: boolean, error?: string}{
@@ -281,25 +301,6 @@ export function useVisualization(uri: string): {visualization: VisualizationProp
         visualization: data && data.visualization ? data.visualization : undefined,
         isLoading,
         error: data && data.error ? data.error : undefined
-    }
-}
-
-
-export function useTrendingTopics(route: string[], kind: string): {topics: SmallTopicProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR(
-        '/api/trending-topics/'+route.join("/")+"?since="+kind,
-        fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        topics: data,
-        isLoading,
-        isError: error
     }
 }
 
@@ -360,65 +361,6 @@ export function useCategoryGraph(c: string): {graph: TopicsGraph, isLoading: boo
     }
 }
 
-
-export function useProfileFeed(id: string, kind: string): {feed: FeedContentProps[], isLoading: boolean, error: string}{
-    const { data, isLoading } = useSWR('/api/profile-feed/'+id+"/"+kind, fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    if(data && data.error){
-        return {feed: undefined, isLoading: false, error: data.error}
-    }
-
-    return {
-        feed: data && data.feed ? data.feed : undefined,
-        isLoading,
-        error: data && data.error ? data.error : undefined
-    }
-}
-
-export function useFullProfile(did: string): {
-    user: UserProps,
-    atprotoProfile: ProfileViewDetailed,
-    isLoading?: boolean,
-    error?: string
-} {
-    const {data, error, isLoading} = useSWR('/api/user/' + did, fetcher, {
-        revalidateIfStale: false,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false
-    })
-
-    return {
-        user: data && data.user ? data.user : undefined,
-        atprotoProfile: data && data.atprotoProfile ? data.atprotoProfile : undefined,
-        isLoading,
-        error
-    }
-}
-
-
-export function useUser(revalidate: boolean = false): { user: UserProps, isLoading?: boolean, error?: string } {
-    const {data, isLoading} = useSWR(
-        backendUrl + '/user',
-        fetcherWithCredentials,
-        {
-            revalidateIfStale: revalidate,
-            revalidateOnFocus: revalidate,
-            revalidateOnReconnect: revalidate
-        }
-    )
-
-    return {
-        user: data ? data.user : undefined,
-        isLoading,
-        error: data ? data.error : undefined
-    }
-}
 
 export function useBskyUser(): { bskyUser: ProfileViewDetailed, isLoading?: boolean, error?: string } {
     const {data, error, isLoading} = useSWR('/api/user/bsky', fetcher, {

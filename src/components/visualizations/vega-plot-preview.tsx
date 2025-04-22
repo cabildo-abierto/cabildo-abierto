@@ -1,4 +1,4 @@
-import {VisualizationProps} from "@/lib/definitions";
+import {VisualizationProps} from "@/lib/types";
 import Image from "next/image";
 
 export const VegaPlotPreview = ({visualization, width, height} : {

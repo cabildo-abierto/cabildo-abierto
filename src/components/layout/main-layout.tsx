@@ -1,7 +1,6 @@
 import {ReactNode} from "react";
 import LoadingPage from "../auth/loading-page";
 import {SearchProvider} from "@/components/buscar/search-context";
-import {BetaAccessPage} from "../auth/beta-access-page";
 import {LayoutConfigProps, LayoutConfigProvider} from "./layout-config-context";
 import {PageLeaveProvider} from "../../../modules/ui-utils/src/prevent-leave";
 import {LoadEditor} from "../../../modules/ui-utils/src/load-editor";

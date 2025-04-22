@@ -4,7 +4,7 @@ import { fetcher } from "@/hooks/fetcher"
 import { preload } from "swr"
 import { DateSince } from "../../../../modules/ui-utils/src/date"
 import {getTopicCategories, getTopicTitle} from "./utils";
-import {SmallTopicProps} from "@/lib/definitions";
+import {SmallTopicProps} from "@/lib/types";
 import {TopicCategories} from "./topic-categories";
 import {useRouter} from "next/navigation";
 import {People} from "@mui/icons-material";

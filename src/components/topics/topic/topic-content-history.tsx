@@ -1,5 +1,5 @@
 import {EditHistory} from "./edit-history";
-import {TopicProps} from "@/lib/definitions";
+import {TopicProps} from "@/lib/types";
 
 
 export const TopicContentHistory = ({

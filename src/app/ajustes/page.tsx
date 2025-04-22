@@ -7,12 +7,12 @@ import {CloseSessionButton} from "../../components/auth/close-session-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "@mui/material";
 import { useTheme } from "../../components/theme/theme-context";
-import {useUser} from "../../hooks/swr";
+import {useSession} from "../../hooks/swr";
 
 
 
 const AccountSettings = () => {
-    const {user} = useUser();
+    const {user} = useSession();
 
     return <>
         <div className="mb-4">
@@ -107,7 +107,7 @@ const AppearanceSettings = () => {
 
 
 const Cuenta: React.FC = () => {
-    const {user} = useUser()
+    const {user} = useSession()
     const [selected, setSelected] = useState("Cuenta")
 
     if (!user) {
