@@ -1,7 +1,7 @@
 "use client"
 import LoadingSpinner from '../../../modules/ui-utils/src/loading-spinner';
 import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
-import { UserProps } from '@/lib/definitions';
+import { UserProps } from '@/lib/types';
 import FundingProgress from '@/components/aportar/funding-progress';
 import { Desplegable } from '../../../modules/ui-utils/src/desplegable';
 import { useState } from 'react';
@@ -11,7 +11,7 @@ import { ArrowRightIcon } from '@/components/icons/arrow-right-icon';
 import { DonateIcon } from '@/components/icons/donate-icon';
 import { ExpandLessIcon } from '@/components/icons/expand-less-icon';
 import { ExpandMoreIcon } from '@/components/icons/expand-more-icon';
-import {useDonationsDistribution, useFundingPercentage, useSubscriptionPrice, useUser} from "@/hooks/swr";
+import {useDonationsDistribution, useFundingPercentage, useSubscriptionPrice, useSession} from "@/hooks/swr";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {Button} from "../../../modules/ui-utils/src/button";
 
@@ -52,8 +52,11 @@ const HowUsed = () => {
 }
 
 
-const DonatedSoFar = ({user, donationsDistribution}: {user: UserProps, donationsDistribution: number[]}) => {
+const DonatedSoFar = ({donationsDistribution}: {donationsDistribution: number[]}) => {
+    const {user} = useSession()
     let totalDonations = 0
+    // TO DO
+    /*
     user.subscriptionsBought.forEach(({price}) => {totalDonations += price})
 
     const today = new Date()
@@ -72,6 +75,9 @@ const DonatedSoFar = ({user, donationsDistribution}: {user: UserProps, donations
         <div>Aportaste hasta ahora ${totalDonations} (${meanDonations} por mes).</div>
         <div>Es más que el <span className="text-[var(--primary)]">{p}%</span> de los usuarios. ¡Gracias!</div>
     </div>
+
+     */
+    return null
 }
 
 
@@ -79,7 +85,7 @@ function DonationPage() {
     const [choice, setChoice] = useState("none")
     const [preferenceId, setPreferenceId] = useState<undefined | string>()
     const [amount, setAmount] = useState(500)
-    const {user} = useUser()
+    const {user} = useSession()
     const {price} = useSubscriptionPrice()
     const {fundingPercentage} = useFundingPercentage()
     const {donationsDistribution} = useDonationsDistribution()
@@ -131,7 +137,7 @@ function DonationPage() {
                     <HowUsed/>
                 </div>
 
-                {user && <DonatedSoFar user={user} donationsDistribution={donationsDistribution}/>}
+                {user && <DonatedSoFar donationsDistribution={donationsDistribution}/>}
             </div>
         </div>}
         {choice == "aportar" && <div className="flex justify-center mt-24">

@@ -1,18 +1,7 @@
 "use client"
 import {ArticlePreview} from "./article-preview";
-import {FastPostPreview} from "./fast-post-preview";
-import {
-    ArticleProps,
-    DatasetProps,
-    FastPostProps,
-    TopicVersionOnFeedProps,
-    VisualizationProps
-} from "@/lib/definitions";
-import {DatasetPreview} from "../datasets/dataset-preview";
-import {VisualizationOnFeed} from "./visualization-on-feed";
-import {TopicVersionOnFeed} from "@/components/topics/topic/topic-version-on-feed";
-import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {isArticleView, isPostView} from "@/utils/type-utils";
+import {PostPreview} from "./post-preview";
+import {FeedViewContent, isArticleView, isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 
 export const FeedElement = ({
@@ -38,7 +27,7 @@ export const FeedElement = ({
             showingChildren={showingChildren}
         />
     } else if (isPostView(elem.content)) {
-        return <FastPostPreview
+        return <PostPreview
             postView={elem.content}
             feedViewContent={elem}
             onClickQuote={onClickQuote}

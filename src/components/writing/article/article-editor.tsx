@@ -12,7 +12,7 @@ import {Authorship} from "@/components/feed/content-top-row-author";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
-import {useUser} from "@/hooks/swr";
+import {useSession} from "@/hooks/swr";
 import {FooterHorizontalRule} from "../../../../modules/ui-utils/src/footer";
 import { queryMentions } from "@/components/editor/query-mentions"
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
@@ -61,7 +61,7 @@ const ArticleEditor = () => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
     const [title, setTitle] = useState("")
-    const {user} = useUser()
+    const {user} = useSession()
 
     const settings = articleEditorSettings()
     settings.editorClassName += " px-2 pt-4"

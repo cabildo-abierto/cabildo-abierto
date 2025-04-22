@@ -1,5 +1,4 @@
 "use client"
-import {ArticleProps, FastPostProps} from '@/lib/definitions'
 import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
 import {useEffect, useState} from "react";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
@@ -8,11 +7,13 @@ import {threadApiUrl} from "@/utils/uri";
 import {ArticleHeader} from "@/components/article/article-header";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import {getEditorSettings} from "@/components/editor/settings";
-import {EditorState, LexicalEditor} from "lexical";
+import {LexicalEditor} from "lexical";
+import {FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {$Typed} from "@atproto/api";
 
 type ArticleCompProps = {
-    article: ArticleProps,
-    quoteReplies: FastPostProps[]
+    article: $Typed<FullArticleView>,
+    quoteReplies: PostView[]
     pinnedReplies: string[]
     setPinnedReplies: (v: string[]) => void
 }
@@ -20,19 +21,18 @@ type ArticleCompProps = {
 export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}: ArticleCompProps) => {
     const {mutate} = useSWRConfig()
     const [editor, setEditor] = useState<LexicalEditor>(null)
-    const [editorState, setEditorState] = useState<EditorState>(null)
 
     const enDiscusion = false // TO DO
 
     useEffect(() => {
         const hash = window.location.hash
         if (hash) {
-            const id = hash.split("#")[1]
+            const cid = hash.split("#")[1]
             const scrollToElement = () => {
-                const element = document.getElementById(id);
+                const element = document.getElementById(cid);
                 if (element) {
                     smoothScrollTo(element)
-                    setPinnedReplies([...pinnedReplies, id])
+                    setPinnedReplies([...pinnedReplies, cid])
                 } else {
                     setTimeout(scrollToElement, 100)
                 }
@@ -47,6 +47,9 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
 
     }
 
+    const text = article.text
+    const format = article.textFormat
+
     return <div className="w-full">
         <div className={"p-3 border-b"}>
             <ArticleHeader article={article}/>
@@ -54,8 +57,8 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                 <EditorWithQuoteComments
                     settings={getEditorSettings({
                         isReadOnly: true,
-                        initialText: article.content.text,
-                        initialTextFormat: article.content.format,
+                        initialText: text,
+                        initialTextFormat: format,
                         allowComments: true,
                         tableOfContents: true,
                         editorClassName: "article-content"
@@ -67,7 +70,7 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
                     onSubmitReply={onSubmitReply}
                     editor={editor}
                     setEditor={setEditor}
-                    setEditorState={setEditorState}
+                    setEditorState={() => {}}
                 />
             </div>
         </div>

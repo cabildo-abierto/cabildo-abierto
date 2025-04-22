@@ -6,32 +6,22 @@ import Image from 'next/image'
 import {ArticleIcon} from "../icons/article-icon"
 import {emptyChar, getUsername} from "@/utils/utils";
 import ReadOnlyEditor from "../editor/read-only-editor";
-import {UserProps} from "@/lib/definitions";
+import {Profile} from "@/lib/types";
 import {useState} from "react";
-import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import CheckIcon from "@mui/icons-material/Check";
 import AddIcon from "@mui/icons-material/Add";
 import {BlueskyLogo} from "../icons/bluesky-logo";
 import Link from "next/link";
-import {useUser} from "../../hooks/swr";
+import {useSession} from "@/hooks/swr";
 import {FullscreenImageViewer} from "@/components/images/fullscreen-image-viewer";
 
 
-type ProfileHeaderProps = {
-    profileUser?: UserProps,
-    atprotoProfile: ProfileViewDetailed,
-    user?: { id: string, following: { id: string }[] }
-    selected: string
-    setSelected: any
-}
-
-
-const FollowCounters = ({user, atprotoProfile}: { user?: UserProps, atprotoProfile: ProfileViewDetailed }) => {
-    const followersCountCA = user ? user.followersCount : undefined
-    const followersCountAT = atprotoProfile.followersCount
-    const followingCountCA = user ? user.followsCount : undefined
-    const followingCountAT = atprotoProfile.followsCount
-    const [hovered, setHovered] = useState(user == undefined)
+const FollowCounters = ({profile}: { profile: Profile }) => {
+    const followersCountCA = profile.ca ? profile.ca.followersCount : undefined
+    const followersCountAT = profile.bsky.followersCount
+    const followingCountCA = profile.ca ? profile.ca.followsCount : undefined
+    const followingCountAT = profile.bsky.followsCount
+    const [hovered, setHovered] = useState(profile.ca == undefined)
 
     let content
 
@@ -67,7 +57,7 @@ const FollowCounters = ({user, atprotoProfile}: { user?: UserProps, atprotoProfi
                     setHovered(true)
                 }}
                 onMouseLeave={() => {
-                    setHovered(user == undefined)
+                    setHovered(profile.ca == undefined)
                 }}
     >
         {content}
@@ -85,23 +75,32 @@ const unfollow = async (uri: string) => {
 }
 
 
+type ProfileHeaderProps = {
+    profile: Profile
+    user?: { id: string, following: { id: string }[] }
+    selected: string
+    setSelected: any
+}
+
+
 export function ProfileHeader({
-                                  profileUser,
-                                  atprotoProfile,
+                                  profile,
                                   selected,
                                   setSelected
                               }: ProfileHeaderProps) {
-    const {user} = useUser()
-    const [following, setFollowing] = useState(atprotoProfile.viewer && atprotoProfile.viewer.following != undefined)
+    const {user} = useSession()
+    const viewer = profile.bsky.viewer
+    const profileDid = profile.bsky.did
+    const [following, setFollowing] = useState(viewer && viewer.following != undefined)
     const [viewingProfilePic, setViewingProfilePic] = useState(null)
     const [viewingBanner, setViewingBanner] = useState(null)
 
-    const inCA = profileUser && profileUser.inCA
-    const isLoggedInUser = user && user.did == atprotoProfile.did
+    const inCA = profile && profile.ca.inCA
+    const isLoggedInUser = user && user.did == profileDid
 
     const onUnfollow = async () => {
         if (!user) return;
-        const {error} = await unfollow(atprotoProfile.viewer.following)
+        const {error} = await unfollow(viewer.following)
         if (error) return {error}
         setFollowing(false)
         return {}
@@ -109,7 +108,7 @@ export function ProfileHeader({
 
     const onFollow = async () => {
         if (!user) return
-        const {error} = await follow(atprotoProfile.did)
+        const {error} = await follow(profileDid)
         if (error) return {error}
         setFollowing(true)
         return {}
@@ -140,19 +139,19 @@ export function ProfileHeader({
 
     return <div className="flex flex-col border-b">
         <div className={"flex flex-col"}>
-            {atprotoProfile.banner ? <div>
+            {profile.bsky.banner ? <div>
                     <FullscreenImageViewer
-                        images={[atprotoProfile.banner]}
+                        images={[profile.bsky.banner]}
                         viewing={viewingBanner}
                         setViewing={setViewingBanner}
                         className={"min-w-[700px]"}
                     />
                     <Image
-                        src={atprotoProfile.banner}
+                        src={profile.bsky.banner}
                         width={800}
                         height={300}
-                        alt={atprotoProfile.handle + " banner"}
-                        className="max-[500px]:w-screen max-[680px]:w-[100vw-80px] max-[680px]:h-auto w-full h-[150px] cursor-pointer"
+                        alt={profile.bsky.handle + " banner"}
+                        className="max-[500px]:w-screen object-cover max-[680px]:w-[100vw-80px] max-[680px]:h-auto w-full h-[150px] cursor-pointer"
                         onClick={() => {
                             setViewingBanner(0)
                         }}
@@ -162,18 +161,18 @@ export function ProfileHeader({
                     {emptyChar}
                 </div>
             }
-            {atprotoProfile.avatar ? <div>
+            {profile.bsky.avatar ? <div>
                 <FullscreenImageViewer
-                    images={[atprotoProfile.avatar]}
+                    images={[profile.bsky.avatar]}
                     viewing={viewingProfilePic}
                     setViewing={setViewingProfilePic}
                     className={"rounded-full border max-w-[400px] max-h-[400px] object-contain"}
                 />
                 <Image
-                    src={atprotoProfile.avatar}
+                    src={profile.bsky.avatar}
                     width={400}
                     height={400}
-                    alt={atprotoProfile.handle + " avatar"}
+                    alt={profile.bsky.handle + " avatar"}
                     className="w-[88px] h-[88px] rounded-full ml-6 mt-[-44px] border cursor-pointer"
                     onClick={() => {
                         setViewingProfilePic(0)
@@ -186,10 +185,10 @@ export function ProfileHeader({
         <div className="flex justify-between">
             <div className="ml-2 py-2">
                 <span className={"min-[500px]:text-2xl text-lg font-bold"}>
-                    {getUsername(atprotoProfile)}
+                    {getUsername(profile.bsky)}
                 </span>
-                {atprotoProfile.displayName && <div className="text-[var(--text-light)]">
-                    @{atprotoProfile.handle}
+                {profile.bsky.displayName && <div className="text-[var(--text-light)]">
+                    @{profile.bsky.handle}
                 </div>}
             </div>
             {user && <div className="flex items-center mr-2">
@@ -218,12 +217,12 @@ export function ProfileHeader({
         </div>
 
         <div className="ml-2 mb-2">
-            <ReadOnlyEditor text={atprotoProfile.description} format={"plain-text"}/>
+            <ReadOnlyEditor text={profile.bsky.description} format={"plain-text"}/>
         </div>
 
         <div className="flex flex-col items-start px-2 space-y-2 mb-1">
 
-            <FollowCounters user={profileUser} atprotoProfile={atprotoProfile}/>
+            <FollowCounters profile={profile}/>
 
             <div className="flex text-sm sm:text-base">
                 {inCA ? <div
@@ -233,11 +232,11 @@ export function ProfileHeader({
                         <ArticleIcon color={"inherit"}/>
                     </span>
                         <PermissionLevel
-                            level={profileUser.editorStatus}
+                            level={profile.ca.editorStatus}
                             className="text-[var(--text-light)] text-xs"
                         />
                     </div> :
-                    <Link target={"_blank"} href={"https://bsky.app/profile/" + atprotoProfile.handle}
+                    <Link target={"_blank"} href={"https://bsky.app/profile/" + profile.bsky.handle}
                           className="text-[var(--text-light)] py-1 rounded-lg bg-[var(--background-dark)] space-x-2 px-2 flex items-center justify-center">
                         <span>
                             Usuario de Bluesky

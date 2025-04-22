@@ -9,6 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
+import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -28,4 +29,25 @@ export function isMain<V>(v: V) {
 
 export function validateMain<V>(v: V) {
   return validate<Main & V>(v, id, hashMain)
+}
+
+export interface View {
+  $type?: 'ar.cabildoabierto.embed.selectionQuote#view'
+  start: number
+  end: number
+  quotedText: string
+  quotedTextFormat?: string
+  quotedContent: string
+  quotedContentAuthor: AppBskyActorDefs.ProfileViewBasic
+  quotedContentTitle?: string
+}
+
+const hashView = 'view'
+
+export function isView<V>(v: V) {
+  return is$typed(v, id, hashView)
+}
+
+export function validateView<V>(v: V) {
+  return validate<View & V>(v, id, hashView)
 }

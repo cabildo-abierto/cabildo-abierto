@@ -1,4 +1,4 @@
-import {TopicProps} from "@/lib/definitions";
+import {TopicProps} from "@/lib/types";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import dynamic from "next/dynamic";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"

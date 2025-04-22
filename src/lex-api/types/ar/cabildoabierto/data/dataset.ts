@@ -9,7 +9,6 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as ArCabildoabiertoDataset from '../dataset.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -17,11 +16,10 @@ const id = 'ar.cabildoabierto.data.dataset'
 
 export interface Record {
   $type: 'ar.cabildoabierto.data.dataset'
-  id: string
+  name: string
   /** Client-declared timestamp when this post was originally created. */
   createdAt: string
-  columns: ArCabildoabiertoDataset.Column[]
-  $type?: 'ar.cabildoabierto.data.dataset'
+  columns: Column[]
   [k: string]: unknown
 }
 

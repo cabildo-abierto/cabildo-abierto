@@ -1,6 +1,6 @@
 "use client"
 import {useSearch} from "./search-context"
-import {SmallUserProps} from "@/lib/definitions"
+import {SmallUserProps} from "@/lib/types"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import React, {useEffect, useState} from "react"
 import {cleanText} from "@/utils/strings";

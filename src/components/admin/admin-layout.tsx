@@ -6,12 +6,12 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "@mui/material";
 import {useRouter, useSearchParams} from "next/navigation";
 import {NotFoundPage} from "../../../modules/ui-utils/src/not-found-page";
-import {useUser} from "../../hooks/swr";
+import {useSession} from "@/hooks/swr";
 
 export const AdminLayout = ({children}: {children: ReactNode}) => {
     const router = useRouter()
     const params = useSearchParams()
-    const {user} = useUser()
+    const {user} = useSession()
 
     function optionsNodes(o: string, isSelected: boolean){
         return <div className="text-[var(--text)] w-32 h-10">

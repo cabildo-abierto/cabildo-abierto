@@ -1,7 +1,7 @@
 import MainLayout from "../../../../../components/layout/main-layout";
 import AccountChecker from "../../../../../components/auth/account-checker";
 
-import {shortCollectionToCollection} from "../../../../../utils/uri";
+import {isArticle, isDataset, shortCollectionToCollection} from "@/utils/uri";
 
 
 
@@ -9,22 +9,22 @@ export default async function RootLayout({children, params}: Readonly<{
     children: React.ReactNode; params: Promise<{did: string, collection: string, rkey: string}> }>) {
     const {collection} = await params
     const c = shortCollectionToCollection(collection)
-    const isArticle = c == "ar.com.cabildoabierto.article"
-    const isDataset = c == "ar.com.cabildoabierto.dataset"
-    const isDistractionFree = isArticle || isDataset
+    const article = isArticle(c)
+    const dataset = isDataset(c)
+    const isDistractionFree = article || dataset
 
     let maxWidthCenter = "600px"
 
-    if(isArticle){
+    if(article){
         maxWidthCenter = "682px"
-    } else if(isDataset){
+    } else if(dataset){
         maxWidthCenter = "800px"
     }
 
     return <MainLayout
         maxWidthCenter={maxWidthCenter}
         openRightPanel={!isDistractionFree}
-        defaultSidebarState={!isArticle}
+        defaultSidebarState={!article}
         rightMinWidth={isDistractionFree ? "300px" : undefined}
     >
         <AccountChecker requireAccount={true}>

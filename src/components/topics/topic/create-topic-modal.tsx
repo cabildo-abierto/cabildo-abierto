@@ -1,5 +1,5 @@
 import { BaseFullscreenPopup } from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import {CreateTopic} from "../../writing/create-topic";
+import {CreateTopic} from "../../writing/write-panel/create-topic";
 
 
 

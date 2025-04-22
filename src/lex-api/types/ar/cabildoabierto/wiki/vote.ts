@@ -21,7 +21,6 @@ export interface Record {
   createdAt: string
   /** Valid values are 'accept' and 'reject'. */
   value?: string
-  $type?: 'ar.cabildoabierto.wiki.vote'
   [k: string]: unknown
 }
 

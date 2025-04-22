@@ -3,6 +3,7 @@
 import React, {ReactNode, useState} from 'react';
 import {Popper, Fade} from '@mui/material';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
+import {ModalOnClickControlled} from "./modal-on-click-controlled";
 
 type ModalOnClickProps = {
     children: ReactNode
@@ -23,23 +24,15 @@ export const ModalOnClick = ({children, modal}: ModalOnClickProps) => {
         setOpen(false);
     };
 
-    return (
-        <>
-            <div onClick={handleClick}>
-                {children}
-            </div>
-            <Popper open={open} anchorEl={anchorEl} placement="bottom-start" transition>
-                {({TransitionProps}) => (
-                    <ClickAwayListener onClickAway={handleClickAway}>
-                        <Fade {...TransitionProps} timeout={350}>
-                            <div className="mt-2 bg-[var(--background-dark)]">
-                                {modal(() => {setOpen(false)})}
-                            </div>
-                        </Fade>
-                    </ClickAwayListener>
-                )}
-            </Popper>
-        </>
-    );
+    return <ModalOnClickControlled
+        open={open}
+        setOpen={setOpen}
+        modal={modal}
+        anchorEl={anchorEl}
+        handleClick={handleClick}
+        handleClickAway={handleClickAway}
+    >
+        {children}
+    </ModalOnClickControlled>
 };
 

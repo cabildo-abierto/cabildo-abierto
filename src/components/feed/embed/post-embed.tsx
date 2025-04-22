@@ -10,9 +10,21 @@ import {PostRecordEmbed} from "@/components/feed/embed/post-record-embed";
 import {isView as isExternalEmbedView} from "@/lex-api/types/app/bsky/embed/external";
 import {PostExternalEmbed} from "@/components/feed/embed/post-external-embed";
 import {PostView} from "@/lex-api/types/app/bsky/feed/defs";
+import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
+import {SelectionQuoteEmbed} from "@/components/feed/embed/selection-quote/selection-quote-embed";
+import {ATProtoStrongRef} from "@/lib/types";
+import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
+
+type PostEmbedProps = {
+    embed: PostView["embed"]
+    mainPostRef: ATProtoStrongRef
+    hideSelectionQuote?: boolean
+    onClickSelectionQuote?: (cid: string) => void
+    showContext?: boolean
+}
 
 
-export const PostEmbed = ({embed}: {embed: PostView["embed"]}) => {
+export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClickSelectionQuote, showContext=true}: PostEmbedProps) => {
     return <>
         {isEmbedImagesView(embed) && <PostImagesEmbed
             embed={embed}
@@ -25,9 +37,16 @@ export const PostEmbed = ({embed}: {embed: PostView["embed"]}) => {
         />}
         {isRecordEmbedView(embed) && <PostRecordEmbed
             embed={embed}
+            mainPostUri={mainPostRef.uri}
         />}
         {isExternalEmbedView(embed) && <PostExternalEmbed
             embed={embed}
+        />}
+        {!hideSelectionQuote && isSelectionQuoteView(embed) && <SelectionQuoteEmbed
+            embed={embed}
+            mainPostRef={mainPostRef}
+            onClick={onClickSelectionQuote}
+            showContext={showContext}
         />}
         {/* TO DO: <PlotInPost
             post={post}

@@ -1,6 +1,6 @@
 import { DateSince } from "../../../../modules/ui-utils/src/date"
 import { CustomLink as Link } from '../../../../modules/ui-utils/src/custom-link';
-import {ATProtoStrongRef, TopicHistoryProps, TopicProps} from "@/lib/definitions"
+import {ATProtoStrongRef, TopicHistoryProps, TopicProps} from "@/lib/types"
 import {useRouter, useSearchParams} from "next/navigation"
 import React, {ReactNode, useState} from "react"
 import StateButton from "../../../../modules/ui-utils/src/state-button"
@@ -28,7 +28,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
 import {ReactionButton} from "@/components/feed/reactions/reaction-button";
-import {useUser} from "@/hooks/swr";
+import {useSession} from "@/hooks/swr";
 
 
 const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistoryProps, index: number}) => {
@@ -294,7 +294,7 @@ export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}
     version: number,
     onRemove: () => Promise<{ error?: string }>
 }) => {
-    const {user} = useUser()
+    const {user} = useSession()
 
     if (!user) {
         return <NeedAccountPopup open={true} onClose={onClose}

@@ -61,7 +61,7 @@ import {
   InsertLink,
   TableChartOutlined
 } from "@mui/icons-material";
-import {InsertImageModal} from "@/components/writing/insert-image-modal";
+import {InsertImageModal} from "@/components/writing/write-panel/insert-image-modal";
 import {INSERT_IMAGE_COMMAND, InsertImagePayload} from "../ImagesPlugin";
 import {ToolbarButton} from "./toolbar-button";
 

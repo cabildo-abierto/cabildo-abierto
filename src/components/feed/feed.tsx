@@ -1,6 +1,6 @@
 "use client"
 import React, { ReactNode } from "react"
-import { FeedContentProps } from "@/lib/definitions";
+import { FeedContentProps } from "@/lib/types";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import { LazyLoadFeed } from "./lazy-load-feed";
 import {FeedElement} from "./feed-element";
@@ -11,11 +11,8 @@ import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isKnownContent} from "@/utils/type-utils";
 
 
-export type LoadingFeed = {feed: FeedViewContent[], isLoading: boolean, error: string}
-
-
 export type FeedProps = {
-    feed: LoadingFeed,
+    feed: FeedViewContent[],
     noResultsText?: ReactNode
     onClickQuote?: (cid: string) => void
     onDeleteFeedElem?: () => Promise<void>
@@ -30,23 +27,17 @@ const Feed = ({
     onClickQuote,
     onDeleteFeedElem=async () => {},
 }: FeedProps) => {
-    if(feed.isLoading){
-        return <div className={"pt-8"}><LoadingSpinner/></div>
-    }
-    if(!feed.feed){
-        return <ErrorPage>{feed.error}</ErrorPage>
-    }
 
     function generator(index: number): {c: ReactNode, key: string} | null {
-        if(!isKnownContent(feed.feed[index].content)){
-            console.log("Returning null for", feed.feed[index].content)
+        if(!isKnownContent(feed[index].content)){
+            console.log("Returning null for", feed[index].content)
             return null
         }
 
         const node = (
-            <ViewMonitor uri={feed.feed[index].content.uri}>
+            <ViewMonitor uri={feed[index].content.uri}>
                 <FeedElement
-                    elem={feed.feed[index]}
+                    elem={feed[index]}
                     onClickQuote={onClickQuote}
                     onDeleteFeedElem={onDeleteFeedElem}
                 />
@@ -54,17 +45,17 @@ const Feed = ({
         )
         return {
             c: node,
-            key: (feed.feed[index].content.uri + " " + index.toString())
+            key: (feed[index].content.uri + " " + index.toString())
         }
     }
     
     let content
-    if(feed.feed.length == 0){
+    if(feed.length == 0){
         content = <NoResults text={noResultsText}/>
     } else {
         content = <div className="flex flex-col w-full border-inherit">
             <LazyLoadFeed
-                maxSize={feed.feed.length}
+                maxSize={feed.length}
                 generator={generator}
             />
             <div className="text-center w-full text-[var(--text-light)] pb-64 pt-6">

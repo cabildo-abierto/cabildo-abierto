@@ -2,18 +2,18 @@
 
 import dynamic from "next/dynamic";
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
-import {WritePanel} from "@/components/writing/write-panel";
+import {ReplyToContent, WritePanel} from "@/components/writing/write-panel/write-panel";
 import {useEffect, useRef, useState} from "react";
 import {$getRoot, $nodesOfType, EditorState, LexicalEditor} from "lexical";
-import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
-import {FastPostProps} from "@/lib/definitions";
 import {markdownSelectionToLexicalSelection} from "../../../modules/ca-lexical-editor/src/selection-transforms";
 import {$createSidenoteNode, SidenoteNode} from "../../../modules/ca-lexical-editor/src/nodes/SidenoteNode";
 import {$wrapNodeInElement} from "@lexical/utils";
 import {createPortal} from "react-dom";
 import {NodeQuoteReplies} from "./node-quote-replies";
 import {useLayoutConfig} from "@/components/layout/layout-config-context";
+import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 const MyLexicalEditor = dynamic( () => import( '../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -26,7 +26,7 @@ type EditorWithQuoteCommentsProps = {
     setEditorState: (state: EditorState) => void
     pinnedReplies: string[]
     setPinnedReplies: (v: string[]) => void
-    quoteReplies: FastPostProps[]
+    quoteReplies: PostView[]
 }
 
 
@@ -60,18 +60,19 @@ export const EditorWithQuoteComments = ({
         const m = new Map<number, string[]>()
         for (let i = 0; i < quoteReplies.length; i++) {
             const s = JSON.stringify(editor.getEditorState().toJSON())
-            const selection = JSON.parse(quoteReplies[i].content.post.quote)
-            if(!("length" in selection) || selection.length != 2) continue
-            const lexicalSelection = markdownSelectionToLexicalSelection(
-                s,
-                selection
-            )
-            const key = lexicalSelection.start.node[0]
-            const value = quoteReplies[i].uri
-            if(m.has(key)){
-                m.set(key, [...m.get(key), value])
-            } else {
-                m.set(key, [value])
+            const selection = quoteReplies[i].embed
+            if(isSelectionQuoteView(selection)){
+                const lexicalSelection = markdownSelectionToLexicalSelection(
+                    s,
+                    [selection.start, selection.end]
+                )
+                const key = lexicalSelection.start.node[0]
+                const value = quoteReplies[i].uri
+                if(m.has(key)){
+                    m.set(key, [...m.get(key), value])
+                } else {
+                    m.set(key, [value])
+                }
             }
         }
 
@@ -110,12 +111,12 @@ export const EditorWithQuoteComments = ({
         <WritePanel
             open={commentingQuote != null}
             onClose={() => {setCommentingQuote(null)}}
-            quote={commentingQuote}
+            selection={commentingQuote}
             onSubmit={onSubmitReply}
             replyTo={replyTo}
         />
 
-        {blockToUri && Array.from(blockToUri).map(([nodeIndex, repliesURIs], index) => {
+        {blockToUri && Array.from(blockToUri).map(([_, repliesURIs], index) => {
             return <div key={index}>
                 {createPortal(<NodeQuoteReplies
                     replies={quoteReplies.filter((q) => (repliesURIs.includes(q.uri)))}

@@ -1,7 +1,7 @@
 import {useDatasets, useVisualizations} from "../../hooks/swr";
 import {useSearch} from "./search-context";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-import {DatasetProps, VisualizationProps} from "@/lib/definitions";
+import {DatasetProps, VisualizationProps} from "@/lib/types";
 import Feed from "../feed/feed";
 import React from "react";
 import {cleanText} from "@/utils/strings";

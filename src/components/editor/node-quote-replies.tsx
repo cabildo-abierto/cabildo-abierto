@@ -1,15 +1,16 @@
 import {ShowQuoteReplyButton} from "./show-quote-reply";
-import {FastPostProps} from "@/lib/definitions";
 import {useEffect, useState} from "react";
 import {LexicalEditor} from "lexical";
-import {ReplyToContent} from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
+
+import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
+import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 
 
 export const NodeQuoteReplies = ({
      editor, replies, pinnedReplies, setPinnedReplies, leftCoordinates, parentContent
 }: {
-    replies: FastPostProps[]
+    replies: PostView[]
     pinnedReplies: string[]
     setPinnedReplies: (v: string[]) => void
     editor: LexicalEditor
@@ -21,7 +22,7 @@ export const NodeQuoteReplies = ({
 
     useEffect(() => {
         const updatePosition = () => {
-            if (replies.length === 0) return;
+            if (!replies || replies.length == 0) return;
             const element = document.getElementById(replies[0].uri);
             if (element) {
                 const rect = element.getBoundingClientRect();

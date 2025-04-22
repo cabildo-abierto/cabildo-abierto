@@ -1,7 +1,7 @@
 import React, {ReactNode, useState} from "react";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import {useSearchParams} from "next/navigation";
-import {TopicProps} from "@/lib/definitions";
+import {TopicProps} from "@/lib/types";
 import Link from "next/link";
 import { DateSince } from "../../../../modules/ui-utils/src/date";
 import SelectionComponent from "@/components/buscar/search-selection-component";

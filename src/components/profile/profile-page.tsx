@@ -1,14 +1,14 @@
 "use client"
 import {ProfileHeader} from "./profile-header";
-import {ProfileFeed} from "./profile-feed";
-import {RepliesFeed} from "./replies-feed";
-import {WikiFeed} from "./wiki-feed";
-
-import {useFullProfile} from "@/hooks/swr";
+import {SelectedFeed} from "./selected-feed";
+import {useProfile} from "@/hooks/swr";
 import {useRouter, useSearchParams} from "next/navigation";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {LoadingProfile} from "@/components/profile/loading-profile";
 
+export type ProfileFeedOption = "publicaciones" | "respuestas" | "ediciones"
 
-export function profileDisplayToOption(s: string){
+export function profileDisplayToOption(s: string): ProfileFeedOption {
     if(s == "Publicaciones") return "publicaciones"
     if(s == "Respuestas") return "respuestas"
     if(s == "Ediciones") return "ediciones"
@@ -25,38 +25,32 @@ export function profileOptionToDisplay(s: string){
 
 
 export const ProfilePage = ({
-    username
+    handleOrDid
 }: {
-    username: string
+    handleOrDid: string
 }) => {
     const params = useSearchParams()
-    const {user, atprotoProfile} = useFullProfile(username)
+    const {data: profile} = useProfile(handleOrDid)
     const router = useRouter()
 
-    let selected = params.get("s")
-    if(!selected) selected = "publicaciones"
+    const s = params.get("s")
+    let selected: ProfileFeedOption = s == "respuestas" || s == "ediciones" ? s : "publicaciones"
 
     function setSelected(v: string){
-        router.push("/perfil/"+username+"?s=" + profileDisplayToOption(v))
+        router.push("/perfil/"+handleOrDid+"?s=" + profileDisplayToOption(v))
     }
 
     return <div>
-        {atprotoProfile && <ProfileHeader
+        {profile && <ProfileHeader
             selected={profileOptionToDisplay(selected)}
-            profileUser={user}
-            atprotoProfile={atprotoProfile}
+            profile={profile}
             setSelected={setSelected}
         />}
-        {selected == "publicaciones" && <ProfileFeed
-            did={username}
-            profileUser={atprotoProfile}
-        />}
-        {selected == "respuestas" && <RepliesFeed
-            did={username}
-            profileUser={atprotoProfile}
-        />}
-        {selected == "ediciones" && atprotoProfile && <WikiFeed
-            profileUser={atprotoProfile}
-        />}
+        {!profile && <LoadingProfile/>}
+        <SelectedFeed
+            handleOrDid={handleOrDid}
+            profile={profile}
+            selected={selected}
+        />
     </div>
 }

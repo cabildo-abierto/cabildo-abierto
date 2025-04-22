@@ -19,6 +19,21 @@ import * as ArCabildoabiertoFeedDefs from './types/ar/cabildoabierto/feed/defs.j
 import * as ArCabildoabiertoFeedGetFeed from './types/ar/cabildoabierto/feed/getFeed.js'
 import * as ArCabildoabiertoWikiTopicVersion from './types/ar/cabildoabierto/wiki/topicVersion.js'
 import * as ArCabildoabiertoWikiVote from './types/ar/cabildoabierto/wiki/vote.js'
+import * as ComAtprotoAdminDefs from './types/com/atproto/admin/defs.js'
+import * as ComAtprotoAdminDeleteAccount from './types/com/atproto/admin/deleteAccount.js'
+import * as ComAtprotoAdminDisableAccountInvites from './types/com/atproto/admin/disableAccountInvites.js'
+import * as ComAtprotoAdminDisableInviteCodes from './types/com/atproto/admin/disableInviteCodes.js'
+import * as ComAtprotoAdminEnableAccountInvites from './types/com/atproto/admin/enableAccountInvites.js'
+import * as ComAtprotoAdminGetAccountInfo from './types/com/atproto/admin/getAccountInfo.js'
+import * as ComAtprotoAdminGetAccountInfos from './types/com/atproto/admin/getAccountInfos.js'
+import * as ComAtprotoAdminGetInviteCodes from './types/com/atproto/admin/getInviteCodes.js'
+import * as ComAtprotoAdminGetSubjectStatus from './types/com/atproto/admin/getSubjectStatus.js'
+import * as ComAtprotoAdminSearchAccounts from './types/com/atproto/admin/searchAccounts.js'
+import * as ComAtprotoAdminSendEmail from './types/com/atproto/admin/sendEmail.js'
+import * as ComAtprotoAdminUpdateAccountEmail from './types/com/atproto/admin/updateAccountEmail.js'
+import * as ComAtprotoAdminUpdateAccountHandle from './types/com/atproto/admin/updateAccountHandle.js'
+import * as ComAtprotoAdminUpdateAccountPassword from './types/com/atproto/admin/updateAccountPassword.js'
+import * as ComAtprotoAdminUpdateSubjectStatus from './types/com/atproto/admin/updateSubjectStatus.js'
 import * as ComAtprotoRepoApplyWrites from './types/com/atproto/repo/applyWrites.js'
 import * as ComAtprotoRepoCreateRecord from './types/com/atproto/repo/createRecord.js'
 import * as ComAtprotoRepoDefs from './types/com/atproto/repo/defs.js'
@@ -72,6 +87,25 @@ import * as ComAtprotoServerRevokeAppPassword from './types/com/atproto/server/r
 import * as ComAtprotoServerUpdateEmail from './types/com/atproto/server/updateEmail.js'
 import * as ComAtprotoModerationCreateReport from './types/com/atproto/moderation/createReport.js'
 import * as ComAtprotoModerationDefs from './types/com/atproto/moderation/defs.js'
+import * as ComAtprotoLexiconSchema from './types/com/atproto/lexicon/schema.js'
+import * as ComAtprotoSyncGetBlob from './types/com/atproto/sync/getBlob.js'
+import * as ComAtprotoSyncGetBlocks from './types/com/atproto/sync/getBlocks.js'
+import * as ComAtprotoSyncGetCheckout from './types/com/atproto/sync/getCheckout.js'
+import * as ComAtprotoSyncGetHead from './types/com/atproto/sync/getHead.js'
+import * as ComAtprotoSyncGetLatestCommit from './types/com/atproto/sync/getLatestCommit.js'
+import * as ComAtprotoSyncGetRecord from './types/com/atproto/sync/getRecord.js'
+import * as ComAtprotoSyncGetRepo from './types/com/atproto/sync/getRepo.js'
+import * as ComAtprotoSyncGetRepoStatus from './types/com/atproto/sync/getRepoStatus.js'
+import * as ComAtprotoSyncListBlobs from './types/com/atproto/sync/listBlobs.js'
+import * as ComAtprotoSyncListReposByCollection from './types/com/atproto/sync/listReposByCollection.js'
+import * as ComAtprotoSyncListRepos from './types/com/atproto/sync/listRepos.js'
+import * as ComAtprotoSyncNotifyOfUpdate from './types/com/atproto/sync/notifyOfUpdate.js'
+import * as ComAtprotoSyncRequestCrawl from './types/com/atproto/sync/requestCrawl.js'
+import * as ComAtprotoSyncSubscribeRepos from './types/com/atproto/sync/subscribeRepos.js'
+import * as ComAtprotoTempAddReservedHandle from './types/com/atproto/temp/addReservedHandle.js'
+import * as ComAtprotoTempCheckSignupQueue from './types/com/atproto/temp/checkSignupQueue.js'
+import * as ComAtprotoTempFetchLabels from './types/com/atproto/temp/fetchLabels.js'
+import * as ComAtprotoTempRequestPhoneVerification from './types/com/atproto/temp/requestPhoneVerification.js'
 import * as AppBskyFeedDefs from './types/app/bsky/feed/defs.js'
 import * as AppBskyFeedDescribeFeedGenerator from './types/app/bsky/feed/describeFeedGenerator.js'
 import * as AppBskyFeedGenerator from './types/app/bsky/feed/generator.js'
@@ -173,6 +207,21 @@ export * as ArCabildoabiertoFeedDefs from './types/ar/cabildoabierto/feed/defs.j
 export * as ArCabildoabiertoFeedGetFeed from './types/ar/cabildoabierto/feed/getFeed.js'
 export * as ArCabildoabiertoWikiTopicVersion from './types/ar/cabildoabierto/wiki/topicVersion.js'
 export * as ArCabildoabiertoWikiVote from './types/ar/cabildoabierto/wiki/vote.js'
+export * as ComAtprotoAdminDefs from './types/com/atproto/admin/defs.js'
+export * as ComAtprotoAdminDeleteAccount from './types/com/atproto/admin/deleteAccount.js'
+export * as ComAtprotoAdminDisableAccountInvites from './types/com/atproto/admin/disableAccountInvites.js'
+export * as ComAtprotoAdminDisableInviteCodes from './types/com/atproto/admin/disableInviteCodes.js'
+export * as ComAtprotoAdminEnableAccountInvites from './types/com/atproto/admin/enableAccountInvites.js'
+export * as ComAtprotoAdminGetAccountInfo from './types/com/atproto/admin/getAccountInfo.js'
+export * as ComAtprotoAdminGetAccountInfos from './types/com/atproto/admin/getAccountInfos.js'
+export * as ComAtprotoAdminGetInviteCodes from './types/com/atproto/admin/getInviteCodes.js'
+export * as ComAtprotoAdminGetSubjectStatus from './types/com/atproto/admin/getSubjectStatus.js'
+export * as ComAtprotoAdminSearchAccounts from './types/com/atproto/admin/searchAccounts.js'
+export * as ComAtprotoAdminSendEmail from './types/com/atproto/admin/sendEmail.js'
+export * as ComAtprotoAdminUpdateAccountEmail from './types/com/atproto/admin/updateAccountEmail.js'
+export * as ComAtprotoAdminUpdateAccountHandle from './types/com/atproto/admin/updateAccountHandle.js'
+export * as ComAtprotoAdminUpdateAccountPassword from './types/com/atproto/admin/updateAccountPassword.js'
+export * as ComAtprotoAdminUpdateSubjectStatus from './types/com/atproto/admin/updateSubjectStatus.js'
 export * as ComAtprotoRepoApplyWrites from './types/com/atproto/repo/applyWrites.js'
 export * as ComAtprotoRepoCreateRecord from './types/com/atproto/repo/createRecord.js'
 export * as ComAtprotoRepoDefs from './types/com/atproto/repo/defs.js'
@@ -226,6 +275,25 @@ export * as ComAtprotoServerRevokeAppPassword from './types/com/atproto/server/r
 export * as ComAtprotoServerUpdateEmail from './types/com/atproto/server/updateEmail.js'
 export * as ComAtprotoModerationCreateReport from './types/com/atproto/moderation/createReport.js'
 export * as ComAtprotoModerationDefs from './types/com/atproto/moderation/defs.js'
+export * as ComAtprotoLexiconSchema from './types/com/atproto/lexicon/schema.js'
+export * as ComAtprotoSyncGetBlob from './types/com/atproto/sync/getBlob.js'
+export * as ComAtprotoSyncGetBlocks from './types/com/atproto/sync/getBlocks.js'
+export * as ComAtprotoSyncGetCheckout from './types/com/atproto/sync/getCheckout.js'
+export * as ComAtprotoSyncGetHead from './types/com/atproto/sync/getHead.js'
+export * as ComAtprotoSyncGetLatestCommit from './types/com/atproto/sync/getLatestCommit.js'
+export * as ComAtprotoSyncGetRecord from './types/com/atproto/sync/getRecord.js'
+export * as ComAtprotoSyncGetRepo from './types/com/atproto/sync/getRepo.js'
+export * as ComAtprotoSyncGetRepoStatus from './types/com/atproto/sync/getRepoStatus.js'
+export * as ComAtprotoSyncListBlobs from './types/com/atproto/sync/listBlobs.js'
+export * as ComAtprotoSyncListReposByCollection from './types/com/atproto/sync/listReposByCollection.js'
+export * as ComAtprotoSyncListRepos from './types/com/atproto/sync/listRepos.js'
+export * as ComAtprotoSyncNotifyOfUpdate from './types/com/atproto/sync/notifyOfUpdate.js'
+export * as ComAtprotoSyncRequestCrawl from './types/com/atproto/sync/requestCrawl.js'
+export * as ComAtprotoSyncSubscribeRepos from './types/com/atproto/sync/subscribeRepos.js'
+export * as ComAtprotoTempAddReservedHandle from './types/com/atproto/temp/addReservedHandle.js'
+export * as ComAtprotoTempCheckSignupQueue from './types/com/atproto/temp/checkSignupQueue.js'
+export * as ComAtprotoTempFetchLabels from './types/com/atproto/temp/fetchLabels.js'
+export * as ComAtprotoTempRequestPhoneVerification from './types/com/atproto/temp/requestPhoneVerification.js'
 export * as AppBskyFeedDefs from './types/app/bsky/feed/defs.js'
 export * as AppBskyFeedDescribeFeedGenerator from './types/app/bsky/feed/describeFeedGenerator.js'
 export * as AppBskyFeedGenerator from './types/app/bsky/feed/generator.js'
@@ -931,19 +999,203 @@ export class ComNS {
 
 export class ComAtprotoNS {
   _client: XrpcClient
+  admin: ComAtprotoAdminNS
   repo: ComAtprotoRepoNS
   identity: ComAtprotoIdentityNS
   label: ComAtprotoLabelNS
   server: ComAtprotoServerNS
   moderation: ComAtprotoModerationNS
+  lexicon: ComAtprotoLexiconNS
+  sync: ComAtprotoSyncNS
+  temp: ComAtprotoTempNS
 
   constructor(client: XrpcClient) {
     this._client = client
+    this.admin = new ComAtprotoAdminNS(client)
     this.repo = new ComAtprotoRepoNS(client)
     this.identity = new ComAtprotoIdentityNS(client)
     this.label = new ComAtprotoLabelNS(client)
     this.server = new ComAtprotoServerNS(client)
     this.moderation = new ComAtprotoModerationNS(client)
+    this.lexicon = new ComAtprotoLexiconNS(client)
+    this.sync = new ComAtprotoSyncNS(client)
+    this.temp = new ComAtprotoTempNS(client)
+  }
+}
+
+export class ComAtprotoAdminNS {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  deleteAccount(
+    data?: ComAtprotoAdminDeleteAccount.InputSchema,
+    opts?: ComAtprotoAdminDeleteAccount.CallOptions,
+  ): Promise<ComAtprotoAdminDeleteAccount.Response> {
+    return this._client.call(
+      'com.atproto.admin.deleteAccount',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+
+  disableAccountInvites(
+    data?: ComAtprotoAdminDisableAccountInvites.InputSchema,
+    opts?: ComAtprotoAdminDisableAccountInvites.CallOptions,
+  ): Promise<ComAtprotoAdminDisableAccountInvites.Response> {
+    return this._client.call(
+      'com.atproto.admin.disableAccountInvites',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+
+  disableInviteCodes(
+    data?: ComAtprotoAdminDisableInviteCodes.InputSchema,
+    opts?: ComAtprotoAdminDisableInviteCodes.CallOptions,
+  ): Promise<ComAtprotoAdminDisableInviteCodes.Response> {
+    return this._client.call(
+      'com.atproto.admin.disableInviteCodes',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+
+  enableAccountInvites(
+    data?: ComAtprotoAdminEnableAccountInvites.InputSchema,
+    opts?: ComAtprotoAdminEnableAccountInvites.CallOptions,
+  ): Promise<ComAtprotoAdminEnableAccountInvites.Response> {
+    return this._client.call(
+      'com.atproto.admin.enableAccountInvites',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+
+  getAccountInfo(
+    params?: ComAtprotoAdminGetAccountInfo.QueryParams,
+    opts?: ComAtprotoAdminGetAccountInfo.CallOptions,
+  ): Promise<ComAtprotoAdminGetAccountInfo.Response> {
+    return this._client.call(
+      'com.atproto.admin.getAccountInfo',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  getAccountInfos(
+    params?: ComAtprotoAdminGetAccountInfos.QueryParams,
+    opts?: ComAtprotoAdminGetAccountInfos.CallOptions,
+  ): Promise<ComAtprotoAdminGetAccountInfos.Response> {
+    return this._client.call(
+      'com.atproto.admin.getAccountInfos',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  getInviteCodes(
+    params?: ComAtprotoAdminGetInviteCodes.QueryParams,
+    opts?: ComAtprotoAdminGetInviteCodes.CallOptions,
+  ): Promise<ComAtprotoAdminGetInviteCodes.Response> {
+    return this._client.call(
+      'com.atproto.admin.getInviteCodes',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  getSubjectStatus(
+    params?: ComAtprotoAdminGetSubjectStatus.QueryParams,
+    opts?: ComAtprotoAdminGetSubjectStatus.CallOptions,
+  ): Promise<ComAtprotoAdminGetSubjectStatus.Response> {
+    return this._client.call(
+      'com.atproto.admin.getSubjectStatus',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  searchAccounts(
+    params?: ComAtprotoAdminSearchAccounts.QueryParams,
+    opts?: ComAtprotoAdminSearchAccounts.CallOptions,
+  ): Promise<ComAtprotoAdminSearchAccounts.Response> {
+    return this._client.call(
+      'com.atproto.admin.searchAccounts',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  sendEmail(
+    data?: ComAtprotoAdminSendEmail.InputSchema,
+    opts?: ComAtprotoAdminSendEmail.CallOptions,
+  ): Promise<ComAtprotoAdminSendEmail.Response> {
+    return this._client.call(
+      'com.atproto.admin.sendEmail',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+
+  updateAccountEmail(
+    data?: ComAtprotoAdminUpdateAccountEmail.InputSchema,
+    opts?: ComAtprotoAdminUpdateAccountEmail.CallOptions,
+  ): Promise<ComAtprotoAdminUpdateAccountEmail.Response> {
+    return this._client.call(
+      'com.atproto.admin.updateAccountEmail',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+
+  updateAccountHandle(
+    data?: ComAtprotoAdminUpdateAccountHandle.InputSchema,
+    opts?: ComAtprotoAdminUpdateAccountHandle.CallOptions,
+  ): Promise<ComAtprotoAdminUpdateAccountHandle.Response> {
+    return this._client.call(
+      'com.atproto.admin.updateAccountHandle',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+
+  updateAccountPassword(
+    data?: ComAtprotoAdminUpdateAccountPassword.InputSchema,
+    opts?: ComAtprotoAdminUpdateAccountPassword.CallOptions,
+  ): Promise<ComAtprotoAdminUpdateAccountPassword.Response> {
+    return this._client.call(
+      'com.atproto.admin.updateAccountPassword',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+
+  updateSubjectStatus(
+    data?: ComAtprotoAdminUpdateSubjectStatus.InputSchema,
+    opts?: ComAtprotoAdminUpdateSubjectStatus.CallOptions,
+  ): Promise<ComAtprotoAdminUpdateSubjectStatus.Response> {
+    return this._client.call(
+      'com.atproto.admin.updateSubjectStatus',
+      opts?.qp,
+      data,
+      opts,
+    )
   }
 }
 
@@ -1512,6 +1764,293 @@ export class ComAtprotoModerationNS {
   ): Promise<ComAtprotoModerationCreateReport.Response> {
     return this._client.call(
       'com.atproto.moderation.createReport',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+}
+
+export class ComAtprotoLexiconNS {
+  _client: XrpcClient
+  schema: SchemaRecord
+
+  constructor(client: XrpcClient) {
+    this._client = client
+    this.schema = new SchemaRecord(client)
+  }
+}
+
+export class SchemaRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: ComAtprotoLexiconSchema.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'com.atproto.lexicon.schema',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{
+    uri: string
+    cid: string
+    value: ComAtprotoLexiconSchema.Record
+  }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'com.atproto.lexicon.schema',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: OmitKey<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<ComAtprotoLexiconSchema.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'com.atproto.lexicon.schema'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'com.atproto.lexicon.schema', ...params },
+      { headers },
+    )
+  }
+}
+
+export class ComAtprotoSyncNS {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  getBlob(
+    params?: ComAtprotoSyncGetBlob.QueryParams,
+    opts?: ComAtprotoSyncGetBlob.CallOptions,
+  ): Promise<ComAtprotoSyncGetBlob.Response> {
+    return this._client
+      .call('com.atproto.sync.getBlob', params, undefined, opts)
+      .catch((e) => {
+        throw ComAtprotoSyncGetBlob.toKnownErr(e)
+      })
+  }
+
+  getBlocks(
+    params?: ComAtprotoSyncGetBlocks.QueryParams,
+    opts?: ComAtprotoSyncGetBlocks.CallOptions,
+  ): Promise<ComAtprotoSyncGetBlocks.Response> {
+    return this._client
+      .call('com.atproto.sync.getBlocks', params, undefined, opts)
+      .catch((e) => {
+        throw ComAtprotoSyncGetBlocks.toKnownErr(e)
+      })
+  }
+
+  getCheckout(
+    params?: ComAtprotoSyncGetCheckout.QueryParams,
+    opts?: ComAtprotoSyncGetCheckout.CallOptions,
+  ): Promise<ComAtprotoSyncGetCheckout.Response> {
+    return this._client.call(
+      'com.atproto.sync.getCheckout',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  getHead(
+    params?: ComAtprotoSyncGetHead.QueryParams,
+    opts?: ComAtprotoSyncGetHead.CallOptions,
+  ): Promise<ComAtprotoSyncGetHead.Response> {
+    return this._client
+      .call('com.atproto.sync.getHead', params, undefined, opts)
+      .catch((e) => {
+        throw ComAtprotoSyncGetHead.toKnownErr(e)
+      })
+  }
+
+  getLatestCommit(
+    params?: ComAtprotoSyncGetLatestCommit.QueryParams,
+    opts?: ComAtprotoSyncGetLatestCommit.CallOptions,
+  ): Promise<ComAtprotoSyncGetLatestCommit.Response> {
+    return this._client
+      .call('com.atproto.sync.getLatestCommit', params, undefined, opts)
+      .catch((e) => {
+        throw ComAtprotoSyncGetLatestCommit.toKnownErr(e)
+      })
+  }
+
+  getRecord(
+    params?: ComAtprotoSyncGetRecord.QueryParams,
+    opts?: ComAtprotoSyncGetRecord.CallOptions,
+  ): Promise<ComAtprotoSyncGetRecord.Response> {
+    return this._client
+      .call('com.atproto.sync.getRecord', params, undefined, opts)
+      .catch((e) => {
+        throw ComAtprotoSyncGetRecord.toKnownErr(e)
+      })
+  }
+
+  getRepo(
+    params?: ComAtprotoSyncGetRepo.QueryParams,
+    opts?: ComAtprotoSyncGetRepo.CallOptions,
+  ): Promise<ComAtprotoSyncGetRepo.Response> {
+    return this._client
+      .call('com.atproto.sync.getRepo', params, undefined, opts)
+      .catch((e) => {
+        throw ComAtprotoSyncGetRepo.toKnownErr(e)
+      })
+  }
+
+  getRepoStatus(
+    params?: ComAtprotoSyncGetRepoStatus.QueryParams,
+    opts?: ComAtprotoSyncGetRepoStatus.CallOptions,
+  ): Promise<ComAtprotoSyncGetRepoStatus.Response> {
+    return this._client
+      .call('com.atproto.sync.getRepoStatus', params, undefined, opts)
+      .catch((e) => {
+        throw ComAtprotoSyncGetRepoStatus.toKnownErr(e)
+      })
+  }
+
+  listBlobs(
+    params?: ComAtprotoSyncListBlobs.QueryParams,
+    opts?: ComAtprotoSyncListBlobs.CallOptions,
+  ): Promise<ComAtprotoSyncListBlobs.Response> {
+    return this._client
+      .call('com.atproto.sync.listBlobs', params, undefined, opts)
+      .catch((e) => {
+        throw ComAtprotoSyncListBlobs.toKnownErr(e)
+      })
+  }
+
+  listReposByCollection(
+    params?: ComAtprotoSyncListReposByCollection.QueryParams,
+    opts?: ComAtprotoSyncListReposByCollection.CallOptions,
+  ): Promise<ComAtprotoSyncListReposByCollection.Response> {
+    return this._client.call(
+      'com.atproto.sync.listReposByCollection',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  listRepos(
+    params?: ComAtprotoSyncListRepos.QueryParams,
+    opts?: ComAtprotoSyncListRepos.CallOptions,
+  ): Promise<ComAtprotoSyncListRepos.Response> {
+    return this._client.call(
+      'com.atproto.sync.listRepos',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  notifyOfUpdate(
+    data?: ComAtprotoSyncNotifyOfUpdate.InputSchema,
+    opts?: ComAtprotoSyncNotifyOfUpdate.CallOptions,
+  ): Promise<ComAtprotoSyncNotifyOfUpdate.Response> {
+    return this._client.call(
+      'com.atproto.sync.notifyOfUpdate',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+
+  requestCrawl(
+    data?: ComAtprotoSyncRequestCrawl.InputSchema,
+    opts?: ComAtprotoSyncRequestCrawl.CallOptions,
+  ): Promise<ComAtprotoSyncRequestCrawl.Response> {
+    return this._client.call(
+      'com.atproto.sync.requestCrawl',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+}
+
+export class ComAtprotoTempNS {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  addReservedHandle(
+    data?: ComAtprotoTempAddReservedHandle.InputSchema,
+    opts?: ComAtprotoTempAddReservedHandle.CallOptions,
+  ): Promise<ComAtprotoTempAddReservedHandle.Response> {
+    return this._client.call(
+      'com.atproto.temp.addReservedHandle',
+      opts?.qp,
+      data,
+      opts,
+    )
+  }
+
+  checkSignupQueue(
+    params?: ComAtprotoTempCheckSignupQueue.QueryParams,
+    opts?: ComAtprotoTempCheckSignupQueue.CallOptions,
+  ): Promise<ComAtprotoTempCheckSignupQueue.Response> {
+    return this._client.call(
+      'com.atproto.temp.checkSignupQueue',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  fetchLabels(
+    params?: ComAtprotoTempFetchLabels.QueryParams,
+    opts?: ComAtprotoTempFetchLabels.CallOptions,
+  ): Promise<ComAtprotoTempFetchLabels.Response> {
+    return this._client.call(
+      'com.atproto.temp.fetchLabels',
+      params,
+      undefined,
+      opts,
+    )
+  }
+
+  requestPhoneVerification(
+    data?: ComAtprotoTempRequestPhoneVerification.InputSchema,
+    opts?: ComAtprotoTempRequestPhoneVerification.CallOptions,
+  ): Promise<ComAtprotoTempRequestPhoneVerification.Response> {
+    return this._client.call(
+      'com.atproto.temp.requestPhoneVerification',
       opts?.qp,
       data,
       opts,

@@ -1,5 +1,5 @@
 import MainLayout from "../../components/layout/main-layout";
-import { AdminLayout } from "../../components/admin/admin-layout";
+import { AdminLayout } from "@/components/admin/admin-layout";
 
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {

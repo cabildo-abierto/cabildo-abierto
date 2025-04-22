@@ -1,5 +1,5 @@
 "use client"
-import {FastPostProps} from "@/lib/definitions";
+import {FastPostProps} from "@/lib/types";
 import {PlotFromUri} from "./plot-from-uri";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
 

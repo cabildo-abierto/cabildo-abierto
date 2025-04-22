@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import { SidebarButton } from "./sidebar-button";
 import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
 import PersonIcon from '@mui/icons-material/Person';
-import { UserProps } from "@/lib/definitions";
+import { UserProps } from "@/lib/types";
 import { CabildoIcon } from "../icons/home-icon";
 import { SupportIcon } from "../icons/support-icon";
 import VisualizationsIcon from "@mui/icons-material/AutoGraph";
@@ -12,7 +12,7 @@ import TopicsIcon from "@mui/icons-material/CollectionsBookmark";
 import {NotificationsIcon} from "../icons/notifications-icon";
 import {usePathname} from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
-import {WritePanel} from "../writing/write-panel";
+import {WritePanel} from "../writing/write-panel/write-panel";
 import { useLayoutConfig } from "./layout-config-context";
 import {WriteButtonIcon} from "../icons/write-button-icon";
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
@@ -28,7 +28,7 @@ import Image from 'next/image'
 import { useTheme } from "../theme/theme-context";
 import {urlCongreso, userUrl} from "@/utils/uri";
 import {FloatingWriteButton} from "../writing/floating-write-button";
-import {useUser} from "@/hooks/swr";
+import {useSession} from "@/hooks/swr";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
@@ -85,7 +85,7 @@ const SidebarWriteButton = ({onClick, showText}: {showText: boolean, onClick: ()
 
 
 export const SidebarContent = ({onClose}: { onClose: () => void }) => {
-    const user = useUser()
+    const user = useSession()
     const pathname = usePathname()
     const [writePanelOpen, setWritePanelOpen] = useState(false)
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()

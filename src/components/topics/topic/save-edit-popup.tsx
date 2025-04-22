@@ -3,7 +3,7 @@
 import { EditorState } from "lexical";
 import { CustomLink as Link } from '../../../../modules/ui-utils/src/custom-link';
 import React, { useEffect, useState } from "react";
-import {TopicProps} from "@/lib/definitions";
+import {TopicProps} from "@/lib/types";
 import { getAllText } from "./diff";
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
 import { NotEnoughPermissionsWarning } from "./permissions-warning";
@@ -14,7 +14,7 @@ import { AcceptButtonPanel } from "../../../../modules/ui-utils/src/accept-butto
 import {TextField} from "@mui/material";
 import {topicUrl} from "@/utils/uri";
 import {hasEditPermission} from "./utils";
-import {useUser} from "@/hooks/swr";
+import {useSession} from "@/hooks/swr";
 import {Button} from "@/../modules/ui-utils/src/button"
 
 
@@ -53,7 +53,7 @@ export const SaveEditPopup = ({
     entity: TopicProps
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
-    const {user} = useUser()
+    const {user} = useSession()
     const [editMsg, setEditMsg] = useState("")
     const [diff, setDiff] = useState(undefined)
     const [newVersionSize, setNewVersionSize] = useState(undefined)

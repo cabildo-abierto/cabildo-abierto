@@ -49,8 +49,9 @@ export function validateFeedViewContent<V>(v: V) {
 export interface ThreadViewContent {
   $type?: 'ar.cabildoabierto.feed.defs#threadViewContent'
   content:
-    | $Typed<AppBskyFeedDefs.PostView>
+    | $Typed<PostView>
     | $Typed<ArticleView>
+    | $Typed<FullArticleView>
     | { $type: string }
   parent?:
     | $Typed<ThreadViewContent>
@@ -88,7 +89,7 @@ export interface PostView {
     | $Typed<AppBskyEmbedExternal.View>
     | $Typed<AppBskyEmbedRecord.View>
     | $Typed<AppBskyEmbedRecordWithMedia.View>
-    | $Typed<ArCabildoabiertoEmbedSelectionQuote.Main>
+    | $Typed<ArCabildoabiertoEmbedSelectionQuote.View>
     | { $type: string }
   uniqueViewsCount?: number
   bskyRepostCount?: number
@@ -119,8 +120,9 @@ export interface ArticleView {
   uri: string
   cid: string
   author: AppBskyActorDefs.ProfileViewBasic
-  /** A plain text summary of the article. */
+  /** A summary of the article to be shown in the feed. */
   summary?: string
+  summaryFormat?: string
   record: { [_ in string]: unknown }
   uniqueViewsCount?: number
   bskyRepostCount?: number
@@ -144,4 +146,37 @@ export function isArticleView<V>(v: V) {
 
 export function validateArticleView<V>(v: V) {
   return validate<ArticleView & V>(v, id, hashArticleView)
+}
+
+export interface FullArticleView {
+  $type?: 'ar.cabildoabierto.feed.defs#fullArticleView'
+  uri: string
+  cid: string
+  author: AppBskyActorDefs.ProfileViewBasic
+  /** The full article text */
+  text?: string
+  textFormat?: string
+  record: { [_ in string]: unknown }
+  uniqueViewsCount?: number
+  bskyRepostCount?: number
+  bskyLikeCount?: number
+  bskyQuoteCount?: number
+  replyCount?: number
+  repostCount?: number
+  likeCount?: number
+  quoteCount?: number
+  indexedAt: string
+  viewer?: AppBskyFeedDefs.ViewerState
+  labels?: ComAtprotoLabelDefs.Label[]
+  threadgate?: AppBskyFeedDefs.ThreadgateView
+}
+
+const hashFullArticleView = 'fullArticleView'
+
+export function isFullArticleView<V>(v: V) {
+  return is$typed(v, id, hashFullArticleView)
+}
+
+export function validateFullArticleView<V>(v: V) {
+  return validate<FullArticleView & V>(v, id, hashFullArticleView)
 }

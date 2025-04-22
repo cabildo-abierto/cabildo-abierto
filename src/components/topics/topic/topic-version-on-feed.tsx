@@ -1,4 +1,4 @@
-import {TopicVersionOnFeedProps} from "@/lib/definitions";
+import {TopicVersionOnFeedProps} from "@/lib/types";
 import {ContentTopRowAuthor} from "../../feed/content-top-row-author";
 import {ProfilePic} from "../../feed/profile-pic";
 import {DateSince} from "../../../../modules/ui-utils/src/date";

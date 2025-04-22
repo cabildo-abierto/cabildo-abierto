@@ -4,8 +4,8 @@ import InfoIcon from "@mui/icons-material/Info";
 import {DonateIcon} from "@/components/icons/donate-icon";
 import SettingsIcon from "@/components/icons/settings-icon";
 import React, {ReactNode} from "react";
-import {useUser} from "@/hooks/swr";
-import {UserProps} from "@/lib/definitions";
+import {useSession} from "@/hooks/swr";
+import {MessageProps, UserProps} from "@/lib/types";
 import {SupportIcon} from "@/components/icons/support-icon";
 
 
@@ -23,7 +23,8 @@ export const RightPanelButton = ({children, icon, href}: {children: ReactNode, i
 }
 
 
-function unseenSupportMessagesCount(user: UserProps){
+// TO DO
+function unseenSupportMessagesCount(user: {did: string, messagesReceived: MessageProps[], messagesSent: MessageProps[]}){
     let count = 0
     function cmp(a, b) { return a.createdAt - b.createdAt}
     const chat = [...user.messagesReceived, ...user.messagesSent].sort(cmp)
@@ -37,8 +38,8 @@ function unseenSupportMessagesCount(user: UserProps){
 
 
 export const SupportButton = () => {
-    const {user} = useUser()
-    const newSupportCount = user ? unseenSupportMessagesCount(user) : 0
+    //const {user} = useSession()
+    const newSupportCount = 0 //user ? unseenSupportMessagesCount(user) : 0
 
     return (
         <RightPanelButton
@@ -52,7 +53,7 @@ export const SupportButton = () => {
 
 
 export const RightPanelButtons = () => {
-    const {user} = useUser()
+    const {user} = useSession()
 
     return <div className={"mt-4 px-3 w-full flex flex-col space-y-1"}>
         <SupportButton/>

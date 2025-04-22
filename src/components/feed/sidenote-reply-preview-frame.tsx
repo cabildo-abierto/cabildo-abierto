@@ -1,26 +1,26 @@
 "use client"
 
 import Image from 'next/image'
-import { DateSince } from '../../../modules/ui-utils/src/date'
-import {EngagementProps, RecordProps} from '@/lib/definitions'
+import {DateSince} from '../../../modules/ui-utils/src/date'
 import Link from 'next/link'
-import { ContentTopRowAuthor } from './content-top-row-author'
-import { ReactNode } from 'react'
-import { EngagementIcons } from '@/components/feed/reactions/engagement-icons'
+import {ContentTopRowAuthor} from './content-top-row-author'
+import {ReactNode} from 'react'
+import {EngagementIcons} from '@/components/feed/reactions/engagement-icons'
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
-import {userUrl} from "../../utils/uri";
-import {formatIsoDate} from "../../utils/dates";
+import {userUrl} from "@/utils/uri";
+import {formatIsoDate} from "@/utils/dates";
 
-import {emptyChar} from "../../utils/utils";
+import {emptyChar} from "@/utils/utils";
+import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 
-const ReplyVerticalLine = ({className=""}: {className?: string}) => {
+const ReplyVerticalLine = ({className = ""}: { className?: string }) => {
     return <div className={"w-[2px] bg-[var(--accent)] " + className}></div>
 }
 
 type ATProtoPostFrameProps = {
     children: ReactNode
-    post: RecordProps & EngagementProps
+    post: PostView
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
@@ -28,10 +28,13 @@ type ATProtoPostFrameProps = {
 }
 
 export const SidenoteReplyPreviewFrame = ({
-      children, post, borderBelow=true, showingParent=false,
-      showingChildren=false,
-      onDelete
-}: ATProtoPostFrameProps) => {
+                                              children,
+                                              post,
+                                              borderBelow = true,
+                                              showingParent = false,
+                                              showingChildren = false,
+                                              onDelete
+                                          }: ATProtoPostFrameProps) => {
     const record = post
 
     return <div
@@ -51,7 +54,7 @@ export const SidenoteReplyPreviewFrame = ({
                 <Link href={userUrl(record.author.handle)} className="w-8 h-11 flex items-center justify-center">
                     <Image
                         src={record.author.avatar}
-                        alt={"Perfil de "+record.author.handle}
+                        alt={"Perfil de " + record.author.handle}
                         width={300}
                         height={300}
                         className="rounded-full w-6 h-6"
@@ -63,17 +66,21 @@ export const SidenoteReplyPreviewFrame = ({
             <div className="flex w-52 flex-col py-3 text-sm pr-2">
                 <div className="flex items-center gap-x-1">
                     <span className="truncate">
-                        <ContentTopRowAuthor author={record.author} />
+                        <ContentTopRowAuthor author={record.author}/>
                     </span>
-                    <span className="text-[var(--text-light)]">•</span>
-                    <span className="text-[var(--text-light)] flex-shrink-0" title={formatIsoDate(record.createdAt)}>
-                        <DateSince date={record.createdAt} />
+                    <span className="text-[var(--text-light)]">
+                        •
+                    </span>
+                    <span
+                        className="text-[var(--text-light)] flex-shrink-0"
+                        title={formatIsoDate(record.indexedAt)}
+                    >
+                        <DateSince date={record.indexedAt}/>
                     </span>
                 </div>
                 <div>
                     {children}
                 </div>
-
                 <div className={"mt-1"}>
                     <EngagementIcons
                         counters={post}
@@ -84,5 +91,5 @@ export const SidenoteReplyPreviewFrame = ({
                 </div>
             </div>
         </div>
-    </div>   
+    </div>
 }

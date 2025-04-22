@@ -2,7 +2,7 @@
 import {useVisualization} from "../../../hooks/swr";
 import {LoadingScreen} from "../../../../modules/ui-utils/src/loading-screen";
 import {VisualizationEditor} from "./editor";
-import {PlotConfigProps} from "@/lib/definitions";
+import {PlotConfigProps} from "@/lib/types";
 
 
 function getConfigFromSpec(spec: string): PlotConfigProps {

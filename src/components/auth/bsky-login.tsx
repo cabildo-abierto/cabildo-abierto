@@ -6,7 +6,7 @@ import { FormControl } from '@mui/material';
 import { isValidHandle } from "@atproto/syntax"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {mutate} from "swr";
-import {useUser} from "@/hooks/swr";
+import {useSession} from "@/hooks/swr";
 import { Button } from "../../../modules/ui-utils/src/button"
 
 
@@ -19,7 +19,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
     const [error, setError] = useState(undefined)
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
-    const {user} = useUser(true)
+    const {user} = useSession(true)
     const [usingInviteCode, setUsingInviteCode] = useState(false)
     const [handleStart, setHandleStart] = useState("")
     const [domain, setDomain] = useState(".bsky.social")

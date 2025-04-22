@@ -1,4 +1,4 @@
-import {ATProtoStrongRef, VisualizationProps} from "@/lib/definitions";
+import {ATProtoStrongRef, VisualizationProps} from "@/lib/types";
 import Link from "next/link";
 import {ShareContentButton} from "./share-content-button";
 import {editVisualizationUrl, getBlueskyUrl, getCollectionFromUri, getDidFromUri, isArticle, isPost} from "@/utils/uri";
@@ -8,7 +8,7 @@ import {BlueskyLogo} from "../../icons/bluesky-logo";
 import {Newspaper} from "@mui/icons-material";
 import {useSWRConfig} from "swr";
 import {useState} from "react";
-import {useUser} from "@/hooks/swr";
+import {useSession} from "@/hooks/swr";
 
 
 const collection2displayText = {
@@ -54,7 +54,7 @@ export const ContentOptions = ({onClose, record, onDelete, enDiscusion}: {
     onDelete?: () => Promise<void>
     enDiscusion: boolean
 }) => {
-    const {user} = useUser()
+    const {user} = useSession()
     const {mutate} = useSWRConfig()
     const [addedToEnDiscusion, setAddedToEnDiscusion] = useState<boolean>(enDiscusion)
 

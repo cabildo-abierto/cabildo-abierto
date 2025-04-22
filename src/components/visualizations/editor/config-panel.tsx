@@ -1,4 +1,4 @@
-import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/definitions";
+import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/types";
 import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
 import {Select} from "../../../../modules/ui-utils/src/select";
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
@@ -7,7 +7,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {FilterConfig} from "./filter-config";
 import CodeIcon from '@mui/icons-material/Code';
 import {openJsonInNewTab} from "@/components/feed/content-options/content-options";
-import {getSpecForConfig} from "./get-spec";
+// import {getSpecForConfig} from "./get-spec";
 import {Button} from "../../../../modules/ui-utils/src/button";
 
 
@@ -186,11 +186,11 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                     </Button>
                 </div>
                 <div className={"flex justify-end"}>
-                <IconButton size={"small"}
+                {/* TO DO <IconButton size={"small"}
                     onClick={() => {openJsonInNewTab(getSpecForConfig(config, {dataset}))}}
                 >
                     <CodeIcon fontSize={"small"}/>
-                </IconButton>
+                </IconButton>*/}
                 </div>
             </div>
         </div>

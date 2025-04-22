@@ -7,6 +7,11 @@
  */
 
 import {
+    $getSelection,
+    $isRangeSelection,
+    $isTextNode,
+    COMMAND_PRIORITY_EDITOR,
+    createCommand,
     LexicalCommand,
     NodeKey
 } from 'lexical';
@@ -15,49 +20,19 @@ import './index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
-import {
-    $getSelection,
-    $isRangeSelection,
-    $isTextNode,
-    COMMAND_PRIORITY_EDITOR,
-    createCommand,
-} from 'lexical';
 
 import {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 
 import {AddCommentButton} from './add-comment-button';
-
-import {SmallUserProps} from "@/lib/definitions";
 import {lexicalSelectionToMarkdownSelection} from "../../selection-transforms";
 import {getStandardSelection} from "./standard-selection";
+import {PrettyJSON} from "../../../../ui-utils/src/pretty-json";
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
     'INSERT_INLINE_COMMAND',
 );
 
-
-export type ReplyToContent = {
-    uri: string
-    cid: string
-    collection: string
-    author?: SmallUserProps
-    content?: {
-        text?: string
-        format?: string
-        article?: {
-            title: string
-        }
-        topicVersion?: {
-            topic: {
-                id: string
-                versions?: {
-                    title?: string
-                }[]
-            }
-        }
-    }
-}
 
 export type OnAddCommentProps = (selection: [number, number]) => void
 

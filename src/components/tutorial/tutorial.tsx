@@ -5,7 +5,12 @@ import Joyride, {CallBackProps, STATUS, Step} from "react-joyride";
 import {useSearchParams} from "next/navigation";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {AcceptButtonPanel} from "../../../modules/ui-utils/src/accept-button-panel";
-import {useUser} from "@/hooks/swr";
+import {useSession} from "@/hooks/swr";
+
+
+async function setSeenTutorial(v: boolean) {
+
+}
 
 
 const WelcomeMessage = ({open, onClose}: {open: boolean, onClose: () => void}) => {
@@ -156,7 +161,7 @@ export const RunTutorial = ({children}: {children: ReactNode}) => {
 
 export const Tutorial = ({children}: {children: ReactNode}) => {
     const params = useSearchParams()
-    const {user} = useUser()
+    const {user} = useSession()
 
     if(params.get("tutorial") || (user && !user.seenTutorial)){
         return (

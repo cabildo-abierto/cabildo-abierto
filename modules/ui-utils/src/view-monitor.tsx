@@ -1,6 +1,5 @@
 "use client"
 import React, {ReactNode, useEffect, useRef, useState} from "react";
-import {useUser} from "@/hooks/swr";
 
 
 const addView = async (uri: string) => {
@@ -9,7 +8,6 @@ const addView = async (uri: string) => {
 
 
 export const ViewMonitor = ({children, uri}: { children: ReactNode, uri: string }) => {
-    const {user} = useUser()
     const viewRecordedRef = useRef(false)
     const contentRef = useRef(null)
 
@@ -34,14 +32,14 @@ export const ViewMonitor = ({children, uri}: { children: ReactNode, uri: string 
 
     useEffect(() => {
         async function recordView() {
-            if (isVisible && user && !viewRecordedRef.current) {
+            if (isVisible && !viewRecordedRef.current) {
                 viewRecordedRef.current = true;
                 await addView(uri)
             }
         }
 
         recordView()
-    }, [isVisible, user, uri])
+    }, [isVisible, uri])
 
     // agregamos ref a children directamente
     return <div ref={contentRef} className={"block w-full"}>

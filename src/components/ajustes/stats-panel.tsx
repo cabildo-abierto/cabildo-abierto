@@ -1,7 +1,7 @@
 "use client"
 import {ReactNode} from "react";
 import InfoPanel from "../../../modules/ui-utils/src/info-panel";
-import {UserStats} from "@/lib/definitions";
+import {UserStats} from "@/lib/types";
 
 const UserStat = ({name, value, border=true}: {name: ReactNode, value: ReactNode, border?: boolean}) => {
     return <div className={"flex justify-between py-2 " + (border ? "border-b" : "")}>

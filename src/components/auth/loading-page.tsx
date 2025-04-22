@@ -2,12 +2,12 @@
 
 import React, {ReactNode, useEffect} from 'react';
 import { LoadingScreen } from '../../../modules/ui-utils/src/loading-screen';
-import {useUser} from "@/hooks/swr";
+import {useSession} from "@/hooks/swr";
 import {useRouter} from "next/navigation";
 
 
 const LoadingPage: React.FC<{children: ReactNode}> = ({children}) => {
-    const user = useUser()
+    const user = useSession()
     const router = useRouter()
 
     useEffect(() => {

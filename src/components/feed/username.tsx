@@ -2,10 +2,10 @@
 import Link from "next/link"
 import {getUsername} from "../../utils/utils"
 import {userUrl} from "../../utils/uri";
-import {useUser} from "../../hooks/swr";
+import {useSession} from "../../hooks/swr";
 
 export const Username = ({user}: {user: {displayName?: string, handle: string}}) => {
-    const session = useUser()
+    const session = useSession()
 
     if(session.isLoading) return <></>
     if(!user) return <span>No user</span>

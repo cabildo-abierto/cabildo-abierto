@@ -1,4 +1,4 @@
-import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/definitions";
+import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/types";
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import RemoveIcon from "@mui/icons-material/Remove";

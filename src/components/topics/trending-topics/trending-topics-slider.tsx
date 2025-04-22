@@ -1,4 +1,4 @@
-import {SmallTopicProps} from "@/lib/definitions";
+import {SmallTopicProps} from "@/lib/types";
 import {useState} from "react";
 import {getTopicCategories, getTopicTitle} from "@/components/topics/topic/utils";
 import {CustomLink as Link} from "../../../../modules/ui-utils/src/custom-link";

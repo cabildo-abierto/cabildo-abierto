@@ -1,6 +1,6 @@
 import {Authorship} from "../feed/content-top-row-author";
 import {DatasetView} from "./dataset-view";
-import {DatasetProps, EngagementProps} from "@/lib/definitions";
+import {DatasetProps, EngagementProps} from "@/lib/types";
 import {useDataset} from "../../hooks/swr";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {DatasetDescription} from "./dataset-description";

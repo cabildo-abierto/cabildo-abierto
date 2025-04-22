@@ -4,12 +4,16 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 
-export function localeDate(date: Date, includeCurrentYear?: boolean) {
-    const baseFormat = date.getFullYear() !== 2025 || includeCurrentYear
+export function localeDate(date: Date, includeCurrentYear: boolean=false, includeSeconds: boolean=false) {
+    let dateFormat = date.getFullYear() !== 2025 || includeCurrentYear
         ? "dd 'de' MMMM 'de' yyyy"
         : "dd 'de' MMMM"
 
-    return format(date, `${baseFormat}, HH:mm:ss`, { locale: es })
+    if(includeSeconds){
+        dateFormat = `${format}, HH:mm:ss`
+    }
+
+    return format(date, dateFormat, { locale: es })
 }
 
 export function DateSince({ date }: { date: string | Date}) {

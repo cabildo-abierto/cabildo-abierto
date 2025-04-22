@@ -1,8 +1,7 @@
 import {ReplyButton} from "../../feed/reply-button";
 import {useState} from "react";
 import {TopicFeed} from "./topic-feed";
-import {WritePanel} from "../../writing/write-panel";
-import {ReplyToContent} from "../../../../modules/ca-lexical-editor/src/plugins/CommentPlugin";
+import {ReplyToContent, WritePanel} from "../../writing/write-panel/write-panel";
 import {useSWRConfig} from "swr";
 import {WikiEditorState} from "./topic-content-expanded-view-header";
 
