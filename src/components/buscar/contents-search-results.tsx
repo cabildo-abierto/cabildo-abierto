@@ -1,6 +1,6 @@
 import {useSearch} from "./search-context";
 import {FeedContentProps} from "@/lib/types";
-import Feed from "../feed/feed";
+import Feed from "../feed/feed/feed";
 import {useEffect, useState} from "react";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
@@ -49,5 +49,5 @@ export const ContentsSearchResults = () => {
         return <div className={"pt-8"}><LoadingSpinner/></div>
     }
 
-    return <Feed feed={{feed: results, isLoading: false, error: undefined}}/>
+    return <Feed feed={results}/>
 }

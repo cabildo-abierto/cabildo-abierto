@@ -1,6 +1,6 @@
 import {DatasetProps, EngagementProps} from "@/lib/types";
-import {Authorship} from "../feed/content-top-row-author";
-import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
+import {Authorship} from "@/components/feed/frame/content-top-row-author";
+import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {CustomLink} from "../../../modules/ui-utils/src/custom-link";
 import {CardFeed} from "../../../modules/ui-utils/src/card-feed";
 import {DateSince} from "../../../modules/ui-utils/src/date";

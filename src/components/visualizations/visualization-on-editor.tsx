@@ -1,4 +1,3 @@
-"use client"
 import {DatasetProps, PlotConfigProps} from "@/lib/types";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 //import {getSpecForConfig} from "./editor/get-spec";

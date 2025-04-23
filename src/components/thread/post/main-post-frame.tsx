@@ -4,11 +4,11 @@ import Image from 'next/image'
 import {getUsername} from '@/utils/utils'
 import Link from 'next/link'
 import {ReactNode} from 'react'
-import {EngagementIcons} from '@/components/feed/reactions/engagement-icons'
+import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
 import {userUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {hasEnDiscusionLabel} from "@/components/feed/post-preview-frame";
+import {hasEnDiscusionLabel} from "@/components/feed/frame/post-preview-frame";
 
 
 type MainPostFrameProps = { children: ReactNode, postView: PostView }

@@ -1,7 +1,7 @@
 import {EngagementProps, VisualizationProps} from "@/lib/types";
-import {Authorship} from "../feed/content-top-row-author";
+import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {CustomLink} from "../../../modules/ui-utils/src/custom-link";
-import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
+import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import Link from "next/link";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {VegaPlotPreview} from "./vega-plot-preview";
@@ -22,7 +22,7 @@ function getTitleFromSpec(spec: string){
 
 export const VisualizationCard = ({visualization, width}: {visualization: VisualizationProps & EngagementProps, width: number}) => {
     const {mutate} = useSWRConfig()
-    const url = urlFromRecord(visualization as {uri: string, collection: string, author: {did: string, handle: string}})
+    const url = urlFromRecord(visualization.uri)
 
     const title = getTitleFromSpec(visualization.visualization.spec)
 

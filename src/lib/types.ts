@@ -1,7 +1,9 @@
-import {EditorStatus} from '@prisma/client';
 import {SerializedEditorState, SerializedLexicalNode} from "lexical";
 import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
+
+
+export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
 
 export type Profile = {
@@ -28,6 +30,11 @@ export type Session = {
     did: string
     hasAccess: boolean
     usedInviteCode: string | null
+}
+
+
+export type Account = {
+    email?: string
 }
 
 

@@ -1,5 +1,5 @@
 import {contentUrl} from "@/utils/uri";
-import {Authorship} from "@/components/feed/content-top-row-author";
+import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import Link from "next/link";
 import {ProfileViewBasic} from "@/lex-api/types/app/bsky/actor/defs";
 

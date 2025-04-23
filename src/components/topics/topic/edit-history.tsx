@@ -9,10 +9,10 @@ import { AcceptButtonPanel } from "../../../../modules/ui-utils/src/accept-butto
 import { toPercentage } from "./show-contributors"
 import { ChangesCounter } from "./changes-counter"
 import { BaseFullscreenPopup } from "../../../../modules/ui-utils/src/base-fullscreen-popup"
-import { Authorship } from "../../feed/content-top-row-author";
+import { Authorship } from "@/components/feed/frame/content-top-row-author";
 import { NeedAccountPopup } from "../../auth/need-account-popup";
-import {ProfilePic} from "../../feed/profile-pic";
-import {LikeCounter} from "@/components/feed/reactions/like-counter";
+import {ProfilePic} from "../../profile/profile-pic";
+import {LikeCounter} from "@/components/feed/frame/like-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
 import {TopicCategories} from "./topic-categories";
 import {RejectVersionModal} from "./reject-version-modal";
@@ -27,7 +27,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
-import {ReactionButton} from "@/components/feed/reactions/reaction-button";
+import {ReactionButton} from "@/components/feed/frame/reaction-button";
 import {useSession} from "@/hooks/swr";
 
 
@@ -73,6 +73,30 @@ const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistoryProps, in
     return <div className={""}>{editType}</div>
 }
 
+
+async function acceptEdit(id: string, ref: ATProtoStrongRef){
+    return {error: "Sin implementar."}
+}
+
+
+async function rejectEdit(id: string, ref: ATProtoStrongRef){
+    return {error: "Sin implementar."}
+}
+
+
+async function cancelAcceptEdit(id: string, uri: string){
+    return {error: "Sin implementar."}
+}
+
+
+async function cancelRejectEdit(id: string, uri: string){
+    return {error: "Sin implementar."}
+}
+
+
+async function deleteTopicVersion(uri: string){
+
+}
 
 const ConfirmEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acceptCount, rejectCount}: {
     topicId: string
@@ -250,7 +274,7 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
                         <ContentOptionsButton
                             record={{...topicVersion}}
                             onDelete={async () => {
-                                await deleteTopicVersion(topic, topicHistory, index)
+                                await deleteTopicVersion(topicVersion.uri)
                                 mutate("/api/topic/" + topic.id)
                                 mutate("/api/topic-history/" + topic.id)
                                 mutate("/api/topics-by-categories/popular")

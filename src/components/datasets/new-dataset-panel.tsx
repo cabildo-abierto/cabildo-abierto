@@ -50,6 +50,11 @@ export const UploadDatasetButton = ({onSubmit}: {onSubmit: (file: any, filename:
 }
 
 
+async function createDataset(title: string, columns: string[], description: string, formData: FormData, format: string){
+    return {error: "Sin implementar."}
+}
+
+
 export const NewDatasetPanel = ({open, onClose}: {
     open: boolean, onClose: () => void
 }) => {

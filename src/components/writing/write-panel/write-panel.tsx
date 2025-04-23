@@ -1,5 +1,3 @@
-"use client"
-
 import React, {useState} from "react"
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup"
 import {CloseButton} from "../../../../modules/ui-utils/src/close-button"

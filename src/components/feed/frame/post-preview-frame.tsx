@@ -1,13 +1,11 @@
-"use client"
-
-import { DateSince } from '../../../modules/ui-utils/src/date'
+import { DateSince } from '../../../../modules/ui-utils/src/date'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ContentTopRowAuthor } from './content-top-row-author'
+import { ContentTopRowAuthor } from '@/components/feed/frame/content-top-row-author'
 import { ReactNode } from 'react'
-import { EngagementIcons } from '@/components/feed/reactions/engagement-icons'
-import {RepostedBy} from "./reposted-by";
-import {ProfilePic} from "./profile-pic";
+import { EngagementIcons } from '@/components/feed/frame/engagement-icons'
+import {RepostedBy} from "../post/reposted-by";
+import {ProfilePic} from "../../profile/profile-pic";
 import {urlFromRecord, userUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 import {emptyChar} from "@/utils/utils";

@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react"
-import { stopPropagation } from "../../../utils/utils"
+import { stopPropagation } from "@/utils/utils"
 
 type ReactionButtonProps = {
     onClick: () => void

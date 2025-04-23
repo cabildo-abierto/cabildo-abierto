@@ -1,4 +1,3 @@
-"use client"
 import {isView as isEmbedImagesView} from "@/lex-api/types/app/bsky/embed/images";
 import {PostImagesEmbed} from "@/components/feed/embed/post-images-embed";
 import {isView as isEmbedRecordWithMediaView} from "@/lex-api/types/app/bsky/embed/recordWithMedia";
@@ -31,13 +30,14 @@ export const PostEmbed = ({embed, mainPostRef, hideSelectionQuote=false, onClick
         />}
         {isEmbedRecordWithMediaView(embed) && <PostRecordWithMediaEmbed
             embed={embed}
+            mainPostRef={mainPostRef}
         />}
         {isVideoEmbedView(embed) && <PostVideoEmbed
             embed={embed}
         />}
         {isRecordEmbedView(embed) && <PostRecordEmbed
             embed={embed}
-            mainPostUri={mainPostRef.uri}
+            mainPostRef={mainPostRef}
         />}
         {isExternalEmbedView(embed) && <PostExternalEmbed
             embed={embed}

@@ -1,5 +1,3 @@
-"use client"
-
 import {BskyRichTextContent} from "./bsky-rich-text-content";
 import {FeedViewContent, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isSelectionQuote} from "@/utils/type-utils";

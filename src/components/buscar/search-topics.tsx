@@ -1,7 +1,7 @@
 "use client"
 import { TopicSearchResult } from "@/components/topics/topic/topic-search-result"
 import { useSearch } from "./search-context"
-import { LazyLoadFeed } from "../feed/lazy-load-feed"
+import { LazyLoadFeed } from "../feed/feed/lazy-load-feed"
 import React, {ReactNode, useEffect, useState} from "react"
 import {NoResults} from "./no-results";
 import {SmallTopicProps} from "@/lib/types";

@@ -1,4 +1,3 @@
-"use client"
 import {SelectionQuoteContext} from "@/components/feed/embed/selection-quote/selection-quote-context";
 import {SelectionQuoteText} from "@/components/feed/embed/selection-quote/selection-quote-text";
 import {ProfileViewBasic} from "@/lex-api/types/app/bsky/actor/defs";

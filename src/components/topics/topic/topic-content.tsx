@@ -11,41 +11,17 @@ import { WikiEditorState } from "./topic-content-expanded-view-header";
 import {useSearchParams} from "next/navigation";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 
-export const articleButtonClassname = "article-btn sm:min-w-24 sm:text-[15px] text-sm px-1 lg:px-2 py-1"
 
 
 export function topicCurrentVersionToReplyToContent(topic: TopicProps): ReplyToContent {
-    return {
-        uri: topic.currentVersion.uri,
-        cid: topic.currentVersion.content.record.cid,
-        collection: "ar.com.cabildoabierto.topic",
-        author: topic.currentVersion.content.record.author,
-        content: {
-            ...topic.currentVersion.content,
-            topicVersion: {
-                topic: {
-                    id: topic.id
-                }
-            }
-        }
-    }
+    // TO DO
+    return {} as ReplyToContent
 }
 
 
 export function topicVersionPropsToReplyToContent(topicVersion: SmallTopicVersionProps, topicId: string): ReplyToContent {
-    return {
-        uri: topicVersion.uri,
-        cid: topicVersion.content.record.cid,
-        collection: "ar.com.cabildoabierto.topic",
-        content: {
-            ...topicVersion.content,
-            topicVersion: {
-                topic: {
-                    id: topicId
-                }
-            }
-        }
-    }
+    // TO DO
+    return {} as ReplyToContent
 }
 
 

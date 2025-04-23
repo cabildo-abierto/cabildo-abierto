@@ -1,4 +1,3 @@
-"use client"
 import {useTopics, useTopicsByCategories} from "../../hooks/swr";
 import Link from "next/link";
 import {useSearchParams} from "next/navigation";
@@ -7,7 +6,7 @@ import {TopicsSortOrder, TopicsSortSelector} from "./topics-list-view";
 import {useState} from "react";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
-import {categoryUrl, topicUrl} from "../../utils/uri";
+import {categoryUrl, topicUrl} from "@/utils/uri";
 
 
 export const AllCategoriesLists = ({sortedBy, setSortedBy}: {

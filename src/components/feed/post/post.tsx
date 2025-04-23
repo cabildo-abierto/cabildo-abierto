@@ -1,5 +1,5 @@
 
-import { MainPostFrame } from './main-post-frame';
+import { MainPostFrame } from '../../thread/post/main-post-frame';
 import {PostContent} from "./post-content";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 

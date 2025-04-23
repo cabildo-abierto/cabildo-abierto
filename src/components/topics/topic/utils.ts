@@ -1,5 +1,5 @@
 import {
-    BothContributionsProps,
+    BothContributionsProps, EditorStatus,
     TopicHistoryProps,
     TopicProps,
     UserProps
@@ -111,6 +111,6 @@ export const permissionToNumber = (level: string) => {
     }
 }
 
-export const hasEditPermission = (user: UserProps | null, level: string) => {
+export const hasEditPermission = (user: {editorStatus: EditorStatus} | null, level: string) => {
     return user && permissionToNumber(user.editorStatus) >= permissionToNumber(level)
 }

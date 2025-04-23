@@ -1,12 +1,10 @@
-"use client"
-
 import Image from 'next/image'
-import {DateSince} from '../../../modules/ui-utils/src/date'
+import {DateSince} from '../../../../modules/ui-utils/src/date'
 import Link from 'next/link'
-import {ContentTopRowAuthor} from './content-top-row-author'
+import {ContentTopRowAuthor} from '@/components/feed/frame/content-top-row-author'
 import {ReactNode} from 'react'
-import {EngagementIcons} from '@/components/feed/reactions/engagement-icons'
-import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
+import {EngagementIcons} from '@/components/feed/frame/engagement-icons'
+import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {userUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
 

@@ -1,24 +1,23 @@
 "use client"
 
-import {BskyRichTextContent} from "../bsky-rich-text-content";
-import {ContentTopRowAuthor} from "../content-top-row-author";
+import {BskyRichTextContent} from "../post/bsky-rich-text-content";
+import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {useRouter} from "next/navigation";
 import {contentUrl, getBlueskyUrl, userUrl} from "@/utils/uri";
 import {formatIsoDate} from "@/utils/dates";
-import {ProfilePic} from "@/components/feed/profile-pic";
+import {ProfilePic} from "@/components/profile/profile-pic";
 import Link from "next/link";
 import {View as RecordEmbedView, isViewRecord, isViewBlocked, isViewNotFound, isViewDetached} from "@/lex-api/types/app/bsky/embed/record"
-import {PostRecord} from "@/lib/types";
+import {ATProtoStrongRef, PostRecord} from "@/lib/types";
 import {PostEmbed} from "@/components/feed/embed/post-embed";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 type PostRecordEmbedRecordProps = {
     record: RecordEmbedView["record"]
-    mainPostUri: string
+    mainPostRef: ATProtoStrongRef
 }
 
-export const PostRecordEmbedRecord = ({record, mainPostUri}: PostRecordEmbedRecordProps) => {
+export const PostRecordEmbedRecord = ({record, mainPostRef}: PostRecordEmbedRecordProps) => {
     const router = useRouter()
 
     if (isViewRecord(record)) {
@@ -59,7 +58,7 @@ export const PostRecordEmbedRecord = ({record, mainPostUri}: PostRecordEmbedReco
                 <BskyRichTextContent post={record.value as PostRecord}/>
             </div>
             {/* TO DO: Entender por qué puede haber más de un embed */}
-            {record.embeds && record.embeds.length > 0 && <PostEmbed embed={record.embeds[0]} mainPostUri={mainPostUri}/>}
+            {record.embeds && record.embeds.length > 0 && <PostEmbed embed={record.embeds[0]} mainPostRef={mainPostRef}/>}
         </div>
     } else if(isViewDetached(record)){
         return <div className={"p-3 mt-2 border rounded-lg"}>
@@ -75,22 +74,32 @@ export const PostRecordEmbedRecord = ({record, mainPostUri}: PostRecordEmbedReco
         </div>
     } else {
         /* TO DO: Dar un poco más de info */
-        return <div className={"p-3 mt-2 border rounded-lg"}>
-            No sabemos cómo mostrarte este contenido, <button className={"text-[var(--primary)] hover:underline"} onClick={() => {window.open(getBlueskyUrl(mainPostUri), "_blank")}}>miralo en Bluesky</button>.
+        return <div className={"p-3 mt-2 border rounded-lg flex space-x-1"}>
+            <span>
+                No sabemos cómo mostrarte este contenido,
+            </span>
+            <button
+                className={"text-[var(--primary)] hover:underline"}
+                onClick={() => {window.open(getBlueskyUrl(mainPostRef.uri), "_blank")}}>
+                miralo en Bluesky
+            </button>
+            <span>
+                .
+            </span>
         </div>
     }
 }
 
 type PostRecordEmbedProps = {
     embed: RecordEmbedView
-    mainPostUri: string
+    mainPostRef: ATProtoStrongRef
 }
 
-export const PostRecordEmbed = ({embed, mainPostUri}: PostRecordEmbedProps) => {
+export const PostRecordEmbed = ({embed, mainPostRef}: PostRecordEmbedProps) => {
     const record = embed.record
     return <PostRecordEmbedRecord
         record={record}
-        mainPostUri={mainPostUri}
+        mainPostRef={mainPostRef}
     />
 }
 

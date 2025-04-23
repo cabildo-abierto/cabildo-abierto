@@ -2,8 +2,8 @@ import {$createRangeSelection, $getRoot, $nodesOfType, LexicalEditor} from "lexi
 import {useCallback, useEffect, useRef, useState} from "react";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button"
 import {ActiveCommentIcon} from "@/components/icons/active-comment-icon";
-import {PostContent} from "@/components/feed/post-content";
-import {SidenoteReplyPreviewFrame} from "@/components/feed/sidenote-reply-preview-frame";
+import {PostContent} from "@/components/feed/post/post-content";
+import {SidenoteReplyPreviewFrame} from "@/components/thread/article/sidenote-reply-preview-frame";
 import { getPointTypeFromIndex } from "../../../modules/ca-lexical-editor/src/plugins/CommentPlugin/standard-selection";
 import {
     $wrapSelectionInMarkNode,

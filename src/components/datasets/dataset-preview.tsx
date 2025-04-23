@@ -1,7 +1,5 @@
-"use client"
 import {DatasetProps} from "@/lib/types";
-import {PostPreviewFrame} from "../feed/post-preview-frame";
-import {Authorship} from "../feed/content-top-row-author";
+import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import Link from "next/link";
@@ -34,8 +32,8 @@ export const DatasetPreviewSmall = ({dataset, selected, onClick}: {dataset: Data
 
 
 export const DatasetPreview = ({dataset}: { dataset: DatasetProps }) => {
-
-    return <PostPreviewFrame
+    // TO DO
+    /*return <PostPreviewFrame
         post={dataset}
     >
         <div className={"flex flex-col"}>
@@ -48,5 +46,5 @@ export const DatasetPreview = ({dataset}: { dataset: DatasetProps }) => {
                 </div>
             </div>
         </div>
-    </PostPreviewFrame>
+    </PostPreviewFrame>*/
 }

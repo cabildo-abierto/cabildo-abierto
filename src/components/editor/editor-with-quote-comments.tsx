@@ -1,5 +1,3 @@
-"use client"
-
 import dynamic from "next/dynamic";
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
 import {ReplyToContent, WritePanel} from "@/components/writing/write-panel/write-panel";

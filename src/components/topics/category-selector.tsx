@@ -1,4 +1,3 @@
-"use client"
 import {useCategories} from "@/hooks/swr";
 import {emptyChar} from "@/utils/utils";
 import {useState} from "react";

@@ -2,7 +2,7 @@ import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, Beautif
 import { forwardRef } from "react";
 import Link from "next/link";
 import {SmallUserProps} from "@/lib/types";
-import {ProfilePic} from "@/components/feed/profile-pic";
+import {ProfilePic} from "@/components/profile/profile-pic";
 
 export const EmptyMentionResults = () => (
     <div className="mt-4 min-w-[10rem] text-[var(--text-light)] overflow-hidden border rounded-lg bg-[var(--background-dark)] p-2 ...">
