@@ -8,6 +8,7 @@ import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {mutate} from "swr";
 import {useSession} from "@/hooks/swr";
 import { Button } from "../../../modules/ui-utils/src/button"
+import {backendUrl} from "@/utils/uri";
 
 
 export const assignInviteCode = async (c: string) => {
@@ -41,7 +42,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
         }
 
         setIsLoading(true)
-        const res = await fetch("http://127.0.0.1:8080/login", {
+        const res = await fetch(backendUrl + "/login", {
             method: "POST",
             credentials: "include",
             headers: {
