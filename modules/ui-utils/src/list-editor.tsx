@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import CheckIcon from "@mui/icons-material/Check";

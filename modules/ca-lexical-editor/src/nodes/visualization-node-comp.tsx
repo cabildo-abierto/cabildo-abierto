@@ -1,9 +1,9 @@
 import {useVisualization} from "../../../../src/hooks/swr";
 import {DatasetTitle} from "../../../../src/components/datasets/dataset-title";
-import {UserHandle} from "../../../../src/components/feed/content-top-row-author";
+import {UserHandle} from "@/components/feed/frame/content-top-row-author";
 import LoadingSpinner from "../../../ui-utils/src/loading-spinner";
 import {EngagementProps, VisualizationProps} from "@/lib/types";
-import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
+import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {VegaPlot} from "../../../../src/components/visualizations/vega-plot";
 import {VegaPlotPreview} from "../../../../src/components/visualizations/vega-plot-preview";
 import {useLayoutConfig} from "../../../../src/components/layout/layout-config-context";

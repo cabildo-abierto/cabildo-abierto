@@ -1,4 +1,3 @@
-"use client"
 import {Button} from "@mui/material"
 import SelectionComponent from "@/components/buscar/search-selection-component"
 import {MobileHeader} from "../layout/mobile-header";

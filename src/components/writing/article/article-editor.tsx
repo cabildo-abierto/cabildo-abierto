@@ -8,7 +8,7 @@ import dynamic from "next/dynamic"
 import {validArticle} from "./valid-article";
 import {BackButton} from "../../../../modules/ui-utils/src/back-button";
 import {PublishArticleButton} from "@/components/writing/article/publish-article-button";
-import {Authorship} from "@/components/feed/content-top-row-author";
+import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";

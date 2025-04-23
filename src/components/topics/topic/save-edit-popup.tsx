@@ -1,5 +1,3 @@
-"use client"
-
 import { EditorState } from "lexical";
 import { CustomLink as Link } from '../../../../modules/ui-utils/src/custom-link';
 import React, { useEffect, useState } from "react";
@@ -44,13 +42,13 @@ function charsDiffFromStateAndCurrentVersion(editorState: EditorState, currentVe
 
 
 export const SaveEditPopup = ({ 
-    editorState, currentVersion, onClose, onSave, entity
+    editorState, currentVersion, onClose, onSave, topic
 }: {
     editorState: EditorState,
     currentVersion: {}
     onClose: () => void
     onSave: (v: boolean, editMsg: string) => Promise<{error?: string}>,
-    entity: TopicProps
+    topic: TopicProps
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useSession()
@@ -114,9 +112,9 @@ export const SaveEditPopup = ({
                         {!validMsg && <div className="mt-1 text-[var(--text-light)] text-sm">No puede empezar con &quot;nuevo nombre:&quot;</div>}
                     </div>
 
-                    {!hasEditPermission(user, entity.protection) &&
+                    {!hasEditPermission(user, topic.protection) &&
                         <div className="mb-8">
-                            <NotEnoughPermissionsWarning entity={entity}/>
+                            <NotEnoughPermissionsWarning entity={topic}/>
                         </div>
                     }
 

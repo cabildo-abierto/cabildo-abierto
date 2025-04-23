@@ -13,6 +13,11 @@ export function validExplanation(text: string) {
 }
 
 
+async function rejectEdit(id: string, ref: ATProtoStrongRef){
+    return {error: "Sin implementar."}
+}
+
+
 export const RejectVersionModal = ({ open, onClose, topicId, versionRef }: {
     open: boolean
     onClose: () => void

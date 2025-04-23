@@ -1,12 +1,11 @@
-"use client"
 import {useTopicFeed} from "../../../hooks/swr";
-import Feed from "../../feed/feed";
+import Feed from "../../feed/feed/feed";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
 import {Button} from "@mui/material";
 import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSearchParams} from "next/navigation";
-import {topicUrl} from "../../../utils/uri";
+import {topicUrl} from "@/utils/uri";
 import {useSWRConfig} from "swr";
 
 
@@ -75,7 +74,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
             <div className={"max-w-[600px]"}>
                 {selected == "Menciones" && mentionsSelected == "Publicaciones" &&
                     <Feed
-                        feed={{feed: feed.feed ? feed.feed.mentions : undefined, isLoading: feed.isLoading, error: feed.error}}
+                        feed={feed.data ? feed.data.mentions : undefined}
                         onClickQuote={onClickQuote}
                         noResultsText={"El tema todavía no fue mencionado."}
                         onDeleteFeedElem={onDeleteFeedElem}
@@ -85,7 +84,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                 {selected == "Respuestas al contenido" &&
                     <div className={"pt-10"}>
                         <Feed
-                            feed={{feed: feed.feed ? feed.feed.replies : undefined, isLoading: feed.isLoading, error: feed.error}}
+                            feed={feed.data ? feed.data.replies : undefined}
                             onClickQuote={onClickQuote}
                             noResultsText={"Este tema todavía no recibió respuestas."}
                             onDeleteFeedElem={onDeleteFeedElem}
@@ -96,7 +95,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                 {selected == "Menciones" && mentionsSelected == "Temas" &&
                     <div className={"flex flex-col"}>
                         {
-                            feed.feed.topics.map((t, index) => {
+                            feed.data.topics.map((t, index) => {
                                 return <CustomLink
                                     href={topicUrl(t)}
                                     key={index}
@@ -106,7 +105,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                                 </CustomLink>
                             })
                         }
-                        {feed.feed.topics.length == 0 &&
+                        {feed.data.topics.length == 0 &&
                             <div className={"text-center text-[var(--text-light)] mt-16"}>
                                 Este tema no recibió menciones en otros temas.
                             </div>

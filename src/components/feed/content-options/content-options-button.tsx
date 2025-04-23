@@ -1,4 +1,3 @@
-"use client"
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useState } from 'react';
 import { IconButton } from '@mui/material';

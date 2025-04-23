@@ -1,5 +1,3 @@
-"use client"
-
 import { TopicProps } from "@/lib/types";
 import {useCategories} from "@/hooks/swr";
 import {ListEditorWithSave} from "../../../../modules/ui-utils/src/list-editor";

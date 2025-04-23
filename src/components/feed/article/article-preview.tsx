@@ -1,10 +1,8 @@
 "use client"
-import {PostPreviewFrame} from './post-preview-frame'
+import {PostPreviewFrame} from '../frame/post-preview-frame'
 import ReadOnlyEditor from "@/components/editor/read-only-editor";
 import {ArticleView, FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
-
 
 export type ArticlePreviewProps = {
     feedViewContent: FeedViewContent

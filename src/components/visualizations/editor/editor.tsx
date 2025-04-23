@@ -25,6 +25,11 @@ const ErrorPanel = ({msg}: {msg?: string}) => {
 }
 
 
+async function getDataset(uri: string){
+    return {error: "Sin implementar"}
+}
+
+
 export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initialConfig?: PlotConfigProps}) => {
     const { datasets } = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : { filters: [], kind: "Tipo de gráfico" })
@@ -104,8 +109,8 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
                 if(datasets[i].uri == config.datasetUri){
 
                     setDataset({ dataset: datasets[i] });
-                    const d = await getDataset(config.datasetUri);
-                    setDataset(d)
+                    const {error} = await getDataset(config.datasetUri);
+                    // TO DO setDataset(dataset)
                 }
             }
         }

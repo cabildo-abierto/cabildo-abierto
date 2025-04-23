@@ -1,6 +1,6 @@
 "use client"
 import { useProfileFeed } from "@/hooks/swr"
-import Feed from "../feed/feed"
+import Feed from "../feed/feed/feed"
 import {Profile} from "@/lib/types";
 import {ProfileFeedOption} from "@/components/profile/profile-page";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";

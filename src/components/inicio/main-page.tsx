@@ -1,7 +1,7 @@
 "use client"
 
 import { MainFeedHeader } from "./main-feed-header"
-import Feed from "../feed/feed"
+import Feed from "../feed/feed/feed"
 import {useFeed} from "@/hooks/swr";
 import {useRouter, useSearchParams} from "next/navigation";
 import {ErrorPage} from "../../../modules/ui-utils/src/error-page";

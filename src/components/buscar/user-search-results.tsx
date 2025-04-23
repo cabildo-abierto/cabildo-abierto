@@ -71,6 +71,11 @@ export const SmallUserSearchResult: React.FC<{
 }
 
 
+async function searchATProtoUsers(q: string){
+    return {users: [], error: undefined}
+}
+
+
 export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCount?: number; showSearchButton?: boolean }) => {
     const users = useUsers();
     const { searchState } = useSearch();

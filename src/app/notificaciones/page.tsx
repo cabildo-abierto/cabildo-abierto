@@ -8,7 +8,6 @@ import {useRouter} from "next/navigation";
 
 const Page = () => {
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
-    const router = useRouter()
 
     return <div className={"flex flex-col"}>
         <div className={"flex items-center p-2 border-b space-x-2"}>

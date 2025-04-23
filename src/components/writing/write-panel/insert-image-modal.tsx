@@ -1,4 +1,3 @@
-"use client"
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {useState} from "react";
 import Button from "@mui/material/Button";

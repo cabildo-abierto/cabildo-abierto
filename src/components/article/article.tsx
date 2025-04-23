@@ -1,5 +1,4 @@
-"use client"
-import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
+import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {useEffect, useState} from "react";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {useSWRConfig} from "swr";

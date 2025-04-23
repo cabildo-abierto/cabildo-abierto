@@ -1,8 +1,8 @@
-import {useDatasets, useVisualizations} from "../../hooks/swr";
+import {useDatasets, useVisualizations} from "@/hooks/swr";
 import {useSearch} from "./search-context";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {DatasetProps, VisualizationProps} from "@/lib/types";
-import Feed from "../feed/feed";
+import Feed from "../feed/feed/feed";
 import React from "react";
 import {cleanText} from "@/utils/strings";
 
@@ -40,5 +40,7 @@ export const DataSearchResults = ({onSearchPage=false}: {onSearchPage?: boolean}
 
     joined = joined.sort((a, b) => (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()))
 
-    return <Feed feed={{feed: joined, isLoading: false, error: undefined}} noResultsText={"No se encontró ningún dataset o visualización"}/>
+    return null
+    // TO DO
+    //return <Feed feed={joined} noResultsText={"No se encontró ningún dataset o visualización"}/>
 }

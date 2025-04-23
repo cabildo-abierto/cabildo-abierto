@@ -1,6 +1,5 @@
-"use client"
 import {useEffect, useState, useRef, useCallback} from 'react';
-import {FeedGenerator} from "@/components/feed/feed";
+import {FeedGenerator} from "@/components/feed/feed/feed";
 
 interface LazyLoadFeedProps {
     generator: FeedGenerator

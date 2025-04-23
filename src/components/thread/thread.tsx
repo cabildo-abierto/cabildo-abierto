@@ -1,6 +1,4 @@
-"use client"
-
-import {ReplyButton} from "../feed/reply-button"
+import {ReplyButton} from "./reply-button"
 import {useEffect, useState} from "react";
 import {WritePanel} from "../writing/write-panel/write-panel";
 import {getCollectionFromUri, threadApiUrl} from "@/utils/uri";

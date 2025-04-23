@@ -1,13 +1,12 @@
-"use client"
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {VisualizationProps} from "@/lib/types";
-import {useVisualizations} from "../../../hooks/swr";
+import {useVisualizations} from "@/hooks/swr";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {IconButton, TextField} from "@mui/material";
 import {useEffect, useState} from "react";
 import Link from "next/link";
 import {FaExternalLinkAlt} from "react-icons/fa";
-import {Authorship} from "../../feed/content-top-row-author";
+import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {contentUrl} from "@/utils/uri";
 import {cleanText} from "@/utils/strings";

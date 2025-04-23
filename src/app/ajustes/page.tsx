@@ -3,16 +3,24 @@
 import React, {useState} from "react";
 import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
 import { PermissionLevel } from "@/components/topics/topic/permission-level";
-import {CloseSessionButton} from "../../components/auth/close-session-button";
+import {CloseSessionButton} from "@/components/auth/close-session-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "@mui/material";
-import { useTheme } from "../../components/theme/theme-context";
-import {useSession} from "../../hooks/swr";
+import { useTheme } from "@/components/theme/theme-context";
+import {useAccount, useSession} from "@/hooks/swr";
+import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 
 
 const AccountSettings = () => {
-    const {user} = useSession();
+    const {user} = useSession()
+    const {account, isLoading} = useAccount()
+
+    if(isLoading){
+        return <div className={"py-8"}>
+            <LoadingSpinner/>
+        </div>
+    }
 
     return <>
         <div className="mb-4">
@@ -25,7 +33,7 @@ const AccountSettings = () => {
         </div>
         <div className="mb-4">
             <div className="text-[var(--text-light)] font-medium text-sm">Mail</div>
-            {user.email ? <div className="text-lg ">{user.email}</div> : <div className="text-lg ">Pendiente</div>}
+            {account.email ? <div className="text-lg ">{account.email}</div> : <div className="text-lg ">Pendiente</div>}
         </div>
         <div className="mb-4">
             <div className="text-[var(--text-light)] font-medium text-sm">Nivel de permisos de edición</div>

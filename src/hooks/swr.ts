@@ -1,5 +1,6 @@
 import useSWR from "swr"
 import {
+    Account,
     DatasetProps,
     EngagementProps,
     FeedContentProps, Profile, Session,
@@ -9,15 +10,12 @@ import {
     TopicProps,
     TopicsGraph,
     TopicVersionAuthorsProps,
-    UserProps,
     VisualizationProps
 } from "@/lib/types"
 import {fetcher, fetcherWithCredentials} from "./fetcher"
-import {QuotedContent} from "@/components/feed/content-quote";
 import {backendUrl, getDidFromUri, getRkeyFromUri, threadApiUrl} from "@/utils/uri";
 import {SmallTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
-import {ChatMessage} from "@prisma/client";
 import {FeedViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {ProfileFeedOption} from "@/components/profile/profile-page";
 
@@ -48,6 +46,15 @@ export const useSession = (revalidate: boolean = false) => {
     return {...res, user: res.data}
 }
 
+export const useAccount = () => {
+    const res = useAPI<Account>("/account", {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        revalidateIfStale: false
+    })
+    return {...res, account: res.data}
+}
+
 export const useThread = (uri: string) => {
     return useAPI<ThreadViewContent>(threadApiUrl(uri), {revalidateIfStale: true})
 }
@@ -73,6 +80,14 @@ export function useProfile(handleOrDid: string) {
 
 export function useProfileFeed(handleOrDid: string, kind: ProfileFeedOption) {
     return useAPI<FeedViewContent[]>("/profile-feed/" + handleOrDid + "/" + kind)
+}
+
+
+export type TopicFeed = {mentions: FeedViewContent[], replies: FeedViewContent[], topics: string[]}
+
+
+export function useTopicFeed(id: string){
+    return useAPI<TopicFeed>("/topic-feed/" + encodeURIComponent(id))
 }
 
 
@@ -191,43 +206,6 @@ export function useTopicVersionChanges(did: string, rkey: string): {topicVersion
         topicVersionChanges: data ? data.topicVersionChanges : undefined,
         isLoading,
         isError: data ? data.error : undefined
-    }
-}
-
-
-
-export function useQuotedContent(uri: string): {quotedContent: QuotedContent, error?: string, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/quoted-content/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        quotedContent: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useTopicFeed(id: string): {feed: {mentions: FeedContentProps[], replies: FeedContentProps[], topics: string[]}, error: string, isLoading: boolean}{
-    const { data, isLoading } = useSWR('/api/topic-feed/'+encodeURIComponent(id), fetcher, {
-        revalidateIfStale: false,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false
-    })
-
-    if(data && data.error){
-        return {feed: undefined, isLoading: false, error: data.error}
-    }
-
-    return {
-        feed: data && data.feed ? data.feed : undefined,
-        isLoading,
-        error: data && data.error ? data.error : undefined
     }
 }
 
@@ -404,23 +382,6 @@ export function useCodes(): { codes: string[], isLoading: boolean, isError: bool
     }
 }
 
-export function useChat(fromUserId: string, toUserId: string): {
-    chat: ChatMessage[] | null,
-    isLoading: boolean,
-    isError: boolean
-} {
-    const {
-        data,
-        error,
-        isLoading
-    } = useSWR('/api/chat/' + fromUserId + '/' + toUserId, fetcher, {refreshInterval: 30 * 60 * 1000})
-
-    return {
-        chat: data,
-        isLoading: isLoading,
-        isError: error
-    }
-}
 
 export function useSubscriptionPrice(): {
     price: { price: number, remaining: number },

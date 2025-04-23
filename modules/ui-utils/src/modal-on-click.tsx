@@ -1,5 +1,3 @@
-"use client"
-
 import React, {ReactNode, useState} from 'react';
 import {Popper, Fade} from '@mui/material';
 import ClickAwayListener from '@mui/material/ClickAwayListener';

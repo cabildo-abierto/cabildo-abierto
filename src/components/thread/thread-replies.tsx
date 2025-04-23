@@ -1,9 +1,9 @@
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {isPostView, isThreadViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {smoothScrollTo} from "../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
-import {PostPreview} from "@/components/feed/post-preview";
-import {LazyLoadFeed} from "@/components/feed/lazy-load-feed";
-import {FeedGenerator} from "@/components/feed/feed";
+import {PostPreview} from "@/components/feed/post/post-preview";
+import {LazyLoadFeed} from "@/components/feed/feed/lazy-load-feed";
+import {FeedGenerator} from "@/components/feed/feed/feed";
 import {ReactNode} from "react";
 import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 

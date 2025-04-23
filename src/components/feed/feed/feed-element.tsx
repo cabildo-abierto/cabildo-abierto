@@ -1,6 +1,5 @@
-"use client"
-import {ArticlePreview} from "./article-preview";
-import {PostPreview} from "./post-preview";
+import {ArticlePreview} from "../article/article-preview";
+import {PostPreview} from "../post/post-preview";
 import {FeedViewContent, isArticleView, isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 

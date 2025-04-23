@@ -1,8 +1,6 @@
-"use client"
-
-import {PostPreviewFrame, ReplyVerticalLine} from './post-preview-frame'
+import {PostPreviewFrame, ReplyVerticalLine} from '../frame/post-preview-frame'
 import {PostContent} from "./post-content";
-import {FeedElement} from "./feed-element";
+import {FeedElement} from "../feed/feed-element";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {contentUrl} from "@/utils/uri";

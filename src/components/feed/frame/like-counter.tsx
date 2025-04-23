@@ -1,10 +1,8 @@
-"use client"
-
 import React, { ReactNode, useState } from "react"
 import { ReactionButton } from "./reaction-button";
 import { ActiveLikeIcon } from "../../icons/active-like-icon";
 import { InactiveLikeIcon } from "../../icons/inactive-like-icon";
-import {useSession} from "../../../hooks/swr";
+import {useSession} from "@/hooks/swr";
 
 type LikeCounterProps = {
     disabled?: boolean

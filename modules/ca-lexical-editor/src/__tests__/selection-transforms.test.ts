@@ -4,7 +4,7 @@ import {
     markdownSelectionToLexicalSelection
 } from "../selection-transforms";
 import {editorStateToMarkdown, markdownToEditorState} from "../markdown-transforms";
-import {getSelectionSubtree} from "@/components/feed/content-quote";
+import {getSelectionSubtree} from "../editor-state-utils";
 
 
 const longText = `

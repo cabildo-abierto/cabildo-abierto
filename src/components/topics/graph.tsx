@@ -1,5 +1,3 @@
-"use client"
-
 import {useEffect, useRef} from "react";
 import {Network, Node as NetworkNode} from "vis-network";
 import { useTheme } from "../theme/theme-context";

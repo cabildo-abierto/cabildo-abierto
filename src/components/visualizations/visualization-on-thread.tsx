@@ -1,8 +1,8 @@
-import {ProfilePic} from "../feed/profile-pic";
-import {ContentTopRowAuthor} from "../feed/content-top-row-author";
+import {ProfilePic} from "../profile/profile-pic";
+import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {EngagementProps, VisualizationProps} from "@/lib/types";
 import {DatasetTitle} from "../datasets/dataset-title";
-import {EngagementIcons} from "@/components/feed/reactions/engagement-icons";
+import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {VegaPlot} from "./vega-plot";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import FullscreenIcon from '@mui/icons-material/Fullscreen';

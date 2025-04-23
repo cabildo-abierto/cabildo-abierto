@@ -1,4 +1,3 @@
-"use client"
 import {CategorySelector} from "./category-selector";
 import {CategoryArticles} from "./category-articles";
 import {useState} from "react";

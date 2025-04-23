@@ -1,4 +1,4 @@
-import {Post} from "@/components/feed/post";
+import {Post} from "@/components/feed/post/post";
 import {Article} from "@/components/article/article";
 import {isFullArticleView, isPostView, PostView, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 

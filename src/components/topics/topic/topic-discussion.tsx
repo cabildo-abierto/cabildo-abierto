@@ -1,4 +1,4 @@
-import {ReplyButton} from "../../feed/reply-button";
+import {ReplyButton} from "../../thread/reply-button";
 import {useState} from "react";
 import {TopicFeed} from "./topic-feed";
 import {ReplyToContent, WritePanel} from "../../writing/write-panel/write-panel";

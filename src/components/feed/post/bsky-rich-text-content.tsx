@@ -1,7 +1,6 @@
 "use client"
 import {RichText} from '@atproto/api'
-import ReadOnlyEditor from '../editor/read-only-editor';
-import {PostView} from "@/lex-api/types/app/bsky/feed/defs";
+import ReadOnlyEditor from '../../editor/read-only-editor';
 import {PostRecord} from "@/lib/types";
 
 
@@ -40,9 +39,5 @@ export const BskyRichTextContent = ({
         }
     })
 
-    return (
-        <>
-            <ReadOnlyEditor text={markdown} format={"markdown"} editorClassName={className}/>
-        </>
-    )
+    return <ReadOnlyEditor text={markdown} format={"markdown"} editorClassName={className}/>
 }

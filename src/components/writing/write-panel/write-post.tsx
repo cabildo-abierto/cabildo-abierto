@@ -1,5 +1,3 @@
-"use client"
-
 import React, {useState} from "react";
 import {useSWRConfig} from "swr";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
@@ -14,7 +12,7 @@ import {
     threadApiUrl
 } from "@/utils/uri";
 import {RectTracker} from "../../../../modules/ui-utils/src/rect-tracker";
-import {ProfilePic} from "../../feed/profile-pic";
+import {ProfilePic} from "../../profile/profile-pic";
 import {VisualizationNodeComp} from "../../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
 import {FastPostImagesEditor} from "./fast-post-images-editor";
 import {AddImageButton} from "./add-image-button";

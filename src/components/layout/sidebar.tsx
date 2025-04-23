@@ -6,7 +6,7 @@ import { UserProps } from "@/lib/types";
 import { CabildoIcon } from "../icons/home-icon";
 import { SupportIcon } from "../icons/support-icon";
 import VisualizationsIcon from "@mui/icons-material/AutoGraph";
-import {ProfilePic} from "../feed/profile-pic";
+import {ProfilePic} from "../profile/profile-pic";
 import SettingsIcon from "../icons/settings-icon";
 import TopicsIcon from "@mui/icons-material/CollectionsBookmark";
 import {NotificationsIcon} from "../icons/notifications-icon";
@@ -34,7 +34,7 @@ import {Button} from "../../../modules/ui-utils/src/button";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
 
 
-const HelpDeskButton = ({user, onClose, showText, setShowText}: {showText: boolean, setShowText: (v: boolean) => void, user?: UserProps, onClose: () => void}) => {
+const HelpDeskButton = ({user, onClose, showText, setShowText}: {showText: boolean, setShowText: (v: boolean) => void, user?: {}, onClose: () => void}) => {
     const count = 0 // TO DO: Implement
     return <SidebarButton showText={showText} icon={<SupportIcon newCount={count}/>} onClick={onClose} text="Responder" href="/soporte/responder"/>
 }

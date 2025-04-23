@@ -1,4 +1,4 @@
-import {FastPostProps, TopicProps} from "@/lib/types";
+import {TopicProps} from "@/lib/types";
 import {useEffect, useState} from "react";
 import {useSWRConfig} from "swr";
 import {EditorState, LexicalEditor} from "lexical";
@@ -19,6 +19,7 @@ import {editorStateToMarkdown} from "../../../../modules/ca-lexical-editor/src/m
 import {getEditorSettings} from "@/components/editor/settings";
 import {EditorWithQuoteComments} from "@/components/editor/editor-with-quote-comments";
 import dynamic from "next/dynamic";
+import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -32,6 +33,18 @@ export type SmallTopicVersionProps = {
             cid: string
         }
     }
+}
+
+type CreateTopicVersionProps = {
+    id: string
+    text: FormData
+    format: string
+    claimsAuthorship: boolean
+    message: string
+}
+
+async function createTopicVersion({id, text, format, claimsAuthorship, message}: CreateTopicVersionProps){
+    return {error: "Sin implementar"}
 }
 
 
@@ -55,18 +68,18 @@ export const TopicContentExpandedViewWithVersion = ({
     const feed = useTopicFeed(topic.id)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const {mutate} = useSWRConfig()
-    const [quoteReplies, setQuoteReplies] = useState<FastPostProps[] | null>(null)
+    const [quoteReplies, setQuoteReplies] = useState<PostView[] | null>(null)
 
     useEffect(() => {
-        if(feed.feed){
-            // TO DO
-            /*const q = feed.feed.replies.filter((r) => {
+        // TO DO
+        /*if(feed.data){
+            const q = feed.feed.replies.filter((r) => {
                 return isQuotePost(r.collection) && (r as FastPostProps).content.post.quote != undefined
             }) as FastPostProps[]
             if(!quoteReplies || q.length != quoteReplies.length){
                 setQuoteReplies(q)
-            }*/
-        }
+            }
+        }*/
     }, [feed, quoteReplies])
 
     const editorId = !topicVersion ? "" : topicVersion.uri +"-"+(quoteReplies ? quoteReplies.map((r) => (r.cid.slice(0, 10))).join("-") : "")
@@ -194,7 +207,7 @@ export const TopicContentExpandedViewWithVersion = ({
             currentVersion={topic.currentVersion}
             onSave={saveEdit}
             onClose={() => {setShowingSaveEditPopup(false)}}
-            entity={topic}
+            topic={topic}
         />}
     </div>
 }
