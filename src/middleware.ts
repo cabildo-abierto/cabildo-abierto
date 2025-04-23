@@ -1,9 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server'
-//import { getIronSession } from 'iron-session'
-//import { cookies } from 'next/headers'
-
-//import {isLoggedIn, myCookieOptions} from "./utils/auth";
-//import {Session} from "@/lib/definitions";
 
 
 function isNewUserRoute(request: NextRequest){

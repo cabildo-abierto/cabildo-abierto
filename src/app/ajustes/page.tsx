@@ -1,15 +1,14 @@
 "use client"
 
 import React, {useState} from "react";
-import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
-import { PermissionLevel } from "@/components/topics/topic/permission-level";
+import {CustomLink as Link} from '../../../modules/ui-utils/src/custom-link';
+import {PermissionLevel} from "@/components/topics/topic/permission-level";
 import {CloseSessionButton} from "@/components/auth/close-session-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "@mui/material";
-import { useTheme } from "@/components/theme/theme-context";
+import {useTheme} from "@/components/theme/theme-context";
 import {useAccount, useSession} from "@/hooks/swr";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
-
 
 
 const AccountSettings = () => {
@@ -114,7 +113,7 @@ const AppearanceSettings = () => {
 }
 
 
-const Cuenta: React.FC = () => {
+const Ajustes = () => {
     const {user} = useSession()
     const [selected, setSelected] = useState("Cuenta")
 
@@ -144,7 +143,7 @@ const Cuenta: React.FC = () => {
         </div>
     }
 
-    const center = (
+    return (
         <div className="max-w-lg mx-auto">
             <div className={"border-b"}>
                 <h3 className="text-xl font-semibold py-6 text-center">
@@ -167,9 +166,7 @@ const Cuenta: React.FC = () => {
                 {selected == "Apariencia" && <AppearanceSettings/>}
             </div>
         </div>
-    );
-
-    return center
+    )
 };
 
-export default Cuenta;
+export default Ajustes;
