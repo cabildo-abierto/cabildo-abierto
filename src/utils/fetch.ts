@@ -24,13 +24,14 @@ export const fetchBackend = async ({
 
 type PostProps = {
     route: string
-    body: any
+    body?: any
 }
 
 export const post = async ({
     route,
     body
 }: PostProps) => {
+    //console.log("post to", route)
     const res = await fetchBackend({
         route,
         method: "POST",
@@ -38,9 +39,26 @@ export const post = async ({
         body
     })
     if(res.ok){
-        const {error} = await res.json()
-        return {error}
+        //console.log("post to", route, "res ok")
+        return await res.json()
     } else {
+        //console.log("res not ok")
         return {error: "Error en la conexión."}
+    }
+}
+
+
+export async function get<T>(route: string): Promise<T> {
+    console.log("get from", route)
+    const res = await fetchBackend({
+        route,
+        method: "GET",
+        credentials: "include"
+    })
+    if(res.ok){
+        const json = await res.json()
+        return json.data
+    } else {
+        throw Error("Error en la conexión.")
     }
 }

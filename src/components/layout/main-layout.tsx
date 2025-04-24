@@ -1,3 +1,4 @@
+"use client"
 import {ReactNode} from "react";
 import LoadingPage from "../auth/loading-page";
 import {SearchProvider} from "@/components/buscar/search-context";

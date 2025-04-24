@@ -68,14 +68,13 @@ export const VisualizationCard = ({visualization, width}: {visualization: Visual
                 </span>
             </div>
 
-            <div className={"mt-1 flex justify-center px-2"}>
+            {/* TO DO <div className={"mt-1 flex justify-center px-2"}>
                 <EngagementIcons
-                    record={visualization}
-                    counters={visualization}
+                    content={visualization}
                     className={"flex justify-between w-full px-4"}
                     onDelete={onDelete}
                 />
-            </div>
+            </div>*/}
         </div>
     </div>
 }

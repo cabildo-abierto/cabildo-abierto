@@ -76,9 +76,9 @@ const DatasetCard = ({dataset, width}: {
             <div><DateSince date={dataset.createdAt}/></div>
         </div>
 
-        <div className={"mt-1 flex justify-center"}>
+        {/*TO DO <div className={"mt-1 flex justify-center"}>
             <EngagementIcons record={dataset} counters={dataset} className={"space-x-2"}/>
-        </div>
+        </div>*/}
     </div>
 }
 

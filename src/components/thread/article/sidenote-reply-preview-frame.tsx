@@ -10,13 +10,14 @@ import {formatIsoDate} from "@/utils/dates";
 
 import {emptyChar} from "@/utils/utils";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
+import {$Typed} from "@atproto/api";
 
 
 const ReplyVerticalLine = ({className = ""}: { className?: string }) => {
     return <div className={"w-[2px] bg-[var(--accent)] " + className}></div>
 }
 
-type ATProtoPostFrameProps = {
+type SidenoteReplyPreviewFrameProps = {
     children: ReactNode
     post: PostView
     borderBelow?: boolean
@@ -32,7 +33,7 @@ export const SidenoteReplyPreviewFrame = ({
                                               showingParent = false,
                                               showingChildren = false,
                                               onDelete
-                                          }: ATProtoPostFrameProps) => {
+                                          }: SidenoteReplyPreviewFrameProps) => {
     const record = post
 
     return <div
@@ -81,10 +82,8 @@ export const SidenoteReplyPreviewFrame = ({
                 </div>
                 <div className={"mt-1"}>
                     <EngagementIcons
-                        counters={post}
-                        record={post}
+                        content={{$type: "ar.cabildoabierto.feed.defs#postView", ...post}}
                         className={"flex justify-between w-full px-1"}
-                        onDelete={onDelete}
                     />
                 </div>
             </div>

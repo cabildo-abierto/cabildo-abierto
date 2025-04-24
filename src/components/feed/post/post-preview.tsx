@@ -88,7 +88,7 @@ export const PostPreview = ({
 
         <PostPreviewFrame
             reason={feedViewContent && feedViewContent.reason && isReasonRepost(feedViewContent.reason) ? feedViewContent.reason : undefined}
-            postView={postView}
+            postView={{$type: "ar.cabildoabierto.feed.defs#postView", ...postView}}
             showingChildren={showingChildren}
             showingParent={parent != null || showingParent}
             borderBelow={!showingChildren}

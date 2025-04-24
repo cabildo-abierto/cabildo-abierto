@@ -75,12 +75,8 @@ export const Article = ({article, quoteReplies, pinnedReplies, setPinnedReplies}
         </div>
         <div className={"py-2 px-3 border-b"}>
             <EngagementIcons
-                counters={article}
-                record={article}
+                content={article}
                 className={"flex justify-between px-4 w-full"}
-                onDelete={async () => {
-                    mutate(threadApiUrl(article.uri))
-                }}
                 enDiscusion={enDiscusion}
             />
         </div>

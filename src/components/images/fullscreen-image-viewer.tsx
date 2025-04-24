@@ -15,7 +15,7 @@ export const FullscreenImageViewer = ({
                                           setViewing,
                                           className = ""
 }: {
-    images: (Image | ViewImage | string)[]
+    images: (ViewImage | string)[]
     viewing: number | null
     did?: string
     setViewing: (i: number | null) => void

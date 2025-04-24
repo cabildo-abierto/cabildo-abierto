@@ -47,7 +47,7 @@ const getUsers = async () => {
 export const AdminAcceso = () => {
     const [handle, setHandle] = useState<string>("")
     const [codesAmount, setCodesAmount] = useState<number>(0)
-    const {codes} = useCodes()
+    const {data: codes} = useCodes()
     const [users, setUsers] = useState<SmallUserProps[] | null>(null)
     const [collections, setCollections] = useState<string[]>([])
 

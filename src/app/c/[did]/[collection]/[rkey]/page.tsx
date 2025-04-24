@@ -21,7 +21,7 @@ const ContentPage = ({params}: {
         <LoadingSpinner/>
     </div>
 
-    if (error || !thread) return <ErrorPage>{error ? error : <PrettyJSON data={thread}/>}</ErrorPage>
+    if (error || !thread) return <ErrorPage>{error?.name}</ErrorPage>
 
     return <Thread thread={thread}/>
 }

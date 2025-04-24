@@ -1,4 +1,3 @@
-import {SerializedEditorState, SerializedLexicalNode} from "lexical";
 import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
 
@@ -162,9 +161,6 @@ export type SmallTopicProps = {
 }
 
 
-export type TopicSortOrder = "popular" | "recent"
-
-
 export type TopicsGraph = {
     nodeIds: string[]
     edges: {x: string, y: string}[]
@@ -207,12 +203,6 @@ export type BothContributionsProps = {
 
 
 export type ContributionsProps = [string, number][]
-
-
-export type FeedEngagementProps = {
-    likes: {likedRecordId: string; uri: string}[]
-    reposts: {repostedRecordId: string; uri: string}[]
-}
 
 
 export type SubscriptionProps = {
@@ -324,17 +314,6 @@ export type FastPostProps = RecordProps & EngagementProps & {
 } & {collection: "ar.com.cabildoabierto.quotePost" | "app.bsky.feed.post"}
 
 
-export type ThreadReplyProps = FastPostProps & {
-    content: {
-        post: {
-            replyTo: {
-                text?: string
-            }
-        }
-    }
-}
-
-
 export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
     content: {
         numWords?: number
@@ -350,10 +329,6 @@ export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
     }
 } & {collection: "ar.com.cabildoabierto.topic"}
 
-export type ThreadProps = {
-    post: FeedContentProps
-    replies?: FastPostProps[]
-}
 
 export type MatchesType = {
     matches: {x: number, y: number}[]
@@ -410,50 +385,3 @@ export type VisualizationProps = RecordProps & {
         previewBlobCid?: string
     }
 } & {collection: "ar.com.cabildoabierto.visualization"}
-
-
-
-export type JetstreamEvent = {
-    did: string
-    kind: "commit" | "update" | "identity" | "account"
-    time_us: number
-}
-
-
-
-export type CommitEvent = JetstreamEvent & {
-    commit: {
-        collection: string
-        operation: "create" | "delete"
-        rkey: string
-        cid: string
-        uri: string
-        record?: {
-            createdAt?: string
-            reply?: any
-        }
-    }
-}
-
-
-export type SyncRecordProps = {
-    did: string
-    uri: string
-    collection: string
-    rkey: string
-    cid: string
-    record: any
-}
-
-
-export type UserRepo = {
-    did: string
-    uri: string
-    collection: string
-    rkey: string
-    record: any
-    cid: string
-}[]
-
-
-export type JSONEditorState = SerializedEditorState<SerializedLexicalNode>

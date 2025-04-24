@@ -2,10 +2,18 @@
 import StateButton from "../../../modules/ui-utils/src/state-button"
 import {useSWRConfig} from "swr";
 import {useRouter} from "next/navigation";
+import {backendUrl} from "@/utils/uri";
+import {post} from "@/utils/fetch";
 
 
 export const logout = async () => {
-    // TO DO
+    console.log("logging out")
+    const {error} = await post({route: "/logout"})
+    if(error){
+        console.error("Error on logout", error)
+    } else {
+        console.log("logout ok")
+    }
 }
 
 
@@ -15,8 +23,9 @@ export const CloseSessionButton = () => {
 
     const onLogout = async () => {
         await logout()
-        await mutate("/api/user", {loggedOut: true})
-        router.push("/")
+        await mutate(backendUrl + "/session", {loggedOut: true})
+        await mutate(backendUrl + "/account")
+        router.push("/presentacion")
         return {}
     }
 

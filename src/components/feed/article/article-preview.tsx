@@ -3,10 +3,11 @@ import {PostPreviewFrame} from '../frame/post-preview-frame'
 import ReadOnlyEditor from "@/components/editor/read-only-editor";
 import {ArticleView, FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
+import {$Typed} from "@atproto/api";
 
 export type ArticlePreviewProps = {
     feedViewContent: FeedViewContent
-    articleView: ArticleView
+    articleView: $Typed<ArticleView>
     repostedBy?: { displayName?: string, handle: string }
     showingChildren?: boolean
 }

@@ -74,12 +74,12 @@ export const PostRecordEmbedRecord = ({record, mainPostRef}: PostRecordEmbedReco
         </div>
     } else {
         /* TO DO: Dar un poco más de info */
-        return <div className={"p-3 mt-2 border rounded-lg flex space-x-1"}>
+        return <div className={"p-3 mt-2 border rounded-lg flex"}>
             <span>
                 No sabemos cómo mostrarte este contenido,
             </span>
             <button
-                className={"text-[var(--primary)] hover:underline"}
+                className={"text-[var(--primary)] hover:underline ml-1"}
                 onClick={() => {window.open(getBlueskyUrl(mainPostRef.uri), "_blank")}}>
                 miralo en Bluesky
             </button>

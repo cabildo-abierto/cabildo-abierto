@@ -5,7 +5,7 @@ const UserProfile = async ({ params }) => {
     const {id} = await params
 
     return <ProfilePage
-        handleOrDid={id}
+        handle={id}
     />
 }
 

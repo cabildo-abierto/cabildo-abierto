@@ -108,9 +108,12 @@ export const VisualizationNodeComp = ({
                 />
                 <UserHandle content={visualization}/>
             </div>
-            {showEngagement && (
-                <EngagementIcons record={visualization} counters={visualization} className={"space-x-2"}/>
-            )}
+            {/* TO DO showEngagement && (
+                <EngagementIcons
+                    content={visualization}
+                    className={"space-x-2"}
+                />
+            )*/}
         </div>
     </div>
 }

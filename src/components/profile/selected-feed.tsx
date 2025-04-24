@@ -16,12 +16,12 @@ function getNoResultsText(selected: ProfileFeedOption, name: string) {
 }
 
 
-export const SelectedFeed = ({handleOrDid, profile, selected}: {
+export const SelectedFeed = ({handle, profile, selected}: {
     profile: Profile
-    handleOrDid: string
+    handle: string
     selected: ProfileFeedOption
 }) => {
-    let {data, isLoading, error} = useProfileFeed(handleOrDid, selected)
+    let {data, isLoading, error} = useProfileFeed(handle, selected)
 
     if(!profile){
         return null
@@ -30,10 +30,10 @@ export const SelectedFeed = ({handleOrDid, profile, selected}: {
             <LoadingSpinner />
         </div>
     } else if(error || !data){
-        return <ErrorPage>{error}</ErrorPage>
+        return <ErrorPage>{error?.name}</ErrorPage>
     }
 
-    const name = profile ? (profile.bsky.displayName ? profile.bsky.displayName : profile.bsky.handle) : handleOrDid
+    const name = profile ? (profile.bsky.displayName ? profile.bsky.displayName : profile.bsky.handle) : handle
 
     return <Feed
         feed={data}
