@@ -1,9 +1,8 @@
 "use client"
 import {ProfileHeader} from "./profile-header";
 import {SelectedFeed} from "./selected-feed";
-import {useProfile} from "@/hooks/swr";
+import {useProfile} from "@/hooks/api";
 import {useRouter, useSearchParams} from "next/navigation";
-import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {LoadingProfile} from "@/components/profile/loading-profile";
 
 export type ProfileFeedOption = "publicaciones" | "respuestas" | "ediciones"

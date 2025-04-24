@@ -1,7 +1,7 @@
 "use client"
 import { VisualizationProps } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
-import { useDataset } from "@/hooks/swr";
+import { useDataset } from "@/hooks/api";
 import { localizeDataset } from "../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
 //import embed from "vega-embed";
 import {useLayoutConfig} from "../layout/layout-config-context";

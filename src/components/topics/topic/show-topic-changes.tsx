@@ -3,7 +3,7 @@ import { nodesFromJSONStr } from './diff';
 import { SerializedDiffNode } from '../../../../modules/ca-lexical-editor/src/nodes/DiffNode';
 import { TopicProps, MatchesType } from '@/lib/types';
 import {SmallTopicVersionProps} from "./topic-content-expanded-view";
-import {useTopicVersionChanges} from "@/hooks/swr";
+import {useTopicVersionChanges} from "@/hooks/api";
 import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";

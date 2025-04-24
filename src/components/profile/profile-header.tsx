@@ -1,53 +1,67 @@
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {PermissionLevel} from "@/components/topics/topic/permission-level"
 import {Button} from "../../../modules/ui-utils/src/button";
-import StateButton from "../../../modules/ui-utils/src/state-button"
 import Image from 'next/image'
 import {ArticleIcon} from "../icons/article-icon"
 import {emptyChar, getUsername} from "@/utils/utils";
-import ReadOnlyEditor from "../editor/read-only-editor";
-import {Profile} from "@/lib/types";
 import {useState} from "react";
-import CheckIcon from "@mui/icons-material/Check";
-import AddIcon from "@mui/icons-material/Add";
 import {BlueskyLogo} from "../icons/bluesky-logo";
 import Link from "next/link";
-import {useSession} from "@/hooks/swr";
-import {FullscreenImageViewer} from "@/components/images/fullscreen-image-viewer";
+import {ProfileDescription} from "@/components/profile/profile-description";
+import {rounder} from "@/utils/strings";
+import { FullscreenImageViewer } from "../images/fullscreen-image-viewer";
+import {FollowButton} from "@/components/profile/profile-utils";
+import {Profile} from "@/lib/types";
 
 
-const FollowCounters = ({profile}: { profile: Profile }) => {
-    const followersCountCA = profile.ca ? profile.ca.followersCount : undefined
-    const followersCountAT = profile.bsky.followersCount
-    const followingCountCA = profile.ca ? profile.ca.followsCount : undefined
-    const followingCountAT = profile.bsky.followsCount
+export const FollowCounters = ({profile}: { profile: Profile }) => {
+    const followersCountCA = profile.ca ? rounder(profile.ca.followersCount) : undefined
+    const followersCountAT = rounder(profile.bsky.followersCount)
+    const followingCountCA = profile.ca ? rounder(profile.ca.followsCount) : undefined
+    const followingCountAT = rounder(profile.bsky.followsCount)
     const [hovered, setHovered] = useState(profile.ca == undefined)
 
     let content
 
     if (!hovered) {
         content = <>
-            <div className="">
-                <span className="font-bold">{followersCountCA}</span> <span
-                className={"text-[var(--text-light)]"}>{followersCountCA == 1 ? "seguidor" : "seguidores"}</span>
+            <div className="flex space-x-1">
+                <span className="font-bold">
+                    {followersCountCA}
+                </span>
+                <span className={"text-[var(--text-light)]"}>
+                    {followersCountCA == "1" ? "seguidor" : "seguidores"}
+                </span>
             </div>
-            <div className="sm:text-base text-sm">
-                <span className="font-bold">{followingCountCA}</span> <span
-                className={"text-[var(--text-light)]"}>siguiendo</span>
+            <div className="sm:text-base text-sm flex space-x-1">
+                <span className="font-bold">
+                    {followingCountCA}
+                </span>
+                <span className={"text-[var(--text-light)]"}>
+                    siguiendo
+                </span>
             </div>
         </>
     } else {
-        content = <div className={"flex space-x-1 items-center"}>
-            <div>
-                <span className="font-bold">{followersCountAT}</span> <span
-                className={"text-[var(--text-light)]"}>{followersCountAT == 1 ? "seguidor" : "seguidores"}</span>
+        content = <>
+            <div className={"flex space-x-1"}>
+                <span className="font-bold">
+                    {followersCountAT}
+                </span>
+                <span className={"text-[var(--text-light)]"}>
+                    {followersCountAT == "1" ? "seguidor" : "seguidores"}
+                </span>
             </div>
-            <div className="sm:text-base text-sm">
-                <span className="font-bold">{followingCountAT}</span> <span
-                className={"text-[var(--text-light)]"}>siguiendo</span>
+            <div className="sm:text-base text-sm flex space-x-1">
+                <span className="font-bold">
+                    {followingCountAT}
+                </span>
+                <span className={"text-[var(--text-light)]"}>
+                    siguiendo
+                </span>
             </div>
             <BlueskyLogo fontSize={"16"}/>
-        </div>
+        </>
     }
 
     const className = "flex space-x-2 sm:text-base text-sm items-center rounded-lg px-2 py-1 cursor-pointer " + (hovered ? "bg-[var(--background-dark)]" : "")
@@ -65,16 +79,6 @@ const FollowCounters = ({profile}: { profile: Profile }) => {
 }
 
 
-const follow = async (did: string) => {
-    return {error: "Sin implementar."}
-}
-
-
-const unfollow = async (uri: string) => {
-    return {error: "Sin implementar."}
-}
-
-
 type ProfileHeaderProps = {
     profile: Profile
     user?: { id: string, following: { id: string }[] }
@@ -82,37 +86,15 @@ type ProfileHeaderProps = {
     setSelected: any
 }
 
-
 export function ProfileHeader({
                                   profile,
                                   selected,
                                   setSelected
                               }: ProfileHeaderProps) {
-    const {user} = useSession()
-    const viewer = profile.bsky.viewer
-    const profileDid = profile.bsky.did
-    const [following, setFollowing] = useState(viewer && viewer.following != undefined)
     const [viewingProfilePic, setViewingProfilePic] = useState(null)
     const [viewingBanner, setViewingBanner] = useState(null)
 
     const inCA = profile && profile.ca.inCA
-    const isLoggedInUser = user && user.did == profileDid
-
-    const onUnfollow = async () => {
-        if (!user) return;
-        const {error} = await unfollow(viewer.following)
-        if (error) return {error}
-        setFollowing(false)
-        return {}
-    }
-
-    const onFollow = async () => {
-        if (!user) return
-        const {error} = await follow(profileDid)
-        if (error) return {error}
-        setFollowing(true)
-        return {}
-    }
 
     function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)]">
@@ -151,7 +133,7 @@ export function ProfileHeader({
                         width={800}
                         height={300}
                         alt={profile.bsky.handle + " banner"}
-                        className="max-[500px]:w-screen object-cover max-[680px]:w-[100vw-80px] max-[680px]:h-auto w-full h-[150px] cursor-pointer"
+                        className="max-[500px]:w-screen max-[680px]:w-[100vw-80px] max-[680px]:h-auto w-full h-[150px] cursor-pointer"
                         onClick={() => {
                             setViewingBanner(0)
                         }}
@@ -166,7 +148,7 @@ export function ProfileHeader({
                     images={[profile.bsky.avatar]}
                     viewing={viewingProfilePic}
                     setViewing={setViewingProfilePic}
-                    className={"rounded-full border max-w-[400px] max-h-[400px] object-contain"}
+                    className={"rounded-full border"}
                 />
                 <Image
                     src={profile.bsky.avatar}
@@ -191,33 +173,11 @@ export function ProfileHeader({
                     @{profile.bsky.handle}
                 </div>}
             </div>
-            {user && <div className="flex items-center mr-2">
-                {!isLoggedInUser &&
-                    (following ? <StateButton
-                            handleClick={onUnfollow}
-                            color="inherit"
-                            size="small"
-                            variant="contained"
-                            startIcon={<CheckIcon fontSize={"small"}/>}
-                            disableElevation={true}
-                            text1="Siguiendo"
-                        />
-                        :
-                        <StateButton
-                            handleClick={onFollow}
-                            color="primary"
-                            size="small"
-                            variant="contained"
-                            startIcon={<AddIcon fontSize={"small"}/>}
-                            disableElevation={true}
-                            text1="Seguir"
-                        />)
-                }
-            </div>}
+            <FollowButton handle={profile.bsky.handle}/>
         </div>
 
         <div className="ml-2 mb-2">
-            <ReadOnlyEditor text={profile.bsky.description} format={"plain-text"}/>
+            <ProfileDescription description={profile.bsky.description}/>
         </div>
 
         <div className="flex flex-col items-start px-2 space-y-2 mb-1">

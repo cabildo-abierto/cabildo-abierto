@@ -11,7 +11,7 @@ import {SynonymsEditor} from "./synonyms-editor";
 import { CategoriesEditor } from "./categories-editor";
 import {ShowTopicChanges} from "./show-topic-changes";
 import {ShowTopicAuthors} from "./show-topic-authors";
-import {useTopicFeed, useTopicVersion} from "@/hooks/swr";
+import {useTopicFeed, useTopicVersion} from "@/hooks/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {useSearchParams} from "next/navigation";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";

@@ -4,7 +4,7 @@ import {FeedElement} from "../feed/feed-element";
 import {IsReplyMessage} from "./is-reply-message";
 import Link from "next/link";
 import {contentUrl} from "@/utils/uri";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 import {isReasonRepost} from "@/lex-api/types/app/bsky/feed/defs";
 import {FeedViewContent, isPostView, PostView} from '@/lex-api/types/ar/cabildoabierto/feed/defs';
 import {isKnownContent} from "@/utils/type-utils";

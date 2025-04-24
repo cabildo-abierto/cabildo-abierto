@@ -28,7 +28,7 @@ import Image from 'next/image'
 import { useTheme } from "../theme/theme-context";
 import {urlCongreso, userUrl} from "@/utils/uri";
 import {FloatingWriteButton} from "../writing/floating-write-button";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 import {dimOnHoverClassName} from "../../../modules/ui-utils/src/dim-on-hover-link";
 import {Button} from "../../../modules/ui-utils/src/button";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button";
@@ -122,7 +122,7 @@ export const SidebarContent = ({onClose}: { onClose: () => void }) => {
                         {user.user &&
                             <div className={"w-full flex justify-center"}>
                                 <Link href={userUrl(user.user.handle)}>
-                                    <ProfilePic user={user.user} className={"w-12 h-12 rounded-full border " + dimOnHoverClassName}/>
+                                    <ProfilePic user={user.user} className={"w-12 h-12 rounded-full border " + dimOnHoverClassName} descriptionOnHover={false}/>
                                 </Link>
                             </div>
                         }

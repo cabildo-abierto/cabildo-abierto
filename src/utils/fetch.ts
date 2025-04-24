@@ -22,15 +22,9 @@ export const fetchBackend = async ({
     })
 }
 
-type PostProps = {
-    route: string
-    body?: any
-}
+export type PostOutput<Output> = Promise<{error?: string, data?: Output}>
 
-export const post = async ({
-    route,
-    body
-}: PostProps) => {
+export async function post<Body, Output>(route: string, body?: Body): Promise<PostOutput<Output>> {
     //console.log("post to", route)
     const res = await fetchBackend({
         route,

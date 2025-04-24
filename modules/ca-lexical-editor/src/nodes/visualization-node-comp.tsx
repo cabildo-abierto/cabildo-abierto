@@ -1,4 +1,4 @@
-import {useVisualization} from "../../../../src/hooks/swr";
+import {useVisualization} from "@/hooks/api";
 import {DatasetTitle} from "../../../../src/components/datasets/dataset-title";
 import {UserHandle} from "@/components/feed/frame/content-top-row-author";
 import LoadingSpinner from "../../../ui-utils/src/loading-spinner";

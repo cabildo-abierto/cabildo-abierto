@@ -12,7 +12,7 @@ import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {localeDate} from "../../../../modules/ui-utils/src/date";
 import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 import {FooterHorizontalRule} from "../../../../modules/ui-utils/src/footer";
 import { queryMentions } from "@/components/editor/query-mentions"
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );

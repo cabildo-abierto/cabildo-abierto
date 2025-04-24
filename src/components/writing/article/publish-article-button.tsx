@@ -6,11 +6,8 @@ import {post} from "@/utils/fetch";
 
 
 const createArticle = async (text: string, format: string, title: string) => {
-    return post({
-        route: "/article",
-        body: {
-            text, format, title
-        }
+    return post("/article", {
+        text, format, title
     })
 }
 

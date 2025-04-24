@@ -1,4 +1,4 @@
-import {useDatasets, useVisualizations} from "@/hooks/swr";
+import {useDatasets, useVisualizations} from "@/hooks/api";
 import {useSearch} from "./search-context";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {DatasetProps, VisualizationProps} from "@/lib/types";

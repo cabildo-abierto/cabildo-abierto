@@ -2,7 +2,7 @@
 import Link from "next/link"
 import {getUsername} from "../../../utils/utils"
 import {userUrl} from "../../../utils/uri";
-import {useSession} from "../../../hooks/swr";
+import {useSession} from "../../../hooks/api";
 
 export const Username = ({user}: {user: {displayName?: string, handle: string}}) => {
     const session = useSession()

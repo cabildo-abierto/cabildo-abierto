@@ -6,7 +6,7 @@ import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "@mui/material";
 import {useRouter, useSearchParams} from "next/navigation";
 import {NotFoundPage} from "../../../modules/ui-utils/src/not-found-page";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 
 export const AdminLayout = ({children}: {children: ReactNode}) => {
     const router = useRouter()

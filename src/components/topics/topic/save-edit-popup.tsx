@@ -12,7 +12,7 @@ import { AcceptButtonPanel } from "../../../../modules/ui-utils/src/accept-butto
 import {TextField} from "@mui/material";
 import {topicUrl} from "@/utils/uri";
 import {hasEditPermission} from "./utils";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 import {Button} from "@/../modules/ui-utils/src/button"
 
 

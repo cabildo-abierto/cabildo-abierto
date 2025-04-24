@@ -2,7 +2,7 @@ import React from 'react';
 import InfoPanel from '../../../modules/ui-utils/src/info-panel';
 import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
 import {topicUrl} from "../../utils/uri";
-import {useSubscriptionPrice} from "../../hooks/swr";
+import {useSubscriptionPrice} from "../../hooks/api";
 
 const FundingProgress = ({ p }: { p: number }) => {
   const state = p === 100 ? 'good' : p >= 90 ? 'medium' : 'bad';

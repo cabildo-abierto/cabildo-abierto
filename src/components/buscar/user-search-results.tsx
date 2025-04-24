@@ -4,7 +4,7 @@ import {SmallUserProps} from "@/lib/types"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import React, {useEffect, useState} from "react"
 import {cleanText} from "@/utils/strings";
-import {useUsers} from "@/hooks/swr";
+import {useUsers} from "@/hooks/api";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {userUrl} from "@/utils/uri";
 import Image from "next/image";

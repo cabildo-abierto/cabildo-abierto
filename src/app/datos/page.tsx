@@ -3,7 +3,7 @@ import {useState} from "react";
 import Link from "next/link";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import AddIcon from "@mui/icons-material/Add";
-import {useDatasets, useVisualizations} from "@/hooks/swr";
+import {useDatasets, useVisualizations} from "@/hooks/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {VisualizationsFeed} from "@/components/visualizations/visualizations-feed";
 import {DatasetsFeed} from "@/components/datasets/datasets-feed";

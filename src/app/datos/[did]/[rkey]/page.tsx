@@ -1,5 +1,5 @@
 "use client"
-import {useDataset} from "../../../../hooks/swr";
+import {useDataset} from "../../../../hooks/api";
 import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";

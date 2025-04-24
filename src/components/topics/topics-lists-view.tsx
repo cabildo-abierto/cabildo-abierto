@@ -1,4 +1,4 @@
-import {useTopics, useTopicsByCategories} from "../../hooks/swr";
+import {useTopics, useTopicsByCategories} from "../../hooks/api";
 import Link from "next/link";
 import {useSearchParams} from "next/navigation";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";

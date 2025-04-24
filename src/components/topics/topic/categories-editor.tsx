@@ -1,5 +1,5 @@
 import { TopicProps } from "@/lib/types";
-import {useCategories} from "@/hooks/swr";
+import {useCategories} from "@/hooks/api";
 import {ListEditorWithSave} from "../../../../modules/ui-utils/src/list-editor";
 import {useSWRConfig} from "swr";
 import {getFullTopicCategories} from "./utils";

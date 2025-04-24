@@ -1,7 +1,7 @@
 "use client"
 import {Thread} from "@/components/thread/thread";
 import LoadingSpinner from "../../../../../../modules/ui-utils/src/loading-spinner";
-import {useThread} from "@/hooks/swr";
+import {useThread} from "@/hooks/api";
 import {ErrorPage} from "../../../../../../modules/ui-utils/src/error-page";
 import React from "react";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";

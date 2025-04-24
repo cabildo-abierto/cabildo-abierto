@@ -1,5 +1,5 @@
 "use client"
-import { useProfileFeed } from "@/hooks/swr"
+import { useProfileFeed } from "@/hooks/api"
 import Feed from "../feed/feed/feed"
 import {Profile} from "@/lib/types";
 import {ProfileFeedOption} from "@/components/profile/profile-page";

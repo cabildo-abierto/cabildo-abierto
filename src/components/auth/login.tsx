@@ -5,7 +5,7 @@ import {Logo} from "../../../modules/ui-utils/src/logo"
 import {useRouter, useSearchParams} from "next/navigation";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import { LuPartyPopper } from "react-icons/lu";
-import {useCodes} from "@/hooks/swr";
+import {useCodes} from "@/hooks/api";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 
 
