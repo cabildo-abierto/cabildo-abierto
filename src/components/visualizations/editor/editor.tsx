@@ -1,5 +1,5 @@
 "use client"
-import {useDatasets} from "@/hooks/swr";
+import {useDatasets} from "@/hooks/api";
 import {useEffect, useRef, useState} from "react";
 import {DatasetProps, PlotConfigProps} from "@/lib/types";
 import {ConfigPanel} from "./config-panel";

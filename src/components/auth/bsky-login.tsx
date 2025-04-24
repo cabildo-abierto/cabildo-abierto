@@ -6,7 +6,7 @@ import { FormControl } from '@mui/material';
 import { isValidHandle } from "@atproto/syntax"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {mutate} from "swr";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 import { Button } from "../../../modules/ui-utils/src/button"
 import {backendUrl} from "@/utils/uri";
 

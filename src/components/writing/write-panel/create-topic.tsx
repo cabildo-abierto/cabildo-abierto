@@ -7,7 +7,7 @@ import {ErrorMsg} from "@/utils/utils";
 import TickButton from "../../../../modules/ui-utils/src/tick-button";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {validEntityName} from "@/components/topics/topic/utils";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 import {Button} from "../../../../modules/ui-utils/src/button";
 
 

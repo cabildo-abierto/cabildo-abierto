@@ -1,4 +1,4 @@
-import {useCategories} from "@/hooks/swr";
+import {useCategories} from "@/hooks/api";
 import {emptyChar} from "@/utils/utils";
 import {useState} from "react";
 import AddIcon from "@mui/icons-material/Add";

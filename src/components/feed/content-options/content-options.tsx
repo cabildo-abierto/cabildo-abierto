@@ -8,7 +8,7 @@ import {BlueskyLogo} from "../../icons/bluesky-logo";
 import {Newspaper, VisibilityOff} from "@mui/icons-material";
 import {useSWRConfig} from "swr";
 import {useState} from "react";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 import {ViewsIcon} from "@/components/icons/views-icon";
 
 

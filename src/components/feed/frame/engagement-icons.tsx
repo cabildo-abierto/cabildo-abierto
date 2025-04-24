@@ -13,7 +13,7 @@ import {WritePanel} from "@/components/writing/write-panel/write-panel";
 import {$Typed} from "@atproto/api";
 import {post} from "@/utils/fetch";
 import {useMutation, useQueryClient} from "@tanstack/react-query"
-import { threadQueryKey } from "@/hooks/swr"
+import { threadQueryKey } from "@/hooks/api"
 import {ATProtoStrongRef} from "@/lib/types";
 
 
@@ -26,12 +26,12 @@ type EngagementIconsProps = {
 
 
 async function addLike(ref: ATProtoStrongRef) {
-    await post({route: "/like", body: ref})
+    await post("/like", ref)
 }
 
 
 async function removeLike({uri, likedUri} : {uri: string, likedUri: string}) {
-    await post({route: "/remove-like", body: {uri, likedUri}})
+    await post("/remove-like", {uri, likedUri})
 }
 
 
@@ -75,13 +75,12 @@ export const EngagementIcons = ({
     }
 
     const onAddRepost = async () => {
-        const {error} = await post({route: "/repost", body: {uri: content.uri, cid: content.cid}})
-        return {error}
+        return await post("/repost", {uri: content.uri, cid: content.cid})
     }
 
     const onRemoveRepost = async () => {
         if(content.viewer && content.viewer.repost){
-            await post({route: "/remove-repost", body: {uri: content.viewer.repost, repostedUri: content.uri}})
+            await post("/remove-repost", {uri: content.viewer.repost, repostedUri: content.uri})
             return {}
         }
     }

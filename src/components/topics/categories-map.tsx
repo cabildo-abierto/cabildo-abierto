@@ -1,6 +1,6 @@
 import Graph from "./graph";
 import {useRouter} from "next/navigation";
-import {useCategoriesGraph} from "../../hooks/swr";
+import {useCategoriesGraph} from "../../hooks/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 

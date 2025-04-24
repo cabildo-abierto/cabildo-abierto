@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import {useRouter, useSearchParams} from "next/navigation";
 import NoEntityPage from "./no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
-import {useTopic} from "../../../hooks/swr";
+import {useTopic} from "../../../hooks/api";
 import {getFullTopicCategories, getFullTopicTitle} from "./utils";
 import {TopicContent, topicCurrentVersionToReplyToContent} from "./topic-content";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";

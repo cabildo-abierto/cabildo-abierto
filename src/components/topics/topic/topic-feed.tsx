@@ -1,4 +1,4 @@
-import {useTopicFeed} from "../../../hooks/swr";
+import {useTopicFeed} from "../../../hooks/api";
 import Feed from "../../feed/feed/feed";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";

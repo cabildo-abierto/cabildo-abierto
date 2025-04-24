@@ -5,7 +5,7 @@ import { useSWRConfig } from "swr"
 import {Button} from "@mui/material";
 import {validEntityName} from "./utils";
 import {topicUrl} from "@/utils/uri";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 import {createTopic} from "@/components/writing/write-panel/create-topic";
 
 const CreateEntityButton: React.FC<any> = ({onClick}) => {

@@ -8,7 +8,7 @@ import {post} from "@/utils/fetch";
 
 export const logout = async () => {
     console.log("logging out")
-    const {error} = await post({route: "/logout"})
+    const {error} = await post("/logout")
     if(error){
         console.error("Error on logout", error)
     } else {

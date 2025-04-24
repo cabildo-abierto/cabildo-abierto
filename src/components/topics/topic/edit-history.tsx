@@ -18,7 +18,7 @@ import {TopicCategories} from "./topic-categories";
 import {RejectVersionModal} from "./reject-version-modal";
 import {getTopicMonetizedChars} from "./utils";
 import {getUri, splitUri, topicUrl} from "@/utils/uri";
-import {useTopicHistory} from "@/hooks/swr";
+import {useTopicHistory} from "@/hooks/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
 import {TopicSynonyms} from "./topic-synonyms";
@@ -28,7 +28,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 
 
 const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistoryProps, index: number}) => {

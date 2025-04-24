@@ -7,7 +7,7 @@ import {CloseSessionButton} from "@/components/auth/close-session-button";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {Button} from "@mui/material";
 import {useTheme} from "@/components/theme/theme-context";
-import {useAccount, useSession} from "@/hooks/swr";
+import {useAccount, useSession} from "@/hooks/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 
 

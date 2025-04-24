@@ -20,7 +20,7 @@ import {AddVisualizationButton} from "./add-visualization-button";
 import {InsertVisualizationModal} from "./insert-visualization-modal";
 import {InsertImageModal} from "./insert-image-modal";
 import {FastPostReplyProps} from "@/lib/types";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 import {FastPostEditor} from "@/components/editor/fast-post-editor";
 import {Star, StarBorder} from "@mui/icons-material";
 import {ToolbarButton} from "../../../../modules/ca-lexical-editor/src/plugins/ToolbarPlugin/toolbar-button";
@@ -71,13 +71,8 @@ export type CreatePostProps = {
 }
 
 
-async function createPost(body: CreatePostProps): Promise<{
-    error?: string
-}> {
-    return post({
-        route: "/post",
-        body: body
-    })
+async function createPost(body: CreatePostProps) {
+    return post("/post", body)
 }
 
 

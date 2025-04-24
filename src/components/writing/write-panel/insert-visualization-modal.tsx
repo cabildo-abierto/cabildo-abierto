@@ -1,6 +1,6 @@
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
 import {VisualizationProps} from "@/lib/types";
-import {useVisualizations} from "@/hooks/swr";
+import {useVisualizations} from "@/hooks/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {IconButton, TextField} from "@mui/material";
 import {useEffect, useState} from "react";

@@ -1,7 +1,7 @@
 import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {DatasetView} from "./dataset-view";
 import {DatasetProps, EngagementProps} from "@/lib/types";
-import {useDataset} from "../../hooks/swr";
+import {useDataset} from "../../hooks/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {DatasetDescription} from "./dataset-description";
 import {EngagementIcons} from "@/components/feed/frame/engagement-icons";

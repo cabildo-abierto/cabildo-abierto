@@ -1,5 +1,5 @@
 import {ProfilePic} from "../profile/profile-pic";
-import {useSession} from "@/hooks/swr";
+import {useSession} from "@/hooks/api";
 
 
 

@@ -1,6 +1,6 @@
 "use client"
 import { TopicSearchResult } from "@/components/topics/topic/topic-search-result"
-import { useTopics } from "../../hooks/swr"
+import { useTopics } from "../../hooks/api"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import { LazyLoadFeed } from "../feed/feed/lazy-load-feed"
 import React from "react"
