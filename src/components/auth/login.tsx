@@ -12,7 +12,7 @@ import {BackButton} from "../../../modules/ui-utils/src/back-button";
 
 export const Login = () => {
     const params = useSearchParams()
-    const {codes} = useCodes()
+    const {data: codes} = useCodes()
     const router = useRouter()
 
     const inviteCode = params.get("c")

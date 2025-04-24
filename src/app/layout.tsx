@@ -5,7 +5,8 @@ import {mainMetadata} from "@/utils/metadata";
 
 import localFont from 'next/font/local'
 import {ReactNode} from "react";
-import { AppThemeProvider } from '@/components/theme/theme-provider';
+import {AppLayout} from "@/components/layout/app-layout";
+
 
 
 const Roboto_Serif = localFont({
@@ -54,9 +55,9 @@ export default function RootLayout({
             </meta>
         </head>
         <body className={"font-flex overflow-y-scroll"}>
-            <AppThemeProvider>
+            <AppLayout>
                 {children}
-            </AppThemeProvider>
+            </AppLayout>
         </body>
     </html>
 }

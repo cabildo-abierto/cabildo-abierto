@@ -4,8 +4,8 @@ import { stopPropagation } from "@/utils/utils"
 type ReactionButtonProps = {
     onClick: () => void
     count: ReactNode
-    icon1: ReactNode
-    icon2?: ReactNode
+    iconActive: ReactNode
+    iconInactive?: ReactNode
     active?: boolean
     disabled?: boolean
     title?: string
@@ -14,22 +14,21 @@ type ReactionButtonProps = {
 export const ReactionButton = ({
                                    onClick,
                                    count,
-                                   icon1,
-                                   icon2,
+                                   iconActive,
+                                   iconInactive,
                                    active=true,
                                    disabled=false,
                                    title
 }: ReactionButtonProps) => {
-    
     return <div className={"text-[var(--text-light)]"}>
         <button
             className={"rounded-lg hover:bg-[var(--background-dark2)] py-1 px-1"}
-            onClick={stopPropagation(onClick)}
+            onClick={(e) => {e.stopPropagation(); e.preventDefault(); onClick()}}
             disabled={disabled}
             title={title}
         >
             <div className={"flex items-baseline"}>
-                {active ? <div>{icon1}</div> : <div>{icon2}</div>}
+                {active ? <div>{iconActive}</div> : <div>{iconInactive}</div>}
                 <div className="text-sm mr-1">{count}</div>
             </div>
         </button>

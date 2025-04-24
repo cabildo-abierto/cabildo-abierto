@@ -30,7 +30,7 @@ const SelectedFeed = ({selected}: {selected: string}) => {
     if(feed.isLoading){
         return <div className={"py-8"}><LoadingSpinner/></div>
     } else if(feed.error || !feed){
-        return <ErrorPage>{feed.error}</ErrorPage>
+        return <ErrorPage>{feed.error.name}</ErrorPage>
     }
 
     return <Feed feed={feed.data}/>

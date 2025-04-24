@@ -20,7 +20,7 @@ export const BlueskyLogin = ({inviteCode}: {inviteCode?: string}) => {
     const [error, setError] = useState(undefined)
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
-    const {user} = useSession(true)
+    const {user} = useSession() // TO DO: Tal vez haga falta alguna revalidación
     const [usingInviteCode, setUsingInviteCode] = useState(false)
     const [handleStart, setHandleStart] = useState("")
     const [domain, setDomain] = useState(".bsky.social")

@@ -15,6 +15,7 @@ import {ArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs
 import {Record as ArticleRecord} from "@/lex-api/types/ar/cabildoabierto/feed/article"
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {isSelfLabels} from "@/lex-api/types/com/atproto/label/defs";
+import {$Typed} from "@atproto/api";
 
 
 export const hasEnDiscusionLabel = (postView: PostView | ArticleView) => {
@@ -29,7 +30,7 @@ export const ReplyVerticalLine = ({className=""}: {className?: string}) => {
 
 type FastPostPreviewFrameProps = {
     children: ReactNode
-    postView: PostView | ArticleView
+    postView: $Typed<PostView> | $Typed<ArticleView>
     borderBelow?: boolean
     showingParent?: boolean
     showingChildren?: boolean
@@ -115,10 +116,8 @@ export const PostPreviewFrame = ({
 
                 <div className={"mt-1 text-sm"}>
                     <EngagementIcons
-                        counters={postView}
-                        record={postView}
-                        className={"flex justify-between"}
-                        onDelete={onDelete}
+                        content={postView}
+                        className={"justify-between px-2"}
                         enDiscusion={enDiscusion}
                     />
                 </div>

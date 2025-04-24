@@ -81,8 +81,8 @@ export const VisualizationOnThread = ({visualization}: {visualization: Visualiza
                 width={canvasWidth-20}
             />
         </div>
-        <div className={"border-t pt-2"}>
-            <EngagementIcons record={visualization} counters={visualization} className={"flex justify-between px-2"}/>
-        </div>
+        {/*<div className={"border-t pt-2"}>
+            <EngagementIcons content={visualization} className={"flex justify-between px-2"}/>
+        </div>*/}
     </div>
 }

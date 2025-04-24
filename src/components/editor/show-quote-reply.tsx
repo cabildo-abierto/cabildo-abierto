@@ -1,5 +1,5 @@
 import {$createRangeSelection, $getRoot, $nodesOfType, LexicalEditor} from "lexical";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {IconButton} from "../../../modules/ui-utils/src/icon-button"
 import {ActiveCommentIcon} from "@/components/icons/active-comment-icon";
 import {PostContent} from "@/components/feed/post/post-content";
@@ -17,7 +17,7 @@ import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isView as isSelectionQuoteView} from "@/lex-api/types/ar/cabildoabierto/embed/selectionQuote"
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {ModalOnClickControlled} from "../../../modules/ui-utils/src/modal-on-click-controlled";
-import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
+import {$Typed} from "@atproto/api";
 
 
 export const ShowQuoteReplyButton = ({
@@ -31,8 +31,6 @@ export const ShowQuoteReplyButton = ({
     const [hovered, setHovered] = useState(false)
     const [open, setOpen] = useState(false)
     const pinned = pinnedReplies.includes(reply.cid)
-
-    console.log(pinned, pinnedReplies)
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const {mutate} = useSWRConfig()

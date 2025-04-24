@@ -12,7 +12,7 @@ import { BaseFullscreenPopup } from "../../../../modules/ui-utils/src/base-fulls
 import { Authorship } from "@/components/feed/frame/content-top-row-author";
 import { NeedAccountPopup } from "../../auth/need-account-popup";
 import {ProfilePic} from "../../profile/profile-pic";
-import {LikeCounter} from "@/components/feed/frame/like-counter";
+import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
 import {TopicCategories} from "./topic-categories";
 import {RejectVersionModal} from "./reject-version-modal";
@@ -144,16 +144,16 @@ const ConfirmEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acceptCo
         {loading ? <LoadingSpinner size={"14px"} className={""}/> : <><ReactionButton
                 onClick={acceptUri ? onCancelAcceptEdit : onAcceptEdit}
                 active={false}
-                icon1={<CheckIcon fontSize={"inherit"}/>}
-                icon2={<CheckIcon fontSize={"inherit"}/>}
+                iconActive={<CheckIcon fontSize={"inherit"}/>}
+                iconInactive={<CheckIcon fontSize={"inherit"}/>}
                 count={acceptCount}
                 title={"Aceptar versión."}
             />
             <ReactionButton
             onClick={rejectUri ? onCancelRejectEdit : () => {setOpenRejectModal(true)}}
             active={false}
-            icon1={<ClearIcon fontSize={"inherit"}/>}
-            icon2={<ClearIcon fontSize={"inherit"}/>}
+            iconActive={<ClearIcon fontSize={"inherit"}/>}
+            iconInactive={<ClearIcon fontSize={"inherit"}/>}
             count={rejectCount}
             title={"Aceptar versión."}
             />
@@ -172,27 +172,27 @@ const AssignAuthorshipButtons = ({topic, version}: {
     topic: TopicProps, version: number
 }) => {
     return <div className="flex space-x-2">
-        <LikeCounter
-            icon1={<AttachMoneyIcon fontSize={"inherit"}/>}
-            icon2={<AttachMoneyIcon fontSize={"inherit"}/>}
-            onLike={async () => {
+        <ReactionCounter
+            iconActive={<AttachMoneyIcon fontSize={"inherit"}/>}
+            iconInactive={<AttachMoneyIcon fontSize={"inherit"}/>}
+            onAdd={async () => {
                 return {error: "Sin implementar"}
             }}
-            onDislike={async () => {
+            onRemove={async () => {
                 return {error: "Sin implementar"}
             }}
-            initialCount={0}
+            count={0}
         />
-        <LikeCounter
-            icon1={<MoneyOffIcon fontSize={"inherit"}/>}
-            icon2={<MoneyOffIcon fontSize={"inherit"}/>}
-            onLike={async () => {
+        <ReactionCounter
+            iconActive={<MoneyOffIcon fontSize={"inherit"}/>}
+            iconInactive={<MoneyOffIcon fontSize={"inherit"}/>}
+            onAdd={async () => {
                 return {error: "Sin implementar"}
             }}
-            onDislike={async () => {
+            onRemove={async () => {
                 return {error: "Sin implementar"}
             }}
-            initialCount={0}
+            count={0}
         />
     </div>
 }
@@ -241,6 +241,14 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
 
     className = className + (canHaveAuthorship ? " cursor-pointer hover:bg-[var(--background-dark)]" : "")
 
+
+    {/* TO DO onDelete={async () => {
+        await deleteTopicVersion(topicVersion.uri)
+        mutate("/api/topic/" + topic.id)
+        mutate("/api/topic-history/" + topic.id)
+        mutate("/api/topics-by-categories/popular")
+    }}*/}
+
     return <div className="flex items-center w-full">
         {showingRemoveAuthorshipPanel && <RemoveAuthorshipPanel
             topicHistory={topicHistory}
@@ -273,12 +281,6 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
                         </div>
                         <ContentOptionsButton
                             record={{...topicVersion}}
-                            onDelete={async () => {
-                                await deleteTopicVersion(topicVersion.uri)
-                                mutate("/api/topic/" + topic.id)
-                                mutate("/api/topic-history/" + topic.id)
-                                mutate("/api/topics-by-categories/popular")
-                            }}
                         />
                     </div>
                 </div>

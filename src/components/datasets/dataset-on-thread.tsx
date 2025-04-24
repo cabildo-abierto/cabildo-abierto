@@ -47,9 +47,9 @@ export const DatasetOnThread = ({dataset}: {dataset: DatasetProps & EngagementPr
             {isLoading ? <LoadingSpinner/> : datasetWithData && datasetWithData.data ?
             <DatasetView maxWidth={layoutConfig.maxWidthCenter} maxHeight="500px" data={datasetWithData.data}/> : <></>}
         </div>
-        <div className={"py-2 border-t"}>
-            <EngagementIcons counters={dataset} record={dataset}/>
-        </div>
+        {/* TO DO <div className={"py-2 border-t"}>
+            <EngagementIcons content={dataset}/>
+        </div>*/}
         {error && <div className={"py-4 text-center"}>
             {error}
         </div>}

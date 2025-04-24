@@ -1,6 +1,6 @@
 import {WikiEditorState} from "@/components/topics/topic/topic-content-expanded-view-header";
 
-export const backendUrl = "https://api.cabildoabierto.ar"
+export const backendUrl = "http://127.0.0.1:8080" // "https://api.cabildoabierto.ar"
 
 export function getUri(did: string, collection: string, rkey: string) {
     return "at://" + did + "/" + collection + "/" + rkey

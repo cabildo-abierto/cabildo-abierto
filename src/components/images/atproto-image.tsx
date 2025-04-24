@@ -1,10 +1,10 @@
 import Image from "next/image";
-import {ViewImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
-import {Image as BskyImage} from "@atproto/api/src/client/types/app/bsky/embed/images";
+import {isViewImage, ViewImage} from "@/lex-api/types/app/bsky/embed/images";
+import {PrettyJSON} from "../../../modules/ui-utils/src/pretty-json";
 
 
 type EmbedImageProps = {
-    img: ViewImage | BskyImage | string
+    img: ViewImage | string
     className?: string
     did?: string
     onClick?: (e: any) => void
@@ -25,20 +25,29 @@ export const ATProtoImage = ({
         alt = ""
         width = 1000
         height = 1000
-    } else {
-        width = img.aspectRatio.width
-        height = img.aspectRatio.height
-        src = "image" in img ? "https://cdn.bsky.app/img/feed_thumbnail/plain/" + did + "/" + img.image.ref.$link + "@" + img.image.mimeType.split("/")[1] : img.thumb
+    } else if(img.thumb) {
+        src = img.thumb
         alt = img.alt
+        if(img.aspectRatio){
+            width = img.aspectRatio.width
+            height = img.aspectRatio.height
 
-        if(cover){
+            if(cover){
 
-        } else if(height > maxHeight){
-            width = width * maxHeight / height
-            height = maxHeight
+            } else if(height > maxHeight){
+                width = width * maxHeight / height
+                height = maxHeight
+            }
+        } else {
+            width = 300
+            height = 300
+            className = className + " w-full h-full"
         }
+    } else {
+        return <div className={"py-4 border rounded w-full"}>
+            Ocurrió un error al mostrar la imagen.
+        </div>
     }
-
 
     return <>
         <Image

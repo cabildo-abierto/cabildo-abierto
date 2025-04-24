@@ -3,7 +3,7 @@ import {
     Account,
     DatasetProps,
     EngagementProps,
-    FeedContentProps, Profile, Session,
+    Profile, Session,
     SmallTopicProps,
     SmallUserProps,
     TopicHistoryProps,
@@ -13,55 +13,53 @@ import {
     VisualizationProps
 } from "@/lib/types"
 import {fetcher, fetcherWithCredentials} from "./fetcher"
-import {backendUrl, getDidFromUri, getRkeyFromUri, threadApiUrl} from "@/utils/uri";
+import {backendUrl, getDidFromUri, getRkeyFromUri, splitUri, threadApiUrl} from "@/utils/uri";
 import {SmallTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
 import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import {FeedViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {ProfileFeedOption} from "@/components/profile/profile-page";
+import {useQuery} from "@tanstack/react-query";
+import {get} from "@/utils/fetch";
 
 
-export type SWRConfigProps = {
-    revalidateIfStale?: boolean
-    revalidateOnFocus?: boolean
-    revalidateOnReconnect?: boolean
+function uriToKey(uri: string) {
+    const {did, collection, rkey} = splitUri(uri)
+    return [did, collection, rkey].join (":")
 }
 
 
-export function useAPI<T>(route: string, config: SWRConfigProps = {revalidateIfStale: false, revalidateOnFocus: false, revalidateOnReconnect: false}): {data: T, isLoading: boolean, error?: string} {
-    const { data, isLoading } = useSWR(backendUrl + route, fetcherWithCredentials, config)
-
-    return {
-        data: data && data.data ? data.data : undefined,
-        isLoading,
-        error: data && data.error ? data.error : undefined
-    }
-}
-
-export const useSession = (revalidate: boolean = false) => {
-    const res = useAPI<Session>("/session", {
-        revalidateOnFocus: revalidate,
-        revalidateOnReconnect: revalidate,
-        revalidateIfStale: revalidate
+export function useAPI<T>(route: string, key: readonly unknown[]){
+    return useQuery<T>({
+        queryKey: key,
+        queryFn: async () => {
+            return await get<T>(route)
+        }
     })
+}
+
+export const useSession = () => {
+    const res = useAPI<Session>("/session", ["session"])
     return {...res, user: res.data}
 }
 
 export const useAccount = () => {
-    const res = useAPI<Account>("/account", {
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        revalidateIfStale: false
-    })
+    const res = useAPI<Account>("/account", ["account"])
     return {...res, account: res.data}
 }
 
+
+export function threadQueryKey(uri: string){
+    return ["thread", uriToKey(uri)]
+}
+
+
 export const useThread = (uri: string) => {
-    return useAPI<ThreadViewContent>(threadApiUrl(uri), {revalidateIfStale: true})
+    return useAPI<ThreadViewContent>(threadApiUrl(uri), threadQueryKey(uri))
 }
 
 
 export const useTrendingTopics = () => {
-    return useAPI<SmallTopicProps[]>("/trending-topics")
+    return useAPI<SmallTopicProps[]>("/trending-topics", ["trending-topics"])
 }
 
 
@@ -69,17 +67,17 @@ export type FeedKind = "discusion" | "siguiendo" | "descubrir"
 
 
 export const useFeed = (feed: FeedKind) => {
-    return useAPI<FeedViewContent[]>("/feed/" + feed)
+    return useAPI<FeedViewContent[]>("/feed/" + feed, ["feed", feed])
 }
 
 
-export function useProfile(handleOrDid: string) {
-    return useAPI<Profile>("/profile/" + handleOrDid)
+export function useProfile(handle: string) {
+    return useAPI<Profile>("/profile/" + handle, ["profile", handle])
 }
 
 
-export function useProfileFeed(handleOrDid: string, kind: ProfileFeedOption) {
-    return useAPI<FeedViewContent[]>("/profile-feed/" + handleOrDid + "/" + kind)
+export function useProfileFeed(handle: string, kind: ProfileFeedOption) {
+    return useAPI<FeedViewContent[]>("/profile-feed/" + handle + "/" + kind, ["profile-feed", handle, kind])
 }
 
 
@@ -87,7 +85,12 @@ export type TopicFeed = {mentions: FeedViewContent[], replies: FeedViewContent[]
 
 
 export function useTopicFeed(id: string){
-    return useAPI<TopicFeed>("/topic-feed/" + encodeURIComponent(id))
+    return useAPI<TopicFeed>("/topic-feed/" + encodeURIComponent(id), ["topic-feed", id])
+}
+
+
+export function useCodes(){
+    return useAPI<string[]>("/codes", ["codes"])
 }
 
 
@@ -244,9 +247,6 @@ export function useVisualizations(): {visualizations: VisualizationProps[], isLo
 }
 
 
-
-
-
 export function useDataset(uri: string): {dataset: {dataset: DatasetProps & EngagementProps, data: any[]}, isLoading: boolean, error?: string}{
     const { data, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
         {
@@ -363,20 +363,6 @@ export function useUsers(): { users: SmallUserProps[], isLoading: boolean, isErr
 
     return {
         users: data,
-        isLoading: isLoading,
-        isError: error
-    }
-}
-
-export function useCodes(): { codes: string[], isLoading: boolean, isError: boolean } {
-    const {data, error, isLoading} = useSWR('/api/codes', fetcher, {
-        revalidateIfStale: false,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false
-    })
-
-    return {
-        codes: data,
         isLoading: isLoading,
         isError: error
     }
