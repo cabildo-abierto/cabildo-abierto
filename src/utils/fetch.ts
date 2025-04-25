@@ -42,16 +42,14 @@ export async function post<Body, Output>(route: string, body?: Body): Promise<Po
 }
 
 
-export async function get<T>(route: string): Promise<T> {
-    console.log("get from", route)
+export async function get<Output>(route: string): Promise<PostOutput<Output>> {
     const res = await fetchBackend({
         route,
         method: "GET",
         credentials: "include"
     })
     if(res.ok){
-        const json = await res.json()
-        return json.data
+        return await res.json()
     } else {
         throw Error("Error en la conexión.")
     }

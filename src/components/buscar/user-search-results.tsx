@@ -1,38 +1,44 @@
-"use client"
 import {useSearch} from "./search-context"
-import {SmallUserProps} from "@/lib/types"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import React, {useEffect, useState} from "react"
-import {cleanText} from "@/utils/strings";
-import {useUsers} from "@/hooks/api";
 import {CustomLink as Link} from "../../../modules/ui-utils/src/custom-link";
 import {userUrl} from "@/utils/uri";
 import Image from "next/image";
 import {emptyChar} from "@/utils/utils";
 import ReadOnlyEditor from "@/components/editor/read-only-editor";
+import {get} from "@/utils/fetch";
+import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
+import {BlueskyLogo} from "@/components/icons/bluesky-logo";
+import {ProfilePic} from "@/components/profile/profile-pic";
+import {FollowButton} from "@/components/profile/profile-utils";
 
+type UserSearchResultProps = {
+    user: ProfileViewBasic & {
+        description?: string
+    }
+}
 
-export const UserSearchResult: React.FC<{
-    result: { displayName?: string, handle: string, avatar?: string, description?: string }
-}> = ({result}) => {
+export const UserSearchResult = ({user}: UserSearchResultProps) => {
 
-    return <Link href={userUrl(result.handle)}
-                 className="flex flex-col hover:bg-[var(--background-dark)] border-b p-3">
-        <div className={"flex space-x-4 ml-4"}>
-            {result.avatar ? <Image
-                src={result.avatar}
-                alt={"Foto de perfil de @" + result.handle}
-                width={100}
-                height={100}
-                className="rounded-full h-14 w-14"
-            /> : <div className={"h-14 w-14"}>{emptyChar}</div>}
-            <div className="flex flex-col">
-                {result.displayName ? result.displayName : <>@{result.handle}</>}
-                {result.displayName && <span className="text-[var(--text-light)]">@{result.handle}</span>}
-                {result.description && result.description.length > 0 && <div className={"text-sm mt-1"}>
-                    <ReadOnlyEditor text={result.description} format={"markdown"}/>
-                </div>}
+    return <Link
+        href={userUrl(user.handle)}
+        className="flex justify-between hover:bg-[var(--background-dark)] border-b p-3 h-28"
+    >
+        <div className={"flex justify-center w-16"}>
+            <ProfilePic user={user} className={"rounded-full w-10 h-10"}/>
+        </div>
+        <div className="flex flex-col w-full items-start px-4">
+            <div className={"truncate"}>
+                {user.displayName ? user.displayName : <>@{user.handle}</>}
             </div>
+            {user.displayName && <span className="text-[var(--text-light)] truncate">@{user.handle}</span>}
+            {user.description && user.description.length > 0 && <div className={"text-sm pt-1 line-clamp-2"}>
+                <ReadOnlyEditor text={user.description} format={"plain-text"}/>
+            </div>}
+        </div>
+        <div className={"flex flex-col items-center justify-between"}>
+            <FollowButton handle={user.handle} profile={user}/>
+            {!user.caProfile ? <BlueskyLogo/> : <>{emptyChar}</>}
         </div>
     </Link>
 }
@@ -71,54 +77,36 @@ export const SmallUserSearchResult: React.FC<{
 }
 
 
-async function searchATProtoUsers(q: string){
-    return {users: [], error: undefined}
+async function searchUsers(query: string) {
+    return get<ProfileViewBasic[]>("/search-users/"+encodeURIComponent(query))
 }
 
 
-export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCount?: number; showSearchButton?: boolean }) => {
-    const users = useUsers();
-    const { searchState } = useSearch();
+export const UserSearchResults = ({maxCount, showSearchButton = true}: {
+    maxCount?: number;
+    showSearchButton?: boolean
+}) => {
+    const {searchState} = useSearch();
     const [resultsState, setResultsState] = useState<string>("not searching")
-    const [results, setResults] = useState<SmallUserProps[] | null>(null);
+    const [results, setResults] = useState<ProfileViewBasic[] | null>(null);
 
     useEffect(() => {
         const debounceTimeout = setTimeout(async () => {
             setResults(null)
+            console.log("search state value", searchState.value)
             if (searchState.value.length === 0) {
                 setResultsState("not searching")
                 return
             }
-            if(users.isLoading) {
-                setResultsState("searching")
-                return
-            }
             setResultsState("searching")
-            const searchValue = cleanText(searchState.value);
 
-            function isMatch(user: SmallUserProps) {
-                return (
-                    (user.displayName && cleanText(user.displayName).includes(searchValue)) ||
-                    (user.handle && cleanText(user.handle).includes(searchValue))
-                );
-            }
-
-            const filteredUsers = users.users.filter(isMatch);
-            setResults(filteredUsers)
-
-            const {users: atprotoUsers, error} = await searchATProtoUsers(searchState.value)
-            if(error){
+            const {data: users, error} = await searchUsers(searchState.value)
+            if (error) {
                 setResultsState("atproto error: " + error)
                 return
             }
 
-            atprotoUsers.forEach((u1) => {
-                if(!filteredUsers.some((u2) => (u2.did == u1.did))){
-                    filteredUsers.push(u1)
-                }
-            })
-
-            setResults(filteredUsers);
+            setResults(users)
             setResultsState("done")
         }, 300);
 
@@ -126,27 +114,27 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
         return () => {
             clearTimeout(debounceTimeout);
         };
-    }, [searchState.value, users.isLoading]);
+    }, [searchState.value]);
 
-    if(searchState.value.length == 0){
+    if (searchState.value.length == 0) {
         return <div className={"mt-8 text-center text-[var(--text-light)] " + (showSearchButton ? " border-b " : "")}>
             Buscá un usuario
         </div>
     }
 
-    if(resultsState.startsWith("atproto error: ")){
+    if (resultsState.startsWith("atproto error: ")) {
         return <div className={"text-[var(--text-light)] text-center px-2 " + (showSearchButton ? "" : "mt-8")}>
             {resultsState.replace("atproto error: ", "")}
         </div>
     }
 
-    if((resultsState == "searching" && !results) || !results){
+    if ((resultsState == "searching" && !results) || !results) {
         return <div className={showSearchButton ? "border-b flex items-center h-full w-full" : "mt-8"}>
             <LoadingSpinner/>
         </div>
     }
 
-    if(results && resultsState != "searching" && results.length == 0){
+    if (results && resultsState != "searching" && results.length == 0) {
         return <div className={"text-[var(--text-light)] border-b text-center " + (showSearchButton ? "py-4" : "")}>
             No se encontraron resultados
         </div>
@@ -158,7 +146,7 @@ export const UserSearchResults = ({ maxCount, showSearchButton = true }: { maxCo
         <div className="flex flex-col justify-center w-full">
             {results.slice(0, rightIndex).map((user, index) => (
                 <div key={index} className="">
-                    {showSearchButton ? <SmallUserSearchResult result={user}/> : <UserSearchResult result={user}/>}
+                    {showSearchButton ? <SmallUserSearchResult result={user}/> : <UserSearchResult user={user}/>}
                 </div>
             ))}
             {resultsState == "searching" && results.length < rightIndex && <div className={"py-1 border-b"}>

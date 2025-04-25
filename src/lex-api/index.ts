@@ -9,6 +9,7 @@ import {
 import { schemas } from './lexicons.js'
 import { CID } from 'multiformats/cid'
 import { type OmitKey, type Un$Typed } from './util.js'
+import * as ArCabildoabiertoActorDefs from './types/ar/cabildoabierto/actor/defs.js'
 import * as ArCabildoabiertoActorCaProfile from './types/ar/cabildoabierto/actor/caProfile.js'
 import * as ArCabildoabiertoDataDataBlock from './types/ar/cabildoabierto/data/dataBlock.js'
 import * as ArCabildoabiertoDataDataset from './types/ar/cabildoabierto/data/dataset.js'
@@ -197,6 +198,7 @@ import * as AppBskyActorSearchActors from './types/app/bsky/actor/searchActors.j
 import * as AppBskyActorSearchActorsTypeahead from './types/app/bsky/actor/searchActorsTypeahead.js'
 import * as AppBskyRichtextFacet from './types/app/bsky/richtext/facet.js'
 
+export * as ArCabildoabiertoActorDefs from './types/ar/cabildoabierto/actor/defs.js'
 export * as ArCabildoabiertoActorCaProfile from './types/ar/cabildoabierto/actor/caProfile.js'
 export * as ArCabildoabiertoDataDataBlock from './types/ar/cabildoabierto/data/dataBlock.js'
 export * as ArCabildoabiertoDataDataset from './types/ar/cabildoabierto/data/dataset.js'

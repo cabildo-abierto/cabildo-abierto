@@ -1,6 +1,6 @@
 import SearchBar from "@/components/buscar/search-bar";
 import {SearchContent} from "@/components/buscar/search-content";
-import {SmallBackButtonHeader} from "../../components/layout/small-back-button-header";
+import {SmallBackButtonHeader} from "@/components/layout/small-back-button-header";
 
 
 const Page = async ({searchParams}: {searchParams: Promise<{q: string}>}) => {

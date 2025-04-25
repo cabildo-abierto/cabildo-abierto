@@ -3,9 +3,9 @@ import {TextField} from "@mui/material";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import React, {useState} from "react";
 import {AdminSection} from "./admin-section";
-import {SmallUserProps} from "@/lib/types";
 import {ListEditor} from "../../../modules/ui-utils/src/list-editor";
 import {useCodes} from "@/hooks/api";
+import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 
 
 export const collectionsList = [
@@ -48,7 +48,7 @@ export const AdminAcceso = () => {
     const [handle, setHandle] = useState<string>("")
     const [codesAmount, setCodesAmount] = useState<number>(0)
     const {data: codes} = useCodes()
-    const [users, setUsers] = useState<SmallUserProps[] | null>(null)
+    const [users, setUsers] = useState<ProfileViewBasic[] | null>(null)
     const [collections, setCollections] = useState<string[]>([])
 
     async function copyCode(c: string) {

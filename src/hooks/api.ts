@@ -5,7 +5,6 @@ import {
     EngagementProps,
     Profile, Session,
     SmallTopicProps,
-    SmallUserProps,
     TopicHistoryProps,
     TopicProps,
     TopicsGraph,
@@ -20,6 +19,8 @@ import {FeedViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabie
 import {ProfileFeedOption} from "@/components/profile/profile-page";
 import {useQuery} from "@tanstack/react-query";
 import {get} from "@/utils/fetch";
+import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
+import {FollowKind} from "@/components/profile/follow/followx-page";
 
 
 function uriToKey(uri: string) {
@@ -32,7 +33,15 @@ export function useAPI<T>(route: string, key: readonly unknown[]){
     return useQuery<T>({
         queryKey: key,
         queryFn: async () => {
-            return await get<T>(route)
+            const {data, error} = await get<T>(route)
+            if(data){
+                return data
+            } else if(error) {
+                console.log("throwing error!", error)
+                throw Error(error)
+            } else {
+                return data
+            }
         }
     })
 }
@@ -74,6 +83,13 @@ export const useFeed = (feed: FeedKind) => {
 export function useProfile(handle: string) {
     return useAPI<Profile>("/profile/" + handle, ["profile", handle])
 }
+
+
+export function useFollowx(handle: string, kind: FollowKind) {
+    const route = kind == "seguidores" ? "followers" : "follows"
+    return useAPI<ProfileViewBasic[]>(`/${route}/` + handle, [kind, handle])
+}
+
 
 
 export function useProfileFeed(handle: string, kind: ProfileFeedOption) {
@@ -351,20 +367,6 @@ export function useBskyUser(): { bskyUser: ProfileViewDetailed, isLoading?: bool
         bskyUser: data ? data?.bskyUser : undefined,
         isLoading,
         error
-    }
-}
-
-export function useUsers(): { users: SmallUserProps[], isLoading: boolean, isError: boolean } {
-    const {data, error, isLoading} = useSWR('/api/users', fetcher, {
-        revalidateIfStale: false,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false
-    })
-
-    return {
-        users: data,
-        isLoading: isLoading,
-        isError: error
     }
 }
 
