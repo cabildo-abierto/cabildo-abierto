@@ -8,75 +8,11 @@ import {useState} from "react";
 import {BlueskyLogo} from "../icons/bluesky-logo";
 import Link from "next/link";
 import {ProfileDescription} from "@/components/profile/profile-description";
-import {rounder} from "@/utils/strings";
-import { FullscreenImageViewer } from "../images/fullscreen-image-viewer";
+import {FullscreenImageViewer} from "../images/fullscreen-image-viewer";
 import {FollowButton} from "@/components/profile/profile-utils";
 import {Profile} from "@/lib/types";
-
-
-export const FollowCounters = ({profile}: { profile: Profile }) => {
-    const followersCountCA = profile.ca ? rounder(profile.ca.followersCount) : undefined
-    const followersCountAT = rounder(profile.bsky.followersCount)
-    const followingCountCA = profile.ca ? rounder(profile.ca.followsCount) : undefined
-    const followingCountAT = rounder(profile.bsky.followsCount)
-    const [hovered, setHovered] = useState(profile.ca == undefined)
-
-    let content
-
-    if (!hovered) {
-        content = <>
-            <div className="flex space-x-1">
-                <span className="font-bold">
-                    {followersCountCA}
-                </span>
-                <span className={"text-[var(--text-light)]"}>
-                    {followersCountCA == "1" ? "seguidor" : "seguidores"}
-                </span>
-            </div>
-            <div className="sm:text-base text-sm flex space-x-1">
-                <span className="font-bold">
-                    {followingCountCA}
-                </span>
-                <span className={"text-[var(--text-light)]"}>
-                    siguiendo
-                </span>
-            </div>
-        </>
-    } else {
-        content = <>
-            <div className={"flex space-x-1"}>
-                <span className="font-bold">
-                    {followersCountAT}
-                </span>
-                <span className={"text-[var(--text-light)]"}>
-                    {followersCountAT == "1" ? "seguidor" : "seguidores"}
-                </span>
-            </div>
-            <div className="sm:text-base text-sm flex space-x-1">
-                <span className="font-bold">
-                    {followingCountAT}
-                </span>
-                <span className={"text-[var(--text-light)]"}>
-                    siguiendo
-                </span>
-            </div>
-            <BlueskyLogo fontSize={"16"}/>
-        </>
-    }
-
-    const className = "flex space-x-2 sm:text-base text-sm items-center rounded-lg px-2 py-1 cursor-pointer " + (hovered ? "bg-[var(--background-dark)]" : "")
-
-    return <div className={className}
-                onMouseEnter={() => {
-                    setHovered(true)
-                }}
-                onMouseLeave={() => {
-                    setHovered(profile.ca == undefined)
-                }}
-    >
-        {content}
-    </div>
-}
+import {FollowCount} from "@/components/profile/follow/followx";
+import {FollowCounters} from "@/components/profile/follow/follow-counters";
 
 
 type ProfileHeaderProps = {
@@ -94,7 +30,7 @@ export function ProfileHeader({
     const [viewingProfilePic, setViewingProfilePic] = useState(null)
     const [viewingBanner, setViewingBanner] = useState(null)
 
-    const inCA = profile && profile.ca.inCA
+    const inCA = profile && profile.ca && profile.ca.inCA
 
     function optionsNodes(o: string, isSelected: boolean) {
         return <div className="text-[var(--text)]">
@@ -173,7 +109,7 @@ export function ProfileHeader({
                     @{profile.bsky.handle}
                 </div>}
             </div>
-            <FollowButton handle={profile.bsky.handle}/>
+            <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
         </div>
 
         <div className="ml-2 mb-2">

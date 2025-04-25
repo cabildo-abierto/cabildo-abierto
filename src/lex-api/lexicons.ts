@@ -10,6 +10,58 @@ import {
 import { type $Typed, is$typed, maybe$typed } from './util.js'
 
 export const schemaDict = {
+  ArCabildoabiertoActorDefs: {
+    lexicon: 1,
+    id: 'ar.cabildoabierto.actor.defs',
+    defs: {
+      profileViewBasic: {
+        type: 'object',
+        required: ['did', 'handle'],
+        properties: {
+          did: {
+            type: 'string',
+            format: 'did',
+          },
+          handle: {
+            type: 'string',
+            format: 'handle',
+          },
+          displayName: {
+            type: 'string',
+            maxGraphemes: 64,
+            maxLength: 640,
+          },
+          avatar: {
+            type: 'string',
+            format: 'uri',
+          },
+          associated: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#profileAssociated',
+          },
+          viewer: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#viewerState',
+          },
+          labels: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:com.atproto.label.defs#label',
+            },
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          caProfile: {
+            type: 'string',
+            format: 'at-uri',
+          },
+        },
+      },
+    },
+  },
   ArCabildoabiertoActorCaProfile: {
     lexicon: 1,
     id: 'ar.cabildoabierto.actor.caProfile',
@@ -11001,6 +11053,7 @@ export function validate(
 }
 
 export const ids = {
+  ArCabildoabiertoActorDefs: 'ar.cabildoabierto.actor.defs',
   ArCabildoabiertoActorCaProfile: 'ar.cabildoabierto.actor.caProfile',
   ArCabildoabiertoDataDataBlock: 'ar.cabildoabierto.data.dataBlock',
   ArCabildoabiertoDataDataset: 'ar.cabildoabierto.data.dataset',

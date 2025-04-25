@@ -11,15 +11,15 @@ import {useMutation, useQueryClient} from "@tanstack/react-query";
 type FollowButtonButtonProps = {
     onFollow: () => Promise<{ error?: string }>
     onUnfollow: () => Promise<{ error?: string }>
-    profile: Profile
+    profile: {viewer?: {following?: string}}
 }
 
 
 export const FollowButtonButton = ({profile, onUnfollow, onFollow}: FollowButtonButtonProps) => {
-    const [following, setFollowing] = useState(profile.bsky.viewer && profile.bsky.viewer.following != undefined)
+    const [following, setFollowing] = useState(profile.viewer && profile.viewer.following != undefined)
 
     useEffect(() => {
-        setFollowing(profile.bsky.viewer && profile.bsky.viewer.following != undefined)
+        setFollowing(profile.viewer && profile.viewer.following != undefined)
     }, [profile]);
 
     return <div className="flex items-center mr-2">
@@ -63,31 +63,30 @@ const unfollow = async ({followUri}: { followUri: string }) => {
 }
 
 
-export function FollowButton({handle}: { handle: string }) {
+export function FollowButton({handle, profile}: { handle: string, profile: {did: string, viewer?: {following?: string}} }) {
     const queryClient = useQueryClient()
     const {user} = useSession()
-    const {data: profile} = useProfile(handle)
 
     const followMutation = useMutation({
         mutationFn: follow,
         onSettled: ({followUri}) => {
-            const previousProfile: Profile = queryClient.getQueryData(["profile", handle])
+            const prevProfile: Profile = queryClient.getQueryData(["profile", handle])
             queryClient.invalidateQueries({ queryKey: ["profile", handle] })
 
             console.log("followUri", followUri)
             queryClient.setQueryData(["profile", handle], {
-                ...previousProfile,
+                ...prevProfile,
                 bsky: {
-                    ...previousProfile.bsky,
+                    ...prevProfile.bsky,
                     viewer: {
-                        ...previousProfile.bsky.viewer,
+                        ...prevProfile.bsky.viewer,
                         following: followUri
                     },
-                    followersCount: profile.bsky.followersCount + 1
+                    followersCount: prevProfile.bsky.followersCount + 1
                 },
                 ca: {
-                    ...previousProfile.ca,
-                    followersCount: profile.ca.followersCount + 1
+                    ...prevProfile.ca,
+                    followersCount: prevProfile.ca.followersCount + 1
                 }
             })
         }
@@ -96,40 +95,40 @@ export function FollowButton({handle}: { handle: string }) {
     const unfollowMutation = useMutation({
         mutationFn: unfollow,
         onSettled: () => {
-            const previousProfile: Profile = queryClient.getQueryData(["profile", handle])
+            const prevProfile: Profile = queryClient.getQueryData(["profile", handle])
             queryClient.invalidateQueries({ queryKey: ["profile", handle] })
 
             queryClient.setQueryData(["profile", handle], {
-                ...previousProfile,
+                ...prevProfile,
                 bsky: {
-                    ...previousProfile.bsky,
+                    ...prevProfile.bsky,
                     viewer: {
-                        ...previousProfile.bsky.viewer,
+                        ...prevProfile.bsky.viewer,
                         following: null
                     },
-                    followersCount: profile.bsky.followersCount - 1
+                    followersCount: prevProfile.bsky.followersCount - 1
                 },
                 ca: {
-                    ...previousProfile.ca,
-                    followersCount: profile.ca.followersCount - 1
+                    ...prevProfile.ca,
+                    followersCount: prevProfile.ca.followersCount - 1
                 }
             })
         }
     })
 
     const onUnfollow = async () => {
-        if (profile.bsky.viewer && profile.bsky.viewer.following) {
-            await unfollowMutation.mutateAsync({followUri: profile.bsky.viewer.following})
+        if (profile.viewer && profile.viewer.following) {
+            await unfollowMutation.mutateAsync({followUri: profile.viewer.following})
         }
         return {}
     }
 
     const onFollow = async () => {
-        await followMutation.mutateAsync({did: profile.bsky.did})
+        await followMutation.mutateAsync({did: profile.did})
         return {}
     }
 
-    if (isLoggedInUser(user.handle, profile)) {
+    if (user.handle == handle) {
         return null
     }
 

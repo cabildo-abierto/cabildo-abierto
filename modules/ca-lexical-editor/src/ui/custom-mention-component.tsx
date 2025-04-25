@@ -1,7 +1,6 @@
 import { BeautifulMentionComponentProps, BeautifulMentionsMenuItemProps, BeautifulMentionsMenuProps } from "lexical-beautiful-mentions";
 import { forwardRef } from "react";
 import Link from "next/link";
-import {SmallUserProps} from "@/lib/types";
 import {ProfilePic} from "@/components/profile/profile-pic";
 
 export const EmptyMentionResults = () => (
@@ -10,7 +9,11 @@ export const EmptyMentionResults = () => (
     </div>
 );
 
-export type MentionProps = SmallUserProps & {
+export type MentionProps = {
+    did: string
+    handle: string
+    displayName?: string
+    avatar?: string
     value: string
 }
 

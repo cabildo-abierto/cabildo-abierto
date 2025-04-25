@@ -7,14 +7,6 @@
  *
  */
 
-.ContentEditable__root {
-  border: 0;
-  display: block;
-  position: relative;
-  outline: 0;
-	word-break: break-word;
-}
-
 .ContentEditable__placeholder {
   position: absolute;
   top: 0;

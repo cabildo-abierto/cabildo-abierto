@@ -1,6 +1,6 @@
 import {Record as BskyPostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {ProfileViewDetailed} from "@/lex-api/types/app/bsky/actor/defs";
-
+import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs"
 
 export type EditorStatus = "Beginner" | "Editor" | "Administrator"
 
@@ -171,7 +171,7 @@ export type TopicsGraph = {
 export type ReasonProps = {
     createdAt: Date
     collection: Collection
-    by: SmallUserProps
+    by: ProfileViewBasic
 }
 
 
@@ -184,16 +184,6 @@ export type FeedContentProps =
 
 
 export type FeedContentPropsMaybe = FeedContentProps & {blocked?: boolean, notFound?: boolean}
-
-
-export type SmallUserProps = {
-    did: string
-    handle: string
-    displayName?: string
-    avatar?: string
-    inCA?: boolean
-    CAProfileUri?: string
-}
 
 
 export type BothContributionsProps = {
@@ -306,7 +296,7 @@ export type FastPostProps = RecordProps & EngagementProps & {
             embed?: string
             replyTo?: (FeedContentPropsMaybe | ATProtoStrongRef) & {collection?: string, uri: string, notFound?: boolean}
             root?: (FeedContentPropsMaybe | ATProtoStrongRef) & {collection?: string, uri: string, notFound?: boolean}
-            grandparentAuthor?: SmallUserProps
+            grandparentAuthor?: ProfileViewBasic
             quote?: string
             visualization?: VisualizationProps
         }

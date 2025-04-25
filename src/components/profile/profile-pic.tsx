@@ -1,13 +1,13 @@
 import Image from "next/image";
 import {ModalOnHover} from "../../../modules/ui-utils/src/modal-on-hover";
 import {ProfileDescription} from "@/components/profile/profile-description";
-import {FollowCounters} from "../profile/profile-header";
 import {FollowButton} from "@/components/profile/profile-utils";
 import {useProfile} from "@/hooks/api";
+import {FollowCounters} from "@/components/profile/follow/follow-counters";
 
 
 type UserSummaryProps = {
-    user: { avatar?: string, handle: string, did: string }
+    user: { avatar?: string, handle: string }
 }
 
 
@@ -21,7 +21,7 @@ export const UserSummary = ({user}: UserSummaryProps) => {
         <div className="bg-[var(--background)] border p-4 w-90 rounded-xl flex flex-col space-y-2">
             <div className={"flex justify-between items-center"}>
                 <ProfilePic user={user} descriptionOnHover={false} className={className}/>
-                <FollowButton handle={profile.bsky.handle}/>
+                <FollowButton handle={profile.bsky.handle} profile={profile.bsky}/>
             </div>
 
             <div className={"flex flex-col"}>
@@ -44,7 +44,7 @@ export const UserSummary = ({user}: UserSummaryProps) => {
 type ProfilePicProps = {
     descriptionOnHover?: boolean
     className?: string
-    user: { avatar?: string, handle: string, did: string }
+    user: { avatar?: string, handle: string }
 }
 
 export const ProfilePic = ({user, className, descriptionOnHover=true}: ProfilePicProps) => {

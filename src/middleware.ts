@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import {backendUrl} from "@/utils/uri";
 
 
 function isNewUserRoute(request: NextRequest){
-  return ['/signup', '/login'].includes(request.nextUrl.pathname)
+  return ['/login'].includes(request.nextUrl.pathname)
 }
 
 function isPublicRoute(request: NextRequest){
@@ -43,7 +44,18 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(articleUrl)
     }
 
-    /*const loggedIn = await isLoggedIn()
+    const cookieHeader = request.headers.get('cookie'); // Get full cookie header
+
+    const res = await fetch(backendUrl + "/session", {
+        headers: {
+            cookie: cookieHeader || '', // Pass cookies forward
+        },
+        // NOTE: Fetch in middleware is always edge-compatible
+        next: { revalidate: 0 }, // Optional: avoid caching
+    });
+
+    const session = await res.json()
+    let loggedIn: boolean = session && session.data
 
     if(!isPublicRoute(request)){
         if(request.nextUrl.pathname == "/") {
@@ -53,14 +65,16 @@ export async function middleware(request: NextRequest) {
                 url.pathname = "/presentacion"
             }
         } else if (!loggedIn && !isNewUserRoute(request)) {
-            url.pathname = '/'
+            // sin sesion y en una página que requiere sesion
+            url.pathname = '/login'
         } else if(loggedIn && isNewUserRoute(request)){
+            // con sesion y en la pagina de login
             url.pathname = '/inicio'
         } else {
-            return
+            return NextResponse.next()
         }
         return NextResponse.redirect(url)
-    }*/
+    }
     return NextResponse.next()
 }
 
