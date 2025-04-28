@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {SettingsProps} from "../../../modules/ca-lexical-editor/src/lexical-editor";
 import {EditorState} from "lexical";
 import {getPlainText} from "@/components/topics/topic/diff";
-import {queryMentions} from "@/components/editor/query-mentions";
+import {getEditorSettings} from "@/components/editor/settings";
 
 const MyLexicalEditor = dynamic(() => import('../../../modules/ca-lexical-editor/src/lexical-editor'), {
     ssr: false,
@@ -11,7 +11,14 @@ const MyLexicalEditor = dynamic(() => import('../../../modules/ca-lexical-editor
 })
 
 
-const settings: SettingsProps = {
+const settings: SettingsProps = getEditorSettings({
+    placeholder: "¿Qué está pasando?",
+    placeholderClassName: "text-[var(--text-light)] absolute top-0",
+    editorClassName: "link relative",
+    isReadOnly: false
+})
+
+/*const settings: SettingsProps = {
     allowImages: true,
     allowPlots: true,
     allowTables: true,
@@ -37,16 +44,16 @@ const settings: SettingsProps = {
     imageClassName: "",
     preventLeave: true,
     queryMentions
-}
+}*/
 
 
-type FastPostEditorProps = {
+type PostEditorProps = {
     placeholder: string
     setText: (t: string) => void
 }
 
 
-export const FastPostEditor = ({setText, placeholder}: FastPostEditorProps) => {
+export const PostEditor = ({setText, placeholder}: PostEditorProps) => {
     const [editorState, setEditorState] = useState<EditorState | null>(null)
 
     useEffect(() => {

@@ -187,28 +187,6 @@ function TextFormatFloatingToolbar({
     );
   }, [editor, $updateTextFormatFloatingToolbar]);
 
-  function onMark(){
-
-    editor.update(() => {
-      const quote = getStandardSelection(editor.getEditorState())
-
-      const root = $getRoot()
-
-      const startNode = getPointTypeFromIndex(root, quote.start.node, quote.start.offset)
-      const endNode = getPointTypeFromIndex(root, quote.end.node, quote.end.offset)
-      const rangeSelection = $createRangeSelection()
-
-      if(!startNode || !endNode) {
-        return
-      }
-
-      rangeSelection.anchor = startNode
-      rangeSelection.focus = endNode
-
-      $wrapSelectionInMarkNode(rangeSelection, false, "asd", $createCustomMarkNode)
-    })
-  }
-
   return (
     <div ref={popupCharStylesEditorRef} className="floating-text-format-popup space-x-1 bg-[var(--background-dark)]">
       {editor.isEditable() && (
@@ -244,9 +222,6 @@ function TextFormatFloatingToolbar({
           >
             <InsertLink fontSize={"small"} color={"inherit"}/>
           </ToolbarButton>
-          <button onClick={onMark}>
-            marcar
-          </button>
         </>
       )}
       {isComment && <button

@@ -4,7 +4,6 @@ import {UserSearchResults} from "./user-search-results";
 import SelectionComponent from "./search-selection-component";
 import {Button} from "@mui/material";
 import {ContentsSearchResults} from "./contents-search-results";
-import { DataSearchResults } from "./data-search-results";
 import {SearchTopics} from "./search-topics";
 import {useSearch} from "./search-context";
 
@@ -68,10 +67,6 @@ export const SearchContent = ({paramsSelected, query}: RouteContentProps) => {
 
         {selected == "Publicaciones" &&
             <ContentsSearchResults/>
-        }
-
-        {selected == "Datos" &&
-            <DataSearchResults onSearchPage={true}/>
         }
 
         {selected == "Usuarios" && <UserSearchResults showSearchButton={false}/>}

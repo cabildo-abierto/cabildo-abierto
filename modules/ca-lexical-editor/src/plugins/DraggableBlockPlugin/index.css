@@ -1,7 +1,7 @@
 .draggable-block-menu {
   opacity: 0;
   position: absolute;
-  left: -20px;
+  left: -30px;
   top: 1px;
   will-change: transform;
 }

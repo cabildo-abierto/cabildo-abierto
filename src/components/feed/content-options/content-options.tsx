@@ -1,4 +1,4 @@
-import {ATProtoStrongRef, VisualizationProps} from "@/lib/types";
+import {ATProtoStrongRef} from "@/lib/types";
 import Link from "next/link";
 import {ShareContentButton} from "./share-content-button";
 import {editVisualizationUrl, getBlueskyUrl, getCollectionFromUri, getDidFromUri, isArticle, isPost} from "@/utils/uri";
@@ -10,6 +10,7 @@ import {useSWRConfig} from "swr";
 import {useState} from "react";
 import {useSession} from "@/hooks/api";
 import {ViewsIcon} from "@/components/icons/views-icon";
+import {post} from "@/utils/fetch";
 
 
 const collection2displayText = {
@@ -18,9 +19,11 @@ const collection2displayText = {
     "ar.com.cabildoabierto.article": "artículo",
     "ar.com.cabildoabierto.quotePost": "respuesta",
     "ar.com.cabildoabierto.topic": "versión",
+    "ar.cabildoabierto.wiki.topicVersion": "versión",
     "ar.com.cabildoabierto.dataset": "conjunto de datos",
     "ar.cabildoabierto.feed.article": "artículo"
 }
+
 
 export const openJsonInNewTab = (json: any) => {
     const blob = new Blob([JSON.stringify(json)], {type: "application/json"});
@@ -35,17 +38,17 @@ export function canBeEnDiscusion(c: string) {
 
 
 const addToEnDiscusion = async (uri: string) => {
-    return
+    await post("/set-en-discusion", {uri})
 }
 
 
 const removeFromEnDiscusion = async (uri: string) => {
-    return
+    await post("/unset-en-discusion", {uri})
 }
 
 
-const deleteRecords = async ({uris, atproto}: { uris: string[], atproto: boolean }) => {
-
+const deleteRecord = async ({uri, atproto}: { uri: string, atproto: boolean }) => {
+    return post("/delete-record", {uri, atproto})
 }
 
 
@@ -68,7 +71,11 @@ export const ContentOptions = ({
     const [addedToEnDiscusion, setAddedToEnDiscusion] = useState<boolean>(enDiscusion)
 
     async function onClickDelete() {
-        await deleteRecords({uris: [record.uri], atproto: true})
+        const {error} = await deleteRecord({uri: record.uri, atproto: true})
+        if (!error) {
+            onClose()
+        }
+        return {error}
     }
 
     const collection = getCollectionFromUri(record.uri)
@@ -77,11 +84,7 @@ export const ContentOptions = ({
 
     return <div className={"flex flex-col space-y-1"}>
         {user.did == authorDid && <OptionsDropdownButton
-            handleClick={async () => {
-                await onClickDelete();
-                onClose();
-                return {}
-            }}
+            handleClick={onClickDelete}
             startIcon={<DeleteOutlineIcon/>}
             text1={"Borrar " + collection2displayText[collection]}
         />}
@@ -118,7 +121,7 @@ export const ContentOptions = ({
                 text1={"Usar en visualización"}
             />
         </Link>}
-        {collection == "ar.com.cabildoabierto.visualization" &&
+        {/* TO DO collection == "ar.com.cabildoabierto.visualization" &&
             <OptionsDropdownButton
                 handleClick={async () => {
                     openJsonInNewTab(JSON.parse((record as VisualizationProps).visualization.spec));
@@ -126,7 +129,7 @@ export const ContentOptions = ({
                 }}
                 text1={"Ver especificación"}
             />
-        }
+        */}
         {collection == "ar.com.cabildoabierto.visualization" &&
             <Link href={editVisualizationUrl(record.uri)} onClick={(e) => {
                 e.stopPropagation()

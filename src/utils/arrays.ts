@@ -80,3 +80,12 @@ export function sortByKey<T, V>(a: T[], keyFn: (x: T) => V, keyCmp: (a: V, b: V)
 export function concat<T>(a: T[][]): T[] {
     return a.reduce((acc: T[], cur) => ([...acc, ...cur]))
 }
+
+
+export function gett<K, V>(map: Map<K, V>, key: K): V {
+    const value = map.get(key);
+    if (value === undefined) {
+        throw new Error(`Key not found in map: ${String(key)}`)
+    }
+    return value;
+}

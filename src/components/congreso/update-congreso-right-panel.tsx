@@ -35,15 +35,13 @@ const ProjectSmallCard = ({project}: {project: CongressProject}) => {
 }
 
 const ProjectSlider = () => {
-    return <div className={""}>
-        <ProjectSmallCard project={projects[0]}/>
-    </div>
+    return <ProjectSmallCard project={projects[0]}/>
 }
 
 
 export const UpdateCongresoRightPanel = () => {
     return (
-        <div className={"p-3 space-y-3 border rounded-lg"}>
+        <div className={"p-3 space-y-3 rounded-lg border"}>
             <div className={"flex justify-between items-center"}>
                 <span className={"text-xs font-bold"}>
                     En el congreso

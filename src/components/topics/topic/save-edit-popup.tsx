@@ -1,7 +1,6 @@
 import { EditorState } from "lexical";
 import { CustomLink as Link } from '../../../../modules/ui-utils/src/custom-link';
 import React, { useEffect, useState } from "react";
-import {TopicProps} from "@/lib/types";
 import { getAllText } from "./diff";
 import InfoPanel from "../../../../modules/ui-utils/src/info-panel";
 import { NotEnoughPermissionsWarning } from "./permissions-warning";
@@ -11,9 +10,10 @@ import { ChangesCounterWithText } from "./changes-counter";
 import { AcceptButtonPanel } from "../../../../modules/ui-utils/src/accept-button-panel";
 import {TextField} from "@mui/material";
 import {topicUrl} from "@/utils/uri";
-import {hasEditPermission} from "./utils";
+import {getTopicProtection, hasEditPermission} from "./utils";
 import {useSession} from "@/hooks/api";
 import {Button} from "@/../modules/ui-utils/src/button"
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 const EditMessageInput = ({value, setValue}: {value: string, setValue: (v: string) => void}) => {
@@ -48,7 +48,7 @@ export const SaveEditPopup = ({
     currentVersion: {}
     onClose: () => void
     onSave: (v: boolean, editMsg: string) => Promise<{error?: string}>,
-    topic: TopicProps
+    topic: TopicView
 }) => {
     const [claimsAuthorship, setClaimsAuthorship] = useState(true)
     const {user} = useSession()
@@ -112,9 +112,9 @@ export const SaveEditPopup = ({
                         {!validMsg && <div className="mt-1 text-[var(--text-light)] text-sm">No puede empezar con &quot;nuevo nombre:&quot;</div>}
                     </div>
 
-                    {!hasEditPermission(user, topic.protection) &&
+                    {!hasEditPermission(user, getTopicProtection(topic.props)) &&
                         <div className="mb-8">
-                            <NotEnoughPermissionsWarning entity={topic}/>
+                            <NotEnoughPermissionsWarning topic={topic}/>
                         </div>
                     }
 

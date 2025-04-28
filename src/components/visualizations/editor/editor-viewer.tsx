@@ -1,15 +1,14 @@
-import {DatasetProps, PlotConfigProps} from "@/lib/types";
+import {PlotConfigProps} from "@/lib/types";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
-//import {View} from "vega";
 import {Button} from "@mui/material";
-//import {getSpecForConfig} from "./get-spec";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {VisualizationOnEditor} from "../visualization-on-editor";
-import {DatasetView} from "../../datasets/dataset-view";
+import {DatasetTableView} from "../../datasets/dataset-table-view";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {emptyChar} from "@/utils/utils";
+import {DatasetView, DatasetViewBasic, isDatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
 function readyToPlot(config: PlotConfigProps){
@@ -86,7 +85,7 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
     config: PlotConfigProps
     selected: string
     setSelected: (s: string) => void
-    dataset?: { dataset?: DatasetProps, data?: any[] }
+    dataset?: DatasetView | DatasetViewBasic
     maxWidth: number
 }) => {
     const router = useRouter()
@@ -144,7 +143,7 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
                     />
                 </div>
             </div>
-            {selected == "Visualización" && <div>
+            {selected == "Visualización" && isDatasetView(dataset) && <div>
                 {
                     readyToPlot(config) ?
                     <div style={{maxWidth: maxWidth}} className={"overflow-x-auto overflow-y-auto"}>
@@ -158,13 +157,16 @@ export const EditorViewer = ({config, selected, setSelected, dataset, maxWidth}:
                 }
             </div>}
             {selected == "Datos" && <div className={"h-full w-full"}>
-                {dataset && dataset.data ? <div className={"w-full"}>
+                {dataset && isDatasetView(dataset) ? <div className={"w-full"}>
                     <div className={"font-bold text-2xl mt-4"}>
-                        {dataset.dataset.dataset.title}
+                        {dataset.name}
                     </div>
                     <div className={"w-full"}>
-                        <DatasetView data={dataset.data} maxHeight={"500px"}
-                                     maxWidth={maxWidth.toString() + "px"}/>
+                        <DatasetTableView
+                            data={[]} // TO DO
+                            maxHeight={"500px"}
+                            maxWidth={maxWidth.toString() + "px"}
+                        />
                     </div>
                 </div> : (dataset ? <LoadingSpinner/> :
                     <div className={"h-full flex items-center justify-center text-[var(--text-light)]"}>

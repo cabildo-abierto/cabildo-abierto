@@ -1,5 +1,4 @@
 "use client"
-import { VisualizationProps } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { useDataset } from "@/hooks/api";
 import { localizeDataset } from "../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
@@ -7,6 +6,8 @@ import { localizeDataset } from "../../../modules/ca-lexical-editor/src/nodes/vi
 import {useLayoutConfig} from "../layout/layout-config-context";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {pxToNumber} from "@/utils/strings";
+
+type VisualizationProps = any // TO DO
 
 export const VegaPlot = ({
      visualization,
@@ -17,16 +18,18 @@ export const VegaPlot = ({
     previewOnly?: boolean;
 }) => {
     const [isVegaLoading, setIsVegaLoading] = useState(true);
-    const { dataset } = useDataset(visualization.visualization.dataset.uri);
+    const { data: dataset } = useDataset(visualization.visualization.dataset.uri);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const {layoutConfig} = useLayoutConfig()
+
+    const data = []
 
     useEffect(() => {
         if (!dataset || !containerRef.current) return;
 
         let json = JSON.parse(visualization.visualization.spec);
         json = localizeDataset(json);
-        json.data = { values: dataset.data };
+        json.data = { values: data };
         json.width = "container";
         json.height = "container";
 

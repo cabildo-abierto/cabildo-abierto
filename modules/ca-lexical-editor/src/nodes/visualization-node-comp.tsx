@@ -1,15 +1,7 @@
-import {useVisualization} from "@/hooks/api";
-import {DatasetTitle} from "../../../../src/components/datasets/dataset-title";
+import {DatasetTitle} from "@/components/datasets/dataset-title";
 import {UserHandle} from "@/components/feed/frame/content-top-row-author";
-import LoadingSpinner from "../../../ui-utils/src/loading-spinner";
-import {EngagementProps, VisualizationProps} from "@/lib/types";
-import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
-import {VegaPlot} from "../../../../src/components/visualizations/vega-plot";
-import {VegaPlotPreview} from "../../../../src/components/visualizations/vega-plot-preview";
-import {useLayoutConfig} from "../../../../src/components/layout/layout-config-context";
-
-import {pxToNumber} from "@/utils/strings";
-import {useEffect, useState} from "react";
+import {VegaPlot} from "@/components/visualizations/vega-plot";
+import {VegaPlotPreview} from "@/components/visualizations/vega-plot-preview";
 
 
 
@@ -24,7 +16,7 @@ export function localizeDataset(spec: any){
 }
 
 export const VisualizationNodeCompFromSpec = ({uri}: {uri: string}) => {
-    const {visualization, isLoading, error} = useVisualization(uri)
+    /*const {visualization, isLoading, error} = useVisualization(uri)
     const {layoutConfig} = useLayoutConfig()
     const [canvasWidth, setCanvasWidth] = useState(pxToNumber(layoutConfig.maxWidthCenter))
 
@@ -68,7 +60,9 @@ export const VisualizationNodeCompFromSpec = ({uri}: {uri: string}) => {
         visualization={visualization}
         interactive={pxToNumber(layoutConfig.maxWidthCenter) > 600}
         width={canvasWidth-50}
-    />
+    />*/
+    // TO DO
+    return null
 }
 
 
@@ -78,7 +72,7 @@ export const VisualizationNodeComp = ({
     interactive=true,
     width
 }: {
-    visualization: VisualizationProps & EngagementProps
+    visualization: any
     showEngagement?: boolean
     interactive?: boolean
     width?: number | string

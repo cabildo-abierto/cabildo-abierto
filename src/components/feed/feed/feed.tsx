@@ -1,12 +1,8 @@
-"use client"
 import React, { ReactNode } from "react"
-import { FeedContentProps } from "@/lib/types";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import { LazyLoadFeed } from "./lazy-load-feed";
 import {FeedElement} from "./feed-element";
 import {NoResults} from "@/components/buscar/no-results";
 import {ViewMonitor} from "../../../../modules/ui-utils/src/view-monitor";
-import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
 import {FeedViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {isKnownContent} from "@/utils/type-utils";
 

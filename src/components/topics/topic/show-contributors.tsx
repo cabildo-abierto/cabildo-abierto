@@ -21,13 +21,16 @@ export function toPercentage(chars: number, total: number){
 
 export const ShowContributors = ({topicId}:
     {topicId: string, userId?: string}) => {
-    const {topicHistory: topic, isLoading} = useTopicHistory(topicId)
+    const {data: topicHistory, isLoading} = useTopicHistory(topicId)
     const [monetized, setMonetized] = useState(false)
 
+    return null
+
+    /* TO DO
     if(isLoading) return <></>
 
-    const lastVersion = topic.versions[topic.versions.length-1]
-    const firstVersion = topic.versions[0]
+    const lastVersion = topicHistory.versions[topicHistory.versions.length-1]
+    const firstVersion = topicHistory.versions[0]
 
     if(lastVersion.content.topicVersion.diff == undefined){
         return <div className={"text-sm text-[var(--text-light)]"}>
@@ -61,7 +64,7 @@ export const ShowContributors = ({topicId}:
 
     let total = lastVersion.content.topicVersion.accCharsAdded
     if(monetized){
-        total = getTopicMonetizedChars(topic, topic.versions.length-1)
+        total = getTopicMonetizedChars(topicHistory, topicHistory.versions.length-1)
     }
 
     contributions = contributions.sort(comp)
@@ -86,4 +89,6 @@ export const ShowContributors = ({topicId}:
         </Button>
         </div>
     </div>
+
+     */
 }

@@ -1,4 +1,4 @@
-import {DatasetProps, PlotConfigProps} from "@/lib/types";
+import {PlotConfigProps} from "@/lib/types";
 import {useEffect, useState} from "react";
 import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
 import AddIcon from "@mui/icons-material/Add";
@@ -6,16 +6,17 @@ import {TextField} from "@mui/material";
 import {DatasetPreviewSmall} from "../../datasets/dataset-preview";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {NewDatasetPanel} from "../../datasets/new-dataset-panel";
-import {cleanText} from "../../../utils/strings";
+import {cleanText} from "@/utils/strings";
 import {Button} from "../../../../modules/ui-utils/src/button";
+import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
-    datasets?: DatasetProps[],
+    datasets?: DatasetViewBasic[],
     config: PlotConfigProps,
     updateConfig: (k: string, v: any) => void
 }) => {
     const [searchValue, setSearchValue] = useState<string>("")
-    const [filteredDatasets, setFilteredDatasets] = useState<DatasetProps[]>(datasets)
+    const [filteredDatasets, setFilteredDatasets] = useState<DatasetViewBasic[]>(datasets)
     const [newDatasetPanelOpen, setNewDatasetPanelOpen] = useState(false)
 
     useEffect(() => {
@@ -23,7 +24,7 @@ export const ChooseDatasetPanel = ({datasets, config, updateConfig}: {
         const v = cleanText(searchValue)
         const f = datasets ? datasets.filter((d) => {
             if(v.length == 0) return true
-            return cleanText(d.dataset.title).includes(v)
+            return cleanText(d.name).includes(v)
         }) : undefined
 
         setFilteredDatasets(f)

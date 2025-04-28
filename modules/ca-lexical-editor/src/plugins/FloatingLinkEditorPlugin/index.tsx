@@ -36,10 +36,10 @@ import {createPortal} from 'react-dom';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl} from '../../utils/url';
-import {SmallTopicProps, TopicProps} from '@/lib/types';
 import { CustomLink as Link } from '../../../../ui-utils/src/custom-link';
-import {getFullTopicTitle} from "@/components/topics/topic/utils";
+import {getTopicTitle} from "@/components/topics/topic/utils";
 import {topicUrl} from "@/utils/uri";
+import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 function FloatingLinkEditor({
   editor,
@@ -63,7 +63,7 @@ function FloatingLinkEditor({
   );
   const [linkUrl, setLinkUrl] = useState('')
   const [editedLinkUrl, setEditedLinkUrl] = useState('')
-  const [results, setResults] = useState<SmallTopicProps[]>([])
+  const [results, setResults] = useState<TopicViewBasic[]>([])
   const [debouncedValue, setDebouncedValue] = useState(editedLinkUrl)
 
   useEffect(() => {
@@ -266,13 +266,13 @@ function FloatingLinkEditor({
   const SearchResults = ({results, setValue}: any) => {
     if(results.length == 0) return <></>
     return <div className="mb-1 px-1 space-y-1">
-      {results.slice(0, 5).map((topic: TopicProps) => {
+      {results.slice(0, 5).map((topic: TopicViewBasic) => {
           return <button
               key={topic.id}
               className={"text-left text-sm text-[var(--text-light)] hover:bg-[var(--background-dark2)] bg-[var(--background-dark)] py-1 px-2 rounded w-full"}
               onClick={() => {setValue(topicUrl(topic.id))}}
             >
-              {getFullTopicTitle(topic)}
+              {getTopicTitle(topic)}
         </button>
       })}
     </div>

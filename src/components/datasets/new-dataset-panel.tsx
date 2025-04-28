@@ -6,7 +6,7 @@ import {useRouter} from "next/navigation";
 import JSZip from "jszip";
 import StateButton from "../../../modules/ui-utils/src/state-button";
 import {UploadFile} from "@mui/icons-material";
-import {DatasetView} from "./dataset-view";
+import {DatasetTableView} from "./dataset-table-view";
 import Papa from 'papaparse';
 import {CloseButton} from "../../../modules/ui-utils/src/close-button";
 
@@ -172,7 +172,7 @@ export const NewDatasetPanel = ({open, onClose}: {
                     />
                 </div>
                 <div>
-                    <DatasetView data={rows} maxHeight={"300px"}/>
+                    <DatasetTableView data={rows} maxHeight={"300px"}/>
                 </div>
                 <div className={"flex justify-end space-x-2 mt-4 pb-8"}>
                     <StateButton

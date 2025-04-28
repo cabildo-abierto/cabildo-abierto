@@ -1,17 +1,15 @@
 import {BaseFullscreenPopup} from "../../../../modules/ui-utils/src/base-fullscreen-popup";
-import {VisualizationProps} from "@/lib/types";
-import {useVisualizations} from "@/hooks/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {IconButton, TextField} from "@mui/material";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import Link from "next/link";
 import {FaExternalLinkAlt} from "react-icons/fa";
 import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {contentUrl} from "@/utils/uri";
-import {cleanText} from "@/utils/strings";
 import {getVisualizationTitle} from "../../visualizations/editor/get-spec";
 
+type VisualizationProps = any // TO DO
 
 const VisualizationPreviewOnSelector = ({visualization, onClick}: {
     visualization: VisualizationProps, onClick: () => void}) => {
@@ -43,18 +41,19 @@ export const InsertVisualizationModal = ({open, onClose, setVisualization}: {
     onClose: () => void;
     setVisualization: (v: VisualizationProps) => void
 }) => {
-    const {visualizations} = useVisualizations()
+    // TO DO
+    //const {visualizations} = useVisualizations()
     const [searchValue, setSearchValue] = useState<string>("");
     const [filteredVisualizations, setFilteredVisualizations] = useState<VisualizationProps[]>([])
 
-    useEffect(() => {
+    /*useEffect(() => {
         if(visualizations){
             const filtered = visualizations.filter((v) => {
                 return cleanText(getVisualizationTitle(v)).includes(cleanText(searchValue))
             })
             setFilteredVisualizations(filtered)
         }
-    }, [visualizations, searchValue])
+    }, [visualizations, searchValue])*/
 
     return <BaseFullscreenPopup
         open={open}
@@ -72,7 +71,7 @@ export const InsertVisualizationModal = ({open, onClose, setVisualization}: {
                 placeholder={"buscar"}
                 onChange={(e) => {setSearchValue(e.target.value)}}
             />
-            {visualizations ? <div className={"mt-4 space-y-1 h-[300px] overflow-y-scroll w-full"}>
+            {filteredVisualizations ? <div className={"mt-4 space-y-1 h-[300px] overflow-y-scroll w-full"}>
                 {filteredVisualizations.map((v, i) => {
                     return <div key={i}>
                         <VisualizationPreviewOnSelector visualization={v} onClick={() => {

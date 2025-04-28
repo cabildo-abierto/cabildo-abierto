@@ -38,7 +38,6 @@ import {
   VisualizationPayload
 } from '../../nodes/VisualizationNode';
 import {InsertVisualizationModal} from "@/components/writing/write-panel/insert-visualization-modal";
-import {VisualizationProps} from "@/lib/types";
 
 export type InsertVisualizationPayload = Readonly<VisualizationPayload>;
 
@@ -48,6 +47,7 @@ const getDOMSelection = (targetWindow: Window | null): Selection | null =>
 export const INSERT_PLOT_COMMAND: LexicalCommand<InsertVisualizationPayload> =
   createCommand('INSERT_PLOT_COMMAND');
 
+type VisualizationProps = any // TO DO
 
 export function InsertVisualizationDialog({
                                     activeEditor,

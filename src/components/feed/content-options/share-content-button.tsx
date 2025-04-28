@@ -1,6 +1,5 @@
 import { useState } from "react";
 import ShareIcon from '@mui/icons-material/Share';
-import {FeedContentProps} from "@/lib/types";
 import {contentUrl} from "@/utils/uri";
 import {OptionsDropdownButton} from "./options-dropdown-button";
 

@@ -1,17 +1,16 @@
-import React, {ReactNode, useState} from "react";
+import React, {ReactNode} from "react";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import {useSearchParams} from "next/navigation";
-import {TopicProps} from "@/lib/types";
 import Link from "next/link";
-import { DateSince } from "../../../../modules/ui-utils/src/date";
+import {DateSince} from "../../../../modules/ui-utils/src/date";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {splitUri, topicUrl} from "@/utils/uri";
-import {SmallTopicVersionProps} from "./topic-content-expanded-view";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
 import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
 import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 export type WikiEditorState = "changes" | "authors" | "normal" |
@@ -19,8 +18,8 @@ export type WikiEditorState = "changes" | "authors" | "normal" |
 
 
 const MoreOptionsButton = ({
-    setWikiEditorState,
-}: {
+                               setWikiEditorState,
+                           }: {
     setWikiEditorState: (state: WikiEditorState) => void
 }) => {
 
@@ -62,11 +61,9 @@ export const TopicContentExpandedViewHeader = ({
                                                    setPinnedReplies,
                                                    setShowingSaveEditPopup,
                                                    topic,
-                                                   topicVersion,
                                                    saveEnabled
                                                }: {
-    topic: TopicProps
-    topicVersion: SmallTopicVersionProps
+    topic: TopicView
     wikiEditorState: WikiEditorState
     setWikiEditorState: (s: WikiEditorState) => void
     setPinnedReplies: (v: string[]) => void
@@ -80,14 +77,13 @@ export const TopicContentExpandedViewHeader = ({
     let buttons: ReactNode
 
 
-
-    if(!paramsVersion && wikiEditorState != "editing") {
-        function optionsNodes(o: string, isSelected: boolean){
+    if (!paramsVersion && wikiEditorState != "editing") {
+        function optionsNodes(o: string, isSelected: boolean) {
             let name: string
-            if(o == "authors") name = "Ver autores"
-            else if(o == "changes") name = "Ver cambios"
-            else if(o == "history") name = "Ver historial"
-            else if(o == "editing") name = "Editar"
+            if (o == "authors") name = "Ver autores"
+            else if (o == "changes") name = "Ver cambios"
+            else if (o == "history") name = "Ver historial"
+            else if (o == "editing") name = "Editar"
             return <div className="text-[var(--text)] h-10 ">
                 <Button
                     variant="text"
@@ -132,7 +128,7 @@ export const TopicContentExpandedViewHeader = ({
                 className={"flex"}
             />
         </div>
-    } else if(!paramsVersion && wikiEditorState == "editing") {
+    } else if (!paramsVersion && wikiEditorState == "editing") {
         buttons = <div className={"w-full flex justify-end"}>
             {wikiEditorState == "editing" &&
                 <Button
@@ -163,11 +159,11 @@ export const TopicContentExpandedViewHeader = ({
     } else {
         buttons = <div className={"flex items-center space-x-2"}>
             <div>
-                Versión {paramsVersion} (publicada <DateSince date={topicVersion.content.record.createdAt}/>).
+                Versión {paramsVersion} (publicada <DateSince date={topic.createdAt}/>).
             </div>
             <div className={"link"}>
                 <Link
-                    href={topicUrl(topic.id, splitUri(topicVersion.uri), "normal")}
+                    href={topicUrl(topic.id, splitUri(topic.uri), "normal")}
                     className={""}
                 >
                     Ir a la versión actual

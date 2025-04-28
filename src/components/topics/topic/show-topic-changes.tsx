@@ -1,13 +1,13 @@
 import dynamic from 'next/dynamic';
 import { nodesFromJSONStr } from './diff';
 import { SerializedDiffNode } from '../../../../modules/ca-lexical-editor/src/nodes/DiffNode';
-import { TopicProps, MatchesType } from '@/lib/types';
-import {SmallTopicVersionProps} from "./topic-content-expanded-view";
+import { MatchesType } from '@/lib/types';
 import {useTopicVersionChanges} from "@/hooks/api";
 import {getDidFromUri, getRkeyFromUri} from "@/utils/uri";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
 import {getEditorSettings} from "@/components/editor/settings";
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
@@ -69,13 +69,11 @@ function showChanges(newText: string, prevText: string, diff: MatchesType){
 
 
 export const ShowTopicChanges = ({
-                                     topic,
-                                     topicVersion
+                                     topic
                                  }: {
-    topic: TopicProps
-    topicVersion: SmallTopicVersionProps
+    topic: TopicView
 }) => {
-    const {topicVersionChanges, isLoading} = useTopicVersionChanges(getDidFromUri(topicVersion.uri), getRkeyFromUri(topicVersion.uri));
+    const {data: topicVersionChanges, isLoading} = useTopicVersionChanges(getDidFromUri(topic.uri), getRkeyFromUri(topic.uri));
 
     if(isLoading){
         return <div className={"mt-8"}>
@@ -93,7 +91,7 @@ export const ShowTopicChanges = ({
 
     let settings = getEditorSettings({
         initialText: topicVersionChanges.text,
-        initialTextFormat: "lexical",
+        initialTextFormat: topicVersionChanges.format,
         tableOfContents: true
     })
 

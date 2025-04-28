@@ -1,10 +1,9 @@
-import {TopicVersionOnFeedProps} from "@/lib/types";
 import {ContentTopRowAuthor} from "@/components/feed/frame/content-top-row-author";
 import {ProfilePic} from "../../profile/profile-pic";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import {useRouter} from "next/navigation";
-import {topicUrl} from "../../../utils/uri";
-import {formatIsoDate} from "../../../utils/dates";
+import {topicUrl} from "@/utils/uri";
+import {formatIsoDate} from "@/utils/dates";
 
 
 const CharDiff = ({diff}: {diff: {charsAdded?: number, charsDeleted?: number}}) => {
@@ -16,6 +15,7 @@ const CharDiff = ({diff}: {diff: {charsAdded?: number, charsDeleted?: number}}) 
     </div>
 }
 
+/* TO DO
 export const TopicVersionOnFeed = ({topicVersion}: {topicVersion: TopicVersionOnFeedProps}) => {
     const router = useRouter()
 
@@ -44,4 +44,4 @@ export const TopicVersionOnFeed = ({topicVersion}: {topicVersion: TopicVersionOn
             <CharDiff diff={topicVersion.content.topicVersion}/>.
         </div>
     </div>
-}
+}*/

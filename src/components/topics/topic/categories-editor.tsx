@@ -1,8 +1,8 @@
-import { TopicProps } from "@/lib/types";
 import {useCategories} from "@/hooks/api";
 import {ListEditorWithSave} from "../../../../modules/ui-utils/src/list-editor";
 import {useSWRConfig} from "swr";
-import {getFullTopicCategories} from "./utils";
+import {getTopicCategories} from "./utils";
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 const updateCategoriesInTopic = async ({topicId, categories}: {topicId: string, categories: string[]}) => {
@@ -11,11 +11,11 @@ const updateCategoriesInTopic = async ({topicId, categories}: {topicId: string, 
 
 
 export const CategoriesEditor = ({topic, onClose}: {
-    topic: TopicProps
+    topic: TopicView
     onClose: () => void
 }) => {
-    const current = getFullTopicCategories(topic)
-    const {categories: availableCategories} = useCategories()
+    const current = getTopicCategories(topic.props)
+    const {data: availableCategories} = useCategories()
     const {mutate} = useSWRConfig()
 
 

@@ -1,6 +1,6 @@
-import {getUsername} from "../../../utils/utils"
+import {getUsername} from "@/utils/utils"
 import Link from "next/link"
-import {userUrl} from "../../../utils/uri";
+import {userUrl} from "@/utils/uri";
 
 
 export const Authorship = ({content, className="hover:underline font-medium", onlyAuthor=false, text="Por"}: {className?: string, text?: string, content: {author: {displayName?: string, handle: string}}, onlyAuthor?: boolean}) => {

@@ -4,20 +4,25 @@ import {useRouter} from "next/navigation";
 import {useCategoryGraph} from "@/hooks/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {topicUrl} from "@/utils/uri";
+import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 
 
 export const CategoryMap = ({c}: {c: string}) => {
     const router = useRouter()
-    const {graph} = useCategoryGraph(c)
+    const {data: graph, isLoading, error} = useCategoryGraph(c)
 
     function onClickNode(nodeId: string){
         router.push(topicUrl(nodeId))
     }
 
-    if(!graph){
+    if(isLoading){
         return <div className={"mt-16"}>
             <LoadingSpinner/>
         </div>
+    } else if (error) {
+        return <ErrorPage>
+            {error.message}
+        </ErrorPage>
     }
 
     return <div className={"mt-12 ml-6"}>

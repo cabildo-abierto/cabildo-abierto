@@ -1,28 +1,13 @@
-import { TopicProps } from "@/lib/types";
 import { useEffect } from "react";
 import { smoothScrollTo } from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import { TopicContentPreview } from "./topic-content-preview";
 import {
-    SmallTopicVersionProps,
     TopicContentExpandedView,
     TopicContentExpandedViewWithVersion
 } from "./topic-content-expanded-view";
 import { WikiEditorState } from "./topic-content-expanded-view-header";
 import {useSearchParams} from "next/navigation";
-import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
-
-
-
-export function topicCurrentVersionToReplyToContent(topic: TopicProps): ReplyToContent {
-    // TO DO
-    return {} as ReplyToContent
-}
-
-
-export function topicVersionPropsToReplyToContent(topicVersion: SmallTopicVersionProps, topicId: string): ReplyToContent {
-    // TO DO
-    return {} as ReplyToContent
-}
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 export const TopicContent = ({
@@ -32,7 +17,7 @@ export const TopicContent = ({
     wikiEditorState,
     setWikiEditorState,
 }: {
-    topic: TopicProps
+    topic: TopicView
     pinnedReplies: string[]
     setPinnedReplies: (v: string[]) => void
     wikiEditorState: WikiEditorState
@@ -68,7 +53,6 @@ export const TopicContent = ({
     } else {
         if(params.get("did") && params.get("rkey")){
             return <TopicContentExpandedView
-                topic={topic}
                 pinnedReplies={pinnedReplies}
                 setPinnedReplies={setPinnedReplies}
                 wikiEditorState={wikiEditorState}
@@ -81,14 +65,6 @@ export const TopicContent = ({
                 setPinnedReplies={setPinnedReplies}
                 wikiEditorState={wikiEditorState}
                 setWikiEditorState={setWikiEditorState}
-                topicVersion={topic.currentVersion ? {
-                    uri: topic.currentVersion.uri,
-                    content: {
-                        text: topic.currentVersion.content.text,
-                        format: topic.currentVersion.content.format,
-                        record: topic.currentVersion.content.record
-                    }
-                } : null}
             />
         }
     }

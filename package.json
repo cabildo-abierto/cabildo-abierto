@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
     "start": "next start",
     "lint": "next lint",
     "signup": "tsx scripts/signup.js",
@@ -77,7 +77,7 @@
     "@testing-library/react": "^16.3.0",
     "@types/jest": "^29.5.14",
     "@types/lodash-es": "^4.17.12",
-    "@types/node": "^20.14.12",
+    "@types/node": "^22.15.0",
     "@types/papaparse": "^5.3.15",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
@@ -90,7 +90,7 @@
     "tailwindcss": "^3.4.6",
     "ts-node": "^10.9.2",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.8.3"
   },
   "overrides": {
     "@types/react": "19.0.10",

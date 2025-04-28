@@ -1,15 +1,16 @@
-import {DatasetProps, PlotConfigProps} from "@/lib/types";
+import {PlotConfigProps} from "@/lib/types";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 //import {getSpecForConfig} from "./editor/get-spec";
 //import embed from "vega-embed";
 //import {View} from "vega";
 import {useEffect, useRef} from "react";
+import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
 export const VisualizationOnEditor = ({config, setCurrentView, dataset}: {
     config: PlotConfigProps
     setCurrentView: (v: any) => void
-    dataset: { data?: any[], dataset?: DatasetProps }
+    dataset: DatasetView
 }) => {
     const chartRef = useRef(null)
 

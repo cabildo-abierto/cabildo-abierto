@@ -4,11 +4,11 @@ import { fetcher } from "@/hooks/fetcher"
 import { preload } from "swr"
 import { DateSince } from "../../../../modules/ui-utils/src/date"
 import {getTopicCategories, getTopicTitle} from "./utils";
-import {SmallTopicProps} from "@/lib/types";
 import {TopicCategories} from "./topic-categories";
 import {useRouter} from "next/navigation";
 import {People} from "@mui/icons-material";
 import {topicUrl} from "@/utils/uri";
+import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 const DateLastEdit = ({date}: {date: Date}) => {
@@ -20,7 +20,7 @@ const DateLastEdit = ({date}: {date: Date}) => {
 }
 
 
-export const TopicSearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic }) => {
+export const TopicSearchResult = ({ topic }: {topic: TopicViewBasic}) => {
     const router = useRouter()
 
     function onMouseEnter(){
@@ -40,17 +40,17 @@ export const TopicSearchResult: React.FC<{topic: SmallTopicProps}> = ({ topic })
                     </div>
 
                     <div className={"flex space-x-2 items-center text-sm mt-1"}>
-                        {topic.lastEdit && <DateLastEdit date={topic.lastEdit}/>}
+                        {topic.lastEdit && <DateLastEdit date={new Date(topic.lastEdit)}/>}
                     </div>
                 </div>
 
                 <div className={"flex flex-col items-end space-y-2 min-w-[30%]"}>
                     <TopicCategories
                         containerClassName={"justify-end text-xs"}
-                        categories={getTopicCategories(topic)}
+                        categories={getTopicCategories(topic.props)}
                     />
-                    {topic.popularityScore != null && <div className={"text-[var(--text-light)] text-sm flex items-center"}>
-                        <div>{topic.popularityScore}</div> <People fontSize={"inherit"}/>
+                    {topic.popularity != null && <div className={"text-[var(--text-light)] text-sm flex items-center"}>
+                        <div>{topic.popularity[0]}</div> <People fontSize={"inherit"}/>
                     </div>}
                 </div>
             </div>

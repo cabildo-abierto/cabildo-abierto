@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import { SidebarButton } from "./sidebar-button";
 import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
 import PersonIcon from '@mui/icons-material/Person';
-import { UserProps } from "@/lib/types";
 import { CabildoIcon } from "../icons/home-icon";
 import { SupportIcon } from "../icons/support-icon";
 import VisualizationsIcon from "@mui/icons-material/AutoGraph";

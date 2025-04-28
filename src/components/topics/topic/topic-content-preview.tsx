@@ -1,4 +1,3 @@
-import {TopicProps} from "@/lib/types";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import dynamic from "next/dynamic";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
@@ -6,6 +5,7 @@ import {Button} from "@/../modules/ui-utils/src/button"
 import {useRouter} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import {getEditorSettings} from "@/components/editor/settings";
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -14,24 +14,11 @@ export const TopicContentPreview = ({
     onMaximize
 }: {
     onMaximize: () => void
-    topic: TopicProps
+    topic: TopicView
 }) => {
     const router = useRouter()
 
-    if(!topic.currentVersion){
-        return <div className={"my-4"}>
-            <Button
-                size={"large"}
-                onClick={() => {router.push(topicUrl(topic.id, undefined, "history"))}}
-                fullWidth={true}
-                color={"secondary"}
-            >
-                Este tema no tiene una versión aceptada. Ver el historial de ediciones.
-            </Button>
-        </div>
-    }
-
-    if(topic.currentVersion.content.text == null || topic.currentVersion.content.text.length == 0){
+    if(topic.text == null || topic.text.length == 0){
         return <div className={"my-4"}>
             <Button
             size={"large"}
@@ -58,8 +45,8 @@ export const TopicContentPreview = ({
         >
             <MyLexicalEditor
                 settings={getEditorSettings({
-                    initialText: topic.currentVersion.content.text,
-                    initialTextFormat: topic.currentVersion.content.format,
+                    initialText: topic.text,
+                    initialTextFormat: topic.format,
                     editorClassName: "article-content not-article-content"
                 })}
                 setEditor={() => {}}
