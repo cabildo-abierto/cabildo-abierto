@@ -7,7 +7,7 @@ import {
   ValidationError,
   type ValidationResult,
 } from '@atproto/lexicon'
-import { type $Typed, is$typed, maybe$typed } from './util.js'
+import { type $Typed, is$typed, maybe$typed } from './util'
 
 export const schemaDict = {
   ArCabildoabiertoActorDefs: {

@@ -9,7 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as AppBskyEmbedDefs from './defs.js'
+import type * as AppBskyEmbedDefs from './defs'
 
 const is$typed = _is$typed,
   validate = _validate

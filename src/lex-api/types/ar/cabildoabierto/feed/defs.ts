@@ -9,15 +9,15 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as AppBskyFeedDefs from '../../../app/bsky/feed/defs.js'
-import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs.js'
-import type * as AppBskyEmbedImages from '../../../app/bsky/embed/images.js'
-import type * as AppBskyEmbedVideo from '../../../app/bsky/embed/video.js'
-import type * as AppBskyEmbedExternal from '../../../app/bsky/embed/external.js'
-import type * as AppBskyEmbedRecord from '../../../app/bsky/embed/record.js'
-import type * as AppBskyEmbedRecordWithMedia from '../../../app/bsky/embed/recordWithMedia.js'
-import type * as ArCabildoabiertoEmbedSelectionQuote from '../embed/selectionQuote.js'
-import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs.js'
+import type * as AppBskyFeedDefs from '../../../app/bsky/feed/defs'
+import type * as AppBskyActorDefs from '../../../app/bsky/actor/defs'
+import type * as AppBskyEmbedImages from '../../../app/bsky/embed/images'
+import type * as AppBskyEmbedVideo from '../../../app/bsky/embed/video'
+import type * as AppBskyEmbedExternal from '../../../app/bsky/embed/external'
+import type * as AppBskyEmbedRecord from '../../../app/bsky/embed/record'
+import type * as AppBskyEmbedRecordWithMedia from '../../../app/bsky/embed/recordWithMedia'
+import type * as ArCabildoabiertoEmbedSelectionQuote from '../embed/selectionQuote'
+import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
 
 const is$typed = _is$typed,
   validate = _validate

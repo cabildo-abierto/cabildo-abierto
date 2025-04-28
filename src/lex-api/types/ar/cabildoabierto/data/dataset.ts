@@ -9,7 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as ArCabildoabiertoActorDefs from '../actor/defs.js'
+import type * as ArCabildoabiertoActorDefs from '../actor/defs'
 
 const is$typed = _is$typed,
   validate = _validate

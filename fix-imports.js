@@ -5,7 +5,7 @@ const path = require('path');
 function processFile(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
   // Replace all .js" and .js' with .ts" and .ts'
-  content = content.replace(/\.ts(["'])/g, '$1');
+  content = content.replace(/\.js(["'])/g, '$1');
   fs.writeFileSync(filePath, content);
 }
 

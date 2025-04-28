@@ -9,7 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
+import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef'
 
 const is$typed = _is$typed,
   validate = _validate

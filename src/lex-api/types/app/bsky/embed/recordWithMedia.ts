@@ -9,10 +9,10 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as AppBskyEmbedRecord from './record.js'
-import type * as AppBskyEmbedImages from './images.js'
-import type * as AppBskyEmbedVideo from './video.js'
-import type * as AppBskyEmbedExternal from './external.js'
+import type * as AppBskyEmbedRecord from './record'
+import type * as AppBskyEmbedImages from './images'
+import type * as AppBskyEmbedVideo from './video'
+import type * as AppBskyEmbedExternal from './external'
 
 const is$typed = _is$typed,
   validate = _validate

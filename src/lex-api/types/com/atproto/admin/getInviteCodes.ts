@@ -10,7 +10,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as ComAtprotoServerDefs from '../server/defs.js'
+import type * as ComAtprotoServerDefs from '../server/defs'
 
 const is$typed = _is$typed,
   validate = _validate

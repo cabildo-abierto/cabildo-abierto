@@ -9,16 +9,16 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as AppBskyActorDefs from '../actor/defs.js'
-import type * as AppBskyEmbedImages from '../embed/images.js'
-import type * as AppBskyEmbedVideo from '../embed/video.js'
-import type * as AppBskyEmbedExternal from '../embed/external.js'
-import type * as AppBskyEmbedRecord from '../embed/record.js'
-import type * as AppBskyEmbedRecordWithMedia from '../embed/recordWithMedia.js'
-import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs.js'
-import type * as ArCabildoabiertoFeedDefs from '../../../ar/cabildoabierto/feed/defs.js'
-import type * as AppBskyRichtextFacet from '../richtext/facet.js'
-import type * as AppBskyGraphDefs from '../graph/defs.js'
+import type * as AppBskyActorDefs from '../actor/defs'
+import type * as AppBskyEmbedImages from '../embed/images'
+import type * as AppBskyEmbedVideo from '../embed/video'
+import type * as AppBskyEmbedExternal from '../embed/external'
+import type * as AppBskyEmbedRecord from '../embed/record'
+import type * as AppBskyEmbedRecordWithMedia from '../embed/recordWithMedia'
+import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
+import type * as ArCabildoabiertoFeedDefs from '../../../ar/cabildoabierto/feed/defs'
+import type * as AppBskyRichtextFacet from '../richtext/facet'
+import type * as AppBskyGraphDefs from '../graph/defs'
 
 const is$typed = _is$typed,
   validate = _validate
