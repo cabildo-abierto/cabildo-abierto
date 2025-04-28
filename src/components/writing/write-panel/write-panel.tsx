@@ -9,9 +9,10 @@ import {WritePost} from "./write-post";
 import {$Typed} from "@atproto/api";
 import {ArticleView, FullArticleView, PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {WritePanelReply} from "@/components/writing/write-panel/write-panel-reply";
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
-export type ReplyToContent = $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView>
+export type ReplyToContent = $Typed<PostView> | $Typed<ArticleView> | $Typed<FullArticleView> | $Typed<TopicView>
 
 
 type WritePanelProps = {

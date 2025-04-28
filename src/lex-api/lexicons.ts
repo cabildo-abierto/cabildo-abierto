@@ -163,6 +163,101 @@ export const schemaDict = {
           },
         },
       },
+      datasetViewBasic: {
+        type: 'object',
+        required: ['name', 'uri', 'cid', 'author', 'createdAt', 'columns'],
+        properties: {
+          name: {
+            type: 'string',
+          },
+          uri: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+            description:
+              'Client-declared timestamp when this post was originally created.',
+          },
+          description: {
+            type: 'string',
+            maxLength: 3000,
+            maxGraphemes: 300,
+          },
+          columns: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.data.dataset#column',
+            },
+            minLength: 1,
+          },
+        },
+      },
+      datasetView: {
+        type: 'object',
+        required: [
+          'name',
+          'uri',
+          'cid',
+          'author',
+          'createdAt',
+          'data',
+          'columns',
+        ],
+        properties: {
+          name: {
+            type: 'string',
+          },
+          uri: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+            description:
+              'Client-declared timestamp when this post was originally created.',
+          },
+          description: {
+            type: 'string',
+            maxLength: 3000,
+            maxGraphemes: 300,
+          },
+          columns: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.data.dataset#column',
+            },
+            minLength: 1,
+          },
+          data: {
+            type: 'string',
+          },
+          dataFormat: {
+            type: 'string',
+            maxLength: 50,
+          },
+        },
+      },
     },
   },
   ArCabildoabiertoDataVisualization: {
@@ -629,7 +724,7 @@ export const schemaDict = {
         key: 'tid',
         record: {
           type: 'object',
-          required: ['text', 'id', 'createdAt', 'format'],
+          required: ['text', 'id', 'createdAt'],
           properties: {
             id: {
               type: 'string',
@@ -639,35 +734,236 @@ export const schemaDict = {
             text: {
               type: 'blob',
             },
-            synonyms: {
+            format: {
               type: 'string',
               minLength: 1,
-              maxLength: 10000,
+              maxLength: 50,
             },
-            categories: {
-              type: 'string',
-              minLength: 1,
-              maxLength: 10000,
+            props: {
+              type: 'array',
+              items: {
+                type: 'ref',
+                ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
+              },
             },
             message: {
               type: 'string',
               minLength: 1,
               maxLength: 120,
             },
-            title: {
-              type: 'string',
-              minLength: 2,
-              maxLength: 120,
-            },
-            format: {
-              type: 'string',
-              minLength: 1,
-              maxLength: 50,
-            },
             createdAt: {
               type: 'string',
               format: 'datetime',
             },
+          },
+        },
+      },
+      topicView: {
+        type: 'object',
+        required: [
+          'text',
+          'id',
+          'createdAt',
+          'lastEdit',
+          'uri',
+          'cid',
+          'author',
+        ],
+        properties: {
+          id: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 120,
+          },
+          uri: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          currentVersion: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          text: {
+            type: 'string',
+          },
+          format: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 50,
+          },
+          props: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
+            },
+          },
+          lastEdit: {
+            type: 'string',
+            format: 'datetime',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.actor.defs#profileViewBasic',
+          },
+        },
+      },
+      topicHistory: {
+        type: 'object',
+        required: ['id', 'versions'],
+        properties: {
+          id: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 120,
+          },
+          versions: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#versionInHistory',
+            },
+          },
+        },
+      },
+      versionInHistory: {
+        type: 'object',
+        required: ['uri', 'cid', 'createdAt', 'author'],
+        properties: {
+          uri: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          cid: {
+            type: 'string',
+            format: 'cid',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'datetime',
+          },
+          author: {
+            type: 'ref',
+            ref: 'lex:app.bsky.actor.defs#profileViewBasic',
+          },
+          message: {
+            type: 'string',
+          },
+          viewer: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicVersionViewerState',
+          },
+          status: {
+            type: 'ref',
+            ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicVersionStatus',
+          },
+          addedChars: {
+            type: 'integer',
+          },
+          removedChars: {
+            type: 'integer',
+          },
+          props: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
+            },
+          },
+        },
+      },
+      topicVersionViewerState: {
+        type: 'object',
+        required: [],
+        properties: {
+          accept: {
+            type: 'string',
+            format: 'at-uri',
+          },
+          reject: {
+            type: 'string',
+            format: 'at-uri',
+          },
+        },
+      },
+      topicVersionStatus: {
+        type: 'object',
+        required: ['voteCounts'],
+        properties: {
+          voteCounts: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#categoryVotes',
+            },
+          },
+        },
+      },
+      categoryVotes: {
+        type: 'object',
+        required: ['accepts', 'rejects', 'category'],
+        properties: {
+          accepts: {
+            type: 'integer',
+          },
+          rejects: {
+            type: 'integer',
+          },
+          category: {
+            type: 'string',
+            maxLength: 50,
+          },
+        },
+      },
+      topicProp: {
+        type: 'object',
+        required: ['name', 'value'],
+        properties: {
+          name: {
+            type: 'string',
+            maxLength: 50,
+          },
+          value: {
+            type: 'string',
+            maxLength: 50,
+          },
+          dataType: {
+            type: 'string',
+            maxLength: 50,
+          },
+        },
+      },
+      topicViewBasic: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: {
+            type: 'string',
+          },
+          props: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
+            },
+          },
+          popularity: {
+            type: 'array',
+            items: {
+              type: 'integer',
+            },
+          },
+          lastEdit: {
+            type: 'string',
+            format: 'datetime',
           },
         },
       },

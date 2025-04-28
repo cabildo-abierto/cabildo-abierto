@@ -21,13 +21,14 @@ import {InsertVisualizationModal} from "./insert-visualization-modal";
 import {InsertImageModal} from "./insert-image-modal";
 import {FastPostReplyProps} from "@/lib/types";
 import {useSession} from "@/hooks/api";
-import {FastPostEditor} from "@/components/editor/fast-post-editor";
+import {PostEditor} from "@/components/editor/post-editor";
 import {Star, StarBorder} from "@mui/icons-material";
 import {ToolbarButton} from "../../../../modules/ca-lexical-editor/src/plugins/ToolbarPlugin/toolbar-button";
 import {ReplyToContent} from "@/components/writing/write-panel/write-panel";
 import {isPostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {Record as PostRecord} from "@/lex-api/types/app/bsky/feed/post"
 import {post} from "@/utils/fetch";
+import {isTopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 function replyFromParentElement(replyTo: ReplyToContent): FastPostReplyProps {
@@ -146,7 +147,7 @@ export const WritePost = ({replyTo, onClose, selection, onSubmit}: {
                 <div className="flex space-x-2 w-full mt-2">
                     <ProfilePic user={user} className={"w-8 h-8 rounded-full"}/>
                     <div className="sm:text-lg w-full" key={editorKey}>
-                        <FastPostEditor
+                        <PostEditor
                             setText={setText}
                             placeholder={getPlaceholder(replyToCollection)}
                         />

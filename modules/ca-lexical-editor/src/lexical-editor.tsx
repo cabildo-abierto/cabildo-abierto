@@ -76,7 +76,7 @@ export type SettingsProps = {
     isDraggableBlock: boolean
     allowImages: boolean
     allowTables: boolean
-    allowPlots: boolean
+    allowVisualizations: boolean
     markdownShortcuts: boolean
 
     useSuperscript: boolean
@@ -188,13 +188,13 @@ function Editor({settings, setEditor, setEditorState}: LexicalEditorProps) {
             {isRichText && showToolbar && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode}/>}
             <div
                 ref={editorContainerRef}
-                className={`editor-container ${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
+                className={`${showTreeView ? 'tree-view' : ''} ${!isRichText ? 'plain-text' : ''}`}
             >
                 <DragDropPaste/>
 
                 {preventLeave && !isReadOnly && <PreventLeavePlugin uniqueId={uniqueId}/>}
 
-                {isAutofocus && <AutoFocusPlugin/>}
+                {isAutofocus && <AutoFocusPlugin defaultSelection={"rootStart"}/>}
 
                 <BeautifulMentionsPlugin
                     triggers={['@']}

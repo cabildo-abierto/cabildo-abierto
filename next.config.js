@@ -3,13 +3,7 @@
 })*/
 
 nextConfig = {
-    webpack: (config) => {
-        config.resolve.extensionAlias = {
-            ".js": [".ts", ".tsx", ".js"],
-        };
-
-        return config;
-    },
+    reactStrictMode: false,
     logging: {
         fetches: {
             fullUrl: true
@@ -23,7 +17,7 @@ nextConfig = {
         },
       ],
     },
-    allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev']
+    allowedDevOrigins: ['127.0.0.1', '*.127.0.0.1']
 }
 
 //module.exports = withBundleAnalyzer(nextConfig)

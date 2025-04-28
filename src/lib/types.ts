@@ -66,98 +66,9 @@ export type PostCollection =
     "app.bsky.feed.post"
 
 
-export type RecordProps = {
-    uri: string
-    cid: string
-    collection: Collection
-    createdAt: Date
-    rkey: string
-    author: {
-        did: string
-        handle: string
-        displayName?: string
-        avatar?: string
-        inCA?: boolean
-    }
-    enDiscusion?: {
-        uri: string
-    }
-}
-
-
-export type TopicProps = {
-    id: string
-    protection: EditorStatus
-    synonyms: string[]
-    categories: {
-        categoryId: string
-    }[]
-    currentVersion: {
-        uri: string
-        content: {
-            text: string
-            format?: string
-            record: {
-                cid: string
-                author: {
-                    did: string
-                    handle: string
-                    displayName?: string
-                    avatar?: string
-                }
-                createdAt: Date
-            }
-        }
-    }
-}
-
-
-export type TopicHistoryProps = {
-    id: string
-    versions: {
-        uri: string
-        cid: string
-        collection: "ar.com.cabildoabierto.topic"
-        author: {
-            did: string
-            handle: string
-            displayName: string
-            avatar: string
-        }
-        content: {
-            hasText: boolean
-            topicVersion: {
-                charsAdded: number
-                charsDeleted: number
-                accCharsAdded: number
-                contribution: string
-                message: string
-                diff: string
-                title: string
-                categories: string
-                synonyms: string
-            }
-        }
-        createdAt: Date
-        uniqueAccepts: number
-        uniqueRejects: number
-    }[]
-}
-
-
 export type TopicVersionAuthorsProps = {
     text: string
-}
-
-
-export type SmallTopicProps = {
-    id: string
-    popularityScore?: number
-    synonyms?: string[]
-    categories: {
-        categoryId: string
-    }[]
-    lastEdit?: Date
+    format: string
 }
 
 
@@ -173,17 +84,6 @@ export type ReasonProps = {
     collection: Collection
     by: ProfileViewBasic
 }
-
-
-export type FeedContentProps =
-    (FastPostProps | ArticleProps | DatasetProps | VisualizationProps | TopicVersionOnFeedProps) &
-    Omit<RecordProps, "collection"> &
-    EngagementProps &
-    {reason?: ReasonProps}
-
-
-
-export type FeedContentPropsMaybe = FeedContentProps & {blocked?: boolean, notFound?: boolean}
 
 
 export type BothContributionsProps = {
@@ -204,34 +104,6 @@ export type SubscriptionProps = {
     endsAt: Date | null
     price: number
 }
-
-
-export type UserProps = {
-    did: string
-    handle: string
-    displayName?: string
-    avatar?: string
-    banner?: string
-    description?: string
-    hasAccess: boolean
-    email?: string
-    inCA: boolean
-    CAProfileUri?: string
-    createdAt: Date
-    seenTutorial: boolean
-    editorStatus: EditorStatus
-    platformAdmin: boolean
-    subscriptionsUsed: SubscriptionProps[]
-    subscriptionsBought: {id: string, price: number}[]
-    viewer?: {following?: string, followed?: string}
-    followersCount: number
-    followsCount: number
-    messagesSent: MessageProps[]
-    messagesReceived: MessageProps[]
-    usedInviteCode?: {
-        code: string
-    }
-};
 
 
 export type MessageProps = {
@@ -259,93 +131,11 @@ export type UserStats = {
 }
 
 
-export type ArticleProps = RecordProps & EngagementProps & {
-    content: {
-        text?: string
-        textBlob?: {cid: string, authorId: string}
-        format?: string
-        numWords?: number
-        article: {
-            title: string
-        }
-        references: {
-            referencedTopicId: string
-            count: number
-        }[]
-    }
-} & {collection: "ar.com.cabildoabierto.article"}
-
-export type EngagementProps = {
-    likeCount?: number
-    repostCount?: number
-    replyCount?: number
-    viewer?: {like?: string, repost?: string}
-    participantsCount?: number
-    uniqueViewsCount?: number
-    visualizationsUsingCount?: number
-    likeCountBsky?: number
-    repostCountBsky?: number
-    quoteCountBsky?: number
-}
-
-export type FastPostProps = RecordProps & EngagementProps & {
-    content: {
-        text: string
-        post: {
-            facets?: string
-            embed?: string
-            replyTo?: (FeedContentPropsMaybe | ATProtoStrongRef) & {collection?: string, uri: string, notFound?: boolean}
-            root?: (FeedContentPropsMaybe | ATProtoStrongRef) & {collection?: string, uri: string, notFound?: boolean}
-            grandparentAuthor?: ProfileViewBasic
-            quote?: string
-            visualization?: VisualizationProps
-        }
-    }
-} & {collection: "ar.com.cabildoabierto.quotePost" | "app.bsky.feed.post"}
-
-
-export type TopicVersionOnFeedProps = RecordProps & EngagementProps & {
-    content: {
-        numWords?: number
-        topicVersion: {
-            title?: string
-            topic: {
-                id: string
-            }
-            message?: string
-            charsAdded?: number
-            charsDeleted?: number
-        }
-    }
-} & {collection: "ar.com.cabildoabierto.topic"}
-
-
 export type MatchesType = {
     matches: {x: number, y: number}[]
     common: {x: number, y: number}[]
     perfectMatches: {x: number, y: number}[]
 }
-
-
-export type DatasetProps = RecordProps & {
-    dataset: {
-        title: string
-        columns: string[]
-        columnValues?: {column: string, values: any[]}[] | Map<string, any[]>
-        description?: string
-        dataBlocks: {
-            record: RecordProps,
-            format: string,
-            blob: {
-                cid: string
-                authorId: string
-            }
-        }[]
-    }
-    visualizationsUsing: {
-        uri: string
-    }[]
-} & {collection: "ar.com.cabildoabierto.dataset"}
 
 
 export type PlotConfigProps = {
@@ -361,17 +151,3 @@ export type FilterProps = {
     op: string
     column: string
 }
-
-
-export type VisualizationProps = RecordProps & {
-    visualization: {
-        spec: string
-        dataset?: {
-            uri: string
-            dataset: {
-                title: string
-            }
-        }
-        previewBlobCid?: string
-    }
-} & {collection: "ar.com.cabildoabierto.visualization"}

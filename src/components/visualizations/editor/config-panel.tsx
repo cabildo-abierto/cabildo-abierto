@@ -1,14 +1,12 @@
-import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/types";
+import {FilterProps, PlotConfigProps} from "@/lib/types";
 import ResizableDiv from "../../../../modules/ui-utils/src/resizable-div";
 import {Select} from "../../../../modules/ui-utils/src/select";
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
-import {IconButton, TextField} from "@mui/material";
+import {TextField} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import {FilterConfig} from "./filter-config";
-import CodeIcon from '@mui/icons-material/Code';
-import {openJsonInNewTab} from "@/components/feed/content-options/content-options";
-// import {getSpecForConfig} from "./get-spec";
 import {Button} from "../../../../modules/ui-utils/src/button";
+import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
 const twoAxis: PropReq[] = [
@@ -72,7 +70,7 @@ const configReq = new Map<String, PropReq[]>([
 export const ConfigPanel = ({config, updateConfig, dataset}: {
     config: PlotConfigProps
     updateConfig: (k: string, v: any) => void
-    dataset?: DatasetProps
+    dataset?: DatasetView | DatasetViewBasic
 }) => {
 
     function updateFilter(i: number, value: FilterProps) {
@@ -104,7 +102,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                         if (req.type == "column") {
                             return <div key={i}>
                                 <SearchableDropdown
-                                    options={dataset.dataset.columns}
+                                    options={dataset.columns.map(c => c.name)}
                                     label={req.label}
                                     size={"small"}
                                     selected={config[req.label]}
@@ -144,7 +142,7 @@ export const ConfigPanel = ({config, updateConfig, dataset}: {
                         } else if (req.type == "maybe-column") {
                             return <div key={i}>
                                 <SearchableDropdown
-                                    options={["Fijo", ...dataset.dataset.columns]}
+                                    options={["Fijo", ...dataset.columns.map(c => c.name)]}
                                     label={req.label}
                                     size={"small"}
                                     selected={config[req.label]}

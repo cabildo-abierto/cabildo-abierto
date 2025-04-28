@@ -3,7 +3,7 @@ import {useState} from "react";
 import Link from "next/link";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import AddIcon from "@mui/icons-material/Add";
-import {useDatasets, useVisualizations} from "@/hooks/api";
+import {useDatasets} from "@/hooks/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {VisualizationsFeed} from "@/components/visualizations/visualizations-feed";
 import {DatasetsFeed} from "@/components/datasets/datasets-feed";
@@ -13,8 +13,8 @@ import {Button} from "../../../modules/ui-utils/src/button";
 
 
 const Page = () => {
-    const {visualizations} = useVisualizations()
-    const {datasets} = useDatasets()
+    //const {visualizations} = useVisualizations()
+    const {data: datasets} = useDatasets()
     const [selected, onSelection] = useState("Visualizaciones")
     const [openNewDatasetPanel, setOpenNewDatasetPanel] = useState(false)
 
@@ -74,13 +74,13 @@ const Page = () => {
             </Button>}
         </div>
 
-        <div className={"flex flex-col"}>
+        {/* TO DO <div className={"flex flex-col"}>
             {selected == "Visualizaciones" && (visualizations ?
                 <VisualizationsFeed visualizations={visualizations}/> :
                 loading
             )}
             {selected == "Datos" && (datasets ? <DatasetsFeed datasets={datasets}/> : loading)}
-        </div>
+        </div>*/}
         <NewDatasetPanel open={openNewDatasetPanel} onClose={() => {setOpenNewDatasetPanel(false)}}/>
     </div>
 }

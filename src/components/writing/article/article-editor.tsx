@@ -1,6 +1,6 @@
 "use client"
 
-import {QueryMentionsProps, SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor"
+import {SettingsProps} from "../../../../modules/ca-lexical-editor/src/lexical-editor"
 import { useState } from "react"
 import { EditorState, LexicalEditor } from "lexical"
 import { TitleInput } from "./title-input"
@@ -14,47 +14,28 @@ import {ReadingTime} from "@/components/article/reading-time";
 import {getAllText} from "@/components/topics/topic/diff";
 import {useSession} from "@/hooks/api";
 import {FooterHorizontalRule} from "../../../../modules/ui-utils/src/footer";
-import { queryMentions } from "@/components/editor/query-mentions"
+import {getEditorSettings} from "@/components/editor/settings";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
-const articleEditorSettings: () => SettingsProps = () => {
-    return {
-        isAutocomplete: false,
-        isCharLimit: true,
-        charLimit: 1200000,
-        isRichText: true,
-        allowImages: true,
-        allowComments: false,
-        allowPlots: true,
-        allowTables: true,
-        markdownShortcuts: true,
-        queryMentions,
+const articleEditorSettings: SettingsProps = getEditorSettings({
+    charLimit: 1200000,
+    allowImages: true,
+    allowVisualizations: true,
+    allowTables: true,
+    markdownShortcuts: true,
 
-        measureTypingPerf: false,
-        useContextMenu: false,
-        tableOfContents: true,
-        showTreeView: false,
-        showToolbar: true,
+    tableOfContents: true,
+    showToolbar: true,
 
-        isDraggableBlock: true,
-        useSuperscript: false,
-        useStrikethrough: false,
-        useSubscript: false,
+    isDraggableBlock: true,
 
-        placeholder: "Escribí tu artículo...",
-        initialText: "",
-        initialTextFormat: "plain-text",
-        isReadOnly: false,
-
-        isAutofocus: true,
-
-        editorClassName: "article-content",
-        placeholderClassName: "ContentEditable__placeholder",
-        imageClassName: "",
-        preventLeave: false
-    }
-}
+    placeholder: "Escribí tu artículo...",
+    isReadOnly: false,
+    editorClassName: "article-content relative px-2 pt-4",
+    placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[10px] px-2 pt-[32px]",
+    preventLeave: false
+})
 
 
 const ArticleEditor = () => {
@@ -63,9 +44,7 @@ const ArticleEditor = () => {
     const [title, setTitle] = useState("")
     const {user} = useSession()
 
-    const settings = articleEditorSettings()
-    settings.editorClassName += " px-2 pt-4"
-    settings.placeholderClassName += " px-2 pt-[32px]"
+    const settings = articleEditorSettings
 
     const valid = validArticle(editorState, settings.charLimit, title)
 

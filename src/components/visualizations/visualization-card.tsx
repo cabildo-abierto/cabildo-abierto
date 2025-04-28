@@ -1,14 +1,12 @@
-import {EngagementProps, VisualizationProps} from "@/lib/types";
 import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {CustomLink} from "../../../modules/ui-utils/src/custom-link";
-import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import Link from "next/link";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {VegaPlotPreview} from "./vega-plot-preview";
 import TableChartIcon from '@mui/icons-material/TableChart';
 import {useSWRConfig} from "swr";
-import {contentUrl, urlFromRecord} from "../../utils/uri";
-import {formatIsoDate} from "../../utils/dates";
+import {contentUrl, urlFromRecord} from "@/utils/uri";
+import {formatIsoDate} from "@/utils/dates";
 
 function getTitleFromSpec(spec: string){
     try {
@@ -19,8 +17,9 @@ function getTitleFromSpec(spec: string){
     }
 }
 
+type VisualizationProps = any // TO DO
 
-export const VisualizationCard = ({visualization, width}: {visualization: VisualizationProps & EngagementProps, width: number}) => {
+export const VisualizationCard = ({visualization, width}: {visualization: VisualizationProps, width: number}) => {
     const {mutate} = useSWRConfig()
     const url = urlFromRecord(visualization.uri)
 

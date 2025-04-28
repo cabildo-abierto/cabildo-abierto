@@ -1,14 +1,14 @@
 "use client"
-import {FastPostProps} from "@/lib/types";
 import {PlotFromUri} from "./plot-from-uri";
 import {getUri, shortCollectionToCollection} from "@/utils/uri";
+import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 
 
-export const PlotInPost = ({
+/*export const PlotInPost = ({
     post,
     interactive=true
 }: {
-    post: FastPostProps
+    post: PostView
     interactive?: boolean
 }) => {
     if (!post.content.post.embed) {
@@ -37,4 +37,4 @@ export const PlotInPost = ({
     return <div className={"mt-2 border rounded-lg p-2 hover:bg-[var(--background-dark2)]"}>
         <PlotFromUri uri={getUri(did, "ar.com.cabildoabierto.visualization", rkey)} interactive={interactive}/>
     </div>
-}
+}*/

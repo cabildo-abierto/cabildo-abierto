@@ -1,6 +1,7 @@
-import {TopicProps} from "@/lib/types";
 import { ListEditorWithSave } from "../../../../modules/ui-utils/src/list-editor";
 import {useSWRConfig} from "swr";
+import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {getTopicSynonyms} from "@/components/topics/topic/utils";
 
 
 const updateSynonymsInTopic = async ({topicId, synonyms}: {topicId: string, synonyms: string[]}) => {
@@ -10,10 +11,10 @@ const updateSynonymsInTopic = async ({topicId, synonyms}: {topicId: string, syno
 
 
 export const SynonymsEditor = ({topic, onClose}: {
-    topic: TopicProps
+    topic: TopicView
     onClose: () => void
 }) => {
-    const currentSynonyms = topic.synonyms ?? []
+    const currentSynonyms = getTopicSynonyms(topic) ?? []
     const {mutate} = useSWRConfig()
 
 

@@ -5,7 +5,7 @@ import {DonateIcon} from "@/components/icons/donate-icon";
 import SettingsIcon from "@/components/icons/settings-icon";
 import React, {ReactNode} from "react";
 import {useSession} from "@/hooks/api";
-import {MessageProps, UserProps} from "@/lib/types";
+import {MessageProps} from "@/lib/types";
 import {SupportIcon} from "@/components/icons/support-icon";
 
 

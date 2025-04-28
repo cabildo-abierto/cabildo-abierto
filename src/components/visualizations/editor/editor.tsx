@@ -1,11 +1,12 @@
 "use client"
 import {useDatasets} from "@/hooks/api";
 import {useEffect, useRef, useState} from "react";
-import {DatasetProps, PlotConfigProps} from "@/lib/types";
+import {PlotConfigProps} from "@/lib/types";
 import {ConfigPanel} from "./config-panel";
 import {ChooseDatasetPanel} from "./choose-dataset";
 import {EditorViewer} from "./editor-viewer";
 import {AcceptButtonPanel} from "../../../../modules/ui-utils/src/accept-button-panel";
+import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
 const ErrorPanel = ({msg}: {msg?: string}) => {
@@ -31,9 +32,9 @@ async function getDataset(uri: string){
 
 
 export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initialConfig?: PlotConfigProps}) => {
-    const { datasets } = useDatasets()
+    const { data: datasets } = useDatasets()
     const [config, setConfig] = useState<PlotConfigProps>(initialConfig ? initialConfig : { filters: [], kind: "Tipo de gráfico" })
-    const [dataset, setDataset] = useState<{ dataset?: DatasetProps, data?: any[] } | null>(null)
+    const [dataset, setDataset] = useState<DatasetView | DatasetViewBasic | null>(null)
     const [selected, setSelected] = useState(initialConfig ? "Visualización" : "Datos")
     const sidebarWidth = 80
     const [rightSideWidth, setRightSideWidth] = useState(400)
@@ -107,8 +108,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         async function getSelectedDataset() {
             for(let i = 0; i < datasets.length; i++){
                 if(datasets[i].uri == config.datasetUri){
-
-                    setDataset({ dataset: datasets[i] });
+                    setDataset(datasets[i]);
                     const {error} = await getDataset(config.datasetUri);
                     // TO DO setDataset(dataset)
                 }
@@ -116,8 +116,8 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         }
 
         if (config.datasetUri && datasets) {
-            if(!dataset || config.datasetUri != dataset.dataset.uri){
-                if(dataset && config.datasetUri != dataset.dataset.uri){
+            if(!dataset || config.datasetUri != dataset.uri){
+                if(dataset && config.datasetUri != dataset.uri){
                     setConfig({
                         datasetUri: config.datasetUri,
                         kind: config.kind
@@ -164,7 +164,7 @@ export const VisualizationEditor = ({initialConfig, msg}: {msg?: string, initial
         <ConfigPanel
             config={config}
             updateConfig={updateConfig}
-            dataset={dataset ? dataset.dataset : undefined}
+            dataset={dataset}
         />
     </div>
 

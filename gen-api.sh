@@ -23,3 +23,5 @@
   ../ca-server/lexicons/app/bsky/video/* \
   ../ca-server/lexicons/app/bsky/actor/* \
   ../ca-server/lexicons/app/bsky/richtext/*
+
+node fix-imports.js

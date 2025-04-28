@@ -11,6 +11,7 @@ import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {BlueskyLogo} from "@/components/icons/bluesky-logo";
 import {ProfilePic} from "@/components/profile/profile-pic";
 import {FollowButton} from "@/components/profile/profile-utils";
+import {FooterHorizontalRule} from "../../../modules/ui-utils/src/footer";
 
 type UserSearchResultProps = {
     user: ProfileViewBasic & {
@@ -22,7 +23,7 @@ export const UserSearchResult = ({user}: UserSearchResultProps) => {
 
     return <Link
         href={userUrl(user.handle)}
-        className="flex justify-between hover:bg-[var(--background-dark)] border-b p-3 h-28"
+        className={"flex justify-between hover:bg-[var(--background-dark)] border-b p-3 " + (user.description ? "h-28" : "")}
     >
         <div className={"flex justify-center w-16"}>
             <ProfilePic user={user} className={"rounded-full w-10 h-10"}/>
@@ -36,7 +37,7 @@ export const UserSearchResult = ({user}: UserSearchResultProps) => {
                 <ReadOnlyEditor text={user.description} format={"plain-text"}/>
             </div>}
         </div>
-        <div className={"flex flex-col items-center justify-between"}>
+        <div className={"flex flex-col items-center justify-between min-w-24 space-y-4"}>
             <FollowButton handle={user.handle} profile={user}/>
             {!user.caProfile ? <BlueskyLogo/> : <>{emptyChar}</>}
         </div>
@@ -142,13 +143,36 @@ export const UserSearchResults = ({maxCount, showSearchButton = true}: {
 
     const rightIndex = maxCount != undefined ? maxCount : results.length
 
+    const caResults = results.filter(r => r.caProfile != null)
+    const bskyResults = results.filter(r => !r.caProfile)
+
     return <div className="flex flex-col items-center">
         <div className="flex flex-col justify-center w-full">
-            {results.slice(0, rightIndex).map((user, index) => (
+            {showSearchButton && results.slice(0, rightIndex).map((user, index) => (
                 <div key={index} className="">
                     {showSearchButton ? <SmallUserSearchResult result={user}/> : <UserSearchResult user={user}/>}
                 </div>
             ))}
+
+            {!showSearchButton && <>
+                {caResults.map((user, index) => (
+                    <div key={index} className="">
+                        {showSearchButton ? <SmallUserSearchResult result={user}/> : <UserSearchResult user={user}/>}
+                    </div>
+                ))}
+
+                {caResults.length == 0 && <div className={"py-16 text-center text-[var(--text-light)]"}>No se encontró el usuario en Cabildo Abierto.</div>}
+
+                <div className={"py-4 text-center text-[var(--text-light)] border-b"}>
+                    Usuarios de Bluesky
+                </div>
+                {bskyResults.map((user, index) => (
+                    <div key={index} className="">
+                        {showSearchButton ? <SmallUserSearchResult result={user}/> : <UserSearchResult user={user}/>}
+                    </div>
+                ))}
+            </>}
+
             {resultsState == "searching" && results.length < rightIndex && <div className={"py-1 border-b"}>
                 <LoadingSpinner/>
             </div>}

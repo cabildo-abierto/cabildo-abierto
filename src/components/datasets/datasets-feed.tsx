@@ -1,15 +1,15 @@
-import {DatasetProps, EngagementProps} from "@/lib/types";
 import {Authorship} from "@/components/feed/frame/content-top-row-author";
-import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {CustomLink} from "../../../modules/ui-utils/src/custom-link";
 import {CardFeed} from "../../../modules/ui-utils/src/card-feed";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import {urlFromRecord} from "@/utils/uri";
+import {DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
-export const SmallDatasetPreview = ({ dataset, width, height }: {
-    dataset: DatasetProps, width: number, height: number }) => {
-    const columns = dataset.dataset.columns;
+export const SmallDatasetPreview = ({dataset, width, height}: {
+    dataset: DatasetViewBasic, width: number, height: number
+}) => {
+    const columns = dataset.columns
 
     return (
         <div
@@ -24,13 +24,13 @@ export const SmallDatasetPreview = ({ dataset, width, height }: {
                 <tr>
                     {columns.map((header, colIndex) => (
                         <th key={colIndex} className="border px-4 py-2 text-left">
-                            {header}
+                            {header.name}
                         </th>
                     ))}
                 </tr>
                 </thead>
                 <tbody>
-                {Array.from({ length: 4 }).map((_, rowIndex) => (
+                {Array.from({length: 4}).map((_, rowIndex) => (
                     <tr key={rowIndex} className="even:bg-[var(--background-dark)]">
                         {columns.map((_, colIndex) => (
                             <td key={colIndex} className="border px-4 py-2 text-[var(--text-light)]">
@@ -46,9 +46,8 @@ export const SmallDatasetPreview = ({ dataset, width, height }: {
 };
 
 
-
 const DatasetCard = ({dataset, width}: {
-    dataset: DatasetProps & EngagementProps
+    dataset: DatasetViewBasic
     width: number
 }) => {
     const url = urlFromRecord(dataset.uri)
@@ -62,17 +61,17 @@ const DatasetCard = ({dataset, width}: {
             <SmallDatasetPreview
                 dataset={dataset}
                 width={width}
-                height={Math.min(width*0.8, 180)}
+                height={Math.min(width * 0.8, 180)}
             />
         </CustomLink>
 
         <CustomLink href={url} className={"font-semibold"} style={{width}}>
-            {dataset.dataset.title}
+            {dataset.name}
         </CustomLink>
 
         <div className={"text-sm space-x-1 flex items-center text-[var(--text-light)] break-all"}>
             <div><Authorship content={dataset} onlyAuthor={true}/></div>
-            <div className="text-[var(--text-light)]">• </div>
+            <div className="text-[var(--text-light)]">•</div>
             <div><DateSince date={dataset.createdAt}/></div>
         </div>
 
@@ -83,7 +82,7 @@ const DatasetCard = ({dataset, width}: {
 }
 
 
-export const DatasetsFeed = ({ datasets }: { datasets: (DatasetProps & EngagementProps)[] }) => {
+export const DatasetsFeed = ({datasets}: { datasets: DatasetViewBasic[] }) => {
     function generator(e: any, width: number) {
         return <DatasetCard dataset={e} width={width}/>
     }

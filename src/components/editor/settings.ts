@@ -7,7 +7,7 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
         queryMentions,
         allowImages: true,
         allowTables: true,
-        allowPlots: true,
+        allowVisualizations: true,
         markdownShortcuts: true,
         isRichText: true,
         showToolbar: false,
@@ -28,9 +28,9 @@ export function getEditorSettings(s: Partial<SettingsProps>): SettingsProps {
 
         preventLeave: true,
         isReadOnly: true,
-        placeholderClassName: "",
         imageClassName: "",
-        editorClassName: "",
+        placeholderClassName: "text-[var(--text-light)] absolute top-0 mt-[10px]",
+        editorClassName: "relative min-h-[300px]",
         tableOfContents: false,
         allowComments: false,
 

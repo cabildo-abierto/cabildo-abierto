@@ -1,26 +1,18 @@
-import useSWR from "swr"
 import {
     Account,
-    DatasetProps,
-    EngagementProps,
     Profile, Session,
-    SmallTopicProps,
-    TopicHistoryProps,
-    TopicProps,
     TopicsGraph,
     TopicVersionAuthorsProps,
-    VisualizationProps
 } from "@/lib/types"
-import {fetcher, fetcherWithCredentials} from "./fetcher"
-import {backendUrl, getDidFromUri, getRkeyFromUri, splitUri, threadApiUrl} from "@/utils/uri";
-import {SmallTopicVersionProps} from "@/components/topics/topic/topic-content-expanded-view";
-import {ProfileViewDetailed} from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+import {splitUri, threadApiUrl} from "@/utils/uri";
 import {FeedViewContent, ThreadViewContent} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {ProfileFeedOption} from "@/components/profile/profile-page";
 import {useQuery} from "@tanstack/react-query";
 import {get} from "@/utils/fetch";
 import {ProfileViewBasic} from "@/lex-api/types/ar/cabildoabierto/actor/defs";
 import {FollowKind} from "@/components/profile/follow/followx-page";
+import {TopicHistory, TopicView, TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
 function uriToKey(uri: string) {
@@ -37,7 +29,6 @@ export function useAPI<T>(route: string, key: readonly unknown[]){
             if(data){
                 return data
             } else if(error) {
-                console.log("throwing error!", error)
                 throw Error(error)
             } else {
                 return data
@@ -68,7 +59,7 @@ export const useThread = (uri: string) => {
 
 
 export const useTrendingTopics = () => {
-    return useAPI<SmallTopicProps[]>("/trending-topics", ["trending-topics"])
+    return useAPI<TopicViewBasic[]>("/trending-topics", ["trending-topics"])
 }
 
 
@@ -110,294 +101,59 @@ export function useCodes(){
 }
 
 
-export function useTopics(categories: string[], sortedBy: string): {topics: SmallTopicProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topics/alltime/'+sortedBy+"/"+categories.join("/"), fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        topics: data,
-        isLoading,
-        isError: error
-    }
+export function useTopic(id: string) {
+    return useAPI<TopicView>("/topic/"+id, ["topic", id])
 }
 
 
-export function useCategories(): {categories: {category: string, size: number}[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/categories', fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        categories: data,
-        isLoading,
-        isError: error
-    }
+export function useTopics(categories: string[], sortedBy: "popular" | "recent") {
+    const query = categories.map(cat => `c=${encodeURIComponent(cat)}`).join("&");
+    const url = `/topics/${sortedBy}${query ? `?${query}` : ""}`;
+    return useAPI<TopicViewBasic[]>(url, ["topic", sortedBy, ...categories]);
 }
 
 
-export function useTopic(id: string): {topic: TopicProps, error?: string, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topic/'+id, fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        topic: data,
-        isLoading,
-        isError: error
-    }
+export function useCategories() {
+    return useAPI<{category: string, size: number}[]>("/categories", ["categories"])
 }
 
 
-export function useTopicHistory(id: string): {topicHistory: TopicHistoryProps, error?: string, isLoading: boolean}{
-    const { data, isLoading } = useSWR('/api/topic-history/'+id, fetcher,
-        {
-            revalidateIfStale: true,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        topicHistory: data && data.topicHistory ? data.topicHistory : undefined,
-        isLoading,
-        error: data && data.error ? data.error : undefined
-    }
+export function useTopicHistory(id: string) {
+    return useAPI<TopicHistory>("/topic-history/"+id, ["topic-history", id])
 }
 
 
-export function useTopicVersion(did: string, rkey: string): {topicVersion: SmallTopicVersionProps, error?: string, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/topic-version/'+did+"/"+rkey, fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        topicVersion: data,
-        isLoading,
-        isError: error
-    }
+export function useTopicVersion(did: string, rkey: string) {
+    return useAPI<TopicView>("/topic-version/"+did+"/"+rkey, ["topic-version", did, rkey])
 }
 
 
-export function useTopicVersionAuthors(did: string, rkey: string): {topicVersionAuthors: TopicVersionAuthorsProps, error?: string, isLoading: boolean, isError: boolean}{
-    const { data, isLoading } = useSWR('/api/topic-version-authors/'+did+"/"+rkey, fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        topicVersionAuthors: data ? data.topicVersionAuthors : undefined,
-        isLoading,
-        isError: data ? data.error : undefined
-    }
+export function useTopicVersionAuthors(did: string, rkey: string) {
+    return useAPI<TopicVersionAuthorsProps>("/topic-version-authors/"+did+"/"+rkey, ["topic-version-authors", did, rkey])
 }
 
 
-export function useTopicVersionChanges(did: string, rkey: string): {topicVersionChanges: TopicVersionAuthorsProps, error?: string, isLoading: boolean, isError: boolean}{
-    const { data, isLoading } = useSWR('/api/topic-version-changes/'+did+"/"+rkey, fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        topicVersionChanges: data ? data.topicVersionChanges : undefined,
-        isLoading,
-        isError: data ? data.error : undefined
-    }
+export function useTopicVersionChanges(did: string, rkey: string) {
+    return useAPI<TopicVersionAuthorsProps>("/topic-version-changes/"+did+"/"+rkey, ["topic-version-changes", did, rkey])
 }
 
 
-export function useDatasets(): {datasets: DatasetProps[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR('/api/datasets', fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        datasets: data,
-        isLoading,
-        isError: error
-    }
+export function useDatasets() {
+    return useAPI<DatasetViewBasic[]>("/datasets", ["datasets"])
 }
 
 
-export function useVisualizations(): {visualizations: VisualizationProps[], isLoading: boolean, error: string}{
-    const { data, error, isLoading } = useSWR(backendUrl + '/visualizations', fetcherWithCredentials,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        visualizations: data && data.visualizations ? data.visualizations : undefined,
-        isLoading,
-        error: data && data.error ? data.error : undefined
-    }
+export function useDataset(uri: string) {
+    const {did, rkey} = splitUri(uri)
+    return useAPI<DatasetView>("/dataset", ["dataset", did, rkey])
 }
 
 
-export function useDataset(uri: string): {dataset: {dataset: DatasetProps & EngagementProps, data: any[]}, isLoading: boolean, error?: string}{
-    const { data, isLoading } = useSWR('/api/dataset/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    if(data && data.error){
-        return {error: data.error, isLoading: false, dataset: undefined}
-    }
-    return {
-        dataset: data,
-        isLoading
-    }
+export function useCategoriesGraph() {
+    return useAPI<TopicsGraph>("/categories-graph", ["categories-graph"])
 }
 
 
-export function useVisualization(uri: string): {visualization: VisualizationProps & EngagementProps, isLoading: boolean, error: string}{
-    const { data, isLoading } = useSWR('/api/visualization/'+getDidFromUri(uri)+"/"+getRkeyFromUri(uri), fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        visualization: data && data.visualization ? data.visualization : undefined,
-        isLoading,
-        error: data && data.error ? data.error : undefined
-    }
-}
-
-
-export function useTopicsByCategories(sortedBy: string): {byCategories: {c: string, topics: string[], size: number}[], isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR(
-        '/api/topics-by-categories/'+sortedBy,
-        fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        byCategories: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useCategoriesGraph(): {graph: TopicsGraph, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR(
-        '/api/categories-graph',
-        fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        graph: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useCategoryGraph(c: string): {graph: TopicsGraph, isLoading: boolean, isError: boolean}{
-    const { data, error, isLoading } = useSWR(
-        '/api/category-graph/'+c,
-        fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false
-        }
-    )
-
-    return {
-        graph: data,
-        isLoading,
-        isError: error
-    }
-}
-
-
-export function useBskyUser(): { bskyUser: ProfileViewDetailed, isLoading?: boolean, error?: string } {
-    const {data, error, isLoading} = useSWR('/api/user/bsky', fetcher, {
-        revalidateIfStale: false,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false
-    })
-
-    return {
-        bskyUser: data ? data?.bskyUser : undefined,
-        isLoading,
-        error
-    }
-}
-
-
-export function useSubscriptionPrice(): {
-    price: { price: number, remaining: number },
-    isLoading: boolean,
-    isError: boolean
-} {
-    const {data, error, isLoading} = useSWR('/api/subscription-price', fetcher)
-    return {
-        price: data,
-        isLoading,
-        isError: error
-    }
-}
-
-export function useFundingPercentage(): { fundingPercentage: number, isLoading: boolean, isError: boolean } {
-    const {data, error, isLoading} = useSWR('/api/funding-percentage', fetcher)
-    return {
-        fundingPercentage: data,
-        isLoading,
-        isError: error
-    }
-}
-
-export function useDonationsDistribution(): { donationsDistribution: number[], isLoading: boolean, isError: boolean } {
-    const {data, error, isLoading} = useSWR('/api/donations-distribution', fetcher)
-    return {
-        donationsDistribution: data,
-        isLoading,
-        isError: error
-    }
+export function useCategoryGraph(c: string) {
+    return useAPI<TopicsGraph>("/category-graph/" + c, ["category-graph", c])
 }

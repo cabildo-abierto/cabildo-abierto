@@ -1,21 +1,22 @@
-import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/types";
+import {FilterProps} from "@/lib/types";
 import SearchableDropdown from "../../../../modules/ui-utils/src/searchable-dropdown";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import RemoveIcon from "@mui/icons-material/Remove";
 import {Select} from "../../../../modules/ui-utils/src/select";
+import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
 export const filterOptions = ["igual a", "distinto de", "uno de"]
 
 export const FilterConfig = ({filter, updateFilter, dataset, onRemove}: {
-    dataset?: DatasetProps,
+    dataset?: DatasetView | DatasetViewBasic,
     filter: FilterProps,
     updateFilter: (f: FilterProps) => void,
     onRemove: () => void
 }) => {
     return <div className={"flex items-center space-x-2"}>
         <SearchableDropdown
-            options={dataset ? dataset.dataset.columns : []}
+            options={dataset ? dataset.columns.map(c => c.name) : []}
             label={"Columna"}
             size={"small"}
             fontSize={"14px"}
@@ -38,7 +39,7 @@ export const FilterConfig = ({filter, updateFilter, dataset, onRemove}: {
             }}
         />
         {<SearchableDropdown
-            options={dataset && dataset.dataset && dataset.dataset.columnValues && filter.column && dataset.dataset.columns.includes(filter.column) && "get" in dataset.dataset.columnValues && dataset.dataset.columnValues.get(filter.column).length <= 8 ? dataset.dataset.columnValues.get(filter.column) : []}
+            options={[] /* TO DO */}
             label={"Valor"}
             size={"small"}
             fontSize={"14px"}

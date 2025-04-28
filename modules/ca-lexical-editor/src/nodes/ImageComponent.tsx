@@ -398,7 +398,7 @@ export default function ImageComponent({
                 LinkNode,
                 HashtagNode
               ]}>
-              <AutoFocusPlugin />
+              <AutoFocusPlugin/>
               <LinkPlugin />
               <HashtagPlugin />
               <HistoryPlugin externalHistoryState={historyState} />

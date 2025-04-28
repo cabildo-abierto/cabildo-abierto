@@ -1,4 +1,4 @@
-import {DatasetProps, FilterProps, PlotConfigProps} from "@/lib/types";
+import {FilterProps, PlotConfigProps} from "@/lib/types";
 //import {TopLevelParameter} from "vega-lite/src/spec/toplevel";
 //import {AnyMark} from "vega-lite/src/mark";
 //import {FacetedCompositeEncoding} from "vega-lite/src/compositemark";
@@ -254,7 +254,7 @@ export type PlotSpecMetadata = {
 
 export type VisualizationSpecWithMetadata = VisualizationSpec & {metadata: PlotSpecMetadata}
 
-export function getSpecForConfig(config: PlotConfigProps, dataset: {dataset?: DatasetProps, data?: any}, dataInSpec: boolean = false) {
+export function getSpecForConfig(config: PlotConfigProps, dataset: {dataset?: DatasetView, data?: any}, dataInSpec: boolean = false) {
     function isValid(f: FilterProps){
         return f.value != undefined && ["igual a", "distinto de", "uno de"].includes(f.op) && dataset.dataset.dataset.columns.includes(f.column)
     }

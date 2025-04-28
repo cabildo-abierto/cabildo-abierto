@@ -1,8 +1,8 @@
 import { DateSince } from "../../../../modules/ui-utils/src/date"
 import { CustomLink as Link } from '../../../../modules/ui-utils/src/custom-link';
-import {ATProtoStrongRef, TopicHistoryProps, TopicProps} from "@/lib/types"
+import {ATProtoStrongRef} from "@/lib/types"
 import {useRouter, useSearchParams} from "next/navigation"
-import React, {ReactNode, useState} from "react"
+import React, {useState} from "react"
 import StateButton from "../../../../modules/ui-utils/src/state-button"
 import { useSWRConfig } from "swr"
 import { AcceptButtonPanel } from "../../../../modules/ui-utils/src/accept-button-panel"
@@ -14,14 +14,12 @@ import { NeedAccountPopup } from "../../auth/need-account-popup";
 import {ProfilePic} from "../../profile/profile-pic";
 import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
-import {TopicCategories} from "./topic-categories";
 import {RejectVersionModal} from "./reject-version-modal";
-import {getTopicMonetizedChars} from "./utils";
+import {getAcceptCount, getRejectCount, getTopicMonetizedChars} from "./utils";
 import {getUri, splitUri, topicUrl} from "@/utils/uri";
 import {useTopicHistory} from "@/hooks/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
-import {TopicSynonyms} from "./topic-synonyms";
 import StarIcon from '@mui/icons-material/Star';
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -29,48 +27,13 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
 import {ReactionButton} from "@/components/feed/frame/reaction-button";
 import {useSession} from "@/hooks/api";
+import {TopicHistory, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
-const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistoryProps, index: number}) => {
+const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistory, index: number}) => {
+    const v = topicHistory.versions[index]
 
-    const topicVersion = topicHistory.versions[index]
-
-    const v = topicVersion.content.topicVersion
-
-    let editType: ReactNode
-    if(index == 0){
-        editType = "Creación del tema"
-    } else if(!topicVersion.content.hasText){
-        if(v.title){
-            editType = "Nuevo nombre:" + v.title
-
-        } else if(v.categories){
-            editType = <div className={"flex space-x-2 items-baseline"}>
-                <div>Categorías </div>
-                <TopicCategories categories={JSON.parse(v.categories)} containerClassName={"text-sm"}/>
-            </div>
-
-        } else if(v.synonyms){
-            editType = <div className={"flex space-x-2"}>
-                <div>Sinónimos </div>
-                <TopicSynonyms
-                    synonyms={JSON.parse(v.synonyms)}
-                    containerClassName={"text-base"}
-                />
-            </div>
-        } else {
-            editType = "Sin cambios"
-        }
-    } else {
-        editType = <div className={"flex space-x-2"}>
-            <div>
-                Edición
-            </div>
-            <ChangesCounter charsAdded={v.charsAdded} charsDeleted={v.charsDeleted}/>
-        </div>
-    }
-
-    return <div className={""}>{editType}</div>
+    return <ChangesCounter charsAdded={v.addedChars ?? 0} charsDeleted={v.removedChars ?? 0}/>
 }
 
 
@@ -169,7 +132,7 @@ const ConfirmEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acceptCo
 
 
 const AssignAuthorshipButtons = ({topic, version}: {
-    topic: TopicProps, version: number
+    topic: TopicView, version: number
 }) => {
     return <div className="flex space-x-2">
         <ReactionCounter
@@ -205,9 +168,9 @@ const EditMessage = ({msg}: { msg?: string }) => {
 }
 
 
-const MonetizationPortion = ({topicHistory, index}: { topicHistory: TopicHistoryProps, index: number }) => {
+const MonetizationPortion = ({topicHistory, index}: { topicHistory: TopicHistory, index: number }) => {
 
-    const charsAdded = topicHistory.versions[index].content.topicVersion.charsAdded
+    const charsAdded = topicHistory.versions[index].addedChars
 
     let monetizedCharsAdded = getTopicMonetizedChars(topicHistory, topicHistory.versions.length - 1)
 
@@ -218,29 +181,26 @@ const MonetizationPortion = ({topicHistory, index}: { topicHistory: TopicHistory
 
 
 const EditElement = ({topic, topicHistory, index, viewing}: {
-    topic: TopicProps,
-    topicHistory: TopicHistoryProps
+    topic: TopicView,
+    topicHistory: TopicHistory
     index: number,
     viewing: boolean
 }) => {
     const [showingRemoveAuthorshipPanel, setShowingRemoveAuthorshipPanel] = useState(false)
     const router = useRouter()
-    const {mutate} = useSWRConfig()
 
     const isRejected = false
 
     const topicVersion = topicHistory.versions[index]
-    const v = topicVersion.content.topicVersion
-    const isCurrent = topic.currentVersion && topic.currentVersion.uri == topicVersion.uri
+    const isCurrent = topic.currentVersion == topicVersion.uri
 
-    const canHaveAuthorship = !v.synonyms && !v.title && !v.categories && index > 0
+    const canHaveAuthorship = true // TO DO
 
     let className = "w-full py-1 px-4 flex items-center border-b " + (viewing ? "bg-[var(--background-dark)]" : "")
 
     className = className + (isRejected ? " bg-red-200 hover:bg-red-300" : " ")
 
     className = className + (canHaveAuthorship ? " cursor-pointer hover:bg-[var(--background-dark)]" : "")
-
 
     {/* TO DO onDelete={async () => {
         await deleteTopicVersion(topicVersion.uri)
@@ -267,17 +227,17 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
                             <StarIcon color="primary" fontSize={"inherit"}/>
                         </div>}
                         <EditDetails topicHistory={topicHistory} index={index}/>
-                        {topicVersion.content.topicVersion.message &&
+                        {topicVersion.message &&
                             <div className={"text-[var(--text-light)] pl-2 flex items-baseline"}>
                                 <EditMessage
-                                    msg={topicVersion.content.topicVersion.message}
+                                    msg={topicVersion.message}
                                 />
                             </div>
                         }
                     </div>
                     <div className="text-xs space-x-2 flex items-center">
                         <div className={"text-[var(--text-light)]"}>
-                            <DateSince date={topicVersion.createdAt}/>
+                            <DateSince date={new Date(topicVersion.createdAt)}/>
                         </div>
                         <ContentOptionsButton
                             record={{...topicVersion}}
@@ -303,8 +263,8 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
                         <ConfirmEditButtons
                             topicId={topic.id}
                             versionRef={{uri: topicVersion.uri, cid: topicVersion.cid}}
-                            acceptCount={topicVersion.uniqueAccepts}
-                            rejectCount={topicVersion.uniqueRejects}
+                            acceptCount={getAcceptCount(topicVersion.status)}
+                            rejectCount={getRejectCount(topicVersion.status)}
                         />
                     </div>
                 </div>
@@ -315,7 +275,7 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
 
 
 export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}: {
-    topicHistory: TopicHistoryProps,
+    topicHistory: TopicHistory,
     onClose: () => void,
     version: number,
     onRemove: () => Promise<{ error?: string }>
@@ -382,17 +342,17 @@ export const RemoveAuthorshipPanel = ({topicHistory, version, onClose, onRemove}
 };
 
 
-export const EditHistory = ({topic}: { topic: TopicProps }) => {
-    const topicHistory = useTopicHistory(topic.id)
+export const EditHistory = ({topic}: { topic: TopicView }) => {
+    const {data: topicHistory, isLoading} = useTopicHistory(topic.id)
     const searchParams = useSearchParams()
 
-    if(topicHistory.isLoading){
+    if(isLoading){
         return <div className={"py-4"}>
             <LoadingSpinner/>
         </div>
     }
 
-    if(!topicHistory.topicHistory){
+    if(!topicHistory){
         return <div className={"py-4"}>
             <ErrorPage>
                 Ocurrió un error al cargar el historial.
@@ -401,14 +361,14 @@ export const EditHistory = ({topic}: { topic: TopicProps }) => {
     }
 
     const history = <div className="hidden min-[800px]:block">
-        {topicHistory.topicHistory.versions.map((_, index) => {
-        const versionIndex = topicHistory.topicHistory.versions.length-1-index
+        {topicHistory.versions.map((_, index) => {
+        const versionIndex = topicHistory.versions.length-1-index
         return <div key={index} className="w-full">
             <EditElement
                 topic={topic}
-                topicHistory={topicHistory.topicHistory}
+                topicHistory={topicHistory}
                 index={versionIndex}
-                viewing={getUri(searchParams.get("did"), "ar.com.cabildoabierto.topic", searchParams.get("rkey")) == topicHistory.topicHistory.versions[versionIndex].uri}
+                viewing={getUri(searchParams.get("did"), "ar.com.cabildoabierto.topic", searchParams.get("rkey")) == topicHistory.versions[versionIndex].uri}
             />
         </div>
     })}</div>

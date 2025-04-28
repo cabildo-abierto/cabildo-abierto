@@ -1,16 +1,16 @@
-import {DatasetProps} from "@/lib/types";
 import {Authorship} from "@/components/feed/frame/content-top-row-author";
 import {DateSince} from "../../../modules/ui-utils/src/date";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import Link from "next/link";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {contentUrl} from "@/utils/uri";
+import {DatasetView, DatasetViewBasic} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
-export const DatasetPreviewSmall = ({dataset, selected, onClick}: {dataset: DatasetProps, selected: boolean, onClick: () => void}) => {
+export const DatasetPreviewSmall = ({dataset, selected, onClick}: {dataset: DatasetViewBasic, selected: boolean, onClick: () => void}) => {
     return <div className={"py-1 border rounded px-2 cursor-pointer hover:bg-[var(--background-dark2)] " + (selected ? "bg-[var(--background-dark2)]" : "")} onClick={onClick}>
         <div className={"flex justify-between space-x-1"}>
             <div className={"font-semibold text-[16px] break-all"}>
-                {dataset.dataset.title}
+                {dataset.name}
             </div>
             <Link href={contentUrl(dataset.uri)} target={"_blank"} className={"text-[var(--text-light)]"} onClick={(e) => {e.stopPropagation()}}>
                 <IconButton color={"inherit"}>
@@ -19,7 +19,7 @@ export const DatasetPreviewSmall = ({dataset, selected, onClick}: {dataset: Data
             </Link>
         </div>
         <div className={"text-[var(--text-light)] text-sm"}>
-            {dataset.dataset.columns.length} columnas
+            {dataset.columns.length} columnas
         </div>
         <div className={"text-sm truncate text-[var(--text-light)]"}>
             Publicado por <Authorship content={dataset} onlyAuthor={true}/>
@@ -31,7 +31,7 @@ export const DatasetPreviewSmall = ({dataset, selected, onClick}: {dataset: Data
 }
 
 
-export const DatasetPreview = ({dataset}: { dataset: DatasetProps }) => {
+export const DatasetPreview = ({dataset}: { dataset: DatasetView }) => {
     // TO DO
     /*return <PostPreviewFrame
         post={dataset}

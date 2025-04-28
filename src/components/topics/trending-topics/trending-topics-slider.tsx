@@ -1,14 +1,14 @@
-import {SmallTopicProps} from "@/lib/types";
 import {useState} from "react";
 import {getTopicCategories, getTopicTitle} from "@/components/topics/topic/utils";
 import {CustomLink as Link} from "../../../../modules/ui-utils/src/custom-link";
 import {useRouter} from "next/navigation";
 import {TopicCategories} from "@/components/topics/topic/topic-categories";
 import {topicUrl} from "@/utils/uri";
+import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 export const TrendingArticlesSlider = ({trendingArticles}: {
-    trendingArticles: SmallTopicProps[]}) => {
+    trendingArticles: TopicViewBasic[]}) => {
     const [hovering, setHovering] = useState<number>(undefined)
     const router = useRouter()
 
@@ -32,7 +32,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                     }}
                 >
                     <TopicCategories
-                        categories={getTopicCategories(topic)}
+                        categories={getTopicCategories(topic.props)}
                         className={"text-xs text-[var(--text-light)]"}
                         maxCount={1}
                     />
@@ -45,7 +45,7 @@ export const TrendingArticlesSlider = ({trendingArticles}: {
                         className="text-[var(--text-light)] text-xs sm:text-sm"
                     >
                         <div title="La cantidad de usuarios que participaron en la discusión.">
-                            {topic.popularityScore} {topic.popularityScore == 1 ? "persona" : "personas."}
+                            {topic.popularity} {topic.popularity[0] == 1 ? "persona" : "personas."}
                         </div>
                     </div>
                 </div>

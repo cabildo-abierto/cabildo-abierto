@@ -42,7 +42,7 @@ export function markdownToEditorStateStr(markdown: string): string {
     })
 
     editor.update(() => {
-        $convertFromMarkdownString(markdown, CA_TRANSFORMERS, undefined, true, true)
+        $convertFromMarkdownString(markdown, CA_TRANSFORMERS, undefined, false, true)
     })
 
     const editorState = editor.read(() => {

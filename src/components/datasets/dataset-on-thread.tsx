@@ -1,20 +1,22 @@
 import {Authorship} from "@/components/feed/frame/content-top-row-author";
-import {DatasetView} from "./dataset-view";
-import {DatasetProps, EngagementProps} from "@/lib/types";
-import {useDataset} from "../../hooks/api";
+import {DatasetTableView} from "./dataset-table-view";
+import {useDataset} from "@/hooks/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
 import {DatasetDescription} from "./dataset-description";
-import {EngagementIcons} from "@/components/feed/frame/engagement-icons";
 import {useLayoutConfig} from "../layout/layout-config-context";
 import {DateSince} from "../../../modules/ui-utils/src/date";
+import {DatasetView} from "@/lex-api/types/ar/cabildoabierto/data/dataset";
 
 
-export const DatasetOnThread = ({dataset}: {dataset: DatasetProps & EngagementProps}) => {
-    const {dataset: datasetWithData, isLoading, error} = useDataset(dataset.uri)
+// TO DO
+export const DatasetOnThread = ({dataset}: {dataset: DatasetView}) => {
+    const {data: datasetWithData, isLoading, error} = useDataset(dataset.uri)
     const {layoutConfig} = useLayoutConfig()
 
+    const data = []
+
     return <div className={"px-2 border-b w-full"}>
-        <h2>{dataset.dataset.title}</h2>
+        <h2>{dataset.name}</h2>
         <div className={"text-sm text-[var(--text-light)] space-x-1 flex items-center"}>
             <div><Authorship content={dataset} text={"Publicado por"}/></div>
             <div><DateSince date={dataset.createdAt}/></div>
@@ -24,7 +26,7 @@ export const DatasetOnThread = ({dataset}: {dataset: DatasetProps & EngagementPr
                 Descripción
             </div>
             <DatasetDescription
-                description={dataset.dataset.description}
+                description={dataset.description}
             />
             <div className={"font-semibold text-[var(--text)] mt-4"}>
                 Tamaño
@@ -32,9 +34,9 @@ export const DatasetOnThread = ({dataset}: {dataset: DatasetProps & EngagementPr
             <div>
                 {datasetWithData &&
                     <div className={"text-[var(--text-light)] space-x-1 flex items-center"}>
-                        <div className={"font-semibold"}>{datasetWithData.data.length}</div>
+                        <div className={"font-semibold"}>{data.length}</div>
                         <div>filas x</div>
-                        <div className={"font-semibold"}>{dataset.dataset.columns.length}</div>
+                        <div className={"font-semibold"}>{dataset.columns.length}</div>
                         <div>columnas</div>
                     </div>
                 }
@@ -44,14 +46,19 @@ export const DatasetOnThread = ({dataset}: {dataset: DatasetProps & EngagementPr
             </div>
         </div>
         <div className={"mt-1"}>
-            {isLoading ? <LoadingSpinner/> : datasetWithData && datasetWithData.data ?
-            <DatasetView maxWidth={layoutConfig.maxWidthCenter} maxHeight="500px" data={datasetWithData.data}/> : <></>}
+            {isLoading ? <LoadingSpinner/> : datasetWithData && datasetWithData ?
+            <DatasetTableView
+                maxWidth={layoutConfig.maxWidthCenter}
+                maxHeight="500px"
+                data={[]} // TO DO
+            /> :
+                <></>}
         </div>
         {/* TO DO <div className={"py-2 border-t"}>
             <EngagementIcons content={dataset}/>
         </div>*/}
         {error && <div className={"py-4 text-center"}>
-            {error}
+            {error.message}
         </div>}
     </div>
 }

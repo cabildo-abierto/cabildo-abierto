@@ -1,5 +1,4 @@
 import {useSearch} from "./search-context";
-import {FeedContentProps} from "@/lib/types";
 import Feed from "../feed/feed/feed";
 import {useEffect, useState} from "react";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";

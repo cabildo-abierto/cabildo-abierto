@@ -2,16 +2,19 @@ import {useCategories} from "@/hooks/api";
 import {emptyChar} from "@/utils/utils";
 import {useState} from "react";
 import AddIcon from "@mui/icons-material/Add";
+import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 
 
 export const CategorySelector = ({categories, setCategories}: {
     categories: string[], setCategories: (c: string[]) => void
 }) => {
-    const {categories: allCategories, isLoading} = useCategories()
+    const {data: allCategories, isLoading, error} = useCategories()
     const [maxCount, setMaxCount] = useState(10)
 
     if(isLoading) {
         return <div>{emptyChar}</div>
+    } else if(error){
+        return <ErrorPage>{error.name}</ErrorPage>
     }
 
     function onClick(c: string){

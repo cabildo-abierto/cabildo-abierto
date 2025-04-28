@@ -4,7 +4,6 @@ import {CustomLink as Link} from "../../../../modules/ui-utils/src/custom-link";
 import {TrendingArticlesSlider} from "./trending-topics-slider";
 import {useTrendingTopics} from "@/hooks/api";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {PrettyJSON} from "../../../../modules/ui-utils/src/pretty-json";
 
 
 export const TrendingTopicsPanel = () => {

@@ -1,11 +1,11 @@
 "use client"
 import { useEffect, useState } from "react"
 import {useRouter, useSearchParams} from "next/navigation";
-import NoEntityPage from "./no-entity-page";
+import TopicNotFoundPage from "./no-entity-page";
 import { TopicDiscussion } from "./topic-discussion";
-import {useTopic} from "../../../hooks/api";
-import {getFullTopicCategories, getFullTopicTitle} from "./utils";
-import {TopicContent, topicCurrentVersionToReplyToContent} from "./topic-content";
+import {useTopic} from "@/hooks/api";
+import {getTopicCategories, getTopicTitle} from "./utils";
+import {TopicContent} from "./topic-content";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 import {smoothScrollTo} from "../../../../modules/ca-lexical-editor/src/plugins/TableOfContentsPlugin";
 import {useLayoutConfig} from "../../layout/layout-config-context";
@@ -16,7 +16,7 @@ import {WikiEditorState} from "./topic-content-expanded-view-header";
 export const TopicPage = ({topicId}: {
     topicId: string
 }) => {
-    const topic = useTopic(topicId)
+    const {data: topic, isLoading} = useTopic(topicId)
     const searchParams = useSearchParams()
     const {layoutConfig, setLayoutConfig} = useLayoutConfig()
     const [shouldGoTo, setShouldGoTo] = useState(null)
@@ -71,12 +71,12 @@ export const TopicPage = ({topicId}: {
         }
     }, [wikiEditorState])
 
-    if(topic.isLoading){
+    if(isLoading){
         return <LoadingSpinner/>
     }
 
-    if(!topic.topic || topic.isError || topic.error){
-        return <NoEntityPage id={topicId}/>
+    if(!topic){
+        return <TopicNotFoundPage id={topicId}/>
     }
 
     function setWikiEditorState(s: WikiEditorState) {
@@ -86,9 +86,9 @@ export const TopicPage = ({topicId}: {
         const rkeyParamStr = rkeyParam ? ("&rkey=" + rkeyParam) : ""
 
         if(s == "minimized"){
-            router.push("/tema?i="+topic.topic.id)
+            router.push("/tema?i="+topic.id)
         } else {
-            router.push("/tema?i="+topic.topic.id+"&s="+s+didParamStr+rkeyParamStr)
+            router.push("/tema?i="+topic.id+"&s="+s+didParamStr+rkeyParamStr)
         }
     }
 
@@ -111,15 +111,15 @@ export const TopicPage = ({topicId}: {
                 Tema
             </div>
             <h1 className={""}>
-                {getFullTopicTitle(topic.topic)}
+                {getTopicTitle(topic)}
             </h1>
             <TopicCategories
-                categories={getFullTopicCategories(topic.topic)}
+                categories={getTopicCategories(topic.props)}
             />
         </div>
 
         <TopicContent
-            topic={topic.topic}
+            topic={topic}
             wikiEditorState={wikiEditorState}
             setWikiEditorState={setWikiEditorState}
             pinnedReplies={pinnedReplies}
@@ -130,8 +130,8 @@ export const TopicPage = ({topicId}: {
         {(wikiEditorState == "minimized" || wikiEditorState == "normal") &&
             <div className="w-full" id="discussion-start">
                 <TopicDiscussion
-                    topicId={topic.topic.id}
-                    replyToContent={topic.topic.currentVersion ? topicCurrentVersionToReplyToContent(topic.topic) : null}
+                    topicId={topic.id}
+                    replyToContent={{$type: "ar.cabildoabierto.wiki.topicVersion#topicView", ...topic}}
                     onClickQuote={onClickQuote}
                     wikiEditorState={wikiEditorState}
                 />

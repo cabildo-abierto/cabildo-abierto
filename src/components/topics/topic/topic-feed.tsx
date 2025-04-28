@@ -1,4 +1,4 @@
-import {useTopicFeed} from "../../../hooks/api";
+import {useTopicFeed} from "@/hooks/api";
 import Feed from "../../feed/feed/feed";
 import SelectionComponent from "@/components/buscar/search-selection-component";
 import {useState} from "react";
@@ -7,6 +7,7 @@ import {CustomLink} from "../../../../modules/ui-utils/src/custom-link";
 import {useSearchParams} from "next/navigation";
 import {topicUrl} from "@/utils/uri";
 import {useSWRConfig} from "swr";
+import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 
 
 export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuote: (cid: string) => void}) => {
@@ -51,6 +52,12 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
         </div>
     }
 
+    if(!feed.data){
+        return <div className={"py-8"}>
+            <LoadingSpinner />
+        </div>
+    }
+
     return <div className={"mb-96"}>
         <div className={"flex border-b w-full max-w-screen overflow-scroll no-scrollbar " + (minimized ? "" : "justify-center")}>
             <SelectionComponent
@@ -92,7 +99,7 @@ export const TopicFeed = ({topicId, onClickQuote}: {topicId: string, onClickQuot
                     </div>
                 }
 
-                {selected == "Menciones" && mentionsSelected == "Temas" &&
+                {selected == "Menciones" && mentionsSelected == "Temas" && feed.data &&
                     <div className={"flex flex-col"}>
                         {
                             feed.data.topics.map((t, index) => {

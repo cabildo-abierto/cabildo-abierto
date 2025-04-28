@@ -1,5 +1,4 @@
 "use client"
-import {useVisualization} from "../../../hooks/api";
 import {VisualizationNodeComp} from "../../../../modules/ca-lexical-editor/src/nodes/visualization-node-comp";
 import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
 
@@ -7,7 +6,8 @@ export const PlotFromUri = ({uri, interactive=true}: {
     uri: string
     interactive?: boolean
 }) => {
-    const {visualization, isLoading, error} = useVisualization(uri)
+    return null
+    /* TO DO const {visualization, isLoading, error} = useVisualization(uri)
 
     if(isLoading){
         return <div className={"py-4"}><LoadingSpinner/></div>
@@ -17,5 +17,5 @@ export const PlotFromUri = ({uri, interactive=true}: {
         No se encontró la visualización
     </div>
 
-    return <VisualizationNodeComp visualization={visualization} interactive={interactive}/>
+    return <VisualizationNodeComp visualization={visualization} interactive={interactive}/>*/
 }

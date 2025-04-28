@@ -27,10 +27,10 @@ export default function LexicalContentEditable({
   return (
     <ContentEditable
       spellCheck={false}
-      className={className ?? ('ContentEditable__root ' + editorClassName)}
+      className={className ?? ('outline-none ' + editorClassName)}
       aria-placeholder={placeholder}
       placeholder={
-        <div className={placeholderClassName}>
+        <div className={"pointer-events-none " + placeholderClassName}>
           {placeholder}
         </div>
       }

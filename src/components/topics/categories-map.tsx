@@ -1,17 +1,22 @@
 import Graph from "./graph";
 import {useRouter} from "next/navigation";
-import {useCategoriesGraph} from "../../hooks/api";
+import {useCategoriesGraph} from "@/hooks/api";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {ErrorPage} from "../../../modules/ui-utils/src/error-page";
 
 
 export const CategoriesMap = () => {
-    const {graph} = useCategoriesGraph()
+    const {data: graph, isLoading, error} = useCategoriesGraph()
     const router = useRouter()
 
-    if(!graph){
+    if(isLoading){
         return <div className={"mt-16"}>
             <LoadingSpinner/>
         </div>
+    } else if(error) {
+        return <ErrorPage>
+            {error.message}
+        </ErrorPage>
     }
 
     function onClickNode(nodeId: string){

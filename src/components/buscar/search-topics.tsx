@@ -4,13 +4,19 @@ import { useSearch } from "./search-context"
 import { LazyLoadFeed } from "../feed/feed/lazy-load-feed"
 import React, {ReactNode, useEffect, useState} from "react"
 import {NoResults} from "./no-results";
-import {SmallTopicProps} from "@/lib/types";
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner";
+import {TopicViewBasic} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {get} from "@/utils/fetch";
+
+
+async function searchTopics(q: string) {
+    return await get<TopicViewBasic[]>(`/search-topics/${q}`)
+}
 
 
 export const SearchTopics = ({ maxCount = 50 }: { maxCount?: number }) => {
     const { searchState } = useSearch();
-    const [results, setResults] = useState<SmallTopicProps[] | "loading">([]);
+    const [results, setResults] = useState<TopicViewBasic[] | "loading">([]);
     const [debouncedValue, setDebouncedValue] = useState(searchState.value);
 
     useEffect(() => {
@@ -28,8 +34,7 @@ export const SearchTopics = ({ maxCount = 50 }: { maxCount?: number }) => {
                 return;
             }
             setResults("loading")
-            // TO DO
-            const topics = [] //await searchTopics(debouncedValue);
+            const {error, data: topics} = await searchTopics(debouncedValue);
             setResults(topics);
         }
 
@@ -49,7 +54,8 @@ export const SearchTopics = ({ maxCount = 50 }: { maxCount?: number }) => {
     }
 
     function generator(index: number): {c: ReactNode, key: string} {
-        const topic = (results as SmallTopicProps[])[index];
+        if(results == "loading"){return {c: null, key: index.toString()}}
+        const topic = results[index]
         return {
             c: topic ? <TopicSearchResult topic={topic} /> : null,
             key: topic?.id || index.toString(),

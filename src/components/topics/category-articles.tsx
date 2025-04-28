@@ -1,6 +1,6 @@
 "use client"
 import { TopicSearchResult } from "@/components/topics/topic/topic-search-result"
-import { useTopics } from "../../hooks/api"
+import { useTopics } from "@/hooks/api"
 import LoadingSpinner from "../../../modules/ui-utils/src/loading-spinner"
 import { LazyLoadFeed } from "../feed/feed/lazy-load-feed"
 import React from "react"
@@ -13,7 +13,7 @@ export const CategoryArticles = ({sortedBy, categories}: {
     categories: string[]
     onSearchPage?: boolean
 }) => {
-    const {topics, isLoading, isError} = useTopics(categories, sortedBy == "Populares" ? "popular" : "recent")
+    const {data: topics, isLoading, isError} = useTopics(categories, sortedBy == "Populares" ? "popular" : "recent")
 
     if (isLoading) return <LoadingSpinner/>
     if (isError || !topics) {

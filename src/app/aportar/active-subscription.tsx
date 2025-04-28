@@ -1,7 +1,6 @@
 "use client"
 import LoadingSpinner from '../../../modules/ui-utils/src/loading-spinner';
 import { CustomLink as Link } from '../../../modules/ui-utils/src/custom-link';
-import { UserProps } from '@/lib/types';
 import FundingProgress from '@/components/aportar/funding-progress';
 import { Desplegable } from '../../../modules/ui-utils/src/desplegable';
 import { useState } from 'react';
@@ -11,7 +10,7 @@ import { ArrowRightIcon } from '@/components/icons/arrow-right-icon';
 import { DonateIcon } from '@/components/icons/donate-icon';
 import { ExpandLessIcon } from '@/components/icons/expand-less-icon';
 import { ExpandMoreIcon } from '@/components/icons/expand-more-icon';
-import {useDonationsDistribution, useFundingPercentage, useSubscriptionPrice, useSession} from "@/hooks/api";
+import {useSession} from "@/hooks/api";
 import {BackButton} from "../../../modules/ui-utils/src/back-button";
 import {Button} from "../../../modules/ui-utils/src/button";
 
@@ -86,15 +85,17 @@ function DonationPage() {
     const [preferenceId, setPreferenceId] = useState<undefined | string>()
     const [amount, setAmount] = useState(500)
     const {user} = useSession()
-    const {price} = useSubscriptionPrice()
-    const {fundingPercentage} = useFundingPercentage()
-    const {donationsDistribution} = useDonationsDistribution()
+    // const {price} = useMonthlyValue()
+    // const {fundingPercentage} = useFundingPercentage()
+    // const {donationsDistribution} = useDonationsDistribution()
 
-    if(!price || fundingPercentage == undefined || donationsDistribution == undefined){
-        return <LoadingSpinner/>
-    }
+    //if(!price || fundingPercentage == undefined || donationsDistribution == undefined){
+    //    return <LoadingSpinner/>
+    //}
+    // TO DO
+    return null
 
-    const maxAmount = 1000000
+    /*const maxAmount = 1000000
     const minAmount = 1
 
     const validAmount = amount >= minAmount && amount <= maxAmount
@@ -205,7 +206,7 @@ function DonationPage() {
             {choice == "unique" && uniqueChosen}
             {choice != "unique" && donationInput}
         </>
-    )
+    )*/
 }
 
 export default DonationPage
