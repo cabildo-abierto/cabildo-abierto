@@ -9,16 +9,16 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
-import type * as AppBskyFeedDefs from '../feed/defs.js'
-import type * as AppBskyGraphDefs from '../graph/defs.js'
-import type * as AppBskyLabelerDefs from '../labeler/defs.js'
-import type * as AppBskyActorDefs from '../actor/defs.js'
-import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs.js'
-import type * as AppBskyEmbedImages from './images.js'
-import type * as AppBskyEmbedVideo from './video.js'
-import type * as AppBskyEmbedExternal from './external.js'
-import type * as AppBskyEmbedRecordWithMedia from './recordWithMedia.js'
+import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef'
+import type * as AppBskyFeedDefs from '../feed/defs'
+import type * as AppBskyGraphDefs from '../graph/defs'
+import type * as AppBskyLabelerDefs from '../labeler/defs'
+import type * as AppBskyActorDefs from '../actor/defs'
+import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
+import type * as AppBskyEmbedImages from './images'
+import type * as AppBskyEmbedVideo from './video'
+import type * as AppBskyEmbedExternal from './external'
+import type * as AppBskyEmbedRecordWithMedia from './recordWithMedia'
 
 const is$typed = _is$typed,
   validate = _validate

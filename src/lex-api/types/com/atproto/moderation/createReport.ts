@@ -10,9 +10,9 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as ComAtprotoModerationDefs from './defs.js'
-import type * as ComAtprotoAdminDefs from '../admin/defs.js'
-import type * as ComAtprotoRepoStrongRef from '../repo/strongRef.js'
+import type * as ComAtprotoModerationDefs from './defs'
+import type * as ComAtprotoAdminDefs from '../admin/defs'
+import type * as ComAtprotoRepoStrongRef from '../repo/strongRef'
 
 const is$typed = _is$typed,
   validate = _validate

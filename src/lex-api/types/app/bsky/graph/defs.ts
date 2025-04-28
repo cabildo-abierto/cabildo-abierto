@@ -9,10 +9,10 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs.js'
-import type * as AppBskyActorDefs from '../actor/defs.js'
-import type * as AppBskyRichtextFacet from '../richtext/facet.js'
-import type * as AppBskyFeedDefs from '../feed/defs.js'
+import type * as ComAtprotoLabelDefs from '../../../com/atproto/label/defs'
+import type * as AppBskyActorDefs from '../actor/defs'
+import type * as AppBskyRichtextFacet from '../richtext/facet'
+import type * as AppBskyFeedDefs from '../feed/defs'
 
 const is$typed = _is$typed,
   validate = _validate

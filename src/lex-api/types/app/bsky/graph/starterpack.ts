@@ -9,7 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as AppBskyRichtextFacet from '../richtext/facet.js'
+import type * as AppBskyRichtextFacet from '../richtext/facet'
 
 const is$typed = _is$typed,
   validate = _validate
