@@ -44,37 +44,56 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(articleUrl)
     }
 
-    const cookieHeader = request.headers.get('cookie'); // Get full cookie header
+    const cookieHeader = request.headers.get('cookie');
 
-    const res = await fetch(backendUrl + "/session", {
-        headers: {
-            cookie: cookieHeader || '', // Pass cookies forward
-        },
-        // NOTE: Fetch in middleware is always edge-compatible
-        next: { revalidate: 0 }, // Optional: avoid caching
-    });
+    let status = "server down"
+    try {
+        const res = await fetch(backendUrl + "/session", {
+            headers: {
+                cookie: cookieHeader || ''
+            },
+            next: { revalidate: 0 }
+        })
+        const session = await res.json()
+        if(session && session.data){
+            status = "authenticated"
+        } else {
+            status = "not authenticated"
+        }
+    } catch (e) {
 
-    const session = await res.json()
-    let loggedIn: boolean = session && session.data
+    }
 
-    if(!isPublicRoute(request)){
-        if(request.nextUrl.pathname == "/") {
-            if(loggedIn){
+    if(status == "server down"){
+        if(!request.nextUrl.pathname.includes("/mantenimiento")){
+            url.pathname = "/mantenimiento"
+            return NextResponse.redirect(url)
+        }
+    } else {
+        if(request.nextUrl.pathname.includes("/mantenimiento")){
+            url.pathname = "/"
+            return NextResponse.redirect(url)
+        }
+        const loggedIn = status == "authenticated"
+
+        if(!isPublicRoute(request)){
+            if(request.nextUrl.pathname == "/") {
+                if(loggedIn){
+                    url.pathname = '/inicio'
+                } else {
+                    url.pathname = "/presentacion"
+                }
+            } else if (!loggedIn && !isNewUserRoute(request)) {
+                url.pathname = '/login'
+            } else if(loggedIn && isNewUserRoute(request)){
                 url.pathname = '/inicio'
             } else {
-                url.pathname = "/presentacion"
+                return NextResponse.next()
             }
-        } else if (!loggedIn && !isNewUserRoute(request)) {
-            // sin sesion y en una página que requiere sesion
-            url.pathname = '/login'
-        } else if(loggedIn && isNewUserRoute(request)){
-            // con sesion y en la pagina de login
-            url.pathname = '/inicio'
-        } else {
-            return NextResponse.next()
+            return NextResponse.redirect(url)
         }
-        return NextResponse.redirect(url)
     }
+
     return NextResponse.next()
 }
 
