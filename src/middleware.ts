@@ -48,6 +48,7 @@ export async function middleware(request: NextRequest) {
 
     let status = "server down"
     try {
+        // esto no termina de funcionar
         const res = await fetch(backendUrl + "/session", {
             headers: {
                 cookie: cookieHeader || ''
@@ -69,29 +70,9 @@ export async function middleware(request: NextRequest) {
             url.pathname = "/mantenimiento"
             return NextResponse.redirect(url)
         }
-    } else {
-        /*if(request.nextUrl.pathname.includes("/mantenimiento")){
-            url.pathname = "/"
-            return NextResponse.redirect(url)
-        }
-        const loggedIn = status == "authenticated"
-
-        if(!isPublicRoute(request)){
-            if(request.nextUrl.pathname == "/") {
-                if(loggedIn){
-                    url.pathname = '/inicio'
-                } else {
-                    url.pathname = "/presentacion"
-                }
-            } else if (!loggedIn && !isNewUserRoute(request)) {
-                url.pathname = '/login'
-            } else if(loggedIn && isNewUserRoute(request)){
-                url.pathname = '/inicio'
-            } else {
-                return NextResponse.next()
-            }
-            return NextResponse.redirect(url)
-        }*/
+    } else if(url.pathname == "/"){
+        url.pathname = "/inicio"
+        return NextResponse.redirect(url)
     }
 
     return NextResponse.next()
