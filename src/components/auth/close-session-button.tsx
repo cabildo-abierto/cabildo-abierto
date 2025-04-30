@@ -1,13 +1,11 @@
 "use client"
 import StateButton from "../../../modules/ui-utils/src/state-button"
-import {useSWRConfig} from "swr";
 import {useRouter} from "next/navigation";
-import {backendUrl} from "@/utils/uri";
 import {post} from "@/utils/fetch";
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 
 export const logout = async () => {
-    console.log("logging out")
     const {error} = await post("/logout")
     if(error){
         console.error("Error on logout", error)
@@ -17,23 +15,31 @@ export const logout = async () => {
 }
 
 
+
 export const CloseSessionButton = () => {
-    const {mutate} = useSWRConfig()
+    const queryClient = useQueryClient()
     const router = useRouter()
 
+    const logoutMutation = useMutation({
+        mutationFn: logout,
+        onSuccess: async () => {
+            queryClient.setQueryData(["session"], null)
+            router.push("/presentacion")
+        }
+    })
+
     const onLogout = async () => {
-        await logout()
-        await mutate(backendUrl + "/session", {loggedOut: true})
-        await mutate(backendUrl + "/account")
-        router.push("/presentacion")
+        await logoutMutation.mutateAsync()
         return {}
     }
 
-    return <StateButton
-        variant="contained"
-        size="small"
-        color="error"
-        handleClick={onLogout}
-        text1="Cerrar sesión"
-    />
+    return (
+        <StateButton
+            variant="contained"
+            size="small"
+            color="error"
+            handleClick={onLogout}
+            text1="Cerrar sesión"
+        />
+    )
 }
