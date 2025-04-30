@@ -44,7 +44,13 @@ export const ModalOnHover = ({children, modal}: ModalOnHoverProps) => {
                 {children}
             </div>
 
-            <Popper open={open} anchorEl={anchorEl} placement="bottom-start" transition>
+            <Popper
+                open={open}
+                anchorEl={anchorEl}
+                placement="bottom-start"
+                transition
+                sx={{ zIndex: 1400 }}
+            >
                 {({ TransitionProps }) => (
                     <Fade {...TransitionProps} timeout={350}>
                         <div className={"mt-2"}

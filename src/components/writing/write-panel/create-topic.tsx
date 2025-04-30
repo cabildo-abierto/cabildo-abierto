@@ -9,10 +9,11 @@ import StateButton from "../../../../modules/ui-utils/src/state-button";
 import {validEntityName} from "@/components/topics/topic/utils";
 import {useSession} from "@/hooks/api";
 import {Button} from "../../../../modules/ui-utils/src/button";
+import {post} from "@/utils/fetch";
 
 
-export const createTopic = async (name: string) => {
-    return {error: "Sin implementar."}
+export const createTopic = async (id: string) => {
+    return await post<{id: string}, {}>(`/topic-version`, {id})
 }
 
 

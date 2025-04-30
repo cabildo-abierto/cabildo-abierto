@@ -27,7 +27,7 @@ export const BaseFullscreenPopup = ({
             disableScrollLock={true}
             className={"flex justify-center items-center"}
         >
-            <Box className={"min-w-[300px] shadow-lg bg-[var(--background)] rounded-lg " + className}>
+            <Box className={"min-w-[300px] shadow-lg bg-[var(--background-dark)] rounded-lg border " + className}>
                 {closeButton && (
                     <div className="flex justify-end mr-1 mt-1">
                         <CloseButton onClose={onClose} size={"small"} />
