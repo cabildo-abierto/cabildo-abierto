@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(url)
         }
     } else {
-        if(request.nextUrl.pathname.includes("/mantenimiento")){
+        /*if(request.nextUrl.pathname.includes("/mantenimiento")){
             url.pathname = "/"
             return NextResponse.redirect(url)
         }
@@ -91,7 +91,7 @@ export async function middleware(request: NextRequest) {
                 return NextResponse.next()
             }
             return NextResponse.redirect(url)
-        }
+        }*/
     }
 
     return NextResponse.next()
