@@ -1,4 +1,4 @@
-import {EditHistory} from "./edit-history";
+import {EditHistory} from "./history/edit-history";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 

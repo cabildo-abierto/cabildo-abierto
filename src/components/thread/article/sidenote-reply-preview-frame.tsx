@@ -10,7 +10,6 @@ import {formatIsoDate} from "@/utils/dates";
 
 import {emptyChar} from "@/utils/utils";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
-import {$Typed} from "@atproto/api";
 
 
 const ReplyVerticalLine = ({className = ""}: { className?: string }) => {

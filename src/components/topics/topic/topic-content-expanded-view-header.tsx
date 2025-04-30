@@ -4,55 +4,14 @@ import {useSearchParams} from "next/navigation";
 import Link from "next/link";
 import {DateSince} from "../../../../modules/ui-utils/src/date";
 import SelectionComponent from "@/components/buscar/search-selection-component";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {splitUri, topicUrl} from "@/utils/uri";
 import {IconButton} from "@/../modules/ui-utils/src/icon-button"
 import {Button} from "@/../modules/ui-utils/src/button"
-import {OptionsDropdownButton} from "@/components/feed/content-options/options-dropdown-button";
-import {ModalOnClick} from "../../../../modules/ui-utils/src/modal-on-click";
 import {TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 
 
 export type WikiEditorState = "changes" | "authors" | "normal" |
-    "editing" | "editing-synonyms" | "editing-categories" | "history" | "minimized"
-
-
-const MoreOptionsButton = ({
-                               setWikiEditorState,
-                           }: {
-    setWikiEditorState: (state: WikiEditorState) => void
-}) => {
-
-    const modal = (onClose: () => void) => (
-        <div className="text-base bg-[var(--background-dark)] border rounded p-1 flex flex-col space-y-1">
-            <OptionsDropdownButton
-                onClick={() => {
-                    setWikiEditorState("editing-synonyms");
-                    onClose()
-                }}
-                text1={"Editar sinónimos"}
-            />
-            <OptionsDropdownButton
-                onClick={() => {
-                    setWikiEditorState("editing-categories");
-                    onClose()
-                }}
-                text1={"Editar categorías"}
-            />
-        </div>
-    )
-
-    return <ModalOnClick modal={modal}>
-        <div className={"text-[var(--text-light)]"}>
-            <IconButton
-                color="inherit"
-                size={"small"}
-            >
-                <MoreHorizIcon fontSize="small"/>
-            </IconButton>
-        </div>
-    </ModalOnClick>
-}
+    "editing" | "editing-props" | "history" | "minimized" | "props"
 
 
 export const TopicContentExpandedViewHeader = ({
@@ -77,13 +36,14 @@ export const TopicContentExpandedViewHeader = ({
     let buttons: ReactNode
 
 
-    if (!paramsVersion && wikiEditorState != "editing") {
+    if (!paramsVersion && !wikiEditorState.startsWith("editing")) {
         function optionsNodes(o: string, isSelected: boolean) {
             let name: string
             if (o == "authors") name = "Ver autores"
             else if (o == "changes") name = "Ver cambios"
             else if (o == "history") name = "Ver historial"
             else if (o == "editing") name = "Editar"
+            else if (o == "props") name = "Propiedades"
             return <div className="text-[var(--text)] h-10 ">
                 <Button
                     variant="text"
@@ -116,7 +76,8 @@ export const TopicContentExpandedViewHeader = ({
             "editing",
             "history",
             "authors",
-            "changes"
+            "changes",
+            "props"
         ]
 
         buttons = <div className={"flex max-w-screen overflow-scroll no-scrollbar"}>
@@ -128,9 +89,30 @@ export const TopicContentExpandedViewHeader = ({
                 className={"flex"}
             />
         </div>
-    } else if (!paramsVersion && wikiEditorState == "editing") {
-        buttons = <div className={"w-full flex justify-end"}>
-            {wikiEditorState == "editing" &&
+    } else if (!paramsVersion && wikiEditorState.startsWith("editing")) {
+        buttons = <div className={"w-full flex justify-between"}>
+            <div className="text-[var(--text)] h-10 ">
+                <Button
+                    variant="text"
+                    color="inherit"
+                    fullWidth={true}
+                    disableElevation={true}
+                    sx={{
+                        textTransform: "none",
+                        paddingY: 0,
+                        borderRadius: 0
+                    }}
+                    onClick={() => {
+                        if (wikiEditorState == "editing") setWikiEditorState("editing-props"); else setWikiEditorState("editing")
+                    }}
+                >
+                    <div
+                        className={"whitespace-nowrap mx-2 font-semibold pb-1 pt-2 border-b-[4px] " + (wikiEditorState == "editing-props" ? "border-[var(--text-light)] border-b-[4px] text-[var(--text)]" : "text-[var(--text-light)] border-transparent")}>
+                        Propiedades
+                    </div>
+                </Button>
+            </div>
+            <div>
                 <Button
                     onClick={() => {
                         setWikiEditorState("normal")
@@ -140,8 +122,6 @@ export const TopicContentExpandedViewHeader = ({
                 >
                     <div className={"px-2 pt-1 font-semibold text-[var(--text-light)]"}>Cancelar edición</div>
                 </Button>
-            }
-            {wikiEditorState == "editing" &&
                 <Button
                     onClick={() => {
                         setShowingSaveEditPopup(true)
@@ -154,7 +134,7 @@ export const TopicContentExpandedViewHeader = ({
                         Guardar cambios
                     </div>
                 </Button>
-            }
+            </div>
         </div>
     } else {
         buttons = <div className={"flex items-center space-x-2"}>
@@ -174,19 +154,16 @@ export const TopicContentExpandedViewHeader = ({
 
     return <div className={"flex justify-between items-end border-b"}>
         {buttons}
-        <div className={"flex space-x-1 mb-1"}>
-            {wikiEditorState != "editing" && <MoreOptionsButton
-                setWikiEditorState={setWikiEditorState}
-            />}
-            {wikiEditorState != "editing" && <IconButton
+        {!wikiEditorState.startsWith("editing") && <div className={"pb-1 text-[var(--text-light)]"}>
+            <IconButton
                 size="small"
                 onClick={() => {
                     setPinnedReplies([])
                     setWikiEditorState("minimized")
                 }}
+                color={"inherit"}
             >
-                <FullscreenExitIcon fontSize={"small"}/>
-            </IconButton>}
-        </div>
+                <FullscreenExitIcon fontSize={"small"} color={"inherit"}/>
+            </IconButton></div>}
     </div>
 }

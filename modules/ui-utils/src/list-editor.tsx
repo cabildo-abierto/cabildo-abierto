@@ -18,7 +18,7 @@ const NewItem = ({
     addItem: (c: string) => void
     availableOptions?: string[]
     currentItems: string[]
-    newItemText: string
+    newItemText?: string
 }) => {
     const [value, setValue] = useState("")
     const [writingItem, setWritingItem] = useState(false)
@@ -62,16 +62,27 @@ const NewItem = ({
             <AddIcon fontSize={"small"}/>
         </IconButton>
     } else {
-        return <Button
-            variant={"text"}
-            startIcon={<AddIcon/>}
-            color={"inherit"}
-            onClick={() => {
-                setWritingItem(true)
-            }}
-        >
-            {newItemText}
-        </Button>
+        if(newItemText != null){
+            return <Button
+                variant={"text"}
+                startIcon={<AddIcon/>}
+                color={"inherit"}
+                onClick={() => {
+                    setWritingItem(true)
+                }}
+            >
+                {newItemText}
+            </Button>
+        } else {
+            return <Button
+                onClick={() => {
+                    setWritingItem(true)
+                }}
+                size={"small"}
+            >
+                Agregar
+            </Button>
+        }
     }
 }
 
@@ -98,15 +109,15 @@ export const ListEditor = ({
     items,
     setItems
 }: {
-    newItemText: string
+    newItemText?: string
     options?: string[]
     items: string[]
-    setItems: (v: string[]) => void
+    setItems?: (v: string[]) => void
 }) => {
 
     function removeItem(i: number) {
         return () => {
-            setItems([...items.slice(0, i), ...items.slice(i + 1)])
+            if(setItems) setItems([...items.slice(0, i), ...items.slice(i + 1)])
         }
     }
 
@@ -119,7 +130,7 @@ export const ListEditor = ({
                 />
             </div>
         })}
-        <div className={"h-10"}>
+        {setItems && <div className={"h-10"}>
             <NewItem
                 addItem={(c: string) => {
                     setItems([...items, c])
@@ -128,7 +139,10 @@ export const ListEditor = ({
                 currentItems={items}
                 newItemText={newItemText}
             />
-        </div>
+        </div>}
+        {!setItems && items.length == 0 && <div>
+            ---
+        </div>}
     </div>
 }
 

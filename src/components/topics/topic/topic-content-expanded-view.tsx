@@ -5,8 +5,6 @@ import {TopicContentExpandedViewHeader, WikiEditorState} from "./topic-content-e
 import {SaveEditPopup} from "./save-edit-popup";
 import {compress} from "@/utils/compression";
 import {TopicContentHistory} from "./topic-content-history";
-import {SynonymsEditor} from "./synonyms-editor";
-import { CategoriesEditor } from "./categories-editor";
 import {ShowTopicChanges} from "./show-topic-changes";
 import {ShowTopicAuthors} from "./show-topic-authors";
 import {useTopicFeed, useTopicVersion} from "@/hooks/api";
@@ -19,6 +17,9 @@ import dynamic from "next/dynamic";
 import {PostView} from "@/lex-api/types/ar/cabildoabierto/feed/defs";
 import {TopicProp, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
 import {post} from "@/utils/fetch";
+import {TopicPropsEditor} from "@/components/topics/topic/topic-props-editor";
+import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
+import {TopicPropsView} from "@/components/topics/topic/props/topic-props-view";
 const MyLexicalEditor = dynamic( () => import( '../../../../modules/ca-lexical-editor/src/lexical-editor' ), { ssr: false } );
 
 
@@ -52,6 +53,7 @@ export const TopicContentExpandedViewWithVersion = ({
 }) => {
     const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined)
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined)
+    const [topicProps, setTopicProps] = useState<TopicProp[]>(topic.props ?? [])
     const feed = useTopicFeed(topic.id)
     const [showingSaveEditPopup, setShowingSaveEditPopup] = useState(false)
     const {mutate} = useSWRConfig()
@@ -83,7 +85,8 @@ export const TopicContentExpandedViewWithVersion = ({
                 text: compress(markdown),
                 format: "markdown-compressed",
                 claimsAuthorship,
-                message: editMsg
+                message: editMsg,
+                props: topicProps
             }
         )
 
@@ -95,6 +98,7 @@ export const TopicContentExpandedViewWithVersion = ({
         setWikiEditorState("normal")
         return {}
     }
+
     const saveEnabled = editorState != null // TO DO
 
     async function onSubmitReply(){
@@ -116,26 +120,19 @@ export const TopicContentExpandedViewWithVersion = ({
         {wikiEditorState == "history" && <TopicContentHistory
             topic={topic}
         />}
-        {wikiEditorState == "editing-synonyms" &&
-            <SynonymsEditor
-                topic={topic}
-                onClose={() => {setWikiEditorState("normal")}}
-            />
-        }
-        {wikiEditorState == "editing-categories" &&
-            <CategoriesEditor
-                topic={topic}
-                onClose={() => {setWikiEditorState("normal")}}
-            />
-        }
-        {["normal", "authors", "changes", "editing"].includes(wikiEditorState) &&
+
+        {wikiEditorState == "editing-props" && <TopicPropsEditor props={topicProps} setProps={setTopicProps} topic={topic} onClose={() => {setWikiEditorState("editing")}}/>}
+
+        {wikiEditorState == "props" && <TopicPropsView topic={topic}/>}
+
+        {["normal", "authors", "changes", "editing", "editing-props", "props"].includes(wikiEditorState) &&
             <div id="editor" className={"pb-2 min-h-[300px] mt-4 px-2"}>
-                {["editing", "normal"].includes(wikiEditorState) && <div
+                {["editing", "editing-props", "normal", "props"].includes(wikiEditorState) && <div
                     id={editorId}
-                    className={" "+(wikiEditorState == "editing" ? "mb-32" : "mb-8")}
+                    className={" "+(wikiEditorState.startsWith("editing") ? "mb-32" : "mb-8")}
                     key={topic.uri + wikiEditorState + editorId}
                 >
-                    {wikiEditorState == "editing" && <MyLexicalEditor
+                    {wikiEditorState.startsWith("editing") && <MyLexicalEditor
                         settings={getEditorSettings({
                             isReadOnly: false,
                             initialText: topic.text,
@@ -151,7 +148,7 @@ export const TopicContentExpandedViewWithVersion = ({
                         setEditor={setEditor}
                         setEditorState={setEditorState}
                     />}
-                    {wikiEditorState != "editing" && <EditorWithQuoteComments
+                    {!wikiEditorState.startsWith("editing") && <EditorWithQuoteComments
                         settings={getEditorSettings({
                             isReadOnly: true,
                             initialText: topic.text,
@@ -208,12 +205,16 @@ export const TopicContentExpandedView = ({
     const params = useSearchParams()
     const did: string = params.get("did")
     const rkey: string = params.get("rkey")
-    const {data: topic, isLoading} = useTopicVersion(did, rkey)
+    const {data: topic, error, isLoading} = useTopicVersion(did, rkey)
 
     if(isLoading){
         return <div className={"mt-8"}>
             <LoadingSpinner/>
         </div>
+    } else if(!topic || error){
+        return <ErrorPage>
+            {error.message}
+        </ErrorPage>
     }
 
     return <TopicContentExpandedViewWithVersion

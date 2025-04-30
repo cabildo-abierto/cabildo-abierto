@@ -1,133 +1,39 @@
-import { DateSince } from "../../../../modules/ui-utils/src/date"
-import { CustomLink as Link } from '../../../../modules/ui-utils/src/custom-link';
-import {ATProtoStrongRef} from "@/lib/types"
+import { DateSince } from "../../../../../modules/ui-utils/src/date"
+import { CustomLink as Link } from '../../../../../modules/ui-utils/src/custom-link';
 import {useRouter, useSearchParams} from "next/navigation"
 import React, {useState} from "react"
-import StateButton from "../../../../modules/ui-utils/src/state-button"
-import { useSWRConfig } from "swr"
-import { AcceptButtonPanel } from "../../../../modules/ui-utils/src/accept-button-panel"
-import { toPercentage } from "./show-contributors"
-import { ChangesCounter } from "./changes-counter"
-import { BaseFullscreenPopup } from "../../../../modules/ui-utils/src/base-fullscreen-popup"
+import StateButton from "../../../../../modules/ui-utils/src/state-button"
+import { AcceptButtonPanel } from "../../../../../modules/ui-utils/src/accept-button-panel"
+import { toPercentage } from "../show-contributors"
+import { ChangesCounter } from "../changes-counter"
+import { BaseFullscreenPopup } from "../../../../../modules/ui-utils/src/base-fullscreen-popup"
 import { Authorship } from "@/components/feed/frame/content-top-row-author";
-import { NeedAccountPopup } from "../../auth/need-account-popup";
-import {ProfilePic} from "../../profile/profile-pic";
+import { NeedAccountPopup } from "../../../auth/need-account-popup";
+import {ProfilePic} from "../../../profile/profile-pic";
 import {ReactionCounter} from "@/components/feed/frame/reaction-counter";
 import {ContentOptionsButton} from "@/components/feed/content-options/content-options-button";
-import {RejectVersionModal} from "./reject-version-modal";
-import {getAcceptCount, getRejectCount, getTopicMonetizedChars} from "./utils";
-import {getUri, splitUri, topicUrl} from "@/utils/uri";
+import {getAcceptCount, getRejectCount, getTopicMonetizedChars} from "../utils";
+import {getCollectionFromUri, getUri, splitUri, topicUrl} from "@/utils/uri";
 import {useTopicHistory} from "@/hooks/api";
-import LoadingSpinner from "../../../../modules/ui-utils/src/loading-spinner";
-import {ErrorPage} from "../../../../modules/ui-utils/src/error-page";
+import LoadingSpinner from "../../../../../modules/ui-utils/src/loading-spinner";
+import {ErrorPage} from "../../../../../modules/ui-utils/src/error-page";
 import StarIcon from '@mui/icons-material/Star';
-import CheckIcon from "@mui/icons-material/Check";
-import ClearIcon from "@mui/icons-material/Clear";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
-import {ReactionButton} from "@/components/feed/frame/reaction-button";
 import {useSession} from "@/hooks/api";
-import {TopicHistory, TopicView} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {TopicHistory, TopicView, VersionInHistory} from "@/lex-api/types/ar/cabildoabierto/wiki/topicVersion";
+import {ModalOnHover} from "../../../../../modules/ui-utils/src/modal-on-hover";
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import { IconButton } from "../../../../../modules/ui-utils/src/icon-button";
+import {TopicProperty} from "@/components/topics/topic/history/topic-property";
+import {ConfirmEditButtons} from "@/components/topics/topic/history/confirm-edit-buttons";
+import {defaultPropValue, isDefaultProp} from "@/components/topics/topic/topic-props-editor";
 
 
 const EditDetails = ({topicHistory, index}: {topicHistory: TopicHistory, index: number}) => {
     const v = topicHistory.versions[index]
 
     return <ChangesCounter charsAdded={v.addedChars ?? 0} charsDeleted={v.removedChars ?? 0}/>
-}
-
-
-async function acceptEdit(id: string, ref: ATProtoStrongRef){
-    return {error: "Sin implementar."}
-}
-
-
-async function rejectEdit(id: string, ref: ATProtoStrongRef){
-    return {error: "Sin implementar."}
-}
-
-
-async function cancelAcceptEdit(id: string, uri: string){
-    return {error: "Sin implementar."}
-}
-
-
-async function cancelRejectEdit(id: string, uri: string){
-    return {error: "Sin implementar."}
-}
-
-
-async function deleteTopicVersion(uri: string){
-
-}
-
-const ConfirmEditButtons = ({topicId, versionRef, acceptUri, rejectUri, acceptCount, rejectCount}: {
-    topicId: string
-    versionRef: ATProtoStrongRef
-    acceptUri?: string
-    rejectUri?: string
-    acceptCount: number
-    rejectCount: number
-}) => {
-    const [openRejectModal, setOpenRejectModal] = useState<boolean>(false)
-    const {mutate} = useSWRConfig()
-    const [loading, setLoading] = useState(false)
-
-    async function onAcceptEdit(){
-        setLoading(true)
-        const {error} = await acceptEdit(topicId, versionRef)
-        if(error) return {error}
-        mutate("/api/topic/"+topicId)
-        mutate("/api/topic-history/"+topicId)
-        setLoading(false)
-        return {}
-    }
-
-    async function onCancelAcceptEdit(){
-        setLoading(true)
-        const {error} = await cancelAcceptEdit(topicId, acceptUri)
-        if(error) return {error}
-        mutate("/api/topic/"+topicId)
-        mutate("/api/topic-history/"+topicId)
-        setLoading(false)
-        return {}
-    }
-
-    async function onCancelRejectEdit(){
-        setLoading(true)
-        const {error} = await cancelRejectEdit(topicId, rejectUri)
-        if(error) return {error}
-        mutate("/api/topic/"+topicId)
-        mutate("/api/topic-history/"+topicId)
-        setLoading(false)
-        return {}
-    }
-
-    return <div className="flex space-x-2" onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
-        {loading ? <LoadingSpinner size={"14px"} className={""}/> : <><ReactionButton
-                onClick={acceptUri ? onCancelAcceptEdit : onAcceptEdit}
-                active={false}
-                iconActive={<CheckIcon fontSize={"inherit"}/>}
-                iconInactive={<CheckIcon fontSize={"inherit"}/>}
-                count={acceptCount}
-                title={"Aceptar versión."}
-            />
-            <ReactionButton
-            onClick={rejectUri ? onCancelRejectEdit : () => {setOpenRejectModal(true)}}
-            active={false}
-            iconActive={<ClearIcon fontSize={"inherit"}/>}
-            iconInactive={<ClearIcon fontSize={"inherit"}/>}
-            count={rejectCount}
-            title={"Aceptar versión."}
-            />
-        </>}
-        <RejectVersionModal
-            onClose={() => {setOpenRejectModal(false)}}
-            open={openRejectModal}
-            topicId={topicId}
-            versionRef={versionRef}
-        />
-    </div>
 }
 
 
@@ -180,7 +86,27 @@ const MonetizationPortion = ({topicHistory, index}: { topicHistory: TopicHistory
 }
 
 
-const EditElement = ({topic, topicHistory, index, viewing}: {
+export const TopicProperties = ({topicVersion, topic}: {topicVersion: VersionInHistory, topic: TopicView}) => {
+    const props = topicVersion.props != null ? topicVersion.props.filter(p => defaultPropValue(p, topic) != p.value) : []
+
+    const modal = <div className={"border rounded bg-[var(--background-dark)] text-[var(--text-light)] p-2 text-sm"}>
+        {props.length > 0 && props.map((p, index) => {
+            return <div key={index}><TopicProperty p={p}/></div>
+        })}
+        {props.length == 0 && <div>Ninguna propiedad asignada.</div>}
+    </div>
+
+    return <ModalOnHover modal={modal}>
+        <div className={"text-[var(--text-light)]"}>
+            <IconButton size={"small"} color={"inherit"}>
+                <ListAltIcon color={"inherit"}/>
+            </IconButton>
+        </div>
+    </ModalOnHover>
+}
+
+
+export const HistoryElement = ({topic, topicHistory, index, viewing}: {
     topic: TopicView,
     topicHistory: TopicHistory
     index: number,
@@ -202,12 +128,7 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
 
     className = className + (canHaveAuthorship ? " cursor-pointer hover:bg-[var(--background-dark)]" : "")
 
-    {/* TO DO onDelete={async () => {
-        await deleteTopicVersion(topicVersion.uri)
-        mutate("/api/topic/" + topic.id)
-        mutate("/api/topic-history/" + topic.id)
-        mutate("/api/topics-by-categories/popular")
-    }}*/}
+    const obsolete = getCollectionFromUri(topicVersion.uri) == "ar.com.cabildoabierto.topic"
 
     return <div className="flex items-center w-full">
         {showingRemoveAuthorshipPanel && <RemoveAuthorshipPanel
@@ -234,8 +155,12 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
                                 />
                             </div>
                         }
+                        {obsolete && <div className={"text-red-400 pl-2"}>
+                            Formato obsoleto
+                        </div>}
                     </div>
                     <div className="text-xs space-x-2 flex items-center">
+                        <TopicProperties topicVersion={topicVersion} topic={topic}/>
                         <div className={"text-[var(--text-light)]"}>
                             <DateSince date={new Date(topicVersion.createdAt)}/>
                         </div>
@@ -265,6 +190,8 @@ const EditElement = ({topic, topicHistory, index, viewing}: {
                             versionRef={{uri: topicVersion.uri, cid: topicVersion.cid}}
                             acceptCount={getAcceptCount(topicVersion.status)}
                             rejectCount={getRejectCount(topicVersion.status)}
+                            acceptUri={topicVersion.viewer.accept}
+                            rejectUri={topicVersion.viewer.reject}
                         />
                     </div>
                 </div>
@@ -364,7 +291,7 @@ export const EditHistory = ({topic}: { topic: TopicView }) => {
         {topicHistory.versions.map((_, index) => {
         const versionIndex = topicHistory.versions.length-1-index
         return <div key={index} className="w-full">
-            <EditElement
+            <HistoryElement
                 topic={topic}
                 topicHistory={topicHistory}
                 index={versionIndex}

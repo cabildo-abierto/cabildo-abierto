@@ -11,7 +11,7 @@ export const InfoPanel = ({text, className, iconClassName = "text-gray-600", ico
 
     const modal = (
         <div
-            className={"text-justify text-sm bg-[var(--background-dark)] rounded  border content-container " + (className ? className : "w-72")}
+            className={"z-10020 text-justify text-sm bg-[var(--background-dark)] rounded  border content-container " + (className ? className : "w-72")}
         >
             <div className="p-2">
                 {text}
